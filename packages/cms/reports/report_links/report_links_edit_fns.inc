@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.10 2006/03/03 05:19:27 sdanis Exp $
+* $Id: report_links_edit_fns.inc,v 1.11 2006/03/15 02:56:23 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -40,6 +40,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	function Report_Links_Edit_Fns()
 	{
 		$this->Report_Edit_Fns();
+		$this->static_screens['details']['force_unlock'] = '0';
 
 	}//end constructor
 
@@ -407,6 +408,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 							'mailto'	=> Array(),
 						  );
 
+		$display_options = $asset->attr('display_options');
 
 		foreach ($root->children as $asset_element) {
 			if ($asset_element->name != 'asset') continue;
@@ -435,8 +437,49 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				}//end foreach
 
 				$new_link['valid'] = $link->attributes['valid'];
-				$reported_links[$link->attributes['type']][$asset_element->attributes['assetid']][] = $new_link;
-			}
+
+				$display_link = TRUE;
+				switch ($link->attributes['type']) {
+					case 'internal':
+						if ($link->attributes['valid']) {
+							if (!$display_options['internal_working']) {
+								$display_link = FALSE;
+							}
+						} else {
+							if (!$display_options['internal_broken']) {
+								$display_link = FALSE;
+							}
+						}
+					break;
+					case 'external':
+						if ($link->attributes['valid']) {
+							if (!$display_options['external_working']) {
+								$display_link = FALSE;
+							}
+						} else {
+							if (!$display_options['external_broken']) {
+								$display_link = FALSE;
+							}
+						}
+					break;
+					case 'mailto':
+						if ($link->attributes['valid']) {
+							if (!$display_options['email_working']) {
+								$display_link = FALSE;
+							}
+						} else {
+							if (!$display_options['email_broken']) {
+								$display_link = FALSE;
+							}
+						}
+					break;
+					default:
+					break;
+				}//end switch
+				if ($display_link) {
+					$reported_links[$link->attributes['type']][$asset_element->attributes['assetid']][] = $new_link;
+				}
+			}//end foreach
 		}//end foreach
 
 		// TODO: this translation has a 'note' prefix that is supposed to look like
@@ -444,251 +487,254 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		echo translate('cms_report_links_current');
 		$o->closeSection();
 
-
-		$o->openSection('Internal Links');
-			$o->openField('');
-				if (empty($reported_links['internal'])) {
-					echo 'No internal links were found';
-				} else {
-					?>
-					<table class="sq-backend-table" style="border: 1px solid #DDDDDD;" border="0">
-						<tr>
-							<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in') ?></td>
-							<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('linking_to') ?></td>
-							<th class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
-						</tr>
-					<?php
-					foreach ($reported_links['internal'] as $assetid => $links) {
-						foreach ($links as $link) {
-							$from_info = $this->_getAssetReportInfo($assetid);
-							$from_name = (strlen($from_info['name']) < 40) ? $from_info['name'] : ellipsisize($from_info['name'], 40);
-
-							$to = NULL;
-							if ($link['data']) {
-								$to =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['data'], '', TRUE);
-							}
-							if (is_null($to)) {
-								$to_type = '';
-								$to_string = translate('unknown_asset_id', $link['data']);
-								$to_bg = '';
-								$to_status = '';
-								$to_name = '';
-							} else {
-								$to_type = $to->type();
-								$to_name = (strlen($to->name) < 40) ? $to->name : ellipsisize($to->name, 40);
-								$to_string = '<span title="'.$to->name.'"> [#'.$to->id.'] '.$to_name.'</span>';
-								$to_bg = get_asset_status_icon($to->status);
-								$to_status = get_status_description($to->status);
-							}
-
-							?>
+		if ($display_options['internal_section'] == TRUE) {
+			$o->openSection('Internal Links');
+				$o->openField('');
+					if (empty($reported_links['internal'])) {
+						echo 'No internal links were found';
+					} else {
+						?>
+						<table class="sq-backend-table" style="border: 1px solid #DDDDDD;" border="0">
 							<tr>
-								<!-- ASSET STATUS -->
-								<td class="sq-backend-table-cell" style="width: 120px; padding-top: 7px; padding-right: 0px;">
-									<?php echo $from_info['bg']; ?> <?php echo $from_info['status']; ?>
-								</td>
-
-								<!-- ASSET ICON -->
-								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
-									<?php
-									if (!empty($from_info['type'])) {
-										?>
-										<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
-											<?php echo get_asset_type_icon($from_info['type']); ?>
-										</span>
-										<?php
-									}
-									?>
-								</td>
-
-								<!-- ASSET NAME -->
-								<td class="sq-backend-table-cell" style="width: 260px; padding-right: 1px; padding-top:6px; text-align: left;">
-									<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset'); ?>">[#<?php echo  $from_info['assetid']; ?>] <?php echo  $from_name ?></a>
-								</td>
-
-								<!-- LINKED STATUS -->
-								<td class="sq-backend-table-cell" style="width: 16px; padding-top: 7px; padding-right: 0px;">
-										<?php echo $to_bg; ?><?php echo $to_status; ?>
-								</td>
-
-								<!-- LINKED ICON -->
-								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
-									<?php
-									if (!empty($to_type)) {
-										echo get_asset_type_icon($to_type);
-									}
-									?>
-								</td>
-
-								<!-- LINKED NAME -->
-								<td class="sq-backend-table-cell" style="width: 190px; padding-right: 1px; padding-top:6px; text-align: left;">
-									<?php echo $to_string; ?>
-								</td>
-
-								<!-- COMMENT -->
-								<td class="sq-backend-table-cell">
-									<?php
-										if (!$link['valid']) {
-											echo '<span style="color: #007EFA;"><b>';
-										}
-									echo $link['description'];
-									if (!$link['valid']) echo '</b></span>';
-									?>
-								</td>
+								<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in') ?></td>
+								<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('linking_to') ?></td>
+								<th class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
 							</tr>
-							<?php
-						}//end foreach link
-					}//end foreach asset links
-					?>
-					</table>
-					<?php
-				}//end else
-			$o->closeField();
-		$o->closeSection();
+						<?php
+						foreach ($reported_links['internal'] as $assetid => $links) {
+							foreach ($links as $link) {
+								$from_info = $this->_getAssetReportInfo($assetid);
+								$from_name = (strlen($from_info['name']) < 40) ? $from_info['name'] : ellipsisize($from_info['name'], 40);
 
+								$to = NULL;
+								if ($link['data']) {
+									$to =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['data'], '', TRUE);
+								}
+								if (is_null($to)) {
+									$to_type = '';
+									$to_string = translate('unknown_asset_id', $link['data']);
+									$to_bg = '';
+									$to_status = '';
+									$to_name = '';
+								} else {
+									$to_type = $to->type();
+									$to_name = (strlen($to->name) < 40) ? $to->name : ellipsisize($to->name, 40);
+									$to_string = '<span title="'.$to->name.'"> [#'.$to->id.'] '.$to_name.'</span>';
+									$to_bg = get_asset_status_icon($to->status);
+									$to_status = get_status_description($to->status);
+								}
 
-		$o->openSection(translate('external_links'));
-			$o->openField('');
-				if (empty($reported_links['external'])) {
-					echo translate('cms_report_links_no_external_links');
-				} else {
-					$ast_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($reported_links['external']));
-					?>
-					<table class="sq-backend-table">
-						<tr>
-							<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></td>
-							<th class="sq-backend-table-header" style="width: 274px;"><?php echo translate('url'); ?></td>
-							<th class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
-						</tr>
-					<?php
-					foreach ($reported_links['external'] as $assetid => $links) {
-						foreach ($links as $link) {
-							$from_info = $this->_getAssetReportInfo($assetid);
-							$from_name = (strlen($from_info['name']) < 40) ? $from_info['name'] : ellipsisize($from_info['name'], 40);
+								?>
+								<tr>
+									<!-- ASSET STATUS -->
+									<td class="sq-backend-table-cell" style="width: 120px; padding-top: 7px; padding-right: 0px;">
+										<?php echo $from_info['bg']; ?> <?php echo $from_info['status']; ?>
+									</td>
 
-							$name = (strlen($link['data']) < 50) ? $link['data'] : ellipsisize($link['data'], 50);
-							$to_string = '<a href="'.$link['data'].'" target="_blank" title="'.$link['data'].'">'.$name.'</a>';
-							?>
+									<!-- ASSET ICON -->
+									<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
+										<?php
+										if (!empty($from_info['type'])) {
+											?>
+											<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
+												<?php echo get_asset_type_icon($from_info['type']); ?>
+											</span>
+											<?php
+										}
+										?>
+									</td>
+
+									<!-- ASSET NAME -->
+									<td class="sq-backend-table-cell" style="width: 260px; padding-right: 1px; padding-top:6px; text-align: left;">
+										<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset'); ?>">[#<?php echo  $from_info['assetid']; ?>] <?php echo  $from_name ?></a>
+									</td>
+
+									<!-- LINKED STATUS -->
+									<td class="sq-backend-table-cell" style="width: 16px; padding-top: 7px; padding-right: 0px;">
+											<?php echo $to_bg; ?><?php echo $to_status; ?>
+									</td>
+
+									<!-- LINKED ICON -->
+									<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
+										<?php
+										if (!empty($to_type)) {
+											echo get_asset_type_icon($to_type);
+										}
+										?>
+									</td>
+
+									<!-- LINKED NAME -->
+									<td class="sq-backend-table-cell" style="width: 190px; padding-right: 1px; padding-top:6px; text-align: left;">
+										<?php echo $to_string; ?>
+									</td>
+
+									<!-- COMMENT -->
+									<td class="sq-backend-table-cell">
+										<?php
+											if (!$link['valid']) {
+												echo '<span style="color: #007EFA;"><b>';
+											}
+										echo $link['description'];
+										if (!$link['valid']) echo '</b></span>';
+										?>
+									</td>
+								</tr>
+								<?php
+							}//end foreach link
+						}//end foreach asset links
+						?>
+						</table>
+						<?php
+					}//end else
+				$o->closeField();
+			$o->closeSection();
+		}//end if internal section is true
+
+		if ($display_options['external_section'] == TRUE) {
+			$o->openSection(translate('external_links'));
+				$o->openField('');
+					if (empty($reported_links['external'])) {
+						echo translate('cms_report_links_no_external_links');
+					} else {
+						$ast_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($reported_links['external']));
+						?>
+						<table class="sq-backend-table">
 							<tr>
-								<!-- ASSET STATUS -->
-								<td class="sq-backend-table-cell" style="width: 120px; padding-top: 7px; padding-right: 0px;">
-									<?php echo $from_info['bg']; ?> <?php echo $from_info['status']; ?>
-								</td>
-
-								<!-- ASSET ICON -->
-								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
-									<?php
-									if (!empty($from_info['type'])) {
-										?>
-										<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
-											<?php echo get_asset_type_icon($from_info['type']); ?>
-										</span>
-										<?php
-									}
-									?>
-								</td>
-
-								<!-- ASSET NAME -->
-								<td class="sq-backend-table-cell" style="width: 190px; padding-right: 1px; padding-top:6px; text-align: left;">
-									<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset') ?>">[#<?php echo (int) $from_info['assetid']; ?>] <?php echo $from_name; ?></a>
-								</td>
-
-								<!-- URL -->
-								<td class="sq-backend-table-cell" style="width: 226px; padding-right: 1px; padding-top:6px; text-align:left;">
-									<?php echo $to_string; ?>
-								</td>
-
-								<!-- COMMENTs -->
-								<td class="sq-backend-table-cell">
-									<?php
-										if (!$link['valid']) {
-											echo '<span style="color: #007EFA;"><b>';
-										}
-									echo $link['description'];
-									if (!$link['valid']) echo '</b></span>';
-									?>
-								</td>
+								<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></td>
+								<th class="sq-backend-table-header" style="width: 274px;"><?php echo translate('url'); ?></td>
+								<th class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
 							</tr>
-							<?php
-						}//end foreach link
-					}//end foreach asset links
-					?>
-					</table>
-					<?php
-				}//end else
-			$o->closeField();
-		$o->closeSection();
+						<?php
+						foreach ($reported_links['external'] as $assetid => $links) {
+							foreach ($links as $link) {
+								$from_info = $this->_getAssetReportInfo($assetid);
+								$from_name = (strlen($from_info['name']) < 40) ? $from_info['name'] : ellipsisize($from_info['name'], 40);
 
+								$name = (strlen($link['data']) < 50) ? $link['data'] : ellipsisize($link['data'], 50);
+								$to_string = '<a href="'.$link['data'].'" target="_blank" title="'.$link['data'].'">'.$name.'</a>';
+								?>
+								<tr>
+									<!-- ASSET STATUS -->
+									<td class="sq-backend-table-cell" style="width: 120px; padding-top: 7px; padding-right: 0px;">
+										<?php echo $from_info['bg']; ?> <?php echo $from_info['status']; ?>
+									</td>
 
-		$o->openSection(translate('cms_report_links_email_links'));
-			$o->openField('');
-				if (empty($reported_links['mailto'])) {
-					echo translate('cms_report_links_no_email_links');
-				} else {
-					?>
-					<table class="sq-backend-table">
-						<tr>
-							<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></td>
-							<th class="sq-backend-table-header" style="width: 274px;"><?php echo translate('email'); ?></td>
-							<th class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
-						</tr>
-					<?php
-					foreach ($reported_links['mailto'] as $assetid => $links) {
-						foreach ($links as $link) {
-							$from_info = $this->_getAssetReportInfo($assetid);
-							$to_string = $link['data'];
-							$name = (strlen($from_info['name']) < 40) ? $from_info['name'] : ellipsisize($from_info['name'], 40);
-							?>
+									<!-- ASSET ICON -->
+									<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
+										<?php
+										if (!empty($from_info['type'])) {
+											?>
+											<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
+												<?php echo get_asset_type_icon($from_info['type']); ?>
+											</span>
+											<?php
+										}
+										?>
+									</td>
+
+									<!-- ASSET NAME -->
+									<td class="sq-backend-table-cell" style="width: 190px; padding-right: 1px; padding-top:6px; text-align: left;">
+										<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset') ?>">[#<?php echo (int) $from_info['assetid']; ?>] <?php echo $from_name; ?></a>
+									</td>
+
+									<!-- URL -->
+									<td class="sq-backend-table-cell" style="width: 226px; padding-right: 1px; padding-top:6px; text-align:left;">
+										<?php echo $to_string; ?>
+									</td>
+
+									<!-- COMMENTs -->
+									<td class="sq-backend-table-cell">
+										<?php
+											if (!$link['valid']) {
+												echo '<span style="color: #007EFA;"><b>';
+											}
+										echo $link['description'];
+										if (!$link['valid']) echo '</b></span>';
+										?>
+									</td>
+								</tr>
+								<?php
+							}//end foreach link
+						}//end foreach asset links
+						?>
+						</table>
+						<?php
+					}//end else
+				$o->closeField();
+			$o->closeSection();
+		}//end if external section is true
+
+		if ($display_options['email_section'] == TRUE) {
+			$o->openSection(translate('cms_report_links_email_links'));
+				$o->openField('');
+					if (empty($reported_links['mailto'])) {
+						echo translate('cms_report_links_no_email_links');
+					} else {
+						?>
+						<table class="sq-backend-table">
 							<tr>
-
-								<!-- ASSET STATUS -->
-								<td class="sq-backend-table-cell" style="width: 120px; padding-top: 7px; padding-right: 0px;">
-									<?php echo $from_info['bg']; ?> <?php echo $from_info['status']; ?>
-								</td>
-
-								<!-- ASSET ICON -->
-								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
-									<?php
-									if (!empty($from_info['type'])) {
-										?>
-										<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
-											<?php echo get_asset_type_icon($from_info['type']); ?>
-										</span>
-										<?php
-									}
-									?>
-								</td>
-
-								<!-- ASSET NAME -->
-								<td class="sq-backend-table-cell" style="width: 190px; padding-right: 1px; padding-top:6px; text-align: left;">
-									<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset'); ?>">[#<?php echo (int) $from_info['assetid']; ?>] <?php echo $name; ?></a>
-								</td>
-
-								<!-- ADDRESS -->
-								<td class="sq-backend-table-cell" style="width: 226px; padding-right: 1px; padding-top:6px;">
-									<?php echo $to_string; ?>
-								</td>
-
-								<!-- COMMENTS -->
-								<td class="sq-backend-table-cell">
-									<?php
-										if (!$link['valid']) {
-											echo '<span style="color: #007EFA;"><b>';
-										}
-									echo $link['description'];
-									if (!$link['valid']) echo '</b></span>';
-									?>
-								</td>
+								<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></td>
+								<th class="sq-backend-table-header" style="width: 274px;"><?php echo translate('email'); ?></td>
+								<th class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
 							</tr>
-							<?php
-						}//end foreach link
-					}//end foreach asset links
-					?>
-					</table>
-					<?php
-				}//end else
-			$o->closeField();
-		$o->closeSection();
+						<?php
+						foreach ($reported_links['mailto'] as $assetid => $links) {
+							foreach ($links as $link) {
+								$from_info = $this->_getAssetReportInfo($assetid);
+								$to_string = $link['data'];
+								$name = (strlen($from_info['name']) < 40) ? $from_info['name'] : ellipsisize($from_info['name'], 40);
+								?>
+								<tr>
+
+									<!-- ASSET STATUS -->
+									<td class="sq-backend-table-cell" style="width: 120px; padding-top: 7px; padding-right: 0px;">
+										<?php echo $from_info['bg']; ?> <?php echo $from_info['status']; ?>
+									</td>
+
+									<!-- ASSET ICON -->
+									<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
+										<?php
+										if (!empty($from_info['type'])) {
+											?>
+											<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
+												<?php echo get_asset_type_icon($from_info['type']); ?>
+											</span>
+											<?php
+										}
+										?>
+									</td>
+
+									<!-- ASSET NAME -->
+									<td class="sq-backend-table-cell" style="width: 190px; padding-right: 1px; padding-top:6px; text-align: left;">
+										<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset'); ?>">[#<?php echo (int) $from_info['assetid']; ?>] <?php echo $name; ?></a>
+									</td>
+
+									<!-- ADDRESS -->
+									<td class="sq-backend-table-cell" style="width: 226px; padding-right: 1px; padding-top:6px;">
+										<?php echo $to_string; ?>
+									</td>
+
+									<!-- COMMENTS -->
+									<td class="sq-backend-table-cell">
+										<?php
+											if (!$link['valid']) {
+												echo '<span style="color: #007EFA;"><b>';
+											}
+										echo $link['description'];
+										if (!$link['valid']) echo '</b></span>';
+										?>
+									</td>
+								</tr>
+								<?php
+							}//end foreach link
+						}//end foreach asset links
+						?>
+						</table>
+						<?php
+					}//end else
+				$o->closeField();
+			$o->closeSection();
+		}//end if email_section is true
 
 	}//end paintReport()
 
@@ -754,6 +800,230 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			   );
 
 	}//end _getAssetReportInfo()
+
+
+	/**
+	* Paints the display options available for this report
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDisplayOptions(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$tick = sq_web_path('lib').'/web/images/tick.gif';
+		$cross = sq_web_path('lib').'/web/images/cross.gif';
+		$current_settings = $asset->attr('display_options');
+
+		?>
+		<script type="text/javascript">
+			var prefix = '<?php echo $prefix; ?>';
+
+			// Disables a sections child options, if the top option is deselected
+			function change_section(section, obj) {
+				var start = prefix + '_' + section + '_';
+				document.getElementById(start + 'working').disabled = obj.checked ? false : true;
+				document.getElementById(start + 'broken').disabled = obj.checked ? false : true;
+			}
+		</script>
+
+		<table class="sq-backend-table" style="width: 300px;">
+			<tr>
+				<th class="sq-backend-table-header" colspan="2">Internal Links</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display Internal Links Section</td>
+				<td class="sq-backend-table-cell">
+					<?php
+						$value = $current_settings['internal_section'];
+						if ($write_access) {
+							check_box($prefix.'_internal_section', '1', $value, 'change_section("internal", this)');
+						} else {
+							?>
+							<img src="<?php echo $value ? $tick : $cross; ?>" />
+							<?php
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display Broken Links</td>
+				<td class="sq-backend-table-cell">
+					<?php
+						$value = $current_settings['internal_broken'];
+						if ($write_access) {
+							check_box($prefix.'_internal_broken', '1', $value, '', $current_settings['internal_section'] == FALSE ? 'disabled' : '');
+						} else {
+							?>
+							<img src="<?php echo $value ? $tick : $cross; ?>" />
+							<?php
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display Working Links</td>
+				<td class="sq-backend-table-cell">
+					<?php
+						$value = $current_settings['internal_working'];
+						if ($write_access) {
+							check_box($prefix.'_internal_working', '1', $value, '', $current_settings['internal_section'] == FALSE ? 'disabled' : '');
+						} else {
+							?>
+							<img src="<?php echo $value ? $tick : $cross; ?>" />
+							<?php
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<th class="sq-backend-table-header" colspan="2">External Links</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display External Links Section</td>
+				<td class="sq-backend-table-cell">
+					<?php
+						$value = $current_settings['external_section'];
+						if ($write_access) {
+							check_box($prefix.'_external_section', '1', $value, 'change_section("external", this)');
+						} else {
+							?>
+							<img src="<?php echo $value ? $tick : $cross; ?>" />
+							<?php
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display Broken Links</td>
+				<td class="sq-backend-table-cell">
+					<?php
+						$value = $current_settings['external_broken'];
+						if ($write_access) {
+							check_box($prefix.'_external_broken', '1', $value, '', $current_settings['external_section'] == FALSE ? 'disabled' : '');
+						} else {
+							?>
+							<img src="<?php echo $value ? $tick : $cross; ?>" />
+							<?php
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display Working Links</td>
+				<td class="sq-backend-table-cell">
+					<?php
+						$value = $current_settings['external_working'];
+						if ($write_access) {
+							check_box($prefix.'_external_working', '1', $value, '', $current_settings['external_section'] == FALSE ? 'disabled' : '');
+						} else {
+							?>
+							<img src="<?php echo $value ? $tick : $cross; ?>" />
+							<?php
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<th class="sq-backend-table-header" colspan="2">Email Links</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display Email Links Section</td>
+				<td class="sq-backend-table-cell">
+					<?php
+						$value = $current_settings['email_section'];
+						if ($write_access) {
+							check_box($prefix.'_email_section', '1', $value, 'change_section("email", this)');
+						} else {
+							?>
+							<img src="<?php echo $value ? $tick : $cross; ?>" />
+							<?php
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display Broken Links</td>
+				<td class="sq-backend-table-cell">
+					<?php
+						$value = $current_settings['email_broken'];
+						if ($write_access) {
+							check_box($prefix.'_email_broken', '1', $value, '', $current_settings['email_section'] == FALSE ? 'disabled' : '');
+						} else {
+							?>
+							<img src="<?php echo $value ? $tick : $cross; ?>" />
+							<?php
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell" style="padding-left: 30px;">Display Working Links</td>
+				<td class="sq-backend-table-cell">
+					<?php
+						$value = $current_settings['email_working'];
+						if ($write_access) {
+							check_box($prefix.'_email_working', '1', $value, '', $current_settings['email_section'] == FALSE ? 'disabled' : '');
+						} else {
+							?>
+							<img src="<?php echo $value ? $tick : $cross; ?>" />
+							<?php
+						}
+					?>
+				</td>
+			</tr>
+
+		</table>
+
+		<?php
+		return $write_access;
+
+	}//end paintDisplayOptions()
+
+
+	/**
+	* Paints the display options available for this report
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processDisplayOptions(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		if (!$write_access) return $write_access;
+		$display_options = $asset->attr('display_options');
+
+		// These conditions below ensure that the elements retain their values if they are disabled
+		$display_options['internal_section'] = isset($_POST[$prefix.'_internal_section']);
+		if ($display_options['internal_section']) {
+			$display_options['internal_broken'] = isset($_POST[$prefix.'_internal_broken']);
+			$display_options['internal_working'] = isset($_POST[$prefix.'_internal_working']);
+		}
+
+		$display_options['external_section'] = isset($_POST[$prefix.'_external_section']);
+		if ($display_options['external_section']) {
+			$display_options['external_broken'] = isset($_POST[$prefix.'_external_broken']);
+			$display_options['external_working'] = isset($_POST[$prefix.'_external_working']);
+		}
+
+		$display_options['email_section'] = isset($_POST[$prefix.'_email_section']);
+		if ($display_options['email_section']) {
+			$display_options['email_broken'] = isset($_POST[$prefix.'_email_broken']);
+			$display_options['email_working'] = isset($_POST[$prefix.'_email_working']);
+		}
+
+		$asset->setAttrValue('display_options', $display_options);
+		return TRUE;
+
+	}//end processDisplayOptions()
 
 
 }//end class

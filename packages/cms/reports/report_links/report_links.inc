@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links.inc,v 1.4 2006/01/09 03:41:04 emcdonald Exp $
+* $Id: report_links.inc,v 1.5 2006/03/15 02:56:23 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -42,6 +42,7 @@ class Report_Links extends Report
 	*/
 	function Report_Links($assetid=0)
 	{
+		$this->_ser_attrs = TRUE;
 		$this->Report($assetid);
 
 	}//end constructor
