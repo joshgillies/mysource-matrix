@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.40 2006/02/27 23:08:59 tbarrett Exp $
+* $Id: cache_manager.inc,v 1.41 2006/03/15 22:08:52 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -254,28 +254,37 @@ class Cache_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$sql = 'INSERT INTO
-					sq_cache
-				(
-					cache_key,
-					perm_key,
-					url,
-					assetid,
-					expires,
-					path
-				)
-				VALUES
-				(
-					'.$db->quoteSmart($cache_key).',
-					'.$db->quoteSmart($perm_key).',
-					'.$db->quoteSmart($url).',
-					'.$db->quoteSmart($assetid).',
-					'.$expiry_sql.',
-					'.$db->quoteSmart($file_path).'
-				)';
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		$cached = $this->_getCache($cache_key, $perm_key, $url);
+		if (is_null($cached)) {
+			$sql = 'INSERT INTO
+						sq_cache
+					(
+						cache_key,
+						perm_key,
+						url,
+						assetid,
+						expires,
+						path
+					)
+					VALUES
+					(
+						'.$db->quoteSmart($cache_key).',
+						'.$db->quoteSmart($perm_key).',
+						'.$db->quoteSmart($url).',
+						'.$db->quoteSmart($assetid).',
+						'.$expiry_sql.',
+						'.$db->quoteSmart($file_path).'
+					)';
+			$result = $db->query($sql);
+			// if an error occurs, check for cache entry (concurrency issue)
+			if (!assert_valid_db_result($result, '', true, false)) {
+				$cached = $this->_getCache($cache_key, $perm_key, $url);
+				if (is_null($cached)) {
+					// if the cache entry is empty, report the error
+					assert_valid_db_result($result);
+				}
+			}
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
