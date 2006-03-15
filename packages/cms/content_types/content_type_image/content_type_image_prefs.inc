@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_prefs.inc,v 1.2 2006/01/20 05:41:18 sdanis Exp $
+* $Id: content_type_image_prefs.inc,v 1.2.2.1 2006/03/15 02:42:43 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Image Content Type Preferences
 *
 * @author  Darren McKee <dmckee@squiz.net
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix
 */
 class Content_Type_Image_Prefs extends Prefs
@@ -126,7 +126,7 @@ class Content_Type_Image_Prefs extends Prefs
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
-									text_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[caption]', $value_defaults['caption'], '30');
+									text_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[caption]', array_get_index($value_defaults, 'caption', ''), '30');
 								} else {
 									echo $value_defaults['caption'];
 								}
@@ -138,7 +138,7 @@ class Content_Type_Image_Prefs extends Prefs
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
-									combo_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[caption_position]', Array('bottom' => 'Bottom', 'top' => 'Top'), FALSE, $value_defaults['caption_position']);
+									combo_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[caption_position]', Array('bottom' => 'Bottom', 'top' => 'Top'), FALSE, array_get_index($value_defaults, 'caption_position', ''));
 									} else {
 										echo ucwords($value_defaults['caption_position']);
 									}
@@ -150,7 +150,7 @@ class Content_Type_Image_Prefs extends Prefs
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
-									check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[use_caption_attr]', '1', $value_defaults['use_caption_attr']);
+									check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[use_caption_attr]', '1', array_get_index($value_defaults, 'use_caption_attr', FALSE));
 								} else {
 									echo ($value_defaults['use_caption_attr'] == TRUE) ? $tick : $cross;
 								}
@@ -162,7 +162,7 @@ class Content_Type_Image_Prefs extends Prefs
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
-									text_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[width]', $value_defaults['width'], '10');
+									text_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[width]', array_get_index($value_defaults, 'width', ''), '10');
 								} else {
 									echo $value_defaults['width'];
 								}
@@ -174,7 +174,7 @@ class Content_Type_Image_Prefs extends Prefs
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
-									text_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[height]', $value_defaults['height'], '10');
+									text_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[height]', array_get_index($value_defaults, 'height', ''), '10');
 								} else {
 									echo $value_defaults['height'];
 								}
@@ -186,9 +186,9 @@ class Content_Type_Image_Prefs extends Prefs
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
-									check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[constrain_proportions]', '1', $value_defaults['constrain_proportions']);
+									check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[constrain_proportions]', '1', array_get_index($value_defaults, 'constrain_proportions', FALSE));
 								} else {
-									echo ($value_defaults['constrain_proportions'] == TRUE) ? $tick : $cross;
+									echo (array_get_index($value_defaults, 'constrain_proportions', FALSE) == TRUE) ? $tick : $cross;
 								}
 							?>
 						</td>
@@ -198,9 +198,9 @@ class Content_Type_Image_Prefs extends Prefs
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
-									check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[fit_dimensions]', '1', $value_defaults['fit_dimensions']);
+									check_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[fit_dimensions]', '1', array_get_index($value_defaults, 'fit_dimensions', FALSE));
 								} else {
-									echo ($value_defaults['fit_dimensions'] == TRUE) ? $tick : $cross;
+									echo (array_get_index($value_defaults, 'fit_dimensions', FALSE) == TRUE) ? $tick : $cross;
 								}
 							?>
 						</td>
@@ -210,6 +210,7 @@ class Content_Type_Image_Prefs extends Prefs
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php
 								if ($have_lock && $is_admin) {
+									$GLOBALS['SQ_SYSTEM']->am->includeAsset('content_type_image');
 									$dummy_asset =& new Content_Type_Image();
 									$onclick =& $dummy_asset->getAttribute('on_click');
 									$onclick->value = $value_defaults['on_click'];
@@ -346,6 +347,7 @@ class Content_Type_Image_Prefs extends Prefs
 			if (!isset($posted_values['constrain_proportions'])) {
 				$posted_values['constrain_proportions'] = FALSE;
 			}
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('content_type_image');
 			$dummy_asset =& new Content_Type_Image();
 			$onclick =& $dummy_asset->getAttribute('on_click');
 			$onclick->process('content_type_image_on_click');
