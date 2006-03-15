@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_management.inc,v 1.6 2006/01/17 21:57:01 lwright Exp $
+* $Id: content_type_wysiwyg_management.inc,v 1.7 2006/03/15 23:02:43 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,7 +47,14 @@ class Content_Type_WYSIWYG_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array();
+		$this->vars = Array(
+						'htmltidy_status'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'text',
+												'default'		=> 'wait',
+												'description'	=> 'Status of the last html tidy clean up action. (wait,pass,fail)',
+											   ),
+					  );
 
 	}//end constructor
 

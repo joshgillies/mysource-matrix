@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.35 2006/03/01 01:15:07 rong Exp $
+* $Id: html_tidy.inc,v 1.36 2006/03/15 23:02:44 rong Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -59,6 +59,14 @@ class HTML_Tidy extends Wysiwyg_Plugin
 	* @var array
 	*/
 	var $_show_in_toolbar = FALSE;
+
+
+	/**
+	* Flag to to the status of the last HTMLTidy action
+	*
+	* @var string
+	*/
+	var $htmltidy_status = 'pass';
 
 
 	/**
@@ -100,67 +108,73 @@ class HTML_Tidy extends Wysiwyg_Plugin
 	*/
 	function process(&$html)
 	{
-		if (empty($html)) return;
+		$this->htmltidy_status = 'pass';
 
+		if (empty($html)) {
+			// skip as we cannot do tidy on empty content
+			return;
 
-		  //////////////////////////////
-		 //  UNSUPPORTED CHARACTERS  //
-		//////////////////////////////
+		} else {
+			//////////////////////////////
+			//  UNSUPPORTED CHARACTERS  //
+			//////////////////////////////
 
-		// Remove the following unsupported character codes that do not get replaced
-		// back to their original characters through the encoding process (mostly MS Word chars)
-		$search  = Array("%u2018",  "%u2019",  "%u2013",  "%u2014",  "%u2026",   "%u201C",  "%u201D");
-		$replace = Array("&lsquo;", "&rsquo;", "&ndash;", "&mdash;", "&hellip;", "&ldquo;", "&rdquo;");
-		$html = str_replace($search, $replace, $html);
+			// Remove the following unsupported character codes that do not get replaced
+			// back to their original characters through the encoding process (mostly MS Word chars)
+			$search  = Array("%u2018",  "%u2019",  "%u2013",  "%u2014",  "%u2026",   "%u201C",  "%u201D");
+			$replace = Array("&lsquo;", "&rsquo;", "&ndash;", "&mdash;", "&hellip;", "&ldquo;", "&rdquo;");
+			$html = str_replace($search, $replace, $html);
 
-		// replace unicode's URL '%u' character entities with their HTML entity equivs
-		$html = preg_replace('/%u([0-9A-Fa-f]{4})/', '&#x$1;', $html);
+			// replace unicode's URL '%u' character entities with their HTML entity equivs
+			$html = preg_replace('/%u([0-9A-Fa-f]{4})/', '&#x$1;', $html);
 
-		  /////////////////
-		 //  HTML TIDY  //
-		/////////////////
+			/////////////////
+			//  HTML TIDY  //
+			/////////////////
 
-		// If HTML Tidy is enabled, let's rock'n'roll
-		if (SQ_TOOL_HTML_TIDY_ENABLED) {
+			// If HTML Tidy is enabled, let's rock'n'roll
+			if (SQ_TOOL_HTML_TIDY_ENABLED && SQ_TOOL_HTML_TIDY_PATH != '') {
+				// tidy the HTML produced using the HTMLTidy program
+				$path_to_tidy = SQ_TOOL_HTML_TIDY_PATH;
 
-			// tidy the HTML produced using the HTMLTidy program
-			$path_to_tidy = SQ_TOOL_HTML_TIDY_PATH;
+				// is_executable doesn't exist on windows pre 5.0.0
+				if (function_exists('is_executable')) {
+					if (is_executable($path_to_tidy)) {
+						 $command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --quote-marks 1 --word-2000 1 --force-output 1";
+						// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
+						// so HTMLTidy doesnt strip them out
+						if (!empty($this->_new_inline_tags)) $command .= ' --new-inline-tags "'.implode('","',$this->_new_inline_tags).'"';
 
-			// is_executable doesn't exist on windows pre 5.0.0
-			if (function_exists('is_executable')) {
-				if (is_executable($path_to_tidy)) {
-					$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --quote-marks 1 --word-2000 1 --force-output 1";
+						$tidy = Array();
+						exec($command, $tidy);
+						if (empty($tidy)) {
+							$this->htmltidy_status = 'fail';
+						} else {
+							$html = implode("\n", $tidy);
 
-					// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
-					// so HTMLTidy doesnt strip them out
-					if (!empty($this->_new_inline_tags)) $command .= ' --new-inline-tags "'.implode('","',$this->_new_inline_tags).'"';
+							////////////////////
+							//  MS WORD CRAP  //
+							////////////////////
 
-					$tidy = Array();
-					exec($command, $tidy);
-					if (empty($tidy)) return;
-					$html = implode("\n", $tidy);
-					unset($tidy);
+							// Remove weird tags MS Word leaves in its output
+							$html = preg_replace('|<([\w]+)([^>]+?)class="mso[^"]+"([^>]+)?>|is', '<\\1>', $html);
+							$html = preg_replace('|<([\w]+)([^>]+?)style="([^"]+)?mso([^"]+)?"([^>]+)?>|is', '<\\1>', $html);
+							$html = preg_replace('|<\/?\w+:[^>]*>|is', '', $html);
+							$html = preg_replace('|<font[^>]+>(.+?)</font>|is', '\\1', $html);
+							$html = preg_replace('|<span([^>]+?)lang=[^\s]+([^>]+?)xml:lang="[^\s]+">(.+?)</span>|is', '\\3', $html);
+							$html = preg_replace('|<\?xml[^>]+microsoft[^>]+\?>|is', '', $html);
+							$html = preg_replace('|<\/?\w+:[^>]*>|is', '', $html);
+							$html = preg_replace('|<\\?\??xml[^>]>|is', '', $html);
+
+							//Change old style HTML Tags to XHTML compliant self closing tags (singletons)
+							$html = preg_replace('|<br>|is', '<br />', $html);
+							$html = preg_replace('|<hr>|is', '<hr />', $html);
+						}
+						unset($tidy);
+					}
 				}
 			}
 		}
-
-		  ////////////////////
-		 //  MS WORD CRAP  //
-		////////////////////
-
-		// Remove weird tags MS Word leaves in its output
-		$html = preg_replace('|<([\w]+)([^>]+?)class="mso[^"]+"([^>]+)?>|is', '<\\1>', $html);
-		$html = preg_replace('|<([\w]+)([^>]+?)style="([^"]+)?mso([^"]+)?"([^>]+)?>|is', '<\\1>', $html);
-		$html = preg_replace('|<\/?\w+:[^>]*>|is', '', $html);
-		$html = preg_replace('|<font[^>]+>(.+?)</font>|is', '\\1', $html);
-		$html = preg_replace('|<span([^>]+?)lang=[^\s]+([^>]+?)xml:lang="[^\s]+">(.+?)</span>|is', '\\3', $html);
-		$html = preg_replace('|<\?xml[^>]+microsoft[^>]+\?>|is', '', $html);
-		$html = preg_replace('|<\/?\w+:[^>]*>|is', '', $html);
-		$html = preg_replace('|<\\?\??xml[^>]>|is', '', $html);
-
-		//Change old style HTML Tags to XHTML compliant self closing tags (singletons)
-		$html = preg_replace('|<br>|is', '<br />', $html);
-		$html = preg_replace('|<hr>|is', '<hr />', $html);
 
 	}//end process
 

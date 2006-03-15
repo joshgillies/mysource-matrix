@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_management.inc,v 1.9 2006/01/13 05:57:27 dmckee Exp $
+* $Id: bodycopy_management.inc,v 1.10 2006/03/15 23:02:43 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,6 +78,10 @@ class Bodycopy_Management extends Asset_Management
 				'images/icons/row_properties.png',
 				'images/icons/cell_properties.png',
 				'images/icons/edit_mode.png',
+				'images/icons/htmltidy_disabled.png',
+				'images/icons/htmltidy_pass.png',
+				'images/icons/htmltidy_fail.png',
+				'images/icons/htmltidy_wait.png',
 				'js/bodycopy_edit_tables.js',
 				'js/bodycopy_edit_divs.js',
 				'js/bodycopy_edit_fns.js',

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.124 2006/03/15 22:28:10 rong Exp $
+* $Id: lang_strings.xml,v 1.125 2006/03/15 23:02:43 rong Exp $
 *
 */
 
@@ -269,6 +269,10 @@
 	<string source="wysiwyg_editor_tools">WYSIWYG Editor Tools</string>
 	<string source="wysiwyg_plugins">WYSIWYG Plugins</string>
 	<string source="wysiwyg_style">WYSIWYG Style</string>
+	<string source="wysiwyg_htmltidy_status_disabled">HTMLTidy is disabled</string>
+	<string source="wysiwyg_htmltidy_status_wait">HTMLTidy has not been used to validate this content</string>
+	<string source="wysiwyg_htmltidy_status_pass">HTMLTidy has validated this content</string>
+	<string source="wysiwyg_htmltidy_status_fail">HTMLTidy failed to validate this content</string>
 	<string source="warning_-_moving_to_trash">Warning - Moving To Trash</string>
 	<string source="workflow_logs">Workflow Logs</string>
 	<string source="workflow_schemas_threshold">Workflow Schemas Threshold</string>

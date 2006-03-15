@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.27 2006/03/03 00:09:58 rong Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.28 2006/03/15 23:02:43 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -278,6 +278,44 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 
 	/**
+	* Prints extra backend icons at the right hand side of the menu
+	*
+	* @param object	&$asset	the WYSIWYG Content Type object
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintBackendStatusIcons(&$asset, $prefix)
+	{
+		require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+
+		// prints the status of the last run of htmltidy tool as a tag icon
+		if (!SQ_TOOL_HTML_TIDY_ENABLED || SQ_TOOL_HTML_TIDY_PATH == '') {
+			// tool is not enabled
+			Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', translate('wysiwyg_htmltidy_status_disabled'), 'htmltidy_disabled', '[HTMLTidy Status]');
+		} else {
+
+			$status = $asset->attr('htmltidy_status');
+			$image_filename = 'htmltidy_'.$status;
+			switch ($status) {
+				case 'wait':
+					$status_msg = translate('wysiwyg_htmltidy_status_wait');
+				break;
+				case 'pass':
+					$status_msg = translate('wysiwyg_htmltidy_status_pass');
+				break;
+				case 'fail':
+					$status_msg = translate('wysiwyg_htmltidy_status_fail');
+				break;
+			}//end switch
+			Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', $status_msg, $image_filename, '[HTMLTidy Status]');
+		}
+
+	}//end paintBackendStatusIcons()
+
+
+	/**
 	* Paints raw HTML
 	*
 	* @param object		&$asset		the WYSIWYG Content Type object
@@ -309,16 +347,16 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function processBackend($link, &$asset, $prefix)
 	{
-		if ($asset->writeAccess('attributes')) {
-			$wysiwyg =& $this->_createEditor($asset, $prefix);
-			$html = $wysiwyg->process();
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
-			$current_html = $asset->attr('html');
-			if ($html != $current_html) {
-				if ($asset->setAttrValue('html', $html)) return TRUE;
-			}
-		}
-		return FALSE;
+		$wysiwyg =& $this->_createEditor($asset, $prefix);
+		$html = $wysiwyg->process();
+
+		// grab and store the last run status of htmltidy plugin
+		// to be used when we print the corresponding status icon
+		$html_tidy =& $wysiwyg->get_plugin('html_tidy');
+		$asset->setAttrValue('htmltidy_status', $html_tidy->htmltidy_status);
+		return $asset->setAttrValue('html', $html);
 
 	}//end processBackend()
 
