@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.117 2006/03/09 03:30:35 sdanis Exp $
+* $Id: backend_outputter.inc,v 1.118 2006/03/15 03:11:00 sdanis Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.117 $
+* @version $Revision: 1.118 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1472,16 +1472,17 @@ class Backend_Outputter
 				hidden_field('sq_lock_release_on_submit', $release_lock);
 			$this->closeField();
 		$this->closeSection();
-		$this->openRaw();
-		?>
-			<div class="sq-backend-commit-button-container">
-		<?php
-			$this->addOnSubmit('document.getElementById(\'sq_lock_release\').value = document.getElementById(\'sq_lock_release_on_submit\').value;');
-			normal_button('sq_commit_button', $value, 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; } ', 'accesskey="s"');
-		?>
-			</div>
-		<?php
-		$this->closeRaw();
+		if (!SQ_IN_LIMBO) $this->openRaw();
+			?>
+				<div class="sq-backend-commit-button-container">
+			<?php
+				$this->addOnSubmit('document.getElementById(\'sq_lock_release\').value = document.getElementById(\'sq_lock_release_on_submit\').value;');
+				normal_button('sq_commit_button', $value, 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; } ', 'accesskey="s"');
+			?>
+				</div>
+			<?php
+		if (!SQ_IN_LIMBO) $this->closeRaw();
+
 
 	}//end commitButton()
 
