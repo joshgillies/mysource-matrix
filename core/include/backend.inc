@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.137 2006/01/26 22:34:08 lwright Exp $
+* $Id: backend.inc,v 1.138 2006/03/15 03:12:54 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.137 $
+* @version $Revision: 1.138 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -413,7 +413,11 @@ class Backend extends MySource_Object
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 			$msgs_from = (isset($_SESSION['backend_header_last_refresh'])) ? $_SESSION['backend_header_last_refresh'] : null;
+			$from = time() - 28800;
+			$read_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, null, Array(SQ_MSG_READ), Array(), $from);
 			$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, null, Array(SQ_MSG_UNREAD), Array());
+
+
 
 			if (!empty($messages)) {
 				$html = '
@@ -435,6 +439,11 @@ class Backend extends MySource_Object
 			if (!empty($dhtml_messages)) {
 				?>
 				<script language="Javascript" type="text/javascript">
+
+					// update inbox message
+					if (parent.frames["sq_sidenav"] != null && parent.frames["sq_sidenav"].document.getElementById('sq_messages_text') != null) {
+						parent.frames["sq_sidenav"].document.getElementById('sq_messages_text').innerHTML="<?php echo translate('inbox_new_messages', count($messages), (count($read_messages)+count($messages))); ?>";
+					}
 
 					var msgDiv = null;
 					var screenMenu = null;
@@ -889,6 +898,7 @@ class Backend extends MySource_Object
 						$inbox_url       = $inbox_asset->getBackendHref('details');
 						$new_message_url = $inbox_asset->getBackendHref('new_message');
 						$sent_url        = $inbox_asset->getBackendHref('sent');
+						$trash_url        = $inbox_asset->getBackendHref('trash');
 					}
 
 					$details_url = $user->getBackendHref('details');
@@ -896,7 +906,7 @@ class Backend extends MySource_Object
 					// get all unread messages and read messages that are less than 8 hours old
 					if (!empty($inbox_url)) {
 						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-						$from = time() - (8 * 3600); // 8 hours ago
+						$from = time() - 28800; // 8 hours ago
 						$read_messages   = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_READ), Array(), $from, null, 'short_name');
 						$unread_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_UNREAD), Array(), null, null, 'short_name');
 
@@ -906,11 +916,12 @@ class Backend extends MySource_Object
 							<tr>
 								<td valign="top"><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/inbox_icon.png" align="left" border="0" /></a></td>
 								<td width="100%">
-									<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header"><?php echo translate('my_inbox'); ?></span><br /><?php echo translate('inbox_new_messages', count($unread_messages), count($messages)); ?></a></p>
+									<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header"><?php echo translate('my_inbox'); ?></span><br /><span id="sq_messages_text"><?php echo translate('inbox_new_messages', count($unread_messages), count($messages)); ?></span></a></p>
 									<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header"><?php echo translate('inbox_actions'); ?></span><br />
 									<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main">+ <?php echo translate('inbox_view'); ?></a><br />
 									<a href="<?php echo $_SERVER['PHP_SELF'].$new_message_url; ?>" target="sq_main">+ <?php echo translate('inbox_send'); ?></a><br />
-									<a href="<?php echo $_SERVER['PHP_SELF'].$sent_url; ?>" target="sq_main">+ <?php echo translate('inbox_view_sent'); ?></a></p>
+									<a href="<?php echo $_SERVER['PHP_SELF'].$sent_url; ?>" target="sq_main">+ <?php echo translate('inbox_view_sent'); ?></a><br />
+									<a href="<?php echo $_SERVER['PHP_SELF'].$trash_url; ?>" target="sq_main">+ <?php echo translate('inbox_view_trash'); ?></a></p>
 								</td>
 							</tr>
 						</table>
