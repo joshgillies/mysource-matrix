@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Asset.java,v 1.11 2006/03/01 23:24:04 sdanis Exp $
+* $Id: Asset.java,v 1.12 2006/03/15 00:39:25 sdanis Exp $
 *
 */
 
@@ -567,6 +567,13 @@ public class Asset implements MatrixConstants, Serializable {
 			// If they are not, we need to remove them.
 			while (children.hasMoreElements()) {
 				MatrixTreeNode childNode = (MatrixTreeNode) children.nextElement();
+
+				if (childNode instanceof ExpandingNextNode && (node.getChildCount() >= AssetManager.getLimit())) {
+					continue;
+				} else if (childNode instanceof ExpandingPreviousNode && (getTotalKidsLoaded() > 0 )) {
+					continue;
+				}
+
 				String linkid = childNode.getLinkid();
 				found = false;
 				for (int i = 0; i < linkids.length; i++) {
@@ -581,6 +588,7 @@ public class Asset implements MatrixConstants, Serializable {
 						staleNodes = new ArrayList();
 					staleNodes.add(childNode);
 				}
+
 			}
 		}
 
@@ -598,7 +606,7 @@ public class Asset implements MatrixConstants, Serializable {
 						DefaultTreeModel model = components[i];
 						model.nodeStructureChanged(parent);
 					}
-				} else if (!(node instanceof ExpandingNextNode)){
+				} else {
 					Log.log("removing " + node + " in Asset", Asset.class);
 					MatrixTreeModelBus.removeNodeFromParent(node);
 				}
@@ -615,6 +623,19 @@ public class Asset implements MatrixConstants, Serializable {
 		Iterator nodeIterator = getTreeNodes();
 		while (nodeIterator.hasNext()) {
 			MatrixTreeNode node = (MatrixTreeNode) nodeIterator.next();
+			if (!node.hasNextNode() && node.getChildCount() >= AssetManager.getLimit()) {
+				MatrixTreeModelBus.insertNodeInto((MatrixTreeNode)new ExpandingNextNode(getNumKids(), node.getChildCount(),
+					getTotalKidsLoaded()), node, node.getChildCount());
+			} else if (node.hasNextNode() && (getNumKids() <= AssetManager.getLimit())) {
+				MatrixTreeNode nextNode = (MatrixTreeNode) node.getChildAt(node.getChildCount()-1);
+				MatrixTreeModelBus.removeNodeFromParent(nextNode);
+			}
+
+			if (node.hasPreviousNode() && (getNumKids() == 0)) {
+				MatrixTreeNode prevNode = (MatrixTreeNode) node.getChildAt(0);
+				MatrixTreeModelBus.removeNodeFromParent(prevNode);
+			}
+
 			MatrixTreeModelBus.nodeChanged(node);
 		}
 	}
@@ -654,16 +675,14 @@ public class Asset implements MatrixConstants, Serializable {
 		if (numKids == count)
 			return false;
 		numKids = count;
-		return true;
-	}
 
-/*	public boolean setName(String newName) {
-		if (name.equals(newName))
-			return false;
-		name = newName;
+		// reset node set count if this node no longer has any kids
+		if (numKids == 0) {
+			setTotalKidsLoaded(0);
+		}
+
 		return true;
 	}
-	*/
 
 	private boolean setStatus(int newStatus) {
 		if (status == newStatus)
