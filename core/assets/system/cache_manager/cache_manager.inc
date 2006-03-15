@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.34.2.5 2006/03/15 01:10:22 rong Exp $
+* $Id: cache_manager.inc,v 1.34.2.6 2006/03/15 22:11:35 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.34.2.5 $
+* @version $Revision: 1.34.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -288,7 +288,14 @@ class Cache_Manager extends Asset
 						'.$db->quoteSmart($file_path).'
 					)';
 			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			// if an error occurs, check for cache entry (concurrency issue)
+			if (!assert_valid_db_result($result, '', true, false)) {
+				$cached = $this->_getCache($cache_key, $perm_key, $url);
+				if (is_null($cached)) {
+					// if the cache entry is empty, report the error
+					assert_valid_db_result($result);
+				}
+			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
