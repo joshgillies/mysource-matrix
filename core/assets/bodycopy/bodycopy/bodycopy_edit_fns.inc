@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.36 2006/01/17 22:30:19 lwright Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.37 2006/03/15 00:48:13 rong Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -503,7 +503,9 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$extra .= ' onmouseover="if (bodycopy_initialised) tooltip.show(this, \''.addslashes(htmlentities($desc)).'\', \''.addslashes(htmlentities($heading)).'\')"';
 		$extra .= ' onmouseout="if (bodycopy_initialised) tooltip.hide()"';
 		$extra .= ' onclick="'.$onclick.'"';
-		$extra .= ' style="cursor:pointer;"';
+		if (!empty($onclick)) {
+			$extra .= ' style="cursor:pointer;"';
+		}
 		sq_print_icon($path, $width, $height, $alt, '', $extra);
 
 	}//end printBodycopyIcon()
