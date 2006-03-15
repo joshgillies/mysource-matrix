@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.30 2006/03/12 23:50:11 skim Exp $
+* $Id: hipo_config.inc,v 1.31 2006/03/15 23:43:57 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -250,7 +250,7 @@ class HIPO_Config extends Config
 					$type_code = substr($file, 0, strpos($file, '.'));
 
 					if ($type_code) {
-						call_user_func(Array($type_code, 'paintConfig'), Array(&$o), $class);
+						eval($type_code.'::paintConfig($o, $class);');
 					}
 				}
 			}//end while
