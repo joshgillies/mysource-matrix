@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.26 2006/03/07 01:45:33 tbarrett Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.27 2006/03/15 04:31:01 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -287,6 +287,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		<table<?php echo $attribute_list?> style="width:100%;">
 			<tr>
 				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>" width="4%" style="border: 1px dashed #C0C0C0;">
+				<span style="float: left;">
 				<?php
 				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties', '[Edit Properties]');
 
@@ -295,6 +296,15 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 					$content_edit->paintBackendIcons($content_type, $content_prefix);
 				}
 				?>
+				</span>
+				<span style="float: right;">
+				<?php
+				if (!is_null($content_type)) {
+					$content_edit =& $content_type->getEditFns();
+					$content_edit->paintBackendStatusIcons($content_type, $content_prefix);
+				}
+				?>
+				</span>
 				</td>
 			</tr>
 			<tr>

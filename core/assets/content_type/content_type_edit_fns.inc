@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_edit_fns.inc,v 1.7 2006/01/17 21:40:33 lwright Exp $
+* $Id: content_type_edit_fns.inc,v 1.8 2006/03/15 04:31:01 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,6 +90,21 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	{
 
 	}//end paintBackendIcons()
+
+
+	/**
+	* Prints extra backend icons at the right hand side of the menu
+	*
+	* @param object	&$asset	the WYSIWYG Content Type object
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintBackendStatusIcons(&$asset, $prefix)
+	{
+
+	}//end paintBackendStatusIcons()
 
 
 }//end class
