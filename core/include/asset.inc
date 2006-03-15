@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.503.2.5 2006/03/08 06:18:57 ndvries Exp $
+* $Id: asset.inc,v 1.503.2.6 2006/03/15 04:59:08 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.503.2.5 $
+* @version $Revision: 1.503.2.6 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3332,6 +3332,9 @@ class Asset extends MySource_Object
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) unset($assetids[$key]);
 		}
+
+		// if only shadow assets are loaded, ignore
+		if (empty($assetids)) return 0;
 
 		// get all updated time from DB
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
