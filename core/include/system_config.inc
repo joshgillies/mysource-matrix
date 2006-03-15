@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.76 2006/03/09 01:08:36 tbarrett Exp $
+* $Id: system_config.inc,v 1.77 2006/03/15 22:28:10 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -71,6 +71,7 @@ class System_Config extends Config
 						'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => 120),
 						'SQ_CONF_LOCK_LENGTH'				=> Array('editable' => 1, 'default' => 600),
 						'SQ_CONF_ASSET_MAP_ASSET_LIMIT'		=> Array('editable' => 1, 'default' => 50),
+						'SQ_CONF_SEND_CACHEABLE_HEADER'		=> Array('editable' => 1, 'default' => '1'),
 						'SQ_CONF_SEND_LAST_MODIFIED_HEADER'	=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_SEND_NOT_MODIFIED_HEADER'	=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => false),
@@ -645,6 +646,14 @@ class System_Config extends Config
 		$o->closeSection();
 
 		$o->openSection(translate('http_header_section_name'));
+			$o->openField(translate('http_header_cacheable_field'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_SEND_CACHEABLE_HEADER]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_SEND_CACHEABLE_HEADER);
+				} else {
+					echo (SQ_CONF_SEND_CACHEABLE_HEADER) ? translate('yes') : translate('no');
+				}
+				$o->note(translate('http_header_cacheable_field_note'));
+			$o->closeField();
 
 			$o->openField(translate('http_header_last_modified_field'));
 				if ($write_access && $is_root) {

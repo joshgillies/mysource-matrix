@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.123 2006/03/15 03:13:32 sdanis Exp $
+* $Id: lang_strings.xml,v 1.124 2006/03/15 22:28:10 rong Exp $
 *
 */
 
@@ -1821,6 +1821,8 @@ Items to delete: %s</string>
 
 	<!-- HTTP Headers Strings -->
 	<string source="http_header_section_name">HTTP Headers Settings</string>
+	<string source="http_header_cacheable_field">Send Cacheable Header</string>
+	<string source="http_header_cacheable_field_note">If enabled, server will send cacheable Cache-Control and Pragma headers.</string>
 	<string source="http_header_last_modified_field">Send Last-Modified Header</string>
 	<string source="http_header_last_modified_field_note">If enabled, server will send a timestamp indicating when the asset was last modified.</string>
 	<string source="http_header_not_modified_field">Send Not Modified Status-Code</string>
