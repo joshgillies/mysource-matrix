@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: poll_question_edit_fns.inc,v 1.7 2006/01/20 03:05:14 sdanis Exp $
+* $Id: poll_question_edit_fns.inc,v 1.8 2006/03/16 13:05:41 gnoel Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -374,25 +374,17 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 	function processDeleteUsers(&$asset, &$o, $prefix)
 	{
 		$prefix = $asset->getPrefix();
-		$voters = $asset->attr('voters');
 
-		if (isset($_POST[$prefix.'options']) == 'all') {
-			$voter_links = $GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($asset->id, NULL, SQ_LINK_NOTICE, NULL, 'major', TRUE);
+		if (!empty($_POST[$prefix.'options'])) {
+			$other_assetid = ($_POST[$prefix.'options'] == 'all') ? NULL : $_POST[$prefix.'options'];
+			$voter_links = $GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($asset->id, $other_assetid, SQ_LINK_NOTICE, NULL, 'major', TRUE);
 
 			foreach ($voter_links as $voter_link) {
 				$GLOBALS['SQ_SYSTEM']->am->deleteShadowAssetLink($voter_link['linkid']);
 			}
-		} else {
-			$voter_link = $GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($asset->id, $_POST[$prefix.'options'], SQ_LINK_NOTICE, NULL, 'major', TRUE);
-
-			if (!is_null($voter_link)) {
-				$GLOBALS['SQ_SYSTEM']->am->deleteShadowAssetLink($voter_link['linkid']);
-			}
-
-			$voters[$_POST[$prefix.'options']] == NULL;
 		}
 
-		$asset->setAttrValue('voters', $voters);
+		return TRUE;
 
 	}//end processDeleteUsers()
 
