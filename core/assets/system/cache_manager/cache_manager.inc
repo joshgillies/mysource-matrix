@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.41 2006/03/15 22:08:52 rong Exp $
+* $Id: cache_manager.inc,v 1.42 2006/03/16 23:10:27 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -254,6 +254,8 @@ class Cache_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$error = FALSE;
+		// start a transaction to prevent reinsert due to concurrency issues
 		$cached = $this->_getCache($cache_key, $perm_key, $url);
 		if (is_null($cached)) {
 			$sql = 'INSERT INTO
@@ -276,18 +278,24 @@ class Cache_Manager extends Asset
 						'.$db->quoteSmart($file_path).'
 					)';
 			$result = $db->query($sql);
-			// if an error occurs, check for cache entry (concurrency issue)
+			// silent the error and check for cache entry (concurrency issue)
 			if (!assert_valid_db_result($result, '', true, false)) {
-				$cached = $this->_getCache($cache_key, $perm_key, $url);
-				if (is_null($cached)) {
-					// if the cache entry is empty, report the error
-					assert_valid_db_result($result);
-				}
+				$error = TRUE;
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			} else {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			}
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		if ($error) {
+			// we can only do query here because transaction will be aborted when the assertion fails
+			$cached = $this->_getCache($cache_key, $perm_key, $url);
+			if (is_null($cached)) {
+				// if the cache entry is empty, this is a real error
+				assert_valid_db_result($result);
+			}
+		}
 
 		return TRUE;
 
