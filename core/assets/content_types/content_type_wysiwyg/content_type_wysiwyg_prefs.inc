@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.11 2006/03/16 04:51:40 rong Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.12 2006/03/16 05:09:33 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -300,11 +300,21 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 						$plug2 = explode('|', $prefs2['SQ_WYSIWYG_PLUGINS']['default']);
 						$merged_prefs['SQ_WYSIWYG_PLUGINS']['default'] = implode('|', array_unique(array_merge($plug1, $plug2)));
 					break;
+
+					case 'SQ_THESAURUS' :
+						// use the first thesaurus
+						$merged_prefs['SQ_THESAURUS']['default'] = $prefs1[$var_name]['default'];
+					break;
 				}
 
 				$merged_prefs[$var_name]['name']		= $prefs1[$var_name]['name'];
 				$merged_prefs[$var_name]['description']	= $prefs1[$var_name]['description'];
-				$merged_prefs[$var_name]['protected']	= ($prefs1[$var_name]['protected'] || $prefs2[$var_name]['protected']);
+
+				if (isset($prefs2[$var_name]['protected'])) {
+					$merged_prefs[$var_name]['protected'] = ($prefs1[$var_name]['protected'] || $prefs2[$var_name]['protected']);
+				} else {
+					$merged_prefs[$var_name]['protected'] = $prefs1[$var_name]['protected'];
+				}
 			}
 		}
 
