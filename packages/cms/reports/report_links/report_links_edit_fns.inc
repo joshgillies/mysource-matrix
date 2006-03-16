@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.12 2006/03/15 03:06:39 dmckee Exp $
+* $Id: report_links_edit_fns.inc,v 1.13 2006/03/16 05:47:25 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1024,6 +1024,117 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		return TRUE;
 
 	}//end processDisplayOptions()
+
+
+	/**
+	* Paints the export block
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintExport(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return FALSE;
+
+		echo hidden_field($prefix.'_export_switch', '0');
+
+		echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
+
+		return TRUE;
+
+	}//end paintExport()
+
+
+	/**
+	* Processes the export block
+	*
+	* This will generate a CSV file, and present a download box to the user
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processExport(&$asset, &$o, $prefix)
+	{
+		if (!$_POST[$prefix.'_export_switch']) return TRUE;
+
+		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
+		$csv =& new CSV();
+		$csv->setFilename($asset->name.'_report.csv');
+		$csv->setDeliminator(',');
+
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		$logs = Array();
+
+		require_once 'XML/Tree.php';
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+		$report_path = $asset->data_path.'/report.xml';
+
+		if (!is_file($report_path)) {
+			echo 'This report has not been generated';
+			return;
+		}
+
+		$input =& new XML_Tree($report_path);
+		$root =& $input->getTreeFromFile();
+		if (PEAR::isError($root)) {
+			trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
+			return;
+		}
+
+		$headers = Array();
+		$empty_headers = TRUE;
+		$top_headers = TRUE;
+
+		foreach ($root->children as $asset_node) {
+			$persistent_values = Array();
+			// Have to initialise the headers
+			foreach ($asset_node->attributes as $attr => $value) {
+				if ($top_headers) $headers[] = $attr;
+				// Need to setup the persistent values for each of the nodes (like source asset, type etc)
+				$persistent_values[] = $value;
+			}
+			$top_headers = FALSE;
+
+			foreach ($asset_node->children as $asset_data) {
+				$row = $persistent_values;
+				foreach ($asset_data->attributes as $attr => $value) {
+					if ($empty_headers) $headers[] = $attr;
+					$row[] = $value;
+				}
+				foreach ($asset_data->children as $data) {
+					if ($empty_headers) $headers[] = $data->name;
+					$row[] = $data->content;
+				}
+				$logs[] = $row;
+				$empty_headers = FALSE;
+			}
+		}
+
+		foreach ($headers as $id => $value) {
+			$headers[$id] = ucwords(str_replace('_', ' ', $value));
+		}
+
+		$csv->setFieldHeaders($headers);
+
+		$csv->setValues($logs);
+
+		// export with keyed fields
+		$csv->export(TRUE);
+		exit(0);
+
+		return TRUE;
+
+	}//end processExport()
 
 
 }//end class

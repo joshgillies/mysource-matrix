@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2006/03/15 03:06:39 dmckee Exp $
+* $Id: lang_screen_details.xml,v 1.2 2006/03/16 05:47:25 dmckee Exp $
 *
 */
 -->
@@ -43,6 +43,14 @@
 			<function_call>
 				<paint_function   name="paintRegenerate"   />
 				<process_function name="processRegenerate" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Export Report</display_name>
+			<note>This will allow you download a CSV (Comma Seperated Values) file, containing the content of the report</note>
+			<function_call>
+				<paint_function   name="paintExport"   />
+				<process_function name="processExport" />
 			</function_call>
 		</field>
 	</section>
