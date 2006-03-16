@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.9 2005/06/02 02:34:46 tbarrett Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.9.2.1 2006/03/16 05:34:03 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -253,8 +253,9 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 	function mergePrefs($prefs1, $prefs2)
 	{
 		$merged_prefs = Array();
+		$pref_vars = Array('SQ_WYSIWYG_STYLE', 'SQ_WYSIWYG_PLUGINS', 'SQ_THESAURUS');
 
-		foreach ($this->pref_vars as $var_name => $var_data) {
+		foreach ($pref_vars as $var_name) {
 			if (isset($prefs1[$var_name]) && !isset($prefs2[$var_name])) {
 				// this is only set in prefs1
 				$merged_prefs[$var_name] = $prefs1[$var_name];
@@ -274,11 +275,21 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 						$plug2 = explode('|', $prefs2['SQ_WYSIWYG_PLUGINS']['default']);
 						$merged_prefs['SQ_WYSIWYG_PLUGINS']['default'] = implode('|', array_unique(array_merge($plug1, $plug2)));
 					break;
+
+					case 'SQ_THESAURUS' :
+						// use the first thesaurus
+						$merged_prefs['SQ_THESAURUS']['default'] = $prefs1[$var_name]['default'];
+					break;
 				}
 
 				$merged_prefs[$var_name]['name']		= $prefs1[$var_name]['name'];
 				$merged_prefs[$var_name]['description']	= $prefs1[$var_name]['description'];
-				$merged_prefs[$var_name]['protected']	= ($prefs1[$var_name]['protected'] || $prefs2[$var_name]['protected']);
+
+				if (isset($prefs2[$var_name]['protected'])) {
+					$merged_prefs[$var_name]['protected'] = ($prefs1[$var_name]['protected'] || $prefs2[$var_name]['protected']);
+				} else {
+					$merged_prefs[$var_name]['protected'] = $prefs1[$var_name]['protected'];
+				}
 			}
 		}
 

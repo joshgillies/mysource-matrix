@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.1 2005/05/31 00:45:39 tbarrett Exp $
+* $Id: user_prefs.inc,v 1.1.2.1 2006/03/16 05:34:03 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/duration/duration.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
@@ -120,7 +120,7 @@ class User_Prefs extends Prefs
 						?>
 					</li>
 					<li id="max_length">
-						<?php 
+						<?php
 						$dur = new Asset_Attribute_Duration(0, $session_settings['max_length']);
 						if ($have_lock && $is_admin) {
 							check_box('prefs[SQ_USER_SESSION_PREFS][max_length_enabled]', '1', ($session_settings['max_length'] != 0), 'toggleInputs(this.parentNode)', 'id="prefs_SQ_USER_SESSION_PREFS_max_length_enabled"');
@@ -230,10 +230,14 @@ class User_Prefs extends Prefs
 	*/
 	function mergePrefs($prefs1, $prefs2)
 	{
-		// Follow the princple that the most-open option (the one with the check disabled, 
+		// Follow the princple that the most-open option (the one with the check disabled,
 		// or with the longest timeout) wins.
 		$session_settings_1 = $prefs1['SQ_USER_SESSION_PREFS']['default'];
-		$session_settings_2 = $prefs2['SQ_USER_SESSION_PREFS']['default'];
+		if (isset($prefs2['SQ_USER_SESSION_PREFS']['default'])) {
+			$session_settings_2 = $prefs2['SQ_USER_SESSION_PREFS']['default'];
+		} else {
+			$session_settings_2 = $prefs2['SQ_USER_SESSION_PREFS'];
+		}
 		$merged['persist'] = max($session_settings_1['persist'], $session_settings_2['persist']);
 		foreach (Array('timeout', 'max_length') as $pref_comp) {
 			if (0 == min($session_settings_1[$pref_comp], $session_settings_2[$pref_comp])) {
