@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.172 2006/03/16 05:48:22 sdanis Exp $
+* $Id: mysource.inc,v 1.173 2006/03/16 21:20:39 sdanis Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.172 $
+* @version $Revision: 1.173 $
 * @package MySource_Matrix
 */
 class MySource
@@ -722,11 +722,6 @@ class MySource
 		$this->user = NULL;
 		if (array_get_index($_SESSION, 'userid')) {
 			// try to log in the user whose ID is in the session
-
-			// Userid is in the session, user is loged in etc. However, it is in safe edit mode, this causes
-			// getAsset to fail because user has no write access (duh we dont have one, because currentUserId is 0 in
-			// user::_checkPermissionAccess.)
-			// to fix this we might need to look at the session var as well before returning 0
 			$this->user =& $this->am->getAsset($_SESSION['userid'], $_SESSION['user_type_code'], TRUE);
 		}
 		if (is_null($this->user)) {
