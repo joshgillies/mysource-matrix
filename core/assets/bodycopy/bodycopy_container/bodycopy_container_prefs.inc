@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_prefs.inc,v 1.2 2006/01/17 05:23:28 lwright Exp $
+* $Id: bodycopy_container_prefs.inc,v 1.3 2006/03/16 04:51:40 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Bodycopy_Container_Prefs extends Prefs
@@ -136,8 +136,9 @@ class Bodycopy_Container_Prefs extends Prefs
 	function mergePrefs($prefs1, $prefs2)
 	{
 		$merged_prefs = Array();
+		$pref_vars = Array('SQ_DEFAULT_CONTENT_TYPE');
 
-		foreach ($this->pref_vars as $var_name => $var_data) {
+		foreach ($pref_vars as $var_name) {
 			if (isset($prefs1[$var_name]) && !isset($prefs2[$var_name])) {
 				// this is only set in prefs1
 				$merged_prefs[$var_name] = $prefs1[$var_name];

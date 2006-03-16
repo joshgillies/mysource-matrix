@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.10 2006/01/17 21:57:01 lwright Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.11 2006/03/16 04:51:40 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -278,8 +278,9 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 	function mergePrefs($prefs1, $prefs2)
 	{
 		$merged_prefs = Array();
+		$pref_vars = Array('SQ_WYSIWYG_STYLE', 'SQ_WYSIWYG_PLUGINS', 'SQ_THESAURUS');
 
-		foreach ($this->pref_vars as $var_name => $var_data) {
+		foreach ($pref_vars as $var_name) {
 			if (isset($prefs1[$var_name]) && !isset($prefs2[$var_name])) {
 				// this is only set in prefs1
 				$merged_prefs[$var_name] = $prefs1[$var_name];
