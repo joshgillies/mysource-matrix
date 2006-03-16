@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.4 2006/03/01 23:20:48 sdanis Exp $
+* $Id: user_prefs.inc,v 1.5 2006/03/16 23:18:31 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/duration/duration.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
@@ -291,7 +291,11 @@ class User_Prefs extends Prefs
 			// Follow the princple that the most-open option (the one with the check disabled,
 			// or with the longest timeout) wins.
 			$session_settings_1 = $prefs1['SQ_USER_SESSION_PREFS']['default'];
-			$session_settings_2 = $prefs2['SQ_USER_SESSION_PREFS']['default'];
+			if (isset($prefs2['SQ_USER_SESSION_PREFS']['default'])) {
+				$session_settings_2 = $prefs2['SQ_USER_SESSION_PREFS']['default'];
+			} else {
+				$session_settings_2 = $prefs2['SQ_USER_SESSION_PREFS'];
+			}
 			$merged['persist'] = max($session_settings_1['persist'], $session_settings_2['persist']);
 			foreach (Array('timeout', 'max_length') as $pref_comp) {
 				if (0 == min($session_settings_1[$pref_comp], $session_settings_2[$pref_comp])) {
