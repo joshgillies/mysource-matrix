@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_type.inc,v 1.11 2006/02/07 02:27:13 sdanis Exp $
+* $Id: trigger_condition_asset_type.inc,v 1.12 2006/03/16 08:54:20 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,8 +45,8 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	* The settings used by this condition are in the form:
 	* <PRE>
 	* Array(
-	*       'asset_type'        => string   // the asset type_code of the asset to match
-	*       'descendants'       => boolean  // determines whether to match just the asset_type, or the asset_type and all the descendants
+	*       'asset_type'        => Array(string)   // (ARRAY OF) asset type_code to match
+	*       'descendants'       => Array(boolean)  // (ARRAY OF) descentdant flag for each type code. indexed the same way as 'asset_type'
 	*       );
 	* </PRE>
 	*
@@ -68,23 +68,35 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 			}
 		}
 
+
 		if (empty($settings['asset_type'])) return FALSE;
 
-		// check the condition
-		if (array_get_index($settings, 'descendants', FALSE)) {
-			$type_desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($settings['asset_type'], TRUE);
-			if (in_array($state['asset_type'], $type_desc)) {
-				return TRUE;
+
+		$selected_types = array_get_index($settings, 'asset_type', Array('page'));
+		// backwards compatibility. previously you could only specify one type
+		if (!is_array($selected_types)) {
+			$selected_types = Array($selected_types);
+		}
+
+		$descendant_flags = array_get_index($settings, 'descendants', Array(FALSE));
+		if (!is_array($descendant_flags)) {
+			$descendant_flags = Array($descendant_flags);
+		}
+
+		foreach ($selected_types as $key => $type) {
+			if ($descendant_flags[$key]) {
+				$type_desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type, TRUE);
+				if (in_array($state['asset_type'], $type_desc)) {
+					return TRUE;
+				}
 			} else {
-				return FALSE;
-			}
-		} else {
-			if ($state['asset_type'] == $settings['asset_type']) {
-				return TRUE;
-			} else {
-				return FALSE;
+				if ($type == $state['asset_type']) return TRUE;
 			}
 		}
+
+
+		return FALSE;
+
 
 	}//end evaluate()
 
@@ -101,29 +113,36 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	*/
 	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
-		$selected_type = array_get_index($settings, 'asset_type', 'page');
+		$selected_types = array_get_index($settings, 'asset_type', Array('page'));
 
-		// asset type selector
-		// get a list of all asset types in the system, sort in alphabetical order
+		// backwards compatibility. previously you could only specify one type
+		if (!is_array($selected_types)) {
+			$selected_types = Array($selected_types);
+		}
 
-		$is_descendant = array_get_index($settings, 'descendants', FALSE);
+		$descendant_flags = array_get_index($settings, 'descendants', Array(FALSE));
+		if (!is_array($descendant_flags)) {
+			$descendant_flags = Array($descendant_flags);
+		}
 
 		ob_start();
 			if ($write_access) {
-				asset_type_chooser($prefix, FALSE, Array('type_code' => $selected_type, 'inherit' => $is_descendant), NULL, FALSE, TRUE);
+				asset_type_chooser($prefix, TRUE, Array('type_code' => $selected_types, 'inherit' => $descendant_flags), NULL, FALSE, TRUE);
 			} else {
-				echo '<b>';
-				echo $selected_type;
-				if ($is_descendant) {
-					echo ' ('.translate('or_decendant_types').')';
+				foreach ($selected_types as $key => $type) {
+					echo '<b>';
+					echo $type;
+					if ($descendant_flags[$key]) {
+						echo ' ('.translate('or_decendant_types').')';
+					}
+					echo '</b>';
 				}
-				echo '</b>';
 			}
 
-			$basic_part_1 = ob_get_contents();
+			$interface = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_asset_type', $basic_part_1);
+		return translate('trigger_asset_type', $interface);
 
 	}//end getInterface()
 
@@ -169,7 +188,7 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	*
 	* @return mixed string|boolean
 	* @access public
-	*/
+	* /
 	function setHash(&$settings, &$hash)
 	{
 		if (isset($settings['asset_type']) && isset($settings['descendants'])) {
@@ -178,7 +197,7 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 		return FALSE;
 
 	}//end setHash()
-
+	*/
 
 }//end class
 
