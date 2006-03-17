@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.98.2.15 2006/03/14 03:06:51 bcaldwell Exp $
+* $Id: search_page.inc,v 1.98.2.16 2006/03/17 04:25:17 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98.2.15 $
+* @version $Revision: 1.98.2.16 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1590,12 +1590,7 @@ class Search_Page extends Listing_Engine
 					$at_pos  = strpos($words[$i], '@');
 					$dot_pos = strpos($words[$i], '.');
 					if ($at_pos === false && $dot_pos === false) {
-						// preserve the wildcard symbols - i.e. don't quote them
-						if (ereg('^[A-z%_0-9\']+$', $words[$i])) {
-							$words[$i] = addslashes($words[$i]);
-						} else {
-							unset($words[$i]);
-						}
+						$words[$i] = addslashes($words[$i]);
 					}
 				}
 			} else {
