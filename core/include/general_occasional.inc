@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.62 2006/03/09 01:02:04 dmckee Exp $
+* $Id: general_occasional.inc,v 1.63 2006/03/17 00:07:43 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix
 */
 
@@ -329,7 +329,7 @@ function make_valid_web_paths($paths)
 		$path = trim($path);
 
 		// get rid of paths that are the same as the backend suffix
-		if ($path == SQ_CONF_BACKEND_SUFFIX) {
+		if ($path == SQ_CONF_BACKEND_SUFFIX || $path == SQ_CONF_LIMBO_SUFFIX || $path == SQ_CONF_NOCACHE_SUFFIX) {
 			trigger_localised_error('SYS0114', E_USER_WARNING, $path);
 			continue;
 		}

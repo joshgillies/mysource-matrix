@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.512 2006/03/10 03:27:04 rong Exp $
+* $Id: asset.inc,v 1.513 2006/03/17 00:07:43 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.512 $
+* @version $Revision: 1.513 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4140,6 +4140,13 @@ class Asset extends MySource_Object
 		// make sure these paths are compliant
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$save_paths = make_valid_web_paths($paths);
+
+		// do not run hipo if any of the paths start with __ or is reserved by Matrix
+		foreach ($paths as $orig_path) {
+			if (preg_match('/^__/', $orig_path) || $orig_path == SQ_CONF_BACKEND_SUFFIX || $orig_path == SQ_CONF_LIMBO_SUFFIX || $orig_path == SQ_CONF_NOCACHE_SUFFIX) {
+				return FALSE;
+			}
+		}
 
 		// if there is no difference in the arrays (including in the sort order - the index),
 		// then there is nothing to do
