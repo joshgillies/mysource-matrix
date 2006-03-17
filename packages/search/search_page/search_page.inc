@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.157.2.3 2006/03/14 05:01:06 bcaldwell Exp $
+* $Id: search_page.inc,v 1.157.2.4 2006/03/17 04:00:25 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.157.2.3 $
+* @version $Revision: 1.157.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -452,7 +452,7 @@ class Search_Page extends Listing_Engine
 		}
 
 		if ((!isset($sort_info['type']) || ($sort_info['type'] == '')) && (!isset($sort_info['params']['field']) || $sort_info['params']['field'] == '')) {
-			arsort($asset_list);
+			if (!empty($asset_list)) arsort($asset_list);
 		}
 		return parent::sortAssetList($asset_list, $sort_info);
 
