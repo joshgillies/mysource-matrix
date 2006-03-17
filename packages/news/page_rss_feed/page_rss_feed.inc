@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.7 2006/01/06 06:15:26 pgannavarapu Exp $
+* $Id: page_rss_feed.inc,v 1.8 2006/03/17 05:43:44 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -484,13 +484,13 @@ class Page_RSS_Feed extends Page
 			$rss_type = $this->attr('rss_types');
 			switch ($rss_type) {
 				case 'atom_1.0':
-					$required = Array('id', 'updated', 'title');
+					$required = Array('id', 'updated', 'title', 'author');
 				break;
 				case 'rss_1.0':
 					$required = Array('link', 'title', 'rdf:about');
 				break;
 				case 'rss_2.0':
-					$required = Array('link', 'title', 'author', 'description', 'pubDate');
+					$required = Array('link', 'title', 'description');
 				break;
 			}
 			foreach ($items as $item) {
