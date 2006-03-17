@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.23 2006/03/17 03:44:05 rong Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.24 2006/03/17 04:06:48 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -499,7 +499,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_delete_table_col('$prefix', $asset->id, $x);", translate('delete_column_question', ($x + 1)), '', 'delete', '['.translate('delete_column').']');
 			}
 
-			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_col('$prefix', $asset->id, $x, FALSE);", translate('insert_new_column_on_right'), '', 'add', '['.translate('add_column').' >>]');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_col('$prefix', $asset->id, $x, false);", translate('insert_new_column_on_right'), '', 'add', '['.translate('add_column').' >>]');
 		}
 
 		?> </span> <?php

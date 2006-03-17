@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_orderer.php,v 1.7 2006/01/17 04:55:16 lwright Exp $
+* $Id: edit_table_orderer.php,v 1.8 2006/03/17 04:06:48 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,10 +111,10 @@ include(dirname(__FILE__).'/header.php');
 						</select>
 					</td>
 					<td>
-						<a href="#" onClick="javascript: popup_move_type(TRUE); return FALSE;" onMouseOver="window.status='Move the Selection Up'; return TRUE;" onMouseOut="javascript: window.status=''; return TRUE;"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/up_arrow.gif" width="15" height="15" border="0"></a><br>
+						<a href="#" onClick="javascript: popup_move_type(true); return false;" onMouseOver="window.status='Move the Selection Up'; return true;" onMouseOut="javascript: window.status=''; return true;"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/up_arrow.gif" width="15" height="15" border="0"></a><br>
 						<br>
 						<br>
-						<a href="#" onClick="javascript: popup_move_type(FALSE); return FALSE;" onMouseOver="window.status='Move the Selection Down'; return TRUE;" onMouseOut="javascript: window.status=''; return TRUE;"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/down_arrow.gif" width="15" height="15" border="0"></a>
+						<a href="#" onClick="javascript: popup_move_type(false); return false;" onMouseOver="window.status='Move the Selection Down'; return true;" onMouseOut="javascript: window.status=''; return true;"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/down_arrow.gif" width="15" height="15" border="0"></a>
 					</td>
 				</tr>
 			</table>
