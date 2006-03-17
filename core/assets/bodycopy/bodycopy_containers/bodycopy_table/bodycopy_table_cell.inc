@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.15 2006/01/17 06:08:12 lwright Exp $
+* $Id: bodycopy_table_cell.inc,v 1.16 2006/03/17 03:44:05 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -299,6 +299,38 @@ class BodyCopy_Table_Cell extends MySource_Object
 		return TRUE;
 
 	}//end paintCell()
+
+
+	/**
+	* Prints the backend status icons, e.g. htmltidy status
+	*
+	* @param object	&$table		the table object
+	* @param string	$prefix		prefix for form elements
+	* @param int	$tableid	the id of the table this cell is in
+	* @param int	$rowid		the id of the row this cell is in
+	* @param int	$cellid		the id of this cell
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCellBackendStatusIcons(&$table, $prefix, $tableid, $rowid, $cellid)
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
+		if (!empty($link)) {
+			$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		} else {
+			$content_type = NULL;
+		}
+
+		if (!is_null($content_type)) {
+			$content_edit =& $content_type->getEditFns();
+			$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
+			$content_edit->paintBackendStatusIcons($content_type, $content_prefix);
+		}
+
+		return TRUE;
+
+	}//end paintCellBackendStatusIcons()
 
 
 	/**

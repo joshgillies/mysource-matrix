@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.22 2006/03/05 23:11:16 dmckee Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.23 2006/03/17 03:44:05 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -484,6 +484,9 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		<!-- These next 3 icons float across to the right side -->
 		<span style="float: right;">
 		<?php
+
+		// prints backend status icons, e.g. htmltidy status
+		$cell->paintCellBackendStatusIcons($asset, $prefix, $asset->id, $i, $x);
 
 		if ($i==0) {
 			if (($x+$i) == 0 && $multiCol && $colReorder) {
