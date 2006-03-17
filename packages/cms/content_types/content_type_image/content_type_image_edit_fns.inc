@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_edit_fns.inc,v 1.3 2006/01/20 05:41:18 sdanis Exp $
+* $Id: content_type_image_edit_fns.inc,v 1.4 2006/03/17 03:39:12 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -137,7 +137,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 						if (use_width) {
 							width = document.getElementById('<?php echo $prefix; ?>_width').value;
 							if (width == '') {
-								width == '400';
+								width = '400';
 								document.getElementById('<?php echo $prefix; ?>_width').value = width;
 							}
 							height = Math.round(width * <?php echo $prefix; ?>_proportion_width);
@@ -295,9 +295,9 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 
 			// Process the attributes
 			$current_settings = $asset->attr('display_settings');
-			$current_settings['width'] = $_POST[$prefix.'_width'];
-			$current_settings['height'] = $_POST[$prefix.'_height'];
-			$current_settings['caption'] = $_POST[$prefix.'_caption_hidden'];
+			$current_settings['width'] = isset($_POST[$prefix.'_width']) ? $_POST[$prefix.'_width'] : '400';
+			$current_settings['height'] = isset($_POST[$prefix.'_height']) ? $_POST[$prefix.'_height'] : '400';
+			$current_settings['caption'] = isset($_POST[$prefix.'_caption_hidden']) ? $_POST[$prefix.'_caption_hidden'] : 'Caption';
 			$current_settings['fit_dimensions'] = isset($_POST[$prefix.'_fit']);
 			$current_settings['use_caption_attr'] = isset($_POST[$prefix.'_caption_options_alt']);
 			if (isset($_POST[$prefix.'_caption_position'])) {

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code_edit_fns.inc,v 1.3 2006/01/09 05:34:09 dmckee Exp $
+* $Id: content_type_code_edit_fns.inc,v 1.4 2006/03/17 03:39:12 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -136,16 +136,22 @@ class Content_Type_Code_Edit_Fns extends Content_Type_Edit_Fns
 			$new_line_data = Array();
 			// We only want to store new line number details, if they differ from the global prefs
 			if (isset($_POST[$prefix.'_show_line_numbers']) != $line_number_prefs['use_line_numbers']) {
-					$new_line_data['use_line_numbers'] = isset($_POST[$prefix.'_show_line_numbers']);
+				$new_line_data['use_line_numbers'] = isset($_POST[$prefix.'_show_line_numbers']);
 			}
-			$side = ($_POST[$prefix.'_line_number_left'] == 'left') ? TRUE : FALSE;
+			$side = FALSE;
+			if (isset($_POST[$prefix.'_line_number_left']) && $_POST[$prefix.'_line_number_left'] == 'left') {
+				$side = TRUE;
+			}
 			if ($side != $line_number_prefs['line_number_left']) {
 				$new_line_data['line_number_left'] = $side;
 			}
-			if ($_POST[$prefix.'_line_style'] != $line_number_prefs['line_number_style']) {
+			if (isset($_POST[$prefix.'_line_style']) && $_POST[$prefix.'_line_style'] != $line_number_prefs['line_number_style']) {
 				$new_line_data['line_number_style'] = $_POST[$prefix.'_line_style'];
+			} else {
+				$new_line_data['line_number_style'] = 'span';
 			}
-			if ($_POST[$prefix.'_line_class'] != $line_number_prefs['line_number_class']) {
+			$new_line_data['line_number_class'] = '';
+			if (isset($_POST[$prefix.'_line_class']) && $_POST[$prefix.'_line_class'] != $line_number_prefs['line_number_class']) {
 				$new_line_data['line_number_class'] = $_POST[$prefix.'_line_class'];
 			}
 			$asset->setAttrValue('line_numbers', $new_line_data);
