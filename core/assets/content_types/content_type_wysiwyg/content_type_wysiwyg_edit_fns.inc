@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.22 2006/01/17 21:57:01 lwright Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.22.2.1 2006/03/19 23:00:24 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.22.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,8 +78,16 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$wysiwyg->set_body_type($wysiwyg_style['body_type']);
 			$wysiwyg->set_init_onload(FALSE);
 			$wysiwyg->set_show_status_bar(FALSE);
-			$wysiwyg->set_width($wysiwyg_style['width']);
-			$wysiwyg->set_height($wysiwyg_style['height']);
+			$size_unit = '';
+			if (isset($wysiwyg_style['units']['width'])) {
+				$size_unit = $wysiwyg_style['units']['width'];
+			}
+			$wysiwyg->set_width($wysiwyg_style['width'].$size_unit);
+			$size_unit = '';
+			if (isset($wysiwyg_style['units']['height'])) {
+				$size_unit = $wysiwyg_style['units']['height'];
+			}
+			$wysiwyg->set_height($wysiwyg_style['height'].$size_unit);
 
 			$base_php_self = str_replace('/'.SQ_CONF_BACKEND_SUFFIX, '', $_SERVER['PHP_SELF']);
 			$base_php_self = str_replace('/'.SQ_CONF_LIMBO_SUFFIX, '', $base_php_self);

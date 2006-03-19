@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.10.2.1 2006/03/16 23:17:03 rong Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.10.2.2 2006/03/19 23:00:24 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10.2.1 $
+* @version $Revision: 1.10.2.2 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -42,7 +42,15 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 						'SQ_WYSIWYG_STYLE'		=> Array(
 													'name'			=> 'WYSIWYG Style',
 													'description'	=> 'This preference allows you to change the style and size of the WYSIWYG editor',
-													'default'		=> Array('body_type' => 'div', 'width' => '100%', 'height' => '300'),
+													'default'		=> Array(
+																		'body_type'	=> 'div',
+																		'width'		=> '100',
+																		'height'	=> '300',
+																		'units'		=> Array(
+																						'width'		=> '%',
+																						'height'	=> 'px',
+																					   ),
+																	   ),
 													'protected'		=> FALSE,
 												   ),
 						'SQ_WYSIWYG_PLUGINS'	=> Array(
@@ -92,6 +100,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			}
 
 				$wysiwyg_style = $this->pref_vars['SQ_WYSIWYG_STYLE']['default'];
+				$size_units = Array('%' => '%', 'px' => 'px');
 				?>
 				<table class="sq-backend-table" style="width: 350px;">
 					<tr>
@@ -112,9 +121,21 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
-							text_box('prefs[SQ_WYSIWYG_STYLE][width]', $wysiwyg_style['width']);
+							int_text_box('prefs[SQ_WYSIWYG_STYLE][width]', $wysiwyg_style['width'], FALSE, 5);
+							echo '&nbsp;';
+							$default_unit = '%';
+							if (isset($wysiwyg_style['units']['width'])) {
+								$default_unit = $wysiwyg_style['units']['width'];
+							}
+							combo_box('prefs[SQ_WYSIWYG_STYLE][units][width]', $size_units, FALSE, $default_unit);
 						} else {
-							echo $wysiwyg_style['width'];
+							if (isset($wysiwyg_style['width'])) {
+								echo $wysiwyg_style['width'];
+							}
+
+							if (isset($wysiwyg_style['units']['width'])) {
+								echo $wysiwyg_style['units']['width'];
+							}
 						}
 						?>
 						</td>
@@ -124,12 +145,24 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
-							text_box('prefs[SQ_WYSIWYG_STYLE][height]', $wysiwyg_style['height']);
+							int_text_box('prefs[SQ_WYSIWYG_STYLE][height]', $wysiwyg_style['height'], FALSE, 5);
+							echo '&nbsp;';
+							$default_unit = 'px';
+							if (isset($wysiwyg_style['units']['height'])) {
+								$default_unit = $wysiwyg_style['units']['height'];
+							}
+							combo_box('prefs[SQ_WYSIWYG_STYLE][units][height]', $size_units, FALSE, $default_unit);
 						} else {
-							echo $wysiwyg_style['height'];
+							if (isset($wysiwyg_style['height'])) {
+								echo $wysiwyg_style['height'];
+							}
+							if (isset($wysiwyg_style['units']['height'])) {
+								echo $wysiwyg_style['units']['height'];
+							}
 						}
 						?>
 						</td>
+					</tr>
 					</tr>
 				</table>
 				<?php
