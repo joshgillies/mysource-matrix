@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.25 2006/01/31 01:04:06 dmckee Exp $
+* $Id: core.js,v 1.26 2006/03/19 22:49:28 sdanis Exp $
 *
 */
 
@@ -169,8 +169,20 @@ HTMLArea.prototype.generate = function () {
 	};
 
 	function initDiv() {
-		editor._doc.style.width  = "100%";
-		editor._doc.style.height = "100%";
+
+		if (editor.config.width == null) {
+			editor._doc.style.width  = '100%';
+		} else {
+			editor._doc.style.width  = editor.config.width;
+		}
+
+		if (editor.config.width == null) {
+			editor._doc.style.height = '100%';
+		} else {
+			editor._doc.style.height = editor.config.height;
+		}
+
+
 		editor._doc.innerHTML = unescape(editor._textArea.value);
 		if (HTMLArea.is_ie) { editor._doc.contentEditable = true; }
 		// intercept some events; for updating the toolbar & keyboard handlers
