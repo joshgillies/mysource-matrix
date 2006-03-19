@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.150.2.4 2006/03/08 05:38:17 sdanis Exp $
+* $Id: listing_engine.inc,v 1.150.2.5 2006/03/19 23:52:29 rong Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.150.2.4 $
+* @version $Revision: 1.150.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -872,8 +872,9 @@ class Listing_Engine extends Page
 		}
 
 		$wanted_statuses = $this->attr('statuses');
+		$wanted_assets = Array();
 
-		// push all the shoadow assets into the respective array
+		// push all the shadow assets into the respective array
 		// change the todo_keys array so that instead of shadow assets the query checks on the parent asset's status
 		$shadow_assets = Array();
 		$dummy_to_do = array_keys($todo);
@@ -889,13 +890,19 @@ class Listing_Engine extends Page
 			}
 		}
 
+		// chunk the array up into chunks of 1000 so that we don't violate the limit imposed on IN clauses.
+		$in_clauses = Array();
+		foreach (array_chunk($todo_keys, 999) as $chunk) {
+			$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
+		}
+
 		if (!empty($wanted_statuses) && !empty($todo_keys)) {
 			$sql = 'SELECT
 						assetid, type_code
 					FROM
 						sq_ast
 					WHERE
-							assetid IN ('.implode(', ', $todo_keys).')
+							('.implode(' OR ', $in_clauses).')
 						AND status IN ('.implode(', ', $wanted_statuses).')';
 
 			$wanted_assets = $db->getAssoc($sql);
@@ -923,14 +930,14 @@ class Listing_Engine extends Page
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (!$user_restrictions) return;
 
-		if (empty($wanted_statuses)) {
+		if (empty($wanted_statuses) && !empty($todo_keys)) {
 			// get a list of assets that are not live
 			$sql = 'SELECT
 						assetid, type_code
 					FROM
 						sq_ast
 					WHERE
-							assetid IN ('.implode(',', $todo_keys).')
+							('.implode(' OR ', $in_clauses).')
 						AND status < '.$db->quote(SQ_STATUS_LIVE);
 
 			$wanted_assets = $db->getAssoc($sql);
