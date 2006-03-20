@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.48 2006/03/06 00:34:28 sdanis Exp $
+* $Id: form_email.inc,v 1.49 2006/03/20 22:10:23 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -117,6 +117,11 @@ class Form_Email extends Form
 			$information .= ($html) ? '<tr><td valign="top">'.ucwords(str_replace('_', ' ', $name)).'</td>' : ucwords(str_replace('_', ' ', $name)).' : ';
 			$information .= ($html) ? '<td valign="top">'.$value.'</td></tr>' : $value."\n";
 		}
+		// add form submission time
+		$now = date('d M Y g:i a', time());
+		$information .= ($html) ? '<tr><td valign="top">Submission Time</td>' : 'Submission Time : ';
+		$information .= ($html) ? '<td valign="top">'.$now.'</td></tr>' : $now."\n";
+
 		$information .= ($html) ? '</table>' : '';
 		return $information;
 
