@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_type.inc,v 1.12 2006/03/16 08:54:20 arailean Exp $
+* $Id: trigger_condition_asset_type.inc,v 1.13 2006/03/20 01:19:12 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -188,16 +188,20 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	*
 	* @return mixed string|boolean
 	* @access public
-	* /
+	*/
 	function setHash(&$settings, &$hash)
 	{
 		if (isset($settings['asset_type']) && isset($settings['descendants'])) {
-			$hash->setAssetType($settings['asset_type'], ($settings['descendants'] == '1' ? TRUE : FALSE));
+			foreach ($settings['asset_type'] as $key => $type) {
+				if (empty($type)) continue;
+				$hash->setAssetType($type, ($settings['descendants'][$key] == '1' ? TRUE : FALSE));
+			}
 		}
+
 		return FALSE;
 
 	}//end setHash()
-	*/
+
 
 }//end class
 
