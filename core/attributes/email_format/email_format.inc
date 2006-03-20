@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.26 2006/03/09 03:44:35 sdanis Exp $
+* $Id: email_format.inc,v 1.27 2006/03/20 01:05:33 rong Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *    <email_format />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -431,6 +431,11 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$value['from']    = (isset($_REQUEST[$prefix.'_from'])) ? $_REQUEST[$prefix.'_from'] : '';
 		$value['subject'] = (isset($_REQUEST[$prefix.'_subject'])) ? $_REQUEST[$prefix.'_subject'] : '';
 		$value['inc_attachments'] = (isset($_REQUEST[$prefix.'_inc_attachments'])) ? $_REQUEST[$prefix.'_inc_attachments'] : FALSE;
+
+		// from address is not specified, print a warning message
+		if (isset($value['to']) && !empty($value['to']) && empty($value['from'])) {
+			trigger_localised_error('CORE0251', E_USER_WARNING, $this->name);
+		}
 
 		$this->processed = $this->setValue($value);
 

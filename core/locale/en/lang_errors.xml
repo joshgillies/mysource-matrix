@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.41 2006/03/07 06:02:04 sdanis Exp $
+* $Id: lang_errors.xml,v 1.42 2006/03/20 01:05:33 rong Exp $
 *
 */
 
@@ -1620,4 +1620,6 @@ Full Node Contents :
 	<error code="CORE0249">Ignoring uploaded IP ranges file as it appears to be invalid</error>
 	<error code="CORE0250">The IP/subnet combination "%1$s/$2$s" is in the file once for both grant and deny - using the first line found and ignoring the rest</error>
 
+	<!-- Email Options -->
+	<error code="CORE0251">"From" field is not set for %s.</error>
 </errors>
