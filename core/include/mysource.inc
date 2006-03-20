@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.173 2006/03/16 21:20:39 sdanis Exp $
+* $Id: mysource.inc,v 1.174 2006/03/20 22:07:56 pgannavarapu Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.173 $
+* @version $Revision: 1.174 $
 * @package MySource_Matrix
 */
 class MySource
@@ -720,9 +720,11 @@ class MySource
 		}
 
 		$this->user = NULL;
-		if (array_get_index($_SESSION, 'userid')) {
+		if (array_get_index($_SESSION, 'user')) {
 			// try to log in the user whose ID is in the session
-			$this->user =& $this->am->getAsset($_SESSION['userid'], $_SESSION['user_type_code'], TRUE);
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($_SESSION['user_type_code']);
+			$user = unserialize($_SESSION['user']);
+			$this->user =& $user;
 		}
 		if (is_null($this->user)) {
 			// see if we can log in an http-authenticated user
@@ -869,7 +871,6 @@ class MySource
 				$login_username = array_get_index($_POST, 'SQ_LOGIN_USERNAME');
 				$login_password = array_get_index($_POST, 'SQ_LOGIN_PASSWORD');
 				$login_key      = array_get_index($_POST, 'SQ_LOGIN_KEY');
-
 				if (is_null($login_username) || is_null($login_password)) {
 					return;
 				}
@@ -889,7 +890,6 @@ class MySource
 						return;
 					}
 					$auth_systems = $auth_folder->getAuthSystems();
-
 					// try each auth system in order to see if we can load a user asset
 					$user = NULL;
 					foreach ($auth_systems as $systemid) {
@@ -1097,6 +1097,7 @@ class MySource
 		if (!$this->setCurrentUser($user)) return FALSE;
 
 		$_SESSION['userid']         = $user->id;
+		$_SESSION['user'] = serialize($user);
 		$_SESSION['user_type_code'] = $user->type();
 		if (!$this->_user_is_public) {
 			$_SESSION['remote_addr']    = $_SERVER['REMOTE_ADDR'];
@@ -1363,6 +1364,24 @@ class MySource
 		return ($this->user && $this->user->id == $user->id);
 
 	}//end currentUser()
+
+
+	/**
+	* Returns the currently logged in user.
+	*
+	* @return object
+	* @access public
+	*/
+	function &getCurrentUser()
+	{
+		if ($this->user) {
+			return $this->user;
+		} else if (isset($_SESSION['user'])) {
+			return unserialize($_SESSION['user']);
+		}
+		return NULL;
+
+	}//end getCurrentUser()
 
 
 	/**
