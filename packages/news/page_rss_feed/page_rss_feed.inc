@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.7.2.1 2006/03/17 05:55:17 skim Exp $
+* $Id: page_rss_feed.inc,v 1.7.2.2 2006/03/20 22:44:05 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.7.2.1 $
+* @version $Revision: 1.7.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -509,6 +509,7 @@ class Page_RSS_Feed extends Page
 							return FALSE;
 						}
 					}
+					continue;
 				}
 				foreach ($required as $req) {
 					if (!in_array($req, $keys)) {
