@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.42 2006/03/20 01:05:33 rong Exp $
+* $Id: lang_errors.xml,v 1.43 2006/03/20 05:16:42 rong Exp $
 *
 */
 
@@ -1471,7 +1471,7 @@ Full Node Contents %3$s</error>
 	<error code="CORE0124">URL "%1$s" contains a path "%2$s" which was deemed to be not valid.</error>
 	<error code="CORE0125">Unknown action or invalid input</error>
 	<error code="CORE0126">Events not specified. Trigger batching cannot proceed.</error>
-	<error code="CORE0127">FAILURE: Trigger "%2$s" (%1$d), Event "%3$s" broadcast by "%5$s" (%4$s)</error>
+	<error code="CORE0127">FAILURE: Trigger "%2$s" (Trigger# %1$s), Event "%3$s" broadcast by "%5$s" (Id# %4$s)</error>
 	<error code="CORE0128">Invalid asset ID selected. This condition will always fail.</error>
 	<error code="CORE0129">Invalid asset type selected. This condition will always fail.</error>
 	<error code="CORE0130">Action %1$s (%2$s) not saved. %3$s</error>
