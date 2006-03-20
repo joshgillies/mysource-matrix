@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: compile_locale.php,v 1.8 2006/01/26 22:34:09 lwright Exp $
+* $Id: compile_locale.php,v 1.9 2006/03/20 06:06:45 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -196,7 +196,7 @@ foreach ($asset_types as $asset_type) {
 					$dirs_to_read[] = $dir_read.'/'.$entry;
 				}
 
-				if (preg_match('|lang\_((static_)?screen\_.*)\.xml|', $entry, $matches)) {
+				if (preg_match('|^lang\_((static_)?screen\_.*)\.xml$|', $entry, $matches)) {
 					if (!empty($locale_list) && (!in_array($locale_name, array_keys($locale_list))
 						|| (!in_array('all', $locale_list[$locale_name])
 						&& !in_array('screens', $locale_list[$locale_name])))) {
@@ -211,7 +211,7 @@ foreach ($asset_types as $asset_type) {
 												'dir'		=> $dir_read,
 												'screen'	=> $matches[1],
 											   );
-				} else if (preg_match('|lang\_strings\.xml|', $entry, $matches)) {
+				} else if (preg_match('|^lang\_strings\.xml$|', $entry, $matches)) {
 					list($country,$lang,$variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($locale_name);
 					if (!in_array($country, $string_locales)) {
 						$string_locales[] = $country;
@@ -228,7 +228,7 @@ foreach ($asset_types as $asset_type) {
 							}
 						}
 					}
-				} else if (preg_match('|lang\_errors\.xml|', $entry, $matches)) {
+				} else if (preg_match('|^lang\_errors\.xml$|', $entry, $matches)) {
 					list($country,$lang,$variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($locale_name);
 					if (!in_array($country, $error_locales)) {
 						$error_locales[] = $country;
@@ -245,7 +245,7 @@ foreach ($asset_types as $asset_type) {
 							}
 						}
 					}
-				} else if (preg_match('|lang\_messages\.xml|', $entry, $matches)) {
+				} else if (preg_match('|^lang\_messages\.xml$|', $entry, $matches)) {
 					list($country,$lang,$variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($locale_name);
 					if (!in_array($country, $message_locales)) {
 						$message_locales[] = $country;
@@ -275,7 +275,7 @@ foreach ($asset_types as $asset_type) {
 	if ($d) {
 
 		while (FALSE !== ($entry = readdir($d))) {
-			if (preg_match('|edit\_interface\_((static_)?screen\_.*).xml|', $entry, $matches)) {
+			if (preg_match('|^edit\_interface\_((static_)?screen\_.*).xml$|', $entry, $matches)) {
 				$all_screens[] = $matches[1];
 			}
 		}
