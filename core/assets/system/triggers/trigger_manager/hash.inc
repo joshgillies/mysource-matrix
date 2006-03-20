@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hash.inc,v 1.9 2005/11/16 03:04:57 arailean Exp $
+* $Id: hash.inc,v 1.10 2006/03/20 01:26:45 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class Hash
@@ -70,8 +70,8 @@ class Hash
 	/**
 	* Provides a status of whether this hash object is empty or not
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function isEmpty()
 	{
@@ -83,11 +83,11 @@ class Hash
 	/**
 	* Internal function for setting the value of a hash field
 	*
-	* @param string $name   variable to modify
-	* @param mixed  $value  value that the variable will be set to
+	* @param string	$name	variable to modify
+	* @param mixed	$value	value that the variable will be set to
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _set($name, $value)
 	{
@@ -98,7 +98,9 @@ class Hash
 		if (!is_array($value)) $value = Array($value);
 
 		foreach ($value as $one_value) {
-			$this->hash[$name][] = $one_value;
+			if (!in_array($one_value, $this->hash[$name])) {
+				$this->hash[$name][] = $one_value;
+			}
 		}
 
 	}//end _set()
@@ -107,10 +109,10 @@ class Hash
 	/**
 	* Sets the Event field
 	*
-	* @param string $event  the name of the event that was fired
+	* @param string	$event	the name of the event that was fired
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function setEvent($event)
 	{
@@ -122,10 +124,10 @@ class Hash
 	/**
 	* Sets the AssetID field
 	*
-	* @param string $assetid    the id of the asset
+	* @param string	$assetid	the id of the asset
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function setAssetId($assetid)
 	{
@@ -137,32 +139,28 @@ class Hash
 	/**
 	* Sets the Asset Type field
 	*
-	* @param string     $asset_type     the type of the asset
-	* @param boolean    $descendants    whether the hash will include the type's descendants, or just the passed asset type
+	* @param string		$asset_type		the type of the asset
+	* @param boolean	$descendants	whether the hash will include the type's descendants, or just the passed asset type
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
-	function setAssetType($asset_type, $descendants=false)
+	function setAssetType($asset_type, $descendants=FALSE)
 	{
 		if (!empty($asset_type) && $GLOBALS['SQ_SYSTEM']->am->installed($asset_type)) {
 
 			if ($descendants) {
 
 				// Grab the list of types, put into the 'asset_type' field
-				$type_descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($asset_type, true);
-				if (empty($type_descendants)) {
-					$this->_set('asset_type','');
-				} else {
-					$this->_set('asset_type',$type_descendants);
+				$type_descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($asset_type, TRUE);
+				if (!empty($type_descendants)) {
+					$this->_set('asset_type', $type_descendants);
 				}
 
 			} else {
-				$this->_set('asset_type',$asset_type);
+				$this->_set('asset_type', $asset_type);
 			}
 
-		} else {
-			$this->_set('asset_type','');
 		}
 
 	}//end setAssetType()
@@ -171,11 +169,11 @@ class Hash
 	/**
 	* Sets the Asset Type field
 	*
-	* @param string     $asset_type     the raw link tree id of the asset (see asset_manager::getAssetTreeids)
-	* @param string     $propagation    '01' or '00'. Determines whether the we are checking for assets underneath a tree node, or just for an individual asset
+	* @param string	$tree_id		the raw link tree id of the asset (see asset_manager::getAssetTreeids)
+	* @param string	$propagation	'01' or '00'. Determines whether the we are checking for assets underneath a tree node, or just for an individual asset
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function setLinkTree($tree_id, $propagation)
 	{
@@ -188,10 +186,10 @@ class Hash
 	/**
 	* Sets the Trigger ID field
 	*
-	* @param string     $trigger_id     the ID of the trigger
+	* @param string	$trigger_id	the ID of the trigger
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function setTriggerId($trigger_id)
 	{
@@ -203,11 +201,11 @@ class Hash
 	/**
 	* Sets either the parent or child ID field of the Linked asset
 	*
-	* @param string     $linked_id      the ID of the linked asset
-	* @param boolean    $is_major       whether the linked asset is a parent or a child
+	* @param string		$linked_id	the ID of the linked asset
+	* @param boolean	$is_major	whether the linked asset is a parent or a child
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function setLinkedId($linked_id, $is_major)
 	{
@@ -223,11 +221,11 @@ class Hash
 	/**
 	* Sets either the parent or child Type field of the Linked asset
 	*
-	* @param string     $linked_type    the type_code of the linked asset
-	* @param boolean    $is_major       whether the linked asset is a parent or a child
+	* @param string		$linked_type	the type_code of the linked asset
+	* @param boolean	$is_major		whether the linked asset is a parent or a child
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function setLinkedType($linked_type, $is_major)
 	{
@@ -244,8 +242,8 @@ class Hash
 	* Takes the hash, checks it for empty fields filling in the blanks where necessary,
 	* and creates all possible combinations of its elements
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function getHashCombinations()
 	{
@@ -255,6 +253,7 @@ class Hash
 		foreach ($result as $id => $data) {
 			if (empty($result[$id])) $result[$id] = '-1';
 		}
+
 
 		$indicies = Array(
 						'event',
@@ -285,15 +284,15 @@ class Hash
 	*   $source = Array(1=>Array('a','b'), 2=>'c', 3=>Array('d'));
 	*   $result = Array(Array(1=>'a',2=>'c',3=>'d'), Array(1=>'b',2=>'c',3=>'d'));
 	* </code>
-	*
 	* This function can be called statically
+	* returns Array(mixed)  $state_hash     The flattened state_hash
 	*
 	* NOTE: Can only create combinations for arrays two levels deep
 	*
-	* @param Array(mixed)   $state_hash     The hash to flatten
+	* @param array	$source	The hash to flatten
 	*
+	* @return array
 	* @access private
-	* @return Array(mixed)  $state_hash     The flattened state_hash
 	*/
 	function _createCombinations($source)
 	{
