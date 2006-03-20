@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.7 2006/02/07 02:27:12 sdanis Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.8 2006/03/20 05:31:53 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -202,6 +202,14 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 
 		$settings['attribute'] = array_get_index($request_data, 'attribute', '');
 		$settings['value'] = array_get_index($request_data, 'value', '');
+
+		// sanity checking
+		$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($settings['asset_type'], Array('name'));
+		$attribute = array_get_index($settings, 'attribute', '');
+		if ($attribute != '' && !in_array($attribute, $attrs)) {
+			// unset selected attribute if it is not found for the selected asset type
+			$settings['attribute'] = '';
+		}
 
 		return FALSE;
 
