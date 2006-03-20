@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.32 2006/03/14 01:32:43 bcaldwell Exp $
+* $Id: trigger_manager.inc,v 1.33 2006/03/20 01:28:44 arailean Exp $
 *
 */
 
@@ -48,7 +48,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -819,7 +819,7 @@ class Trigger_Manager extends Asset
 							if ($this->_loadComponent($condition['type'])) {
 								if (isset($condition['data'])) {
 									$settings =& $condition['data'];
-									call_user_func_array(Array($condition['type'], 'setHash'), Array($settings, $hash));
+									call_user_func_array(Array($condition['type'], 'setHash'), Array($settings, &$hash));
 								}
 							}
 						}
@@ -857,7 +857,6 @@ class Trigger_Manager extends Asset
 		if (empty($hash)) return FALSE;
 
 		$hash_combinations = $hash->getHashCombinations();
-
 		if (empty($hash_combinations)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
