@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.49 2006/03/20 22:07:56 pgannavarapu Exp $
+* $Id: asset_attribute.inc,v 1.50 2006/03/20 22:08:56 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -308,7 +308,6 @@ class Asset_Attribute extends MySource_Object
 	*/
 	function setEditParams(&$node)
 	{
-		error_log($this->type());
 
 		if (strtolower($node->name) != strtolower($this->type())) {
 			trigger_localised_error('SYS0300', E_USER_WARNING, $node->name, $this->type(), '<pre>'.htmlspecialchars($node->get()).'</pre>');
