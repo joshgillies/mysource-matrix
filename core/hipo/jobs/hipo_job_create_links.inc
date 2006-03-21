@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.32 2006/03/21 00:26:25 sdanis Exp $
+* $Id: hipo_job_create_links.inc,v 1.33 2006/03/21 01:18:54 skim Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1103,6 +1103,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	function freestyle()
 	{
 		$step_data = Array();
+		$this->_running_vars['can_skip_cascade'] = FALSE;
 
 		// process confirmation
 		if (!$this->processCreateLinks($step_data, '')) {
