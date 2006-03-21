@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.124 2006/03/14 21:58:16 mmcintyre Exp $
+* $Id: file.inc,v 1.125 2006/03/21 01:26:48 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.124 $
+* @version $Revision: 1.125 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -977,13 +977,23 @@ class File extends Asset
 				$ext = preg_replace('/,ffv\d+$/', '', $ext);
 			}
 			$type = (empty($standards_lists_mime_types[$ext])) ? 'text/plain' : $standards_lists_mime_types[$ext];
-			header('Cache-Control:');
-			header('Pragma: cache');
-			header('Expires: '.gmdate('D, d M Y H:i:s', (time() + 86400)).' GMT');
+
+			// send cacheable headers if file asset meets the credentials
+			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user')
+				&& $this->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER) {
+				header('Cache-Control: public');
+				header('Pragma: cache');
+				header('Expires: '.gmdate('D, d M Y H:i:s', (time() + 86400)).' GMT');
+				header('Last-Modified: '.gmdate('D, d M Y H:i:s',$existing['modified']).' GMT');
+			} else {
+				header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+				header('Pragma: no-cache');
+				header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
+			}
 			header('Content-Type: '.$type);
 			header('Content-Disposition: inline; filename='.$existing['filename'].';');
-			header('Last-Modified: '.gmdate('D, d M Y H:i:s',$existing['modified']).' GMT');
 			header('Content-Length: '.$existing['size']);
+
 			readfile($existing['path']);
 		}
 
