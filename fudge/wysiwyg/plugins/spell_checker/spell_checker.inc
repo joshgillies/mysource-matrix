@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.inc,v 1.6 2004/12/06 14:39:54 brobertson Exp $
+* $Id: spell_checker.inc,v 1.7 2006/03/21 22:28:56 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to allow the user to Check the spelling of the document
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -52,6 +52,37 @@ class spell_checker extends wysiwyg_plugin
 		$this->_add_button('spellchecker','spellchecker','Check Spelling','false','54');
 
 	}//end constructor
+
+
+	/**
+	* Adds a printable toolbar button to this plugin
+	*
+	* @param string $id			A unique ID for this button
+	* @param string $cmd		The command to run when the button is clicked
+	*							This command will be used to switch on action of
+	*							a pressed button to determine the functionality
+	* @param string $tooltip	The tooltip for this button (appears on hover)
+	* @param string $textmode	Should this button be available in text mode?
+	*							Value is either 'true' or 'false' (with quotes)
+	* @param string $position	The position of the button in the toolbar image
+	*							This is zero indexed (first button is id zero)
+	* @param string $context	Enable this button if outside this element
+	*
+	* @return void
+	* @access private
+	*/
+	function _add_button($id, $cmd, $tooltip, $textmode, $position, $context='')
+	{
+		// checks for the required PEAR package before adding the plugin to the editor
+		$output = Array();
+		exec('pear list | grep "\bXML_HTMLSax\b"', $output);
+		if (!empty($output)) {
+			parent::_add_button($id, $cmd, $tooltip, $textmode, $position, $context='');
+		} else {
+			trigger_localised_error('CORE0252', E_USER_WARNING, '"Spell Checker"', 'Required PEAR Package "XML_HTMLSax" not installed');
+		}
+
+	}//end _add_button()
 
 
 	/**
@@ -76,15 +107,15 @@ class spell_checker extends wysiwyg_plugin
 				} else if (HTMLArea.ie_gecko) {
 					this.focusEditor();
 				}
-				
+
 				// disable the toolbar
 				this._tmp['disable_toolbar'] = true;
 				this.updateToolbar(false);
-				
+
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 
 				this._popupDialog("spellChecker", "<?php echo $this->get_popup_href('spell_checker_popup.php')?>?editor_name=<?php echo $this->wysiwyg->name?>", 600, 400, false, function(param) {
-					if (!param) { 
+					if (!param) {
 						// user must have pressed Cancel
 						return false;
 					}
