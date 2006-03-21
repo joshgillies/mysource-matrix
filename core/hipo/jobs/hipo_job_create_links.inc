@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.31 2006/03/06 23:18:03 emcdonald Exp $
+* $Id: hipo_job_create_links.inc,v 1.32 2006/03/21 00:26:25 sdanis Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -273,12 +273,10 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						$this->_running_vars['affected_links'][$assetid] = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE, '', TRUE, 'minor');
 					}//end if !$num_other_links
 				}//end for
-		}//end if the assets have been moved to the trash
+			}//end if the assets have been moved to the trash
 		}
 
-
-
-
+		$this->_running_vars['can_skip_cascade'] = TRUE;
 
 		$this->_running_vars['assets_children'] = Array();
 
@@ -556,6 +554,13 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_parent);
 			unset($new_parent);
 
+			// if parent and current asset settings are the same then skip the cascades screen
+			if ($this->_running_vars['can_skip_cascade']) {
+				if (!$this->_canSkipCascadeSteps($assetid, $this->_running_vars['to_parent_assetid'])) {
+					$this->_running_vars['can_skip_cascade'] = FALSE;
+				}
+			}
+
 		} else if ($this->_running_vars['link_action'] == 'move') {
 
 			// if we are moving to the trash, we want to skip all the steps that ask us if we want
@@ -618,6 +623,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bridge);
 				}
 			} else {
+				// if parent and current asset settings are the same then skip the cascades screen
+				if ($this->_running_vars['can_skip_cascade']) {
+					if (!$this->_canSkipCascadeSteps($assetid, $this->_running_vars['to_parent_assetid'])) {
+						$this->_running_vars['can_skip_cascade'] = FALSE;
+					}
+				}
 
 				$link   = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $value['parentid']);
 				$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($value['linkid'], $this->_running_vars['to_parent_assetid'], $link['link_type'], $this->_running_vars['to_parent_pos']);
@@ -642,7 +653,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 				$this->_running_vars['to_parent_pos']++;
 
-			}//end if moving to trash
+			}//end else moving to trash
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -655,6 +666,15 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			unset($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;
+
+			if ($this->_running_vars['can_skip_cascade']) {
+				$this->skipStep(3);
+				$this->skipStep(4);
+				$this->skipStep(5);
+				$this->skipStep(6);
+				$this->skipStep(7);
+			}
+
 		} else {
 			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / count($this->_running_vars['assets'])) * 100;
 			$step_data['complete']     = FALSE;
@@ -802,6 +822,68 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		return TRUE;
 
 	}//end processInterface()
+
+
+	/**
+	* Returns true if current and parent asset's settings are equal
+	* checked settings are: permissions, workflow sch, metadata sch, tag links
+	*
+	* @param string	$assetid	Id of the asset that is being moved
+	* @param string	$parentid	Id of the new parent asset
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _canSkipCascadeSteps($assetid, $parentid)
+	{
+		// Permissions
+		$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
+		foreach ($perms as $title => $perm) {
+			$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
+			$ppermissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($parentid, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
+			$diff = array_diff_assoc($ppermissions, $permissions);
+			if (!empty($diff)) return FALSE;
+		}
+
+		// Workflow Schemas
+		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$schemas = $wfm->getSchemas($assetid);
+		$pschemas = $wfm->getSchemas($parentid);
+		$diff = array_diff_assoc($pschemas, $schemas);
+		if (!empty($diff)) return FALSE;
+
+		// Metadata Schemas
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$schemas = $mm->getSchemas($assetid);
+		$pschemas = $mm->getSchemas($parentid);
+		$diff = array_diff_assoc($pschemas, $schemas);
+		if (!empty($diff)) return FALSE;
+
+		// Tag links
+		$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
+		$tls = $tag_manager->getTagLinks($assetid);
+		$ptls = $tag_manager->getTagLinks($parentid);
+
+		$num_ptls = count($ptls);
+		if ($num_ptls != 0) {
+			if ($num_ptls == count($tls)) {
+				foreach ($ptls as $pkey => $plink_details) {
+					$tag_found = FALSE;
+					foreach ($tls as $tkey => $tlink_details) {
+						if ($plink_details['minorid'] == $tlink_details['minorid']) {
+							$tag_found = TRUE;
+						}
+					}
+					if (!$tag_found) return FALSE;
+				}
+			} else {
+				return FALSE;
+			}
+		}
+
+		return TRUE;
+
+	}//end _canSkipCascadeSteps()
 
 
 	/**
