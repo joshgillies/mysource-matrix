@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.11 2006/02/28 03:53:53 mmcintyre Exp $
+* $Id: pgsql_functions.xml,v 1.12 2006/03/21 22:15:48 mmcintyre Exp $
 *
 */
 -->
@@ -154,25 +154,14 @@
 			--acquired from the sq_get_rollback_timestamp function
 			CREATE OR REPLACE FUNCTION sq_rb_get_parent_treeids(VARCHAR, INT) RETURNS SETOF BYTEA AS '
 			DECLARE
+				rec record;
 				rb_date TIMESTAMP;
-				var_set BYTEA[];
-				ub INT;
-				lb INT;
 			BEGIN
 				rb_date := sq_get_rollback_timestamp();
-				var_set := sq_get_parent_treeids($1, $2, rb_date);
-
-				ub := array_upper(var_set, 1);
-				lb := array_lower(var_set, 1);
-
-				IF lb IS NULL or ub IS NULL THEN
-					return;
-				ELSE
-					FOR i IN lb..ub LOOP
-						RETURN NEXT var_set[i];
-					END LOOP;
-				END IF;
-				RETURN;
+				for rec in select sq_get_parent_treeids from sq_get_parent_treeids($1, $2, rb_date) loop
+					return next rec.sq_get_parent_treeids;
+				end loop;
+				return;
 			END;
 			' language plpgsql;
 		]]>
@@ -182,23 +171,12 @@
 			-- returns the parent treeids for the specified assetid
 			CREATE OR REPLACE FUNCTION sq_get_parent_treeids(VARCHAR, INT) RETURNS SETOF BYTEA AS '
 			DECLARE
-				var_set BYTEA[];
-				ub INT;
-				lb INT;
+				rec record;
 			BEGIN
-				var_set := sq_get_parent_treeids($1, $2, null);
-
-				ub := array_upper(var_set, 1);
-				lb := array_lower(var_set, 1);
-
-				IF lb IS NULL or ub IS NULL THEN
-					return;
-				ELSE
-					FOR i IN lb..ub LOOP
-						RETURN NEXT var_set[i];
-						END LOOP;
-				END IF;
-				RETURN;
+				for rec in select sq_get_parent_treeids from sq_get_parent_treeids($1, $2, null) loop
+					return next rec.sq_get_parent_treeids;
+				end loop;
+				return;
 			END;
 			' language plpgsql;
 		]]>
@@ -208,13 +186,12 @@
 			-- returns the parent treeids for the specified assetid
 			-- if timestamp is null then the function will assume that we are not in rollback mode
 			-- if the timestamp is valid the function will return the treeids from the rollback tables
-			CREATE OR REPLACE FUNCTION sq_get_parent_treeids(VARCHAR, INT, TIMESTAMP) RETURNS BYTEA[] AS '
+			CREATE OR REPLACE FUNCTION sq_get_parent_treeids(VARCHAR, INT, TIMESTAMP) RETURNS SETOF BYTEA AS '
 			DECLARE
 				treeids RECORD;
 				offset int;
 				minorid ALIAS FOR $1;
 				next_treeid BYTEA;
-				parent_treeids BYTEA;
 				concat_treeids BYTEA;
 				SQ_TREE_BASE_SIZE ALIAS FOR $2;
 				rb_date ALIAS FOR $3;
@@ -240,28 +217,20 @@
 								 OR t.sq_eff_to > '''''' || rb_date || '''''''' || '')'';
 				END IF;
 
-				parent_treeids := '''';
-
 				FOR treeids IN EXECUTE sql LOOP
-						offset := 1;
-						concat_treeids := '''';
-						LOOP
-							SELECT INTO next_treeid SUBSTR(treeids.treeid, offset, SQ_TREE_BASE_SIZE);
-							IF next_treeid = '''' THEN
-								EXIT;
-							END IF;
-							IF parent_treeids != '''' THEN
-								parent_treeids := parent_treeids || '','';
-							END IF;
-							concat_treeids := concat_treeids || next_treeid;
-							parent_treeids := parent_treeids || concat_treeids;
-							offset := offset + SQ_TREE_BASE_SIZE;
-						END LOOP;
-
+					offset := 1;
+					concat_treeids := '''';
+					LOOP
+						next_treeid := SUBSTR(treeids.treeid, offset, SQ_TREE_BASE_SIZE);
+						IF next_treeid = '''' THEN
+							EXIT;
+						END IF;
+						concat_treeids := concat_treeids || next_treeid;
+						return next concat_treeids;
+						offset := offset + SQ_TREE_BASE_SIZE;
+					END LOOP;
 				END LOOP;
-				parent_treeids := ''{'' || parent_treeids || ''}'';
-
-				RETURN parent_treeids;
+				RETURN;
 			END;
 			' LANGUAGE plpgsql;
 		]]>
