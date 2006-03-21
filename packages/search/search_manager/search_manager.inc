@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.103 2006/03/17 03:59:26 sdanis Exp $
+* $Id: search_manager.inc,v 1.104 2006/03/21 04:39:15 arailean Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1879,6 +1879,11 @@ class Search_Manager extends Asset
 			}
 		}
 
+		// join any results from bridges
+		if (!empty($shadow_results)) {
+			$final_results = $this->_combineResults($final_results, $shadow_results, array_get_index($search_info, 'root_logic', 'OR'));
+		}
+
 		  ///////////////////////
 		 //  LOG THIS SEARCH  //
 		///////////////////////
@@ -1887,11 +1892,6 @@ class Search_Manager extends Asset
 			$log_contents['results'] = count($final_results);
 			$log_contents['assetid'] = $search_info['requester'];
 			log_write($log_contents, 'search');
-		}
-
-		// join any results from bridges
-		if (!empty($shadow_results)) {
-			$final_results = $this->_combineResults($final_results, $shadow_results, array_get_index($search_info, 'root_logic', 'OR'));
 		}
 
 		return $final_results;
