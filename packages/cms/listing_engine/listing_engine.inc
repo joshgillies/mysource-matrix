@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.161 2006/03/19 23:41:24 rong Exp $
+* $Id: listing_engine.inc,v 1.162 2006/03/21 03:10:34 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.161 $
+* @version $Revision: 1.162 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3376,7 +3376,7 @@ class Listing_Engine extends Page
 
 			if (!is_null($target)) {
 				ob_start();
-					submit_button($field_name, $button_text, "this.form.action = '".$target."';");
+					submit_button($field_name, $button_text, "document.getElementById('".$this->getPrefix()."').action = '".$target."';");
 				return ob_get_clean();
 			}
 		}
