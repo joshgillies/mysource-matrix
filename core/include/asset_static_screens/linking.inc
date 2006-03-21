@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.14 2005/05/11 06:05:11 lwright Exp $
+* $Id: linking.inc,v 1.14.2.1 2006/03/21 23:41:29 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.2.1 $
 * @package MySource_Matrix
 */
 
@@ -74,27 +74,36 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 	if (empty($assetids)) {
 		$result = Array();
 	} else {
+		$result = Array();
 
-		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
-					 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON a.assetid = pl.minorid
-				';
-		$where = 'cl.minorid IN ('.implode(', ', array_keys($assetids)).')
-				  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
-				  AND pt.treeid <= ct.treeid';
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$assetid_keys = array_keys($assetids);
 
-		$sql .= $where.' ORDER BY cl.linkid, ct.treeid, pt.treeid';
+		// Chunk Norris this query because the IN part will bomb with >1000
+		// assets on Oracle
+		foreach (array_chunk($assetid_keys, 500) as $assetids_chunk) {
+			$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
+						 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON a.assetid = pl.minorid
+					';
+			$where = 'cl.minorid IN ('.implode(', ', $assetids_chunk).')
+					  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
+					  AND pt.treeid <= ct.treeid';
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
-		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
-		assert_valid_db_result($result);
+			$sql .= $where.' ORDER BY cl.linkid, ct.treeid, pt.treeid';
+
+			$chunk_result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
+
+			assert_valid_db_result($chunk_result);
+			$result += $chunk_result;
+		}
 	}
 
 	foreach ($asset_links as $link_data) $link_info[$link_data['majorid']][] = $link_data;
