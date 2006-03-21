@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.43 2006/03/20 05:16:42 rong Exp $
+* $Id: lang_errors.xml,v 1.44 2006/03/21 22:20:27 rong Exp $
 *
 */
 
@@ -1622,4 +1622,7 @@ Full Node Contents :
 
 	<!-- Email Options -->
 	<error code="CORE0251">"From" field is not set for %s.</error>
+
+	<!-- WYSIWYG Plugins Errors -->
+	<error code="CORE0252">Unable to load %1$s WYSIWYG Plugin - %2$s.</error>
 </errors>
