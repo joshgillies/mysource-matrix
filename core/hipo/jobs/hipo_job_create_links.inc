@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.33 2006/03/21 01:18:54 skim Exp $
+* $Id: hipo_job_create_links.inc,v 1.34 2006/03/22 02:55:43 emcdonald Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -400,7 +400,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 					$trash_section_painted = FALSE;
 
-					foreach ($this->_running_vars['affected_links'] as $assetid => $links) {
+					$affected_links = array_get_index($this->_running_vars,'affected_links',Array());
+					foreach ($affected_links as $assetid => $links) {
 						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						// now lets get all the other links this asset has in the system and
 						// display them to the user
@@ -586,8 +587,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$this->_running_vars['assets_children'] = array_merge($this->_running_vars['assets_children'], array_keys($children));
 
 				// delete links in which the minor is being deleted
-
-				foreach ($this->_running_vars['affected_links'][$assetid] as $link) {
+				$affected_links = array_get_index(array_get_index($this->_running_vars,'affected_links',Array()),$assetid,Array());
+				foreach ($affected_links as $link) {
 					$success = $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
 				}
 			}
