@@ -18,15 +18,14 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/11/23 00:53:35 arailean Exp $
+* $Id: lang_strings.xml,v 1.2 2006/03/22 04:15:17 emcdonald Exp $
 *
 */
 
 -->
 
 <strings>
-<string source="thesaurus_thesaurus_enabled">Enabled. Thesaurus has been imported and is enabled. Uploading a new file will erase the existing thesaurus.</string>
-<string source="thesaurus_thesaurus_disabled">Disabled. Thesaurus has not yet been imported. Please import a thesaurus XML file</string>
+<string source="thesaurus_thesaurus_disabled">The thesaurus currently has no terms.</string>
 <string source="thesaurus_example_xml_file">To demonstrate the expected structure of the imported XML file, an <![CDATA[<a href="%s" target="_blank">example file</a>]]> is available.</string>
 <string source="thesaurus_thesaurus_not_generated">XML file is not in sync with thesaurus. Thesaurus contents have been changed. Please acquire lock to generate a new file.</string>
 <string source="thesaurus_generate_file">Generate XML file</string>

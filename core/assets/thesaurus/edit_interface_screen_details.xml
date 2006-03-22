@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2005/12/21 04:17:21 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2006/03/22 04:15:17 emcdonald Exp $
 *
 */
 -->
@@ -27,14 +27,6 @@
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
 			<text width="30" height="1" />
-		</field>
-	</section>
-
-	<section name="Status">
-		<field>
-			<function_call>
-				<paint_function		name="paintStatus" />
-			</function_call>
 		</field>
 	</section>
 
