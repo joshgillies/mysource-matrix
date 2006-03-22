@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.19 2006/03/21 22:04:48 rong Exp $
+* $Id: log_manager.inc,v 1.20 2006/03/22 23:53:57 rong Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -676,7 +676,7 @@ class Log_Manager extends Asset
 							$message = '<pre>'.print_r($message, TRUE).'</pre>';
 						}
 						$message = htmlspecialchars($message);
-						$message = str_replace('\n', '<br />', $message);
+						$message = nl2br($message);
 						$error_type_name   = get_error_name($d_line['level']);
 						$error_type_colour = get_error_colour($d_line['level']);
 						$log_date = date('G:i:s - d M',$d_line['date']);
@@ -692,7 +692,7 @@ class Log_Manager extends Asset
 						</tr>';
 					} else {
 						$line = htmlspecialchars($line);
-						$line = str_replace('\n', '<br />', $line);
+						$line = nl2br($line);
 						$content .= '
 						<tr class="alt">
 							<td style="color: red; background-color: #eef; text-align: right;">
