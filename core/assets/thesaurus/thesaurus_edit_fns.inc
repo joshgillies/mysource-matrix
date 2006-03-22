@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.4 2006/01/18 22:12:42 lwright Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.4.2.1 2006/03/22 05:11:31 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,23 +50,6 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		$this->Asset_Edit_Fns();
 
 	}//end constructor
-
-
-	/**
-	* Print thesaurus status message
-	*
-	* @param object	&$asset	asset to paint
-	* @param object	&$o		outputter object
-	* @param string	$prefix	prefix
-	*
-	* @return void
-	* @access public
-	*/
-	function paintStatus(&$asset, &$o, $prefix)
-	{
-		echo translate('thesaurus_thesaurus_enabled');
-
-	}//end paintStatus()
 
 
 	/**
