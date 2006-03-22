@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.123.2.1 2006/03/21 02:22:11 rong Exp $
+* $Id: file.inc,v 1.123.2.2 2006/03/22 22:20:03 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.123.2.1 $
+* @version $Revision: 1.123.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1033,6 +1033,7 @@ class File extends Asset
 	function getExistingFile()
 	{
 		$existing = Array();
+		$path = '';
 
 		if (SQ_ROLLBACK_VIEW) {
 			// get an older version of this file
