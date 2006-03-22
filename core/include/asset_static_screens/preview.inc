@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.18 2006/01/19 05:55:07 skim Exp $
+* $Id: preview.inc,v 1.18.2.1 2006/03/22 05:11:35 sdanis Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix
 */
 
@@ -146,18 +146,11 @@ function paintPreview(&$owner, &$o, &$ei)
 				function set_preview_url()
 				{
 					var previewURL = document.getElementById('preview_url').value;
-					var queryStringStarted = false;
 					if (document.getElementById('use_cache').checked == false) {
 						previewURL += '<?php echo ($add_nocache) ? '/'.SQ_CONF_NOCACHE_SUFFIX : ''; ?>';
-						queryStringStarted = true;
 					}
 					if (document.getElementById('preview_design').value != '') {
-						if (queryStringStarted == false) {
-							previewURL += '?';
-						} else {
-							previewURL += '&';
-						}
-						previewURL += 'SQ_DESIGN_NAME=' + document.getElementById('preview_design').value;
+						previewURL += '?SQ_DESIGN_NAME=' + document.getElementById('preview_design').value;
 					}
 					document.getElementById('sq_preview_frame').src = previewURL;
 					document.getElementById('sq_preview_new_window').href = previewURL;
@@ -201,7 +194,7 @@ function paintPreview(&$owner, &$o, &$ei)
 			$o->closeField();
 			$o->openField(translate('use_cache'));
 				check_box('use_cache', '1', false, 'set_new_window_href(this);');
-				echo translate('show_cached_asset');
+				label(translate('show_cached_asset'), 'use_cache');
 			$o->closeField();
 			$o->openRaw();
 				?>
