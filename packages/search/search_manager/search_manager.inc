@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.105 2006/03/22 04:04:44 sdanis Exp $
+* $Id: search_manager.inc,v 1.106 2006/03/22 22:05:09 sdanis Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2387,8 +2387,12 @@ class Search_Manager extends Asset
 		if (empty($query_comps)) return Array();
 		$query_comps['select'][] = 'distinct a.assetid';
 		$query_comps['select'][] = '1 as weight';
+		$query_comps['from'][] = 'sq_sch_idx s';
+		$query_comps['where'][] = 'a.assetid = s.assetid';
+
 		$search_sql = implode_sql($query_comps);
 		$search_results = Array();
+
 		if (isset($search_info['limit'])) {
 			// limiting the search results
 			$result = $db->limitQuery($search_sql, 0, $search_info['limit']);
