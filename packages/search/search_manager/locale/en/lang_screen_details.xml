@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2006/03/22 04:04:44 sdanis Exp $
+* $Id: lang_screen_details.xml,v 1.5 2006/03/22 04:23:36 sdanis Exp $
 *
 */
 -->
@@ -66,7 +66,7 @@
 	</section>
 	<section name="Search Options" write_access="write:attributes">
 		<field attribute="enable_begins_with">
-			<display_name>Enable Begins With Search</display_name>
+			<display_name>Enable Contains Search</display_name>
 			<note>Disabling this option will lower the search time. However, searching for "room" keyword will not find "bedroom", but it will find "roommate".</note>
 		</field>
 	</section>
