@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.68 2006/01/26 22:35:20 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.69 2006/03/22 02:43:03 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -378,7 +378,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 										$i++;
 										?>
 										<th><?php echo $element['name'] ?>:</th>
-										<td><?php echo $element['answer'] ?></td>
+										<td><?php echo htmlspecialchars($element['answer']); ?></td>
 										<?php
 										if (($i < count($elements)) && ($i % 2 == 0)) {
 											?>
@@ -467,7 +467,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
-		}
+		}//end foreach
 
 		// now release the links lock on the form itself
 		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'links')) {
