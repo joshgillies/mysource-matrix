@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2005/07/13 04:58:18 mmcintyre Exp $
+* $Id: lang_strings.xml,v 1.2.2.1 2006/03/22 04:21:08 sdanis Exp $
 *
 *
 * Search Package Localised Strings File
@@ -22,10 +22,10 @@
 <string source="sch_manager_do_not_include">Do not include in searches</string>
 <string source="sch_manager_include">Include in searches</string>
 <string source="sch_customise">Customise</string>
-<string source="sch_asset_weightings">Asset Component Weightings</string>
+<string source="sch_asset_weightings">Asset Field Weightings</string>
 <string source="sch_attribute_weightings">Asset Attribute Weightings</string>
 <string source="sch_metadata_weightings">Metadata Weightings</string>
-<string source="sch_weighting_component">Weighting Component</string>
+<string source="sch_weighting_component">Weighting Field</string>
 <string source="sch_weighting">Weighting</string>
 <string source="sch_indexed">Indexed</string>
 <string source="sch_weighting_attribute">Weighting Attribute</string>
