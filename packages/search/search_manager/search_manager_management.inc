@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_management.inc,v 1.16 2006/01/30 05:51:46 sdanis Exp $
+* $Id: search_manager_management.inc,v 1.17 2006/03/22 04:04:44 sdanis Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.16 $ - 0.1
+* @version $Revision: 1.17 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -71,6 +71,15 @@ class Search_Manager_Management extends Asset_Management
 												'type'		=> 'serialise',
 												'default'	=> Array(),
 											   ),
+						'enable_begins_with'	=> Array(
+													'added'			=> '0.5',
+													'type'			=> 'boolean',
+													'default'		=> TRUE,
+													'description'	=> 'Disable this option for faster search. Searching for \'room\' will find \'roommate\' but not \'bedroom\'',
+													'parameters'	=> Array(
+																		'allow_empty'	=> FALSE,
+																	   ),
+												   ),
 					  );
 
 	}//end constructor

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.104 2006/03/21 04:39:15 arailean Exp $
+* $Id: search_manager.inc,v 1.105 2006/03/22 04:04:44 sdanis Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -889,7 +889,7 @@ class Search_Manager extends Asset
 		if (empty($weights)) {
 			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
 
-			if(!$this->isTypeIndexable($info[$assetid])) {
+			if (!$this->isTypeIndexable($info[$assetid])) {
 				return;
 			}
 
@@ -1865,7 +1865,7 @@ class Search_Manager extends Asset
 			}
 			$words = array_unique($words);
 			$new_base = $base_query;
-			$new_base['where'][] = 'ai.value LIKE \'%'.implode("%' OR ai.value LIKE '%", $words).'%\'';
+			$new_base['where'][] = 'ai.value LIKE \''.($this->attr('enable_begins_with') ? '%' : '').implode("%' OR ai.value LIKE '".($this->attr('enable_begins_with') ? '%' : ''), $words).'%\'';
 			$new_base['select'] = Array('a.assetid');
 			$new_base['group_by'] = Array('a.assetid');
 			$sql = implode_sql($new_base);
@@ -2055,7 +2055,7 @@ class Search_Manager extends Asset
 			switch ($data_source['type']) {
 
 				case 'include_all':
-					$base_query['where'][] = 'ai.value LIKE '.$db->quote('%'.$search_term.'%');
+					$base_query['where'][] = 'ai.value LIKE '.$db->quote(($this->attr('enable_begins_with') ? '%' : '').$search_term.'%');
 				break;
 
 				case 'asset_attrib':
@@ -2073,7 +2073,7 @@ class Search_Manager extends Asset
 					} else if ($attr_type == 'float') {
 						$base_query['where'][] = 'CAST(ai.value AS double precision) = '.$db->quoteSmart((float)$search_term);
 					} else {
-						$base_query['where'][] = 'ai.value LIKE '.$db->quote('%'.$search_term.'%');
+						$base_query['where'][] = 'ai.value LIKE '.$db->quote(($this->attr('enable_begins_with') ? '%' : '').$search_term.'%');
 					}
 				break;
 
@@ -2086,14 +2086,14 @@ class Search_Manager extends Asset
 					$key_type = array_get_index($key_types, get_class($metadata_field), 'text');
 					$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
 					$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$data_source['params']['assetid']);
-					$base_query['where'][] = 'ai.value LIKE '.$db->quote('%'.$search_term.'%');
+					$base_query['where'][] = 'ai.value LIKE '.$db->quote(($this->attr('enable_begins_with') ? '%' : '').$search_term.'%');
 				break;
 
 				case 'standard':
 					$field = $data_source['params']['field'];
 					if (isset($this->standard_text_fields[$field])) {
 						$base_query['where'][] = 'ai.component = '.$db->quote('__'.$field.'__');
-						$base_query['where'][] = 'ai.value LIKE '.$db->quote('%'.$search_term.'%');
+						$base_query['where'][] = 'ai.value LIKE '.$db->quote(($this->attr('enable_begins_with') ? '%' : '').$search_term.'%');
 					} else {
 						trigger_error('Invalid standard search field '.$field, E_USER_WARNING);
 					}
