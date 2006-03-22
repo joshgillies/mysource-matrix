@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.164.2.3 2006/02/09 23:40:06 lwright Exp $
+* $Id: mysource.inc,v 1.164.2.4 2006/03/22 00:46:25 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.164.2.3 $
+* @version $Revision: 1.164.2.4 $
 * @package MySource_Matrix
 */
 class MySource
@@ -408,7 +408,7 @@ class MySource
 
 			// caching is enabled and asset is readable by public user, send HTTP headers
 			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user')
-				&& $asset->effectiveUnrestricted() && empty($_POST)) {
+				&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER) {
 				$this->_sendHTTPHeaders($asset);
 			} else {
 				$asset->printFrontend();
