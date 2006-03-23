@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.49 2006/03/20 22:10:23 rong Exp $
+* $Id: form_email.inc,v 1.50 2006/03/23 22:16:26 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -337,7 +337,7 @@ class Form_Email extends Form
 		$current_value = @unserialize($email_format_attr->value);
 
 		// return false if there is no-one to send to
-		if (empty($current_value['to'])) return FALSE;
+		if (empty($current_value['to']) && empty($current_value['to_assetids'])) return FALSE;
 
 		// get the form info (in both formats)
 		$info = $this->getFormInfo(TRUE);
