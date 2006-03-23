@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.7 2006/02/15 01:06:48 rhoward Exp $
+* $Id: page_calendar_rolling.inc,v 1.8 2006/03/23 00:43:15 pgannavarapu Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -278,8 +278,8 @@ class Page_Calendar_Rolling extends Page
 				// get asset keywords
 				if ($needs_asset[$format_type]) {
 					$asset =& $am->getAsset($id);
-					foreach ($asset->getAssetKeywords() as $kw => $kw_data) {
-						$replacements[$kw] = $kw_data['value'];
+					foreach ($asset->getAvailableKeywords() as $keyword => $desc) {
+						$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
 					}
 				} else {
 					// we can do this without the asset
@@ -296,7 +296,7 @@ class Page_Calendar_Rolling extends Page
 							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						}
 						// get all the metadata keywords for this asset
-						$metadata_values = $mm->getMetadataFieldValues($assetid, $metadata_keywords);
+						$metadata_values = $mm->getMetadataFieldValues($id, $metadata_keywords);
 
 						foreach ($metadata_values as $field => $value) {
 							$replacements['asset_metadata_'.$field] = $value;
