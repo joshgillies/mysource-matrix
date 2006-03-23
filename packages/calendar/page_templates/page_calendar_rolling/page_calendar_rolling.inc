@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.6 2006/02/02 03:55:37 sdanis Exp $
+* $Id: page_calendar_rolling.inc,v 1.6.2.1 2006/03/23 03:21:54 pgannavarapu Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -278,8 +278,8 @@ class Page_Calendar_Rolling extends Page
 				// get asset keywords
 				if ($needs_asset[$format_type]) {
 					$asset =& $am->getAsset($id);
-					foreach ($asset->getAssetKeywords() as $kw => $kw_data) {
-						$replacements[$kw] = $kw_data['value'];
+					foreach ($asset->getAvailableKeywords() as $keyword => $desc) {
+						$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
 					}
 				} else {
 					// we can do this without the asset
@@ -296,7 +296,7 @@ class Page_Calendar_Rolling extends Page
 							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						}
 						// get all the metadata keywords for this asset
-						$metadata_values = $mm->getMetadataFieldValues($assetid, $metadata_keywords);
+						$metadata_values = $mm->getMetadataFieldValues($id, $metadata_keywords);
 
 						foreach ($metadata_values as $field => $value) {
 							$replacements['asset_metadata_'.$field] = $value;
@@ -353,7 +353,7 @@ class Page_Calendar_Rolling extends Page
 		assert_valid_db_result($single_result);
 
 		// get the recurring events
-		$sql = build_recurring_event_query_base($trees, 'period', $start_date, $length);
+		$sql = build_recurring_event_query_base($trees, 'period', $start_date, (int)$length);
 		$sql .= ' AND '.$tree_sql;
 		$recur_result = $db->getAssoc($sql);
 		assert_valid_db_result($recur_result);

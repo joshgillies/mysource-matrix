@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.60 2006/01/26 22:34:15 lwright Exp $
+* $Id: calendar_event.inc,v 1.60.2.1 2006/03/23 03:21:54 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.60.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -155,79 +155,51 @@ class Calendar_Event extends Asset
 
 
 	/**
-	* Return the keywords with their replacements
+	* Return the keywords for this asset type.
 	*
+	* This function is called in asset-listing situations like the asset listing, search page etc
 	* The return value is in the form:
-	* <pre>
+	* <PRE>
 	* Array(
-	*     'name' => Array (
-	*          'value' => 'page',
-	*          'description' => 'the asset name',
-	*     ),
-	* )
-	* </pre>
-	*
-	* @param boolean	$descriptions	if TRUE descriptions will be included in the array
+	*   'name' => 'description' => 'the asset name',
+	* );
+	* </PRE>
 	*
 	* @return array
 	* @access public
 	*/
-	function getAssetKeywords($descriptions=FALSE)
+	function getAvailableKeywords()
 	{
-		$keywords = parent::getAssetKeywords($descriptions);
-
+		$keywords = parent::getAvailableKeywords();
 		// get rid of the raw attribute values which will just make a mess
 		unset($keywords['asset_attribute_start_date']);
 		unset($keywords['asset_attribute_end_date']);
 		$keywords['event_name'] = $keywords['asset_attribute_name'];
 		unset($keywords['asset_attribute_name']);
 
-		$keywords['event_start_date'] = Array('value'=>date('jS M Y', iso8601_ts($this->attr('start_date'))));
-		$keywords['event_end_date'] = Array('value'=>date('jS M Y', iso8601_ts($this->attr('end_date'))));
+		$keywords['event_start_date'] = 'Event Start Date';
+		$keywords['event_end_date'] = 'Event End Date';
 
-		$keywords['event_start_datetime'] = Array('value'=>$this->getFriendlyStart());
-		$keywords['event_end_datetime'] = Array('value'=>$this->getFriendlyEnd());
+		$keywords['event_start_datetime'] = 'Event start date/time';
+		$keywords['event_end_datetime'] = 'Event end date/time';
 
-		$keywords['event_start_time_12h'] = Array('value'=>date('h:i a', iso8601_ts($this->attr('start_date'))));
-		$keywords['event_end_time_12h'] = Array('value'=>date('h:i a', iso8601_ts($this->attr('end_date'))));
+		$keywords['event_start_time_12h'] = 'Start time (12 hour)';
+		$keywords['event_end_time_12h'] = 'End time (12 hour)';
 
-		$keywords['event_start_time_24h'] = Array('value'=>date('H:i', iso8601_ts($this->attr('start_date'))));
-		$keywords['event_end_time_24h'] = Array('value'=>date('H:i', iso8601_ts($this->attr('end_date'))));
+		$keywords['event_start_time_24h'] = 'Start time (24 hour)';
+		$keywords['event_end_time_24h'] = 'End time (24 hour)';
 
-		$keywords['event_start_time_ical'] = Array('value'=>date('Ymd\THis', iso8601_ts($this->attr('start_date'))));
-		$keywords['event_end_time_ical'] = Array('value'=>date('Ymd\THis', iso8601_ts($this->attr('end_date'))));
+		$keywords['event_start_time_ical'] = 'Start time (iCalendar)';
+		$keywords['event_end_time_ical'] = 'End time (iCalendar)';
 
-		$keywords['event_datetime_summary'] = Array('value'=>$this->getFriendlyDatesAndTimes());
+		$keywords['event_datetime_summary'] = 'Friendly description of event dates and times';
+		$keywords['event_duration'] = 'Duration of the Event';
+		$keywords['edit_link'] = 'Link to edit this event in Limbo (if user has permission)';
+		$keywords['delete_link'] = 'Link to delete this event altogether (if user has permission)';
 
-		// give useful info if no duration (single point in time) - easy_time_total returns empty string
-		$total_time = easy_time_total($this->getDuration(), TRUE);
-		if (empty($total_time)) $total_time = 'N/A';
-
-		$keywords['event_duration'] = Array('value'=>$total_time);
-		$keywords['edit_link'] = Array('value'=>($this->writeAccess('') ? '<a href="'.replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id)).'">'.translate('cal_event_edit_link_text').'</a>' : ''));
-		$keywords['delete_link'] = Array('value'=>$this->_getDeleteLink());
-
-		if ($descriptions) {
-			$keywords['event_start_datetime']['description'] = 'Event start date/time';
-			$keywords['event_end_datetime']['description'] = 'Event end date/time';
-
-			$keywords['event_start_time_12h']['description'] = 'Start time (12 hour)';
-			$keywords['event_end_time_12h']['description'] = 'End time (12 hour)';
-
-			$keywords['event_start_time_24h']['description'] = 'Start time (24 hour)';
-			$keywords['event_end_time_24h']['description'] = 'End time (24 hour)';
-
-			$keywords['event_start_time_ical']['description'] = 'Start time (iCalendar)';
-			$keywords['event_end_time_ical']['description'] = 'End time (iCalendar)';
-
-			$keywords['event_datetime_summary']['description'] = 'Friendly description of event dates and times';
-			$keywords['event_duration']['description'] = 'Duration of the Event';
-			$keywords['edit_link']['description'] = 'Link to edit this event in Limbo (if user has permission)';
-			$keywords['delete_link']['description'] = 'Link to delete this event altogether (if user has permission)';
-		}
 		return $keywords;
 
-	}//end getAssetKeywords()
+	}//end getAvailableKeywords()
 
 
 	/**
