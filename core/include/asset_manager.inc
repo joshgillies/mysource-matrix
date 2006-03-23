@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.448 2006/03/23 03:20:52 sdanis Exp $
+* $Id: asset_manager.inc,v 1.449 2006/03/23 04:15:27 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.448 $
+* @version $Revision: 1.449 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -944,7 +944,7 @@ class Asset_Manager extends MySource_Object
 			// catch the shadow assets
 			$id_parts = explode(':', $assetids);
 			if (isset($id_parts[1])) {
-				$shadows[$id_parts[0]][] = $id_parts[1];
+				$shadows[$id_parts[0]][] = $id_parts[0].':'.$id_parts[1];
 			}
 		}
 
@@ -952,7 +952,9 @@ class Asset_Manager extends MySource_Object
 		if (!empty($shadows)) {
 			foreach ($shadows as $shadow_id => $shadow) {
 				$asset =& $this->getAsset($shadow_id);
-				$shadow_asset_ids += $asset->assetExists($shadow);
+				if (method_exists($asset,'assetExists')) {
+					$shadow_asset_ids += $asset->assetExists($shadow);
+				}
 				$this->forgetAsset($asset);
 			}
 		}
@@ -2830,7 +2832,7 @@ class Asset_Manager extends MySource_Object
 				$sql .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
 						 ON sl.majorid = a.assetid ';
 				if (is_array($type_code)) {
-					for (reset($type_code); null !== ($key = key($type_code)); next($type_code)) {
+					for (reset($type_code); NULL !== ($key = key($type_code)); next($type_code)) {
 						$type_code[$key] = $db->quoteSmart($type_code[$key]);
 					}
 					$where .= ' AND a.type_code IN ('.implode(',', $type_code).')';
@@ -2855,7 +2857,7 @@ class Asset_Manager extends MySource_Object
 			$this->forgetAsset($asset);
 
 			return $parents;
-		}
+		}//end if shadow asset
 
 		$query = $this->generateGetParentsQuery($assetid, $type_code, $strict_type_code, $sort_by, $access, $min_height, $max_height);
 		if (empty($query)) return Array();
