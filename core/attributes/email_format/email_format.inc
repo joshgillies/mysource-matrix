@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.27 2006/03/20 01:05:33 rong Exp $
+* $Id: email_format.inc,v 1.28 2006/03/23 22:14:58 sdanis Exp $
 *
 */
 
@@ -32,10 +32,10 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *
 *
 * <!-- Sample Edit Interface XML Node -->
-*    <email_format />
+*    <email_format with_asset_finder="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -58,6 +58,28 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 
 	/**
+	* Takes an XML_Tree_Node from an edit interface XML file and creates
+	* the params array from it
+	*
+	* @param object	&$node	XML_Tree_Node object.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setEditParams(&$node)
+	{
+		if (!parent::setEditParams($node)) return FALSE;
+
+		if (isset($node->attributes['with_asset_finder'])) {
+			$this->_edit_params['with_asset_finder'] = $node->attributes['with_asset_finder'];
+		}
+
+		return TRUE;
+
+	}//end setEditParams()
+
+
+	/**
 	* Print the interface for filling in a value
 	*
 	* @param string		$prefix				prefix for the form elements
@@ -69,7 +91,6 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	*/
 	function paint($prefix, $read_only=FALSE, $with_asset_finder=FALSE)
 	{
-
 		$current_value = @unserialize($this->value);
 		if (!is_array($current_value)) {
 			$current_value = Array();
@@ -97,6 +118,9 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		}
 		if (!isset($current_value['attachments'])) {
 			$current_value['attachments'] = Array();
+		}
+		if (isset($this->_edit_params['with_asset_finder']) && $this->_edit_params['with_asset_finder'] == 1) {
+			$with_asset_finder = TRUE;
 		}
 
 		if ($read_only) {
@@ -508,8 +532,8 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				if ($addressee->type() == 'user_group') {
 					$user_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($addressee->id, SQ_LINK_TYPE_1, 'user', FALSE);
 					foreach ($user_links as $user_link) {
-						$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($user_link['minor_id']);
-						$value['to_assetids'][] = $user->attr('email');
+						$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($user_link['minorid']);
+						$assetid_emails[] = $user->attr('email');
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 					}
 				} else {
