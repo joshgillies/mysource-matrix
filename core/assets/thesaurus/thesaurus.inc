@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.15.2.4 2006/03/10 02:58:11 mmcintyre Exp $
+* $Id: thesaurus.inc,v 1.15.2.5 2006/03/23 00:00:26 emcdonald Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.15.2.4 $
+* @version $Revision: 1.15.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1878,20 +1878,13 @@ class Thesaurus extends Asset
 	*/
 	function erase()
 	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!$this->_deleteStoredContents()) return FALSE;
 
 		$this->setAttrValue('relations', Array());
+		$this->markContentsChanged();
 
-		if ($this->_deleteStoredContents() && $this->markContentsChanged()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return TRUE;
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
-		}
+		return TRUE;
 
 	}//end erase()
 
@@ -1904,6 +1897,9 @@ class Thesaurus extends Asset
 	*/
 	function _deleteStoredContents()
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'DELETE FROM sq_thes_term WHERE thesid = '.$db->quoteSmart($this->id);
@@ -1917,6 +1913,9 @@ class Thesaurus extends Asset
 		$sql = 'DELETE FROM sq_thes_lnk_tree WHERE thesid = '.$db->quoteSmart($this->id);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
