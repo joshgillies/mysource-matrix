@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.31 2005/12/14 03:56:38 lwright Exp $
+* $Id: asset_manager.inc,v 1.322.2.32 2006/03/23 03:42:25 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.31 $
+* @version $Revision: 1.322.2.32 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2673,7 +2673,7 @@ class Asset_Manager extends MySource_Object
 		$exclude_str = implode(',', $exclude_list);
 		foreach ($majorids as $id) {
 			if (empty($tree_data[$id])) {
-				$majorids_str .= $id.',';
+				$majorids_str .= $db->quote($id).',';
 			} else {
 				foreach ($tree_data[$id] as $row) {
 					$assetids[] = (int) $row['assetid'];
@@ -2691,16 +2691,16 @@ class Asset_Manager extends MySource_Object
 			} else {
 				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
 				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
-				$userids[] = $this->getSystemAssetid('public_user');
+				$userids[] = $db->quote($this->getSystemAssetid('public_user'));
 				for (reset($userids); null !== ($i = key($userids)); next($userids)) {
-					$userids[$i] = $db->quote($userids[$i]);
+					$userids[$i] = $db->quote((string)$userids[$i]);
 				}
 				$USERIDS_COND = 'AND p.userid  IN ('.implode(',', $userids).')';
 			}
 
 			if (!empty($USERIDS_COND)) {
 				$USERIDS_COND .= '
-					GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
+					GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order, p.granted
 					HAVING MIN(p.granted) = 1';
 			}
 		}
