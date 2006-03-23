@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.8 2006/03/23 00:43:15 pgannavarapu Exp $
+* $Id: page_calendar_rolling.inc,v 1.9 2006/03/23 03:04:13 pgannavarapu Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -363,7 +363,7 @@ class Page_Calendar_Rolling extends Page
 		assert_valid_db_result($single_result);
 
 		// get the recurring events
-		$sql = build_recurring_event_query_base($trees, 'period', $start_date, $length);
+		$sql = build_recurring_event_query_base($trees, 'period', $start_date, (int) $length);
 		$sql .= ' AND '.$tree_sql;
 		$recur_result = $db->getAssoc($sql);
 		assert_valid_db_result($recur_result);
