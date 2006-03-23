@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.38 2005/06/24 01:11:42 dheppell Exp $
+* $Id: hipo_job_edit_status.inc,v 1.38.2.1 2006/03/23 04:53:16 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -163,7 +163,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		if (!isset($this->_running_vars['todo_assetids'])) {
 			return 0;
 		}
-		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_EDIT_STATUS_THRESHOLD) * 100);
+		return (((count($this->_running_vars['todo_assetids']) + 1) / SQ_HIPO_EDIT_STATUS_THRESHOLD) * 100);
 
 	}//end getThresholdPercentageRequired()
 
@@ -210,7 +210,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		$this->_running_vars['messages']     = Array();
 
 		unset($asset);
-		
+
 
 		return parent::prepare();
 
@@ -316,7 +316,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 			if (!is_null($asset)) {
 				$new_status = $this->_running_vars['new_status'];
-				
+
 				$asset->processStatusChange($new_status, false);
 				$step_data['message'] = translate('hipo_edit_status', $asset->name);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
