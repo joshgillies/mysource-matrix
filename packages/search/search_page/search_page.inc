@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.98.2.17 2006/03/21 22:24:04 lwright Exp $
+* $Id: search_page.inc,v 1.98.2.18 2006/03/23 23:18:22 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98.2.17 $
+* @version $Revision: 1.98.2.18 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1159,9 +1159,13 @@ class Search_Page extends Listing_Engine
 
 		if ($results_per_page != 0) {
 			$total_pages = ceil(count($asset_info) / $results_per_page);
-			$bodycopy =& $this->getBodycopy('results');
 		} else {
 			$total_pages = 1;
+		}
+
+		if (count($asset_info) != 0) {
+			$bodycopy =& $this->getBodycopy('results');
+		} else {
 			$bodycopy =& $this->getBodycopy('no_results');
 		}
 
