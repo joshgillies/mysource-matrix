@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.26.2.1 2006/03/12 23:38:35 rong Exp $
+* $Id: details.inc,v 1.26.2.2 2006/03/23 00:13:02 sdanis Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.26.2.1 $
+* @version $Revision: 1.26.2.2 $
 * @package MySource_Matrix
 */
 
@@ -51,6 +51,15 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;
+
+	$display_status_sections = TRUE;
+	$parent_asset_href = '';
+	// check if the asset is linked to its parent exclusively and is dependent
+	$parent_asset_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', TRUE, 'minor', NULL, TRUE, TRUE);
+	if (!empty($parent_asset_link)) {
+		$display_status_sections = FALSE;
+		$parent_asset_href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($parent_asset_link[0]['majorid'] => 'details'));
+	}
 
 	for ($i = 0; $i < count($root->children); $i++) {
 
@@ -109,6 +118,13 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 
 				case 'status_change' :
 
+					if (!$display_status_sections) {
+						$o->openField('');
+							echo translate('asset_current_status_change_from_parent',$parent_asset_href[$parent_asset_link[0]['majorid']]);
+						$o->closeField();
+						break;
+					}
+
 					// only print this field if the status can be changed
 					$statii = $owner->getAvailableStatii();
 					if (empty($statii)) break;
@@ -145,6 +161,13 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 				break;
 
 				case 'status_future_status' :
+
+					if (!$display_status_sections) {
+						$o->openField('');
+							echo translate('asset_future_status_change_from_parent',$parent_asset_href[$parent_asset_link[0]['majorid']]);
+						$o->closeField();
+						break;
+					}
 
 					$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
