@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.56.2.11 2005/12/16 03:34:04 sdanis Exp $
+* $Id: search_manager.inc,v 1.56.2.12 2006/03/23 23:16:41 sdanis Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.56.2.11 $
+* @version $Revision: 1.56.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1017,7 +1017,8 @@ class Search_Manager extends Asset
 							sq_ast_lnk_tree alt2,
 							sq_ast_lnk al1,
 							sq_ast_lnk al2,
-							sq_ast a';
+							sq_ast a,
+							sq_sch_idx s';
 		if ($user_restrictions) {
 			$search_sql .= ', sq_ast_perm ap ';
 		}
@@ -1027,6 +1028,8 @@ class Search_Manager extends Asset
 		if ($user_restrictions) {
 			$search_sql .= 'a.assetid = ap.assetid AND ';
 		}
+
+		$search_sql .= 'a.assetid = s.assetid AND ';
 
 		// we only want to check for a root node if we have specified one
 		if ($search_info['root_assetid'] !== 0) {
