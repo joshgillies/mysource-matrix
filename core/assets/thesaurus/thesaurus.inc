@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.21 2006/03/22 23:28:08 emcdonald Exp $
+* $Id: thesaurus.inc,v 1.22 2006/03/23 05:03:51 emcdonald Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -2616,7 +2616,57 @@ class Thesaurus extends Asset
 				$links_to_delete[$id] = $db->quoteSmart($id);
 			}
 		}//end if there are candidates to delete
+		$links_to_delete[$linkid] = $db->quoteSmart($linkid);
 
+		// select the id's of terms that will be stranded when this link is deleted
+		$sql = '
+			SELECT
+				finished.minor
+			FROM
+				sq_thes_lnk finished
+				INNER JOIN sq_thes_lnk selected ON finished.minor = selected.minor
+			WHERE
+				selected.linkid IN ('.implode(',', $links_to_delete).')
+				AND
+				selected.minor NOT IN
+				(
+					SELECT
+						surviving.minor
+					FROM
+						sq_thes_lnk surviving
+						INNER JOIN sq_thes_lnk selected ON surviving.minor = selected.minor,
+						sq_thes_lnk every
+					WHERE
+						selected.linkid IN ('.implode(',', $links_to_delete).')
+						AND
+						surviving.minor = every.minor
+						AND
+						every.linkid <> selected.linkid
+
+						AND
+						surviving.thesid = '.$db->quoteSmart($this->id).'
+						AND
+						selected.thesid = '.$db->quoteSmart($this->id).'
+						AND
+						every.thesid = '.$db->quoteSmart($this->id).'
+				)
+				AND
+				selected.thesid = '.$db->quoteSmart($this->id).'
+				AND
+				finished.thesid = '.$db->quoteSmart($this->id).'
+			';
+
+		$stranded = $db->getCol($sql);
+		assert_valid_db_result($stranded);
+
+		// broadcast before_asset_deleted event for these asset ids before deletion
+		$success = TRUE;
+		foreach ($stranded as $stranded_minor) {
+			$minor_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':'.$stranded_minor);
+			$success&= $GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_before_asset_deleted', $minor_asset, Array());
+
+		}
+		if (empty($success)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -2666,7 +2716,7 @@ class Thesaurus extends Asset
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		$links_to_delete[$linkid] = $db->quoteSmart($linkid);
+
 
 		// update the sort order
 		foreach ($links_to_delete as $id => $quoted_linkid) {
@@ -2694,46 +2744,7 @@ class Thesaurus extends Asset
 				sq_thes_term
 			WHERE
 				termid IN
-				(
-					--
-					-- When implementing event notifications, take the following SELECT out and broadcast
-					-- Most likely it will need to be moved to the section BEFORE the transaction begins
-					--
-					SELECT
-						finished.minor
-					FROM
-						sq_thes_lnk finished
-						INNER JOIN sq_thes_lnk selected ON finished.minor = selected.minor
-					WHERE
-						selected.linkid IN ('.implode(',', $links_to_delete).')
-						AND
-						selected.minor NOT IN
-						(
-							SELECT
-								surviving.minor
-							FROM
-								sq_thes_lnk surviving
-								INNER JOIN sq_thes_lnk selected ON surviving.minor = selected.minor,
-								sq_thes_lnk every
-							WHERE
-								selected.linkid IN ('.implode(',', $links_to_delete).')
-								AND
-								surviving.minor = every.minor
-								AND
-								every.linkid <> selected.linkid
-
-								AND
-								surviving.thesid = '.$db->quoteSmart($this->id).'
-								AND
-								selected.thesid = '.$db->quoteSmart($this->id).'
-								AND
-								every.thesid = '.$db->quoteSmart($this->id).'
-						)
-						AND
-						selected.thesid = '.$db->quoteSmart($this->id).'
-						AND
-						finished.thesid = '.$db->quoteSmart($this->id).'
-				)
+				('.implode(',', $stranded).')
 				AND
 				thesid = '.$db->quoteSmart($this->id).'
 		';
@@ -2992,6 +3003,78 @@ class Thesaurus extends Asset
 		return $result;
 
 	}//end getLineagesForTerm()
+
+
+	/**
+	* Determine if the passed assetid or assetids refer(s) to a valid asset in the system
+	*
+	* @param int|array	$assetids	the ID of the asset we are going to the check for existence
+	*								or an array of assetids we want to check
+	*
+	* @return mixed boolean|array
+	* @access public
+	*/
+	function assetExists($assetids)
+	{
+
+		$shadows = Array();
+		$shadow_asset_ids = Array();
+
+		// number of assetids
+		$count = count($assetids);
+
+		$is_array = is_array($assetids);
+		$is_empty = empty($assetids);
+
+		// assert assetid format
+		if ($is_array && !$is_empty) {
+			foreach ($assetids as $key => $value) {
+				assert_valid_assetid($value);
+			}
+		} else if (!$is_empty) {
+			assert_valid_assetid($assetids);
+		}
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT termid, thesid
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'thes_term ';
+
+		// single asset id
+		if (!$is_array) {
+			if ($is_empty) return FALSE;
+			$id_parts = explode(':', $assetids);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('termid = '.$db->quoteSmart($id_parts[1]).' AND thesid = '.$db->quoteSmart($id_parts[0]));
+			$db_assetids = $db->getOne($sql.$where);
+			assert_valid_db_result($db_assetids);
+			return ($db_assetids == $assetids);
+		}
+
+		// array of asset ids
+		$existing_asset_ids = Array();
+		if (!$is_empty) {
+			$in = 'termid IN (';
+			$thesid_array = Array();
+			for ($i=0; $i<count($assetids); $i++) {
+				$id_parts = explode(':', $assetids[$i]);
+				// build an array of thesids for each termid
+				$thesid_array[$id_parts[1]] = $id_parts[0];
+				$in .= $db->quoteSmart($id_parts[1]).(($i == count($assetids) - 1) ? ')' : ',');
+			}
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($in);
+			$db_assetids = $db->getAll($sql.$where);
+			assert_valid_db_result($db_assetids);
+
+			foreach ($db_assetids as $db_id) {
+				if ($db_id['thesid'] == $thesid_array[$db_id['termid']]) {
+					$existing_asset_ids[] = $db_id['thesid'].':'.$db_id['termid'];
+				}
+			}
+		}
+
+		return $existing_asset_ids;
+
+	}//end assetExists()
 
 
 }//end class
