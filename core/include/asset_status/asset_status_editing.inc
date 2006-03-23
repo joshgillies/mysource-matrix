@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.32 2006/02/07 23:58:54 lwright Exp $
+* $Id: asset_status_editing.inc,v 1.33 2006/03/23 03:56:13 sdanis Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -105,13 +105,13 @@ class Asset_Status_Editing extends Asset_Status
 					$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
 				}
 			} else {
-				// so we have workflows, but none of them are running so lets see what will happen
-				// if this user approves to determine if they can live edit
-				$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
-
 				// we also need to check what if all the required metadata fields are completed
 				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				if ($mm->allowsMetadata($this->owner->id)) {
+					// so we have workflows, but none of them are running so lets see what will happen
+					// if this user approves to determine if they can live edit
+					$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
+
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 
 					if ($wf_complete && $m_complete) {
