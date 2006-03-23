@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.1.1.1 2006/02/20 22:36:45 dmckee Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.2 2006/03/23 00:17:14 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -468,8 +468,13 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 
 			$this->_running_vars['running_count'] = 0;
 			$heading = current($this->_running_vars['headings']);
+			if (!empty($this->_running_vars['headings']) && $heading === false) {
+				reset($this->_running_vars['headings']);
+				$heading = current($this->_running_vars['headings']);
+			}
 			$e = '/(<\s*'.$heading.'[^>]*>.*<\/\s*'.$heading.'>)/i';
 			$matches = preg_split($e, $file_data, -1, PREG_SPLIT_DELIM_CAPTURE);
+
 			$this->_running_vars['started_scanning'] = TRUE;
 			$this->_running_vars['top_level_count'] = count($matches);
 
@@ -506,6 +511,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		$data = $this->_running_vars['data_structure'][$this->_running_vars['running_count']];
 
 		$this->_running_vars['data_structure'][$this->_running_vars['running_count']]['children'] = $this->scanChildren($this->_running_vars['headings'], $this->_running_vars['data_structure'][$this->_running_vars['running_count']]['data']);
+
 		$this->_running_vars['data_structure'][$this->_running_vars['running_count']]['data'] = $this->_running_vars['data_structure'][$this->_running_vars['running_count']]['children']['parent_data'];
 		unset($this->_running_vars['data_structure'][$this->_running_vars['running_count']]['children']['parent_data']);
 
