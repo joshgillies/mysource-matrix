@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.14 2006/01/18 04:31:45 sdanis Exp $
+* $Id: form_submission_edit_fns.inc,v 1.15 2006/03/24 01:12:08 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -59,7 +59,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		if (!empty($this->_tmp['question_errors'])) {
 			?>
 			<div style="color: red">
-			<strong>Errors during processing - form submission not updated:</strong>
+			<strong><?php echo translate('cms_form_submission_error_during_processing'); ?></strong>
 			<ul>
 				<?php
 				foreach ($this->_tmp['question_errors'] as $msg) {
@@ -94,7 +94,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 			if (isset($section_questions[$form_id][$q_id])) {
 				$q->setValue($section_questions[$form_id][$q_id]['answer']);
 			}
-			$note = $q->isEditable() ? $q->getVal('note') : '<i>(Questions of this type cannot be edited)</i>';
+			$note = $q->isEditable() ? $q->getVal('note') : '<i>'.translate('cms_form_submission_cannot_edit_question_type').'</i>';
 			$o->openField($q->getVal('title'), '', $note);
 			echo ($q->isEditable() && $wa) ? $q->getHtmlField() : $q->getSummary().'&nbsp;';
 			$section_questions[$form_id][$q_id]['printed'] = TRUE;
@@ -102,7 +102,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		}
 		foreach ($section_questions[$form_id] as $q_id => $q_details) {
 			if (!$q_details['printed']) {
-				$note = '<i>(This question has been deleted from the form and cannot be edited)</i>';
+				$note = '<i>'.translate('cms_form_submission_question_deleted_cannot_be_edited').'</i>';
 				$o->openField($answers['summary'][$q_id]['name'], '', $note);
 				echo $q_details['answer'];
 				$o->closeField();
@@ -118,7 +118,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 				if (isset($section_questions[$section_id][$q_id])) {
 					$q->setValue($section_questions[$section_id][$q_id]['answer']);
 				}
-				$note = $q->isEditable() ? $q->getVal('note') : '<i>(Questions of this type cannot be edited)</i>';
+				$note = $q->isEditable() ? $q->getVal('note') : '<i>'.translate('cms_form_submission_cannot_edit_question_type').'</i>';
 				$o->openField($q->getVal('title'), '', $note);
 				echo ($q->isEditable() && $wa) ? $q->getHtmlField() : $q->getSummary().'&nbsp;';
 				$section_questions[$section_id][$q_id]['printed'] = TRUE;
@@ -126,7 +126,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 			}
 			foreach ($section_questions[$section_id] as $q_id => $q_details) {
 				if (!$q_details['printed']) {
-					$note = '<i>(This question has been deleted from the form and cannot be edited)</i>';
+					$note = '<i>'.translate('cms_form_submission_question_deleted_cannot_be_edited').'</i>';
 					$o->openField($answers['summary'][$q_id]['name'], '', $note);
 					echo $q_details['answer'];
 					$o->closeField();
