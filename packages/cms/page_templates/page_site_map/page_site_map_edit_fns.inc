@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_edit_fns.inc,v 1.19 2006/02/15 22:30:13 sdanis Exp $
+* $Id: page_site_map_edit_fns.inc,v 1.20 2006/03/24 04:35:40 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -268,6 +268,112 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 		return $asset->setAttrValue('include_types', $exclude_types);
 
 	}//end processTypeIncludeList()
+
+
+	/**
+	* paint the asset type display formats table
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintTypeFormats(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$formats = $asset->attr('display_formats');
+
+
+		if ($write_access) {
+			$formats[] = Array();
+		} else if (empty($formats)) {
+			echo translate('cms_page_site_map_no_display_formats');
+			return;
+		}
+
+
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<th><?php echo translate('asset_type'); ?></th><?php echo (!$write_access ?  '<th>'.translate('inherit').'</th>' : ''); ?><th><?php echo translate('format'); ?></th><?php echo ($write_access ?  '<th>'.translate('delete').'</th>' : ''); ?>
+			</tr>
+		<?php
+		foreach ($formats as $key => $format) {
+			$row_prefix = $prefix.'_display_formats['.$key.']';
+			if (empty($format)) {
+				$current_type = Array();
+			} else {
+				$current_type = Array(
+									'type_code'	=> $key,
+									'inherit'	=> $format['inherit'],
+								);
+			}
+			?>
+			<tr>
+				<?php
+					if ($write_access) {
+						?>
+						<td class="sq-backend-table-cell"><?php asset_type_chooser($row_prefix.'[type]', FALSE, $current_type, NULL, FALSE, TRUE); ?></td>
+						<td class="sq-backend-table-cell"><?php text_box($row_prefix.'[format]', array_get_index($format,'format', ''), 70); ?></td>
+						<td class="sq-backend-table-cell"><?php check_box($row_prefix.'[delete]'); ?></td>
+						<?php
+					} else {
+				?>
+					<td class="sq-backend-table-cell"><?php get_asset_type_icon($key); echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($key, 'name'); ?></td>
+					<td class="sq-backend-table-cell"><?php echo ($format['inherit'] ? translate('yes') : translate('no')); ?></td>
+					<td class="sq-backend-table-cell"><?php echo $format['format']; ?></td>
+				<?php
+					}
+				?>
+
+			</tr>
+			<?php
+		}
+		?>
+		</table>
+		<?php
+
+	}//end paintTypeFormats()
+
+
+	/**
+	* processes the asset type display formats
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processTypeFormats(&$asset, &$o, $prefix)
+	{
+
+		if (isset($_POST[$prefix.'_display_formats'])) {
+			$formats = Array();
+
+			foreach ($_POST[$prefix.'_display_formats'] as $type => $format) {
+				if (isset($format['delete']) || empty($format['format'])) {
+					continue;
+				}
+
+				$formats[$format['type']['type_code']] = Array(
+															'inherit'	=> $format['type']['inherit'],
+															'format'	=> $format['format'],
+														 );
+			}
+
+			if ($asset->setAttrValue('display_formats', $formats)) {
+				return TRUE;
+			}
+		}
+
+		return FALSE;
+
+	}//end processTypeFormats()
 
 
 }//end class

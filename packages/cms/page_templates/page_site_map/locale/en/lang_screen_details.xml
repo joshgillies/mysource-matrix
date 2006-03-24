@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2006/03/06 03:46:32 sdanis Exp $
+* $Id: lang_screen_details.xml,v 1.7 2006/03/24 04:35:40 sdanis Exp $
 *
 */
 -->
@@ -78,6 +78,14 @@
 			<function_call>
 				<paint_function   name="paintTypeIncludeList"   />
 				<process_function name="processTypeIncludeList" />
+			</function_call>
+		</field>
+		<field>
+		<display_name>Display Formats</display_name>
+			<note>Change the display format of asset types using html and keywords.</note>
+			<function_call>
+				<paint_function   name="paintTypeFormats"   />
+				<process_function name="processTypeFormats" />
 			</function_call>
 		</field>
 	</section>

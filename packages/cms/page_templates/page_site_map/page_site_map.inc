@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.30 2006/03/06 04:24:38 sdanis Exp $
+* $Id: page_site_map.inc,v 1.31 2006/03/24 04:35:40 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -283,6 +283,7 @@ class Page_Site_Map extends Page
 	*/
 	function _defaultRecursePrintAssetList(&$page_data, $parent, $level, $generating=FALSE)
 	{
+		$display_formats = $this->attr('display_formats');
 		$top_level = $this->attr('top_level');
 		$stalks = $this->attr('stalks');
 
@@ -311,8 +312,36 @@ class Page_Site_Map extends Page
 ?>
 							<script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;
 						<?php }
+
+						$format = $data['name'];
+						$format_type_code = NULL;
+						if (isset($display_formats[$data['type_code']])) {
+							$format_type_code = $data['type_code'];
+
+						} else if (!empty($display_formats)) {
+							foreach ($display_formats as $type => $info) {
+								if ($info['inherit'] == 1) {
+									if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($data['type_code'], $type)) {
+										$format_type_code = $type;
+										break;
+									}
+								}
+							}
+						}
+
+						if (!is_null($format_type_code)) {
+							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data['assetid']);
+							$format = $display_formats[$format_type_code]['format'];
+							preg_match_all('/%(\w+)%/i', $format, $matches);
+
+							foreach ($matches[1] as $key => $keyword) {
+								$rep = $asset->getKeywordReplacement($keyword);
+								$format = ereg_replace($matches[0][$key], $rep, $format);
+							}
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+						}
 ?>
-						<a href="<?php echo $url?>" title="<?php echo $data['name']; ?>"><?php echo $data['name'];?></a>
+						<a href="<?php echo $url?>" title="<?php echo $data['name']; ?>"><?php echo $format; ?></a>
 					</td>
 				</tr>
 				<?php

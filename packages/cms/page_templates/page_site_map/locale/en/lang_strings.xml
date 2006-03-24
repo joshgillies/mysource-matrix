@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2006/02/15 22:30:13 sdanis Exp $
+* $Id: lang_strings.xml,v 1.2 2006/03/24 04:35:40 sdanis Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -20,4 +20,5 @@
 <strings>
 	<string source="cms_page_site_map_inherits_child_types">Inherits Child Types</string>
 	<string source="cms_page_site_map_all_asset_types_included">All Asset Types Included</string>
+	<string source="cms_page_site_map_no_display_formats">No asset type display formats defined.</string>
 </strings>
