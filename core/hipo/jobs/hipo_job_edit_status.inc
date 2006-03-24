@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.39 2006/03/23 04:53:03 lwright Exp $
+* $Id: hipo_job_edit_status.inc,v 1.40 2006/03/24 05:14:17 pgannavarapu Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -177,6 +177,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	*/
 	function prepare()
 	{
+
 		// to start editing a status, we need to have an asset id to edit
 		if (!isset($this->_running_vars['assetid'])) {
 			trigger_localised_error('HIPO0012', E_USER_WARNING);
@@ -212,6 +213,9 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 		unset($asset);
 
+		$to_do = array_keys($this->_running_vars['todo_assetids']);
+		$to_do[] = $this->_running_vars['assetid'];
+		$this->_running_vars['current_asset_statuses'] = $GLOBALS['SQ_SYSTEM']->am->getAssetStatus($to_do);
 
 		return parent::prepare();
 
@@ -306,27 +310,29 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			if (empty($this->_running_vars['done_assetids'])) {
 				// make sure we process the root asset first
 				$assetid = $this->_running_vars['assetid'];
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$this->_running_vars['done_root'] = true;
 			} else {
 				$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
-				$asset_type = $this->_running_vars['todo_assetids'][$assetid];
 				unset($this->_running_vars['todo_assetids'][$assetid]);
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 			}
 
-			if (!is_null($asset)) {
-				$new_status = $this->_running_vars['new_status'];
-
-				$asset->processStatusChange($new_status, false);
-				$step_data['message'] = translate('hipo_edit_status', $asset->name);
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-				unset($asset);
+			$new_status = $this->_running_vars['new_status'];
+			// if the current status of the status is the same as the new status
+			// if its same there is nothing to be done. otherwise processStatusChange on the asset
+			if ($this->_running_vars['current_asset_statuses'][$assetid] != $new_status) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if (!is_null($asset)) {
+					$asset->processStatusChange($new_status, false);
+					$step_data['message'] = translate('hipo_edit_status', $asset->name);
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+					unset($asset);
+				} else {
+					$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+					$this->_addError(translate('hipo_cannot_edit_status', $assetid));
+				}
 			} else {
-				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
-				$this->_addError(translate('hipo_cannot_edit_status', $assetid));
+				$step_data['message'] = translate('hipo_edit_status_no_change', $assetid);
 			}
-
 			// add this assetid to the done array so we dont do it again
 			$this->_running_vars['done_assetids'][] = $assetid;
 		}

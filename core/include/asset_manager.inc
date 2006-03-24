@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.449 2006/03/23 04:15:27 emcdonald Exp $
+* $Id: asset_manager.inc,v 1.450 2006/03/24 05:15:50 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.449 $
+* @version $Revision: 1.450 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1353,6 +1353,70 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getAssetInfo()
+
+
+	/**
+	* Returns an array of assetids and corresonding status
+	*
+	* Array(id => status, id => status)
+	*
+	* @param array			$assetids			an array of assets to limit
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetStatus($assetids)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$result = Array();
+		if (!is_array($assetids)) {
+			$assetids = Array($assetids);
+		}
+		$result = Array();
+		// check for any shadow assetids. If yes then we have to contact the bridge and see if we can get any of the statuses from it
+		$shadow_ids = Array();
+		foreach ($assetids as $index => $id) {
+			$sid = explode(':', $id);
+			if (isset($sid[1])) {
+				//here we are! Found a shadow asset
+				$shadow_ids[$sid[0]][] = $id;
+				unset($assetids[$index]);
+			}
+		}
+
+		if (!empty($shadow_ids)) {
+			foreach ($shadow_ids as $bridge_id => $shadows) {
+				$bridge =& $this->getAsset($bridge_id);
+				$children_ids = array_values($shadows);
+				// if the method is defined in the bridge then you ask the bridge to give you the status
+				// but if its not defined then you just take it for granted that
+				// the status of the bridge is the status of the shadow assets
+				if (method_exists($bridge, 'getAssetStatus')) {
+					$result += $bridge->getAssetStatus($children_ids);
+				} else {
+					$bridge_status = $bridge->status;
+					foreach ($children_ids as $child) {
+						$result[$child] = $bridge_status;
+					}
+				}
+				$this->forgetAsset($bridge);
+			}
+		}
+
+		//if we still have standard assetids to be processed then get their statuses from the database
+		if (!empty($assetids)) {
+			$sql = 'SELECT assetid, status from sq_ast where assetid IN (';
+			foreach ($assetids as $id) {
+				$sql .= $db->quoteSmart($id).', ';
+			}
+			$sql = substr($sql, 0, (strlen($sql) - 2)).')';
+			$res = $db->getAssoc($sql);
+			assert_valid_db_result($res);
+			$result += $res;
+		}
+		return $result;
+
+	}//end getAssetStatus()
 
 
 	/**
