@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.22 2006/03/23 05:03:51 emcdonald Exp $
+* $Id: thesaurus.inc,v 1.23 2006/03/26 22:56:29 emcdonald Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -2122,8 +2122,8 @@ class Thesaurus extends Asset
 		if (empty($term)) return $asset_info;
 
 		$asset_info['assetid']		= $assetid;
-		$asset_info['name']			= $term['term'];
-		$asset_info['short_name']	= $term['term'];
+		$asset_info['name']			= urlencode($term['term']);
+		$asset_info['short_name']	= urlencode($term['term']);
 		$asset_info['version']		= $this->version;
 		$asset_info['status']		= $this->status;
 		$asset_info['type_code']	= 'thesaurus_term';
