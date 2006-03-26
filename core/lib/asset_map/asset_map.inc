@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.210.2.2 2006/02/17 02:35:38 sdanis Exp $
+* $Id: asset_map.inc,v 1.210.2.3 2006/03/26 23:35:31 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.210.2.2 $
+* @version $Revision: 1.210.2.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -450,7 +450,9 @@ class Asset_Map
 
 			$attrs['assetid'] = urlencode($attrs['assetid']);
 			$attrs['name'] = urlencode($attrs['name']);
-
+			if (isset($attrs['short_name'])) {
+				$attrs['short_name'] = urlencode($attrs['short_name']);
+			}
 		} else {
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
