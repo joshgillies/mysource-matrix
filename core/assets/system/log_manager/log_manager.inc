@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.17 2006/01/26 22:34:06 lwright Exp $
+* $Id: log_manager.inc,v 1.17.2.1 2006/03/27 23:25:29 rong Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -686,7 +686,7 @@ class Log_Manager extends Asset
 								'.translate('user').':&nbsp;<strong>'.$d_line['user'].'</strong>&nbsp;('.$d_line['userid'].')<br />
 								'.translate('level').':&nbsp;<strong>'.$error_type_name.'</strong><br />
 							</td>
-							<td><span style="font-family: monospace;">'.$message.'</span></td>
+							<td><span style="font-family: monospace;">'.nl2br($message).'</span></td>
 						</tr>';
 					} else {
 						$content .= '
@@ -694,7 +694,7 @@ class Log_Manager extends Asset
 							<td style="color: red; background-color: #eef; text-align: right;">
 								<strong>'.translate('raw_entry').':</strong>
 							</td>
-							<td><span style="font-family: monospace;">'.$line.'<span></td>
+							<td><span style="font-family: monospace;">'.nl2br($line).'<span></td>
 						</tr>';
 					}
 
