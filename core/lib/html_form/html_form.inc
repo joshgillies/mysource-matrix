@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.116 2006/01/27 03:22:46 dmckee Exp $
+* $Id: html_form.inc,v 1.116.2.1 2006/03/27 23:37:13 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.116.2.1 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -837,22 +837,21 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 		echo '<br />';
 	}
 
-	if (SQ_IN_BACKEND) {
-		$index = count($assetids);
-		asset_finder($name.'['.$index.']', 0, $type_codes, $map_frame, $new_window, $done_fn, Array('clear'));
-		$index++;
+	$index = count($assetids);
+	asset_finder($name.'['.$index.']', 0, $type_codes, $map_frame, $new_window, $done_fn, Array('clear'));
+	$index++;
 
-		if (!empty($map_frame)) {
-			$map_frame_exp = trim('parent.frames["'.$map_frame.'"]', '.');
-		} else {
-			$map_frame_exp = 'top';
-		}
-
-		$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
-		$type_codes_string = get_type_codes_string($type_codes);
-		echo '<input type="button" name="'.htmlspecialchars($safe_name.'_more_btn').'" id="'.htmlspecialchars($safe_name.'_more_btn').'" value="'.translate('more').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp).'\', '.$done_fn.', '.(in_array('clear', $buttons) ? 'true' : 'false').')" />';
-		echo '<br />';
+	if (!empty($map_frame)) {
+		$map_frame_exp = trim('parent.frames["'.$map_frame.'"]', '.');
+	} else {
+		$map_frame_exp = 'top';
 	}
+
+	$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
+	$type_codes_string = get_type_codes_string($type_codes);
+	echo '<input type="button" name="'.htmlspecialchars($safe_name.'_more_btn').'" id="'.htmlspecialchars($safe_name.'_more_btn').'" value="'.translate('more').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp).'\', '.$done_fn.', '.(in_array('clear', $buttons) ? 'true' : 'false').')" />';
+	echo '<br />';
+
 	echo '</div>';
 
 }//end multiple_asset_finder()
