@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.84.2.2 2006/03/01 05:58:06 ndvries Exp $
+* $Id: workflow_manager.inc,v 1.84.2.3 2006/03/27 04:27:14 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84.2.2 $
+* @version $Revision: 1.84.2.3 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -574,7 +574,7 @@ class Workflow_Manager extends MySource_Object
 					if ($conditionid == $userid) $listed_user = TRUE;
 				}
 
-				if ($condition_details['require_comment']) {
+				if (array_get_index($condition_details, 'require_comment', FALSE)) {
 					// no point going through the rest if we know we need to comment
 					return TRUE;
 				}
@@ -583,7 +583,7 @@ class Workflow_Manager extends MySource_Object
 
 			// if the user wasn't listed, then check if unlisted users need to comment
 			// if so, return: there's no point checking the rest
-			if (!$listed_user && $current_step['require_comment_from_unlisted_users']) {
+			if (!$listed_user && array_get_index($current_step, 'require_comment_from_unlisted_users', FALSE)) {
 				return TRUE;
 			}
 		}//end foreach
