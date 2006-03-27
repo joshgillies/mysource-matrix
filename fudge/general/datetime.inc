@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.43 2006/02/07 22:49:16 sdanis Exp $
+* $Id: datetime.inc,v 1.44 2006/03/27 05:27:30 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     General function for manipulating dates and times
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package Fudge
 * @subpackage General
 */
@@ -673,7 +673,7 @@ function iso8601_time_component($iso8601)
 	if (!is_iso8601($iso8601)) return FALSE;
 	if (strlen($iso8601) < 13) return FALSE;
 	if (substr($iso8601,11) == '--:--:--') return FALSE;
-	return substr($iso8601,11);
+	return substr($iso8601,11,8);
 
 }//end iso8601_time_component()
 
