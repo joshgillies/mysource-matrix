@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.150.2.6 2006/03/21 03:10:59 lwright Exp $
+* $Id: listing_engine.inc,v 1.150.2.7 2006/03/27 23:54:56 skim Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.150.2.6 $
+* @version $Revision: 1.150.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -837,12 +837,15 @@ class Listing_Engine extends Page
 
 			case 'letter' :
 				$filtered_todo = Array();
-				for (reset($todo); NULL !== ($todo_id = key($todo)); next($todo)) {
-					$filtered_todo[$todo_id] =& $todo[$todo_id]['type_code'];
+				for (reset($todo); null !== ($todo_id = key($todo)); next($todo)) {
+					$filtered_todo[$todo_id] = $todo[$todo_id]['type_code'];
 				}
+
 				$this->filterAssetTypes($filtered_todo);
-				foreach ($filtered_todo as $todo_id => $type_code) {
-					$todo[$todo_id]['type_code'] = $type_code;
+				foreach (array_keys($todo) as $todo_id) {
+					if (!isset($filtered_todo[$todo_id])) {
+						unset($todo[$todo_id]);
+					}
 				}
 				unset($filtered_todo);
 			break;
