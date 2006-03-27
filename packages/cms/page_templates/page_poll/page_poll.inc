@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.5 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: page_poll.inc,v 1.5.2.1 2006/03/27 10:52:51 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -101,7 +101,11 @@ class Page_Poll extends Page
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_2 => Array('poll_question' => Array('card' => 'M', 'exclusive' => false)));
+		$page_links = parent::_getAllowedLinks();
+
+		$page_links[SQ_LINK_TYPE_2]['poll_question'] = Array('card' => 'M', 'exclusive' => FALSE);
+
+		return $page_links;
 
 	}//end _getAllowedLinks()
 
