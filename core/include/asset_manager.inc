@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.450 2006/03/24 05:15:50 pgannavarapu Exp $
+* $Id: asset_manager.inc,v 1.451 2006/03/27 23:22:46 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.450 $
+* @version $Revision: 1.451 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5395,10 +5395,12 @@ class Asset_Manager extends MySource_Object
 			$real_assetid = $id_parts[0];
 			$asset =& $this->getAsset($real_assetid);
 
+			$ret_val = NULL;
 			if (is_null($asset)) continue;
-
-			$ret_val = $asset->setPermission($assetid, $userid, $permission, $granted);
-			$this->forgetAsset($asset);
+			if (method_exists($asset, 'setPermission')) {
+				$ret_val = $asset->setPermission($assetid, $userid, $permission, $granted);
+				$this->forgetAsset($asset);
+			}
 
 			return $ret_val;
 		}
