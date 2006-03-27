@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.31.2.1 2006/03/27 05:58:49 lwright Exp $
+* $Id: page_whats_new.inc,v 1.31.2.2 2006/03/27 06:08:30 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31.2.1 $
+* @version $Revision: 1.31.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -169,6 +169,9 @@ class Page_Whats_New extends Listing_Engine
 
 			foreach ($root_asset_ids as $root_asset_id) {
 				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), FALSE, 'major', NULL, NULL, NULL, $letter_sort_by, SQ_PERMISSION_READ);
+
+				// Replace references to asset table with ones to the view
+				$where = str_replace('a.'.$field, 'l.'.$field, $where);
 				$query['where'] .= $where;
 
 				// special case for A-Z listings because they require another field selected from the database
@@ -210,7 +213,7 @@ class Page_Whats_New extends Listing_Engine
 
 				// special case for A-Z listings because they require another field selected from the database
 				if ($group_by == 'letter') {
-					$query['select'] .= ', SUBSTR(l.'.$letter_sort_by.', 1, 1) AS first_letter';
+					$query['select'] .= ', SUBSTR(a.'.$letter_sort_by.', 1, 1) AS first_letter';
 				}
 
 				$new_kids = $db->getAssoc(implode(' ', $query));
