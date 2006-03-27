@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.33 2006/02/16 00:54:51 sdanis Exp $
+* $Id: listing_engine.inc,v 1.38.2.34 2006/03/27 23:50:04 skim Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.33 $
+* @version $Revision: 1.38.2.34 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -594,11 +594,14 @@ class Listing_Engine extends Page
 			case 'letter' :
 				$filtered_todo = Array();
 				for (reset($todo); null !== ($todo_id = key($todo)); next($todo)) {
-					$filtered_todo[$todo_id] =& $todo[$todo_id]['type_code'];
+					$filtered_todo[$todo_id] = $todo[$todo_id]['type_code'];
 				}
+
 				$this->filterAssetTypes($filtered_todo);
-				foreach ($filtered_todo as $todo_id => $type_code) {
-					$todo[$todo_id]['type_code'] = $type_code;
+				foreach (array_keys($todo) as $todo_id) {
+					if (!isset($filtered_todo[$todo_id])) {
+						unset($todo[$todo_id]);
+					}
 				}
 				unset($filtered_todo);
 			break;
