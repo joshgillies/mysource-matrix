@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.23 2006/03/26 22:56:29 emcdonald Exp $
+* $Id: thesaurus.inc,v 1.24 2006/03/27 05:05:28 emcdonald Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -2122,8 +2122,8 @@ class Thesaurus extends Asset
 		if (empty($term)) return $asset_info;
 
 		$asset_info['assetid']		= $assetid;
-		$asset_info['name']			= urlencode($term['term']);
-		$asset_info['short_name']	= urlencode($term['term']);
+		$asset_info['name']			= $term['term'];
+		$asset_info['short_name']	= $term['term'];
 		$asset_info['version']		= $this->version;
 		$asset_info['status']		= $this->status;
 		$asset_info['type_code']	= 'thesaurus_term';
@@ -2616,6 +2616,7 @@ class Thesaurus extends Asset
 				$links_to_delete[$id] = $db->quoteSmart($id);
 			}
 		}//end if there are candidates to delete
+
 		$links_to_delete[$linkid] = $db->quoteSmart($linkid);
 
 		// select the id's of terms that will be stranded when this link is deleted
@@ -2738,18 +2739,19 @@ class Thesaurus extends Asset
 		}
 
 		// delete terms that will be stranded after the deletion of this link
-		// NOTE: This query will need to be taken apart when we need to broadcast events BEFORE and AFTER deletion
-		$sql = '
-			DELETE FROM
-				sq_thes_term
-			WHERE
-				termid IN
-				('.implode(',', $stranded).')
-				AND
-				thesid = '.$db->quoteSmart($this->id).'
-		';
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		if (!empty($stranded)) {
+			$sql = '
+				DELETE FROM
+					sq_thes_term
+				WHERE
+					termid IN
+					('.implode(',', $stranded).')
+					AND
+					thesid = '.$db->quoteSmart($this->id).'
+			';
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+		}
 
 		// finally delete all links
 		$sql = '
