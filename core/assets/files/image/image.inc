@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.56 2006/03/14 03:21:40 ndvries Exp $
+* $Id: image.inc,v 1.57 2006/03/27 00:50:15 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -291,13 +291,14 @@ class Image extends File
 	*										this multiple times and only want to save once at the end
 	* @param boolean	$file_versioning	the argument which will be passed onto image_variety to tell
 	*										it not to use file_versioning
+	* @param boolean	$check_write_access	it is FALSE when we dont want to check the write access of the user
 	*
 	* @return mixed boolean|int
 	* @access public
 	*/
-	function saveVariety($variety, $recreate_image=TRUE, $save_attrs=TRUE, $file_versioning=TRUE)
+	function saveVariety($variety, $recreate_image=TRUE, $save_attrs=TRUE, $file_versioning=TRUE, $check_write_access=TRUE)
 	{
-		if (!$this->writeAccess('attributes')) {
+		if ($check_write_access && !$this->writeAccess('attributes')) {
 			trigger_localised_error('CORE0069', E_USER_WARNING, $this->name, $this->id);
 			return FALSE;
 
@@ -367,7 +368,6 @@ class Image extends File
 
 		$variety =& $this->getAsset($this->id.':'.$varietyid);
 		if (is_null($variety)) return FALSE;
-
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');

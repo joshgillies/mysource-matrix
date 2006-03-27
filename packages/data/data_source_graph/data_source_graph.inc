@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.14 2006/02/23 03:32:40 skim Exp $
+* $Id: data_source_graph.inc,v 1.15 2006/03/27 00:50:20 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -549,7 +549,7 @@ class Data_Source_Graph extends Image
 				$links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'image_variety');
 				foreach ($links as $link) {
 					$variety =& $am->getAsset($link['minorid'], 'image_variety');
-					if (!$this->saveVariety($variety, TRUE, TRUE, FALSE)) {
+					if (!$this->saveVariety($variety, TRUE, TRUE, FALSE, FALSE)) {
 						trigger_error('Failed to update the image varieties', E_USER_WARNING);
 					}
 				}
