@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_management.inc,v 1.12 2006/01/20 03:41:29 sdanis Exp $
+* $Id: page_remote_content_management.inc,v 1.13 2006/03/28 03:42:29 sdanis Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -146,6 +146,11 @@ class Page_Remote_Content_Management extends Asset_Management
 											   ),
 						'post_variables'	=> Array(
 												'added'		=> '1.5',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+											   ),
+						'tag_replacmenets'	=> Array(
+												'added'		=> '1.6',
 												'type'		=> 'serialise',
 												'default'	=> Array(),
 											   ),

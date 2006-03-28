@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2005/12/08 01:09:28 arailean Exp $
+* $Id: lang_screen_details.xml,v 1.4 2006/03/28 03:42:29 sdanis Exp $
 *
 */
 -->
@@ -71,8 +71,15 @@
 			<display_name>Strip Images?</display_name>
 			<note>If you select "Yes", all images on the target page will be removed and replaced with their Alt tag values (or word 'Image')</note>
 		</field>
-		<note>When filtering content based on Start/End tags, please be aware that complex nested content might not be properly identified, i.e. if there is a table inside a table and you want to capture the top level table, the captured region might start at the right spot, but end when the included table ends, without reaching the end of the top level one.
-		</note>
+		<field>
+			<display_name>Tag Replacements</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintReplaceTagList" />
+				<process_function name="processReplaceTagList" />
+			</function_call>
+		</field>
+		<note>When filtering content based on Start/End tags, please be aware that complex nested content might not be properly identified, i.e. if there is a table inside a table and you want to capture the top level table, the captured region might start at the right spot, but end when the included table ends, without reaching the end of the top level one.</note>
 	</section>
 	<section name="Content Tunneling">
 		<note>By default, there is no content tunneling. All the elements of the remote page like images, flash movies, external scripts are requested by the browser from their original location. Enabling tunneling for a particular type of content means that it will be accessed not via it's original location directly, but by asking the remote content to retrieve it. This is done by re-writing the URLs of those elements to point back to the remote content asset. This feature might be beneficial if you are setting up a system with HTTP Authentication or if the target content is configured to only allow access to this matrix server. Beware that enabling these options may significantly increase the load time of the target page as well as increase the traffic of the matrix server.</note>

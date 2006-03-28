@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_edit_fns.inc,v 1.8 2006/01/20 03:41:29 sdanis Exp $
+* $Id: page_remote_content_edit_fns.inc,v 1.9 2006/03/28 03:42:29 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -40,6 +40,7 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 	function Page_Remote_Content_Edit_Fns()
 	{
 		$this->Page_Edit_Fns();
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -212,6 +213,112 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 		return $asset->setAttrValue('post_variables', $post_variables);
 
 	}//end processNewPostVariableInput()
+
+
+	/**
+	* Display the Tag replacements
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintReplaceTagList(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$tag_replacements = $asset->attr('tag_replacmenets');
+		if (!empty($tag_replacements) || $write_access) {
+			?>
+			<table width="100%" class="sq-backend-table">
+			<tr><th><?php echo translate('cms_remote_content_tag'); ?></th><th><?php echo translate('cms_remote_content_start_tag'); ?></th><th><?php echo translate('cms_remote_content_end_tag'); ?></th><th><?php echo translate('cms_remote_content_remove_contents'); ?></th><?php echo (($write_access && !empty($tag_replacements)) ? '<th>'.translate('delete').'</th>' : ''); ?></tr>
+			<?php
+
+			foreach ($tag_replacements as $tag => $tag_info) {
+				if ($write_access) {
+					?>
+					<tr>
+						<td><?php text_box($prefix.'_tag_replacments[reps]['.$tag.'][tag]', $tag, 30); ?></td>
+						<td><?php text_box($prefix.'_tag_replacments[reps]['.$tag.'][start_tag]', $tag_info['start_tag'], 30); ?></td>
+						<td><?php text_box($prefix.'_tag_replacments[reps]['.$tag.'][end_tag]', $tag_info['end_tag'], 30); ?></td>
+						<td><?php check_box($prefix.'_tag_replacments[reps]['.$tag.'][remove_content]', TRUE, ($tag_info['remove_content'] ? TRUE : FALSE)); ?></td>
+						<td><?php check_box($prefix.'_tag_replacments[reps]['.$tag.'][delete]'); ?>
+					</tr>
+					<?php
+				} else {
+				?>
+					<tr>
+					<td><?php echo htmlspecialchars($tag); ?></td>
+					<td><?php echo htmlspecialchars($tag_info['start_tag']); ?></td>
+					<td><?php echo htmlspecialchars($tag_info['end_tag']); ?></td>
+					<td><?php echo ($tag_info['remove_content'] ? translate('yes') : translate('no')); ?></td>
+					</tr>
+				<?php
+				}
+			}//end foreach
+		} else if (!$write_access) {
+			echo translate('cms_remote_content_no_tag_replacements');
+		}
+
+		if ($write_access) {
+			?>
+			<tr>
+				<td><?php text_box($prefix.'_tag_replacments[reps][new][tag]', '', 30); ?></td>
+				<td><?php text_box($prefix.'_tag_replacments[reps][new][start_tag]', '', 30); ?></td>
+				<td><?php text_box($prefix.'_tag_replacments[reps][new][end_tag]', '', 30); ?></td>
+				<td><?php check_box($prefix.'_tag_replacments[reps][new][remove_content]'); ?></td>
+				<?php echo (!empty($tag_replacements) ? '<td>&nbsp;</td>' : ''); ?>
+			</tr>
+			<?php
+		}
+		?>
+		</table>
+		<?php
+
+	}//end paintReplaceTagList()
+
+
+	/**
+	* Process the Tag replacements
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processReplaceTagList(&$asset, &$o, $prefix)
+	{
+		$reps = $_POST[$prefix.'_tag_replacments']['reps'];
+
+		$replacements = Array();
+		foreach ($reps as $rep_info) {
+			if (isset($rep_info['delete']) || empty($rep_info['tag'])) {
+				continue;
+			}
+
+			$remove_content = FALSE;
+			if (isset($rep_info['remove_content'])) {
+				$remove_content = TRUE;
+			}
+
+			$replacements[$rep_info['tag']] = Array(
+												'start_tag'			=> $rep_info['start_tag'],
+												'end_tag'			=> $rep_info['end_tag'],
+												'remove_content'	=> $remove_content,
+											  );
+		}
+
+		if (!$asset->setAttrValue('tag_replacmenets', $replacements)) {
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end processReplaceTagList()
 
 
 }//end class

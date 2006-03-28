@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:33 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2006/03/28 03:42:29 sdanis Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -19,4 +19,9 @@
 -->
 <strings>
 <string source="cms_remote_content_binary_data">Binary Data</string>
+<string source="cms_remote_content_remove_contents">Remove Contents</string>
+<string source="cms_remote_content_start_tag">Start Tag</string>
+<string source="cms_remote_content_end_tag">End Tag</string>
+<string source="cms_remote_content_tag">Tag</string>
+<string source="cms_remote_content_no_tag_replacements">No tag replacements defined</string>
 </strings>

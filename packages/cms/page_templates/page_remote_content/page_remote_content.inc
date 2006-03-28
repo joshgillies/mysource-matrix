@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.32 2006/01/31 23:33:13 arailean Exp $
+* $Id: page_remote_content.inc,v 1.33 2006/03/28 03:42:29 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define ('SQ_REMOTE_SOURCE', 'sq_content_src');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -526,6 +526,23 @@ class Page_Remote_Content extends Page
 		// get all info about the remote URL
 		$parsed_fetch_url = parse_url($fetch_url);
 
+		// replace tags
+		$tag_replacmenets = $this->attr('tag_replacmenets');
+		if (!empty($tag_replacmenets)) {
+			foreach ($tag_replacmenets as $tag => $replace_info) {
+				if ($replace_info['remove_content']) {
+					$pattern = '/(<(?:'.$tag.')[^>]*?>[^<]*)/i';
+				} else {
+					$pattern = '/(<(?:'.$tag.')[^>]*?>)/i';
+				}
+				$content = preg_replace($pattern, $replace_info['start_tag'], $content);
+				$pattern = '/(<(?:\/'.$tag.')[^>]*?>)/i';
+				$content = preg_replace($pattern, $replace_info['end_tag'], $content);
+			}
+		}
+
+
+
 		// strip the images if necessary
 		if ($this->attr('strip_images')) {
 
@@ -816,6 +833,14 @@ class Page_Remote_Content extends Page
 
 		// finally, we replace all the urls with the re-written ones.
 		$content = str_replace($subjects, $replacements, $content);
+
+		// replace keywords
+		preg_match_all('/%(\w+)%/i', $content, $matches);
+
+		foreach ($matches[1] as $key => $keyword) {
+			$rep = $this->getKeywordReplacement($keyword);
+			$content = str_replace($matches[0][$key], $rep, $content);
+		}
 
 		return $content;
 
