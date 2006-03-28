@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.164 2006/03/28 00:44:58 sdanis Exp $
+* $Id: listing_engine.inc,v 1.165 2006/03/28 04:05:19 tbarrett Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.164 $
+* @version $Revision: 1.165 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -507,6 +507,8 @@ class Listing_Engine extends Page
 			$format_bodycopy->printBody();
 			return;
 		}
+
+		$this->_tmp['assets_info']    = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($children));
 
 		// the list is sorted and positions set, now we can split to groups
 		if ($this->attr('group_by') == 'grouped') {
@@ -1442,8 +1444,13 @@ class Listing_Engine extends Page
 		$this->_tmp['default_format'] = '';
 		$this->_tmp['is_default']     = Array();
 		$this->_tmp['needs_asset']    = Array();
-
-		$this->_tmp['assets_info']    = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
+		if (empty($this->_tmp['assets_info'])) {
+			// first check that at least the first key is numeric
+			reset($todo);
+			if (0 != (int)key($todo)) {
+				$this->_tmp['assets_info'] = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
+			}
+		}
 
 		$type_folder =& $this->getFolder('type_formats');
 		$this->_tmp['type_folder_id'] = $type_folder->id;
@@ -1603,11 +1610,14 @@ class Listing_Engine extends Page
 			}//end foreach $todo
 
 		} else {
-			// otherwise we're up to the asset list, we can do the normal listing stuff here
-			// make sure we add not replace the assets info array, just in case somethings needed
-			$group_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
-			for (reset($group_assets); NULL !== ($index = key($group_assets)); next($group_assets)) {
-				$this->_tmp['assets_info'][$index] = $group_assets[$index];
+			// Otherwise we're up to the asset list, we can do the normal listing stuff here
+			// Check if we need to top up the asset-info array...
+			$extras = array_diff(array_keys($todo), array_keys($this->_tmp['assets_info']));
+			if (!empty($extras)) {
+				$group_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
+				for (reset($group_assets); NULL !== ($index = key($group_assets)); next($group_assets)) {
+					$this->_tmp['assets_info'][$index] = $group_assets[$index];
+				}
 			}
 			$this->_printAssetList($todo);
 
@@ -2451,12 +2461,13 @@ class Listing_Engine extends Page
 					break;
 
 					case 'standard_asset':
-						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_parent));
-						if (!empty($asset_info)) {
-							$asset_info = $asset_info[$current_parent];
+						if (!isset($this->_tmp['assets_info'][$current_parent])) {
+							$this->_tmp['assets_info'][$current_parentid] = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_parent));
+						}
+						if (!empty($this->_tmp['assets_info'][$current_parent])) {
+							$asset_info = $this->_tmp['assets_info'][$current_parent];
 
 							$standard_asset_field = $group_level['field'];
-
 							switch ($standard_asset_field) {
 								case 'assetid':
 									$value = $current_parent;
