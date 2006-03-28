@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.38.2.5 2006/02/14 05:46:02 sdanis Exp $
+* $Id: image.inc,v 1.38.2.6 2006/03/28 03:16:01 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38.2.5 $
+* @version $Revision: 1.38.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -852,6 +852,23 @@ class Image extends File
 		return $parents;
 
 	}//end getParents()
+
+
+	/**
+	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
+	*
+	* @param string	$assetid	the id of the last asset in the lineage
+	* @param string	$protocol	the protocol to match -> NULL means it is ignored
+	* @param string	$url		the url to check for -> NULL defaults it to current url
+	*
+	* @return array
+	* @access public
+	*/
+	function getLineageFromURL($assetid, $protocol, $url)
+	{
+		return Array();
+
+	}//end getLineageFromURL()
 
 
 }//end class
