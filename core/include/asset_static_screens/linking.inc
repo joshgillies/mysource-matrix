@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.23 2006/03/21 23:42:25 lwright Exp $
+* $Id: linking.inc,v 1.24 2006/03/28 03:26:36 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 
@@ -64,6 +64,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	$assetids = Array();
 	$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
+
 	$editable_link_types = Array(
 							SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
 							SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
@@ -73,39 +74,41 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 		$assetids[$link['majorid']] = Array();
 	}
 
+	$total_assets = 0;
+	$num_per_page = 50;
+	$link_offset = array_get_index($_POST, $prefix.'_link_offset', 0);
+
 	if (empty($assetids)) {
 		$result = Array();
 	} else {
 		$result = Array();
 
 		$assetid_keys = array_keys($assetids);
-
+		$total_assets = count($assetid_keys);
+		$assetid_keys = array_slice($assetid_keys, $link_offset, $num_per_page);
 		// Chunk Norris this query because the IN part will bomb with >1000
 		// assets on Oracle
-		foreach (array_chunk($assetid_keys, 500) as $assetids_chunk) {
-			$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
-						 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON a.assetid = pl.minorid
-					';
-			$where = 'cl.minorid IN ('.implode(', ', $assetids_chunk).')
-					  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
-					  AND pt.treeid <= ct.treeid';
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
+					 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON a.assetid = pl.minorid
+				';
+		$where = 'cl.minorid IN ('.implode(', ', $assetid_keys).')
+				  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
+				  AND pt.treeid <= ct.treeid';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
-			$sql .= $where.' ORDER BY cl.linkid, ct.treeid, pt.treeid';
+		$sql .= $where.' ORDER BY cl.linkid, ct.treeid, pt.treeid';
 
-			$chunk_result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
+		$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
 
-			assert_valid_db_result($chunk_result);
-			$result += $chunk_result;
-		}
+		assert_valid_db_result($result);
 	}
 
 	foreach ($asset_links as $link_data) {
@@ -186,8 +189,90 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 	if (!count($output_lineages)) {
 		echo 'None';
 	} else {
+		$num_pages = ceil($total_assets / $num_per_page);
 		?>
+		<style type="text/css">
+				td.sq-linking-header {
+					padding-top: 0px;
+				}
+				.sq-linking-header table.sq-backend-table {
+					border-top: 0px;
+					margin: 0 8px 8px 8px;
+				}
+				.sq-linking-header table.sq-backend-table th {
+					font-weight: normal;
+					text-decoration: italic;
+				}
+				table.sq-backend-table tr td.sq-linking-header-header {
+					background-color: #666;
+					color: #fff;
+					font-size: 11px;
+				}
+			</style>
 		<table class="sq-backend-table">
+		<tr>
+			<td class="sq-linking-header-header" colspan="5"><b><?php
+				hidden_field($prefix.'_link_offset', $link_offset);
+				if ($link_offset > 0) {
+					?><a title="<?php echo translate('cms_form_submissions_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+				} else {
+					?><span title="<?php echo translate('cms_form_cannot_go_further_back') ?>" style="color: #333"><?php
+				}
+				?>
+				&lt;&lt;
+				<?php
+				if ($link_offset > 0) {
+					?></a><?php
+				} else {
+					?></span><?php
+				}
+				?> &nbsp; &nbsp; <?php
+				if ($link_offset > 0) {
+					?><a title="<?php echo translate('cms_form_submissions_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+				} else {
+					?><span title="<?php echo translate('cms_form_cannot_go_further_back') ?>" style="color: #333"><?php
+				}
+				?>
+				&lt;
+				<?php
+				if ($link_offset > 0) {
+					?></a><?php
+				} else {
+					?></span><?php
+				}
+				?>
+				&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
+				<?php
+				if (($link_offset + $num_per_page) < $total_assets) {
+					?><a title="<?php echo translate('cms_form_submissions_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+				} else {
+					?><span title="<?php echo translate('cms_form_cannot_go_further_forward') ?>" style="color: #333"><?php
+				}
+				?>
+				&gt;
+				<?php
+				if (($link_offset + $num_per_page) < $total_assets) {
+					?></a><?php
+				} else {
+					?></span><?php
+				}
+				?> &nbsp; &nbsp; <?php
+				if (($link_offset + $num_per_page) < $total_assets) {
+					?><a title="<?php echo translate('cms_form_submissions_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+				} else {
+					?><span title="<?php echo translate('cms_form_cannot_go_further_forward') ?>" style="color: #333"><?php
+				}
+				?>
+				&gt;&gt;
+				<?php
+				if (($link_offset + $num_per_page) < $total_assets) {
+					?></a><?php
+				} else {
+					?></span><?php
+				}
+				?></b>
+			</td>
+			</tr>
 			<tr>
 				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('find'); ?></th>
 				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('link_id'); ?></th>
@@ -202,7 +287,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 			?>
 		</table>
 		<?php
-	}
+	}//end else
 
 	$o->closeSection();
 
