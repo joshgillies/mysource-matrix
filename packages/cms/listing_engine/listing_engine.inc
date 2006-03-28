@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.150.2.7 2006/03/27 23:54:56 skim Exp $
+* $Id: listing_engine.inc,v 1.150.2.8 2006/03/28 00:29:08 sdanis Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.150.2.7 $
+* @version $Revision: 1.150.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2570,21 +2570,25 @@ class Listing_Engine extends Page
 
 					if (!empty($restrict_types['type_code'])) {
 						// find the first parent that is one of the restricted types
-						$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($child_assetid);
+						$link_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($child_assetid);
+						foreach ($root_nodes as $root_node) {
+							foreach ($link_lineages as $lineage) {
+								if (array_key_exists($root_node, $lineage['lineage'])) {
+									$parents = $lineage['lineage'];
+									break(2);
+								}
+							}
+						}
 						$parents = array_reverse($parents, TRUE);
-						$found = FALSE;
 						foreach ($parents as $parentid => $type_code) {
 							$inherit_values = $restrict_types['inherit'];
 							foreach ($restrict_types['type_code'] as $restricted_type_code) {
 								$inherit = array_shift($inherit_values);
 								if ($type_code == $restricted_type_code || ($inherit && $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($type_code, $restricted_type_code))) {
 									$parent_assetid = $parentid;
-									$found = TRUE;
-									break;
+									break(2);
 								}
 							}
-
-							if ($found) break;
 						}
 					}
 
