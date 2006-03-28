@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.10 2006/03/14 05:20:54 sdanis Exp $
+* $Id: form_question.inc,v 1.11 2006/03/28 03:51:42 sdanis Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -687,6 +687,9 @@ class Form_Question extends Asset
 		if (is_null($this->value)) {
 			return $this->attr('default');
 		}
+
+		if (is_array($this->value)) return $this->value;
+
 		return htmlspecialchars($this->value, ENT_NOQUOTES);
 
 	}//end getValue()
