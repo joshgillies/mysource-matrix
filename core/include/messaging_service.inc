@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.49 2006/03/02 03:15:16 mmcintyre Exp $
+* $Id: messaging_service.inc,v 1.50 2006/03/28 23:03:09 skim Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -240,6 +240,9 @@ class Messaging_Service extends MySource_Object
 	*/
 	function enqueueMessage($message)
 	{
+		if (empty($this->_levels['queues'])) {
+			$this->openQueue();
+		}
 		array_push($this->_levels['queues'][count($this->_levels['queues']) - 1], $message);
 
 	}//end enqueueMessage()
