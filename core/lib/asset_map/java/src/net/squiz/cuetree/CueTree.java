@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.14.2.1 2006/02/19 23:07:20 sdanis Exp $
+* $Id: CueTree.java,v 1.14.2.2 2006/03/28 04:41:48 sdanis Exp $
 *
 */
 
@@ -1090,14 +1090,6 @@ public class CueTree extends JTree {
 							sourcePath.getParentPath().getLastPathComponent(),
 							sourcePath.getLastPathComponent()
 						);
-
-						// if the old index is the same as the new index
-						// and we are still on the same branch, then
-						// do nothing and stop cue mode
-						if (oldIndex == newIndex) {
-							stopCueMode();
-							return;
-						}
 
 						// if the new position is higher up in the tree
 						if (newIndex < oldIndex) {
