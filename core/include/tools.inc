@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tools.inc,v 1.4 2005/05/11 06:05:11 lwright Exp $
+* $Id: tools.inc,v 1.5 2006/03/28 04:28:18 skim Exp $
 *
 */
 
@@ -33,19 +33,24 @@
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Tools extends MySource_Object
 {
+
+
 	/**
 	* Manages calling display and processing of tools
 	*
+	* @param object	&$backend	Reference to backend object
+	*
+	* @return void
 	* @access public
 	*/
-    function paintBackend(&$backend)
+	function paintBackend(&$backend)
 	{
-		$o = &$backend->out;
+		$o =& $backend->out;
 		$o->setHeading(translate('system_tools'), '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/whereami.png').'", "20", "20", "HIPO Icon");</script>');
 
 		// the user has pressed commit for a specific tool
@@ -86,13 +91,11 @@ class Tools extends MySource_Object
 				?>
 				</table>
 				<?php
-			}
-			else {
+			} else {
 				echo translate('tools_none_installed');
 			}
 		$o->closeField();
 		$o->closeSection();
-
 
 	}//end paintBackend()
 
@@ -100,12 +103,15 @@ class Tools extends MySource_Object
 	/**
 	* Calls a tools getInterface function
 	*
+	* @param object	&$o	Reference to Outputter object
+	*
+	* @return void
 	* @access private
 	*/
 	function _paintTool(&$o)
 	{
 		$type_code = $_REQUEST['tool_type_code'];
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		if ($am->installed($type_code)) {
 			$am->includeAsset($type_code);
@@ -118,19 +124,21 @@ class Tools extends MySource_Object
 
 		return;
 
-
 	}//end _paintTool()
 
 
 	/**
 	* Calls a tools processInterface function
 	*
+	* @param object	&$o	Reference to Outputter object
+	*
+	* @return void
 	* @access private
 	*/
 	function _processTool(&$o)
 	{
 		$type_code = $_REQUEST['committed_tool_type_code'];
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		if ($am->installed($type_code)) {
 			$am->includeAsset($type_code);
@@ -139,6 +147,7 @@ class Tools extends MySource_Object
 		}
 
 		return;
+
 	}//end _processTool()
 
 
