@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.26.2.2 2006/03/21 02:22:11 rong Exp $
+* $Id: image_variety.inc,v 1.26.2.3 2006/03/28 23:54:50 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.26.2.2 $
+* @version $Revision: 1.26.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -748,6 +748,38 @@ class Image_Variety extends Asset
 		echo $tag;
 
 	}//end printImageTag()
+
+
+/**
+	* Get bodycopy keyword replacement
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getKeywordReplacement($keyword)
+	{
+		// additional shadow asset keyword replacement
+		$replacement = parent::getKeywordReplacement($keyword);
+		if (empty($replacement)) {
+			 switch ($keyword) {
+				case 'asset_name_linked' :
+					$replacement = '<a href="'.$this->getUrl().'">'.$this->name.'</a>';
+				break;
+				case 'asset_contents' :
+					$replacement = $this->printImageTag($this->name, $this->name, TRUE);
+				break;
+				default :
+
+				break;
+			}
+		}
+
+		return $replacement;
+
+	}//end getKeywordReplacement()
+
 
 
 //--        PERMISSIONS/ACCESS (DEFERS TO IMAGE)        --//

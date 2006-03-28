@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.45 2006/01/18 00:59:32 lwright Exp $
+* $Id: image_edit_fns.inc,v 1.45.2.1 2006/03/28 23:54:50 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.45.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -306,7 +306,10 @@ class Image_Edit_Fns extends File_Edit_Fns
 				if (is_null($variety)) continue;
 				$edit_fns = $variety->getEditFns();
 				if ($edit_fns->processInlineInterface($variety, $o, $prefix.'_'.$variety->id)) {
-					$changes_made = TRUE;
+					// update the public version with the new file
+					if ($variety->checkFileState($asset->effectiveUnrestricted())) {
+						$changes_made = TRUE;
+					}
 				}
 			}// end foreach
 		}// end if
