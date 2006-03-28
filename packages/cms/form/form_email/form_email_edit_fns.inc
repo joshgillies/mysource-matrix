@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.53.2.10 2005/11/06 22:45:43 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.53.2.11 2006/03/28 04:23:00 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53.2.10 $
+* @version $Revision: 1.53.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -286,10 +286,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				$sub_time = date('d M Y H:i:s', strtotime($asset_info['created']));
 				$sub_expanded = array_search($assetid, $expand_list) !== false;
 				$num_subs++;
-				if ($num_subs <= $submission_offset) continue;
-				if ($num_subs > $submission_offset + $num_per_page) {
-					break;
-				}
+
+				if ($num_subs > $num_per_page) break;
 				?>
 				<tr<?php
 					echo ($sub_expanded) ? ' class="alt"' : '';
