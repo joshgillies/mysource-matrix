@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.43 2006/03/17 04:46:21 rong Exp $
+* $Id: cache_manager.inc,v 1.44 2006/03/28 00:13:32 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -505,7 +505,7 @@ class Cache_Manager extends Asset
 				}
 			}
 		}
-		if (in_array($current_url, $this->attr('non_cachable_urls'))) {
+		if (in_array($current_root_url, $this->attr('non_cachable_urls'))) {
 			return FALSE;
 		}
 
