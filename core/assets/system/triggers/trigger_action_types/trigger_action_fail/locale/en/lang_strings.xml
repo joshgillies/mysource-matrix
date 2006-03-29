@@ -1,0 +1,36 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2006/03/29 00:41:26 emcdonald Exp $
+*
+*/
+
+	Future Pub OUD Strings File
+-->
+
+<strings>
+	<string source="trigger_fail_level_label">Trigger an error of type: </string>
+	<string source="trigger_fail_message_label">Error Message: </string>
+	<string source="trigger_always_fails_warning">If this action is included, the trigger will always fail.</string>
+	<string source="no_error">Fail silently without triggering an error</string>
+	<string source="notice">Notice</string>
+	<string source="warning">Warning</string>
+	<string source="error">Error</string>
+</strings>
