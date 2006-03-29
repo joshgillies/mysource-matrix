@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:48 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2006/03/29 04:30:56 sdanis Exp $
 *
 *
 * Search Package Localised Strings File
@@ -20,4 +20,6 @@
 
 <strings>
 <string source="sch_box_no_submit_image_specified">No submit image specified</string>
+<string source="sch_box_image">Image</string>
+<string source="sch_box_button">Button</string>
 </strings>

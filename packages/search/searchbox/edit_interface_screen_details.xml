@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.13 2006/01/06 06:15:12 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.14 2006/03/29 04:30:55 sdanis Exp $
 *
 */
 -->
@@ -66,7 +66,7 @@
 			<text width="25" height="1" />
 		</field>
 		<field write_access="write:attributes" attribute="submit_button">
-			<boolean />
+			<boolean true_text="sch_box_button" false_text="sch_box_image" />
 		</field>
 		<field write_access="write:attributes" show_if="isSubmitButton">
 			<function_call>
