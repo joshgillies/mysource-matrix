@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.20 2006/01/16 23:50:50 skim Exp $
+* $Id: asset_map.js,v 1.21 2006/03/29 02:42:06 sdanis Exp $
 *
 */
 
@@ -223,7 +223,7 @@ function asset_finder_change_btn_press(name, safe_name, type_codes, done_fn)
 *
 * @access public
 */
-function asset_finder_done(params, label, url)
+function asset_finder_done(params, label, url, linkid)
 {
 	resizer_frame = window.top.frames['sq_resizer'];
 	if (resizer_frame) {
@@ -237,8 +237,12 @@ function asset_finder_done(params, label, url)
 	win.focus();
 
 	if (ASSET_FINDER_FIELD_NAME == null) return;
-
 	var assetid = params;
+
+	// add the last selected link to cookie. Asset Map will expand the tree to that asset
+	document.cookie = 'lastSelectedLinkId=' + escape(linkid);
+	document.cookie = 'lastSelectedAssetId=' + escape(assetid);
+
 	// we are in java, params is actually the assetid
 	if (assetid != -1) {
 		ASSET_FINDER_OBJ.set_hidden_field(ASSET_FINDER_FIELD_NAME + '[assetid]',assetid);

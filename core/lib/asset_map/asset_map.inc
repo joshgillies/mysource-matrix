@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.216 2006/03/26 23:33:04 sdanis Exp $
+* $Id: asset_map.inc,v 1.217 2006/03/29 02:42:06 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.216 $
+* @version $Revision: 1.217 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -167,10 +167,12 @@ class Asset_Map
 	/**
 	* Gets the current assets lineage from the url
 	*
+	* @param string	$type	Asset Map Type (i.e. simple)
+	*
 	* @return string
 	* @access public
 	*/
-	function _getInitialLineageSelection()
+	function _getInitialLineageSelection($type='')
 	{
 		$initial_selection_lineage = '';
 		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
@@ -218,6 +220,37 @@ class Asset_Map
 			$sort_orders = trim($sort_orders, '|');
 
 			$initial_selection_lineage = $assetids.'~'.$sort_orders;
+		} else if (strtolower($type) == 'simple') {
+			// Check the cookies
+			if (isset($_COOKIE['lastSelectedAssetId']) && isset($_COOKIE['lastSelectedLinkId'])) {
+				$link_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($_COOKIE['lastSelectedAssetId']);
+				foreach ($link_lineages as $lineage) {
+					if ($lineage['linkid'] == $_COOKIE['lastSelectedLinkId']) {
+						$asset_lineage = array_keys($lineage['lineage']);
+						$assetids = '';
+						$sort_orders = '';
+
+						$asset_lineage[] = $_COOKIE['lastSelectedAssetId'];
+						$num_assets = count($asset_lineage);
+						for ($i=0; $i < $num_assets; $i++) {
+							if ($i == 0) {
+								$previd = 1;
+							} else {
+								$previd = $asset_lineage[$i-1];
+							}
+
+							if ($asset_lineage[$i] == 1) continue;
+							$assetids .= $asset_lineage[$i].'|';
+							$sort_orders .= '1|';
+						}//end for
+
+						$assetids = trim($assetids, '|');
+						$sort_orders = trim($sort_orders, '|');
+						$initial_selection_lineage = $assetids.'~'.$sort_orders;
+						break;
+					}
+				}
+			}
 		}//end if
 
 		return $initial_selection_lineage;
@@ -304,7 +337,7 @@ class Asset_Map
 
 
 					// Initial lineage selection (i.e ..com/site1/blah/_admin will expand the lineage of that asset)
-					$initial_selection_lineage = $this->_getInitialLineageSelection();
+					$initial_selection_lineage = $this->_getInitialLineageSelection($type);
 
 					$parameters = Array(
 									'parameter.backendsuffix'			=> SQ_CONF_BACKEND_SUFFIX,
