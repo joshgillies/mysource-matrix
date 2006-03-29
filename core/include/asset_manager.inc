@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.451 2006/03/27 23:22:46 pgannavarapu Exp $
+* $Id: asset_manager.inc,v 1.452 2006/03/29 05:09:47 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.451 $
+* @version $Revision: 1.452 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1774,21 +1774,11 @@ class Asset_Manager extends MySource_Object
 			return $null;
 		}
 
-		// we do not want to clone any assets that are type_3 or type_notice linked to the asset we are
-		// cloning. Instead, we will just link them up to the cloner's orginial link counter parts
-		$orig_links = $this->getLinks($source->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, '', TRUE, 'major', NULL, FALSE, NULL);
-		foreach ($orig_links as $orig_link) {
-			$asset =& $this->getAsset($orig_link['minorid'], $orig_link['minor_type_code']);
-			$linkid = $clone->createLink($asset, $orig_link['link_type'], $orig_link['value'], $orig_link['sort_order'], $orig_link['is_dependant'], $orig_link['is_exclusive']);
-
-			if (!$linkid) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return $null;
-			}
-
-		}//end foreach
-
+		if (!$source->cloneLinks($clone)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return $null;
+		}
 
 		// OK now that we are linked up let's our dependants
 		if ($clone_dependants) {

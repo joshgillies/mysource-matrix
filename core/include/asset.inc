@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.514 2006/03/23 03:50:24 sdanis Exp $
+* $Id: asset.inc,v 1.515 2006/03/29 05:09:47 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.514 $
+* @version $Revision: 1.515 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1794,7 +1794,7 @@ class Asset extends MySource_Object
 	/**
 	* Takes a clone shell and clones the sources required components to the clone shell
 	*
-	* @param object	&$clone		the clone shell
+	* @param object	&$clone		the asset object that we are turning into a clone of this one
 	* @param array	$components	the wanted components to clone eg.
 	* <pre>
 	*                       Array(
@@ -1971,6 +1971,34 @@ class Asset extends MySource_Object
 		return TRUE;
 
 	}//end cloneComponents()
+
+
+	/**
+	* Link the assets that are linked under this asset under the supplied clone shell too
+	*
+	* Under the default cloning policy, this is done for notice and type 3 links only.  Notice
+	* that the linked assets are not cloned - they end up linked to both this asset and the clone.
+	*
+	* @param object	&$clone	The asset object that we are turning into a clone of this one
+	*
+	* @return boolean
+	* @access public
+	*/
+	function cloneLinks(&$clone)
+	{
+		// we do not want to clone any assets that are type_3 or type_notice linked to the asset we are
+		// cloning. Instead, we will just link them up to the cloner's orginial link counter parts
+		$orig_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, '', TRUE, 'major', NULL, FALSE, NULL);
+		foreach ($orig_links as $orig_link) {
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($orig_link['minorid'], $orig_link['minor_type_code']);
+			$linkid = $clone->createLink($asset, $orig_link['link_type'], $orig_link['value'], $orig_link['sort_order'], $orig_link['is_dependant'], $orig_link['is_exclusive']);
+			if (!$linkid) {
+				return FALSE;
+			}
+		}//end foreach
+		return TRUE;
+
+	}//end cloneLinks()
 
 
 //--        STATUS        --//
@@ -4493,7 +4521,9 @@ class Asset extends MySource_Object
 					continue;
 				}
 				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
-				if (is_null($parent) || !is_object($parent)) continue;
+				if (is_null($parent) || !is_object($parent)) {
+					continue;
+				}
 				$done_parents[] = $parent->id;
 
 				$parent_lookup_values = $parent->getLookupValues();
