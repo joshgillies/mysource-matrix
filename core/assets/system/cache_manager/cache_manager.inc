@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.34.2.7 2006/03/16 23:05:02 rong Exp $
+* $Id: cache_manager.inc,v 1.34.2.8 2006/03/29 00:51:08 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.34.2.7 $
+* @version $Revision: 1.34.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -295,6 +295,8 @@ class Cache_Manager extends Asset
 			} else {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			}
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}
 
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
