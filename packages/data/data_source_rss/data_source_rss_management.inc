@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss_management.inc,v 1.1 2005/10/28 06:59:27 pgannavarapu Exp $
+* $Id: data_source_rss_management.inc,v 1.2 2006/03/29 00:37:46 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,6 +52,21 @@ class Data_Source_RSS_Management extends Asset_Management
 									'type'		=> 'text',
 									'default'	=> '',
 								   ),
+						'username'	=> Array(
+										'added'		=> '0.1',
+										'type'		=> 'text',
+										'default'	=> '',
+									   ),
+						'password'	=> Array(
+										'added'		=> '0.1',
+										'type'		=> 'password',
+										'default'	=> '',
+									   ),
+						'proxy_url'	=> Array(
+										'added'		=> '0.1',
+										'type'		=> 'text',
+										'default'	=> '',
+									   ),
 					  );
 
 	}//end constructor

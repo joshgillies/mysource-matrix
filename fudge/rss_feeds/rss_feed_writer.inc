@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_writer.inc,v 1.7 2006/01/09 00:02:32 pgannavarapu Exp $
+* $Id: rss_feed_writer.inc,v 1.8 2006/03/29 00:36:50 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Creates an XML document with all the data that is provided
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */

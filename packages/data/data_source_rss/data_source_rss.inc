@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss.inc,v 1.5 2006/01/19 02:58:13 pgannavarapu Exp $
+* $Id: data_source_rss.inc,v 1.6 2006/03/29 00:37:46 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -176,10 +176,16 @@ class Data_Source_RSS extends Data_Source
 	function parseXML()
 	{
 		$url = $this->attr('url');
+		$user = $this->attr('username');
+		$pwd = $this->attr('password');
+		$proxy_url = $this->attr('proxy_url');
 		require_once SQ_FUDGE_PATH.'/rss_feeds/rss_feed_reader.inc';
 		$feed_reader =& new RSS_Feed_Reader();
 		$this->reader =& $feed_reader;
 		if (!empty($url)) {
+			if (!empty($proxy_url)) {
+				$feed_reader->setUserAuthentication($user, $pwd, $proxy_url);
+			}
 			$feed_reader->setInputFile($url);
 			$result = $feed_reader->parse();
 			return $result;
