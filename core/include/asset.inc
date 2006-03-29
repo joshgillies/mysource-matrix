@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.515 2006/03/29 05:09:47 tbarrett Exp $
+* $Id: asset.inc,v 1.516 2006/03/29 23:50:20 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.515 $
+* @version $Revision: 1.516 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3217,7 +3217,7 @@ class Asset extends MySource_Object
 	{
 		if (empty($keyword)) return '';
 
-		$replacement = '';
+		$replacement = "%$keyword%";
 		$tmp_keyword = strtr($keyword, '_', ' ');
 		$tmp_keyword = ucwords($tmp_keyword);
 		$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
@@ -3419,7 +3419,6 @@ class Asset extends MySource_Object
 			}
 			return $this->writeAccess('', $assetids, FALSE);
 		}
-
 		return $this->_checkPermissionAccess(SQ_PERMISSION_READ, $assetids);
 
 	}//end readAccess()
