@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.50 2006/03/28 23:03:09 skim Exp $
+* $Id: messaging_service.inc,v 1.51 2006/03/29 03:37:36 skim Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -77,7 +77,7 @@ class Messaging_Service extends MySource_Object
 	*
 	* @var boolean
 	*/
-	var $sending_queue = false;
+	var $sending_queue = FALSE;
 
 
 	/**
@@ -90,14 +90,16 @@ class Messaging_Service extends MySource_Object
 
 	}//end constructor
 
+
 	/**
 	* Returns the log types that are to be used for the passed message type
 	* Log Types: 'log_to_file', 'log_to_db', 'send_mail'
+	* ('string'=>bool)	array of log type => boolen for whether to use or not
 	*
-	* @param string $msg_type	the message type (eg 'asset.workflow.announce.approve')
+	* @param string	$msg_type	the message type (eg 'asset.workflow.announce.approve')
 	*
-	* @return array('string'=>bool)	array of log type => boolen for whether to use or not
-	* @public
+	* @return array
+	* @access public
 	*/
 	function getLogTypes($msg_type)
 	{
@@ -108,7 +110,7 @@ class Messaging_Service extends MySource_Object
 
 			$msg_type_list = explode('.', $msg_type);
 
-			foreach(Array('log_to_file', 'log_to_db', 'send_mail') as $log_type) {
+			foreach (Array('log_to_file', 'log_to_db', 'send_mail') as $log_type) {
 
 				$def_name_w = 'SQ_MS_'.strtoupper($log_type).'_WHITE_LIST';
 				$def_name_b = 'SQ_MS_'.strtoupper($log_type).'_BLACK_LIST';
@@ -117,25 +119,25 @@ class Messaging_Service extends MySource_Object
 
 				if (in_array($msg_type, $types_w)) {
 					// this exact type is white listed
-					$allow_log = true;
+					$allow_log = TRUE;
 				} else if (in_array($msg_type, $types_b)) {
 					// this exact type is black listed
-					$allow_log = false;
+					$allow_log = FALSE;
 				} else {
 
 					// We need to cycle through all the parts for completeness
 					// example of why:
-					//		msg_type = asset.attributes.fulllog.scalar
-					//		WHITE_LIST: asset.attributes.*
-					//		BLACK_LIST: asset.attributes.fulllog.*
+					//    msg_type = asset.attributes.fulllog.scalar
+					//    WHITE_LIST: asset.attributes.*
+					//    BLACK_LIST: asset.attributes.fulllog.*
 					// If we didn't go through whole list then we would be allowing this log
 					// when we have specifically denied it.
 
-					$allow_log = false;
+					$allow_log = FALSE;
 
 					if (in_array('*', $types_w)) {
 						// all messages of this type are white listed
-						$allow_log = true;
+						$allow_log = TRUE;
 					}
 
 					// check the virtual types to see if they clash
@@ -147,29 +149,28 @@ class Messaging_Service extends MySource_Object
 						$check_code .= $code_part.'.*';
 						if (in_array($check_code, $types_w)) {
 							// this virtual type is white listed
-							$allow_log = true;
+							$allow_log = TRUE;
 
-						}  else if (in_array($check_code, $types_b)) {
+						} else if (in_array($check_code, $types_b)) {
 							// this virtual type is explicitly black listed
-							$allow_log = false;
+							$allow_log = FALSE;
 
 						}
 
 					}
 
-				}
+				}//end else
 
 				// cache this for this script execution
 				$this->_tmp['message_type_logs'][$msg_type][$log_type] = $allow_log;
 
-			}// end foreach
+			}//end foreach
 
 		}//end if
 
 		return $this->_tmp['message_type_logs'][$msg_type];
 
 	}//end getLogTypes()
-
 
 
 //--        QUEUES        --//
@@ -209,7 +210,7 @@ class Messaging_Service extends MySource_Object
 			foreach ($msgs as $msg) {
 				array_push($this->_levels['queues'][count($this->_levels['queues']) - 1], $msg);
 			}
-			return true;
+			return TRUE;
 		}
 
 	}//end closeQueue()
@@ -225,7 +226,7 @@ class Messaging_Service extends MySource_Object
 	{
 		// remove the current levels messages
 		array_pop($this->_levels['queues']);
-		return true;
+		return TRUE;
 
 	}//end abortQueue()
 
@@ -233,7 +234,9 @@ class Messaging_Service extends MySource_Object
 	/**
 	* Adds an internal message into the queue
 	*
-	* @param object Internal_Message	$message	the message to add to the queue
+	* It takes Internal_Message object as an argument
+	*
+	* @param object	$message	the message to add to the queue
 	*
 	* @return void
 	* @access public
@@ -249,11 +252,11 @@ class Messaging_Service extends MySource_Object
 
 
 	/**
-	* Returns the messages in the current queue or nested queue
+	* Returns the messages in the current queue or nested queue (array of object Internal_Message)
 	*
 	* Only the contents of the most inside nested queue are available from this function
 	*
-	* @return array of object Internal_Message
+	* @return array
 	* @access public
 	*/
 	function queueContents()
@@ -301,18 +304,18 @@ class Messaging_Service extends MySource_Object
 				if (!$msg->send()) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return false;
+					return FALSE;
 				}
 			}
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return true;
+			return TRUE;
 
 		} else {
 			foreach ($msgs as $msg) {
 				array_push($this->_levels['logs'][count($this->_levels['logs']) - 1], $msg);
 			}
-			return true;
+			return TRUE;
 
 		}//end if
 
@@ -329,7 +332,7 @@ class Messaging_Service extends MySource_Object
 	{
 		// remove the current levels messages
 		array_pop($this->_levels['logs']);
-		return true;
+		return TRUE;
 
 	}//end abortLog()
 
@@ -337,7 +340,9 @@ class Messaging_Service extends MySource_Object
 	/**
 	* Adds an internal message into the log
 	*
-	* @param object Internal_Message	$message	the message to add to the log
+	* It takes Internal_Message object as an argument
+	*
+	* @param object	$message	the message to add to the log
 	*
 	* @return void
 	* @access public
@@ -350,11 +355,11 @@ class Messaging_Service extends MySource_Object
 
 
 	/**
-	* Returns the messages in the current log or nested log
+	* Returns the messages in the current log or nested log (array of object Internal_Message)
 	*
 	* Only the contents of the most inside nested log are available from this function
 	*
-	* @return array of object Internal_Message
+	* @return array
 	* @access public
 	*/
 	function logContents()
@@ -374,12 +379,11 @@ class Messaging_Service extends MySource_Object
 	* but messages that want to utilise other options need to set these manually
 	* so as to not clutter this functions
 	*
-	* @param array(int)	$to			an array of user or group IDs to send this message to
-	* @param string		$subject	the subject of the message (keep it short)
-	* @param string		$body		the main body of the message
-	* @param string		$type		the log type of this message (if any)
+	* @param array	$to		an array of user or group IDs to send this message to (integers)
+	* @param string	$type	the log type of this message (if any)
+	* @param array	$reps	the main body replacement
 	*
-	* @return object Internal_Message
+	* @return object
 	* @access public
 	*/
 	function newMessage($to=Array(), $type='', $reps=Array())
@@ -387,11 +391,11 @@ class Messaging_Service extends MySource_Object
 		require_once SQ_INCLUDE_PATH.'/internal_message.inc';
 
 		$new_message =& new Internal_Message();
-		$new_message->sent         = ts_iso8601(time());
-		$new_message->from         = $GLOBALS['SQ_SYSTEM']->currentUserId();
-		$new_message->to           = $to;
-		$new_message->type         = $type;
-		$new_message->replacements = $reps;
+		$new_message->sent			= ts_iso8601(time());
+		$new_message->from			= $GLOBALS['SQ_SYSTEM']->currentUserId();
+		$new_message->to			= $to;
+		$new_message->type			= $type;
+		$new_message->replacements	= $reps;
 		return $new_message;
 
 	}//end newMessage()
@@ -412,13 +416,13 @@ class Messaging_Service extends MySource_Object
 		// sent to, who it is from, the message type, and the subject line of the message
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$this->sending_queue = true;
+		$this->sending_queue = TRUE;
 
 		foreach ($msgs as $msg) {
 			$msg->send();
 		}
 
-		$this->sending_queue = false;
+		$this->sending_queue = FALSE;
 		$this->sendQueuedEmails();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -430,27 +434,28 @@ class Messaging_Service extends MySource_Object
 	/**
 	* Gets all messages for the passed userid
 	*
-	* @param string			$userid			id of the user you are fetching messages for (0 = system, null = any user except system)
-	* @param string			$type			the type of the message eg. asset.workflow or asset.attributes.*
-	* @param array(string)	$statii			can limit returned messages to those with a status
-	*										in this array
-	* @param array(int)		$messageids		can limit returned messages to those with a messageid
-	*										in this array
-	* @param int			$from			timestamp that every msg returned must be this time
-	*										or after (NULL to ignore)
-	* @param int			$to				timestamp that every msg returned must be this time
-	*										or before (NULL to ignore)
-	* @param string			$get_user_name	[name|short_name], used to return the name/short_name
-	*										of the from user with the return, which will be returned
-	*										in the field 'from_name'. (NULL to ignore)
-	* @param array			$parameters		can limit returned messages to those with these params set
+	* @param string	$userid			id of the user you are fetching messages for (0 = system, NULL = any user except system)
+	* @param string	$type			the type of the message eg. asset.workflow or asset.attributes.*
+	* @param array	$statii			can limit returned messages to those with a status
+	*								in this array
+	* @param array	$messageids		can limit returned messages to those with a messageid
+	*								in this array
+	* @param int	$from			timestamp that every msg returned must be this time
+	*								or after (NULL to ignore)
+	* @param int	$to				timestamp that every msg returned must be this time
+	*								or before (NULL to ignore)
+	* @param string	$get_user_name	[name|short_name], used to return the name/short_name
+	*								of the from user with the return, which will be returned
+	*								in the field 'from_name'. (NULL to ignore)
+	* @param array	$parameters		can limit returned messages to those with these params set
+	* @param int	$max_msgs		the maximum number of messages
 	*
 	* @return array
 	* @access public
 	*/
-	function getMessages($userid, $type=null, $statii=Array(), $messageids=Array(), $from=null, $to=null, $get_user_name=null, $parameters=Array(), $max_msgs=0)
+	function getMessages($userid, $type=NULL, $statii=Array(), $messageids=Array(), $from=NULL, $to=NULL, $get_user_name=NULL, $parameters=Array(), $max_msgs=0)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		if (!is_null($get_user_name) && $get_user_name != 'name') {
 			$get_user_name = 'short_name';
@@ -530,8 +535,8 @@ class Messaging_Service extends MySource_Object
 				$id_parts = explode(':', $result[$i]['userfrom']);
 				if (isset($id_parts[1])) {
 					$bridgeid = $id_parts[0];
-					$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
-					$shadow = &$bridge->getAsset($id_parts[1]);
+					$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
+					$shadow =& $bridge->getAsset($id_parts[1]);
 					if (!is_null($shadow)) {
 						$result[$i]['from_name'] = $shadow->$get_user_name;
 						$result[$i]['type_code'] = $shadow->type();
@@ -563,7 +568,7 @@ class Messaging_Service extends MySource_Object
 				$result[$i]['body'] = $body;
 			}
 
-		}
+		}//end for
 
 		return $result;
 
@@ -585,7 +590,7 @@ class Messaging_Service extends MySource_Object
 	*/
 	function getLogs($type, $parameters=Array())
 	{
-		return $this->getMessages(0, $type, Array(), Array(), null, null, 'name', $parameters);
+		return $this->getMessages(0, $type, Array(), Array(), NULL, NULL, 'name', $parameters);
 
 	}//end getLogs()
 
@@ -593,16 +598,18 @@ class Messaging_Service extends MySource_Object
 	/**
 	* Returns the message object for the passed id
 	*
+	* It returns NULL on error or Internal_Message
+	*
 	* @param int	$messageid	id of the message the you want to get
 	*
-	* @return object Internal_Message	NULL on error or Internal_Message
+	* @return object
 	* @access public
 	*/
 	function getMessageById($messageid)
 	{
 		$message = $this->newMessage();
 		$message->load($messageid);
-		if (!$message->id) return null;
+		if (!$message->id) return NULL;
 		return $message;
 
 	}//end getMessageById()
@@ -630,8 +637,8 @@ class Messaging_Service extends MySource_Object
 	*
 	* @param string	$from		the assetid of the user to send from (0 for system)
 	* @param string	$to			the assetid of the user to send to (0 for system)
-	* @param string $subject	subject of the internal message
-	* @param string $body		body of the internal message
+	* @param string	$subject	subject of the internal message
+	* @param string	$body		body of the internal message
 	*
 	* @return void
 	* @access public
@@ -671,7 +678,7 @@ class Messaging_Service extends MySource_Object
 			$from_email = SQ_CONF_DEFAULT_EMAIL;
 			$from_string = '';
 			if ($from) {
-				$user_from = &$GLOBALS['SQ_SYSTEM']->am->getAsset($from);
+				$user_from =& $GLOBALS['SQ_SYSTEM']->am->getAsset($from);
 				if (!is_null($user_from)) {
 					$from_string = $user_from->name.' <'.$user_from->attr('email').'>';
 					$from_email = $user_from->attr('email');
@@ -703,7 +710,7 @@ class Messaging_Service extends MySource_Object
 					}
 					$user = SQ_CONF_SYSTEM_OWNER;
 				} else {
-					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($to);
+					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($to);
 					if (is_null($user)) continue;
 					$to_email = trim($user->attr('email'));
 				}
@@ -732,8 +739,8 @@ class Messaging_Service extends MySource_Object
 
 					$mail->send($to_email, $hdrs, $body);
 				}
-			}
-		}
+			}//end foreach
+		}//end foreach
 
 		// Remove sent emails
 		unset($this->_emails);
@@ -745,11 +752,12 @@ class Messaging_Service extends MySource_Object
 	/**
 	* formats the body of an email with a header and a footer
 	*
-	* @param mixed	$user	either the user object or a string containing the user's name that the email is intended for
 	* @param string	$body	the email body
+	* @param mixed	&$user	either the user object or a string containing the user's name that the email is intended for
+	* @param string	$type	the type of the email (text or html)
 	*
+	* @return string
 	* @access public
-	* @return string the body
 	*/
 	function formatEmail($body, &$user, $type='text')
 	{
