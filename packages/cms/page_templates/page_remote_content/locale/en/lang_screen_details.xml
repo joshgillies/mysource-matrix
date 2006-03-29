@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2006/03/28 03:42:29 sdanis Exp $
+* $Id: lang_screen_details.xml,v 1.5 2006/03/29 05:49:38 pgannavarapu Exp $
 *
 */
 -->
@@ -67,6 +67,11 @@
 			If start and end tags are specified this switch allows you to specify whether they should be included in the result.
 			</note>
 		</field>
+		<field attribute="multi_occurence">
+			<display_name>Get content from all occurrences</display_name>
+			<note>If the required tag has more than one occurrences in the content then setting this to 'Yes' would give you the content of all of the occurrences and to 'No' would give you the content till the occurence of the first end tag</note>
+		</field>
+
 		<field attribute="strip_images">
 			<display_name>Strip Images?</display_name>
 			<note>If you select "Yes", all images on the target page will be removed and replaced with their Alt tag values (or word 'Image')</note>

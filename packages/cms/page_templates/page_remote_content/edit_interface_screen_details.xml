@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.14 2006/03/28 03:42:29 sdanis Exp $
+* $Id: edit_interface_screen_details.xml,v 1.15 2006/03/29 05:49:37 pgannavarapu Exp $
 *
 */
 -->
@@ -50,6 +50,9 @@
 			<text width="35" height="1" />
 		</field>
 		<field attribute="include_tags">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="multi_occurence">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="strip_images">

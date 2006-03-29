@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.33 2006/03/28 03:42:29 sdanis Exp $
+* $Id: page_remote_content.inc,v 1.34 2006/03/29 05:49:37 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define ('SQ_REMOTE_SOURCE', 'sq_content_src');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -211,7 +211,7 @@ class Page_Remote_Content extends Page
 		// prepare the tags
 		$start_tag = preg_quote($this->attr('start_tag'), '/');
 		$end_tag   = preg_quote($this->attr('end_tag'), '/');
-
+		$multiple = $this->attr('multi_occurence');
 		// strip anything outside of the special tags
 		// if the start or stop tags are specified, we scan the page for the necessary content
 		// otherwise the page is good as it is, no scanning necessary
@@ -227,8 +227,12 @@ class Page_Remote_Content extends Page
 			preg_match_all($pattern, $response_body, $matches);
 			if (count($matches[1])) {
 				$response_body = '';
-				foreach ($matches[1] as $match) {
-					$response_body .= $match;
+				if ($multiple) {
+					foreach ($matches[1] as $match) {
+						$response_body .= $match;
+					}
+				} else {
+					$response_body .= $matches[1][0];
 				}
 			}
 			$matches = NULL;
@@ -527,9 +531,9 @@ class Page_Remote_Content extends Page
 		$parsed_fetch_url = parse_url($fetch_url);
 
 		// replace tags
-		$tag_replacmenets = $this->attr('tag_replacmenets');
-		if (!empty($tag_replacmenets)) {
-			foreach ($tag_replacmenets as $tag => $replace_info) {
+		$tag_replacements = $this->attr('tag_replacements');
+		if (!empty($tag_replacements)) {
+			foreach ($tag_replacements as $tag => $replace_info) {
 				if ($replace_info['remove_content']) {
 					$pattern = '/(<(?:'.$tag.')[^>]*?>[^<]*)/i';
 				} else {

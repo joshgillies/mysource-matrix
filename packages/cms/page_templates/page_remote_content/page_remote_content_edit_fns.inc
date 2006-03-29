@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_edit_fns.inc,v 1.9 2006/03/28 03:42:29 sdanis Exp $
+* $Id: page_remote_content_edit_fns.inc,v 1.10 2006/03/29 05:49:37 pgannavarapu Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -229,7 +229,7 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		$tag_replacements = $asset->attr('tag_replacmenets');
+		$tag_replacements = $asset->attr('tag_replacements');
 		if (!empty($tag_replacements) || $write_access) {
 			?>
 			<table width="100%" class="sq-backend-table">
@@ -312,7 +312,7 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 											  );
 		}
 
-		if (!$asset->setAttrValue('tag_replacmenets', $replacements)) {
+		if (!$asset->setAttrValue('tag_replacements', $replacements)) {
 			return FALSE;
 		}
 
