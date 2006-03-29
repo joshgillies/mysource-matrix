@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.7 2006/03/29 00:36:49 pgannavarapu Exp $
+* $Id: rss_feed_reader.inc,v 1.8 2006/03/29 00:54:36 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -128,27 +128,6 @@ class RSS_Feed_Reader
 	*/
 	var $parsed = false;
 
-	/**
-	* User name that can be user authentication through a proxy
-	*
-	* @var string
-	*/
-	var $username = NULL;
-
-	/**
-	* Password for the user authentication
-	*
-	* @var string
-	*/
-	var $password = NULL;
-
-	/**
-	* Proxy_url
-	*
-	* @var string
-	*/
-	var $proxy_url = NULL;
-
 
 	/**
 	* Constructor
@@ -166,26 +145,6 @@ class RSS_Feed_Reader
 
 
 	/**
-	* Set the user authentication details to the class variables
-	*
-	* @param string	$username	the name of the user
-	* @param string	$password	the password for the user
-	* @param string	$proxy_url		the proxy URL
-	*
-	* @return boolean
-	* @access public
-	*/
-	function setUserAuthentication($username, $password, $proxy_url)
-	{
-		$this->username = $username;
-		$this->password = $password;
-		$this->proxy_url = $proxy_url;
-		return TRUE;
-
-	}//end setUserAuthentication()
-
-
-	/**
 	* Accepts the path of the file to be parsed and sets the file pointer
 	*
 	* @param string	$file	the path of the file to be parsed
@@ -197,35 +156,13 @@ class RSS_Feed_Reader
 	{
 		$check = false;
 		if (!empty($file)) {
-			$user = $this->username;
-			$pwd = $this->password;
-			$proxy_url = $this->proxy_url;
 			if (eregi('^(http|ftp)://', substr($file, 0, 10))) {
 				if (!ini_get('allow_url_fopen')) {
 					trigger_error('Remote Files Cannot Be Parsed', E_USER_WARNING);
 					return false;
 				}
-				//requires authentication
-				if (!empty($proxy_url)) {
-					require_once('HTTP_Client/Client.php');
-					$client = new HTTP_Client();
-
-					$client->post($proxy_url, array('username' => $this->username, 'password' => $this->password));
-
-					$resp = $client->currentResponse();
-
-					if(strstr($resp['body'], 'failed')) {
-						trigger_error('Login failed', E_USER_WARNING);
-						return FALSE;
-					}
-					$client->get($file);
-					$resp = $client->currentResponse();
-					$this->fp = $resp['body'];
-				}
 			}
-			if (is_null($this->fp)) {
-				$this->fp = fopen($file, 'r');
-			}
+			$this->fp = fopen($file, 'r');
 			if (!$this->fp) {
 				trigger_error('Error occured during opening the file', E_USER_WARNING);
 				return false;
