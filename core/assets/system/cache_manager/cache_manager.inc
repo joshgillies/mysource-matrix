@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.44 2006/03/28 00:13:32 tbarrett Exp $
+* $Id: cache_manager.inc,v 1.45 2006/03/29 00:49:25 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -293,9 +293,11 @@ class Cache_Manager extends Asset
 			} else {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			}
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}
-
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 		if ($error) {
 			// we can only do query here because transaction will be aborted when the assertion fails
 			$cached = $this->_getCache($cache_key, $perm_key, $url);
