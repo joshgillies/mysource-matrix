@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.11 2006/03/14 16:56:21 gnoel Exp $
+* $Id: tagging.inc,v 1.12 2006/03/29 03:39:05 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 
@@ -175,12 +175,12 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 								$o->closeField();
 								$o->openField('&nbsp;');
 									check_box($prefix.'_tagging[cascade_changes]', '1', TRUE);
-									echo(translate('cascade_tag_changes'));
+									label(translate('cascade_tag_changes'), $prefix.'_tagging[cascade_changes]');
 									echo '<br/>';
 
 										$o->note(translate('tagging_cascade_changes_note'));
 									check_box($prefix.'_tagging[manual_cascade]');
-									echo(translate('manually_cascade_all_tags'));
+									label(translate('manually_cascade_all_tags'), $prefix.'_tagging[manual_cascade]');
 									echo '<br/>';
 
 									$o->note(translate('tagging_manual_cascade_note'));

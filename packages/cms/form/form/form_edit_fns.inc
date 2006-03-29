@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.68 2006/02/15 03:27:17 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.69 2006/03/29 03:40:56 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -352,9 +352,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			return FALSE;
 		} else {
 			check_box('use_bodycopy_main', '1', $asset->attr('use_bodycopy_main'));
-			echo translate('cms_page_contents').'<br />';
+			echo label(translate('cms_page_contents'), 'use_bodycopy_main').'<br />';
 			check_box('use_bodycopy_thank_you', '1', $asset->attr('use_bodycopy_thank_you'));
-			echo translate('cms_form_thank_you').'<br />';
+			echo label(translate('cms_form_thank_you'), 'use_bodycopy_thank_you').'<br />';
 			return TRUE;
 		}
 

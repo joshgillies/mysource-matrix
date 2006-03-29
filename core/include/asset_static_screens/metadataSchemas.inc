@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.17 2006/02/07 02:18:51 skim Exp $
+* $Id: metadataSchemas.inc,v 1.18 2006/03/29 03:39:05 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 
@@ -202,10 +202,10 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 				$o->closeField();
 				$o->openField('&nbsp;');
 					check_box($prefix.'_metadata[cascade_changes]', '1', TRUE);
-					echo translate('cascade_schema_changes');
+					label(translate('cascade_schema_changes'), $prefix.'_metadata[cascade_changes]');
 					echo '<br/>';
 					check_box($prefix.'_metadata[manual_cascade]');
-					echo translate('manually_cascade_schema');
+					label(translate('manually_cascade_schema'), $prefix.'_metadata[manual_cascade]');
 				$o->closeField();
 			$o->closeSection();
 		}

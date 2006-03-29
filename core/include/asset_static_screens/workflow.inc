@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.35 2006/02/07 02:18:51 skim Exp $
+* $Id: workflow.inc,v 1.36 2006/03/29 03:39:05 sdanis Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 */
 
@@ -708,10 +708,12 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 								echo translate('action_affects_assets_below_this', count($kiddies), $owner->name).'<br /><br />';
 
 								check_box($prefix.'_workflow[cascade_changes]', '1', TRUE);
-								echo ' '.translate('cascade_schema_changes');
+								echo ' ';
+								label(translate('cascade_schema_changes'), $prefix.'_workflow[cascade_changes]');
 								echo '<br/>';
 								check_box($prefix.'_workflow[manual_cascade]');
-								echo ' '.translate('manually_cascade_schema');
+								echo ' ';
+								label(translate('manually_cascade_schema'), $prefix.'_workflow[manual_cascade]');
 
 							} else {
 								echo translate('no_children_to_cascade_workflow');
