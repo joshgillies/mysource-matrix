@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.31 2006/03/24 04:35:40 sdanis Exp $
+* $Id: page_site_map.inc,v 1.32 2006/03/29 02:18:29 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -208,6 +208,8 @@ class Page_Site_Map extends Page
 
 		if (!$generating) global $SQ_SITE_MAP_ASSET_URLS;
 
+		$display_formats = $this->attr('display_formats');
+
 		?>
 		<ul>
 <?php
@@ -218,7 +220,9 @@ class Page_Site_Map extends Page
 				if ($this->attr('icons')) {
 					?><script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($item['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;<?php
 				}
-			?><a href="<?php echo $url;?>" title="<?php echo $item['name']; ?>"><?php echo $item['name']; ?></a>
+
+				$format = $this->_getDisplayFormat($item);
+			?><a href="<?php echo $url;?>" title="<?php echo $item['name']; ?>"><?php echo $format; ?></a>
 <?php
 			if (isset($page_data[$item['assetid']]) && $level + 1 <= $top_level) {
 ?>
@@ -283,7 +287,6 @@ class Page_Site_Map extends Page
 	*/
 	function _defaultRecursePrintAssetList(&$page_data, $parent, $level, $generating=FALSE)
 	{
-		$display_formats = $this->attr('display_formats');
 		$top_level = $this->attr('top_level');
 		$stalks = $this->attr('stalks');
 
@@ -313,33 +316,7 @@ class Page_Site_Map extends Page
 							<script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;
 						<?php }
 
-						$format = $data['name'];
-						$format_type_code = NULL;
-						if (isset($display_formats[$data['type_code']])) {
-							$format_type_code = $data['type_code'];
-
-						} else if (!empty($display_formats)) {
-							foreach ($display_formats as $type => $info) {
-								if ($info['inherit'] == 1) {
-									if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($data['type_code'], $type)) {
-										$format_type_code = $type;
-										break;
-									}
-								}
-							}
-						}
-
-						if (!is_null($format_type_code)) {
-							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data['assetid']);
-							$format = $display_formats[$format_type_code]['format'];
-							preg_match_all('/%(\w+)%/i', $format, $matches);
-
-							foreach ($matches[1] as $key => $keyword) {
-								$rep = $asset->getKeywordReplacement($keyword);
-								$format = ereg_replace($matches[0][$key], $rep, $format);
-							}
-							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-						}
+						$format = $this->_getDisplayFormat($data);
 ?>
 						<a href="<?php echo $url?>" title="<?php echo $data['name']; ?>"><?php echo $format; ?></a>
 					</td>
@@ -366,6 +343,52 @@ class Page_Site_Map extends Page
 		return TRUE;
 
 	}//end _defaultRecursePrintAssetList()
+
+
+	/**
+	* Returns the display text for a site map item
+	*
+	* @param array	$data	Information about the site map item
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _getDisplayFormat($data)
+	{
+		if (!is_array($data)) return '';
+
+		$display_formats = $this->attr('display_formats');
+
+		$format = $data['name'];
+		$format_type_code = NULL;
+		if (isset($display_formats[$data['type_code']])) {
+			$format_type_code = $data['type_code'];
+		} else if (!empty($display_formats)) {
+			foreach ($display_formats as $type => $info) {
+				if ($info['inherit'] == 1) {
+					if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($data['type_code'], $type)) {
+						$format_type_code = $type;
+						break;
+					}
+				}
+			}
+		}
+
+		if (!is_null($format_type_code)) {
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data['assetid']);
+			$format = $display_formats[$format_type_code]['format'];
+			preg_match_all('/%(\w+)%/i', $format, $matches);
+
+			foreach ($matches[1] as $key => $keyword) {
+				$rep = $asset->getKeywordReplacement($keyword);
+				$format = ereg_replace($matches[0][$key], $rep, $format);
+			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+		}
+
+		return $format;
+
+	}//end _getDisplayFormat()
 
 
 }//end class
