@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.168 2006/03/17 03:59:26 sdanis Exp $
+* $Id: search_page.inc,v 1.169 2006/03/29 23:50:12 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.168 $
+* @version $Revision: 1.169 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -389,7 +389,13 @@ class Search_Page extends Listing_Engine
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$proxy_settings = $this->attr('proxy_types');
-		if (empty($proxy_settings)) return $results;
+		if (empty($proxy_settings)) {
+			// We should be able to return the results array straight back, but
+			// we've found sometimes it returns an empty array (PHP 4.3 ref bug??).
+			// So dump it off to another variable by value and return that
+			$new_results = $results;
+			return $new_results;
+		}
 
 		$collated_types = Array();
 		$result_types = $am->getAssetInfo(array_keys($results), 'asset', FALSE, 'type_code');
