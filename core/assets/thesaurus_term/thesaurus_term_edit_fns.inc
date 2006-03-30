@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term_edit_fns.inc,v 1.4 2006/01/18 22:15:32 lwright Exp $
+* $Id: thesaurus_term_edit_fns.inc,v 1.4.2.1 2006/03/30 01:21:02 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *	Container of a thesaurus term
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -163,7 +163,7 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 			$asset->_tmp['relation'] = $relation;
 		} else {
 			$thesaurus =& $asset->_thesaurus;
-			$relations = array_get_index($_REQUEST, $prefix.'_relations');
+			$relations = array_get_index($_REQUEST, $prefix.'_relations', Array());
 			foreach ($relations as $rel_id => $rel_types) {
 
 				if (isset($rel_types['new'])) {
