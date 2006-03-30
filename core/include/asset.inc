@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.503.2.8 2006/03/23 03:50:41 sdanis Exp $
+* $Id: asset.inc,v 1.503.2.9 2006/03/30 00:02:15 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.503.2.8 $
+* @version $Revision: 1.503.2.9 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3186,7 +3186,7 @@ class Asset extends MySource_Object
 	{
 		if (empty($keyword)) return '';
 
-		$replacement = '';
+		$replacement = "%$keyword%";
 		$tmp_keyword = strtr($keyword, '_', ' ');
 		$tmp_keyword = ucwords($tmp_keyword);
 		$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
