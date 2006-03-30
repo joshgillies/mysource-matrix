@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.452 2006/03/29 05:09:47 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.453 2006/03/30 06:12:00 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.452 $
+* @version $Revision: 1.453 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5257,12 +5257,13 @@ class Asset_Manager extends MySource_Object
 	*									Array(userid => granted)
 	*									(NOTE: TRUE is only valid if $and_greater and
 	*									$expand_groups are FALSE)
-	* @param boolean	$include_roles	When TRUE, query the permissions view which includes role expansions
+	* @param boolean	$collapse_roles	When TRUE, only use the permissions table (ie. don't expand roles)
+	*									Otherwise, the permissions view (which includes role expansions) are used
 	*
 	* @return array
 	* @access public
 	*/
-	function getPermission($assetid, $permission, $granted=NULL, $and_greater=TRUE, $expand_groups=FALSE, $all_info=FALSE, $include_roles=TRUE)
+	function getPermission($assetid, $permission, $granted=NULL, $and_greater=TRUE, $expand_groups=FALSE, $all_info=FALSE, $collapse_roles=FALSE)
 	{
 		$permission = (int) $permission;
 		if (!is_null($granted)) $granted = (bool) $granted;
@@ -5297,13 +5298,13 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// return cached version if we can
-		$suffix = $include_roles ? '1' : '0';
+		$suffix = $collapse_roles ? '1' : '0';
 		$storage_name =(($and_greater) ? 'effective_' : '').'permission_'.$permission.'_'.$suffix;
 		if (!isset($this->_tmp['permission_cache'][$assetid][$storage_name])) {
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-			$table = ($include_roles) ? 'ast_perm' : 'vw_ast_perm';
+			$table = ($collapse_roles) ? 'ast_perm' : 'vw_ast_perm';
 			$sql = '  SELECT DISTINCT assetid, userid, granted
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.$table.' ';
 			$where = 'assetid = '.$db->quote($assetid).'
@@ -5312,6 +5313,8 @@ class Asset_Manager extends MySource_Object
 
 			$result = $db->getAll($sql.$where);
 			assert_valid_db_result($result);
+
+			bam($result);
 
 			// cache the result for next time
 			$this->_tmp['permission_cache'][$assetid][$storage_name] = $result;
