@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.15.2.5 2006/03/23 00:00:26 emcdonald Exp $
+* $Id: thesaurus.inc,v 1.15.2.6 2006/03/30 01:03:32 emcdonald Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.15.2.5 $
+* @version $Revision: 1.15.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1526,7 +1526,9 @@ class Thesaurus extends Asset
 			return FALSE;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// Update relations
 		$sql = '
@@ -1541,6 +1543,9 @@ class Thesaurus extends Asset
 		';
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		$this->markContentsChanged();
 		return;
@@ -1559,6 +1564,7 @@ class Thesaurus extends Asset
 	*/
 	function renameLinkRelation($linkid, $relation=NULL)
 	{
+
 		if (empty($relation)) $relation = NULL;
 
 		$link_info = $this->getTermLinkById($linkid);
@@ -1571,8 +1577,9 @@ class Thesaurus extends Asset
 			trigger_localised_error('CORE0242', E_USER_WARNING, $linkid, $link_info['relation'], $relation, $existing_linkid);
 			return FALSE;
 		}
-
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = '
 			UPDATE
@@ -1588,6 +1595,8 @@ class Thesaurus extends Asset
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end renameLinkRelation()
