@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.31 2006/01/18 04:05:57 dmckee Exp $
+* $Id: edit.js,v 1.32 2006/03/30 03:16:52 sdanis Exp $
 *
 */
 
@@ -261,6 +261,8 @@ function textboxReplaceSelect(input, text)
 
 var expandListFn = new Function('expandOptionList(this)');
 var deleteRowFn = new Function('deleteOptionListRow(this); return false;');
+var onClickMoveUp = new Function('listMoveUp(this); return false;');
+var onClickMoveDown = new Function('listMoveDown(this); return false;');
 
 function expandOptionList(input)
 {
@@ -274,8 +276,8 @@ function expandOptionList(input)
 	}
 
 	// abort if we and the second-last input are both empty
+	var lastInput = input.previousSibling;
 	if (input.value == '') {
-		var lastInput = input.previousSibling;
 		while (lastInput !== null) {
 			if (lastInput.tagName == 'INPUT') {
 				if (lastInput.value == '') {
@@ -287,10 +289,32 @@ function expandOptionList(input)
 		}
 	}
 
+	var inputs = optionList.getElementsByTagName('INPUT');
+
+	// add move down button to the previous input
+	var moveDownButton = lastInput.nextSibling;
+	while (moveDownButton != null) {
+		moveDownButton = moveDownButton.nextSibling;
+		if (moveDownButton.tagName == 'A' && moveDownButton.name=="movedown") {
+			break;
+		}
+	}
+	moveDownButton.id = optionItemPrefix+'_options['+(inputs.length-2)+']';
+	moveDownButton = moveDownButton.cloneNode(true);
+	moveDownButton.onclick = onClickMoveDown;
+
+	var brElements = lastInput.parentNode.getElementsByTagName('BR');
+	lastInput.parentNode.removeChild(brElements[brElements.length-1]);
+	input.parentNode.appendChild(moveDownButton);
+	input.parentNode.appendChild(document.createElement('BR'));
+
+
+
 	// add the extra field
 	var newInput = input.cloneNode(true);
 	newInput.onfocus = expandListFn;
 	newInput.value = '';
+	newInput.id = optionItemPrefix+'_options['+inputs.length+']';
 	input.parentNode.appendChild(newInput);
 	var delButton = input.nextSibling;
 	while (delButton.tagName != 'BUTTON') {
@@ -299,7 +323,61 @@ function expandOptionList(input)
 	delButton = delButton.cloneNode(true);
 	delButton.onclick = deleteRowFn;
 	input.parentNode.appendChild(delButton);
+
+
+
+	// add the move up button to the new input
+	var moveUpButton = input.nextSibling;
+	while (moveUpButton != null) {
+		if (moveUpButton.tagName == 'A' && moveUpButton.name == 'moveup') {
+			break;
+		}
+		moveUpButton = moveUpButton.nextSibling;
+	}
+	moveUpButton = moveUpButton.cloneNode(true);
+	moveUpButton.id = optionItemPrefix+'_options['+(inputs.length-1)+']';
+	moveUpButton.onclick = onClickMoveUp;
+
+	input.parentNode.appendChild(moveUpButton);
 	input.parentNode.appendChild(document.createElement('BR'));
+
+}
+
+// move up a row
+function listMoveUp(obj) {
+	var currentOrder = 0;
+	var inputs = optionList.getElementsByTagName('INPUT');
+
+	for (var i=0 ; i < inputs.length; i++) {
+		if (obj.id == inputs[i].id) {
+			currentOrder = i;
+			break;
+		}
+	}
+	if (currentOrder == 0) return;
+
+	var temp = inputs[currentOrder-1].value;
+	inputs[currentOrder-1].value = inputs[currentOrder].value;
+	inputs[currentOrder].value = temp;
+}
+
+// move down a row
+function listMoveDown(obj) {
+	var currentOrder = 0;
+
+	var inputs = optionList.getElementsByTagName('INPUT');
+	for (var i=0 ; i < inputs.length; i++) {
+		if (obj.id == inputs[i].id) {
+			currentOrder = i;
+			break;
+		}
+	}
+
+	if (currentOrder == inputs.length) return;
+
+	var temp = inputs[currentOrder+1].value;
+	inputs[currentOrder+1].value = inputs[currentOrder].value;
+	inputs[currentOrder].value = temp;
 }
 
 function deleteOptionListRow(button)
@@ -309,6 +387,26 @@ function deleteOptionListRow(button)
 		input = input.previousSibling;
 	}
 	if (input.value == '') return;
+
+	var moveUpBut = button.nextSibling;
+	while (moveUpBut != null) {
+		if (moveUpBut.tagName == 'A' && moveUpBut.name == 'moveup') {
+			break;
+		}
+		moveUpBut = moveUpBut.nextSibling;
+	}
+	button.parentNode.removeChild(moveUpBut);
+
+	var moveDownBut = button.nextSibling;
+	while (moveDownBut != null) {
+		if (moveDownBut.tagName == 'A' && moveDownBut.name == 'movedown') {
+			break;
+		}
+		moveDownBut = moveDownBut.nextSibling;
+	}
+	button.parentNode.removeChild(moveDownBut);
+
+
 	var brTag = button.nextSibling;
 	while (brTag.tagName != 'BR') {
 		brTag = brTag.nextSibling;

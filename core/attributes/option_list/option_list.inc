@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.25 2006/02/20 05:16:22 emcdonald Exp $
+* $Id: option_list.inc,v 1.26 2006/03/30 03:16:33 sdanis Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -74,21 +74,38 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 			?>
 			<div id="option-list-<?php echo $prefix; ?>">
 				<?php
+				$order = 0;
 				foreach ($value as $v) {
 					$v = htmlentities($v);
 					?>
-					<input type="text"  name="<?php echo $prefix; ?>_options[]" value="<?php echo $v; ?>" /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button><br />
+					<input type="text"  name="<?php echo $prefix; ?>_options[]" value="<?php echo $v; ?>" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
 					<?php
+						if ($order !=0) {
+							$this->_printMoveUpButton($order, $prefix);
+						}
+						$this->_printMoveDownButton($order, $prefix);
+					?><br />
+					<?php
+					$order++;
 				}
 				for ($i =0; $i < 2; $i++) {
 					?>
-					<input type="text" name="<?php echo $prefix; ?>_options[]" /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button><br />
+					<input type="text" name="<?php echo $prefix; ?>_options[]" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
 					<?php
+						$this->_printMoveUpButton($order, $prefix);
+						if ($i < 1) {
+							$this->_printMoveDownButton($order, $prefix);
+						}
+					?>
+					<br />
+					<?php
+					$order++;
 				}
 				?>
 			</div>
 			<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/edit.js"></script>
 			<script type="text/javascript">
+				var optionItemPrefix = '<?php echo $prefix; ?>';
 				// attach the event handlers
 				var optionList = document.getElementById('option-list-<?php echo $prefix; ?>');
 				var	inputs = optionList.getElementsByTagName('INPUT');
@@ -99,6 +116,8 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				for (var j=0; j < buttons.length; j++) {
 					buttons[j].onclick = deleteRowFn;
 				}
+
+				lastOrder = <?php echo $order; ?>;
 			</script>
 			<?php
 		} else {
@@ -106,6 +125,42 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 		}
 
 	}//end paint()
+
+
+	/**
+	* paint the down arrow button
+	*
+	* @param string	$order	Order of the element
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function _printMoveDownButton($order, $prefix)
+	{
+		?>
+			<a href="#" style="cursor:pointer;" onclick="listMoveDown(this);return false;" name="movedown" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
+		<?php
+
+	}//end _printMoveDownButton()
+
+
+	/**
+	* paint the down arrow button
+	*
+	* @param string	$order	Order of the element
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function _printMoveUpButton($order, $prefix)
+	{
+		?>
+			<a href="#" style="cursor:pointer;" onclick="listMoveUp(this);return false;" name="moveup" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
+		<?php
+
+	}//end _printMoveUpButton()
 
 
 	/**
