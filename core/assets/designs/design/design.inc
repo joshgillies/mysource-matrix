@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.107 2006/03/03 00:32:03 sdanis Exp $
+* $Id: design.inc,v 1.108 2006/03/30 01:49:05 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -702,44 +702,55 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			break;
 
 			case 'current_user' :
-				if (empty($args['attr'])) $args['attr'] = 'name';
-				switch ($args['attr']) {
-					case 'username'   :
-					case 'first_name' :
-					case 'last_name'  :
-						$attr = 'attr('.var_export((string) $args['attr'], TRUE).')';
-					break;
-
-					case 'id' :
-						$attr = 'id';
-					break;
-
-					case 'name' :
-						$attr = 'name';
-					default :
-						// we search the asset for the attributes existance, except for password
-						if ($args['attr'] != 'password') {
-							$assert_asset_attribute = TRUE;
-						}
-
-				}// end switch
-
-				$default = (empty($args['default'])) ? '' : $args['default'];
-
-				// a different string is required if we want an asset attribute
-				if (isset($assert_asset_attribute)) {
+				if (!empty($args['keyword'])) {
 					echo '<'.'?php
-						// check if the attribute we want is an asset specific attribute
-						$asset_attributes = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetTypeAttributes(get_class($GLOBALS[\'SQ_SYSTEM\']->user));
-						foreach ($asset_attributes as $attribute => $type) {
-							if (\''.$args['attr'].'\' == $attribute) {
-								echo ', $this->_escapeVar('(!$GLOBALS[\'SQ_SYSTEM\']->userPublic()) ? $GLOBALS[\'SQ_SYSTEM\']->user->attr($attribute) : '.var_export($default, TRUE), $args), ';
-								break;
-							}
+					if (!$GLOBALS["SQ_SYSTEM"]->userPublic()) {
+						$user_keyword_val = $GLOBALS["SQ_SYSTEM"]->user->getKeywordReplacement("'.$args['keyword'].'");
+						if ($user_keyword_val != "%'.$args['keyword'].'%") {
+							echo $user_keyword_val;
 						}
-					?'.'>';
+					}
+					?', '>';
 				} else {
-					echo '<', '?php echo ', $this->_escapeVar('(!$GLOBALS[\'SQ_SYSTEM\']->userPublic()) ? $GLOBALS[\'SQ_SYSTEM\']->user->'.$attr.' : '.var_export($default, TRUE), $args), '; ?', '>';
+					if (empty($args['attr'])) $args['attr'] = 'name';
+					switch ($args['attr']) {
+						case 'username'   :
+						case 'first_name' :
+						case 'last_name'  :
+							$attr = 'attr('.var_export((string) $args['attr'], TRUE).')';
+						break;
+
+						case 'id' :
+							$attr = 'id';
+						break;
+
+						case 'name' :
+							$attr = 'name';
+						default :
+							// we search the asset for the attributes existance, except for password
+							if ($args['attr'] != 'password') {
+								$assert_asset_attribute = TRUE;
+							}
+
+					}// end switch
+
+					$default = (empty($args['default'])) ? '' : $args['default'];
+
+					// a different string is required if we want an asset attribute
+					if (isset($assert_asset_attribute)) {
+						echo '<'.'?php
+							// check if the attribute we want is an asset specific attribute
+							$asset_attributes = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetTypeAttributes(get_class($GLOBALS[\'SQ_SYSTEM\']->user));
+							foreach ($asset_attributes as $attribute => $type) {
+								if (\''.$args['attr'].'\' == $attribute) {
+									echo ', $this->_escapeVar('(!$GLOBALS[\'SQ_SYSTEM\']->userPublic()) ? $GLOBALS[\'SQ_SYSTEM\']->user->attr($attribute) : '.var_export($default, TRUE), $args), ';
+									break;
+								}
+							}
+						?'.'>';
+					} else {
+						echo '<', '?php echo ', $this->_escapeVar('(!$GLOBALS[\'SQ_SYSTEM\']->userPublic()) ? $GLOBALS[\'SQ_SYSTEM\']->user->'.$attr.' : '.var_export($default, TRUE), $args), '; ?', '>';
+					}
 				}
 
 			break;
