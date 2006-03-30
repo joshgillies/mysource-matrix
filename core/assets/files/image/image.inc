@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.57 2006/03/27 00:50:15 skim Exp $
+* $Id: image.inc,v 1.58 2006/03/30 22:41:26 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1060,7 +1060,45 @@ class Image extends File
 	*/
 	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=TRUE, $field='')
 	{
-		return Array();
+		$info = Array();
+		foreach ($assetids as $assetid) {
+			$asset =& $this->getAsset($assetid);
+
+			if (!empty($field)) {
+				if ($field == 'assetid') {
+					$info[$assetid] = $assetid;
+				} else if ($field == 'type_code') {
+					$info[$assetid] = $asset->type();
+				} else if (in_array($field , Array('version', 'name', 'short_name', 'status'))) {
+					$info[$assetid] = $asset->$field;
+				} else {
+					$info[$assetid] = $this->$field;
+				}
+			} else {
+				$info[$assetid] = Array(
+									'assetid'				=> $assetid,
+									'type_code'				=> $asset->type(),
+									'version'				=> $asset->version,
+									'name'					=> $asset->name,
+									'short_name'			=> $asset->short_name,
+									'status'				=> $asset->status,
+									'languages'				=> $asset->languages,
+									'charset'				=> $asset->charset,
+									'force_secure'			=> $this->force_secure,
+									'created'				=> $asset->created,
+									'created_userid'		=> $asset->created_userid,
+									'updated'				=> $asset->updated,
+									'updated_userid'		=> $asset->updated_userid,
+									'published'				=> $asset->published,
+									'published_userid'		=> $asset->published_userid,
+									'status_changed'		=> $asset->status_changed,
+									'status_changed_userid'	=> $asset->status_changed_userid,
+								  );
+			}
+
+		}//end foreach
+
+		return $info;
 
 	}//end getAssetInfo()
 
