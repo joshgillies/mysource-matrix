@@ -18,24 +18,20 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_management.inc,v 1.4 2006/03/30 23:19:15 bcaldwell Exp $
+* $Id: trigger_management.inc,v 1.1 2006/03/30 23:19:15 bcaldwell Exp $
 *
 */
 
-require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Trigger_Manager_Management
+* Trigger_Management
 *
-* @see Asset_Management
-*
-* @author	Andrei Railean <arailean@squiz.net>
-* @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @author Ben Caldwell <bcaldwell@squiz.net>
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Trigger_Manager_Management extends Asset_Management
+class Trigger_Management extends Asset_Management
 {
 
 
@@ -43,24 +39,40 @@ class Trigger_Manager_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Trigger_Manager_Management(&$pm)
+	function Trigger_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-						'enabled'	=> Array(
-										'added'			=> '0.1',
-										'type'			=> 'boolean',
-										'default'		=> FALSE,
-										'parameters'	=> Array(
-															'allow_empty'	=> FALSE,
-														   ),
-										'description'	=> 'A flag which enables or disables the execution of trigger events',
-									   ),
+						'name'			=> Array(
+											'added'			=> '0.1',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'The name of the trigger',
+										   ),
+						'description'	=> Array(
+											'added'			=> '0.1',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'A description of the trigger',
+										   ),
+						'data'			=> Array(
+											'added'			=> '0.1',
+											'type'			=> 'serialise',
+											'default'		=> Array(),
+											'description'	=> 'The trigger data',
+										   ),
+						'active'		=> Array(
+											'added'			=> '0.1',
+											'type'			=> 'boolean',
+											'default'		=> FALSE,
+											'description'	=> 'If this trigger is active or not',
+										   ),
 					  );
 
 	}//end constructor
 
 
 }//end class
+
 ?>
