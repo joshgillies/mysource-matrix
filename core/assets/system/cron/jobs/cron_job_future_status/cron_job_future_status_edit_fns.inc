@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status_edit_fns.inc,v 1.16 2006/02/15 05:50:59 tbarrett Exp $
+* $Id: cron_job_future_status_edit_fns.inc,v 1.17 2006/03/31 03:49:35 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,15 +59,20 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	* @param string	$prefix					prefix for form elements
 	* @param string	$when					prepared when string
 	* @param string	$form_extra_elements	extra form elements
+	* @param array	$exclude_status			exclude these statuses from the list
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInLineBackend(&$asset, &$o, $prefix, $when='', $form_extra_elements='')
+	function paintInLineBackend(&$asset, &$o, $prefix, $when='', $form_extra_elements='', $exclude_status=Array())
 	{
 		echo translate('set_status_to');
 
 		$descs = $asset->_getAllStatiiDescs();
+		foreach($exclude_status as $status) {
+			unset($descs[$status]);
+		}
+
 		if ($asset->writeAccess('attributes')) {
 			combo_box($prefix.'_status', $descs, FALSE, $asset->attr('status'), NULL, $form_extra_elements);
 		} else {
