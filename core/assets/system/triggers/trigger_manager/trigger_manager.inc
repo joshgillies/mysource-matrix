@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.34 2006/03/30 23:19:15 bcaldwell Exp $
+* $Id: trigger_manager.inc,v 1.35 2006/03/31 05:44:29 bcaldwell Exp $
 *
 */
 
@@ -50,7 +50,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -256,7 +256,7 @@ class Trigger_Manager extends Asset
 
 		// sort triggers, active triggers should come first
 		$sorted_triggers = Array();
-		foreach (array_reverse($trigger_map) as $status => $triggers) {
+		foreach ($trigger_map as $status => $triggers) {
 			asort($triggers);
 			$sorted_triggers += $triggers;
 		}
