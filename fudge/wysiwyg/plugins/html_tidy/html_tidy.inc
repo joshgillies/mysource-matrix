@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.36 2006/03/15 23:02:44 rong Exp $
+* $Id: html_tidy.inc,v 1.37 2006/03/31 02:48:27 rong Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -265,7 +265,24 @@ class HTML_Tidy extends Wysiwyg_Plugin
 								}
 								default	: return false;
 							}
+							// BUG#928 - special condition to allow empty anchor tag
+							if (i == 9) {
+									reg2 = new RegExp("(<A NAME[^>]*?>)(&nbsp;| |\n|\t)*(</A>)", "gi");
+									rep2 = "$1matrix_anchor_tmp$3"
+									curHTML = curHTML.replace(reg2, rep2);
+									reg2 = new RegExp("(<A ID[^>]*?>)(&nbsp;| |\n|\t)*(</A>)", "gi");
+									rep2 = "$1matrix_anchor_tmp$3"
+									curHTML = curHTML.replace(reg2, rep2);
+							}
 							curHTML = curHTML.replace(reg, rep);
+							if (i == 9) {
+									reg3 = new RegExp("(<A NAME[^>]*?>)matrix_anchor_tmp(</A>)", "gi");
+									rep3 = "$1$2"
+									curHTML = curHTML.replace(reg3, rep3);
+									reg3 = new RegExp("(<A ID[^>]*?>)matrix_anchor_tmp(</A>)", "gi");
+									rep3 = "$1$2"
+									curHTML = curHTML.replace(reg3, rep3);
+							}
 						}
 					if (selected_html) {
 						if (types.length>0) editor.insertHTML(curHTML);
