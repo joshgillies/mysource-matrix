@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.35 2005/09/27 01:16:25 lwright Exp $
+* $Id: asset_status_under_construction.inc,v 1.35.2.1 2006/03/31 03:44:47 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -117,14 +117,14 @@ class Asset_Status_Under_Construction extends Asset_Status
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 
 					if ($wf_complete && $m_complete) {
-						$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+						$statii[SQ_STATUS_APPROVED] = 'Approve';
 					} else {
 						$statii[SQ_STATUS_PENDING_APPROVAL] = 'Apply for Approval';
 					}
 				} else {
 					// this asset needs to allow both statuses because it cant check metadata requirements
 					// due to it not allowing metadata
-					$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+					$statii[SQ_STATUS_APPROVED] = 'Approve';
 					$statii[SQ_STATUS_PENDING_APPROVAL] = 'Apply for Approval';
 				}
 			}
