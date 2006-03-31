@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: roles.inc,v 1.2 2006/03/31 04:16:24 lwright Exp $
+* $Id: roles.inc,v 1.3 2006/03/31 04:19:28 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Roles Static Screen Functions
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
@@ -326,9 +326,6 @@ function processRoles(&$owner, &$o, &$ei)
 				);
 
 		if (!$cascade) $vars['dependants_only'] = 1;
-
-		bam($vars);
-		//return FALSE;
 
 		$hh->queueHipo('hipo_job_edit_roles', $vars);
 	}
