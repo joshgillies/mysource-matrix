@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.175.2.1 2006/02/28 05:30:05 lwright Exp $
+* $Id: page_calendar.inc,v 1.175.2.2 2006/03/31 05:53:02 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.175.2.1 $
+* @version $Revision: 1.175.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -654,7 +654,7 @@ class Page_Calendar extends Page
 		ob_start();
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
-			$events = $this->getMonthEvents($year, $month);
+			$events = $this->getMonthEventsByDay($year, $month);
 			$month_length = days_in_month($month, $year);
 			$done_events = Array();
 
