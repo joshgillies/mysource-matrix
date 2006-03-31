@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.453 2006/03/30 06:12:00 lwright Exp $
+* $Id: asset_manager.inc,v 1.454 2006/03/31 00:42:10 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.453 $
+* @version $Revision: 1.454 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5314,8 +5314,6 @@ class Asset_Manager extends MySource_Object
 			$result = $db->getAll($sql.$where);
 			assert_valid_db_result($result);
 
-			bam($result);
-
 			// cache the result for next time
 			$this->_tmp['permission_cache'][$assetid][$storage_name] = $result;
 
@@ -5661,19 +5659,39 @@ class Asset_Manager extends MySource_Object
 		if ($expand_groups) {
 			$roles = Array();
 			foreach ($result as $roleid => $userid_assetids) {
-				$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid_assetids, Array(), FALSE, 'type_code');
-				foreach ($userid_assetids as $index => $userid_assetid) {
-					if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid_assetid], 'user_group')) {
-						$expanded_users = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid_assetid, Array('user'), FALSE));
-						if (!empty($expanded_users)) {
-							if (isset($roles[$roleid])) {
-								$roles[$roleid] += $expanded_users;
-							} else {
-								$roles[$roleid] = $expanded_users;
+				// need to handle include_assetid changes
+				if ($include_assetid) {
+					$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($userid_assetids), Array(), FALSE, 'type_code');
+					foreach($userid_assetids as $userid_assetid => $assetids) {
+						if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid_assetid], 'user_group')) {
+							$expanded_users = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid_assetid, Array('user'), FALSE));
+							if (!empty($expanded_users)) {
+								if (isset($roles[$roleid])) {
+									$roles[$roleid] = Array();
+								}
+								foreach($expanded_users as $expanded_userid) {
+									$roles[$roleid][$expanded_userid] = $assetids;
+								}
 							}
+						} else {
+							$roles[$roleid][$userid] = $assetids;
 						}
-					} else {
-						$roles[$roleid][] = $userid_assetid;
+					}
+				} else {
+					$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid_assetids, Array(), FALSE, 'type_code');
+					foreach ($userid_assetids as $index => $userid_assetid) {
+						if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid_assetid], 'user_group')) {
+							$expanded_users = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid_assetid, Array('user'), FALSE));
+							if (!empty($expanded_users)) {
+								if (isset($roles[$roleid])) {
+									$roles[$roleid] += $expanded_users;
+								} else {
+									$roles[$roleid] = $expanded_users;
+								}
+							}
+						} else {
+							$roles[$roleid][] = $userid_assetid;
+						}
 					}
 				}
 			}
