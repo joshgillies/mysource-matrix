@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_management.inc,v 1.1 2006/03/30 23:19:15 bcaldwell Exp $
+* $Id: trigger_management.inc,v 1.2 2006/03/31 05:42:16 bcaldwell Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * Trigger_Management
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,17 +56,41 @@ class Trigger_Management extends Asset_Management
 											'default'		=> '',
 											'description'	=> 'A description of the trigger',
 										   ),
-						'data'			=> Array(
+						'events'		=> Array(
 											'added'			=> '0.1',
 											'type'			=> 'serialise',
 											'default'		=> Array(),
-											'description'	=> 'The trigger data',
+											'description'	=> 'Events when trigger will be executed',
+										   ),
+						'conditions'	=> Array(
+											'added'			=> '0.1',
+											'type'			=> 'serialise',
+											'default'		=> Array(),
+											'description'	=> 'Conditions that must be met for trigger to execute',
+										   ),
+						'actions'		=> Array(
+											'added'			=> '0.1',
+											'type'			=> 'serialise',
+											'default'		=> Array(),
+											'description'	=> 'Actions that will be performed when the trigger executes',
 										   ),
 						'active'		=> Array(
 											'added'			=> '0.1',
 											'type'			=> 'boolean',
 											'default'		=> FALSE,
+											'parameters'	=> Array(
+																'allow_empty'	=> FALSE,
+															   ),
 											'description'	=> 'If this trigger is active or not',
+										   ),
+						'blocking'		=> Array(
+											'added'			=> '0.1',
+											'type'			=> 'boolean',
+											'default'		=> FALSE,
+											'parameters'	=> Array(
+																'allow_empty'	=> FALSE,
+															   ),
+											'description'	=> 'If this trigger will prevent further trigger execution upon error',
 										   ),
 					  );
 

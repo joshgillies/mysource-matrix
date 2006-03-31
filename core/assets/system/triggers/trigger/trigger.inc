@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger.inc,v 1.1 2006/03/30 23:19:15 bcaldwell Exp $
+* $Id: trigger.inc,v 1.2 2006/03/31 05:42:16 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *	in the Trigger_Manager.
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 *
@@ -143,9 +143,14 @@ class Trigger extends Asset
 		$this->status = $tm->status;
 
 		// load attributes
-		for (reset($this->vars); NULL !== ($name = key($this->vars)); next($this->vars)) {
-			$this->vars[$name]['value'] = $trigger_info[$name];
-		}
+		$this->vars['name']['value']		= $trigger_info['name'];
+		$this->vars['description']['value']	= $trigger_info['description'];
+		$this->vars['events']['value']		= $trigger_info['data']['events'];
+		$this->vars['conditions']['value']	= $trigger_info['data']['conditions'];
+		$this->vars['actions']['value']		= $trigger_info['data']['actions'];
+		$this->vars['active']['value']		= $trigger_info['active'];
+		$this->vars['blocking']['value']	= $trigger_info['data']['settings']['blocking'];
+
 		return TRUE;
 
 	}//end load()
@@ -219,10 +224,14 @@ class Trigger extends Asset
 			$trigger_info['id'] = $trigger_id;
 		}
 
-		// get attributes
-		foreach ($this->vars as $name => $attr_info) {
-			$trigger_info[$name] = $attr_info['value'];
-		}
+		// build trigger info from attributes
+		$trigger_info['name']							= $this->attr('name'); 
+		$trigger_info['description']					= $this->attr('description');
+		$trigger_info['data']['events']					= $this->attr('events');
+		$trigger_info['data']['conditions']				= $this->attr('conditions');
+		$trigger_info['data']['actions']				= $this->attr('actions');
+		$trigger_info['active']							= $this->attr('active');
+		$trigger_info['data']['settings']['blocking']	= $this->attr('blocking');
 
 		// do not perform unnecessary hashing
 		if (empty($trigger_info['data']['events']) || empty($trigger_info['data']['actions']) || empty($trigger_info['active'])) {
