@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.288 2006/03/14 06:04:16 sdanis Exp $
+* $Id: asset_edit_interface.inc,v 1.289 2006/03/31 05:22:42 bcaldwell Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.288 $
+* @version $Revision: 1.289 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -936,6 +936,7 @@ class Asset_Edit_Interface extends MySource_Object
 				continue;
 			}
 
+			$section_note = NULL;
 			if ($section->children[0]->name == 'function_call') {
 
 				$paint_node =& $section->children[0]->children[0];
@@ -958,7 +959,6 @@ class Asset_Edit_Interface extends MySource_Object
 
 			// they must just be normal fields
 			} else {
-				$section_note = NULL;
 
 				// Loop over the fields
 				for ($j = 0; $j < $num_fields; $j++) {
