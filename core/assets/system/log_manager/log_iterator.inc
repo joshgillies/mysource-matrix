@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_iterator.inc,v 1.4 2006/01/26 22:34:06 lwright Exp $
+* $Id: log_iterator.inc,v 1.5 2006/03/31 04:35:37 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Log_Iterator
@@ -56,7 +56,9 @@ class Log_Iterator
 		$this->logname    = $logname;
 		$this->rotation_index = $rotation_index;
 		$this->total_size = $GLOBALS['SQ_SYSTEM']->log_manager->getLogSize($this->logname, $this->rotation_index);
-
+		if (empty($this->total_size)) {
+			$this->total_size = 0;
+		}
 	}//end constructor
 
 
@@ -101,7 +103,7 @@ class Log_Iterator
 	* @return array
 	* @access private
 	*/
-	function getCurrentProgress()
+	function &getCurrentProgress()
 	{
 		$result = Array(
 					'current'	=> $this->offset,

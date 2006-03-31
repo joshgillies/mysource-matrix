@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.20 2006/03/22 23:53:57 rong Exp $
+* $Id: log_manager.inc,v 1.21 2006/03/31 04:35:37 sdanis Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -172,6 +172,7 @@ class Log_Manager extends Asset
 	{
 		$files = glob(SQ_LOG_PATH.'/*.log');
 		$logs = $this->attr('logs');
+
 		foreach ($files as $file) {
 			$logname = $this->_getLogPrefixFromFileName($file);
 			if (!empty($logname)) {
@@ -180,6 +181,7 @@ class Log_Manager extends Asset
 				}
 			}
 		}
+
 		return $logs;
 
 	}//end getLogs()
@@ -240,7 +242,7 @@ class Log_Manager extends Asset
 	* @return mixed boolean|array
 	* @access public
 	*/
-	function getLogLine($logname, $rotation_index=NULL, $offset=0)
+	function &getLogLine($logname, $rotation_index=NULL, $offset=0)
 	{
 		$rotation_suffix = (!is_null($rotation_index) && is_numeric($rotation_index)) ? '.'.$rotation_index : '';
 
@@ -461,7 +463,6 @@ class Log_Manager extends Asset
 		$logs = $this->getLogs();
 		$status = FALSE;
 		$rotated_logs = Array();
-
 		foreach ($logs as $logname => $log_data) {
 			// determine whether we need to rotate the log
 			if (time() - $log_data['rotation']['last_timestamp'] > $log_data['rotation']['interval']) {
@@ -508,7 +509,6 @@ class Log_Manager extends Asset
 		if (empty($rotation) || empty($interval) || !is_numeric($min_index) || empty($max_index) || $min_index > $max_index) {
 			$status = FALSE;
 		} else {
-
 			// if we can't increment the rotation index any higher, start at the beginning again
 			$next_rotation = (($last_rotation + 1) > $max_index) ? $min_index : $last_rotation + 1;
 			$status = $this->_rotateLogFiles(SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION, $next_rotation);
