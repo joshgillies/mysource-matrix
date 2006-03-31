@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.454 2006/03/31 00:42:10 lwright Exp $
+* $Id: asset_manager.inc,v 1.455 2006/03/31 01:31:02 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.454 $
+* @version $Revision: 1.455 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5223,7 +5223,7 @@ class Asset_Manager extends MySource_Object
 
 			// deleteAssetLink will create the trash link when no other links remain
 			if (!$this->deleteAssetLink($link_details['linkid'])) {
-				trigger_localised_error('SYS0152', $link_details['linkid']);
+				trigger_localised_error('SYS0152', E_USER_WARNING, $link_details['linkid']);
 				foreach ($locked as $aid) {
 					$this->releaseLock($aid, 'links');
 				}
