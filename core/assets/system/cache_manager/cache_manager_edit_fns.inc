@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.7 2006/02/27 23:08:59 tbarrett Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.8 2006/04/02 22:56:43 rong Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.7 $ - 1.0
+* @version $Revision: 1.8 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -275,19 +275,20 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->closeField();
 
 		$o->openField(translate('asset_types'));
+			$type_options = Array();
 			$asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 			foreach ($asset_types as $type_code) {
 				$info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 				if ($info['allowed_access'] != 'system' && $info['instantiable']) {
-					$options[$type_code] = $info['name'];
+					$type_options[$type_code] = $info['name'];
 				}
 			}
 
-			asort($options);
-			$options = array_reverse($options, TRUE);
-			$options[''] = '-- '.translate('all_asset_types').' --';
-			$options = array_reverse($options, TRUE);
-			combo_box($prefix.'_type_codes', $options, TRUE, '', 8);
+			asort($type_options);
+			$type_options = array_reverse($type_options, TRUE);
+			$type_options[''] = '-- '.translate('all_asset_types').' --';
+			$type_options = array_reverse($type_options, TRUE);
+			combo_box($prefix.'_type_codes', $type_options, TRUE, '', 8);
 		$o->closeField();
 
 		return TRUE;
