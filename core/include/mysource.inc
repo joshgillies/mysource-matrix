@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.174 2006/03/20 22:07:56 pgannavarapu Exp $
+* $Id: mysource.inc,v 1.175 2006/04/02 23:17:53 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.174 $
+* @version $Revision: 1.175 $
 * @package MySource_Matrix
 */
 class MySource
@@ -720,27 +720,48 @@ class MySource
 		}
 
 		$this->user = NULL;
-		if (array_get_index($_SESSION, 'user')) {
-			// try to log in the user whose ID is in the session
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset($_SESSION['user_type_code']);
-			$user = unserialize($_SESSION['user']);
-			$this->user =& $user;
+
+		if (!empty($_SESSION['userid']) && !empty($_SESSION['user']) && !empty($_SESSION['user_serialised_ts'])) {
+			$userid = $_SESSION['userid'];
+			// There is a serialised user object in the session; if it's not stale, unserialise and use it
+			$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), $_SESSION['user_type_code'], TRUE, 'updated');
+			$user_updated_date = array_get_index($user_info, $userid, FALSE);
+			if ($user_updated_date) {
+				if ($_SESSION['user_serialised_ts'] > iso8601_ts($user_updated_date)) {
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($_SESSION['user_type_code']);
+					$this->user = unserialize($_SESSION['user']);
+					$GLOBALS['SQ_SYSTEM']->am->rememberAsset($this->user);
+				}
+			}
 		}
+
+		if (is_null($this->user) && !empty($_SESSION['userid'])) {
+			// We failed to unserialise a user from the session, but there is nevertheless a userid
+			// in the session, so the serialised version must have been stale.  So, let's load the asset
+			// from the DB using the userid and re-save to session.
+			$this->user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['userid'], $_SESSION['user_type_code']);
+			if (!is_null($this->user)) {
+				$_SESSION['user'] = serialize($this->user);
+				$_SESSION['user_serialised_ts'] = time();
+			}
+		}
+
 		if (is_null($this->user)) {
-			// see if we can log in an http-authenticated user
+			// See if we can log in an http-authenticated user
 			if (defined('SQ_CONF_ALLOW_HTTP_LOGIN') && SQ_CONF_ALLOW_HTTP_LOGIN) {
 				$this->_loginHttpAuthenticatedUser();
 			}
 		}
 
 		if (is_null($this->user)) {
+			// Have a go at using HTTP credentials
 			if (defined('SQ_CONF_ACCEPT_HTTP_CREDS') && SQ_CONF_ACCEPT_HTTP_CREDS) {
 				$this->_authenticateHttpUser();
 			}
 		}
 
 		if (is_null($this->user)) {
-			// must be the public user
+			// Must be the public user
 			$this->_loginPublicUser();
 		}
 
@@ -1096,11 +1117,12 @@ class MySource
 
 		if (!$this->setCurrentUser($user)) return FALSE;
 
-		$_SESSION['userid']         = $user->id;
-		$_SESSION['user'] = serialize($user);
+		$_SESSION['userid'] = $user->id;
 		$_SESSION['user_type_code'] = $user->type();
+		$_SESSION['user'] = serialize($user);
+		$_SESSION['user_serialized_ts'] = time();
 		if (!$this->_user_is_public) {
-			$_SESSION['remote_addr']    = $_SERVER['REMOTE_ADDR'];
+			$_SESSION['remote_addr'] = $_SERVER['REMOTE_ADDR'];
 		}
 
 		// log a message so we know someone has logged in
@@ -1110,10 +1132,10 @@ class MySource
 		// they have to re-enter the details
 		$this->generateLoginKey(TRUE);
 
-		$_SESSION['user_is_root']      = $this->_user_is_root;
+		$_SESSION['user_is_root'] = $this->_user_is_root;
 		$_SESSION['user_is_sys_admin'] = $this->_user_is_sys_admin;
-		$_SESSION['user_is_public']    = $this->_user_is_public;
-		$_SESSION['user_last_access']  = time();
+		$_SESSION['user_is_public'] = $this->_user_is_public;
+		$_SESSION['user_last_access'] = time();
 		$_SESSION['user_last_authentication'] = time();
 
 		return TRUE;
@@ -1364,24 +1386,6 @@ class MySource
 		return ($this->user && $this->user->id == $user->id);
 
 	}//end currentUser()
-
-
-	/**
-	* Returns the currently logged in user.
-	*
-	* @return object
-	* @access public
-	*/
-	function &getCurrentUser()
-	{
-		if ($this->user) {
-			return $this->user;
-		} else if (isset($_SESSION['user'])) {
-			return unserialize($_SESSION['user']);
-		}
-		return NULL;
-
-	}//end getCurrentUser()
 
 
 	/**
