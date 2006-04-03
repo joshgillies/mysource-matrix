@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.24 2006/03/17 04:06:48 rong Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.25 2006/04/03 03:22:58 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -469,7 +469,11 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 					}
 				}
-				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_table_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', translate('edit_properties', $asset->attr('name')), (($popup_attribute_list) ? translate('current_properties').':<br>'.$popup_attribute_list : ''), 'table_properties');
+				$status_name = get_status_description($asset->status);
+				$status_img = get_asset_status_icon($asset->status);
+				$desc = 'Status: '.$status_img.'<b>'.get_status_description($asset->status).'</b><br />';
+				$desc .= (($popup_attribute_list) ? translate('current_properties').':<br>'.$popup_attribute_list : '');
+				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_table_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', translate('edit_properties', $asset->attr('name')), $desc, 'table_properties');
 
 			} else {
 				echo '&nbsp;';

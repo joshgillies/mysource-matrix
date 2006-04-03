@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.27 2006/03/15 04:31:01 rong Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.28 2006/04/03 03:22:54 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -289,7 +289,11 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>" width="4%" style="border: 1px dashed #C0C0C0;">
 				<span style="float: left;">
 				<?php
-				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties', '[Edit Properties]');
+				$status_name = get_status_description($asset->status);
+				$status_img = get_asset_status_icon($asset->status);
+				$desc = 'Status: '.$status_img.'<b>'.get_status_description($asset->status).'</b><br />';
+				$desc .= (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : '');
+				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', 'Edit '.$asset->attr('name').'\'s Properties', $desc, 'table_properties', '[Edit Properties]');
 
 				if (!is_null($content_type)) {
 					$content_edit =& $content_type->getEditFns();
@@ -302,6 +306,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				if (!is_null($content_type)) {
 					$content_edit =& $content_type->getEditFns();
 					$content_edit->paintBackendStatusIcons($content_type, $content_prefix);
+					//echo get_asset_status_icon($content_type->status, 'top');
 				}
 				?>
 				</span>
