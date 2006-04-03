@@ -1,5 +1,69 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.8.1
+
+Featured Changes
+-----------------------------------
+
+Disable Cacheable Headers
+
+	A new configuration option has been added that allows you to disable the sending of cacheable headers for public and LIVE pages. Sending these headers causes the browser the cache the page. This can cause problems if you are customising content for public users (such as listing their last visited pages).
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
+* Fixed bug #1167: Icon for type 2 shows as no access to Backend user
+* Fixed bug #1170: Thumbnail details going missing
+* Fixed bug #1174: Customising image content type for user group prefs screen causes fatal error
+* Fixed bug #1175: Trash is purged but the bar which limits the loaded assets stays
+* Fixed bug #1176: () characters in PDF filenames cause a pdftohtml error
+* Fixed bug #1183: Incorrect text label on initial Paint Layout - Details screen
+* Fixed bug #1185: Customization in Preferences causing users to get PHP warnings when they log in
+* Fixed bug #1186: Double-underscore URLs still fires a HIPO which removes the URL
+* Fixed bug #1187: Wysiwyg height not set in Simple edit in Firefox
+* Fixed bug #1191: Selecting a user-defined design through Preview Options does not work
+* Fixed bug #1202: Page content and Bodycopy div can ignore workflow
+* Fixed bug #928: Replace text tool in wysiwyg removes anchors
+* Fixed bug #1209: Thesaurus metadata field doesn't show chooser
+* Fixed bug #1210: PHP undefined index notices in 3.6->3.8 systems
+* Fixed bug #1211: Email attribute validation not correct
+* Fixed bug #1215: Image variety data/public file not saving correctly
+* Fixed bug #1216: Problems with search indexing and image variety
+* Fixed bug #1219: Cannot add a relation to a Thesaurus Term after is has been created
+* Fixed bug #1222: Changing an assigned role on Roles screen, the role entry disappears
+* Fixed bug #1223: User w/o admin access able to make workflowed asset live if only step in workflow
+* Fixed bug #1224: Matrix Expand Keywords Plugin replaces "filter/some"
+
+CMS
+
+* Fixed bug #1204: Denied public read to site map root node causes site map to disappear (site map)
+* Fixed bug #1203: What's new date ranges error regardless of date settings (whats new)
+* Fixed bug #1212: Three problems in what's new page's getAssetList() function (whats new)
+* Fixed bug #1213: Asset listing not filertering fully (asset listing)
+
+Search
+
+* Fixed bug #1169: Searches with non english signs result in no hit (search manager)
+* Fixed bug #1173: If search is conducted with less than minimum word length presents php warning (search page)
+* Fixed bug #1164: Search results body copy contains unwanted javascript (search page)
+* Fixed bug #1200: Wildcard (blank) searches ignores the search index (search manager)
+* Fixed bug #1201: Global Weights Screen - inconsistent label (search manager)
+
+News
+
+* Fixed bug #1189: RSS feed asset incorrectly implements 2.0 spec (RSS feed)
+
+Calendar
+
+* Fixed bug #1190: Calendar event not exposing keywords (calendar event)
+* Fixed bug #1205: Rolling calendar page not displaying the Recurring calendar events (rolling calendar page)
+
+
+
+
 VERSION 3.8.0
 
 Featured Changes
