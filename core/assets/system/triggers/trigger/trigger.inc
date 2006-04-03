@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger.inc,v 1.2 2006/03/31 05:42:16 bcaldwell Exp $
+* $Id: trigger.inc,v 1.3 2006/04/03 00:12:11 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *	in the Trigger_Manager.
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 *
@@ -149,7 +149,7 @@ class Trigger extends Asset
 		$this->vars['conditions']['value']	= $trigger_info['data']['conditions'];
 		$this->vars['actions']['value']		= $trigger_info['data']['actions'];
 		$this->vars['active']['value']		= $trigger_info['active'];
-		$this->vars['blocking']['value']	= $trigger_info['data']['settings']['blocking'];
+		$this->vars['blocking']['value']	= isset($trigger_info['data']['settings']['blocking']) ? $trigger_info['data']['settings']['blocking'] : FALSE;
 
 		return TRUE;
 
