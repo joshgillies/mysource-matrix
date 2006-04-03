@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.31 2006/03/15 23:43:57 sdanis Exp $
+* $Id: hipo_config.inc,v 1.32 2006/04/03 05:01:50 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -75,32 +75,42 @@ class HIPO_Config extends Config
 		if (!file_exists($this->config_file)) return;
 
 		// ask each of the jobs for their config vars
-		$hipo_job_path = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
-		if (is_dir($hipo_job_path)) {
-			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			$d = dir($hipo_job_path);
-			while (FALSE !== ($file = $d->read())) {
-				if ($file == '.' || $file == '..') {
-					continue;
-				}
-				// skip hidden files
-				if (strpos($file, '.') == 0) continue;
+		$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 
-				if (!is_dir($hipo_job_path.'/'.$file)) {
-					require_once $hipo_job_path.'/'.$file;
-					if (get_file_type($file) != 'inc') continue;
-					$type_code = substr($file, 0, strpos($file, '.'));
+		foreach($packages as $package) {
+			if ($package['code_name'] == '__core__') {
+				$hipo_job_path = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
+			} else {
+				$hipo_job_path = SQ_SYSTEM_ROOT.'/packages/'.$package['code_name'].'/hipo_jobs';
+			}
 
-					if ($type_code) {
-						$vars = call_user_func(Array($type_code, 'getConfigVars'));
-						$this->config_vars = array_merge($this->config_vars, $vars);
+			if (is_dir($hipo_job_path)) {
+				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+				$d = dir($hipo_job_path);
+				while (FALSE !== ($file = $d->read())) {
+					if ($file == '.' || $file == '..') {
+						continue;
 					}
-				}
-			}//end while
+					// skip hidden files
+					if (strpos($file, '.') == 0) continue;
 
-			$d->close();
+					if (!is_dir($hipo_job_path.'/'.$file)) {
+						require_once $hipo_job_path.'/'.$file;
+						if (get_file_type($file) != 'inc') continue;
+						$type_code = substr($file, 0, strpos($file, '.'));
 
-		}//end if
+						if ($type_code) {
+							$vars = call_user_func(Array($type_code, 'getConfigVars'));
+							$this->config_vars = array_merge($this->config_vars, $vars);
+						}
+					}
+				}//end while
+
+				$d->close();
+
+			}//end if
+
+		}//end foreach
 
 	}//end _loadJobConfigVars()
 
@@ -234,30 +244,41 @@ class HIPO_Config extends Config
 	*/
 	function paintJobsBackends(&$o, $class)
 	{
-		$hipo_job_path = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
-		if (is_dir($hipo_job_path)) {
-			$d = dir($hipo_job_path);
-			while (FALSE !== ($file = $d->read())) {
-				if ($file == '.' || $file == '..') {
-					continue;
-				}
-				// skip hidden files
-				if (strpos($file, '.') == 0) continue;
+		$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 
-				if (!is_dir($hipo_job_path.'/'.$file)) {
-					require_once $hipo_job_path.'/'.$file;
-					if (get_file_type($file) != 'inc') continue;
-					$type_code = substr($file, 0, strpos($file, '.'));
+		foreach($packages as $package) {
+			if ($package['code_name'] == '__core__') {
+				$hipo_job_path = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
+			} else {
+				$hipo_job_path = SQ_SYSTEM_ROOT.'/packages/'.$package['code_name'].'/hipo_jobs';
+			}
 
-					if ($type_code) {
-						eval($type_code.'::paintConfig($o, $class);');
+			if (is_dir($hipo_job_path)) {
+				$d = dir($hipo_job_path);
+
+				while (FALSE !== ($file = $d->read())) {
+					if ($file == '.' || $file == '..') {
+						continue;
 					}
-				}
-			}//end while
+					// skip hidden files
+					if (strpos($file, '.') == 0) continue;
 
-			$d->close();
+					if (!is_dir($hipo_job_path.'/'.$file)) {
+						require_once $hipo_job_path.'/'.$file;
+						if (get_file_type($file) != 'inc') continue;
+						$type_code = substr($file, 0, strpos($file, '.'));
 
-		}//end if
+						if ($type_code) {
+							eval($type_code.'::paintConfig($o, $class);');
+						}
+					}
+				}//end while
+
+				$d->close();
+
+			}//end if
+
+		}//end foreach
 
 	}//end paintJobsBackends()
 
