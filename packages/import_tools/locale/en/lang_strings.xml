@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2006/03/10 05:13:57 skim Exp $
+* $Id: lang_strings.xml,v 1.3 2006/04/03 00:08:29 skim Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -45,6 +45,6 @@
 <string source="import_tools_tidying_options">HTML Tidying Options</string>
 <string source="import_tools_word_tags">Attempt to remove Microsoft Word Tags</string>
 <string source="import_tools_html_tidy">Run HTML Tidy</string>
-<string source="import_tools_tidy_note">Selecting this option will generate well-formed HTML, but may affect the formatting of the document</string>
+<string source="import_tools_tidy_note">Selecting this option will generate well-formed HTML, but may affect the formatting of the document. It can also slow down the importing process.</string>
 <string source="import_tools_footnotes">Fix Anchor Tags and Footnotes</string>
 </strings>
