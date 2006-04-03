@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: common_views.xml,v 1.2.2.1 2006/02/23 02:38:48 sdanis Exp $
+* $Id: common_views.xml,v 1.2.2.2 2006/04/03 23:12:18 lwright Exp $
 *
 */
 -->
@@ -141,10 +141,23 @@
 	<sql_element display_name="sq_vw_ast_perm View">
 		<![CDATA[
 			CREATE OR REPLACE VIEW sq_vw_ast_perm AS
-				SELECT DISTINCT
+				SELECT
 					r.assetid, r.userid, p.permission, p.granted
 				FROM
-					sq_vw_ast_role r JOIN sq_ast_perm p ON r.roleid = p.userid
+					(
+					SELECT DISTINCT
+						assetid, userid, roleid
+					FROM
+						sq_vw_ast_role
+					) r
+					JOIN
+					(
+					SELECT DISTINCT
+						userid, permission, granted
+					FROM
+						sq_ast_perm
+					) p
+					ON r.roleid = p.userid
 				UNION
 				SELECT
 					p.assetid, p.userid, p.permission, p.granted
