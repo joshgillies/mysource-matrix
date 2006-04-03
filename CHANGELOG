@@ -1,5 +1,37 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.6.7
+
+Complete Changelog
+----------------------
+
+Core
+
+* Fixed bug #928: Replace text tool in wysiwyg removes anchors
+* Fixed bug #1170: Thumbnail details going missing
+* Fixed bug #1176: () characters in PDF filenames cause a pdftohtml error
+* Fixed bug #1183: Incorrect text label on initial Paint Layout - Details screen
+* Fixed bug #1185: Customization in Preferences causing users to get PHP warnings when they log in
+* Fixed bug #1186: Double-underscore URLs still fires a HIPO which removes the URL
+* Fixed bug #1191: Selecting a user-defined design through Preview Options does not work
+* Fixed bug #1202: Page content and Bodycopy div can ignore workflow
+* Fixed bug #1215: Image variety data/public file not saving correctly
+* Fixed bug #1223: User w/o admin access able to make workflowed asset live if only step in workflow
+* Fixed bug #1224: Matrix Expand Keywords Plugin replaces "filter/some"
+
+CMS
+
+* Fixed bug #1204: Denied public read to site map root node causes site map to disappear (site map)
+* Fixed bug #1213: Asset listing not filertering fully (asset listing)
+
+Search
+
+* Fixed bug #1169: Searches with non english signs result in no hit (search manager)
+* Fixed bug #1173: If search is conducted with less than minimum word length presents php warning (search page)
+
+
+
+
 VERSION 3.6.6
 
 Complete Changelog
