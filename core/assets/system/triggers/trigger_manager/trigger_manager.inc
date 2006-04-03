@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.35 2006/03/31 05:44:29 bcaldwell Exp $
+* $Id: trigger_manager.inc,v 1.36 2006/04/03 00:28:33 bcaldwell Exp $
 *
 */
 
@@ -50,7 +50,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1883,7 +1883,10 @@ class Trigger_Manager extends Asset
 	*/
 	function _getEventList()
 	{
-		return $this->_getComponentList('trigger_event');
+		$event_list = $this->_getComponentList('trigger_event');
+		asort($event_list);
+
+		return $event_list;
 
 	}//end _getEventList()
 
