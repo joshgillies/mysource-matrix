@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_expand_keywords.inc,v 1.12 2005/07/13 06:00:08 dmckee Exp $
+* $Id: matrix_expand_keywords.inc,v 1.12.2.1 2006/04/03 02:01:53 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *     to replace it with its full version as you type
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -146,8 +146,7 @@ class matrix_expand_keywords  extends wysiwyg_plugin
 		function expandKeywords(editor)
 		{
 			var lastWord = getLastWord(editor);
-			//window.status = ('last word was ' + lastWord);
-			if ((newWord = abbrevs[lastWord]) != null) {
+			if (((newWord = abbrevs[lastWord]) != null) && (typeof newWord == 'string')) {
 				if (confirm(newWord + '?')) {
 					editor.replaceLastWord(lastWord, newWord);
 				} else {
