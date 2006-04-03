@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger.inc,v 1.3 2006/04/03 00:12:11 bcaldwell Exp $
+* $Id: trigger.inc,v 1.4 2006/04/03 00:15:59 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *	in the Trigger_Manager.
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 *
@@ -149,7 +149,7 @@ class Trigger extends Asset
 		$this->vars['conditions']['value']	= $trigger_info['data']['conditions'];
 		$this->vars['actions']['value']		= $trigger_info['data']['actions'];
 		$this->vars['active']['value']		= $trigger_info['active'];
-		$this->vars['blocking']['value']	= isset($trigger_info['data']['settings']['blocking']) ? $trigger_info['data']['settings']['blocking'] : FALSE;
+		$this->vars['blocking']['value']	= isset($trigger_info['data']['settings']['blocking']) ? TRUE : FALSE;
 
 		return TRUE;
 
@@ -231,7 +231,7 @@ class Trigger extends Asset
 		$trigger_info['data']['conditions']				= $this->attr('conditions');
 		$trigger_info['data']['actions']				= $this->attr('actions');
 		$trigger_info['active']							= $this->attr('active');
-		$trigger_info['data']['settings']['blocking']	= $this->attr('blocking');
+		$trigger_info['data']['settings']['blocking']	= $this->attr('blocking') ? TRUE : NULL;
 
 		// do not perform unnecessary hashing
 		if (empty($trigger_info['data']['events']) || empty($trigger_info['data']['actions']) || empty($trigger_info['active'])) {
