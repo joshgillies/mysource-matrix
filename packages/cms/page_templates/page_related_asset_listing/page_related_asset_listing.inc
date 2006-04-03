@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_related_asset_listing.inc,v 1.4 2006/01/20 03:39:09 sdanis Exp $
+* $Id: page_related_asset_listing.inc,v 1.5 2006/04/03 00:57:31 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -123,34 +123,13 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 			// check if we have a dynamic parameter -- if so, let's do some security checks
 			if (!empty($raw_dynamic_relators)) {
 
-				$dynamic_relators = Array();
 				// note that dynamic relators can be supplied as an array of asset ids or
 				// as a comma delimited string of asset ids
 				if (!is_array($raw_dynamic_relators)) {
-					$raw_dynamic_relators = explode(',', $raw_dynamic_relators);
+					$dynamic_relators = explode(',', $raw_dynamic_relators);
 				}
 
-				foreach ($raw_dynamic_relators as $dynamic_relator) {
-					if (!strlen($dynamic_relator)) continue;
-
-					$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_relator);
-
-					// first, check to see if the dynamic parameter specified is already one of the relators
-					// if so, just use that single relator
-					if (in_array($dynamic_relator, $relator_ids)) {
-						$dynamic_relators[] = $dynamic_relator;
-					} else {
-						// otherwise, check to see if the dynamic parameter specified is a child of one of the static relators
-						// If so, use the dynamic parameter as the relator; otherwise return an error.
-						$matching_relator_ids = array_intersect(array_keys($dynamic_parents), $relator_ids);
-						if (empty($matching_relator_ids)) {
-							trigger_localised_error('CMS0020', E_USER_WARNING, $dynamic_relator);
-						} else {
-							$dynamic_relators[] = $dynamic_relator;
-						}
-					}
-				}
-
+				// if there are dynamic relators, they should override the static relators
 				if (!empty($dynamic_relators)) {
 					$relator_ids = $dynamic_relators;
 				}
