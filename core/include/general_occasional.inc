@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.63 2006/03/17 00:07:43 sdanis Exp $
+* $Id: general_occasional.inc,v 1.64 2006/04/04 23:16:42 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix
 */
 
@@ -364,7 +364,6 @@ function make_valid_web_paths($paths)
 							'ÿ'	=> 'y',
 							'Ë'	=> 'E',
 							'Ï'	=> 'I',
-							'?'	=> 'Y',
 						);
 
 		$path = str_replace(array_keys($replacements), array_values($replacements), $path);
