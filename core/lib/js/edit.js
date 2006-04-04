@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.32 2006/03/30 03:16:52 sdanis Exp $
+* $Id: edit.js,v 1.33 2006/04/04 01:50:50 tbarrett Exp $
 *
 */
 
@@ -480,7 +480,7 @@ function expandDateList(input)
 		delButton = delButton.nextSibling;
 	}
 	delButton = delButton.cloneNode(true);
-	delButton.onclick = deleteRowFn;
+	delButton.onclick = deleteDateRowFn;
 	input.parentNode.parentNode.appendChild(newSpan);
 	input.parentNode.parentNode.appendChild(delButton);
 	input.parentNode.parentNode.appendChild(document.createElement('BR'));
