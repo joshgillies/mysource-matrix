@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2006/02/19 22:18:45 rong Exp $
+* $Id: lang_strings.xml,v 1.4 2006/04/04 07:06:40 tbarrett Exp $
 *
 */
 
@@ -30,9 +30,13 @@
 	<string source="thesaurus_entity_description">Description: %s</string>
 	<string source="thesaurus_linked_thesaurus_inactive">Linked thesaurus is <![CDATA[<strong>INACTIVE</strong>]]>. This value cannot be set.</string>
 	<string source="thesaurus_term_duplicate_removed">Duplicate terms were removed</string>
-	<string source="thesaurus_meta_thesaurus_note">NOTE: You can only select terms from </string>
-	<string source="thesaurus_meta_wrong_thesaurus">Cannot use term "%1$s"! It belongs to wrong thesaurus (%2$s #%3$s)</string>
-	<string source="thesaurus_term_lineages">Term Lineages</string>
-	<string source="thesaurus_lineage">Lineage</string>
-	<string source="defaults_used">Using default values</string>
+	<string source="thesaurus_meta_thesaurus_note">Note: You can only select terms from %s</string>
+	<string source="thesaurus_meta_wrong_thesaurus">Cannot use term "%1$s" - it belongs to the wrong thesaurus (%2$s #%3$s)</string>
+	<string source="thesaurus_term">Term</string>
+	<string source="thesaurus_lineages">Lineages</string>
+	<string source="thesaurus_use_default_value">Use default value</string>
+	<string source="thesaurus_default_values_note">(untick to customise)</string>
+	<string source="thesaurus_using_default_values">Using default value</string>
+	<string source="thesaurus_using_non_default_values">Using non-default values</string>
+	<string source="thesaurus_no_values">No values selected</string>
 </strings>

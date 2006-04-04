@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.5 2006/02/19 22:18:45 rong Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.6 2006/04/04 07:06:40 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -118,11 +118,6 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		$thesaurus =& $asset->getThesaurusRef();
-		if (is_null($thesaurus) || !$thesaurus) {
-			$type_code = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
-			echo translate('thesaurus_linked_thesaurus_not_set', $type_code).get_asset_tag_line($asset->id, 'details');
-			return TRUE;
-		}
 
 		if (empty($value)) {
 			$values = Array();
@@ -136,7 +131,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		foreach ($values as $term) {
 			$termid = $thesaurus->getTermIdByName($term);
-			$term_assetids[] = $thesaurus->id.':'.$termid;
+			$term_assetids[$termid] = $thesaurus->id.':'.$termid;
 			$term_info[$termid] = $term;
 		}
 
@@ -149,6 +144,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		$editable = $asset->attr('editable');
+
 		if ($write_access && $editable) {
 			?>
 			<script type="text/javascript">
@@ -166,56 +162,68 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 				//]]>
 			</script>
 			<?php
-			echo 'Use default values: ';
+
+			// use-default-or-not chooser
 			check_box($prefix.'_default', '1', $is_default, 'toggleManualInterface(\''.$prefix.'_interface\',\''.$prefix.'_defaults\')');
-			echo ' (untick to customise) ';
-			echo '<br />';
+			label(translate('thesaurus_use_default_value'), $prefix.'_default');
+			if ($is_default) {
+				echo ' '.translate('thesaurus_default_values_note');
+			}
 			echo '<br />';
 
-			echo '<div id="'.$prefix.'_interface" style="display:'.($is_default ? 'none' : 'block').'">';
+			// non-default-value chooser
+			echo '<div id="'.$prefix.'_interface" style="padding: 5px 0px; display:'.($is_default ? 'none' : 'block').'">';
 			multiple_asset_finder($prefix.'_thes_term', $term_assetids, Array('thesaurus_term'=>'D'));
-
-			echo '<br />';
-			echo translate('thesaurus_meta_thesaurus_note');
-			echo get_asset_tag_line($thesaurus->id, 'details');
+			echo '<div style="margin-top: 3px">';
+			echo translate('thesaurus_meta_thesaurus_note', get_asset_tag_line($thesaurus->id, 'details'));
+			echo '</div>';
 			echo '</div>';
 
+			// default value display
 			echo '<div id="'.$prefix.'_defaults" style="display:'.($is_default ? 'block' : 'none').'">';
 			echo $default;
 			echo '</div>';
 
 		} else {
-			if (!empty($term_assetids)) {
-				if ($is_default) {
-					echo translate('defaults_used').'<br />';
-				}
-
-				foreach ($term_assetids as $one_id) {
-					echo get_asset_tag_line($one_id, 'details');
-					echo '<br />';
-				}
-			}
-		}
-
-		if (!empty($values)) {
-			$o->openSection(translate('thesaurus_term_lineages'));
-			foreach ($term_info as $term_id => $term_name) {
-				$lineages = $thesaurus->getLineagesForTerm($term_id);
-				if (!$lineages) continue;
-				$o->openField($term_name);
-				foreach ($lineages as $lineage) {
-					foreach ($lineage as $ancestor) {
-						echo ' / ';
-						if (isset($ancestor['relation'])) {
-							echo '('.$ancestor['relation'].') ';
-						}
-						echo $ancestor['term'];
-					}
-					echo '<br>';
-				}
-			}
-			$o->closeSection();
-		}
+			if (empty($values)) {
+				echo translate('thesaurus_no_values');
+			} else {
+				echo translate($is_default ? 'thesaurus_using_default_values' : 'thesaurus_using_non_default_values');
+				?>
+				<table class="sq-backend-table" border="1" style="margin-left: 0px">
+					<tr>
+						<th style="width: 30%; white-space: none;"><?php echo translate('thesaurus_term'); ?></th>
+						<th><?php echo translate('thesaurus_lineages'); ?></th>
+					</tr>
+				<?php
+				foreach ($term_info as $term_id => $term_name) {
+					?>
+					<tr>
+						<td><?php echo get_asset_tag_line($term_assetids[$term_id], 'details') ?></td>
+						<td>
+							<?php
+							$lineages = $thesaurus->getLineagesForTerm($term_id);
+							if (!$lineages) continue;
+							foreach ($lineages as $lineage) {
+								foreach ($lineage as $ancestor) {
+									echo ' / ';
+									if (isset($ancestor['relation'])) {
+										echo '('.$ancestor['relation'].') ';
+									}
+									echo $ancestor['term'];
+								}
+								echo '<br />';
+							}
+							?>
+						</td>
+					</tr>
+					<?php
+				}//end foreach
+				?>
+				</table>
+				<?php
+			}//end else
+		}//end else
 		return TRUE;
 
 	}//end paintValueInterface()
