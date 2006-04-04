@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_edit_fns.inc,v 1.13 2006/01/26 22:34:05 lwright Exp $
+* $Id: report_edit_fns.inc,v 1.14 2006/04/04 01:51:39 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *	Base Edit Interface for all reports
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -130,7 +130,7 @@ class Report_Edit_Fns extends Page_Edit_Fns
 			if (!empty($root_link)) {
 				echo get_asset_tag_line($root_link['minorid']);
 			} else {
-				echo translate('core_no_selectes_root_node');
+				echo translate('core_no_selected_root_node');
 			}
 		} else {
 			asset_finder($prefix.'_rootid', (!empty($root_link)) ? $root_link['minorid'] : '');
