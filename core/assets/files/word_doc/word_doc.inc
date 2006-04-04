@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.16 2006/01/18 00:59:32 lwright Exp $
+* $Id: word_doc.inc,v 1.16.2.1 2006/04/04 05:44:16 skim Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,7 +98,7 @@ class Word_Doc extends File
 		$file = $file_info['path'];
 		$file = ereg_replace('\"', '\\\"', $file);
 
-		$output = '';
+		$content = '';
 		if (SQ_TOOL_ANTIWORD_ENABLED) {
 			// Run a program that converts Word doc to text, set environment variable of bin_path
 			$cmd = 'ANTIWORDHOME='.SQ_TOOL_ANTIWORD_MAPPING_PATH.' '.SQ_TOOL_ANTIWORD_PATH.' '.$file;
