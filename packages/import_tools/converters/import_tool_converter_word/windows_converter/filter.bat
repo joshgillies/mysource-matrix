@@ -3,9 +3,9 @@
 @IF "%1" == "." GOTO GRACEFUL
 @IF "%1" == ".." GOTO GRACEFUL
 
-@ECHO Filtering file %1
+@ECHO Filtering file "%1"
 
-@CALL "filter.exe" -a -b -f -l -m -t -r %1
+@CALL "filter.exe" -a -b -f -l -m -t -r "%1"
 
 @GOTO SUCCESS
 
@@ -18,12 +18,12 @@
 @GOTO END
 
 :SUCCESS
-@ECHO %1 successfully Converted
+@ECHO "%1" successfully Converted
 @ECHO FILE COMPLETED
 @GOTO END
 
 :GRACEFUL
-@ECHO %1 -> Directory or parent?
+@ECHO "%1" -> Directory or parent?
 @GOTO END
 
 :END

@@ -4,9 +4,9 @@
 @IF "%1" == "." GOTO GRACEFUL
 @IF "%1" == ".." GOTO GRACEFUL
 
-@ECHO Processing file %1
+@ECHO Processing file "%1"
 
-@CALL "doc2html.exe" %1 /d:%2 /l:c:\scripts\log.log
+@CALL "doc2html.exe" "%1" /d:%2 /l:c:\scripts\log.log
 
 @GOTO SUCCESS
 
@@ -19,12 +19,12 @@
 @GOTO END
 
 :SUCCESS
-@ECHO %1 successfully Converted
+@ECHO "%1" successfully Converted
 @ECHO FILE COMPLETED
 @GOTO END
 
 :GRACEFUL
-@ECHO %1 -> Directory or parent?
+@ECHO "%1" -> Directory or parent?
 @GOTO END
 
 :END
