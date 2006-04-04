@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.36 2006/04/03 00:28:33 bcaldwell Exp $
+* $Id: trigger_manager.inc,v 1.37 2006/04/04 01:37:58 bcaldwell Exp $
 *
 */
 
@@ -50,7 +50,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -313,7 +313,6 @@ class Trigger_Manager extends Asset
 
 		$trigger = $this->_loadTrigger($id_parts[1]);
 		if (empty($trigger)) return $asset_info;
-		error_log(print_r($trigger, 1));
 
 		$asset_info['assetid']		= $assetid;
 		$asset_info['name']			= $trigger['active'] ? $trigger['name'] : $trigger['name'].' (disabled)';
