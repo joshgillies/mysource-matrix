@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.121 2006/03/01 23:21:59 sdanis Exp $
+* $Id: general.inc,v 1.122 2006/04/04 06:57:59 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.121 $
+* @version $Revision: 1.122 $
 * @package MySource_Matrix
 */
 
@@ -155,7 +155,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			default :
 
 				// if we are in the frontend and we're not supposed to see the errors
-				if (!SQ_IN_BACKEND && SQ_CONF_ERRORS_HIDE_FRONTEND) {
+				if (SQ_CONF_ERRORS_HIDE_FRONTEND && !(SQ_IN_BACKEND || SQ_IN_LIMBO)) {
 					break;
 				}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.516 2006/03/29 23:50:20 tbarrett Exp $
+* $Id: asset.inc,v 1.517 2006/04/04 06:57:59 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.516 $
+* @version $Revision: 1.517 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -764,6 +764,7 @@ class Asset extends MySource_Object
 
 		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC);
 		assert_valid_db_result($this->vars);
+		if ($this->id == 1104) log_dump($this->vars);
 
 		if ($this->_ser_attrs && $this->vars) {
 			for (reset($this->vars); NULL !== ($name = key($this->vars)); next($this->vars)) {
@@ -2629,8 +2630,12 @@ class Asset extends MySource_Object
 	*/
 	function saveAttributes($dont_run_updated=FALSE)
 	{
+		if ($this->id == 1104) error_log($this->type().'::saveAttrs for asset '.$this->id.' called by '.get_calling_func());
 		if (!$this->id) return TRUE;
-		if (empty($this->_tmp['vars_set'])) return TRUE;
+		if (empty($this->_tmp['vars_set'])) {
+			error_log("No vars set");
+			return TRUE;
+		}
 		if (!$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] && !$this->writeAccess('attributes')) {
 			trigger_localised_error('CORE0121', E_USER_WARNING, $this->name, $this->id);
 			return FALSE;
@@ -2646,6 +2651,7 @@ class Asset extends MySource_Object
 		$ms->openLog();
 
 		$changed_array = Array();
+		log_dump($this->_tmp['vars_set']);
 		foreach ($this->_tmp['vars_set'] as $var_name => $var_data) {
 			$attr_id = $this->vars[$var_name]['attrid'];
 
@@ -2708,6 +2714,8 @@ class Asset extends MySource_Object
 
 		}//end foreach
 
+		log_dump($changed_array);
+
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -2721,6 +2729,7 @@ class Asset extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$existing = $db->getCol($sql.$where);
+		if ($this->id == 1104) log_dump($existing);
 		assert_valid_db_result($existing);
 		$new = array_diff($attr_ids, $existing);
 
@@ -2740,6 +2749,7 @@ class Asset extends MySource_Object
 
 				// if this is a unique attribute then let's make sure we register that in the unique value table
 				$attribute =& $this->getAttribute($save_vars[$attr_id]['name']);
+				error_log("Updaing ".$save_vars[$attr_id]['name']);
 				if ($attribute->uniq) {
 					// update existing entry
 					$result = $db->execute($prepared_uniq, Array($attr_value, $save_vars[$attr_id]['owning_attrid']));
@@ -2826,6 +2836,10 @@ class Asset extends MySource_Object
 	*/
 	function setAttrValue($name, $value)
 	{
+		if ($name == 'rows') {
+			error_log("setting rows to...");
+			log_dump($value);
+		}
 		if (empty($this->vars[$name])) {
 			trigger_localised_error('SYS0093', E_USER_WARNING, $name, $this->type());
 			return FALSE;
@@ -2843,6 +2857,14 @@ class Asset extends MySource_Object
 
 		// if the value being set is the same as the current value - dont do anything
 		if ($this->vars[$name]['value'] === $value) {
+			if ($name == 'rows') {
+				error_log("=============\nValue not changed - This:");
+				log_dump($value);
+				error_log("is the same as old value");
+				log_dump($this->vars[$name]['value']);
+				error_log("==============");
+			}
+
 			return TRUE;
 		}
 
@@ -2881,6 +2903,8 @@ class Asset extends MySource_Object
 		}
 
 		$this->vars[$name]['value'] = $value;
+		if ($name == 'rows') error_log('done');
+
 
 		return TRUE;
 
