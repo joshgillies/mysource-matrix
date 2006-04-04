@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.40 2006/02/13 05:12:55 arailean Exp $
+* $Id: file_system.inc,v 1.41 2006/04/04 23:29:35 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package Fudge
 * @subpackage General
 */
@@ -182,11 +182,11 @@ function array_to_file($value, $var_name, $filename)
 */
 function easy_filesize($size)
 {
-	if ($size < 1500) {
+	if ($size < 1024) {
 		return $size.' bytes';
-	} else if ($size < 1500000) {
+	} else if ($size < 1048576) {
 		return sprintf('%.1f kb', $size/1024.0);
-	} else if ($size < 1500000000) {
+	} else if ($size < 1073741824) {
 		return sprintf('%.1f mb',($size/1024.0)/1024.0);
 	} else {
 		return sprintf('%.1f gb',(($size/1024.0)/1024.0)/1024.0);
