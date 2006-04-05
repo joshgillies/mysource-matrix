@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.12.2.1 2005/07/08 00:43:27 dheppell Exp $
+* $Id: bodycopy_table.inc,v 1.12.2.2 2006/04/05 07:05:36 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12.2.1 $
+* @version $Revision: 1.12.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,6 +97,32 @@ class Bodycopy_Table extends Bodycopy_Container
 		return true;
 
 	}//end _createAdditional()
+
+
+	/**
+	* Queue the setting of the value of an attribute
+	*
+	* This needs to be overridden in this case because our 'rows' attribute contains
+	* references to cell objects, and although the array itself is copied by value when returned
+	* by the attr function, the same cell objects are referenced in each copy and so when
+	* comparing the old value to the new value asset::setAttrValue will think no changes have
+	* been made.  We work around this by setting an intermediate value.
+	*
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
+	*
+	* @return boolean
+	* @access public
+	* @see saveAttributes()
+	*/
+	function setAttrValue($name, $value)
+	{
+		if ($name == 'rows') {
+			parent::setAttrValue('rows', Array());
+		}
+		parent::setAttrValue($name, $value);
+
+	}//end setAttrValue()
 
 
 	/**
@@ -206,19 +232,9 @@ class Bodycopy_Table extends Bodycopy_Container
 		}
 
 		$this->setAttrValue('rows', $table_map);
-		// for some reason at this point $table_map == $this->attr('rows')
-		// and setAttrValue thinks nothing changed
-		// so lets just manually prepare for save attributes
-		if (!isset($this->_tmp['vars_set'])) {
-			$this->_tmp['vars_set'] = Array();
-		}
-
-		$this->_tmp['vars_set']['rows']['old_value'] = '__(old value)__';
-		$this->vars['rows']['value'] = $table_map;
-
 		$this->saveAttributes();
-
 		return true;
+
 	}//end remapTableLinks()
 
 
