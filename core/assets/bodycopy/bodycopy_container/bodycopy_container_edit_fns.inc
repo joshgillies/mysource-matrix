@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.36 2006/01/26 22:34:03 lwright Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.36.2.1 2006/04/05 05:51:25 sdanis Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -176,8 +176,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			if (isset($bc_data[$prefix][$asset->id]['attributes'])) {
 				foreach ($bc_data[$prefix][$asset->id]['attributes'] as $name => $value) {
 					if ($name == 'identifier') {
-						if ($asset->setAttrValue('name', $value)) {
-							$updated = TRUE;
+						if ($value != '') {
+							if ($asset->setAttrValue('name', $value)) {
+								$updated = TRUE;
+							}
 						}
 					} else {
 						if ($this->setAttribute($attributes, $name, $value)) {
@@ -190,8 +192,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 				foreach ($bc_saved[$prefix][$asset->id]['attributes'] as $name => $value) {
 					if ($name == 'identifier') {
-						if ($asset->setAttrValue('name', $value)) {
-							$updated = TRUE;
+						if ($value != '') {
+							if ($asset->setAttrValue('name', $value)) {
+								$updated = TRUE;
+							}
 						}
 					} else {
 						if ($this->setAttribute($attributes, $name, $value)) {
