@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.28 2006/04/03 03:22:54 skim Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.29 2006/04/05 04:11:56 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -211,7 +211,9 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		// Now add the ID of the DIV
 		$val = str_replace(' ', '_', strtolower($asset->attr('name')));
-		$attribute_list .= ' '.'id="'.str_replace('"', '&quot;', $val).'"';
+		if (!empty($val)) {
+			$attribute_list .= ' '.'id="'.str_replace('"', '&quot;', $val).'"';
+		}
 
 		// print DIV or SPAN tag if we are not printing raw HTML
 		if ($div_attributes['layout_type'] != 'none') {
