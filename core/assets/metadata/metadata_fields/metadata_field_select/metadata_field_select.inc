@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.13 2006/01/26 22:34:04 lwright Exp $
+* $Id: metadata_field_select.inc,v 1.14 2006/04/05 05:37:59 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,7 +76,9 @@ class Metadata_Field_Select extends Metadata_Field
 		if ($this->attr('multiple')) {
 			$default = explode('; ', $default);
 		}
-		$selection->setValue($default);
+		if ($selection->validateValue($default)) {
+			$selection->setValue($default);
+		}
 
 		return $selection;
 
