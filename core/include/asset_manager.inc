@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.455 2006/03/31 01:31:02 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.456 2006/04/05 04:25:36 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.455 $
+* @version $Revision: 1.456 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6239,6 +6239,7 @@ class Asset_Manager extends MySource_Object
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
 				';
+
 		$where ='l.url = '.$db->quote($url).'
 				   AND lv.name = '.$db->quote($value_name);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
@@ -6261,11 +6262,12 @@ class Asset_Manager extends MySource_Object
 	*										for a whole bunch of them
 	* @param string		$base_url			the url that we are want to match closest to
 	* @param boolean	$ignore_rollback	ignore rollback checks
+	* @param boolean	$no_protocol		If true it will not add the protocol to the returned urls
 	*
 	* @return mixed int|array
 	* @access public
 	*/
-	function getAssetURL($assetids, $base_url=NULL, $ignore_rollback=FALSE)
+	function getAssetURL($assetids, $base_url=NULL, $ignore_rollback=FALSE, $no_protocol=FALSE)
 	{
 		if (!isset($this->_tmp['urls'])) {
 			$this->_tmp['urls'] = Array();
@@ -6317,6 +6319,14 @@ class Asset_Manager extends MySource_Object
 			if (isset($this->_tmp['urls'][$assetid][$base_url])) {
 				// use the cached version
 				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url];
+				if ($no_protocol) {
+					if (strpos($return_urls[$assetid], 'http://') !== FALSE) {
+						$return_urls[$assetid] = str_replace('http://','', $return_urls[$assetid]);
+					} else {
+						$return_urls[$assetid] = str_replace('https://','', $return_urls[$assetid]);
+					}
+				}
+
 			}
 		}
 
@@ -6361,7 +6371,7 @@ class Asset_Manager extends MySource_Object
 				if (!isset($result[$assetid])) {
 					$this->_tmp['urls'][$assetid][$base_url] = '';
 				} else {
-					$this->_tmp['urls'][$assetid][$base_url] = $result[$assetid][0]['protocol'].'://'.$result[$assetid][0]['url'];
+					$this->_tmp['urls'][$assetid][$base_url] = ($no_protocol ? '' : $result[$assetid][0]['protocol'].'://').$result[$assetid][0]['url'];
 				}
 				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url];
 			}

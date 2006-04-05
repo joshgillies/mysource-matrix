@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.518 2006/04/05 03:50:35 emcdonald Exp $
+* $Id: asset.inc,v 1.519 2006/04/05 04:25:36 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.518 $
+* @version $Revision: 1.519 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3900,6 +3900,8 @@ class Asset extends MySource_Object
 
 		}
 
+		// get the url for this asset
+		$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $url, FALSE, TRUE);
 		$result = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($url, $layout_name);
 
 		// if no layout was found, try and get the default frontend
