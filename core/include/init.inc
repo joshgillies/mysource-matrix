@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.89 2005/09/26 23:35:04 tbarrett Exp $
+* $Id: init.inc,v 1.90 2006/04/05 01:59:15 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix
 */
 
@@ -113,10 +113,10 @@ if (!isset($GLOBALS['SQ_OUTPUT_TYPE'])) {
 
 
 // we are not purging the trash
-$GLOBALS['SQ_PURGING_TRASH'] = false;
+$GLOBALS['SQ_PURGING_TRASH'] = FALSE;
 
 // we are not reverting to a system version
-$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
+$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
 
 
 /*
@@ -196,10 +196,10 @@ set_error_handler('sq_error_handler');
 // if there is magic quotes, strip them out
 if (get_magic_quotes_gpc()) {
 	require_once SQ_FUDGE_PATH.'/general/general.inc';
-	stripslashes_array($_GET, true);
-	stripslashes_array($_POST, true);
-	stripslashes_array($_COOKIE, true);
-	stripslashes_array($_REQUEST, true);
+	stripslashes_array($_GET, TRUE);
+	stripslashes_array($_POST, TRUE);
+	stripslashes_array($_COOKIE, TRUE);
+	stripslashes_array($_REQUEST, TRUE);
 	if (isset($_SERVER['QUERY_STRING'])) {
 		$_SERVER['QUERY_STRING'] = stripslashes($_SERVER['QUERY_STRING']);
 	}
