@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.91 2006/04/05 02:13:47 lwright Exp $
+* $Id: init.inc,v 1.92 2006/04/05 02:14:08 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix
 */
 
