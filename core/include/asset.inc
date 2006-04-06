@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.519 2006/04/05 04:25:36 sdanis Exp $
+* $Id: asset.inc,v 1.520 2006/04/06 05:41:49 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.519 $
+* @version $Revision: 1.520 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -349,11 +349,13 @@ class Asset extends MySource_Object
 				}
 			}
 
-			// only set the permission if there is a userid to set it for - otherwise we are going
-			// to be setting public write access
-			if (!$GLOBALS['SQ_SYSTEM']->userPublic()) {
-				if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), SQ_PERMISSION_WRITE, TRUE)) {
-					return $this->_abortCreate($trigger_level_changed);
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
+				// only set the permission if there is a userid to set it for - otherwise we are going
+				// to be setting public write access
+				if (!$GLOBALS['SQ_SYSTEM']->userPublic()) {
+					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), SQ_PERMISSION_WRITE, TRUE)) {
+						return $this->_abortCreate($trigger_level_changed);
+					}
 				}
 			}
 
