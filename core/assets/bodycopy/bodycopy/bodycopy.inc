@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.25.2.2 2006/01/13 00:34:43 lwright Exp $
+* $Id: bodycopy.inc,v 1.25.2.3 2006/04/06 02:31:58 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25.2.2 $
+* @version $Revision: 1.25.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -379,9 +379,8 @@ class Bodycopy extends Asset
 	{
 		// get all the containers linked to this bodycopy
 		$container_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
-		if (empty($container_links)) return Array();
-
 		$containers = Array();
+		if (empty($container_links)) return $containers;
 		foreach ($container_links as $container_data) {
 			$containers[] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 		}
