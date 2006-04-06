@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.5 2005/05/27 04:46:44 dmckee Exp $
+* $Id: report_links_edit_fns.inc,v 1.5.2.1 2006/04/06 06:40:37 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -279,9 +279,10 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				$valid = '1';
 			} else {
 				fwrite ($socket, "HEAD ".$url_path." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
-				$response = fgets($socket, 128);
-				$headers = '';
-				while (!feof($socket)) $headers .= fgets($socket, 128);
+				stream_set_timeout($socket, 5);
+				$response = fread($socket, 128);
+				$headers = fread($socket, 2000);
+				$info = stream_get_meta_data($socket);
 
 				if (preg_match('|200 ok|i', $response)) {
 					$description = '';
@@ -312,6 +313,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					} else {
 						$description = translate('cms_report_links_302');
 					}
+				} else if ($info['timed_out']) {
+					$description = translate('cms_report_links_server_timeout');
+					$valid = '0';
 				} else {
 					$description = translate('cms_report_links_unknown_response', $response);
 					$valid = '0';
