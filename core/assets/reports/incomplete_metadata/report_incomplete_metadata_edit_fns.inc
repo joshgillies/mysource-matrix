@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.8 2005/05/11 06:04:55 lwright Exp $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.8.2.1 2006/04/06 04:52:22 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -107,11 +107,11 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 				$field_values = $mm->getMetadataFieldValues($asset->id);
 
 				$empty_fields = false;
-				$content = "\t".'<asset assetid="'.$asset->id.'" name="'.$asset->name.'" short_name="'.$asset->short_name.'" type_code="'.$asset->type().'" status="'.$asset->status.'">'."\n";
+				$content = "\t".'<asset assetid="'.urlencode($asset->id).'" name="'.urlencode($asset->name).'" short_name="'.urlencode($asset->short_name).'" type_code="'.urlencode($asset->type()).'" status="'.urlencode($asset->status).'">'."\n";
 				foreach ($field_values as $field_name => $value) {
 					$value = trim($value);
 					if (empty($value)) {
-						$content .= "\t\t".'<field>'.$field_name.'</field>'."\n";
+						$content .= "\t\t".'<field>'.urlencode($field_name).'</field>'."\n";
 						$empty_fields = true;
 					}
 				}
@@ -187,10 +187,10 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 
 		$missing_fields = Array();
 		foreach ($root->children as $result) {
-			if ($result->name != 'asset') continue;
+			if (urldecode($result->name) != 'asset') continue;
 			foreach ($result->children as $field) {
-				if ($field->name != 'field') continue;
-				$missing_fields[$result->attributes['assetid']][] = $field->content;
+				if (urldecode($field->name) != 'field') continue;
+				$missing_fields[urldecode($result->attributes['assetid'])][] = urldecode($field->content);
 			}
 		}
 
