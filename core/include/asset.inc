@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.520 2006/04/06 05:41:49 sdanis Exp $
+* $Id: asset.inc,v 1.521 2006/04/06 23:39:47 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.520 $
+* @version $Revision: 1.521 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3881,10 +3881,11 @@ class Asset extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function printBodyWithPaintLayout()
+	function printBodyWithPaintLayout($url=null)
 	{
-		$url = strip_url(current_url(FALSE, TRUE));
-
+		if (is_null($url)) {
+			$url = strip_url(current_url(FALSE, TRUE));
+		}
 		// Have they set a paint layout name that they want to view ??
 		if (!empty($_GET['SQ_PAINT_LAYOUT_NAME'])) {
 			$layout_name = 'paint_layout::user::'.$_GET['SQ_PAINT_LAYOUT_NAME'];
@@ -3902,8 +3903,6 @@ class Asset extends MySource_Object
 
 		}
 
-		// get the url for this asset
-		$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $url, FALSE, TRUE);
 		$result = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($url, $layout_name);
 
 		// if no layout was found, try and get the default frontend
