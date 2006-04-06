@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.166 2006/04/06 06:36:02 dmckee Exp $
+* $Id: listing_engine.inc,v 1.167 2006/04/06 06:54:51 dmckee Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.166 $
+* @version $Revision: 1.167 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1580,8 +1580,14 @@ class Listing_Engine extends Page
 					// Prints the parent_contents and parent_contents_raw keywords
 					if ((preg_match('|%parent_contents%|is', $format_bodycopy->getRawBodycopyContent())) || (preg_match('|%parent_contents_raw%|is', $format_bodycopy->getRawBodycopyContent()))) {
 						$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($group_level);
-						$replacements['parent_contents'] = $parent_asset->printBodyWithPaintLayout();
-						$replacements['parent_contents_raw'] = $parent_asset->printBody();
+						ob_start();
+							$parent_asset->printBodyWithPaintLayout();
+							$replacements['parent_contents'] = ob_get_contents();
+						ob_end_clean();
+						ob_start();
+							$parent_asset->printBody();
+							$replacements['parent_contents_raw'] = ob_get_contents();
+						ob_end_clean();
 					}
 
 					$replacements['group_immed_child_group_count'] = count($todo[$group_level]);
