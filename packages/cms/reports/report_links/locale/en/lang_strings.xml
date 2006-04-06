@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2006/03/15 03:06:39 dmckee Exp $
+* $Id: lang_strings.xml,v 1.4 2006/04/06 06:42:05 arailean Exp $
 *
 *
 * CMS Package: Report Links Asset Localised Strings File
@@ -45,4 +45,5 @@
 <string source="cms_report_links_display_section">Display %s Links Section</string>
 <string source="cms_report_links_display_broken">Display Broken Links</string>
 <string source="cms_report_links_display_working">Display Working Links</string>
+<string source="cms_report_links_server_timeout">Communication with server timed out</string>
 </strings>
