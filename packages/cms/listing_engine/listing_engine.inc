@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.165 2006/03/28 04:05:19 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.166 2006/04/06 06:36:02 dmckee Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.165 $
+* @version $Revision: 1.166 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -846,7 +846,7 @@ class Listing_Engine extends Page
 
 			case 'letter' :
 				$filtered_todo = Array();
-				for (reset($todo); null !== ($todo_id = key($todo)); next($todo)) {
+				for (reset($todo); NULL !== ($todo_id = key($todo)); next($todo)) {
 					$filtered_todo[$todo_id] = $todo[$todo_id]['type_code'];
 				}
 
@@ -1551,7 +1551,7 @@ class Listing_Engine extends Page
 						default:
 							// there is no spoon .....
 						break;
-					}
+					}//end switch remaining groups
 
 					if (isset($this->_tmp['group_info'])) {
 						array_push($this->_tmp['group_info'], $group_level);
@@ -1576,6 +1576,14 @@ class Listing_Engine extends Page
 					// populate replacements
 					$replacements['group_listing']                 = $group_contents;
 					$replacements['group_name']                    = $group_name;
+
+					// Prints the parent_contents and parent_contents_raw keywords
+					if ((preg_match('|%parent_contents%|is', $format_bodycopy->getRawBodycopyContent())) || (preg_match('|%parent_contents_raw%|is', $format_bodycopy->getRawBodycopyContent()))) {
+						$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($group_level);
+						$replacements['parent_contents'] = $parent_asset->printBodyWithPaintLayout();
+						$replacements['parent_contents_raw'] = $parent_asset->printBody();
+					}
+
 					$replacements['group_immed_child_group_count'] = count($todo[$group_level]);
 					$replacements['group_total_child_asset_count'] = count(array_flatten($todo[$group_level], TRUE, FALSE));
 
@@ -3125,6 +3133,8 @@ class Listing_Engine extends Page
 		}
 		$keywords['group_listing']                 = translate('cms_listing_group_listing');
 		$keywords['group_name']                    = translate('cms_listing_group_name');
+		$keywords['parent_contents']               = translate('cms_listing_parent_contents');
+		$keywords['parent_contents_raw']           = translate('cms_listing_parent_contents_raw');
 		$keywords['group_immed_child_group_count'] = translate('cms_listing_group_immed_child_group_count');
 		$keywords['group_total_child_asset_count'] = translate('cms_listing_group_total_child_asset_count');
 
