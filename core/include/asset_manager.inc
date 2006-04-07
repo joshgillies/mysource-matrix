@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.457 2006/04/07 01:01:31 skim Exp $
+* $Id: asset_manager.inc,v 1.458 2006/04/07 03:09:05 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.457 $
+* @version $Revision: 1.458 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6264,12 +6264,11 @@ class Asset_Manager extends MySource_Object
 	*										for a whole bunch of them
 	* @param string		$base_url			the url that we are want to match closest to
 	* @param boolean	$ignore_rollback	ignore rollback checks
-	* @param boolean	$no_protocol		If true it will not add the protocol to the returned urls
 	*
 	* @return mixed int|array
 	* @access public
 	*/
-	function getAssetURL($assetids, $base_url=NULL, $ignore_rollback=FALSE, $no_protocol=FALSE)
+	function getAssetURL($assetids, $base_url=NULL, $ignore_rollback=FALSE)
 	{
 		if (!isset($this->_tmp['urls'])) {
 			$this->_tmp['urls'] = Array();
@@ -6321,14 +6320,6 @@ class Asset_Manager extends MySource_Object
 			if (isset($this->_tmp['urls'][$assetid][$base_url])) {
 				// use the cached version
 				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url];
-				if ($no_protocol) {
-					if (strpos($return_urls[$assetid], 'http://') !== FALSE) {
-						$return_urls[$assetid] = str_replace('http://','', $return_urls[$assetid]);
-					} else {
-						$return_urls[$assetid] = str_replace('https://','', $return_urls[$assetid]);
-					}
-				}
-
 			}
 		}
 
@@ -6373,7 +6364,7 @@ class Asset_Manager extends MySource_Object
 				if (!isset($result[$assetid])) {
 					$this->_tmp['urls'][$assetid][$base_url] = '';
 				} else {
-					$this->_tmp['urls'][$assetid][$base_url] = ($no_protocol ? '' : $result[$assetid][0]['protocol'].'://').$result[$assetid][0]['url'];
+					$this->_tmp['urls'][$assetid][$base_url] = $result[$assetid][0]['protocol'].'://'.$result[$assetid][0]['url'];
 				}
 				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url];
 			}
