@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set.inc,v 1.6.2.1 2006/02/15 03:04:10 lwright Exp $
+* $Id: data_source_record_set.inc,v 1.6.2.2 2006/04/07 05:57:29 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6.2.1 $
+* @version $Revision: 1.6.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -155,7 +155,7 @@ class Data_Source_Record_Set extends Asset
 		$keywords['asset_short_name'] = translate('record_set_short_name');
 		$keywords['asset_data_source_id'] = translate('data_source_id');
 		foreach ($columns as $column) {
-			$keywords['data_source_record_set_'.$column] = translate('record_set_attribute').$column;
+			$keywords['data_source_record_set_'.$column] = translate('record_set_attribute').' : '.$column;
 		}
 		return $keywords;
 
