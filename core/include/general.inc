@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.122 2006/04/04 06:57:59 tbarrett Exp $
+* $Id: general.inc,v 1.123 2006/04/07 02:09:43 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.123 $
 * @package MySource_Matrix
 */
 
@@ -68,7 +68,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		$bt = debug_backtrace();
 		if (count($bt) > 1) {
 			$real_bt_index = 0;
-			while (($real_bt_index < count($bt)-1) && ((false !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (false !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == 'sq_error_handler'))) {
+			while (($real_bt_index < count($bt)-1) && ((FALSE !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (FALSE !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == 'sq_error_handler'))) {
 				$real_bt_index++;
 			}
 			$err_file = hide_system_root($bt[$real_bt_index]['file']);
@@ -109,7 +109,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 				require_once 'XML/Tree.php';
 				$output =& new XML_Tree();
-				$root = &$output->addRoot('error', $msg);
+				$root =& $output->addRoot('error', $msg);
 				header('Content-Type: text/xml');
 				$output->dump();
 				exit(); // we need to always exit for XML otherwise we are likely to end up with XML parse errors at the other end
@@ -155,7 +155,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			default :
 
 				// if we are in the frontend and we're not supposed to see the errors
-				if (SQ_CONF_ERRORS_HIDE_FRONTEND && !(SQ_IN_BACKEND || SQ_IN_LIMBO)) {
+				if (!SQ_IN_BACKEND && SQ_CONF_ERRORS_HIDE_FRONTEND) {
 					break;
 				}
 
@@ -191,7 +191,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 										<td style="<?php echo $error_data; ?>"><?php echo $err_line; ?></td>
 									</tr>
 					<?php
-					}// end if
+					}//end if (DEBUG & File+Line)
 					?>
 									<tr>
 										<td style="<?php echo $error_title; ?>" align="right">Message:</td>
@@ -222,21 +222,21 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 										</td>
 									</tr>
 					<?php
-					} // end if
+					}//end if (DEBUG & Backtrace)
 					?>
 								</table>
 				<?php
 				} else {
 					echo $err_msg;
 
-				} // end if
+				}//end if (SQ_CONF_DEBUG & (File+Line | Backtrace)
 				?>
 							</td>
 						</tr>
 					</table><br/>
 				<?php
 
-		}// end switch
+		}//end switch ($GLOBALS['SQ_OUTPUT_TYPE'])
 
 		// now just restore any buffered output here - it's as though nothing ever happened :)
 		for ($i = count($buffers) - 1; $i >= 0; $i--) {
@@ -261,7 +261,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 					"------------------------------------------------------------------\n";
 			if (SQ_PHP_CLI) {
 				$str  .= "*Command and Arguments*\n".
-						implode(" ", $_SERVER['argv'])."\n";
+						implode(' ', $_SERVER['argv'])."\n";
 			} else {
 				$str  .= "*Current URL*\n".
 						current_protocol().'://'.array_get_index($_SERVER, 'HTTP_HOST', 'NO HOST').'/'.array_get_index($_SERVER, 'REQUEST_URI', 'NO REQUEST URI')."\n";
@@ -273,9 +273,9 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 			mail(SQ_CONF_TECH_EMAIL, '['.$err_name.'] '.SQ_CONF_SYSTEM_NAME, $str, 'From: '.SQ_CONF_TECH_EMAIL."\r\n");
 
-		}//end if
+		}//end if ($terminate)
 
-	}// end error_reporting
+	}//end if error_reporting
 
 	if ($terminate) exit(1);
 
@@ -371,6 +371,7 @@ function get_error_colour($error_code)
 * @param string	$path	the type of path the user wants
 *
 * @return string
+* @access public
 */
 function sq_web_path($path='base')
 {
@@ -396,7 +397,7 @@ function sq_web_path($path='base')
 
 		case 'root_url'  :
 			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
-			$current_url = strip_url(current_url(false, true));
+			$current_url = strip_url(current_url(FALSE, TRUE));
 			// if we are in the backend strip the suffix
 			if (SQ_IN_BACKEND) {
 				$current_url = preg_replace('/\\/'.SQ_CONF_BACKEND_SUFFIX.'$/', '', $current_url);
@@ -444,7 +445,7 @@ function sq_web_path($path='base')
 			$paths[$path] = sq_web_path('root_url').'/__fudge';
 		break;
 
-	}// end switch
+	}//end switch ($path)
 
 	return $paths[$path];
 
@@ -454,8 +455,11 @@ function sq_web_path($path='base')
 /**
 * Get the data path suffix for an asset
 *
-* @access public
+* @param string	$type_code	the type_code of the asset
+* @param string	$assetid	the assetid of the asset
+*
 * @return string
+* @access public
 */
 function asset_data_path_suffix($type_code, $assetid)
 {
@@ -467,23 +471,23 @@ function asset_data_path_suffix($type_code, $assetid)
 /**
 * Returns the current URL for this page, including the protocol
 *
-* @param bool	$inc_protocol			include the protocol in the return var
-* @param bool	$strip_backend_suffix	if currently in the backend this causes the backend
-*										suffix to be removed
+* @param boolean	$inc_protocol			include the protocol in the return var
+* @param boolean	$strip_backend_suffix	if currently in the backend this causes the backend suffix to be removed
 *
 * @return string
+* @access public
 */
-function current_url($inc_protocol=true, $strip_backend_suffix=false)
+function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE)
 {
 	if (SQ_PHP_CLI) {
 		// being called from eg. a squiz server HIPO
 		$url = '';
 	} else {
-		$host = array_get_index($_SERVER, 'HTTP_HOST', false);
+		$host = array_get_index($_SERVER, 'HTTP_HOST', FALSE);
 		if (!$host) {
 			// try to get the host name from the HTTP_HOST server variable just in case
 			// if previous test failed, this one will probably not help, but before dying we try anyway
-			$host = array_get_index($_SERVER, 'SERVER_NAME', false);
+			$host = array_get_index($_SERVER, 'SERVER_NAME', FALSE);
 			if (!$host) {
 				trigger_localised_error('SYS0107', E_USER_ERROR);
 			}
@@ -515,7 +519,8 @@ function current_url($inc_protocol=true, $strip_backend_suffix=false)
 /**
 * Removes any matrix suffixes and any string following them
 *
-* @param string $url the url to clean
+* @param string	$url	the url to clean
+*
 * @return string
 * @access public
 */
@@ -555,12 +560,12 @@ function current_protocol()
 * Returns a url that has had trailing slashes and double slashes stripped
 *
 * @param string		$url			the url to check (with or without protocol)
-* @param boolean	$strip_protocol	if true doesn't return the protocol with the url
+* @param boolean	$strip_protocol	if TRUE doesn't return the protocol with the url
 *
 * @return string
 * @access public
 */
-function strip_url($url, $strip_protocol=false)
+function strip_url($url, $strip_protocol=FALSE)
 {
 	preg_match('|^([a-z]+://)?(.*)$|', $url, $matches);
 	return (($strip_protocol) ? '' : $matches[1]).preg_replace(Array('|/+$|', '|//+|'), Array('', '/'), $matches[2]);
@@ -576,14 +581,14 @@ function strip_url($url, $strip_protocol=false)
 * it is appended. If the value of the get variable is null and it does exist,
 * it will be removed
 *
-* @param array 		$replacements 	the variable replacements array ($var => $value)
-* @param string 	$base_url 		the base url
-* @param string		$query_string	the query string
+* @param array	$replacements	the variable replacements array ($var => $value)
+* @param string	$base_url		the base url
+* @param string	$query_string	the query string
 *
-* @return string the replaced url
+* @return string
 * @access public
 */
-function replace_query_string_vars($replacements, $base_url=null, $query_string=null)
+function replace_query_string_vars($replacements, $base_url=NULL, $query_string=NULL)
 {
 	if (is_null($base_url)) $base_url = current_url();
 	if (is_null($query_string)) {
@@ -626,9 +631,9 @@ function replace_query_string_vars($replacements, $base_url=null, $query_string=
 * eg. for 5 is 101 in binary
 *     and Array(0 => 1, 1 => 4); will be returned
 *
-* @param int $num    the integer to use
+* @param int	$num	the integer to use
 *
-* @return array(int)
+* @return array
 * @access public
 */
 function bit_elements($num)
@@ -638,7 +643,9 @@ function bit_elements($num)
 	$elems = Array();
 	while ($num > 0) {
 		// if the first bit is set then this number is one of the elements
-		if ($num & 1) $elems[] = $count;
+		if ($num & 1) {
+			$elems[] = $count;
+		}
 		$count *= 2;
 		// we just keep shifting right until there aren't anymore numbers
 		$num = $num >> 1;
@@ -717,10 +724,10 @@ function ts_iso8601($timestamp)
 * @param string	$index		index at which the desired value resides
 * @param mixed	$default	default value if supplied
 *
-* @return mixed|false
+* @return mixed
 * @access public
 */
-function array_get_index($array, $index, $default=null)
+function array_get_index($array, $index, $default=NULL)
 {
 	if (!is_array($array)) return $default;
 	if (isset($array[$index])) return $array[$index];
@@ -736,8 +743,8 @@ function array_get_index($array, $index, $default=null)
 * Registers a class as implementing a certain interface
 * This is so that we can do things like implements_interface() below
 *
-* @param string	$class			the class name (lowercase)
-* @param mixed	$interface		the interface(s) (all lowercase) we are implementing, either a string or an array
+* @param string			$class		the class name (lowercase)
+* @param string|array	$interface	the interface(s) (all lowercase) we are implementing, either a string or an array
 *
 * @return void
 * @access public
@@ -755,8 +762,8 @@ function register_implementation($class, $interface)
 /**
 * Returns whether the class that the passed object is an instance of implements a certain interface
 *
-* @param mixed	$class			the class name or object to check (either string or object
-* @param string	$interface		the interface that is wanted
+* @param mixed	$class		the class name or object to check (either string or object
+* @param string	$interface	the interface that is wanted
 *
 * @return boolean
 * @access public
@@ -771,11 +778,11 @@ function implements_interface($class, $interface)
 
 	do {
 		if (isset($GLOBALS['SQ_IMPLEMENTATION'][$class]) && in_array($interface, $GLOBALS['SQ_IMPLEMENTATION'][$class])) {
-			return true;
+			return TRUE;
 		}
 	} while ($class = get_parent_class($class));
 
-	return false;
+	return FALSE;
 
 }//end implements_interface()
 
@@ -786,19 +793,19 @@ function implements_interface($class, $interface)
 * Takes the log name, data, and optionally the log level, and passes it out to be encoded and logged to file
 * Defaults to writing to the system log
 *
-* @param mixed string|array		$data		The data to write to the log file
-* @param string					$logname	The prefix of the file to log to, eg. 'error'
-* @param int					$level		The log level, eg. E_USER_ERROR
-* @param boolean				$encode		If true, encodes elements such as newlines that mess up the log format
+* @param string|array	$data		The data to write to the log file
+* @param string			$logname	The prefix of the file to log to, eg. 'error'
+* @param int			$level		The log level, eg. E_USER_ERROR
+* @param boolean		$encode		If TRUE, encodes elements such as newlines that mess up the log format
 *
-* @access public
 * @return boolean
+* @access public
 */
-function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE, $encode=true)
+function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE, $encode=TRUE)
 {
 	if (empty($logname) || empty($level)) {
 		trigger_localised_error('SYS0099', E_USER_ERROR);
-		return false;
+		return FALSE;
 	}
 
 	// grab metadata
@@ -819,7 +826,7 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 	$username   = str_replace($chars_to_escape, $replacements, $username);
 	$level_name = strtolower(get_error_name($level));
 
-	// mark the data as 'R'(raw), 'S'(serialised) or ' ' (unserialised)
+	// mark the data as 'R' (raw), 'S' (serialised) or ' ' (unserialised)
 	if (is_string($data)) {
 		$flag = ' ';
 	} else {
@@ -838,7 +845,7 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 	$date = date('Y-m-d H:i:s');
 	$log_entry  = "[$date][$userid:$username][$level:$level_name][$flag] $data\n";
 
-	if (!$log_entry) return false;
+	if (!$log_entry) return FALSE;
 
 	$logfile = SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION;
 	// check if filename is valid
@@ -850,10 +857,10 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 	$handle = fopen($logfile, 'a');
 	if (!fwrite($handle, $log_entry)) {
 		trigger_localised_error('SYS0051', E_USER_WARNING, $logfile);
-		return false;
+		return FALSE;
 	}
 	fclose($handle);
-	return true;
+	return TRUE;
 
 }//end log_write()
 
@@ -869,14 +876,14 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 * @param string	$line		line where the error occured (from trigger_error)
 * @param string	$log_name	logfile to write to (instead of default)
 *
-* @access public
 * @return boolean
+* @access public
 */
 function log_error($message, $level=E_USER_NOTICE, $file='', $line='', $log_name=SQ_CONF_LOG_FILE_ERROR)
 {
-	if (!is_string($message)){
+	if (!is_string($message)) {
 		trigger_localised_error('SYS0191', E_USER_WARNING);
-		return false;
+		return FALSE;
 	}
 
 	if (!is_null($file)) {
@@ -886,7 +893,7 @@ function log_error($message, $level=E_USER_NOTICE, $file='', $line='', $log_name
 	// strip out all references to the string identifying the root
 	$message = str_replace('[SYSTEM_ROOT]', '', $message);
 
-	return log_write($message, $log_name, $level, false);
+	return log_write($message, $log_name, $level, FALSE);
 
 }//end log_error()
 
@@ -896,8 +903,8 @@ function log_error($message, $level=E_USER_NOTICE, $file='', $line='', $log_name
 *
 * @param string	$message	message containing system path
 *
-* @access public
 * @return string
+* @access public
 */
 function hide_system_root($message='')
 {
@@ -912,7 +919,7 @@ function hide_system_root($message='')
 * Provides a 'shorthand' interface to the Locale Manager's getString() method
 * for the current locale
 *
-* @param string	$string			the string code to translate
+* @param string	$string	the string code to translate
 *
 * @return string
 * @access public
@@ -920,7 +927,7 @@ function hide_system_root($message='')
 function translate($string)
 {
 	$args = array_slice(func_get_args(),1);
-	if (!isset($GLOBALS['SQ_SYSTEM'])) return false;
+	if (!isset($GLOBALS['SQ_SYSTEM'])) return FALSE;
 	return $GLOBALS['SQ_SYSTEM']->lm->getString($string, $args);
 
 }//end translate()
@@ -940,8 +947,8 @@ function trigger_localised_error($code, $error_level)
 {
 	$args = array_slice(func_get_args(),2);
 	if (!isset($GLOBALS['SQ_SYSTEM']) || !is_object($GLOBALS['SQ_SYSTEM']->lm)) {
-		trigger_error('Error occurred ['.$code.']'."\n".print_r($args,true), $error_level);
-		return false;
+		trigger_error('Error occurred ['.$code.']'."\n".print_r($args, TRUE), $error_level);
+		return FALSE;
 	}
 	return $GLOBALS['SQ_SYSTEM']->lm->raiseError($code, $error_level, $args);
 
@@ -958,13 +965,13 @@ function trigger_localised_error($code, $error_level)
 * @param string	$width	The width of the image being printed
 * @param string	$height	The height of the image being printed
 * @param string	$alt	Alt text for the image being printed
-* @param string $title	Title of the image being printed
-* @param string $extras	Extra HTML to put in the image tag
+* @param string	$title	Title of the image being printed
+* @param string	$extras	Extra HTML to put in the image tag
 *
-* @access public
 * @return void
+* @access public
 */
-function sq_print_icon($path, $width, $height, $alt='', $title=null, $extras='')
+function sq_print_icon($path, $width, $height, $alt='', $title=NULL, $extras='')
 {
 	if (is_null($title) && !empty($alt)) {
 		$title = $alt;
@@ -972,7 +979,7 @@ function sq_print_icon($path, $width, $height, $alt='', $title=null, $extras='')
 	if (is_null($title)) $title = '';
 	$style = 'background:url('.$path.'); background: expression(\'none\'); filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\''.$path.'\', sizingMethod=\'crop\'); width: '.$width.'px; height: '.$height.'px;';
 	$style_pos = strpos($extras, 'style="');
-	if (false !== $style_pos) {
+	if (FALSE !== $style_pos) {
 		$extras = substr($extras, 0, $style_pos + strlen('style="')).$style.substr($extras,$style_pos + strlen('style="'));
 	} else {
 		$extras = 'style="'.$style."\"\n\t     ".$extras;
@@ -1013,10 +1020,10 @@ function get_asset_tag_line($assetid, $screen='')
 
 	// If it's a shadow asset, there is nothing in the database so we cannot use
 	// the shortcut - we have to get the info from the asset instead
-	if (strpos($assetid, ':') !== false) {
+	if (strpos($assetid, ':') !== FALSE) {
 		list($real_assetid, $shadowid) = explode(':', $assetid, 2);
 		$asset_info = Array();
-		$shadow_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$shadow_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 		if ($shadow_asset) {
 			$asset_info['type_code'] = $shadow_asset->type();
@@ -1070,13 +1077,13 @@ function get_asset_tag_line($assetid, $screen='')
 		</tr>
 		<?php
 		$headers = Array(
-					'created'        => 'Asset Created',
-					'updated'        => 'Last Updated',
-					'published'      => 'Last Published',
-					'status_changed' => 'Status Last Changed',
+					'created'			=> 'Asset Created',
+					'updated'			=> 'Last Updated',
+					'published'			=> 'Last Published',
+					'status_changed'	=> 'Status Last Changed',
 				   );
 
-		foreach($headers as $time_type => $header) {
+		foreach ($headers as $time_type => $header) {
 			// If a time never happened (typically 'published')...
 			if (!empty($asset_info[$time_type])) {
 				$time_str = date('jS M Y g:ia', strtotime($asset_info[$time_type]));
@@ -1084,7 +1091,7 @@ function get_asset_tag_line($assetid, $screen='')
 				if ($asset_info[$time_type.'_userid'] == 0) {
 					$user_name = 'System';
 				} else {
-					$user_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset_info[$time_type.'_userid']), Array('asset'), false, 'name');
+					$user_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset_info[$time_type.'_userid']), Array('asset'), FALSE, 'name');
 					if (empty($user_name)) {
 						$user_name = '<span style="color: red">'.translate('unknown_or_deleted_user').'</span>';
 					} else {
@@ -1159,21 +1166,15 @@ function get_asset_tag_line($assetid, $screen='')
 		}
 
 		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', 16, 16, '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
-		//echo get_asset_type_icon($asset_info['type_code'], '');
 
 		if (count($lineages) > 0) {
 			echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' align="absmiddle"  onclick="'.$lineages_onclick.'"');
 		}
 
-		//echo sq_print_icon(sq_web_path('lib').'/web/images/icons/edit_mode.png', 16, 16, translate('screens'), translate('screens'), ' align="absmiddle" onclick="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-screens\').innerHTML, \'Screens\', true);"');
-
-		if ($screen_url) {
-			echo '<a href="'.$screen_url.'">';
-		}
+		if ($screen_url) echo '<a href="'.$screen_url.'">';
 		echo $asset_info['name'];
-		if ($screen_url) {
-			echo '</a>';
-		}
+		if ($screen_url) echo '</a>';
+
 		echo ' (Id: #'.$assetid.') ';
 		?><script type="text/javascript">window.onload = function() { page_on_load(); tooltip.print(); }</script><?php
 
@@ -1184,8 +1185,17 @@ function get_asset_tag_line($assetid, $screen='')
 }//end get_asset_tag_line()
 
 
-
-function get_asset_type_icon($type_code, $extra='') {
+/**
+* Gets the asset_type's icon
+*
+* @param string	$type_code	the asset type to grab the icon of
+* @param string	$extra		anything extra to add to the img tag
+*
+* @return string
+* @access public
+*/
+function get_asset_type_icon($type_code, $extra='')
+{
 	$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name');
 
 	return sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type_code), 16, 16, $type_name, $type_name, ' align="absmiddle" '.$extra);
@@ -1193,7 +1203,16 @@ function get_asset_type_icon($type_code, $extra='') {
 }//end get_asset_type_icon()
 
 
-function get_asset_status_icon($status) {
+/**
+* Gets the icon for the specified status
+*
+* @param int	$status	the status type to grab the icon of
+*
+* @return string
+* @access public
+*/
+function get_asset_status_icon($status)
+{
 	require_once dirname(__FILE__).'/general_occasional.inc';
 	$status_name = get_status_description($status);
 	$status_colour = get_status_colour($status);
@@ -1208,16 +1227,17 @@ function get_asset_status_icon($status) {
 * This function will select and display assets that are in the passed asset lineage
 * in the asset map
 *
-* @param array	$asset_lineage	Asset IDs in an asset lineage. Indexed from root to leaf
-* @param string		$map_frame	a reference to the map_frame so we can get the asset map
-*								if this is an empty string, then the asset_finder will look for the asset map
-*								in the frame where it was loaded
-* @param boolean	$new_window	is the asset finder in a different window than the asset map
+* If $map_frame is an empty string, then the asset_finder will look for the asset
+* map in the frame where it was loaded
+*
+* @param array		$asset_lineage	Asset IDs in an asset lineage. Indexed from root to leaf
+* @param string		$map_frame		a reference to the map_frame so we can get the asset map
+* @param boolean	$new_window		is the asset finder in a different window than the asset map
 *
 * @return string
 * @access public
 */
-function asset_locator_js($asset_lineage=Array(),$map_frame='sq_sidenav', $new_window=false)
+function asset_locator_js($asset_lineage=Array(),$map_frame='sq_sidenav', $new_window=FALSE)
 {
 	$finder_frame = ($new_window || empty($map_frame)) ? 'parent.top' : 'parent.frames["sq_main"]';
 	if (!empty($map_frame)) {
@@ -1240,8 +1260,8 @@ function asset_locator_js($asset_lineage=Array(),$map_frame='sq_sidenav', $new_w
 * @return string
 * @access public
 */
-function get_asset_lineage_sort_order($asset_lineage=Array()) {
-
+function get_asset_lineage_sort_order($asset_lineage=Array())
+{
 	if ($asset_lineage[0] == 1) {
 		array_shift($asset_lineage);
 	}
@@ -1256,7 +1276,7 @@ function get_asset_lineage_sort_order($asset_lineage=Array()) {
 	for ($i = 0; $i < $asset_count-1; $i++) {
 		$sort_order = -1;
 		// get the link between two assets
-		if (strpos($asset_lineage[$i],':') === false) {
+		if (strpos($asset_lineage[$i],':') === FALSE) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset_lineage[$i], $asset_lineage[$i+1]);
 			if (!empty($link)) {
 				if (isset($link['sort_order']) && $link['sort_order']!='') {
@@ -1275,7 +1295,7 @@ function get_asset_lineage_sort_order($asset_lineage=Array()) {
 /**
 * Replaces global keywords on a string
 *
-* @param string	$text			the text to replace keywords in
+* @param string	$text	the text to replace keywords in
 *
 * @return string
 * @access public
@@ -1303,6 +1323,40 @@ function replace_global_keywords($text)
 	return $text;
 
 }//end replace_global_keywords()
+
+
+/**
+* Queues up a Quick HIPO job
+*
+* When called, a HIPO job will be queued that will execute the passed function
+* for each element in $items
+*
+* Returns FALSE if there problems queuing the HIPO
+*
+* NOTE: Objects cannot be included in the $items array
+*
+* @param string		$callback_assetid	The assetid of the asset that $callback_function belongs to
+* @param string		$callback_function	The function to call for each element in $items
+* @param array		$items				An array of items to process (HIPO iteration per element)
+* @param array		$settings			An array of settings to provide to the callback function
+* @param boolean	$fail_on_error		If TRUE, the HIPO will cease running if there is an error processing one of the elements
+*
+* @return boolean
+* @access public
+*/
+function quick_hipo($callback_assetid, $callback_function, $items, $settings, $fail_on_error=FALSE)
+{
+	$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+	$vars = Array(
+				'callback_assetid'	=> $callback_assetid,
+				'callback_function'	=> $callback_function,
+				'items'				=> $items,
+				'settings'			=> $settings,
+				'fail_on_error'		=> $fail_on_error,
+			);
+	return $hh->queueHipo('hipo_job_quick_hipo', $vars);
+
+}//end quick_hipo()
 
 
 ?>
