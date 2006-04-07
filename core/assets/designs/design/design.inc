@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.108 2006/03/30 01:49:05 tbarrett Exp $
+* $Id: design.inc,v 1.109 2006/04/07 00:28:50 amiller Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -778,7 +778,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink('.$this->_escapeVar('$ASSET->id', $args).', SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n;";
 					echo 'if (!empty($link)) {'."\n";
 					echo '$thumbnail =& $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
-					echo 'echo $thumbnail->getURL('.$this->_escapeVar('$ASSET->id', $args).');'."\n";
+					echo 'echo $thumbnail->getURL('.$this->_escapeVar('$ASSET->getUrl()', $args).');'."\n";
 					echo '}'."\n";
 					echo '?', '>';
 			break;
