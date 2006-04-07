@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.88 2006/04/07 03:14:28 tbarrett Exp $
+* $Id: site.inc,v 1.89 2006/04/07 06:20:42 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -261,7 +261,10 @@ class Site extends Folder
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, $save_urls[$save_urlid]['url'], TRUE, TRUE);
 				if (!is_null($asset)) {
 					trigger_localised_error('CORE0081', E_USER_WARNING, $save_urls[$save_urlid]['url'], $asset->name, $asset->id);
-					continue;
+
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return FALSE;
 				}
 			}
 
