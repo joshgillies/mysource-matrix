@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.92 2006/03/15 05:13:20 sdanis Exp $
+* $Id: page_asset_builder.inc,v 1.93 2006/04/07 01:56:53 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -474,7 +474,7 @@ class Page_Asset_Builder extends Page
 		$all_selected_locations = Array();
 		foreach ($this->attr('create_location_optional') as $set_name => $details) {
 			$selected_locations = Array();
-			$code_name = str_replace(Array(' ','\''), '_', strtolower($set_name));
+			$code_name = $this->_sanitiseLocationSetName($set_name);
 			if (isset($_POST[$code_name])) {
 				if ($details['allow_multiple'] && is_array($_POST[$code_name])) {
 					foreach ($_POST[$code_name] as $location_id) {
@@ -485,7 +485,7 @@ class Page_Asset_Builder extends Page
 					$selected_locations = array_intersect($selected_locations, array_keys($details['locations']));
 					// add them to the collection
 					foreach ($selected_locations as $location_id) {
-						$all_selected_locations[(int)$location_id] = (int)$details['link_type'];
+						$all_selected_locations[$location_id] = (int)$details['link_type'];
 					}
 				} else {
 					// if it's valid, add it to the list
@@ -701,7 +701,7 @@ class Page_Asset_Builder extends Page
 	{
 		$all_selected_locations = Array();
 		foreach ($this->attr('create_location_dynamic') as $set_name => $details) {
-			$code_name = str_replace(Array(' ','\''), '_', strtolower($set_name));
+			$code_name = $this->_sanitiseLocationSetName($set_name);
 			if (isset($_POST[$code_name]) && !empty($_POST[$code_name])) {
 				$locations = $_POST[$code_name];
 				if (!is_array($locations)) {
@@ -722,6 +722,20 @@ class Page_Asset_Builder extends Page
 
 	}//end getDynamicCreateLocations()
 
+
+	/**
+	* Sanitises the passed create location set name
+	*
+	* @arg string	$set_name	the name to sanitise
+	*
+	* @return string
+	* @access private
+	*/
+	function _sanitiseLocationSetName($set_name)
+	{
+		return str_replace(Array(' ','\''), '_', strtolower($set_name));
+
+	}//end _sanitiseLocationSetName()
 
 	/**
 	* Takes the default link that was created and allows for adjustments if necessary
@@ -801,7 +815,7 @@ class Page_Asset_Builder extends Page
 		 // SELECTABLE CREATE LOCATIONS KEYWORDS //
 		//////////////////////////////////////////
 		foreach ($this->attr('create_location_optional') as $name => $data) {
-			$code_name = str_replace(Array(' ','\''), '_', strtolower($name));
+			$code_name = $this->_sanitiseLocationSetName($name);
 			$options = $data['locations'];
 			ob_start();
 				switch ($data['input_style']) {
@@ -844,7 +858,7 @@ class Page_Asset_Builder extends Page
 		}//end foreach selectable create location
 
 		foreach ($this->attr('create_location_dynamic') as $name => $data) {
-			$code_name = str_replace(Array(' ','\''), '_', strtolower($name));
+			$code_name = $this->_sanitiseLocationSetName($name);
 
 			// get the selected asset types and inherited types if necessary
 			$types = Array();
@@ -1081,7 +1095,7 @@ class Page_Asset_Builder extends Page
 	{
 		$keywords = Array();
 		foreach ($this->attr('create_location_optional') as $name => $data) {
-			$keyword_name = str_replace(Array(' ','\''), '_', strtolower($name)).'_field';
+			$keyword_name = $this->_sanitiseLocationSetName($name).'_field';
 			$keywords[$keyword_name] = translate('cms_asset_builder_field_keyword', $name);
 		}
 		return $keywords;
@@ -1099,7 +1113,7 @@ class Page_Asset_Builder extends Page
 	{
 		$keywords = Array();
 		foreach ($this->attr('create_location_dynamic') as $name => $data) {
-			$keyword_name = str_replace(Array(' ','\''), '_', strtolower($name)).'_field';
+			$keyword_name = $this->_sanitiseLocationSetName($name).'_field';
 			$keywords[$keyword_name] = translate('cms_asset_builder_field_keyword', $name);
 		}
 		return $keywords;
