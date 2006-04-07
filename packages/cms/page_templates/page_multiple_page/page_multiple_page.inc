@@ -11,7 +11,7 @@
 * | Please refer to http:// www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page.inc,v 1.13 2006/02/20 23:33:36 mmcintyre Exp $
+* $Id: page_multiple_page.inc,v 1.14 2006/04/07 01:43:40 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -166,7 +166,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function getNumberofPages()
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2|SQ_LINK_TYPE_1, 'page_multiple_page_page', TRUE);
 		return count($this->getPageLinks());
 
@@ -182,7 +182,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function getPageLinks()
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2|SQ_LINK_TYPE_1, 'page_multiple_page_page', TRUE);
 		return $page_links;
 
@@ -351,6 +351,10 @@ class Page_Multiple_Page extends Page
 			$url = substr($url, 0, strpos($url, '?'));
 		}
 		$url = rtrim($url, '/');
+
+		// remove no cache suffix
+		$url = str_replace('/'.SQ_CONF_NOCACHE_SUFFIX, '', $url);
+
 		$stub = $url;
 		if (strrpos($url, '/') !== FALSE) {
 			$stub = substr($url, strrpos($url, '/') + 1);
@@ -424,7 +428,7 @@ class Page_Multiple_Page extends Page
 			return $this->paintTOC($ordered);
 		}
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		$replacement = '';
 
@@ -609,7 +613,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function printFrontend()
 	{
-		$page_one = &$this->getFirstPageAsset();
+		$page_one =& $this->getFirstPageAsset();
 		if (is_null($page_one)) $page_one =& $this;
 		$this->printFrontendAsset($page_one);
 
