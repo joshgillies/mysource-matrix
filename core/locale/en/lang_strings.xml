@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.127 2006/03/31 05:42:54 bcaldwell Exp $
+* $Id: lang_strings.xml,v 1.128 2006/04/07 02:13:29 rhoward Exp $
 *
 */
 
@@ -1620,6 +1620,7 @@ Items to delete: %s</string>
 	<string source="hipo_name_update_lookups">Update Lookups</string>
 	<string source="hipo_name_edit_tags">Edit Tags</string>
 	<string source="hipo_name_edit_roles">Edit Roles</string>
+	<string source="hipo_name_quick_hipo">Quick</string>
 	<string source="hipo_processing_assets">Processing Assets</string>
 
 	<string source="hipo_purging_trash_determining">Determining which assets to delete</string>
