@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.3 2005/12/07 00:48:34 arailean Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.4 2006/04/07 00:21:54 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -294,7 +294,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 					if (is_null($stack[0]['term'])) {
 						$parent_asset =& $this->getThesaurusRef();
 					} else {
-						$parent_asset = $stack[0]['term'];
+						$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($stack[0]['term']);
 					}
 
 					$create_link['asset'] = &$parent_asset;
@@ -305,7 +305,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 					$term_asset->create($create_link);
 
 					// put it onto the stack
-					array_unshift($stack, Array('term' => &$term_asset, 'relation' => null));
+					array_unshift($stack, Array('term' => $term_asset->id, 'relation' => null));
 				}
 			break;
 
