@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.12 2006/04/07 03:34:29 sdanis Exp $
+* $Id: asset_manager.inc,v 1.431.2.13 2006/04/07 03:43:31 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.12 $
+* @version $Revision: 1.431.2.13 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5552,6 +5552,7 @@ class Asset_Manager extends MySource_Object
 			$roles = Array();
 			foreach ($result as $roleid => $userid_assetids) {
 				foreach ($userid_assetids as $index => $userid_assetid) {
+					if ($userid_assetid == '0') continue;
 					$assetid = $userid_assetid['assetid'];
 					$userid =$userid_assetid['userid'];
 					$roles[$roleid][$userid][] = $assetid;
@@ -5567,6 +5568,7 @@ class Asset_Manager extends MySource_Object
 				if ($include_assetid) {
 					$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($userid_assetids), Array(), FALSE, 'type_code');
 					foreach($userid_assetids as $userid_assetid => $assetids) {
+						if ($userid_assetid == '0') continue;
 						if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid_assetid], 'user_group')) {
 							$expanded_users = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid_assetid, Array('user'), FALSE));
 							if (!empty($expanded_users)) {
@@ -5584,6 +5586,7 @@ class Asset_Manager extends MySource_Object
 				} else {
 					$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid_assetids, Array(), FALSE, 'type_code');
 					foreach ($userid_assetids as $index => $userid_assetid) {
+						if ($userid_assetid == '0') continue;
 						if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid_assetid], 'user_group')) {
 							$expanded_users = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid_assetid, Array('user'), FALSE));
 							if (!empty($expanded_users)) {
