@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.459 2006/04/07 03:13:55 sdanis Exp $
+* $Id: asset_manager.inc,v 1.460 2006/04/07 03:44:55 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.459 $
+* @version $Revision: 1.460 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5648,6 +5648,7 @@ class Asset_Manager extends MySource_Object
 			$roles = Array();
 			foreach ($result as $roleid => $userid_assetids) {
 				foreach ($userid_assetids as $index => $userid_assetid) {
+					if ($userid_assetid == '0') continue;
 					$assetid = $userid_assetid['assetid'];
 					$userid =$userid_assetid['userid'];
 					$roles[$roleid][$userid][] = $assetid;
