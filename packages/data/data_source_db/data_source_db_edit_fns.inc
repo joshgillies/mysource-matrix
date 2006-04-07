@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.16 2006/03/13 03:05:54 arailean Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.17 2006/04/07 05:50:50 skim Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -202,7 +202,18 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			text_area('dsn[dsn]', empty($user)? $dsn: '', 70, 5);
 			return true;
 		} else {
-			if (!empty($dsn)) echo $dsn;
+			if (!empty($dsn)) {
+				$pos = strpos($dsn, ':');
+				$no_database = substr($dsn, $pos + 3, strlen($dsn) - 1);
+				if (($colon_pos = strpos($no_database, ':')) !== false) {
+					// If the password is set, do not display it
+					$at_pos = strpos($no_database, '@');
+					$no_password = substr($no_database, 0, $colon_pos).substr($no_database, $at_pos, strlen($no_database) - 1);
+					echo substr($dsn, 0, $pos).'://'.$no_password;
+				} else {
+					echo $dsn;
+				}
+			}
 			return false;
 		}
 
