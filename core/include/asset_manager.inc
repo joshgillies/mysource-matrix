@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.13 2006/04/07 03:43:31 skim Exp $
+* $Id: asset_manager.inc,v 1.431.2.14 2006/04/07 05:25:03 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.13 $
+* @version $Revision: 1.431.2.14 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6606,9 +6606,10 @@ class Asset_Manager extends MySource_Object
 		$having = '';
 		if (!is_null($access)) {
 			$userid_cond = '';
+			$group_by = 'GROUP BY l.linkid, l.'.$side_of_link.'id, l.'.$other_side.'id, l.value, l.link_type,
+								  l.type_code, l.sort_order, l.is_dependant, l.is_exclusive';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$from .= ', '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p';
-				$from .= ', '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p2 ';
 				$where .= ' AND p.assetid = l.minorid';
 				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
@@ -6617,11 +6618,11 @@ class Asset_Manager extends MySource_Object
 					$userids[$i] = $db->quote($userids[$i]);
 				}
 				$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
-				$where .= $userid_cond.' AND p.assetid = p2.assetid AND p.userid = p2.userid AND p.granted >= p2.granted';
-				$having .= ' HAVING MIN(p2.granted) >=1';
+				$where .= $userid_cond;
+				$having .= 'HAVING MIN(p.granted) <> 0';
+				$group_by .= ',p.userid';
 			}
-			$group_by = 'GROUP BY l.linkid, l.'.$side_of_link.'id, l.'.$other_side.'id, l.value, l.link_type,
-								  l.type_code, l.sort_order, l.is_dependant, l.is_exclusive';
+
 		}
 
 		if (!empty($type_code)) {
