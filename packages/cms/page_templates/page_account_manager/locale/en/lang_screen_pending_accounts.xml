@@ -1,0 +1,30 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_pending_accounts.xml,v 1.1 2006/04/07 02:12:26 rhoward Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Validate Account">
+		<field>
+			<display_name>Manually Validate</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintValidateAccounts"   />
+				<process_function name="processValidateAccounts" />
+			</function_call>
+		</field>
+	</section>
+</contents>

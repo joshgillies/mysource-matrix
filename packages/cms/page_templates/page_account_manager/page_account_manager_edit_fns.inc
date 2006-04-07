@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.17 2006/01/20 04:54:36 sdanis Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.18 2006/04/07 02:12:25 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -156,6 +156,100 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		return $asset->attr('use_email_validation');
 
 	}//end usingEmailValidation()
+
+
+	/**
+	* Paint the interface for the manual verification of accounts
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintValidateAccounts(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		// grab the list of users currently waiting validation
+		$users = $asset->_getPendingUserIds();
+
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header"><?php echo translate('user'); ?></th>
+				<?php
+					if ($write_access) {
+						?><td class="sq-backend-table-header"><?php echo translate('cms_account_manager_validate'); ?></th><?php
+					}
+				?>
+			</tr>
+		<?php
+
+		$user_details = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($users, Array(), TRUE, 'name');
+		foreach ($users as $userid) {
+			?><tr>
+				<td class="sq-backend-table-cell"><?php $this->_paintPendingUserDetails($userid, $user_details); ?></td>
+				<?php
+					if ($write_access) {
+						?><td width="10%" class="sq-backend-table-cell"><?php check_box($prefix.'_validate['.$userid.']'); ?></td><?php
+					}
+				?>
+
+			</tr><?php
+		}
+
+		?>
+		</table>
+		<?php
+
+
+		return $write_access;
+
+	}//end paintValidateAccounts()
+
+
+	/**
+	* Paints the line used to represent the user in the Pending Accounts screen
+	*
+	* @param string	$userid			the id of the user to paint
+	* @param string	$user_details	an array of userid => name
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _paintPendingUserDetails($userid, $user_details)
+	{
+		echo $user_details[$userid];
+		return TRUE;
+
+	}//end _paintPendingUserDetails()
+
+
+	/**
+	* Process the interface for the manual verification of accounts
+	*
+	* @param object	&$asset	the asset whose interface we are processing
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processValidateAccounts(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		if ($write_access) {
+			$selected_users = array_get_index($_REQUEST, $prefix.'_validate', Array());
+			if (!empty($selected_users)) {
+				// queue up a hipo to loop through the users, validating each one
+				quick_hipo($asset->id, 'hipoValidateUser', array_keys($selected_users), Array(), TRUE);
+			}
+		}
+		return $write_access;
+
+	}//end processValidateAccounts()
 
 
 }//end class

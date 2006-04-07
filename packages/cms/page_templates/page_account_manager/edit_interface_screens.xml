@@ -1,0 +1,25 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screens.xml,v 1.4 2006/04/07 02:12:25 rhoward Exp $
+*
+*/
+-->
+
+<screens>
+	<screen code_name="locations" display_name="Create Locations" icon="edit" lock_type="attributes" force_unlock="0" />
+	<screen code_name="required" display_name="Required Attributes" icon="edit" lock_type="attributes" force_unlock="0" />
+	<screen code_name="messages" display_name="Messages" icon="edit" lock_type="attributes" />
+	<screen code_name="pending_accounts" display_name="Pending Accounts" lock_type="attributes" force_unlock="0" />
+	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups"/>
+</screens>

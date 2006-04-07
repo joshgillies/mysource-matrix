@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2006/02/13 04:33:01 sdanis Exp $
+* $Id: lang_strings.xml,v 1.4 2006/04/07 02:12:26 rhoward Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -22,6 +22,7 @@
 	<string source="cms_account_manager_email_required">Email is required to send the validation email</string>
 	<string source="cms_account_manager_login_redirect_link">Click <![CDATA[<a href="%s">here</a>]]> to edit your details.</string>
 	<string source="cms_account_manager_cannot_edit_details">You do not have access to edit your details.</string>
+	<string source="cms_account_manager_validate">Validate?</string>
 	<string source="cms_account_manager_created_live">Created Live</string>
 	<string source="cms_account_manager_created_not_live">Created Not Live</string>
 	<string source="cms_account_manager_resend_validation_form">Resend Validation Form</string>

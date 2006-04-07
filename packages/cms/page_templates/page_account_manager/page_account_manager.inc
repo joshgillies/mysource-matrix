@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.40 2006/02/22 00:13:46 bcaldwell Exp $
+* $Id: page_account_manager.inc,v 1.41 2006/04/07 02:12:25 rhoward Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -278,84 +278,21 @@ class Page_Account_Manager extends Page_Asset_Builder
 			return $this->_reSendValidation();
 		}
 
-		if (isset($_GET['action']) && (strtolower($_GET['action']) == 'validate')) {
+		if (strtolower(array_get_index($_GET, 'action', '')) == 'validate') {
+			// grab the user and create locations
 			$user =& $this->_getCurrentPendingUser();
 			if (!is_null($user)) {
-				// Figure out create locations.
-				//    - Mandatory ones are easily looked up
-				//    - Rule-based ones are calculated from an
-				//      array of asset attribute values
-				//    - User-selected ones are read from amlocs
-				//      and checked for validity
-				$user_attributes = Array();
-				$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
-				foreach ($attrs as $attr => $type) {
-					$user_attributes[$attr] = $user->attr($attr);
+
+				if ($this->validateUser($user)) {
+					$this->_current_state = 'create_login';
+					$_POST['SQ_LOGIN_USERNAME'] = $user->attr('username');
+					$this->_replacements['login_invite'] = $this->attr('login_invite');
+					$this->_replacements['login_form'] = $this->getKeywordReplacement('login_form');
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+					return TRUE;
 				}
-				$create_locations = parent::getFixedCreateLocations() + parent::getRuleMatchCreateLocations($create_type, $user_attributes);
-				$selectable_create_locations = parent::getAllSelectableCreateLocations();
-				$locs = (isset($_REQUEST['amlocs'])) ? trim($_REQUEST['amlocs']) : '';
-				if (strpos($locs, '-') !== FALSE) {
-					$selected_create_location_codes = explode('-', $locs);
-					foreach ($selected_create_location_codes as $code) {
-						// we will add this create location and type if the location id
-						// is a valid option AND the link type is no more dominant than
-						// the max allowed link type for the location AND any existing
-						// link type for that location is no better than the proposed one
-						list($loc_id, $link_type) = explode(':', $code);
-						if (isset($selectable_create_locations[$loc_id]) && ($selectable_create_locations[$loc_id] <= $link_type)) {
-							if (!isset($create_locations[$loc_id]) || ($create_locations[$loc_id] > $link_type)) {
-								$create_locations[$loc_id] = $link_type;
-							}
-						}
-					}
-				}
+				return FALSE;
 
-				// set the install run level because we are creating an asset without being
-				// logged in - so any write access checks will fail
-				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-
-					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-					// link the user asset into the locations it is supposed to go
-					foreach ($create_locations as $link_parentid => $link_type) {
-						$link_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', TRUE);
-						if (is_null($link_parent)) continue;
-						if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $user, $link_type)) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-							return FALSE;
-						}
-					}
-
-					// remove the link from the pending accounts group
-					if (!$this->_removeCurrentPendingUserFromPendingGroup($user)) {
-						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-						return FALSE;
-					}
-
-					// set the status of the asset
-					if (!parent::_setCreateStatus($user)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-						return FALSE;
-					}
-
-					// all done
-					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-
-				$this->_current_state = 'create_login';
-				$_POST['SQ_LOGIN_USERNAME'] = $user->attr('username');
-				$this->_replacements['login_invite'] = $this->attr('login_invite');
-				$this->_replacements['login_form'] = $this->getKeywordReplacement('login_form');
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
-				return TRUE;
 			}//end if
 		}//end if action is validate
 
@@ -397,6 +334,68 @@ class Page_Account_Manager extends Page_Asset_Builder
 				case 'create' :
 					if (empty($this->_errors) && !empty($this->_tmp['created_asset'])) {
 						if ($this->attr('use_email_validation')) {
+							// notice link the newly-created asset underneath the selected create locations,
+							// so when we validate we know which create locations were selected
+							$new_asset =& $this->_tmp['created_asset'];
+
+							// manually parse the create locations, format into an array in the format Array(locationid => Array('name'=>code_name, 'link_type'=>link_type), ...)
+							$selected_create_locations = Array();
+							foreach ($this->attr('create_location_optional') as $set_name => $details) {
+								$tmp_locations = Array();
+								$code_name = $this->_sanitiseLocationSetName($set_name);
+								if (isset($_POST[$code_name])) {
+									if ($details['allow_multiple'] && is_array($_POST[$code_name])) {
+										foreach ($_POST[$code_name] as $location_id) {
+											// add it to the list
+											$tmp_locations[] = $location_id;
+										}
+										// check the list options are valid
+										$tmp_locations = array_intersect($tmp_locations, array_keys($details['locations']));
+										// add them to the collection
+										foreach ($tmp_locations as $location_id) {
+											$selected_create_locations[$location_id] = Array(
+																						'set_name'	=> $set_name,
+																						'link_type'	=> (int)$details['link_type'],
+																					   );
+										}
+									} else {
+										// if it's valid, add it to the list
+										if (in_array($_POST[$code_name], array_keys($details['locations']))) {
+											$selected_create_locations[(int)$_POST[$code_name]] = (int)$details['link_type'];
+										}
+									}
+								} else if (!$details['allow_empty']) {
+									trigger_localised_error('CMS0036', E_USER_WARNING, $set_name);
+									return FALSE;
+								}
+							}
+
+
+							// use the formatted array, create the notice links
+							if (!empty($selected_create_locations)) {
+								$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+									$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+									$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+										foreach ($selected_create_locations as $locationid => $link_type) {
+											$location =& $GLOBALS['SQ_SYSTEM']->am->getAsset($locationid, '', TRUE);
+											if (is_null($location)) continue;
+											if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($location, $new_asset, SQ_LINK_NOTICE, $this->getPrefix().'_selected_create_location-'.$link_type)) {
+												// bail out
+												$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+												$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+												$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+												return FALSE;
+											}
+										}
+
+									$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+									$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+							}
+
 							// we are validating this user using email, so send them one
 							$replacements = Array();
 							$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
@@ -404,23 +403,10 @@ class Page_Account_Manager extends Page_Asset_Builder
 								if (($attr == 'password') || ($type == 'serialise')) {
 									continue;
 								}
-								$replacements[$attr] = $this->_tmp['created_asset']->attr($attr);
+								$replacements[$attr] = $new_asset->attr($attr);
 							}
 
-							$validation_url = current_url().'?action=validate&amid='.$this->_tmp['am_created_asset_key'].'&amlocs=';
-
-							// work out what selectable create locations they have selected and add them to the URL.
-							// (Mandatory and rule-based create locations can be worked out after validation).
-							// Locations passed through the URL will be checked at the other end to make sure
-							// nobody's tried to sneak in any other locations...
-							$selected_create_locations = $this->getSelectedCreateLocations();
-							if (!empty($selected_create_locations)) {
-								foreach ($selected_create_locations as $location => $link_type) {
-									$validation_url .= $location.':'.$link_type.'-';
-								}
-								$validation_url = trim($validation_url, '-');
-							}
-							$replacements['validation_url'] = $validation_url;
+							$replacements['validation_url'] = current_url().'?action=validate&amid='.$this->_tmp['am_created_asset_key'];
 
 							// add an email to the TO list for the user who just signed up
 							$email_attr =& $this->getAttribute('validation_email_format');
@@ -449,196 +435,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 		return TRUE;
 
 	}//end _processGlobalActions()
-
-
-	/**
-	* Re-sends validation email to specified user
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _reSendValidation()
-	{
-
-		if (isset($_REQUEST[$this->getPrefix().'_resend_validation_username']) && !empty($_REQUEST[$this->getPrefix().'_resend_validation_username']) && $this->attr('use_email_validation')) {
-				// add an email to the TO list for the user who just signed up
-
-				$auth_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
-				$auth_systems = $auth_folder->getAuthSystems();
-				$user = NULL;
-				foreach ($auth_systems as $systemid) {
-					$system =& $GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
-					if (is_null($system)) continue;
-					$user =& $system->locateUser($_REQUEST[$this->getPrefix().'_resend_validation_username']);
-					if (!is_null($user) && $user->id) {
-						break;
-					}
-				}
-
-				if (is_null($user)) {
-					$this->_errors[] = translate('cms_account_manager_keyword_resend_validation_user_not_found');
-					return FALSE;
-
-				} else {
-					if ($validation_key = $this->getValidationKeyForUser($user)) {
-						$replacements = Array();
-						list($create_type) = array_keys($this->attr('create_type'));
-						$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
-						foreach ($attrs as $attr => $type) {
-							if (($attr == 'password') || ($type == 'serialise')) {
-								continue;
-							}
-							$replacements[$attr] = $user->attr($attr);
-						}
-
-						$validation_url = current_url().'?action=validate&amid='.$validation_key.'&amlocs=';
-
-						// work out what selectable create locations they have selected and add them to the URL.
-						// (Mandatory and rule-based create locations can be worked out after validation).
-						// Locations passed through the URL will be checked at the other end to make sure
-						// nobody's tried to sneak in any other locations...
-						$selected_create_locations = $this->getSelectedCreateLocations();
-						if (!empty($selected_create_locations)) {
-							foreach ($selected_create_locations as $location => $link_type) {
-								$validation_url .= $location.':'.$link_type.'-';
-							}
-							$validation_url = trim($validation_url, '-');
-						}
-						$replacements['validation_url'] = $validation_url;
-
-						// add an email to the TO list for the user who just signed up
-						$email_attr =& $this->getAttribute('validation_email_format');
-						$new_value = unserialize($email_attr->value);
-						$new_value['to'][] = $replacements['email'];
-						$email_attr->value = serialize($new_value);
-
-						// let the email format attribute send the email for us
-						$email_attr->sendMail($replacements);
-						$this->_replacements['resend_validation_success'] = $this->getKeywordReplacement('re_send_validation_success');
-						return TRUE;
-
-					} else {
-						$this->_errors[] = translate('cms_account_manager_keyword_resend_validation_cannot_send_user');
-						return FALSE;
-					}
-
-				}//end else
-
-		} else {
-			$this->_errors[] = translate('cms_account_manager_keyword_resend_validation_cannot_send_user');
-			return FALSE;
-		}
-
-		return FALSE;
-
-	}//end _reSendValidation()
-
-
-	/**
-	* Returns the validation key for the supplied user.
-	*
-	* @param &object	$user	The user we want the validation key for
-	*
-	* @return string
-	* @access public
-	*/
-	function getValidationKeyForUser(&$user)
-	{
-		$pending_usergroup_id = $this->_getPendingAccountsGroupId();
-		$links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($pending_usergroup_id, $user->id);
-
-		// we should only have one link
-		if (!empty($links)) {
-			return $links['value'];
-		}
-		return FALSE;
-
-	}//end getValidationKeyForUser()
-
-
-	/**
-	* Create the pending accounts user group
-	*
-	* @return void
-	* @access protected
-	*/
-	function _createPendingAccountsGroup()
-	{
-		$group_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => 0, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => 'pending_accounts');
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
-
-		$group =& new User_Group();
-		$group->setAttrValue('name', 'Pending Accounts');
-		if (!$group->create($group_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
-		}
-
-	}//end _createPendingAccountsGroup()
-
-
-	/**
-	* Get the ID of the Pending Accounts group
-	*
-	* @return void
-	* @access public
-	*/
-	function _getPendingAccountsGroupId()
-	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', TRUE, 'pending_accounts');
-		if (empty($link)) {
-			return 0;
-		} else {
-			return $link['minorid'];
-		}
-
-	}//end _getPendingAccountsGroupId()
-
-
-	/**
-	* Get the current pending user (for a request that came from a validation email)
-	*
-	* @return object
-	* @access protected
-	*/
-	function &_getCurrentPendingUser()
-	{
-		$user = NULL;
-		$id = (isset($_REQUEST['amid'])) ? trim($_REQUEST['amid']) : '';
-		if (!empty($id)) {
-			$pending_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', TRUE, 'pending_accounts');
-			if (!empty($pending_link)) {
-				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($pending_link['minorid'], SQ_LINK_TYPE_1, 'user', FALSE, $id);
-				if (!empty($link)) {
-					$this->_tmp['pending_link'] = $link;
-					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-				}
-			}
-		}
-		return $user;
-
-	}//end _getCurrentPendingUser()
-
-
-	/**
-	* Remove a user from the pending-users group
-	*
-	* @return boolean
-	* @access protected
-	*/
-	function _removeCurrentPendingUserFromPendingGroup()
-	{
-		if (!empty($this->_tmp['pending_link'])) {
-			if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($this->_tmp['pending_link']['linkid'])) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return FALSE;
-			}
-		}
-		return TRUE;
-
-	}//end _removeCurrentPendingUserFromPendingGroup()
 
 
 	/**
@@ -765,6 +561,342 @@ class Page_Account_Manager extends Page_Asset_Builder
 			   );
 
 	}//end _getBodycopies()
+
+
+//--        PENDING ACCOUNTS        --//
+
+
+	/**
+	* Returns a list of selected create locations for a specified pending user
+	*
+	* @param string	$userid	the userid of the pending user
+	*
+	* @return array
+	* @access public
+	*/
+	function getSelectedCreateLocationsForPendingUser($userid)
+	{
+		$create_locations = Array();
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($userid, SQ_LINK_NOTICE, Array('user_group'), FALSE, 'minor');
+		foreach ($links as $link) {
+			// check that the link is actually a selectable create location link
+			// the link value should be in the format: 'PREFIX_selected_create_location-LINK_VALUE'
+			preg_match('/^'.$this->getPrefix().'_selected_create_location-([\d]*)$/', $link['value'], $matches);
+			if (!empty($matches)) {
+				$create_locations[$link['majorid']] = $matches[1];
+			}
+		}
+		return $create_locations;
+
+	}//end getSelectedCreateLocationsForPendingUser()
+
+
+	/**
+	* Validates the passed user
+	*
+	* @param object	&$user	the user to validate
+	*
+	* @return boolean
+	* @access public
+	*/
+	function validateUser(&$user)
+	{
+		// Figure out create locations.
+		//    - Mandatory ones are easily looked up
+		//    - Rule-based ones are calculated from an
+		//      array of asset attribute values
+		//    - User-selected ones are grabbed from the
+		//      user's notice links
+		list($create_type) = array_keys($this->attr('create_type'));
+
+		$user_attributes = Array();
+		$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
+		foreach ($attrs as $attr => $type) {
+			$user_attributes[$attr] = $user->attr($attr);
+		}
+
+		$selected_create_locations = $this->getSelectedCreateLocationsForPendingUser($user->id);
+		$create_locations = parent::getFixedCreateLocations()
+							+ parent::getRuleMatchCreateLocations($create_type, $user_attributes)
+							+ $selected_create_locations;
+
+		// set the install run level because we are creating an asset without being
+		// logged in - so any write access checks will fail
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			// link the user asset into the locations it is supposed to go
+			foreach ($create_locations as $link_parentid => $link_type) {
+				$link_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', TRUE);
+				if (is_null($link_parent)) continue;
+				if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $user, $link_type)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					return FALSE;
+				}
+			}
+
+			// remove the selectable create location notice links, if they exist
+			foreach ($selected_create_locations as $link_parentid => $link_type) {
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($link_parentid, $user->id, SQ_LINK_NOTICE);
+				if (!empty($link)) {
+					if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'])) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						return FALSE;
+					}
+				}
+			}
+
+			// remove the link from the pending accounts group
+			if (!$this->_removePendingUserFromPendingGroup($user->id)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				return FALSE;
+			}
+
+			// set the status of the asset
+			if (!parent::_setCreateStatus($user)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				return FALSE;
+			}
+
+			// all done
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		return TRUE;
+
+	}//end validateUser()
+
+
+	/**
+	* A Quick HIPO callback function that validates a user passed to it
+	*
+	* @param mixed	$index		The index of the item currently being processed
+	* @param mixed	$item		The complete list of items to process
+	* @param array	$settings	An array containing whatever settings this Quick HIPO requires
+	*
+	* @return boolean
+	* @access public
+	*/
+	function hipoValidateUser($index, $item, $settings)
+	{
+		// load the user asset
+		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($item);
+		if (is_null($user)) return FALSE;
+		$validated = $this->validateUser($user);
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+		return $validated;
+
+	}//end hipoValidateUser()
+
+
+	/**
+	* Re-sends validation email to specified user
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _reSendValidation()
+	{
+		trigger_error('reSendValidation Called!', E_USER_WARNING);
+		if (isset($_REQUEST[$this->getPrefix().'_resend_validation_username']) && !empty($_REQUEST[$this->getPrefix().'_resend_validation_username']) && $this->attr('use_email_validation')) {
+				// add an email to the TO list for the user who just signed up
+
+				$auth_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
+				$auth_systems = $auth_folder->getAuthSystems();
+				$user = NULL;
+				foreach ($auth_systems as $systemid) {
+					$system =& $GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
+					if (is_null($system)) continue;
+					$user =& $system->locateUser($_REQUEST[$this->getPrefix().'_resend_validation_username']);
+					if (!is_null($user) && $user->id) {
+						break;
+					}
+				}
+
+				if (is_null($user)) {
+					$this->_errors[] = translate('cms_account_manager_keyword_resend_validation_user_not_found');
+					return FALSE;
+
+				} else {
+					if ($validation_key = $this->getValidationKeyForUser($user)) {
+						$replacements = Array();
+						list($create_type) = array_keys($this->attr('create_type'));
+						$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
+						foreach ($attrs as $attr => $type) {
+							if (($attr == 'password') || ($type == 'serialise')) {
+								continue;
+							}
+							$replacements[$attr] = $user->attr($attr);
+						}
+
+						$replacements['validation_url'] = current_url().'?action=validate&amid='.$validation_key;
+
+						// add an email to the TO list for the user who just signed up
+						$email_attr =& $this->getAttribute('validation_email_format');
+						$new_value = unserialize($email_attr->value);
+						$new_value['to'][] = $replacements['email'];
+						$email_attr->value = serialize($new_value);
+
+						// let the email format attribute send the email for us
+						$email_attr->sendMail($replacements);
+						$this->_replacements['resend_validation_success'] = $this->getKeywordReplacement('re_send_validation_success');
+						return TRUE;
+
+					} else {
+						$this->_errors[] = translate('cms_account_manager_keyword_resend_validation_cannot_send_user');
+						return FALSE;
+					}
+
+				}//end else
+
+		} else {
+			$this->_errors[] = translate('cms_account_manager_keyword_resend_validation_cannot_send_user');
+			return FALSE;
+		}
+
+		return FALSE;
+
+	}//end _reSendValidation()
+
+
+	/**
+	* Returns the validation key for the supplied user.
+	*
+	* @param object	&$user	The user we want the validation key for
+	*
+	* @return string
+	* @access public
+	*/
+	function getValidationKeyForUser(&$user)
+	{
+		$pending_usergroup_id = $this->_getPendingAccountsGroupId();
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($pending_usergroup_id, $user->id);
+
+		// we should only have one link
+		if (!empty($links)) return $links['value'];
+		return FALSE;
+
+	}//end getValidationKeyForUser()
+
+
+	/**
+	* Create the pending accounts user group
+	*
+	* @return void
+	* @access protected
+	*/
+	function _createPendingAccountsGroup()
+	{
+		$group_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => 0, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => 'pending_accounts');
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
+
+		$group =& new User_Group();
+		$group->setAttrValue('name', 'Pending Accounts');
+		if (!$group->create($group_link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+
+	}//end _createPendingAccountsGroup()
+
+
+	/**
+	* Get the ID of the Pending Accounts group
+	*
+	* @return string
+	* @access public
+	*/
+	function _getPendingAccountsGroupId()
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', TRUE, 'pending_accounts');
+		if (empty($link)) {
+			return 0;
+		} else {
+			return $link['minorid'];
+		}
+
+	}//end _getPendingAccountsGroupId()
+
+
+	/**
+	* Get the current pending user (for a request that came from a validation email)
+	*
+	* @return object
+	* @access protected
+	*/
+	function &_getCurrentPendingUser()
+	{
+		$user = NULL;
+		$id = (isset($_REQUEST['amid'])) ? trim($_REQUEST['amid']) : '';
+		if (!empty($id)) {
+			$pending_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', TRUE, 'pending_accounts');
+			if (!empty($pending_link)) {
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($pending_link['minorid'], SQ_LINK_TYPE_1, 'user', FALSE, $id);
+				if (!empty($link)) {
+					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+				}
+			}
+		}
+		return $user;
+
+	}//end _getCurrentPendingUser()
+
+
+	/**
+	* Remove a user from the pending-users group
+	*
+	* @param string	$userid	the assetid of the pending user to remove
+	*
+	* @return boolean
+	* @access protected
+	*/
+	function _removePendingUserFromPendingGroup($userid)
+	{
+		$pending_accounts_groupid = $this->_getPendingAccountsGroupId();
+		if (!empty($pending_accounts_groupid)) {
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($pending_accounts_groupid, $userid, SQ_LINK_TYPE_1);
+			if (!empty($link)) {
+				return $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+			}
+		}
+		return FALSE;
+
+	}//end _removePendingUserFromPendingGroup()
+
+
+	/**
+	* Return an array of the currently pending users
+	*
+	* @return object
+	* @access protected
+	*/
+	function _getPendingUserIds()
+	{
+		$users = Array();
+
+		$group_folder_id = $this->_getPendingAccountsGroupId();
+		if (!empty($group_folder_id)) {
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($group_folder_id, SQ_LINK_TYPE_1, 'user', FALSE);
+			foreach ($links as $link) {
+				$users[] = $link['minorid'];
+			}
+		}
+
+		return $users;
+
+	}//end _getPendingUserIds()
 
 
 //--        KEYWORD DESCRIPTION        --//
