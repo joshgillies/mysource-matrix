@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.34 2006/03/22 02:55:43 emcdonald Exp $
+* $Id: hipo_job_create_links.inc,v 1.35 2006/04/09 23:43:28 rong Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -265,12 +265,15 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 + SQ_LINK_TYPE_2, '', TRUE, $current['linkid']);
 
 					if (!empty($trash_link)) $num_other_links--;
-					if (!$num_other_links) {
+					if ($num_other_links > 0) {
 						// now lets get all the other links this asset has in the system and
 						// display them to the user
 						// note that we are also going to ask the major asset in the link
 						// to describe it so it makes sense to the user looking at it
-						$this->_running_vars['affected_links'][$assetid] = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE, '', TRUE, 'minor');
+						$affected_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE, '', TRUE, 'minor');
+						if (!empty($affected_links)) {
+							$this->_running_vars['affected_links'][$assetid] = $affected_links;
+						}
 					}//end if !$num_other_links
 				}//end for
 			}//end if the assets have been moved to the trash
