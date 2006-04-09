@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.22.2.1 2005/08/25 02:34:04 amiller Exp $
+* $Id: permissions.inc,v 1.22.2.2 2006/04/09 23:09:54 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.22.2.1 $
+* @version $Revision: 1.22.2.2 $
 * @package MySource_Matrix
 */
 
@@ -136,6 +136,7 @@ function paintPermissions(&$owner, &$o, &$ei)
 	$perms = Array('read' => SQ_PERMISSION_READ, 'write' => SQ_PERMISSION_WRITE, 'admin' => SQ_PERMISSION_ADMIN);
 
 	$admin_access = $owner->adminAccess('permissions');
+	$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 
 	foreach ($perms as $title => $perm) {
 		$o->openSection(translate('permission_section', translate($title)));
@@ -215,7 +216,7 @@ function paintPermissions(&$owner, &$o, &$ei)
 		if ($admin_access) {
 			$o->openField('New ?', 'new_line');
 				// if Public Access isn't set
-				if (!isset($direct['0'])) {
+				if (!in_array($public_userid, array_get_index($direct, 0, Array())) && !in_array($public_userid, array_get_index($direct, 1, Array()))) {
 					combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), false, '');
 					echo ' '.translate('public_permission').'<br/>';
 				}
@@ -351,7 +352,7 @@ function processPermissions(&$owner, &$o, &$ei)
 	if (!empty($permission_vars)) {
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
-					'assets'				=> Array($owner->id => Array('type_code' => $owner->type())), 
+					'assets'				=> Array($owner->id => Array('type_code' => $owner->type())),
 					'permission_changes'	=> $permission_vars
 				);
 		if (!$cascade_changes) $vars['dependants_only'] = 1;
