@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.26 2006/02/02 02:29:33 ndvries Exp $
+* $Id: permissions.inc,v 1.27 2006/04/09 23:04:19 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 
@@ -135,6 +135,7 @@ function paintPermissions(&$owner, &$o, &$ei)
 	$perms = Array('read' => SQ_PERMISSION_READ, 'write' => SQ_PERMISSION_WRITE, 'admin' => SQ_PERMISSION_ADMIN);
 
 	$admin_access = $owner->adminAccess('permissions');
+	$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 
 	foreach ($perms as $title => $perm) {
 		$o->openSection(translate('permission_section', translate($title)));
@@ -204,7 +205,7 @@ function paintPermissions(&$owner, &$o, &$ei)
 		if ($admin_access) {
 			$o->openField('New ?', 'new_line');
 				// if Public Access isn't set
-				if (!isset($direct['0'])) {
+				if (!in_array($public_userid, array_get_index($direct, 0, Array())) && !in_array($public_userid, array_get_index($direct, 1, Array()))) {
 					combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
 					echo ' '.translate('public_permission').'<br/>';
 				}
