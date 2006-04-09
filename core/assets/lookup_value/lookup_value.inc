@@ -18,10 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookup_value.inc,v 1.4 2006/01/26 22:34:04 lwright Exp $
+* $Id: lookup_value.inc,v 1.4.2.1 2006/04/09 23:22:11 sdanis Exp $
 *
 */
 
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
 * Lookup Value
@@ -30,7 +31,7 @@
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
