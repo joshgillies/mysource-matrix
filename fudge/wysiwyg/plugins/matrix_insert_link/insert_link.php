@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.36 2006/02/20 04:54:59 sdanis Exp $
+* $Id: insert_link.php,v 1.37 2006/04/10 05:23:32 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 */
 
@@ -66,8 +66,12 @@ if (!isset($_GET['new_window'])) {
 	$_GET['new_window'] = 0;
 }
 
+if (strpos($_GET['assetid'], '#') !== FALSE) {
+	list($_GET['assetid'], $_GET['anchor']) = explode('#', $_GET['assetid']);
+}
+
 // If we have an anchor, it will have been stuck in the URL, so break it away
-if (strpos($_GET['url'], '#') !== false) {
+if (strpos($_GET['url'], '#') !== FALSE) {
 	list($_GET['url'], $_GET['anchor']) = explode('#', $_GET['url']);
 } else {
 	$_GET['anchor'] = '';
@@ -87,18 +91,18 @@ if (!isset($_GET['new_window'])) {
 	<head>
 		<title>Insert Link</title>
 		<?php
-		//add required js translation files, as we are using asset finder
+		// add required js translation files, as we are using asset finder
 		$include_list = Array(sq_web_path('lib').'/js/translation.js');
 
 		$locales = $GLOBALS['SQ_SYSTEM']->lm->getCumulativeLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
 
-		foreach($locales as $locale) {
+		foreach ($locales as $locale) {
 			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$locale.'.js')) {
 				$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$locale.'.js';
 			}
 		}
 
-		foreach($include_list as $link) {
+		foreach ($include_list as $link) {
 			?><script type="text/javascript" src="<?php echo $link; ?>"></script>
 		<?php
 		}
@@ -279,7 +283,7 @@ if (!isset($_GET['new_window'])) {
 					<td valign="top">
 						<?php
 							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
-							$asset_map = new Asset_Map();
+							$asset_map =& new Asset_Map();
 							$asset_map->embedAssetMap('simple', 200, 350);
 						?>
 					</td>
@@ -301,7 +305,7 @@ if (!isset($_GET['new_window'])) {
 														</tr>
 														<tr>
 															<td class="label"><?php echo translate('select_asset'); ?>:</td>
-															<td colspan="3"><?php asset_finder('assetid', $_GET['assetid'], Array(), '', false, 'setUrl'); ?></td>
+															<td colspan="3"><?php asset_finder('assetid', $_GET['assetid'], Array(), '', FALSE, 'setUrl'); ?></td>
 														</tr>
 														<tr>
 															<td class="label"><?php echo translate('anchor_name'); ?>:</td>
@@ -351,7 +355,7 @@ if (!isset($_GET['new_window'])) {
 															</tr>
 															<tr>
 																<td class="label" rowspan="2" valign="top"><?php echo translate('new_window'); ?>:</td>
-																<td><?php combo_box('new_window', Array('0' => translate('no'), '1' => translate('yes'), '2' => translate('advanced')), false, $_GET['new_window'], 1, 'onChange="javascript: enable_new_window(this.form, form_element_value(this));"'); ?></td>
+																<td><?php combo_box('new_window', Array('0' => translate('no'), '1' => translate('yes'), '2' => translate('advanced')), FALSE, $_GET['new_window'], 1, 'onChange="javascript: enable_new_window(this.form, form_element_value(this));"'); ?></td>
 															</tr>
 															<tr>
 																<td>
