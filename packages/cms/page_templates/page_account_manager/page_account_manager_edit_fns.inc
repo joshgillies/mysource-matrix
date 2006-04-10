@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.18 2006/04/07 02:12:25 rhoward Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.19 2006/04/10 05:00:28 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -173,15 +173,92 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 
 		// grab the list of users currently waiting validation
-		$users = $asset->_getPendingUserIds();
+		$all_users = $asset->_getPendingUserIds();
+
+		// pagination
+		$total_assets = count($all_users);
+		$num_per_page = 5;
+		$num_pages    = ceil($total_assets / $num_per_page);
+
+		$asset_offset  = array_get_index($_POST, $prefix.'_asset_offset', 0);
+		hidden_field($prefix.'_asset_offset', $asset_offset);
+
+		if ($num_pages <= 1) {
+			$users = $all_users;
+		} else {
+			$users = array_slice($all_users, $asset_offset, $asset_offset + $num_per_page);
+		}
 
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header"><?php echo translate('user'); ?></th>
+				<td class="sq-backend-table-header-header" <?php echo ($write_access ? 'colspan="2"' : ''); ?>>
+				<?php
+					if ($asset_offset > 0) {
+						?><a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_asset_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+					}
+					?>
+					&lt;&lt;
+					<?php
+					if ($asset_offset > 0) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?> &nbsp; &nbsp; <?php
+					if ($asset_offset > 0) {
+						?><a title="<?php echo translate('pagination_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_asset_offset', '<?php echo $asset_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+					}
+					?>
+					&lt;
+					<?php
+					if ($asset_offset > 0) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?>
+					&nbsp; &nbsp; <?php echo translate('page_number', round(($asset_offset + $num_per_page) / $num_per_page), ($total_assets > 0 ? ceil($total_assets / $num_per_page) : 1)); ?> &nbsp; &nbsp;
+					<?php
+					if (($asset_offset + $num_per_page) < $total_assets) {
+						?><a title="<?php echo translate('pagination_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_asset_offset', '<?php echo $asset_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+					}
+					?>
+					&gt;
+					<?php
+					if (($asset_offset + $num_per_page) < $total_assets) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?> &nbsp; &nbsp; <?php
+					if (($asset_offset + $num_per_page) < $total_assets) {
+						?><a title="<?php echo translate('pagination_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_asset_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+					}
+					?>
+					&gt;&gt;
+					<?php
+					if (($asset_offset + $num_per_page) < $total_assets) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+				?>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-header"><?php echo translate('user'); ?></td>
 				<?php
 					if ($write_access) {
-						?><td class="sq-backend-table-header"><?php echo translate('cms_account_manager_validate'); ?></th><?php
+						?><td class="sq-backend-table-header"><?php echo translate('cms_account_manager_validate'); ?></td><?php
 					}
 				?>
 			</tr>
@@ -221,7 +298,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	*/
 	function _paintPendingUserDetails($userid, $user_details)
 	{
-		echo $user_details[$userid];
+		echo $user_details[$userid].' (#'.$userid.')';
 		return TRUE;
 
 	}//end _paintPendingUserDetails()
