@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.87 2006/03/27 04:27:25 lwright Exp $
+* $Id: workflow_manager.inc,v 1.88 2006/04/10 04:17:32 bcaldwell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -553,6 +553,9 @@ class Workflow_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			// nothing in this schema, try the next
 			if (empty($schema_workflows[$schemaid])) continue;
+
+			// check to see if the step exists
+			if (empty($current_workflow_steps[$schemaid])) continue;
 
 			// get the current step for this schema
 			$current_step =& $schema_workflows[$schemaid]['steps'][$current_workflow_steps[$schemaid]];
