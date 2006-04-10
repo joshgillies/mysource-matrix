@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.38 2006/01/30 05:10:35 dmckee Exp $
+* $Id: ldap_bridge.inc,v 1.38.2.1 2006/04/10 22:40:48 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -533,6 +533,7 @@ class LDAP_Bridge extends Asset
 
 			foreach ($mo_groups as $group_name) {
 				$result = $ldap->search($group_name, '(objectClass=*)');
+				if (!$result) continue;
 				$group_data = $ldap->getEntries($result);
 				if ($group_data['count'] > 0) {
 					$parents[$this->id.':'.$group_data[0]['dn']] = 'ldap_user_group';
@@ -541,6 +542,7 @@ class LDAP_Bridge extends Asset
 
 			foreach ($ou_groups as $group_name => $group_dn) {
 				$result = $ldap->search($attrs['ou'].'='.$group_name.','.$group_dn,'(&(objectClass=organizationalUnit)('.$attrs['ou'].'='.$group_name.'))');
+				if (!$result) continue;
 				$group_data = $ldap->getEntries($result);
 
 				if ($group_data['count'] > 0) {
