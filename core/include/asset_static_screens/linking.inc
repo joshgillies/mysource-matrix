@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.24 2006/03/28 03:26:36 sdanis Exp $
+* $Id: linking.inc,v 1.25 2006/04/10 01:07:42 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 
@@ -214,9 +214,9 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 			<td class="sq-linking-header-header" colspan="5"><b><?php
 				hidden_field($prefix.'_link_offset', $link_offset);
 				if ($link_offset > 0) {
-					?><a title="<?php echo translate('cms_form_submissions_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					?><a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 				} else {
-					?><span title="<?php echo translate('cms_form_cannot_go_further_back') ?>" style="color: #333"><?php
+					?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
 				}
 				?>
 				&lt;&lt;
@@ -228,9 +228,9 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 				}
 				?> &nbsp; &nbsp; <?php
 				if ($link_offset > 0) {
-					?><a title="<?php echo translate('cms_form_submissions_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					?><a title="<?php echo translate('pagination_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 				} else {
-					?><span title="<?php echo translate('cms_form_cannot_go_further_back') ?>" style="color: #333"><?php
+					?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
 				}
 				?>
 				&lt;
@@ -244,9 +244,9 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 				&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
 				<?php
 				if (($link_offset + $num_per_page) < $total_assets) {
-					?><a title="<?php echo translate('cms_form_submissions_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					?><a title="<?php echo translate('pagination_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 				} else {
-					?><span title="<?php echo translate('cms_form_cannot_go_further_forward') ?>" style="color: #333"><?php
+					?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
 				}
 				?>
 				&gt;
@@ -258,9 +258,9 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 				}
 				?> &nbsp; &nbsp; <?php
 				if (($link_offset + $num_per_page) < $total_assets) {
-					?><a title="<?php echo translate('cms_form_submissions_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					?><a title="<?php echo translate('pagination_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 				} else {
-					?><span title="<?php echo translate('cms_form_cannot_go_further_forward') ?>" style="color: #333"><?php
+					?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
 				}
 				?>
 				&gt;&gt;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.128 2006/04/07 02:13:29 rhoward Exp $
+* $Id: lang_strings.xml,v 1.129 2006/04/10 01:07:41 rhoward Exp $
 *
 */
 
@@ -1860,4 +1860,12 @@ Items to delete: %s</string>
 	<string source="messaging_service_mail_white_list_note">Message Types that should always be emailed</string>
 	<string source="messaging_service_mail_black_list_note">Message Types that should never be emailed</string>
 	<string source="messaging_service_section_note">All fields should have individual options seperated by newlines.</string>
+
+	<!-- Backend Pagination -->
+	<string source="pagination_go_to_next">Go to the next page</string>
+	<string source="pagination_go_to_previous">Go to the previous page</string>
+	<string source="pagination_go_to_last">Go to the last page</string>
+	<string source="pagination_go_to_first">Go to the first page</string>
+	<string source="pagination_cannot_go_further_back">This is the first page; you cannot go any further back</string>
+	<string source="pagination_cannot_go_further_forward">This is the last page; you cannot go any further forward</string>
 </strings>
