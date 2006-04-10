@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.14 2006/04/06 06:42:05 arailean Exp $
+* $Id: report_links_edit_fns.inc,v 1.15 2006/04/10 23:33:07 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -294,13 +294,14 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			if (!empty($url_parts['query'])) {
 				$url_path .= '?'.$url_parts['query'];
 			}
+			$url_parts['query'] = $url_path;
 
-			$socket = @fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, 15);
+			require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
+			$socket = openSocketConnection($url_parts, $errno, $errstr);
 			if (!$socket) {
 				$description = translate('cms_report_links_invalid_url');
 				$valid = '1';
 			} else {
-				fwrite ($socket, 'HEAD '.$url_path." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
 				stream_set_timeout($socket, 5);
 				$response = fread($socket, 128);
 				$headers = fread($socket, 2000);
@@ -317,6 +318,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					$valid = '1';
 				} else if (preg_match('|404 not found|i', $response)) {
 					$description = translate('cms_report_links_404');
+					$valid = '0';
+				} else if (preg_match('|407 proxy authentication required|i', $response)) {
+					$description = translate('cms_report_links_407');
 					$valid = '0';
 				} else if (preg_match('|301 moved|i', $response)) {
 					$valid = '1';

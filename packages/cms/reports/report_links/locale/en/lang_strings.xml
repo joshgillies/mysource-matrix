@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2006/04/06 06:42:05 arailean Exp $
+* $Id: lang_strings.xml,v 1.5 2006/04/10 23:33:07 sdanis Exp $
 *
 *
 * CMS Package: Report Links Asset Localised Strings File
@@ -30,6 +30,7 @@
 <string source="cms_report_links_cannot_test_protocol">The URL uses a protocol that cannot be tested</string>
 <string source="cms_report_links_invalid_url">This URL cannot be checked</string>
 <string source="cms_report_links_404">The URL was not found</string>
+<string source="cms_report_links_407">Proxy Authentication Required</string>
 <string source="cms_report_links_301">The URL has been permanently moved</string>
 <string source="cms_report_links_301_with_new_link">The URL has been permanently moved to "%s"</string>
 <string source="cms_report_links_302">The URL has been temporarily moved</string>
