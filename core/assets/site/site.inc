@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.86 2006/02/06 01:11:00 ndvries Exp $
+* $Id: site.inc,v 1.86.2.1 2006/04/10 23:42:06 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.86.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -589,22 +589,13 @@ class Site extends Folder
 			header("Content-language: $this->languages");
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$url = strip_url($this->getURL(), TRUE);
 		$asset_url = strip_url($asset->getURL(NULL, TRUE), TRUE);
-
-		// Have they set a design name that they want to view ??
-		if (!empty($_GET['SQ_DESIGN_NAME'])) {
-			$design_name = 'design::user::'.$_GET['SQ_DESIGN_NAME'];
-		} else if (!empty($_SESSION['SQ_DESIGN_NAME'])) {
-			$design_name = 'design::user::'.$_SESSION['SQ_DESIGN_NAME'];
-		} else {
-			$design_name = 'design::system::frontend';
-		}
-
+		$design_name = $this->getCurrentDesignName();
 		$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($asset_url, $design_name);
 
 		if (empty($result)) {
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			// try and find the default design used by the asset we are painting (i.e. not our default design)
 			$sql = 'SELECT lv.value as designid, a.type_code
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
@@ -627,12 +618,18 @@ class Site extends Folder
 		global $ASSET_LINEAGE;
 		$ASSET_LINEAGE = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(NULL, $asset_url);
 
-		// we have found the design to use
 		if ($result) {
+			// we have found the design to use
 			$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
 			if (SQ_IN_LIMBO) {
 				$this->printFrontendAsset($this, $design);
 			} else {
+				// If there is an appopriate paint layout for the index page, tell the system to use it
+				$layout_name = $this->getCurrentPaintLayoutName();
+				$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($asset_url, $layout_name);
+				if ($layout_id) {
+					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $layout_id);
+				}
 				$this->printFrontendAsset($asset, $design);
 			}
 		} else {
