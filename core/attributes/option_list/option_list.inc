@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.27 2006/04/04 01:51:14 tbarrett Exp $
+* $Id: option_list.inc,v 1.28 2006/04/10 23:23:25 rong Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -173,7 +173,6 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_REQUEST[$prefix.'_options'])) return false;
 		$prefix = str_replace(':','_',$prefix);	// handle shadow assets
 		if (!isset($_REQUEST[$prefix.'_options'])) return;
 		$value = $_REQUEST[$prefix.'_options'];
