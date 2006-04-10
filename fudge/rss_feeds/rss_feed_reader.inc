@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.8 2006/03/29 00:54:36 pgannavarapu Exp $
+* $Id: rss_feed_reader.inc,v 1.9 2006/04/10 23:26:27 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -105,7 +105,7 @@ class RSS_Feed_Reader
 	*
 	* @var array
 	*/
-	var $fp = null;
+	var $fp = NULL;
 
 	/**
 	* The parser
@@ -126,7 +126,7 @@ class RSS_Feed_Reader
 	*
 	* @var boolean
 	*/
-	var $parsed = false;
+	var $parsed = FALSE;
 
 
 	/**
@@ -154,24 +154,26 @@ class RSS_Feed_Reader
 	*/
 	function setInputFile($file='')
 	{
-		$check = false;
+		$check = FALSE;
 		if (!empty($file)) {
 			if (eregi('^(http|ftp)://', substr($file, 0, 10))) {
 				if (!ini_get('allow_url_fopen')) {
 					trigger_error('Remote Files Cannot Be Parsed', E_USER_WARNING);
-					return false;
+					return FALSE;
 				}
+				require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
+				$this->fp = openSocketConnection($file, $errno, $errstr);
 			}
-			$this->fp = fopen($file, 'r');
+
 			if (!$this->fp) {
 				trigger_error('Error occured during opening the file', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 		} else {
 			trigger_error('No File Path Or URL Entered', E_USER_ERROR);
-			return false;
+			return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end setInputFile()
 
@@ -188,14 +190,14 @@ class RSS_Feed_Reader
 	{
 		if (empty($xml)) {
 			trigger_error('Empty Strings Cannot Be Parsed', E_USER_ERROR);
-			return false;
+			return FALSE;
 		}
 		if (!is_string($xml)) {
 			trigger_error('Only XML Strings Can Be Parsed', E_USER_ERROR);
-			return false;
+			return FALSE;
 		}
 		$this->fp = $xml;
-		return true;
+		return TRUE;
 
 	}//end setInputString()
 
@@ -213,7 +215,7 @@ class RSS_Feed_Reader
 			trigger_error('Invalid File Pointer', E_USER_WARNING);
 			return;
 		} else {
-			$this->parsed = true;
+			$this->parsed = TRUE;
 			if (!is_string($this->fp)) {
 				while ($data = fread($fp, 4096)) {
 					if (!xml_parse($this->parser, $data)) {
@@ -327,8 +329,8 @@ class RSS_Feed_Reader
 	function startElementHandler($xp, $name, $attributes)
 	{
 		if (!empty($name)) {
-			//for atom the tags are feed and entry for channel and item respectivel. This has to be renamed as channel and
-			//item so that we can use the proper class variables
+			// for atom the tags are feed and entry for channel and item respectivel. This has to be renamed as channel and
+			// item so that we can use the proper class variables
 			switch ($name) {
 				case 'ENTRY':
 					$name = 'ITEM';
@@ -339,25 +341,25 @@ class RSS_Feed_Reader
 				break;
 				case 'RSS':
 					$this->type = 'rss_';
-					$this->type .= isset($attributes['VERSION'])?$attributes['VERSION']:'';
+					$this->type .= isset($attributes['VERSION']) ? $attributes['VERSION'] : '';
 				break;
 				case 'RDF':
 					$this->type = 'rss_1.0';
 				break;
 			}
 			$this->open_tags[] = $name;
-			//if there is a tag that is previously opened but not closed till now then the current tag is its child
-			//so push the parent into the parent_tags array
+			// if there is a tag that is previously opened but not closed till now then the current tag is its child
+			// so push the parent into the parent_tags array
 			$this->parent_tags[] = $name;
 
 			$this->element = $name;
-			//if teh current tag has any attributes then pass the attributes to the character handler so that it can be pushed
-			//into the respective array as attribute
+			// if teh current tag has any attributes then pass the attributes to the character handler so that it can be pushed
+			// into the respective array as attribute
 			if (!empty($attributes)) {
 				$this->attributes = $attributes;
-				$this->characterHandler($xp, $this->attributes, true);
+				$this->characterHandler($xp, $this->attributes, TRUE);
 			}
-		}
+		}//end if
 
 	}//end startElementHandler()
 
@@ -388,7 +390,7 @@ class RSS_Feed_Reader
 			if ($key == count($this->open_tags)-1) {
 				$element = array_pop($this->open_tags);
 			}
-			//unset($this->open_tags[$key]);
+			// unset($this->open_tags[$key]);
 			$count = count($this->parent_tags);
 
 			if ($this->element == $this->parent_tags[$count-1]) {
@@ -412,23 +414,23 @@ class RSS_Feed_Reader
 	* @return void
 	* @access public
 	*/
-	function characterHandler($xp, $data, $attributes=false)
+	function characterHandler($xp, $data, $attributes=FALSE)
 	{
-		$index = null;
-		//if the data is a string and has any white spaces then trim them off
+		$index = NULL;
+		// if the data is a string and has any white spaces then trim them off
 		if (is_string($data)) $data = trim($data);
 		if (!empty($data)) {
 			$element = $this->element;
-			$var = null;
-			//get the key for the current element in the open tags and get its parents from teh open tags
-			//for e.g. open tags could be array('CHANNEL', 'ITEM', 'LINK')
-			//if the current element is link then in the above example it has to be pplaced in to the ITEM array
-			//as its first set parent which is also a class variable is Item
-			//Hence $var is item
-			//the parent is the if the current tag has any parent that is not var. For example.. if the current tags is name
-			//open tags is Array('CHANNEL', 'AUTHOR', 'NAME'). in this example $parent is author as name is a subtag
-			//and var is CHANNEL
-			//if teh tag is an unrecognised tag then the var is unrecognised
+			$var = NULL;
+			// get the key for the current element in the open tags and get its parents from teh open tags
+			// for e.g. open tags could be array('CHANNEL', 'ITEM', 'LINK')
+			// if the current element is link then in the above example it has to be pplaced in to the ITEM array
+			// as its first set parent which is also a class variable is Item
+			// Hence $var is item
+			// the parent is the if the current tag has any parent that is not var. For example.. if the current tags is name
+			// open tags is Array('CHANNEL', 'AUTHOR', 'NAME'). in this example $parent is author as name is a subtag
+			// and var is CHANNEL
+			// if teh tag is an unrecognised tag then the var is unrecognised
 			$key = array_search($element, $this->open_tags);
 
 			$class_vars = get_class_vars(get_class($this));
@@ -437,7 +439,7 @@ class RSS_Feed_Reader
 					break;
 				}
 			}
-			$parent = null;
+			$parent = NULL;
 			if ($key != -1) {
 				$var = strtolower($this->open_tags[$key]);
 				$key = array_search($element, $this->open_tags) - 1;
@@ -455,10 +457,10 @@ class RSS_Feed_Reader
 					$parent = strtolower($element);
 				}
 			}
-			//if the var is unrecognised then push the element intot he unrecognised array
+			// if the var is unrecognised then push the element intot he unrecognised array
 			if ($var == 'unrecognised') {
-				//get the index where the data has to be inserted in the unrecognised array
-				//group the child tags together basing upon how many times the parent tags has repeated
+				// get the index where the data has to be inserted in the unrecognised array
+				// group the child tags together basing upon how many times the parent tags has repeated
 				if (!empty($this->{$var})) {
 					$required = $this->{$var};
 					if (array_search(strtoupper($parent), $this->parent_tags)) {
@@ -473,20 +475,20 @@ class RSS_Feed_Reader
 				} else {
 					$index = 0;
 				}
-				//if attributes is not true then this is a value else we are dealing with the value of attributes
+				// if attributes is not true then this is a value else we are dealing with the value of attributes
 				if (!$attributes) {
 					$this->{$var}[$parent][$index][$element]['value'] = $data;
 				} else {
 					$this->{$var}[$parent][$index][$element]['_attributes'] = $data;
 				}
 			} else {
-				//if the array exists and it is not empty
-				//then we get the index in which this data has to be inserted
+				// if the array exists and it is not empty
+				// then we get the index in which this data has to be inserted
 				if (!empty($this->{$var})) {
-					//if this var is in parents array then check how many times it is in array
-					//depending upon that we could get theo index wherte this element has to be inserted
-					//if it is not in parents tag then this is the first time we are pushing the element in to the repsective array
-					//so the index is 0
+					// if this var is in parents array then check how many times it is in array
+					// depending upon that we could get theo index wherte this element has to be inserted
+					// if it is not in parents tag then this is the first time we are pushing the element in to the repsective array
+					// so the index is 0
 					if (array_search(strtoupper($var), $this->parent_tags)) {
 						$count = 0;
 						foreach ($this->parent_tags as $key => $value) {
@@ -501,11 +503,11 @@ class RSS_Feed_Reader
 				} else {
 					$index = 0;
 				}
-				//if this element is not in parent tags and if this is not empty then we can use the data
+				// if this element is not in parent tags and if this is not empty then we can use the data
 				if (!empty($element)) {
 					$element = strtolower($element);
-					//if the current element is already in the array then we have to append the current data to the already existing data
-					//this happens when the data has tags in it.
+					// if the current element is already in the array then we have to append the current data to the already existing data
+					// this happens when the data has tags in it.
 					if (empty($parent)) {
 						if (isset($this->{$var}[$index][$element]['value']) && (!$attributes)) {
 							$value = $this->{$var}[$index][$element]['value'];
@@ -517,9 +519,9 @@ class RSS_Feed_Reader
 							$data = $value.$data;
 						}
 					}
-					//if it is value that we are dealing with then store it in the array with the 'value' key
-					//otherwise then it is an attribute we are trying to store. So we store it in the right place
-					//with the '_attributes' key
+					// if it is value that we are dealing with then store it in the array with the 'value' key
+					// otherwise then it is an attribute we are trying to store. So we store it in the right place
+					// with the '_attributes' key
 					if (!$attributes) {
 						if (empty($parent)) {
 							$this->{$var}[$index][$element]['value'] = $data;
@@ -538,8 +540,8 @@ class RSS_Feed_Reader
 							$this->{$var}[$index]['_attributes'] = $data;
 						}
 					}
-				} //end if element not empty
-			}//end if where var is unrecognised or not
+				}//end if element not empty
+			}//end else where var is unrecognised or not
 		}//end if data not empty
 
 	}//end characterHandler()
@@ -553,15 +555,15 @@ class RSS_Feed_Reader
 	*/
 	function _issetFile()
 	{
-		if(!isset($this->fp)) {
+		if (!isset($this->fp)) {
 			trigger_error('The XML That Has To Be Parsed Is To Be Set First Using setInputFile or setInputString');
-			return false;
+			return FALSE;
 		}
 		if (!$this->parsed) {
 			trigger_error('The XML That Has To Be Parsed First Using parse() Function');
-			return false;
+			return FALSE;
 		}
-		return true;
+		return TRUE;
 
 	}//end _issetFile()
 
