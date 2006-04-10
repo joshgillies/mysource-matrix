@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.40 2006/03/24 05:14:17 pgannavarapu Exp $
+* $Id: hipo_job_edit_status.inc,v 1.41 2006/04/10 05:21:22 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -319,7 +319,9 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			$new_status = $this->_running_vars['new_status'];
 			// if the current status of the status is the same as the new status
 			// if its same there is nothing to be done. otherwise processStatusChange on the asset
-			if ($this->_running_vars['current_asset_statuses'][$assetid] != $new_status) {
+			// one exception is that current asset is in a workflow, the status will always be pending approval
+			$current_status = $this->_running_vars['current_asset_statuses'][$assetid];
+			if (($current_status != $new_status) || ($current_status == SQ_STATUS_PENDING_APPROVAL)) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (!is_null($asset)) {
 					$asset->processStatusChange($new_status, false);
@@ -331,7 +333,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 					$this->_addError(translate('hipo_cannot_edit_status', $assetid));
 				}
 			} else {
-				$step_data['message'] = translate('hipo_edit_status_no_change', $assetid);
+				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
 			}
 			// add this assetid to the done array so we dont do it again
 			$this->_running_vars['done_assetids'][] = $assetid;
