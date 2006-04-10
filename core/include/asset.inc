@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.503.2.10 2006/04/05 04:27:18 sdanis Exp $
+* $Id: asset.inc,v 1.503.2.11 2006/04/10 23:41:16 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.503.2.10 $
+* @version $Revision: 1.503.2.11 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3759,15 +3759,7 @@ class Asset extends MySource_Object
 
 		// No design has been passed in, so we need to find one
 		if (is_null($design)) {
-			// Have they set a design name that they want to view ??
-			if (!empty($_GET['SQ_DESIGN_NAME'])) {
-				$design_name = 'design::user::'.$_GET['SQ_DESIGN_NAME'];
-			} else if (!empty($_SESSION['SQ_DESIGN_NAME'])) {
-				$design_name = 'design::user::'.$_SESSION['SQ_DESIGN_NAME'];
-			} else {
-				$design_name = 'design::system::frontend';
-			}
-
+			$design_name = $this->getCurrentDesignName();
 			$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, $design_name);
 
 			// if no design was found, try and get the default frontend
@@ -3808,8 +3800,8 @@ class Asset extends MySource_Object
 
 	/**
 	* Called by the design to print extra material in the head of the HTML document for this asset
-	* it's up to the kids to override
-	* TODO: empty function
+	*
+	* It's up to the kids to override
 	*
 	* @return void
 	* @access public
@@ -3822,8 +3814,8 @@ class Asset extends MySource_Object
 
 	/**
 	* Called by the design to print the body of this asset
-	* it's up to the kids to override
-	* TODO: empty function
+	*
+	* It's up to the kids to override
 	*
 	* @return void
 	* @access public
@@ -3835,15 +3827,13 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Called by the design to print the body of this asset, WITH the paint layout applied
+	* Get the current paint layout code-name from GET or SESSION as appropriate
 	*
-	* @return void
-	* @access public
+	* @return string
+	* @access protected
 	*/
-	function printBodyWithPaintLayout()
+	function getCurrentPaintLayoutName()
 	{
-		$url = strip_url(current_url(FALSE, TRUE));
-
 		// Have they set a paint layout name that they want to view ??
 		if (!empty($_GET['SQ_PAINT_LAYOUT_NAME'])) {
 			$layout_name = 'paint_layout::user::'.$_GET['SQ_PAINT_LAYOUT_NAME'];
@@ -3855,28 +3845,57 @@ class Asset extends MySource_Object
 			$layout_name = 'paint_layout::user::'.$_GET['SQ_DESIGN_NAME'];
 		} else if (!empty($_SESSION['SQ_DESIGN_NAME'])) {
 			$layout_name = 'paint_layout::user::'.$_SESSION['SQ_DESIGN_NAME'];
-
 		} else {
 			$layout_name = 'paint_layout::system::frontend';
+		}
+		return $layout_name;
 
+	}//end getCurrentPaintLayoutName()
+
+
+	/**
+	* Get the current design code-name from GET or SESSION as appropriate
+	*
+	* @return string
+	* @access protected
+	*/
+	function getCurrentDesignName()
+	{
+		// Have they set a design name that they want to view ??
+		if (!empty($_GET['SQ_DESIGN_NAME'])) {
+			$design_name = 'design::user::'.$_GET['SQ_DESIGN_NAME'];
+		} else if (!empty($_SESSION['SQ_DESIGN_NAME'])) {
+			$design_name = 'design::user::'.$_SESSION['SQ_DESIGN_NAME'];
+		} else {
+			$design_name = 'design::system::frontend';
+		}
+		return $design_name;
+
+	}//end getCurrentDesignName()
+
+
+	/**
+	* Called by the design to print the body of this asset, WITH the paint layout applied
+	*
+	* @return void
+	* @access public
+	*/
+	function printBodyWithPaintLayout()
+	{
+		$layout_id = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('SQ_PAINT_LAYOUT_ID', 0);
+		if (empty($layout_id)) {
+			$url = strip_url(current_url(FALSE, TRUE));
+			$layout_name = $this->getCurrentPaintLayoutName();
+			$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($url, $layout_name);
+
+			// if no layout was found, try and get the default frontend
+			// layout if we were not already trying to get it
+			if (empty($layout_id) && $layout_name != 'paint_layout::system::frontend') {
+				$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($url, 'paint_layout::system::frontend');
+			}
 		}
 
-		// get the url for this asset
-		$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $url, FALSE, TRUE);
-		$result = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($url, $layout_name);
-
-		// if no layout was found, try and get the default frontend
-		// layout if we were not already trying to get it
-		if (empty($result) && $layout_name != 'paint_layout::system::frontend') {
-			$result = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($url, 'paint_layout::system::frontend');
-		}
-
-		$global_def_layout_id = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('SQ_PAINT_LAYOUT_ID', 0);
-		if (!$result && $global_def_layout_id) {
-			$result = $global_def_layout_id;
-		}
-
-		if ($result) {
+		if ($layout_id) {
 			// we have found the design to use... we might need to fool the system
 			// into thinking we are printing the frontend of that asset
 			$switched_frontend = FALSE;
@@ -3885,7 +3904,7 @@ class Asset extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->frontend_asset =& $this;
 				$switched_frontend = TRUE;
 			}
-			$layout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($result);
+			$layout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($layout_id);
 			$layout->paint($this);
 
 			if ($switched_frontend) {
