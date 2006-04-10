@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.129 2006/04/10 01:07:41 rhoward Exp $
+* $Id: lang_strings.xml,v 1.130 2006/04/10 23:08:11 sdanis Exp $
 *
 */
 
@@ -130,6 +130,7 @@
 	<string source="future_linking">Future Linking</string>
 	<string source="restrict_screen_access_to_new_type">Add new type code to restrict</string>
 	<string source="hide_errors_on_the_frontend">Hide Errors on the Frontend</string>
+	<string source="hostname">Hostname</string>
 	<string source="id">ID:</string>
 	<string source="important_notice">Important Notice</string>
 	<string source="includes_tax">Includes Tax</string>
@@ -202,6 +203,12 @@
 	<string source="port">Port</string>
 	<string source="preview_options">Preview Options</string>
 	<string source="preview">Preview</string>
+	<string source="proxy_authentication_config">Proxy Authentication Configuration</string>
+	<string source="proxy_authentication_enable">Enable Proxy Authentication</string>
+	<string source="proxy_authentication_failed">Failed (Proxy Authentication Failed)</string>
+	<string source="proxy_authentication_passed">Passed</string>
+	<string source="proxy_authentication_disabled">Disabled</string>
+	<string source="proxy_authentication_status">Proxy Authentication Status</string>
 	<string source="purge_trash_threshold">Purge Trash Threshold</string>
 	<string source="regular_expression">Regular Expression</string>
 	<string source="remove_question">Remove ?</string>
