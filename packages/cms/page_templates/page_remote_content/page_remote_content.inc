@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.34 2006/03/29 05:49:37 pgannavarapu Exp $
+* $Id: page_remote_content.inc,v 1.35 2006/04/10 23:30:05 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define ('SQ_REMOTE_SOURCE', 'sq_content_src');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -370,7 +370,6 @@ class Page_Remote_Content extends Page
 			$raw_post = implode('&', $addon_array);
 		}
 
-
 		////// Remote Communication Section. Using HTTP_Client PEAR package
 		$HTTP_Client = array_get_index($_SESSION, 'SQ_REMOTE_HTTP_CLIENT');
 		if (!empty($HTTP_Client)) {
@@ -389,6 +388,10 @@ class Page_Remote_Content extends Page
 
 			$default_headers['User-Agent'] = SQ_SYSTEM_LONG_NAME;
 
+			// Add the Proxy authentication details if enabled
+			require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
+			addProxyInfo($request_parameters, $default_headers);
+
 			$HTTP_Client =& new HTTP_Client($request_parameters, $default_headers);
 
 			if ($this->attr('allow_redirect')) {
@@ -397,13 +400,11 @@ class Page_Remote_Content extends Page
 			$HTTP_Client->enableHistory(FALSE);
 		}
 
-
 		if ($is_post) {
 			$result = $HTTP_Client->post($url, $raw_post, TRUE);
 		} else {
 			$result = $HTTP_Client->get($url);
 		}
-
 
 		// exit on error
 		if (PEAR::isError($result) || preg_match('/^[45].*?/', $result)) {
