@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.24 2006/03/13 05:54:51 dmckee Exp $
+* $Id: system_config_edit_interface.inc,v 1.25 2006/04/10 23:06:33 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -100,6 +100,7 @@ class System_Config_Edit_Interface extends MySource_Object
 							'user_prefs'				=> translate('global_preferences'),
 							'password_rules_config'		=> translate('password_rules_configuration'),
 							'messaging_service_config'	=> translate('messaging_service_configuration'),
+							'proxy_authentication_config'	=> 'Proxy Authentication Configuration',
 						  );
 
 		foreach ($config_screens as $screen_code => $screen_name) {
@@ -118,6 +119,7 @@ class System_Config_Edit_Interface extends MySource_Object
 			case 'password_rules_config' :
 			case 'session_rules_config' :
 			case 'messaging_service_config' :
+			case 'proxy_authentication_config' :
 
 				$config = null;
 
@@ -149,6 +151,10 @@ class System_Config_Edit_Interface extends MySource_Object
 					case 'messaging_service_config' :
 						require_once SQ_INCLUDE_PATH.'/messaging_service_config.inc';
 						$config =& new Messaging_Service_Config();
+					break;
+					case 'proxy_authentication_config' :
+						require_once SQ_INCLUDE_PATH.'/proxy_authentication_config.inc';
+						$config =& new Proxy_Authentication_Config();
 					break;
 
 				}// end switch

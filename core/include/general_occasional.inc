@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.64 2006/04/04 23:16:42 lwright Exp $
+* $Id: general_occasional.inc,v 1.65 2006/04/10 23:06:33 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix
 */
 
@@ -421,6 +421,72 @@ function implode_sql($query_components)
 	return $sql;
 
 }//end implode_sql()
+
+
+/**
+* Adds proxy authentication details to passed request parameters and default headers array
+* This should be used with PEAR::HTTP_Client
+*
+* @param array	&$request_parameters	Extra Request parameters array which is the first argument of HTTP_Client
+* @param array	&$default_headers		Default Headers for HTTP_Client
+*
+* @return void
+* @access private
+*/
+function addProxyInfo(&$request_parameters, &$default_headers)
+{
+	require_once(SQ_DATA_PATH.'/private/conf/proxy_authentication.inc');
+	if (SQ_PA_ENABLED) {
+		$proxy_host = SQ_PA_HOSTNAME;
+		$proxy_port = SQ_PA_PORT;
+		$proxy_user = SQ_PA_USERNAME;
+		$proxy_pass = base64_decode(SQ_PA_PASSWORD);
+
+		$request_parameters['proxy_host'] = $proxy_host;
+		$request_parameters['proxy_port'] = $proxy_port;
+		$default_headers['Proxy-Authorization'] = 'Basic '.base64_encode("$proxy_user:$proxy_pass");
+	}
+
+}//end addProxyInfo()
+
+
+/**
+* Open a socket connection to specified url. Returns connection resource
+*
+* @param array|string	$url_parts	Url to connect to. Can be a full url string or parse_url style array
+* @param string			&$errno		Error number when proxy is used
+* @param string			&$errstr	Error string when proxy is used
+*
+* @return mixed object|boolean
+* @access public
+*/
+function openSocketConnection($url_parts, &$errno, &$errstr)
+{
+	include_once(SQ_DATA_PATH.'/private/conf/proxy_authentication.inc');
+	$page_url = '';
+	if (is_array($url_parts)) {
+		$page_url = $url_parts['scheme'].'://'.$url_parts['host'].':'.$url_parts['port'].'/'.$url_parts['path'].$url_parts['query'];
+	} else {
+		$page_url = $url_parts;
+	}
+
+	if (SQ_PA_ENABLED) {
+		$proxy_host = SQ_PA_HOSTNAME;
+		$proxy_user = SQ_PA_USERNAME;
+		$proxy_pass = base64_decode(SQ_PA_PASSWORD);
+
+		$con = @fsockopen($proxy_host, SQ_PA_PORT, $errno, $errstr);
+		if (!$con) return FALSE;
+		fputs($con, "GET $page_url HTTP/1.0\r\n");
+		fputs($con, "Host: $proxy_host\r\n");
+		fputs($con, 'Proxy-Authorization: Basic '.base64_encode("$proxy_user:$proxy_pass")."\r\n\r\n");
+	} else {
+		$con = @fopen($page_url, 'r');
+	}
+
+	return $con;
+
+}//end openSocketConnection()
 
 
 ?>
