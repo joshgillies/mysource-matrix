@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.27 2006/03/09 04:32:35 dmckee Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.28 2006/04/11 04:21:41 tbarrett Exp $
 *
 */
 
@@ -50,7 +50,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -357,7 +357,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		// This will make this harder once the $required_keywords will be really applied by getAssetKeywords()
 		// function, because the logical conditions may need other keywords which are not in $required_keywords
 		$condition_list =& new Conditions_List($this, 'conditional_keywords');
-		$ret = array_merge($ret, $condition_list->evaluate($required_keywords, $ret, Array(FALSE, TRUE)));
+		$ret = array_merge($ret, $condition_list->evaluate($asset, $required_keywords, $ret, Array(FALSE, TRUE)));
 		return $ret;
 
 	}//end _getAssetKeywordReplacements()
