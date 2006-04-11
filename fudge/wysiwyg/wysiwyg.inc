@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.51.2.2 2006/04/11 01:49:02 tbarrett Exp $
+* $Id: wysiwyg.inc,v 1.51.2.3 2006/04/11 04:16:17 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51.2.2 $
+* @version $Revision: 1.51.2.3 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1557,7 +1557,10 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 	*/
 	function &get_plugin($name)
 	{
-		if (!isset($this->_loaded_plugins[$name])) return null;
+		if (!isset($this->_loaded_plugins[$name])) {
+			$null = NULL;
+			return $null;
+		}
 		return $this->_loaded_plugins[$name];
 
 	}//end get_plugin()
