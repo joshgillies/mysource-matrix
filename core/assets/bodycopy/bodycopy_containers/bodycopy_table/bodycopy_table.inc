@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.12.2.2 2006/04/05 07:05:36 tbarrett Exp $
+* $Id: bodycopy_table.inc,v 1.12.2.3 2006/04/11 05:20:31 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12.2.2 $
+* @version $Revision: 1.12.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,7 +120,7 @@ class Bodycopy_Table extends Bodycopy_Container
 		if ($name == 'rows') {
 			parent::setAttrValue('rows', Array());
 		}
-		parent::setAttrValue($name, $value);
+		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()
 
