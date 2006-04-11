@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.9 2006/04/10 23:26:27 sdanis Exp $
+* $Id: rss_feed_reader.inc,v 1.10 2006/04/11 00:34:06 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -163,7 +163,10 @@ class RSS_Feed_Reader
 				}
 				require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
 				$this->fp = openSocketConnection($file, $errno, $errstr);
+			} else {
+				$this->fp = fopen($file, 'r');
 			}
+
 
 			if (!$this->fp) {
 				trigger_error('Error occured during opening the file', E_USER_WARNING);
