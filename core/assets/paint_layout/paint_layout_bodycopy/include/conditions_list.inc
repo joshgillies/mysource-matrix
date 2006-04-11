@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: conditions_list.inc,v 1.9 2006/01/26 22:34:04 lwright Exp $
+* $Id: conditions_list.inc,v 1.9.2.1 2006/04/11 04:29:05 tbarrett Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('SQ_KEYWORD_CONDITION_ELSE', 'else');
 * parameters in a single attribute (of type Array).
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package MySource_Matrix
 */
 class Conditions_List
@@ -108,14 +108,15 @@ class Conditions_List
 	*
 	* Returns an array of (condition_name => condition_value)
 	*
-	* @param array	$condition_names	conditions to evaluate
-	* @param array	&$logical_keywords	logical keywords and their values (keyword => value)
-	* @param array	$boolean_values		values to assign to the returned array for TRUE or FALSE (0 and 1 by default)
+	* @param object	$asset_being_painted	The asset being painted, relevant when evaluating conditions
+	* @param array	$condition_names		Conditions to evaluate
+	* @param array	&$logical_keywords		Logical keywords and their values (keyword => value)
+	* @param array	$boolean_values			Values to assign to the returned array for TRUE or FALSE
 	*
 	* @return array
 	* @access public
 	*/
-	function evaluate($condition_names, &$logical_keywords, $boolean_values=Array(0, 1))
+	function evaluate(&$asset_being_painted, $condition_names, &$logical_keywords, $boolean_values=Array(0, 1))
 	{
 		$ret = Array();
 
@@ -134,7 +135,7 @@ class Conditions_List
 					// TODO: should avoid this array_merge, potentialy heavy
 					$this->_updateKeywordsInRestriction(array_merge($logical_keywords, $ret), $conditions_info[$condition_name]);
 
-					$ret[$condition_name] = $boolean_values[Condition::evaluateRestriction($current_user, $conditions_info[$condition_name]['restriction'], $conditions_info[$condition_name]['type_code']) ? 1 : 0];
+					$ret[$condition_name] = $boolean_values[Condition::evaluateRestriction($asset_being_painted, $conditions_info[$condition_name]['restriction'], $conditions_info[$condition_name]['type_code']) ? 1 : 0];
 				}
 			}
 		}
