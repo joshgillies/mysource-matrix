@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: conditions_list.inc,v 1.4.2.1 2005/12/05 05:11:34 lwright Exp $
+* $Id: conditions_list.inc,v 1.4.2.2 2006/04/11 04:39:00 tbarrett Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('SQ_KEYWORD_CONDITION_ELSE', 'else');
 * parameters in a single attribute (of type Array).
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.4.2.1 $
+* @version $Revision: 1.4.2.2 $
 * @package MySource_Matrix
 */
 class Conditions_List
@@ -99,19 +99,19 @@ class Conditions_List
 
 
 	/**
-	 * Evaluates multiple conditions
-	 *
-	 * @param Array(string) 			$condition_names	conditions to
-	 * evaluate
-	 * @param Array(keyword => value) 	$logical_keywords	logical keywords and
-	 * their values
-	 * @param Array						$boolean_values		values to assign to
-	 * the returned array for true or false (0 and 1 by default)
-	 *
-	 * @return Array(condition_name => condition_value)
-	 * @access public
-	 */
-	function evaluate($condition_names, &$logical_keywords, $boolean_values=Array(0, 1))
+	* Evaluates multiple conditions
+	*
+	* Returns an array of (condition_name => condition_value)
+	*
+	* @param object	$asset_being_painted	The asset being painted, relevant when evaluating conditions
+	* @param array	$condition_names		Conditions to evaluate
+	* @param array	&$logical_keywords		Logical keywords and their values (keyword => value)
+	* @param array	$boolean_values			Values to assign to the returned array for TRUE or FALSE
+	*
+	* @return array
+	* @access public
+	*/
+	function evaluate(&$asset_being_painted, $condition_names, &$logical_keywords, $boolean_values=Array(0, 1))
 	{
 		$ret = Array();
 
@@ -123,21 +123,21 @@ class Conditions_List
 			$condition_names = array_intersect($condition_names, array_keys($conditions_info));
 
 			if (!empty($condition_names)) {
-				$current_user = &$this->_getCurrentUser();
+				$current_user =& $this->_getCurrentUser();
 
 				foreach ($condition_names as $condition_name) {
 
 					// TODO: should avoid this array_merge, potentialy heavy
 					$this->_updateKeywordsInRestriction(array_merge($logical_keywords, $ret), $conditions_info[$condition_name]);
 
-					$ret[$condition_name] = $boolean_values[Condition::evaluateRestriction($current_user, $conditions_info[$condition_name]['restriction'], $conditions_info[$condition_name]['type_code']) ? 1 : 0];
+					$ret[$condition_name] = $boolean_values[Condition::evaluateRestriction($asset_being_painted, $conditions_info[$condition_name]['restriction'], $conditions_info[$condition_name]['type_code']) ? 1 : 0];
 				}
 			}
 		}
 
 		return $ret;
 
-	}
+	}//end evaluate()
 
 
 	/**
