@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.58 2006/01/29 22:28:49 lwright Exp $
+* $Id: install.inc,v 1.59 2006/04/11 01:01:04 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -75,6 +75,11 @@ function regenerate_configs()
 	require_once SQ_SYSTEM_ROOT.'/core/include/password_rules_config.inc';
 	$ms_cfg =& new Password_Rules_Config();
 	if (!$ms_cfg->save(Array(), FALSE)) return FALSE;
+
+	// Re-generate the Proxy Authentication Config to make sure that we get any new defines that may have been issued
+	require_once SQ_SYSTEM_ROOT.'/core/include/proxy_authentication_config.inc';
+	$pa_cfg =& new Proxy_Authentication_Config();
+	if (!$pa_cfg->save(Array(), FALSE)) return FALSE;
 
 	return TRUE;
 
