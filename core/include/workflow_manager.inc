@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.84.2.4 2006/04/10 04:20:03 bcaldwell Exp $
+* $Id: workflow_manager.inc,v 1.84.2.5 2006/04/11 00:28:08 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84.2.4 $
+* @version $Revision: 1.84.2.5 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -650,6 +650,7 @@ class Workflow_Manager extends MySource_Object
 							$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $asset->id);
 							foreach ($roles as $roleid => $userids) {
 								foreach ($userids as $userid) {
+									if ($userid == '0') continue;
 									$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
 									if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
 										$can_publish_cond += array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE));
@@ -1010,6 +1011,7 @@ class Workflow_Manager extends MySource_Object
 						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, FALSE, TRUE);
 						foreach ($roles as $roleid => $userids) {
 							foreach ($userids as $userid) {
+								if ($userid == '0') continue;
 								$can_publish[] = $userid;
 							}
 						}
