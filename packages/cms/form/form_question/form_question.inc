@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.57.2.7 2006/02/15 03:15:34 lwright Exp $
+* $Id: form_question.inc,v 1.57.2.8 2006/04/11 05:45:48 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.57.2.7 $
+* @version $Revision: 1.57.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -133,6 +133,31 @@ class Form_Question extends Asset
 		$this->vars['question_type_code']['type'] = 'text';
 
 	}//end constructor
+
+
+	/**
+	* Queue the setting of the value of an attribute
+	*
+	* This function sets the value of the attribute locally, but does not database updating.
+	* The change is queued awaiting the call of saveAttributes()
+	*
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
+	*
+	* @return boolean
+	* @access public
+	* @see saveAttributes()
+	*/
+	function setAttrValue($name, $value)
+	{
+		// do not allow empty question titles
+		if ($name == 'name' && empty($value)) {
+			return FALSE;
+		}
+
+		return parent::setAttrValue($name, $value);
+
+	}//end setAttrValue()
 
 
 	/**
