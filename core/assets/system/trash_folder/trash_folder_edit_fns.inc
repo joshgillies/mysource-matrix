@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder_edit_fns.inc,v 1.36 2006/01/26 22:34:07 lwright Exp $
+* $Id: trash_folder_edit_fns.inc,v 1.37 2006/04/11 02:13:11 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,6 +58,10 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 		unset($this->static_screens['linking']);
 		unset($this->static_screens['settings']);
 		unset($this->static_screens['history']);
+		unset($this->static_screens['preview']);
+		unset($this->static_screens['roles']);
+		unset($this->static_screens['tagging']);
+		unset($this->static_screens['lookupValues']);
 
 	}//end constructor
 

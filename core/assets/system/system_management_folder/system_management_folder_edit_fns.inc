@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_management_folder_edit_fns.inc,v 1.5 2006/01/26 22:34:06 lwright Exp $
+* $Id: system_management_folder_edit_fns.inc,v 1.6 2006/04/11 02:13:52 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,6 +57,10 @@ class System_Management_Folder_Edit_Fns extends Folder_Edit_Fns
 		unset($this->static_screens['linking']);
 		unset($this->static_screens['settings']);
 		unset($this->static_screens['history']);
+		unset($this->static_screens['preview']);
+		unset($this->static_screens['roles']);
+		unset($this->static_screens['tagging']);
+		unset($this->static_screens['lookupValues']);
 
 	}//end constructor
 
