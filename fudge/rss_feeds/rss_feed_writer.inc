@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_writer.inc,v 1.8 2006/03/29 00:36:50 pgannavarapu Exp $
+* $Id: rss_feed_writer.inc,v 1.9 2006/04/11 05:24:35 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Creates an XML document with all the data that is provided
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -101,8 +101,7 @@ class RSS_Feed_Writer
 	function addItems($items)
 	{
 		if (empty($items)) {
-			trigger_error('You cannot set empty values to items	', E_USER_ERROR);
-			return FALSE;
+			return TRUE;
 		}
 		if ($this->_isTypeVersionSet()) {
 			if (!is_array($items)) {
@@ -239,10 +238,7 @@ class RSS_Feed_Writer
 			trigger_error('Channel Info Required As Per The RSS Standards', E_USER_WARNING);
 			return;
 		}
-		if (empty($items)) {
-			trigger_error('There Are No Items To Generate RSS', E_USER_WARNING);
-			return;
-		}
+
 		$name = 'item';
 		ob_start();
 		if ($header) header('Content-type: text/xml');
@@ -360,7 +356,7 @@ class RSS_Feed_Writer
 				echo '</image>';
 			}
 		}
-		if (!empty($items)) {
+
 			foreach ($items as $item) {
 				if ($type != 'rss 1.0') {
 					echo '<'.$name.'>';
@@ -405,7 +401,7 @@ class RSS_Feed_Writer
 				}//end foreach item
 				echo '</'.$name.'>';
 			}//end foreach items
-		}//end if items not empty
+
 		if ($type != 'rss 1.0') {
 			if ($type != 'feed') {
 				// rss 2.0

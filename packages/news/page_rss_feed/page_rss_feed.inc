@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.9 2006/03/20 22:39:20 pgannavarapu Exp $
+* $Id: page_rss_feed.inc,v 1.10 2006/04/11 05:24:36 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -211,20 +211,19 @@ class Page_RSS_Feed extends Page
 			$items = $this->attr('items');
 
 			// A feed should consist of both channel and items. If either of them is empty then throw an error
-			// If there are no assets to list then throw an error
+			// If there are no assets to list then generate a valid empty feed
 			if (empty($channel) || empty($items)) {
 				trigger_error(translate('no_channel_or_items_found'), E_USER_WARNING);
 				return;
-			} else if (empty($assets_to_list)) {
-				trigger_error(translate('no_assets_found_for_items'), E_USER_WARNING);
-				return;
 			} else {
+
 				require_once SQ_FUDGE_PATH.'/rss_feeds/rss_feed_writer.inc';
 				// Create an RSS Feed writer object and set the type and version of the feed to be built
 				$writer =& new RSS_Feed_Writer();
 				$type = $this->attr('rss_types');
 				$type = explode('_', $type);
 				$writer->setTypeVersion($type[0], $type[1]);
+
 				$new_channel = Array();
 				$rss_type = implode('_', $type);
 
@@ -469,7 +468,7 @@ class Page_RSS_Feed extends Page
 	/**
 	* Checks if the passed items have all of the required tags or not and returns TRUE if yes
 	*
-	* @param array	$items	itemso that the user has created for this feed
+	* @param array	$items	items that the user has created for this feed
 	*
 	* @return boolean
 	* @access public
@@ -477,8 +476,7 @@ class Page_RSS_Feed extends Page
 	function validateItems($items=Array())
 	{
 		if (empty($items)) {
-			trigger_error('Missing Items', E_USER_WARNING);
-			return FALSE;
+			return TRUE;
 		} else {
 			$required = Array();
 			$rss_type = $this->attr('rss_types');

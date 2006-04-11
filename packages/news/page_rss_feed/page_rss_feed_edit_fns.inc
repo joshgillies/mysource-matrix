@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed_edit_fns.inc,v 1.7 2006/01/06 06:15:26 pgannavarapu Exp $
+* $Id: page_rss_feed_edit_fns.inc,v 1.8 2006/04/11 05:24:36 rong Exp $
 *
 */
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -403,7 +403,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 					} else {
 						// type is ATOM 1.0
 						$required = Array('title', 'id', 'updated');
-						$tags = Array('title', 'id', 'link.rel', 'link.type', 'link.href', 'subtitle', 'updated', 'rights', 'author_name', 'author_email', 'category.term', 'category.label', 'category.scheme', 'rights');
+						$tags = Array('title', 'id', 'updated', 'link.rel', 'link.type', 'link.href', 'subtitle', 'rights', 'author_name', 'author_email', 'category.term', 'category.label', 'category.scheme', 'rights');
 					}
 				break;
 				case 'add_image':
