@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.10.2.1 2006/02/10 03:51:48 lwright Exp $
+* $Id: page_poll.inc,v 1.10.2.2 2006/04/11 00:02:56 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.10.2.1 $
+* @version $Revision: 1.10.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -195,7 +195,7 @@ class Page_Poll extends Page
 
 			// alias question to active_question
 			$question =& $active_question;
-			if (is_null($question) || $question->status < SQ_STATUS_LIVE) {
+			if (is_null($question)) {
 				$valid = FALSE;
 			}
 		} else {
