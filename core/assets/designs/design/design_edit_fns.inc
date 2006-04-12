@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.108 2006/03/29 03:36:32 sdanis Exp $
+* $Id: design_edit_fns.inc,v 1.109 2006/04/12 13:36:46 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -923,7 +923,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$tar_upload = get_file_upload_info($prefix.'_import_file');
 		if ($tar_upload === FALSE) {
-			trigger_error('Error Uploading Word Document', E_USER_WARNING);
+			trigger_error(translate('core_design_import_upload_error'), E_USER_WARNING);
 		} else {
 			if (!empty($tar_upload)) {
 				$import_dir = $asset->data_path.'/temp/';
