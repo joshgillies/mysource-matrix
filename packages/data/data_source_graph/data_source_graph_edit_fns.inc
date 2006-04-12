@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.11 2006/04/12 14:05:56 skim Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.12 2006/04/12 14:47:54 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -206,6 +206,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 														'assetid'	=> $_POST[$prefix.'_new_data_source']['assetid'],
 														'settings'	=> Array(
 																		'plot_name'		=> $_POST[$prefix.'_new_name'],
+																		'display_name'	=> $_POST[$prefix.'_new_name'],
 																		'graph_type'	=> 'Image_Graph_Plot_Bar',
 																		'x_axis'		=> 'Not saved',
 																		'y_axis'		=> 'Not saved',
@@ -343,7 +344,14 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 		$o->closeField();
 
 		if ($wa) {
-
+			$o->openField('Display Name');
+				if (empty($datasets[$plot_name]['settings']['display_name']) || $datasets[$plot_name]['settings']['display_name'] == $plot_name) {
+					$display_name = $plot_name;
+				} else {
+					$display_name = $datasets[$plot_name]['settings']['display_name'];
+				}
+				text_box($prefix.'_display_name', $display_name);
+			$o->closeField();
 			if ($this->moreThanOnePlot($asset, $prefix)) {
 				$o->openField('Move the plot');
 					combo_box($prefix.'_move_this_plot', Array(0 => '-- Leave Empty --', 1 => 'Backward', 2 => 'Forward'), FALSE, 0);
@@ -393,6 +401,9 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 
 		} else {
 
+			$o->openField('Display Name');
+				echo $datasets[$plot_name]['settings']['display_name'];
+			$o->closeField();
 			$o->openField('Data Source');
 				echo get_asset_tag_line($datasets[$plot_name]['assetid']);
 			$o->closeField();
@@ -489,6 +500,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 			if (($first_plot_added || !$plot_changed) && $plot_not_deleted) {
 				$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
 				$datasets[$plot_name]['assetid'] = $_POST[$prefix.'_data_source']['assetid'];
+				$datasets[$plot_name]['settings']['display_name']	= $_POST[$prefix.'_display_name'];
 				$datasets[$plot_name]['settings']['x_axis']			= $_POST[$prefix.'_x_axis'];
 				$datasets[$plot_name]['settings']['y_axis']			= $_POST[$prefix.'_y_axis'];
 				$datasets[$plot_name]['settings']['graph_type']		= $this->graph_types[intval($_POST[$prefix.'_graph_type'])];
