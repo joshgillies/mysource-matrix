@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.106 2006/03/22 22:05:09 sdanis Exp $
+* $Id: search_manager.inc,v 1.107 2006/04/12 13:14:05 sdanis Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -657,7 +657,6 @@ class Search_Manager extends Asset
 					// nothing yet
 			}
 
-
 			$param_data[] = Array(
 								'value'		=> $value,
 								'type_code'	=> $data['type_code'],
@@ -670,7 +669,6 @@ class Search_Manager extends Asset
 		}//end foreach
 
 		if (empty($param_data)) return FALSE;
-
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -1040,6 +1038,11 @@ class Search_Manager extends Asset
 		} else {
 			$fieldids = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($vars['fieldids'], Array(), TRUE, 'type_code');
 		}
+
+		if (empty($fieldids)) {
+			$fieldids = $mm->getMetadataFields($mm->getSchemas($assetid, TRUE));
+		}
+
 		$flush_fieldids = Array();
 		foreach (array_keys($fieldids) as $fieldid) {
 			$flush_fieldids[] = 'metadata:'.$fieldid;
@@ -1054,6 +1057,7 @@ class Search_Manager extends Asset
 		}
 
 		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
 		$this->addIndexableContent($assetid, $this->getIndexableMetadataContent($asset, $fieldids));
 
 	}//end reindexMetadata()
