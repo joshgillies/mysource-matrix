@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.10 2006/02/20 00:39:55 skim Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.11 2006/04/12 14:05:56 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -319,9 +319,14 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 		$wa = $asset->writeAccess('attributes');
 		$datasets = $asset->attr('datasets');
 		$plot_order = $asset->attr('plot_order');
-		$plot_not_deleted = !empty($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
-		if (isset($_POST[$prefix.'_plot_name']) && $plot_not_deleted) {
-			$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
+
+		if (isset($_POST[$prefix.'_plot_name'])) {
+			$plot_not_deleted = !empty($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
+			if ($plot_not_deleted) {
+				$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
+			} else {
+				$plot_name = $plot_order[0];
+			}
 		} else {
 			$plot_name = $plot_order[0];
 		}
@@ -554,9 +559,13 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 		$wa = $asset->writeAccess('attributes');
 		$datasets = $asset->attr('datasets');
 		$plot_order = $asset->attr('plot_order');
-		$plot_not_deleted = !empty($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
-		if (isset($_POST[$prefix.'_plot_name']) && $plot_not_deleted) {
-			$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
+		if (isset($_POST[$prefix.'_plot_name'])) {
+			$plot_not_deleted = !empty($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
+			if ($plot_not_deleted) {
+				$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
+			} else {
+				$plot_name = $plot_order[0];
+			}
 		} else {
 			$plot_name = $plot_order[0];
 		}
@@ -689,13 +698,20 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 		$wa = $asset->writeAccess('attributes');
 		$datasets = $asset->attr('datasets');
 		$plot_order = $asset->attr('plot_order');
-		$plot_not_deleted = !empty($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
-		if (isset($_POST[$prefix.'_plot_name']) && $plot_not_deleted) {
-			$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
+
+		if (isset($_POST[$prefix.'_plot_name'])) {
+			$plot_not_deleted = !empty($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
+			if ($plot_not_deleted) {
+				$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
+			} else {
+				asort($datasets);
+				$plot_name = array_pop(array_keys($datasets));
+			}
 		} else {
 			asort($datasets);
 			$plot_name = array_pop(array_keys($datasets));
 		}
+
 
 		$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($datasets[$plot_name]['assetid']);
 		$result = $data_source_asset->getResultSet('default');
