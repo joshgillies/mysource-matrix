@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2006/02/03 00:33:50 dmckee Exp $
+* $Id: lang_strings.xml,v 1.2.2.1 2006/04/12 12:57:20 dmckee Exp $
 *
 */
 -->
@@ -40,4 +40,5 @@
 	<string source="core_design_existing_asset">Existing Asset</string>
 	<string source="core_design_existing_asset_note">Select an existing file asset to import to this design</string>
 	<string source="core_design_existing_asset_problem">Unable to create link to file: %s</string>
+	<string source="core_design_import_upload_error">Error uploading Design Archive</string>
 </strings>
