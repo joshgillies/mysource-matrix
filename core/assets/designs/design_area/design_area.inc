@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.50 2006/02/20 02:00:06 tbarrett Exp $
+* $Id: design_area.inc,v 1.51 2006/04/12 16:57:06 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -298,6 +298,23 @@ class Design_Area extends Asset
 		}
 
 	}//end _escapeVar()
+
+
+	/**
+	* Safely get a PHP literal string (including the quotes) for printing to the design file
+	*
+	* Prevents code injection
+	*
+	* @param string	$string	The contents for the literal string
+	*
+	* @return string
+	* @access protected
+	*/
+	function _safeStringLiteral($string)
+	{
+		return var_export((string)$string, TRUE);
+
+	}//end _safeStringLiteral()
 
 
 	/**

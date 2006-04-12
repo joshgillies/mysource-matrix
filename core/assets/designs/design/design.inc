@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.109 2006/04/07 00:28:50 amiller Exp $
+* $Id: design.inc,v 1.110 2006/04/12 16:57:06 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.109 $
+* @version $Revision: 1.110 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -591,7 +591,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 			case 'content_type' :
 				if (!empty($args['content_type'])) {
-					echo '<', '?php header('.var_export('Content-type: '.$args['content_type'], 1).'); ?', '>';
+					echo '<', '?php header('.$this->_safeStringLiteral('Content-type: '.$args['content_type']).'); ?', '>';
 				}
 			break;
 
@@ -703,10 +703,11 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 			case 'current_user' :
 				if (!empty($args['keyword'])) {
+					$args['keyword'] = trim($args['keyword'], '% ');
 					echo '<'.'?php
 					if (!$GLOBALS["SQ_SYSTEM"]->userPublic()) {
-						$user_keyword_val = $GLOBALS["SQ_SYSTEM"]->user->getKeywordReplacement("'.$args['keyword'].'");
-						if ($user_keyword_val != "%'.$args['keyword'].'%") {
+						$user_keyword_val = $GLOBALS["SQ_SYSTEM"]->user->getKeywordReplacement('.$this->_safeStringLiteral($args['keyword']).');		
+						if ($user_keyword_val != '.$this->_safeStringLiteral('%'.$args['keyword'].'%').') {
 							echo $user_keyword_val;
 						}
 					}
@@ -714,53 +715,45 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 				} else {
 					if (empty($args['attr'])) $args['attr'] = 'name';
 					switch ($args['attr']) {
-						case 'username'   :
-						case 'first_name' :
-						case 'last_name'  :
-							$attr = 'attr('.var_export((string) $args['attr'], TRUE).')';
-						break;
-
+						case 'name'   :
 						case 'id' :
-							$attr = 'id';
-						break;
-
-						case 'name' :
-							$attr = 'name';
-						default :
-							// we search the asset for the attributes existance, except for password
-							if ($args['attr'] != 'password') {
-								$assert_asset_attribute = TRUE;
+							echo '<'.'?php
+							if (!$GLOBALS["SQ_SYSTEM"]->userPublic()) {
+								echo $GLOBALS["SQ_SYSTEM"]->user->'.$args['attr'].';
 							}
+							?', '>';
+						break;
+						case 'password':
+							// not allowed
+						break;
+						default :
+							$attr_name = $this->_safeStringLiteral($args['attr']);
+							echo '<'.'?php
+							if (!$GLOBALS["SQ_SYSTEM"]->userPublic()) {
+								echo @$GLOBALS["SQ_SYSTEM"]->user->attr('.$attr_name.');
+							}
+							?', '>';
+						break;
 
 					}// end switch
 
-					$default = (empty($args['default'])) ? '' : $args['default'];
-
-					// a different string is required if we want an asset attribute
-					if (isset($assert_asset_attribute)) {
+					if (!empty($args['default'])) {
+						$default = $this->_safeStringLiteral($args['default']);
 						echo '<'.'?php
-							// check if the attribute we want is an asset specific attribute
-							$asset_attributes = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetTypeAttributes(get_class($GLOBALS[\'SQ_SYSTEM\']->user));
-							foreach ($asset_attributes as $attribute => $type) {
-								if (\''.$args['attr'].'\' == $attribute) {
-									echo ', $this->_escapeVar('(!$GLOBALS[\'SQ_SYSTEM\']->userPublic()) ? $GLOBALS[\'SQ_SYSTEM\']->user->attr($attribute) : '.var_export($default, TRUE), $args), ';
-									break;
-								}
-							}
-						?'.'>';
-					} else {
-						echo '<', '?php echo ', $this->_escapeVar('(!$GLOBALS[\'SQ_SYSTEM\']->userPublic()) ? $GLOBALS[\'SQ_SYSTEM\']->user->'.$attr.' : '.var_export($default, TRUE), $args), '; ?', '>';
+						if ($GLOBALS["SQ_SYSTEM"]->userPublic()) {
+							echo '.$default.';
+						}
+						?', '>';
 					}
-				}
-
+				}//end else
 			break;
 
 			case 'file_path' :
-				echo '<','?php echo $FILE_URLS['.var_export((string) $args['filename'], TRUE).'];?', '>';
+				echo '<','?php echo $FILE_URLS['.$this->_safeStringLiteral($args['filename']).'];?', '>';
 			break;
 
 			case 'css_path' :
-				echo '<','?php echo $CSS_URLS['.var_export((string) $args['filename'], TRUE).'];?', '>';
+				echo '<','?php echo $CSS_URLS['.$this->_safeStringLiteral($args['filename']).'];?', '>';
 			break;
 
 			case 'asset_thumbnail' :
