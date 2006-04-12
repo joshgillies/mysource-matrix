@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.104.2.1 2006/02/27 05:50:14 bcaldwell Exp $
+* $Id: design.inc,v 1.104.2.2 2006/04/12 17:17:39 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104.2.1 $
+* @version $Revision: 1.104.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -685,6 +685,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			break;
 
 			case 'current_user' :
+				$assert_asset_attribute = FALSE;
 				if (empty($args['attr'])) $args['attr'] = 'name';
 				switch ($args['attr']) {
 					case 'username'   :
@@ -699,6 +700,8 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 					case 'name' :
 						$attr = 'name';
+					break;
+
 					default :
 						// we search the asset for the attributes existance, except for password
 						if ($args['attr'] != 'password') {
@@ -710,7 +713,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 				$default = (empty($args['default'])) ? '' : $args['default'];
 
 				// a different string is required if we want an asset attribute
-				if (isset($assert_asset_attribute)) {
+				if ($assert_asset_attribute) {
 					echo '<'.'?php
 						// check if the attribute we want is an asset specific attribute
 						$asset_attributes = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetTypeAttributes(get_class($GLOBALS[\'SQ_SYSTEM\']->user));
