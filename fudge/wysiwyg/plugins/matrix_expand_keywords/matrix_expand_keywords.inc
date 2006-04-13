@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_expand_keywords.inc,v 1.11.2.2 2006/04/03 02:02:11 lwright Exp $
+* $Id: matrix_expand_keywords.inc,v 1.11.2.3 2006/04/13 05:27:51 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *     to replace it with its full version as you type
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.11.2.2 $
+* @version $Revision: 1.11.2.3 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -53,7 +53,7 @@ class matrix_expand_keywords  extends wysiwyg_plugin
 		?>
 		if ((ev.type == "keypress")) {
 			var key = (HTMLArea.is_ie ? ev.keyCode : ev.charCode);
-			if ((key == 32) || (key == 13) || (key == 9)) {
+			if ((key == 32) || (key == 13) || (key == 9) || (key == 0)) {
 				expandKeywords(editor);
 			}
 		}
@@ -118,9 +118,8 @@ class matrix_expand_keywords  extends wysiwyg_plugin
 				case "wysiwyg":
 					if (HTMLArea.is_gecko) {
 						var range = this._createRange(this._getSelection());
+						range.setStart(range.startContainer, range.startOffset-oldWord.length);
 						// remove the current selection
-						//alert('startcontainer is '+range.startContainer+'; data length is '+range.startContainer.data.length+'; new word length is
-						range.setStart(range.startContainer, range.startContainer.data.length - oldWord.length);
 						range.deleteContents();
 						toBeInserted = document.createTextNode(newWord);
 						var node = range.startContainer;
@@ -130,11 +129,14 @@ class matrix_expand_keywords  extends wysiwyg_plugin
 						range.setStart(node, pos + newWord.length);
 						sel.addRange(range);
 					} else if (HTMLArea.is_ie) {
-						var sel = this._getSelection();
-						var range = this._createTextRange(sel);
-						oldContents = this._docContent.innerHTML;
-						oldWordStart = oldContents.lastIndexOf(oldWord);
-						this._docContent.innerHTML = oldContents.substring(0, oldWordStart) + newWord + oldContents.substring(oldWordStart+oldWord.length);
+						var doc = this._docContent;
+						while (doc.nodeName != 'BODY') {
+							doc = doc.parentNode;
+						}
+						doc = doc.parentNode.parentNode;
+						var rng = doc.selection.createRange();
+						rng.moveStart('character', -1 * oldWord.length);
+						rng.text = newWord;
 					}
 				break;
 				case "textmode":
@@ -159,16 +161,24 @@ class matrix_expand_keywords  extends wysiwyg_plugin
 		{
 			if (HTMLArea.is_gecko) {
 				var range = editor._createRange(editor._getSelection());
-				var html = range.endContainer.data;
+				var html = range.startContainer.nodeValue.substr(0, range.endOffset);
+				html = html.replace(new RegExp(/\s+$/), ''); // strip trailing spaces
+				return html.substring(html.lastIndexOf(" ")+1);
 			} else {
-				var parent = editor.getParentElement();
-				var html = parent.innerHTML.replace(stripTagsRE, " ");
+				var doc = editor._docContent;
+				while (doc.nodeName != 'BODY') {
+					doc = doc.parentNode;
+				}
+				doc = doc.parentNode.parentNode;
+				var rng = doc.selection.createRange();
+				while ((rng.text.charAt(0) != ' ') && (rng.htmlText.charAt(0) != '>') && (rng.text.charCodeAt(0) != 13)) {
+					if (rng.moveStart('character', -1) == 0) break;
+				}
+				while ((rng.text.charAt(0) == ' ') || (rng.htmlText.charAt(0) == '>')) {
+					rng.moveStart('character', 1);
+				}
+				return rng.text.replace(new RegExp(/^\s+/), '');
 			}
-			// strip trailing spaces
-			while (html.charAt(html.length-1) == " ") {
-				html = html.substring(0, html.length-1);
-			}
-			return html.substring(html.lastIndexOf(" ")+1);
 		}
 
 
