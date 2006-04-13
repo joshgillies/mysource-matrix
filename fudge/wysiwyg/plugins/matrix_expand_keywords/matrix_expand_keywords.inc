@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_expand_keywords.inc,v 1.12.2.2 2006/04/13 05:25:05 tbarrett Exp $
+* $Id: matrix_expand_keywords.inc,v 1.12.2.3 2006/04/13 05:28:41 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *     to replace it with its full version as you type
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.12.2.2 $
+* @version $Revision: 1.12.2.3 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -53,7 +53,6 @@ class matrix_expand_keywords  extends wysiwyg_plugin
 		?>
 		if ((ev.type == "keypress")) {
 			var key = (HTMLArea.is_ie ? ev.keyCode : ev.charCode);
-			window.status = key;
 			if ((key == 32) || (key == 13) || (key == 9) || (key == 0)) {
 				expandKeywords(editor);
 			}
