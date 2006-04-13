@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager_edit_fns.inc,v 1.9 2006/01/26 22:34:06 lwright Exp $
+* $Id: layout_manager_edit_fns.inc,v 1.10 2006/04/13 11:26:07 sdanis Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,6 +51,20 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$this->static_screens['details']['force_unlock'] = FALSE;
 		$this->Asset_Edit_Fns();
+
+		unset($this->static_screens['settings']);
+		unset($this->static_screens['preview']);
+		unset($this->static_screens['lookupValues']);
+		unset($this->static_screens['web_paths']);
+		unset($this->static_screens['metadata']);
+		unset($this->static_screens['metadataSchemas']);
+		unset($this->static_screens['workflow']);
+		unset($this->static_screens['tagging']);
+		unset($this->static_screens['roles']);
+		unset($this->static_screens['permissions']);
+		unset($this->static_screens['dependants']);
+		unset($this->static_screens['linking']);
+
 
 	}//end constructor
 

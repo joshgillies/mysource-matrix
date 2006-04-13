@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_folder_edit_fns.inc,v 1.2 2005/01/20 13:07:36 brobertson Exp $
+* $Id: authentication_folder_edit_fns.inc,v 1.3 2006/04/13 11:26:55 sdanis Exp $
 *
 */
 
@@ -32,12 +32,33 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Authentication_Folder_Edit_Fns extends Folder_Edit_Fns
 {
+
+	/**
+	* Constructor
+	*
+	*/
+	function Authentication_Folder_Edit_Fns()
+	{
+		$this->Folder_Edit_Fns();
+
+		unset($this->static_screens['settings']);
+		unset($this->static_screens['preview']);
+		unset($this->static_screens['lookupValues']);
+		unset($this->static_screens['web_paths']);
+		unset($this->static_screens['metadata']);
+		unset($this->static_screens['metadataSchemas']);
+		unset($this->static_screens['workflow']);
+		unset($this->static_screens['tagging']);
+		unset($this->static_screens['roles']);
+		unset($this->static_screens['permissions']);
+
+	}//end constructor
 
 }//end class
 

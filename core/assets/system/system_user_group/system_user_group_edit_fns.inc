@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_user_group_edit_fns.inc,v 1.9 2006/01/26 22:34:06 lwright Exp $
+* $Id: system_user_group_edit_fns.inc,v 1.10 2006/04/13 11:32:39 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,6 +47,17 @@ class System_User_Group_Edit_Fns extends User_Group_Edit_Fns
 	function System_User_Group_Edit_Fns()
 	{
 		$this->User_Group_Edit_Fns();
+
+		unset($this->static_screens['settings']);
+		unset($this->static_screens['preview']);
+		unset($this->static_screens['lookupValues']);
+		unset($this->static_screens['web_paths']);
+		unset($this->static_screens['metadata']);
+		unset($this->static_screens['metadataSchemas']);
+		unset($this->static_screens['workflow']);
+		unset($this->static_screens['tagging']);
+		unset($this->static_screens['roles']);
+		unset($this->static_screens['permissions']);
 
 	}//end constructor
 

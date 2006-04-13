@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.18 2006/01/26 22:34:06 lwright Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.19 2006/04/13 11:27:45 sdanis Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,12 +54,18 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens['details']['force_unlock'] = FALSE;
 		$this->static_screens['details']['lock_type'] = 'all';
 
-		unset($this->static_screens['workflow']);
-		unset($this->static_screens['metadataSchemas']);
-		unset($this->static_screens['metadata']);
-		unset($this->static_screens['linking']);
 		unset($this->static_screens['settings']);
+		unset($this->static_screens['preview']);
+		unset($this->static_screens['lookupValues']);
+		unset($this->static_screens['web_paths']);
+		unset($this->static_screens['metadata']);
+		unset($this->static_screens['metadataSchemas']);
+		unset($this->static_screens['workflow']);
+		unset($this->static_screens['tagging']);
 		unset($this->static_screens['dependants']);
+		unset($this->static_screens['linking']);
+		unset($this->static_screens['roles']);
+		unset($this->static_screens['permissions']);
 
 	}//end constructor
 
