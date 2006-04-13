@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.47.2.4 2005/09/04 23:16:47 mmcintyre Exp $
+* $Id: design_area_edit_fns.inc,v 1.47.2.5 2006/04/13 09:31:47 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.47.2.4 $
+* @version $Revision: 1.47.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,9 +113,6 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$cur_pos    = 0;
 		$nest_level = 0;
 		$contents = $this->_parseStringContents($file_contents, $cur_pos, $nest_level);
-		if (!is_null($contents)) {
-			$this->_parserCleanupContents($contents);
-		}
 
 		return $contents;
 
@@ -418,27 +415,6 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 	}//end _isWhitespace()
 
-
-	/**
-	* Recurses through the contents array and removes any HTML tags contain only whitespace
-	* and are set between two tags
-	*
-	* @param array	$contents	the contents array we are currently checking
-	*
-	* @access private
-	*/
-	function _parserCleanupContents(&$contents)
-	{
-		for ($i = 0; $i < count($contents); $i++) {
-			if ($contents[$i]['_type'] == 'HTML' && $this->_isWhitespace($contents[$i]['contents'])) {
-				array_splice($contents, $i, 1);
-				$i--;
-			} else if ($contents[$i]['_type'] == 'TAG' && !empty($contents[$i]['contents'])) {
-				$this->_parserCleanupContents($contents[$i]['contents']);
-			}// end if
-		}// end for
-
-	}//end _parserCleanupContents()
 
 
 	/**
