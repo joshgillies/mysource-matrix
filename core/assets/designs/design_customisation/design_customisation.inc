@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.36.2.3 2006/01/30 03:41:16 lwright Exp $
+* $Id: design_customisation.inc,v 1.36.2.4 2006/04/13 10:55:36 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36.2.3 $
+* @version $Revision: 1.36.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,6 +67,38 @@ class Design_Customisation extends Design
 		return $links;
 
 	}//end _getAllowedLinks()
+
+
+	/**
+	* Prepares for linking by checking that the link values are valid for this link
+	*
+	* This function will be called if this asset is the major or minor party in the link, so the side_of_link flag
+	* should be checked to work out what side of the link this asset is on. The return value should indicate
+	* if any of the link fields were changed.
+	*
+	* @param object	&$asset			the major or minor asset that we are linking to
+	* @param string	$side_of_link	the side of the link we are on (major or minor)
+	* @param string	&$link_type		the type of link we are creating
+	* @param string	&$value			the value that is to be associated with the link
+	* @param string	&$sort_order	the position in the links list that this link should take,
+	* @param string	&$dependant		'0' / '1' on whether the this asset is dependant on the
+	*								asset that will be linked by the new link
+	* @param string	&$exclusive		'0' / '1' on whether the this asset is linked exclusivly
+	*								to the asset that will be linked by the new link
+	*
+	* @return boolean
+	* @access public
+	*/
+	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
+	{
+		if ($side_of_link == 'minor' && is_a($asset, 'design')) {
+			$value = 'customisation';
+			return TRUE;
+		}
+
+		return FALSE;
+
+	}//end prepareLink()
 
 
 	/**
