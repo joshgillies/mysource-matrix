@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_expand_keywords.inc,v 1.14 2006/04/13 05:20:15 tbarrett Exp $
+* $Id: matrix_expand_keywords.inc,v 1.15 2006/04/13 05:24:37 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *     to replace it with its full version as you type
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -136,7 +136,6 @@ class matrix_expand_keywords  extends wysiwyg_plugin
 						}
 						doc = doc.parentNode.parentNode;
 						var rng = doc.selection.createRange();
-						rng.colapse;
 						rng.moveStart('character', -1 * oldWord.length);
 						rng.text = newWord;
 					}
@@ -164,10 +163,7 @@ class matrix_expand_keywords  extends wysiwyg_plugin
 			if (HTMLArea.is_gecko) {
 				var range = editor._createRange(editor._getSelection());
 				var html = range.startContainer.nodeValue.substr(0, range.endOffset);
-				// strip trailing spaces
-				while (html.charAt(html.length-1) == " ") {
-					html = html.substring(0, html.length-1);
-				}
+				html = html.replace(new RegExp(/\s+$/), ''); // strip trailing spaces
 				return html.substring(html.lastIndexOf(" ")+1);
 			} else {
 				var doc = editor._docContent;
