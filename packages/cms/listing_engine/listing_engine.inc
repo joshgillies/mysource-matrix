@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.150.2.8 2006/03/28 00:29:08 sdanis Exp $
+* $Id: listing_engine.inc,v 1.150.2.9 2006/04/13 11:52:19 rong Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.150.2.8 $
+* @version $Revision: 1.150.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2550,6 +2550,15 @@ class Listing_Engine extends Page
 	function getGroupableParentAssetids($child_assetid, $restrict_types=Array())
 	{
 		$root_nodes = $this->getRootNodes();
+		// get a list of potential parent id, safety check
+		$potential_parentids = Array();
+		if (count($root_nodes) == 1) {
+			$type_codes = empty( $restrict_types) ? '' : $restrict_types['type_code'];
+			$min_depth = ($this->attr('min_depth') == '') ? NULL : $this->attr('min_depth');
+			$max_depth = ($this->attr('max_depth') == '') ? NULL : $this->attr('max_depth');
+			$root_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_nodes[0], $type_codes, FALSE, NULL, NULL, NULL, $min_depth, $max_depth);
+			$potential_parentids = array_keys($root_children);
+		}
 
 		$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($child_assetid, $this->attr('link_types'), '', TRUE, 'minor');
 
@@ -2570,17 +2579,13 @@ class Listing_Engine extends Page
 
 					if (!empty($restrict_types['type_code'])) {
 						// find the first parent that is one of the restricted types
-						$link_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($child_assetid);
-						foreach ($root_nodes as $root_node) {
-							foreach ($link_lineages as $lineage) {
-								if (array_key_exists($root_node, $lineage['lineage'])) {
-									$parents = $lineage['lineage'];
-									break(2);
-								}
-							}
-						}
+						$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($child_assetid);
 						$parents = array_reverse($parents, TRUE);
 						foreach ($parents as $parentid => $type_code) {
+							// filter out parent that is not a child of root node
+							if (!empty($potential_parentids) && !in_array($parentid, $potential_parentids)) {
+								continue;
+							}
 							$inherit_values = $restrict_types['inherit'];
 							foreach ($restrict_types['type_code'] as $restricted_type_code) {
 								$inherit = array_shift($inherit_values);
