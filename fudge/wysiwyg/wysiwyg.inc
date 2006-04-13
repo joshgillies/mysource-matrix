@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.54 2006/04/11 04:15:20 tbarrett Exp $
+* $Id: wysiwyg.inc,v 1.55 2006/04/13 05:18:25 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -774,7 +774,7 @@ HTMLArea.prototype.traverseChildrenNodes = function(me, callback) {
 // Sets flag to true if we find actual text or an element that's not usually displayed inline
 HTMLArea.prototype.containsText = function(node) {
 
-	if (node.nodeType == 1 && HTMLArea.prototype.inArray(node.nodeName.toLowerCase(), this.inline_tags)) return true;
+	if (node.nodeType == 1 && HTMLArea.prototype.inArray(node.nodeName.toLowerCase(), HTMLArea.prototype.inline_tags)) return true;
 	else if (node.nodeType == 3 && node.nodeValue != '') return true;
 	else return null;
 
