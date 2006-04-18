@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.8 2006/02/07 02:27:12 sdanis Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.9 2006/04/18 22:33:14 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -200,7 +200,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		$settings['when'] = $edit_fns->_processWhenBox($fs, $o, $munge_prefix);
 		$settings['prefix'] = $munge_prefix;
 
-		$status_list =& Trigger_Action_Set_Future_Status::_getStatusList();
+		$status_list = Trigger_Action_Set_Future_Status::_getStatusList();
 
 		// check if the status is valid
 		if (isset($status_list[$set_status])) {
