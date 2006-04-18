@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_expand_keywords.inc,v 1.12.2.3 2006/04/13 05:28:41 tbarrett Exp $
+* $Id: matrix_expand_keywords.inc,v 1.12.2.4 2006/04/18 00:12:13 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *     to replace it with its full version as you type
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.12.2.3 $
+* @version $Revision: 1.12.2.4 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -56,7 +56,13 @@ class matrix_expand_keywords  extends wysiwyg_plugin
 			if ((key == 32) || (key == 13) || (key == 9) || (key == 0)) {
 				expandKeywords(editor);
 			}
+		} else if (ev.type == "keydown") {
+			var key = (HTMLArea.is_ie ? ev.keyCode : ev.charCode);
+			if ((key == 0)) {
+				expandKeywords(editor);
+			}
 		}
+
 		<?php
 
 	}//end print_plugin_event_handler()
@@ -118,16 +124,22 @@ class matrix_expand_keywords  extends wysiwyg_plugin
 				case "wysiwyg":
 					if (HTMLArea.is_gecko) {
 						var range = this._createRange(this._getSelection());
-						range.setStart(range.startContainer, range.startOffset-oldWord.length);
+						if (range.startContainer.data.replace(new RegExp(/\s+$/), '') == '') {
+							var contentNode = range.startContainer.parentNode.previousSibling.firstChild;
+							range.selectNodeContents(contentNode);
+							range.setEnd(range.endContainer, range.endContainer.data.length);
+							range.setStart(range.startContainer, range.startContainer.data.length-oldWord.length);
+						} else {
+							range.setStart(range.startContainer, range.startOffset-oldWord.length-1);
+						}
 						// remove the current selection
 						range.deleteContents();
-						toBeInserted = document.createTextNode(newWord);
+						toBeInserted = document.createTextNode(newWord+' ');
 						var node = range.startContainer;
 						var pos = range.startOffset;
 						node.insertData(pos, toBeInserted.data);
-						range.setEnd(node, pos + newWord.length);
-						range.setStart(node, pos + newWord.length);
-						sel.addRange(range);
+						range.setEnd(node, pos + newWord.length + 1);
+						range.setStart(node, pos + newWord.length + 1);
 					} else if (HTMLArea.is_ie) {
 						var doc = this._docContent;
 						while (doc.nodeName != 'BODY') {
@@ -161,8 +173,13 @@ class matrix_expand_keywords  extends wysiwyg_plugin
 		{
 			if (HTMLArea.is_gecko) {
 				var range = editor._createRange(editor._getSelection());
-				var html = range.startContainer.nodeValue.substr(0, range.endOffset);
+				var contentNode = range.startContainer;
+				var html = contentNode.nodeValue.substr(0, range.endOffset);
 				html = html.replace(new RegExp(/\s+$/), ''); // strip trailing spaces
+				if (html == '') {
+					html = contentNode.parentNode.previousSibling.innerHTML;
+					html = html.replace(new RegExp(/\s+$/), ''); // strip trailing spaces
+				}
 				return html.substring(html.lastIndexOf(" ")+1);
 			} else {
 				var doc = editor._docContent;
