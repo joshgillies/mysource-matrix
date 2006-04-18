@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.55 2006/04/13 05:18:25 tbarrett Exp $
+* $Id: wysiwyg.inc,v 1.56 2006/04/18 06:10:10 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1143,7 +1143,8 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 	*/
 	function process()
 	{
-		$html = ((isset($_REQUEST[$this->name])) ? $_REQUEST[$this->name] : '');
+		if (!isset($_REQUEST[$this->name])) return FALSE;
+		$html = $_REQUEST[$this->name];
 		$html = str_replace('%A0', '', $html);	// these chars just cause trouble, in the DB and 
 												// when painting the WYSIWYG
 		$html = rawurldecode($html);
