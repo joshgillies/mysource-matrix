@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.41 2006/04/10 05:21:22 rong Exp $
+* $Id: hipo_job_edit_status.inc,v 1.42 2006/04/18 05:39:05 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -215,7 +215,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 		$to_do = array_keys($this->_running_vars['todo_assetids']);
 		$to_do[] = $this->_running_vars['assetid'];
-		$this->_running_vars['current_asset_statuses'] = $GLOBALS['SQ_SYSTEM']->am->getAssetStatus($to_do);
+		$this->_running_vars['current_asset_statuses'] = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($to_do, '', TRUE, 'status');
 
 		return parent::prepare();
 
@@ -301,11 +301,11 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	*/
 	function processStatus(&$step_data, $prefix)
 	{
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		if (!empty($this->_running_vars['todo_assetids']) || !$this->_running_vars['done_root']) {
 
-		// create a queue to store the messages
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$ms->openQueue();
+			// create a queue to store the messages
+			$ms->openQueue();
 
 			if (empty($this->_running_vars['done_assetids'])) {
 				// make sure we process the root asset first
@@ -315,7 +315,6 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 				$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
 				unset($this->_running_vars['todo_assetids'][$assetid]);
 			}
-
 			$new_status = $this->_running_vars['new_status'];
 			// if the current status of the status is the same as the new status
 			// if its same there is nothing to be done. otherwise processStatusChange on the asset
