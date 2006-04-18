@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.29 2006/03/19 22:52:32 sdanis Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.30 2006/04/18 06:12:09 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -359,6 +359,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 		$wysiwyg =& $this->_createEditor($asset, $prefix);
 		$html = $wysiwyg->process();
+		if ($html === FALSE) return FALSE;
 
 		// grab and store the last run status of htmltidy plugin
 		// to be used when we print the corresponding status icon
