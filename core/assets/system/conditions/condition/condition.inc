@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition.inc,v 1.10 2006/02/23 00:13:47 lwright Exp $
+* $Id: condition.inc,v 1.11 2006/04/18 05:55:48 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,7 +60,7 @@ class Condition extends Asset
 	* client class (i.e. they don't need to understand or manipulate its
 	* content).
 	*
-	* @param object	&$asset					a user asset (or child of User class)
+	* @param object	&$asset					Asset to evaluate the condition for
 	* @param array	&$restriction			a restriction array as returned by processEditInterface()
 	*										<pre>
 	*										Array(
