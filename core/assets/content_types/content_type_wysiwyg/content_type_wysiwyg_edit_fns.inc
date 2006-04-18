@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.16 2005/05/12 06:24:17 tbarrett Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.16.2.1 2006/04/18 06:36:44 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -231,6 +231,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			$wysiwyg = &$this->_createEditor($asset, $prefix);
 			$html = $wysiwyg->process();
+			if ($html === FALSE) return FALSE;
 
 			$current_html = $asset->attr('html');
 			if ($html != $current_html) {
