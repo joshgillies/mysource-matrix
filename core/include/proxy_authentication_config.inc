@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: proxy_authentication_config.inc,v 1.1 2006/04/10 23:06:33 sdanis Exp $
+* $Id: proxy_authentication_config.inc,v 1.2 2006/04/18 04:58:11 emcdonald Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Proxy_Authentication_Config extends Config
@@ -150,18 +150,19 @@ class Proxy_Authentication_Config extends Config
 	/**
 	* Rewrites the conf file with current variables
 	*
-	* @param Array		$vars				the array with any new values (that are allowed to be edited)
+	* Return value indicates whether the file was written
+	*
+	* @param array		$vars				the array with any new values (that are allowed to be edited)
 	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
 	*
-	* @return boolean	indicates whether the file was written
+	* @return boolean
 	* @access public
 	*/
-	function save($vars, $backup_existing=false)
+	function save($vars, $backup_existing=FALSE)
 	{
-		log_dump($vars);
 
-		//encode password
+		// encode password
 		if (isset($vars['SQ_PA_PASSWORD']) && !empty($vars['SQ_PA_PASSWORD'])) {
 			$vars['SQ_PA_PASSWORD'] = base64_encode($vars['SQ_PA_PASSWORD']);
 		}
