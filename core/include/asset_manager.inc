@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.14 2006/04/07 05:25:03 sdanis Exp $
+* $Id: asset_manager.inc,v 1.431.2.15 2006/04/18 06:17:59 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.14 $
+* @version $Revision: 1.431.2.15 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2471,7 +2471,7 @@ class Asset_Manager extends MySource_Object
 
 				// we also need the links to real assets for this shadow asset
 				// if we are looking up the tree
-				if ($side_of_link == 'minor') {
+				if (($side_of_link == 'minor') && !$exclusive && !$dependant) {
 					$db =& $GLOBALS['SQ_SYSTEM']->db;
 					$sql = 'SELECT
 								l.linkid,
