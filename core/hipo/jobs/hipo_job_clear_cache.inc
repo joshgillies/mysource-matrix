@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.14 2005/12/21 23:50:08 rong Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.15 2006/04/18 03:27:51 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -148,6 +148,9 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 		$this->_running_vars['done_filepaths'] = Array();
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
 
+		// set the number of filepath to process per step, max is 100
+		$count = count($this->_running_vars['todo_filepaths']) / 5;
+		$this->_running_vars['count'] = min(100, $count);
 		return parent::prepare();
 
 	}//end prepare()
@@ -192,11 +195,15 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 				$this->_running_vars['todo_assetids'] = Array();
 			}
 
-			// delete a content file in the todo array
-			$path = array_shift($this->_running_vars['todo_filepaths']);
-			$path_name = SQ_CACHE_PATH.'/'.$path['path'];
-			unlink($path_name);
-			$this->_running_vars['done_filepaths'][] = $path;
+			$index = 0;
+			// process some number of filepaths in this step
+			while ($index < $this->_running_vars['count'] && !empty($this->_running_vars['todo_filepaths'])) {
+				$path = array_shift($this->_running_vars['todo_filepaths']);
+				$path_name = SQ_CACHE_PATH.'/'.$path['path'];
+				unlink($path_name);
+				$this->_running_vars['done_filepaths'][] = $path;
+				$index++;
+			}
 
 		}//end if
 
