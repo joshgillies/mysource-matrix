@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.106.2.2 2006/04/12 12:57:20 dmckee Exp $
+* $Id: design_edit_fns.inc,v 1.106.2.3 2006/04/19 02:16:12 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.106.2.2 $
+* @version $Revision: 1.106.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -431,10 +431,15 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 		$existing_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($existing_ids));
 
+		// must web-path-ify the new file name to compare, as this is eventually
+		// what the file will be named
+		$new_file_name = make_valid_web_paths(Array($info['name']));
+		$new_file_name = array_shift($new_file_name);
+
 		$existing_fileid = 0;
 		foreach ($existing_info as $asset_id => $asset_info) {
 			// if the name is the same, delete the link
-			if ($asset_info['name'] == $info['name']) {
+			if ($asset_info['name'] == $new_file_name) {
 				$existing_fileid = $asset_id;
 				break;
 			}
