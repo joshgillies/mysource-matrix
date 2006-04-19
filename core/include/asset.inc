@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.522 2006/04/07 03:11:17 tbarrett Exp $
+* $Id: asset.inc,v 1.523 2006/04/19 05:26:15 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.522 $
+* @version $Revision: 1.523 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -424,9 +424,9 @@ class Asset extends MySource_Object
 			// because other assets may have changed what happens in createLink)
 			$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id, 'minor');
 
-			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY) && $link['asset']->type()!='system_management_folder') {
 				// cascade permissions, and schemas on this asset that the parent
-				// has if the parent is not the root folder
+				// has if the parent is not the root folder or the system management folder
 				$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
 
 				if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow', 'content_tags', 'roles'))) {
