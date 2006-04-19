@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.15 2006/04/18 06:17:59 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.431.2.16 2006/04/19 06:22:27 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.15 $
+* @version $Revision: 1.431.2.16 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6613,14 +6613,21 @@ class Asset_Manager extends MySource_Object
 				$where .= ' AND p.assetid = l.minorid';
 				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
-				$userids[] = $this->getSystemAssetid('public_user');
+				$public_userid = $this->getSystemAssetid('public_user');
+				$userids[] = $public_userid;
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 					$userids[$i] = $db->quote($userids[$i]);
 				}
-				$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
-				$where .= $userid_cond;
+
+				$userid_cond = ' AND p.userid IN ('.implode(',', $userids).')';
+				$where .= $userid_cond.'
+					AND (
+						(p.permission = '.$db->quote($access).' AND (p.userid <> '.$db->quote($public_userid).' OR (userid = '.$db->quote($public_userid).' AND granted = 1)))
+						OR
+						(p.permission > '.$db->quote($access).' AND p.granted = 1)
+						)';
 				$having .= 'HAVING MIN(p.granted) <> 0';
-				$group_by .= ',p.userid';
+				$group_by .= ', p.assetid';
 			}
 
 		}
