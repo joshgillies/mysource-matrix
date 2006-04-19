@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.4 2006/03/09 22:18:47 sdanis Exp $
+* $Id: form_question_type_datetime.inc,v 1.5 2006/04/19 01:37:07 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -267,96 +267,26 @@ class Form_Question_Type_Datetime extends Form_Question
 			}
 		}
 
-		$temp_date = mktime($val['h'], $val['i'], $val['s'], $val['m'], $val['d'], $val['y']);
-		return ($circa ? 'circa ' : '').date($this->attr('print_format'), $temp_date);
+		// Extra operation is required to handle UNIX Timestamp issues of mktime() function.
+		// Simply we don't want to pass the year to caculate the UNIX timestamp
+		$matches = Array();
+		$new_format = $this->attr('print_format');
+		preg_match_all('/y|Y/', $new_format, $matches, PREG_OFFSET_CAPTURE);
 
-		// build the date string based on what wacky combinations we have
-		/*$show_date_str = (($val['y'] == '----') ? '' : 'y').(($val['m'] == '--') ? '' : 'm').(($val['d'] == '--') ? '' : 'd');
-
-		switch ($show_date_str) {
-			case 'ymd':
-				$temp_date = mktime(0,0,0,$val['m'],$val['d'],2000);
-				$show_date = date('F jS', $temp_date).', '.$val['y'];
-			break;
-
-			case 'yd':
-				$temp_date = mktime(0,0,0,1,$val['d'],2000);
-				$show_date = date('jS', $temp_date).' day of month, '.$val['y'];
-			break;
-
-			case 'md':
-				$temp_date = mktime(0,0,0,$val['m'],$val['d'],2000);
-				$show_date = date('F jS', $temp_date);
-			break;
-
-			case 'ym':
-				$temp_date = mktime(0,0,0,$val['m'],1,2000);
-				$show_date = date('F', $temp_date).', '.$val['y'];
-			break;
-
-			case 'y':
-				$show_date = 'Year '.$val['y'];
-			break;
-
-			case 'm':
-				$temp_date = mktime(0,0,0,$val['m'],1,2000);
-				$show_date = date('F', $temp_date);
-			break;
-
-			case 'd':
-				$temp_date = mktime(0,0,0,1,$val['d'],2000);
-				$show_date = date('jS', $temp_date).' day of month';
-			break;
-
-			default:
-				$show_date = '';
-			break;
-
+		if (!empty($matches)) {
+			$matches = array_reverse(array_pop($matches));
+			foreach ($matches as $match) {
+				$pos = $match[1];
+				$year_str = ($match[0] == 'Y') ? $val['y'] : substr($val['y'], -2);
+				if ($pos == 0) {
+					$new_format = $year_str.substr($new_format, 1);
+				} else if (($pos > 0) && (substr($new_format, ($pos - 1), 1) != "\\")) {
+					$new_format = substr($new_format, 0, $pos).$year_str.substr($new_format, $pos + 1);
+				}
+			}
 		}
-
-		// break apart the date into correct portions
-		list($val['h'], $val['i'], $val['s']) = sscanf($time, '%02s:%02s:%02s');
-
-		// do similar with the time string
-		$show_time_str = (($val['h'] == '--') ? '' : 'h').(($val['i'] == '--') ? '' : 'i').(($val['s'] == '--') ? '' : 's');
-		switch ($show_time_str) {
-			case 'his':
-				$show_time = $time;
-			break;
-
-			case 'hi':
-				$show_time = substr($time,5);
-			break;
-
-			case 'hs':
-				$show_time = date('F jS', $temp_date);
-			break;
-
-			case 'is':
-				$show_time = $val['i'].' min '.$val['s'].' sec';
-			break;
-
-			case 'h':
-				$show_time = $val['h'].' hour'.($val['h'] == 1 ? '' : 's');
-			break;
-
-			case 'i':
-				$show_time = $val['i'].' minute'.($val['i'] == 1 ? '' : 's');
-			break;
-
-			case 's':
-				$show_time = $val['s'].' seconds'.($val['s'] == 1 ? '' : 's');
-			break;
-
-			default:
-				$show_time = '';
-			break;
-
-		}*/
-
-		// so we can extract the correct month and day-suffix- using 2000 as it's a leap year (so we can extract for Jan 29).
-
-		// return ($circa ? 'circa ' : '').trim($show_date).(empty($show_date) || empty($show_time) ? '' : ', ').trim($show_time);
+		$temp_date = mktime($val['h'], $val['i'], $val['s'], $val['m'], $val['d'], 2000);
+		return ($circa ? 'circa ' : '').date($new_format, $temp_date);
 
 	}//end getSummary()
 
