@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.66.2.6 2006/02/02 00:08:46 mmcintyre Exp $
+* $Id: design_area_menu_type.inc,v 1.66.2.7 2006/04/19 06:55:38 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.66.2.6 $
+* @version $Revision: 1.66.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -463,11 +463,16 @@ class Design_Area_Menu_Type extends Design_Area
 							$userids[$i] = $db->quote($userids[$i]);
 						}
 						$USERIDS_COND = \'AND p.userid  IN (\'.implode(\',\', $userids).\')\';
+						$USERIDS_COND .= \' AND (
+						(p.permission = \'.SQ_PERMISSION_READ.\' AND (p.userid <> \'.$db->quote($public_userid).\' OR (userid = \'.$db->quote($public_userid).\' AND granted = 1)))
+						OR
+						(p.permission > \'.SQ_PERMISSION_READ.\' AND p.granted = 1)
+						)\';
 					}
 
 					if (!empty($USERIDS_COND)) {
 						$USERIDS_COND .= \'
-										  GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
+										  GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order, p.assetid
 										  HAVING MIN(p.granted) <> 0\';
 					}
 				}
