@@ -11,7 +11,7 @@
 * | Please refer to http:// www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code.inc,v 1.11 2006/01/09 23:50:47 dmckee Exp $
+* $Id: content_type_code.inc,v 1.12 2006/04/19 04:44:21 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -70,7 +70,7 @@ class Content_Type_Code extends Content_Type
 
 
 		// Below Matches Single html tags(those without attributes specifified, as well as singleton tags);
-		preg_match_all('/\<([A-Za-z]+[A-Za-z0-9]*)(\s*\/)\>/i', $highlighted, $matches=Array());
+		preg_match_all('/\<([A-Za-z]+[A-Za-z0-9_]*)(\s*\/)\>/i', $highlighted, $matches=Array());
 
 		for ($i = 0; $i < count($matches[0]); $i++) {
 			$needle = $matches[0][$i];
@@ -81,7 +81,7 @@ class Content_Type_Code extends Content_Type
 		}
 
 		// End tags ( </aaa> )
-		preg_match_all('/\<\/\s*([A-Za-z][A-Za-z0-9]*)\>/i', $highlighted, $matches=Array());
+		preg_match_all('/\<\/\s*([A-Za-z][A-Za-z0-9_]*)\>/i', $highlighted, $matches=Array());
 
 		for ($i = 0; $i < count($matches[0]); $i++) {
 			$needle = $matches[0][$i];
@@ -94,7 +94,7 @@ class Content_Type_Code extends Content_Type
 		$simple_matches = Array();
 
 		// Tags like <h1> etc;
-		preg_match_all('/\<\s*([A-Za-z]+[A-Za-z0-9]*)\>/i', $highlighted, $matches=Array());
+		preg_match_all('/\<\s*([A-Za-z]+[A-Za-z0-9_]*)\>/i', $highlighted, $matches=Array());
 
 		for ($i = 0; $i < count($matches[0]); $i++) {
 			$needle = $matches[0][$i];
