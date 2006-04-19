@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.40 2006/02/06 04:12:26 dmckee Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.41 2006/04/19 02:00:12 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -235,7 +235,10 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		$existing_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($existing_ids));
 		foreach ($existing_info as $id => $existing_info) {
 			// if the name is the same, delete the link
-			if ($existing_info['name'] == $info['name']) {
+			$new_file_name = make_valid_web_paths(Array($info['name']));
+			$new_file_name = array_shift($new_file_name);
+
+			if ($existing_info['name'] == $new_file_name) {
 				$linkid = $existing_ids[$id];
 				$asset->deleteExistingLink($linkid);
 				$asset->updateLookups();
