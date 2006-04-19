@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: visual_aid.inc,v 1.1 2006/02/28 06:19:00 skim Exp $
+* $Id: visual_aid.inc,v 1.2 2006/04/19 06:37:08 skim Exp $
 *
 */
 
@@ -35,7 +35,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     representation of html tags
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -69,22 +69,34 @@ class visual_aid extends WYSIWYG_Plugin
 		?>
 		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/wysiwyg/plugins/visual_aid/visual-aid.js' ?>"></script>
 		<script type="text/javascript" language="Javascript">
+			var visual_aid_image_path = "<?php echo sq_web_path('fudge') ?>/wysiwyg/plugins/visual_aid/images";
 			var visual_aid_mode = false;
-			HTMLArea.prototype._visualAidToggle = function() {
+
+			HTMLArea.prototype._visualAidToggle = function(target, change_mode) {
+				var editor = this;
+
+				if (target.length == 1 && target[0] == "all") {
+					var tag_types = visual_aid_types;
+				} else {
+					var tag_types = target;
+				}
+
+				// html elements with the start and end tags
 				var elements = Array();
 				if (HTMLArea.is_gecko) {
-					for (var i = 0; i < visual_aid_types.length; i++) {
-						elements[visual_aid_types[i]] = this._doc.getElementsByTagName(visual_aid_types[i]);
+					for (var i = 0; i < tag_types.length; i++) {
+						elements[tag_types[i]] = this._doc.getElementsByTagName(tag_types[i]);
 					}
 				} else if (HTMLArea.is_ie) {
-					for (var i = 0; i < visual_aid_types.length; i++) {
-						elements[visual_aid_types[i]] = this._docContent.getElementsByTagName(visual_aid_types[i]);
+					for (var i = 0; i < tag_types.length; i++) {
+						elements[tag_types[i]] = this._docContent.getElementsByTagName(tag_types[i]);
 					}
 				}
 				for (var tag in elements) {
 					if (elements[tag].length > 0) {
 						for (var j = 0; j < elements[tag].length; j++) {
-							var obj = new visual_aid_factory(tag, elements[tag][j]);
+						//for (var j = elements[tag].length - 1; j >= 0; j--) {
+							var obj = new visual_aid_factory(tag, elements[tag][j], editor);
 							if (visual_aid_mode) {
 								obj.turnOff();
 							} else {
@@ -93,7 +105,9 @@ class visual_aid extends WYSIWYG_Plugin
 						}
 					}
 				}
-				visual_aid_mode = !visual_aid_mode;
+				if (change_mode) {
+					visual_aid_mode = !visual_aid_mode;
+				}
 			}
 		</script>
 		<?php
@@ -111,22 +125,50 @@ class visual_aid extends WYSIWYG_Plugin
 	{
 		?>
 		case "visual_aid":
-			this._visualAidToggle();
+			var target = new Array("all");
+			this._visualAidToggle(target, true);
 		break;
 		<?php
 
 	}//end print_plugin_button_click()
 
 
+	/**
+	* Prints any JS the plugin wants executed before getHTML runs
+	* This code is a function - do not use script tags
+	*
+	* @return void
+	* @access public
+	*/
 	function print_plugin_pre_get_html()
 	{
 		?>
 		if (visual_aid_mode) {
-			this._visualAidToggle();
+			var target = new Array("all");
+			this._visualAidToggle(target, true);
 		}
 		<?php
 
 	}//end print_plugin_pre_get_html()
+
+
+	/**
+	* Shortcut keys for visual aid
+	*
+	* @returns void
+	* @access  public
+	*/
+	function print_plugin_shortcuts()
+	{
+		?>
+		case 'm':     // Toggle Visual Aid
+			var target = new Array("all");
+			this._visualAidToggle(target, true);
+			HTMLArea._stopEvent(ev);
+		break;
+		<?php
+
+	}//end print_plugin_shortcuts()
 
 
 }//end class()
