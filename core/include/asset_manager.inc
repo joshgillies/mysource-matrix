@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.33 2006/04/07 05:25:54 sdanis Exp $
+* $Id: asset_manager.inc,v 1.322.2.34 2006/04/19 07:01:30 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.33 $
+* @version $Revision: 1.322.2.34 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5386,22 +5386,33 @@ class Asset_Manager extends MySource_Object
 		$having = '';
 		if (!is_null($access)) {
 			$userid_cond = '';
+			$group_by = 'GROUP BY l.linkid, l.'.$other_side.'id, l.value, l.link_type,
+								  a.type_code, l.sort_order, l.is_dependant, l.is_exclusive';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$from .= ', '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p';
 				$where .= ' AND p.assetid = a.assetid';
 				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
 				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
-				$userids[] = $this->getSystemAssetid('public_user');
+				$public_userid = $this->getSystemAssetid('public_user');
+				$userids[] = $public_userid;
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 					$userids[$i] = $db->quote($userids[$i]);
 				}
 				$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
 				$where .= $userid_cond;
+
+				$userid_cond = ' AND p.userid IN ('.implode(',', $userids).')';
+				$where .= $userid_cond.'
+					AND (
+						(p.permission = '.$db->quote($access).' AND (p.userid <> '.$db->quote($public_userid).' OR (userid = '.$db->quote($public_userid).' AND granted = 1)))
+						OR
+						(p.permission > '.$db->quote($access).' AND p.granted = 1)
+						)';
 				$having .= 'HAVING MIN(p.granted) <> 0';
+				$group_by .= ', p.assetid';
+
 			}
 
-			$group_by = 'GROUP BY l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-								  a.type_code, l.sort_order, l.is_dependant, l.is_exclusive';
 		}
 
 		if (!empty($type_code)) {
