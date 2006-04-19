@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.79 2006/02/27 04:28:37 bcaldwell Exp $
+* $Id: design_area_menu_type.inc,v 1.80 2006/04/19 05:45:30 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -452,15 +452,21 @@ class Design_Area_Menu_Type extends Design_Area
 						$USERIDS_COND = \'\';
 					} else {
 						$userids = array_keys($GLOBALS[\'SQ_SYSTEM\']->am->getParents($GLOBALS[\'SQ_SYSTEM\']->user->id, \'user_group\', FALSE));
-						$userids[] = $GLOBALS["SQ_SYSTEM"]->am->getSystemAssetid("public_user");
+						$public_userid = $GLOBALS["SQ_SYSTEM"]->am->getSystemAssetid("public_user");
+						$userids[] = $public_userid;
 						$userids[] = $GLOBALS["SQ_SYSTEM"]->user->id;
 						for (reset($userids); NULL !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
 						$USERIDS_COND = \'AND p.userid  IN (\'.implode(\',\', $userids).\')\';
+						$USERIDS_COND .= \' AND (
+						(p.permission = \'.SQ_PERMISSION_READ.\' AND (p.userid <> \'.$db->quote($public_userid).\' OR (userid = \'.$db->quote($public_userid).\' AND granted = 1)))
+						OR
+						(p.permission > \'.SQ_PERMISSION_READ.\' AND p.granted = 1)
+						)\';
 					}
 
 					if (!empty($USERIDS_COND)) {
 						$USERIDS_COND .= \'
-										  GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order, p.userid
+										  GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order, p.assetid
 										  HAVING MIN(p.granted) <> 0\';
 					}
 				}
