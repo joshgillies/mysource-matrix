@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.56.2.12 2006/03/23 23:16:41 sdanis Exp $
+* $Id: search_manager.inc,v 1.56.2.13 2006/04/20 04:52:41 sdanis Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.56.2.12 $
+* @version $Revision: 1.56.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -621,6 +621,10 @@ class Search_Manager extends Asset
 
 		$group_by =  'GROUP BY ai.assetid';
 		$group_by .= $include_context ? ', ai.component' : '';
+		$having = '';
+		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+			$having = ' HAVING MIN(ap.granted) <> 0';
+		}
 
 		  /////////////////////////////
 		 //  CONSTRUCT CACHING KEY  //
@@ -697,7 +701,7 @@ class Search_Manager extends Asset
 							$sql = $start_sql.'
 									AND ai.type = '.$db->quote('datetime').'
 									AND ai.component = '.$db->quote('attr:'. $attr_info['params']['asset_type'].':'.$attribute->name).'
-									'.$where.' '.$group_by;
+									'.$where.' '.$group_by.$having;
 
 							$result = $db->getAssoc($sql);
 							assert_valid_db_result($result);
@@ -725,7 +729,7 @@ class Search_Manager extends Asset
 							if (empty($result)) {
 								$sql = $start_sql.'
 									AND ai.component = '.$db->quote('attr:'. $attr_info['params']['asset_type'].':'.$attribute->name).'
-									AND (ai.value LIKE '.$db->quote('%'.$word.'%').') '.$group_by;
+									AND (ai.value LIKE '.$db->quote('%'.$word.'%').') '.$group_by.$having;
 
 								$result = $db->getAssoc($sql);
 								assert_valid_db_result($result);
@@ -780,7 +784,7 @@ class Search_Manager extends Asset
 					$sql = $start_sql.'
 							AND ai.type = '.$db->quote('datetime').'
 							AND ai.component = '.$db->quote('__'.$attr_info['params']['date_type'].'__').'
-							'.$where.' '.$group_by;
+							'.$where.' '.$group_by.$having;
 
 					$result = $db->getAssoc($sql);
 					assert_valid_db_result($result);
@@ -816,13 +820,13 @@ class Search_Manager extends Asset
 					$result = $cm->loadFromCache($this->id, $this->type(), $search_cache_key.'include_all'.$word);
 					assert_valid_db_result($result);
 					if (empty($result)) {
-						$sql = $start_sql.' AND (ai.value LIKE '.$db->quote('%'.$word.'%').') '.$group_by;
+						$sql = $start_sql.' AND (ai.value LIKE '.$db->quote('%'.$word.'%').') '.$group_by.$having;
 						if ($include_context) {
 							$result = $db->getAll($sql);
 						} else {
 							$result = $db->getAssoc($sql);
 						}
-
+bam($sql);
 						assert_valid_db_result($result);
 
 						$cm->saveToCache($this->id, $this->type(), $search_cache_key.'include_all'.$word, serialize($result));
@@ -873,7 +877,7 @@ class Search_Manager extends Asset
 							$sql = $start_sql.'
 									AND ai.type = '.$db->quote('datetime').'
 									AND ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['assetid']).'
-									'.$where.' '.$group_by;
+									'.$where.' '.$group_by.$having;
 
 							$result = $db->getAssoc($sql);
 							assert_valid_db_result($result);
@@ -913,7 +917,7 @@ class Search_Manager extends Asset
 								$sql = $start_sql.'
 										AND ai.type = '.$db->quote($key_type).'
 										AND ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['assetid']).'
-										AND ai.value LIKE '.$db->quote('%'.$word.'%').' '.$group_by;
+										AND ai.value LIKE '.$db->quote('%'.$word.'%').' '.$group_by.$having;
 
 								$result = $db->getAssoc($sql);
 								assert_valid_db_result($result);
@@ -941,7 +945,7 @@ class Search_Manager extends Asset
 			foreach ($search_info['exclude'] as $attr_name => $attr_info) {
 
 				$sql = $start_sql.'
-					AND (ai.value LIKE \'%'.implode("%' OR ai.value LIKE '%", $attr_info['words']).'%\') '.$group_by;
+					AND (ai.value LIKE \'%'.implode("%' OR ai.value LIKE '%", $attr_info['words']).'%\') '.$group_by.$having;
 
 				$result = $db->getAssoc($sql);
 				assert_valid_db_result($result);
@@ -1385,9 +1389,13 @@ class Search_Manager extends Asset
 		}
 
 		if (!empty($userid_cond)) {
+			$public_userid = (string) $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 			$sql['where'] .= $userid_cond;
-			$sql['where'] .= ' AND ap.permission >= '.$db->quote(SQ_PERMISSION_READ).'
-							   AND ap.granted = 1';
+			$sql['where'] .= ' AND (
+						(ap.permission = '.$db->quote(SQ_PERMISSION_READ).' AND (ap.userid <> '.$db->quote($public_userid).' OR (userid = '.$db->quote($public_userid).' AND granted = 1)))
+						OR
+						(ap.permission > '.$db->quote(SQ_PERMISSION_READ).' AND ap.granted = 1)
+						)';
 		}
 
 		return $sql;
