@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.40.2.5 2005/10/19 06:27:13 sdanis Exp $
+* $Id: form_email.inc,v 1.40.2.6 2006/04/20 03:53:15 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.40.2.5 $
+* @version $Revision: 1.40.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -146,6 +146,12 @@ class Form_Email extends Form
 	function cloneComponents(&$clone, $components)
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// Remove metadata schemas from form submission clone components
+		$metadata_schemas_key = array_search('metadata_schemas', $components);
+		if ($metadata_schemas_key !== FALSE) {
+			unset($components[$metadata_schemas_key]);
+		}
 
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
