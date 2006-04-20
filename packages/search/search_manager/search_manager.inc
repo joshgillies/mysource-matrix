@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.97.2.5 2006/04/12 13:14:34 sdanis Exp $
+* $Id: search_manager.inc,v 1.97.2.6 2006/04/20 04:04:22 sdanis Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97.2.5 $
+* @version $Revision: 1.97.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2562,12 +2562,19 @@ class Search_Manager extends Asset
 		if ($user_restrictions) {
 			$query['from'][] = 'sq_vw_ast_perm ap';
 			$query['where'][] = 'a.assetid = ap.assetid';
+			$public_userid = (string) $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-			array_push($userids, (string) $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'), $GLOBALS['SQ_SYSTEM']->user->id);
+			array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 				$userids[$i] = $db->quoteSmart($userids[$i]);
 			}
 			$query['where'][] = 'ap.userid  IN ('.implode(',', $userids).')';
+			$query['where'][] = '(
+						(ap.permission = '.$db->quote(SQ_PERMISSION_READ).' AND (ap.userid <> '.$db->quote($public_userid).' OR (userid = '.$db->quote($public_userid).' AND granted = 1)))
+						OR
+						(ap.permission > '.$db->quote(SQ_PERMISSION_READ).' AND ap.granted = 1)
+						)';
+			$query['having'][] = 'MIN(ap.granted) <> 0';
 		}
 
 		// STATUS RESTRICTIONS
