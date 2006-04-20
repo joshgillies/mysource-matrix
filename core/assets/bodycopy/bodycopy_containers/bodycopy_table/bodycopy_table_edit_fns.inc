@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.25 2006/04/03 03:22:58 skim Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.26 2006/04/20 06:24:12 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -278,6 +278,12 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				continue;
 			}
 			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
+		}
+
+		// Now add the ID of the table
+		$val = str_replace(' ', '_', strtolower($asset->attr('name')));
+		if (!empty($val)) {
+			$attribute_list .= ' '.'id="'.str_replace('"', '&quot;', $val).'"';
 		}
 
 		echo "\n<table{$attribute_list}>\n";
