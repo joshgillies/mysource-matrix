@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.50 2006/03/23 22:16:26 sdanis Exp $
+* $Id: form_email.inc,v 1.51 2006/04/20 03:44:18 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -133,16 +133,16 @@ class Form_Email extends Form
 	*
 	* @param object	&$clone		the clone asset shell
 	* @param array	$components	the wanted components to clone eg.
-	*         		           	Array(
-	*                           'attributes',
-	*                           'metadata_shemas',
-	*                           'metadata',
-	*                           'workflow',
-	*                           'permissions',
-	*                           'data'
-	*                       	);
-	*                       	or alternately
-	*                       	Array('all');
+	*							Array(
+	*							'attributes',
+	*							'metadata_shemas',
+	*							'metadata',
+	*							'workflow',
+	*							'permissions',
+	*							'data'
+	*							);
+	*							or alternately
+	*							Array('all');
 	*
 	* @return boolean
 	* @access public
@@ -152,6 +152,12 @@ class Form_Email extends Form
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// Remove metadata schemas from form submission clone components
+		$metadata_schemas_key = array_search('metadata_schemas', $components);
+		if ($metadata_schemas_key !== FALSE) {
+			unset($components[$metadata_schemas_key]);
+		}
 
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -337,7 +343,9 @@ class Form_Email extends Form
 		$current_value = @unserialize($email_format_attr->value);
 
 		// return false if there is no-one to send to
-		if (empty($current_value['to']) && empty($current_value['to_assetids'])) return FALSE;
+		if (empty($current_value['to']) && empty($current_value['to_assetids'])) {
+			return FALSE;
+		}
 
 		// get the form info (in both formats)
 		$info = $this->getFormInfo(TRUE);
