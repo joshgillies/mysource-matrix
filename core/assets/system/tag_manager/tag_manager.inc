@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.1 2006/04/20 04:21:55 emcdonald Exp $
+* $Id: tag_manager.inc,v 1.2 2006/04/20 05:53:05 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends Asset
@@ -296,10 +296,7 @@ class Tag_Manager extends Asset
 	*/
 	function setTag($assetid, $tagid, $weight)
 	{
-		// check that this term is from the tagging thesaurus
-		$id_parts = explode(':', $tagid);
-		$thes_id = $id_parts[0];
-		if ($this->attr('thesaurus') != $thes_id) {
+		if (!$this->isFromTaggingThesaurus($tagid)) {
 			// this tag is not in the required thesaurus
 			trigger_error('Tags must be selected from the tagging thesaurus', E_USER_WARNING);
 			return 0;
@@ -388,6 +385,27 @@ class Tag_Manager extends Asset
 		return $success;
 
 	}//end deleteTag()
+
+
+	/**
+	* Checks whether a thesaurus term is from the tagging thesaurus
+	*
+	* @param string	$tagid	the id of the tag to check
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isFromTaggingThesaurus($tagid)
+	{
+		$id_parts = explode(':', $tagid);
+		if ($this->attr('thesaurus') != $id_parts[0]) {
+			// this tag is not in the required thesaurus
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end isFromTaggingThesaurus()
 
 
 }//end class
