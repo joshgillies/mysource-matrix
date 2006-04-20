@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.12 2006/04/11 00:01:48 skim Exp $
+* $Id: page_poll.inc,v 1.13 2006/04/20 07:44:17 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -397,10 +397,12 @@ class Page_Poll extends Page
 	/**
 	* Increments the option voted for
 	*
+	* Returns TRUE if any valid options were voted for
+	*
 	* @param object	&$question	reference to poll_question being voted on
 	* @param array	$option_ids	key index of the option voted for
 	*
-	* @return void
+	* @return boolean
 	* @access private
 	*/
 	function _processVote(&$question, $option_ids)
@@ -433,6 +435,8 @@ class Page_Poll extends Page
 
 			$_SESSION[$this->getPrefix().'_VOTED'] = TRUE;
 		}
+
+		return $save;
 
 	}//end _processVote()
 
