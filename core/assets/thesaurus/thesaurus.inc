@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.26 2006/04/04 03:24:03 emcdonald Exp $
+* $Id: thesaurus.inc,v 1.27 2006/04/20 05:02:15 rhoward Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1315,7 +1315,7 @@ class Thesaurus extends Asset
 
 
 	/**
-	* Returns the lowest link id that has the supplied name as the minor
+	* Returns the assetid of the thesaurus term referenced by the passed term name
 	*
 	* @param string	$name	The name of the sought term
 	*
@@ -1345,6 +1345,51 @@ class Thesaurus extends Asset
 		return $result;
 
 	}//end getTermIdByName()
+
+
+	/**
+	* Returns the assetids of the thesaurus terms referenced by the passed term names, in the format:
+	* <pre>
+	* Array(
+	*	'termid'	=> 'name',
+	* )
+	* </pre>
+	*
+	* NOTE: This does not chunk the query, may need to be modified to do so in the future
+	*
+	* @param array	$names	An array of sought terms
+	*
+	* @return int
+	* @access public
+	*/
+	function getTermIdsByNames($names)
+	{
+		if (empty($names)) return Array();
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$formatted_names = Array();
+		foreach ($names as $name) {
+			$formatted_names[] = $db->quoteSmart(strtolower($name));
+		}
+
+		$sql = '
+			SELECT
+				termid, term
+			FROM
+				sq_thes_term
+			WHERE
+				thesid = '.$db->quoteSmart($this->id).'
+				AND
+				lower(term) IN ('.implode(',', $formatted_names).')
+		';
+
+		$result = $db->getAssoc($sql);
+
+		assert_valid_db_result($result);
+		return $result;
+
+	}//end getTermIdsByNames()
 
 
 	/**
