@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.463 2006/04/19 05:43:02 sdanis Exp $
+* $Id: asset_manager.inc,v 1.464 2006/04/20 00:52:32 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.463 $
+* @version $Revision: 1.464 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6808,20 +6808,32 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$group_by = '';
+		$having = '';
 		if (!is_null($access)) {
-			$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p ON a.assetid = p.assetid';
-			$where .= 'p.assetid = a.assetid';
 			$userid_cond = '';
+			$group_by = 'GROUP BY l.minorid, a.type_code, a.name';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+				$from .= ', '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p';
+				$where .= ' p.assetid = a.assetid';
 				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-				$userids[] = $this->getSystemAssetid('public_user');
 				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
+				$public_userid = $this->getSystemAssetid('public_user');
+				$userids[] = $public_userid;
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 					$userids[$i] = $db->quote($userids[$i]);
 				}
-				$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
+
+				$userid_cond = ' AND p.userid IN ('.implode(',', $userids).')';
+				$where .= $userid_cond.'
+					AND (
+						(p.permission = '.$db->quote($access).' AND (p.userid <> '.$db->quote($public_userid).' OR (userid = '.$db->quote($public_userid).' AND granted = 1)))
+						OR
+						(p.permission > '.$db->quote($access).' AND p.granted = 1)
+						)';
+				$having .= 'HAVING MIN(p.granted) <> 0';
+				$group_by .= ', p.assetid';
 			}
-			$where .= $userid_cond.' AND p.granted >= '.$db->quote($access);
+
 			if (!empty($type_code)) $where .= ' AND ';
 		}
 
@@ -6875,6 +6887,8 @@ class Asset_Manager extends MySource_Object
 				'select'		=> '('.$select,
 				'from'			=> $from,
 				'where'			=> $where,
+				'group_by'		=> $group_by,
+				'having'		=> $having,
 				'union_select'	=> $union_select,
 				'union_from'	=> $union_from,
 				'union_where'	=> $union_where,
@@ -7015,20 +7029,32 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$group_by = '';
+		$having = '';
 		if (!is_null($access)) {
-			$from .= ','.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p';
-			$where .= ' AND a.assetid = p.assetid';
 			$userid_cond = '';
+			$group_by = 'GROUP BY l.majorid, a.type_code, t.treeid, a.name';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+				$from .= ', '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p';
+				$where .= ' AND p.assetid = a.assetid';
 				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
-				$userids[] = $this->getSystemAssetid('public_user');
+				$public_userid = $this->getSystemAssetid('public_user');
+				$userids[] = $public_userid;
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 					$userids[$i] = $db->quote($userids[$i]);
 				}
-				$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
+
+				$userid_cond = ' AND p.userid IN ('.implode(',', $userids).')';
+				$where .= $userid_cond.'
+					AND (
+						(p.permission = '.$db->quote($access).' AND (p.userid <> '.$db->quote($public_userid).' OR (userid = '.$db->quote($public_userid).' AND granted = 1)))
+						OR
+						(p.permission > '.$db->quote($access).' AND p.granted = 1)
+						)';
+				$having .= 'HAVING MIN(p.granted) <> 0';
+				$group_by .= ', p.assetid';
 			}
-			$where .= $userid_cond.' AND p.granted >= '.$db->quoteSmart($access);
+
 		}
 
 		$union_select = ' UNION ALL SELECT sl.majorid, null, null as treeid';
@@ -7044,6 +7070,8 @@ class Asset_Manager extends MySource_Object
 				'select'		=> '('.$select,
 				'from'			=> $from,
 				'where'			=> $where,
+				'group_by'		=> $group_by,
+				'having'		=> $having,
 				'union_select'	=> $union_select,
 				'union_from'	=> $union_from,
 				'union_where'	=> $union_where,
