@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.56.2.13 2006/04/20 04:52:41 sdanis Exp $
+* $Id: search_manager.inc,v 1.56.2.14 2006/04/20 04:54:42 sdanis Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.56.2.13 $
+* @version $Revision: 1.56.2.14 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -826,7 +826,7 @@ class Search_Manager extends Asset
 						} else {
 							$result = $db->getAssoc($sql);
 						}
-bam($sql);
+
 						assert_valid_db_result($result);
 
 						$cm->saveToCache($this->id, $this->type(), $search_cache_key.'include_all'.$word, serialize($result));
