@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.33.2.3 2006/04/19 02:17:51 lwright Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.33.2.4 2006/04/20 06:18:43 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.33.2.3 $
+* @version $Revision: 1.33.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -232,7 +232,14 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			// if the name is the same, delete the link
 			if ($existing_info['name'] == $new_file_name) {
 				$linkid = $existing_ids[$id];
+
+				// We need to update the (ex)-TYPE_3-linked file's lookups as
+				// well as that on the design
+				$minor_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+
 				$asset->deleteExistingLink($linkid);
+
+				$minor_asset->updateLookups();
 				$asset->updateLookups();
 			}
 		}
