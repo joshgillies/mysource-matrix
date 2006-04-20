@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_suggestion.php,v 1.2 2005/12/07 22:55:23 emcdonald Exp $
+* $Id: tag_suggestion.php,v 1.3 2006/04/20 06:04:56 emcdonald Exp $
 *
 */
 
 	require_once dirname(__FILE__).'/../../include/init.inc';
 	require_once dirname(__FILE__).'/../html_form/html_form.inc';
-	if (!isset($_GET['assetid'])) return false;
-	if (!isset($_GET['prefix'])) return false;
+	if (!isset($_GET['assetid'])) return FALSE;
+	if (!isset($_GET['prefix'])) return FALSE;
 
 
 
@@ -33,7 +33,7 @@
 	assert_valid_assetid($assetid);
 	$prefix = $_GET['prefix'];
 
-	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+	$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 	$button_name = 'sq_asset_finder_'.$prefix.'_tags_more_btn';
 	$labelname = 'sq_asset_finder_'.$prefix.'_tags';
 	$idname = $prefix.'_tags';
@@ -43,7 +43,7 @@
 ?>
 
 		<?php
-$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 if (empty($sm)) {
 	echo translate('tag_list_not_available');
 } else {
@@ -161,19 +161,21 @@ if (empty($sm)) {
 			<legend><b><?php echo 'Suggested Tags'; ?></b></legend>
 
 
-
 	<?php
 	foreach ($keywords_info as $keyword_info) {
-		?><input type="button" name="Tag" id="tag<?php echo $keyword_info['assetid']; ?>" value="<?php echo $keyword_info['name']; ?>"
-		onclick="javascript:
-							addTag('<?php echo $keyword_info['name']; ?>', '<?php echo $keyword_info['assetid']; ?>');
-							hideTagButton('<?php echo $keyword_info['assetid']; ?>');
-				"
-			class="sq-form-field" />
-		<?php
+		// reject any suggested tags that are not from the tagging thesaurus
+		if ($tm->isFromTaggingThesaurus($keyword_info['assetid'])) {
+			?><input type="button" name="Tag" id="tag<?php echo $keyword_info['assetid']; ?>" value="<?php echo $keyword_info['name']; ?>"
+			onclick="javascript:
+								addTag('<?php echo $keyword_info['name']; ?>', '<?php echo $keyword_info['assetid']; ?>');
+								hideTagButton('<?php echo $keyword_info['assetid']; ?>');
+					"
+				class="sq-form-field" />
+			<?php
+		}
 	}
 
-}
+}//end else
 ?><div id="noMoreTags" style="visibility:hidden;">
 			<?php echo translate('no_tags_to_add'); ?>
 			</div>
