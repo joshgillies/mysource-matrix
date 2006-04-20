@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.175 2006/04/02 23:17:53 tbarrett Exp $
+* $Id: mysource.inc,v 1.176 2006/04/20 04:21:56 emcdonald Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.175 $
+* @version $Revision: 1.176 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1703,9 +1703,9 @@ class MySource
 	*/
 	function &getTagManager()
 	{
-		if (!isset($this->tag_manager) || get_class($this->tag_manager) != 'tag_manager') {
-			require_once SQ_INCLUDE_PATH.'/tag_manager.inc';
-			$this->tag_manager =& new Tag_Manager();
+		$am =& $this->am;
+		if ((!isset($this->tag_manager) || (get_class($this->tag_manager) != 'tag_manager')) && $am->isSystemAssetType('tag_manager')) {
+			$this->tag_manager = &$am->getSystemAsset('tag_manager');
 		}
 		return $this->tag_manager;
 

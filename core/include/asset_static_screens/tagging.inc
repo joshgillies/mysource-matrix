@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.12 2006/03/29 03:39:05 sdanis Exp $
+* $Id: tagging.inc,v 1.13 2006/04/20 04:21:56 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 
@@ -126,6 +126,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 							$current_tag_ids[$key] = $current_tag_link['minorid'];
 						}
 						multiple_asset_finder($prefix.'_tags', $current_tag_ids, Array('thesaurus_term'=>'D'));
+						$o->note(translate('tag_thesaurus_note', get_asset_tag_line($tag_manager->attr('thesaurus'), 'details')));
 					} else {
 						foreach ($current_tag_links as $key => $current_tag_link) {
 							echo get_asset_tag_line($current_tag_link['minorid']).'<br>';

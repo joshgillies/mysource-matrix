@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.33 2006/01/26 22:33:59 lwright Exp $
+* $Id: package_manager_core.inc,v 1.34 2006/04/20 04:21:55 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -137,6 +137,7 @@ class Package_Manager_Core extends Package_Manager
 				'password_change_design',
 				'cron_job_expired_workflow',
 				'cron_job_generate_log_reports',
+				'tag_manager',
 			   );
 
 	}//end getSystemAssetTypes()
@@ -704,6 +705,30 @@ class Package_Manager_Core extends Package_Manager
 		return $cron_job;
 
 	}//end createCronJobGenerateLogReports()
+
+
+	/**
+	* Create the tag manager system asset
+	*
+	* @return object
+	* @access public
+	*/
+	function &createTagManager()
+	{
+		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('tag_manager');
+		$tag_manager =& new Tag_Manager();
+		$tag_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+		if (!$tag_manager->create($tag_manager_link)) {
+			trigger_localised_error('CORE0001', E_USER_ERROR, 'Trigger Manager');
+		}
+		pre_echo('Tag Manager Asset Id : '.$tag_manager->id);
+
+		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('tag_manager', $tag_manager->id);
+		return $tag_manager;
+
+	}//end createTagManager()
 
 
 }//end class
