@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.184.2.5 2006/02/17 02:35:16 sdanis Exp $
+* $Id: asset_map.inc,v 1.184.2.6 2006/04/20 23:59:29 sdanis Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.184.2.5 $
+* @version $Revision: 1.184.2.6 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -438,7 +438,7 @@ class Asset_Map
 				for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
 					$userids[$k] = $db->quote($userids[$k]);
 				}
-				$userid_cond = ' AND p.userid IN ('.implode(',', $userids).')';
+				$userid_cond = ' AND userid IN ('.implode(',', $userids).')';
 			}
 
 			// work out what protocol we are using to get here so we can get the most
@@ -473,13 +473,18 @@ class Asset_Map
 			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where.')';
 
 			if (!empty($userid_cond)) {
-				$p_where = '(
-								a.assetid = p.assetid AND
-								p.granted  = 1 AND
-								p.permission >= '.$db->quote(SQ_PERMISSION_READ).$userid_cond.'
+				$p_join = '(
+								a.assetid = p.assetid
 							)';
-				$p_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($p_where, 'p', 'ON');
-				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p '.$p_where;
+
+				$p_where = '((
+							(permission = '.$db->quote(1).' AND (userid <> '.$db->quote($public_userid).' OR (userid = '.$db->quote($public_userid).' AND granted = 1)))
+							OR
+							(permission > '.$db->quote(1).' AND granted = 1)
+							) '.$userid_cond.') GROUP BY assetid, permission HAVING MIN(granted) <> 0';
+				$p_join = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($p_join, 'p', 'ON');
+				$p_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($p_where);
+				$sql .= ' LEFT JOIN (SELECT assetid, permission FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_perm '.$p_where.') p '.$p_join;
 			}
 
 			$sql .= ','.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l';
@@ -564,7 +569,7 @@ class Asset_Map
 			for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
 				$userids[$k] = $db->quote($userids[$k]);
 			}
-			$userid_cond = ' AND p.userid IN ('.implode(',', $userids).')';
+			$userid_cond = ' AND userid IN ('.implode(',', $userids).')';
 		}
 
 		// work out what protocol we are using to get here so we can get the most
@@ -597,13 +602,18 @@ class Asset_Map
 					)';
 
 		if (!empty($userid_cond)) {
-			$p_where = '(
-							a.assetid = p.assetid AND
-							p.granted  = 1 AND
-							p.permission >= '.$db->quote(SQ_PERMISSION_READ).$userid_cond.'
+			$p_join = '(
+							a.assetid = p.assetid
 						)';
-			$p_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($p_where, 'p', 'ON');
-			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p '.$p_where;
+
+			$p_where = '((
+						(permission = '.$db->quote(1).' AND (userid <> '.$db->quote($public_userid).' OR (userid = '.$db->quote($public_userid).' AND granted = 1)))
+						OR
+						(permission > '.$db->quote(1).' AND granted = 1)
+						) '.$userid_cond.') GROUP BY assetid, permission HAVING MIN(granted) <> 0';
+			$p_join = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($p_join, 'p', 'ON');
+			$p_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($p_where);
+			$sql .= ' LEFT JOIN (SELECT assetid, permission FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_perm '.$p_where.') p '.$p_join;
 		}
 
 		$u_where = 'a.assetid = u.assetid';
