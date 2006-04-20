@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_tags.inc,v 1.3 2006/01/09 03:41:03 emcdonald Exp $
+* $Id: hipo_job_edit_tags.inc,v 1.4 2006/04/20 04:03:29 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit content tags
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -237,7 +237,7 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 		} else {
 			$assets = $this->_running_vars['assets'];
 			$child_assets = Array();
-			for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
+			for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) {
 					trigger_localised_error('HIPO0016', E_USER_WARNING, $assetid);
@@ -271,6 +271,7 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 	function processTags(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
+			$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
 			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
 
 			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
@@ -281,21 +282,17 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 				foreach ($this->_running_vars['tag_changes'] as $tag_data) {
 					switch ($tag_data['action']) {
 						case 'add':
+							// if this asset is already tagged with this tag, update the weight
 							$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $tag_data['tag_id'], SQ_LINK_NOTICE);
 							if (empty($link)) {
-								$new_tag_object =& $GLOBALS['SQ_SYSTEM']->am->getAsset($tag_data['tag_id']);
-								$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $new_tag_object, SQ_LINK_NOTICE, $tag_data['weight']);
+								$tag_manager->setTag($asset->id, $tag_data['tag_id'], $tag_data['weight']);
 							} else {
-								$success =$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], SQ_LINK_NOTICE, $tag_data['weight']);
+								$tag_manager->setTagWeight($link['linkid'], $tag_data['weight']);
 							}
-
 						break;
 
 						case 'delete':
-							$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $tag_data['tag_id'], SQ_LINK_NOTICE);
-							if (empty($link)) break;
-							$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
-
+							$tag_manager->deleteTag($asset->id, $tag_data['tag_id']);
 						break;
 					}
 				}
@@ -308,7 +305,7 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 				$this->_addError(translate('hipo_cannot_edit_tags', $assetid));
 			}
 
-			// add this assetid to the done array so we dont do it again
+			// add this assetid to the done array so we don't do it again
 			$this->_running_vars['done_assetids'][] = $assetid;
 		}//end if there are assets to process
 
