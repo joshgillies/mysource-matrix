@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.131 2006/04/20 04:21:56 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.132 2006/04/20 07:40:46 rhoward Exp $
 *
 */
 
@@ -971,6 +971,7 @@
 	<string source="asset_type_not_selected">asset type not selected</string>
 	<string source="attribute_not_selected">attribute not selected</string>
 	<string source="trigger_attribute_value">If the value of the %1$s attribute %2$s is equal to %3$s</string>
+	<string source="trigger_attribute_changed">If the value of the %1$s attribute %2$s changes&lt;br /&gt;&lt;br /&gt;&lt;strong&gt;Note:&lt;/strong&gt; This condition will cause the trigger to fail if the firing event is not "Attributes Changed"</string>
 	<string source="or_inherited_types">or inherited types</string>
 	<string source="trigger_set_attribute_value_serialise_note">You have selected a serialised attribute.  The value you set it to must be a valid PHP expression, for example "Array(1, 2, 4)"</string>
 

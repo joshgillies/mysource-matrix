@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.45 2006/04/07 02:13:29 rhoward Exp $
+* $Id: lang_errors.xml,v 1.46 2006/04/20 07:40:46 rhoward Exp $
 *
 */
 
@@ -240,6 +240,8 @@
 	<error code="HIPO0079">Unable to initialise "%s" HIPO, nothing to process</error>
 	<error code="HIPO0080">Callback asset (#%s) is not valid</error>
 	<error code="HIPO0081">Callback method ("%s") is not valid</error>
+
+	<error code="HIPO0082">HIPO Job failed</error>
 
 	<!-- CRON MANAGER -->
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.523 2006/04/19 05:26:15 emcdonald Exp $
+* $Id: asset.inc,v 1.524 2006/04/20 07:40:39 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.523 $
+* @version $Revision: 1.524 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2800,12 +2800,24 @@ class Asset extends MySource_Object
 			return FALSE;
 		}
 
-		unset($this->_tmp['vars_set']);
-
 		// if we get this far, then it's all OK
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$ms->closeLog();
+
+		if (!empty($this->_tmp['vars_set'])) {
+			// prepare to broadcast the attributes_changed
+			foreach ($this->_tmp['vars_set'] as $attr => $details) {
+				$changed_vars[$attr] = Array(
+										'type'		=> $this->vars[$attr]['type'],
+										'old_value'	=> $details['old_value'],
+										'new_value'	=> $this->attr($attr),
+									   );
+			}
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_attributes_changed', $this, $changed_vars);
+		}
+
+		unset($this->_tmp['vars_set']);
 
 		// notify anyone interested that attributes changed
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.8 2006/01/26 22:34:07 lwright Exp $
+* $Id: thesaurus_term.inc,v 1.9 2006/04/20 07:40:37 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -238,8 +238,23 @@ class Thesaurus_Term extends Asset
 		if ($success) {
 			$this->_thesaurus->saveAttributes();
 
+			if (!empty($this->_tmp['vars_set'])) {
+				// prepare to broadcast the attributes_changed
+				foreach ($this->_tmp['vars_set'] as $attr => $details) {
+					$changed_vars[$attr] = Array(
+											'type'		=> $this->vars[$attr]['type'],
+											'old_value'	=> $details['old_value'],
+											'new_value'	=> $this->attr($attr),
+										   );
+				}
+				$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_attributes_changed', $this, $changed_vars);
+			}
+
+			unset($this->_tmp['vars_set']);
+
 			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'AssetUpdate', Array('name'));
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_attributes_saved', $this);
 		}
 		return $success;
 
