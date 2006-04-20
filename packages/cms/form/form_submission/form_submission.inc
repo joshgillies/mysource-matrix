@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.25 2006/01/18 04:31:45 sdanis Exp $
+* $Id: form_submission.inc,v 1.26 2006/04/20 06:36:39 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -283,7 +283,6 @@ class Form_Submission extends Asset
 	*									NOTE: this is passed to incrementVersion to let it know that the parents
 	*									should have their versions updated as well.
 	*
-	*
 	* @return boolean
 	* @access public
 	*/
@@ -292,6 +291,98 @@ class Form_Submission extends Asset
 		return parent::incrementVersion($number, FALSE);
 
 	}//end incrementVersion()
+
+
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printBody()
+	{
+		$summary = $this->attr('attributes');
+		$summary = $summary['summary'];
+		?>
+		<table>
+			<thead>
+				<tr>
+					<th>Question</th>
+					<th>Answer</th>
+				</tr>
+			</thead>
+			<tbody>
+			<?php
+			foreach ($summary as $item) {
+				?>
+				<tr>
+					<td><?php echo $item['name']; ?></td>
+					<td><?php echo $item['answer']; ?></td>
+				</tr>
+				<?php
+			}
+			?>
+			</tbody>
+		</table>
+		<?php
+
+	}//end printBody()
+
+
+	/**
+	* Get bodycopy keyword replacement
+	*
+	* Provides a mechanism for providing keyword replacement functions by
+	* looking up the function named 'getKeywordNameKeywordReplacement'
+	* so an asset wishing to add support for 'best_ever' custom keyword
+	* should implement a function getBestEverKeywordReplacement()
+	* which returns a replacement string
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getKeywordReplacement($keyword)
+	{
+		$matches = Array();
+		if (preg_match('/question\_name\_(([0-9]+)\_q([0-9]+))/', $keyword, $matches)) {
+			$attrs = $this->attr('attributes');
+			$elt = array_get_index($attrs['summary'], $matches[2].':q'.$matches[3], Array('name' => ''));
+			return $elt['name'];
+		}
+		if (preg_match('/question\_answer\_(([0-9]+)\_q([0-9]+))/', $keyword, $matches)) {
+			$attrs = $this->attr('attributes');
+			$elt = array_get_index($attrs['summary'], $matches[2].':q'.$matches[3], Array('answer' => ''));
+			return $elt['answer'];
+		}
+		return parent::getKeywordReplacement($keyword);
+
+	}//end getKeywordReplacement()
+
+
+	/**
+	* Return the keywords for this asset type.
+	*
+	* This function is called in asset-listing situations like the asset listing, search page etc
+	* The return value is in the form:
+	* <PRE>
+	* Array(
+	*   'name' => 'description' => 'the asset name',
+	* );
+	* </PRE>
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableKeywords()
+	{
+		$res = parent::getAvailableKeywords();
+		$res['question_name_X_qY'] = 'The name of the question with ID X:qY';
+		$res['question_answer_X_qY'] = 'The answer to the question with ID X:qY';
+		return $res;
+
+	}//end getAvailableKeywords()
 
 
 }//end class
