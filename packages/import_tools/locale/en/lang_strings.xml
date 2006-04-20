@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2006/04/03 00:08:29 skim Exp $
+* $Id: lang_strings.xml,v 1.4 2006/04/20 03:46:27 skim Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -36,6 +36,8 @@
 <string source="import_tools_create_new_site_note">If this option is selected, the above Asset Selection will be ignored</string>
 <string source="import_tools_heading_style">Heading Style</string>
 <string source="import_tools_use_for_structure">Use for structure?</string>
+<string source="import_tools_create_css">Create CSS</string>
+<string source="import_tools_create_css_note">Creating a separate CSS file for the page. This overrides the default setting in Import Tools Manager.</string>
 <string source="import_tools_leading_text">Include Leading Text</string>
 <string source="import_tools_leading_text_note">Checking this will create a page for any text that is found in the document before the first heading</string>
 <string source="import_tools_leading_page_name">Leading Text Page Name</string>

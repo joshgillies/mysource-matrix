@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_structured_file_import.inc,v 1.2 2006/03/10 05:14:01 skim Exp $
+* $Id: tool_structured_file_import.inc,v 1.3 2006/04/20 03:46:31 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    searching.
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -202,6 +202,10 @@ class Tool_Structured_File_Import extends Tool
 					</table>
 					<?php
 				$o->closeField();
+				$o->openField(translate('import_tools_create_css'));
+					check_box($type_code.'_create_css', '1', $itm->attr('create_css_file'));
+					$o->note(translate('import_tools_create_css_note'));
+				$o->closeField();
 				$o->openField(translate('import_tools_leading_text'));
 					check_box($type_code.'_leading_text', '1');
 					$o->note(translate('import_tools_leading_text_note'));
@@ -263,7 +267,7 @@ class Tool_Structured_File_Import extends Tool
 		$vars['use_headings'] = isset($_POST[$type_code.'_no_headings']) ? FALSE : TRUE;
 		$vars['headings'] = array_keys($_POST['structured_file_import_headings']);
 		$vars['import_dir'] = $itm->attr('import_dir');
-		$vars['create_css'] = $itm->attr('create_css_file');
+		$vars['create_css'] = isset($_POST[$type_code.'_create_css_file']);
 		$vars['create_site_map'] = isset($_POST[$type_code.'_create_new_map']);
 		$vars['leading_create'] = isset($_POST[$type_code.'_leading_text']);
 		$vars['leading_text'] = $_POST[$type_code.'_leading_name'];
