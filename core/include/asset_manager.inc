@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.464 2006/04/20 00:52:32 sdanis Exp $
+* $Id: asset_manager.inc,v 1.465 2006/04/20 07:05:11 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.464 $
+* @version $Revision: 1.465 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2366,7 +2366,7 @@ class Asset_Manager extends MySource_Object
 
 		$prepared_otherids = Array();
 		foreach ($other_assetid as $id) {
-			$prepared_otherids[] = $db->quoteSmart($id);
+			$prepared_otherids[] = $db->quote($id);
 		}
 
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
