@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type.inc,v 1.3 2006/03/08 21:48:56 tbarrett Exp $
+* $Id: form_question_rule_type_file_type.inc,v 1.4 2006/04/20 06:00:48 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -126,7 +126,7 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 	*/
 	function evaluate($answer, $rule_data)
 	{
-		if (empty($answer)) return true;
+		if (empty($answer) || $answer == 'No file uploaded') return true;
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$comparison = array_get_index($rule_data, 'value', '');
 
