@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.18 2006/04/20 07:03:26 lwright Exp $
+* $Id: asset_manager.inc,v 1.431.2.19 2006/04/20 22:40:52 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.18 $
+* @version $Revision: 1.431.2.19 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6807,9 +6807,9 @@ class Asset_Manager extends MySource_Object
 						)';
 				$having .= 'HAVING MIN(p.granted) <> 0';
 				$group_by .= ', p.assetid';
+				if (!empty($type_code)) $where .= ' AND ';
 			}
 
-			if (!empty($type_code)) $where .= ' AND ';
 		}
 
 
