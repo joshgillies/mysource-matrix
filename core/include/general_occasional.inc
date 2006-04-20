@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.65 2006/04/10 23:06:33 sdanis Exp $
+* $Id: general_occasional.inc,v 1.66 2006/04/20 02:04:03 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix
 */
 
@@ -414,6 +414,9 @@ function implode_sql($query_components)
 
 	if (!empty($query_components['group_by'])) {
 		$sql .= "\nGROUP BY ".implode(', ', $query_components['group_by']);
+	}
+	if (!empty($query_components['having'])) {
+		$sql .= "\nHAVING ".implode(' ', $query_components['having']);
 	}
 	if (!empty($query_components['order_by'])) {
 		$sql .= "\nORDER BY ".implode(', ', $query_components['order_by']);
