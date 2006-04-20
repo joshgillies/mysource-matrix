@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.150.2.9 2006/04/13 11:52:19 rong Exp $
+* $Id: listing_engine.inc,v 1.150.2.10 2006/04/20 02:10:18 rong Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.150.2.9 $
+* @version $Revision: 1.150.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2553,10 +2553,9 @@ class Listing_Engine extends Page
 		// get a list of potential parent id, safety check
 		$potential_parentids = Array();
 		if (count($root_nodes) == 1) {
-			$type_codes = empty( $restrict_types) ? '' : $restrict_types['type_code'];
 			$min_depth = ($this->attr('min_depth') == '') ? NULL : $this->attr('min_depth');
 			$max_depth = ($this->attr('max_depth') == '') ? NULL : $this->attr('max_depth');
-			$root_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_nodes[0], $type_codes, FALSE, NULL, NULL, NULL, $min_depth, $max_depth);
+			$root_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_nodes[0], '', TRUE, NULL, NULL, NULL, $min_depth, $max_depth);
 			$potential_parentids = array_keys($root_children);
 		}
 
