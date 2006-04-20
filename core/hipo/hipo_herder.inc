@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.68.2.2 2005/08/30 08:45:24 brobertson Exp $
+* $Id: hipo_herder.inc,v 1.68.2.3 2006/04/20 06:54:06 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.68.2.2 $
+* @version $Revision: 1.68.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -599,10 +599,7 @@ class HIPO_Herder extends MySource_Object
 		if ($job_threshold > 0) {
 			if (($this->threshold + $job_threshold) <= SQ_HIPO_TOTAL_THRESHOLD) {
 				$this->threshold += $job_threshold;
-				set_error_handler(Array(&$init_hipo, '_errorHandler'));
-				$init_hipo->freestyle();
-				restore_error_handler();
-				return $init_hipo->getErrors();
+				return $init_hipo->freestyle();
 			}
 		}
 
