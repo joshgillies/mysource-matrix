@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.124 2006/04/20 05:44:07 tbarrett Exp $
+* $Id: general.inc,v 1.125 2006/04/20 06:15:18 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.124 $
+* @version $Revision: 1.125 $
 * @package MySource_Matrix
 */
 
@@ -256,6 +256,14 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 					"\n".
 					$err_msg."\n".
 					"------------------------------------------------------------------\n".
+					"*User Details*\n";
+			if (!empty($GLOBALS['SQ_SYSTEM']) && is_object($GLOBALS['SQ_SYSTEM']->user)) {
+					$str .= 'User: "'.$GLOBALS['SQ_SYSTEM']->user->name.'" (#'.$GLOBALS['SQ_SYSTEM']->user->id.")\n";
+			}
+			$str .= (!empty($_SERVER['REMOTE_ADDR']) ? 'IP Address: '.$_SERVER['REMOTE_ADDR']."\n" : '');
+			$str .= (!empty($_SERVER['HTTP_USER_AGENT']) ? 'User-Agent: '.$_SERVER['HTTP_USER_AGENT']."\n" : '');
+			
+			$str .= "------------------------------------------------------------------\n".
 					"*Root Urls*\n".
 					SQ_CONF_SYSTEM_ROOT_URLS."\n".
 					"------------------------------------------------------------------\n";
@@ -266,6 +274,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				$str  .= "*Current URL*\n".
 						current_protocol().'://'.array_get_index($_SERVER, 'HTTP_HOST', 'NO HOST').'/'.array_get_index($_SERVER, 'REQUEST_URI', 'NO REQUEST URI')."\n";
 			}
+
 
 			$str .= "------------------------------------------------------------------\n".
 					"*Back Trace*\n".
