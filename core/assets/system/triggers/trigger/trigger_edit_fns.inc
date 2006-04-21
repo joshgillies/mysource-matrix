@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_edit_fns.inc,v 1.2 2006/03/31 05:42:16 bcaldwell Exp $
+* $Id: trigger_edit_fns.inc,v 1.3 2006/04/21 03:20:43 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * Trigger_Edit_Fns
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -270,8 +270,9 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 			$events_selected = $checked || $events_selected;
 
 			if ($write_access) {
-				check_box($event_prefix.'[]', $e_type, $checked);
-				echo $e_name.'<br />';
+				check_box($event_prefix.'[]', $e_type, $checked, '', 'id="'.$event_prefix.'_'.$e_type.'"');
+				label($e_name, $event_prefix.'_'.$e_type);
+				echo '<br />';
 			} else {
 				if ($checked) echo '<li>'.$e_name.'</li>';
 			}
