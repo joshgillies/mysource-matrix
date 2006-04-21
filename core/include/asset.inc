@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.524 2006/04/20 07:40:39 rhoward Exp $
+* $Id: asset.inc,v 1.525 2006/04/21 00:52:50 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.524 $
+* @version $Revision: 1.525 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -424,7 +424,7 @@ class Asset extends MySource_Object
 			// because other assets may have changed what happens in createLink)
 			$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id, 'minor');
 
-			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY) && $link['asset']->type()!='system_management_folder') {
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
 				// cascade permissions, and schemas on this asset that the parent
 				// has if the parent is not the root folder or the system management folder
 				$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
@@ -1946,11 +1946,15 @@ class Asset extends MySource_Object
 		////////////////////
 
 		if (in_array('content_tags', $components) || in_array('all', $components)) {
-			$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
-			$current_tag_links = $tag_manager->getTagLinks($this->id);
 
-			foreach ($current_tag_links as $link) {
-				$tag_manager->setTag($clone->id, $link['minorid'], $link['value']);
+			$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
+
+			// don't clone content tags if there's no tag manager yet
+			if (!is_null($tag_manager)) {
+				$current_tag_links = $tag_manager->getTagLinks($this->id);
+				foreach ($current_tag_links as $link) {
+					$tag_manager->setTag($clone->id, $link['minorid'], $link['value']);
+				}
 			}
 		}//end if content tags
 
