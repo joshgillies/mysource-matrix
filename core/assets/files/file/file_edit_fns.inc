@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.71 2006/04/11 00:13:26 rong Exp $
+* $Id: file_edit_fns.inc,v 1.72 2006/04/21 00:26:42 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -177,7 +177,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				if (is_null($parent)) continue;
 				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, Array($name), $asset->id);
 				if (!empty($bad_paths)) {
-					trigger_localised_error('CORE0055', E_USER_WARNING);
+					trigger_localised_error('CORE0055', E_USER_WARNING, $name);
 					return FALSE;
 				}
 			}

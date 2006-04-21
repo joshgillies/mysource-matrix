@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.46 2006/04/20 07:40:46 rhoward Exp $
+* $Id: lang_errors.xml,v 1.47 2006/04/21 00:26:42 lwright Exp $
 *
 */
 
@@ -1404,7 +1404,7 @@ Full Node Contents %3$s</error>
 	<error code="CORE0052">Failed saving attributes for file</error>
 	<error code="CORE0053">Failed saving file "%s" to cache, failed updating lookups</error>
 	<error code="CORE0054">Failed saving web paths</error>
-	<error code="CORE0055">Failed updating web path, file not uploaded. Path already exists?</error>
+	<error code="CORE0055">File upload failed, web path "%s" is already in use by another asset</error>
 	<error code="CORE0056">Failed updating web path. Path already exists?</error>
 	<error code="CORE0057">File upload failed. File size was too large. The maximum file size is %1$s but the uploaded file was %2$s</error>
 	<error code="CORE0058">File upload failed. Unable to create %s</error>
