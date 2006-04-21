@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_deleted_user_perms.php,v 1.5.4.2 2006/02/22 03:40:58 bcaldwell Exp $
+* $Id: system_integrity_deleted_user_perms.php,v 1.5.4.3 2006/04/21 04:26:55 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * exist)
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5.4.2 $
+* @version $Revision: 1.5.4.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -93,7 +93,7 @@ foreach ($user_ids as $user_id) {
 	// open the transaction
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-	$sql = 'DELETE FROM sq_ast_perm WHERE userid = '.$user_id;
+	$sql = 'DELETE FROM sq_ast_perm WHERE userid = '.$db->quote($user_id);
 
 	$result = $db->query($sql);
 	if (assert_valid_db_result($result)) {
