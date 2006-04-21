@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.28 2006/01/26 22:34:04 lwright Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.29 2006/04/21 04:58:37 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,75 +81,68 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 
-			$select_options = $asset->attr('select_options');
-
-			?>
-				<script type="text/javascript">
-					//Function to handle change in a selection box. Use onchange event,
-					//passing the prefix of the selection attribute, and it will uncheck
-					//the default checkbox on change.
-					function selectionChanged(prefix) {
-						document.getElementById(prefix + '_default').checked = false;
-						return false;
-					}
-
-				</script>
-			<?php
-			if ($asset->attr('multiple')) {
-				// if there is no value we need a blank array...not an array with one element (a blank string)
-				if ($value == '') {
-					$value = Array();
-				} else {
-					$value = explode('; ', $value);
-				}
-			}
-			// If we're OK to edit, get our selection attribute, and paint it
-			if ($write_access && $asset->attr('editable')) {
-				$selection = $asset->getSelectionAttribute();
-				$selection->value = $value;
-				$selection->_edit_params['extras'] = 'onclick="document.getElementById(\''.$prefix.'_default\').checked = false;"';
-				if ($is_default) {
-					$selection->_edit_params['extras'] .= ' disabled="disabled"';
-				}
-				$selection->paint($prefix, !$write_access);
+		$select_options = $asset->attr('select_options');
+		$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_select/js/metadata_field_select.js');
+		if ($asset->attr('multiple')) {
+			// if there is no value we need a blank array...not an array with one element (a blank string)
+			if ($value == '') {
+				$value = Array();
 			} else {
-				if ((is_array($value) && empty($value)) || (is_string($value) && $value == '')) {
-					echo '&nbsp;';
-				} else {
-					if (!is_array($value)) $value = Array($value);
-					$value_output = '';
-					foreach ($value as $option) {
-						if (isset($select_options[$option])) {
-							$value_output .= $select_options[$option].'; ';
-						}
-					}
-					echo trim($value_output, '; ');
-				}
+				$value = explode('; ', $value);
 			}
-
-			if ($write_access) {
-				echo ' &nbsp; &nbsp; &nbsp; ';
-
-				// Work out which options we have to set if we have to
-				$i = 0;
-				$default_keys = explode('; ', $asset->attr('default'));
-				$default_selected = Array();
-
-				foreach ($select_options as $key => $select_option) {
-					if (in_array($key, $default_keys)) {
-						$default_selected[] = 'options['.$i.'].selected = true;';
-					}
-					$i++;
-				}
-
-
-				check_box($prefix.'_default', '1', $is_default, 'with(this.form.elements[\''.$prefix.'\']) { disabled = this.checked; if (this.checked) { selectedIndex = -1; '.implode(' ', $default_selected).'; } }');
-				echo ' '.translate('use_default');
+		}
+		// If we're OK to edit, get our selection attribute, and paint it
+		if ($write_access && $asset->attr('editable')) {
+			$selection = $asset->getSelectionAttribute();
+			$selection->value = $value;
+			$selection->_edit_params['extras'] = 'onclick="document.getElementById(\''.$prefix.'_default\').checked = false;"';
+			if ($is_default) {
+				$selection->_edit_params['extras'] .= ' disabled="disabled"';
+			}
+			echo '<div id="'.$prefix.'_field">';
+			$selection->paint($prefix, !$write_access);
+			echo '</div>';
+		} else {
+			if ((is_array($value) && empty($value)) || (is_string($value) && $value == '')) {
+				echo '&nbsp;';
 			} else {
-				if ($is_default) {
-					echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
+				if (!is_array($value)) $value = Array($value);
+				$value_output = '';
+				foreach ($value as $option) {
+					if (isset($select_options[$option])) {
+						$value_output .= $select_options[$option].'; ';
+					}
+				}
+				echo trim($value_output, '; ');
+			}
+		}
+
+		if ($write_access) {
+			echo ' &nbsp; &nbsp; &nbsp; ';
+
+			// Work out which options we have to set if we have to
+			$i = 0;
+			$default_keys = explode('; ', $asset->attr('default'));
+			$default_selected = Array();
+
+			$default_vals = Array();
+			$non_default_vals = Array();
+			foreach ($select_options as $key => $select_option) {
+				if (in_array($key, $default_keys)) {
+					$default_vals[] = "'$key'";
+				} else {
+					$non_default_vals[] = "'$key'";
 				}
 			}
+			$default_vals_expr = '['.implode(', ', $default_vals).']';
+			$non_default_vals_expr = '['.implode(', ', $non_default_vals).']';
+			check_box($prefix.'_default', '1', $is_default, "handleDefaultClick(this, '$prefix', $default_vals_expr, $non_default_vals_expr); ");
+			label(translate('use_default'), $prefix.'_default');
+		} else {
+			if ($is_default) {
+				echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
+			}
+		}
 
 		return TRUE;
 

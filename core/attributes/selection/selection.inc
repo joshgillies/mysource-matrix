@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.54 2006/02/20 05:11:24 emcdonald Exp $
+* $Id: selection.inc,v 1.55 2006/04/21 04:57:42 tbarrett Exp $
 *
 */
 
@@ -47,7 +47,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -400,7 +400,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 						</td>
 						<?php
 					} else {
-						$id = $prefix.'_'.$i;
+						$id = $prefix.'_'.$key;
 						$extras = $this->_edit_params['extras'].' id="'.$id.'"';
 							?>
 								<td>&nbsp;
@@ -441,7 +441,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 							text_box($prefix.'_other', $this->hasUnlistedValue() ? $this->value : '', '', '', FALSE, $selected ? '' : 'style="visibility: hidden"');
 						}
 					} else {
-						$id = $prefix.'_'.$i;
+						$id = $prefix.'_'.$key;
 						$extras = $this->_edit_params['extras'].' id="'.$id.'"';
 						check_box($prefix.'['.$i.']', $key, (is_array($value) && in_array($key, $value)), '', $extras);
 						label($val, $id);
@@ -590,6 +590,9 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		return $xml;
 
 	}//end exportContentsToXML()
+
+
+
 
 
 }//end class
