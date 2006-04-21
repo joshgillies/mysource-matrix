@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2005/11/21 22:56:32 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2.2.1 2006/04/21 06:40:24 rhoward Exp $
 *
 */
 -->
@@ -68,7 +68,7 @@
 			<display_name>Redirect Timeout</display_name>
 			<note>If this is set to greater than zero, the redirect will automatically occur only
 			after this time period (in seconds) has expired. This allows you to, for example, display
-			a message through a paint layout or design and implementing a 'redirecting you in XX
+			a message through a paint layout or design and implement a 'redirecting you in XX
 			seconds' feature. If this is set to 0 (zero, default), then it will redirect immediately. Note that this has no effect
 			when the &lt;strong&gt;New Window&lt;/strong&gt; option is turned on and a design is applied</note>
 		</field>
