@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.466 2006/04/20 22:37:36 sdanis Exp $
+* $Id: asset_manager.inc,v 1.467 2006/04/21 02:03:57 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.466 $
+* @version $Revision: 1.467 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4414,7 +4414,7 @@ class Asset_Manager extends MySource_Object
 
 		// let's try and delete the old link
 		if ($success) {
-			$success = $old_parent->deleteLink($linkid, TRUE);
+			$success = $old_parent->deleteLink($linkid);
 		}
 
 		if ($success) {
@@ -4755,13 +4755,12 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Remove a link by id
 	*
-	* @param int		$linkid	the link id of the link to remove
-	* @param boolean	$moving	TRUE if this delete is part of a move operation
+	* @param int	$linkid	the link id of the link to remove
 	*
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLink($linkid, $moving=FALSE)
+	function deleteAssetLink($linkid)
 	{
 		if ($linkid == 0) return FALSE;
 
@@ -4769,7 +4768,7 @@ class Asset_Manager extends MySource_Object
 		$id_parts = explode(':', $linkid);
 		if (isset($id_parts[1])) {
 			$bridge =& $this->getAsset($id_parts[0]);
-			$result = $bridge->deleteAssetLink($linkid, $moving);
+			$result = $bridge->deleteAssetLink($linkid);
 			$this->forgetAsset($bridge);
 			return $result;
 		}
@@ -4814,7 +4813,7 @@ class Asset_Manager extends MySource_Object
 		if (isset($id_parts[1])) {
 			// if the parent is a bridge, let it handle the delete
 			if (implements_interface($major, 'bridge')) {
-				$result = $major->deleteAssetLink($linkid, $moving);
+				$result = $major->deleteAssetLink($linkid);
 				$this->forgetAsset($asset);
 				return $result;
 			}
@@ -4862,14 +4861,31 @@ class Asset_Manager extends MySource_Object
 				return FALSE;
 			}
 
-
 			$num_other_links = $this->countLinks($minor->id, 'minor', SQ_SC_LINK_SIGNIFICANT, '', TRUE, $linkid);
+
+			if (!$GLOBALS['SQ_PURGING_TRASH'] && ($num_other_links <= 1)) {
+				$linked_outside_trash = FALSE;
+				if ($num_other_links == 1) {
+					// we need to see if the other remaining link is to the trash
+					$trash_links = $this->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'trash_folder', TRUE, 'minor');
+					if (empty($trash_links)) {
+						// the other link must be to something else
+						$linked_outside_trash = TRUE;
+					}
+				}
+				if (!$linked_outside_trash) {
+					// it's about to become linked to the trash only, so run the trigger
+					if (!$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_before_asset_deleted', $minor, Array())) {
+						return FALSE;
+					}
+				}
+			}
 
 			// we create a new link to the trash if this is the last significant link
 			// being deleted and if we are not purging the trash. We check the moving
 			// flag so that if we are the last significant link, we dont create a link
 			// to the trash as the move operation will re-create the link elsewhere
-			if (!$moving && !$num_other_links && !$GLOBALS['SQ_PURGING_TRASH']) {
+			if (!$num_other_links && !$GLOBALS['SQ_PURGING_TRASH']) {
 
 				if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 
@@ -5123,12 +5139,13 @@ class Asset_Manager extends MySource_Object
 	*/
 	function trashAsset($assetid)
 	{
-		// trash requests are charged at $4.95 a minute
-		// please ask your parents for permission before trashing
 		if ($this->assetInTrash($assetid, TRUE)) {
 			// already in trash exclusively
 			return TRUE;
 		}
+
+		// trash requests are charged at $4.95 a minute
+		// please ask your parents for permission before trashing
 		$parent_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 		$locked = Array();
 		foreach ($parent_links as $link_details) {
@@ -5151,11 +5168,12 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		$trash =& $this->getSystemAsset('trash_folder');
-
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$trashid = $this->getSystemAssetid('trash_folder');
 		foreach ($parent_links as $link_details) {
 			// don't delete the link to the trash, we don't want to end up with an orphan asset
-			if ($trash->id == $link_details['majorid']) continue;
+			if ($trashid == $link_details['majorid']) continue;
 
 			// deleteAssetLink will create the trash link when no other links remain
 			if (!$this->deleteAssetLink($link_details['linkid'])) {
@@ -5163,12 +5181,16 @@ class Asset_Manager extends MySource_Object
 				foreach ($locked as $aid) {
 					$this->releaseLock($aid, 'links');
 				}
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 		}
 		foreach ($locked as $aid) {
 			$this->releaseLock($aid, 'links');
 		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return TRUE;
 
 	}//end trashAsset()
@@ -5542,7 +5564,7 @@ class Asset_Manager extends MySource_Object
 	* @param int		$userid				the assetid of the user performing the role
 	* @param boolean	$include_assetid	whether to include the assetid in the returned array
 	* @param boolean	$include_globals	whether to query the role view which includes
-	* 										expanded global roles as individual users
+	*										expanded global roles as individual users
 	* @param boolean	$expand_groups		when TRUE, any groups defined within a role will be
 	*										replaced with the userids in that group.
 	*										If FALSE, return the groupids
@@ -5599,15 +5621,13 @@ class Asset_Manager extends MySource_Object
 				// need to handle include_assetid changes
 				if ($include_assetid) {
 					$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($userid_assetids), Array(), FALSE, 'type_code');
-					foreach($userid_assetids as $userid_assetid => $assetids) {
+					foreach ($userid_assetids as $userid_assetid => $assetids) {
 						if ($userid_assetid == '0') continue;
 						if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid_assetid], 'user_group')) {
 							$expanded_users = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid_assetid, Array('user'), FALSE));
 							if (!empty($expanded_users)) {
-								if (isset($roles[$roleid])) {
-									$roles[$roleid] = Array();
-								}
-								foreach($expanded_users as $expanded_userid) {
+								if (isset($roles[$roleid])) $roles[$roleid] = Array();
+								foreach ($expanded_users as $expanded_userid) {
 									$roles[$roleid][$expanded_userid] = $assetids;
 								}
 							}
@@ -5633,9 +5653,9 @@ class Asset_Manager extends MySource_Object
 						}
 					}
 				}
-			}
+			}//end foreach result
 			$result = $roles;
-		}
+		}//end if expanding groups
 
 		return $result;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.525 2006/04/21 00:52:50 emcdonald Exp $
+* $Id: asset.inc,v 1.526 2006/04/21 02:03:57 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.525 $
+* @version $Revision: 1.526 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2582,21 +2582,20 @@ class Asset extends MySource_Object
 	/**
 	* Remove a link where this asset is the major player
 	*
-	* @param int		$linkid	the link id of the link to remove
-	* @param boolean	$moving	TRUE if this is part of a move operation
+	* @param int	$linkid	the link id of the link to remove
 	*
 	* @return boolean
 	* @access public
 	* @see Asset_Manager::deleteAssetLink()
 	*/
-	function deleteLink($linkid, $moving=FALSE)
+	function deleteLink($linkid)
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($link)) {
 			trigger_localised_error('SYS0243', E_USER_NOTICE, $linkid);
 			return FALSE;
 		} else {
-			return $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid, $moving);
+			return $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid);
 		}
 
 	}//end deleteLink()
