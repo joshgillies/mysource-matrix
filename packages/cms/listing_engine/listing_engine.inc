@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.168 2006/04/20 02:12:14 rong Exp $
+* $Id: listing_engine.inc,v 1.169 2006/04/21 05:12:08 rong Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.168 $
+* @version $Revision: 1.169 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1891,8 +1891,8 @@ class Listing_Engine extends Page
 							}
 							if (!$found_root) continue;
 							if (!$first) {
-								$lineage .= $this->attr('lineage_seperator');
-								$linked_lineage .= $this->attr('lineage_seperator');
+								$lineage .= htmlspecialchars($this->attr('lineage_seperator'));
+								$linked_lineage .= htmlspecialchars($this->attr('lineage_seperator'));
 							}
 							$first = FALSE;
 							$ancestor_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_asset_id);
@@ -1921,8 +1921,8 @@ class Listing_Engine extends Page
 							// If this is the asset itself, don't put it in the lineage.
 							if ($data['assetid'] == $assetid) continue;
 							if (!$first && $lineage != '') {
-								$lineage .= $this->attr('lineage_seperator');
-								$linked_lineage .= $this->attr('lineage_seperator');
+								$lineage .= htmlspecialchars($this->attr('lineage_seperator'));
+								$linked_lineage .= htmlspecialchars($this->attr('lineage_seperator'));
 							}
 							$linked_lineage .= '<a href="'.$data['protocol'].'://'.$data['url'].'">'.$data['short_name'].'</a>';
 							$lineage .= $data['short_name'];
@@ -1936,8 +1936,8 @@ class Listing_Engine extends Page
 							$first = TRUE;
 							foreach ($parent_assets as $data) {
 								if (!$first && $lineage != '') {
-									$lineage .= $this->attr('lineage_seperator');
-									$linked_lineage .= $this->attr('lineage_seperator');
+									$lineage .= htmlspecialchars($this->attr('lineage_seperator'));
+									$linked_lineage .= htmlspecialchars($this->attr('lineage_seperator'));
 								}
 								$lineage .= $data['short_name'];
 								$linked_lineage .= '<a href="'.$data['protocol'].'://'.$data['url'].'">'.$data['short_name'].'</a>';
