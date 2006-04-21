@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.25 2006/04/10 23:06:33 sdanis Exp $
+* $Id: system_config_edit_interface.inc,v 1.26 2006/04/21 03:40:38 bcaldwell Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -95,6 +95,7 @@ class System_Config_Edit_Interface extends MySource_Object
 		$config_screens = Array(
 							'system_config'				=> translate('system_configuration'),
 							'squiz_server_config'		=> translate('squiz_server_configuration'),
+							'apache_config'				=> 'Apache Configuration',
 							'hipo_config'				=> translate('hipo_configuration'),
 							'external_tools_config'		=> translate('external_tools_configuration'),
 							'user_prefs'				=> translate('global_preferences'),
@@ -114,6 +115,7 @@ class System_Config_Edit_Interface extends MySource_Object
 		switch ($active_screen) {
 			case 'system_config' :
 			case 'squiz_server_config' :
+			case 'apache_config' :
 			case 'hipo_config' :
 			case 'external_tools_config' :
 			case 'password_rules_config' :
@@ -131,6 +133,10 @@ class System_Config_Edit_Interface extends MySource_Object
 					case 'squiz_server_config' :
 						require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_config.inc';
 						$config =& new Squiz_Server_Config();
+					break;
+					case 'apache_config' :
+						require_once SQ_INCLUDE_PATH.'/apache_config.inc';
+						$config =& new Apache_Config();
 					break;
 					case 'hipo_config' :
 						require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_config.inc';

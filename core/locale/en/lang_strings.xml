@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.132 2006/04/20 07:40:46 rhoward Exp $
+* $Id: lang_strings.xml,v 1.133 2006/04/21 03:42:58 bcaldwell Exp $
 *
 */
 
@@ -1877,4 +1877,15 @@ Items to delete: %s</string>
 	<string source="pagination_go_to_first">Go to the first page</string>
 	<string source="pagination_cannot_go_further_back">This is the first page; you cannot go any further back</string>
 	<string source="pagination_cannot_go_further_forward">This is the last page; you cannot go any further forward</string>
+
+	<!-- Apache Config -->
+	<string source="apache_request_notes">Request Notes</string>
+	<string source="apache_note_name">Request Note Name</string>
+	<string source="apache_example_usage">Example Usage</string>
+	<string source="apache_note_example">Request notes can be configured to make certain values in MySource Matrix (i.e. the name of the currently logged in user) available to Apache and/or its modules.<![CDATA[<br /><br /><b>]]>Example:<![CDATA[</b>]]> Using the LogFormat directive, details of the currently logged in MySource Matrix user could be recorded in Apache the log.<![CDATA[<br /><br /><em>LogFormat "&#37;h &#37;l &#37;u &#37;{sq-user-id}n - &#37;{sq-user-name}n"</em>]]></string>
+
+	<!-- Request Note Types -->
+	<string source="sq_apache_req_note_user_id">User ID</string>
+	<string source="sq_apache_req_note_user_name">User Name</string>
+
 </strings>

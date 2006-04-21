@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.47 2006/04/21 00:26:42 lwright Exp $
+* $Id: lang_errors.xml,v 1.48 2006/04/21 03:42:58 bcaldwell Exp $
 *
 */
 
@@ -1349,6 +1349,9 @@ Full Node Contents %3$s</error>
 
 	<error code="SYS0313">Unable to set role for "%s", permission denied</error>
 
+	<!-- Apache Configuration Errors -->
+	<error code="SYS0314">Cannot set request note name for "%s". A request note with this name already exists.</error>
+
 	<!-- CORE ASSETS -->
 
 	<error code="CORE0001">%s NOT CREATED</error>
@@ -1632,4 +1635,5 @@ Full Node Contents :
 
 	<!-- WYSIWYG Plugins Errors -->
 	<error code="CORE0252">Unable to load %1$s WYSIWYG Plugin - %2$s.</error>
+
 </errors>

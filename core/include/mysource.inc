@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.176 2006/04/20 04:21:56 emcdonald Exp $
+* $Id: mysource.inc,v 1.177 2006/04/21 03:40:38 bcaldwell Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.176 $
+* @version $Revision: 1.177 $
 * @package MySource_Matrix
 */
 class MySource
@@ -441,6 +441,12 @@ class MySource
 			// report all the assets with a reference count > 0
 			log_write($this->am->getForgottenItemsReport(), 'asset_cache', E_USER_NOTICE, FALSE);
 		}
+
+		require_once SQ_DATA_PATH.'/private/conf/apache.inc';
+
+		// make apache notes
+		apache_note(SQ_APACHE_REQ_NOTE_USER_ID, $this->user->id);
+		apache_note(SQ_APACHE_REQ_NOTE_USER_NAME, $this->user->name);
 
 		$this->db->disconnect();
 

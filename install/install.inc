@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.59 2006/04/11 01:01:04 sdanis Exp $
+* $Id: install.inc,v 1.60 2006/04/21 03:42:09 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -61,23 +61,30 @@ function regenerate_configs()
 		return FALSE;
 	}
 
+	// Re-generate the Apache Config to make sure that we get any new defines that may have been issued
+	require_once SQ_INCLUDE_PATH.'/apache_config.inc';
+	$apache_cfg =& new Apache_Config();
+	if (!$apache_cfg->save(Array(), FALSE)) {
+		return FALSE;
+	}
+
 	// Re-generate the HIPO Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_config.inc';
 	$hipo_cfg =& new HIPO_Config();
 	if (!$hipo_cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the Messaging Service Config to make sure that we get any new defines that may have been issued
-	require_once SQ_SYSTEM_ROOT.'/core/include/messaging_service_config.inc';
+	require_once SQ_INCLUDE_PATH.'/messaging_service_config.inc';
 	$ms_cfg =& new Messaging_Service_Config();
 	if (!$ms_cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the Password Rules Config to make sure that we get any new defines that may have been issued
-	require_once SQ_SYSTEM_ROOT.'/core/include/password_rules_config.inc';
+	require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 	$ms_cfg =& new Password_Rules_Config();
 	if (!$ms_cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the Proxy Authentication Config to make sure that we get any new defines that may have been issued
-	require_once SQ_SYSTEM_ROOT.'/core/include/proxy_authentication_config.inc';
+	require_once SQ_INCLUDE_PATH.'/proxy_authentication_config.inc';
 	$pa_cfg =& new Proxy_Authentication_Config();
 	if (!$pa_cfg->save(Array(), FALSE)) return FALSE;
 
