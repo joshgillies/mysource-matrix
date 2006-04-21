@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.37 2006/04/04 01:37:58 bcaldwell Exp $
+* $Id: trigger_manager.inc,v 1.38 2006/04/21 03:21:00 tbarrett Exp $
 *
 */
 
@@ -50,7 +50,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -283,7 +283,7 @@ class Trigger_Manager extends Asset
 			// make name and short name the same
 			$link['name'] = $trigger['name'];
 			$link['short_name'] = $trigger['active'] ? $trigger['name'] : $trigger['name'].' (disabled)';
-			$link['status'] = $this->status;
+			$link['status'] = $trigger['active'] ? SQ_STATUS_LIVE : SQ_STATUS_UNDER_CONSTRUCTION;
 
 			$link['link_type'] = SQ_LINK_TYPE_1;
 
