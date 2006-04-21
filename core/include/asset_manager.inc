@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.20 2006/04/21 02:15:29 sdanis Exp $
+* $Id: asset_manager.inc,v 1.431.2.21 2006/04/21 06:38:26 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.20 $
+* @version $Revision: 1.431.2.21 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5514,25 +5514,26 @@ class Asset_Manager extends MySource_Object
 	*										expanded global roles as individual users
 	* @param boolean	$expand_groups		if set to TRUE, any role with a userid that's a
 	*										group will be expanded into users
+	* @param boolean	$inc_dependants		If false it will filter out the dependant assets
 	*
 	* @return array
 	* @access public
 	*/
-	function getRole($assetid=NULL, $roleid=NULL, $userid=NULL, $include_assetid=FALSE, $include_globals=FALSE, $expand_groups=FALSE)
+	function getRole($assetid=NULL, $roleid=NULL, $userid=NULL, $include_assetid=FALSE, $include_globals=FALSE, $expand_groups=FALSE, $inc_dependants=TRUE)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$where = Array();
 		if (!is_null($assetid)) {
-			$where[] = 'assetid = '.$db->quoteSmart($assetid);
+			$where[] = 'r.assetid = '.$db->quoteSmart($assetid);
 		}
 
 		if (!is_null($roleid)) {
-			$where[] = 'roleid = '.$db->quoteSmart($roleid);
+			$where[] = 'r.roleid = '.$db->quoteSmart($roleid);
 		}
 
 		if (!is_null($userid)) {
-			$where[] = 'userid = '.$db->quoteSmart($userid);
+			$where[] = 'r.userid = '.$db->quoteSmart($userid);
 		}
 
 		$where_clause = '';
@@ -5540,10 +5541,18 @@ class Asset_Manager extends MySource_Object
 			$where_clause = 'WHERE '.implode(' AND ', $where);
 		}
 
-		$table = ($include_globals) ? 'sq_vw_ast_role' : 'sq_ast_role';
-		$additional = $include_assetid ? ', assetid' : '';
-		$sql = 'SELECT roleid, userid'.$additional.'
+		$table = ($include_globals) ? 'sq_vw_ast_role r' : 'sq_ast_role r';
+		$additional = $include_assetid ? ', r.assetid' : '';
+
+		if (!$inc_dependants) {
+			// join to link table to get the non dependant assets
+			$where_clause .= ' AND r.assetid = l.minorid AND l.is_dependant = \'0\'';
+			$table .= ', sq_ast_lnk l';
+		}
+
+		$sql = 'SELECT DISTINCT r.roleid, r.userid'.$additional.'
 				FROM '.$table.' '.$where_clause;
+
 
 		$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
 		assert_valid_db_result($result);
