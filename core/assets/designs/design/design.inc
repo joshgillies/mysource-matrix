@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.90.2.4 2005/11/16 05:55:13 lwright Exp $
+* $Id: design.inc,v 1.90.2.5 2006/04/21 03:50:07 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90.2.4 $
+* @version $Revision: 1.90.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -235,12 +235,18 @@ class Design extends Design_Area
 				$file_link_info = $am->getAssetInfo(array_unique($file_link_ids));
 
 				// is there already a direct file with the same name
-				$insert_link = true;
+				$insert_link = TRUE;
+
+				// we need to make it a valid web path to compare properly
+				$new_file_name = make_valid_web_paths(Array($minor->attr('name')));
+				$new_file_name = array_shift($new_file_name);
+
 				foreach ($file_link_info as $info) {
-					if ($info['name'] == $minor->name) {
-						$insert_link = false;
+					if ($info['name'] == $new_file_name) {
+						$insert_link = FALSE;
 					}
 				}
+
 
 				if ($insert_link) {
 					if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
