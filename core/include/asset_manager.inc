@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.19 2006/04/20 22:40:52 sdanis Exp $
+* $Id: asset_manager.inc,v 1.431.2.20 2006/04/21 02:15:29 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.19 $
+* @version $Revision: 1.431.2.20 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6784,7 +6784,7 @@ class Asset_Manager extends MySource_Object
 
 		$group_by = '';
 		$having = '';
-		if (!is_null($access)) {bam();
+		if (!is_null($access)) {
 			$userid_cond = '';
 			$group_by = 'GROUP BY l.minorid, a.type_code, a.name';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
