@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.35 2006/04/10 23:30:05 sdanis Exp $
+* $Id: page_remote_content.inc,v 1.36 2006/04/21 04:48:58 bcaldwell Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define ('SQ_REMOTE_SOURCE', 'sq_content_src');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -991,7 +991,7 @@ class Page_Remote_Content extends Page
 	*/
 	function _decodeURL($url)
 	{
-		return base64_decode(urldecode($url));
+		return html_entity_decode(base64_decode(urldecode($url)));
 
 	}//end _decodeURL()
 
