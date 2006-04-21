@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.110 2006/04/12 16:57:06 tbarrett Exp $
+* $Id: design.inc,v 1.111 2006/04/21 03:29:48 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.110 $
+* @version $Revision: 1.111 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -246,8 +246,13 @@ class Design extends Design_Area
 
 				// is there already a direct file with the same name
 				$insert_link = TRUE;
+
+				// we need to make it a valid web path to compare properly
+				$new_file_name = make_valid_web_paths(Array($minor->attr('name')));
+				$new_file_name = array_shift($new_file_name);
+
 				foreach ($file_link_info as $info) {
-					if ($info['name'] == $minor->name) {
+					if ($info['name'] == $new_file_name) {
 						$insert_link = FALSE;
 					}
 				}
@@ -706,7 +711,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 					$args['keyword'] = trim($args['keyword'], '% ');
 					echo '<'.'?php
 					if (!$GLOBALS["SQ_SYSTEM"]->userPublic()) {
-						$user_keyword_val = $GLOBALS["SQ_SYSTEM"]->user->getKeywordReplacement('.$this->_safeStringLiteral($args['keyword']).');		
+						$user_keyword_val = $GLOBALS["SQ_SYSTEM"]->user->getKeywordReplacement('.$this->_safeStringLiteral($args['keyword']).');
 						if ($user_keyword_val != '.$this->_safeStringLiteral('%'.$args['keyword'].'%').') {
 							echo $user_keyword_val;
 						}
