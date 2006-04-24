@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: common_views.xml,v 1.4 2006/03/31 03:51:35 lwright Exp $
+* $Id: common_views.xml,v 1.5 2006/04/24 00:22:07 lwright Exp $
 *
 */
 -->
@@ -153,11 +153,12 @@
 					JOIN
 					(
 					SELECT DISTINCT
-						userid, permission, granted
+						userid, permission, granted, assetid
 					FROM
 						sq_ast_perm
 					) p
 					ON r.roleid = p.userid
+					AND r.assetid = p.assetid
 				UNION
 				SELECT
 					p.assetid, p.userid, p.permission, p.granted
