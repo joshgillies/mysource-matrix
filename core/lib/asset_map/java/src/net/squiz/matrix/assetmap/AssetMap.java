@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.22 2006/03/02 22:51:45 sdanis Exp $
+* $Id: AssetMap.java,v 1.23 2006/04/24 00:21:17 sdanis Exp $
 *
 */
 
@@ -218,21 +218,21 @@ public class AssetMap extends JApplet implements InitialisationListener, KeyList
 						}
 					}
 
-					// if we have an initial lineage selected (i.e. from /_admin) then expand the tree
-					String initial_lineage = Matrix.getProperty("parameter.initialselection");
-					if (initial_lineage.length() > 0) {
-						String[] init_info = initial_lineage.split("~");
-						String[] init_assetIds = init_info[0].split("\\|");
-						String[] init_sort_orders = init_info[1].split("\\|");
-						Iterator trees = MatrixTreeBus.getTrees();
-						while (trees.hasNext()) {
-							MatrixTree tree = (MatrixTree) trees.next();
-							tree.loadChildAssets(init_assetIds, init_sort_orders, true, false);
+					try {
+						// if we have an initial lineage selected (i.e. from /_admin) then expand the tree
+						String initial_lineage = Matrix.getProperty("parameter.initialselection");
+						if (initial_lineage.length() > 0) {
+							String[] init_info = initial_lineage.split("~");
+							String[] init_assetIds = init_info[0].split("\\|");
+							String[] init_sort_orders = init_info[1].split("\\|");
+							Iterator trees = MatrixTreeBus.getTrees();
+							while (trees.hasNext()) {
+								MatrixTree tree = (MatrixTree) trees.next();
+								tree.loadChildAssets(init_assetIds, init_sort_orders, true, false);
+							}
 						}
-					}
-
+					} catch (Exception exp) {}
 					MatrixStatusBar.setStatusAndClear(Matrix.translate("asset_map_status_bar_success"), 1000);
-
 				// error
 				} else if (get instanceof IOException) {
 					IOException ioe = (IOException) get;
