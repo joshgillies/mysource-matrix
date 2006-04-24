@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.13 2006/01/26 22:34:04 lwright Exp $
+* $Id: metadata_field_select.inc,v 1.13.2.1 2006/04/24 00:46:07 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,7 +66,7 @@ class Metadata_Field_Select extends Metadata_Field
 		$selection =& new Asset_Attribute_Selection();
 		$edit_params = $this->attr('edit_params');
 		if (!empty($edit_params)) {
-			$selection->_edit_params = $edit_params;
+			$selection->_edit_params = array_merge($selection->_edit_params, $edit_params);
 		}
 		$selection->_params['options'] = $this->attr('select_options');
 		$selection->_params['multiple'] = $this->attr('multiple');
