@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.177 2006/04/21 03:40:38 bcaldwell Exp $
+* $Id: mysource.inc,v 1.178 2006/04/24 04:41:44 bcaldwell Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.177 $
+* @version $Revision: 1.178 $
 * @package MySource_Matrix
 */
 class MySource
@@ -442,11 +442,22 @@ class MySource
 			log_write($this->am->getForgottenItemsReport(), 'asset_cache', E_USER_NOTICE, FALSE);
 		}
 
-		require_once SQ_DATA_PATH.'/private/conf/apache.inc';
-
-		// make apache notes
-		apache_note(SQ_APACHE_REQ_NOTE_USER_ID, $this->user->id);
-		apache_note(SQ_APACHE_REQ_NOTE_USER_NAME, $this->user->name);
+		include SQ_DATA_PATH.'/private/conf/apache.inc';
+		foreach ($request_notes as $note_name => $note_info) {
+			// record request note for each type
+			$note_value = '';
+			switch ($note_info['type']) {
+				case 'user':
+					$note_value = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($note_info['keyword']);
+				break;
+				case 'asset':
+					if (isset($this->frontend_asset)  && $this->frontend_asset->id) {
+						$note_value = $this->frontend_asset->getKeywordReplacement($note_info['keyword']);
+					}
+				break;
+			}
+			if ($note_value) apache_note($note_name, $note_value);
+		}//end foreach
 
 		$this->db->disconnect();
 
