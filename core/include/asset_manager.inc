@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.468 2006/04/21 06:26:40 sdanis Exp $
+* $Id: asset_manager.inc,v 1.469 2006/04/24 02:16:06 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.468 $
+* @version $Revision: 1.469 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2382,7 +2382,11 @@ class Asset_Manager extends MySource_Object
 		  $where .= ' AND '.db_extras_bitand($db, 'l.link_type', $link_types).' > 0 ';
 		}
 		if (!is_null($value)) {
-			$where .= ' AND l.value = '.$db->quote($value);
+			if (empty($value)) {
+				$where .= ' AND (l.value = '.$db->quote($value).' OR l.value IS NULL)';
+			} else {
+				$where .= ' AND l.value = '.$db->quote($value);
+			}
 		}
 		if (!is_null($dependant)) {
 			$where .= ' AND l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
