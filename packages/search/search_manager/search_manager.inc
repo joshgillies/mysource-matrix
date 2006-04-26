@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.56.2.14 2006/04/20 04:54:42 sdanis Exp $
+* $Id: search_manager.inc,v 1.56.2.15 2006/04/26 23:15:33 rong Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.56.2.14 $
+* @version $Revision: 1.56.2.15 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -547,11 +547,17 @@ class Search_Manager extends Asset
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT LOWER(value) as keyword, SUM(score) as total_score
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'sch_idx
-				WHERE assetid = '.$db->quote($asset->id).
-				  ($include_metadata ? '' : ' AND component NOT LIKE '.$db->quote('metadata:%')).'
-				GROUP BY keyword ORDER BY total_score DESC';
+		$sql = 'SELECT
+					LOWER(value), SUM(score)
+				FROM
+					sq_sch_idx
+				WHERE
+					assetid = '.$db->quoteSmart($asset->id).
+				  ($include_metadata ? '' : ' AND component NOT LIKE '.$db->quoteSmart('metadata:%')).'
+				GROUP BY
+					LOWER(value)
+				ORDER BY
+					SUM(score) DESC';
 
 		$result = $db->getAssoc($sql);
 		assert_valid_db_result($result);
