@@ -10,5 +10,7 @@ mkdir "%1"intermediate
 @CALL COPY "%1"*.dot %2
 XCOPY "%1"intermediate %2 /S /E /-Y
 @CALL RMDIR "%1"intermediate\ /q /s
+@CALL DEL "%1"*.doc /Q
+@CALL DEL "%1"*.dot /Q
 
 :END

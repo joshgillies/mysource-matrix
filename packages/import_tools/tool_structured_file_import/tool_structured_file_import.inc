@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_structured_file_import.inc,v 1.3 2006/04/20 03:46:31 skim Exp $
+* $Id: tool_structured_file_import.inc,v 1.4 2006/04/26 05:47:54 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    searching.
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -106,23 +106,56 @@ class Tool_Structured_File_Import extends Tool
 						}
 					}
 					?>
-					<table class="sq-backend-table" style="width: 300px;">
+					<script type="text/javascript">
+						<?php
+						$tmp = 'var file_list =[';
+						for (reset($files_array); $key = key($files_array); next($files_array)) {
+							$stripped_fname = substr($files_array[$key], strrpos($files_array[$key], '/') + 1);
+							$tmp .= '"'.str_replace('.', '_', $stripped_fname).'",';
+						}
+						echo substr($tmp, 0, -1).'];';
+						?>
+						function uncheck_import_file() {
+							var form = document.getElementById("main_form");
+							for (counter = 0; counter < form.structured_file_import_filename.length; counter++) {
+								if (form.structured_file_import_filename[counter].value == '') {
+									form.structured_file_import_filename[counter].checked = true;
+								} else {
+									form.structured_file_import_filename[counter].checked = false;
+								}
+							}
+						}
+						function can_select() {
+							for (counter = 0; counter < file_list.length; counter++ ) {
+								var delete_chkbox = document.getElementById("structured_file_remove_" + file_list[counter]);
+								if (delete_chkbox.checked == true) {
+									uncheck_import_file();
+									alert("<?php echo translate("import_tools_javascript_warning"); ?>");
+									break;
+								}
+							}
+						}
+					</script>
+					<table class="sq-backend-table" style="width: 440px;">
 						<tr>
-							<th class="sq-backend-table-header"><?php echo translate('import_tools_select_file'); ?></th>
+							<th class="sq-backend-table-header" style="width: 240px;"><?php echo translate('import_tools_select_file'); ?></th>
 							<th class="sq-backend-table-header" style="width: 100px;"><?php echo translate('import_tools_select_for_import'); ?></th>
+							<th class="sq-backend-table-header" style="width: 100px; text-align: center;"><?php echo translate('import_tools_select_for_removal'); ?></th>
 						</tr>
 						<tr>
 							<td class="sq-backend-table-cell"><?php echo translate('none'); ?></td>
 							<td class="sq-backend-table-cell" style="text-align: center;"><?php radio_button('structured_file_import_filename', '', TRUE); ?></td>
+							<td class="sq-backend-table-cell" style="text-align: center;"></td>
 						</tr>
 						<?php
 							foreach ($files_array as $file_name) {
 								$stripped_fname = substr($file_name, strrpos($file_name, '/') + 1);
 								?>
-									<tr>
-										<td class="sq-backend-table-cell"><?php echo $stripped_fname; ?></td>
-										<td class="sq-backend-table-cell" style="text-align: center;"><?php radio_button('structured_file_import_filename', $file_name, FALSE); ?></td>
-									</tr>
+								<tr>
+									<td class="sq-backend-table-cell"><?php echo $stripped_fname; ?></td>
+									<td class="sq-backend-table-cell" style="text-align: center;"><?php radio_button('structured_file_import_filename', $file_name, FALSE, 'can_select();'); ?></td>
+									<td class="sq-backend-table-cell" style="text-align: center;"><?php check_box('structured_file_remove_'.str_replace('.', '_', $stripped_fname), '1', FALSE, 'uncheck_import_file();'); ?></td>
+								</tr>
 								<?php
 							}
 						?>
@@ -130,6 +163,7 @@ class Tool_Structured_File_Import extends Tool
 					<?php
 					$o->note(translate('import_tools_select_file'));
 				$o->closeField();
+
 				$o->openField(translate('import_tools_asset_to_import'));
 					asset_finder($type_code.'_root_assetid', '');
 					?>
@@ -236,7 +270,8 @@ class Tool_Structured_File_Import extends Tool
 					submit_button('tool_commit', SQ_CONF_COMMIT_BUTTON_TEXT);
 				$o->closeField();
 			$o->closeSection();
-		}
+		}//end else
+
 		return ob_get_clean();
 
 	}//end paintTool()
@@ -257,6 +292,7 @@ class Tool_Structured_File_Import extends Tool
 		$itm =& $am->getSystemAsset('import_tools_manager');
 		$vars = Array();
 		$vars['import_file'] = array_get_index($_POST, 'structured_file_import_filename', '');
+		$vars['remove_file'] = array_get_index($_POST, 'structured_file_remove_filename', '');
 		$vars['create_new_site'] = FALSE;
 		if (isset($_POST[$type_code.'_create_new_site'])) {
 			// Create New Site Checked
@@ -280,20 +316,59 @@ class Tool_Structured_File_Import extends Tool
 			$vars['tidy_path'] = SQ_TOOL_HTML_TIDY_PATH;
 		}
 
-		// Importing section
+		// Any deletion?
+		$import_dir = $itm->attr('import_dir');
+		$files_array = list_files($import_dir, TRUE);
+		$remove_list = Array();
+		foreach ($files_array as $id => $file_name) {
+			$stripped_fname = substr($file_name, strrpos($file_name, '/') + 1);
+			if (isset($_POST['structured_file_remove_'.str_replace('.', '_', $stripped_fname)])) {
+				$remove_list[] = $stripped_fname;
+			}
+		}
+		if (empty($remove_list)) {
+			// Importing section
+			if (($vars['import_file'] == '') || (empty($vars['headings']) && ($vars['use_headings'])) || ($vars['root_assetid'] == '' && $vars['create_new_site'] == FALSE)) {
+				Tool_Structured_File_Import::paintTool($o, $type_code);
+				return;
+			}
 
-		if (($vars['import_file'] == '') || (empty($vars['headings']) && ($vars['use_headings'])) || ($vars['root_assetid'] == '' && $vars['create_new_site'] == FALSE)) {
+			// We have all the required data, so queue up our HIPO and go to town
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh->queueHipo('hipo_job_structured_file_import', $vars, '', SQ_PACKAGES_PATH.'/import_tools/hipo_jobs/');
+			$url = $hh->runQueuedJobs();
+			if (!empty($url)) $o->setRedirect($url);
+
+			return;
+
+		} else {
+			// Delete the imported files
+			foreach ($remove_list as $file_name) {
+				$tmp = explode('.', $file_name);
+				$fname_no_ext = $tmp[0];
+				if (file_exists($import_dir.'/'.$file_name)) {
+					$success = unlink($import_dir.'/'.$file_name);
+				}
+				if ($success && file_exists($import_dir.'/'.$fname_no_ext.'.doc')) {
+					$success = unlink($import_dir.'/'.$fname_no_ext.'.doc');
+				}
+				if ($success && file_exists($import_dir.'/'.$fname_no_ext.'.dot')) {
+					$success = unlink($import_dir.'/'.$fname_no_ext.'.dot');
+				}
+				if ($success && file_exists($import_dir.'/'.$fname_no_ext.'_files')) {
+					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+					$success = delete_directory($import_dir.'/'.$fname_no_ext.'_files');
+				}
+				if (!$success) {
+					// error report
+					trigger_error('Failed to delete the imported files.');
+					break;
+				}
+			}
 			Tool_Structured_File_Import::paintTool($o, $type_code);
 			return;
 		}
 
-		// We have all the required data, so queue up our HIPO and go to town
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$hh->queueHipo('hipo_job_structured_file_import', $vars, '', SQ_PACKAGES_PATH.'/import_tools/hipo_jobs/');
-		$url = $hh->runQueuedJobs();
-		if (!empty($url)) $o->setRedirect($url);
-
-		return;
 
 	}//end processTool()
 

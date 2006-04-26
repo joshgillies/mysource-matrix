@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2006/04/20 03:46:27 skim Exp $
+* $Id: lang_strings.xml,v 1.5 2006/04/26 05:47:50 skim Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -29,6 +29,7 @@
 <string source="import_tools_import_dir">Import Directory</string>
 <string source="import_tools_select_file">Select a file to import into the system</string>
 <string source="import_tools_select_for_import">Select For Import</string>
+<string source="import_tools_select_for_removal">Delete?</string>
 <string source="import_tools_asset_to_import">Asset to import Under</string>
 <string source="import_tools_new_site">New Site</string>
 <string source="import_tools_create_new_site">Create A New Site</string>
@@ -49,4 +50,5 @@
 <string source="import_tools_html_tidy">Run HTML Tidy</string>
 <string source="import_tools_tidy_note">Selecting this option will generate well-formed HTML, but may affect the formatting of the document. It can also slow down the importing process.</string>
 <string source="import_tools_footnotes">Fix Anchor Tags and Footnotes</string>
+<string source="import_tools_javascript_warning">You cannot import a file while deleting a file</string>
 </strings>
