@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.17.2.5 2005/07/26 05:32:23 tbarrett Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.17.2.6 2006/04/26 06:11:41 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.17.2.5 $
+* @version $Revision: 1.17.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,12 +54,12 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Paint the interface for filling in metadata values
 	*
-	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param string						$value_str		the current value for this field in the asset (NOT $asset)
-	*													NULL means that there is no current value set
-	* @param boolean					$write_access	does the current user have write access to the asset
-	*													that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param object		&$asset			the asset whose interface we are painting
+	* @param object		&$o				the outputter class
+	* @param string		$value_str		the current value for this field in the asset (NOT $asset)
+	*									NULL means that there is no current value set
+	* @param boolean	$write_access	does the current user have write access to the asset
+	*									that we are setting metadata for (NOT THE SAME AS $asset)
 	*
 	* @return boolean
 	* @access public
@@ -69,75 +69,83 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
-		$is_default = false;
+		$is_default = FALSE;
 
 		if (is_null($value_str)) {
 			$value_str = $asset->getDefaultValue();
-			$is_default = true;
+			$is_default = TRUE;
 		}
 
 		$value = '';
 		$value_components = $asset->attr('value_components');
+
 		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 
-			$select_options = $asset->attr('select_options');
-
-			?>
-				<script type="text/javascript">
-					//Function to handle change in a selection box. Use onchange event,
-					//passing the prefix of the selection attribute, and it will uncheck
-					//the default checkbox on change.
-					function selectionChanged(prefix) {
-						document.getElementById(prefix + '_default').checked = false;
-						return false;
-					}
-
-				</script>
-			<?php
-
-			if ($asset->attr('multiple')) {
-				// if there is no value we need a blank array...not an array with one element (a blank string)
-				if ($value == '') {
-					$value = Array();
-				} else {
-					$value = explode('; ', $value);
-				}
-			}
-			//If we're OK to edit, get our selection attribute, and paint it
-			if ($write_access && $asset->attr('editable')) {
-				$selection = $asset->getSelectionAttribute();
-				$selection->value = $value;
-				$selection->_edit_params['extras'] = 'onclick="document.getElementById(\''.$prefix.'_default\').checked = false;"';
-				$selection->paint($prefix, !$write_access);
+		$select_options = $asset->attr('select_options');
+		if ($asset->attr('multiple')) {
+			// if there is no value we need a blank array...not an array with one element (a blank string)
+			if ($value == '') {
+				$value = Array();
 			} else {
-				if ((is_array($value) && empty($value)) || (is_string($value) && $value == '')) {
-					echo '&nbsp;';
-				} else {
-					if (!is_array($value)) $value = Array($value);
-					$value_output = '';
-					foreach ($value as $option) {
+				$value = explode('; ', $value);
+			}
+		}
+		// If we're OK to edit, get our selection attribute, and paint it
+		if ($write_access && $asset->attr('editable')) {
+			$selection = $asset->getSelectionAttribute();
+			$selection->value = $value;
+			$selection->_edit_params['extras'] = 'onclick="document.getElementById(\''.$prefix.'_default\').checked = false;"';
+			if ($is_default) {
+				$selection->_edit_params['extras'] .= ' disabled="disabled"';
+			}
+			echo '<div id="'.$prefix.'_field">';
+			$selection->paint($prefix, !$write_access);
+			echo '</div>';
+		} else {
+			if ((is_array($value) && empty($value)) || (is_string($value) && $value == '')) {
+				echo '&nbsp;';
+			} else {
+				if (!is_array($value)) $value = Array($value);
+				$value_output = '';
+				foreach ($value as $option) {
+					if (isset($select_options[$option])) {
 						$value_output .= $select_options[$option].'; ';
 					}
-					echo trim($value_output, '; ');
+				}
+				echo trim($value_output, '; ');
+			}
+		}
+
+		if ($write_access) {
+			$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_select/js/metadata_field_select.js');
+			echo ' &nbsp; &nbsp; &nbsp; ';
+			// Work out which options we have to set if we have to
+			$i = 0;
+			$default_keys = explode('; ', $asset->attr('default'));
+			$default_selected = Array();
+
+			$default_vals = Array();
+			$non_default_vals = Array();
+			foreach ($select_options as $key => $select_option) {
+				if (in_array($key, $default_keys)) {
+					$default_vals[] = "'$key'";
+				} else {
+					$non_default_vals[] = "'$key'";
 				}
 			}
-
-			if ($write_access) {
-				echo ' '.strtolower(translate('or')).' ';
-				check_box($prefix.'_default', '1', $is_default);
-				echo ' '.strtolower(translate('use_default'));
-				if ($is_default) {
-					echo ' <em style="color: #666">('.translate('metadata_field_default_currently_set').')</em>';
-				}
-			} else {
-				if ($is_default) {
-					echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
-				}
+			$default_vals_expr = '['.implode(', ', $default_vals).']';
+			$non_default_vals_expr = '['.implode(', ', $non_default_vals).']';
+			check_box($prefix.'_default', '1', $is_default, "handleDefaultClick(this, '$prefix', $default_vals_expr, $non_default_vals_expr); ");
+			label(translate('use_default'), $prefix.'_default');
+		} else {
+			if ($is_default) {
+				echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
 			}
+		}
 
-		return true;
+		return TRUE;
 
-	}//end paintInlineValueInterface()
+	}//end paintValueInterface()
 
 
 	/**
