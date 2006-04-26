@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.128.2.2 2005/09/16 06:51:52 bcaldwell Exp $
+* $Id: backend.inc,v 1.128.2.3 2006/04/26 06:14:08 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.128.2.2 $
+* @version $Revision: 1.128.2.3 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -223,7 +223,7 @@ class Backend extends MySource_Object
 		<html>
 			<head>
 				<title><?php echo SQ_SYSTEM_LONG_NAME; ?> Backend</title>
-				<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+				<meta http-equiv="Content-Type" content="text/html; charset=<?php echo SQ_CONF_DEFAULT_CHARACTER_SET; ?>">
 				<?php
 				if ($limbo_hipo) {
 					?>
