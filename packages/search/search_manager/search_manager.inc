@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.97.2.6 2006/04/20 04:04:22 sdanis Exp $
+* $Id: search_manager.inc,v 1.97.2.7 2006/04/26 00:39:06 sdanis Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97.2.6 $
+* @version $Revision: 1.97.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1805,7 +1805,9 @@ class Search_Manager extends Asset
 		$base_query['select'][] = 'SUM(ai.score) as search_score';
 		$base_query['from'][] = 'sq_sch_idx ai';
 		$base_query['where'][] = 'ai.assetid = a.assetid';
-		$base_query['group_by'][] = 'a.assetid';
+		if (!in_array('a.assetid', $base_query['group_by'])) {
+			$base_query['group_by'][] = 'a.assetid';
+		}
 		if ($include_context) {
 			$base_query['select'][] = 'ai.component as source';
 			$base_query['group_by'][] = 'ai.component';
@@ -2575,6 +2577,7 @@ class Search_Manager extends Asset
 						(ap.permission > '.$db->quote(SQ_PERMISSION_READ).' AND ap.granted = 1)
 						)';
 			$query['having'][] = 'MIN(ap.granted) <> 0';
+			$query['group_by'][] = 'a.assetid';
 		}
 
 		// STATUS RESTRICTIONS
