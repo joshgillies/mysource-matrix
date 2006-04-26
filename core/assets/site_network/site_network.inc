@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_network.inc,v 1.4.2.2 2005/08/19 06:25:28 lwright Exp $
+* $Id: site_network.inc,v 1.4.2.3 2006/04/26 23:20:59 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4.2.2 $
+* @version $Revision: 1.4.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -298,7 +298,7 @@ class Site_Network extends Folder
 		// save the sessionid of the primary so that we
 		// know that we have run this script before. We won't have to
 		// do anther browser refresh if we know this.
-		$_SESSION['PRIMARY_SESSIONID'] = $pri_sessionid;
+		$pri_sess['PRIMARY_SESSIONID'] = $pri_sessionid;
 
 		// *** JEDI MIND TRICK *** you did not see us doing this... move along
 		if (!$this->serialiseSessionFile(SQ_CACHE_PATH.'/sess_'.$pri_sessionid, $pri_sess)) {
