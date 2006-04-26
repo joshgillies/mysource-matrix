@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.285.2.2 2006/03/02 01:54:35 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.285.2.3 2006/04/26 22:47:53 sdanis Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.285.2.2 $
+* @version $Revision: 1.285.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -672,8 +672,8 @@ class Asset_Edit_Interface extends MySource_Object
 		if (!$creating) {
 			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 			$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($owner->created_userid, $owner->updated_userid, $owner->published_userid), 'user', FALSE);
-			$created_by_name = (isset($user_info[$owner->created_userid])) ? $user_info[$owner->created_userid]['short_name'] : '&lt;unknown&gt;';
-			$updated_by_name = (isset($user_info[$owner->updated_userid])) ? $user_info[$owner->updated_userid]['short_name'] : '&lt;unknown&gt;';
+			$created_by_name = (isset($user_info[$owner->created_userid]['short_name'])) ? $user_info[$owner->created_userid]['short_name'] : '&lt;unknown&gt;';
+			$updated_by_name = (isset($user_info[$owner->updated_userid]['short_name'])) ? $user_info[$owner->updated_userid]['short_name'] : '&lt;unknown&gt;';
 			$published_by_name = (isset($user_info[$owner->published_userid])) ? $user_info[$owner->published_userid]['short_name'] : '&lt;unknown&gt;';
 
 			$sub_heading .= '<div id="sq_asset_info" style="display: none;">
