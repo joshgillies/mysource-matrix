@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.125 2006/04/20 06:15:18 tbarrett Exp $
+* $Id: general.inc,v 1.126 2006/04/26 22:44:35 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.125 $
+* @version $Revision: 1.126 $
 * @package MySource_Matrix
 */
 
@@ -262,7 +262,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			}
 			$str .= (!empty($_SERVER['REMOTE_ADDR']) ? 'IP Address: '.$_SERVER['REMOTE_ADDR']."\n" : '');
 			$str .= (!empty($_SERVER['HTTP_USER_AGENT']) ? 'User-Agent: '.$_SERVER['HTTP_USER_AGENT']."\n" : '');
-			
+
 			$str .= "------------------------------------------------------------------\n".
 					"*Root Urls*\n".
 					SQ_CONF_SYSTEM_ROOT_URLS."\n".
@@ -1101,7 +1101,7 @@ function get_asset_tag_line($assetid, $screen='')
 					$user_name = 'System';
 				} else {
 					$user_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset_info[$time_type.'_userid']), Array('asset'), FALSE, 'name');
-					if (empty($user_name)) {
+					if (empty($user_name) || !isset($user_name[$asset_info[$time_type.'_userid']]) || empty($user_name[$asset_info[$time_type.'_userid']])) {
 						$user_name = '<span style="color: red">'.translate('unknown_or_deleted_user').'</span>';
 					} else {
 						$user_name = $user_name[$asset_info[$time_type.'_userid']];

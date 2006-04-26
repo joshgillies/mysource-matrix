@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.42 2006/04/10 22:44:57 sdanis Exp $
+* $Id: ldap_bridge.inc,v 1.43 2006/04/26 22:44:02 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -851,37 +851,45 @@ class LDAP_Bridge extends Asset
 		foreach ($assetids as $assetid) {
 			$asset =& $this->getAsset($assetid);
 
-			if (!empty($field)) {
-				if ($field == 'assetid') {
-					$info[$assetid] = $assetid;
-				} else if ($field == 'type_code') {
-					$info[$assetid] = $asset->type();
-				} else if (in_array($field , Array('version', 'name', 'short_name', 'status'))) {
-					$info[$assetid] = $asset->$field;
+			if (is_null($asset)) {
+				if (!empty($field)) {
+					$info[$assetid] = '';
 				} else {
-					$info[$assetid] = $this->$field;
+					$info[$assetid] = Array();
 				}
 			} else {
-				$info[$assetid] = Array(
-									'assetid'				=> $assetid,
-									'type_code'				=> $asset->type(),
-									'version'				=> $asset->version,
-									'name'					=> $asset->name,
-									'short_name'			=> $asset->short_name,
-									'status'				=> $asset->status,
-									'languages'				=> $this->languages,
-									'charset'				=> $this->charset,
-									'force_secure'			=> $this->force_secure,
-									'created'				=> $this->created,
-									'created_userid'		=> $this->created_userid,
-									'updated'				=> $this->updated,
-									'updated_userid'		=> $this->updated_userid,
-									'published'				=> $this->published,
-									'published_userid'		=> $this->published_userid,
-									'status_changed'		=> $this->status_changed,
-									'status_changed_userid'	=> $this->status_changed_userid,
-								  );
-			}
+				if (!empty($field)) {
+					if ($field == 'assetid') {
+						$info[$assetid] = $assetid;
+					} else if ($field == 'type_code') {
+						$info[$assetid] = $asset->type();
+					} else if (in_array($field , Array('version', 'name', 'short_name', 'status'))) {
+						$info[$assetid] = $asset->$field;
+					} else {
+						$info[$assetid] = $this->$field;
+					}
+				} else {
+					$info[$assetid] = Array(
+										'assetid'				=> $assetid,
+										'type_code'				=> $asset->type(),
+										'version'				=> $asset->version,
+										'name'					=> $asset->name,
+										'short_name'			=> $asset->short_name,
+										'status'				=> $asset->status,
+										'languages'				=> $this->languages,
+										'charset'				=> $this->charset,
+										'force_secure'			=> $this->force_secure,
+										'created'				=> $this->created,
+										'created_userid'		=> $this->created_userid,
+										'updated'				=> $this->updated,
+										'updated_userid'		=> $this->updated_userid,
+										'published'				=> $this->published,
+										'published_userid'		=> $this->published_userid,
+										'status_changed'		=> $this->status_changed,
+										'status_changed_userid'	=> $this->status_changed_userid,
+									  );
+				}
+			}//end else
 		}//end foreach assetids
 
 		return $info;
