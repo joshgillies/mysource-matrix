@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.138 2006/03/15 03:12:54 sdanis Exp $
+* $Id: backend.inc,v 1.139 2006/04/26 06:59:03 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.138 $
+* @version $Revision: 1.139 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -60,6 +60,8 @@ class Backend extends MySource_Object
 	/**
 	* Returns the url for editing a particular page
 	*
+	* @param string	$target	the page to edit
+	*
 	* @return string
 	* @access private
 	*/
@@ -84,7 +86,7 @@ class Backend extends MySource_Object
 				if (isset($_REQUEST['assetid'])) {
 					$_REQUEST['limbo_assetid'] = $_REQUEST['assetid'];
 				} else {
-					$limbo_asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL();
+					$limbo_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL();
 					if (is_null($limbo_asset)) return;
 					$_REQUEST['limbo_assetid'] = $limbo_asset->id;
 				}
@@ -105,7 +107,7 @@ class Backend extends MySource_Object
 
 		if (isset($_REQUEST['assetid'])) {
 			$printing_assetid = (SQ_IN_LIMBO) ? $_REQUEST['limbo_assetid'] : $_REQUEST['assetid'];
-			$printing_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($printing_assetid);
+			$printing_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($printing_assetid);
 			if (is_null($printing_asset)) {
 				trigger_localised_error('SYS0195', E_USER_WARNING, $printing_assetid);
 				return;
@@ -125,7 +127,7 @@ class Backend extends MySource_Object
 		}
 
 		if (isset($_REQUEST['a'])) {
-			$frontend_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
+			$frontend_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
 			if (is_null($frontend_asset)) {
 				trigger_localised_error('SYS0195', E_USER_WARNING, $_REQUEST['a']);
 				return;
@@ -183,7 +185,7 @@ class Backend extends MySource_Object
 
 			$this->out->paint();
 
-		}//end if
+		}//end else
 
 	}//end paint()
 
@@ -198,7 +200,7 @@ class Backend extends MySource_Object
 	{
 		$main_extras = '';
 		if (!isset($_REQUEST['assetid'])) {
-			$url_asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(current_protocol(), null, true, true);
+			$url_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(current_protocol(), NULL, TRUE, TRUE);
 			if (!is_null($url_asset)) {
 				$main_extras = '&assetid='.$url_asset->id.'&sq_from_frontend=1';
 			}
@@ -219,7 +221,7 @@ class Backend extends MySource_Object
 						'resizer'	=> $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=resizer',
 					  );
 
-		$limbo_hipo = SQ_IN_LIMBO && (strpos($main_url, 'SQ_ACTION=hipo') !== false);
+		$limbo_hipo = SQ_IN_LIMBO && (strpos($main_url, 'SQ_ACTION=hipo') !== FALSE);
 
 		// Give the page the appropriate title based on whether we are in limbo or backend
 		if (SQ_IN_LIMBO) {
@@ -232,7 +234,7 @@ class Backend extends MySource_Object
 		<html>
 			<head>
 				<title><?php echo $page_title; ?></title>
-				<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+				<meta http-equiv="Content-Type" content="text/html; charset=<?php echo SQ_CONF_DEFAULT_CHARACTER_SET; ?>">
 				<?php
 				if ($limbo_hipo) {
 					?>
@@ -306,7 +308,7 @@ class Backend extends MySource_Object
 
 		if (!SQ_IN_LIMBO && isset($_SESSION['backend_header_last_refresh'])) {
 			// check for updates to the asset tree
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			$date = $db->quote(ts_iso8601($_SESSION['backend_header_last_refresh']));
 			if ($db->phptype == 'oci8') {
@@ -342,10 +344,10 @@ class Backend extends MySource_Object
 		if (!empty($_POST['asset_search']) && $_POST['asset_search'] != $asset_search_default) {
 			$_POST['asset_search'] = trim($_POST['asset_search']);
 			// check for a url first
-			$searched_asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL('', strip_url($_POST['asset_search'], true), true, true);
-			if (is_null($searched_asset) && assert_valid_assetid($_POST['asset_search'], '', true, false)) {
+			$searched_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL('', strip_url($_POST['asset_search'], TRUE), TRUE, TRUE);
+			if (is_null($searched_asset) && assert_valid_assetid($_POST['asset_search'], '', TRUE, FALSE)) {
 				// check for assetid second
-				$searched_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST['asset_search'], '', true);
+				$searched_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST['asset_search'], '', TRUE);
 			}
 
 			if (is_null($searched_asset)) {
@@ -370,7 +372,7 @@ class Backend extends MySource_Object
 					$this->out->addOnLoad('
 						alert(js_translate("search_found_nothing","'.addslashes($_POST['asset_search']).'"));
 					');
-				}// end if
+				}//end if
 
 			} else {
 				$this->out->addOnLoad('
@@ -378,8 +380,8 @@ class Backend extends MySource_Object
 						parent.frames["sq_main"].location = "'.$_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.urlencode($searched_asset->id).'";
 					}
 				');
-			}// end if
-		}// end if
+			}//end if
+		}//end if
 
 
 		// check for any new internal messages if we are not in LIMBO
@@ -410,12 +412,12 @@ class Backend extends MySource_Object
 			 //  INTERNAL MESSAGE POPUP  //
 			//////////////////////////////
 
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
-			$msgs_from = (isset($_SESSION['backend_header_last_refresh'])) ? $_SESSION['backend_header_last_refresh'] : null;
+			$msgs_from = (isset($_SESSION['backend_header_last_refresh'])) ? $_SESSION['backend_header_last_refresh'] : NULL;
 			$from = time() - 28800;
-			$read_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, null, Array(SQ_MSG_READ), Array(), $from);
-			$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, null, Array(SQ_MSG_UNREAD), Array());
+			$read_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, NULL, Array(SQ_MSG_READ), Array(), $from);
+			$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, NULL, Array(SQ_MSG_UNREAD), Array());
 
 
 
@@ -568,11 +570,11 @@ class Backend extends MySource_Object
 					}
 				</script>
 				<?php
-			}// end if empty msgs
+			}//end if empty msgs
 
 		}//end if not in LIMBO
 
-		if (SQ_ROLLBACK_VIEW){
+		if (SQ_ROLLBACK_VIEW) {
 			$now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
 		} else {
 			$now = time();
@@ -655,7 +657,7 @@ class Backend extends MySource_Object
 					} else {
 
 						$options[] = Array(
-										'url'		=> current_url(true, true),
+										'url'		=> current_url(TRUE, TRUE),
 										'target'	=> '_top',
 										'title'		=> 'Exit Editing Mode',
 										'icon'		=> 'exit_limbo.png',
@@ -888,13 +890,13 @@ class Backend extends MySource_Object
 				</div>
 				<div id="my_space" style="position: absolute; top: 44px; left: 0px; visibility: hidden;">
 					<?php
-					$user = &$GLOBALS['SQ_SYSTEM']->user;
-					$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
+					$user =& $GLOBALS['SQ_SYSTEM']->user;
+					$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', TRUE, NULL, 'major', '1');
 
 					if (empty($inbox_link)) {
 						$inbox_url = '';
 					} else {
-						$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
+						$inbox_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
 						$inbox_url       = $inbox_asset->getBackendHref('details');
 						$new_message_url = $inbox_asset->getBackendHref('new_message');
 						$sent_url        = $inbox_asset->getBackendHref('sent');
@@ -905,10 +907,10 @@ class Backend extends MySource_Object
 
 					// get all unread messages and read messages that are less than 8 hours old
 					if (!empty($inbox_url)) {
-						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+						$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 						$from = time() - 28800; // 8 hours ago
-						$read_messages   = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_READ), Array(), $from, null, 'short_name');
-						$unread_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_UNREAD), Array(), null, null, 'short_name');
+						$read_messages   = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), NULL, Array(SQ_MSG_READ), Array(), $from, NULL, 'short_name');
+						$unread_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), NULL, Array(SQ_MSG_UNREAD), Array(), NULL, NULL, 'short_name');
 
 						$messages = array_merge($read_messages, $unread_messages);
 						?>
@@ -939,7 +941,7 @@ class Backend extends MySource_Object
 					</table>
 				</div>
 			<?php
-		}//end if not in limbo
+		}//end else if not in limbo
 
 		$this->out->closeRaw();
 
@@ -949,6 +951,7 @@ class Backend extends MySource_Object
 	/**
 	* Print out the Side Nav
 	*
+	* @return void
 	* @access private
 	*/
 	function _printNavResizer()
@@ -1052,7 +1055,7 @@ class Backend extends MySource_Object
 			break;
 
 			case 'hipo_herder' :
-				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$hh->paintBackend($this);
 			break;
 
