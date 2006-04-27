@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.2 2006/03/23 00:17:14 skim Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.3 2006/04/27 05:32:57 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -227,24 +227,38 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 			$body = preg_replace('/class=([a-z]+[a-z\d]*)/i', 'class="\\1"', $body);
 			$body = preg_replace('/lang=([a-z]+[a-z\d-]*)/i', 'lang="\\1"', $body);
 			$body = preg_replace('/align=[a-z]+\s/i', ' ', $body);
+			$body = preg_replace('/<[\/]?st1:[^>]+>/i', ' ', $body);
 		}
-
 		if ($this->_running_vars['run_tidy']) {
+
 			// Run HTMLTIDY
-
-			if (function_exists('is_executable')) {
-				$path_to_tidy = $this->_running_vars['tidy_path'];
-				if (is_executable($path_to_tidy)) {
-					$command = '/bin/echo '.escapeshellarg($body)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --quote-marks 1 --word-2000 1 --force-output 1";
-
-					$tidy = Array();
-					exec($command, $tidy);
-					if (empty($tidy)) return;
-					$body = implode("\n", $tidy);
-					unset($tidy);
+			$success = FALSE;
+			if (is_writable($this->_running_vars['import_dir'])) {
+				$tmp_fname = $this->_running_vars['import_file'].'_tmp';
+				if (($fh = fopen($tmp_fname, 'w')) !== FALSE) {
+					if (fwrite($fh, $body) !== FALSE) {
+						fclose($fh);
+						$success = TRUE;
+					}
 				}
 			}
-
+			if ($success) {
+				if (function_exists('is_executable')) {
+					$path_to_tidy = $this->_running_vars['tidy_path'];
+					if (is_executable($path_to_tidy)) {
+						$command = "$path_to_tidy $tmp_fname -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --quote-marks 1 --word-2000 1 --force-output 1";
+						$tidy = Array();
+						exec($command, $tidy);
+						if (empty($tidy)) {
+							unlink($tmp_fname);
+							return;
+						}
+						$body = implode("\n", $tidy);
+						unset($tidy);
+						unlink($tmp_fname);
+					}
+				}
+			}
 		}//end if tidy
 
 
@@ -468,7 +482,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 
 			$this->_running_vars['running_count'] = 0;
 			$heading = current($this->_running_vars['headings']);
-			if (!empty($this->_running_vars['headings']) && $heading === false) {
+			if (!empty($this->_running_vars['headings']) && $heading === FALSE) {
 				reset($this->_running_vars['headings']);
 				$heading = current($this->_running_vars['headings']);
 			}
