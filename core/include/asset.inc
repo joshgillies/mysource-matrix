@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.398.2.24 2006/03/17 00:05:21 sdanis Exp $
+* $Id: asset.inc,v 1.398.2.25 2006/04/27 02:22:30 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.398.2.24 $
+* @version $Revision: 1.398.2.25 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3869,22 +3869,24 @@ class Asset extends MySource_Object
 
 
 		// Remove all the old URLs
-		$sql = 'SELECT url, http, https
+		$sql = 'SELECT l.url, l.http, l.https, u.urlid
 				FROM sq_ast_lookup l
-				WHERE assetid = '.$db->quote($this->id);
+					LEFT OUTER JOIN sq_ast_url u ON l.root_urlid = u.urlid
+				WHERE l.assetid = '.$db->quote($this->id);
 
 		$old_urls = $db->getAll($sql);
 		assert_valid_db_result($old_urls);
 
 		// get all the lookup information that we have set, ignoring designs as they are set on every url
-		$our_lookup_values = $this->getLookupValues(false, $prefix='design::', false);
+		$our_lookup_values = $this->getLookupValues(FALSE, $prefix='design::', FALSE);
 		$tmp_old_urls = Array();
 
 		$current_urls = Array();
+		$old_web_paths = Array();
 		foreach ($old_urls as $url_data) {
 			$url = $url_data['url'];
 			$current_urls[] = $db->quoteSmart($url);
-			if (strpos($url, '__data') === false) {
+			if ((strpos($url, '__data') === FALSE) && ($url_data['urlid'])) {
 				// get the asset lineage and use that as the basis for indexing old URLs
 				$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $url);
 				$url_assetids = Array();
