@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.120.2.1 2006/04/26 22:47:53 sdanis Exp $
+* $Id: general.inc,v 1.120.2.2 2006/04/27 01:01:31 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.120.2.1 $
+* @version $Revision: 1.120.2.2 $
 * @package MySource_Matrix
 */
 
@@ -1059,8 +1059,8 @@ function get_asset_tag_line($assetid, $screen='')
 	<div id="asset-tag-line-<?php echo $tag_line_count ?>-more-details" style="display:none">
 		<table cellspacing="0">
 		<tr>
-			<td class="sq-backend-table-cell" style="background-color: <?php echo get_status_colour($asset_info['status']) ?>"><strong>Current Status:</strong></td>
-			<td colspan="2" class="sq-backend-table-cell" style="background-color: <?php echo get_status_colour($asset_info['status']) ?>"><i><?php echo get_status_description($asset_info['status']) ?></i></td>
+			<td class="sq-backend-table-cell" style="background-color: #<?php echo get_status_colour($asset_info['status']) ?>"><strong>Current Status:</strong></td>
+			<td colspan="2" class="sq-backend-table-cell" style="background-color: #<?php echo get_status_colour($asset_info['status']) ?>"><i><?php echo get_status_description($asset_info['status']) ?></i></td>
 		</tr>
 		<tr>
 			<td class="sq-backend-table-cell"><strong><?php echo translate('asset_type') ?>:</strong></td>
