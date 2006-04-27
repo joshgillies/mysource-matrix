@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: run.php,v 1.13 2006/04/27 03:12:35 lwright Exp $
+* $Id: run.php,v 1.14 2006/04/27 03:13:21 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The one file through which everything runs
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 
@@ -36,7 +36,6 @@
 // linked file (PHP's functions give the resolved link). If the path given to
 // PHP is absolute, use that, otherwise tack on the working directory (PWD) to it.
 // TODO: this doesn't work if there are any '..' in the passed path
-//
 // (On Windows, you probably wouldn't have PWD so you can't use this - but then
 // you probably don't have symbolic links either!)
 if (!empty($_SERVER['PWD'])) {
@@ -55,7 +54,7 @@ ini_set('memory_limit', '16M');
 ini_set('error_log', SQ_SYSTEM_ROOT.'/cache/error.log');
 require_once SQ_SYSTEM_ROOT.'/core/include/init.inc';
 
-$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (is_null($root_user)) {
 	trigger_localised_error('CRON0023', E_USER_ERROR);
 }
@@ -64,16 +63,16 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	trigger_localised_error('CRON0022', E_USER_ERROR);
 }
 
-$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 if (is_null($cron_mgr)) {
 	trigger_localised_error('CRON0021', E_USER_ERROR);
 }
 
 if (!empty($_SERVER['argv'][1]) && $_SERVER['argv'][1] == 'RESET_RUNNING') {
-	if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'attributes', 0, true)) {
+	if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'attributes', 0, TRUE)) {
 		trigger_localised_error('CRON0016', E_USER_ERROR, $cron_mgr->name);
 	}
-	if (!$cron_mgr->setAttrValue('running', false)) {
+	if (!$cron_mgr->setAttrValue('running', TRUE)) {
 		trigger_localised_error('CRON0010', E_USER_ERROR);
 	}
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'attributes');
@@ -135,4 +134,6 @@ function make_proper_path($path='')
 	return $root.$new_path;
 
 }//end make_proper_path()
+
+
 ?>
