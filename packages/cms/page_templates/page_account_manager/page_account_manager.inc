@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.41 2006/04/07 02:12:25 rhoward Exp $
+* $Id: page_account_manager.inc,v 1.42 2006/04/27 03:19:36 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -275,7 +275,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		// resend validation email form was submitted?
 
 		if (isset($_POST['ASSET_BUILDER_ACTION']) && $_POST['ASSET_BUILDER_ACTION'] == 'resend_validation') {
-			return $this->_reSendValidation();
+			return $this->resendValidation();
 		}
 
 		if (strtolower(array_get_index($_GET, 'action', '')) == 'validate') {
@@ -317,8 +317,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 				}
 			}
 
-			unset($real_attribute);
-			unset($attribute);
+			unset($real_username);
+			unset($username);
 
 		}//end if using email validation
 
@@ -706,10 +706,15 @@ class Page_Account_Manager extends Page_Asset_Builder
 	* @return boolean
 	* @access private
 	*/
-	function _reSendValidation()
+	function resendValidation($username=NULL)
 	{
-		trigger_error('reSendValidation Called!', E_USER_WARNING);
-		if (isset($_REQUEST[$this->getPrefix().'_resend_validation_username']) && !empty($_REQUEST[$this->getPrefix().'_resend_validation_username']) && $this->attr('use_email_validation')) {
+		if (is_null($username)) {
+			if (!empty($_REQUEST[$this->getPrefix().'_resend_validation_username'])) {
+				$username = $_REQUEST[$this->getPrefix().'_resend_validation_username'];
+			}
+		}
+
+		if (!is_null($username) && $this->attr('use_email_validation')) {
 				// add an email to the TO list for the user who just signed up
 
 				$auth_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
@@ -718,7 +723,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 				foreach ($auth_systems as $systemid) {
 					$system =& $GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
 					if (is_null($system)) continue;
-					$user =& $system->locateUser($_REQUEST[$this->getPrefix().'_resend_validation_username']);
+					$user =& $system->locateUser($username);
+					//$user =& $system->locateUser($_REQUEST[$this->getPrefix().'_resend_validation_username']);
 					if (!is_null($user) && $user->id) {
 						break;
 					}

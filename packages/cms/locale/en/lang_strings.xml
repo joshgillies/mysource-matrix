@@ -11,13 +11,14 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.8 2006/02/26 22:47:33 pgannavarapu Exp $
+* $Id: lang_strings.xml,v 1.9 2006/04/27 03:19:36 lwright Exp $
 *
 *
 * CMS Package Localised Strings File
 */
 -->
 <strings>
+<string source="cron_job_manage_pending_accounts">Manage Pending Accounts Cron Job</string>
 <string source="cms_root_node_link_desc">The root node of the %s</string>
 <string source="cms_no_root_node">No root node has been selected</string>
 <string source="cms_no_assets_excluded">No assets are currently excluded</string>

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_management.inc,v 1.21 2006/02/13 04:33:01 sdanis Exp $
+* $Id: page_account_manager_management.inc,v 1.22 2006/04/27 03:19:36 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -110,7 +110,16 @@ class Page_Account_Manager_Management extends Asset_Management
 													'type'		=> 'text',
 													'default'	=> 'Re-Send Validation',
 												  );
-
+		$this->vars['resend_validation_period']	= Array(
+													'added'		=> '0.5',
+													'type'		=> 'duration',
+													'default'	=> 0,
+												  );
+		$this->vars['remove_account_period']	= Array(
+													'added'		=> '0.5',
+													'type'		=> 'duration',
+													'default'	=> 0,
+												  );
 	}//end constructor
 
 
