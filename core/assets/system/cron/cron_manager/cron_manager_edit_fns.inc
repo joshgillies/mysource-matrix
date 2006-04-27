@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.36 2006/04/27 01:48:40 lwright Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.37 2006/04/27 01:52:28 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -246,11 +246,15 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 										?>
 									</td>
 								</tr>
-								<?php if (($asset->attr('current_job') == $jobs[$i]->id) && ((int) $asset->attr('run_check') >= (int) $asset->attr('warn_after_num_run_checks'))) { ?>
+								<?php
+								if (($asset->attr('current_job') == $jobs[$i]->id) && ((int) $asset->attr('run_check') >= (int) $asset->attr('warn_after_num_run_checks'))) {
+								?>
 								<tr>
 								<td colspan="2" class="sq-backend-table-cell" style="border-bottom: none"><span class="sq-backend-warning">This job appears to have deadlocked the Cron Manager</span></td>
 								</tr>
-								<?php } ?>
+								<?php
+								}
+								?>
 							</table>
 						</td>
 					<?php
