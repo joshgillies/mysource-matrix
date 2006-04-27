@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.17.2.6 2006/04/26 06:11:41 tbarrett Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.17.2.7 2006/04/27 23:23:32 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.17.2.6 $
+* @version $Revision: 1.17.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,7 +117,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		if ($write_access) {
-			$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_select/js/metadata_field_select.js');
+			echo '<script type="text/javascript" src="'.sq_web_path('data').'/asset_types/metadata_field_select/js/metadata_field_select.js"></script>';
 			echo ' &nbsp; &nbsp; &nbsp; ';
 			// Work out which options we have to set if we have to
 			$i = 0;
