@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_management.inc,v 1.17 2006/03/07 06:01:24 sdanis Exp $
+* $Id: cron_manager_management.inc,v 1.18 2006/04/27 01:48:40 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -104,6 +104,12 @@ class Cron_Manager_Management extends Asset_Management
 																				   ),
 																		   ),
 														'description'	=> 'Cronjob Exlude times',
+													   ),
+						'current_job'				=> Array(
+														'added'			=> '0.3',
+														'type'			=> 'text',
+														'default'		=> NULL,
+														'description'	=> 'Currently Executing Job',
 													   ),
 					  );
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_status.xml,v 1.1 2005/03/30 00:39:56 lwright Exp $
+* $Id: lang_screen_status.xml,v 1.2 2006/04/27 01:48:40 lwright Exp $
 *
 */
 -->
@@ -38,7 +38,7 @@
 		</field>
 		<field attribute="run_check">
 			<display_name>Run Check</display_name>
-			<note>%description%</note>
+			<note>The number of consecutive times the cron's run has been cancelled due to another instance already running</note>
 		</field>
 	</section>
 	<section name="Dead Lock Status" />

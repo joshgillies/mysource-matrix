@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.64 2006/03/07 06:01:24 sdanis Exp $
+* $Id: cron_manager.inc,v 1.65 2006/04/27 01:48:40 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -443,7 +443,6 @@ class Cron_Manager extends Asset
 	*/
 	function run()
 	{
-
 		$start_time = time();
 
 		$old_log_errors = ini_set('log_errors', '1');
@@ -506,6 +505,7 @@ class Cron_Manager extends Asset
 
 		} else {
 			// we aren't already running
+			$this->setAttrValue('current_job', NULL);
 
 			// OK using the epoch time and the the refresh time figure when the this period "really" started
 			$epoch        = (int) $this->attr('epoch');
@@ -561,7 +561,18 @@ class Cron_Manager extends Asset
 						$cron_job =& $am->getAsset($job_info['assetid'], $job_info['type_code']);
 						if (is_null($cron_job)) continue;
 
+						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+						$this->setAttrValue('current_job', $cron_job->id);
+						$this->saveAttributes();
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
 						$result = $cron_job->run();
+
+						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+						$this->setAttrValue('current_job', NULL);
+						$this->saveAttributes();
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
 						require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 						// we have been asked to remove this cron job
@@ -870,7 +881,7 @@ class Cron_Manager extends Asset
 		$every_time = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') = '.$db->quote('ET=');
 
 		// repeating cron job with time interval option added to the query str
-		$repeating_time_interval = 'av.custom_val ilike '.$db->quote('%TI=%');
+		$repeating_time_interval = 'UPPER(av.custom_val) LIKE '.$db->quote('%TI=%');
 
 		$sql   = 'SELECT l.linkid, a.assetid, a.type_code
 				  FROM ('.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l

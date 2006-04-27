@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.35 2006/04/11 02:11:31 sdanis Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.36 2006/04/27 01:48:40 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -214,6 +214,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					?>
 					</tr>
 				<?php
+
 				foreach ($whens[$type] as $i => $when) {
 				?>
 					<tr>
@@ -223,10 +224,10 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						<td class="sq-backend-table-cell">
 							<table border="0" cellspacing="0" cellpadding="0">
 								<tr>
-									<td class="sq-backend-table-cell" style="font-weight: bold; text-align: right;">
+									<td class="sq-backend-table-cell" style="font-weight: bold; text-align: right; border-bottom: none">
 										<?php echo translate('name'); ?> :&nbsp;
 									</td>
-									<td class="sq-backend-table-cell">
+									<td class="sq-backend-table-cell" style="border-bottom: none">
 										<?php echo get_asset_tag_line($jobs[$i]->id); ?>
 									</td>
 								</tr>
@@ -245,6 +246,11 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 										?>
 									</td>
 								</tr>
+								<?php if (($asset->attr('current_job') == $jobs[$i]->id) && ((int) $asset->attr('run_check') >= (int) $asset->attr('warn_after_num_run_checks'))) { ?>
+								<tr>
+								<td colspan="2" class="sq-backend-table-cell" style="border-bottom: none"><span class="sq-backend-warning">This job appears to have deadlocked the Cron Manager</span></td>
+								</tr>
+								<?php } ?>
 							</table>
 						</td>
 					<?php
@@ -451,6 +457,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->openField('<div class="sq-backend-warning" style="text-align: center;">POTENTIAL CRON MANAGER DEAD LOCK DETECTED</div>', 'new_line');
 			if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
 				if ($asset->writeAccess('all')) {
+					$current_job_id = $asset->attr('current_job');
 					?>
 					<table border="0">
 						<tr>
@@ -460,6 +467,16 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 									<li class="sq-backend-data"><?php echo translate('cron_deadlock_warning_list_item_1'); ?></li>
 									<li class="sq-backend-data"><?php echo translate('cron_deadlock_warning_list_item_2'); ?></li>
 								</ol>
+
+								<?php
+								if (!empty($current_job_id)) {
+								?>
+								<p class="sq-backend-data">
+									<?php echo translate('cron_deadlock_warning_offending_job', get_asset_tag_line($current_job_id)); ?>
+								</p>
+								<?php
+								}
+								?>
 								<?php echo translate('cron_deadlock_warning_check_error_log', hide_system_root(SQ_LOG_PATH).'/'.$asset->error_log_file_name.SQ_CONF_LOG_EXTENSION); ?>
 								<p class="sq-backend-data"><?php echo translate('cron_deadlock_warning_section_2'); ?></p>
 								<p class="sq-backend-data">
