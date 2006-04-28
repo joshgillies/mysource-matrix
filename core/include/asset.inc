@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.528 2006/04/27 02:19:26 tbarrett Exp $
+* $Id: asset.inc,v 1.529 2006/04/28 05:53:10 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.528 $
+* @version $Revision: 1.529 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3566,7 +3566,9 @@ class Asset extends MySource_Object
 	{
 		if (SQ_ROLLBACK_VIEW) return FALSE;
 		if (!$this->id) return TRUE;
-		if (!($this->status & SQ_SC_STATUS_LIVE_EDIT)) return TRUE;
+		if (!($this->status & SQ_SC_STATUS_LIVE_EDIT)) {
+			return TRUE;
+		}
 
 		if (!empty($lock_type)) {
 			if ($lock_type != 'attributes') {
@@ -3975,20 +3977,40 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Called by the design to print the body of this asset when in limbo
+	* Initialise the limbo (simple-edit) interface by painting to the limbo outputter
 	*
-	* By default, the normal backend is printed for the default screen
+	* This function should be overridden if assets want to expose another asset's interface
+	* instead of their own.  By default, the normal backend is printed for the default screen.
 	*
 	* @return void
 	* @access public
+	* @see printLimbo
 	*/
-	function printLimbo()
+	function initLimbo()
 	{
 		$o =& $GLOBALS['SQ_SYSTEM']->backend->out;
 		$o->addHiddenField('asset_action', 'limbo');
 		$o->openRaw();
 		$this->paintBackend($o);
 		$o->closeRaw();
+
+	}//end initLimbo()
+
+
+	/**
+	* Print the body of the limbo (simple-edit) interface
+	*
+	* Asset types should only override this if they want to bypass or supplement the output
+	* of the backend outputter.  If the backend outputter is not painted then initLimbo should
+	* be overridden too to avoid wasting effort populating the backend outputter.
+	*
+	* @return void
+	* @access public
+	* @see initLimbo
+	*/
+	function printLimbo()
+	{
+		$o =& $GLOBALS['SQ_SYSTEM']->backend->out;
 		$o->paint();
 
 	}//end printLimbo()
@@ -3996,7 +4018,6 @@ class Asset extends MySource_Object
 
 	/**
 	* Prints out the backend interface for the asset
-	* it's up to the kids to override
 	*
 	* @param object	&$o	Backend_Outputter object
 	*
