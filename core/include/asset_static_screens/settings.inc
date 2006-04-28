@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.35 2006/01/26 22:34:08 lwright Exp $
+* $Id: settings.inc,v 1.35.2.1 2006/04/28 06:12:47 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.2.1 $
 * @package MySource_Matrix
 */
 
@@ -489,7 +489,6 @@ function paintSettings(&$owner, &$o, &$ei)
 						$o->openField(($designid) ? translate('change_question') : translate('new_question'));
 
 						if (!$owner->writeAccess('links')) {
-							$created = true;
 							echo '<i>';
 							if (!$designid) {
 								echo translate('none');
@@ -499,6 +498,7 @@ function paintSettings(&$owner, &$o, &$ei)
 							echo '</i>';
 
 						} else {
+							$created = TRUE;
 							$buttons = Array('clear');
 							if (!$new_user_design) $buttons[] = 'reset';
 							asset_finder($prefix.'_designs['.$design_name.'][designid]', $designid, Array('design' => 'D'), 'sq_sidenav', false, 'null', $buttons);
@@ -514,7 +514,6 @@ function paintSettings(&$owner, &$o, &$ei)
 						$o->openField(translate('override_design_question'));
 
 						if (!$owner->writeAccess('links')) {
-							$created = true;
 							echo '<i>';
 							if (!$override_designid) {
 								echo translate('none');
@@ -524,6 +523,7 @@ function paintSettings(&$owner, &$o, &$ei)
 							echo '</i>';
 
 						} else {
+							$created = TRUE;
 							$buttons = Array('clear');
 							if (!$new_user_design) $buttons[] = 'reset';
 							asset_finder($prefix.'_designs['.$design_name.'][override]', $override_designid, Array('design' => 'D'), 'sq_sidenav', false, 'null', $buttons);
