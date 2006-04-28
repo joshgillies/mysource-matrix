@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.29.2.2 2005/06/29 23:56:15 skim Exp $
+* $Id: settings.inc,v 1.29.2.3 2006/04/28 06:32:26 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.29.2.2 $
+* @version $Revision: 1.29.2.3 $
 * @package MySource_Matrix
 */
 
@@ -446,7 +446,6 @@ function paintSettings(&$owner, &$o, &$ei)
 						$o->openField(($designid) ? translate('change_question') : translate('new_question'));
 
 						if (!$owner->writeAccess('links')) {
-							$created = true;
 							echo '<i>';
 							if (!$designid) {
 								echo 'None';
@@ -457,6 +456,7 @@ function paintSettings(&$owner, &$o, &$ei)
 							echo '</i>';
 
 						} else {
+							$created = true;
 							$buttons = Array('clear');
 							if (!$new_user_design) $buttons[] = 'reset';
 							asset_finder($prefix.'_designs['.$design_name.'][designid]', $designid, Array('design' => 'D'), 'sq_sidenav', false, 'null', $buttons);
