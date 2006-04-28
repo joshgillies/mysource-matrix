@@ -1,6 +1,5 @@
-function setInputsEnabled(parentContainerId, enabled)
+function setInputsEnabled(parent, enabled)
 {
-	parent = document.getElementById(parentContainerId);
 	var inputs = parent.getElementsByTagName('INPUT');
 	for (var i=0; i < inputs.length; i++) {
 		inputs[i].disabled = !enabled;
@@ -20,7 +19,7 @@ function in_array(elt, ar)
 function setSelection(prefix, values, selected)
 {
 	select = document.getElementById(prefix);
-	if (select !== null) {
+	if ((select !== null) && (typeof select.options != "undefined")) {
 		for (var i=0; i < select.options.length; i++) {
 			if (in_array(select.options[i].value, values)) {
 				select.options[i].selected = selected;
@@ -47,5 +46,5 @@ function handleDefaultClick(defaultCheckbox, prefix, default_vals, non_default_v
 		setSelection(prefix, default_vals, true)
 		setSelection(prefix, non_default_vals, false);
 	}
-	setInputsEnabled(prefix+'_field', !defaultCheckbox.checked);
+	setInputsEnabled(document.getElementById(prefix+'_field'), !defaultCheckbox.checked);
 }
