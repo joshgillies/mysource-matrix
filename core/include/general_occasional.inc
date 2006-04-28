@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.61.2.2 2006/04/20 04:04:52 sdanis Exp $
+* $Id: general_occasional.inc,v 1.61.2.3 2006/04/28 01:54:03 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.61.2.2 $
+* @version $Revision: 1.61.2.3 $
 * @package MySource_Matrix
 */
 
@@ -383,12 +383,11 @@ function make_valid_web_paths($paths)
 function implode_sql($query_components)
 {
 	$where_joiner = trim(strtoupper(array_get_index($query_components, 'where_joiner', '')));
-	if ($where_joiner != 'OR') {
-		$where_joiner = 'AND';
-	}
+	if ($where_joiner != 'OR') $where_joiner = 'AND';
 
 	$select = 'SELECT '.implode(', ', $query_components['select']);
 	$from = 'FROM '.implode(', ', $query_components['from']);
+	$from .= ' '.implode("\n", $query_components['join']);
 	$where = 'WHERE ('.implode(")\n\t".$where_joiner.' (', $query_components['where']).')';
 
 	$sql = "$select\n$from\n$where";

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.97.2.8 2006/04/26 23:17:11 rong Exp $
+* $Id: search_manager.inc,v 1.97.2.9 2006/04/28 01:54:22 sdanis Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97.2.8 $
+* @version $Revision: 1.97.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1803,9 +1803,9 @@ class Search_Manager extends Asset
 		$base_query = $this->constructBaseSearchQuery($search_info);
 		$base_query['select'][] = 'a.assetid';
 		$base_query['select'][] = 'SUM(ai.score) as search_score';
-		$base_query['from'][] = 'sq_sch_idx ai';
-		$base_query['where'][] = 'ai.assetid = a.assetid';
-		if (!in_array('a.assetid', $base_query['group_by'])) {
+		$base_query['join'][] = 'INNER JOIN sq_sch_idx ai ON ai.assetid = a.assetid';
+
+		if (!in_array('a.assetid', array_get_index($base_query, 'group_by', Array()))) {
 			$base_query['group_by'][] = 'a.assetid';
 		}
 		if ($include_context) {
@@ -2387,10 +2387,11 @@ class Search_Manager extends Asset
 		if (empty($query_comps)) return Array();
 		$query_comps['select'][] = 'distinct a.assetid';
 		$query_comps['select'][] = '1 as weight';
-		$query_comps['from'][] = 'sq_sch_idx s';
-		$query_comps['where'][] = 'a.assetid = s.assetid';
+		$query_comps['join'][] = 'INNER JOIN sq_sch_idx s ON a.assetid = s.assetid';
+
 		$search_sql = implode_sql($query_comps);
 		$search_results = Array();
+
 		if (isset($search_info['limit'])) {
 			// limiting the search results
 			$result = $db->limitQuery($search_sql, 0, $search_info['limit']);
@@ -2538,18 +2539,15 @@ class Search_Manager extends Asset
 
 			if ($root_logic == 'AND') {
 				foreach (array_values($search_info['roots']) as $i => $rootid) {
-					$query['from'][] = 'sq_ast_lnk al'.$i;
-					$query['from'][] = 'sq_ast_lnk_tree t'.$i;
-					$query['where'][] = 'al'.$i.'.linkid =  t'.$i.'.linkid'; // join the link tree and link tables
-					$query['where'][] = 'al'.$i.'.minorid = a.assetid'; // join them to the asset table
+					$query['join'][] = 'INNER JOIN sq_ast_lnk l'.$i.' ON l'.$i.'.minorid = a.assetid'; // join the link tree and link tables
+					$query['join'][] = 'INNER JOIN sq_ast_lnk_tree t'.$i.' ON l'.$i.'.linkid =  t'.$i.'.linkid'; // join them to the asset table
+
 					$treeid = $root_tree_ids[$rootid];
 					$query['where'][] = 't'.$i.'.treeid LIKE '.$db->quote($treeid.'%');
 				}
 			} else {
-				$query['from'][] = 'sq_ast_lnk al';
-				$query['from'][] = 'sq_ast_lnk_tree t';
-				$query['where'][] = 'al.linkid = t.linkid';
-				$query['where'][] = 'al.minorid = a.assetid';
+				$query['join'][] = 'INNER JOIN sq_ast_lnk l ON l.minorid = a.assetid';
+				$query['join'][] = 'INNER JOIN sq_ast_lnk_tree t ON t.linkid = l.linkid';
 
 				$treeid_wheres = Array();
 				foreach ($root_tree_ids as $treeid) {
@@ -2562,21 +2560,30 @@ class Search_Manager extends Asset
 		// ACCESS RESTRICTIONS
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if ($user_restrictions) {
-			$query['from'][] = 'sq_vw_ast_perm ap';
-			$query['where'][] = 'a.assetid = ap.assetid';
-			$public_userid = (string) $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+			$query['join'][] = 'INNER JOIN sq_ast_perm p ON p.assetid = a.assetid';
+			$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
+
+			$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 			array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-				$userids[$i] = $db->quoteSmart($userids[$i]);
+				$userids[$i] = $db->quoteSmart((String)$userids[$i]);
 			}
-			$query['where'][] = 'ap.userid  IN ('.implode(',', $userids).')';
+			$usrids_str = implode(',', $userids);
+			$query['where'][] = 'p.userid  IN ('.$usrids_str.') OR '.'r.userid  IN ('.$usrids_str.')';
 			$query['where'][] = '(
-						(ap.permission = '.$db->quote(SQ_PERMISSION_READ).' AND (ap.userid <> '.$db->quote($public_userid).' OR (userid = '.$db->quote($public_userid).' AND granted = 1)))
+						(p.permission = '.$db->quoteSmart((String)SQ_PERMISSION_READ).'
+							AND (
+									p.userid <> '.$db->quoteSmart($public_userid).'
+									OR r.userid <> '.$db->quoteSmart($public_userid).'
+									OR (p.userid = '.$db->quoteSmart($public_userid).' AND granted = 1)
+									OR (r.userid = '.$db->quoteSmart($public_userid).' AND granted = 1)
+								)
+						)
 						OR
-						(ap.permission > '.$db->quote(SQ_PERMISSION_READ).' AND ap.granted = 1)
+						(p.permission > '.$db->quoteSmart((String)SQ_PERMISSION_READ).' AND p.granted = 1)
 						)';
-			$query['having'][] = 'MIN(ap.granted) <> 0';
+			$query['having'][] = 'MIN(p.granted) <> 0';
 			$query['group_by'][] = 'a.assetid';
 		}
 

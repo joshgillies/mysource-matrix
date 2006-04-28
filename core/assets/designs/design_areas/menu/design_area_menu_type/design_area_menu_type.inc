@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.76.2.2 2006/04/19 06:22:56 sdanis Exp $
+* $Id: design_area_menu_type.inc,v 1.76.2.3 2006/04/28 01:53:36 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76.2.2 $
+* @version $Revision: 1.76.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -453,12 +453,23 @@ class Design_Area_Menu_Type extends Design_Area
 						$public_userid = $GLOBALS["SQ_SYSTEM"]->am->getSystemAssetid("public_user");
 						$userids[] = $public_userid;
 						$userids[] = $GLOBALS["SQ_SYSTEM"]->user->id;
-						for (reset($userids); NULL !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
-						$USERIDS_COND = \'AND p.userid  IN (\'.implode(\',\', $userids).\')\';
+						for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+							$userids[$i] = $db->quote((String)$userids[$i]);
+						}
+						$userids_str = implode(\',\', $userids);
+						$USERIDS_COND = \'AND p.userid  IN (\'.$userids_str.\') \';
+						$USERIDS_COND .= \'OR r.userid  IN (\'.$userids_str.\') \';
 						$USERIDS_COND .= \' AND (
-						(p.permission = \'.SQ_PERMISSION_READ.\' AND (p.userid <> \'.$db->quote($public_userid).\' OR (userid = \'.$db->quote($public_userid).\' AND granted = 1)))
-						OR
-						(p.permission > \'.SQ_PERMISSION_READ.\' AND p.granted = 1)
+							(p.permission = \'.$db->quote((String)SQ_PERMISSION_READ).\' AND (
+									p.userid <> \'.$db->quote($public_userid).\'
+									OR r.userid <> \'.$db->quote($public_userid).\'
+									OR (p.userid = \'.$db->quote($public_userid).\' AND p.granted = 1)
+									OR (r.userid = \'.$db->quote($public_userid).\' AND p.granted = 1)
+								)
+							)
+							OR	(
+									p.permission > \'.$db->quote((String)SQ_PERMISSION_READ).\' AND p.granted = 1
+								)
 						)\';
 					}
 
@@ -474,8 +485,10 @@ class Design_Area_Menu_Type extends Design_Area
 							 INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_lnk l ON a.assetid = l.minorid
 							 INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_path pt ON a.assetid = pt.assetid \';
 				if (!empty($USERIDS_COND)) {
-				$sql   .= \'
-							 INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'vw_ast_perm p ON a.assetid = p.assetid \';
+					$sql   .= \'
+							 INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_perm p ON a.assetid = p.assetid \';
+					$sql   .= \'
+							 LEFT JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'vw_ast_role r ON p.userid = r.roleid \';
 				}
 				$where  = \'l.majorid IN (\'.substr($majorids_str, 0, -1).\')
 							 AND \'.db_extras_bitand($db, \'l.link_type\', SQ_SC_LINK_FRONTEND_NAV).\' > 0 \';
