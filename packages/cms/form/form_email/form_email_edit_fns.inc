@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.70 2006/03/28 04:17:53 sdanis Exp $
+* $Id: form_email_edit_fns.inc,v 1.71 2006/04/28 06:02:36 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -64,6 +64,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 
+		$o->openField(translate('cms_form_date_range'));
 		$expand_list = isset($_POST[$prefix.'_expand']) ? $_POST[$prefix.'_expand'] : Array();
 		$num_subs = 0;
 
@@ -495,7 +496,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function paintExport(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
-
+		$o->openField(translate('cms_form_date_range'));
 		$parameters = Array(
 						'min'			=> '2003-01-01 00:00:00',
 						'max'			=> ts_iso8601(time()),
