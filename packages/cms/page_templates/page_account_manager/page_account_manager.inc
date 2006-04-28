@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.42 2006/04/27 03:19:36 lwright Exp $
+* $Id: page_account_manager.inc,v 1.43 2006/04/28 06:03:22 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -164,6 +164,22 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 	}//end _loadCreateReplacements()
 
+	/**
+	* Initialise the limbo (simple-edit) interface by painting to the limbo outputter
+	*
+	* This function should be overridden if assets want to expose another asset's interface
+	* instead of their own.  By default, the normal backend is printed for the default screen.
+	*
+	* @return void
+	* @access public
+	* @see printLimbo
+	*/
+	function initLimbo()
+	{
+		// intentonally blank
+
+	}//end initLimbo()
+
 
 	/**
 	* Called by the design to print the body of this asset when in limbo
@@ -223,6 +239,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 						$current_user->printBody();
 					} else {
 						$this->_replacements['edit_details_invite'] = $this->attr('edit_details_invite');
+						$current_user->initLimbo();
 						$current_user->printLimbo();
 					}
 					unset($aei);
