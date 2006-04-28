@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.470 2006/04/28 02:01:44 sdanis Exp $
+* $Id: asset_manager.inc,v 1.471 2006/04/28 06:05:52 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.470 $
+* @version $Revision: 1.471 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5367,7 +5367,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// check if this permission is already set
-		$current = $this->getPermission($assetid, $permission, $granted, FALSE);
+		$current = $this->getPermission($assetid, $permission, $granted, FALSE, FALSE, FALSE, TRUE);
 		if (in_array($userid, array_values($current))) {
 			return TRUE;
 		}
@@ -5388,7 +5388,7 @@ class Asset_Manager extends MySource_Object
 			$user_name = 'General Public';
 		}
 		// check if the reverse access of this permission is set
-		$current = $this->getPermission($assetid, $permission, !$granted, FALSE);
+		$current = $this->getPermission($assetid, $permission, !$granted, FALSE, FALSE, FALSE, TRUE);
 		if (in_array($userid, array_values($current))) {
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			$perm_name = permission_type_name($permission);
@@ -5693,8 +5693,8 @@ class Asset_Manager extends MySource_Object
 			return TRUE;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'INSERT INTO sq_ast_role
@@ -5714,6 +5714,7 @@ class Asset_Manager extends MySource_Object
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
@@ -5732,6 +5733,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function deleteRole($assetid, $roleid=NULL, $userid=NULL)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$where_and = '';
@@ -5752,6 +5754,7 @@ class Asset_Manager extends MySource_Object
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 

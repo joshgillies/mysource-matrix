@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.56 2005/10/24 00:28:49 dmckee Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.57 2006/04/28 06:06:17 sdanis Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -319,7 +319,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 							if ($set_data['previous_access'] === null) {
 								// to edit this permission, there must not currently be a permission set
 								// at all - either grant OR deny - for this user
-								$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, !(bool)$set_data['granted'], false, false, true);
+								$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, !(bool)$set_data['granted'], FALSE, FALSE, TRUE, TRUE);
 								if (isset($current[$set_data['userid']])) {
 									$new_access     = ($set_data['granted']) ? translate('grant') : translate('revoke');
 									$current_access = ($current[$set_data['userid']]) ? translate('granted') : translate('revoked');
