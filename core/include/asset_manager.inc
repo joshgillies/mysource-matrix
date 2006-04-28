@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.23 2006/04/28 01:53:56 sdanis Exp $
+* $Id: asset_manager.inc,v 1.431.2.24 2006/04/28 06:44:02 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.23 $
+* @version $Revision: 1.431.2.24 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5169,12 +5169,13 @@ class Asset_Manager extends MySource_Object
 	*									Array(userid => granted)
 	*									(NOTE: TRUE is only valid if $and_greater and
 	*									$expand_groups are FALSE)
-	* @param boolean	$include_roles	When TRUE, query the permissions view which includes role expansions
+	* @param boolean	$collapse_roles	When TRUE, only use the permissions table (ie. don't expand roles)
+	*									Otherwise, the permissions view (which includes role expansions) are used
 	*
 	* @return array
 	* @access public
 	*/
-	function getPermission($assetid, $permission, $granted=NULL, $and_greater=TRUE, $expand_groups=FALSE, $all_info=FALSE, $include_roles=TRUE)
+	function getPermission($assetid, $permission, $granted=NULL, $and_greater=TRUE, $expand_groups=FALSE, $all_info=FALSE, $collapse_roles=FALSE)
 	{
 		$permission = (int) $permission;
 		if (!is_null($granted)) $granted = (bool) $granted;
@@ -5209,13 +5210,13 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// return cached version if we can
-		$suffix = $include_roles ? '1' : '0';
+		$suffix = $collapse_roles ? '1' : '0';
 		$storage_name =(($and_greater) ? 'effective_' : '').'permission_'.$permission.'_'.$suffix;
 		if (!isset($this->_tmp['permission_cache'][$assetid][$storage_name])) {
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-			$table = ($include_roles) ? 'ast_perm' : 'vw_ast_perm';
+			$table = ($collapse_roles) ? 'ast_perm' : 'vw_ast_perm';
 			$sql = '  SELECT DISTINCT assetid, userid, granted
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.$table.' ';
 			$where = 'assetid = '.$db->quote($assetid).'
@@ -5314,7 +5315,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// check if this permission is already set
-		$current = $this->getPermission($assetid, $permission, $granted, FALSE);
+		$current = $this->getPermission($assetid, $permission, $granted, FALSE, FALSE, FALSE, TRUE);
 		if (in_array($userid, array_values($current))) {
 			return TRUE;
 		}
@@ -5335,7 +5336,7 @@ class Asset_Manager extends MySource_Object
 			$user_name = 'General Public';
 		}
 		// check if the reverse access of this permission is set
-		$current = $this->getPermission($assetid, $permission, !$granted, FALSE);
+		$current = $this->getPermission($assetid, $permission, !$granted, FALSE, FALSE, FALSE, TRUE);
 		if (in_array($userid, array_values($current))) {
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			$perm_name = permission_type_name($permission);
@@ -5642,6 +5643,7 @@ class Asset_Manager extends MySource_Object
 			return TRUE;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -5663,6 +5665,7 @@ class Asset_Manager extends MySource_Object
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
@@ -5681,6 +5684,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function deleteRole($assetid, $roleid=NULL, $userid=NULL)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$where_and = '';
@@ -5701,6 +5705,7 @@ class Asset_Manager extends MySource_Object
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
