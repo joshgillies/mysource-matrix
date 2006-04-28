@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.89 2006/04/07 06:20:42 skim Exp $
+* $Id: site.inc,v 1.90 2006/04/28 05:53:51 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -643,14 +643,14 @@ class Site extends Folder
 
 
 	/**
-	* Called by the design to print the body of this asset when in limbo
+	* Initialise the limbo (simple-edit) interface by painting to the limbo outputter
 	*
 	* Site puts its index page up for editing instead of itself
 	*
 	* @return void
 	* @access public
 	*/
-	function printLimbo()
+	function initLimbo()
 	{
 		$index_page =& $this->getSpecialPage('index');
 		if (is_null($index_page)) {
@@ -660,9 +660,9 @@ class Site extends Folder
 
 		$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('assetid', $index_page->id);
 		$GLOBALS['SQ_SYSTEM']->backend->out->addHiddenField('backend_assetid', $index_page->id);
-		$index_page->printLimbo();
+		$index_page->initLimbo();
 
-	}//end printLimbo()
+	}//end initLimbo()
 
 
 	/**

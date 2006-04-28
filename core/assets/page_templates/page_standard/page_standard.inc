@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.18 2006/01/18 02:47:17 lwright Exp $
+* $Id: page_standard.inc,v 1.19 2006/04/28 05:53:51 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -229,29 +229,29 @@ class Page_Standard extends Page
 
 
 	/**
-	* Called by the design to print the body of this asset when in limbo
+	* Initialise the limbo (simple-edit) interface by painting to the limbo outputter
 	*
 	* Standard page puts its bodycopy up for editing instead of itself
 	*
 	* @return void
 	* @access public
 	*/
-	function printLimbo()
+	function initLimbo()
 	{
 		$lm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
 
 		if ($lm->hasLayout($this->type(), 'details')) {
-			parent::printLimbo();
+			parent::initLimbo();
 		} else {
 			$bodycopy =& $this->getBodycopy();
 			if (!is_null($bodycopy)) {
 				$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('assetid', $bodycopy->id);
 				$GLOBALS['SQ_SYSTEM']->backend->out->addHiddenField('backend_assetid', $bodycopy->id);
-				$bodycopy->printLimbo();
+				$bodycopy->initLimbo();
 			}
 		}
 
-	}//end printLimbo()
+	}//end initLimbo()
 
 
 	/**
