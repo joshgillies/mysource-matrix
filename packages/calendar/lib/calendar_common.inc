@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.40 2006/02/02 04:10:57 sdanis Exp $
+* $Id: calendar_common.inc,v 1.40.2.1 2006/04/28 01:00:25 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.40.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -426,7 +426,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=NULL, $g
 					$mrw_conditions[] = '((MOD('.$now['ms'].' - start_date_ms, period) = 0)
 						AND (start_date_rwdom = '.$now['rwdom'].')
 						AND (start_date_rmday - (7 * (start_date_rwdom - 1)) BETWEEN '.($now['rmday'] - (7 * ($now['rwdom'] - 1))).' AND '.($last_date_components['rmday'] - (7 * ($last_date_components['rwdom'] - 1))).'))';
-					$mrw_conditions[] = '(((MOD('.$now['ms'].' - end_date_ms, period) = 0)
+					$mrw_conditions[] = '((MOD('.$now['ms'].' - end_date_ms, period) = 0)
 						AND (end_date_rwdom = '.$now['rwdom'].')
 						AND (end_date_rmday - (7 * (end_date_rwdom - 1)) BETWEEN '.($now['rmday'] - (7 * ($now['rwdom'] - 1))).' AND '.($last_date_components['rmday'] - (7 * ($last_date_components['rwdom'] - 1))).'))';
 				} else {
