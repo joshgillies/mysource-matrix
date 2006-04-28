@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.219 2006/04/20 23:41:37 sdanis Exp $
+* $Id: asset_map.inc,v 1.220 2006/04/28 02:04:41 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.219 $
+* @version $Revision: 1.220 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -427,6 +427,7 @@ class Asset_Map
 
 		$output =& new XML_Tree();
 		$root =& $output->addRoot('error', $GLOBALS['SQ_SYSTEM']->lm->getErrorMessage($code, $func_args));
+
 		$this->_send($output);
 
 	}//end _error()
@@ -803,16 +804,18 @@ class Asset_Map
 	function _getChildAssets(&$root, $assetid, $dependants_only=FALSE, $start=0, $limit=0)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
+		$assetid = (String)$assetid;
 		$userid_cond = '';
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-			$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
-			array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
+			$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+			array_push($userids, $public_userid, (String)$GLOBALS['SQ_SYSTEM']->user->id);
 			for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
-				$userids[$k] = $db->quote($userids[$k]);
+				$userids[$k] = $db->quote((String)$userids[$k]);
 			}
-			$userid_cond = ' AND userid IN ('.implode(',', $userids).')';
+			$userids_str = implode(',', $userids);
+			$userid_cond = ' AND p.userid IN ('.$userids_str.')';
+			$userid_cond .= ' OR r.userid IN ('.$userids_str.')';
 		}
 
 		// work out what protocol we are using to get here so we can get the most
@@ -843,19 +846,24 @@ class Asset_Map
 		$sql .= ' FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l';
 
 		if (!empty($userid_cond)) {
-				$p_join = '(
-								l.assetid = p.assetid
-							)';
-
-				$p_where = '((
-							(permission = '.$db->quote(1).' AND (userid <> '.$db->quote($public_userid).' OR (userid = '.$db->quote($public_userid).' AND granted = 1)))
-							OR
-							(permission > '.$db->quote(1).' AND granted = 1)
-							) '.$userid_cond.') GROUP BY assetid, permission HAVING MIN(granted) <> 0';
-				$p_join = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($p_join, 'p', 'ON');
-				$p_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($p_where);
-				$sql .= ' LEFT JOIN (SELECT assetid, permission FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm '.$p_where.') p '.$p_join;
-			}
+			$sql .= ' LEFT JOIN (SELECT p.assetid, p.permission
+									FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l2
+									INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON l2.assetid = p.assetid
+									LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid
+									WHERE l2.majorid = '.$db->quote($assetid).' AND (';
+			$sql = $sql .'(
+						(p.permission = '.$db->quote((String)SQ_PERMISSION_READ).' AND (
+								p.userid <> '.$db->quote($public_userid).'
+								OR r.userid <> '.$db->quote($public_userid).'
+								OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+								OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+							)
+						)
+						OR	(
+								p.permission > '.$db->quote((String)SQ_PERMISSION_READ).' AND p.granted = 1
+							)
+					) '.$userid_cond.') GROUP BY p.assetid, p.permission HAVING MIN(p.granted) <> 0) p ON (l.assetid = p.assetid) ';
+		}
 
 		$u_where = 'l.assetid = u.assetid';
 		$u_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($u_where, 'u', 'ON');

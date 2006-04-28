@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.99 2006/01/20 02:48:38 sdanis Exp $
+* $Id: page_asset_listing.inc,v 1.100 2006/04/28 02:02:17 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -155,14 +155,14 @@ class Page_Asset_Listing extends Listing_Engine
 							$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
 							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, SQ_PERMISSION_READ);
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
+							$table_alias = 'a';
 						} else {
+							$table_alias = 'll';
 							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset_id, array_keys($wanted_types), FALSE, $letter_sort_by, SQ_PERMISSION_READ);
 						}
 						if (empty($query)) $new_assets_to_list = Array();
 
-						// the table alias here, joins the asset table using the table alias 'a'
-						// so this query is fine with 'a'
-						$query['select'] .= ', SUBSTR(a.'.$letter_sort_by.', 1, 1) AS first_letter';
+						$query['select'] .= ', SUBSTR('.$table_alias.'.'.$letter_sort_by.', 1, 1) AS first_letter';
 						// we need to add the first_letter column to the union so that we have the right
 						// number of columns in both sides of the union
 						$query['union_select'] .= ', null AS first_letter';

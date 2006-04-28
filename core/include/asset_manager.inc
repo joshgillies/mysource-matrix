@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.469 2006/04/24 02:16:06 sdanis Exp $
+* $Id: asset_manager.inc,v 1.470 2006/04/28 02:01:44 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.469 $
+* @version $Revision: 1.470 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2938,6 +2938,7 @@ class Asset_Manager extends MySource_Object
 		$this->forgetAsset($asset);
 		unset($asset);
 		if (empty($query)) return Array();
+
 		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
 
 		assert_valid_db_result($result);
@@ -6662,26 +6663,40 @@ class Asset_Manager extends MySource_Object
 		$group_by = '';
 		$having = '';
 		if (!is_null($access)) {
+			$access = (String)$access;
 			$userid_cond = '';
 			$group_by = 'GROUP BY l.linkid, l.'.$side_of_link.'id, l.'.$other_side.'id, l.value, l.link_type,
 								  l.type_code, l.sort_order, l.is_dependant, l.is_exclusive';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$from .= ', '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p';
-				$where .= ' AND p.assetid = l.minorid';
+				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = l.minorid';
+
+				// join to roles table
+				$from .= '
+					LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid';
+
+				// get user and group ids
 				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
-				$public_userid = $this->getSystemAssetid('public_user');
+				$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
+				$public_userid = (String)$this->getSystemAssetid('public_user');
 				$userids[] = $public_userid;
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$userids[$i] = $db->quote($userids[$i]);
+					$userids[$i] = $db->quote((String)$userids[$i]);
 				}
 
-				$userid_cond = ' AND p.userid IN ('.implode(',', $userids).')';
+				$userids_str = implode(',', $userids);
+				$userid_cond = ' AND (p.userid IN ('.$userids_str.') OR r.userid IN ('.$userids_str.'))';
 				$where .= $userid_cond.'
 					AND (
-						(p.permission = '.$db->quote($access).' AND (p.userid <> '.$db->quote($public_userid).' OR (userid = '.$db->quote($public_userid).' AND granted = 1)))
+						(p.permission = '.$db->quote($access).' AND (
+									p.userid <> '.$db->quote($public_userid).'
+									OR r.userid <> '.$db->quote($public_userid).'
+									OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+									OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+								)
+						)
 						OR
-						(p.permission > '.$db->quote($access).' AND p.granted = 1)
+						(
+							p.permission > '.$db->quote($access).' AND p.granted = 1)
 						)';
 				$having .= 'HAVING MIN(p.granted) <> 0';
 				$group_by .= ', p.assetid';
@@ -6842,32 +6857,38 @@ class Asset_Manager extends MySource_Object
 		$group_by = '';
 		$having = '';
 		if (!is_null($access)) {
+			$access = (String)$access;
 			$userid_cond = '';
 			$group_by = 'GROUP BY l.minorid, a.type_code, a.name';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$from .= ', '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p';
-				$where .= ' p.assetid = a.assetid';
+				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = a.assetid ';
+				$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON p.userid = r.roleid ';
 				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
-				$public_userid = $this->getSystemAssetid('public_user');
+				$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
+				$public_userid = (String)$this->getSystemAssetid('public_user');
 				$userids[] = $public_userid;
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$userids[$i] = $db->quote($userids[$i]);
+					$userids[$i] = $db->quote((String)$userids[$i]);
 				}
 
-				$userid_cond = ' AND p.userid IN ('.implode(',', $userids).')';
+				$userids_str = implode(',', $userids);
+				$userid_cond = ' (p.userid IN ('.$userids_str.') OR r.userid IN ('.$userids_str.'))';
 				$where .= $userid_cond.'
 					AND (
-						(p.permission = '.$db->quote($access).' AND (p.userid <> '.$db->quote($public_userid).' OR (userid = '.$db->quote($public_userid).' AND granted = 1)))
-						OR
-						(p.permission > '.$db->quote($access).' AND p.granted = 1)
-						)';
+							(p.permission = '.$db->quote($access).' AND (
+									p.userid <> '.$db->quote($public_userid).'
+									OR r.userid <> '.$db->quote($public_userid).'
+									OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+									OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+								)
+							)
+							OR	(
+									p.permission > '.$db->quote($access).' AND p.granted = 1
+								)
+						) AND ';
 				$having .= 'HAVING MIN(p.granted) <> 0';
 				$group_by .= ', p.assetid';
-				if (!empty($type_code)) $where .= ' AND ';
 			}
-
-
 		}
 
 
@@ -6978,11 +6999,24 @@ class Asset_Manager extends MySource_Object
 			$in_sql = 'SELECT * FROM '.$in_sql;
 		}
 
-		$select = 'SELECT DISTINCT(l.majorid), a.type_code, t.treeid';
+		$select = 'SELECT DISTINCT(ll.majorid), ll.type_code, ll.treeid';
 
-		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid
+		$from = 'FROM
+					(
+					SELECT l.majorid, t.treeid, a.type_code, a.name ';
+
+		$perm_join = '';
+		if (!is_null($access) && !$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+			$from .= ', p.userid, p.permission, p.granted ';
+			$perm_join = ' INNER JOIN sq_ast_perm p ON p.assetid = l.majorid';
+		}
+
+		$from  .= 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
+					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
 					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.majorid = a.assetid';
+
+		$from .= $perm_join;
+
 
 		// TODO: Is this feasible in getParents?
 		if (!is_null($min_height) || !is_null($max_height)) {
@@ -7056,39 +7090,67 @@ class Asset_Manager extends MySource_Object
 		$order_by = '';
 		if (!is_null($sort_by)) {
 			$order_by = 'ORDER BY sort_value';
-			$select .= ', a.'.$sort_by.' AS sort_value';
+			$select .= ', ll.'.$sort_by.' AS sort_value';
 		} else {
 			$order_by = 'ORDER BY treeid';
 		}
 
 		$group_by = '';
 		$having = '';
+		$userids_str = '';
+		$public_userid = '';
 		if (!is_null($access)) {
 			$userid_cond = '';
-			$group_by = 'GROUP BY l.majorid, a.type_code, t.treeid, a.name';
+			$group_by = 'GROUP BY ll.majorid, ll.treeid, ll.type_code, ll.name';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$from .= ', '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p';
 				$where .= ' AND p.assetid = a.assetid';
 				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
-				$public_userid = $this->getSystemAssetid('public_user');
+				$public_userid = (String)$this->getSystemAssetid('public_user');
 				$userids[] = $public_userid;
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$userids[$i] = $db->quote($userids[$i]);
+					$userids[$i] = $db->quote((String)$userids[$i]);
 				}
-
-				$userid_cond = ' AND p.userid IN ('.implode(',', $userids).')';
+				$userids_str = implode(',', $userids);
+				$userid_cond = ' AND p.userid IN ('.$userids_str.')';
 				$where .= $userid_cond.'
 					AND (
 						(p.permission = '.$db->quote($access).' AND (p.userid <> '.$db->quote($public_userid).' OR (userid = '.$db->quote($public_userid).' AND granted = 1)))
 						OR
 						(p.permission > '.$db->quote($access).' AND p.granted = 1)
 						)';
-				$having .= 'HAVING MIN(p.granted) <> 0';
-				$group_by .= ', p.assetid';
+				$having .= 'HAVING MIN(ll.granted) <> 0';
+			//	$group_by .= ', p.assetid';
 			}
 
 		}
+
+		$from .= $where.') ll ';
+		$outer_where = '';
+		if (!is_null($access) && !$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+			$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON ll.userid = r.roleid';
+
+			// Main where caluse. This hsould only be printed if we have user conditions i.e not root/sys_admin
+			$outer_where = ' WHERE (
+								ll.userid IN ('.$userids_str.') OR r.userid IN ('.$userids_str.')
+							 )
+							 AND (
+									(
+										ll.permission = '.$db->quote($access).' AND
+																					(
+																						ll.userid <> '.$db->quote($public_userid).'
+																						OR r.userid <> '.$db->quote($public_userid).'
+																						OR (ll.userid = '.$db->quote($public_userid).' AND ll.granted = 1)
+																						OR (r.userid = '.$db->quote($public_userid).' AND ll.granted = 1)
+																					)
+									)
+									OR
+									(
+										ll.permission > '.$db->quote($access).' AND ll.granted = 1
+									)
+								)';
+		}
+
 
 		$union_select = ' UNION ALL SELECT sl.majorid, null, null as treeid';
 		if (!is_null($sort_by)) {
@@ -7099,10 +7161,10 @@ class Asset_Manager extends MySource_Object
 		$union_where  = 'sl.minorid = '.$db->quoteSmart($assetid);
 		$union_where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
 
-		return Array(
+		$sql_array = Array(
 				'select'		=> '('.$select,
 				'from'			=> $from,
-				'where'			=> $where,
+				'where'			=> $outer_where,
 				'group_by'		=> $group_by,
 				'having'		=> $having,
 				'union_select'	=> $union_select,
@@ -7110,6 +7172,7 @@ class Asset_Manager extends MySource_Object
 				'union_where'	=> $union_where,
 				'order_by'		=> ')'.$order_by,
 			   );
+		return $sql_array;
 
 	}//end generateGetParentsQuery()
 
