@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_log.xml,v 1.3 2005/11/15 05:48:17 lwright Exp $
+* $Id: lang_screen_log.xml,v 1.4 2006/04/28 05:59:43 tbarrett Exp $
 *
 */
 -->
@@ -24,23 +24,17 @@
 		</field>
 	</section>
 	<section name="Export">
-		<field>
-			<display_name>Date Range</display_name>
-			<note>Select the date range and file type, then click Download File. A pop-up should appear allowing you to save the resulting file</note>
-			<function_call>
-				<paint_function   name="paintExport"   />
-				<process_function name="processExport" />
-			</function_call>
-		</field>
+		<function_call>
+			<paint_function   name="paintExport"   />
+			<process_function name="processExport" />
+		</function_call>
+		<note>Select the date range and file type, then click Download File. A pop-up should appear allowing you to save the resulting file</note>
 	</section>
 	<section name="Submissions">
-		<field>
-			<display_name>Date Range</display_name>
-			<note>Select a date range to display - a summary of submissions in that time period will be displayed. To display the responses for a submission, check the Expand box for that submission and click Commit</note>
-			<function_call>
-				<paint_function   name="paintSubmissions"   />
-				<process_function name="processSubmissions" />
-			</function_call>
-		</field>
+		<function_call>
+			<paint_function   name="paintSubmissions"   />
+			<process_function name="processSubmissions" />
+		</function_call>
+		<note>Select a date range to display - a summary of submissions in that time period will be displayed. To display the responses for a submission, check the Expand box for that submission and click Commit</note>
 	</section>
 </contents>

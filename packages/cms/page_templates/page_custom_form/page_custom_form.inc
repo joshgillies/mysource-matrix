@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form.inc,v 1.20 2006/01/20 02:48:04 sdanis Exp $
+* $Id: page_custom_form.inc,v 1.21 2006/04/28 05:59:43 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -138,29 +138,30 @@ class Page_Custom_Form extends Page
 
 
 	/**
-	* Called by the design to print the body of this asset when in limbo
+	* Initialise the limbo (simple-edit) interface by painting to the limbo outputter
 	*
 	* Custom Form should allow the logs to be viewed
 	*
 	* @return void
 	* @access public
 	*/
-	function printLimbo()
+	function initLimbo()
 	{
 		$lm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
-
 		if ($lm->hasLayout($this->type(), 'log')) {
-			parent::printLimbo();
+			parent::initLimbo();
 		} else {
 			require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 			$o =& $GLOBALS['SQ_SYSTEM']->backend->out;
+			$o->openSection('');
 			$edit_fns = $this->getEditFns();
 			$prefix = $this->getPrefix();
 			$edit_fns->paintExport($this, $o, $prefix);
 			$edit_fns->paintSubmissions($this, $o, $prefix);
+			$o->closeSection();
 		}
 
-	}//end printLimbo()
+	}//end initLimbo()
 
 
 }//end class
