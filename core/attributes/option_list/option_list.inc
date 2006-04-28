@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.28 2006/04/10 23:23:25 rong Exp $
+* $Id: option_list.inc,v 1.29 2006/04/28 03:09:17 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -139,7 +139,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	function _printMoveDownButton($order, $prefix)
 	{
 		?>
-			<a href="#" style="cursor:pointer;" onclick="listMoveDown(this);return false;" name="movedown" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
+			<a href="#" style="cursor:pointer;" onclick="listMoveDown(this);return false;" tabindex="99999" name="movedown" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
 		<?php
 
 	}//end _printMoveDownButton()
@@ -157,7 +157,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	function _printMoveUpButton($order, $prefix)
 	{
 		?>
-			<a href="#" style="cursor:pointer;" onclick="listMoveUp(this);return false;" name="moveup" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
+			<a href="#" style="cursor:pointer;" onclick="listMoveUp(this);return false;" tabindex="99999" name="moveup" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
 		<?php
 
 	}//end _printMoveUpButton()
