@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.290 2006/04/26 22:44:35 sdanis Exp $
+* $Id: asset_edit_interface.inc,v 1.291 2006/04/28 05:37:48 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.290 $
+* @version $Revision: 1.291 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -957,6 +957,18 @@ class Asset_Edit_Interface extends MySource_Object
 					}
 				}
 
+				// Loop over the fields to see if there's a section note
+				for ($j = 0; $j < count($section->children); $j++) {
+					switch ($section->children[$j]->name) {
+						case 'note':
+							// notice that only the last "note" will be used if multiple are supplied
+							if (!empty($section->children[$j]->content)) {
+								$section_note = $section->children[$j]->content;
+							}
+						break;
+					}
+				}
+
 			// they must just be normal fields
 			} else {
 
@@ -1444,6 +1456,18 @@ class Asset_Edit_Interface extends MySource_Object
 					} else {
 						if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
 							$print_commit_button = TRUE;
+						}
+					}
+
+					// Loop over the fields to see if there's a section note
+					for ($j = 0; $j < count($section->children); $j++) {
+						switch ($section->children[$j]->name) {
+							case 'note':
+								// notice that only the last "note" will be used if multiple are supplied
+								if (!empty($section->children[$j]->content)) {
+									$section_note = $section->children[$j]->content;
+								}
+							break;
 						}
 					}
 				}
@@ -2211,7 +2235,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$create_sections[$section->attributes['name']] = Array();
 			// Loop over the fields
 			for ($j = 0; $j < count($section->children); $j++) {
-
+				
 				switch ($section->children[$j]->name) {
 					case 'function_call' :
 						$fn_call_node =& $section->children[$j];
