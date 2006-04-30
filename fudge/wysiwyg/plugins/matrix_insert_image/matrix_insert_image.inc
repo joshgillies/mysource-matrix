@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.27 2006/03/01 06:32:51 rong Exp $
+* $Id: matrix_insert_image.inc,v 1.28 2006/04/30 23:44:52 sdanis Exp $
 *
 */
 
@@ -35,7 +35,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -154,10 +154,21 @@ class matrix_insert_image extends wysiwyg_plugin
 						return false;
 					}
 
-					var url = './?a=' + param["f_imageid"];
-					// shadow asset .. needs terminating exclamation mark
-					if (param["f_imageid"].search(/:/) != -1) {
-						url += '$';
+					if (param["f_imageid"] != 0) {
+						var url = './?a=' + param["f_imageid"];
+						// shadow asset .. needs terminating exclamation mark
+						if (param["f_imageid"].search(/:/) != -1) {
+							url += '$';
+						}
+					} else {
+						if (is_image && image_tag) {
+							if (image_tag.src != '') {
+								url = image_tag.src;
+							} else {
+								url = '';
+							}
+						}
+
 					}
 
 					var html = '<img src="' + url + '"';

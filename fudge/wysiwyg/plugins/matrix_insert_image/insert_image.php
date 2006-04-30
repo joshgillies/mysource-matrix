@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.39 2006/03/01 06:32:51 rong Exp $
+* $Id: insert_image.php,v 1.40 2006/04/30 23:44:52 sdanis Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 
@@ -294,7 +294,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											<tr>
 												<td class="label" nowrap="nowrap"><?php echo translate('image_url'); ?>:</td>
 												<td>
-													<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D', 'image_variety' => 'D'), '', false, 'setImageInfo'); ?>
+													<?php asset_finder('f_imageid', (assert_valid_assetid($_GET['f_imageid'], '', TRUE, FALSE) ? $_GET['f_imageid'] : 0), Array('image' => 'D', 'image_variety' => 'D'), '', false, 'setImageInfo'); ?>
 												</td>
 											</tr>
 											<tr>
