@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.43 2006/04/28 06:03:22 tbarrett Exp $
+* $Id: page_account_manager.inc,v 1.44 2006/04/30 23:28:43 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -113,12 +113,12 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 
 	/**
-	* Called by the design to print the body of this asset
+	* Prints out the Frontend for this asset
 	*
 	* @return void
 	* @access public
 	*/
-	function printBody()
+	function printFrontend()
 	{
 		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
 		if ((!is_null($current_user) && !is_a($current_user, 'public_user')) && !SQ_IN_LIMBO) {
@@ -132,23 +132,16 @@ class Page_Account_Manager extends Page_Asset_Builder
 					// the manager is configured with a custom redirect location
 					$redirect_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 					$redirect_url = $redirect_asset->getURL();
-
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($redirect_asset);
 				}
 			}
-			?>
-			<script type="text/javascript"><!--
-			//<![CDATA[
-				document.location = "<?php echo $redirect_url; ?>";
-			//]]> -->
-			</script>
-			<?php
-			echo translate('cms_account_manager_login_redirect_link', $redirect_url);
+			header('Location: '.$redirect_url);
+			exit();
 		} else {
-			parent::printBody();
+			parent::printFrontend();
 		}
 
-	}//end printBody()
+	}//end printFrontend()
 
 
 	/**
@@ -163,6 +156,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		array_merge($this->_replacements, parent::_loadCreateReplacements());
 
 	}//end _loadCreateReplacements()
+
 
 	/**
 	* Initialise the limbo (simple-edit) interface by painting to the limbo outputter
@@ -720,6 +714,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 	/**
 	* Re-sends validation email to specified user
 	*
+	* @param string	$username	The username of the user to resend the email for (optional)
+	*
 	* @return boolean
 	* @access private
 	*/
@@ -741,7 +737,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 					$system =& $GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
 					if (is_null($system)) continue;
 					$user =& $system->locateUser($username);
-					//$user =& $system->locateUser($_REQUEST[$this->getPrefix().'_resend_validation_username']);
 					if (!is_null($user) && $user->id) {
 						break;
 					}
@@ -790,7 +785,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 		return FALSE;
 
-	}//end _reSendValidation()
+	}//end resendValidation()
 
 
 	/**
