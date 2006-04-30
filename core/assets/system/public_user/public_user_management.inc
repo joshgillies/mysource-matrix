@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: public_user_management.inc,v 1.4 2006/01/26 22:34:06 lwright Exp $
+* $Id: public_user_management.inc,v 1.4.2.1 2006/04/30 23:05:57 lwright Exp $
 *
 */
 
@@ -65,8 +65,8 @@ class Public_User_Management extends Asset_Management
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'UPDATE sq_ast_perm
-						SET userid = '.$db->quoteSmart($GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user')).'
-						WHERE userid = 0';
+						SET userid = '.$db->quoteSmart((string) $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user')).'
+						WHERE userid = '.$db->quoteSmart((string) 0);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			$res = $db->query($sql);
 			assert_valid_db_result($res);
