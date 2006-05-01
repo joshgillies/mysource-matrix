@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTreeComm.java,v 1.9.2.3 2006/04/24 00:27:04 sdanis Exp $
+ * $Id: MatrixTreeComm.java,v 1.9.2.4 2006/05/01 06:26:44 sdanis Exp $
  *
  */
 
@@ -177,7 +177,7 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 						} else if (index >= 0) {
 							if (parent.getChildCount() > index) {
 								newIndex = ((MatrixTreeNode)parent.getChildAt(index)).getSortOrder();
-							} else {
+							} else if (parent.getChildCount() > 0) {
 								newIndex = ((MatrixTreeNode)parent.getChildAt(parent.getChildCount()-1)).getSortOrder()+1;
 							}
 						}
