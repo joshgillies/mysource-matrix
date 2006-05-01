@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_orphaned_assets.php,v 1.10 2006/01/30 00:31:08 lwright Exp $
+* $Id: system_integrity_orphaned_assets.php,v 1.11 2006/05/01 01:03:34 emcdonald Exp $
 *
 */
 
@@ -27,11 +27,13 @@
 * the minor) underneath a specified asset id, preferably a folder
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
-if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+if ((php_sapi_name() != 'cli')) {
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+}
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
@@ -43,13 +45,13 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 $MAP_ASSETID = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '0';
 
-$map_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($MAP_ASSETID),'asset',false);
+$map_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($MAP_ASSETID),'asset',FALSE);
 
 if (empty($MAP_ASSETID) || empty($map_asset_info)) {
 	echo "ERROR: You need to supply the assetid of a valid asset that orphaned assets will be mapped to as the second argument\n";
 	exit();
 } else {
-	$map_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($MAP_ASSETID);
+	$map_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($MAP_ASSETID);
 }
 
 $ROOT_ASSETID = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : '1';
@@ -62,7 +64,7 @@ echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
 
 // check that the correct root password was entered
-$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
 	echo "ERROR: The root password entered was incorrect\n";
 	exit();
@@ -77,12 +79,12 @@ $db =& $GLOBALS['SQ_SYSTEM']->db;
 
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
-// go trough each wysiwyg in the system, lock it, validate it, unlock it
-$assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'asset', false);
+// go through each child of the specified asset, lock it, validate it, unlock it
+$assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'asset', FALSE);
 foreach ($assets as $assetid => $type_code) {
 
-	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
-	printAssetName($asset);
+
+	printAssetName($assetid);
 
 	$sql = 'SELECT
 				linkid,
@@ -92,20 +94,20 @@ foreach ($assets as $assetid => $type_code) {
 			FROM
 				sq_ast_lnk
 			WHERE
-					minorid		= '.$db->quote($asset->id).'
+					minorid		= '.$db->quote($assetid).'
 				AND	link_type	<> '.$db->quote(SQ_LINK_NOTICE);
 
 	$links = $db->getAll($sql);
 	assert_valid_db_result($links);
 
-	$updated = false;
-	$errors = false;
+	$updated = FALSE;
+	$errors = FALSE;
 
 	foreach (array_keys($links) as $linkid) {
 		$link =& $links[$linkid];
 		if ($link['linkid'] == 1) continue;
 
-		$major_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($link['majorid']),'asset',false);
+		$major_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($link['majorid']),'asset',FALSE);
 
 		if (empty($major_asset_info)) {
 
@@ -115,7 +117,7 @@ foreach ($assets as $assetid => $type_code) {
 			// because deleteAssetLink() checks to see if the asset is alive... which it isn't >_>;;;
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			// open the transaction
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -132,8 +134,6 @@ foreach ($assets as $assetid => $type_code) {
 								sq_ast_lnk_tree t
 							WHERE
 								t.linkid = '.$db->quote($link['linkid']);
-
-				$sub_sql .= $sub_where;
 
 				$sql = 'UPDATE
 							sq_ast_lnk_tree
@@ -205,17 +205,18 @@ foreach ($assets as $assetid => $type_code) {
 			assert_valid_db_result($result);
 
 			// tell, the asset it has updated
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 			if (!$asset->linksUpdated()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				$errors = true; break 2;
+				$errors = TRUE; break 2;
 			}
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			unset($links[$linkid]);
-		}
-	}
+		}//end if
+	}//end foreach
 
 	if ($errors) {			// no links
 		printUpdateStatus('FAILED');
@@ -223,11 +224,12 @@ foreach ($assets as $assetid => $type_code) {
 	}
 
 	if (empty($links)) {			// no links
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 		if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($map_asset, $asset, SQ_LINK_TYPE_2, 'Orphaned Asset')) {
 			printUpdateStatus('FAILED');
 			continue;
 		}
-		$updated = true;
+		$updated = TRUE;
 	}
 
 	if ($updated) {
@@ -247,15 +249,18 @@ $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 *
 * Pads name to 40 columns
 *
-* @param string	$name	the name of the container
+* @param string	$assetid	the id of the asset of which we want to print the name
 *
 * @return void
 * @access public
 */
-function printAssetName(&$asset)
+function printAssetName($assetid)
 {
-	$str = '[ #'.$asset->id.' ]'.$asset->name;
-	if (strlen($str) > 66) $str = substr($str, 0, 66).'...';
+	$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetid);
+	$str = '[ #'.$assetid.' ]'.$asset_info[$assetid]['name'];
+	if (strlen($str) > 66) {
+		$str = substr($str, 0, 66).'...';
+	}
 	printf ('%s%'.(70 - strlen($str)).'s', $str,'');
 
 }//end printAssetName()
@@ -264,7 +269,7 @@ function printAssetName(&$asset)
 /**
 * Prints the status of the container integrity check
 *
-* @param string	status	the status of the check
+* @param string	$status	the status of the check
 *
 * @return void
 * @access public
