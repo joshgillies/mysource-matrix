@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.27.2.1 2005/11/25 03:50:24 lwright Exp $
+* $Id: datetime.inc,v 1.27.2.2 2006/05/01 06:18:12 tbarrett Exp $
 *
 */
 
@@ -46,7 +46,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27.2.1 $
+* @version $Revision: 1.27.2.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -404,7 +404,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			$value = $field->validateValue($value);
 		} else {
 			if (!preg_match('|[\-\+][0-9]+['.implode('', array_keys($this->_getPeriodOptions())).']|', $value)) {
-				$value = '-1d';
+				return FALSE;
 			}
 		}
 		return true;

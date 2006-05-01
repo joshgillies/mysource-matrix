@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.28 2005/05/16 06:36:31 lwright Exp $
+* $Id: int.inc,v 1.28.2.1 2006/05/01 06:18:12 tbarrett Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <int width="10" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -167,7 +167,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 		$allow_negative = array_get_index($this->_params, 'allow_negative', true);
 
 		if (!$allow_negative && $value < 0) {
-			$value = $this->_default_value;
+			return false;
 		}
 
 		$new_value = (int)$value;
