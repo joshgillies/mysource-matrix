@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout.inc,v 1.5 2006/01/18 01:10:32 lwright Exp $
+* $Id: layout.inc,v 1.6 2006/05/01 00:45:02 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -217,6 +217,34 @@ class Layout extends Bodycopy
 		return $this->layout_keywords;
 
 	}//end getLayoutKeywords()
+
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		if (!isset($vars['keywords'])) return;
+
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'layout', TRUE);
+		if (!empty($parents) && isset($parents[$this->id])) {
+			$vars['keywords']['screen_menu'] = 'Screen Menu';
+			$vars['keywords']['commit_button'] = 'Commit Button';
+			$vars['keywords']['release_locks_button'] = 'Release-locks button';
+			$vars['keywords']['xx-'] = 'All of screen xx';
+			$vars['keywords']['xx-S_yy'] = 'All of section yy of screen xx';
+			$vars['keywords']['xx-F_zz'] = 'Field zz of screen xx';
+			$vars['keywords']['__custom-pp'] = 'Custom limbo keyword pp of the current asset type';
+		}
+
+	}//end onRequestKeywords()
 
 
 }//end class
