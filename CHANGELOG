@@ -1,5 +1,50 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.6.8
+
+Complete Changelog
+----------------------
+
+Core
+
+* Fixed bug #1228: Paint layout applied to homepage doesn't show until homepage webpath is used
+* Fixed bug #1237: Empty ID Tags in generated HTML
+* Fixed bug #1239: Table cell properties don't save properly
+* Fixed bug #1247: Pasting formatted HTML in View Source mode creates unwanted &nbsp;
+* Fixed bug #1257: Removal of Whitespace on Design Parse
+* Fixed bug #1258: getEntries doesn't check the type of $result
+* Fixed bug #1259: WYSIWYG - Words not expanding in the middle of a sentence
+* Fixed bug #1267: Write access condition doesn't check permission to asset being viewed
+* Fixed bug #1276: Cant add associated file in customisation if file exists under parent design
+* Fixed bug #1277: Freestyling HIPOs don't display their errors
+* Fixed bug #1278: WYSIWYG attrs lose value when status changed from archived to under-construction
+* Fixed bug #1280: WYSIWYG Style Plugin fails when Stylesheet contains multi-line comment blocks
+* Fixed bug #1281: Nested design customisations sometimes get confused with associated files
+* Fixed bug #1285: Can edit a page with Status=Up For Reveiw when w/flow applied
+* Fixed bug #1288: hipo returns warning when cloning asset
+* Fixed bug #1291: Use default checkbox does not enable/disable input checkboxes for select mdata fields
+* Fixed bug #1295: Unable to find Asset Lineage errors making an Add URL hipo crash
+* Fixed bug #1297: Site Network code has incorrect path
+* Fixed bug #1305: Layout - simple edit (metadata screen): handleDefaultClick not defined
+* Fixed bug #1315: No commit button on locked Settings screen
+* Fixed bug #1320: Cannot edit image src after pasting it from external content
+
+CMS
+
+* Fixed bug #1234: (Simple Form) still on Form Contents asset when bodycopies are configured (custom form)
+* Fixed bug #1243: Listings not obeying explicit deny permissions (asset listing)
+* Fixed bug #1262: Poll has to be live to work (page poll)
+* Fixed bug #1268: Error In Custom Form (custom form)
+* Fixed bug #1282: Name check for replacing associated files does not take into account web pathed name (custom form)
+* Fixed bug #1296: Asset Builder breaks in a Site Network (asset builder)
+
+Search
+
+* Fixed bug #1286: Error with keyword extraction tool on Oracle systems (search manager)
+
+
+
+
 VERSION 3.6.7
 
 Complete Changelog
