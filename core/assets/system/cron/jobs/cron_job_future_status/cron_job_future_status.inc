@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.35 2006/03/02 05:22:54 bcaldwell Exp $
+* $Id: cron_job_future_status.inc,v 1.36 2006/05/01 04:15:34 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,6 +51,39 @@ class Cron_Job_Future_Status extends Cron_Job
 		$this->Cron_Job($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return FALSE;
+
+		if (!empty($this->_tmp['asset_in_link'])) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links')) {
+				trigger_localised_error('CRON0018', E_USER_WARNING);
+				return FALSE;
+			}
+
+			$link = $this->_tmp['asset_in_link'];
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			if (is_null($asset) || !$this->setAssetToUpdate($asset)) {
+				trigger_localised_error('CRON0017', E_USER_WARNING);
+				return FALSE;
+			}
+
+			unset($this->_tmp['asset_in_link']);
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'links');
+		}
+		return TRUE;
+
+	}//end _createAdditional()
 
 
 	/**
@@ -235,7 +268,15 @@ class Cron_Job_Future_Status extends Cron_Job
 			return FALSE;
 		}
 
-		return (bool) $this->createLink($asset, SQ_LINK_NOTICE, 'updating');
+		if ($this->id) {
+			return (bool)  $this->createLink($asset, SQ_LINK_NOTICE, 'updating');
+		} else {
+			if (!isset($this->_tmp['asset_in_link'])) {
+				$this->_tmp['asset_in_link'] = Array();
+			}
+			$this->_tmp['asset_in_link'] = Array('minorid' => $asset->id, 'minor_type_code' => $asset->type());
+			return TRUE;
+		}
 
 	}//end setAssetToUpdate()
 
@@ -251,7 +292,11 @@ class Cron_Job_Future_Status extends Cron_Job
 		// because we need to return by ref
 		$null = NULL;
 
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', FALSE, 'updating');
+		if ($this->id) {
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', FALSE, 'updating');
+		} else {
+			$link = (isset($this->_tmp['asset_in_link'])) ? $this->_tmp['asset_in_link'] : Array();
+		}
 		if (empty($link)) return $null;
 
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.30 2006/03/23 00:04:56 sdanis Exp $
+* $Id: details.inc,v 1.31 2006/05/01 04:14:59 sdanis Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 
@@ -464,29 +464,19 @@ function processDetails(&$owner, &$o, &$ei)
 
 
 		if ($owner->writeAccess('')) {
-
 			$fs =& new Cron_Job_Future_Status();
 			$edit_fns = $fs->getEditFns();
-			if ($edit_fns->processInLineBackend($fs, $o, $prefix.'_new_fs')) {
+			if ($fs->setAssetToUpdate($owner) && $edit_fns->processInLineBackend($fs, $o, $prefix.'_new_fs')) {
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				if ($cron_mgr->addJob($fs, $GLOBALS['SQ_SYSTEM']->user)) {
-					if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($fs->id, 'links')) {
-						if ($fs->setAssetToUpdate($owner)) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-							$is_updated = TRUE;
-							$GLOBALS['SQ_SYSTEM']->am->releaseLock($fs->id, 'links');
-						} else {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						}
-					} else {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					}
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					$is_updated = TRUE;
 				} else {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				}
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			}// end if
+			}
 
 		}// end if
 
