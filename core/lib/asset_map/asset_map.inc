@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.210.2.7 2006/05/01 01:35:54 sdanis Exp $
+* $Id: asset_map.inc,v 1.210.2.8 2006/05/01 04:09:57 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.210.2.7 $
+* @version $Revision: 1.210.2.8 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -510,7 +510,7 @@ class Asset_Map
 									LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid
 									WHERE l2.assetid = '.$db->quote($assetid).' AND (';
 			$sql = $sql.'(
-						(p.permission = '.$db->quote((String)SQ_PERMISSION_READ).' AND (
+						(p.permission = '.$db->quote(SQ_PERMISSION_READ).' AND (
 								p.userid <> '.$db->quote($public_userid).'
 								OR r.userid <> '.$db->quote($public_userid).'
 								OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
@@ -518,7 +518,7 @@ class Asset_Map
 							)
 						)
 						OR	(
-								p.permission > '.$db->quote((String)SQ_PERMISSION_READ).' AND p.granted = 1
+								p.permission > '.$db->quote(SQ_PERMISSION_READ).' AND p.granted = 1
 							)
 					) '.$userid_cond.') GROUP BY p.assetid, p.permission HAVING MIN(p.granted) <> 0) p ON (l.assetid = p.assetid) ';
 		}
@@ -660,7 +660,7 @@ class Asset_Map
 									LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid
 									WHERE l2.majorid = '.$db->quote($assetid).' AND (';
 			$sql = $sql.'(
-						(p.permission = '.$db->quote((String)SQ_PERMISSION_READ).' AND (
+						(p.permission = '.$db->quote(SQ_PERMISSION_READ).' AND (
 								p.userid <> '.$db->quote($public_userid).'
 								OR r.userid <> '.$db->quote($public_userid).'
 								OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
@@ -668,7 +668,7 @@ class Asset_Map
 							)
 						)
 						OR	(
-								p.permission > '.$db->quote((String)SQ_PERMISSION_READ).' AND p.granted = 1
+								p.permission > '.$db->quote(SQ_PERMISSION_READ).' AND p.granted = 1
 							)
 					) '.$userid_cond.') GROUP BY p.assetid, p.permission HAVING MIN(p.granted) <> 0) p ON (l.assetid = p.assetid) ';
 		}
