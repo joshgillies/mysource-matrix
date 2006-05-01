@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.24 2006/04/28 06:44:02 sdanis Exp $
+* $Id: asset_manager.inc,v 1.431.2.25 2006/05/01 00:10:37 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.24 $
+* @version $Revision: 1.431.2.25 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -451,7 +451,9 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAssetTypeInfo($assetids, $type_code=Array(), $strict_type_code=TRUE)
 	{
-		assert_type($assetids, 'array');
+		if (!is_array($assetids)) {
+			$assetids = Array($assetids);
+		}
 		assert_type($type_code, 'array');
 		if (empty($assetids)) return Array();
 
@@ -1231,7 +1233,9 @@ class Asset_Manager extends MySource_Object
 	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=TRUE, $field='')
 	{
 		$shadow_results = Array();
-		assert_type($assetids, 'array');
+		if (!is_array($assetids)) {
+			$assetids = Array($assetids);
+		}
 		if (empty($assetids)) return Array();
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -2827,7 +2831,7 @@ class Asset_Manager extends MySource_Object
 				$sql .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
 						 ON sl.majorid = a.assetid ';
 				if (is_array($type_code)) {
-					for (reset($type_code); null !== ($key = key($type_code)); next($type_code)) {
+					for (reset($type_code); NULL !== ($key = key($type_code)); next($type_code)) {
 						$type_code[$key] = $db->quoteSmart($type_code[$key]);
 					}
 					$where .= ' AND a.type_code IN ('.implode(',', $type_code).')';
@@ -2852,7 +2856,7 @@ class Asset_Manager extends MySource_Object
 			$this->forgetAsset($asset);
 
 			return $parents;
-		}
+		}//end if getting parents for a shadow asset
 
 		$query = $this->generateGetParentsQuery($assetid, $type_code, $strict_type_code, $sort_by, $access, $min_height, $max_height);
 		if (empty($query)) return Array();
@@ -5582,15 +5586,13 @@ class Asset_Manager extends MySource_Object
 				// need to handle include_assetid changes
 				if ($include_assetid) {
 					$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($userid_assetids), Array(), FALSE, 'type_code');
-					foreach($userid_assetids as $userid_assetid => $assetids) {
+					foreach ($userid_assetids as $userid_assetid => $assetids) {
 						if ($userid_assetid == '0') continue;
 						if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid_assetid], 'user_group')) {
 							$expanded_users = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid_assetid, Array('user'), FALSE));
 							if (!empty($expanded_users)) {
-								if (isset($roles[$roleid])) {
-									$roles[$roleid] = Array();
-								}
-								foreach($expanded_users as $expanded_userid) {
+								if (isset($roles[$roleid])) $roles[$roleid] = Array();
+								foreach ($expanded_users as $expanded_userid) {
 									$roles[$roleid][$expanded_userid] = $assetids;
 								}
 							}
@@ -5616,9 +5618,9 @@ class Asset_Manager extends MySource_Object
 						}
 					}
 				}
-			}
+			}//end foreach
 			$result = $roles;
-		}
+		}//end if expand groups
 
 		return $result;
 
@@ -6661,9 +6663,9 @@ class Asset_Manager extends MySource_Object
 						)';
 				$having .= 'HAVING MIN(p.granted) <> 0';
 				$group_by .= ', p.assetid';
-			}
+			}//end if
 
-		}
+		}//end if $access is not null
 
 		if (!empty($type_code)) {
 
@@ -6850,7 +6852,7 @@ class Asset_Manager extends MySource_Object
 				$having .= 'HAVING MIN(p.granted) <> 0';
 				$group_by .= ', p.assetid';
 			}
-		}
+		}//end if $access is not null
 
 
 		if (!empty($type_code)) {
@@ -7080,10 +7082,8 @@ class Asset_Manager extends MySource_Object
 						(p.permission > '.$db->quote($access).' AND p.granted = 1)
 						)';
 				$having .= 'HAVING MIN(ll.granted) <> 0';
-			//	$group_by .= ', p.assetid';
-			}
-
-		}
+			}//end if
+		}//end if
 
 		$from .= $where.') ll ';
 		$outer_where = '';
@@ -7121,16 +7121,16 @@ class Asset_Manager extends MySource_Object
 		$union_where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
 
 		$sql_array = Array(
-				'select'		=> '('.$select,
-				'from'			=> $from,
-				'where'			=> $outer_where,
-				'group_by'		=> $group_by,
-				'having'		=> $having,
-				'union_select'	=> $union_select,
-				'union_from'	=> $union_from,
-				'union_where'	=> $union_where,
-				'order_by'		=> ')'.$order_by,
-			   );
+						'select'		=> '('.$select,
+						'from'			=> $from,
+						'where'			=> $outer_where,
+						'group_by'		=> $group_by,
+						'having'		=> $having,
+						'union_select'	=> $union_select,
+						'union_from'	=> $union_from,
+						'union_where'	=> $union_where,
+						'order_by'		=> ')'.$order_by,
+					 );
 
 		return $sql_array;
 
