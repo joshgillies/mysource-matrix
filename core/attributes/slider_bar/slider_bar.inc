@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: slider_bar.inc,v 1.2 2005/10/19 07:01:47 tbarrett Exp $
+* $Id: slider_bar.inc,v 1.3 2006/05/01 04:30:35 tbarrett Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 * (NB slow and fast are localised string codes)
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -58,13 +58,13 @@ class Asset_Attribute_Slider_Bar extends Asset_Attribute_Int
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Slider_Bar($attributeid=0, $value=null)
+	function Asset_Attribute_Slider_Bar($attributeid=0, $value=NULL)
 	{
 		$this->Asset_Attribute($attributeid, $value);
 
 		// apply default params where necessary
-		$this->_params['allow_empty'] = false;
-		$this->_params['allow_negative'] = false;
+		$this->_params['allow_empty'] = FALSE;
+		$this->_params['allow_negative'] = FALSE;
 		if (!isset($this->_params['range_lower'])) {
 			$this->_params['range_lower'] = 0;
 		}
@@ -96,11 +96,11 @@ class Asset_Attribute_Slider_Bar extends Asset_Attribute_Int
 	function setEditParams(&$node)
 	{
 		if (!Asset_Attribute::setEditParams($node)) {
-			return false;
+			return FALSE;
 		}
 		$this->_edit_params['lower_text']  = translate($node->attributes['lower_text']);
 		$this->_edit_params['upper_text']  = translate($node->attributes['upper_text']);
-		return true;
+		return TRUE;
 
 	}//end setEditParams()
 
@@ -114,7 +114,7 @@ class Asset_Attribute_Slider_Bar extends Asset_Attribute_Int
 	* @return void
 	* @access public
 	*/
-	function paint($prefix, $read_only=false)
+	function paint($prefix, $read_only=FALSE)
 	{
 		if ($this->value !== '') {
 			$this->value = (int)$this->value;
@@ -127,7 +127,7 @@ class Asset_Attribute_Slider_Bar extends Asset_Attribute_Int
 				<?php echo $this->_edit_params['lower_text']; ?>
 				<span>= <?php echo $this->_params['range_lower']; ?></span>
 			</div>
-			<?php int_text_box($prefix, $this->value, true, 4, $this->_params['range_lower'], $this->_params['range_upper'], 0, false, $textbox_extras); ?>
+			<?php int_text_box($prefix, $this->value, TRUE, 4, $this->_params['range_lower'], $this->_params['range_upper'], 0, FALSE, $textbox_extras); ?>
 			<div class="slider-label-right">
 				<?php echo $this->_edit_params['upper_text']; ?>
 				<span>= <?php echo $this->_params['range_upper']; ?></span>
@@ -153,13 +153,13 @@ class Asset_Attribute_Slider_Bar extends Asset_Attribute_Int
 	*/
 	function process($prefix)
 	{
-		if (!isset($_REQUEST[$prefix])) return false;
+		if (!isset($_REQUEST[$prefix])) return FALSE;
 		$value = $_REQUEST[$prefix];
 		if ($value !== '') $value = (int)$value;
 		if ($this->value != $value && $this->setValue($value)) {
-			$this->processed = true;
+			$this->processed = TRUE;
 		} else {
-			$this->processed = false;
+			$this->processed = FALSE;
 		}
 
 	}//end process()
@@ -177,15 +177,15 @@ class Asset_Attribute_Slider_Bar extends Asset_Attribute_Int
 	{
 		$value = trim($value);
 
-		$allow_negative = array_get_index($this->_params, 'allow_negative', true);
-		$allow_empty = array_get_index($this->_params, 'allow_empty', true);
+		$allow_negative = array_get_index($this->_params, 'allow_negative', TRUE);
+		$allow_empty = array_get_index($this->_params, 'allow_empty', TRUE);
 
 		if ($allow_empty && ($value === '')) {
-			return true;
+			return TRUE;
 		}
 
 		if (!$allow_negative && $value < 0) {
-			$value = $this->_default_value;
+			return FALSE;
 		}
 
 		$new_value = (int)$value;
@@ -194,8 +194,8 @@ class Asset_Attribute_Slider_Bar extends Asset_Attribute_Int
 		// becomes comparing $value with zero which is TRUE. So instead we would be comparing
 		// it with a string '0', which is FALSE and what we want for it to invalidate.
 		// Only genuine ints will pass through.
-		if ((string)$new_value != $value) return false;
-		return true;
+		if ((string)$new_value != $value) return FALSE;
+		return TRUE;
 
 	}//end validateValue()
 

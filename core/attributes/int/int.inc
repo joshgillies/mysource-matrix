@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.35 2005/10/28 03:10:47 tbarrett Exp $
+* $Id: int.inc,v 1.36 2006/05/01 04:30:35 tbarrett Exp $
 *
 */
 
@@ -29,8 +29,8 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 * Integer Asset Attribute
 *
 * parameters => Array(
-* 					'allow_negative'	=> [true|false],
-*					'allow_empty'		=> [true|false],
+* 					'allow_negative'	=> [TRUE|FALSE],
+*					'allow_empty'		=> [TRUE|FALSE],
 * 					'range_lower'		=> [int],				// optional
 * 					'range_upper'		=> [int],				// optional
 *               )
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <int width="10" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -55,22 +55,22 @@ class Asset_Attribute_Int extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Int($attributeid=0, $value=null)
+	function Asset_Attribute_Int($attributeid=0, $value=NULL)
 	{
 		$this->Asset_Attribute($attributeid, $value);
 
 		// apply default params where necessary
 		if (!isset($this->_params['allow_negative'])) {
-			$this->_params['allow_negative'] = true;
+			$this->_params['allow_negative'] = TRUE;
 		}
 		if (!isset($this->_params['allow_empty'])) {
-			$this->_params['allow_empty'] = false;
+			$this->_params['allow_empty'] = FALSE;
 		}
 		if (!isset($this->_params['range_lower'])) {
-			$this->_params['range_lower'] = false;
+			$this->_params['range_lower'] = FALSE;
 		}
 		if (!isset($this->_params['range_upper'])) {
-			$this->_params['range_upper'] = false;
+			$this->_params['range_upper'] = FALSE;
 		}
 
 		// set default edit parameters
@@ -90,10 +90,10 @@ class Asset_Attribute_Int extends Asset_Attribute
 	*/
 	function setEditParams(&$node)
 	{
-		if (!parent::setEditParams($node)) return false;
+		if (!parent::setEditParams($node)) return FALSE;
 		$this->_edit_params['width']  = (int) $node->attributes['width'];
 
-		return true;
+		return TRUE;
 
 	}//end setEditParams()
 
@@ -107,7 +107,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 	* @return void
 	* @access public
 	*/
-	function paint($prefix, $read_only=false)
+	function paint($prefix, $read_only=FALSE)
 	{
 		if ($this->value !== '') {
 			$this->value = (int)$this->value;
@@ -121,14 +121,13 @@ class Asset_Attribute_Int extends Asset_Attribute
 		$range_upper = $this->_params['range_upper'];
 
 		// We don't want to inforce a range on the integer field.
-		if (!is_int($range_lower)) $range_lower = null;
-		if (!is_int($range_upper)) $range_upper = null;
+		if (!is_int($range_lower)) $range_lower = NULL;
+		if (!is_int($range_upper)) $range_upper = NULL;
 
-		$allow_negative = array_get_index($this->_params, 'allow_negative', true);
+		$allow_negative = array_get_index($this->_params, 'allow_negative', TRUE);
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		int_text_box($prefix, $this->value, $allow_negative, $this->_edit_params['width'], $range_lower, $range_upper, 0, false, '');
-		//text_box($prefix, $this->value, $this->_edit_params['width'], 0, false, $javascript);
+		int_text_box($prefix, $this->value, $allow_negative, $this->_edit_params['width'], $range_lower, $range_upper, 0, FALSE, '');
 
 	}//end paint()
 
@@ -143,13 +142,13 @@ class Asset_Attribute_Int extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_REQUEST[$prefix])) return false;
+		if (!isset($_REQUEST[$prefix])) return FALSE;
 		$value = $_REQUEST[$prefix];
 		if ($value !== '') $value = (int)$value;
 		if ($this->value !== $value && $this->setValue($value)) {
-			$this->processed = true;
+			$this->processed = TRUE;
 		} else {
-			$this->processed = false;
+			$this->processed = FALSE;
 		}
 
 	}//end process()
@@ -167,44 +166,38 @@ class Asset_Attribute_Int extends Asset_Attribute
 	{
 		// empty string is OK if enabled
 		if ($value === '') {
-			$allow_empty = array_get_index($this->_params, 'allow_empty', true);
+			$allow_empty = array_get_index($this->_params, 'allow_empty', TRUE);
 			if ($allow_empty && ($value === '')) {
-				return true;
+				return TRUE;
 			} else {
 				// we'll be nice and turn this into int zero rather than erroring
 				$value = (int)$value;
 			}
 		}
 
-		$range_lower = array_get_index($this->_params, 'range_lower', false);
+		$range_lower = array_get_index($this->_params, 'range_lower', FALSE);
 		if (!empty($range_lower) && ($value < $range_lower)) {
-			$value = $this->_default_value;
-			return false;
+			return FALSE;
 		}
 
-		$range_upper = array_get_index($this->_params, 'range_upper', false);
+		$range_upper = array_get_index($this->_params, 'range_upper', FALSE);
 		if (!empty($range_upper) && ($value > $range_upper)) {
-			$value = $this->_default_value;
-			return false;
+			return FALSE;
 		}
 
 		// unless one of the range checks failed, zero is OK
-		if ($value === 0) return true;
-		if ($value === '0') return true;
+		if ($value === 0) return TRUE;
+		if ($value === '0') return TRUE;
 
 		// anything else that equates to int zero is not OK
-		if ($value == 0) {
-			$value = $this->_default_value;
-			return false;
-		}
+		if ($value == 0) return FALSE;
 
-		$allow_negative = array_get_index($this->_params, 'allow_negative', true);
+		$allow_negative = array_get_index($this->_params, 'allow_negative', TRUE);
 		if (!$allow_negative && $value < 0) {
-			$value = $this->_default_value;
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end validateValue()
 

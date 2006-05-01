@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.50 2006/03/20 22:08:56 pgannavarapu Exp $
+* $Id: asset_attribute.inc,v 1.51 2006/05/01 04:30:35 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -264,6 +264,10 @@ class Asset_Attribute extends MySource_Object
 
 	/**
 	* Validate the value of this attribute - children should overwrite
+	*
+	* This function should return FALSE if the passed-in value is irreparably invalid.  If the value
+	* is only trivially invalid this function may tweak it to make it valid, but it is NOT the job of
+	* this function to change an invalid value to this attribute's default value.
 	*
 	* @param mixed	&$value	value to be validated
 	*

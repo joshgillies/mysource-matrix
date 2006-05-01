@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.36 2006/03/08 22:57:49 tbarrett Exp $
+* $Id: datetime.inc,v 1.37 2006/05/01 04:30:35 tbarrett Exp $
 *
 */
 
@@ -46,7 +46,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -61,18 +61,18 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_DateTime($attributeid=0, $value=null)
+	function Asset_Attribute_DateTime($attributeid=0, $value=NULL)
 	{
 		$this->Asset_Attribute($attributeid, $value);
 
 		// default values
-		$this->_edit_params['allow_null']   = true;
+		$this->_edit_params['allow_null']   = TRUE;
 		$this->_edit_params['max']          = '2030-12-31 23:59:59';
 		$this->_edit_params['min']          = '1970-01-01 00:00:00';
 		$this->_edit_params['allow_circa']  = '0';
 		$this->_edit_params['print_format'] = 'l, F jS, Y H:i:s';
-		$this->_edit_params['allow_period'] = false;
-		$this->_edit_params['use_picker']   = false;
+		$this->_edit_params['allow_period'] = FALSE;
+		$this->_edit_params['use_picker']   = FALSE;
 		$this->_edit_params['show']			= Array();
 
 		// default date format and display style.
@@ -102,7 +102,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	*/
 	function setEditParams(&$node)
 	{
-		if (!parent::setEditParams($node)) return false;
+		if (!parent::setEditParams($node)) return FALSE;
 
 		if (!empty($node->attributes['min'])) {
 			$this->_edit_params['min'] = $node->attributes['min'];
@@ -135,11 +135,11 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		}
 
 		if (isset($node->attributes['allow_period']) && $node->attributes['allow_period']) {
-			$this->_edit_params['allow_period'] = true;
+			$this->_edit_params['allow_period'] = TRUE;
 		}
 
 		if (isset($node->attributes['use_picker']) && $node->attributes['use_picker']) {
-			$this->_edit_params['use_picker'] = true;
+			$this->_edit_params['use_picker'] = TRUE;
 		}
 
 		// if nothing was found, define some defaults of our own
@@ -150,7 +150,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			}
 		}
 
-		return true;
+		return TRUE;
 
 	}//end setEditParams()
 
@@ -164,7 +164,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	* @return void
 	* @access public
 	*/
-	function paint($prefix, $read_only=false)
+	function paint($prefix, $read_only=FALSE)
 	{
 		$using_single_date = is_iso8601($this->value) || empty($this->value);
 
@@ -186,7 +186,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 				$timestamp = strtotime(str_replace('--', '0', $this->value));
 
 				if ($timestamp < time()) {
-					$format = easy_time_total(time() - $timestamp, false, true);
+					$format = easy_time_total(time() - $timestamp, FALSE, TRUE);
 					if (!empty($format)) {
 						if ($format['d'] > 0) {
 							$period_num = $format['d'];
@@ -243,7 +243,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 					[
 					<a class="sq-backend-legend" href="#"
 					style="text-decoration: none;"
-					onclick="Javascript: sq_toggle_double_div('<?php echo $prefix; ?>_date_field', '<?php echo $prefix; ?>_period_field', '<?php echo $prefix; ?>_selecta', 'Select Single Date', 'Select Date Period'); set_hidden_field('<?php echo $prefix; ?>_setting_single_date', document.getElementById('<?php echo $prefix; ?>_date_field').style.display == 'block'); return false;"><?php echo strtolower(translate('change')); ?></a>
+					onclick="sq_toggle_double_div('<?php echo $prefix; ?>_date_field', '<?php echo $prefix; ?>_period_field', '<?php echo $prefix; ?>_selecta', 'Select Single Date', 'Select Date Period'); set_hidden_field('<?php echo $prefix; ?>_setting_single_date', document.getElementById('<?php echo $prefix; ?>_date_field').style.display == 'block'); return false;"><?php echo strtolower(translate('change')); ?></a>
 					]
 				</legend>
 				<div id="<?php echo $prefix; ?>_date_field" style="display: <?php echo ($using_single_date) ? 'block' : 'none'; ?>;">
@@ -256,7 +256,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 							$calendar =& new JS_Calendar();
 							$calendar->changeSetting('onDayClick', 'datetime_set_date');
-							$calendar->paint($prefix, $prefix.'_cal_picker', true);
+							$calendar->paint($prefix, $prefix.'_cal_picker', TRUE);
 						}
 					?>
 					<br /><br /><i><?php echo translate('select_single_date'); ?></i>
@@ -265,9 +265,9 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 					<?php
 					text_box($prefix.'period_num', $period_num, 3);
 					echo '&nbsp;';
-					combo_box($prefix.'_period_type', $period_options, false, $period_type);
+					combo_box($prefix.'_period_type', $period_options, FALSE, $period_type);
 					echo '&nbsp;';
-					combo_box($prefix.'_period_age', $age_options, false, $period_age);
+					combo_box($prefix.'_period_age', $age_options, FALSE, $period_age);
 					?>
 					<br /><br /><i><?php echo translate('select_date_period'); ?></i>
 				</div>
@@ -282,7 +282,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 				$calendar =& new JS_Calendar();
 				$calendar->changeSetting('onDayClick', 'datetime_set_date');
-				$calendar->paint(str_replace(':', '_', $prefix), '', true);
+				$calendar->paint(str_replace(':', '_', $prefix), '', TRUE);
 			}
 		}
 
@@ -299,9 +299,9 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		$setting_single_date = true;
+		$setting_single_date = TRUE;
 		if (isset($_REQUEST[$prefix.'_setting_single_date']) && $_REQUEST[$prefix.'_setting_single_date'] == 'false') {
-			$setting_single_date = false;
+			$setting_single_date = FALSE;
 		}
 
 		$using_single_date = is_iso8601($this->value);
@@ -315,12 +315,12 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			$field =& new Datetime_Field($prefix, $field_value, $this->_edit_params);
 			if ($field->processField()) {
 				if ($this->value != $field_value && $this->setValue($field_value)) {
-					$this->processed = true;
+					$this->processed = TRUE;
 				} else {
-					$this->processed = false;
+					$this->processed = FALSE;
 				}
 			} else {
-				$this->processed = false;
+				$this->processed = FALSE;
 			}
 		} else {
 			$period_num = (isset($_REQUEST[$prefix.'period_num'])) ? (int) $_REQUEST[$prefix.'period_num'] : '1';
@@ -338,9 +338,9 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			}
 			$value = $period_age.$period_num.$period_type;
 			if ($this->value != $value && $this->setValue($value)) {
-				$this->processed = true;
+				$this->processed = TRUE;
 			} else {
-				$this->processed = false;
+				$this->processed = FALSE;
 			}
 		}
 
@@ -380,9 +380,9 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		// now we know that we can formulate a date
 		$strtotime = $units['m'].'/'.$units['d'].'/'.$units['y'];
 
-		$dotime = true;
+		$dotime = TRUE;
 		foreach (Array('h', 'i', 's') as $u) {
-			if ($units[$u] == -1) $dotime = false;
+			if ($units[$u] == -1) $dotime = FALSE;
 		}
 		if ($dotime) {
 			$strtotime .= ' '.$units['h'].':'.$units['i'].':'.$units['s'];
@@ -434,10 +434,8 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	{
 		// specific check for null
 		if (!empty($this->_params['allow_null']) && ($value == '---------- --:--:--' || $value == '')) {
-			return true;
+			return TRUE;
 		}
-
-		$orig_value = $value;
 
 		if (is_iso8601($value)) {
 			$ref = '';
@@ -445,11 +443,10 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			$value = $field->validateValue($value);
 		} else {
 			if (!empty($value) && !preg_match('|[\-\+][0-9]+['.implode('', array_keys($this->_getPeriodOptions())).']|', $value)) {
-				$value = '-1d';
-				return false;
+				return FALSE;
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end validateValue()
 
