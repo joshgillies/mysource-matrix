@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.210.2.8 2006/05/01 04:09:57 sdanis Exp $
+* $Id: asset_map.inc,v 1.210.2.9 2006/05/01 05:16:36 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.210.2.8 $
+* @version $Revision: 1.210.2.9 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -532,8 +532,8 @@ class Asset_Map
 			}
 
 			$where .=' AND l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
 
 			$sql .= ' '.$where;
 
