@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: char_map.php,v 1.2 2005/07/21 00:56:43 dmckee Exp $
+* $Id: char_map.php,v 1.3 2006/05/01 00:30:39 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Character Map popup for the WYSIWYG
 *
 * @author	Darren McKee	<dmckee@squiz.net>
-* @version	$Revision: 1.2 $
+* @version	$Revision: 1.3 $
 * @package	WYSIWYG
 */
 
@@ -278,7 +278,7 @@
 			<tr>
 			<?php
 			foreach ($entities as $id => $entity) {
-				if ($id > 0 && bcmod($id, $col_limit) == 0) {
+				if ($id > 0 && ($id % $col_limit == 0)) {
 					?>
 					</tr><tr>
 					<?php
