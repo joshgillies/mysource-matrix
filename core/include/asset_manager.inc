@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.471 2006/04/28 06:05:52 sdanis Exp $
+* $Id: asset_manager.inc,v 1.472 2006/05/01 00:48:40 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.471 $
+* @version $Revision: 1.472 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -451,7 +451,9 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAssetTypeInfo($assetids, $type_code=Array(), $strict_type_code=TRUE)
 	{
-		assert_type($assetids, 'array');
+		if (!is_array($assetids)) {
+			$assetids = Array($assetids);
+		}
 		assert_type($type_code, 'array');
 		if (empty($assetids)) return Array();
 
@@ -1241,7 +1243,9 @@ class Asset_Manager extends MySource_Object
 	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=TRUE, $field='')
 	{
 		$shadow_results = Array();
-		assert_type($assetids, 'array');
+		if (!is_array($assetids)) {
+			$assetids = Array($assetids);
+		}
 		if (empty($assetids)) return Array();
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -5573,6 +5577,7 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$expand_groups		when TRUE, any groups defined within a role will be
 	*										replaced with the userids in that group.
 	*										If FALSE, return the groupids
+	* @param boolean	$inc_dependants		If false it will filter out the dependant assets
 	*
 	* @return array
 	* @access public
@@ -6703,9 +6708,9 @@ class Asset_Manager extends MySource_Object
 						)';
 				$having .= 'HAVING MIN(p.granted) <> 0';
 				$group_by .= ', p.assetid';
-			}
+			}//end if
 
-		}
+		}//end if access is not null
 
 		if (!empty($type_code)) {
 
@@ -6892,7 +6897,7 @@ class Asset_Manager extends MySource_Object
 				$having .= 'HAVING MIN(p.granted) <> 0';
 				$group_by .= ', p.assetid';
 			}
-		}
+		}//end if access is not null
 
 
 		if (!empty($type_code)) {
@@ -7123,7 +7128,7 @@ class Asset_Manager extends MySource_Object
 						(p.permission > '.$db->quote($access).' AND p.granted = 1)
 						)';
 				$having .= 'HAVING MIN(ll.granted) <> 0';
-			//	$group_by .= ', p.assetid';
+
 			}
 
 		}
@@ -7165,16 +7170,16 @@ class Asset_Manager extends MySource_Object
 		$union_where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
 
 		$sql_array = Array(
-				'select'		=> '('.$select,
-				'from'			=> $from,
-				'where'			=> $outer_where,
-				'group_by'		=> $group_by,
-				'having'		=> $having,
-				'union_select'	=> $union_select,
-				'union_from'	=> $union_from,
-				'union_where'	=> $union_where,
-				'order_by'		=> ')'.$order_by,
-			   );
+						'select'		=> '('.$select,
+						'from'			=> $from,
+						'where'			=> $outer_where,
+						'group_by'		=> $group_by,
+						'having'		=> $having,
+						'union_select'	=> $union_select,
+						'union_from'	=> $union_from,
+						'union_where'	=> $union_where,
+						'order_by'		=> ')'.$order_by,
+					 );
 		return $sql_array;
 
 	}//end generateGetParentsQuery()
