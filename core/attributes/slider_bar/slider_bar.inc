@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: slider_bar.inc,v 1.2 2005/10/19 07:01:47 tbarrett Exp $
+* $Id: slider_bar.inc,v 1.2.2.1 2006/05/01 06:16:10 tbarrett Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 * (NB slow and fast are localised string codes)
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -185,7 +185,7 @@ class Asset_Attribute_Slider_Bar extends Asset_Attribute_Int
 		}
 
 		if (!$allow_negative && $value < 0) {
-			$value = $this->_default_value;
+			return false;
 		}
 
 		$new_value = (int)$value;
