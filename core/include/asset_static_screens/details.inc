@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.26.2.2 2006/03/23 00:13:02 sdanis Exp $
+* $Id: details.inc,v 1.26.2.3 2006/05/01 04:09:26 sdanis Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.26.2.2 $
+* @version $Revision: 1.26.2.3 $
 * @package MySource_Matrix
 */
 
@@ -44,13 +44,13 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @return boolean
 * @access public
 */
-function paintDetails(&$owner, &$o, &$ei, $keywords=null)
+function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 {
 	$root = &$ei->findScreen('static_screen_details');
-	if (is_null($root)) return false;
+	if (is_null($root)) return FALSE;
 
 	$prefix = $owner->getPrefix();
-	$print_commit_button = false;
+	$print_commit_button = FALSE;
 
 	$display_status_sections = TRUE;
 	$parent_asset_href = '';
@@ -142,13 +142,13 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 						// if this asset is in workflow we do not let the change the status here
 						// because they need to go off to the workflow screen
 						$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-						$running_schemas = $wfm->getSchemas($owner->id, true, true);
+						$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
 						if (!empty($running_schemas)) {
 							$o->note(translate('asset_currently_in_workflow', $owner->getBackendHref('workflow')));
 						} else {
 							$available_statii = _paintStatusChange($owner, $o, $prefix);
 							if (!empty($available_statii)) {
-								$print_commit_button = true;
+								$print_commit_button = TRUE;
 							}
 						}
 						if (!is_null($keywords) && isset($keywords['fields']['status_change'])) {
@@ -254,7 +254,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 									$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']] .= ob_get_contents();
 									ob_end_flush();
 								}
-								$print_commit_button = true;
+								$print_commit_button = TRUE;
 							} else {
 								echo translate('cron_manager_not_configured');
 							}
@@ -305,7 +305,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 							ob_start();
 						}
 
-						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'image', false, 'thumbnail');
+						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'image', FALSE, 'thumbnail');
 						if (!empty($link)) {
 							$thumbnail = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 							$edit_fns = $thumbnail->getEditFns();
@@ -360,10 +360,10 @@ function _paintStatusChange(&$owner, &$o, $prefix)
 	$statii = $owner->getAvailableStatii();
 
 	if (!empty($statii)) {
-		$statii = array_reverse($statii, true);
+		$statii = array_reverse($statii, TRUE);
 		$statii[0] = '';
-		$statii = array_reverse($statii, true);
-		combo_box($prefix.'_change_status', $statii, false, 0);
+		$statii = array_reverse($statii, TRUE);
+		combo_box($prefix.'_change_status', $statii, FALSE, 0);
 		echo '&nbsp;';
 		check_box($prefix.'_change_status_all_children');
 		echo translate('cascade_status_change');
@@ -387,7 +387,7 @@ function _paintStatusChange(&$owner, &$o, $prefix)
 function _processStatusChange(&$owner, &$o, $prefix)
 {
 	if (isset($_POST[$prefix.'_change_status']) && (int) $_POST[$prefix.'_change_status'] > 0) {
-		$dependants_only = (isset($_POST[$prefix.'_change_status_all_children']) && $_POST[$prefix.'_change_status_all_children']) ? false : true;
+		$dependants_only = (isset($_POST[$prefix.'_change_status_all_children']) && $_POST[$prefix.'_change_status_all_children']) ? FALSE : TRUE;
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetid' => $owner->id, 'new_status' => $_POST[$prefix.'_change_status'], 'dependants_only' => $dependants_only);
 		$hh->queueHipo('hipo_job_edit_status', $vars);
@@ -411,13 +411,13 @@ function processDetails(&$owner, &$o, &$ei)
 {
 	$prefix = $owner->getPrefix();
 
-	$is_updated = false;
+	$is_updated = FALSE;
 
 	///// IMMEDIATE STATUS CHANGES ////
 
 	// process a status change on this screen if workflow is NOT running
 	$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-	$running_schemas = $wfm->getSchemas($owner->id, true, true);
+	$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
 	if (empty($running_schemas)) {
 		_processStatusChange($owner, $o, $prefix);
 	}
@@ -436,7 +436,7 @@ function processDetails(&$owner, &$o, &$ei)
 					for ($i = 0; $i < count($fs_jobs); $i++) {
 						if (in_array($fs_jobs[$i]->id, $_POST[$prefix.'_remove_fs'])) {
 							if ($cron_mgr->removeJob($fs_jobs[$i])) {
-								$is_updated = true;
+								$is_updated = TRUE;
 							}
 						}// end if
 					}// end for
@@ -453,29 +453,19 @@ function processDetails(&$owner, &$o, &$ei)
 
 
 		if ($owner->writeAccess('')) {
-
 			$fs =& new Cron_Job_Future_Status();
 			$edit_fns = $fs->getEditFns();
-			if ($edit_fns->processInLineBackend($fs, $o, $prefix.'_new_fs')) {
+			if ($fs->setAssetToUpdate($owner) && $edit_fns->processInLineBackend($fs, $o, $prefix.'_new_fs')) {
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				if ($cron_mgr->addJob($fs, $GLOBALS['SQ_SYSTEM']->user)) {
-					if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($fs->id, 'links')) {
-						if ($fs->setAssetToUpdate($owner)) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-							$is_updated = true;
-							$GLOBALS['SQ_SYSTEM']->am->releaseLock($fs->id, 'links');
-						} else {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						}
-					} else {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					}
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					$is_updated = TRUE;
 				} else {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				}
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			}// end if
+			}
 
 		}// end if
 
@@ -485,7 +475,7 @@ function processDetails(&$owner, &$o, &$ei)
 
 	$edit_fns = $owner->getEditFns();
 	if ($edit_fns->processNoticeLinkedAsset($owner, 'thumbnail')) {
-		$is_updated = true;
+		$is_updated = TRUE;
 	}
 
 	return ($is_updated);
