@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts.inc,v 1.1 2006/04/27 03:19:36 lwright Exp $
+* $Id: cron_job_manage_pending_accounts.inc,v 1.2 2006/05/02 04:45:32 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -302,7 +302,6 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 		if ($res & SQ_CRON_JOB_REMOVE) {
 			$res = $res - SQ_CRON_JOB_REMOVE;
 		}
-		error_log('Result: '.$res);
 		return $res;
 
 	}//end run()
