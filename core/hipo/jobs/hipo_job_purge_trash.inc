@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.38 2006/01/26 22:34:08 lwright Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.38.2.1 2006/05/02 06:46:58 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -302,11 +302,13 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		$GLOBALS['SQ_PURGING_TRASH'] = true;
 		if (!empty($this->_running_vars['to_delete'])) {
 
+			// get the intersection of delete_order and to_delete
 			$assetid = null;
 			while (!isset($this->_running_vars['to_delete'][$assetid])) {
 				$assetid = array_pop($this->_running_vars['delete_order']);
 				if (is_null($assetid)) break;
 			}
+
 			if (!is_null($assetid)) {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->_running_vars['to_delete'][$assetid]);
 				unset($this->_running_vars['to_delete'][$assetid]);
