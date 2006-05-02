@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.120.2.2 2006/04/27 01:01:31 sdanis Exp $
+* $Id: general.inc,v 1.120.2.3 2006/05/02 23:25:02 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.120.2.2 $
+* @version $Revision: 1.120.2.3 $
 * @package MySource_Matrix
 */
 
@@ -1277,6 +1277,9 @@ function replace_global_keywords($text)
 				if ($keyword_replacements[$global_keyword] == '%'.$keyword.'%') {
 					$keyword_replacements[$global_keyword] = '%'.$global_keyword.'%';
 				}
+			} else {
+				// not a global keyword, so blank out
+				$keyword_replacements[$global_keyword] = '';
 			}
 		}
 		$text = replace_keywords($text, $keyword_replacements);
