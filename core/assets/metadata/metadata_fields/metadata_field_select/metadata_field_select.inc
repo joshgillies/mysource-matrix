@@ -1,4 +1,4 @@
-																					  <?php
+<?php
 /**
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.15 2006/04/24 01:08:42 rhoward Exp $
+* $Id: metadata_field_select.inc,v 1.16 2006/05/02 00:17:25 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
