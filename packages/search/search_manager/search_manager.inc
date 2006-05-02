@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.97.2.9 2006/04/28 01:54:22 sdanis Exp $
+* $Id: search_manager.inc,v 1.97.2.10 2006/05/02 05:28:11 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97.2.9 $
+* @version $Revision: 1.97.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -454,10 +454,10 @@ class Search_Manager extends Asset
 					'created'	=> $asset->created,
 					'updated'	=> $asset->updated,
 				 );
-		if (!is_null($this->published)) {
+		if (!is_null($asset->published)) {
 			$dates['published'] = $asset->published;
 		}
-		if (!is_null($this->status_changed)) {
+		if (!is_null($asset->status_changed)) {
 			$dates['status_changed'] = $asset->status_changed;
 		}
 
