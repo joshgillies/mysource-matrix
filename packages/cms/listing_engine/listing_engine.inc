@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.170 2006/05/03 06:26:24 lwright Exp $
+* $Id: listing_engine.inc,v 1.171 2006/05/03 06:30:39 sdanis Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.170 $
+* @version $Revision: 1.171 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2592,63 +2592,86 @@ class Listing_Engine extends Page
 	*/
 	function getGroupableParentAssetids($child_assetid, $restrict_types=Array())
 	{
-				$root_nodes = $this->getRootNodes();
-		// get a list of potential parent id, safety check
-		$potential_parentids = Array();
-		if (count($root_nodes) == 1) {
-			$min_depth = ($this->attr('min_depth') == '') ? NULL : $this->attr('min_depth');
-			$max_depth = ($this->attr('max_depth') == '') ? NULL : $this->attr('max_depth');
-			$root_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_nodes[0], '', TRUE, NULL, NULL, NULL, $min_depth, $max_depth);
-			$potential_parentids = array_keys($root_children);
-		}
+		$root_nodes = $this->getRootNodes();
 
-		$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($child_assetid, $this->attr('link_types'), '', TRUE, 'minor');
-
-		$parent_link_assetids = Array();
-		foreach ($parent_links as $parent_link) {
-			if (empty($root_nodes) || ($this->attr('direction') == 'up')) {
-				// if no root nodes set, allow all parents
+		if (empty($root_nodes) || ($this->attr('direction') == 'up')) {
+			$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($child_assetid, $this->attr('link_types'), '', TRUE, 'minor');
+			$parent_link_assetids = Array();
+			foreach ($parent_links as $parent_link) {
 				$parent_link_assetids[] = $parent_link['majorid'];
-			} else {
-				$parent_assetid = $parent_link['majorid'];
-
-				if (in_array($parent_assetid, $root_nodes)) {
-					// check if parent is a root node itself
-					$parent_link_assetids[] = $parent_assetid;
-				} else {
-					// check if the parent is within the root node
-					$parents_of_parent = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid);
-
-					if (!empty($restrict_types['type_code'])) {
-						// find the first parent that is one of the restricted types
-						$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($child_assetid);
-						$parents = array_reverse($parents, TRUE);
-						foreach ($parents as $parentid => $type_code) {
-							// filter out parent that is not a child of root node
-							if (!empty($potential_parentids) && !in_array($parentid, $potential_parentids)) {
-								continue;
-							}
-							$inherit_values = $restrict_types['inherit'];
-							foreach ($restrict_types['type_code'] as $restricted_type_code) {
-								$inherit = array_shift($inherit_values);
-								if ($type_code == $restricted_type_code || ($inherit && $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($type_code, $restricted_type_code))) {
-									$parent_assetid = $parentid;
-									break(2);
-								}
-							}
-						}
-					}
-
-					if (count(array_intersect(array_keys($parents_of_parent), $root_nodes)) > 0) {
-						$parent_link_assetids[] = $parent_assetid;
-					}
-				}//end else
-			}//end else empty root nodes
-		}//end foreach
+			}
+		} else {
+			$parent_link_assetids = $this->_getGroupableParentAssetids($child_assetid, $restrict_types, $root_nodes);
+		}
 
 		return $parent_link_assetids;
 
 	}//end getGroupableParentAssetids()
+
+
+	/**
+	* Get all the parents of this asset which can be used for grouping.
+	*
+	* @param array	$child_assetid	the asset to find the parents of
+	* @param array	$restrict_types	Group type restrictions
+	* @param array	$root_nodes		Root Nodes for this listing
+	*
+	* @return array
+	* @access public
+	*/
+	function _getGroupableParentAssetids($child_assetid, $restrict_types=Array(), $root_nodes=Array())
+	{
+		// get single treeid for each root node, children of root node should be the same on all trees
+		$root_nodes_treeid = Array();
+		$groupable_parents = Array();
+		foreach ($root_nodes as $root_nodeid) {
+
+			if (!isset($this->_tmp['root_node_treeids'][$root_nodeid])) {
+				$this->_tmp['root_node_treeids'][$root_nodeid] = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($root_nodeid);
+			}
+			$treeids = $this->_tmp['root_node_treeids'][$root_nodeid];
+			$treeid = array_shift($treeids);
+			$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($child_assetid, 0, $treeid, 'type_code');
+
+			foreach ($lineages as $lineage_info) {
+				// if no types selected then group by root nodes
+				if (!isset($restrict_types['type_code']) || empty($restrict_types['type_code'])) {
+					$groupable_parents[] = array_shift(array_keys($lineage_info['lineage']));
+					continue;
+				}
+				// start from the end of the current lineage
+				$lineage = array_reverse($lineage_info['lineage'], TRUE);
+				$add = FALSE;
+
+				foreach ($lineage as $parentid => $type_code) {
+					if (in_array($type_code, $restrict_types['type_code'])) {
+						$add = TRUE;
+					} else {
+						$inherit_vals = $restrict_types['inherit'];
+						foreach ($restrict_types['type_code'] as $type) {
+							$inherit = array_shift($inherit_vals);
+							if (!isset($this->_tmp['type_decendants'][$type])) {
+								$this->_tmp['type_decendants'][$type] = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type, TRUE);
+							}
+							if ($inherit && in_array($type_code, $this->_tmp['type_decendants'][$type])) {
+								$add = TRUE;
+								break;
+							}
+						}
+					}
+
+					if ($add) {
+						// we have found the parent for this lineage
+						$groupable_parents[] = $parentid;
+						break;
+					}
+				}
+			}//end foreach
+		}//end foreach
+
+		return array_unique($groupable_parents);
+
+	}//end _getGroupableParentAssetids()
 
 
 	/**
