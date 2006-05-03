@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.530 2006/05/03 05:38:00 bcaldwell Exp $
+* $Id: asset.inc,v 1.531 2006/05/03 06:16:01 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.530 $
+* @version $Revision: 1.531 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1839,7 +1839,7 @@ class Asset extends MySource_Object
 
 			$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
 			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, NULL, FALSE, FALSE, TRUE);
+				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
 				foreach ($set_perms as $userid => $granted) {
 					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($clone->id, $userid, $perm, $granted)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
