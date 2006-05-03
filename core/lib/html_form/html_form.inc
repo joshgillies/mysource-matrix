@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.118 2006/03/27 23:37:28 lwright Exp $
+* $Id: html_form.inc,v 1.119 2006/05/03 06:26:22 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.118 $
+* @version $Revision: 1.119 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -212,12 +212,13 @@ function text_box($name, $value, $size='', $max='', $hide_value=FALSE, $extras='
 * @param boolean	$hide_value		use the default value as indicative text only (hide it onFocus and restore onBlur
 *									if needed) - useful if you want to use it as instructional text (as required by priority
 *									level 3 accessability standards)
+* @param boolean	$allow_empty	allow the text box to be empty?
 * @param string		$extras			any input field attributes that should be placed in the <input ... > tag
 *
 * @return void
 * @access public
 */
-function int_text_box($name, $value, $allow_negative=TRUE, $size='', $range_min=NULL, $range_max=NULL, $max_chars='', $hide_value=FALSE, $extras='')
+function int_text_box($name, $value, $allow_negative=TRUE, $size='', $range_min=NULL, $range_max=NULL, $max_chars='', $hide_value=FALSE, $allow_empty=FALSE, $extras='')
 {
 	?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
 
@@ -244,7 +245,7 @@ function int_text_box($name, $value, $allow_negative=TRUE, $size='', $range_min=
 	$ranges_js  = implode(', ', $ranges);
 	$javascript = '
 		onkeyup="validate_numeric_text_field(this, '.$allow_negative.(!empty($ranges_js) ? ', '.$ranges_js : '').');"
-		onblur="validate_numeric_range(this'.(!empty($ranges_js) ? ', '.$ranges_js : '').');"
+		onblur="validate_numeric_range(this'.(!empty($ranges_js) ? ', '.$ranges_js : '').', '.($allow_empty ? 'true' : 'false').');"
 	';
 	if (!$hide_value) {
 		$javascript .= '	onchange="validate_numeric_text_field(this, '.$allow_negative.(!empty($ranges_js) ? ', '.$ranges_js : '').');"';

@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.42 2006/01/25 04:58:22 tbarrett Exp $
+* $Id: html_form.js,v 1.43 2006/05/03 06:26:22 lwright Exp $
 *
 */
 
@@ -116,7 +116,7 @@ function validate_numeric_text_field(name, allow_negative)
 			}
 		}
 		name.value = outstr;
-		
+
 		if (name.createTextRange) {
 			// ie support
 			var range = name.createTextRange();
@@ -146,9 +146,15 @@ function validate_numeric_text_field(name, allow_negative)
 * @return boolean	indicates success
 * @access public
 */
-function validate_numeric_range(name, min, max)
+function validate_numeric_range(name, min, max, allow_empty)
 {
 	if (arguments.length < 3) return false;
+
+	if (arguments.length == 3) allow_empty = false;
+
+	if (allow_empty && (name.value == '')) {
+		return;
+	}
 
 	if (name.value < min) {
 		if ((arguments.length == 3) || (arguments.length >=4 && arguments[3])) {
