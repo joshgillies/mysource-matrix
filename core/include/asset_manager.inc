@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.25 2006/05/01 00:10:37 emcdonald Exp $
+* $Id: asset_manager.inc,v 1.431.2.26 2006/05/03 06:42:41 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.25 $
+* @version $Revision: 1.431.2.26 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2647,13 +2647,15 @@ class Asset_Manager extends MySource_Object
 	* Also returns basic information about the last link (linkid and link type)
 	* linkid => Array ('linkid' => linkid, 'link_type' => link_type, 'lineage' => Array(...))
 	*
-	* @param object	$assetid		the asset whose links lineages we are getting
-	* @param int	$result_limit	limits the number of results returned
+	* @param object					$assetid		the asset whose links lineages we are getting
+	* @param int					$result_limit	limits the number of results returned
+	* @param string					$from_treeid	Uses this treeid as the starting (root) node
+	* @param mixed	string|array	$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
 	*
 	* @return array
 	* @access public
 	*/
-	function getLinkLineages($assetid, $result_limit=0)
+	function getLinkLineages($assetid, $result_limit=0, $from_treeid=NULL, $fields='name')
 	{
 		assert_valid_assetid($assetid);
 
@@ -2661,6 +2663,12 @@ class Asset_Manager extends MySource_Object
 		$assetids = Array();
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+		if (is_array($fields)) {
+			$fields_str = 'a.'.implode(', a.', $fields);
+		} else {
+			$fields_str = 'a.'.$fields;
+		}
 
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) {
@@ -2674,7 +2682,7 @@ class Asset_Manager extends MySource_Object
 				$link_lineages[$key]['lineage'][$id_parts[0]] = $bridge_info[$id_parts[0]];
 			}
 			$sql = 'SELECT
-						l.majorid, a.name
+						l.majorid, '.$fields_str.'
 					FROM
 						'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.majorid = a.assetid';
@@ -2716,7 +2724,7 @@ class Asset_Manager extends MySource_Object
 		if (empty($assetids)) {
 			$result = Array();
 		} else {
-			$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid
+			$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.assetid, '.$fields_str.'
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
 						 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
@@ -2732,6 +2740,9 @@ class Asset_Manager extends MySource_Object
 			$where = 'cl.minorid IN ('.implode(', ', $quoted_assetids).')
 					  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
 					  AND pt.treeid <= ct.treeid';
+			if (!is_null($from_treeid)) {
+				$where .= ' AND pt.treeid LIKE '.$db->quote($from_treeid.'%');
+			}
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
@@ -2763,9 +2774,24 @@ class Asset_Manager extends MySource_Object
 				$asset_lineage = Array();
 				foreach ($link_tree as $tree_data) {
 					if ($tree_data['assetid'] == $majorid) continue;
-					$asset_lineage[$tree_data['assetid']] = $tree_data['name'];
+					if (is_array($fields)) {
+						$asset_lineage[$tree_data['assetid']] = Array();
+						foreach ($fields as $field_name) {
+							$asset_lineage[$tree_data['assetid']][$field_name] = $tree_data[$field_name];
+						}
+					} else {
+						$asset_lineage[$tree_data['assetid']] = $tree_data[$fields];
+					}
 				}
-				$asset_lineage[$parent_data['assetid']] = $parent_data['name'];
+
+				if (is_array($fields)) {
+					$asset_lineage[$tree_data['assetid']] = Array();
+					foreach ($fields as $field_name) {
+						$asset_lineage[$parent_data['assetid']][$field_name] = $parent_data[$field_name];
+					}
+				} else {
+					$asset_lineage[$parent_data['assetid']] = $parent_data[$fields];
+				}
 
 				$link_lineages[] = Array(
 									'linkid'	=> $linkid,
