@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.4.2.4 2006/04/11 04:39:00 tbarrett Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.4.2.5 2006/05/03 23:11:41 sdanis Exp $
 *
 */
 
@@ -49,7 +49,7 @@ require_once 'include/conditions_list.inc';
 * If an attribute is not recognised, the condition will be evaluated as false.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.4.2.4 $
+* @version $Revision: 1.4.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,7 +110,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 						switch ($condition_parts[1]) {
 							case SQ_KEYWORD_CONDITION_BEGIN :
 								$this->_addRequiredKeywordsFromEvaluatedKeyword($test_keyword, $required_substitution_keywords);
-								$value = 'if ($this->_evaluateKeyword(\'' . $test_keyword . '\')) {';
+								$value = 'if (!empty($paint_layout_keywords[\''.$test_keyword.'\']) && trim($paint_layout_keywords[\''.$test_keyword.'\']) != \'\') {';
 								break;
 							case SQ_KEYWORD_CONDITION_ELSE :
 								$value = '} else {';
@@ -225,6 +225,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 				include($this->data_path.'/content_file.php');
 				$content = ob_get_contents();
 				$content = replace_keywords($content, $paint_layout_keywords);
+
 			ob_end_clean();
 		} else {
 			$this->setKeywordReplacements($this->_getAssetKeywordReplacements($asset, $this->getKeywords()));
