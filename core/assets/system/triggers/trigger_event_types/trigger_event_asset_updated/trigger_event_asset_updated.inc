@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_event_asset_updated.inc,v 1.1 2006/05/03 05:38:00 bcaldwell Exp $
+* $Id: trigger_event_asset_updated.inc,v 1.1.2.1 2006/05/03 05:54:04 bcaldwell Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Fired when an asset is updated
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

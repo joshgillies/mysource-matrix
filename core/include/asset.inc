@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.503.2.14 2006/05/03 05:50:26 sdanis Exp $
+* $Id: asset.inc,v 1.503.2.15 2006/05/03 05:55:00 bcaldwell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.503.2.14 $
+* @version $Revision: 1.503.2.15 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1234,6 +1234,8 @@ class Asset extends MySource_Object
 			$this->updated_userid = $updated_userid;
 
 			$em->broadcastEvent($this, 'AssetUpdate', $changed_data);
+
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_updated', $this);
 
 			// increment the micro version number
 			if (!$this->incrementVersion('micro', $update_parents)) {
