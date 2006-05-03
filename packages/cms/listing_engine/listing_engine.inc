@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.150.2.11 2006/05/03 06:42:19 sdanis Exp $
+* $Id: listing_engine.inc,v 1.150.2.12 2006/05/03 07:00:41 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.150.2.11 $
+* @version $Revision: 1.150.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2019,9 +2019,9 @@ class Listing_Engine extends Page
 
 						if ($buffering) {
 							if ($selection_restrict_enable) {
-								int_text_box($selection_name_field, $selection_value, $selection_allow_negative, 3, $selection_restrict_min, $selection_restrict_max, '', FALSE, 'id="'.$selection_id.'"');
+								int_text_box($selection_name_field, $selection_value, $selection_allow_negative, 3, $selection_restrict_min, $selection_restrict_max, '', FALSE, FALSE, 'id="'.$selection_id.'"');
 							} else {
-								int_text_box($selection_name_field, $selection_value, $selection_allow_negative, 3, NULL, NULL, '', FALSE, 'id="'.$selection_id.'"');
+								int_text_box($selection_name_field, $selection_value, $selection_allow_negative, 3, NULL, NULL, '', FALSE,  FALSE, 'id="'.$selection_id.'"');
 							}
 						}
 					break;

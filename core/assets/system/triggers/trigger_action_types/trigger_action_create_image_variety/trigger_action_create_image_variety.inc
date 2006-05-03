@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_image_variety.inc,v 1.8.2.1 2006/03/14 22:31:02 mmcintyre Exp $
+* $Id: trigger_action_create_image_variety.inc,v 1.8.2.2 2006/05/03 07:00:39 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -160,12 +160,12 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 		ob_end_clean();
 
 		ob_start();
-			int_text_box($prefix.'[width]', $settings['width'], false, '', null, null, '', false, $form_element_extras);
+			int_text_box($prefix.'[width]', $settings['width'], false, '', null, null, '', false, false, $form_element_extras);
 			$basic_part_3 = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
-			int_text_box($prefix.'[height]', $settings['height'], false, '', null, null, '', false, $form_element_extras);
+			int_text_box($prefix.'[height]', $settings['height'], false, '', null, null, '', false, false, $form_element_extras);
 			$basic_part_4 = ob_get_contents();
 		ob_end_clean();
 

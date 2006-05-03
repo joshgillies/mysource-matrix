@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.38 2006/01/27 01:41:45 tbarrett Exp $
+* $Id: datetime_field.inc,v 1.38.2.1 2006/05/03 07:00:40 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.2.1 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -406,7 +406,7 @@ class DateTime_Field
 			}
 
 			$adjustExtra = 'onkeydown="adjustDate(this, event)" onfocus="this.select()"';
-			int_text_box($prefix.'['.$u.']', $value, FALSE, $size, $min, $max, $size, FALSE, $extras[$u].' '.$adjustExtra);
+			int_text_box($prefix.'['.$u.']', $value, FALSE, $size, $min, $max, $size, FALSE, $allow_null, $extras[$u].' '.$adjustExtra);
 			return;
 		}
 		echo '<input type="hidden" name="'.$prefix.'['.$u.']" value="'.$value.'" '.$extras[$u].' />';
