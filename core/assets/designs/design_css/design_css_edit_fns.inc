@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.15 2006/02/06 03:45:18 dmckee Exp $
+* $Id: design_css_edit_fns.inc,v 1.15.2.1 2006/05/03 03:22:57 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -151,7 +151,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		$map = Array();
 		$create_link = Array();
 
-		$clone =& $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions'), FALSE);
+		$clone =& $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions', 'roles'), FALSE);
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
