@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.106.2.3 2006/04/19 02:16:12 lwright Exp $
+* $Id: design_edit_fns.inc,v 1.106.2.4 2006/05/03 01:58:35 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.106.2.3 $
+* @version $Revision: 1.106.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -538,7 +538,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$map = Array();
 		$create_link = Array();
 
-		$clone =& $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions'), FALSE);
+		$clone =& $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions', 'roles'), FALSE);
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
