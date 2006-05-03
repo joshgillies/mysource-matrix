@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.134 2006/04/24 04:41:44 bcaldwell Exp $
+* $Id: lang_strings.xml,v 1.135 2006/05/03 05:51:01 lwright Exp $
 *
 */
 
@@ -318,6 +318,7 @@
 	<string source="cron_deadlock_warning_list_item_2">Some thing has caused the cron manager to exit uncleanly when it was running and the lock wasn't able to be removed.</string>
 	<string source="cron_deadlock_warning_section_1">This is only a potential warning brought about because the cron manager has attempted to run %s times, but has not been able to. Two potential reasons for this are :</string>
 	<string source="cron_deadlock_warning_check_error_log">Check the cron error log (in "%s") for any information</string>
+	<string source="cron_deadlock_warning_offending_job">The cron manager believes this job is still running: %s</string>
 	<string source="cron_deadlock_warning_section_2">To remove the lock flag for the cron manager enter the 25 character string you see below into the box supplied, then press the Commit button</string>
 	<string source="cron_deadlock_warning_section_3">ONLY REMOVE THE LOCK IF YOU KNOW FOR CERTAIN THAT THE CRON MANAGER IS NOT RUNNING</string>
 	<string source="cron_deadlock_must_acquire_lock">You must acquire the lock in order resolve this issue</string>
