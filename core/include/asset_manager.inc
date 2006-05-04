@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.473 2006/05/03 06:25:45 sdanis Exp $
+* $Id: asset_manager.inc,v 1.474 2006/05/04 07:05:16 bcaldwell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.473 $
+* @version $Revision: 1.474 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2829,12 +2829,14 @@ class Asset_Manager extends MySource_Object
 	*											the specified asset for a parent to qualify (immediate parent is 1)
 	* @param int			$max_height			Optional parameter that specifies maximum number of levels above
 	*											the specified asset for a parent to qualify to be returned
+	* @param boolean		$ignore_bridge		Optional parameter that, if true, will prevent this function from
+												requesting parents from shadow asset bridges
 	*
 	* @return array
 	* @access public
 	* @see generateGetParentsQuery()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=TRUE, $sort_by=NULL, $access=NULL, $min_height=NULL, $max_height=NULL)
+	function getParents($assetid, $type_code='', $strict_type_code=TRUE, $sort_by=NULL, $access=NULL, $min_height=NULL, $max_height=NULL, $ignore_bridge=FALSE)
 	{
 		// check if we are getting parents for a shadow asset, and palm the request off to the
 		// handler of the shadow asset if we are
@@ -2842,7 +2844,11 @@ class Asset_Manager extends MySource_Object
 		if (isset($id_parts[1])) {
 			$real_assetid = $id_parts[0];
 			$asset =& $this->getAsset($real_assetid);
-			$parents = $asset->getParents($assetid, $type_code, $strict_type_code);
+
+			$parents = Array();
+			if (!$ignore_bridge) {
+				$parents = $asset->getParents($assetid, $type_code, $strict_type_code);
+			}
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT
