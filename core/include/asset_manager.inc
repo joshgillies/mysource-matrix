@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.474 2006/05/04 07:05:16 bcaldwell Exp $
+* $Id: asset_manager.inc,v 1.475 2006/05/04 07:13:43 bcaldwell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.474 $
+* @version $Revision: 1.475 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2830,7 +2830,7 @@ class Asset_Manager extends MySource_Object
 	* @param int			$max_height			Optional parameter that specifies maximum number of levels above
 	*											the specified asset for a parent to qualify to be returned
 	* @param boolean		$ignore_bridge		Optional parameter that, if true, will prevent this function from
-												requesting parents from shadow asset bridges
+	*											requesting parents from shadow asset bridges
 	*
 	* @return array
 	* @access public
