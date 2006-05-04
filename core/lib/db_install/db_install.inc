@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.33 2006/02/08 00:23:22 lwright Exp $
+* $Id: db_install.inc,v 1.34 2006/05/04 23:28:22 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -882,7 +882,7 @@ function install_rollback_triggers($table_columns, $verbose=true, $override=fals
 			// if there is no update string, it means that every
 			// column is either a primary or unique key. Therefore
 			// you cannot update anything on this table - only insert and delete
-			if ($db->phptype == 'pgsql') $sql .= 'RETURN NEW;';
+			if ($db->phptype == 'pgsql') $sql .= $if_updating.'RETURN NEW;END IF;';
 		}
 
 		// if we are deleting then we just close off
