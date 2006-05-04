@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.169 2006/03/29 23:50:12 lwright Exp $
+* $Id: search_page.inc,v 1.170 2006/05/04 06:37:11 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.169 $
+* @version $Revision: 1.170 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -333,7 +333,6 @@ class Search_Page extends Listing_Engine
 		$results = $this->processSearch();
 		$this->_tmp['initial_results'] = $results;
 		$results =& $this->convertProxyAssetTypes($results);
-
 		$this->_tmp['search_results'] =& $results;
 		$bc_name = 'results';
 		if (empty($results)) $bc_name = 'no_results';
@@ -595,7 +594,7 @@ class Search_Page extends Listing_Engine
 	* @return object
 	* @access private
 	*/
-	function _getDateField($field_name)
+	function &_getDateField($field_name)
 	{
 		$parameters = Array(
 						'min'			=> '0000-01-01 00:00:00',
