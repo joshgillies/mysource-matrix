@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.177 2006/03/31 05:50:47 rong Exp $
+* $Id: page_calendar.inc,v 1.178 2006/05/04 02:38:15 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.177 $
+* @version $Revision: 1.178 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -240,8 +240,8 @@ class Page_Calendar extends Page
 				$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
 				if (empty($bodycopy_link)) return FALSE;
 
-				$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
-				if (is_null($format_bodycopy)) return FALSE;
+				$contents_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+				if (is_null($contents_bodycopy)) return FALSE;
 
 				// Get replacements.  Contents is first because it may change the view if,
 				// for example, we have just finished editing an event
@@ -260,14 +260,14 @@ class Page_Calendar extends Page
 				ob_start();
 					echo '<script type="text/javascript">if (typeof cal != "undefined") cal.setDate(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\')</script>';
 					// print the contents of page - replacing the global keywords
-					$format_bodycopy->setKeywordReplacements($replacements);
-					$format_bodycopy->printBody();
+					$contents_bodycopy->setKeywordReplacements($replacements);
+					$contents_bodycopy->printBody();
 					if (!empty($cache_key)) {
 						$cm->saveToCache($this->id, $this->type(), $cache_key, ob_get_contents());
 					}
 				ob_end_flush();
 
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($format_bodycopy);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($contents_bodycopy);
 
 			}
 		}//end if
@@ -2607,12 +2607,20 @@ class Page_Calendar extends Page
 		if (empty($vars['keywords'])) {
 			parent::onRequestKeywords($broadcaster, $vars);
 		}
-		$keywords = Array(
-						'calendar_contents'	=> translate('cal_calendar_contents'),
-						'calendar_title'	=> translate('cal_calendar_title'),
-					);
+		$bc_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', FALSE);
+		if (empty($bc_parents)) return;
 
-		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+		$tf_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'type_formats');
+		$tf_bc_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($tf_folder_link['minorid'], key($bc_parents), SQ_SC_LINK_ALL);
+		if (empty($tf_bc_link)) {
+			// presume it was the contents BC
+			$vars['keywords'] = array_merge($vars['keywords'], $this->getContentsKeywords());
+		} else {
+			// it's a type format BC
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($tf_bc_link['value']);
+			$dummy =& new $tf_bc_link['value']();
+			$vars['keywords'] = array_merge($vars['keywords'], $dummy->getAvailableKeywords());
+		}
 
 	}//end onRequestKeywords()
 
