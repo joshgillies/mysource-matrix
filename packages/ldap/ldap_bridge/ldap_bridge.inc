@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.38.2.2 2006/04/26 22:47:31 sdanis Exp $
+* $Id: ldap_bridge.inc,v 1.38.2.3 2006/05/04 07:11:33 bcaldwell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38.2.2 $
+* @version $Revision: 1.38.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -551,7 +551,7 @@ class LDAP_Bridge extends Asset
 			}
 
 			foreach (array_keys($parents) as $parentid) {
-				$real_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($parentid, $type_code, $strict_type_code);
+				$real_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($parentid, $type_code, $strict_type_code, NULL, NULL, NULL, NULL, TRUE);
 				$parents = $real_parents + $parents;
 			}
 
