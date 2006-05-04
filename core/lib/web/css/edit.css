@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.55 2006/04/10 04:56:49 rhoward Exp $
+* $Id: edit.css,v 1.56 2006/05/04 06:08:48 tbarrett Exp $
 *
 */
 
@@ -446,4 +446,8 @@ td.sq-backend-lock-table-cell-alt {
 	background-color: transparent;
 	border: 0px;
 	cursor: pointer;
+}
+.clickable {
+	cursor: pointer;
+	text-decoration: underline;
 }
