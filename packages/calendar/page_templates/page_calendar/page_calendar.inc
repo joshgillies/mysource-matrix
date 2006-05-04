@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.160.2.10 2006/02/28 05:26:31 lwright Exp $
+* $Id: page_calendar.inc,v 1.160.2.11 2006/05/04 03:02:01 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.160.2.10 $
+* @version $Revision: 1.160.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2400,9 +2400,9 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param &object Asset	&$broadcaster	the asset that triggered the event
-	* @param Array			$vars			the vars that get submitted by the broadcaster
-	*										we add keywords to the $vars['keywords'] array
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
 	* @access private
@@ -2411,14 +2411,24 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		if (!isset($vars['keywords'])) return;
 		if (empty($vars['keywords'])) {
-			$vars = parent::onRequestKeywords($broadcaster, $vars);
+			parent::onRequestKeywords($broadcaster, $vars);
 		}
-		$keywords = Array(
-						'calendar_contents'	=> translate('cal_calendar_contents'),
-						'calendar_title'	=> translate('cal_calendar_title'),
-					);
+		$bc_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', FALSE);
+		if (empty($bc_parents)) return;
 
-		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+		$tf_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'type_formats');
+		$tf_bc_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($tf_folder_link['minorid'], key($bc_parents), SQ_SC_LINK_ALL);
+		if (empty($tf_bc_link)) {
+			// presume it was the contents BC
+			$vars['keywords'] = array_merge($vars['keywords'], $this->getContentsKeywords());
+		} else {
+			// it's a type format BC
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($tf_bc_link['value']);
+			$dummy =& new $tf_bc_link['value']();
+			foreach ($dummy->getAssetKeywords(TRUE) as $keyword => $bits) {
+				$vars['keywords'][$keyword] = array_get_index($bits, 'description', $keyword);
+			}
+		}
 
 	}//end onRequestKeywords()
 
