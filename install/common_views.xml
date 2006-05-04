@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: common_views.xml,v 1.2.2.3 2006/04/24 00:32:56 lwright Exp $
+* $Id: common_views.xml,v 1.2.2.4 2006/05/04 23:18:15 sdanis Exp $
 *
 */
 -->
@@ -164,6 +164,57 @@
 					p.assetid, p.userid, p.permission, p.granted
 				FROM
 					sq_ast_perm p
+		]]>
+	</sql_element>
+	<sql_element display_name="sq_vw_ast_role Rollback View">
+		<![CDATA[
+			CREATE OR REPLACE VIEW sq_rb_vw_ast_role AS
+				(SELECT
+					r.sq_eff_from, r.sq_eff_to,
+					r.assetid, r.roleid, l.minorid as userid
+				FROM
+					sq_rb_vw_ast_lnk_minor l INNER JOIN sq_rb_ast_role r ON l.majorid = r.roleid
+				WHERE
+					r.userid = 0)
+			UNION
+				(SELECT
+					sq_eff_from, sq_eff_to,
+					assetid, roleid, userid
+				FROM
+					sq_rb_ast_role
+				WHERE
+					userid <> 0)
+		]]>
+	</sql_element>
+	<sql_element display_name="sq_vw_ast_perm Rollback View">
+		<![CDATA[
+			CREATE OR REPLACE VIEW sq_rb_vw_ast_perm AS
+				SELECT
+					r.sq_eff_from, r.sq_eff_to,
+					r.assetid, r.userid, p.permission, p.granted
+				FROM
+					(
+					SELECT DISTINCT
+						sq_eff_from, sq_eff_to,
+						assetid, userid, roleid
+					FROM
+						sq_rb_vw_ast_role
+					) r
+					JOIN
+					(
+					SELECT DISTINCT
+						userid, permission, granted, assetid
+					FROM
+						sq_rb_ast_perm
+					) p
+					ON r.roleid = p.userid
+					AND r.assetid = p.assetid
+				UNION
+				SELECT
+					p.sq_eff_from, p.sq_eff_to,
+					p.assetid, p.userid, p.permission, p.granted
+				FROM
+					sq_rb_ast_perm p
 		]]>
 	</sql_element>
 </sql>
