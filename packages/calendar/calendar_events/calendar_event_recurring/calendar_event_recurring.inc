@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.70 2006/02/02 03:38:32 sdanis Exp $
+* $Id: calendar_event_recurring.inc,v 1.70.2.1 2006/05/04 02:52:03 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.70.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1175,6 +1175,31 @@ class Calendar_Event_Recurring extends Calendar_Event
 		return TRUE;
 
 	}//end cacheCalendarData()
+
+
+	/**
+	* Return the keywords for this asset type.
+	*
+	* This function is called in asset-listing situations like the asset listing, search page etc
+	* The return value is in the form:
+	* <PRE>
+	* Array(
+	*   'name' => 'description' => 'the asset name',
+	* );
+	* </PRE>
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableKeywords()
+	{
+		$res = parent::getAvailableKeywords();
+		$res['event_frequency'] = 'Description of the event\'s frequency';
+		$res['event_ical_frequency'] = 'Event frequency (ical format)';
+		$res['event_ical_exceptions'] = 'List of exceptions (ical format)';
+		return $res;
+
+	}//end getAvailableKeywords()
 
 
 }//end class

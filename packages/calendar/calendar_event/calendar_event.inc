@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.60.2.1 2006/03/23 03:21:54 pgannavarapu Exp $
+* $Id: calendar_event.inc,v 1.60.2.2 2006/05/04 02:52:03 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.60.2.1 $
+* @version $Revision: 1.60.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -172,10 +172,8 @@ class Calendar_Event extends Asset
 	{
 		$keywords = parent::getAvailableKeywords();
 		// get rid of the raw attribute values which will just make a mess
-		unset($keywords['asset_attribute_start_date']);
-		unset($keywords['asset_attribute_end_date']);
-		$keywords['event_name'] = $keywords['asset_attribute_name'];
-		unset($keywords['asset_attribute_name']);
+		$keywords['asset_attribute_start_date'] = 'Start date (iso8601)';
+		$keywords['asset_attribute_end_date'] = 'End date (iso8601)';
 
 		$keywords['event_start_date'] = 'Event Start Date';
 		$keywords['event_end_date'] = 'Event End Date';
