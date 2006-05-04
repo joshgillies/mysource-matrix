@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.27 2006/05/04 07:11:31 bcaldwell Exp $
+* $Id: asset_manager.inc,v 1.431.2.28 2006/05/04 23:14:45 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.27 $
+* @version $Revision: 1.431.2.28 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5582,17 +5582,20 @@ class Asset_Manager extends MySource_Object
 			$where_clause = 'WHERE '.implode(' AND ', $where);
 		}
 
-		$table = ($include_globals) ? 'sq_vw_ast_role r' : 'sq_ast_role r';
+		$table = ($include_globals) ? 'vw_ast_role r' : 'ast_role r';
 		$additional = $include_assetid ? ', r.assetid' : '';
 
 		if (!$inc_dependants) {
 			// join to link table to get the non dependant assets
 			$where_clause .= ' AND r.assetid = l.minorid AND l.is_dependant = \'0\'';
-			$table .= ', sq_ast_lnk l';
+			$table .= ', '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l';
+			$where_clause = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'l');
 		}
 
+		$where_clause = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'r');
+
 		$sql = 'SELECT DISTINCT r.roleid, r.userid'.$additional.'
-				FROM '.$table.' '.$where_clause;
+				FROM '.SQ_TABLE_RUNNING_PREFIX.$table.' '.$where_clause;
 
 
 		$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.41 2006/02/02 02:29:19 ndvries Exp $
+* $Id: tables.xml,v 1.41.2.1 2006/05/04 23:14:30 sdanis Exp $
 *
 */
 -->
@@ -1711,7 +1711,7 @@
 				</index>
 			</indexes>
 		</table>
-		<table name="ast_role" require_rollback="0">
+		<table name="ast_role" require_rollback="1">
 			<columns>
 				<column name="assetid" allow_null="0">
 					<type>VARCHAR(255)</type>
