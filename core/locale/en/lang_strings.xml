@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.103.2.3 2006/03/23 00:13:15 sdanis Exp $
+* $Id: lang_strings.xml,v 1.103.2.4 2006/05/05 06:18:19 sdanis Exp $
 *
 */
 
@@ -1209,7 +1209,7 @@
 	<string source="no_access_permissions_set">No %s access permissions have been set</string>
 	<string source="cascade_permissions">Yes, cascade permission changes</string>
 	<string source="cascade_permissions_note">If you choose to cascade the changes to permissions you make on "%1$s", the changes will also be made on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.</string>
-	<string source="manually_cascade_permissions_note">Manually cascading permissions will try to set the current permissions of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;i&gt;Any additional permissions set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any permissions set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any permission changes you make will also cascade even if you do not select them to. Use the option on its own for more predicatable results.&lt;/b&gt;</string>
+	<string source="manually_cascade_permissions_note">Manually cascading permissions will try to set the current permissions of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;i&gt;Any additional permissions set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any permissions set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any permission changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.&lt;/b&gt;</string>
 	<string source="manually_cascade_permissions_option">Manually cascade permissions</string>
 	<string source="password_rules_configuration">Password Rules Configuration</string>
 	<string source="session_rules_configuration">Session Rules Configuration</string>
@@ -1223,7 +1223,7 @@
 	<string source="cascade_roles_note">If you choose to cascade the changes to roles you make on "%1$s", the changes will also be made on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.</string>
 	<string source="manually_cascade_roles">Manually Cascade Role Changes?</string>
 	<string source="manually_cascade_roles_option">Yes, manually cascade role changes</string>
-	<string source="manually_cascade_roles_note">Manually cascading roles will try to set the current roles of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;i&gt;Any additional roles set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any roles set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any role changes you make will also cascade even if you do not select them to. Use the option on its own for more predicatable results.&lt;/b&gt;</string>
+	<string source="manually_cascade_roles_note">Manually cascading roles will try to set the current roles of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;i&gt;Any additional roles set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any roles set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any role changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.&lt;/b&gt;</string>
 	<string source="no_roles_set">No roles have been assigned</string>
 	<string source="select_a_role">Select a role to apply to this asset:</string>
 	<string source="select_users_for_role">Select the users who will perform the role:</string>
