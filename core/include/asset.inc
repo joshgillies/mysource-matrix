@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.531 2006/05/03 06:16:01 sdanis Exp $
+* $Id: asset.inc,v 1.532 2006/05/05 06:07:40 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.531 $
+* @version $Revision: 1.532 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2162,10 +2162,14 @@ class Asset extends MySource_Object
 				}
 			}
 
-			// fire trigger_event_status_changed
-			$event_data = Array(
-							'old_status'	=> $old_status,
-						  );
+			// prepare the event data and fire trigger_event_status_changed
+			$event_data['old_status'] = $old_status;
+			if (isset($this->_tmp['old_urls'])) {
+				$event_data['old_urls'] = $this->_tmp['old_urls'];
+			}
+			if (isset($this->_tmp['allow_unrestricted'])) {
+				$event_data['allow_unrestricted'] = $this->_tmp['allow_unrestricted'];
+			}
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_status_changed', $this, $event_data);
 		}//end if
 
@@ -4482,6 +4486,11 @@ class Asset extends MySource_Object
 
 		$old_urls = $db->getAll($sql);
 		assert_valid_db_result($old_urls);
+
+		// prepare trigger event data
+		$this->_tmp['old_urls'] = $old_urls;
+		$parameter['old_urls'] = $old_urls;
+
 		// get all the lookup information that we have set, ignoring designs as they are set on every url
 		$our_lookup_values = $this->getLookupValues(FALSE, $prefix='design::', FALSE);
 
@@ -4771,7 +4780,7 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_lookups_updated', $this);
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_lookups_updated', $this, $parameter);
 
 		return TRUE;
 
