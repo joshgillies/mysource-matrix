@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.7.2.3 2006/04/11 05:45:33 rong Exp $
+* $Id: page_rss_feed.inc,v 1.7.2.4 2006/05/05 00:57:30 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.7.2.3 $
+* @version $Revision: 1.7.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -203,7 +203,9 @@ class Page_RSS_Feed extends Page
 			}
 			foreach ($rss_source_links as $links) {
 				$listing_engine =& $GLOBALS['SQ_SYSTEM']->am->getAsset($links['minorid']);
-				$assets_to_list += $listing_engine->getAssetList();
+				$list_of_assets = $listing_engine->getAssetList();
+				$listing_engine->filterAssetList($list_of_assets);
+				$assets_to_list += $list_of_assets;
 			}
 
 			$channel = $this->attr('channel');
