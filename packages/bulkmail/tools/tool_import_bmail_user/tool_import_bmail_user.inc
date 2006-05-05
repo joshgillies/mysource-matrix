@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_import_bmail_user.inc,v 1.2 2006/01/05 22:39:05 rong Exp $
+* $Id: tool_import_bmail_user.inc,v 1.3 2006/05/05 06:49:14 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -54,13 +54,11 @@ class Tool_Import_Bmail_User extends Tool
 	* @param object	&$o			reference to the backend outputter of the object painting the tool
 	* @param string	$type_code	the type code of the tool being painted
 	*
-	* @return string
+	* @return void
 	* @access public
 	*/
 	function paintTool(&$o, $type_code)
 	{
-		ob_start();
-
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 		$o->openSection($tool_info['name']);
 
@@ -74,14 +72,7 @@ class Tool_Import_Bmail_User extends Tool
 			$o->note(translate('bm_tool_import_bmail_user_create_in_note'));
 		$o->closeField();
 
-		$o->openField('', 'commit');
-			echo '&nbsp;';
-			hidden_field('committed_tool_type_code', $type_code);
-			submit_button('tool_commit', SQ_CONF_COMMIT_BUTTON_TEXT);
-		$o->closeField();
-
 		$o->closeSection();
-		return ob_get_clean();
 
 	}//end paintTool()
 
@@ -92,7 +83,7 @@ class Tool_Import_Bmail_User extends Tool
 	* @param object	&$o			reference to the backend outputter of the object painting the tool
 	* @param string	$type_code	the type code of the tool being painted
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	function processTool(&$o, $type_code)
@@ -101,14 +92,12 @@ class Tool_Import_Bmail_User extends Tool
 		$file_info = get_file_upload_info($type_code.'_file_upload');
 		if (empty($file_info)) {
 			trigger_localised_error('BML0011', E_USER_NOTICE);
-			Tool_Import_Bmail_User::paintTool($o, $type_code);
-			return;
+			return FALSE;
 		}
 		// error: user group not specified
 		if (!$_REQUEST[$type_code.'_create_in_assetid']['assetid']) {
 			trigger_localised_error('BML0012', E_USER_NOTICE);
-			Tool_Import_Bmail_User::paintTool($o, $type_code);
-			return;
+			return FALSE;
 		}
 
 		// set HIPO running_vars
@@ -121,6 +110,7 @@ class Tool_Import_Bmail_User extends Tool
 		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$url = $hh->runQueuedJobs();
 		if (!empty($url)) $o->setRedirect($url);
+		return TRUE;
 
 	}//end processTool()
 

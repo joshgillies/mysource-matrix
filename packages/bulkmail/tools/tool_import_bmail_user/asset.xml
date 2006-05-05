@@ -14,7 +14,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2005/12/06 04:30:26 rong Exp $
+* $Id: asset.xml,v 1.2 2006/05/05 06:49:14 tbarrett Exp $
 *
 */
 -->
@@ -23,7 +23,7 @@
 	<package>bulkmail</package>
 	<type_code>tool_import_bmail_user</type_code>
 	<version>0.1</version>
-	<name>Import Bulkmail User</name>
+	<name>Import Bulkmail Users</name>
 	<description>Imports bulkmail users from a CSV file.</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
