@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.164.2.4 2006/03/22 00:46:25 rong Exp $
+* $Id: mysource.inc,v 1.164.2.5 2006/05/05 00:04:37 sdanis Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.164.2.4 $
+* @version $Revision: 1.164.2.5 $
 * @package MySource_Matrix
 */
 class MySource
@@ -269,7 +269,7 @@ class MySource
 			}
 
 			// check if we are in rollback view mode
-			if (!empty($_SESSION['sq_rollback_view'])) {
+			if (!empty($_SESSION['sq_rollback_view']) && (!isset($_REQUEST['SQ_ACTION']) || $_REQUEST['SQ_ACTION'] != 'logout')) {
 				// we are viewing the system at some time in the past
 				define('SQ_ROLLBACK_VIEW',        '1');
 				define('SQ_TABLE_RUNNING_PREFIX', 'sq_rb_');
