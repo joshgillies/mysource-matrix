@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.1.2.1 2006/05/05 04:32:59 emcdonald Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.1.2.2 2006/05/05 05:14:36 emcdonald Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1.2.1 $
+* @version $Revision: 1.1.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -125,8 +125,8 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		// generate XML contents
 		$contents = '<asset_list>'."\n";
 		foreach ($result as $values) {
-			$contents .= '<asset assetid="'.urlencode($values['assetid']).'" name="'.urlencode($values['name']).'" type_code="'.urlencode($values['type_code']).'">'."\n";
-			$contents .= '	<status value="'.urlencode($values['status']).'" changed="'.urlencode($values['status_changed']).'" changed_userid="'.urlencode($values['status_changed_userid']).'" changed_user_name="'.urlencode($values['user_name']).'"/>'."\n";
+			$contents .= '<asset assetid="'.$values['assetid'].'" name="'.htmlSpecialChars($values['name']).'" type_code="'.$values['type_code'].'">'."\n";
+			$contents .= '	<status value="'.$values['status'].'" changed="'.$values['status_changed'].'" changed_userid="'.$values['status_changed_userid'].'" changed_user_name="'.$values['user_name'].'"/>'."\n";
 			$contents .= '</asset>'."\n";
 		}
 		$contents .= '</asset_list>';
@@ -275,19 +275,19 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 						<script type="text/javascript">sq_print_icon("<?php echo $type_icon; ?>", "16", "16", "");</script>
 					</td>
 					<td class="sq-backend-table-cell">
-						<?php echo urldecode($assetid); ?>
+						<?php echo $assetid; ?>
 					</td>
 					<td class="sq-backend-table-cell">
-						<?php echo urldecode($name); ?>
+						<?php echo $name; ?>
 					</td>
 					<td class="sq-backend-table-cell">
-						<span style="padding: 0 1ex 0 1ex;background: #<?php echo get_status_colour(urldecode($status)); ?>"><?php echo $status_names[urldecode($status)]; ?></span>
+						<span style="padding: 0 1ex 0 1ex;background: #<?php echo get_status_colour($status); ?>"><?php echo $status_names[$status]; ?></span>
 					</td>
 					<td class="sq-backend-table-cell">
-						<?php echo urldecode($status_changed); ?>
+						<?php echo $status_changed; ?>
 					</td>
 					<td class="sq-backend-table-cell">
-						<?php echo urldecode($status_changed_user_name); ?> [<?php echo urldecode($status_changed_userid); ?>]
+						<?php echo $status_changed_user_name; ?> [<?php echo $status_changed_userid; ?>]
 					</td>
 				</tr>
 			<?php
