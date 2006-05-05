@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.37 2006/04/24 02:18:16 sdanis Exp $
+* $Id: asset_manager.inc,v 1.322.2.38 2006/05/05 06:07:47 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.37 $
+* @version $Revision: 1.322.2.38 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -290,6 +290,15 @@ class Asset_Manager extends MySource_Object
 
 		// if the file does not exist, then we must be installing so get the info from the database
 		if (!file_exists(SQ_DATA_PATH.'/private/db/asset_types.inc')) {
+
+			if (empty($type_code)) {
+				// No type code specified
+				if ($field == '') {
+					return Array();
+				} else {
+					return NULL;
+				}
+			}
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
