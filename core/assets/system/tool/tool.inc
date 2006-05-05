@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool.inc,v 1.2 2006/01/26 22:34:06 lwright Exp $
+* $Id: tool.inc,v 1.3 2006/05/05 06:48:09 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,29 +62,27 @@ class Tool extends Asset
 	* @param object	&$o			reference to the backend outputter of the object painting the tool
 	* @param string	$type_code	the type code of the tool being painted
 	*
-	* @return string
+	* @return void
 	* @access public
 	*/
 	function paintTool(&$o, $type_code)
 	{
-		return '';
-
 
 	}//end paintTool()
 
 
 	/**
-	* Processes the user input and performs the function of the tool.
+	* Processes the user input and performs the function of the tool.  Returns false if any immediate errors.
 	*
 	* @param object	&$o			reference to the backend outputter of the object painting the tool
 	* @param string	$type_code	the type code of the tool being painted
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	function processTool(&$o, $type_code)
 	{
-		return;
+		return TRUE;
 
 	}//end processTool()
 

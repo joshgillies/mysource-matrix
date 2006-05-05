@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.48 2006/04/21 03:42:58 bcaldwell Exp $
+* $Id: lang_errors.xml,v 1.49 2006/05/05 06:48:10 tbarrett Exp $
 *
 */
 
@@ -1635,5 +1635,11 @@ Full Node Contents :
 
 	<!-- WYSIWYG Plugins Errors -->
 	<error code="CORE0252">Unable to load %1$s WYSIWYG Plugin - %2$s.</error>
+
+	<!-- Mass-Clone Tool Errors -->
+	<error code="CORE0253">Cannot process mass clone without an asset to clone</error>
+	<error code="CORE0254">Cannot process mass clone without a parent for the cloned assets</error>
+	<error code="CORE0255">Cannot process mass clone without a specified number of clones to create</error>
+	<error code="CORE0256">Cannot process mass clone without a specified link type</error>
 
 </errors>

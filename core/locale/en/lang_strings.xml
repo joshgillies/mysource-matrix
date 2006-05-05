@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.136 2006/05/05 06:18:59 sdanis Exp $
+* $Id: lang_strings.xml,v 1.137 2006/05/05 06:48:10 tbarrett Exp $
 *
 */
 
@@ -1887,5 +1887,13 @@ Items to delete: %s</string>
 
 	<string source="apache_asset_type_user">Logged in User</string>
 	<string source="apache_asset_type_asset">Current Asset</string>
+
+	<!-- Mass Clone Tool -->
+	<string source="mass_clone">Mass Clone</string>
+	<string source="mass_clone_asset_to_clone">Asset to clone</string>
+	<string source="mass_clone_must_choose_asset">An asset to clone must be chosen</string>
+	<string source="mass_clone_must_choose_parent">A parent for the new clones must be chosen</string>
+	<string source="mass_clone_type_of_link">Type of link between parent and clones</string>
+	<string source="mass_clone_num_clones">Number of clones to create</string>
 
 </strings>

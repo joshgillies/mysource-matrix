@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tools.inc,v 1.5 2006/03/28 04:28:18 skim Exp $
+* $Id: tools.inc,v 1.6 2006/05/05 06:48:09 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Tools extends MySource_Object
@@ -55,8 +55,11 @@ class Tools extends MySource_Object
 
 		// the user has pressed commit for a specific tool
 		if (isset($_REQUEST['committed_tool_type_code'])) {
-			$this->_processTool($o);
-			return;
+			if ($this->_processTool($o)) {
+				return;
+			} else {
+				$_REQUEST['tool_type_code'] = $_REQUEST['committed_tool_type_code'];
+			}
 		}
 
 		// the user has selected a tool, lets call its interface
@@ -115,14 +118,16 @@ class Tools extends MySource_Object
 
 		if ($am->installed($type_code)) {
 			$am->includeAsset($type_code);
-			eval('$content = '.$type_code.'::paintTool($o, $type_code, $type_code);');
-
 			$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
-			$o->setHeading('System Tools: '.$tool_info['name'], '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/asset_tree.png').'", "20", "20", "HIPO Icon");</script>');
-			echo $content;
+			$o->setHeading('System Tools: '.$tool_info['name'], '<script type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/asset_tree.png').'", "20", "20", "HIPO Icon");</script>');
+			call_user_func_array(Array($type_code, 'paintTool'), Array(&$o, $type_code));
+			$o->addHiddenField('committed_tool_type_code', $type_code);
+			$o->openSection('', 'commit');
+				$o->openField('', 'commit');
+					$o->commitButton();
+				$o->closeField();
+			$o->closeSection();
 		}
-
-		return;
 
 	}//end _paintTool()
 
@@ -142,11 +147,10 @@ class Tools extends MySource_Object
 
 		if ($am->installed($type_code)) {
 			$am->includeAsset($type_code);
-			eval('$content = '.$type_code.'::processTool($o, $type_code);');
-			echo $content;
+			return call_user_func_array(Array($type_code, 'processTool'), Array(&$o, $type_code));
 		}
 
-		return;
+		return FALSE;
 
 	}//end _processTool()
 

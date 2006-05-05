@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.18 2005/10/24 05:28:14 ndvries Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.19 2006/05/05 06:48:09 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -475,7 +475,13 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	function processCloneAssets(&$step_data, $prefix)
 	{
 		if (!isset($this->_running_vars['clone_assets'])) {
-			 $this->_running_vars['clone_assets'] = $this->_running_vars['assets'];
+			$this->_running_vars['clone_assets'] = $this->_running_vars['assets'];
+			$this->_running_vars['done_asset_count'] = 0;
+			$this->_running_vars['todo_asset_count'] = 0;
+			foreach ($this->_running_vars['clone_assets'] as $info) {
+				$this->_running_vars['todo_asset_count'] += array_get_index($info, 'number_of_clones', 1);
+			}
+			reset($this->_running_vars['clone_assets']);
 		}
 
 		$assetid = key($this->_running_vars['clone_assets']);
@@ -494,18 +500,20 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 			return false;
 		}
 
-		$orig_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->_running_vars['clone_assets'][$assetid]['parentid'], $orig->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3);
-
-		unset($this->_running_vars['clone_assets'][$assetid]);
-
 		$link = Array(
 					'asset'			=> $parent_asset,
-					'link_type'		=> $orig_link['link_type'],
 					'sort_order'	=> $this->_running_vars['to_parent_pos'],
 					'value'			=> '',
 				);
-
-		$this->_running_vars['to_parent_pos']++;
+		if (!isset($this->_running_vars['link_type'])) {
+			$orig_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->_running_vars['clone_assets'][$assetid]['parentid'], $orig->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3);
+			$link['link_type'] = $orig_link['link_type'];
+		} else {
+			$link['link_type'] = $this->_running_vars['link_type'];
+		}
+		if ($this->_running_vars['to_parent_pos'] != -1) {
+			$this->_running_vars['to_parent_pos']++;
+		}
 
 		$components = Array(
 						'attributes',
@@ -531,7 +539,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$valid_paths = make_valid_web_paths($orig->getWebPaths());
 		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $clone->id, true);
 
-		$link_info = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($clone->id, $this->_running_vars['to_parent_assetid'], $orig_link['link_type'], '', 'minor');
+		$link_info = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($clone->id, $this->_running_vars['to_parent_assetid'], $link['link_type'], '', 'minor');
 
 		$this->_running_vars['cloned_asset'][$clone->id]['linkid'] = $link_info['linkid'];
 		$this->_running_vars['cloned_asset'][$clone->id]['parentid'] = $this->_running_vars['to_parent_assetid'];
@@ -545,14 +553,25 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		$this->_running_vars['remap'][$assetid] = $remap;
 
-		$this->_running_vars['done_assetids'][] = $assetid;
+		if (!empty($this->_running_vars['finalise_function'])) {
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($this->_running_vars['finalise_function'][0]);
+			call_user_func_array($this->_running_vars['finalise_function'], Array(&$clone, &$this->_running_vars));
+		}
+
+		if (empty($this->_running_vars['clone_assets'][$assetid]['number_of_clones']) || ($this->_running_vars['clone_assets'][$assetid]['number_of_clones'] == 1)) {
+			unset($this->_running_vars['clone_assets'][$assetid]);
+		} else {
+			$this->_running_vars['clone_assets'][$assetid]['number_of_clones']--;
+		}
+		$this->_running_vars['done_asset_count']++;
 
 		if (empty($this->_running_vars['clone_assets'])) {
-			unset($this->_running_vars['done_assetids']);
+			unset($this->_running_vars['done_asset_count']);
+			unset($this->_running_vars['todo_asset_count']);
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = true;
 		} else {
-			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / count($this->_running_vars['assets'])) * 100;
+			$step_data['percent_done'] = (int)(($this->_running_vars['done_asset_count'] / $this->_running_vars['todo_asset_count']) * 100);
 			$step_data['complete']     = false;
 		}
 
