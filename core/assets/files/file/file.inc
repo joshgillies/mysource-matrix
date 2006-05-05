@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.126 2006/03/22 22:19:48 lwright Exp $
+* $Id: file.inc,v 1.127 2006/05/05 06:06:54 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.126 $
+* @version $Revision: 1.127 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -129,7 +129,7 @@ class File extends Asset
 			}
 
 			$this->setAttrValue('name', $name);
-		}
+		}//end if
 		return parent::create($link);
 
 	}//end create()
@@ -400,7 +400,12 @@ class File extends Asset
 	{
 		// let ourselves know not to do any extra updating
 		$this->_tmp['IGNORE_UPDATE'] = TRUE;
+
+		// event data to be passed to the trigger action
 		$old_status = $this->status;
+		$this->_tmp['old_status'] = $old_status;
+		$this->_tmp['old_urls'] = $this->getURLs();
+		$this->_tmp['allow_unrestricted'] = $this->attr('allow_unrestricted');
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -573,6 +578,8 @@ class File extends Asset
 	*/
 	function updateLookups()
 	{
+		$old_urls = $this->getURLs();
+
 		if (!isset($this->_tmp['deleting_file'])) {
 			$this->_tmp['deleting_file'] = FALSE;
 		}
@@ -582,6 +589,7 @@ class File extends Asset
 			return parent::updateLookups();
 		}
 
+		// Remove all the old URLs
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -589,8 +597,6 @@ class File extends Asset
 		unset($this->_tmp['lookups']);
 		unset($this->_tmp['url']);
 		unset($this->_tmp['href']);
-
-		// Remove all the old URLs
 
 		// design lookups
 		$sql = 'DELETE FROM
@@ -710,6 +716,17 @@ class File extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		// broadcast the lookup updated trigger event, passing old status as event data
+		$parameter = Array();
+		if (isset($this->_tmp['old_status'])) {
+			$parameter['old_status'] = $this->_tmp['old_status'];
+		}
+		if (!empty($old_urls)) {
+			$parameter['old_urls'] = $old_urls;
+		}
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_lookups_updated', $this, $parameter);
+
 		return TRUE;
 
 	}//end updateLookups()
@@ -788,6 +805,8 @@ class File extends Asset
 
 				if ($this->effectiveUnrestricted()) {
 					if (is_file($this->data_path_public.'/'.$old_filename)) {
+						// trigger_event_lookups_updated needs old status event data
+						$this->_tmp['old_status'] = $this->status;
 						unlink($this->data_path_public.'/'.$old_filename);
 						$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 						$fv->checkOut($this->data_path_suffix.'/'.$new_filename, $this->data_path_public);
