@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_reindex.inc,v 1.6 2006/03/20 00:03:23 rong Exp $
+* $Id: tool_reindex.inc,v 1.7 2006/05/05 06:48:43 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -55,13 +55,11 @@ class Tool_Reindex extends Tool
 	* @param object	&$o			reference to the backend outputter of the object painting the tool
 	* @param string	$type_code	the type code of the tool being painted
 	*
-	* @return string
+	* @return void
 	* @access public
 	*/
 	function paintTool(&$o, $type_code)
 	{
-		ob_start();
-
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 		$o->openSection($tool_info['name']);
 
@@ -75,14 +73,7 @@ class Tool_Reindex extends Tool
 			echo translate('sch_reindex_all_assets');
 		$o->closeField();
 
-		$o->openField('', 'commit');
-			echo '&nbsp;';
-			hidden_field('committed_tool_type_code', $type_code);
-			submit_button('tool_commit', SQ_CONF_COMMIT_BUTTON_TEXT);
-		$o->closeField();
-
 		$o->closeSection();
-		return ob_get_clean();
 
 	}//end paintTool()
 
@@ -93,7 +84,7 @@ class Tool_Reindex extends Tool
 	* @param object	&$o			reference to the backend outputter of the object painting the tool
 	* @param string	$type_code	the type code of the tool being painted
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	function processTool(&$o, $type_code)
@@ -115,6 +106,7 @@ class Tool_Reindex extends Tool
 		$hh->queueHipo('hipo_job_reindex', $vars, '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
 		$url = $hh->runQueuedJobs();
 		if (!empty($url)) $o->setRedirect($url);
+		return TRUE;
 
 	}//end processTool()
 

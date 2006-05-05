@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.17 2006/01/27 00:48:04 dmckee Exp $
+* $Id: tool_search_replace.inc,v 1.18 2006/05/05 06:48:43 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -55,14 +55,12 @@ class Tool_Search_Replace extends Tool
 	* @param object	&$o			reference to the outputter object
 	* @param string	$type_code	type code of this asset
 	*
-	* @return array
+	* @return void
 	* @access public
 	*/
 	function paintTool(&$o, $type_code)
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-
-		ob_start();
 
 		// user input of search and replace strings
 		$o->openSection(translate('sch_search_terms'));
@@ -107,15 +105,7 @@ class Tool_Search_Replace extends Tool
 				label(translate('sch_search_entire_system'), $type_code.'_root_folder');
 			$o->closeField();
 
-			$o->openField('', 'commit');
-				echo '&nbsp;';
-				hidden_field('committed_tool_type_code', $type_code);
-				submit_button('tool_commit', SQ_CONF_COMMIT_BUTTON_TEXT);
-			$o->closeField();
 		$o->closeSection();
-
-		return ob_get_clean();
-
 
 	}//end paintTool()
 
@@ -129,7 +119,7 @@ class Tool_Search_Replace extends Tool
 	* @param object	&$o			reference to the outputter object
 	* @param string	$type_code	type code of this asset
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	function processTool(&$o, $type_code)
@@ -137,34 +127,29 @@ class Tool_Search_Replace extends Tool
 		// ensure we have a search string
 		if ($_REQUEST[$type_code.'_search_string'] == '') {
 			trigger_localised_error('SCH0002', E_USER_NOTICE);
-			Tool_Search_Replace::paintTool($o, $type_code);
-			return;
+			return FALSE;
 		}
 
 		if (!isset($_REQUEST[$type_code.'_search_types'])) {
 			trigger_localised_error('SCH0003', E_USER_NOTICE);
-			Tool_Search_Replace::paintTool($o, $type_code);
-			return;
+			return FALSE;
 		}
 
 		if (!isset($_REQUEST[$type_code.'_statuses'])) {
 			trigger_localised_error('SCH0004', E_USER_NOTICE);
-			Tool_Search_Replace::paintTool($o, $type_code);
-			return;
+			return FALSE;
 		}
 
 		if (!isset($_REQUEST[$type_code.'_root_assetid']) && !isset($_REQUEST[$type_code.'_root_folder'])) {
 			trigger_localised_error('SCH0005', E_USER_NOTICE);
-			Tool_Search_Replace::paintTool($o, $type_code);
-			return;
+			return FALSE;
 		}
 
 		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		if (strlen($_REQUEST[$type_code.'_search_string']) < $sm->attr('min_word_length')) {
 			trigger_localised_error('SCH0026', E_USER_NOTICE, $_REQUEST[$type_code.'_search_string'], $sm->attr('min_word_length'));
-			Tool_Search_Replace::paintTool($o, $type_code);
-			return;
+			return FALSE;
 		}
 
 		// create search types array
@@ -204,8 +189,7 @@ class Tool_Search_Replace extends Tool
 		// no matches were found, trigger error and paint getInterface
 		if (!$search_results) {
 			trigger_localised_error('SCH0006', E_USER_NOTICE, $_REQUEST[$type_code.'_search_string']);
-			Tool_Search_Replace::paintTool($o, $type_code);
-			return;
+			return FALSE;
 		}
 
 		$formatted_results = Tool_Search_Replace::getFormattedResults($search_results, $_REQUEST[$type_code.'_search_string']);
@@ -213,8 +197,7 @@ class Tool_Search_Replace extends Tool
 		// after formatting the results, there were no real replaceable matches
 		if (empty($formatted_results)) {
 			trigger_localised_error('SCH0006', E_USER_NOTICE, $_REQUEST[$type_code.'_search_string']);
-			Tool_Search_Replace::paintTool($o, $type_code);
-			return;
+			return FALSE;
 		}
 
 		$vars = Array(
@@ -225,13 +208,12 @@ class Tool_Search_Replace extends Tool
 					'match_case'		=> isset($_REQUEST[$type_code.'_match_case']),
 				);
 
-
 		// redirect data to the HIPO
 		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$hh->queueHipo('hipo_job_tool_search_replace', $vars, '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$url = $hh->runQueuedJobs();
 		if (!empty($url)) $o->setRedirect($url);
+		return TRUE;
 
 	}//end processTool()
 
