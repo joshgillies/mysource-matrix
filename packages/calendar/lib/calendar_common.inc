@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.40.2.1 2006/04/28 01:00:25 lwright Exp $
+* $Id: calendar_common.inc,v 1.40.2.2 2006/05/07 23:53:31 sdanis Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.40.2.1 $
+* @version $Revision: 1.40.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -55,7 +55,7 @@ function build_single_event_query_base(&$trees, $group_by_root_node=FALSE, $even
 		$sql = 'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).') as root_node, cd.*'."\n";
 	}
 	if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
-		$sql .= ', p.granted as access';
+		$sql .= ', p.granted as granted';
 	}
 	$sql .= "\n".'FROM '.build_join_statements()."\n";
 	$sql .= 'WHERE a.type_code IN ( '.implode(',', $type_codes).') '."\n";
@@ -107,9 +107,27 @@ function build_join_statements()
 * @return void
 * @access public
 */
-function make_timestamp_sql($y, $m, $d)
+function make_timestamp_sql($y, $m, $d, $h='00', $i='00', $s='00')
 {
-	return "EXTRACT(epoch from DATE (($y) || '-' || ($m) || '-' || ($d)))";
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	switch($db->phptype) {
+		case 'pgsql':
+			// can only subtract dates because subtracting timestamps results
+			// in an INTERVAL data type, which can't be converted. Only DATE
+			// subtraction returns an integer.
+			// Add the hours, minutes and seconds manually afterwards
+			$sql = "(86400 * (DATE (($y) || '-' || ($m) || '-' || ($d)) - DATE '1970-01-01') + ($h) * 3600 + ($i) * 60 + ($s))";
+		break;
+
+		case 'oci8':
+			// Subtracting datetimes in Oracle gives a fractional number of
+			// days - I haven't had any problems yet but if rounding errors
+			// occur then might have to go with similar to above
+			$sql = "(86400 * (".db_extras_todate($db, "(($y) || '-' || ($m) || '-' || ($d) || ' ' || ($h) || ':' || ($i) || ':' || ($s))"). " - ".db_extras_todate($db, '1970-01-01 00:00:00')."))";
+		break;
+	}
+
+	return $sql;
 
 }//end make_timestamp_sql()
 
@@ -155,7 +173,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=NULL, $g
 		$sql = 'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).') as root_node, cd.*'."\n";
 	}
 	if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
-		$sql .= ', p.granted as access';
+		$sql .= ', p.granted as granted';
 	}
 	$sql .= "\nFROM ".build_join_statements()." \nWHERE (a.type_code IN (".implode(',', $type_codes).")) \n\tAND (a.status >= ".$db->quoteSmart(SQ_STATUS_LIVE).")\n";
 
