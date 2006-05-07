@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.44 2006/04/18 05:54:33 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.45 2006/05/07 23:54:05 sdanis Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -59,7 +59,7 @@ function build_single_event_query_base(&$trees, $group_by_root_node=FALSE, $even
 		$sql = 'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).') as root_node, cd.*'."\n";
 	}
 	if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
-		$sql .= ', p.granted as access';
+		$sql .= ', p.granted as granted';
 	}
 	$sql .= "\n".'FROM '.build_join_statements()."\n";
 	$sql .= 'WHERE a.type_code IN ( '.implode(',', $type_codes).') '."\n";
@@ -180,7 +180,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=NULL, $g
 		$sql = 'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).') as root_node, cd.*'."\n";
 	}
 	if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
-		$sql .= ', p.granted as access';
+		$sql .= ', p.granted as granted';
 	}
 	$sql .= "\nFROM ".build_join_statements()." \nWHERE (a.type_code IN (".implode(',', $type_codes).")) \n\tAND (a.status >= ".$db->quoteSmart(SQ_STATUS_LIVE).")\n";
 
