@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.35.2.1 2006/04/30 23:31:27 sdanis Exp $
+* $Id: insert_image.php,v 1.35.2.2 2006/05/08 00:13:23 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Image Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.35.2.1 $
+* @version $Revision: 1.35.2.2 $
 * @package MySource_Matrix
 */
 
@@ -301,7 +301,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 										<table class="preview" >
 											<tr>
 												<td id="image_container" align="center" valign="center" height="160px" width="340px">
-													<img id="preview_image" src="blank.gif" width=0 height=0>
+													<img id="preview_image" src="<?php echo sq_web_path('fudge') ?>/wysiwyg/images/blank.gif" width=0 height=0>
 												</td>
 											</tr>
 										</table>
