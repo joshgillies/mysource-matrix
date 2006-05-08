@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.532 2006/05/05 06:07:40 rong Exp $
+* $Id: asset.inc,v 1.533 2006/05/08 00:17:56 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.532 $
+* @version $Revision: 1.533 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3637,7 +3637,7 @@ class Asset extends MySource_Object
 	function checkAccess($perm, $lock_type, $assetids=Array(), $only_workflow=TRUE)
 	{
 		if ($perm == SQ_PERMISSION_READ) {
-			trigger_localised_error('SYS0172', E_USER_ERROR, __CLASS__, __FUNCTION__);
+			trigger_localised_error('SYS0272', E_USER_ERROR, __CLASS__, __FUNCTION__);
 		}
 		if ($lock_type == '') {
 			return $this->_checkPermissionAccess($perm, $assetids, $only_workflow);
@@ -3657,14 +3657,16 @@ class Asset extends MySource_Object
 				}
 			}
 
-			// if we are in a state of total approval no editing allowed
-			if ($this->status & SQ_SC_STATUS_ALL_APPROVED) {
-				return FALSE;
-			}
+			if (!$GLOBALS['SQ_PURGING_TRASH']) {
+				// if we are in a state of total approval no editing allowed
+				if ($this->status & SQ_SC_STATUS_ALL_APPROVED) {
+					return FALSE;
+				}
 
-			// if the asset is archived no editing allowed
-			if ($this->status & SQ_STATUS_ARCHIVED) {
-				return FALSE;
+				// if the asset is archived no editing allowed
+				if ($this->status & SQ_STATUS_ARCHIVED) {
+					return FALSE;
+				}
 			}
 
 			// otherwise they can edit if they have permission access
