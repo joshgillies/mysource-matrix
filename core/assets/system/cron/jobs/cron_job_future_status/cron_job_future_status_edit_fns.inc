@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status_edit_fns.inc,v 1.15 2006/01/26 22:34:06 lwright Exp $
+* $Id: cron_job_future_status_edit_fns.inc,v 1.15.2.1 2006/05/09 04:00:59 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,15 +58,15 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	* @param object	&$o						the Backend Outputter object
 	* @param string	$prefix					prefix for form elements
 	* @param string	$when					prepared when string
+	* @param string	$cascade				cascade the status change
 	* @param string	$form_extra_elements	extra form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInLineBackend(&$asset, &$o, $prefix, $when='', $form_extra_elements='')
+	function paintInLineBackend(&$asset, &$o, $prefix, $when='', $cascade=FALSE, $form_extra_elements='')
 	{
 		echo translate('set_status_to');
-
 		$descs = $asset->_getAllStatiiDescs();
 		if ($asset->writeAccess('attributes')) {
 			combo_box($prefix.'_status', $descs, FALSE, $asset->attr('status'), NULL, $form_extra_elements);
@@ -74,11 +74,11 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 			echo $descs[$asset->attr('status')];
 		}
 
-		echo ' '.strtolower(translate('at')).' ';
+		echo '&nbsp;'.strtolower(translate('at')).'&nbsp;';
 		$this->_paintWhenBox($asset, $o, $prefix, $when, $form_extra_elements);
 
 		echo '&nbsp;';
-		check_box($prefix.'_change_status_all_children');
+		check_box($prefix.'_change_status_all_children', '1', $cascade);
 		echo translate('cascade_status_change');
 
 		return TRUE;
@@ -102,6 +102,8 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 			$dependants_only = (isset($_POST[$prefix.'_change_status_all_children']) && $_POST[$prefix.'_change_status_all_children']) ? false : true;
 			if ($when = $this->_processWhenBox($asset, $o, $prefix)) {
 				return ($asset->setAttrValue('when', $when) && $asset->setAttrValue('dependants_only', $dependants_only));
+			} else {
+				trigger_localised_error('CRON0046', E_USER_NOTICE);
 			}
 		}
 
