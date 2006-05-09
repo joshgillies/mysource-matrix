@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status_edit_fns.inc,v 1.18 2006/05/09 04:56:41 skim Exp $
+* $Id: cron_job_future_status_edit_fns.inc,v 1.19 2006/05/09 04:58:45 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,6 +58,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	* @param object	&$o						the Backend Outputter object
 	* @param string	$prefix					prefix for form elements
 	* @param string	$when					prepared when string
+	* @param string	$cascade				cascade the status change
 	* @param string	$form_extra_elements	extra form elements
 	* @param array	$exclude_status			exclude these statuses from the list
 	*
@@ -69,7 +70,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 		echo translate('set_status_to');
 
 		$descs = $asset->_getAllStatiiDescs();
-		foreach($exclude_status as $status) {
+		foreach ($exclude_status as $status) {
 			unset($descs[$status]);
 		}
 
@@ -104,7 +105,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	function processInLineBackend(&$asset, &$o, $prefix)
 	{
 		if (!empty($_POST[$prefix.'_status']) && $asset->setAttrValue('status', $_POST[$prefix.'_status'])) {
-			$dependants_only = (isset($_POST[$prefix.'_change_status_all_children']) && $_POST[$prefix.'_change_status_all_children']) ? false : true;
+			$dependants_only = (isset($_POST[$prefix.'_change_status_all_children']) && $_POST[$prefix.'_change_status_all_children']) ? FALSE : TRUE;
 			if ($when = $this->_processWhenBox($asset, $o, $prefix)) {
 				return ($asset->setAttrValue('when', $when) && $asset->setAttrValue('dependants_only', $dependants_only));
 			} else {
