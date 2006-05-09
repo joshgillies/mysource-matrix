@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.100 2006/04/28 02:02:17 sdanis Exp $
+* $Id: page_asset_listing.inc,v 1.101 2006/05/09 05:09:43 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -163,6 +163,9 @@ class Page_Asset_Listing extends Listing_Engine
 						if (empty($query)) $new_assets_to_list = Array();
 
 						$query['select'] .= ', SUBSTR('.$table_alias.'.'.$letter_sort_by.', 1, 1) AS first_letter';
+						if (strpos($query['group_by'], ($table_alias.'.'.$letter_sort_by)) === FALSE) {
+							$query['group_by'] .= ', '.$table_alias.'.'.$letter_sort_by;
+						}
 						// we need to add the first_letter column to the union so that we have the right
 						// number of columns in both sides of the union
 						$query['union_select'] .= ', null AS first_letter';
