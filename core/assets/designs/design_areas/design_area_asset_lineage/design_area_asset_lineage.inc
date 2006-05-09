@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.12 2006/01/20 04:45:10 tbarrett Exp $
+* $Id: design_area_asset_lineage.inc,v 1.12.2.1 2006/05/09 04:26:04 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,10 +44,11 @@ class Design_Area_Asset_Lineage extends Design_Area
 	* Outputs the var either as straight HTML or PHP code, depending on the type
 	*
 	* @param string	$var			the name of the var to print out
-	* @param Array	$args			array of any extra arguments that existed in the print command
+	* @param array	$args			array of any extra arguments that existed in the print command
 	* @param string	$value_prefix	PHP code to wrap put before the value before outputting it
 	* @param string	$value_suffix	PHP code to wrap put after  the value before outputting it
 	*
+	* @return void
 	* @access public
 	*/
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
@@ -78,10 +79,10 @@ class Design_Area_Asset_Lineage extends Design_Area
 	/**
 	* Print code that outputs a given element from this DA's contents
 	*
-	* @param array	$item	An entry from our contents array
+	* @param array	$element	An entry from our contents array
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _printContentItemCode($element)
 	{
@@ -149,6 +150,14 @@ class Design_Area_Asset_Lineage extends Design_Area
 				}
 
 				$unwanted_types = $this->attr('unwanted_asset_types');
+				$all_type_codes = Array();
+				foreach ($unwanted_types as $type) {
+					if (!empty($type)) {
+						$all_type_codes = array_merge($all_type_codes, $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type, TRUE));
+					}
+				}
+				$unwanted_types = $all_type_codes;
+
 				if (!empty($unwanted_types)) {
 					$unwanted_types_literal_array = 'Array("'.implode('", "', $unwanted_types).'")';
 					echo 'if (in_array($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'type_code\'], '.$unwanted_types_literal_array.')) continue;
@@ -208,8 +217,8 @@ class Design_Area_Asset_Lineage extends Design_Area
 	* Design Area attributes that can be set in the parse file but aren't are set to defaults
 	* when parsing the design.  Attributes returned by this function are exempted from this process.
 	*
+	* @return array
 	* @access public
-	* @return array(string)
 	*/
 	function getProtectedAttrs()
 	{
@@ -237,9 +246,12 @@ class Design_Area_Asset_Lineage extends Design_Area
 	function setAttrValue($name, $value)
 	{
 		if (($name == 'unwanted_asset_types') && is_scalar($value)) {
-			$value = explode(',', $value);
-			foreach ($value as $i => $v) {
-				$value[$i] = trim($v);
+			$value = preg_split('/[ ,]+/', (string)$value);
+			foreach ($value as $type_code) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
+					trigger_localised_error('CORE0145', E_USER_WARNING, $type_code);
+					return FALSE;
+				}
 			}
 		}
 		return parent::setAttrValue($name, $value);
