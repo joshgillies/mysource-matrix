@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2006/03/29 04:30:56 sdanis Exp $
+* $Id: lang_screen_details.xml,v 1.7 2006/05/09 01:02:09 sdanis Exp $
 *
 */
 -->
@@ -20,6 +20,16 @@
 		<field attribute="id_name">
 			<display_name>ID Name</display_name>
 			<note />
+		</field>
+	</section>
+	<section name="General">
+		<field attribute="print">
+			<display_name>Print</display_name>
+			<note>Select whether this design area should be printed or hidden in this design customisation</note>
+		</field>
+		<field attribute="cache">
+			<display_name>Cache?</display_name>
+			<note>Select whether this design area should be cached in this design customisation.  Caching improves performance but can reduce the currency of frontend output.</note>
 		</field>
 	</section>
 	<section name="Search Page Configuration">

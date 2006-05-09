@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.14 2006/03/29 04:30:55 sdanis Exp $
+* $Id: edit_interface_screen_details.xml,v 1.15 2006/05/09 01:02:09 sdanis Exp $
 *
 */
 -->
@@ -21,7 +21,14 @@
 			<text width="60" height="1" />
 		</field>
 	</section>
-
+	<section name="General" write_access="write:attributes">
+		<field attribute="print">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="cache">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>
 	<section name="Search Page Configuration">
 		<field write_access="write:attributes" >
 			<function_call>
