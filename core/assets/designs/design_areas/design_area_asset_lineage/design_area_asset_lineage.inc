@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.13 2006/02/07 01:06:57 dmckee Exp $
+* $Id: design_area_asset_lineage.inc,v 1.14 2006/05/09 04:24:00 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -150,6 +150,14 @@ class Design_Area_Asset_Lineage extends Design_Area
 				}
 
 				$unwanted_types = $this->attr('unwanted_asset_types');
+				$all_type_codes = Array();
+				foreach ($unwanted_types as $type) {
+					if (!empty($type)) {
+						$all_type_codes = array_merge($all_type_codes, $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type, TRUE));
+					}
+				}
+				$unwanted_types = $all_type_codes;
+
 				if (!empty($unwanted_types)) {
 					$unwanted_types_literal_array = 'Array("'.implode('", "', $unwanted_types).'")';
 					echo 'if (in_array($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'type_code\'], '.$unwanted_types_literal_array.')) continue;
@@ -238,9 +246,12 @@ class Design_Area_Asset_Lineage extends Design_Area
 	function setAttrValue($name, $value)
 	{
 		if (($name == 'unwanted_asset_types') && is_scalar($value)) {
-			$value = explode(',', $value);
-			foreach ($value as $i => $v) {
-				$value[$i] = trim($v);
+			$value = preg_split('/[ ,]+/', (string)$value);
+			foreach ($value as $type_code) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
+					trigger_localised_error('CORE0145', E_USER_WARNING, $type_code);
+					return FALSE;
+				}
 			}
 		}
 		return parent::setAttrValue($name, $value);
