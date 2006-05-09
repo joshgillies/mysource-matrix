@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.18.2.1 2006/01/16 05:32:00 dmckee Exp $
+* $Id: email_format.inc,v 1.18.2.2 2006/05/09 01:47:38 sdanis Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *    <email_format />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18.2.1 $
+* @version $Revision: 1.18.2.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -454,6 +454,9 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$subject   = replace_keywords($current_value['subject'],     $replacements);
 		$text_body = replace_keywords($current_value['text_format'], $replacements);
 		$html_body = replace_keywords($current_value['html_format'], $replacements);
+
+		// Firefox fix for html body
+		if (trim($html_body) == '<br />') $html_body = '';
 
 		// if no 'From:' address (possibly because of empty keyword replacement)
 		// send from the system's default email address
