@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.34 2006/03/27 23:50:04 skim Exp $
+* $Id: listing_engine.inc,v 1.38.2.35 2006/05/09 01:31:13 rong Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.34 $
+* @version $Revision: 1.38.2.35 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -550,13 +550,13 @@ class Listing_Engine extends Page
 
 		$assets_to_list = Array();
 		$sorted_assets = array_keys($sort_assets);
-		foreach ($sorted_assets as $asset) {
-			$assets_to_list[$asset] = $asset_list[$asset];
+		foreach ($sorted_assets as $assetid) {
+			$assets_to_list[$assetid] = $asset_list[$assetid];
 		}
 
 		// add skipped assets to the bottom of the list
-		foreach ($skipped_assets as $asset) {
-			$assets_to_list[$asset] = $asset_list[$asset];
+		foreach ($skipped_assets as $assetid) {
+			$assets_to_list[$assetid] = $asset_list[$assetid];
 		}
 
 		return $assets_to_list;
