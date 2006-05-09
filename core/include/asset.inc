@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.533 2006/05/08 00:17:56 emcdonald Exp $
+* $Id: asset.inc,v 1.534 2006/05/09 04:14:11 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.533 $
+* @version $Revision: 1.534 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1772,7 +1772,7 @@ class Asset extends MySource_Object
 	{
 
 		if (!isset($vars['keywords'])) return;
-		$vars['keywords'] = array_merge($vars['keywords'], $this->_available_keywords);
+		$vars['keywords'] = array_merge($vars['keywords'], $this->getAvailableKeywords());
 
 	}//end onRequestKeywords()
 
