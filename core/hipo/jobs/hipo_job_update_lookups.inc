@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.37 2005/05/31 01:07:09 ndvries Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.37.2.1 2006/05/09 04:03:35 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.37.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -109,7 +109,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	*/
 	function getCodeName()
 	{
-		return parent::getCodeName().'-'.md5(implode('-',array_keys($this->_running_vars['assetids'])));
+		return parent::getCodeName().'-'.md5(implode('-', $this->_running_vars['assetids']));
 
 	}//end getCodeName()
 
