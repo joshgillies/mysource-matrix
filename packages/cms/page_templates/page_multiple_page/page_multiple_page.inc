@@ -11,7 +11,7 @@
 * | Please refer to http:// www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page.inc,v 1.12 2006/01/13 00:22:16 dmckee Exp $
+* $Id: page_multiple_page.inc,v 1.12.2.1 2006/05/09 01:32:04 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -97,7 +97,7 @@ class Page_Multiple_Page extends Page
 		$replacements = Array();
 
 		foreach ($keywords as $value) {
-			$replacements[$value] = parent::getKeywordReplacement($value);
+			$replacements[$value] = $this->getKeywordReplacement($value);
 		}
 
 		$asset->setKeywordReplacements($replacements);
