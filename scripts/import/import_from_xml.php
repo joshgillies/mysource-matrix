@@ -7,7 +7,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
@@ -51,7 +51,8 @@ foreach ($import_actions['actions'][0]['action'] as $action) {
 
 	// Execute the action
 	if (!execute_import_action($action, $import_action_outputs)) {
-		trigger_error('Action "'.$actionid.'" for "'.$key.'" could not be executed', E_USER_ERROR);
+		$action_id = $action['action_id'][0];
+		trigger_error('Action ID, "'.$action_id.'" could not be executed', E_USER_ERROR);
 	}
 }
 
