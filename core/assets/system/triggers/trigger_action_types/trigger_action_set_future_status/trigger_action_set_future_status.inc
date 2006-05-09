@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.9 2006/04/18 22:33:14 lwright Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.10 2006/05/09 04:56:43 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,6 +82,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		$fs =& new Cron_Job_Future_Status();
 		$fs->setAttrValue('status', $settings['status']);
 		$fs->setAttrValue('when', $settings['when']);
+		$fs->setAttrValue('dependants_only', !$settings['cascade']);
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
 			$user_for_status_change = $GLOBALS['SQ_SYSTEM']->user;
@@ -143,9 +144,10 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		$munge_prefix = str_replace(']', '', $munge_prefix);
 
 		// set defaults
-		$settings['when']	= array_get_index($settings, 'when');
-		$settings['status'] = array_get_index($settings, 'status', SQ_STATUS_LIVE_APPROVAL);
-		$settings['prefix']	= $munge_prefix;
+		$settings['when']		= array_get_index($settings, 'when');
+		$settings['status']		= array_get_index($settings, 'status', SQ_STATUS_LIVE_APPROVAL);
+		$settings['cascade']	= array_get_index($settings, 'cascade', FALSE);
+		$settings['prefix']		= $munge_prefix;
 
 		$status_list = Trigger_Action_Set_Future_Status::_getStatusList();
 
@@ -157,7 +159,6 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 
 		// capture anything printed
 		ob_start();
-
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 		$fs =& new Cron_Job_Future_Status();
 
@@ -166,8 +167,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		}
 
 		$edit_fns = $fs->getEditFns();
-
-		$edit_fns->paintInLineBackend($fs, $o, $munge_prefix, $settings['when'], $form_element_extras);
+		$edit_fns->paintInLineBackend($fs, $o, $munge_prefix, $settings['when'], $settings['cascade'], $form_element_extras);
 		hidden_field($prefix.'[prefix]', $munge_prefix);
 
 		return ob_get_clean();
@@ -190,6 +190,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 	{
 		$munge_prefix = $request_data['prefix'];
 		$set_status = $_POST[$munge_prefix.'_status'];
+		$cascade_status = isset($_POST[$munge_prefix.'_change_status_all_children']) ? TRUE : FALSE;
 
 		if (!$set_status) return 'Status not specified';
 
@@ -205,6 +206,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		// check if the status is valid
 		if (isset($status_list[$set_status])) {
 			$settings['status'] = $set_status;
+			$settings['cascade'] = $cascade_status;
 			return FALSE;
 		} else {
 			return 'Invalid Status specified';
@@ -214,7 +216,9 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 
 
 	/**
-	* Returns an array containing all the valid statuses (int => string)
+	* Returns an array containing all the valid statuses
+	*
+	* The returned array contains status(int) => description(string)
 	*
 	* @return array
 	* @access private
