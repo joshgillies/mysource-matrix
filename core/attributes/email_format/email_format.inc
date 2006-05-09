@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.28 2006/03/23 22:14:58 sdanis Exp $
+* $Id: email_format.inc,v 1.29 2006/05/09 01:38:59 sdanis Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *    <email_format with_asset_finder="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -559,6 +559,8 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$text_body = replace_keywords($current_value['text_format'], $replacements);
 		$html_body = replace_keywords($current_value['html_format'], $replacements);
 
+		// Firefox fix for html body
+		if (trim($html_body) == '<br>') $html_body = '';
 
 		$to =  array_unique(array_merge($to, $assetid_emails));
 
