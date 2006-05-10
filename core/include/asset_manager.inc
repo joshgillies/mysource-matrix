@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.29 2006/05/05 06:02:46 sdanis Exp $
+* $Id: asset_manager.inc,v 1.431.2.30 2006/05/10 01:00:22 bcaldwell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.29 $
+* @version $Revision: 1.431.2.30 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2855,6 +2855,7 @@ class Asset_Manager extends MySource_Object
 			$real_assetid = $id_parts[0];
 			$asset =& $this->getAsset($real_assetid);
 
+			$parents = Array();
 			if (!$ignore_bridge) {
 				$parents = $asset->getParents($assetid, $type_code, $strict_type_code);
 			}
