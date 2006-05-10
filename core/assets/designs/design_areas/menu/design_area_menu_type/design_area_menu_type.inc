@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.81 2006/04/28 02:00:43 sdanis Exp $
+* $Id: design_area_menu_type.inc,v 1.82 2006/05/10 22:52:21 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -459,8 +459,8 @@ class Design_Area_Menu_Type extends Design_Area
 							$userids[$i] = $db->quote((String)$userids[$i]);
 						}
 						$userids_str = implode(\',\', $userids);
-						$USERIDS_COND = \'AND p.userid  IN (\'.$userids_str.\') \';
-						$USERIDS_COND .= \'OR r.userid  IN (\'.$userids_str.\') \';
+						$USERIDS_COND = \'AND (p.userid  IN (\'.$userids_str.\') \';
+						$USERIDS_COND .= \'OR r.userid  IN (\'.$userids_str.\')) \';
 						$USERIDS_COND .= \' AND (
 							(p.permission = \'.$db->quote((String)SQ_PERMISSION_READ).\' AND (
 									p.userid <> \'.$db->quote($public_userid).\'
