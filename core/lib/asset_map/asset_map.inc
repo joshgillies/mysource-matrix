@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.210.2.9 2006/05/01 05:16:36 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.210.2.10 2006/05/10 22:56:12 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.210.2.9 $
+* @version $Revision: 1.210.2.10 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -622,8 +622,8 @@ class Asset_Map
 				$userids[$k] = $db->quote((String)$userids[$k]);
 			}
 			$userids_str = implode(',', $userids);
-			$userid_cond = ' AND p.userid IN ('.$userids_str.')';
-			$userid_cond .= ' OR r.userid IN ('.$userids_str.')';
+			$userid_cond = ' AND (p.userid IN ('.$userids_str.')';
+			$userid_cond .= ' OR r.userid IN ('.$userids_str.'))';
 		}
 
 		// work out what protocol we are using to get here so we can get the most
