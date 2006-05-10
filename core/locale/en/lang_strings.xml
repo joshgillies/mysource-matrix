@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.103.2.4 2006/05/05 06:18:19 sdanis Exp $
+* $Id: lang_strings.xml,v 1.103.2.5 2006/05/10 00:04:09 lwright Exp $
 *
 */
 
@@ -861,7 +861,7 @@
 	<string source="must_enter_comment_error" js="1">You must enter a comment for this workflow step.</string>
 	<string source="step_not_completed_in_time_explanation">If this step is not completed within this time a reminder message will be sent to the asset administrators. Leave at &#147;0&#148; to disable this feature.</string>
 	<string source="members_must_approve">%s member(s) must approve</string>
-	<string source="security_key_question">Can't read the security key?</string>
+	<string source="security_key_question">Can't read the security key? %s</string>
 	<string source="security_key_link">Click here to get a new key</string>
 
 
