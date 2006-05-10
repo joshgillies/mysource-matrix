@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.37 2006/03/31 02:48:27 rong Exp $
+* $Id: html_tidy.inc,v 1.38 2006/05/10 00:22:39 rong Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -128,6 +128,20 @@ class HTML_Tidy extends Wysiwyg_Plugin
 			// replace unicode's URL '%u' character entities with their HTML entity equivs
 			$html = preg_replace('/%u([0-9A-Fa-f]{4})/', '&#x$1;', $html);
 
+			////////////////////
+			//  MS WORD CRAP  //
+			////////////////////
+
+			// Remove weird tags MS Word leaves in its output
+			$html = preg_replace('|<([\w]+)([^>]+?)class="mso[^"]+"([^>]+)?>|is', '<\\1>', $html);
+			$html = preg_replace('|<([\w]+)([^>]+?)style="([^"]+)?mso([^"]+)?"([^>]+)?>|is', '<\\1>', $html);
+			$html = preg_replace('|<\/?\w+:[^>]*>|is', '', $html);
+			$html = preg_replace('|<font[^>]+>(.+?)</font>|is', '\\1', $html);
+			$html = preg_replace('|<span([^>]+?)lang=[^\s]+([^>]+?)xml:lang="[^\s]+">(.+?)</span>|is', '\\3', $html);
+			$html = preg_replace('|<\?xml[^>]+microsoft[^>]+\?>|is', '', $html);
+			$html = preg_replace('|<\/?\w+:[^>]*>|is', '', $html);
+			$html = preg_replace('|<\\?\??xml[^>]>|is', '', $html);
+
 			/////////////////
 			//  HTML TIDY  //
 			/////////////////
@@ -151,20 +165,6 @@ class HTML_Tidy extends Wysiwyg_Plugin
 							$this->htmltidy_status = 'fail';
 						} else {
 							$html = implode("\n", $tidy);
-
-							////////////////////
-							//  MS WORD CRAP  //
-							////////////////////
-
-							// Remove weird tags MS Word leaves in its output
-							$html = preg_replace('|<([\w]+)([^>]+?)class="mso[^"]+"([^>]+)?>|is', '<\\1>', $html);
-							$html = preg_replace('|<([\w]+)([^>]+?)style="([^"]+)?mso([^"]+)?"([^>]+)?>|is', '<\\1>', $html);
-							$html = preg_replace('|<\/?\w+:[^>]*>|is', '', $html);
-							$html = preg_replace('|<font[^>]+>(.+?)</font>|is', '\\1', $html);
-							$html = preg_replace('|<span([^>]+?)lang=[^\s]+([^>]+?)xml:lang="[^\s]+">(.+?)</span>|is', '\\3', $html);
-							$html = preg_replace('|<\?xml[^>]+microsoft[^>]+\?>|is', '', $html);
-							$html = preg_replace('|<\/?\w+:[^>]*>|is', '', $html);
-							$html = preg_replace('|<\\?\??xml[^>]>|is', '', $html);
 
 							//Change old style HTML Tags to XHTML compliant self closing tags (singletons)
 							$html = preg_replace('|<br>|is', '<br />', $html);
