@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.3 2006/04/27 05:32:57 skim Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.4 2006/05/10 05:26:39 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -175,6 +175,10 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 	{
 		$this->_running_vars['styles'] = Array();
 		$file_data = file_get_contents($this->_running_vars['import_file']);
+
+		$file_data = str_replace('<!--', '', $file_data);
+		$file_data = str_replace('-->', '', $file_data);
+
 		preg_match_all('/<style[^>]*>([^<]*)<\/\s*style>/i', $file_data, $style_matches=Array());
 
 		foreach ($style_matches[1] as $style_data) {
@@ -191,6 +195,14 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		// This will replace the complete style for each style found with an empty string.
 		// This is needed, in case there are some style blocks inside the body, that we don't need
 		$file_data = str_replace($style_matches[0], '', $file_data);
+
+		// Extended Ascii
+		$file_data = str_replace(chr(145), '\'', $file_data);
+		$file_data = str_replace(chr(146), '\'', $file_data);
+		$file_data = str_replace(chr(147), '"', $file_data);
+		$file_data = str_replace(chr(148), '"', $file_data);
+		$file_data = str_replace(chr(149), '-', $file_data);
+		$file_data = str_replace(chr(150), '-', $file_data);
 
 		preg_match('/<body[^>]*>/i', $file_data, $body_start_match=Array(), PREG_OFFSET_CAPTURE);
 		preg_match('/<\/\s*body\s*>/i', $file_data, $body_end_match=Array(), PREG_OFFSET_CAPTURE);
@@ -220,7 +232,6 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 				$this->_running_vars['headings_to_process'][] = Array('heading' => $heading, 'data' => $data);
 			}
 		}
-
 		// Word Stuff
 		if ($this->_running_vars['remove_word']) {
 			// Fix the problems where the shorttags are not put in quotes
@@ -248,13 +259,12 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 					if (is_executable($path_to_tidy)) {
 						$command = "$path_to_tidy $tmp_fname -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --quote-marks 1 --word-2000 1 --force-output 1";
 						$tidy = Array();
-						exec($command, $tidy);
-						if (empty($tidy)) {
-							unlink($tmp_fname);
-							return;
+						exec($command, $tidy, $return_val);
+						if ($return_val == 0) {
+							$body = implode("\n", $tidy);
+						} else {
+							unset($tidy);
 						}
-						$body = implode("\n", $tidy);
-						unset($tidy);
 						unlink($tmp_fname);
 					}
 				}
