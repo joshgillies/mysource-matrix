@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.28 2006/05/05 06:16:16 sdanis Exp $
+* $Id: lang_strings.xml,v 1.18.2.29 2006/05/10 00:04:21 lwright Exp $
 *
 */
 
@@ -791,7 +791,7 @@
 	<string source="notify_when_live">Notify When Live</string>
 	<string source="step_not_completed_in_time_explanation">If this step is not completed within this time a reminder message will be sent to the asset administrators. Leave at &#147;0&#148; to disable this feature.</string>
 	<string source="members_must_approve">%s member(s) must approve</string>
-	<string source="security_key_question">Can't read the security key?</string>
+	<string source="security_key_question">Can't read the security key? %s</string>
 	<string source="security_key_link">Click here to get a new key</string>
 	<string source="restrict_screen_access_to_new_type">Add new type code to restrict</string>
 
