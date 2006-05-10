@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.128 2006/05/02 23:32:59 lwright Exp $
+* $Id: general.inc,v 1.129 2006/05/10 05:27:02 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix
 */
 
@@ -249,10 +249,22 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 			// if they haven't put tags in the err msg assume it to be plain text
 			$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
+			$db_type = 'N/A';
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			if (!is_null($db)) {
+				$db_type = $db->phptype;
+			}
+
+			$matrix_version = 'N/A';
+			if (defined('SQ_SYSTEM_VERSION')) {
+				$matrix_version = SQ_SYSTEM_VERSION;
+			}
 
 			$str  = '*'.$err_name."*\n".
 					'File : '.$err_file."\n".
 					'Line : '.$err_line."\n".
+					'Version : '.$matrix_version."\n".
+					'DB Type : '.$db_type."\n".
 					"\n".
 					$err_msg."\n".
 					"------------------------------------------------------------------\n".
