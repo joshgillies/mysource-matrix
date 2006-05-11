@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.13 2006/04/20 07:44:17 rhoward Exp $
+* $Id: page_poll.inc,v 1.14 2006/05/11 00:30:41 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -194,9 +194,8 @@ class Page_Poll extends Page
 
 			// alias question to active_question
 			$question =& $active_question;
-			if (is_null($question)) {
-				$valid = FALSE;
-			}
+			if (is_null($question)) $valid = FALSE;
+
 		} else {
 			$valid = FALSE;
 		}
@@ -297,7 +296,9 @@ class Page_Poll extends Page
 						'poll_question_list_no_active'		=> $this->_componentQuestionList($active_question_id, FALSE, TRUE),
 						'poll_question_list_date_no_active'	=> $this->_componentQuestionList($active_question_id, TRUE, TRUE),
 						'poll_active_question'				=> $this->_componentActiveQuestion($question, FALSE),
+						'poll_active_question_results'		=> $this->_componentActiveQuestion($question, FALSE, TRUE),
 						'poll_active_question_date'			=> $this->_componentActiveQuestion($question, TRUE),
+						'poll_active_question_date_results'	=> $this->_componentActiveQuestion($question, TRUE, TRUE),
 					);
 
 
@@ -316,6 +317,29 @@ class Page_Poll extends Page
 
 
 	/**
+	* Return a reference to a folder linked to this asset determined by the passed in value on the link
+	*
+	* @param string	$type	the value on the link for this folder
+	*
+	* @return object
+	* @access public
+	*/
+	function &getFolder($type='type_formats')
+	{
+		$null = NULL;
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, $type);
+
+		if (empty($link)) return $null;
+
+		$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		if (is_null($folder)) return $null;
+
+		return $folder;
+
+	}//end getFolder()
+
+
+	/**
 	* Returns a list of keywords
 	*
 	* @param object	&$broadcaster	Broadcaster
@@ -326,9 +350,54 @@ class Page_Poll extends Page
 	*/
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
-		$keywords = Array();
+		$parent_folders = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'folder', TRUE);
+		$parent_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
 
-		//-- Main keywords --//
+		$vote_formats =& $this->getFolder('vote_formats');
+		$result_formats =& $this->getFolder('results_formats');
+		$past_questions_formats =& $this->getFolder('past_questions_formats');
+
+		$keywords = Array();
+		if (in_array($vote_formats->id, array_keys($parent_folders))) {
+			$quetion_format =& $this->getFormatAsset('question_format');
+			$option_list_format =& $this->getFormatAsset('option_list_format');
+			if (in_array($quetion_format->id, array_keys($parent_bodycopy))) {
+				$keywords = $this->_getQuestionFormatKeywords();
+			} else if (in_array($option_list_format->id, array_keys($parent_bodycopy))) {
+				$keywords = $this->_getOptionListFormatKeywords();
+			}
+		} else if (in_array($result_formats->id, array_keys($parent_folders))) {
+			$results_format =& $this->getFormatAsset('results_format');
+			$results_list_format =& $this->getFormatAsset('results_list_format');
+			if (in_array($results_format->id, array_keys($parent_bodycopy))) {
+				$keywords = $this->_getResultsFormatKeywords();
+			} else if (in_array($results_list_format->id, array_keys($parent_bodycopy))) {
+				$keywords = $this->_getResultsListFormatKeywords();
+			}
+		} else if (in_array($past_questions_formats->id, array_keys($parent_folders))) {
+			$past_questions_format =& $this->getFormatAsset('past_questions_format');
+			$past_questions_list_format =& $this->getFormatAsset('past_questions_list_format');
+			if (in_array($past_questions_format->id, array_keys($parent_bodycopy))) {
+				$keywords = $this->_getPastQuestionsFormatKeywords();
+			} else if (in_array($past_questions_list_format->id, array_keys($parent_bodycopy))) {
+				$keywords = $this->_getPastQuestionsListFormatKeywords();
+			}
+		}
+
+		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+
+	}//end onRequestKeywords()
+
+
+	/**
+	* Return array of keywords
+	*
+	* @return array
+	* @access public
+	*/
+	function _getQuestionFormatKeywords()
+	{
+		$keywords = Array();
 		$keywords['poll_question'] = translate('cms_poll_question');
 		$keywords['poll_date'] = translate('cms_poll_date');
 		$keywords['poll_option_list'] = translate('cms_poll_option_list');
@@ -340,29 +409,109 @@ class Page_Poll extends Page
 		$keywords['poll_view_results_url'] = translate('cms_poll_view_results_url');
 		$keywords['poll_view_past_questions'] = translate('cms_poll_view_past_questions');
 		$keywords['poll_view_past_questions_url'] = translate('cms_poll_view_past_questions_url');
-		$keywords['poll_results_list'] = translate('cms_poll_results_list');
-		$keywords['poll_question_list'] = translate('cms_poll_question_list');
-		$keywords['poll_question_list_date'] = translate('cms_poll_question_list_date');
-		$keywords['poll_question_list_no_active'] = translate('cms_poll_question_list_no_active');
-		$keywords['poll_question_list_date_no_active'] = translate('cms_poll_question_list_date_no_active');
 		$keywords['poll_active_question'] = translate('cms_poll_active_question');
+		$keywords['poll_active_question_results'] = translate('cms_poll_active_question_results');
 		$keywords['poll_active_question_date'] = translate('cms_poll_active_question_date');
+		$keywords['poll_active_question_date_results'] = translate('cms_poll_active_question_date_results');
 
-		//-- Option List Format Keywords --//
+		return $keywords;
+
+	}//end _getQuestionFormatKeywords()
+
+
+	/**
+	* Return array of keywords
+	*
+	* @return array
+	* @access public
+	*/
+	function _getOptionListFormatKeywords()
+	{
+		$keywords = Array();
 		$keywords['poll_option_label'] = translate('cms_poll_option_label');
 		$keywords['poll_option_number'] = translate('cms_poll_option_number');
 		$keywords['poll_option_vote_selection_button'] = translate('cms_poll_option_vote_selection_button');
 
-		//-- Option Results List Format Keywords --//
+		return $keywords;
+
+	}//end _getOptionListFormatKeywords()
+
+
+	/**
+	* Return array of keywords
+	*
+	* @return array
+	* @access public
+	*/
+	function _getResultsFormatKeywords()
+	{
+		$keywords = Array();
+		$keywords = $this->_getQuestionFormatKeywords();
+		$keywords['poll_results_list'] = translate('cms_poll_results_list');
+		if (isset($keywords['poll_option_list'])) {
+			unset($keywords['poll_option_list']);
+		}
+
+		return $keywords;
+
+	}//end _getResultsFormatKeywords()
+
+
+	/**
+	* Return array of keywords
+	*
+	* @return array
+	* @access public
+	*/
+	function _getResultsListFormatKeywords()
+	{
+		$keywords = Array();
 		$keywords['poll_option_number'] = translate('cms_poll_option_number');
 		$keywords['poll_option_label'] = translate('cms_poll_option_label');
 		$keywords['poll_option_bar'] = translate('cms_poll_option_bar');
 		$keywords['poll_option_votes_number'] = translate('cms_poll_option_votes_number');
 		$keywords['poll_option_votes_percent'] = translate('cms_poll_option_votes_percent');
 
-		$vars['keywords'] = $keywords;
+		return $keywords;
 
-	}//end onRequestKeywords()
+	}//end _getResultsListFormatKeywords()
+
+
+	/**
+	* Return array of keywords
+	*
+	* @return array
+	* @access public
+	*/
+	function _getPastQuestionsFormatKeywords()
+	{
+		$keywords = Array();
+		$keywords['poll_question_list'] = translate('cms_poll_question_list');
+		$keywords['poll_question_list_date'] = translate('cms_poll_question_list_date');
+		$keywords['poll_question_list_no_active'] = translate('cms_poll_question_list_no_active');
+		$keywords['poll_question_list_date_no_active'] = translate('cms_poll_question_list_date_no_active');
+		$keywords['poll_active_question'] = translate('cms_poll_active_question');
+		$keywords['poll_date'] = translate('cms_poll_date');
+
+		return $keywords;
+
+	}//end _getPastQuestionsFormatKeywords()
+
+
+	/**
+	* Return array of keywords
+	*
+	* @return array
+	* @access public
+	*/
+	function _getPastQuestionsListFormatKeywords()
+	{
+		$keywords = Array();
+		$keywords['poll_question'] = translate('cms_poll_question');
+
+		return $keywords;
+
+	}//end _getPastQuestionsListFormatKeywords()
 
 
 	/**
@@ -869,16 +1018,17 @@ class Page_Poll extends Page
 	*
 	* @param int		&$active_question	The active question
 	* @param boolean	$date				If true, print the date next to the item
+	* @param boolean	$results			Link to the results page if true
 	*
 	* @return string
 	* @access private
 	*/
-	function _componentActiveQuestion(&$active_question, $date)
+	function _componentActiveQuestion(&$active_question, $date, $results=FALSE)
 	{
 		ob_start();
 
 		?>
-		<a href="<?php echo $this->getURL(); ?>?SQ_ACTION=<?php echo $this->getPrefix(); ?>_results">
+		<a href="<?php echo $this->getURL(); ?>?SQ_ACTION=<?php echo $this->getPrefix(); ?><?php echo ($results ? '_results' : ''); ?>">
 		<?php
 
 		echo $active_question->attr('name');
