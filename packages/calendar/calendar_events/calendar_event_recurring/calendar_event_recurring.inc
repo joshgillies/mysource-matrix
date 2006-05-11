@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.72 2006/05/04 02:38:15 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.73 2006/05/11 06:58:21 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1185,9 +1185,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 	function getAvailableKeywords()
 	{
 		$res = parent::getAvailableKeywords();
-		$res['event_frequency'] = 'Description of the event\'s frequency';
-		$res['event_ical_frequency'] = 'Event frequency (ical format)';
-		$res['event_ical_exceptions'] = 'List of exceptions (ical format)';
+
+		$our_keywords[] = 'event_frequency'; //] = 'Description of the event\'s frequency';
+		$our_keywords[] = 'event_ical_frequency'; //] = 'Event frequency (ical format)';
+		$our_keywords[] = 'event_ical_exceptions'; //] = 'List of exceptions (ical format)';
+
+		foreach ($our_keywords as $keyword) {
+			$res[$keyword] = translate('cal_evt_keyword_'.$keyword);
+		}
 		return $res;
 
 	}//end getAvailableKeywords()

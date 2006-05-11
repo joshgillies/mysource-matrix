@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.7 2006/01/12 01:22:45 skim Exp $
+* $Id: lang_strings.xml,v 1.8 2006/05/11 06:58:21 tbarrett Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -71,5 +71,10 @@
 <string source="cal_event_month_on_weekday">On the %1$s %2$s of the month</string>
 <string source="cal_event_month_on_last_day">On the %s last day of the month</string>
 <string source="cal_event_month_on_last_weekday">On the %1$s last %2$s of the month</string>
+
+<string source="cal_evt_keyword_event_frequency">Description of the event's frequency</string>
+<string source="cal_evt_keyword_event_ical_frequency">Event frequency (iCalendar format)</string>
+<string source="cal_evt_keyword_event_ical_exceptions">List of exceptions (iCalendar format)</string>
+
 </strings>
 

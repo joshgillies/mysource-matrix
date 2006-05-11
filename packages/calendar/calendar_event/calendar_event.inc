@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.62 2006/05/04 02:38:15 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.63 2006/05/11 06:58:21 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -171,29 +171,28 @@ class Calendar_Event extends Asset
 	function getAvailableKeywords()
 	{
 		$keywords = parent::getAvailableKeywords();
-		// get rid of the raw attribute values which will just make a mess
-		$keywords['asset_attribute_start_date'] = 'Start date (iso8601)';
-		$keywords['asset_attribute_end_date'] = 'End date (iso8601)';
+		
+		$our_keywords = Array();
+		$our_keywords[] = 'asset_attribute_start_date'; // = translate('start_date_iso'); //'Start date (iso8601)';
+		$our_keywords[] = 'asset_attribute_end_date'; // = translate('end_date_iso'); //'End date (iso8601)';
+		$our_keywords[] = 'event_start_date'; // = translate('start_date_only_readable'); //'Event Start Date';
+		$our_keywords[] = 'event_end_date'; // = tralsate('end_date_only_readable'); //'Event End Date';
+		$our_keywords[] = 'event_start_datetime'; // = translate('Event start date/time';
+		$our_keywords[] = 'event_end_datetime'; // = 'Event end date/time';
+		$our_keywords[] = 'event_start_time_12h'; // = 'Start time (12 hour)';
+		$our_keywords[] = 'event_end_time_12h'; // = 'End time (12 hour)';
+		$our_keywords[] = 'event_start_time_24h'; // = 'Start time (24 hour)';
+		$our_keywords[] = 'event_end_time_24h'; // = 'End time (24 hour)';
+		$our_keywords[] = 'event_start_time_ical'; // = 'Start time (iCalendar)';
+		$our_keywords[] = 'event_end_time_ical'; // = 'End time (iCalendar)';
+		$our_keywords[] = 'event_datetime_summary'; // = 'Friendly description of event dates and times';
+		$our_keywords[] = 'event_duration'; // = 'Duration of the Event';
+		$our_keywords[] = 'edit_link'; // = 'Link to edit this event in Limbo (if user has permission)';
+		$our_keywords[] = 'delete_link'; // = 'Link to delete this event altogether (if user has permission)';
 
-		$keywords['event_start_date'] = 'Event Start Date';
-		$keywords['event_end_date'] = 'Event End Date';
-
-		$keywords['event_start_datetime'] = 'Event start date/time';
-		$keywords['event_end_datetime'] = 'Event end date/time';
-
-		$keywords['event_start_time_12h'] = 'Start time (12 hour)';
-		$keywords['event_end_time_12h'] = 'End time (12 hour)';
-
-		$keywords['event_start_time_24h'] = 'Start time (24 hour)';
-		$keywords['event_end_time_24h'] = 'End time (24 hour)';
-
-		$keywords['event_start_time_ical'] = 'Start time (iCalendar)';
-		$keywords['event_end_time_ical'] = 'End time (iCalendar)';
-
-		$keywords['event_datetime_summary'] = 'Friendly description of event dates and times';
-		$keywords['event_duration'] = 'Duration of the Event';
-		$keywords['edit_link'] = 'Link to edit this event in Limbo (if user has permission)';
-		$keywords['delete_link'] = 'Link to delete this event altogether (if user has permission)';
+		foreach ($our_keywords as $keyword) {
+			$keywords[$keyword] = translate('cal_evt_keyword_'.$keyword);
+		}
 
 		return $keywords;
 

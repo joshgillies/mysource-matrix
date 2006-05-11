@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2005/06/14 02:36:07 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.3 2006/05/11 06:58:21 tbarrett Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -21,5 +21,24 @@
 <strings>
 <string source="cal_event_occurs_on">Occurs on</string>
 <string source="cal_event_edit_link_text">Edit</string>
+
+<string source="cal_evt_keyword_asset_attribute_start_date">Event Start (iso8601)</string>
+<string source="cal_evt_keyword_asset_attribute_end_date">Event End (iso8601)</string>
+<string source="cal_evt_keyword_event_start_date">Event Start (readable date)</string>
+<string source="cal_evt_keyword_event_end_date">Event End (readable date)</string>
+<string source="cal_evt_keyword_event_start_datetime">Event Start (Readable date/time)</string>
+<string source="cal_evt_keyword_event_end_datetime">Event End (Readable date/time</string>
+<string source="cal_evt_keyword_event_start_time_12h">Event Start (12 hour time)</string>
+<string source="cal_evt_keyword_event_end_time_12h">Event End (12 hour time)</string>
+<string source="cal_evt_keyword_event_start_time_24h">Event Start (24 hour time)</string>
+<string source="cal_evt_keyword_event_end_time_24h">Event End (24 hour time)</string>
+<string source="cal_evt_keyword_event_start_time_ical">Event Start (iCalendar)</string>
+<string source="cal_evt_keyword_event_end_time_ical">Event End (iCalendar)</string>
+<string source="cal_evt_keyword_event_datetime_summary">Event start/end summary</string>
+<string source="cal_evt_keyword_event_duration">Event Duration</string>
+<string source="cal_evt_keyword_edit_link">Link to edit this event in Limbo (if user has permission)</string>
+<string source="cal_evt_keyword_delete_link">Link to delete this event altogether (if user has permission)</string>
+
+
 </strings>
 
