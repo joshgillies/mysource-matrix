@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.77.2.1 2006/02/16 23:20:52 sdanis Exp $
+* $Id: hipo_job.inc,v 1.77.2.2 2006/05/11 23:38:40 bcaldwell Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.77.2.1 $
+* @version $Revision: 1.77.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -255,7 +255,7 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Returns the vars that the HIPO steps use
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getRunningVars()
@@ -268,7 +268,7 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Resets the vars that the HIPO steps use
 	*
-	* @param Array	$vars
+	* @param array	$vars	variables used in hipo job
 	*
 	* @return void
 	* @access public
@@ -287,8 +287,8 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Set one of the global options for the HIPO
 	*
-	* @param string	$name		name of the option
-	* @param string	$value		new value to assign it
+	* @param string	$name	name of the option
+	* @param string	$value	new value to assign it
 	*
 	* @return void
 	* @access public
@@ -307,7 +307,7 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Returns one of the global options for the HIPO
 	*
-	* @param string	$name		name of the option
+	* @param string	$name	name of the option
 	*
 	* @return mixed
 	* @access public
@@ -316,7 +316,7 @@ class HIPO_Job extends MySource_Object
 	{
 		if (!isset($this->_options[$name])) {
 			trigger_localised_error('HIPO0044', E_USER_WARNING, $name);
-			return null;
+			return NULL;
 		}
 		return $this->_options[$name];
 
@@ -326,8 +326,8 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Set one of the global hipo vars for the HIPO
 	*
-	* @param string	$name		name of the hipo var
-	* @param string	$value		new value to assign it
+	* @param string	$name	name of the hipo var
+	* @param string	$value	new value to assign it
 	*
 	* @return void
 	* @access public
@@ -355,7 +355,7 @@ class HIPO_Job extends MySource_Object
 	{
 		if (!isset($this->_hipo_vars[$name])) {
 			trigger_localised_error('HIPO0044', E_USER_WARNING, $name);
-			return null;
+			return NULL;
 		}
 		return $this->_hipo_vars[$name];
 
@@ -391,7 +391,7 @@ class HIPO_Job extends MySource_Object
 	* Get all the errors that have been produced by this running of this HIPO_Job
 	*
 	* @return Array()
-	* @access
+	* @access public
 	*/
 	function getErrors()
 	{
@@ -404,8 +404,8 @@ class HIPO_Job extends MySource_Object
 	* Prepares and sets up the running vars of this hipo.
 	* This is run before initialise(), because initialise() may not be run at all if this Job can be freestyle()'d
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function prepare()
 	{
@@ -427,7 +427,7 @@ class HIPO_Job extends MySource_Object
 	* @return string	returns the code_name for the new job
 	* @access public
 	*/
-	function initialise($source_code_name=null)
+	function initialise($source_code_name=NULL)
 	{
 		if (!$this->is_prepared) {
 			if (!$this->prepare()) return FALSE;
@@ -572,8 +572,8 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Paints backend of this job
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
-	* @param string						$class		calling class name
+	* @param object	&$o		Backend_Outputter, reference to the backend outputter
+	* @param string	$class	calling class name
 	*
 	* @return void
 	* @access private
@@ -596,8 +596,8 @@ class HIPO_Job extends MySource_Object
 	* </PRE>
 	* This method is called statically.
 	*
+	* @return array
 	* @access public
-	* @return Array()
 	* @static
 	*/
 	function getConfigVars()
@@ -697,8 +697,8 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Save the HIPO vars to the database OR delete from database if complete
 	*
-	* @param boolean $ignore_running_mode	whether to ignore the running mode check or not
-	*										(SHOULD ONLY BE USED BY setRunningMode())
+	* @param boolean	$ignore_running_mode	whether to ignore the running mode check or not
+	*											(SHOULD ONLY BE USED BY setRunningMode())
 	*
 	* @return boolean
 	* @access public
@@ -815,7 +815,7 @@ class HIPO_Job extends MySource_Object
 	* If we are currently in a hipo_job step then it returns the job that we are executing
 	* Otherwise returns NULL
 	*
-	* @return null|object HIPO_Job
+	* @return mixed NULL|object
 	* @access private
 	*/
 	function &_getSubJob()
@@ -824,11 +824,12 @@ class HIPO_Job extends MySource_Object
 		if (isset($this->_steps[$step])) {
 			if (!empty($this->_steps[$step]['hipo_job']) && !empty($this->_steps[$step]['hipo_job']['code_name']) && !empty($this->_steps[$step]['hipo_job']['job_type'])) {
 				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				return $hh->getJob($this->_steps[$step]['hipo_job']['code_name']);
+				$job = $hh->getJob($this->_steps[$step]['hipo_job']['code_name']);
+				return $job;
 			}// end if
 		}// endif
 
-		$null = null; // because we need to return by ref
+		$null = NULL; // because we need to return by ref
 		return $null;
 
 	}//end _getSubJob()
@@ -934,8 +935,8 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Return the next step to be executed by the hipo job,
 	*
+	* @return int
 	* @access public
-	* @return integer
 	*/
 	function getNextStep()
 	{
@@ -960,10 +961,10 @@ class HIPO_Job extends MySource_Object
 	/**
 	* called when a step in the hip job process needs to be skipped
 	*
-	* @param integer $stepid the array index of the step
+	* @param int	$stepid	the array index of the step
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function skipStep($stepid=0)
 	{
@@ -980,6 +981,9 @@ class HIPO_Job extends MySource_Object
 	*
 	* This function calls the paint function for the step currently being run and also outputs
 	* a progress bar to indicate to the user where they are in the HIPO process
+	*
+	* @param object		&$o		Backend_Outputter, reference to the backend outputter
+	* @param boolean	$nested	TRUE if the steps are nested
 	*
 	* @return void
 	* @access public
@@ -1001,7 +1005,7 @@ class HIPO_Job extends MySource_Object
 				$status_msg = $this->_steps[$step]['name'];
 			} else {
 				// this step doesnt exist - probably reached the end of the HIPO
-				$status_msg = ($this->complete())? translate('completed'):translate('unknown_error_occurred');
+				$status_msg = ($this->complete()) ? translate('completed') : translate('unknown_error_occurred');
 			}
 
 			$o->openSection($this->getHipoName());
@@ -1080,6 +1084,7 @@ class HIPO_Job extends MySource_Object
 				while (($i < $max_assets_to_process) && (!$this->_steps[$step]['complete'])) {
 					$prefix = $this->code_name.'step'.$step;
 					$ret_val = $ret_val && $this->processWeb($this->_steps[$step], $prefix);
+					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_HIPO_PROCESS_COUNT', $i);
 					$i++;
 				}
 				restore_error_handler();
@@ -1111,7 +1116,7 @@ class HIPO_Job extends MySource_Object
 							);
 
 					$ret_val = FALSE;
-					$client = new Squiz_Server_Client_MySource3();
+					$client =& new Squiz_Server_Client_MySource3();
 					if ($client->connect()) {
 						if ($client->write('HIPO_Job', $data)) {
 							$ack = $client->read();
@@ -1171,8 +1176,8 @@ class HIPO_Job extends MySource_Object
 	*
 	* This function calls the process function for the step currently being run - and that's it.
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -1197,12 +1202,11 @@ class HIPO_Job extends MySource_Object
 				} else {
 					if (empty($hipo_vars)) {
 						require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
-					}
-					else {
+					} else {
 						require_once $hipo_vars['job_dir'].'/'.$job_type.'.inc';
 					}
 
-					$init_hipo = new $job_type();
+					$init_hipo =& new $job_type();
 
 					$init_hipo->setRunningVars($running_vars);
 					foreach ($options as $k => $v) {
@@ -1251,8 +1255,8 @@ class HIPO_Job extends MySource_Object
 	* no timeouts here and continually call the process function of the current step until
 	* it is completed.
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -1261,7 +1265,7 @@ class HIPO_Job extends MySource_Object
 	{
 		if (!empty($step_data['function_call'])) {
 			$fn = $step_data['function_call']['process_function'];
-			while (!$step_data['complete']){
+			while (!$step_data['complete']) {
 				if (!$this->$fn($step_data, $prefix)) {
 					$this->save();
 					return FALSE;
@@ -1280,12 +1284,11 @@ class HIPO_Job extends MySource_Object
 
 			if (empty($hipo_vars)) {
 				require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
-			}
-			else {
+			} else {
 				require_once $hipo_vars['job_dir'].'/'.$job_type.'.inc';
 			}
 
-			$init_hipo = new $job_type();
+			$init_hipo =& new $job_type();
 
 			$init_hipo->setRunningVars($running_vars);
 			foreach ($options as $k => $v) {
@@ -1359,7 +1362,7 @@ class HIPO_Job extends MySource_Object
 					);
 
 			$ret_val = FALSE;
-			$client = new Squiz_Server_Client_MySource3();
+			$client =& new Squiz_Server_Client_MySource3();
 			if ($client->connect()) {
 				if ($client->write('HIPO_Job', $data)) {
 					$ack = $client->read();
@@ -1390,7 +1393,7 @@ class HIPO_Job extends MySource_Object
 			// fall through and delete this bugger, set the running mode to allow the saving
 			$this->setRunningMode('web');
 
-		}// end if
+		}//end if
 
 		$this->jobAborted();
 
@@ -1434,7 +1437,7 @@ class HIPO_Job extends MySource_Object
 				<td bgcolor="#412F49" align="center" width="100%">
 					<span style="color: #FFFFFF;"><b><?php echo translate('hipo_error_report', $this->getHipoName());?></b><br />
 						<span style="font-size: 80%;">
-						<?php echo translate('hipo_herder_completion', (!$this->complete()) ? translate('not'):''); ?>
+						<?php echo translate('hipo_herder_completion', (!$this->complete()) ? translate('not') : ''); ?>
 						</span>
 					</span>
 				</td>
@@ -1444,7 +1447,7 @@ class HIPO_Job extends MySource_Object
 					<table border="0" width="100%" cellspacing="2" cellpadding="1">
 					<?php
 						foreach ($this->_hipo_vars['errors'] as $error) {
-							$err_type = ($error['warning'])?translate('warning').': ':translate('error').': ';
+							$err_type = ($error['warning']) ? translate('warning').': ' : translate('error').': ';
 							?>
 							<tr>
 								<td align="left" valign="top">
@@ -1478,9 +1481,9 @@ class HIPO_Job extends MySource_Object
 	/**
 	* A default function for painting the progess of a step
 	*
-	* @param array()							&$step_data	a reference to the array of information about the current step
-	* @param object Hipo_Backend_Outputter		&$o			the backend outputter class
-	* @param string								$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param object	&$o			Hipo_Backend_Outputter, the backend outputter class
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return void
 	* @access public
@@ -1499,12 +1502,12 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Paint a progress bar for a HIPO
 	*
-	* @param float	$percent_done		the percentage of progress completed
-	* @param string	$message			a status message to display above the progress bar
-	* @param string	$label_class		the css class for the progress bar label ($message)
-	* @param string	$percent_class		the css class for the percentage done figure ($percentage)
-	* @param string	$bar_main_class		the css class for the base of the progress bar
-	* @param string	$bar_done_class		the css class for the completed part of the progress bar
+	* @param float	$percent_done	the percentage of progress completed
+	* @param string	$message		a status message to display above the progress bar
+	* @param string	$label_class	the css class for the progress bar label ($message)
+	* @param string	$percent_class	the css class for the percentage done figure ($percentage)
+	* @param string	$bar_main_class	the css class for the base of the progress bar
+	* @param string	$bar_done_class	the css class for the completed part of the progress bar
 	*
 	* @return void
 	* @access public
@@ -1549,7 +1552,7 @@ class HIPO_Job extends MySource_Object
 	* @param string	$err_file	The file the error occured in
 	* @param string	$err_line	The line the error occured on
 	*
-	* @returns void
+	* @return void
 	* @access private
 	* @see HIPO_Job::process()
 	*/
