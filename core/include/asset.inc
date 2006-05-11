@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.534 2006/05/09 04:14:11 lwright Exp $
+* $Id: asset.inc,v 1.535 2006/05/11 05:30:19 bcaldwell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.534 $
+* @version $Revision: 1.535 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2068,11 +2068,12 @@ class Asset extends MySource_Object
 	*
 	* @param int		$new_status		the new status to set for this asset
 	* @param boolean	$update_parents	Specify if we want to update the parent as well
+	* @param boolean	$run_updated	specify it we want to run _upated
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processStatusChange($new_status, $update_parents=TRUE)
+	function processStatusChange($new_status, $update_parents=TRUE, $run_updated=TRUE)
 	{
 		$old_status = $this->status;
 
@@ -2149,8 +2150,7 @@ class Asset extends MySource_Object
 			unset($this->_tmp['status_object']);
 
 
-
-			$this->_updated($update_parents);
+			if ($run_updated) $this->_updated($update_parents);
 
 			// if we have just made this asset live, we update its minor version
 			if ($new_status == SQ_STATUS_LIVE) {

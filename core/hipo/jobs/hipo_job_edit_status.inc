@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.42 2006/04/18 05:39:05 tbarrett Exp $
+* $Id: hipo_job_edit_status.inc,v 1.43 2006/05/11 05:30:19 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -104,7 +104,11 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	*/
 	function getCodeName()
 	{
-		return parent::getCodeName().$this->_running_vars['assetid'];
+		$running_dependants = '';
+		if (!empty($this->_running_vars['process_dependants'])) {
+			$running_dependants = 'dependants';
+		}
+		return parent::getCodeName().$this->_running_vars['assetid'].$running_dependants;
 
 	}//end getCodeName()
 
@@ -138,10 +142,10 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 										'process_function'	=> 'processStatus',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> true,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 			   );
@@ -177,7 +181,6 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	*/
 	function prepare()
 	{
-
 		// to start editing a status, we need to have an asset id to edit
 		if (!isset($this->_running_vars['assetid'])) {
 			trigger_localised_error('HIPO0012', E_USER_WARNING);
@@ -191,22 +194,30 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			return '';
 		}
 
-		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
-		// we will be edting the status of
-
-		// if there is no dependants setting, or if it is true, get only dependants
-		if (!isset($this->_running_vars['dependants_only']) || !empty($this->_running_vars['dependants_only'])) {
-			$this->_running_vars['dependants_only'] = false;
-			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
+		if (!empty($this->_running_vars['process_dependants'])) {
+			// we are _only_ going to do the dependant assets, no independant ones at all. this should only ever
+			// happen from spawned jobs
+			$this->_running_vars['todo_assetids'] = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
+			$this->_running_vars['done_root'] = TRUE;
 		} else {
-			// get all children
-			$this->_running_vars['dependants_only'] = true;
-			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
-		}
+			// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
+			// we will be edting the status of
 
-		$this->_running_vars['todo_assetids'] = $child_assets;
+			// if there is no dependants setting, or if it is true, get only dependants
+			if (!isset($this->_running_vars['dependants_only']) || !empty($this->_running_vars['dependants_only'])) {
+				$this->_running_vars['dependants_only'] = FALSE;
+				$child_assets = Array();
+			} else {
+				// get all children
+				$this->_running_vars['dependants_only'] = TRUE;
+				$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, '', TRUE, FALSE);
+			}
+			//$child_assets[$asset->id] = get_class($asset);
+
+			$this->_running_vars['todo_assetids'] = $child_assets;
+			$this->_running_vars['done_root']     = FALSE;
+		}
 		$this->_running_vars['done_assetids'] = Array();
-		$this->_running_vars['done_root']     = false;
 
 		// internal messages being stored
 		$this->_running_vars['messages']     = Array();
@@ -214,7 +225,9 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		unset($asset);
 
 		$to_do = array_keys($this->_running_vars['todo_assetids']);
-		$to_do[] = $this->_running_vars['assetid'];
+		if (empty($this->_running_vars['process_dependants'])) {
+			$to_do[] = $this->_running_vars['assetid'];
+		}
 		$this->_running_vars['current_asset_statuses'] = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($to_do, '', TRUE, 'status');
 
 		return parent::prepare();
@@ -241,6 +254,36 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 
 	/**
+	* Paint information about the process of the HIPO
+	*
+	* This function calls the paint function for the step currently being run and also outputs
+	* a progress bar to indicate to the user where they are in the HIPO process
+	*
+	* @param object		&$o		Backend_Outputter, reference to the backend outputter
+	* @param boolean	$nested	true if the steps are nested
+	*
+	* @return void
+	* @access public
+	*/
+	function paint(&$o, $nested=FALSE)
+	{
+		parent::paint($o, $nested);
+
+		// paint dependant hipo job here
+		if (!empty($this->_running_vars['dependant_hipo_job'])) {
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hipo =& $hh->getJob($this->_running_vars['dependant_hipo_job']);
+			if (!is_null($hipo)) {
+				$hipo->paint($o, TRUE);
+			} else {
+				unset($this->_running_vars['dependant_hipo_job']);
+			}
+		}
+
+	}//end paint()
+
+
+	/**
 	* Performs the duties of this hipo, without showing any output on the frontend.
 	*
 	* @return boolean
@@ -250,10 +293,10 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	{
 		while (!empty($this->_running_vars['todo_assetids']) || !$this->_running_vars['done_root']) {
 			if (!$this->processStatus($this->_steps[0], get_class($this))) {
-				return false;
+				return FALSE;
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end freestyle()
 
@@ -278,14 +321,14 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 		if (!parent::processServer($step_data, $prefix)) {
 			$ms->abortQueue();
-			return false;
+			return FALSE;
 		}
 
 		// close the internal message queue and send the messages that
 		// were generated during this status change
 		$ms->closeQueue();
 
-		return true;
+		return TRUE;
 
 	}//end processServer()
 
@@ -301,16 +344,38 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	*/
 	function processStatus(&$step_data, $prefix)
 	{
+		// process dependant hipo_job_edit_status if necessary
+		if (!empty($this->_running_vars['dependant_hipo_job'])) {
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hipo =& $hh->getJob($this->_running_vars['dependant_hipo_job']);
+
+			// job gone (or was never created, which would be bad)
+			if (!is_null($hipo) && $hipo->process()) {
+				if ($hipo->complete()) {
+					$running_vars = $hipo->getRunningVars();
+					if (isset($running_vars['assetid'])) {
+						// this will run _updated() on the asset who's dependants who
+						// have just been processed by the sub-sub-hipo thingy
+						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($running_vars['assetid']);
+						$asset->_updated(FALSE);
+					}
+					unset($this->_running_vars['dependant_hipo_job']);
+				}
+			}
+			// if we process the sub-sub-hipo thingy then we don't want to process any
+			// assets in our todo list thankyou
+			return TRUE;
+		}
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+
+		// create a queue to store the messages
+		$ms->openQueue();
+
 		if (!empty($this->_running_vars['todo_assetids']) || !$this->_running_vars['done_root']) {
-
-			// create a queue to store the messages
-			$ms->openQueue();
-
-			if (empty($this->_running_vars['done_assetids'])) {
+			if (empty($this->_running_vars['done_assetids']) && !$this->_running_vars['done_root']) {
 				// make sure we process the root asset first
 				$assetid = $this->_running_vars['assetid'];
-				$this->_running_vars['done_root'] = true;
+				$this->_running_vars['done_root'] = TRUE;
 			} else {
 				$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
 				unset($this->_running_vars['todo_assetids'][$assetid]);
@@ -323,8 +388,24 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			if (($current_status != $new_status) || ($current_status == SQ_STATUS_PENDING_APPROVAL)) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (!is_null($asset)) {
-					$asset->processStatusChange($new_status, false);
+					// if an asset has dependants, we don't want to run _updated() on it until
+					// after we have processed them. _updated is run after the execution of the
+					// sub-sub-hipo thingy has completed
+					$dependants = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
+					if (empty($dependants) || !empty($this->_running_vars['process_dependants'])) {
+						$asset->processStatusChange($new_status, FALSE);
+					} else {
+						$asset->processStatusChange($new_status, FALSE, FALSE);
+					}
 					$step_data['message'] = translate('hipo_edit_status', $asset->name);
+
+					// this asset has dependants, so we are going to spawn another edit_status hipo
+					// to take care of processing them
+					if (!empty($dependants) && empty($this->_running_vars['process_dependants'])) {
+						if ($code_name = $this->spawnDependantStatusHipo($asset->id, $new_status)) {
+							$this->_running_vars['dependant_hipo_job'] = $code_name;
+						}
+					}
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
 				} else {
@@ -339,22 +420,64 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		}
 
 		$this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], $ms->queueContents());
-
 		$ms->abortQueue();	// we don't need the messages anymore, dump them
 
-		if (empty($this->_running_vars['todo_assetids'])) {
+		// just because there are no assets left in our todo list doesn't mean that we're finished. the
+		// last asset might have had some dependants that a sub-sub-hipo thingy is processing so we'll continue
+		// until it completes
+		if (empty($this->_running_vars['todo_assetids']) && empty($this->_running_vars['dependant_hipo_job'])) {
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 			$ms->send($this->_running_vars['messages']);
 		} else {
 			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processStatus()
+
+
+	/**
+	* Starts another Hipo_Job_Edit_Status to process dependants of given asset
+	*
+	* @param string	$assetid	The ID of the asset to process dependants of
+	* @param int	$new_status	The status to change dependants to
+	*
+	* @return string
+	* @access private
+	*/
+	function spawnDependantStatusHipo($assetid, $new_status)
+	{
+		$init_hipo = new Hipo_Job_Edit_Status();
+
+		$options['auto_complete'] = TRUE;
+
+		// we pass the asset id of the 'umbrella' for the dependant assets
+		// and the 'process_dependants' flag. the sub-sub-hipo thingy will
+		// take care of working out what assets (depdants) to process
+		$running_vars = Array(
+						'assetid'				=> $assetid,
+						'new_status'			=> $new_status,
+						'process_dependants'	=> TRUE,
+					);
+
+		$init_hipo->setRunningVars($running_vars);
+		foreach ($options as $k => $v) {
+			$init_hipo->setOption($k, $v);
+		}
+
+		// create our sub-sub-hipo thingy, until this job is completed, we need
+		// to process it in place of our todo assets
+		$code_name = $init_hipo->initialise($this->source_code_name);
+		if ($code_name) {
+			return $code_name;
+		}
+		return FALSE;
+
+	}//end spawnDependantStatusHipo()
 
 
 }//end class
