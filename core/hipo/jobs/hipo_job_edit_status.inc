@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.43 2006/05/11 05:30:19 bcaldwell Exp $
+* $Id: hipo_job_edit_status.inc,v 1.44 2006/05/11 06:20:57 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -344,6 +344,11 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	*/
 	function processStatus(&$step_data, $prefix)
 	{
+		// don't try to do too much
+		if (($GLOBALS['SQ_SYSTEM']->getGlobalDefine('SQ_HIPO_PROCESS_COUNT')) > SQ_HIPO_EDIT_STATUS_THRESHOLD) {
+			return true;
+		}
+
 		// process dependant hipo_job_edit_status if necessary
 		if (!empty($this->_running_vars['dependant_hipo_job'])) {
 			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
