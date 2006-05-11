@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.44 2006/05/11 06:20:57 bcaldwell Exp $
+* $Id: hipo_job_edit_status.inc,v 1.45 2006/05/11 23:19:33 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -291,7 +291,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	*/
 	function freestyle()
 	{
-		while (!empty($this->_running_vars['todo_assetids']) || !$this->_running_vars['done_root']) {
+		while (!empty($this->_running_vars['todo_assetids']) || !$this->_running_vars['done_root'] || !empty($this->_running_vars['dependant_hipo_job'])) {
 			if (!$this->processStatus($this->_steps[0], get_class($this))) {
 				return FALSE;
 			}
