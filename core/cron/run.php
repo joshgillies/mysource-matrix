@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: run.php,v 1.14 2006/04/27 03:13:21 lwright Exp $
+* $Id: run.php,v 1.15 2006/05/12 03:23:33 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The one file through which everything runs
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 
@@ -72,7 +72,7 @@ if (!empty($_SERVER['argv'][1]) && $_SERVER['argv'][1] == 'RESET_RUNNING') {
 	if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'attributes', 0, TRUE)) {
 		trigger_localised_error('CRON0016', E_USER_ERROR, $cron_mgr->name);
 	}
-	if (!$cron_mgr->setAttrValue('running', TRUE)) {
+	if (!$cron_mgr->setAttrValue('running', FALSE)) {
 		trigger_localised_error('CRON0010', E_USER_ERROR);
 	}
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'attributes');
