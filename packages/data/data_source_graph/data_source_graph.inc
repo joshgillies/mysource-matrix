@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.8.2.2 2006/02/20 00:41:48 skim Exp $
+* $Id: data_source_graph.inc,v 1.8.2.3 2006/05/12 03:34:30 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8.2.2 $
+* @version $Revision: 1.8.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,7 +113,12 @@ class Data_Source_Graph extends Image
 		}
 		$this->setAttrValue('name', $name);
 
-		return Asset::create($link);
+		if (Asset::create($link)) {
+			return unlink($info['path'].'/'.$info['filename']);
+		} else {
+			unlink($info['path'].'/'.$info['filename']);
+			return FALSE;
+		}
 
 	}//end create()
 
@@ -465,13 +470,13 @@ class Data_Source_Graph extends Image
 		foreach ($plot_order as $key => $plot_name) {
 			$dataset = $datasets[$plot_name];
 
-			// dataset processing
-			$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($dataset['assetid']);
-			$result = $data_source_asset->getResultSet('default');
-
 			$x_axis_name = $dataset['settings']['x_axis'];
 			$y_axis_name = $dataset['settings']['y_axis'];
 			$is_accumulative = intval($dataset['settings']['accumulative']);
+
+			// dataset processing
+			$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($dataset['assetid']);
+			$result = $data_source_asset->getResultSet('default');
 
 			$tmp = 0;
 			$image_dataset =& Image_Graph::factory('dataset');
@@ -483,33 +488,39 @@ class Data_Source_Graph extends Image
 					$image_dataset->addPoint($record[$x_axis_name], intval($record[$y_axis_name]));
 				}
 			}
-			$plot =& $this->plotarea->addNew($dataset['settings']['graph_type'], $image_dataset);
-			$plot->setTitle($dataset['settings']['plot_name']);
-
-			if ($dataset['settings']['gradient_type'] != 'none') {
-				// gradient colour
-				$grad_type = $this->getGradType($dataset['settings']['gradient_type']);
-				$fill =& Image_Graph::factory('Image_Graph_Fill_Array');
-				$fill->addNew('gradient', Array($grad_type, '#'.$dataset['settings']['gradient_1'], '#'.$dataset['settings']['gradient_2']));
-			} else {
-				// fill colour
-				$fill =& Image_Graph::factory('Image_Graph_Fill_Array');
-				$fill->addColor('#'.$dataset['settings']['fill_colour']);
-			}
-			$plot->setFillStyle($fill);
-			$plot->setLineColor('#'.$dataset['settings']['line_colour']);
 
 			  ////////////////////////////
 			 // Plot specific settings //
 			////////////////////////////
 			switch ($dataset['settings']['graph_type']) {
 				case 'Image_Graph_Plot_Bar' :
-					$plot->setSpacing(intval($dataset['settings']['bar_spacing']));
-				break;
-				case 'Image_Graph_Plot_Line' :
 				case 'Image_Graph_Plot_Area' :
-				case 'Image_Graph_Plot_Smoothed_Line' :
+					// use stacked bar
+					if ($dataset['settings']['use_stacked']) {
+						$multiple_dataset = Array();
+						$multiple_dataset[] = $image_dataset;
+
+						foreach ($dataset['settings']['stacked_data'] as $stack) {
+							$image_dataset =& Image_Graph::factory('dataset');
+							$image_dataset->setName($stack['title']);
+
+							// add each stack dataset
+							$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($stack['datasource']);
+							$result = $data_source_asset->getResultSet('default');
+							foreach ($result as $record) {
+								$image_dataset->addPoint($record[$stack['x_axis']], intval($record[$stack['y_axis']]));
+							}
+							$multiple_dataset[] =$image_dataset;
+
+						}
+						$plot =& $this->plotarea->addNew($dataset['settings']['graph_type'], Array($multiple_dataset, 'stacked'));
+					} else {
+						$plot =& $this->plotarea->addNew($dataset['settings']['graph_type'], $image_dataset);
+					}
+				break;
 				case 'Image_Graph_Plot_Smoothed_Area' :
+				case 'Image_Graph_Plot_Line' :
+				case 'Image_Graph_Plot_Smoothed_Line' :
 				case 'Image_Graph_Plot_Pie' :
 				case 'Image_Graph_Plot_Step' :
 				case 'Image_Graph_Plot_Impulse' :
@@ -517,10 +528,61 @@ class Data_Source_Graph extends Image
 				case 'Image_Graph_Plot_Radar' :
 				case 'Image_Graph_Plot_CandleStick' :
 				case 'Image_Graph_Plot_Band' :
-				break;
 				default :
+					$plot =& $this->plotarea->addNew($dataset['settings']['graph_type'], $image_dataset);
 				break;
+
+			}//end switch
+
+			if ($dataset['settings']['plot_name'] != $dataset['settings']['display_name']) {
+				$plot->setTitle($dataset['settings']['display_name'].'1');
+			} else {
+				$plot->setTitle($dataset['settings']['plot_name']);
 			}
+
+			$fill =& Image_Graph::factory('Image_Graph_Fill_Array');
+			if ($dataset['settings']['gradient_type'] != 'none') {
+				// gradient colour
+				$grad_type = $this->getGradType($dataset['settings']['gradient_type']);
+				$fill->addNew('gradient', Array($grad_type, '#'.$dataset['settings']['gradient_1'], '#'.$dataset['settings']['gradient_2']));
+			} else {
+				// fill colour
+				$fill->addColor('#'.$dataset['settings']['fill_colour']);
+			}
+
+			switch ($dataset['settings']['graph_type']) {
+				case 'Image_Graph_Plot_Bar' :
+					$plot->setSpacing(intval($dataset['settings']['bar_spacing']));
+				case 'Image_Graph_Plot_Area' :
+					// use stacked bar
+					if ($dataset['settings']['use_stacked']) {
+						foreach ($dataset['settings']['stacked_data'] as $stack) {
+							if ($stack['gradient_type'] != 'none') {
+								$fill->addNew('gradient', Array($this->getGradType($stack['gradient_type']), '#'.$stack['colour_1'], '#'.$stack['colour_2']));
+							} else {
+								$fill->addColor('#'.$stack['colour_1']);
+							}
+						}
+					}
+					$plot->setFillStyle($fill);
+					$plot->setLineColor('#'.$dataset['settings']['line_colour']);
+				break;
+				case 'Image_Graph_Plot_Line' :
+				case 'Image_Graph_Plot_Smoothed_Area' :
+				case 'Image_Graph_Plot_Smoothed_Line' :
+				case 'Image_Graph_Plot_Pie' :
+				case 'Image_Graph_Plot_Step' :
+				case 'Image_Graph_Plot_Impulse' :
+				case 'Image_Graph_Plot_Dot' :
+				case 'Image_Graph_Plot_Radar' :
+				case 'Image_Graph_Plot_CandleStick' :
+				case 'Image_Graph_Plot_Band' :
+				default :
+					$plot->setFillStyle($fill);
+					$plot->setLineColor('#'.$dataset['settings']['line_colour']);
+				break;
+
+			}//end switch
 
 			// marker
 			if (isset($dataset['settings']['marker_type']) && $dataset['settings']['marker_type'] != 'none') {
@@ -544,7 +606,7 @@ class Data_Source_Graph extends Image
 				$links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'image_variety');
 				foreach ($links as $link) {
 					$variety =& $am->getAsset($link['minorid'], 'image_variety');
-					if (!$this->saveVariety($variety, TRUE, TRUE, FALSE)) {
+					if (!$this->saveVariety($variety, TRUE, TRUE, FALSE, FALSE)) {
 						trigger_error('Failed to update the image varieties', E_USER_WARNING);
 					}
 				}
