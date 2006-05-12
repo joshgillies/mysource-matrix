@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.17 2006/05/12 03:32:54 skim Exp $
+* $Id: data_source_graph.inc,v 1.18 2006/05/12 03:51:37 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -535,7 +535,7 @@ class Data_Source_Graph extends Image
 			}//end switch
 
 			if ($dataset['settings']['plot_name'] != $dataset['settings']['display_name']) {
-				$plot->setTitle($dataset['settings']['display_name'].'1');
+				$plot->setTitle($dataset['settings']['display_name']);
 			} else {
 				$plot->setTitle($dataset['settings']['plot_name']);
 			}
