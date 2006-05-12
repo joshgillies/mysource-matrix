@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.43 2006/05/03 06:26:22 lwright Exp $
+* $Id: html_form.js,v 1.44 2006/05/12 01:49:12 tbarrett Exp $
 *
 */
 
@@ -465,76 +465,6 @@ function move_combo_selection(element, move_up)
 
 
 /**
-* Used by the date_box to verify that the date the user entered is correct
-* and to set the hidden var
-*
-* @param string		$date_name	the name of the date field as passed into date_box()
-* @param boolean	$show_time	whether the time is shown or not
-*
-* @access public
-*/
-function check_date(date_name, show_time)
-{
-	var f = document.main_form;
-
-	var day_box   = get_form_element('day_'   + date_name);
-	var month_box = get_form_element('month_' + date_name);
-	var year_box  = get_form_element('year_'  + date_name);
-
-	var day     = form_element_value(day_box);
-	var month   = form_element_value(month_box);
-	var year    = form_element_value(year_box);
-
-	if (month == 2) {
-		if (day == 29) {
-			// if not leap year
-			if (((year % 4) != 0) || ( ((year % 100) == 0) && ((year % 400) != 0))) {
-				alert (js_translate('not_leap_year', year, day ));
-				highlight_combo_element(day_box, 1);
-				day_box.focus();
-				return 0;
-			}
-
-		} else if (day > 29) {
-			alert (js_translate('day_not_in_feburary', day));
-			highlight_combo_element(day_box, 1);
-			day_box.focus();
-			return 0;
-		}// end if
-	}// end if
-
-	if ((month == 4 || month == 6 || month == 9 || month == 11) && day == 31) {
-		alert (js_translate('no_31st_of_month', get_combo_text(month_box)));
-		highlight_combo_element(day_box, 1);
-		day_box.focus();
-		return 0;
-	}
-
-	var hour = 0;
-	var min  = 0;
-
-	// if we're showing the time boxes get them as well
-	if(show_time) {
-		var hour_box = get_form_element('hour_'   + date_name);
-		var min_box  = get_form_element('min_' + date_name);
-
-		hour = form_element_value(hour_box);
-		min  = form_element_value(min_box);
-
-	}// end if
-
-	var time = new Date(year, month - 1, day, hour, min, 0);
-	// divide by 1000, because getTime()
-	// returns milliseconds since epoch not seconds
-	var timestamp = time.getTime() / 1000;
-	set_hidden_field(date_name, timestamp);
-
-	return 1;
-
-}//end check_date()
-
-
-/**
 * Used by the JS Calendar
 *
 * @param int	$d		the day field of the date
@@ -563,6 +493,39 @@ function datetime_set_date(d, m, y, prefix)
 			}
 		}
 	}
+
+}//end datetime_set_date()
+
+/**
+* Get the timestamp represented by a datetime field
+*
+* @param string	$prefix	the prefix of the datetime field
+*
+* @access public
+* @return void
+*/
+function datetime_get_ts(prefix)
+{
+	var d = new Date();
+	if (null !== (elt = document.getElementById(prefix+'value[y]'))) {
+		d.setYear(elt.value);
+	}
+	if (null !== (elt = document.getElementById(prefix+'value[m]'))) {
+		d.setMonth(elt.value-1);
+	}
+	if (null !== (elt = document.getElementById(prefix+'value[d]'))) {
+		d.setDate(elt.value);
+	}
+	if (null !== (elt = document.getElementById(prefix+'value[h]'))) {
+		d.setHours(elt.value);
+	}
+	if (null !== (elt = document.getElementById(prefix+'value[i]'))) {
+		d.setMinutes(elt.value);
+	}
+	if (null !== (elt = document.getElementById(prefix+'value[s]'))) {
+		d.setSeconds(elt.value);
+	}
+	return parseInt(d.getTime() / 1000);
 
 }//end datetime_set_date()
 
