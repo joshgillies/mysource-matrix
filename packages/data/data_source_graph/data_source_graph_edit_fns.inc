@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.12 2006/04/12 14:47:54 skim Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.13 2006/05/12 03:32:54 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -593,14 +593,85 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 		if ($wa) {
 			switch ($plot_type) {
 				case 'Image_Graph_Plot_Bar' :
+				case 'Image_Graph_Plot_Area' :
 					$o->openField('Spacing');
 						text_box($prefix.'_bar_spacing', empty($datasets[$plot_name]['settings']['bar_spacing']) ? '0' : $datasets[$plot_name]['settings']['bar_spacing'], '10');
 					$o->closeField();
+					$o->openField('Stacked');
+						check_box($prefix.'_use_stacked', '1', $datasets[$plot_name]['settings']['use_stacked']);
+						$o->note('Do you want to use stacked bar graph?');
+						?>
+						<table class="sq-backend-table">
+						<tr>
+							<td>Title and Data Source</td>
+							<td>Gradient Details</td>
+						<?php if ($wa) echo '<td>Delete?</td>'; ?>
+						</tr>
+
+						<?php
+						$key = 0;
+						if (!empty($datasets[$plot_name]['settings']['stacked_data'])) {
+							foreach ($datasets[$plot_name]['settings']['stacked_data'] as $key => $stack_data) {
+								?>
+								<tr>
+									<td>
+										Title : <?php text_box($prefix.'_stacked_'.strval($key).'_title', $stack_data['title'], 50); ?><br />
+										<?php
+											asset_finder($prefix.'_stacked_'.strval($key).'_datasource', $stack_data['datasource'], Array('data_source_db'	=> 'I', 'data_source_rss'	=> 'I'));
+											echo '<br />';
+											$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($stack_data['datasource']);
+											$result = $data_source_asset->getResultSet('default');
+											$data = array_keys($result[0]);
+											foreach ($data as $field) {
+												$fields[$field] = $field;
+											}
+											echo 'x-axis&nbsp;:&nbsp;';
+											combo_box($prefix.'_stacked_'.strval($key).'_x_axis', $fields, FALSE, $stack_data['x_axis']);
+											echo '<br />y-axis&nbsp;:&nbsp;';
+											combo_box($prefix.'_stacked_'.strval($key).'_y_axis', $fields, FALSE, $stack_data['y_axis']);
+										?>
+									</td>
+									<td>
+										<?php combo_box($prefix.'_stacked_'.strval($key).'_gradient_type', $this->fill_grad_types, FALSE, $stack_data['gradient_type']); ?><br />
+										<?php colour_box($prefix.'_stacked_'.strval($key).'_gradient_colour_2', $stack_data['colour_1']); ?>Gradient Colour 1<br />
+										<?php colour_box($prefix.'_stacked_'.strval($key).'_gradient_colour_1', $stack_data['colour_2']); ?>Gradient Colour 2<br />
+										<?php colour_box($prefix.'_stacked_'.strval($key).'_line_colour', $stack_data['line_colour']); ?>Line Colour
+									</td>
+									<td>
+									<?php
+										if ($wa) {
+											check_box($prefix.'_stacked_'.strval($key).'_delete', '1', FALSE);
+										}
+									?>
+									</td>
+								</tr>
+								<?php
+							}//end foreach
+
+							$key++;
+						}//end if
+						?>
+						<tr>
+							<td>
+								Title : <?php text_box($prefix.'_stacked_'.strval($key).'_title', '', 50); ?><br />
+								<?php asset_finder($prefix.'_stacked_'.strval($key).'_datasource', 0, Array('data_source_db'	=> 'I', 'data_source_rss'	=> 'I')); ?>
+							</td>
+							<td>
+								<?php combo_box($prefix.'_stacked_'.strval($key).'_gradient_type', $this->fill_grad_types, FALSE, 'none'); ?><br />
+								<?php colour_box($prefix.'_stacked_'.strval($key).'_gradient_colour_1', '000000'); ?>Gradient Colour 1<br />
+								<?php colour_box($prefix.'_stacked_'.strval($key).'_gradient_colour_2', '000000'); ?>Gradient Colour 2<br />
+								<?php colour_box($prefix.'_stacked_'.strval($key).'_line_colour', '000000'); ?>Line Colour
+							</td>
+							<td></td>
+						</tr>
+						</table>
+						<?php
+						$o->note('Note: If the gradient option is not chosen, the first colour is used to fill the bar.');
+					$o->closeField();
 				break;
 				case 'Image_Graph_Plot_Line' :
-				case 'Image_Graph_Plot_Area' :
-				case 'Image_Graph_Plot_Smoothed_Line' :
 				case 'Image_Graph_Plot_Smoothed_Area' :
+				case 'Image_Graph_Plot_Smoothed_Line' :
 				case 'Image_Graph_Plot_Pie' :
 				case 'Image_Graph_Plot_Step' :
 				case 'Image_Graph_Plot_Impulse' :
@@ -611,12 +682,16 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 				break;
 				default :
 				break;
-			}
+
+			}//end switch
+
 		} else {
 			switch ($plot_type) {
 				case 'Image_Graph_Plot_Bar' :
 					$o->openField('Spacing');
 						echo $datasets[$plot_name]['settings']['bar_spacing'];
+					$o->closeField();
+					$o->openField('Stacked');
 					$o->closeField();
 				break;
 				case 'Image_Graph_Plot_Line' :
@@ -669,12 +744,50 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 				$plot_type = $datasets[$plot_name]['settings']['graph_type'];
 				switch ($plot_type) {
 					case 'Image_Graph_Plot_Bar' :
+					case 'Image_Graph_Plot_Area' :
 						$datasets[$plot_name]['settings']['bar_spacing']	= $_POST[$prefix.'_bar_spacing'];
+						$datasets[$plot_name]['settings']['use_stacked']	= isset($_POST[$prefix.'_use_stacked']);
+						$key = 0;
+						if (!empty($datasets[$plot_name]['settings']['stacked_data'])) {
+							// Delete?
+							foreach ($datasets[$plot_name]['settings']['stacked_data'] as $key => $stack_data) {
+								if (isset($_POST[$prefix.'_stacked_'.strval($key).'_delete'])) {
+									unset($datasets[$plot_name]['settings']['stacked_data'][$key]);
+									unset($_POST[$prefix.'_stacked_'.strval($key).'_datasource']);
+								}
+							}
+							if (!empty($datasets[$plot_name]['settings']['stacked_data'])) {
+								foreach ($datasets[$plot_name]['settings']['stacked_data'] as $key => $stack_data) {
+									$datasets[$plot_name]['settings']['stacked_data'][$key]['title']			= $_POST[$prefix.'_stacked_'.strval($key).'_title'];
+									$datasets[$plot_name]['settings']['stacked_data'][$key]['datasource']		= $_POST[$prefix.'_stacked_'.strval($key).'_datasource']['assetid'];
+									$datasets[$plot_name]['settings']['stacked_data'][$key]['colour_1']		= $_POST[$prefix.'_stacked_'.strval($key).'_gradient_colour_1'];
+									$datasets[$plot_name]['settings']['stacked_data'][$key]['colour_2']		= $_POST[$prefix.'_stacked_'.strval($key).'_gradient_colour_2'];
+									$datasets[$plot_name]['settings']['stacked_data'][$key]['line_colour']		= $_POST[$prefix.'_stacked_'.strval($key).'_line_colour'];
+									$datasets[$plot_name]['settings']['stacked_data'][$key]['gradient_type']	= $_POST[$prefix.'_stacked_'.strval($key).'_gradient_type'];
+									$datasets[$plot_name]['settings']['stacked_data'][$key]['x_axis']			= $_POST[$prefix.'_stacked_'.strval($key).'_x_axis'];
+									$datasets[$plot_name]['settings']['stacked_data'][$key]['y_axis']			= $_POST[$prefix.'_stacked_'.strval($key).'_y_axis'];
+								}
+								$key++;
+							}
+						}
+						// check a new one
+						if (!empty($_POST[$prefix.'_stacked_'.strval($key).'_datasource']) && $_POST[$prefix.'_stacked_'.strval($key).'_datasource']['assetid'] != '0') {
+							$datasets[$plot_name]['settings']['stacked_data'][$key]['title']			= $_POST[$prefix.'_stacked_'.strval($key).'_title'];
+							$datasets[$plot_name]['settings']['stacked_data'][$key]['datasource']		= $_POST[$prefix.'_stacked_'.strval($key).'_datasource']['assetid'];
+							$datasets[$plot_name]['settings']['stacked_data'][$key]['colour_1']		= $_POST[$prefix.'_stacked_'.strval($key).'_gradient_colour_1'];
+							$datasets[$plot_name]['settings']['stacked_data'][$key]['colour_2']		= $_POST[$prefix.'_stacked_'.strval($key).'_gradient_colour_2'];
+							$datasets[$plot_name]['settings']['stacked_data'][$key]['line_colour']		= $_POST[$prefix.'_stacked_'.strval($key).'_line_colour'];
+							$datasets[$plot_name]['settings']['stacked_data'][$key]['gradient_type']	= $_POST[$prefix.'_stacked_'.strval($key).'_gradient_type'];
+
+							$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_stacked_'.strval($key).'_datasource']['assetid']);
+							$result = $data_source_asset->getResultSet('default');
+							$datasets[$plot_name]['settings']['stacked_data'][$key]['x_axis'] = array_pop(array_keys($result[0]));
+							$datasets[$plot_name]['settings']['stacked_data'][$key]['y_axis'] = $datasets[$plot_name]['settings']['stacked_data'][$key]['x_axis'];
+						}
 					break;
 					case 'Image_Graph_Plot_Line' :
-					case 'Image_Graph_Plot_Area' :
-					case 'Image_Graph_Plot_Smoothed_Line' :
 					case 'Image_Graph_Plot_Smoothed_Area' :
+					case 'Image_Graph_Plot_Smoothed_Line' :
 					case 'Image_Graph_Plot_Pie' :
 					case 'Image_Graph_Plot_Step' :
 					case 'Image_Graph_Plot_Impulse' :
@@ -685,9 +798,12 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 					break;
 					default :
 					break;
-				}
+				}//end switch
+
 				$asset->setAttrValue('datasets', $datasets);
-			}
+
+			}//end if
+
 		}//end if
 
 		return TRUE;
