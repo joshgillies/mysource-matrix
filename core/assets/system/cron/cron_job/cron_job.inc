@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.44 2006/03/02 05:22:54 bcaldwell Exp $
+* $Id: cron_job.inc,v 1.45 2006/05/12 06:25:49 rong Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -193,9 +193,16 @@ class Cron_Job extends Asset
 				return FALSE;
 			}// end if
 
-			// time interval can only be set in a repeating cron job
-			// when str format: "TI=nextrun timestamp,time interval,time interval unit
-			// time in seconds between each run = time interval * time interval unit
+			/*
+				time interval can only be set in a repeating cron job
+				when str format: "TI=nextrun timestamp,time interval,time interval unit
+				time in seconds between each run = time interval * time interval unit
+				for example, repeating time interval cron job that runs
+					1. every 15 minutes
+						TI=1147416120,15,60
+					2. every hour
+						TI=1147416120,1,3600
+			*/
 			if ($this->attr('type') != 'repeating' && substr($value, 0, 2) == 'TI') {
 				trigger_localised_error('CRON0045', E_USER_NOTICE);
 				return FALSE;
