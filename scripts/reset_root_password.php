@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: reset_root_password.php,v 1.2 2005/01/20 13:37:16 brobertson Exp $
+* $Id: reset_root_password.php,v 1.3 2006/05/12 04:44:31 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Reset the root users password back to 'root'
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -50,8 +50,13 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 // try to lock the root user
 if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($root_user->id, 'attributes')) trigger_error("Couldn't get lock\n", E_USER_ERROR);
 
+$current_run_level = $GLOBALS['SQ_SYSTEM']->getRunLevel();
+$GLOBALS['SQ_SYSTEM']->setRunLevel($current_run_level - SQ_SECURITY_PASSWORD_VALIDATION);
+
 if (!$root_user->setAttrValue('password', 'root')) trigger_error("Couldn't set password\n", E_USER_ERROR);
 if (!$root_user->saveAttributes()) trigger_error("Couldn't save attributes \n", E_USER_ERROR);
+
+$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 $GLOBALS['SQ_SYSTEM']->am->releaseLock($root_user->id, 'attributes');
 
