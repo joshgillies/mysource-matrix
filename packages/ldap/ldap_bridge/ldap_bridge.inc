@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.38.2.3 2006/05/04 07:11:33 bcaldwell Exp $
+* $Id: ldap_bridge.inc,v 1.38.2.4 2006/05/12 04:24:28 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38.2.3 $
+* @version $Revision: 1.38.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -159,6 +159,10 @@ class LDAP_Bridge extends Asset
 
 			$data = $data[0];
 		$ldap->disconnect();
+
+		if (!isset($data['dn']) && isset($data['distinguishedname'])) {
+			$data['dn'] = $data['distinguishedname'];
+		}
 
 		unset($data['objectclass']['count']);
 		foreach ($data['objectclass'] as $class) {
@@ -344,50 +348,16 @@ class LDAP_Bridge extends Asset
 
 				$links = Array();
 
-				foreach ($entries as $data) {
-
-					$type = '';
-					if (isset($data['objectclass']['count'])) {
-						unset($data['objectclass']['count']);
-					}
-
-					foreach ($data['objectclass'] as $class) {
-						$class = strtolower($class);
-						foreach ($this->_group_types as $key => $value) {
-							if ($class == $key) {
-								if (!isset($attrs[$value]) || !isset($data[$attrs[$value]][0])) {
-									continue(3);
-								}
-
-								$name = $data[$attrs[$value]][0];
-								$type = 'ldap_user_group';
-							}
-						}
-
-						// if this container is not a group, check to see if it is a user
-						if (empty($type)) {
-							foreach ($this->_user_types as $key => $value) {
-								if ($class == $key) {
-									if (!isset($attrs[$value]) || !isset($data[$attrs[$value]][0])) {
-										continue(2);
-									}
-
-									$name = $data[$attrs[$value]][0];
-									$type = 'ldap_user';
-								}
-							}
-						}
-						if (!empty($type)) break;
-					}
-
-				}//end foreach entries
-
 				$i = 0;
 				foreach ($entries as $data) {
 
 					$type = '';
 					if (isset($data['objectclass']['count'])) {
 						unset($data['objectclass']['count']);
+					}
+
+					if (isset($data['objectclass']['value'])) {
+						$data['objectclass'] = $data['objectclass']['value'];
 					}
 
 					foreach ($data['objectclass'] as $class) {
