@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.25 2006/04/10 01:07:42 rhoward Exp $
+* $Id: linking.inc,v 1.26 2006/05/12 01:48:17 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 
@@ -407,6 +407,11 @@ function processLinking(&$owner, &$o, &$ei)
 			continue;
 		}
 		$done_something = TRUE;
+	}
+
+	// Refresh the Asset Map to show linking changes
+	if ($done_something) {
+		$o->addOnLoad('if (window.top.frames["sq_sidenav"] && window.top.frames["sq_sidenav"].reload_asset) window.top.frames["sq_sidenav"].reload_asset("'.$owner->id.'");');
 	}
 
 	$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
