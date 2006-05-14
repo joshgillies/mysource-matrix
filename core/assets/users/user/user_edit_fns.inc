@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.26 2006/02/02 02:29:33 ndvries Exp $
+* $Id: user_edit_fns.inc,v 1.26.2.1 2006/05/14 23:46:43 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -224,7 +224,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 						require_once SQ_SYSTEM_ROOT.'/'.$dir.'/'.$edit_fns_classname.'.inc';
 						$condition_data = call_user_func(Array($edit_fns_classname, 'processEditInterface'), $o, $condition_prefix);
 						$restrictions[$group_assetid][$key]['condition_data'] = $condition_data;
-						$restrictions[$group_assetid][$key]['match'] = array_get_index($_POST, $prefix.'_condition_'.$key.'_match', '1');
+						$restrictions[$group_assetid][$key]['match'] = array_get_index($_POST, $condition_prefix.'_match', '1');
 					}
 				}
 			}
