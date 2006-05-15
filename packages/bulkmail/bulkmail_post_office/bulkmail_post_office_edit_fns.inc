@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.29 2006/02/03 05:31:41 sdanis Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.30 2006/05/15 00:30:02 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -66,7 +66,13 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$recipients = $asset->attr('recipients');
 
 		if ($write_access) {
-			multiple_asset_finder($prefix.'_groups', $recipients);
+			$restriction = Array(
+							'user_group'		=> 'D',
+							'user'				=> 'D',
+							'bulkmail_user'		=> 'I',
+							'web_folder_users'	=> 'I',
+						   );
+			multiple_asset_finder($prefix.'_groups', $recipients, $restriction);
 		} else {
 			?><ul><?php
 				foreach ($recipients as $assetid) {
