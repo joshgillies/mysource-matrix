@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.33 2006/03/02 05:22:54 bcaldwell Exp $
+* $Id: cron_job_edit_fns.inc,v 1.34 2006/05/15 02:16:46 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		$this->Asset_Edit_Fns();
 		$this->static_screens = Array(
 									'details'	=> Array(
-													'name'			=> translate('view_jobs'),
+													'name'			=> translate('details'),
 													'force_unlock'	=> TRUE,
 												   ),
 									'logs'		=> Array(
