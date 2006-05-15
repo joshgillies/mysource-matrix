@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.12 2006/02/13 03:30:28 ndvries Exp $
+* $Id: edit_interface_screen_details.xml,v 1.13 2006/05/15 04:53:42 rong Exp $
 *
 */
 -->
@@ -50,7 +50,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Content" write_access="write:attributes">
+	<section name="Content and Content Generation" write_access="write:attributes">
 		<field attribute="content_id">
 			<assetid type_codes="asset:D" />
 		</field>
