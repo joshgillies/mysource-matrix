@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.15 2006/04/10 23:33:07 sdanis Exp $
+* $Id: report_links_edit_fns.inc,v 1.16 2006/05/15 05:52:32 emcdonald Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -75,14 +75,14 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			}
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'w');
 			if ($temp_file === FALSE) {
-				trigger_localised_error('CMS0006', E_USER_WARNING);
+				trigger_localised_error('RPRT0000', E_USER_WARNING);
 				return FALSE;
 			}
 			fwrite($temp_file, "<links>\n");
 		} else {
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'a');
 			if ($temp_file === FALSE) {
-				trigger_localised_error('CMS0006', E_USER_WARNING);
+				trigger_localised_error('RPRT0000', E_USER_WARNING);
 				return FALSE;
 			}
 		}
@@ -172,11 +172,11 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			// move the temp file to become the real report XML file
 			fwrite($temp_file, '</links>');
 			if (!copy($owner->data_path.'/report.tmp', $owner->data_path.'/report.xml')) {
-				trigger_localised_error('CMS0007', E_USER_WARNING);
+				trigger_localised_error('RPRT0001', E_USER_WARNING);
 				return FALSE;
 			}
 			if (!unlink($owner->data_path.'/report.tmp')) {
-				trigger_localised_error('CMS0008', E_USER_WARNING);
+				trigger_localised_error('RPRT0002', E_USER_WARNING);
 			}
 		} else {
 			$total = count($job->_running_vars['todo']) + count($job->_running_vars['done']);

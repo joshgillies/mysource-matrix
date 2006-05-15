@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.49 2006/05/05 06:48:10 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.50 2006/05/15 05:52:31 emcdonald Exp $
 *
 */
 
@@ -222,8 +222,6 @@
 	<error code="HIPO0067">could not handle tag of type "%1$s"</error>
 	<error code="HIPO0068">Failed to close the relation "%1$s"</error>
 	<error code="HIPO0069">Expected "/term", found "/relation"</error>
-	<error code="HIPO0070">Could not open XML input file "%1$s"</error>
-	<error code="HIPO0071">XML error: "%1$s" for chunk "<![CDATA[%2$s]]>"</error>
 	<error code="HIPO0072">Unable to initialise "Export Thesaurus XML" HIPO, thesaurus asset ID not specified</error>
 	<error code="HIPO0073">Unable to initialise "Export Thesaurus XML" HIPO, invalid thesaurus asset ID specified (%s)</error>
 	<error code="HIPO0074">Unable to open XML file "%1$s" for writing</error>
@@ -1641,5 +1639,19 @@ Full Node Contents :
 	<error code="CORE0254">Cannot process mass clone without a parent for the cloned assets</error>
 	<error code="CORE0255">Cannot process mass clone without a specified number of clones to create</error>
 	<error code="CORE0256">Cannot process mass clone without a specified link type</error>
+
+	<!-- XML Import Errors -->
+	<error code="CORE0257">Could not open XML input file "%1$s"</error>
+	<error code="CORE0258">XML error: "%1$s" for chunk "<![CDATA[%2$s]]>"</error>
+
+	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
+		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->
+		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:91: -->
+	<error code="RPRT0001">Could not move temporary file, report generation aborted</error>
+		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:175: -->
+	<error code="RPRT0002">Could not delete temporary file, report generation continues</error>
+		<!-- packages/cms/reports/broken_links/report_broken_links_edit_fns.inc:183: -->
+	<error code="RPRT0003">No attributes were selected</error>
+	<error code="RPRT0004">Root node was not selected</error>
 
 </errors>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.4 2006/04/07 00:21:54 emcdonald Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.5 2006/05/15 05:52:31 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -412,7 +412,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		$import_path = $th_asset->getXmlFilePath();
 
 		if (!($fp = fopen($import_path, 'r'))) {
-			trigger_localised_error('HIPO0070', E_USER_WARNING, $import_path);
+			trigger_localised_error('CORE0257', E_USER_WARNING, $import_path);
 			return false;
 			die();
 		}
@@ -424,7 +424,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			// We have to parse the seen portion of the file with the tag handlers unset to recreate the parser state. Sad but true.
 			$data = fread($fp, $step_data['total_read']);
 			if (!xml_parse($xml_parser, $data, feof($fp))) {
-				trigger_localised_error('HIPO0071', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
+				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
 				return false;
 			}
 		}
@@ -436,7 +436,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			$data = fread($fp, $block_size);
 			xml_set_element_handler($xml_parser, Array(&$this,'startElement'), Array(&$this,'endElement'));
 			if (!xml_parse($xml_parser, $data, feof($fp))) {
-				trigger_localised_error('HIPO0071', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
+				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
 				return false;
 			}
 
