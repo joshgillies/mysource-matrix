@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.90.2.6 2006/04/24 02:27:28 sdanis Exp $
+* $Id: design.inc,v 1.90.2.7 2006/05/15 06:21:13 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90.2.6 $
+* @version $Revision: 1.90.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -777,7 +777,18 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		} else {
 			$file_path = $this->data_path.'/design_file.php';
 			if (!file_exists($file_path)) {
-				$arr = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'design', true, null, 'minor');
+				// If the design file does not exist, find the pare
+				$arr['majorid'] = $this->id;
+				do {
+					$arr = $GLOBALS['SQ_SYSTEM']->am->getLink($arr['majorid'], NULL, 'design', FALSE, NULL,'minor', FALSE);
+					if (empty($arr)) {
+						trigger_localised_error('CORE0257', E_USER_WARNING, $ASSET->id);
+						break;
+					}
+					$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($arr['majorid']);
+					$file_path = dirname(dirname($design->data_path)).'/design/'.$arr['majorid'].'/design_file.php';
+				} while(!file_exists($file_path));
+			} else {
 				$file_path = dirname(dirname($this->data_path)).'/design/'.$arr['majorid'].'/design_file.php';
 			}
 		}

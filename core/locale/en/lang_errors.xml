@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.12.2.4 2006/02/06 00:48:22 lwright Exp $
+* $Id: lang_errors.xml,v 1.12.2.5 2006/05/15 06:21:14 skim Exp $
 *
 */
 
@@ -1553,5 +1553,8 @@ Full Node Contents :
 	<error code="CORE0231">Password must not contain spaces</error>
 	<error code="CORE0232">Unable to create Trigger, incorrect format</error>
 	<error code="CORE0233">This operation requires the System Configuration lock to be acquired, but another user has that lock.  Please try again later.</error>
+
+	<!-- Design Customisation Errors -->
+	<error code="CORE0234">Cannot find the design file to print the asset, "%s"</error>
 
 </errors>
