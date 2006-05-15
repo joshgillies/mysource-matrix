@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.90.2.7 2006/05/15 06:21:13 skim Exp $
+* $Id: design.inc,v 1.90.2.8 2006/05/15 07:03:33 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90.2.7 $
+* @version $Revision: 1.90.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -788,8 +788,6 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 					$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($arr['majorid']);
 					$file_path = dirname(dirname($design->data_path)).'/design/'.$arr['majorid'].'/design_file.php';
 				} while(!file_exists($file_path));
-			} else {
-				$file_path = dirname(dirname($this->data_path)).'/design/'.$arr['majorid'].'/design_file.php';
 			}
 		}
 
