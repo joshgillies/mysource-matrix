@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.50 2006/05/15 05:52:31 emcdonald Exp $
+* $Id: lang_errors.xml,v 1.51 2006/05/15 06:19:50 skim Exp $
 *
 */
 
@@ -1643,6 +1643,9 @@ Full Node Contents :
 	<!-- XML Import Errors -->
 	<error code="CORE0257">Could not open XML input file "%1$s"</error>
 	<error code="CORE0258">XML error: "%1$s" for chunk "<![CDATA[%2$s]]>"</error>
+
+	<!-- Design Customisation Errors -->
+	<error code="CORE0259">Cannot find the design file to print the asset, "%s"</error>
 
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->
