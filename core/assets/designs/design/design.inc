@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.112 2006/05/15 06:19:52 skim Exp $
+* $Id: design.inc,v 1.113 2006/05/15 07:03:31 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -838,6 +838,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		} else {
 			$file_path = $this->data_path.'/design_file.php';
 			if (!file_exists($file_path)) {
+
 				// If the design file does not exist, find the pare
 				$arr['majorid'] = $this->id;
 				do {
@@ -849,8 +850,6 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 					$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($arr['majorid']);
 					$file_path = dirname(dirname($design->data_path)).'/design/'.$arr['majorid'].'/design_file.php';
 				} while(!file_exists($file_path));
-			} else {
-				$file_path = dirname(dirname($this->data_path)).'/design/'.$arr['majorid'].'/design_file.php';
 			}
 		}
 
