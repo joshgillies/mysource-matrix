@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.37 2006/02/06 00:47:20 lwright Exp $
+* $Id: lang_errors.xml,v 1.37.2.1 2006/05/15 06:20:36 skim Exp $
 *
 */
 
@@ -1607,4 +1607,8 @@ Full Node Contents :
 
 	<!-- Set Metadata Value Trigger -->
 	<error code="CORE0246">Metadata field "%1$s" (Id: #%2$s) is marked as not editable; it cannot be set as the field to set</error>
+
+	<!-- Design Customisation Errors -->
+	<error code="CORE0247">Cannot find the design file to print the asset, "%s"</error>
+
 </errors>
