@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.113 2006/05/03 05:38:00 bcaldwell Exp $
+* $Id: metadata_manager.inc,v 1.114 2006/05/16 00:29:46 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.113 $
+* @version $Revision: 1.114 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -938,7 +938,9 @@ class Metadata_Manager extends MySource_Object
 
 			if (!$replaced) {
 				switch ($keyword) {
-
+					case 'asset_assetid' :
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_asset->id;'."\n";
+					break;
 					case 'asset_name'       :
 					case 'asset_short_name' :
 					case 'asset_version'    :
