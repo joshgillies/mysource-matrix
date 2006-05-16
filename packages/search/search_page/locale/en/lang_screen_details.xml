@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.14 2006/02/27 23:52:11 dmckee Exp $
+* $Id: lang_screen_details.xml,v 1.15 2006/05/16 06:52:46 lwright Exp $
 *
 */
 -->
@@ -86,12 +86,12 @@
 			<note>This text will appear on the submit button of the search within search form</note>
 		</field>
 		<field attribute="next_page_text">
-			<display_name>Search in search button text</display_name>
-			<note>This text will appear on the submit button of the search within search form</note>
+			<display_name>Next page link text</display_name>
+			<note>This text will appear on the link to the next page of results (if any)</note>
 		</field>
 		<field attribute="prev_page_text">
-			<display_name>Search in search button text</display_name>
-			<note>This text will appear on the submit button of the search within search form</note>
+			<display_name>Previous page link text</display_name>
+			<note>This text will appear on the link to the previous page of results (if any)</note>
 		</field>
 	</section>
 	<section name="List Position Settings">
