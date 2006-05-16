@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.138 2006/05/10 00:03:53 lwright Exp $
+* $Id: lang_strings.xml,v 1.139 2006/05/16 05:23:22 rong Exp $
 *
 */
 
@@ -166,6 +166,7 @@
 	<string source="metadata_schema">Metadata Schema</string>
 	<string source="metadata_search_fields">Metadata Search Fields</string>
 	<string source="missing_metadata_fields">Missing Metadata Fields</string>
+	<string source="duplicate_metadata_fields">Duplicate Metadata Field(s) found</string>
 	<string source="move_confirmation">Move Confirmation</string>
 	<string source="nb">NB</string>
 	<string source="name">Name</string>

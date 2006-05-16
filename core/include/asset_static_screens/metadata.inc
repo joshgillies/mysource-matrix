@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.21 2006/02/02 02:29:33 ndvries Exp $
+* $Id: metadata.inc,v 1.22 2006/05/16 05:23:22 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 
@@ -236,6 +236,36 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 		}
 
 	}//end for
+	// prints a sq backend warning message if we have same metadata field names
+	$field_names = Array();
+	$duplicate_field_names = Array();
+	$field_ids = $mm->getMetadataFields($schemas);
+	if (!empty($field_ids)) {
+		foreach ($field_ids as $field_id => $field_type) {
+			$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($field_id);
+			if (!isset($field_names[$field->attr('name')])) {
+				$field_names[$field->attr('name')] = 1;
+			} else {
+				$duplicate_field_names[$field->attr('name')] = $field->attr('name');
+			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($field);
+		}
+	}
+	if (!empty($duplicate_field_names)) {
+		$o->openSection(translate('warning'));
+			$o->openField('&nbsp;');
+			// paint required field
+			ob_start();
+			?><ul><?php
+			foreach ($duplicate_field_names as $name) {
+				?><li><?php echo $name ?></li><?php
+			}
+			?></ul><span class="sq-backend-warning"><?php echo translate('duplicate_metadata_fields'); ?></span>
+			<?php
+			ob_end_flush();
+			$o->closeField();
+		$o->closeSection();
+	}
 
 	return $print_commit_button;
 
