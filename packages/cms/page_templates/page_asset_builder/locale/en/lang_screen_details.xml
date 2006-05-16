@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2005/07/04 23:33:20 pgannavarapu Exp $
+* $Id: lang_screen_details.xml,v 1.4.2.1 2006/05/16 01:20:18 sdanis Exp $
 *
 */
 -->
@@ -45,8 +45,8 @@
 			</function_call>
 		</field>
 		<field attribute="allow_public_user">
-			<display_name>Allow Public Users</display_name>
-			<note>If you are putting the create form in the not-logged-in bodycopy, enable this option and link permissions will not be checked when creating the asset</note>
+			<display_name>Ignore Permissions</display_name>
+			<note>If this option is enabled, link permissions will not be checked when creating the asset. Otherwise, users must have permission to create assets in the create locations specified.</note>
 		</field>
 	</section>
 </contents>
