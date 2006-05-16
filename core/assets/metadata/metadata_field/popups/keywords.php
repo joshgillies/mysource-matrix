@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keywords.php,v 1.1 2006/02/02 02:29:32 ndvries Exp $
+* $Id: keywords.php,v 1.2 2006/05/16 00:41:47 rong Exp $
 *
 */
 
@@ -61,6 +61,7 @@
 		<fieldset>
 			<legend><b>Asset Information</b></legend>
 			<table border="0" width="100%">
+			<tr><td valign="top" width="200"><b>%asset_assetid%</b></td><td valign="top">The ID of the asset</td></tr>
 			<tr><td valign="top" width="200"><b>%asset_name%</b></td><td valign="top">Full name of the asset</td></tr>
 			<tr><td valign="top" width="200"><b>%asset_short_name%</b></td><td valign="top">Short name of the asset</td></tr>
 			<tr><td valign="top" width="200"><b>%asset_version%</b></td><td valign="top">Version of the asset being displayed</td></tr>
