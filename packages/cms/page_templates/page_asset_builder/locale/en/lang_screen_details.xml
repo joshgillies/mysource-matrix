@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2006/03/01 05:57:10 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.6 2006/05/16 01:20:39 sdanis Exp $
 *
 */
 -->
@@ -47,8 +47,8 @@
 	</section>
 	<section name="Advanced Settings" write_access="write:attributes">
 		<field attribute="allow_public_user">
-			<display_name>Allow Public Users</display_name>
-			<note>If you are putting the create form in the not-logged-in bodycopy, enable this option and link permissions will not be checked when creating the asset</note>
+			<display_name>Ignore Permissions</display_name>
+			<note>If this option is enabled, link permissions will not be checked when creating the asset. Otherwise, users must have permission to create assets in the create locations specified.</note>
 		</field>
 		<field attribute="submit_to_page_url">
 			<display_name>Form Submission URL</display_name>
