@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.38 2006/01/30 04:54:49 sdanis Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.38.2.1 2006/05/16 01:46:31 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -979,7 +979,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 								if (empty($type)) {
 									unset($selected_asset_types['type_code'][$index]);
 								} else {
-									$selected_asset_types['type_code'][$index] = &$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type, 'name');
+									$selected_asset_types['type_code'][$index] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type, 'name');
 								}
 							}
 							echo implode(",<br />\n", $selected_asset_types['type_code']);
