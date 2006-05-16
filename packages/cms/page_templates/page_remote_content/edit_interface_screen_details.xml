@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.13 2005/12/08 01:09:23 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.13.2.1 2006/05/16 06:13:52 bcaldwell Exp $
 *
 */
 -->
@@ -48,6 +48,9 @@
 		</field>
 		<field attribute="end_tag">
 			<text width="35" height="1" />
+		</field>
+		<field attribute="no_tag_clear">
+			<boolean true_text="cms_remote_content_no_tag_clear_display_none" false_text="cms_remote_content_no_tag_clear_display_all" />
 		</field>
 		<field attribute="include_tags">
 			<boolean true_text="yes" false_text="no" />
