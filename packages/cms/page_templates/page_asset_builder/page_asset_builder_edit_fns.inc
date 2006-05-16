@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.34.2.1 2005/10/06 00:36:22 sdanis Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.34.2.2 2006/05/16 01:46:16 sdanis Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.34.2.1 $
+* @version $Revision: 1.34.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -908,7 +908,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 						} else {
 							$rootid = array_get_index($data, 'root', 0);
 							if ($rootid > 0 && $GLOBALS['SQ_SYSTEM']->am->assetExists($rootid)) {
-								$root_name = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($rootid), Array(), false, 'name');
+								$root_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($rootid), Array(), false, 'name');
 								echo '<p>'.$root_name[$rootid].' (ID #'.$rootid.')</p>';
 							} else {
 								echo '<p>'.translate('none_selected').'</p>';
@@ -956,7 +956,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 								if (empty($type)) {
 									unset($selected_asset_types['type_code'][$index]);
 								} else {
-									$selected_asset_types['type_code'][$index] = &$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type, 'name');
+									$selected_asset_types['type_code'][$index] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type, 'name');
 								}
 							}
 							echo implode(",<br />\n", $selected_asset_types['type_code']);
