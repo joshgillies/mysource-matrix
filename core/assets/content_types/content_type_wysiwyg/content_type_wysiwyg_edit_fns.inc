@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.22.2.2 2006/04/18 06:30:48 tbarrett Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.22.2.3 2006/05/16 05:49:38 sdanis Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22.2.2 $
+* @version $Revision: 1.22.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,12 +79,12 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$wysiwyg->set_init_onload(FALSE);
 			$wysiwyg->set_show_status_bar(FALSE);
 			$size_unit = '';
-			if (isset($wysiwyg_style['units']['width'])) {
+			if (is_numeric($wysiwyg_style['width']) && isset($wysiwyg_style['units']['width'])) {
 				$size_unit = $wysiwyg_style['units']['width'];
 			}
 			$wysiwyg->set_width($wysiwyg_style['width'].$size_unit);
 			$size_unit = '';
-			if (isset($wysiwyg_style['units']['height'])) {
+			if (is_numeric($wysiwyg_style['height']) && isset($wysiwyg_style['units']['height'])) {
 				$size_unit = $wysiwyg_style['units']['height'];
 			}
 			$wysiwyg->set_height($wysiwyg_style['height'].$size_unit);
