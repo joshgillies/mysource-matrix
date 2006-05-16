@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.26.2.3 2006/03/28 23:54:50 rong Exp $
+* $Id: image_variety.inc,v 1.26.2.4 2006/05/16 06:45:47 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.26.2.3 $
+* @version $Revision: 1.26.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -701,24 +701,14 @@ class Image_Variety extends Asset
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			$type = (empty($standards_lists_mime_types[$ext])) ? 'text/plain' : $standards_lists_mime_types[$ext];
 
-			// send cacheable headers if file asset meets the credentials
-			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user')
-				&& $this->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER) {
-				header('Cache-Control:');
-				header('Pragma: cache');
-				header('Expires: '.gmdate('D, d M Y H:i:s', (time() + 86400)).' GMT');
-				header('Last-Modified: '.gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
-			} else {
-				header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-				header('Pragma: no-cache');
-				header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
-			}
+			header('Cache-Control:');
+			header('Pragma: cache');
+			header('Expires: '.gmdate('D, d M Y H:i:s', (time() + 86400)).' GMT');
 			header('Content-Type: '.$type);
-			header('Content-Disposition: inline; filename='.$filename.';');
-			header('Content-Length: '.filesize($file));
-
-			readfile($file);
-
+			header('Content-Disposition: inline; filename='.$existing['filename'].';');
+			header('Last-Modified: '.gmdate('D, d M Y H:i:s',$existing['modified']).' GMT');
+			header('Content-Length: '.$existing['size']);
+			readfile($existing['path']);
 		}
 
 	}//end printFrontend()
