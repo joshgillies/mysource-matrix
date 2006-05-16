@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.36 2006/04/21 04:48:58 bcaldwell Exp $
+* $Id: page_remote_content.inc,v 1.37 2006/05/16 05:56:49 bcaldwell Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define ('SQ_REMOTE_SOURCE', 'sq_content_src');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -217,9 +217,9 @@ class Page_Remote_Content extends Page
 		// otherwise the page is good as it is, no scanning necessary
 		if (!empty($start_tag) || !empty($end_tag)) {
 			if ($this->attr('include_tags')) {
-				$pattern = "/($start_tag.*?$end_tag)/s";
+				$pattern = "/($start_tag.*$end_tag)/s";
 			} else {
-				$pattern = "/$start_tag(.*?)$end_tag/s";
+				$pattern = "/$start_tag(.*)$end_tag/s";
 			}
 
 			// note that we can find more than one section identified by the tags
@@ -234,6 +234,9 @@ class Page_Remote_Content extends Page
 				} else {
 					$response_body .= $matches[1][0];
 				}
+			} else if ($this->attr('no_tag_clear')) {
+				// we might be configured to clear the contents if we don't find a match
+				$response_body = '';
 			}
 			$matches = NULL;
 		}
