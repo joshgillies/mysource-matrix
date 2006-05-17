@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.17.2.3 2005/10/07 03:51:38 lwright Exp $
+* $Id: form_question_rule_type_email.inc,v 1.17.2.4 2006/05/17 02:03:30 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17.2.3 $
+* @version $Revision: 1.17.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -92,6 +92,15 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 					?>
 					function sq_form_validate_email(answer)
 					{
+						<?php
+							if (!$q_asset->attr('is_required')) {
+								?>
+								if (answer.length == 0) {
+									return true;
+								}
+								<?php
+							}
+						?>
 						answer.replace(/,/, "");
 						return answer.match(<?php echo $regex_code ?>);
 
