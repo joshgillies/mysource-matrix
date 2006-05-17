@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.129 2006/05/10 05:27:02 sdanis Exp $
+* $Id: general.inc,v 1.130 2006/05/17 23:54:26 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.129 $
+* @version $Revision: 1.130 $
 * @package MySource_Matrix
 */
 
@@ -733,6 +733,49 @@ function ts_iso8601($timestamp)
 	return date('Y-m-d H:i:s', $timestamp);
 
 }//end ts_iso8601()
+
+
+/**
+* Format a date using one of a few predefined 
+*
+* @param int	$timestamp		Timestamp of the date to format
+* @param string	$format_name	The name of the date format to use
+*
+* @return string
+* @access public
+*/
+function format_date($timestamp, $format_name)
+{
+	$date_formats = get_date_formats();
+	if (isset($date_formats[$format_name])) {
+		return date($date_formats[$format_name], $timestamp);
+	}
+	return '';
+
+}//end format_date()
+
+
+/**
+* Get the matrix standard date formats
+*
+* @return array
+* @access public
+*/
+function get_date_formats()
+{
+	$date_formats = Array(
+						'short'				=> 'Y-m-d',
+						'readable'			=> 'd M Y g:ia',
+						'readabledate'		=> 'd M Y',
+						'readabletime'		=> 'g:ia',
+						'iso8601'			=> 'Y-m-d\TH:i:s',
+						'rfc2822'			=> 'r',
+						'rfc2822-dateonly'	=> 'D, d M Y',
+						'ical'				=> 'Ymd\THis',
+					);
+	return $date_formats;
+
+}//end get_date_format_names()
 
 
 /**
