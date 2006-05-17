@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.535 2006/05/11 05:30:19 bcaldwell Exp $
+* $Id: asset.inc,v 1.536 2006/05/17 04:02:26 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.535 $
+* @version $Revision: 1.536 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2243,7 +2243,7 @@ class Asset extends MySource_Object
 		}
 
 		// if the date and user has not changed, dont process anything
-		if ($old_date_string == $new_date_string) return TRUE;
+		if ($this->$date_type == $time) return TRUE;
 
 		// begin a transaction
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
