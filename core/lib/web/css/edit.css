@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.56 2006/05/04 06:08:48 tbarrett Exp $
+* $Id: edit.css,v 1.57 2006/05/17 23:43:48 tbarrett Exp $
 *
 */
 
@@ -450,4 +450,37 @@ td.sq-backend-lock-table-cell-alt {
 .clickable {
 	cursor: pointer;
 	text-decoration: underline;
+}
+
+table.email-format th {
+	text-align: right;
+	font-weight: bold;
+	font-size: 11px;
+	padding-right: 1ex;
+}
+table.email-format th, table.email-format td {
+	vertical-align: top;
+}
+table.email-format td {
+	padding-bottom: 1ex;
+}
+table.email-format td ul {
+	margin: 0px;
+	padding: 0px;
+	list-style-type: none;
+}
+table.email-format-body {
+	width: 100%;
+	border: 1px dashed #888;
+	border-collapse: collapse;
+}
+table.email-format-body td {
+	border-top: 1px dashed #888;
+	padding: 2px;
+}
+td.email-format-version {
+	text-align: right;
+	white-space: nowrap;
+	vertical-align: middle;
+	width: 50ex;
 }
