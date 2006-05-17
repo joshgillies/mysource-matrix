@@ -18,12 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.29 2006/05/09 01:38:59 sdanis Exp $
+* $Id: email_format.inc,v 1.30 2006/05/17 23:49:48 tbarrett Exp $
 *
 */
 
 
 require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
+require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 
 /**
 * Email Format Asset Attribute
@@ -32,10 +33,10 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *
 *
 * <!-- Sample Edit Interface XML Node -->
-*    <email_format with_asset_finder="1" />
+*    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -53,6 +54,10 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	function Asset_Attribute_Email_Format($attributeid=0, $value=NULL)
 	{
 		$this->Asset_Attribute_WYSIWYG($attributeid, $value);
+		$this->_edit_params['with_asset_finder'] = FALSE;
+		$this->_edit_params['show_from'] = TRUE;
+		$this->_edit_params['show_to'] = TRUE;
+		$this->_edit_params['show_inc_attachments'] = FALSE;
 
 	}//end constructor
 
@@ -69,11 +74,11 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	function setEditParams(&$node)
 	{
 		if (!parent::setEditParams($node)) return FALSE;
-
-		if (isset($node->attributes['with_asset_finder'])) {
-			$this->_edit_params['with_asset_finder'] = $node->attributes['with_asset_finder'];
+		foreach ($this->_edit_params as $field => $val) {
+			if (isset($node->attributes[$field])) {
+				$this->_edit_params[$field] = (bool)$node->attributes[$field];
+			}
 		}
-
 		return TRUE;
 
 	}//end setEditParams()
@@ -82,14 +87,13 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	/**
 	* Print the interface for filling in a value
 	*
-	* @param string		$prefix				prefix for the form elements
-	* @param boolean	$read_only			are we just printing the value
-	* @param boolean	$with_asset_finder	Adds Musltiple asset finder for To field
+	* @param string		$prefix		prefix for the form elements
+	* @param boolean	$read_only	are we just printing the value
 	*
 	* @return void
 	* @access public
 	*/
-	function paint($prefix, $read_only=FALSE, $with_asset_finder=FALSE)
+	function paint($prefix, $read_only=FALSE)
 	{
 		$current_value = @unserialize($this->value);
 		if (!is_array($current_value)) {
@@ -119,283 +123,127 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		if (!isset($current_value['attachments'])) {
 			$current_value['attachments'] = Array();
 		}
-		if (isset($this->_edit_params['with_asset_finder']) && $this->_edit_params['with_asset_finder'] == 1) {
-			$with_asset_finder = TRUE;
-		}
-
-		if ($read_only) {
+		?>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/email_format.js"></script>
+		<table border="0" class="email-format">
+		<?php
+		if ($this->_edit_params['show_to']) {
 			?>
-			<script language="Javascript">
-				function emailFormatSwitchEditingMode(editor_name) {
-					var textDiv = document.getElementById(editor_name + "_text_format");
-					var htmlDiv = document.getElementById(editor_name + "_html_format");
-					var formatSpan = document.getElementById(editor_name + "_format_mode");
+			<tr>
+				<th><?php echo translate('to'); ?></th>
+				<td>
+					<?php
+					$ol =& new Asset_Attribute_Option_List();
+					$ol->value = implode("\r\n", $current_value['to']);
+					$ol->setEditParam('width', '50');
+					$ol->paint($prefix.'_to_emails', $read_only);
 
-					if (htmlDiv.style.display == "none") {
-
-						htmlDiv.style.display = "";
-						textDiv.style.display = "none";
-						formatSpan.innerHTML = 'HTML Email Version';
-
-					} else {
-
-						textDiv.style.display = "";
-						htmlDiv.style.display = "none";
-						formatSpan.innerHTML = 'Text Email Version';
+					if ($this->_edit_params['with_asset_finder']) {
+						if ($read_only) {
+							foreach ($current_value['to_assetids'] as $assetid) {
+								echo get_asset_tag_line($assetid).'<br />';
+							}
+						} else {
+							multiple_asset_finder($prefix.'_to_assetids', $current_value['to_assetids'], Array('user' => 'D', 'user_group' => 'I'));
+						}
 					}
-
-				}//end emailFormatSwitchEditingMode()
-			</script>
-			<table border="0">
-				<tr>
-					<td align="right" valign="top"><b><?php echo translate('to'); ?></b></td>
-					<td valign="top">
-						<?php
-						foreach ($current_value['to'] as $email) {
-							echo htmlspecialchars($email).'<br />';
-						}
-						foreach ($current_value['to_assetids'] as $assetid) {
-							echo get_asset_tag_line($assetid).'<br />';
-						}
-						?>
-					</td>
-				</tr>
-				<tr>
-					<td align="right" valign="top"><b><?php echo translate('from'); ?></b></td>
-					<td valign="top"><?php echo htmlspecialchars($current_value['from']); ?></td>
-				</tr>
-				<tr>
-					<td align="right" valign="top"><b><?php echo translate('subject'); ?></b></td>
-					<td valign="top"><?php echo $current_value['subject']; ?></td>
-				</tr>
-				<tr>
-					<td align="right" valign="top"><b><?php echo translate('inc_attachments'); ?></b></td>
-					<td valign="top"><?php echo ($current_value['inc_attachments'] ? translate('yes') : translate('no')); ?></td>
-				</tr>
-				<tr>
-					<td align="right" valign="top"><b><?php echo translate('body'); ?></b></td>
-					<td>
-						<table style="width:100%;">
-							<tr>
-								<td align="left" width="100%" style="border: 1px dashed #C0C0C0;">
-									<table>
-										<tr>
-											<td width="100%" align="left">
-												<a href="Javascript: emailFormatSwitchEditingMode('<?php echo $prefix; ?>');"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png", "16", "16", "[Toggle Editing Mode]");</script></a>
-											</td>
-											<td align="right" nowrap="nowrap">
-												<span id="<?php echo $prefix; ?>_format_mode"><?php echo translate('text_email_version'); ?></span>
-											</td>
-										</tr>
-									</table>
-								</td>
-							</tr>
-							<tr>
-								<td style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;">
-									<div style="display:none;" id="<?php echo $prefix?>_html_format">
+					?>
+				</td>
+			</tr>
+			<?php
+		}
+		if ($this->_edit_params['show_from']) {
+			?>
+			<tr>
+				<th><?php echo translate('from'); ?></th>
+				<td>
+					<?php
+					if ($read_only) {
+						echo htmlspecialchars($current_value['from']);
+					} else {
+						text_box($prefix.'_from', $current_value['from'], 50);
+					}
+					?>
+				</td>
+			</tr>
+			<?php
+		}
+		?>
+			<tr>
+				<th><?php echo translate('subject'); ?></th>
+				<td>
+					<?php
+					if ($read_only) {
+						echo htmlspecialchars($current_value['subject']);
+					} else {
+						text_box($prefix.'_subject', $current_value['subject'], 50);
+					}
+					?>
+				</td>
+			</tr>
+		<?php
+		if ($this->_edit_params['show_inc_attachments']) {
+			?>
+			<tr>
+				<th><?php echo translate('attachments'); ?></th>
+				<td>
+					<?php
+					if ($read_only) {
+						echo '<img src="'.sq_web_path('lib').'/web/images/'.($current_value['inc_attachments'] ? 'tick' : 'cross').'.gif" width="15" height="15" />&nbsp;';
+						echo translate('include_file_attachments');
+					} else {
+						check_box($prefix.'_inc_attachments', TRUE, $current_value['inc_attachments']);
+						label(translate('include_file_attachments'), $prefix.'_inc_attachments');
+					}
+					?>
+				</td>
+			</tr>
+			<?php
+		}
+		?>
+			<tr>
+				<th><?php echo translate('body'); ?></th>
+				<td>
+					<table border="0" class="email-format-body">
+						<tr>
+							<td>
+								<?php
+								if ($read_only) {
+									sq_print_icon(sq_web_path('lib').'/web/images/icons/edit_mode.png', 16, 16, 'Toggle Email Format', 'Toggle Email Format','class="clickable" onclick="emailFormatSwitchReadingMode(\''.$prefix."', '".addslashes(translate('html_email_version'))."', '".addslashes(translate('text_email_version')).'\')"');
+								} else {
+									sq_print_icon(sq_web_path('lib').'/web/images/icons/edit_mode.png', 16, 16, 'Toggle Email Format', 'Toggle Email Format','class="clickable" onclick="emailFormatSwitchEditingMode(\''.$prefix."', '".addslashes(translate('html_email_version'))."', '".addslashes(translate('text_email_version')).'\')"');
+								}
+								?>
+							</td>
+							<td id="<?php echo $prefix; ?>_format_mode" class="email-format-version">
+								<?php echo translate('text_email_version'); ?>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<?php
+								if ($read_only) {
+									?>
+									<div style="display: none" id="<?php echo $prefix?>_html_format">
 										<?php echo $current_value['html_format']; ?>
 									</div>
 									<div id="<?php echo $prefix?>_text_format">
 										<?php echo nl2br($current_value['text_format']); ?>
 									</div>
-								</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
-			</table>
-			<?php
-
-			return;
-
-		}//end if read only
-
-		$wysiwyg = $this->_createEditor($prefix);
-		$wysiwyg->set_contents($current_value['html_format']);
-
-		$current_to_string = '';
-		$i = 0;
-
-		$current_to_emails = '';
-
-		foreach ($current_value['to'] as $email) {
-			$current_to_string .= '<div id="'.$prefix.'_'.$i.'">[ <a href="#" onclick="Javascript: emailFormatDeleteAddress('.$i.', \''.$prefix.'\', \'to\'); return false;">del</a> ] <span id="'.$prefix.'_content_'.$i.'">'.htmlspecialchars($email).'</span></div>';
-			$current_to_emails .= $email.';';
-			$i++;
-		}
-
-		$current_to_assetids = $current_value['to_assetids'];
-
-		?>
-		<script language="Javascript">
-
-			// need to define 'next index' stuff as an array in case there is more than one option
-			// list/email format attribute on the screen
-			if (typeof next_index == 'undefined') {
-				next_index = new Array();
-			}
-			next_index['<?php echo $prefix ?>'] = <?php echo $i ?>;
-
-			function emailFormatAddAddress(editor_name, type) {
-				var value = document.getElementById(editor_name + "_" + type);
-				var box = document.getElementById(editor_name + "_new_" + type);
-				var div = document.getElementById(editor_name + "_current_" + type);
-				if (box.value == "") return;
-
-				div.innerHTML += '<div id="' + editor_name + '_' + next_index[editor_name].toString() + '">[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(' + next_index[editor_name].toString() + ', \'' + editor_name + '\', \'' + type + '\'); return false;">del</a> ] <span id="' + editor_name + '_content_' + next_index[editor_name].toString() + '">' + box.value.replace('<', '&lt;').replace('>', '&gt;') + '</span></div>';
-				value.value   += box.value + ";";
-
-				next_index[editor_name]++;
-
-				box.value = "";
-				if (box.type != 'hidden') {
-					box.focus();
-				}
-
-			}//end emailFormatAddAddress()
-
-
-			function emailFormatDeleteAddress(index, editor_name, type) {
-				var div = document.getElementById(editor_name + "_current_" + type);
-				var value = document.getElementById(editor_name + "_" + type);
-
-				arrIndex = 0;
-				email_array = new Array();
-
-				// get the first div in the list
-				divX = div.firstChild;
-
-				while(divX != null) {
-					if (divX.style.display != 'none') {
-						email_addr = divX.firstChild.nextSibling.nextSibling.nextSibling.innerHTML;
-
-						// this is the one we want
-						if (divX.id == (editor_name + "_" + index)) {
-							divX.style.display = 'none';
-						} else {
-							email_array[arrIndex] = email_addr.replace('&lt;', '<').replace('&gt;', '>');
-						}
-						arrIndex++;
-					}
-
-					divX = divX.nextSibling;
-				}
-
-				var new_value_content = '';
-
-				for (var i = 0; i < email_array.length; i++) {
-					var email = email_array[i];
-					if (typeof email != 'undefined') {
-						re = new RegExp("\\\[.*\\\] (.*)", "g");
-						email_addr = email.replace(re, "\$1");
-
-						new_value_content += email_addr + ";";
-					}
-
-				}
-
-				value.value = new_value_content;
-
-			}//end emailFormatDeleteAddress()
-
-			var initialisedEmailEditors = new Array();
-			function emailFormatSwitchEditingMode(editor_name) {
-				var editor = eval('editor_' + editor_name);
-
-				var textDiv = document.getElementById(editor_name + "_text_body_div");
-				var htmlDiv = document.getElementById(editor_name + "_html_body_div");
-				var formatSpan = document.getElementById(editor_name + "_format_mode");
-
-				if (htmlDiv.style.display == "none") {
-					var setDesignMode = true;
-
-					// initilise the wysiwg if this is the first time
-					// it is being shown - skip this otherwise
-					if (initialisedEmailEditors[editor._uniqueID] == null) {
-						initialisedEmailEditors[editor._uniqueID] = true;
-						editor.generate();
-						setDesignMode = false;
-					} else if (editor._initialised != true) {
-						return;
-					}
-					textDiv.style.display = "none";
-					htmlDiv.style.display = "";
-
-					// if we are using an iframe for this editor, we set its designMode property if we need to
-					if (editor._iframe) {
-						editor._iframe.style.width = editor.config.width;
-						editor._iframe.contentWindow.document.designMode = "on";
-						editor._iframe.style.height = editor.config.height;
-					}
-
-					formatSpan.innerHTML = 'HTML Email Version';
-
-				} else if (editor._initialised == true) {
-
-					textDiv.style.display = "";
-					htmlDiv.style.display = "none";
-					formatSpan.innerHTML = 'Text Email Version';
-				}
-
-			}//end emailFormatSwitchEditingMode()
-
-		</script>
-		<table border="0">
-			<tr>
-				<td align="right" valign="top"><b>To</b></td>
-				<td valign="top">
-					<?php
-					if ($with_asset_finder) {
-						multiple_asset_finder($prefix.'_new_to_assetids[assetids]', $current_to_assetids, Array('user' => 'D', 'user_group' => 'I'));
-					}
-						text_box($prefix.'_new_to', '', 50);
-					?>
-							[ <a href="#" onclick="Javascript: emailFormatAddAddress('<?php echo $prefix ?>', 'to'); return false;">add</a> ]<br/>
-							<div id="<?php echo $prefix; ?>_current_to"><?php echo $current_to_string; ?></div>
-					<?php
-						hidden_field($prefix.'_to', $current_to_emails);
-
-					?>
-				</td>
-			</tr>
-			<tr>
-				<td align="right" valign="top"><b><?php echo translate('from'); ?></b></td>
-				<td valign="top"><?php text_box($prefix.'_from', $current_value['from'], 50); ?></td>
-			</tr>
-			<tr>
-				<td align="right" valign="top"><b><?php echo translate('subject'); ?></b></td>
-				<td valign="top"><?php text_box($prefix.'_subject', $current_value['subject'], 80); ?></td>
-			</tr>
-			<tr>
-				<td align="right" valign="top"><b><?php echo translate('inc_attachments'); ?></b></td>
-				<td valign="top"><?php check_box($prefix.'_inc_attachments', TRUE, $current_value['inc_attachments']); ?></td>
-			</tr>
-			<tr>
-				<td align="right" valign="top"><b><?php echo translate('body'); ?></b></td>
-				<td>
-					<table style="width:100%;">
-						<tr>
-							<td align="left" width="100%" style="border: 1px dashed #C0C0C0;">
-								<table>
-									<tr>
-										<td width="100%" align="left">
-											<a href="Javascript: emailFormatSwitchEditingMode('<?php echo $prefix; ?>');"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png", "16", "16", "");</script></a>
-										</td>
-										<td align="right" nowrap="nowrap">
-											<span id="<?php echo $prefix; ?>_format_mode"><?php echo translate('text_email_version'); ?></span>
-										</td>
-									</tr>
-								</table>
-							</td>
-						</tr>
-						<tr>
-							<td style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;">
-								<div style="display:none;" id="<?php echo $prefix?>_html_body_div">
-									<?php echo $wysiwyg->paint()?>
-								</div>
-								<div id="<?php echo $prefix?>_text_body_div">
-									<?php text_area($prefix.'_text_body', $current_value['text_format'], 105, 15); ?>
-								</div>
+									<?php
+								} else {
+									$wysiwyg = $this->_createEditor($prefix);
+									$wysiwyg->set_contents($current_value['html_format']);
+									?>
+									<div style="display: none" id="<?php echo $prefix?>_html_body_div">
+										<?php echo $wysiwyg->paint()?>
+									</div>
+									<div id="<?php echo $prefix?>_text_body_div">
+										<?php text_area($prefix.'_text_body', $current_value['text_format'], 105, 15); ?>
+									</div>
+									<?php
+								}
+								?>
 							</td>
 						</tr>
 					</table>
@@ -417,7 +265,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	*/
 	function process($prefix)
 	{
-		if (!isset($_REQUEST[$prefix.'_to']) && !isset($_REQUEST[$prefix.'_from']) && !isset($_REQUEST[$prefix.'_new_to']) && !isset($_REQUEST[$prefix.'_subject']) && !isset($_REQUEST[$prefix.'_text_body'])) {
+		if (!isset($_REQUEST[$prefix.'_to_emails']) && !isset($_REQUEST[$prefix.'_to_assetids']) && !isset($_REQUEST[$prefix.'_from']) && !isset($_REQUEST[$prefix.'_subject']) && !isset($_REQUEST[$prefix.'_text_body'])) {
 			return FALSE;
 		}
 
@@ -426,31 +274,19 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$wysiwyg =& $this->_createEditor($prefix);
 		$value['html_format'] = $wysiwyg->process();;
 		$value['text_format'] = (isset($_REQUEST[$prefix.'_text_body'])) ? $_REQUEST[$prefix.'_text_body'] : '';
-		$value['to'] = Array();
 
-		$to = Array();
-		if (isset($_REQUEST[$prefix.'_to'])) {
-			$to = explode(';', trim($_REQUEST[$prefix.'_to']));
-			// make sure the emails are valid
-			foreach ($to as $email) {
-				$email = trim($email);
-				if (empty($email)) continue;
-				$value['to'][] = $email;
-			}
-		}
+		$ol =& new Asset_Attribute_Option_List();
+		$ol->process($prefix.'_to_emails');
+		$value['to'] = explode("\r\n", $ol->value);
 
-		if (isset($_REQUEST[$prefix.'_new_to_assetids']['assetids']) && is_array($_REQUEST[$prefix.'_new_to_assetids']['assetids'])) {
-			// this is an asset_finder
-			foreach ($_REQUEST[$prefix.'_new_to_assetids']['assetids'] as $new_to_info) {
-				if (!empty($new_to_info['assetid']) || $new_to_info['assetid'] != 0) {
+		$value['to_assetids'] = Array();
+		if (isset($_REQUEST[$prefix.'_to_assetids']) && is_array($_REQUEST[$prefix.'_to_assetids'])) {
+			foreach ($_REQUEST[$prefix.'_to_assetids'] as $new_to_info) {
+				if (!empty($new_to_info['assetid'])) {
 					$value['to_assetids'][] = $new_to_info['assetid'];
 				}
 			}
 		}
-
-		// text field
-		$new_to = trim(array_get_index($_REQUEST, $prefix.'_new_to', ''));
-		if (!empty($new_to)) $value['to'][] = $new_to;
 
 		$value['from']    = (isset($_REQUEST[$prefix.'_from'])) ? $_REQUEST[$prefix.'_from'] : '';
 		$value['subject'] = (isset($_REQUEST[$prefix.'_subject'])) ? $_REQUEST[$prefix.'_subject'] : '';
@@ -616,6 +452,26 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		}//end foreach
 
 	}//end sendMail()
+
+
+	/**
+	* Get any keywords that are present in this attr's components
+	*
+	* @return void
+	* @access public
+	*/
+	function getKeywords()
+	{
+		$current_value = @unserialize($this->value);
+		$res = Array();
+		$res = array_merge($res, retrieve_keywords_replacements(array_get_index($current_value, 'to')));
+		$res = array_merge($res, retrieve_keywords_replacements(array_get_index($current_value, 'from')));
+		$res = array_merge($res, retrieve_keywords_replacements(array_get_index($current_value, 'subject')));
+		$res = array_merge($res, retrieve_keywords_replacements(array_get_index($current_value, 'text_format')));
+		$res = array_merge($res, retrieve_keywords_replacements(array_get_index($current_value, 'html_format')));
+		return $res;
+
+	}//end getKeywords()
 
 
 }//end class
