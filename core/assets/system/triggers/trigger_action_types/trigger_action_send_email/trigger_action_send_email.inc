@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.5 2006/03/01 05:41:45 emcdonald Exp $
+* $Id: trigger_action_send_email.inc,v 1.6 2006/05/17 23:52:16 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/email_format/email_format.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -127,48 +127,56 @@ class Trigger_Action_Send_Email extends Trigger_Action
 
 		$new_prefix = ereg_replace('\[','_',ereg_replace('\]','_',$prefix));
 		$email_format_value = array_get_index($settings, 'email_format_value', Array());
+		$atr_email_format =& new Asset_Attribute_Email_Format(0, $email_format_value);
+		$atr_email_format->setEditParam('with_asset_finder', TRUE);
 
-		if ($write_access) {
-			?>
-			<table border="0">
-				<tr>
-					<td align="right" valign="top">&nbsp;</td>
-					<td valign="top">
-			<?php
-				check_box($prefix.'[to_owner]', 1, $to_owner);
-				echo '<strong>'.translate('trigger_send_to_active_user').'</strong>';
-				echo '<br />'.translate('trigger_send_to_active_user_note').'<br /><br >';
-			?>
-					</td>
-				</tr>
-				<tr>
-					<td align="right" valign="top"><strong><?php echo translate('trigger_send_to_roles'); ?></strong></td>
-					<td valign="top">
-			<?php
-				multiple_asset_finder($prefix.'[roles]', $current_roles, Array('role' => 'I'));
-				echo '<br />'.translate('trigger_send_to_roles_note').'<br /><br >';
-
-			?>
-					</td>
-				</tr>
-			</table>
-			<?php
-				$atr_email_format =& new Asset_Attribute_Email_Format(0, $email_format_value);
-				$atr_email_format->paint($new_prefix, FALSE, TRUE);
-
-				hidden_field($prefix.'[new_prefix]',$new_prefix);
-			?>
-			<?php
-		} else {
-			?>
-			<strong><?php echo translate('trigger_send_to_active_user'); ?></strong>
-			<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($to_owner ? 'tick' : 'cross'); ?>.gif" width="15" height="15" />
-			<?php
-			// print email contents
-			$atr_email_format =& new Asset_Attribute_Email_Format(0, $email_format_value);
-			$atr_email_format->paint($new_prefix, TRUE, TRUE);
-		}
-
+		?>
+		<table class="sq-backend-table" border="1" style="width: auto">
+			<tr>
+				<th><?php echo translate('trigger_active_user_recipient'); ?></th>
+				<td>
+					<?php
+					if ($write_access) {
+						check_box($prefix.'[to_owner]', 1, $to_owner);
+						label(translate('trigger_send_to_active_user'), $prefix.'[to_owner]');
+						echo '<div class="sq-backend-note" style="margin-left: 10ex">'.translate('trigger_send_to_active_user_note').'</div>';
+					} else {
+						?>
+						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($to_owner ? 'tick' : 'cross'); ?>.gif" width="15" height="15" />
+						<?php
+						echo translate('trigger_send_to_active_user');
+					}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<th><?php echo translate('trigger_role_recipients'); ?></th>
+				<td>
+					<?php
+					if ($write_access) {
+						multiple_asset_finder($prefix.'[roles]', $current_roles, Array('role' => 'I'));
+						echo '<div class="sq-backend-note">'.translate('trigger_send_to_roles_note').'</div>';
+					} else {
+						if (empty($current_roles)) {
+							echo translate('none');
+						} else {
+							foreach ($current_roles as $role) {
+								echo get_asset_tag_line($role).'<br />';
+							}
+						}
+					}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<th><?php echo translate('trigger_general_email_settings'); ?></th>
+				<td>
+					<?php $atr_email_format->paint($new_prefix, !$write_access); ?>
+				</td>
+			</tr>
+		</table>
+		<?php
+		hidden_field($prefix.'[new_prefix]',$new_prefix);
 		return ob_get_clean();
 
 	}//end getInterface()
