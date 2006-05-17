@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.29 2006/04/28 03:09:17 tbarrett Exp $
+* $Id: option_list.inc,v 1.30 2006/05/17 23:42:09 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -53,6 +53,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	function Asset_Attribute_Option_List($attributeid=0, $value=NULL)
 	{
 		$this->Asset_Attribute($attributeid, $value);
+		$this->_edit_params['width'] = '';
 
 	}//end constructor
 
@@ -78,7 +79,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				foreach ($value as $v) {
 					$v = htmlentities($v);
 					?>
-					<input type="text"  name="<?php echo $prefix; ?>_options[]" value="<?php echo $v; ?>" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
+					<input type="text"  name="<?php echo $prefix; ?>_options[]" value="<?php echo $v; ?>" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" <?php if ($this->_edit_params['width']) echo 'size="'.$this->_edit_params['width'].'"'; ?> /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
 					<?php
 						if ($order !=0) {
 							$this->_printMoveUpButton($order, $prefix);
@@ -90,7 +91,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				}
 				for ($i =0; $i < 2; $i++) {
 					?>
-					<input type="text" name="<?php echo $prefix; ?>_options[]" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
+					<input type="text" name="<?php echo $prefix; ?>_options[]" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" <?php if ($this->_edit_params['width']) echo 'size="'.$this->_edit_params['width'].'"'; ?> /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
 					<?php
 						$this->_printMoveUpButton($order, $prefix);
 						if ($i < 1) {
