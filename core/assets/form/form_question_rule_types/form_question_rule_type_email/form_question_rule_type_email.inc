@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.3 2005/10/07 00:01:25 lwright Exp $
+* $Id: form_question_rule_type_email.inc,v 1.4 2006/05/17 02:02:34 sdanis Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,17 +75,17 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	/**
 	* writes JavaScript code for client side validation
 	*
-	* @param object Form_Question	&$q_asset		reference to the question asset
-	* @param Array					$rule_data		the rule data being used
+	* @param object	&$q_asset	reference to the question asset
+	* @param array	$rule_data	the rule data being used
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function generateJSCode(&$q_asset, $rule_data)
 	{
 		// have we printed out the validation function yet?
 		// (since this is static across all class instances, this will work)
-		static $printed_fn = false;
+		static $printed_fn = FALSE;
 
 		$operator = array_get_index($rule_data, 'operator', 1);
 
@@ -94,11 +94,20 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 		ob_start();			// buffer this please
 
 			if (!$printed_fn) {
-				$printed_fn = true;
+				$printed_fn = TRUE;
 
 					?>
 					function sq_form_validate_email(answer)
 					{
+						<?php
+							if (!$q_asset->attr('is_required')) {
+								?>
+								if (answer.length == 0) {
+									return true;
+								}
+								<?php
+							}
+						?>
 						answer.replace(/,/, "");
 						return answer.match(<?php echo $regex_code ?>);
 
@@ -133,11 +142,11 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	* Rule data is an array with the following fields:
 	* [operator] => operator to compare with (boolean: 1 or 0)
 	*
-	* @param mixed	$answer			the answer being passed to us
-	* @param string	$rule_data		the rule's data
+	* @param mixed	$answer		the answer being passed to us
+	* @param string	$rule_data	the rule's data
 	*
+	* @return boolean
 	* @access public
-	* @return boolean true only if rule succeeds
 	*/
 	function evaluate($answer, $rule_data)
 	{
@@ -152,10 +161,10 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	/**
 	* returns a description of the rule
 	*
-	* @param object Form_Question	&$q_asset	the question asset that failed
-	* @param array					$rule_data	the rule data
+	* @param object	&$q_asset	the question asset that failed
+	* @param array	$rule_data	the rule data
 	*
-	* @return string	the error message
+	* @return string
 	* @access public
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
