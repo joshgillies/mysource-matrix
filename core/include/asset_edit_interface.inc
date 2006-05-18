@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.291 2006/04/28 05:37:48 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.292 2006/05/18 01:50:48 skim Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.291 $
+* @version $Revision: 1.292 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1699,6 +1699,11 @@ class Asset_Edit_Interface extends MySource_Object
 				if (isset($keywords['screens']) && !empty($keywords['screens'])) {
 					$screens = array_unique(array_merge(array_keys($keywords['screens']), $screens));
 				}
+
+				if (isset($keywords['entire_screens']) && !empty($keywords['entire_screens'])) {
+					$screens = array_unique(array_merge(array_keys($keywords['entire_screens']), $screens));
+				}
+
 				// if there are some special keywords, we need to ask the owner to process them
 				if (isset($keywords['custom']) && !empty($keywords['custom'])) {
 					$owner->processCustomKeywords($keywords['custom']);
@@ -2235,7 +2240,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$create_sections[$section->attributes['name']] = Array();
 			// Loop over the fields
 			for ($j = 0; $j < count($section->children); $j++) {
-				
+
 				switch ($section->children[$j]->name) {
 					case 'function_call' :
 						$fn_call_node =& $section->children[$j];

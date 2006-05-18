@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_paths.xml,v 1.8 2005/03/30 00:40:13 lwright Exp $
+* $Id: edit_interface_screen_paths.xml,v 1.9 2006/05/18 01:50:50 skim Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Web Paths" write_access="write:lookups">
+	<section name="Web Paths" write_access="write:lookups" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function   name="paintPaths"   />
