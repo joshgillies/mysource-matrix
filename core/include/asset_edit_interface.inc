@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.285.2.3 2006/04/26 22:47:53 sdanis Exp $
+* $Id: asset_edit_interface.inc,v 1.285.2.4 2006/05/18 01:49:41 skim Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.285.2.3 $
+* @version $Revision: 1.285.2.4 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1659,15 +1659,18 @@ class Asset_Edit_Interface extends MySource_Object
 				if (isset($keywords['screens']) && !empty($keywords['screens'])) {
 					$screens = array_unique(array_merge(array_keys($keywords['screens']), $screens));
 				}
+
+				if (isset($keywords['entire_screens']) && !empty($keywords['entire_screens'])) {
+					$screens = array_unique(array_merge(array_keys($keywords['entire_screens']), $screens));
+				}
+
 				// if there are some special keywords, we need to ask the owner to process them
 				if (isset($keywords['custom']) && !empty($keywords['custom'])) {
 					$owner->processCustomKeywords($keywords['custom']);
 				}
 			}
 		}
-
 		foreach ($screens as $active_screen) {
-
 			$ret_val = FALSE;
 
 			if (!$creating) {
@@ -1746,7 +1749,6 @@ class Asset_Edit_Interface extends MySource_Object
 				for ($i = 0; $i < count($root->children); $i++) {
 					$section =& $root->children[$i];
 					// if we are in limbo and this section is not to be printed in limbo - dont print it
-
 					if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) {
 						continue;
 					}
