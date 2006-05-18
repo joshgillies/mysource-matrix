@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_recipient.xml,v 1.18 2006/03/23 22:16:26 sdanis Exp $
+* $Id: edit_interface_screen_recipient.xml,v 1.19 2006/05/18 00:21:10 tbarrett Exp $
 *
 */
 -->
@@ -27,7 +27,7 @@
 	</section>
 	<section name="Recipient Email Options">
 		<field attribute="recipient_emails_format">
-			<email_format with_asset_finder="1" />
+			<email_format with_asset_finder="1" show_inc_attachments="1" />
 		</field>
 	</section>
 	<section name="Receipt Email Options">
@@ -38,7 +38,7 @@
 			</function_call>
 		</field>
 		<field attribute="receipt_emails_format">
-			<email_format with_asset_finder="1" />
+			<email_format with_asset_finder="1" show_inc_attachments="1" />
 		</field>
 	</section>
 	<section name="Send To A Friend Email Options">
@@ -49,7 +49,7 @@
 			</function_call>
 		</field>
 		<field attribute="staf_format">
-			<email_format with_asset_finder="1" />
+			<email_format with_asset_finder="1" show_inc_attachments="1" />
 		</field>
 	</section>
 </contents>
