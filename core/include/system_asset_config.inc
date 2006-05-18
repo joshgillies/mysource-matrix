@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.21 2005/04/15 03:56:52 lwright Exp $
+* $Id: system_asset_config.inc,v 1.22 2006/05/18 05:34:50 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation system asset config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 class System_Asset_Config extends Config
@@ -111,7 +111,7 @@ class System_Asset_Config extends Config
 
 					foreach ($sys_asset_types as $type_code) {
 						$assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($type_code);
-						if (count($assetids) == 1) {
+						if (count($assetids) > 0) {
 							$system_assets[$type_code] = (int) $assetids[0];
 						}
 					}//end foreach
