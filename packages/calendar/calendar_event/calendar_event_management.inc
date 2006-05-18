@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_management.inc,v 1.8 2006/02/27 22:27:19 lwright Exp $
+* $Id: calendar_event_management.inc,v 1.9 2006/05/18 00:22:02 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -65,6 +65,7 @@ class Calendar_Event_Management extends Asset_Management
 															   ),
 											'description'	=> 'The starting date and/or time of the event',
 											'update_fn'		=> '',
+											'is_admin'		=> FALSE,
 										   ),
 						'end_date'		=> Array(
 											'added'			=> '0.0.1',
@@ -73,6 +74,7 @@ class Calendar_Event_Management extends Asset_Management
 											'parameters'	=> Array('allow_null' => TRUE),
 											'description'	=> 'The ending date and/or time of the event',
 											'update_fn'		=> '',
+											'is_admin'		=> FALSE,
 										   ),
 					  );
 
