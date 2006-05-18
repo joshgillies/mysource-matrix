@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.477 2006/05/05 06:05:02 sdanis Exp $
+* $Id: asset_manager.inc,v 1.478 2006/05/18 04:30:08 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.477 $
+* @version $Revision: 1.478 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -808,6 +808,7 @@ class Asset_Manager extends MySource_Object
 				FROM sq_ast a, sq_ast_attr at
 				WHERE a.type_code = at.type_code
 					AND at.name = '.$db->quote($attr_name).'
+					AND ((at.type_code = '.$db->quote($asset_type).') OR (at.owning_type_code = '.$db->quote($asset_type).'))
 					AND a.assetid IN ('.implode(', ', $assetids).')';
 		$res = $db->getAssoc($sql);
 		assert_valid_db_result($res);
