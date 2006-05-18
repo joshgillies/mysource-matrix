@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.114 2006/05/16 00:29:46 rong Exp $
+* $Id: metadata_manager.inc,v 1.115 2006/05/18 00:20:09 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.114 $
+* @version $Revision: 1.115 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -900,16 +900,6 @@ class Metadata_Manager extends MySource_Object
 					// NOTE: These format strings contain an escape '\' character
 					// unlike the ones in getKeywordReplecement() asset.inc since they
 					// will be concatenated within eval string.
-					$date_formats = Array(
-										'short'				=> 'Y-m-d',
-										'readable'			=> 'd M Y g:ia',
-										'readabledate'		=> 'd M Y',
-										'readabletime'		=> 'g:ia',
-										'iso8601'			=> 'Y-m-d\\TH:i:s',
-										'rfc2822'			=> 'r',
-										'rfc2822-dateonly'	=> 'D, d M Y',
-										'ical'				=> 'Ymd\\THis',
-									);
 					if ($keyword == $name) {
 						$default_format = 'Y-m-d H:i:s';
 						if ($keyword == 'asset_published') {
@@ -919,15 +909,17 @@ class Metadata_Manager extends MySource_Object
 						}
 						$replaced = TRUE;
 					} else {
+						$date_formats = get_date_formats();
 						$format_name = substr($keyword, strlen($name.'_'));
 						if (array_key_exists($format_name, $date_formats)) {
+							$format_expr = str_replace('/', '//', $date_formats[$format_name]);
 							if ($keyword == 'asset_published') {
-								echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\''.$date_formats[$format_name].'\', $metadata_asset->published);'."\n";
+								echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\''.$format_expr.'\', $metadata_asset->published);'."\n";
 							} else {
 								if ($format_name == 'iso8601') {
-									echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\''.$date_formats[$format_name].'\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_'.$format_name) - strlen('asset_')).').substr(date(\'O\'),0,3).\':\'.substr(date(\'O\'),-2);'."\n";
+									echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\''.$format_expr.'\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_'.$format_name) - strlen('asset_')).').substr(date(\'O\'),0,3).\':\'.substr(date(\'O\'),-2);'."\n";
 								} else {
-									echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\''.$date_formats[$format_name].'\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_'.$format_name) - strlen('asset_')).');'."\n";
+									echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\''.$format_expr.'\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_'.$format_name) - strlen('asset_')).');'."\n";
 								}
 							}
 							$replaced = TRUE;
