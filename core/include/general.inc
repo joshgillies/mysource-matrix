@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.130 2006/05/17 23:54:26 tbarrett Exp $
+* $Id: general.inc,v 1.131 2006/05/18 00:56:03 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.131 $
 * @package MySource_Matrix
 */
 
@@ -736,7 +736,7 @@ function ts_iso8601($timestamp)
 
 
 /**
-* Format a date using one of a few predefined 
+* Format a date using one of a few predefined
 *
 * @param int	$timestamp		Timestamp of the date to format
 * @param string	$format_name	The name of the date format to use
@@ -1379,9 +1379,6 @@ function replace_global_keywords($text)
 				if ($keyword_replacements[$global_keyword] == '%'.$keyword.'%') {
 					$keyword_replacements[$global_keyword] = '%'.$global_keyword.'%';
 				}
-			} else {
-				// not a global keyword, so blank out
-				$keyword_replacements[$global_keyword] = '';
 			}
 		}
 		$text = replace_keywords($text, $keyword_replacements);
