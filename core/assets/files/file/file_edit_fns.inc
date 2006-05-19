@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.72 2006/04/21 00:26:42 lwright Exp $
+* $Id: file_edit_fns.inc,v 1.73 2006/05/19 01:34:18 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -200,6 +200,14 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
 				trigger_localised_error('CORE0042', E_USER_WARNING);
 				return FALSE;
+			}
+
+			// remove the old copy in the public directory (bug#1370)
+			if ($asset->usePublicPath()) {
+				$unrestricted = $asset->data_path_public.'/'.$existing['filename'];
+				if (file_exists($unrestricted)) {
+					unlink($unrestricted);
+				}
 			}
 		}
 
