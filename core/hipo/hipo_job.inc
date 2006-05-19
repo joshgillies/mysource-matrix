@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.81 2006/05/11 06:20:57 bcaldwell Exp $
+* $Id: hipo_job.inc,v 1.82 2006/05/19 04:48:41 bcaldwell Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1084,7 +1084,6 @@ class HIPO_Job extends MySource_Object
 				while (($i < $max_assets_to_process) && (!$this->_steps[$step]['complete'])) {
 					$prefix = $this->code_name.'step'.$step;
 					$ret_val = $ret_val && $this->processWeb($this->_steps[$step], $prefix);
-					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_HIPO_PROCESS_COUNT', $i);
 					$i++;
 				}
 				restore_error_handler();

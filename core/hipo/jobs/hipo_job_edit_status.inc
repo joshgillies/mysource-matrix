@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.45 2006/05/11 23:19:33 bcaldwell Exp $
+* $Id: hipo_job_edit_status.inc,v 1.46 2006/05/19 04:48:41 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -292,7 +292,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	function freestyle()
 	{
 		while (!empty($this->_running_vars['todo_assetids']) || !$this->_running_vars['done_root'] || !empty($this->_running_vars['dependant_hipo_job'])) {
-			if (!$this->processStatus($this->_steps[0], get_class($this))) {
+			if (!$this->processStatus($this->_steps[0], get_class($this), TRUE)) {
 				return FALSE;
 			}
 		}
@@ -336,40 +336,38 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	/**
 	* Edit the status of a single asset in the to-do list
 	*
-	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param array		&$step_data	a reference to the array of information about the current step
 	* @param string		$prefix		prefix for form vars
+	* @param boolean	$freestyle	if this function is being freestyled or not
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processStatus(&$step_data, $prefix)
+	function processStatus(&$step_data, $prefix, $freestyle=FALSE)
 	{
-		// don't try to do too much
-		if (($GLOBALS['SQ_SYSTEM']->getGlobalDefine('SQ_HIPO_PROCESS_COUNT')) > SQ_HIPO_EDIT_STATUS_THRESHOLD) {
-			return true;
-		}
-
 		// process dependant hipo_job_edit_status if necessary
 		if (!empty($this->_running_vars['dependant_hipo_job'])) {
 			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$hipo =& $hh->getJob($this->_running_vars['dependant_hipo_job']);
 
-			// job gone (or was never created, which would be bad)
-			if (!is_null($hipo) && $hipo->process()) {
-				if ($hipo->complete()) {
-					$running_vars = $hipo->getRunningVars();
-					if (isset($running_vars['assetid'])) {
-						// this will run _updated() on the asset who's dependants who
-						// have just been processed by the sub-sub-hipo thingy
-						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($running_vars['assetid']);
-						$asset->_updated(FALSE);
-					}
-					unset($this->_running_vars['dependant_hipo_job']);
+			// bail if we've completed this job
+			if (is_null($hipo)) return FALSE;
+
+			if ($freestyle && $hipo->freestyle()) {
+				// we're freestylin' and that it, done
+				unset($this->_running_vars['dependant_hipo_job']);
+				$hipo->save();
+			} else if ($hipo->process() && $hipo->complete()) {
+				// process the sub hipo on each refresh
+				$running_vars = $hipo->getRunningVars();
+				if (isset($running_vars['assetid'])) {
+					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($running_vars['assetid']);
+					$asset->_updated(FALSE);
 				}
+				unset($this->_running_vars['dependant_hipo_job']);
 			}
-			// if we process the sub-sub-hipo thingy then we don't want to process any
-			// assets in our todo list thankyou
 			return TRUE;
+
 		}
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 
