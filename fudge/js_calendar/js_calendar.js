@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.js,v 1.10 2005/06/02 05:20:15 tbarrett Exp $
+* $Id: js_calendar.js,v 1.11 2006/05/19 05:09:14 tbarrett Exp $
 *
 */
 
@@ -128,18 +128,20 @@ function c_show(e)
 	document.body.appendChild(div);
 	div.style.left = (coordX + 6) + "px";
 	div.style.top  = (coordY + 6) + "px";
-
+	div.style.zIndex = 99999;
+	div.style.background = 'white';
 	div.innerHTML = this.output();
-	if (document.getElementById('ie_'+this.divname+'_iframe') == null && document.body.insertAdjacentHTML) {
+
+	if (document.getElementById('ie_'+this.divname+'_iframe') == null && (typeof document.body.insertAdjacentHTML != 'undefined')) {
 		var shadow = '<span id="ie_'+this.divname+'_shadow" style="background:#000000;position:absolute;top:0px;left:0px;filter:progid:DXImageTransform.Microsoft.blur(pixelradius=6, enabled=\'true\', makeshadow=\'true\', ShadowOpacity=0.7)"></span>';
-		var iframe = '<iframe id="ie_'+this.divname+'_iframe" scrolling="no" border="0" frameborder="0" style="filter:alpha(opacity=0);position:absolute;top:-1000px;left:-1000px;width:10px; height:10px;visibility:hidden" src="about:blank"></iframe>' + shadow + div.outerHTML;
+		var iframe = '<iframe id="ie_'+this.divname+'_iframe" scrolling="no" border="0" frameborder="0" style="filter:alpha(opacity=0);position:absolute;top:-1000px;left:-1000px;width:10px; height:10px;visibility:hidden;z-index:9999" src="about:blank"></iframe>' + shadow + div.outerHTML;
 		document.body.insertAdjacentHTML('beforeEnd', iframe);
 		div.id = this.divname + "_old";
 		div.innerHTML = "";
 
 		div = document.getElementById(this.divname);
 	}
-	if (document.body.insertAdjacentHTML) {
+	if ((typeof document.body.insertAdjacentHTML != 'undefined')) {
 		var cal_top    = document.getElementById(this.divname).style.top;
 		var cal_height = document.getElementById(this.divname).offsetHeight;
 		var cal_width  = document.getElementById(this.divname).offsetWidth;
@@ -155,15 +157,14 @@ function c_show(e)
 		shadow.style.left	= cal_left.substring(0, cal_left.length - 2) - 6 + "px";
 		shadow.style.width	= cal_width + "px";
 		shadow.style.height	= cal_height + "px";
+		iframe.style.zIndex     = 3000;
 		if (this.fadeit || this.scrollit) shadow.style.visibility	= "hidden";
 		else shadow.style.visibility	= "visible";
 	}
-
 	if (this.fadeit) {
-		this.fade = 100;
+		this.fade = 0;
 		this.fadeOn();
-	} else
-	if (this.scrollit) {
+	} else if (this.scrollit) {
 		this.scroll = 0;
 		this.scrollOn();
 	}

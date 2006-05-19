@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.css,v 1.4 2005/03/11 05:52:15 tbarrett Exp $
+* $Id: js_calendar.css,v 1.5 2006/05/19 05:09:14 tbarrett Exp $
 *
 */
 
@@ -26,6 +26,7 @@
 .cal {
 	border:				1px solid #000;
 	background:			#F0F0F0
+	z-index:			9999;
 }
 
 .cal td {
