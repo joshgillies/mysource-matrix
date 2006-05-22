@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.40.2.2 2006/05/07 23:53:31 sdanis Exp $
+* $Id: calendar_common.inc,v 1.40.2.3 2006/05/22 00:26:44 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.40.2.2 $
+* @version $Revision: 1.40.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -567,7 +567,10 @@ function build_tree_clause($treeids)
 */
 function &get_treeids(&$root_nodes)
 {
-	if (empty($root_nodes)) return ($empty = Array());
+	if (empty($root_nodes)) {
+		$empty = Array();
+		return $empty;
+	}
 
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	$quoted_root_nodes = array_keys($root_nodes);
