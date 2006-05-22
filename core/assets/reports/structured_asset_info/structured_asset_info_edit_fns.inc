@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_edit_fns.inc,v 1.1 2006/05/15 06:13:31 emcdonald Exp $
+* $Id: structured_asset_info_edit_fns.inc,v 1.2 2006/05/22 01:44:42 emcdonald Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -151,7 +151,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	*/
 	function _generateFieldAssetid($asset_info)
 	{
-		return htmlentities($asset_info['assetid']);
+		return $this->_cData($asset_info['assetid']);
 
 	}//end _generateFieldAssetid()
 
@@ -166,7 +166,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	*/
 	function _generateFieldStatus($asset_info)
 	{
-		return htmlentities($asset_info['status']);
+		return $asset_info['status'];
 
 	}//end _generateFieldStatus()
 
@@ -181,7 +181,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	*/
 	function _generateFieldAssetType($asset_info)
 	{
-		return htmlentities($asset_info['type_code']);
+		return $this->_cData($asset_info['type_code']);
 
 	}//end _generateFieldAssetType()
 
@@ -197,7 +197,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	function _generateFieldName($asset_info)
 	{
 
-		return htmlentities($asset_info['name']);
+		return $this->_cData($asset_info['name']);
 
 	}//end _generateFieldName()
 
@@ -213,7 +213,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	function _generateFieldCreatedDate($asset_info)
 	{
 
-		return htmlentities($asset_info['created']);
+		return $asset_info['created'];
 
 	}//end _generateFieldCreatedDate()
 
@@ -244,7 +244,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	*/
 	function _generateFieldLastUpdatedDate($asset_info)
 	{
-		return htmlentities($asset_info['updated']);
+		return $asset_info['updated'];
 
 	}//end _generateFieldLastUpdatedDate()
 
@@ -276,7 +276,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	function _generateFieldLastPublishedDate($asset_info)
 	{
 
-		return htmlentities($asset_info['published']);
+		return $asset_info['published'];
 
 	}//end _generateFieldLastPublishedDate()
 
@@ -308,7 +308,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	function _generateFieldLastStatusChangeDate($asset_info)
 	{
 
-		return htmlentities($asset_info['status_changed']);
+		return $asset_info['status_changed'];
 
 	}//end _generateFieldLastStatusChangeDate()
 
@@ -422,6 +422,21 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
+	* wrap the passed data in a cdata tag
+	*
+	* @param string	$character_data	the data to be put in the cdata tag
+	*
+	* @return string
+	* @access private
+	*/
+	function _cData($character_data)
+	{
+		return '<![CDATA['.$character_data.']]>';
+
+	}//end _cData()
+
+
+	/**
 	* Generate this report until complete
 	*
 	* @param object	&$job		a reference to the array of information about
@@ -521,7 +536,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 						 );
 
 		while (!empty($job->_running_vars['assets_to_list']) && $job->_running_vars['done'] <  $target_this_step) {
-
+			$asset_info = Array();
 			$contents = '';
 			$assets_to_list			= $job->_running_vars['assets_to_list'];
 			$assets_open			= $job->_running_vars['assets_open'];
@@ -560,7 +575,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 
 					// generate the fields for this asset
 					$contents .= '<fields>'."\n";
-					$contents .= '<short_name>'.htmlentities($asset_info['short_name']).'</short_name>';
+					$contents .= '<short_name><![CDATA['.$asset_info['short_name'].']]></short_name>';
 					$contents .= '<treeid>'.$asset_info['treeid'].'</treeid>';
 					foreach ($selected_asset_fields as $name) {
 						$contents .= '<'.$name.'>';
@@ -767,36 +782,22 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 		$this->_tmp['current_asset']	= Array();
 		$this->_tmp['depth'] 			= 0;
 
-		$block_size = 4096;
+
 		$xml_parser = xml_parser_create();
 		// stop the parser ucasing everything
 		xml_parser_set_option ($xml_parser, XML_OPTION_CASE_FOLDING, 0);
 		xml_set_character_data_handler ( $xml_parser, Array(&$this,'tagContent') );
+		xml_set_element_handler($xml_parser, Array(&$this,'startElement'), Array(&$this,'endElement'));
 
 		// initialise the file pointer
 		$report_path = $asset->data_path.'/report.xml';
 
-		if (!($fp = fopen($report_path, 'r'))) {
-			trigger_localised_error('CORE0257', E_USER_WARNING, $import_path);
+		// Parse the file
+
+		if (!xml_parse($xml_parser, file_get_contents($report_path), TRUE)) {
+			trigger_localised_error('DCITA0001', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
 			return FALSE;
-			die();
 		}
-
-		$fstat = fstat($fp);
-		$file_size = $fstat['size'];
-
-
-		while (!feof($fp)) {
-
-			// Parse blocks from the file
-			$data = fread($fp, $block_size);
-			xml_set_element_handler($xml_parser, Array(&$this,'startElement'), Array(&$this,'endElement'));
-			if (!xml_parse($xml_parser, $data, feof($fp))) {
-				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
-				return FALSE;
-			}
-		}
-		fclose($fp);
 		return TRUE;
 
 		// finish the page
