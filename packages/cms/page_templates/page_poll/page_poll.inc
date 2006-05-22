@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.15 2006/05/22 05:11:22 sdanis Exp $
+* $Id: page_poll.inc,v 1.16 2006/05/22 07:01:10 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -225,6 +225,7 @@ class Page_Poll extends Page
 
 		// default view, above determines if they can vote
 		$format_type = 'results_format';
+		$keyword_reps = Array();
 
 		// determine which method is used to check if a user can vote
 		if (!$this->attr('allow_multiple_votes')) {
@@ -257,50 +258,36 @@ class Page_Poll extends Page
 				$this->_processVote($question, $_POST['option_id']);
 			}
 			$format_type = 'results_format';
+			$keyword_reps = $this->_getResultsFormatKeywordReplacements($question);
 
 		} else {
 
 			// if accessing the results screen by ID of View Results, or cannot vote
 			if (array_get_index($_GET, 'SQ_ACTION') == $prefix.'_results') {
 				$format_type = 'results_format';
+				$keyword_reps = $this->_getResultsFormatKeywordReplacements($question);
 			} else if (array_get_index($_GET, 'SQ_ACTION') == $prefix.'_past_polls' ) {
 				$format_type = 'past_questions_format';
+				$keyword_reps = $this->_getPastQuestionFormatKeywordReplacements($question, $active_question_id);
 			} else if ($can_vote) {
 				// set the question to vote on to the active question
 				$question = $active_question;
 				$format_type = 'question_format';
+				$keyword_reps = $this->_getQuestionFormatKeywordReplacements($question);
 			}
 
 		}//end if ($_POST['option_id'])
 
-		// define the keywords array
-		$keywords = Array(
-						'poll_question'						=> $this->_componentQuestion($question),
-						'poll_date'							=> $this->_componentDate($question),
-						'poll_option_list'					=> $this->_componentOptionList($question),
-						'poll_vote_button'					=> $this->_componentVoteButton(),
-						'poll_vote_button_new_window'		=> $this->_componentVoteButton(TRUE),
-						'poll_vote_button_js'				=> $this->_componentVoteButtonJavascript(),
-						'poll_vote_button_js_new_window'	=> $this->_componentVoteButtonJavascript(TRUE),
-						'poll_view_results'					=> $this->_componentViewResults(),
-						'poll_view_results_url'				=> $this->_componentViewResultsURL(),
-						'poll_view_past_questions'			=> $this->_componentViewPastQuestions(),
-						'poll_view_past_questions_url'		=> $this->_componentViewPastQuestionsURL(),
-						'poll_results_list'					=> $this->_componentGraph($question),
-						'poll_question_list'				=> $this->_componentQuestionList($active_question_id, FALSE, FALSE),
-						'poll_question_list_date'			=> $this->_componentQuestionList($active_question_id, TRUE, FALSE),
-						'poll_question_list_no_active'		=> $this->_componentQuestionList($active_question_id, FALSE, TRUE),
-						'poll_question_list_date_no_active'	=> $this->_componentQuestionList($active_question_id, TRUE, TRUE),
-						'poll_active_question'				=> $this->_componentActiveQuestion($question, FALSE),
-						'poll_active_question_results'		=> $this->_componentActiveQuestion($question, FALSE, TRUE),
-						'poll_active_question_date'			=> $this->_componentActiveQuestion($question, TRUE),
-						'poll_active_question_date_results'	=> $this->_componentActiveQuestion($question, TRUE, TRUE),
-					);
-
-
 		$format_bodycopy = $this->getFormatAsset($format_type);
 		if (!is_null($format_bodycopy)) {
-			$format_bodycopy->setKeywordReplacements($keywords);
+			$keywords = $format_bodycopy->getKeywords();
+			foreach ($keywords as $keyword) {
+				if (!isset($keyword_reps[$keyword])) {
+					$keyword_reps[$keyword] = $this->getKeywordReplacement($keyword);
+				}
+			}
+
+			$format_bodycopy->setKeywordReplacements($keyword_reps);
 			$format_bodycopy->printBody();
 		}
 
@@ -386,6 +373,41 @@ class Page_Poll extends Page
 
 
 	/**
+	* Keyword replacements
+	*
+	* @param object	$question	Question Asset
+	*
+	* @return array
+	* @access public
+	*/
+	function _getQuestionFormatKeywordReplacements($question)
+	{
+
+		$keywords = Array(
+						'poll_question'						=> $this->_componentQuestion($question),
+						'poll_date'							=> $this->_componentDate($question),
+						'poll_option_list'					=> $this->_componentOptionList($question),
+						'poll_vote_button'					=> $this->_componentVoteButton(),
+						'poll_vote_button_new_window'		=> $this->_componentVoteButton(TRUE),
+						'poll_vote_button_js'				=> $this->_componentVoteButtonJavascript(),
+						'poll_vote_button_js_new_window'	=> $this->_componentVoteButtonJavascript(TRUE),
+						'poll_view_results'					=> $this->_componentViewResults(),
+						'poll_view_results_url'				=> $this->_componentViewResultsURL(),
+						'poll_view_past_questions'			=> $this->_componentViewPastQuestions(),
+						'poll_view_past_questions_url'		=> $this->_componentViewPastQuestionsURL(),
+						'poll_results_list'					=> $this->_componentGraph($question),
+						'poll_active_question'				=> $this->_componentActiveQuestion($question, FALSE),
+						'poll_active_question_results'		=> $this->_componentActiveQuestion($question, FALSE, TRUE),
+						'poll_active_question_date'			=> $this->_componentActiveQuestion($question, TRUE),
+						'poll_active_question_date_results'	=> $this->_componentActiveQuestion($question, TRUE, TRUE),
+					);
+
+		return $keywords;
+
+	}//end _getQuestionFormatKeywordReplacements()
+
+
+	/**
 	* Return array of keywords
 	*
 	* @return array
@@ -454,6 +476,21 @@ class Page_Poll extends Page
 
 
 	/**
+	* keyword replacements
+	*
+	* @param object	$question	Question Asset
+	*
+	* @return array
+	* @access public
+	*/
+	function _getResultsFormatKeywordReplacements($question)
+	{
+		return $this->_getQuestionFormatKeywordReplacements($question);
+
+	}//end _getResultsFormatKeywordReplacements()
+
+
+	/**
 	* Return array of keywords
 	*
 	* @return array
@@ -489,9 +526,36 @@ class Page_Poll extends Page
 		$keywords['poll_active_question'] = translate('cms_poll_active_question');
 		$keywords['poll_date'] = translate('cms_poll_date');
 
+
 		return $keywords;
 
 	}//end _getPastQuestionsFormatKeywords()
+
+
+	/**
+	* keyword replacements
+	*
+	* @param object	$question			Question Object
+	* @param int	$active_question_id	Asset Id of the active question
+	*
+	* @return array
+	* @access public
+	*/
+	function _getPastQuestionFormatKeywordReplacements($question, $active_question_id)
+	{
+
+		$keywords = Array(
+						'poll_date'							=> $this->_componentDate($question),
+						'poll_question_list'				=> $this->_componentQuestionList($active_question_id, FALSE, FALSE),
+						'poll_question_list_date'			=> $this->_componentQuestionList($active_question_id, TRUE, FALSE),
+						'poll_question_list_no_active'		=> $this->_componentQuestionList($active_question_id, FALSE, TRUE),
+						'poll_question_list_date_no_active'	=> $this->_componentQuestionList($active_question_id, TRUE, TRUE),
+						'poll_active_question'				=> $this->_componentActiveQuestion($question, FALSE),
+					);
+
+		return $keywords;
+
+	}//end _getPastQuestionFormatKeywordReplacements()
 
 
 	/**
@@ -504,6 +568,7 @@ class Page_Poll extends Page
 	{
 		$keywords = Array();
 		$keywords['poll_question'] = translate('cms_poll_question');
+		$keywords = array_merge($keywords,$this->getAvailableKeywords());
 
 		return $keywords;
 
@@ -995,6 +1060,12 @@ class Page_Poll extends Page
 				<?php
 				$link .= ob_get_clean();
 				$keywords['poll_question'] = $link;
+				$poll_question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($info_index);
+				foreach ($format_bodycopy->getKeywords() as $keyword) {
+					if (empty($keywords[$keyword])) {
+						$keywords[$keyword] = $poll_question_asset->getKeywordReplacement($keyword);
+					}
+				}
 
 				$format_bodycopy->setKeywordReplacements($keywords);
 				$format_bodycopy->printBody();
