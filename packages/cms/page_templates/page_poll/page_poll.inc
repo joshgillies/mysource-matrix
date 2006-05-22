@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.14 2006/05/11 00:30:41 sdanis Exp $
+* $Id: page_poll.inc,v 1.15 2006/05/22 05:11:22 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -132,12 +132,8 @@ class Page_Poll extends Page
 	{
 		$return_value = FALSE;
 
-		// if this is a poll_question then we need to make it a dependant link and of SQ_LINK_TYPE_2
+		// if this is a poll_question then we need to make it SQ_LINK_TYPE_2
 		if ($side_of_link == 'major' && is_a($asset, 'poll_question')) {
-			if ($dependant != '1') {
-				$dependant = '1';
-				$return_value = TRUE;
-			}
 			if ($link_type != SQ_LINK_TYPE_2) {
 				$link_type = SQ_LINK_TYPE_2;
 				$return_value = TRUE;
