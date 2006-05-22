@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_edit_fns.inc,v 1.2 2006/05/22 01:44:42 emcdonald Exp $
+* $Id: structured_asset_info_edit_fns.inc,v 1.3 2006/05/22 01:47:04 emcdonald Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1077,6 +1077,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 				echo $this->_printAssetTagLine($schemaid)."<br />\n";
 			}
 		}
+
 	}//end _paintFieldMetadataSchemas()
 
 
@@ -1095,6 +1096,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 				echo $this->_printAssetTagLine($schemaid)."<br />\n";
 			}
 		}
+
 	}//end _paintFieldWorkflowSchemas()
 
 
