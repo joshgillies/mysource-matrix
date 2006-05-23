@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.131 2006/05/18 00:56:03 skim Exp $
+* $Id: general.inc,v 1.132 2006/05/23 00:17:45 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.132 $
 * @package MySource_Matrix
 */
 
@@ -1369,6 +1369,7 @@ function replace_global_keywords($text)
 	require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 	$keywords = retrieve_keywords_replacements($text);
+
 	if (!empty($keywords)) {
 		$keyword_replacements = Array();
 		foreach ($keywords as $global_keyword) {
@@ -1379,6 +1380,9 @@ function replace_global_keywords($text)
 				if ($keyword_replacements[$global_keyword] == '%'.$keyword.'%') {
 					$keyword_replacements[$global_keyword] = '%'.$global_keyword.'%';
 				}
+			} else if (preg_match('/^globals_/', $global_keyword)) {
+				// Global keyword that doesn't exist = blank out
+				$keyword_replacements[$global_keyword] = '';
 			}
 		}
 		$text = replace_keywords($text, $keyword_replacements);
