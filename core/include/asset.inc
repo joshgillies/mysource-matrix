@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.537 2006/05/18 00:19:41 tbarrett Exp $
+* $Id: asset.inc,v 1.538 2006/05/23 06:51:15 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.537 $
+* @version $Revision: 1.538 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4036,7 +4036,7 @@ class Asset extends MySource_Object
 	*/
 	function getPrefix()
 	{
-		return str_replace(' ', '_', $this->type().'_'.$this->id);
+		return str_replace(':', '_', str_replace(' ', '_', $this->type().'_'.$this->id));
 
 	}//end getPrefix()
 
