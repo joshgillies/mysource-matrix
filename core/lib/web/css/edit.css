@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.53 2005/12/07 05:57:42 dmckee Exp $
+* $Id: edit.css,v 1.53.2.1 2006/05/23 02:08:59 sdanis Exp $
 *
 */
 
@@ -263,7 +263,7 @@ td.sq-backend-nav-history {
 .sq-backend-table-cell-alt a:link, .sq-backend-table-cell-alt a:hover, .sq-backend-table-cell-alt a:visited,
 .sq-backend-table td a:link, .sq-backend-table td a:hover, .sq-backend-table td a:visited {
 	color:				#333333;
-	text-decoration:	none;
+	text-decoration:	underline;
 }
 
 td.sq-backend-table-cell a:hover, td.sq-backend-table-cell-alt a:hover, .sq-backend-table td a:hover {
