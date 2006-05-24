@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.123.2.4 2006/05/17 07:12:20 rong Exp $
+* $Id: file.inc,v 1.123.2.5 2006/05/24 06:53:11 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.123.2.4 $
+* @version $Revision: 1.123.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -958,34 +958,38 @@ class File extends Asset
 			}
 			$type = (empty($standards_lists_mime_types[$ext])) ? 'text/plain' : $standards_lists_mime_types[$ext];
 
-                        // get protocol information
-                        $ssl_connection = FALSE;
-                        $url_info = parse_url(current_url());
-                        $protocol = (isset($url_info['scheme'])) ? $url_info['scheme'] : NULL;
-                        if (!is_null($protocol) && $protocol == 'https') {
-                                $ssl_connection = TRUE;
-                        }
+			// get protocol information
+			$ssl_connection = FALSE;
+			$url_info = parse_url(current_url());
+			$protocol = (isset($url_info['scheme'])) ? $url_info['scheme'] : NULL;
+			if (!is_null($protocol) && $protocol == 'https') {
+					$ssl_connection = TRUE;
+			}
 
-                        // send cacheable headers if file asset meets the credentials
-                        if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user')
-                                && $this->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER) {
-                                header('Cache-Control: public');
-                                header('Pragma: cache');
-                                header('Expires: '.gmdate('D, d M Y H:i:s', (time()+86400)).' GMT');
-                                header('Last-Modified: '.gmdate('D, d M Y H:i:s',$existing['modified']).' GMT');
-                        } else if (!$ssl_connection) {
-                                header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-                                header('Pragma: no-cache');
-                                header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
-                        } else {
-                                // internet explorer has a problem with SSL connection (https)
-                                // cant send no-cache header or we will get "cannot download file" error
-                                // http://support.microsoft.com/default.aspx?scid=kb;en-us;812935
-                                // http://support.microsoft.com/default.aspx?scid=kb;en-us;316431
-                                header('Cache-Control: max-age=0, must-revalidate');
-                                header('Pragma: public');
-                                header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
-                        }
+			// send cacheable headers if file asset meets the credentials
+			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user')
+					&& $this->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER) {
+					header('Cache-Control: public');
+					header('Pragma: cache');
+					header('Expires: '.gmdate('D, d M Y H:i:s', (time()+86400)).' GMT');
+					header('Last-Modified: '.gmdate('D, d M Y H:i:s',$existing['modified']).' GMT');
+			} else if (!$ssl_connection) {
+					header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+					header('Pragma: no-cache');
+					header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
+			} else {
+					// internet explorer has a problem with SSL connection (https)
+					// cant send no-cache header or we will get "cannot download file" error
+					// http://support.microsoft.com/default.aspx?scid=kb;en-us;812935
+					// http://support.microsoft.com/default.aspx?scid=kb;en-us;316431
+					header('Cache-Control: max-age=0, must-revalidate');
+					header('Pragma: public');
+					header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
+			}
+
+			header('Content-Type: '.$type);
+			header('Content-Disposition: inline; filename='.$existing['filename'].';');
+			header('Content-Length: '.$existing['size']);
 
 			readfile($existing['path']);
 		}
