@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.19 2006/04/10 05:00:28 rhoward Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.20 2006/05/24 23:06:25 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -177,7 +177,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 
 		// pagination
 		$total_assets = count($all_users);
-		$num_per_page = 5;
+		$num_per_page = 15;
 		$num_pages    = ceil($total_assets / $num_per_page);
 
 		$asset_offset  = array_get_index($_POST, $prefix.'_asset_offset', 0);
@@ -186,7 +186,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		if ($num_pages <= 1) {
 			$users = $all_users;
 		} else {
-			$users = array_slice($all_users, $asset_offset, $asset_offset + $num_per_page);
+			$users = array_slice($all_users, $asset_offset, $num_per_page);
 		}
 
 		?>
@@ -267,7 +267,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		$user_details = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($users, Array(), TRUE, 'name');
 		foreach ($users as $userid) {
 			?><tr>
-				<td class="sq-backend-table-cell"><?php $this->_paintPendingUserDetails($userid, $user_details); ?></td>
+				<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($userid, 'details'); ?></td>
 				<?php
 					if ($write_access) {
 						?><td width="10%" class="sq-backend-table-cell"><?php check_box($prefix.'_validate['.$userid.']'); ?></td><?php
@@ -285,23 +285,6 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		return $write_access;
 
 	}//end paintValidateAccounts()
-
-
-	/**
-	* Paints the line used to represent the user in the Pending Accounts screen
-	*
-	* @param string	$userid			the id of the user to paint
-	* @param string	$user_details	an array of userid => name
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _paintPendingUserDetails($userid, $user_details)
-	{
-		echo $user_details[$userid].' (#'.$userid.')';
-		return TRUE;
-
-	}//end _paintPendingUserDetails()
 
 
 	/**
