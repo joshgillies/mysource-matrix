@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_management.inc,v 1.7.2.1 2006/05/25 07:14:11 rhoward Exp $
+* $Id: bodycopy_container_management.inc,v 1.7.2.2 2006/05/25 23:14:41 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7.2.1 $
+* @version $Revision: 1.7.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,56 +67,6 @@ class Bodycopy_Container_Management extends Asset_Management
 					  );
 
 	}//end constructor
-
-
-	/**
-	* Upgrade
-	*
-	* @param string	$current_version	the version of the asset that is currenly installed
-	*
-	* @return boolean
-	* @access public
-	*/
-	function _upgrade($current_version)
-	{
-		if (!parent::_upgrade($current_version)) return FALSE;
-
-		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
-
-		if (version_compare($current_version, '0.4', '<')) {
-			// version 0.3 -> 0.4
-			// escaping of "<?php", "<?", etc. now happens in bodycopy_container_edit_fns::generateContentFile()
-			// regenerate each bodycopy_container's content file
-			// ignore cases where <?php has already been escaped to &lt;?php
-			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.4');
-			// get all 'bodycopy_container' assets (or their descendants)
-			$containers = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetIds($this->getAssetType(), FALSE);
-			pre_echo('Upgrading '.count($containers).' assets...');
-			foreach ($containers as $assetid) {
-				$container =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-
-				// reasonably critical upgrade - report any assets that didn't make it
-				if (is_null($container)) {
-					pre_echo('Could get asset #'.$assetid);
-					continue;
-				}
-
-				// regenerate the bodycopy_container's content file
-				$container_edit_fns =& $container->getEditFns();
-				if (!$container_edit_fns->generateContentFile($container)) {
-					pre_echo('Could not generate content file for asset #'.$assetid);
-				}
-
-				unset($container_edit_fns);
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($container);
-			}
-			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.4');
-
-		}//end version 0.4 upgrade
-
-		return TRUE;
-
-	}//end _upgrade()
 
 
 }//end class

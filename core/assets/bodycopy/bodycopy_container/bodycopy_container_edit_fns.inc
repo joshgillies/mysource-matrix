@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.36.2.2 2006/05/25 07:14:11 rhoward Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.36.2.3 2006/05/25 23:14:41 rhoward Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36.2.2 $
+* @version $Revision: 1.36.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -229,9 +229,6 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$this->paint($asset, FALSE, TRUE);
 			$output = ob_get_contents();
 		ob_end_clean();
-
-		// escape dangerous content, eg. <?php, <? - leaves <?xml intact and working
-		$output = str_replace('<?', "<?php echo '<'.'?'; ?>", $output);
 
 		if (!$this->createContentLinks($asset, $output)) {
 			return FALSE;
