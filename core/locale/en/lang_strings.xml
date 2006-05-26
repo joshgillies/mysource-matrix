@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.103.2.5 2006/05/10 00:04:09 lwright Exp $
+* $Id: lang_strings.xml,v 1.103.2.6 2006/05/26 01:31:03 tbarrett Exp $
 *
 */
 
@@ -1792,5 +1792,10 @@ Items to delete: %s</string>
 	<string source="http_header_not_modified_field">Send Not Modified Status-Code</string>
 	<string source="http_header_not_modified_field_note">If enabled, server will send a "304 Not Modified" Status-Code indicating nothing has been changed since last visit.</string>
 	<string source="http_header_conditional_note">Note: Only applicable to Live assets that are accessible by public users.</string>
+
+	<!-- Keywords Config -->
+	<string source="keyword_settings_section_name">Keyword Replacement Settings</string>
+	<string source="hide_unknown_keywords">Hide Unknown Keywords</string>
+	<string source="hide_unknown_keywords_note">If this setting is enabled, words that begin and end with percent signs but are not recognised keywords will be blanked out on the frontend at all times</string>
 
 </strings>
