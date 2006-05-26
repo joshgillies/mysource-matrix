@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.23 2006/03/27 23:23:42 rong Exp $
+* $Id: www.inc,v 1.24 2006/05/26 05:25:28 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package Fudge
 * @subpackage General
 */
@@ -93,8 +93,7 @@ function relative_href($from,$to)
 	// if they wanted a trailing slash make sure there is one, else remove it
 	if (substr($to, -1) == '/') {
 		$href = preg_replace('/\\/+$/', '/', $href);
-	}
-	else {
+	} else {
 		$href = preg_replace('/\\/$/', '', $href);
 	}
 
@@ -115,9 +114,22 @@ function relative_href($from,$to)
 */
 function valid_email($e)
 {
-	if (!is_string($e)) return false;
+	if (!is_string($e)) return FALSE;
 
-	return preg_match('/^[a-zA-Z]+(([\'\,\.\- ][a-zA-Z ])?[a-zA-Z]*)*\s+<([\da-zA-Z][-.\w]*[\d_a-zA-Z-]@[\da-zA-Z][-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})>$|^([\da-zA-Z][-.\w\']*[\d_a-zA-Z-]@[\da-zA-Z][\'-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})$/', $e);
+	$local = '\da-zA-Z-_+';
+	// dot character cannot be the first or last character in the local-part.
+	$local_middle = $local.'.\w';
+
+	if (preg_match('/^[a-zA-Z]+(([\'\,\.\- ][a-zA-Z ])?[a-zA-Z]*)*\s+<(['.$local.']['.$local_middle.']*['.$local.']@[\da-zA-Z][-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})>$/', $e)) {
+		// matches email with display name, for example, 'Someone <some.one@squiz.net>'
+		return TRUE;
+	} else if (preg_match('/^(['.$local.']['.$local_middle.'\']*['.$local.']@[\da-zA-Z][\'-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})$/', $e)) {
+		// matches normal email address
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+
 
 }//end valid_email()
 
@@ -153,7 +165,7 @@ function make_raw_post_data($data)
 		return '';
 	}
 
-	$val_array = null;
+	$val_array = NULL;
 
 	foreach ($data as $name => $value) {
 		$val_array[] = recursive_make_raw_post_data($name, $value);
@@ -220,7 +232,6 @@ function undo_htmlspecialchars($string)
 
 /**
 * Make a valid (X)HTML ID from a string
-*
 * W3C's (X)HTML definition notes that ID field can only contain letters, numbers
 * and these punctuation marks [:_.-]. First character must be a letter.
 *
@@ -233,12 +244,13 @@ function undo_htmlspecialchars($string)
 * @param string	$id				The ID to work on
 * @param string	$replace_char	The character to replace with (can be blank)
 *
-* @return string|boolean	false if $replace_char is not, amended string otherwise
+* @return mixed string|boolean
 * @access public
 */
-function make_valid_html_id($id, $replace_char='') {
+function make_valid_html_id($id, $replace_char='')
+{
 	if (!preg_match('/^[A-Za-z0-9:_.-]*$/', $replace_char)) {
-		return false;
+		return FALSE;
 	}
 	$id = preg_replace('/[^A-Za-z0-9:_.-]/', $replace_char, $id);
 
@@ -249,5 +261,6 @@ function make_valid_html_id($id, $replace_char='') {
 	return $id;
 
 }//end make_valid_html_id()
+
 
 ?>
