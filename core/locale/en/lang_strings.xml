@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.140 2006/05/17 23:50:24 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.141 2006/05/26 01:24:45 tbarrett Exp $
 *
 */
 
@@ -1900,5 +1900,10 @@ Items to delete: %s</string>
 	<string source="mass_clone_must_choose_parent">A parent for the new clones must be chosen</string>
 	<string source="mass_clone_type_of_link">Type of link between parent and clones</string>
 	<string source="mass_clone_num_clones">Number of clones to create</string>
+
+	<!-- Keywords Config -->
+	<string source="keyword_settings_section_name">Keyword Replacement Settings</string>
+	<string source="hide_unknown_keywords">Hide Unknown Keywords</string>
+	<string source="hide_unknown_keywords_note">If this setting is enabled, words that begin and end with percent signs but are not recognised keywords will be blanked out on the frontend at all times</string>
 
 </strings>
