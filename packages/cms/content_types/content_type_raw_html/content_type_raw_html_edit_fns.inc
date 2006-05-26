@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_edit_fns.inc,v 1.12 2006/05/25 07:15:04 rhoward Exp $
+* $Id: content_type_raw_html_edit_fns.inc,v 1.13 2006/05/26 01:35:50 rhoward Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -42,6 +42,13 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 		$this->Content_Type_Edit_Fns();
 
 	}//end constructor
+
+	function paint(&$asset, $prefix, $editing=FALSE, $generating=FALSE)
+	{
+		parent::paint($asset, $prefix, $editing, $generating);
+
+		log_dump();
+	}
 
 
 	/**
