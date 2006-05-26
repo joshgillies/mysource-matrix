@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.132 2006/05/23 00:17:45 lwright Exp $
+* $Id: general.inc,v 1.133 2006/05/26 01:24:16 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.132 $
+* @version $Revision: 1.133 $
 * @package MySource_Matrix
 */
 
@@ -1357,7 +1357,7 @@ function get_asset_lineage_sort_order($asset_lineage=Array())
 
 
 /**
-* Replaces global keywords on a string
+* Replaces keywords on the global level
 *
 * @param string	$text	the text to replace keywords in
 *
@@ -1367,27 +1367,27 @@ function get_asset_lineage_sort_order($asset_lineage=Array())
 function replace_global_keywords($text)
 {
 	require_once SQ_FUDGE_PATH.'/general/text.inc';
-
 	$keywords = retrieve_keywords_replacements($text);
-
 	if (!empty($keywords)) {
-		$keyword_replacements = Array();
-		foreach ($keywords as $global_keyword) {
-			if (preg_match('/^globals_user_/', $global_keyword)) {
-				$keyword = preg_replace('/^globals_user_/', 'asset_', $global_keyword);
-				// convert our replacement to a string always so it gets replaced even if zero
-				$keyword_replacements[$global_keyword] = (string) $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($keyword);
-				if ($keyword_replacements[$global_keyword] == '%'.$keyword.'%') {
-					$keyword_replacements[$global_keyword] = '%'.$global_keyword.'%';
+		$replacements = Array();
+		foreach ($keywords as $keyword) {
+			if (0 === strpos($keyword, 'globals_')) {
+				// It really is a global keyword, so default replacement is empty
+				$replacements[$keyword] = '';
+				if (0 === strpos($keyword, 'globals_user_')) {
+					$user_keyword = 'asset_'.substr($keyword, 13);
+					$user_replacement = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($user_keyword);
+					if ($user_replacement != "%$user_keyword%") {
+						$replacements[$keyword] =  $user_replacement;
+					}
 				}
-			} else if (preg_match('/^globals_/', $global_keyword)) {
-				// Global keyword that doesn't exist = blank out
-				$keyword_replacements[$global_keyword] = '';
+			} else {
+				// It's some other keyword that hasn't been replaced - use the config setting
+				$replacements[$keyword] = SQ_CONF_HIDE_UNKNOWN_KEYWORDS ? '' : "%$keyword%";
 			}
 		}
-		$text = replace_keywords($text, $keyword_replacements);
+		$text = replace_keywords($text, $replacements);
 	}
-
 	return $text;
 
 }//end replace_global_keywords()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.77 2006/03/15 22:28:10 rong Exp $
+* $Id: system_config.inc,v 1.78 2006/05/26 01:24:16 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -88,6 +88,7 @@ class System_Config extends Config
 						'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
 						'SQ_CONF_SESSION_GC_MAXLIFETIME'	=> Array('editable' => 1, 'default'	=> 604800),
 						'SQ_CONF_EDITING_TIME'				=> Array('editable'	=> 0, 'default' => 3600),
+						'SQ_CONF_HIDE_UNKNOWN_KEYWORDS'		=> Array('editable' => 1, 'default' => FALSE),
 					   );
 
 	/**
@@ -646,6 +647,7 @@ class System_Config extends Config
 		$o->closeSection();
 
 		$o->openSection(translate('http_header_section_name'));
+
 			$o->openField(translate('http_header_cacheable_field'));
 				if ($write_access && $is_root) {
 					combo_box($class.'[SQ_CONF_SEND_CACHEABLE_HEADER]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_SEND_CACHEABLE_HEADER);
@@ -672,6 +674,19 @@ class System_Config extends Config
 				}
 				$o->note(translate('http_header_not_modified_field_note'));
 				$o->note(translate('http_header_conditional_note'));
+			$o->closeField();
+
+		$o->closeSection();
+
+		$o->openSection(translate('keyword_settings_section_name'));
+
+			$o->openField(translate('hide_unknown_keywords'));
+				if ($write_access) {
+					combo_box($class.'[SQ_CONF_HIDE_UNKNOWN_KEYWORDS]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_HIDE_UNKNOWN_KEYWORDS);
+				} else {
+					echo (SQ_CONF_HIDE_UNKNOWN_KEYWORDS) ? translate('yes') : translate('no');
+				}
+				$o->note(translate('hide_unknown_keywords_note'));
 			$o->closeField();
 
 		$o->closeSection();
