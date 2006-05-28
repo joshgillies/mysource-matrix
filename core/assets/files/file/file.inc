@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.128 2006/05/17 07:03:42 rong Exp $
+* $Id: file.inc,v 1.129 2006/05/28 23:10:51 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1021,8 +1021,8 @@ class File extends Asset
 				// cant send no-cache header or we will get "cannot download file" error
 				// http://support.microsoft.com/default.aspx?scid=kb;en-us;812935
 				// http://support.microsoft.com/default.aspx?scid=kb;en-us;316431
-				header('Cache-Control: max-age=0, must-revalidate');
-				header('Pragma: public');
+				header('Cache-Control: private, max-age=0, must-revalidate');
+				header('Pragma: private');
 				header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
 			}
 
