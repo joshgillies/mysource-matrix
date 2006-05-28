@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.39 2006/03/10 04:11:20 rong Exp $
+* $Id: bulkmail_manager.inc,v 1.40 2006/05/28 23:35:46 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -754,7 +754,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 				}
 			}
 			if (!empty($problematic_list)) {
-				$errors[] = translate('bm_warning_recipient_no_read_access', implode(', ', $problematic_list));
+				$errors[] = translate('bm_warning_recipient_no_read_access', $content_page->name, $content_page->id, implode(', ', $problematic_list));
 			}
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_page);
