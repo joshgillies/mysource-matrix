@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.123.2.5 2006/05/24 06:53:11 rong Exp $
+* $Id: file.inc,v 1.123.2.6 2006/05/28 23:17:30 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.123.2.5 $
+* @version $Revision: 1.123.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -982,8 +982,9 @@ class File extends Asset
 					// cant send no-cache header or we will get "cannot download file" error
 					// http://support.microsoft.com/default.aspx?scid=kb;en-us;812935
 					// http://support.microsoft.com/default.aspx?scid=kb;en-us;316431
-					header('Cache-Control: max-age=0, must-revalidate');
-					header('Pragma: public');
+					// We can get away with "private", though... this works
+					header('Cache-Control: private, max-age=0, must-revalidate');
+					header('Pragma: private');
 					header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
 			}
 
