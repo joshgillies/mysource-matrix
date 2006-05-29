@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.78 2006/05/26 01:24:16 tbarrett Exp $
+* $Id: system_config.inc,v 1.79 2006/05/29 06:30:35 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -88,7 +88,6 @@ class System_Config extends Config
 						'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
 						'SQ_CONF_SESSION_GC_MAXLIFETIME'	=> Array('editable' => 1, 'default'	=> 604800),
 						'SQ_CONF_EDITING_TIME'				=> Array('editable'	=> 0, 'default' => 3600),
-						'SQ_CONF_HIDE_UNKNOWN_KEYWORDS'		=> Array('editable' => 1, 'default' => FALSE),
 					   );
 
 	/**
@@ -674,19 +673,6 @@ class System_Config extends Config
 				}
 				$o->note(translate('http_header_not_modified_field_note'));
 				$o->note(translate('http_header_conditional_note'));
-			$o->closeField();
-
-		$o->closeSection();
-
-		$o->openSection(translate('keyword_settings_section_name'));
-
-			$o->openField(translate('hide_unknown_keywords'));
-				if ($write_access) {
-					combo_box($class.'[SQ_CONF_HIDE_UNKNOWN_KEYWORDS]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_HIDE_UNKNOWN_KEYWORDS);
-				} else {
-					echo (SQ_CONF_HIDE_UNKNOWN_KEYWORDS) ? translate('yes') : translate('no');
-				}
-				$o->note(translate('hide_unknown_keywords_note'));
 			$o->closeField();
 
 		$o->closeSection();

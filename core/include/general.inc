@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.133 2006/05/26 01:24:16 tbarrett Exp $
+* $Id: general.inc,v 1.134 2006/05/29 06:30:35 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.133 $
+* @version $Revision: 1.134 $
 * @package MySource_Matrix
 */
 
@@ -1372,7 +1372,7 @@ function replace_global_keywords($text)
 		$replacements = Array();
 		foreach ($keywords as $keyword) {
 			if (0 === strpos($keyword, 'globals_')) {
-				// It really is a global keyword, so default replacement is empty
+				// Default replacement for global keywords is blank string
 				$replacements[$keyword] = '';
 				if (0 === strpos($keyword, 'globals_user_')) {
 					$user_keyword = 'asset_'.substr($keyword, 13);
@@ -1381,9 +1381,6 @@ function replace_global_keywords($text)
 						$replacements[$keyword] =  $user_replacement;
 					}
 				}
-			} else {
-				// It's some other keyword that hasn't been replaced - use the config setting
-				$replacements[$keyword] = SQ_CONF_HIDE_UNKNOWN_KEYWORDS ? '' : "%$keyword%";
 			}
 		}
 		$text = replace_keywords($text, $replacements);
