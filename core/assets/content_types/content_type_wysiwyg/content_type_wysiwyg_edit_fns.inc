@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.31 2006/05/16 05:49:18 sdanis Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.32 2006/05/29 00:59:07 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -280,7 +280,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function paintBackendIcons(&$asset, $prefix)
 	{
-		Bodycopy_Edit_Fns::printBodycopyIcon("switchEditingMode('".$prefix."_contents_div','".$prefix."_wysiwyg_div', editor_".$prefix.");", 'Edit Contents', 'Switch between preview and edit mode', 'edit_mode', '[Edit Contents]');
+		Bodycopy_Edit_Fns::printBodycopyIcon("switchEditingMode('".$prefix."_contents_div','".$prefix."_wysiwyg_div', editor_".$prefix.');', 'Edit Contents', 'Switch between preview and edit mode', 'edit_mode', '[Edit Contents]');
 
 	}//end paintBackendIcons()
 
@@ -338,6 +338,11 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		$html = $asset->attr('html');
 		$html = preg_replace('|(<htmlarea_special[^>]*?>)(.*?)(</htmlarea_special>)|si', '$2', $html);
+		if ($generating) {
+			// escape dangerous content, eg. <?php, <? - leaves <?xml intact and working
+			$html = str_replace('<?', "<?php echo '<'.'?'; ?>", $html);
+
+		}
 		echo $html;
 
 	}//end paint()
