@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.24 2006/04/06 06:36:07 dmckee Exp $
+* $Id: lang_strings.xml,v 1.25 2006/05/29 06:50:56 skim Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -101,6 +101,7 @@
 <string source="cms_listing_keyword_asset_selection">Asset Selection (%s)</string>
 <string source="cms_listing_group_listing">Asset Group Listing</string>
 <string source="cms_listing_group_name">Asset Group Name</string>
+<string source="cms_listing_group_name_linked">Asset Group Name Linked</string>
 <string source="cms_listing_group_immed_child_group_count">Asset Group Immediate Child Group Count</string>
 <string source="cms_listing_group_total_child_asset_count">Asset Group Total Child Asset Count</string>
 <string source="cms_structured_name_note">*This must be set as a dynamic parameter in the above section to function correctly</string>
