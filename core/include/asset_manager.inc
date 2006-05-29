@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.478 2006/05/18 04:30:08 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.479 2006/05/29 02:39:22 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.478 $
+* @version $Revision: 1.479 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2724,46 +2724,55 @@ class Asset_Manager extends MySource_Object
 
 		}//end if shadow asset
 
-		$asset_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', TRUE, 'minor');
+		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.assetid, '.$fields_str.'
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
+					 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON a.assetid = pl.minorid
+				';
 
-		foreach ($asset_links as $link) {
-			$assetids[$link['majorid']] = Array();
+		// we want to get all the parent links of this assetid and use these
+		// as the minorid in the query, effectively getting the lineages of the
+		// asset's immediate parents.
+
+		$sub_sql   = 'SELECT l.majorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l';
+		$sub_where = 'l.minorid = '.$db->quoteSmart((string) $assetid);
+		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
+		$sub_sql  .= $sub_where;
+
+		$where = 'cl.minorid IN ('.$sub_sql.')
+				  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
+				  AND pt.treeid <= ct.treeid';
+
+		if (!is_null($from_treeid)) {
+			$where .= ' AND pt.treeid LIKE '.$db->quoteSmart((string) $from_treeid.'%');
 		}
 
-		if (empty($assetids)) {
-			$result = Array();
+		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_lineage_treeids('.$db->quoteSmart((string) $assetid).', '.
+				  $db->quoteSmart((int) SQ_CONF_ASSET_TREE_SIZE).')';
+
+		if ($db->phptype == 'oci8') {
+			$in_sql = 'SELECT * FROM table('.$in_sql.')';
 		} else {
-			$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.assetid, '.$fields_str.'
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
-						 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON a.assetid = pl.minorid
-					';
-
-			$quoted_assetids = array_keys($assetids);
-			for (reset($quoted_assetids); NULL !== ($key = key($quoted_assetids)); next($quoted_assetids)) {
-					$quoted_assetids[$key] = $db->quoteSmart($quoted_assetids[$key]);
-			}
-
-			$where = 'cl.minorid IN ('.implode(', ', $quoted_assetids).')
-					  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
-					  AND pt.treeid <= ct.treeid';
-			if (!is_null($from_treeid)) {
-				$where .= ' AND pt.treeid LIKE '.$db->quote($from_treeid.'%');
-			}
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-
-			$sql .= $where.'
-					ORDER BY cl.linkid, ct.treeid, pt.treeid';
-			$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
-
-			assert_valid_db_result($result);
+			$in_sql = 'SELECT * FROM '.$in_sql;
 		}
+
+		$where .= ' AND pt.treeid IN ('.$in_sql.')';
+
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+
+		$sql .= $where.'
+				ORDER BY cl.linkid, ct.treeid, pt.treeid';
+
+		$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
+		assert_valid_db_result($result);
+
+		$asset_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 
 		$link_info = Array();
 		foreach ($asset_links as $link_data) {
