@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.538 2006/05/23 06:51:15 lwright Exp $
+* $Id: asset.inc,v 1.539 2006/05/29 06:31:35 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.538 $
+* @version $Revision: 1.539 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3238,6 +3238,9 @@ class Asset extends MySource_Object
 	* should implement a function getBestEverKeywordReplacement()
 	* which returns a replacement string
 	*
+	* Note that this function returns a blank string for any keywords it
+	* doesn't recognise, unless the keyword begins with %globals_
+	*
 	* @param string	$keyword	Keyword to find a replacement for
 	*
 	* @return string
@@ -3246,7 +3249,10 @@ class Asset extends MySource_Object
 	function getKeywordReplacement($keyword)
 	{
 		if (empty($keyword)) return '';
-		$replacement = "%$keyword%";
+		if (0 === strpos($keyword, 'globals_')) {
+			return "%$keyword%";
+		}
+		$replacement = '';
 		$tmp_keyword = strtr($keyword, '_', ' ');
 		$tmp_keyword = ucwords($tmp_keyword);
 		$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
