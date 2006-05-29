@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.24.2.3 2005/12/14 00:30:45 lwright Exp $
+* $Id: workflow.inc,v 1.24.2.4 2006/05/29 04:48:38 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.24.2.3 $
+* @version $Revision: 1.24.2.4 $
 * @package MySource_Matrix
 */
 
@@ -781,17 +781,11 @@ function processWorkflow(&$owner, &$o, &$ei)
 		}
 	}
 
-	// from here on in, if we dont have admin access - piss off
-	if ($owner->id && !$owner->adminAccess('')) {
-		if (!$updated) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
-			exit();
-		}
-		return $updated;
-	}
 
 	// if we dont have admin access, dont process anything
-	if (!$owner->adminAccess('workflow')) return $updated;
+	if (!$owner->adminAccess('workflow')) {
+		return $updated;
+	}
 
 	if (!isset($_POST[$prefix.'_workflow'])) {
 		return $updated;
