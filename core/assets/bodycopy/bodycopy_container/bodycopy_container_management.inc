@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_management.inc,v 1.8 2006/05/25 07:15:03 rhoward Exp $
+* $Id: bodycopy_container_management.inc,v 1.9 2006/05/29 01:06:11 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,12 +83,13 @@ class Bodycopy_Container_Management extends Asset_Management
 
 		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
 
-		if (version_compare($current_version, '0.4', '<')) {
-			// version 0.3 -> 0.4
-			// escaping of "<?php", "<?", etc. now happens in bodycopy_container_edit_fns::generateContentFile()
-			// regenerate each bodycopy_container's content file
+		if (version_compare($current_version, '0.5', '<')) {
+			// version 0.3 -> 0.5 (0.4 was a botched version)
+			// escaping of "<?php", "<?", etc. now happens in content_type::paint(), but we need to
+			// regenerate each bodycopy_container's content file so that we catch any nasties that might
+			// already be present that we need to get rid of.
 			// ignore cases where <?php has already been escaped to &lt;?php
-			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.4');
+			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.5');
 			// get all 'bodycopy_container' assets (or their descendants)
 			$containers = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetIds($this->getAssetType(), FALSE);
 			pre_echo('Upgrading '.count($containers).' assets...');
@@ -110,9 +111,9 @@ class Bodycopy_Container_Management extends Asset_Management
 				unset($container_edit_fns);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($container);
 			}
-			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.4');
+			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.5');
 
-		}//end version 0.4 upgrade
+		}//end version 0.5 upgrade
 
 		return TRUE;
 
