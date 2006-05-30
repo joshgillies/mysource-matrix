@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_structure_tree_edit_fns.inc,v 1.4 2006/01/20 05:41:19 sdanis Exp $
+* $Id: content_type_structure_tree_edit_fns.inc,v 1.5 2006/05/30 01:58:54 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz
 */
@@ -58,7 +58,12 @@ class Content_Type_Structure_Tree_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			hidden_field($prefix.'_structure_value', 'bla');
-			$serialised = var_serialise($asset->attr('structure'));
+			// loop through the rows to be printed, escape the 'content' for each
+			$pre_serialised = $asset->attr('structure');
+			foreach ($asset->attr('structure') as $index => $row) {
+				$pre_serialised[$index]['content'] = str_replace("'", "\'", $row['content']);
+			}
+			$serialised = var_serialise($pre_serialised);
 			$serialised = 'var init_data = \''.$serialised;
 			$serialised = str_replace("\n", "\\n'; init_data += '", $serialised);
 			$serialised = substr($serialised, 0, strrpos($serialised, ';') + 1)."\n\n";
