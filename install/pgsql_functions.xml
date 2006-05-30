@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.13 2006/05/29 02:40:50 mmcintyre Exp $
+* $Id: pgsql_functions.xml,v 1.14 2006/05/30 06:28:32 mmcintyre Exp $
 *
 */
 -->
@@ -255,9 +255,14 @@
                 END IF;
 
                 sql := ''SELECT treeid FROM '' || table_prefix || ''ast_lnk l INNER JOIN '' || table_prefix || ''ast_lnk_tree t ON l.linkid = t.linkid
-                    WHERE l.minorid IN (SELECT majorid FROM sq_ast_lnk where minorid = '' || minorid || '')'';
+                    WHERE l.minorid IN (SELECT l.majorid FROM '' || table_prefix || ''ast_lnk where l.minorid = '' || minorid;
 
                 IF rb_date IS NOT NULL THEN
+                    -- note the extra bracket at the end of this statement to close the IN clause above
+                    sql := sql || '' AND l.sq_eff_from <= '''''' || rb_date ||
+                              '''''' AND (l.sq_eff_to IS NULL
+                                 OR l.sq_eff_to > '''''' || rb_date || '''''''' || ''))'';
+
                     sql := sql || '' AND l.sq_eff_from <= '''''' || rb_date ||
                               '''''' AND (l.sq_eff_to IS NULL
                                  OR l.sq_eff_to > '''''' || rb_date || '''''''' || '')'';
@@ -265,6 +270,9 @@
                     sql := sql || '' AND t.sq_eff_from <= '''''' || rb_date ||
                               '''''' AND (t.sq_eff_to IS NULL
                                  OR t.sq_eff_to > '''''' || rb_date || '''''''' || '')'';
+                ELSE
+                    --close the in clause above
+                    sql := sql || '')'';
                 END IF;
 
                 FOR treeids IN EXECUTE sql LOOP
@@ -336,9 +344,9 @@
             TREE_SIZE ALIAS FOR $4;
             str TEXT;
             pad_str TEXT;
-            i INTEGER	:= 0;
-            x INTEGER	:= 0;
-            d INTEGER	:= 0;
+            i INTEGER    := 0;
+            x INTEGER    := 0;
+            d INTEGER    := 0;
             num INTEGER := 0;
             pos INTEGER := 0;
             DIGITS CHAR(64) := ''0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~'';
