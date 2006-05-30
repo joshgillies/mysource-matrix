@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.26.2.6 2006/05/26 00:40:45 rong Exp $
+* $Id: image_variety.inc,v 1.26.2.7 2006/05/30 02:25:43 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.26.2.6 $
+* @version $Revision: 1.26.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -715,7 +715,7 @@ class Image_Variety extends Asset
 					header('Cache-Control: public');
 					header('Pragma: cache');
 					header('Expires: '.gmdate('D, d M Y H:i:s', (time()+86400)).' GMT');
-					header('Last-Modified: '.gmdate('D, d M Y H:i:s',$existing['modified']).' GMT');
+					header('Last-Modified: '.gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
 			} else if (!$ssl_connection) {
 					header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 					header('Pragma: no-cache');
@@ -734,7 +734,7 @@ class Image_Variety extends Asset
 			header('Content-Disposition: inline; filename='.$filename.';');
 			header('Content-Length: '.filesize($file));
 
-			readfile($existing['path']);
+			readfile($file);
 		}
 
 	}//end printFrontend()
