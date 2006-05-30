@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.9.2.1 2006/03/16 05:34:03 rong Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.9.2.2 2006/05/30 06:40:37 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9.2.1 $
+* @version $Revision: 1.9.2.2 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -132,12 +132,18 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_PLUGINS') {
 			if (is_null($pref)) $o->openField(translate('wysiwyg_plugins'));
-				$plugins = explode('|', $this->pref_vars['SQ_WYSIWYG_PLUGINS']['default']);
+				$plugins = Array();
+				if (!empty($this->pref_vars['SQ_WYSIWYG_PLUGINS']['default'])) {
+					$plugins = explode('|', $this->pref_vars['SQ_WYSIWYG_PLUGINS']['default']);
+				}
 				$all = in_array('all', $plugins);
 
 				if ($have_lock && $is_admin) {
 					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					$all_plugins = list_dirs(SQ_FUDGE_PATH.'/wysiwyg/plugins');
+					if (!empty($all_plugins)) {
+						hidden_field('prefs[SQ_WYSIWYG_PLUGINS_PRESENT]', '1');
+					}
 					foreach ($all_plugins as $plugin_name) {
 						$plugin_path = SQ_FUDGE_PATH.'/wysiwyg/plugins/'.$plugin_name;
 						if (!is_file($plugin_path.'/'.$plugin_name.'.inc')) continue;
@@ -148,11 +154,15 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 					if ($all) {
 						echo translate('all_plugins_selected');
 					} else {
-						echo '<ul>';
-						foreach ($plugins as $plugin_name) {
-							echo '<li class="sq-backend-data">'.ucwords(str_replace('_', ' ', $plugin_name)).'</li>';
+						if (empty($plugins)) {
+							echo translate('no_plugins_selected');
+						} else {
+							echo '<ul>';
+							foreach ($plugins as $plugin_name) {
+								echo '<li class="sq-backend-data">'.ucwords(str_replace('_', ' ', $plugin_name)).'</li>';
+							}
+							echo '</ul>';
 						}
-						echo '</ul>';
 					}
 				}
 			if (is_null($pref)) $o->closeField();
@@ -205,8 +215,11 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		// WYSIWYG PLUGINS
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_PLUGINS') {
-			if (isset($_POST['prefs']['SQ_WYSIWYG_PLUGINS'])) {
-				$wysiwyg_plugins = $_POST['prefs']['SQ_WYSIWYG_PLUGINS'];
+			if (isset($_POST['prefs']['SQ_WYSIWYG_PLUGINS_PRESENT'])) {
+				$wysiwyg_plugins = Array();
+				if (isset($_POST['prefs']['SQ_WYSIWYG_PLUGINS'])) {
+					$wysiwyg_plugins = $_POST['prefs']['SQ_WYSIWYG_PLUGINS'];
+				}
 				$plugin_list = '';
 				$all = true;
 
