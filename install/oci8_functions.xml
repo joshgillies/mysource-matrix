@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: oci8_functions.xml,v 1.11 2005/11/30 23:32:10 mmcintyre Exp $
+* $Id: oci8_functions.xml,v 1.12 2006/05/30 05:55:24 mmcintyre Exp $
 *
 */
 -->
@@ -176,7 +176,67 @@
 			END sq_get_parent_treeids;
 		]]>
 	</sql_element>
-	<sql_element display_name="sq_rb_get_parent_treeids Function">
+    <sql_element display_name="sq_get_lineage_treeids Function">
+        <![CDATA[
+        CREATE OR REPLACE FUNCTION sq_get_lineage_treeids(minorid IN VARCHAR2, SQ_TREE_BASE_SIZE IN INTEGER , rb_date IN DATE := NULL) RETURN VARCHAR_2000_TABLE IS
+				offset int;
+				next_treeid VARCHAR2(2000);
+				db_treeid VARCHAR2(2000);
+				parent_treeids VARCHAR_2000_TABLE := VARCHAR_2000_TABLE();
+				concat_treeids VARCHAR2(2000);
+				table_prefix VARCHAR2(6);
+				sql_str VARCHAR2(2000);
+				cursor_ptr INTEGER;
+				ignore INTEGER;
+			BEGIN
+				IF rb_date IS NULL THEN
+					table_prefix := 'sq_';
+				ELSE
+					table_prefix := 'sq_rb_';
+				END IF;
+
+				sql_str := 'SELECT treeid FROM ' || table_prefix || 'ast_lnk l INNER JOIN ' || table_prefix || 'ast_lnk_tree t ON l.linkid = t.linkid
+						    WHERE l.minorid IN (SELECT majorid FROM sq_ast_lnk WHERE minorid = ' || minorid || ')';
+
+				IF rb_date IS NOT NULL THEN
+					sql_str := sql_str || ' AND l.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'
+						|| ' AND (l.sq_eff_to IS NULL OR l.sq_eff_to > TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")' || ')';
+
+					sql_str := sql_str || ' AND t.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'
+						|| ' AND (t.sq_eff_to IS NULL OR t.sq_eff_to > TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")' || ')';
+
+					sql_str := replace(sql_str, '"', '''' );
+				END IF;
+
+				cursor_ptr := DBMS_SQL.open_cursor;
+				DBMS_SQL.PARSE(cursor_ptr, sql_str, DBMS_SQL.V7);
+				DBMS_SQL.DEFINE_COLUMN(cursor_ptr, 1, db_treeid, 500);
+				ignore := DBMS_SQL.EXECUTE(cursor_ptr);
+
+				LOOP
+					IF DBMS_SQL.FETCH_ROWS(cursor_ptr) > 0 THEN
+						DBMS_SQL.COLUMN_VALUE(cursor_ptr, 1, db_treeid);
+						offset := 1;
+						concat_treeids := '';
+						LOOP
+							next_treeid := SUBSTR(db_treeid, offset, SQ_TREE_BASE_SIZE);
+							EXIT WHEN next_treeid IS NULL;
+							concat_treeids := concat_treeids || next_treeid;
+							parent_treeids.extend;
+							parent_treeids(parent_treeids.count) := concat_treeids;
+							offset := offset + SQ_TREE_BASE_SIZE;
+						END LOOP;
+					ELSE
+						EXIT;
+					END IF;
+				END LOOP;
+
+				DBMS_SQL.CLOSE_CURSOR(cursor_ptr);
+				RETURN parent_treeids;
+			END sq_get_lineage_treeids;
+        ]]>
+    </sql_element>
+    <sql_element display_name="sq_rb_get_parent_treeids Function">
 		<![CDATA[
 			-- returns the parent treeids for the specified assetid using the date
 			-- acquired from the sq_get_rollback_timestamp function
@@ -186,6 +246,18 @@
 				rb_date := sq_common_pkg.sq_get_rollback_timestamp();
 				RETURN sq_get_parent_treeids(minorid, SQ_TREE_BASE_SIZE, rb_date);
 			END sq_rb_get_parent_treeids;
+		]]>
+	</sql_element>
+	<sql_element display_name="sq_rb_get_lineage_treeids Function">
+		<![CDATA[
+			-- returns the parent treeids for the specified assetid using the date
+			-- acquired from the sq_get_rollback_timestamp function
+			CREATE OR REPLACE FUNCTION sq_rb_get_lineage_treeids(minorid IN VARCHAR2, SQ_TREE_BASE_SIZE IN INTEGER) RETURN VARCHAR_2000_TABLE IS
+				rb_date DATE;
+			BEGIN
+				rb_date := sq_common_pkg.sq_get_rollback_timestamp();
+				RETURN sq_get_lineage_treeids(minorid, SQ_TREE_BASE_SIZE, rb_date);
+			END sq_rb_get_lineage_treeids;
 		]]>
 	</sql_element>
 	<sql_element display_name="asset_link_treeid_convert Function">
