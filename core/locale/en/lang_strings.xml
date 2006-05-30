@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.103.2.6 2006/05/26 01:31:03 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.103.2.7 2006/05/30 06:40:25 rhoward Exp $
 *
 */
 
@@ -639,6 +639,7 @@
 	<string source="body_type">Body Type</string>
 	<string source="mozilla_always_uses_iframe">In Mozilla, an iFrame will always be used. This setting only affects Internet Explorer.</string>
 	<string source="all_plugins_selected">All plugins are selected</string>
+    <string source="no_plugins_selected">No plugins are selected</string>
 	<string source="thesaurus_used_by_matrix_expand_keywords_plugin">The thesaurus asset used by the Matrix Expand Keywords plugin</string>
 
 	<string source="automated_patching_system">Automated Patching System</string>
