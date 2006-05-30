@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code_edit_fns.inc,v 1.3 2006/01/09 05:34:09 dmckee Exp $
+* $Id: content_type_code_edit_fns.inc,v 1.3.2.1 2006/05/30 05:18:16 rhoward Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -184,7 +184,12 @@ class Content_Type_Code_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		// This may be changed to use the styles of the design, to show
 		// what it will look like. If $editing == TRUE, then we do this
-		echo $asset->attr('html');
+		$output =  $asset->attr('html');
+		if ($generating) {
+			// escape dangerous content, eg. <?php, <? - leaves <?xml intact and working
+			$output = str_replace('<?', "<?php echo '<'.'?'; ?>", $output);
+		}
+		echo $output;
 
 	}//end paint()
 

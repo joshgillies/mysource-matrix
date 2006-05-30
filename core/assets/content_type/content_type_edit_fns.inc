@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_edit_fns.inc,v 1.7 2006/01/17 21:40:33 lwright Exp $
+* $Id: content_type_edit_fns.inc,v 1.7.2.1 2006/05/30 05:18:15 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,7 +72,12 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paint(&$asset, $prefix, $editing=FALSE, $generating=FALSE)
 	{
-		echo $asset->attr('html');
+		$output = $asset->attr('html');
+		if ($generating) {
+			// escape dangerous content, eg. <?php, <? - leaves <?xml intact and working
+			$output = str_replace('<?', "<?php echo '<'.'?'; ?>", $output);
+		}
+		echo $output;
 
 	}//end paint()
 
