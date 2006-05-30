@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.10.2.2 2006/05/29 04:22:16 mmcintyre Exp $
+* $Id: pgsql_functions.xml,v 1.10.2.3 2006/05/30 06:31:07 mmcintyre Exp $
 *
 */
 -->
@@ -255,9 +255,14 @@
                 END IF;
 
                 sql := ''SELECT treeid FROM '' || table_prefix || ''ast_lnk l INNER JOIN '' || table_prefix || ''ast_lnk_tree t ON l.linkid = t.linkid
-                    WHERE l.minorid IN (SELECT majorid FROM sq_ast_lnk where minorid = '' || minorid || '')'';
+                    WHERE l.minorid IN (SELECT l.majorid FROM '' || table_prefix || ''ast_lnk where l.minorid = '' || minorid;
 
                 IF rb_date IS NOT NULL THEN
+                    -- note the extra bracket at the end of this statement to close the IN clause above
+                    sql := sql || '' AND l.sq_eff_from <= '''''' || rb_date ||
+                              '''''' AND (l.sq_eff_to IS NULL
+                                 OR l.sq_eff_to > '''''' || rb_date || '''''''' || ''))'';
+
                     sql := sql || '' AND l.sq_eff_from <= '''''' || rb_date ||
                               '''''' AND (l.sq_eff_to IS NULL
                                  OR l.sq_eff_to > '''''' || rb_date || '''''''' || '')'';
@@ -265,6 +270,9 @@
                     sql := sql || '' AND t.sq_eff_from <= '''''' || rb_date ||
                               '''''' AND (t.sq_eff_to IS NULL
                                  OR t.sq_eff_to > '''''' || rb_date || '''''''' || '')'';
+                ELSE
+                    --close the in clause above
+                    sql := sql || '')'';
                 END IF;
 
                 FOR treeids IN EXECUTE sql LOOP
