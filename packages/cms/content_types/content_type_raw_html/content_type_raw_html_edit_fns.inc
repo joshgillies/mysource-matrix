@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_edit_fns.inc,v 1.9.2.2 2006/05/25 23:29:51 rhoward Exp $
+* $Id: content_type_raw_html_edit_fns.inc,v 1.9.2.3 2006/05/30 05:19:07 rhoward Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9.2.2 $
+* @version $Revision: 1.9.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -58,7 +58,6 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			$size = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_RAW_HTML_SIZE');
 			$html = $asset->attr('html');
-			$html = str_replace('&lt;?php', '<?php', $html);
 			$this->_paintKeywordInserter($asset, $prefix);
 			text_area($prefix.'_html', $html, $size['width'], $size['height'], 0, 'style="font-family: monospace; display: block"');
 		}
@@ -112,10 +111,6 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			if (isset($_POST[$prefix.'_html'])) {
 				$html = $_POST[$prefix.'_html'];
-			
-				// encode PHP so it doesnt get executed
-				$html = str_replace('<?php', '&lt;?php', $html);
-
 				$current_html = $asset->attr('html');
 				if ($html != $current_html) {
 					if ($asset->setAttrValue('html', $html)) return true;
