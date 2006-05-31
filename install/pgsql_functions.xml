@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.10.2.3 2006/05/30 06:31:07 mmcintyre Exp $
+* $Id: pgsql_functions.xml,v 1.10.2.4 2006/05/31 03:35:52 mmcintyre Exp $
 *
 */
 -->
@@ -254,8 +254,8 @@
                     table_prefix := ''sq_rb_'';
                 END IF;
 
-                sql := ''SELECT treeid FROM '' || table_prefix || ''ast_lnk l INNER JOIN '' || table_prefix || ''ast_lnk_tree t ON l.linkid = t.linkid
-                    WHERE l.minorid IN (SELECT l.majorid FROM '' || table_prefix || ''ast_lnk where l.minorid = '' || minorid;
+                sql := ''SELECT t.treeid FROM '' || table_prefix || ''ast_lnk l INNER JOIN '' || table_prefix || ''ast_lnk_tree t ON l.linkid = t.linkid
+                    WHERE l.minorid IN (SELECT l.majorid FROM '' || table_prefix || ''ast_lnk l WHERE l.minorid = '''''' || minorid || '''''''';
 
                 IF rb_date IS NOT NULL THEN
                     -- note the extra bracket at the end of this statement to close the IN clause above
