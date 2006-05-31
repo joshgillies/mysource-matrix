@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.4 2006/05/10 05:26:39 skim Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.5 2006/05/31 04:40:36 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -366,7 +366,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 	*/
 	function processImages(&$step_data, $prefix)
 	{
-		$image_dir_name = preg_replace('/\.[a-zA-Z]+/i', '_files', $this->_running_vars['import_file']);
+		$image_dir_name = preg_replace('/\.[a-zA-Z\(\) ]+/i', '_files', $this->_running_vars['import_file']);
 
 		$body_data = $this->_running_vars['file_data'];
 
@@ -430,6 +430,8 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 
 		$find = substr($image_dir_name, strrpos($image_dir_name, '/') + 1);
 		$test_reg = '/'.$find.'\/'.str_replace('.', '\.', basename($filename)).'/i';
+		$test_reg = str_replace('(', '\(', $test_reg);
+		$test_reg = str_replace(')', '\)', $test_reg);
 		$replace_asset = './?a='.$new_file->id;
 		preg_replace($test_reg, $replace_asset, $this->_running_vars['file_data']);
 		// Replace all instances of this image, with its new asset id.
