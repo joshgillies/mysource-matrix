@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.23 2006/01/30 04:28:08 sdanis Exp $
+* $Id: hipo_job_reindex.inc,v 1.23.2.1 2006/05/31 06:16:30 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -43,6 +43,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 		$this->uses_trans = FALSE;
 		$this->HIPO_Job($code_name);
 		$GLOBALS['SQ_SYSTEM']->lm->includePackageStrings('search');
+		$this->_hipo_vars['job_dir'] = SQ_PACKAGES_PATH.'/search/hipo_jobs';
 
 	}//end constructor
 
