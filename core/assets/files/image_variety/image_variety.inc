@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.26.2.8 2006/05/31 06:02:38 sdanis Exp $
+* $Id: image_variety.inc,v 1.26.2.9 2006/05/31 06:50:50 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.26.2.8 $
+* @version $Revision: 1.26.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -730,7 +730,7 @@ class Image_Variety extends Asset
 					// http://support.microsoft.com/default.aspx?scid=kb;en-us;812935
 					// http://support.microsoft.com/default.aspx?scid=kb;en-us;316431
 					header('Cache-Control: max-age=0, must-revalidate');
-					header('Pragma: public');
+					header('Pragma: private');
 					header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
 			}
 
