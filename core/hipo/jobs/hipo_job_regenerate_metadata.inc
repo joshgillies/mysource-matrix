@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.24.2.1 2006/02/06 00:48:22 lwright Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.24.2.2 2006/05/31 07:17:57 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24.2.1 $
+* @version $Revision: 1.24.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -233,6 +233,11 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 
 		foreach ($this->_running_vars['schemaids'] as $schemaid) {
 			$this->_running_vars['todo_assetids'] += $mm->getSchemaAssets($schemaid, true);
+		}
+
+		// if nothing to do, bail out
+		if (empty($this->_running_vars['todo_assetids'])) {
+			return FALSE;
 		}
 
 		return parent::prepare();
