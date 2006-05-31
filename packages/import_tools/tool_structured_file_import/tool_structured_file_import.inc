@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_structured_file_import.inc,v 1.5 2006/05/07 23:09:13 skim Exp $
+* $Id: tool_structured_file_import.inc,v 1.5.2.1 2006/05/31 00:20:25 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    searching.
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -62,6 +62,8 @@ class Tool_Structured_File_Import extends Tool
 	*/
 	function paintTool(&$o, $type_code)
 	{
+		ob_start();
+
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$itm =& $am->getSystemAsset('import_tools_manager');
 
@@ -261,8 +263,16 @@ class Tool_Structured_File_Import extends Tool
 				$o->closeField();
 			$o->closeSection();
 
+			$o->openSection(translate('import_tools_perform_operations'));
+				$o->openField('', 'commit');
+					echo '&nbsp;';
+					hidden_field('committed_tool_type_code', $type_code);
+					submit_button('tool_commit', SQ_CONF_COMMIT_BUTTON_TEXT);
+				$o->closeField();
+			$o->closeSection();
 		}//end else
 
+		return ob_get_clean();
 
 	}//end paintTool()
 
@@ -319,7 +329,8 @@ class Tool_Structured_File_Import extends Tool
 		if (empty($remove_list)) {
 			// Importing section
 			if (($vars['import_file'] == '') || (empty($vars['headings']) && ($vars['use_headings'])) || ($vars['root_assetid'] == '' && $vars['create_new_site'] == FALSE)) {
-				return FALSE;
+				Tool_Structured_File_Import::paintTool($o, $type_code);
+				return;
 			}
 
 			// We have all the required data, so queue up our HIPO and go to town
@@ -327,7 +338,7 @@ class Tool_Structured_File_Import extends Tool
 			$hh->queueHipo('hipo_job_structured_file_import', $vars, '', SQ_PACKAGES_PATH.'/import_tools/hipo_jobs/');
 			$url = $hh->runQueuedJobs();
 			if (!empty($url)) $o->setRedirect($url);
-			return TRUE;
+			return;
 
 		} else {
 			// Delete the imported files
@@ -353,7 +364,8 @@ class Tool_Structured_File_Import extends Tool
 					break;
 				}
 			}
-			return FALSE;
+			Tool_Structured_File_Import::paintTool($o, $type_code);
+			return;
 		}
 
 

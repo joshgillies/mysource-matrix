@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_import_tools.inc,v 1.1.1.1 2006/02/20 22:36:45 dmckee Exp $
+* $Id: package_manager_import_tools.inc,v 1.1.1.1.2.1 2006/05/31 00:20:24 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    Manages the install and upgrade of the Import Tools system assets
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 1.0
+* @version $Revision: 1.1.1.1.2.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage Fedcourt
 */

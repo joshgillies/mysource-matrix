@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tools_manager_edit_fns.inc,v 1.1.1.1 2006/02/20 22:36:45 dmckee Exp $
+* $Id: import_tools_manager_edit_fns.inc,v 1.1.1.1.2.1 2006/05/31 00:20:25 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 1.0
+* @version $Revision: 1.1.1.1.2.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
