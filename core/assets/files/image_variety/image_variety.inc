@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.26.2.7 2006/05/30 02:25:43 rong Exp $
+* $Id: image_variety.inc,v 1.26.2.8 2006/05/31 06:02:38 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.26.2.7 $
+* @version $Revision: 1.26.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -129,6 +129,10 @@ class Image_Variety extends Asset
 				if ((int) $value == 0 && ($this->attr('constrain') == 'none' || ($this->attr('constrain') == $name && $this->attr('variety_type') == 'resize'))) {
 					trigger_localised_error('CORE0102', E_USER_WARNING, $name, $this->name, $this->id);
 					return FALSE;
+				}
+				// If constrain = dimension but there's none set, use the value from here
+				if ($this->attr('constrain') == 'dimension') {
+					$this->setAttrValue('dimension', $value);
 				}
 			break;
 

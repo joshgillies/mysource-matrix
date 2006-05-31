@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_image_variety.inc,v 1.8.2.2 2006/05/03 07:00:39 lwright Exp $
+* $Id: trigger_action_create_image_variety.inc,v 1.8.2.3 2006/05/31 06:02:12 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8.2.2 $
+* @version $Revision: 1.8.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -153,6 +153,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 			$options = Array(
 						'width'		=> 'Width',
 						'height'	=> 'Height',
+						'dimension' => 'Both',
 						'none'		=> 'Neither',
 					   );
 			combo_box($prefix.'[constrain]', $options, false, $settings['constrain'], 0, $form_element_extras);
