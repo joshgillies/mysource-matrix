@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.142 2006/05/30 06:39:47 rhoward Exp $
+* $Id: lang_strings.xml,v 1.143 2006/06/01 01:48:21 emcdonald Exp $
 *
 */
 
@@ -534,6 +534,7 @@
 	<string source="click_to_tag">Click 'Add Tag' to tag this asset with the term</string>
 	<string source="no_tags_to_add">No tags to add</string>
 	<string source="tag_thesaurus_note">Note: You can only select tags from %s</string>
+	<string source="tag_no_thesaurus_set_note">Note: You can only select tags from the tagging thesaurus. Please set a tagging thesaurus in the tag manager</string>
 
 
 
