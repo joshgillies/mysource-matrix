@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.292 2006/05/18 01:50:48 skim Exp $
+* $Id: asset_edit_interface.inc,v 1.293 2006/06/01 06:27:17 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.292 $
+* @version $Revision: 1.293 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -170,7 +170,6 @@ class Asset_Edit_Interface extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
 			exit();
 		}
-
 
 		// if there are no screens or static screens, piss off
 		assert_false(!count($this->_screens) && empty($this->_edit_fns->static_screens));
@@ -605,12 +604,12 @@ class Asset_Edit_Interface extends MySource_Object
 		// set the current screen for both backend and frontend editing
 		$current_location = $o->getCurrentLocation();
 		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
-		$o->setCurrentScreen($current_location.'asset_ei_screen='.rawurlencode($active_screen));
 
 		// once we have a preview URL, we can paint the layout if there is one
 		// paint the layout now, if needed
 		if ($paint_layout) {
 			if (NULL !== ($layout =& $lm->getLayout($owner->type(), $active_screen))) {
+				$o->addFormActionGetVar('asset_ei_screen', rawurlencode($active_screen), TRUE);
 				return $this->paintLayout($owner, $o, $layout);
 			}
 		}
@@ -866,6 +865,7 @@ class Asset_Edit_Interface extends MySource_Object
 		// paint the layout now, if needed
 		if ($paint_layout) {
 			if (NULL !== ($layout =& $lm->getLayout($owner->type(), $active_screen))) {
+				$o->addFormActionGetVar('asset_ei_screen', rawurlencode($active_screen), TRUE);
 				return $this->paintLayout($owner, $o, $layout);
 			}
 		}
@@ -1309,24 +1309,24 @@ class Asset_Edit_Interface extends MySource_Object
 
 			} else if ($keyword == 'screen_menu') {
 				$lm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
-				$current_location = $o->getCurrentLocation();
-				$current_location .= (strstr($current_location, '?')) ? '&' : '?';
-
 				// if we're using a different limbo assetid, make sure that the
 				// assetid is being brought through
 				if (SQ_IN_LIMBO && isset($_REQUEST['limbo_assetid'])) {
-					$current_location .= 'limbo_assetid='.$_REQUEST['limbo_assetid'].'&';
+					$o->addFormActionGetVar('limbo_assetid', $_REQUEST['limbo_assetid'], TRUE);
 				}
+				$current_location = $o->getCurrentLocation();
+				list($current_loc_base, $current_loc_query) = explode('?', $current_location);
 
 				for (reset($this->_screens); NULL !== ($code = key($this->_screens)); next($this->_screens)) {
 					if (!$lm->hasLayout($owner->type(), $code)) continue;
-					$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
+					$url = replace_query_string_vars(Array('asset_ei_screen' => rawurlencode($code)), $current_loc_base, $current_loc_query);
+					$o->addScreen($url, $this->_screens[$code]['name']);
 				}
 				foreach ($this->_edit_fns->static_screens as $code_name => $data) {
 					if (!$lm->hasLayout($owner->type(), $code_name)) {
 						continue;
 					}
-					$url = $current_location.'asset_ei_screen='.rawurlencode($code_name);
+					$url = replace_query_string_vars(Array('asset_ei_screen' => rawurlencode($code_name)), $current_loc_base, $current_loc_query);
 					$o->addStaticScreen($url, $data['name']);
 				}
 				ob_start();

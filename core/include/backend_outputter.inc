@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.119 2006/03/15 06:10:55 sdanis Exp $
+* $Id: backend_outputter.inc,v 1.120 2006/06/01 06:27:17 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.119 $
+* @version $Revision: 1.120 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -90,7 +90,6 @@ class Backend_Outputter
 	// edit screens
 	var $_screens = Array();
 	var $_static_screens = Array();
-	var $_current_screen = '';
 
 	// the contents of the page split into sections
 	var $_contents = Array();
@@ -406,21 +405,6 @@ class Backend_Outputter
 		$this->_screens[$url] = $name;
 
 	}//end addScreen()
-
-
-	/**
-	* Sets the current screen, so the combo displays right
-	*
-	* @param string $url
-	*
-	* @access public
-	*/
-	function setCurrentScreen($url)
-	{
-		if (empty($url)) return;
-		$this->_current_screen = $url;
-
-	}//end setCurrentScreen()
 
 
 	/**
@@ -1501,8 +1485,7 @@ class Backend_Outputter
 			} else {
 				$this->_screens = $this->_static_screens;
 			}
-
-			combo_box('screen_menu', $this->_screens, false, $this->_current_screen, 1, 'id="screen_menu" onChange="javascript: self.location = form_element_value(this);"');
+			combo_box('screen_menu', $this->_screens, false, $this->_action, 1, 'id="screen_menu" onchange="self.location = this.value"');
 			echo '&nbsp;';
 			normal_button('screen_menu_go', translate('go'), 'self.location = get_form_element_value("screen_menu");', 'id="screen_menu_go"');
 			echo '&nbsp;';
