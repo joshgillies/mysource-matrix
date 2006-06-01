@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.539 2006/05/29 06:31:35 tbarrett Exp $
+* $Id: asset.inc,v 1.540 2006/06/01 01:05:29 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.539 $
+* @version $Revision: 1.540 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4011,6 +4011,10 @@ class Asset extends MySource_Object
 	function printLimbo()
 	{
 		$o =& $GLOBALS['SQ_SYSTEM']->backend->out;
+		if (is_null($o)) {
+			trigger_localised_error('SYS0245', E_USER_ERROR, current_url());
+			return;
+		}
 		$o->paint();
 
 	}//end printLimbo()
