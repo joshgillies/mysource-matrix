@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2005/07/27 10:45:21 brobertson Exp $
+* $Id: lang_strings.xml,v 1.4.2.1 2006/06/01 02:44:29 tbarrett Exp $
 *
 */
 -->
@@ -33,7 +33,7 @@
 	<string source="session_persist">When the user closes the browser</string>
 	<string source="session_timeout">When the time since their last Matrix-Activity* is longer than</string>
 	<string source="session_max_length">When the time since their last login is longer than</string>
-	<string source="session_timeout_explanation">Matrix-Activity refers to either accessing a page on the frontend, or having the backend interface open</string>
+	<string source="session_timeout_explanation">Matrix-Activity refers to either accessing a page on the frontend, or having the backend interface open.  If none of the boxes above are ticked then the session expiry time will be equal to the longest session expiry preference configured in the system, to a maximum of a year and a minimum of a week.</string>
 	<string source="user_prefs_session_settings_header">Session Expiry Rules</string>
 	<string source="end_user_session">End the user's session</string>
 </strings>
