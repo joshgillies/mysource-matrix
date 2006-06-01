@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.58 2006/05/23 02:08:33 sdanis Exp $
+* $Id: edit.css,v 1.59 2006/06/01 23:41:59 tbarrett Exp $
 *
 */
 
@@ -25,6 +25,7 @@
 
 body {
 	background-color:	#FFFFFF;
+	margin: 0px;
 }
 
 body, p, td, ul, li, input, select, textarea {
@@ -46,13 +47,15 @@ a.hover {
 
 /* HEADING STYLES */
 
-td.sq-backend-main-heading {
+table.sq-backend-main-headings td {
 	background-color:	#594165;
 	color:				#FFFFFF;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
 	font-size:			12px;
 	padding:			4px;
+	vertical-align:		middle; 
+	white-space:		nowrap;
 }
 
 .sq-backend-sub-heading {
@@ -77,6 +80,7 @@ td.sq-backend-nav-history, a.sq-backend-nav-history {
 
 td.sq-backend-nav-history {
 	border-bottom:		1px solid #342939;
+	vertical-align:		middle;
 }
 
 .sq-backend-asset-info {
@@ -102,6 +106,9 @@ td.sq-backend-nav-history {
 	color:				#000000;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:			11px;
+}
+td.sq-backend-data {
+	vertical-align:		top;
 }
 
 .sq-backend-smallprint {
@@ -168,6 +175,17 @@ td.sq-backend-nav-history {
 
 /* BACKEND OUTPUTTER - SECTIONS AND FIELDS */
 
+.sq-backend-section-heading-container td {
+	border-bottom:		1px solid #B3B3B3
+}
+.sq-backend-section-heading-container td table {
+	border-bottom:		1px solid white;
+	width:				100%;
+}
+.sq-backend-section-heading-container td table td {
+	border:				0px;
+}
+
 .sq-backend-section-heading {
 	background-color:	#F4F4EB;
 	color:				#848479;
@@ -175,6 +193,8 @@ td.sq-backend-nav-history {
 	font-weight:		bold;
 	font-size:			12px;
 	padding:			3px;
+	border:				0px;
+	width:				100%;
 }
 
 .sq-backend-section-subheading {
@@ -193,6 +213,7 @@ td.sq-backend-nav-history {
 	font-size:			11px;
 	font-weight:		bold;
 	vertical-align:		top;
+	white-space:		nowrap;
 }
 
 

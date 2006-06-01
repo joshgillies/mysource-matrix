@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.120 2006/06/01 06:27:17 tbarrett Exp $
+* $Id: backend_outputter.inc,v 1.121 2006/06/01 23:41:30 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.120 $
+* @version $Revision: 1.121 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -614,21 +614,12 @@ class Backend_Outputter
 				$this->_is_open_section = true;
 				// printing a top level section
 				?>
-				<tr>
+				<tr class="sq-backend-section-heading-container">
 					<td colspan="3">
-						<table border="0" cellspacing="0" cellpadding="0" width="100%">
+						<table border="0" cellspacing="0" cellpadding="0">
 							<tr>
-								<td class="sq-backend-section-heading" width="100%"><?php echo $init_arr['heading'];?></td>
+								<td class="sq-backend-section-heading"><?php echo $init_arr['heading'];?></td>
 								<td><img src="<?php echo $this->filesPath('images/section_icon.gif');?>" width="27" height="21" /></td>
-							</tr>
-						</table>
-					</td>
-				</tr>
-				<tr>
-					<td colspan="3">
-						<table width="100%" cellpadding="0" cellspacing="0" border="0">
-							<tr>
-								<td width="100%" bgcolor="#B3B3B3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td>
 							</tr>
 						</table>
 					</td>
@@ -756,24 +747,24 @@ class Backend_Outputter
 			case 'new_line' :
 				?>
 					<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
-						<td nowrap valign="top" class="sq-backend-field" colspan="3">
+						<td class="sq-backend-field" colspan="3">
 							<a name="field_<?php echo $this->_field_count; ?>"></a>
 							<?php echo $name;?>
 						</td>
 					</tr>
 					<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
-						<td valign="top" class="sq-backend-data" colspan="3">
+						<td class="sq-backend-data" colspan="3">
 							<table cellpadding="0" cellspacing="0" border="0">
 								<tr>
 									<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
-									<td width="100%" valign="top" class="sq-backend-data">
+									<td width="100%" class="sq-backend-data">
 									<?php
 			break;
 
 			case 'commit' :
 				?>
 				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
-					<td width="100%" valign="top" class="sq-backend-data" style="text-align: right;" colspan="3">
+					<td width="100%" class="sq-backend-data" style="text-align: right;" colspan="3">
 					<?php
 			break;
 
@@ -784,12 +775,12 @@ class Backend_Outputter
 			default :
 			?>
 				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
-					<td nowrap valign="top" class="sq-backend-field" style="padding-bottom: 10px">
+					<td class="sq-backend-field" style="padding-bottom: 10px">
 						<a name="field_<?php echo $this->_field_count; ?>"></a>
 						<?php echo $name;?>
 					</td>
 					<td width="10"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-					<td width="100%" valign="top" class="sq-backend-data" style="padding-bottom: 10px">
+					<td width="100%" class="sq-backend-data" style="padding-bottom: 10px">
 					<?php
 		}//end switch
 
@@ -982,9 +973,8 @@ class Backend_Outputter
 			<script type="text/javascript">
 			<!--
 				var SQ_DOCUMENT_LOADED = false;
-
-				function page_on_load() {
-
+				function page_on_load() 
+				{
 					<?php
 					if (isset($_SESSION['backend_outputter_msgs'])) {
 						$this->_messages = array_merge($this->_messages, $_SESSION['backend_outputter_msgs']);
@@ -997,7 +987,7 @@ class Backend_Outputter
 						$msgs_root = &$msgs->addRoot('messages');
 						foreach ($this->_messages as $data) {
 							$msg_body = '<p>'.htmlentities(nl2br($data['msg'])).'</p>';
-							$msg_body .= '<font color="#333333">'.$GLOBALS['SQ_SYSTEM']->datetime().'<font>';
+							$msg_body .= '<span style="color: #333333">'.$GLOBALS['SQ_SYSTEM']->datetime().'<span>';
 							$msgs_root->addChild('message', $msg_body, Array('type' => get_bit_names('SQ_BO_MSG_', $data['type'])));
 						}
 						?>
@@ -1010,7 +1000,6 @@ class Backend_Outputter
 					foreach ($this->_on_load_calls as $call) {
 						echo "\n".$call;
 					}
-
 					?>
 
 					// let everyone know the document is loaded
@@ -1019,25 +1008,28 @@ class Backend_Outputter
 				}//end page_on_load()
 
 
-				function page_on_unload() {
+				function page_on_unload() 
+				{
 					if (parent.frames['sq_sidenav'] && window.self.name == 'sq_main' && parent.frames['sq_sidenav'].asset_finder_onunload) {
 						parent.frames['sq_sidenav'].asset_finder_onunload();
 					}
+
 				}//end page_on_load()
 
 
 				var SQ_FORM_SUBMITTED = false;
-				function form_on_submit() {
+				function form_on_submit() 
+				{
 					if (SQ_FORM_SUBMITTED) {
 						alert(js_translate('form_already_submitted'));
 						return;
 					}
 
-			<?php
-				foreach ($this->_on_submit_calls as $call) {
-					echo $call.";\n";
-				}
-			?>
+					<?php
+					foreach ($this->_on_submit_calls as $call) {
+						echo $call.";\n";
+					}
+					?>
 
 					// basically if they get this far then we can submit
 					SQ_FORM_SUBMITTED = true;
@@ -1049,20 +1041,19 @@ class Backend_Outputter
 				}//end form_on_submit()
 
 			<?php
-				foreach ($this->_preload_imgs as $file) {
-					?>
-					preload_image('<?php echo $file;?>');
-					<?php
-				}//end foreach
+			foreach ($this->_preload_imgs as $file) {
+				?>
+				preload_image('<?php echo $file;?>');
+				<?php
+			}//end foreach
 			?>
 
 			// -->
 			</script>
 		</head>
-		<body bgcolor="#FFFFFF" onLoad="page_on_load();" onUnLoad="page_on_unload();" marginwidth="0" marginheight="0" topmargin="0" leftmargin="0">
-
-		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
-	<?php
+		<body>
+		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onsubmit="return form_on_submit();">
+		<?php
 		hidden_field('process_form', '1');
 		foreach ($this->_hidden_fields as $name => $value) {
 			hidden_field($name, $value);
@@ -1070,20 +1061,20 @@ class Backend_Outputter
 
 		if ($this->_heading || count($this->_screens) || count($this->_static_screens)) {
 			?>
-			<table width="100%" cellpadding="3" cellspacing="0" border="0">
+			<table width="100%" cellpadding="3" cellspacing="0" border="0" class="sq-backend-main-headings">
 				<tr>
 					<?php
 					if ($this->_heading_icon) {
 						?>
-						<td class="sq-backend-main-heading" style="vertical-align: top; white-space: nowrap;"><?php echo $this->_heading_icon; ?></td>
+						<td><?php echo $this->_heading_icon; ?></td>
 						<?php
 					} else {
 						?>
-						<td class="sq-backend-main-heading" style="vertical-align: top; white-space: nowrap;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"/></td>
+						<td><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"/></td>
 						<?php
 					}
 					?>
-					<td class="sq-backend-main-heading" style="vertical-align: top; white-space: nowrap;">
+					<td>
 						<?php echo $this->_heading; ?>
 						<?php
 							if ($this->_sub_heading) {
@@ -1091,7 +1082,7 @@ class Backend_Outputter
 							}
 						?>
 					</td>
-					<td class="sq-backend-main-heading" style="vertical-align: top; text-align: right;" width="100%">
+					<td style="text-align: right; width: 100%">
 						<div id="sq_screen_menu_filler" style="display: none"></div>
 						<div id="sq_screen_menu">
 							<?php $this->printScreenMenu(); ?>
@@ -1105,7 +1096,7 @@ class Backend_Outputter
 				?>
 				<table width="100%" cellpadding="3" cellspacing="0" border="0">
 					<tr>
-						<td class="sq-backend-nav-history" valign="middle">
+						<td class="sq-backend-nav-history">
 						<?php
 						sq_print_icon($this->filesPath('images/icons/history.png'), 20, 20, 'Navigation History');
 						?>
@@ -1182,21 +1173,12 @@ class Backend_Outputter
 				} else {
 					// printing a top level section
 					?>
-					<tr>
+					<tr class="sq-backend-section-heading-container">
 						<td colspan="3">
-							<table border="0" cellspacing="0" cellpadding="0" width="100%">
+							<table border="0" cellspacing="0" cellpadding="0">
 								<tr>
-									<td class="sq-backend-section-heading" width="100%"><?php echo $section['heading'];?></td>
+									<td class="sq-backend-section-heading"><?php echo $section['heading'];?></td>
 									<td><img src="<?php echo $this->filesPath('images/section_icon.gif');?>" width="27" height="21" alt="" /></td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-					<tr>
-						<td colspan="3">
-							<table width="100%" cellpadding="0" cellspacing="0" border="0">
-								<tr>
-									<td width="100%" bgcolor="#B3B3B3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td>
 								</tr>
 							</table>
 						</td>
@@ -1242,17 +1224,17 @@ class Backend_Outputter
 											echo 'id="'.$field['id_name'].'"';
 										}
 									?>>
-										<td nowrap valign="top" class="sq-backend-field" colspan="3">
+										<td class="sq-backend-field" colspan="3">
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
 											<?php echo $field['name'];?>
 										</td>
 									</tr>
 									<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
-										<td valign="top" class="sq-backend-data" colspan="3">
+										<td class="sq-backend-data" colspan="3">
 											<table cellpadding="0" cellspacing="0" border="0">
 												<tr>
 													<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
-													<td width="100%" valign="top" class="sq-backend-data">
+													<td width="100%" class="sq-backend-data">
 													<?php
 														echo $field['contents'];
 														if ($field['note']) $this->note($field['note']);
@@ -1274,7 +1256,7 @@ class Backend_Outputter
 										echo 'id="'.$field['id_name'].'"';
 									}
 								?>>
-									<td width="100%" valign="top" class="sq-backend-data" style="text-align: right;" colspan="3">
+									<td width="100%" class="sq-backend-data" style="text-align: right;" colspan="3">
 									<?php
 										echo $field['contents'];
 										if ($field['note']) $this->note($field['note']);
@@ -1297,12 +1279,12 @@ class Backend_Outputter
 										echo 'id="'.$field['id_name'].'"';
 									}
 								?>>
-									<td nowrap valign="top" class="sq-backend-field">
+									<td class="sq-backend-field">
 										<a name="field_<?php echo $field['field_count']; ?>"></a>
 										<?php echo $field['name'];?>
 									</td>
 									<td width="10"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-									<td width="100%" valign="top" class="sq-backend-data" style="padding-bottom: 10px">
+									<td width="100%" class="sq-backend-data" style="padding-bottom: 10px">
 									<?php
 										echo $field['contents'];
 										if ($field['note']) $this->note($field['note']);
