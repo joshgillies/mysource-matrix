@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.24 2006/01/26 22:34:06 lwright Exp $
+* $Id: remap_manager.inc,v 1.24.2.1 2006/06/01 03:23:28 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -186,6 +186,9 @@ class Remap_Manager extends Asset
 	*/
 	function addRemapURL($old_url, $new_url, $expires=NULL)
 	{
+		$old_url = strip_url($old_url);
+		$new_url = strip_url($new_url);
+
 		// old url and new url must be strings, makes not sense otherwise
 		if (!is_string($old_url) || !is_string($new_url)) {
 			trigger_localised_error('CORE0093', E_USER_WARNING);
