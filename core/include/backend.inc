@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.137.2.1 2006/04/26 06:29:16 emcdonald Exp $
+* $Id: backend.inc,v 1.137.2.2 2006/06/01 01:02:04 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.137.2.1 $
+* @version $Revision: 1.137.2.2 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -209,7 +209,7 @@ class Backend extends MySource_Object
 		// the URL for the main frame is either a normal load or a redirection from
 		// a non-frameset URL to this frameset
 		if (isset($_REQUEST['sq_redirect_url'])) {
-			$main_url = urldecode($_REQUEST['sq_redirect_url']);
+			$main_url = strip_url(urldecode($_REQUEST['sq_redirect_url']));
 		} else {
 			$main_url = $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main'.$main_extras;
 		}

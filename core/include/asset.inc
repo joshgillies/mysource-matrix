@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.503.2.19 2006/05/29 06:41:11 tbarrett Exp $
+* $Id: asset.inc,v 1.503.2.20 2006/06/01 01:02:04 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.503.2.19 $
+* @version $Revision: 1.503.2.20 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3935,6 +3935,10 @@ class Asset extends MySource_Object
 	function printLimbo()
 	{
 		$o =& $GLOBALS['SQ_SYSTEM']->backend->out;
+		if (is_null($o)) {
+			trigger_localised_error('SYS0245', E_USER_ERROR, current_url());
+			return;
+		}
 		$o->addHiddenField('asset_action', 'limbo');
 		$o->openRaw();
 		$this->paintBackend($o);
