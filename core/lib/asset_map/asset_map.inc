@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.210.2.10 2006/05/10 22:56:12 sdanis Exp $
+* $Id: asset_map.inc,v 1.210.2.11 2006/06/01 04:15:58 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.210.2.10 $
+* @version $Revision: 1.210.2.11 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -909,10 +909,10 @@ class Asset_Map
 			$start = $node->attributes['start'];
 			$limit = $node->attributes['limit'];
 			$linkid = $node->attributes['linkid'];
-			$info = $this->_getAssetInfo(rawurldecode($assetid), rawurldecode($linkid));
+			$info = $this->_getAssetInfo(urldecode($assetid), urldecode($linkid));
 			$child =& $root->addChild('asset', '', $info);
 
-			$this->_getChildAssets($child, rawurldecode($assetid), FALSE, $start, $limit);
+			$this->_getChildAssets($child, urldecode($assetid), FALSE, $start, $limit);
 		}
 
 		$this->_send($output);
@@ -942,7 +942,7 @@ class Asset_Map
 			case 'add' :
 
 				$attr = $input->root->attributes;
-				$parent_assetid = rawurldecode($attr['parent_assetid']);
+				$parent_assetid = urldecode($attr['parent_assetid']);
 				if (empty($parent_assetid) || !isset($attr['pos']) || empty($attr['type_code'])) {
 					$this->_error('AMAP0007');
 					return;
@@ -1036,10 +1036,10 @@ class Asset_Map
 		$response_count = 0;
 
 		// ensure no url friendly values exists for assetids
-		$input->root->attributes['to_parent_assetid'] = rawurldecode($input->root->attributes['to_parent_assetid']);
-		$input->root->attributes['from_parent_assetid'] = rawurldecode($input->root->attributes['from_parent_assetid']);
+		$input->root->attributes['to_parent_assetid'] = urldecode($input->root->attributes['to_parent_assetid']);
+		$input->root->attributes['from_parent_assetid'] = urldecode($input->root->attributes['from_parent_assetid']);
 		foreach ($input->root->children as $index =>$child) {
-			$input->root->children[$index]->attributes['assetid'] = rawurldecode($child->attributes['assetid']);
+			$input->root->children[$index]->attributes['assetid'] = urldecode($child->attributes['assetid']);
 		}
 
 		$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
@@ -1136,10 +1136,10 @@ class Asset_Map
 		$response_count = 0;
 
 		// ensure no url friendly values exists for assetids
-		$input->root->attributes['to_parent_assetid'] = rawurldecode($input->root->attributes['to_parent_assetid']);
-		$input->root->attributes['from_parent_assetid'] = rawurldecode($input->root->attributes['from_parent_assetid']);
+		$input->root->attributes['to_parent_assetid'] = urldecode($input->root->attributes['to_parent_assetid']);
+		$input->root->attributes['from_parent_assetid'] = urldecode($input->root->attributes['from_parent_assetid']);
 		foreach ($input->root->children as $index =>$child) {
-			$input->root->children[$index]->attributes['assetid'] = rawurldecode($child->attributes['assetid']);
+			$input->root->children[$index]->attributes['assetid'] = urldecode($child->attributes['assetid']);
 		}
 
 		$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
@@ -1212,10 +1212,10 @@ class Asset_Map
 		$response_count = 0;
 
 		// ensure no url friendly values exists for assetids
-		$input->root->attributes['to_parent_assetid'] = rawurldecode($input->root->attributes['to_parent_assetid']);
-		$input->root->attributes['from_parent_assetid'] = rawurldecode($input->root->attributes['from_parent_assetid']);
+		$input->root->attributes['to_parent_assetid'] = urldecode($input->root->attributes['to_parent_assetid']);
+		$input->root->attributes['from_parent_assetid'] = urldecode($input->root->attributes['from_parent_assetid']);
 		foreach ($input->root->children as $index =>$child) {
-			$input->root->children[$index]->attributes['assetid'] = rawurldecode($child->attributes['assetid']);
+			$input->root->children[$index]->attributes['assetid'] = urldecode($child->attributes['assetid']);
 		}
 
 		$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
@@ -1293,9 +1293,9 @@ class Asset_Map
 		$response_count = 0;
 
 		// ensure no url friendly values exists for assetids
-		$input->root->attributes['to_parent_assetid'] = rawurldecode($input->root->attributes['to_parent_assetid']);
+		$input->root->attributes['to_parent_assetid'] = urldecode($input->root->attributes['to_parent_assetid']);
 		foreach ($input->root->children as $index =>$child) {
-			$input->root->children[$index]->attributes['assetid'] = rawurldecode($child->attributes['assetid']);
+			$input->root->children[$index]->attributes['assetid'] = urldecode($child->attributes['assetid']);
 		}
 
 		$new_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
@@ -1311,7 +1311,7 @@ class Asset_Map
 
 		foreach ($input->root->children as $asset_node) {
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_node->attributes['assetid']);
-			$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset(rawurldecode($asset_node->attributes['parentid']));
+			$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode($asset_node->attributes['parentid']));
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid'], $old_parent->id);
 
 			if (is_null($old_parent)) {
@@ -1421,9 +1421,9 @@ class Asset_Map
 		$response_count = 0;
 
 		// ensure no url friendly values exists for assetids
-		$input->root->attributes['to_parent_assetid'] = rawurldecode($input->root->attributes['to_parent_assetid']);
+		$input->root->attributes['to_parent_assetid'] = urldecode($input->root->attributes['to_parent_assetid']);
 		foreach ($input->root->children as $index =>$child) {
-			$input->root->children[$index]->attributes['assetid'] = rawurldecode($child->attributes['assetid']);
+			$input->root->children[$index]->attributes['assetid'] = urldecode($child->attributes['assetid']);
 		}
 
 		$new_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
@@ -1435,7 +1435,7 @@ class Asset_Map
 
 		foreach ($input->root->children as $asset_node) {
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_node->attributes['assetid']);
-			$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset(rawurldecode($asset_node->attributes['parentid']));
+			$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode($asset_node->attributes['parentid']));
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid'], $old_parent->id);
 
 			if (is_null($old_parent)) {
@@ -1512,9 +1512,9 @@ class Asset_Map
 		$response_count = 0;
 
 		// ensure no url friendly values exists for assetids
-		$input->root->attributes['to_parent_assetid'] = rawurldecode($input->root->attributes['to_parent_assetid']);
+		$input->root->attributes['to_parent_assetid'] = urldecode($input->root->attributes['to_parent_assetid']);
 		foreach ($input->root->children as $index =>$child) {
-			$input->root->children[$index]->attributes['assetid'] = rawurldecode($child->attributes['assetid']);
+			$input->root->children[$index]->attributes['assetid'] = urldecode($child->attributes['assetid']);
 		}
 
 		$new_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
@@ -1527,7 +1527,7 @@ class Asset_Map
 		$assets = Array();
 
 		foreach ($input->root->children as $asset_node) {
-			$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset(rawurldecode($asset_node->attributes['parentid']));
+			$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode($asset_node->attributes['parentid']));
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid'], $old_parent->id);
 			$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 
