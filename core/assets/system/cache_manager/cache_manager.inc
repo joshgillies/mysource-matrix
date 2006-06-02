@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.34.2.8 2006/03/29 00:51:08 rong Exp $
+* $Id: cache_manager.inc,v 1.34.2.9 2006/06/02 04:30:24 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.34.2.8 $
+* @version $Revision: 1.34.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -176,12 +176,20 @@ class Cache_Manager extends Asset
 				$this->_deleteCache($cache_key, $perm_key, $url);
 				return '';
 			} else {
-				$contents = file_to_string(SQ_CACHE_PATH.'/'.$cached['path']);
-				if (!$contents && !file_exists(SQ_CACHE_PATH.'/'.$cached['path'])) {
-					trigger_localised_error('CORE0244', E_USER_WARNING, SQ_CACHE_PATH.'/'.$cached['path']);
+				if (file_exists(SQ_CACHE_PATH.'/'.$cached['path'])) {
+					$contents = file_to_string(SQ_CACHE_PATH.'/'.$cached['path']);
+					if (!$contents) {
+						// if we cannot read from the cache file, remove this cache entry
+						$this->_deleteCache($cache_key, $perm_key, $url);
+						//trigger_localised_error('CORE0244', E_USER_WARNING, SQ_CACHE_PATH.'/'.$cached['path']);
+						return '';
+					}
+					return $contents;
+				} else {
+					// if we cannot find this cache file, remove this cache entry
+					$this->_deleteCache($cache_key, $perm_key, $url);
 					return '';
 				}
-				return $contents;
 			}
 		}
 		return '';
