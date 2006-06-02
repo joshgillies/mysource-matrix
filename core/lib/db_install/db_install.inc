@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.34 2006/05/04 23:28:22 sdanis Exp $
+* $Id: db_install.inc,v 1.35 2006/06/02 06:07:02 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -874,7 +874,7 @@ function install_rollback_triggers($table_columns, $verbose=true, $override=fals
 						' IF '.$not_found.' THEN '.
 							$update_sql.
 							'INSERT INTO '.$rollback_table.
-							$col_string.' VALUES '.$old_val_string.
+							$col_string.' VALUES '.$new_val_string.
 						'END IF;';
 			if ($db->phptype == 'pgsql') $sql .= 'RETURN NEW;';
 			$sql .= 'END IF;';
