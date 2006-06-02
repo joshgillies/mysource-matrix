@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.14 2005/12/21 23:50:08 rong Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.14.2.1 2006/06/02 04:25:07 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -195,7 +195,9 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 			// delete a content file in the todo array
 			$path = array_shift($this->_running_vars['todo_filepaths']);
 			$path_name = SQ_CACHE_PATH.'/'.$path['path'];
-			unlink($path_name);
+			if (is_file($path_name)) {
+				unlink($path_name);
+			}
 			$this->_running_vars['done_filepaths'][] = $path;
 
 		}//end if
