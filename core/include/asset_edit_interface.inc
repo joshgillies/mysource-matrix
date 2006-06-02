@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.293 2006/06/01 06:27:17 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.294 2006/06/02 00:38:39 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.293 $
+* @version $Revision: 1.294 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -601,10 +601,6 @@ class Asset_Edit_Interface extends MySource_Object
 			$o->addFormActionGetVar('ignore_frames', '1', TRUE);
 		}
 
-		// set the current screen for both backend and frontend editing
-		$current_location = $o->getCurrentLocation();
-		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
-
 		// once we have a preview URL, we can paint the layout if there is one
 		// paint the layout now, if needed
 		if ($paint_layout) {
@@ -712,13 +708,16 @@ class Asset_Edit_Interface extends MySource_Object
 		 //  SCREEN MENU  //
 		///////////////////
 		// add all the screens to the combo, but only if we aren't creating the object
+		// set the current screen for both backend and frontend editing
+		$current_location = $o->getCurrentLocation();
+		list($current_loc_base, $current_loc_query) = explode('?', $current_location);
 		if (!$creating) {
 			// add static screens for the asset
 			foreach ($this->_edit_fns->static_screens as $code_name => $data) {
 				if ($check_screen_restrictions && !isset($allowed_screens[$code_name])) {
 					continue;
 				}
-				$url = $current_location.'asset_ei_screen='.rawurlencode($code_name);
+				$url = replace_query_string_vars(Array('asset_ei_screen' => rawurlencode($code_name)), $current_loc_base, $current_loc_query);
 				$o->addStaticScreen($url, $data['name']);
 			}
 			for (reset($this->_screens); NULL !== ($code = key($this->_screens)); next($this->_screens)) {
@@ -728,7 +727,8 @@ class Asset_Edit_Interface extends MySource_Object
 				if ($this->_screens[$code]['invisible'] && $code != $active_screen) {
 					continue;
 				}
-				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
+				$url = replace_query_string_vars(Array('asset_ei_screen' => rawurlencode($code)), $current_loc_base, $current_loc_query);
+				$o->addScreen($url, $this->_screens[$code]['name']);
 			}
 		}
 
