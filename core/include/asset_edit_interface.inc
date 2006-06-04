@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.285.2.4 2006/05/18 01:49:41 skim Exp $
+* $Id: asset_edit_interface.inc,v 1.285.2.5 2006/06/04 23:41:40 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.285.2.4 $
+* @version $Revision: 1.285.2.5 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -596,6 +596,9 @@ class Asset_Edit_Interface extends MySource_Object
 		// set the current screen for both backend and frontend editing
 		$current_location = $o->getCurrentLocation();
 		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
+		if (SQ_IN_LIMBO && isset($_REQUEST['limbo_assetid'])) {
+			$current_location .= 'limbo_assetid='.$_REQUEST['limbo_assetid'].'&';
+		}
 		$o->setCurrentScreen($current_location.'asset_ei_screen='.rawurlencode($active_screen));
 
 		// once we have a preview URL, we can paint the layout if there is one
