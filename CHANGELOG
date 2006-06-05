@@ -1,5 +1,44 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.6.9
+
+Complete Changelog
+----------------------
+
+Core
+
+* Fixed bug #1316: Attr validation error messages show the default value instead of invalid value
+* Fixed bug #1334: Paint layout - conditions not working
+* Fixed bug #1338: hipo_job_update_lookups is not site/branch dependent
+* Fixed bug #1342: Insert image popup: blank.gif image not found
+* Fixed bug #1343: Report Asset Statuses doesn't escape special characters when creating xml
+* Fixed bug #1345: paint() function does not construct valid file path
+* Fixed bug #1346: Typo: 'predicatable' in Manual cascade NB
+* Fixed bug #1359: Reset Root Password Script Fails
+* Fixed bug #1389: Backend users sent to login screen after changing status in Simple Edit mode
+* Fixed bug #1392: Regenerate metadata fails when schema is not applied to any asset
+* Fixed bug #1393: Images in wysiwyg div don't show in simple edit
+* Fixed bug #1394: Cannot deselect all WYSIWYG Plugins
+* Fixed bug #1395: Remap manager unable to match an entry if original URL contains a trailing slash
+* Fixed bug #1400: Session expiry settings are ambiguous when no checkbox is selected
+* Fixed bug #1406: Rollback mode shows entries one version earlier than intended
+
+CMS
+
+* Fixed bug #1314: Asset listing: sort by metadata field fails (Asset Listing)
+* Fixed bug #1340: MySource Error on the Asset Sorting screen on the Asset Listing (Asset Listing)
+* Fixed bug #1347: Can not remove the HTML version of a Recipient Email (Custom Form)
+* Fixed bug #1365: assign by reference bug in asset builder (Asset Builder)
+* Fixed bug #1369: Optional email field is mandatory in custom form (Custom Form)
+
+Calendar
+
+* Fixed bug #1335: Wrong keywords shown as being available in calendar page type format bodycopies (Calendar Page)
+* Fixed bug #1362: Editing calendar using _edit interfaces defaults to todays date (Calendar Event)
+
+
+
+
 VERSION 3.6.8
 
 Complete Changelog
