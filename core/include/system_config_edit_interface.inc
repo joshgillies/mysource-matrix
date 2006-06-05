@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.26 2006/04/21 03:40:38 bcaldwell Exp $
+* $Id: system_config_edit_interface.inc,v 1.27 2006/06/05 04:25:51 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -89,9 +89,9 @@ class System_Config_Edit_Interface extends MySource_Object
 		  ///////////////////
 		 //  SCREEN MENU  //
 		///////////////////
+		$o->addFormActionGetVar('config_screen', rawurlencode($active_screen), TRUE);
 		$current_location = $o->getCurrentLocation();
-		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
-
+		list($current_loc_base, $current_loc_query) = explode('?', $current_location);
 		$config_screens = Array(
 							'system_config'				=> translate('system_configuration'),
 							'squiz_server_config'		=> translate('squiz_server_configuration'),
@@ -105,11 +105,9 @@ class System_Config_Edit_Interface extends MySource_Object
 						  );
 
 		foreach ($config_screens as $screen_code => $screen_name) {
-			$url = $current_location.'config_screen='.rawurlencode($screen_code);
+			$url = replace_query_string_vars(Array('config_screen' => rawurlencode($screen_code)), $current_loc_base, $current_loc_query);
 			$o->addStaticScreen($url, $screen_name);
 		}
-
-		$o->setCurrentScreen($current_location.'config_screen='.rawurlencode($active_screen));
 
 
 		switch ($active_screen) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.22 2006/01/26 22:34:08 lwright Exp $
+* $Id: maps.inc,v 1.23 2006/06/05 04:29:24 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -94,8 +94,9 @@ class Maps extends MySource_Object
 		  ///////////////////
 		 //  SCREEN MENU  //
 		///////////////////
+		$o->addFormActionGetVar('maps_screen', rawurlencode($active_screen), TRUE);
 		$current_location = $o->getCurrentLocation();
-		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
+		list($current_loc_base, $current_loc_query) = explode('?', $current_location);
 
 		$maps_screens = Array(
 								'patches'	=> translate('patching'),
@@ -103,12 +104,9 @@ class Maps extends MySource_Object
 							);
 
 		foreach ($maps_screens as $screen_code => $screen_name) {
-			$url = $current_location.'maps_screen='.rawurlencode($screen_code);
+			$url = replace_query_string_vars(Array('maps_screen' => rawurlencode($screen_code)), $current_loc_base, $current_loc_query);
 			$o->addStaticScreen($url, $screen_name);
 		}
-
-		$o->setCurrentScreen($current_location.'maps_screen='.rawurlencode($active_screen));
-
 
 		switch ($active_screen) {
 
