@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.5 2006/05/31 04:40:36 skim Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.6 2006/06/05 01:32:25 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -429,7 +429,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		}
 
 		$find = substr($image_dir_name, strrpos($image_dir_name, '/') + 1);
-		$test_reg = '/'.$find.'\/'.str_replace('.', '\.', basename($filename)).'/i';
+		$test_reg = '/[\.\/]?'.$find.'\/'.str_replace('.', '\.', basename($filename)).'/i';
 		$test_reg = str_replace('(', '\(', $test_reg);
 		$test_reg = str_replace(')', '\)', $test_reg);
 		$replace_asset = './?a='.$new_file->id;
@@ -657,7 +657,9 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 	function splitData($page_data, &$parent_asset)
 	{
 		set_time_limit(0);
+error_log($page_data);
 		if (empty($page_data)) return TRUE;
+
 		// Get the top page
 		if (is_NULL($parent_asset)) {
 			$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['root_assetid']);
