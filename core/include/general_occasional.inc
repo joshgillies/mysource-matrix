@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.67 2006/04/28 02:01:59 sdanis Exp $
+* $Id: general_occasional.inc,v 1.68 2006/06/05 04:37:16 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix
 */
 
@@ -408,7 +408,9 @@ function implode_sql($query_components)
 
 	$select = 'SELECT '.implode(', ', $query_components['select']);
 	$from = 'FROM '.implode(', ', $query_components['from']);
-	$from .= ' '.implode("\n", $query_components['join']);
+	if (isset($query_components['join'])) {
+		$from .= ' '.implode("\n", $query_components['join']);
+	}
 	$where = 'WHERE ('.implode(")\n\t".$where_joiner.' (', $query_components['where']).')';
 
 	$sql = "$select\n$from\n$where";
