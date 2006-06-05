@@ -48,6 +48,7 @@ Core
 * Fixed bug #1397: %screen_menu% keyword not showing correct page
 * Fixed bug #1400: Session expiry settings are ambiguous when no checkbox is selected
 * Fixed bug #1406: Rollback mode shows entries one version earlier than intended
+* Fixed bug #1407: %tagging-% keyword does not work in layout
 
 CMS
 
