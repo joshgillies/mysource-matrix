@@ -1,5 +1,87 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.8.3
+
+Featured Changes
+-----------------------------------
+
+Image Variety URL Keyword
+
+    The URL of an image variety can now be displayed using the keyword %image_v_<VARIETY_NAME>_url%. Previously, only the HTML image tag of the image variety could be printed through keywords.
+
+New Image Variety Constraint Type
+
+    An Image Variety can now be constrained by both width and height at the same time, rather than just one or the other.
+
+New Graph Types for Data Source Graph
+
+    The Data Source Graph asset now allows multiple data sources to be charted in either a Stacked Bar or Area graph style.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
++ New "Asset Updated" trigger event that fires whenever an asset is updated
++ New "Metadata Updated" trigger event that fires whenever a metadata schema is added or removed
++ Error emails now include MySource Matrix version and database type
+* Fixed bug #1310: WYSIWIG, defined css styles not showing
+* Fixed bug #1316: Attr validation error me/ssages show the default value instead of invalid value
+* Fixed bug #1325: Purging archived assets from trash leaves orphaned links
+* Fixed bug #1332: Assigned roles not inherited by Design Customisations
+* Fixed bug #1338: hipo_job_update_lookups is not site/branch dependent
+* Fixed bug #1342: Insert image popup: blank.gif image not found
+* Fixed bug #1345: paint() function does not construct valid file path
+* Fixed bug #1346: Typo: 'predicatable' in Manual cascade NB
+* Fixed bug #1352: Set future status action: cascade is set even when not ticked
+* Fixed bug #1354: Asset Lineage - unwanted_asset_types
+* Fixed bug #1358: Cloning does not clone roles assigned
+* Fixed bug #1359: Reset Root Password Script Fails
+* Fixed bug #1370: Files not being replaced - old file asset URLs still available
+* Fixed bug #1378: Black, undecorated links = poor usability
+* Fixed bug #1387: Word Docs having wrong content type in http headers
+* Fixed bug #1392: Regenerate metadata fails when schema is not applied to any asset
+* Fixed bug #1393: Images in wysiwyg div don't show in simple edit
+* Fixed bug #1394: Cannot deselect all WYSIWYG Plugins
+* Fixed bug #1395: Remap manager unable to match an entry if original URL contains a trailing slash
+* Fixed bug #1397: %screen_menu% keyword not showing correct page
+* Fixed bug #1400: Session expiry settings are ambiguous when no checkbox is selected
+* Fixed bug #1406: Rollback mode shows entries one version earlier than intended
+
+CMS
+
++ Remote Content asset can now display nothing if start/end tag filtering is used, but are not found (Remote Content)
+* Fixed bug #1314: Asset listing: sort by metadata field fails (Asset Listing)
+* Fixed bug #1330: Datetime question doesn't allow deletion of Min / Max / Default values (Custom Form)
+* Fixed bug #1340: MySource Error on the Asset Sorting screen on the Asset Listing (Asset Listing)
+* Fixed bug #1347: Can not remove the HTML version of a Recipient Email (Custom Form)
+* Fixed bug #1357: Online Poll Keywords lists are same for all formats (Online Poll)
+* Fixed bug #1364: Change Wording for "Allow Public Users" on Asset Builder Details screen (Asset Builder)
+* Fixed bug #1365: assign by reference bug in asset builder (Asset Builder)
+* Fixed bug #1369: Optional email field is mandatory in custom form (Custom Form)
+* Fixed bug #1376: Online Poll - Past Questions List Format bodycopy - make asset keywords available (Online Poll)
+* Fixed bug #1377: Online Poll - questions appear to be independant assets and so they cannot have their own status (Online Poll)
+
+Search
+
+* Fixed bug #1322: Print=no doesnt work for a Search box design area (Searchbox Design Area)
+* Fixed bug #1328: Published and Status Changed dates are not indexed (Search Manager)
+* Fixed bug #1399: Reindex hipo job error when squiz server is on (Reindex HIPO Job)
+
+Calendar
+
+* Fixed bug #1335: Wrong keywords shown as being available in calendar page type format bodycopies (Calendar Page)
+* Fixed bug #1337: Calendar SQL Error (Calendar Page)
+* Fixed bug #1362: Editing calendar using _edit interfaces defaults to todays date (Calendar Event)
+
+LDAP
+
+* Fixed bug #1398: Cannot link LDAP User with space in DN to Matrix group (LDAP User)
+
+
+
+
 VERSION 3.8.2
 
 Complete Changelog
