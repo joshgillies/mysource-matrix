@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.4.2.2 2006/05/31 04:39:51 skim Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.4.2.3 2006/06/05 01:32:23 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.4.2.2 $
+* @version $Revision: 1.4.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -427,9 +427,8 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		if (!$new_file->create($import_link, $temp_info)) {
 			trigger_error('Failed to import Image: '.$filename, E_USER_WARNING);
 		}
-
 		$find = substr($image_dir_name, strrpos($image_dir_name, '/') + 1);
-		$test_reg = '/'.$find.'\/'.str_replace('.', '\.', basename($filename)).'/i';
+		$test_reg = '/[\.\/]?'.$find.'\/'.str_replace('.', '\.', basename($filename)).'/i';
 		$test_reg = str_replace('(', '\(', $test_reg);
 		$test_reg = str_replace(')', '\)', $test_reg);
 		$replace_asset = './?a='.$new_file->id;
