@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: roles.inc,v 1.1.2.1 2006/03/31 04:17:01 lwright Exp $
+* $Id: roles.inc,v 1.1.2.2 2006/06/05 01:41:14 lwright Exp $
 *
 */
 
@@ -28,9 +28,80 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Roles Static Screen Functions
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.1.2.1 $
+* @version $Revision: 1.1.2.2 $
 * @package MySource_Matrix
 */
+
+
+/**
+* Paints the interface for viewing current roles (used for popups etc)
+*
+* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$o		the outputter class
+* @param object	&$ei	the edit interface
+*
+* @return boolean
+* @access public
+*/
+function paintInlineRoles(&$owner, &$o, &$ei)
+{
+	$prefix = $owner->getPrefix();
+
+	$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($owner->id);
+
+	if (empty($roles)) return FALSE;
+
+	$o->openSection(translate('roles'));
+	$o->openField('&nbsp;');
+	?>
+	<table class="sq-backend-table">
+		<td class="sq-backend-table-header"><?php echo translate('roles'); ?></td>
+		<td class="sq-backend-table-header"><?php echo translate('users'); ?></td>
+		<td class="sq-backend-table-header"><?php echo translate('global'); ?></td>
+		<?php
+		foreach ($roles as $roleid => $userids) {
+			$global_role = FALSE;
+			if (in_array(0, $userids)) {
+				$userids = array_diff($userids, Array(0));
+				$global_role = TRUE;
+			}
+
+			$userid_count = count($userids);
+			?>
+			<tr>
+				<td class="sq-backend-table-cell-alt" rowspan="<?php echo $userid_count; ?>">
+					<?php echo get_asset_tag_line($roleid); ?>
+				</td>
+				<td class="sq-backend-table-cell-alt">
+					<?php
+					if (!empty($userids)) {
+						echo get_asset_tag_line(array_shift($userids));
+					}
+					?>
+				</td>
+				<td class="sq-backend-table-cell-alt" rowspan="<?php echo $userid_count; ?>">
+					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($global_role) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+				</td>
+			</tr>
+			<?php
+			foreach ($userids as $userid) {
+				?>
+				<tr>
+					<td class="sq-backend-table-cell-alt">
+						<?php echo get_asset_tag_line($userid); ?>
+					</td>
+				</tr>
+				<?php
+			}
+		}//end foreach
+		?>
+		</table><?php
+		$o->closeField();
+	$o->closeSection();
+
+	return TRUE;
+
+}//end paintInlineRoles()
 
 
 /**

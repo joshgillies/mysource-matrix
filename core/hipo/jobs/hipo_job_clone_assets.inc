@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.18 2005/10/24 05:28:14 ndvries Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.18.2.1 2006/06/05 01:41:14 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -237,6 +237,32 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 					'allow_cancel'	=> false,
 					'percent_done'	=> 0,
 					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_cascading_content_tags'),
+					'hipo_job'		=> Array(
+										'init_details_function'	=> 'cascadeTags',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> TRUE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> FALSE,
+					'percent_done'	=> 0,
+					'complete'		=> FALSE,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_cascading_roles'),
+					'hipo_job'		=> Array(
+										'init_details_function'	=> 'cascadeRoles',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> TRUE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> FALSE,
+					'percent_done'	=> 0,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -507,12 +533,15 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		$this->_running_vars['to_parent_pos']++;
 
+		// NOTE: Content tags are not cloned as a component because the link
+		// cloning will take care of that
 		$components = Array(
 						'attributes',
 						'metadata_schemas',
 						'metadata',
 						'workflow',
 						'permissions',
+						'roles',
 					  );
 
 		$step_data['message'] = 'Cloning "'.$orig->name.'" to "'.$parent_asset->name.'".';
@@ -665,6 +694,12 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 				$ei->includeStaticScreen('metadataSchemas');
 				$ms = paintInlineMetadataSchemas($parent, $o, $ei);
 
+				$ei->includeStaticScreen('tagging');
+				$ta = paintInlineTagging($parent, $o, $ei);
+
+				$ei->includeStaticScreen('roles');
+				$ro = paintInlineRoles($parent, $o, $ei);
+
 				$o->addHiddenField('form_submitted', 1);
 			$o->closeField();
 		$o->closeSection();
@@ -674,6 +709,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 				echo ($pe) ? translate('permissions').' '.check_box('cascade[]', 'cascade_pe').'<br />' : '';
 				echo ($ms) ? translate('metadata_schemas').' '.check_box('cascade[]', 'cascade_ms').'<br />' : '';
 				echo ($wf) ? translate('workflow').' '.check_box('cascade[]', 'cascade_wf').'<br />' : '';
+				echo ($ta) ? translate('content_tags').' '.check_box('cascade[]', 'cascade_ta').'<br />' : '';
+				echo ($ro) ? translate('roles').' '.check_box('cascade[]', 'cascade_ro').'<br />' : '';
 			$o->closeField();
 		$o->closeSection();
 
@@ -711,10 +748,20 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 				if (!in_array('cascade_wf', $_REQUEST['cascade'])) {
 					$this->skipStep(7);
 				}
+				// content tags
+				if (!in_array('cascade_ta', $_REQUEST['cascade'])) {
+					$this->skipStep(8);
+				}
+				// roles
+				if (!in_array('cascade_ro', $_REQUEST['cascade'])) {
+					$this->skipStep(9);
+				}
 			} else {
 				$this->skipStep(5); // permissions
 				$this->skipStep(6); // metadata
 				$this->skipStep(7); // workflow
+				$this->skipStep(8); // content tags
+				$this->skipStep(9); // roles
 			}
 			$step_data['percent_done'] = 100;
 			$step_data['complete'] = true;
@@ -814,6 +861,62 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$running_vars['assets'] = $this->_running_vars['cloned_asset'];
 
 	}//end cascadeWorkflow()
+
+
+	/**
+	* Cascade tags (if not skipped)
+	*
+	* @param string	&$job_type		job type
+	* @param array	&$running_vars	running vars
+	* @param array	&$options		options
+	*
+	* @return void
+	* @access public
+	*/
+	function cascadeTags(&$job_type, &$running_vars, &$options)
+	{
+		$job_type = 'hipo_job_edit_tags';
+		$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
+		$current_tag_links = $tag_manager->getTagLinks($this->_running_vars['to_parent_assetid']);
+		$tag_vars = Array();
+
+		foreach ($current_tag_links as $link) {
+			$tag_vars[] = Array(
+							'tag_id'	=> $link['minorid'],
+							'action'	=> 'add',
+							'weight'	=> $link['value'],
+						  );
+		}
+
+		$running_vars['tag_changes'] = $tag_vars;
+		$running_vars['assets'] = $this->_running_vars['cloned_asset'];
+
+	}//end cascadeTags()
+
+
+	/**
+	* Cascade tags (if not skipped)
+	*
+	* @param string	&$job_type		job type
+	* @param array	&$running_vars	running vars
+	* @param array	&$options		options
+	*
+	* @return void
+	* @access public
+	*/
+	function cascadeRoles(&$job_type, &$running_vars, &$options)
+	{
+		$job_type = 'hipo_job_edit_roles';
+		$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($this->_running_vars['to_parent_assetid']);
+		$roles_vars = Array();
+
+		foreach ($roles as $roleid => $users) {
+			$role_vars['add'][$roleid] = $users;
+		}
+		$running_vars['role_changes'] = $role_vars;
+		$running_vars['assets'] = $this->_running_vars['cloned_asset'];
+
+	}//end cascadeRoles()
 
 
 	/**

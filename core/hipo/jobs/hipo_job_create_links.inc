@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.29 2006/01/26 22:34:08 lwright Exp $
+* $Id: hipo_job_create_links.inc,v 1.29.2.1 2006/06/05 01:41:14 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -195,6 +195,19 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					'name'			=> translate('hipo_cascading_content_tags'),
 					'hipo_job'		=> Array(
 										'init_details_function'	=> 'cascadeTags',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> TRUE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> FALSE,
+					'percent_done'	=> 0,
+					'complete'		=> FALSE,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_cascading_roles'),
+					'hipo_job'		=> Array(
+										'init_details_function'	=> 'cascadeRoles',
 									   ),
 					'running_mode'	=> 'server',
 					'auto_step'		=> TRUE,
@@ -548,6 +561,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$this->skipStep(5);
 				$this->skipStep(6);
 				$this->skipStep(7);
+				$this->skipStep(8);
 
 				$moving_to_trash = TRUE;
 
@@ -704,6 +718,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$ei->includeStaticScreen('tagging');
 				$ta = paintInlineTagging($parent, $o, $ei);
 
+				$ei->includeStaticScreen('roles');
+				$ro = paintInlineRoles($parent, $o, $ei);
+
 				$o->addHiddenField('form_submitted', 1);
 			$o->closeField();
 		$o->closeSection();
@@ -714,6 +731,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				echo ($ms) ? translate('metadata_schemas').' '.check_box('cascade[]', 'cascade_ms').'<br />' : '';
 				echo ($wf) ? translate('workflow').' '.check_box('cascade[]', 'cascade_wf').'<br />' : '';
 				echo ($ta) ? translate('content_tags').' '.check_box('cascade[]', 'cascade_ta').'<br />' : '';
+				echo ($ro) ? translate('roles').' '.check_box('cascade[]', 'cascade_ro').'<br />' : '';
 			$o->closeField();
 		$o->closeSection();
 
@@ -756,11 +774,16 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					log_dump('skipping tag cascade');
 					$this->skipStep(7);
 				}
+				// roles
+				if (!in_array('cascade_ro', $_REQUEST['cascade'])) {
+				$this->skipStep(8);
+				}
 			} else {
 				$this->skipStep(4); // permissions
 				$this->skipStep(5); // metadata
 				$this->skipStep(6); // workflow
 				$this->skipStep(7); // tags
+				$this->skipStep(8); // roles
 			}
 			$step_data['percent_done'] = 100;
 			$step_data['complete'] = TRUE;
@@ -926,6 +949,32 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		$running_vars['assets'] = $this->_running_vars['assets'];
 
 	}//end cascadeTags()
+
+
+	/**
+	* Cascade tags (if not skipped)
+	*
+	* @param string	&$job_type		job type
+	* @param array	&$running_vars	running vars
+	* @param array	&$options		options
+	*
+	* @return void
+	* @access public
+	*/
+	function cascadeRoles(&$job_type, &$running_vars, &$options)
+	{
+		$job_type = 'hipo_job_edit_roles';
+		$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($this->_running_vars['to_parent_assetid']);
+		$roles_vars = Array();
+
+		foreach ($roles as $roleid => $users) {
+			$role_vars['add'][$roleid] = $users;
+		}
+		$running_vars['role_changes'] = $role_vars;
+		$running_vars['assets'] = $this->_running_vars['assets'];
+
+
+	}//end cascadeRoles()
 
 
 	/**
