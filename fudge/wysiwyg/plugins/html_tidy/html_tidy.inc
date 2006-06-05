@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.38 2006/05/10 00:22:39 rong Exp $
+* $Id: html_tidy.inc,v 1.39 2006/06/05 23:33:50 rong Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -141,6 +141,9 @@ class HTML_Tidy extends Wysiwyg_Plugin
 			$html = preg_replace('|<\?xml[^>]+microsoft[^>]+\?>|is', '', $html);
 			$html = preg_replace('|<\/?\w+:[^>]*>|is', '', $html);
 			$html = preg_replace('|<\\?\??xml[^>]>|is', '', $html);
+
+			// Remove javascript tags
+			$html = preg_replace('|<script\b[^>]*>(.*?)</script>|is', '', $html);
 
 			/////////////////
 			//  HTML TIDY  //
