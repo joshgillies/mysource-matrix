@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.479 2006/05/29 02:39:22 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.480 2006/06/05 04:17:03 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.479 $
+* @version $Revision: 1.480 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2659,7 +2659,7 @@ class Asset_Manager extends MySource_Object
 	* @param object					$assetid		the asset whose links lineages we are getting
 	* @param int					$result_limit	limits the number of results returned
 	* @param string					$from_treeid	Uses this treeid as the starting (root) node
-	* @param mixed	string|array	$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
+	* @param mixed string|array		$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
 	*
 	* @return array
 	* @access public
@@ -2816,7 +2816,7 @@ class Asset_Manager extends MySource_Object
 									'link_type'	=> $link_type,
 									'lineage'	=> $asset_lineage,
 								   );
-			}
+			}//end foreach
 
 			if ($result_limit != 0 && $result_count == $result_limit) {
 				break;
@@ -3302,35 +3302,57 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Returns the treeids of any links between the passed assetid and any of its parents
+	* Returns the treeids of any links between the passed assetid(s) and any parents
 	*
-	* @param int	$assetid	the id of the asset passed
-	* @param int	$link_type	the type of wanted links
+	* If a single assetid is supplied, a simple array of treeids is returned.  If an array
+	* of assetids is supplied then the result is indexed by assetid and each element is an array
+	* of treeids for that assetid.
+	*
+	* @param int|array	$assetid	the id of the asset passed, or array of assetids
+	* @param int		$link_type	the type of wanted links
 	*
 	* @return array
 	* @access public
 	*/
 	function getAssetTreeids($assetid, $link_type=NULL)
 	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		assert_valid_assetid($assetid);
+		if (is_array($assetid)) {
+			$assetids_set = Array();
+			foreach ($assetid as $this_assetid) {
+				assert_valid_assetid($this_assetid);
+				$assetids_set[] = $db->quoteSmart($this_assetid);
+			}
+		} else {
+			assert_valid_assetid($assetid);
+		}
 
 		if (empty($link_type)) {
 			$link_type = SQ_SC_LINK_SIGNIFICANT;
 		}
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT t.treeid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-				INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid';
+		if (is_array($assetid)) {
+			$sql = 'SELECT l.minorid, t.treeid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid';
+			$where = 'WHERE l.minorid IN ('.implode(', ', $assetids_set).')';
+		} else {
+			$sql = 'SELECT t.treeid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid';
+			$where  = 'WHERE l.minorid = '.$db->quoteSmart($assetid);
+		}
 
-		$where  = 'WHERE l.minorid = '.$db->quoteSmart($assetid);
 		$where .= '	AND '.db_extras_bitand($db, 'l.link_type', $link_type).' > 0';
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-
-		$result = $db->getCol($sql.$where);
+		if (is_array($assetid)) {
+			$result = $db->getAssoc($sql.$where, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
+		} else {
+			$result = $db->getCol($sql.$where);
+		}
 		assert_valid_db_result($result);
 
 		return $result;
