@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2005/12/19 05:04:07 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2.2.1 2006/06/06 23:34:54 rong Exp $
 *
 */
 -->
@@ -28,17 +28,23 @@
 		<field attribute="name">
 			<text width="30" height="1" />
 		</field>
-		<field attribute="scheme">
+		<field attribute="friendly_name">
 			<text width="30" height="1" />
 		</field>
-		<field attribute="language">
-			<text width="30" height="1" />
+		<field attribute="description">
+			<text width="30" height="5" />
 		</field>
 		<field>
 			<function_call>
 				<paint_function name="paintDefault" />
 				<process_function name="processDefault" />
 			</function_call>
+		</field>
+		<field attribute="scheme">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="language">
+			<text width="30" height="1" />
 		</field>
 	</section>
 
