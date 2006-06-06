@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.540 2006/06/01 01:05:29 rong Exp $
+* $Id: asset.inc,v 1.541 2006/06/06 04:43:41 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.540 $
+* @version $Revision: 1.541 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3851,7 +3851,7 @@ class Asset extends MySource_Object
 		}
 
 		if (!is_null($original_asset)) {
-			$GLOBALS['SQ_SYSTEM']->frontend_asset = $original_asset;
+			$GLOBALS['SQ_SYSTEM']->frontend_asset =& $original_asset;
 		}
 
 	}//end printFrontendAsset()
