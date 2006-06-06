@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.70.2.2 2006/06/06 05:38:45 rong Exp $
+* $Id: calendar_event_recurring.inc,v 1.70.2.3 2006/06/06 05:43:21 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.70.2.2 $
+* @version $Revision: 1.70.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -556,7 +556,6 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 		// recurs until
 		$stop_date_attr =& $this->getAttribute('stop_date');
-		minibam($stop_date_attr);
 		if ($stop_date_attr->value != '---------- --:--:--') {
 			$rule .= ';UNTIL='.date('Ymd\THis', iso8601_ts($stop_date_attr->value));
 		}
