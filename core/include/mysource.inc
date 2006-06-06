@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.119.2.13 2005/09/19 05:31:50 lwright Exp $
+* $Id: mysource.inc,v 1.119.2.14 2006/06/06 23:52:07 emcdonald Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.119.2.13 $
+* @version $Revision: 1.119.2.14 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1703,7 +1703,7 @@ class MySource
 				<td bgcolor="#FFE5E8">
 					<table border="0" cellspacing="2" cellpadding="2" width="100%">
 						<tr>
-							<td class="sq-rollback-warning" align="right"><?php echo translate('exit_rollback_view'); ?><?php sq_print_icon(sq_web_path('lib').'/web/images/icons/delete.png', '16', '16', translate('exit_rollback_view'), null, 'onClick="Javascript: window.top.location=\''.$exit_url.'\'"; return false;" style="cursor: pointer;"'); ?>
+							<td class="sq-rollback-warning" align="right"><?php echo translate('exit_rollback_view'); ?><?php sq_print_icon(sq_web_path('lib').'/web/images/icons/delete.png', '16', '16', translate('exit_rollback_view'), null, 'onClick="Javascript: window.top.location=\''.$exit_url.'\'; return false;" style="cursor: pointer;"'); ?>
 							</td>
 						</tr>
 						<tr>
