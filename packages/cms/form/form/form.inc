@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.136 2006/06/06 03:46:56 lwright Exp $
+* $Id: form.inc,v 1.137 2006/06/06 03:59:27 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.136 $
+* @version $Revision: 1.137 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -601,11 +601,11 @@ class Form extends Asset
 	*/
 	function &getAllQuestions()
 	{
-		$all_questions =& $this->getQuestions();
+		$all_questions = $this->getQuestions();
 
 		$sections =& $this->getSections();
 		foreach ($sections as $section) {
-			$questions =& $section->getQuestions();
+			$questions = $section->getQuestions();
 			$all_questions = array_merge($all_questions, $questions);
 		}
 
@@ -1076,7 +1076,7 @@ class Form extends Asset
 
 			foreach ($sections as $section) {
 				$replacements['section_title_'.$section->id] = $section->attr('name');
-				$questions =& $section->getQuestions();
+				$questions = $section->getQuestions();
 				foreach ($questions as $q_id => $question) {
 					$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 					$q_name = $section->attr('name').': '.$q_asset->attr('name');

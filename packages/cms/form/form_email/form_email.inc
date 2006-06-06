@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.51 2006/04/20 03:44:18 sdanis Exp $
+* $Id: form_email.inc,v 1.52 2006/06/06 03:59:27 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -294,7 +294,7 @@ class Form_Email extends Form
 
 		foreach ($sections as $section) {
 			$reps['section_title_'.$section->id] = $section->attr('name');
-			$questions =& $section->getQuestions();
+			$questions = $section->getQuestions();
 			foreach ($questions as $q_id => $question) {
 				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $section->attr('name').': '.$q_asset->attr('name');
@@ -382,7 +382,7 @@ class Form_Email extends Form
 
 		foreach ($sections as $section) {
 			$reps['section_title_'.$section->id] = $section->attr('name');
-			$questions =& $section->getQuestions();
+			$questions = $section->getQuestions();
 			foreach ($questions as $q_id => $question) {
 				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $section->attr('name').': '.$q_asset->attr('name');
@@ -492,7 +492,7 @@ class Form_Email extends Form
 
 		foreach ($sections as $section) {
 			$reps['section_title_'.$section->id] = $section->attr('name');
-			$questions =& $section->getQuestions();
+			$questions = $section->getQuestions();
 			foreach ($questions as $q_id => $question) {
 				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $section->attr('name').': '.$q_asset->attr('name');
@@ -655,7 +655,7 @@ class Form_Email extends Form
 
 		foreach ($sections as $section) {
 			$reps['section_title_'.$section->id] = $section->attr('name');
-			$questions =& $section->getQuestions();
+			$questions = $section->getQuestions();
 			foreach ($questions as $q_id => $question) {
 				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $section->attr('name').': '.$q_asset->attr('name');
