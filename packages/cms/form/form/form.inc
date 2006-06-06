@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.135 2006/03/24 04:48:41 lwright Exp $
+* $Id: form.inc,v 1.136 2006/06/06 03:46:56 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.135 $
+* @version $Revision: 1.136 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1753,7 +1753,7 @@ class Form extends Asset
 
 				foreach ($sections as $section) {
 					$keywords['section_title_'.$section->id] = translate('cms_form_section_title', $section->attr('name'));
-					$questions =& $section->getQuestions();
+					$questions = $section->getQuestions();
 					foreach ($questions as $q_id => $question) {
 						$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $q_asset->attr('name');
