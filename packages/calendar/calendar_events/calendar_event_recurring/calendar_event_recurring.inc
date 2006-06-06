@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.70.2.1 2006/05/04 02:52:03 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.70.2.2 2006/06/06 05:38:45 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.70.2.1 $
+* @version $Revision: 1.70.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -556,7 +556,8 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 		// recurs until
 		$stop_date_attr =& $this->getAttribute('stop_date');
-		if ($stop_date_attr) {
+		minibam($stop_date_attr);
+		if ($stop_date_attr->value != '---------- --:--:--') {
 			$rule .= ';UNTIL='.date('Ymd\THis', iso8601_ts($stop_date_attr->value));
 		}
 		return $rule;
@@ -778,7 +779,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				return $this->writeAccess('') ? '<a href="'.replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id)).'">'.translate('cal_event_recurring_edit_link_text').'</a>' : '';
 			case 'event_frequency':
 				return $this->getFriendlyFrequency();
-			case 'event_ical_freqency':
+			case 'event_ical_frequency':
 				return $this->getiCalFrequency();
 			case 'event_ical_exceptions':
 				return $this->getiCalExceptions();
