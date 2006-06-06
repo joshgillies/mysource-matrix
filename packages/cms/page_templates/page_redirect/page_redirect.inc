@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.26 2006/01/26 22:35:20 lwright Exp $
+* $Id: page_redirect.inc,v 1.26.2.1 2006/06/06 04:58:13 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -174,7 +174,7 @@ class Page_Redirect extends Page
 		$url = $this->_getRedirectURL();
 
 		$timeout = $this->attr('timeout');
-		if ($timeout > 0) {
+		if (($timeout > 0) || headers_sent()) {
 			parent::printFrontend();
 			echo $this->getJavascriptRedirectKeywordReplacement();
 		}
