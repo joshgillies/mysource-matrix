@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.26 2006/01/26 22:35:20 lwright Exp $
+* $Id: page_redirect.inc,v 1.27 2006/06/06 04:55:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -209,7 +209,12 @@ class Page_Redirect extends Page
 
 		// not in a new window, just relocate them
 		} else {
-			if (!headers_sent()) header('Location: '.$url);
+			if (!headers_sent()) {
+				header('Location: '.$url);
+			} else {
+				parent::printFrontend();
+				echo $this->getJavascriptRedirectKeywordReplacement();
+			}
 		}
 
 	}//end printFrontend()
