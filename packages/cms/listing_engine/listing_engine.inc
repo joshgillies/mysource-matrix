@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.173 2006/05/29 06:50:54 skim Exp $
+* $Id: listing_engine.inc,v 1.174 2006/06/06 00:51:28 sdanis Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.173 $
+* @version $Revision: 1.174 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2635,6 +2635,11 @@ class Listing_Engine extends Page
 			$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($child_assetid, 0, $treeid, 'type_code');
 
 			foreach ($lineages as $lineage_info) {
+				// if not one of the selected link types continue
+				if (!($lineage_info['link_type'] & $this->attr('link_types'))) {
+					continue;
+				}
+
 				// if no types selected then group by root nodes
 				if (!isset($restrict_types['type_code']) || empty($restrict_types['type_code'])) {
 					$groupable_parents[] = array_shift(array_keys($lineage_info['lineage']));
