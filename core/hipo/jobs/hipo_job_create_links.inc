@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.36 2006/06/05 00:48:00 lwright Exp $
+* $Id: hipo_job_create_links.inc,v 1.37 2006/06/06 05:42:01 emcdonald Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -278,7 +278,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 + SQ_LINK_TYPE_2, '', TRUE, $current['linkid']);
 
 					if (!empty($trash_link)) $num_other_links--;
-					if ($num_other_links > 0) {
+					if (!$num_other_links) {
 						// now lets get all the other links this asset has in the system and
 						// display them to the user
 						// note that we are also going to ask the major asset in the link
@@ -845,7 +845,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			}
 			$step_data['percent_done'] = 100;
 			$step_data['complete'] = TRUE;
-		}
+		}//end if
 
 		return TRUE;
 
