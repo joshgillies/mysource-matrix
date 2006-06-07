@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.120.2.8 2006/05/29 06:41:11 tbarrett Exp $
+* $Id: general.inc,v 1.120.2.9 2006/06/07 06:33:33 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.120.2.8 $
+* @version $Revision: 1.120.2.9 $
 * @package MySource_Matrix
 */
 
@@ -1208,7 +1208,7 @@ function get_asset_status_icon($status) {
 	$status_name = get_status_description($status);
 	$status_colour = get_status_colour($status);
 
-	return '<img src="'.sq_web_path('lib').'/web/images/blank.gif" width="10" height="10" alt="'.$status_name.'" title="'.$status_name.'" align="absmiddle" style="margin: 2px; border: 1px solid #ccc; background-color: '.$status_colour.'" /> ';
+	return '<img src="'.sq_web_path('lib').'/web/images/blank.gif" width="10" height="10" alt="'.$status_name.'" title="'.$status_name.'" align="absmiddle" style="margin: 2px; border: 1px solid #ccc; background-color: #'.$status_colour.'" /> ';
 
 }//end get_asset_status_icon()
 
