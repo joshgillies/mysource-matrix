@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page_page.inc,v 1.8 2006/03/21 03:03:32 pgannavarapu Exp $
+* $Id: page_multiple_page_page.inc,v 1.9 2006/06/07 04:40:02 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -201,7 +201,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 	function getKeywordReplacement($value)
 	{
 		$replacement = parent::getKeywordReplacement($value);
-		if ($replacement == '%'.$value.'%') {
+		if (is_null($replacement)) {
 			$parent = $this->getMultiplePageAsset();
 			$replacement = $parent->getKeywordReplacement($value);
 		}
