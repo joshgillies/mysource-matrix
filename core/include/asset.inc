@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.503.2.22 2006/06/07 04:36:03 lwright Exp $
+* $Id: asset.inc,v 1.503.2.23 2006/06/07 23:16:31 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.503.2.22 $
+* @version $Revision: 1.503.2.23 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3241,7 +3241,7 @@ class Asset extends MySource_Object
 			if (isset($mm_replacements[$metadata_keyword])) {
 				$replacement = $mm_replacements[$metadata_keyword];
 			} else {
-				$replacement = '';
+				$replacement = NULL;
 			}
 		} else {
 			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
