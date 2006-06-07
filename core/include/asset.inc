@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.503.2.21 2006/06/06 04:49:06 lwright Exp $
+* $Id: asset.inc,v 1.503.2.22 2006/06/07 04:36:03 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.503.2.21 $
+* @version $Revision: 1.503.2.22 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3190,7 +3190,7 @@ class Asset extends MySource_Object
 		if (0 === strpos($keyword, 'globals_')) {
 			return "%$keyword%";
 		}
-		$replacement = '';
+		$replacement = NULL;
 		$tmp_keyword = strtr($keyword, '_', ' ');
 		$tmp_keyword = ucwords($tmp_keyword);
 		$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
