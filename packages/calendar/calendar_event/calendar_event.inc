@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.63 2006/05/11 06:58:21 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.64 2006/06/08 05:10:16 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -620,7 +620,7 @@ class Calendar_Event extends Asset
 		switch ($action_name) {
 			case 'move':
 				if (isset($_REQUEST['SQ_CALENDAR_OLD_LOC']) && !empty($_REQUEST['SQ_CALENDAR_OLD_LOC'])) {
-					$old_link =& $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id);
+					$old_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id);
 					if (empty($old_link)) {
 						trigger_localised_error('CAL0017', E_USER_WARNING, $_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id);
 						return '';
@@ -698,7 +698,7 @@ class Calendar_Event extends Asset
 			}
 
 			// we have the best, now get the rest
-			$date_values += get_date_components($iso, $date_comp.'_');
+			$date_values += Calendar_Common::getDateComponents($iso, $date_comp.'_');
 		}
 
 		// frequency field => blank for standard events, overridden in recurring

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.74 2006/06/06 05:31:24 rong Exp $
+* $Id: calendar_event_recurring.inc,v 1.75 2006/06/08 05:10:28 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -298,8 +298,8 @@ class Calendar_Event_Recurring extends Calendar_Event
 		}
 
 		// get components and get into it
-		$date_components = get_date_components($date);
-		$start_components = get_date_components($start);
+		$date_components = Calendar_Common::getDateComponents($date);
+		$start_components = Calendar_Common::getDateComponents($start);
 
 		if (!$interval)	$interval = 1;
 		if ($interval > 1) $freq_type .= 'x';
@@ -1103,7 +1103,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 		$date_values = Array();
 		foreach (Array('start_date', 'end_date') as $date_comp) {
-			$date_values += get_date_components($this->attr($date_comp), $date_comp.'_');
+			$date_values += Calendar_Common::getDateComponents($this->attr($date_comp), $date_comp.'_');
 		}
 
 		// frequency field => as thy will be set in the standard attribute value table

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.9 2006/03/23 03:04:13 pgannavarapu Exp $
+* $Id: page_calendar_rolling.inc,v 1.10 2006/06/08 05:10:28 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -236,7 +236,8 @@ class Page_Calendar_Rolling extends Page
 				$metadata_keywords[$link['value']] = Array();
 				$bc =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 				$type_formats[$link['value']] = $bc->getRawBodycopyContent();
-				foreach ($bc->getKeywords() as $keyword) {
+				$required_keywords[$link['value']] = $bc->getKeywords();
+				foreach ($required_keywords[$link['value']] as $keyword) {
 					if (strpos($keyword, 'asset_') !== 0) {
 						$needs_asset[$link['value']] = TRUE;
 					} else {
@@ -278,8 +279,15 @@ class Page_Calendar_Rolling extends Page
 				// get asset keywords
 				if ($needs_asset[$format_type]) {
 					$asset =& $am->getAsset($id);
-					foreach ($asset->getAvailableKeywords() as $keyword => $desc) {
-						$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+					foreach ($required_keywords[$format_type] as $keyword) {
+						if ($keyword == 'asset_contents') {
+							ob_start();
+								$asset->printBody();
+								$replacements[$keyword] = ob_get_contents();
+							ob_end_clean();
+						} else {
+							$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+						}
 					}
 				} else {
 					// we can do this without the asset
@@ -347,30 +355,29 @@ class Page_Calendar_Rolling extends Page
 
 		// build sql to restrict the tree locations
 		$root_nodes = $this->attr('root_nodes');
-		$trees = &get_treeids($root_nodes);
-		if (empty($trees)) {
+		if (empty($root_nodes)) {
 			trigger_localised_error('CAL0028', E_USER_WARNING);
 			return Array();
 		}
-		$tree_sql = build_tree_clause($trees);
 
 		// get the single events
 		$start_date_stamp = floor(strtotime($start_date.' 12:00:00 GMT') / 86400);
 		$end_date_stamp = $start_date_stamp + $length;
 		$date_sql = '(cd.start_date_ds BETWEEN '.$db->quote($start_date_stamp).' AND '.$db->quote($end_date_stamp).') OR (cd.start_date_ds < '.$db->quote($start_date_stamp).' AND cd.end_date_ds >= '.$db->quote($start_date_stamp).')';
-		$sql = build_single_event_query_base($trees).' AND ('.$date_sql.') AND '.$tree_sql;
-		$single_result = $db->getAssoc($sql);
+		$sql = Calendar_Common::getSingleEventQueryBase(array_keys($root_nodes)).' AND ('.$date_sql.')';
+		$single_result = $db->getAll($sql);
 		assert_valid_db_result($single_result);
+		$single_result = Calendar_Common::condenseResultTreeids($single_result);
 
 		// get the recurring events
-		$sql = build_recurring_event_query_base($trees, 'period', $start_date, (int) $length);
-		$sql .= ' AND '.$tree_sql;
-		$recur_result = $db->getAssoc($sql);
+		$sql = Calendar_Common::getRecurringEventQueryBase(array_keys($root_nodes), 'period', $start_date, (int) $length);
+		$recur_result = $db->getAll($sql);
 		assert_valid_db_result($recur_result);
+		$recur_result = Calendar_Common::condenseResultTreeids($recur_result);
 
 		$all_events = $single_result + $recur_result;
-		$all_events = expand_event_list($all_events, $start_date, $end_date);
-		process_exceptions($all_events);
+		$all_events = Calendar_Common::expandEventList($all_events, $start_date, $end_date);
+		Calendar_Common::processExceptions($all_events);
 
 		$index = $start_date;
 		$res = Array($index => Array());

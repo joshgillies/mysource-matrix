@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.48 2006/02/02 03:55:37 sdanis Exp $
+* $Id: page_calendar_management.inc,v 1.49 2006/06/08 05:10:28 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -242,6 +242,15 @@ class Page_Calendar_Management extends Asset_Management
 											'default'	=> '<< Previous %v%',
 										);
 
+		// Text	for	the	link that takes	you	to the today's date
+		$this->vars['today_link_text'] = Array(
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> 'Show Today',
+										);
+
+
+
 		// If you are using	listing	format for a view, this	stores what	sort
 		// of list entry you want -	the	full bodycopy or just the title
 		$this->vars['list_entry_types'] = Array(
@@ -287,6 +296,18 @@ class Page_Calendar_Management extends Asset_Management
 											'type'		=> 'int',
 											'default'	=> 0,
 										 );
+
+		$this->vars['parameter_map'] = Array(
+										'added'			=> '0.4',
+										'type'			=> 'parameter_map',
+										'default'		=> Array(),
+										'parameters'	=> Array(
+															'parameters'	=> Array(
+																				'replacement_root_node'	=> 'Replacement Event Source (must be a child of the static root node)',
+
+																			   ),
+														   ),
+									   );
 
 	}//end constructor
 

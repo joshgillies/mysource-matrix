@@ -11,14 +11,14 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.178 2006/05/04 02:38:15 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.179 2006/06/08 05:10:28 tbarrett Exp $
 *
 */
 
-require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset_listing.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 require_once dirname(__FILE__).'/../../calendar_events/calendar_event_recurring/calendar_event_recurring.inc';
 require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.178 $
+* @version $Revision: 1.179 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -215,6 +215,8 @@ class Page_Calendar extends Page
 	*/
 	function printBody()
 	{
+		$root_node_ids = array_keys($this->attr('root_nodes'));
+
 		$res = '';
 		$action = array_get_index($_REQUEST,'SQ_CALENDAR_EVENT_ACTION',FALSE);
 		if ($action) {
@@ -269,7 +271,8 @@ class Page_Calendar extends Page
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($contents_bodycopy);
 
-			}
+			}//end else no cache
+
 		}//end if
 
 	}//end printBody()
@@ -398,9 +401,10 @@ class Page_Calendar extends Page
 		$prev_date = date($date_format, strtotime('-1 '.$cal_view, strtotime(date($date_format, strtotime($cal_date)))));
 		$next_date = date($date_format, strtotime('+1 '.$cal_view, strtotime(date($date_format, strtotime($cal_date)))));
 
-		$replacements['prev_link'] = $event_id ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$prev_date.'">'.htmlentities(str_replace('%v%', ucfirst($cal_view), $this->attr('prev_link_text'))).'</a>';
-		$replacements['next_link'] = $event_id ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$next_date.'">'.htmlentities(str_replace('%v%', ucfirst($cal_view), $this->attr('next_link_text'))).'</a>';
+		$replacements['prev_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$prev_date.'">'.htmlentities(str_replace('%v%', ucfirst($cal_view), $this->attr('prev_link_text'))).'</a>';
+		$replacements['next_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$next_date.'">'.htmlentities(str_replace('%v%', ucfirst($cal_view), $this->attr('next_link_text'))).'</a>';
 		$enabled_views = $this->attr('enabled_views');
+		$replacements['today_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink calendarTodayLink" href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'">'.htmlentities($this->attr('today_link_text')).'</a>';
 
 		if ($cal_view == 'week') {
 			$cal_date = date('Y-m-01', iso8601_ts($cal_date));
@@ -440,6 +444,7 @@ class Page_Calendar extends Page
 						'prev_link'			=> translate('cal_page_prev_link'),
 						'next_link'			=> translate('cal_page_next_link'),
 						'current_user'		=> translate('cal_page_current_user'),
+						'today_link'		=> translate('cal_page_today_link'),
 					);
 
 		return $keywords;
@@ -519,7 +524,7 @@ class Page_Calendar extends Page
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getYearEvents($year);
-			uasort($events, 'compare_start_dates');
+			uasort($events, Array('Calendar_Common', 'compareStartDates'));
 			if ($list_entry_types['year'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
@@ -530,7 +535,7 @@ class Page_Calendar extends Page
 			$events = $this->getYearEventsByMonth($year);
 			foreach ($this->month_names_full as $month_num => $month_name) {
 				$_REQUEST['SQ_CALENDAR_DATE']= $year.'-'.sprintf('%02d', $month_num).'-01';
-				uasort($events[$month_num], 'compare_start_dates');
+				uasort($events[$month_num], Array('Calendar_Common', 'compareStartDates'));
 				echo '<h3>';
 				if ($enabled_views['month']) {
 					echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=month&amp;SQ_CALENDAR_DATE='.$year.'-'.sprintf('%02d', $month_num).'-01">';
@@ -661,10 +666,10 @@ class Page_Calendar extends Page
 			// loop through each day, but if it's been printed before then
 			// don't print it again
 			for ($current_day = 1; $current_day <= $month_length; $current_day++) {
-				uasort($events[$current_day], 'compare_start_dates');
+				uasort($events[$current_day], Array('Calendar_Common', 'compareStartDates'));
 				$current_date = $year.'-'.$month.'-'.$current_day;
 				$_REQUEST['SQ_CALENDAR_DATE'] = $current_date;
-				foreach($events[$current_day] as $event_id => $event_data) {
+				foreach ($events[$current_day] as $event_id => $event_data) {
 					list($event_assetid, ) = explode(':', $event_id);
 					if (!isset($done_events[$event_assetid])) {
 						$done_events[$event_assetid] = 1;
@@ -683,7 +688,7 @@ class Page_Calendar extends Page
 			$events = $this->getMonthEventsByDay($year, $month);
 			$month_length = days_in_month($month, $year);
 			for ($current_day = 1; $current_day <= $month_length; $current_day++) {
-				uasort($events[$current_day], 'compare_start_dates');
+				uasort($events[$current_day], Array('Calendar_Common', 'compareStartDates'));
 				echo '<h3>';
 				if ($drill_down_view) {
 					echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&amp;SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
@@ -867,9 +872,9 @@ class Page_Calendar extends Page
 			// been printed
 			foreach ($events as $day_date => $day_events) {
 				$_REQUEST['SQ_CALENDAR_DATE'] = $day_date;
-				uasort($events[$day_date], 'compare_start_dates');
+				uasort($events[$day_date], Array('Calendar_Common', 'compareStartDates'));
 
-				foreach($events[$day_date] as $event_id => $event_data) {
+				foreach ($events[$day_date] as $event_id => $event_data) {
 					list($event_assetid, ) = explode(':', $event_id);
 					if (!isset($done_events[$event_assetid])) {
 						$done_events[$event_assetid] = 1;
@@ -890,7 +895,7 @@ class Page_Calendar extends Page
 			$events = $this->getWeekEventsByDay($date);
 			foreach ($events as $day_date => $day_events) {
 				$_REQUEST['SQ_CALENDAR_DATE'] = $day_date;
-				uasort($events[$day_date], 'compare_start_dates');
+				uasort($events[$day_date], Array('Calendar_Common', 'compareStartDates'));
 				echo '<h3>'.(($enabled_views['day']) ? '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.$day_date.'"">' : '');
 				echo date('l jS', strtotime($day_date));
 				echo (($enabled_views['day']) ? '</a>' : '').'</h3>';
@@ -1198,7 +1203,8 @@ class Page_Calendar extends Page
 				foreach ($col_events['all_day'] as $assetid => $event) {
 					$assetid = strtok($assetid,':');
 					$event_href = $this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'&amp;SQ_CALENDAR_DATE='.$event_link_date;
-					$event_class = $root_nodes[$event['root_node']]['class_name'];
+					$event_classes = $this->_getClasses($event['treeid']);
+					$event_classes[] = 'event';
 					$onclick_code = $show_event_links ? ' onclick="sq_cal_redirect(\''.$event_href.'\')"' : '';
 					$cursor_code = $show_event_links ? ' cursor: pointer; cursor: hand' : '';
 					$current_mouse_up_down_code = $mousedown_code.' '.$mouseup_code;
@@ -1206,26 +1212,30 @@ class Page_Calendar extends Page
 						$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('cal_page_recurring_cannot_drag').'\')" onmouseup="statusBarMsg(\'\');"';
 					}
 					$current_mouse_over_out_code = '';
-					if (isset($event['description']) && !empty($event['description'])) {
-						$popup_div_id = $assetid.'_'.$id;
-						echo '<div id="event_'.$popup_div_id.'_description" class="popup">'.$event['description'].'</div>';
+					if (!empty($event['description'])) {
+						if (!isset($this->_tmp['popup_printed'][$assetid])) {
+							$popup_div_id = $assetid.'_'.$id;
+							echo '<div id="event_'.$popup_div_id.'_description" class="popup">'.$event['description'].'</div>';
+							$this->_tmp['popup_printed'][$assetid] = 1;
+						}
 						$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$popup_div_id.'_description\')" onmouseout="stopTrailingPopup()"';
 					}
-					echo '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' style="margin: 0px 0px 1px 0px; text-align: center; padding: 0px; width: '.($width-2).'px;'.$cursor_code.'" class="'.$event_class.' event"'.$onclick_code.'>';
+					echo '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' style="margin: 0px 0px 1px 0px; text-align: center; padding: 0px; width: '.($width-2).'px;'.$cursor_code.'" class="'.implode(' ', $event_classes).'"'.$onclick_code.'>';
 
 					// if drag-n-drop is enabled, click-through-to-event-view is supported
 					// via javascript only, because otherwise the link elements cause trouble
 					// with the dragging
 					$label = $event['name'];
 					if ($show_event_links && empty($mousedown_code)) {
-						$label = '<a class="event '.$event_class.'" href="'.$event_href.'">'.$label.'</a>';
+						$label = '<a class="'.implode(' ', $event_classes).'" href="'.$event_href.'">'.$label.'</a>';
 					} else {
-						$label = '<span class="event '.$event_class.'">'.$label.'</span>';
+						$label = '<span class="'.implode(' ', $event_classes).'">'.$label.'</span>';
 					}
 					echo $label;
-
 					echo '</div>';
-				}
+
+				}//end foreach allday events
+
 				echo '</td>';
 			}//end foreach
 			?>
@@ -1339,19 +1349,8 @@ class Page_Calendar extends Page
 			$event_height += floor($event_duration / $partition_time);
 			$event_height -= 2;
 
-			// get class to use for div
-			$root_node_treeids = get_treeids($root_nodes);
-			$event_class = '';
-			uasort($root_node_treeids, create_function('$a,$b', 'return strlen($b)-strlen($a);'));
-			foreach ($root_node_treeids as $root_node_assetid => $root_node_treeid) {
-				if (substr($details['treeid'], 0, strlen($root_node_treeid)) === $root_node_treeid) {
-					// if this root node has a formatting style, use it and shove off
-					if ($root_nodes[$root_node_assetid]['class_name'] != '') {
-						$event_class = $root_nodes[$root_node_assetid]['class_name'];
-						break;
-					}
-				}
-			}
+			$event_classes = $this->_getClasses($details['treeid']);
+			$event_classes[] = 'event';
 
 			// mouse action handlers
 			$onclick_code = $show_event_links ? 'onclick="sq_cal_redirect(\''.$event_href.'\')"' : '';
@@ -1360,8 +1359,12 @@ class Page_Calendar extends Page
 				$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('cal_page_recurring_cannot_drag').'\')" onmouseup="statusBarMsg(\'\');"';
 			}
 			$current_mouse_over_out_code = '';
-			if (isset($details['description']) && !empty($details['description'])) {
-				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
+
+			if (!empty($details['description'])) {
+				if (!isset($this->_tmp['popup_printed'][$assetid])) {
+					$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
+					$this->_tmp['popup_printed'][$assetid] = 1;
+				}
 				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')"  onmouseout="stopTrailingPopup()"';
 			}
 
@@ -1370,7 +1373,7 @@ class Page_Calendar extends Page
 			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
 
 			// showtime!
-			$res .= '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' class="'.$event_class.' event" style="float: left; position: absolute; width: '.($event_width-3).'px; margin-left: '.$event_left_margin.'px; margin-top: '.$event_top_margin.'px; height: '.$event_height.'px; border-width: 1px; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'>';
+			$res .= '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' class="'.implode(' ', $event_classes).' event" style="float: left; position: absolute; width: '.($event_width-3).'px; margin-left: '.$event_left_margin.'px; margin-top: '.$event_top_margin.'px; height: '.$event_height.'px; border-width: 1px; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'>';
 			$res .= '<div class="eventText" style="z-index: 30; position: absolute; width: '.($event_width-4).'px; border: none;  background-color: transparent">';
 
 			// if drag-n-drop is enabled, click-through-to-event-view is supported
@@ -1378,9 +1381,9 @@ class Page_Calendar extends Page
 			// with the dragging
 			$label = $details['name'];
 			if ($show_event_links && empty($mousedown_code)) {
-				$label = '<a class="event '.$event_class.'" href="'.$event_href.'">'.$label.'</a>';
+				$label = '<a class="'.implode(' ', $event_classes).'" href="'.$event_href.'">'.$label.'</a>';
 			} else {
-				$label = '<span class="event '.$event_class.'">'.$label.'</span>';
+				$label = '<span class="'.implode(' ', $event_classes).'">'.$label.'</span>';
 			}
 			$res .= $label;
 
@@ -1410,19 +1413,25 @@ class Page_Calendar extends Page
 		foreach ($events as $assetid => $details) {
 			$popup_div_id = str_replace(':', '_', $assetid);
 			$assetid = strtok($assetid, ':');
-			$event_class = (isset($root_nodes[$details['root_node']]['class_name'])) ? $root_nodes[$details['root_node']] ['class_name'] : '';
+			$event_classes = $this->_getClasses($details['treeid']);
+			$event_classes[] = 'event';
 			$onclick_code =$show_event_link ? ' onclick="clickChild(this); "' : '';
 			$cursor_code = $show_event_link ? 'cursor: pointer; cursor: hand;' : '';
 
 			$current_mouse_over_out_code = '';
-			if (isset($details['description']) && !empty($details['description'])) {
-				$res .= '<div id="event_'.$popup_div_id.'_description" class="popup">'.$details['description'].'</div>';
-				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$popup_div_id.'_description\')" onmouseout="stopTrailingPopup()"';
+
+			if (!empty($details['description'])) {
+				if (!isset($this->_tmp['popup_printed'][$assetid])) {
+					$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
+					$this->_tmp['popup_printed'][$assetid] = 1;
+				}
+				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup()"';
 			}
 
-			$res .= '<div style="width: '.$width.'px; '.$cursor_code.'"'.$onclick_code.' '.$current_mouse_over_out_code.'><div style="width: auto; margin-bottom: 1px;" class="event '.$event_class.'">';
+
+			$res .= '<div style="width: '.$width.'px; '.$cursor_code.'"'.$onclick_code.' '.$current_mouse_over_out_code.'><div style="width: auto; margin-bottom: 1px;" class="'.implode(' ', $event_classes).'">';
 			if ($show_event_link) {
-				$res .= '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$event_link_date.'&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'" class="event '.$event_class.'">';
+				$res .= '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$event_link_date.'&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'" class="'.implode(' ', $event_classes).'">';
 			}
 			$res .= $details['name'];
 			if ($show_event_link) $res .= '</a>';
@@ -1541,80 +1550,16 @@ class Page_Calendar extends Page
 						}
 					}
 					?>
-
-					function confirmDrag(movingElt, newCell)
-					{
-						var source_comps = originalParent.id.split('_');
-						var target_comps = newCell.id.split('_');
-						old_date = source_comps[0];
-						old_time = source_comps[1];
-						new_date = target_comps[0];
-						new_time = target_comps[1];
-						old_loc = (source_comps.length == 3) ?  source_comps[2] : '';
-						new_loc = (target_comps.length == 3) ?  target_comps[2] : '';
-
-						// can't drag in or out of the 'other' column
-						if (Boolean(old_time == 'allday') != Boolean(new_time == 'allday')) {
-							statusBarMsg('<?php echo translate('cal_page_all_day_cannot_drag') ?>');
-							return false;
-						}
-
-						// can't drag in or out of the 'all day' row
-						if (Boolean(old_loc == '*') != Boolean(new_loc == '*')) {
-							statusBarMsg('<?php echo translate('cal_page_other_cannot_drag') ?>');
-							return false;
-						}
-						toggleFlashing(movingElt.id);
-						if (new_loc == '') {
-							if (new_time == 'allday') {
-								var msg = js_translate('confirm_move_event_to_date', new_date);
-							} else {
-								var msg = js_translate('confirm_move_event_to_datetime', new_date, new_time);
-							}
-						} else {
-							var location_name = columnNames[String(new_loc)];
-							if (new_time == 'allday') {
-								var msg = js_translate('confirm_move_event_to_place_date', location_name, new_date);
-							} else {
-								var msg = js_translate('confirm_move_event_to_place_datetime', location_name, new_date, new_time);
-							}
-						}
-						if (!confirm(msg)) {
-							toggleFlashing(movingElt.id);
-							return false;
-						} else {
-							return true;
-						}
-
-					}
-
-					function onDragFinish(movingElt, newCell)
-					{
-						var source_comps = originalParent.id.split('_');
-						var target_comps = newCell.id.split('_');
-						if ((target_comps.length > 2) && (source_comps[2] != target_comps[2])) {
-							document.getElementById('SQ_CALENDAR_OLD_LOC').value = source_comps[2];
-							document.getElementById('SQ_CALENDAR_NEW_LOC').value = target_comps[2];
-						}
-						document.getElementById('SQ_CALENDAR_DATE').value = target_comps[0];
-						if (target_comps[1] != 'allday') {
-							document.getElementById('SQ_CALENDAR_TIME').value = target_comps[1];
-						}
-						document.getElementById('SQ_CALENDAR_EVENT_ID').value = movingElt.id;
-						document.getElementById('dragForm').submit();
-						formSubmitted = true;
-					}
-
 					document.onselectstart=new Function ("return false")
 			//]]> -->
 			</script>
-
 			<form method="GET" id="dragForm" action="<?php echo $_SERVER['PHP_SELF']; ?>">
 				<input type="hidden" name="SQ_CALENDAR_NEW_LOC" id="SQ_CALENDAR_NEW_LOC" />
 				<input type="hidden" name="SQ_CALENDAR_OLD_LOC" id="SQ_CALENDAR_OLD_LOC" />
 				<input type="hidden" name="SQ_CALENDAR_EVENT_ID" id="SQ_CALENDAR_EVENT_ID" />
 				<input type="hidden" name="SQ_CALENDAR_DATE" id="SQ_CALENDAR_DATE" />
 				<input type="hidden" name="SQ_CALENDAR_TIME" id="SQ_CALENDAR_TIME" />
+				<input type="hidden" name="SQ_CALENDAR_VIEW" value="<?php echo array_get_index($_REQUEST, 'SQ_CALENDAR_VIEW', ''); ?>" />
 				<input type="hidden" name="SQ_CALENDAR_EVENT_ACTION" id="SQ_CALENDAR_EVENT_ACTION" value="move" />
 			</form>
 		<!-- /DRAG AND DROP SUPPORT -->
@@ -1802,15 +1747,11 @@ class Page_Calendar extends Page
 		$res = Array();
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		$root_nodes = $this->attr('root_nodes');
-		$trees =&get_treeids($root_nodes);
-
-		if (empty($trees)) {
+		$root_ids = $this->_getRootNodeIds();
+		if (empty($root_ids)) {
 			trigger_localised_error('CAL0026', E_USER_WARNING);
 			return Array();
 		}
-
-		$tree_sql = build_tree_clause($trees);
 
 		// formulate the date restriction clauses
 		$start_ts = strtotime("$year-01-01 00:00:00");
@@ -1819,17 +1760,19 @@ class Page_Calendar extends Page
 
 		// Get our single events
 		$date_sql = '(cd.start_date_year = '.$db->quote($year).') OR (cd.end_date_year = '.$db->quote($year).') OR  ((cd.start_date_ts < '.$db->quote($start_ts).') AND (cd.end_date_ts > '.$db->quote($start_ts).'))';
-		$sql = build_single_event_query_base($trees)."\n AND (".$date_sql.")\n AND ".$tree_sql;
-		$sql .= $this->_getPersonalisedSQL();
-		$single_events = $db->getAssoc($sql);
+		$sql = Calendar_Common::getSingleEventQueryBase($root_ids)."\n AND (".$date_sql.')';
+		$sql .= $this->_getRootNodeRestrictionSQL();
+		$single_events = $db->getAll($sql);
+		$single_events = Calendar_Common::condenseResultTreeids($single_events);
 		assert_valid_db_result($single_events);
 
 
 		// Get our recurring events
 		$date_sql = 'cd.start_date_ts < '.$db->quote($end_ts);
-		$sql = build_recurring_event_query_base($trees, 'year', $year)."\n AND (".$date_sql.")\n AND ".$tree_sql;
-		$sql .= $this->_getPersonalisedSQL();
-		$recurring_events = $db->getAssoc($sql);
+		$sql = Calendar_Common::getRecurringEventQueryBase($root_ids, 'year', $year)."\nAND (".$date_sql.')';
+		$sql .= $this->_getRootNodeRestrictionSQL();
+		$recurring_events = $db->getAll($sql);
+		$recurring_events = Calendar_Common::condenseResultTreeids($recurring_events);
 		assert_valid_db_result($recurring_events);
 
 		$res = $single_events + $recurring_events;
@@ -1860,7 +1803,7 @@ class Page_Calendar extends Page
 
 		$plain_events = $this->getYearEvents($year);
 
-		$events =& expand_event_list($plain_events, $cal_date, $last_day);
+		$events =& Calendar_Common::expandEventList($plain_events, $cal_date, $last_day);
 
 		foreach ($events as $id => $details) {
 			if ($details['start_date_year'] == $year) {
@@ -1898,7 +1841,7 @@ class Page_Calendar extends Page
 		$last_day = sprintf('%04d-%02d-%02d', $year, 12, 31);
 
 		$plain_events = $this->getYearEvents($year);
-		$events =& expand_event_list($plain_events, $cal_date, $last_day);
+		$events =& Calendar_Common::expandEventList($plain_events, $cal_date, $last_day);
 
 		foreach ($events as $id => $details) {
 			if ($details['start_date_year'] == $year) {
@@ -1907,7 +1850,7 @@ class Page_Calendar extends Page
 		}
 		foreach (array_keys($res) as $month) {
 			foreach (array_keys($res[$month]) as $date) {
-				process_exceptions($res[$month][$date]);
+				Calendar_Common::processExceptions($res[$month][$date]);
 			}
 		}
 
@@ -1931,15 +1874,11 @@ class Page_Calendar extends Page
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// get the where clauses ready for tree restrictions
-		$root_nodes = $this->attr('root_nodes');
-		$trees =& get_treeids($root_nodes);
-
-		if (empty($trees)) {
+		$root_ids = $this->_getRootNodeIds();
+		if (empty($root_ids)) {
 			trigger_localised_error('CAL0027', E_USER_WARNING);
 			return Array();
 		}
-
-		$tree_sql = build_tree_clause($trees);
 
 		// formulate the date restriction clauses
 		$start_ts = strtotime("$year-$month-01 00:00:00 GMT");
@@ -1950,10 +1889,11 @@ class Page_Calendar extends Page
 		// Get our single events
 		$date_sql = '((cd.start_date_year = '.$db->quote($year).' AND (cd.start_date_mon = '.$db->quote($month).' OR cd.end_date_mon = '.$db->quote($month).')) OR (cd.start_date_ts < '.$db->quote($start_ts).' AND cd.end_date_ts > '.$db->quote($start_ts).'))';
 
-		$sql = build_single_event_query_base($trees)."\n AND (".$date_sql.")\n AND ".$tree_sql;
-		$sql .= $this->_getPersonalisedSQL();
-		$single_result = $db->getAssoc($sql);
+		$sql = Calendar_Common::getSingleEventQueryBase($root_ids)."\n AND (".$date_sql.')';
+		$sql .= $this->_getRootNodeRestrictionSQL();
+		$single_result = $db->getAll($sql);
 		assert_valid_db_result($single_result);
+		$single_result = Calendar_Common::condenseResultTreeids($single_result);
 
 		$cal_date = sprintf('%04d-%02d-%02d', $year, $month, 1);
 		$first_day = iso8601_ts($cal_date);
@@ -1961,10 +1901,11 @@ class Page_Calendar extends Page
 
 		// Get our recurring events
 		$date_sql = 'cd.start_date_ts < '.$db->quote($end_ts);
-		$sql = build_recurring_event_query_base($trees, 'month', "$year-$month")."\n AND ".$tree_sql;
-		$sql .= $this->_getPersonalisedSQL();
-		$recur_result = $db->getAssoc($sql);
+		$sql = Calendar_Common::getRecurringEventQueryBase($root_ids, 'month', "$year-$month");
+		$sql .= $this->_getRootNodeRestrictionSQL();
+		$recur_result = $db->getAll($sql);
 		assert_valid_db_result($recur_result);
+		$recur_result = Calendar_Common::condenseResultTreeids($recur_result);
 
 		$res = $single_result + $recur_result;
 		if ($this->attr('enable_description_popups')) {
@@ -2001,7 +1942,7 @@ class Page_Calendar extends Page
 		$last_day = sprintf('%04d-%02d-%02d', $year, $month, $month_length);
 
 		$plain_events = $this->getMonthEvents($year, $month);
-		$events =& expand_event_list($plain_events, $cal_date, $last_day);
+		$events =& Calendar_Common::expandEventList($plain_events, $cal_date, $last_day);
 
 		foreach ($events as $id => $details) {
 			if (($details['start_date_mon'] == $month) && ($details['start_date_year'] == $year)) {
@@ -2010,7 +1951,7 @@ class Page_Calendar extends Page
 		}
 
 		foreach ($res as $date => $events) {
-			process_exceptions($res[$date]);
+			Calendar_Common::processExceptions($res[$date]);
 		}
 		return $res;
 
@@ -2031,31 +1972,28 @@ class Page_Calendar extends Page
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		list($year,$month,$day) = sscanf($date, '%04d-%02d-%02d');
 
-		// get the treeid restriction SQL
-		$root_nodes = $this->attr('root_nodes');
-		$trees = &get_treeids($root_nodes);
-
-		if (empty($trees)) {
+		$root_ids = $this->_getRootNodeIds();
+		if (empty($root_ids)) {
 			trigger_localised_error('CAL0028', E_USER_WARNING);
 			return Array();
 		}
-
-		$tree_sql = build_tree_clause($trees);
 
 		// get the single events
 		$start_date_stamp = floor(strtotime($date.' 12:00:00 GMT')/86400);
 		$end_date_stamp = $start_date_stamp + 6;
 		$date_sql = '(cd.start_date_ds BETWEEN '.$db->quote($start_date_stamp).' AND '.$db->quote($end_date_stamp).') OR (cd.start_date_ds < '.$db->quote($start_date_stamp).' AND cd.end_date_ds >= '.$db->quote($start_date_stamp).')';
-		$sql = build_single_event_query_base($trees).' AND ('.$date_sql.') AND '.$tree_sql;
-		$sql .= $this->_getPersonalisedSQL();
-		$single_result = $db->getAssoc($sql);
+		$sql = Calendar_Common::getSingleEventQueryBase($root_ids).' AND ('.$date_sql.')';
+		$sql .= $this->_getRootNodeRestrictionSQL();
+		$single_result = $db->getAll($sql);
 		assert_valid_db_result($single_result);
+		$single_result = Calendar_Common::condenseResultTreeids($single_result);
 
 		// get the recurring events
-		$sql = build_recurring_event_query_base($trees, 'week', $date).' AND '.$tree_sql;
-		$sql .= $this->_getPersonalisedSQL();
-		$recur_result = $db->getAssoc($sql);
+		$sql = Calendar_Common::getRecurringEventQueryBase($root_ids, 'week', $date);
+		$sql .= $this->_getRootNodeRestrictionSQL();
+		$recur_result = $db->getAll($sql);
 		assert_valid_db_result($recur_result);
+		$recur_result = Calendar_Common::condenseResultTreeids($recur_result);
 
 		$plain_events = $single_result + $recur_result;
 
@@ -2066,15 +2004,21 @@ class Page_Calendar extends Page
 
 		$last_day = iso8601_date_component(ts_iso8601(iso8601_ts($cal_date) + 6*$seconds_in_day));
 
-		$events =& expand_event_list($plain_events, $cal_date, $last_day);
+		$events =& Calendar_Common::expandEventList($plain_events, $cal_date, $last_day);
 
 		$res = Array();
-
 		foreach ($events as $id => $details) {
 			$event_date = iso8601_ts(sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']));
 			list($assetid, ) = explode(':', $id);
 			if ($event_date >= iso8601_ts($date) && $event_date < iso8601_ts($date)+7*86400) {
 				$res[$assetid] = $plain_events[$assetid];
+			}
+		}
+
+		if ($this->attr('enable_description_popups')) {
+			$descriptions = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('description', 'calendar_event', array_keys($res));
+			foreach ($descriptions as $assetid => $description) {
+				$res[$assetid]['description'] = $description;
 			}
 		}
 
@@ -2110,7 +2054,7 @@ class Page_Calendar extends Page
 		$last_day = iso8601_date_component(ts_iso8601(iso8601_ts($cal_date) + 6*$day_in_second));
 
 		$plain_events = $this->getWeekEvents($cal_date);
-		$events =& expand_event_list($plain_events, $cal_date, $last_day, $this->attr('day_starts_at'), $this->attr('day_ends_at'));
+		$events =& Calendar_Common::expandEventList($plain_events, $cal_date, $last_day, $this->attr('day_starts_at'), $this->attr('day_ends_at'));
 
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
@@ -2120,7 +2064,7 @@ class Page_Calendar extends Page
 		}
 
 		foreach ($res as $date => $events) {
-			process_exceptions($res[$date]);
+			Calendar_Common::processExceptions($res[$date]);
 		}
 
 		return $res;
@@ -2207,7 +2151,7 @@ class Page_Calendar extends Page
 
 		foreach ($res as $date => $events) {
 			foreach ($partition_keys as $partition) {
-				process_exceptions($res[$date][$partition]);
+				Calendar_Common::processExceptions($res[$date][$partition]);
 			}
 		}
 		return $res;
@@ -2229,39 +2173,30 @@ class Page_Calendar extends Page
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		list($year,$month,$day) = sscanf($date, '%04d-%02d-%02d');
 
-		// build treeid restriction SQL
-		$root_nodes = $this->attr('root_nodes');
-		$trees =& get_treeids($root_nodes);
-
-		if (empty($trees)) {
+		$root_ids = $this->_getRootNodeIds();
+		if (empty($root_ids)) {
 			trigger_localised_error('CAL0029', E_USER_WARNING);
 			return Array();
 		}
 
-		$tree_sql = build_tree_clause($trees);
-
 		// GET SINGLE EVENTS:
-
 		$today_date_stamp = floor(strtotime($date.' 12:00:00 GMT')/86400);
 		$date_sql = '(('.$today_date_stamp.' = cd.start_date_ds) OR ('.$today_date_stamp.' BETWEEN cd.start_date_ds AND cd.end_date_ds))';
-		$sql = build_single_event_query_base($trees).' AND '.$date_sql.' AND '.$tree_sql;
-		$sql .= $this->_getPersonalisedSQL();
-		$single_result = $db->getAssoc($sql);
+		$sql = Calendar_Common::getSingleEventQueryBase($root_ids).' AND '.$date_sql;
+		$sql .= $this->_getRootNodeRestrictionSQL();
+		$single_result = $db->getAll($sql);
 		assert_valid_db_result($single_result);
+		$single_result = Calendar_Common::condenseResultTreeids($single_result);
 
 		// GET RECURRING EVENTS:
-
-		// combine tree sql with the common SQL for recurring events and get result from DB
-		$sql = build_recurring_event_query_base($trees, 'day', $date).' AND '.$tree_sql;
-		$sql .= $this->_getPersonalisedSQL();
-
-		$recur_result = $db->getAssoc($sql);
+		$sql = Calendar_Common::getRecurringEventQueryBase($root_ids, 'day', $date);
+		$sql .= $this->_getRootNodeRestrictionSQL();
+		$recur_result = $db->getAll($sql);
 		assert_valid_db_result($recur_result);
+		$recur_result = Calendar_Common::condenseResultTreeids($recur_result);
 
 		// PUT IT ALL TOGETHER:
-
 		$res = $single_result + $recur_result;
-
 		if ($this->attr('enable_description_popups')) {
 			$descriptions = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('description', 'calendar_event', array_keys($res));
 			foreach ($descriptions as $assetid => $description) {
@@ -2269,8 +2204,8 @@ class Page_Calendar extends Page
 			}
 		}
 
-		$res =& expand_event_list($res, $date, $date, $this->attr('day_starts_at'), $this->attr('day_ends_at'));
-		process_exceptions($res);
+		$res =& Calendar_Common::expandEventList($res, $date, $date, $this->attr('day_starts_at'), $this->attr('day_ends_at'));
+		Calendar_Common::processExceptions($res);
 
 		$compare_start_ts = create_function('$a, $b', 'if ($a[\'start_date_ts\'] < $b[\'start_date_ts\']) return -1; else return 1;');
 
@@ -2390,8 +2325,8 @@ class Page_Calendar extends Page
 		}
 		$partitions['all_day'] = Array();
 
-		$events =& $this->getDayEvents($date);
-		process_exceptions($events);
+		$events = $this->getDayEvents($date);
+		Calendar_Common::processExceptions($events);
 		$res = Array();
 
 		$columnise_by_root = $this->attr('columnise_day_view_by_root_node');
@@ -2400,26 +2335,25 @@ class Page_Calendar extends Page
 				$res[$node_id] = $partitions;
 			}
 		}
-
-		$root_node_treeids = get_treeids(array_flip($root_nodes));
-		uasort($root_node_treeids, create_function('$a,$b', 'return strlen($b)-strlen($a);'));
+		$column_treeids = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids(array_diff($columnise_by_root, Array('*')));
 
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
 
-			// get class to use for root node
-			$col = (isset($res['*']) ? '*' : FALSE);
-
-			foreach ($root_node_treeids as $root_node_assetid => $root_node_treeid) {
-				if (substr($details['treeid'], 0, strlen($root_node_treeid)) === $root_node_treeid) {
-					if (in_array($root_node_assetid, $columnise_by_root)) {
-						$col = $root_node_assetid;
-						break;
+			$cols = Array();
+			foreach ($column_treeids as $column_id => $column_treeids) {
+				foreach ($column_treeids as $column_treeid) {
+					foreach ($details['treeid'] as $event_treeid) {
+						if (0 === strpos($event_treeid, $column_treeid)) {
+							$cols[] = $column_id;
+						}
 					}
 				}
 			}
-
-			if ($col) {
+			if (empty($cols) && isset($res['*'])) {
+				$cols[] = '*';
+			}
+			foreach ($cols as $col) {
 				if (empty($details['start_date_hours'])) {
 					$res[$col]['all_day'][$id] = $details;
 				} else {
@@ -2434,7 +2368,7 @@ class Page_Calendar extends Page
 					}
 				}
 			}
-		}
+		}//end foreach event
 
 		foreach ($res as $root_node => $null) {
 			$max_events = 1;
@@ -2460,19 +2394,28 @@ class Page_Calendar extends Page
 	* @return string
 	* @access private
 	*/
-	function _getPersonalisedSQL()
+	function _getRootNodeRestrictionSQL()
 	{
-		if ($this->attr('personalised')) {
+		$restrictive_roots = $this->_getRestrictiveRootNodeIds();
+		if (!empty($restrictive_roots)) {
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
-			$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
-			if (empty($userid)) return ' AND false';
-			$user_treeids = reset($GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($userid));
-			$sql = "\n".' AND a.assetid IN (SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk sal JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree salt ON (sal.linkid = salt.linkid) WHERE salt.treeid LIKE '.$db->quote($user_treeids.'%').')';
+			$root_treeids = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($restrictive_roots);
+			$treeid_options = Array();
+			foreach ($root_treeids as $rootid => $this_root_treeids) {
+				$treeid_options[] = 'salt.treeid LIKE '.$db->quoteSmart(reset($this_root_treeids).'%');
+			}
+			$sql = '
+					AND a.assetid IN (
+						SELECT minorid 
+						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk sal
+							JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree salt ON (sal.linkid = salt.linkid)
+						WHERE ('.implode(' OR ', $treeid_options).')
+					)';
 			return $sql;
 		}
 		return '';
 
-	}//end _getPersonalisedSQL()
+	}//end _getRootNodeRestrictionSQL()
 
 
 	/**
@@ -2664,6 +2607,125 @@ class Page_Calendar extends Page
 			   );
 
 	}//end getViewOptions()
+
+
+	/**
+	* Gets the list of current root nodes
+	*
+	* @return array
+	* @access public
+	*/
+	function _getRootNodeIds()
+	{
+		$root_asset_ids = array_keys($this->attr('root_nodes'));
+		if (empty($root_asset_ids)) {
+			$root_asset_ids = Array($this->id);
+		}
+		return $root_asset_ids;
+
+	}//end _getRootNodeIds()
+
+
+	/**
+	* Get any root node restrictions that should be applied at the second level (after columnisation and styling)
+	*
+	* @return array
+	* @access private
+	*/
+	function _getRestrictiveRootNodeIds()
+	{
+		// Personalisation is one option
+		if ($this->attr('personalised')) {
+			return Array($GLOBALS['SQ_SYSTEM']->user->id);
+		}
+
+		// Otherwise we might have a dynamic parameter
+		$parameter_map =& $this->getAttribute('parameter_map');
+		$raw_dynamic_root_nodes = $parameter_map->getParameterValue('replacement_root_node');
+		if (!empty($raw_dynamic_root_nodes)) {
+			$dynamic_root_nodes = Array();
+			// note that dynamic roots can be supplied as an array of asset ids or
+			// as a comma delimited string of asset ids
+			if (!is_array($raw_dynamic_root_nodes)) {
+				$raw_dynamic_root_nodes = explode(',', $raw_dynamic_root_nodes);
+			}
+
+			$original_root_ids = array_keys($this->attr('root_nodes'));
+			foreach ($raw_dynamic_root_nodes as $dynamic_root) {
+				if (!strlen($dynamic_root)) continue;
+				// Check to see if the dynamic parameter specified is a child of one of the root
+				// nodes. If so, use the dynamic parameter as the root node; otherwise return an error.
+				$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
+				$matching_root_ids = array_intersect(array_keys($dynamic_parents), $original_root_ids);
+				if (empty($matching_root_ids)) {
+					trigger_localised_error('CMS0020', E_USER_WARNING, $dynamic_root);
+				} else {
+					$dynamic_root_nodes[] = $dynamic_root;
+				}
+			}
+
+			if (!empty($dynamic_root_nodes)) {
+				return $dynamic_root_nodes;
+			}
+
+		}//end if
+		return Array();
+
+	}//end _getRestrictiveRootNodeIds()
+
+
+	/**
+	* Get the CSS classes that should be applied to an event with the supplied treeids
+	*
+	* @param array	$treeids	Array of treeids that the event asset has
+	*
+	* @return array
+	* @access private
+	*/
+	function _getClasses($treeids)
+	{
+		$root_nodes = $this->attr('root_nodes');
+		if (!isset($this->_tmp['treeid_map'])) {
+			$root_node_roots = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids(array_keys($root_nodes));
+			$treeid_map = Array();
+			foreach ($root_node_roots as $assetid => $root_treeids) {
+				foreach ($root_treeids as $root_treeid) {
+					$treeid_map[$root_treeid] = $assetid;
+				}
+			}
+			uksort($treeid_map, Array(&$this, '_strlenCmp'));
+			$this->_tmp['treeid_map'] = $treeid_map;
+		}
+		usort($treeids, Array(&$this, '_strlenCmp'));
+		$treeids = $treeids;
+		$classes = Array();
+		$res = Array();
+		foreach ($treeids as $treeid) {
+			foreach ($this->_tmp['treeid_map'] as $class_treeid => $assetid) {
+				if (0 === strpos($treeid, $class_treeid) && !empty($root_nodes[$assetid]['class_name'])) {
+					$res[] = $root_nodes[$assetid]['class_name'];
+				}
+			}
+		}
+		return array_unique($res);
+
+	}//end _getClasses()
+
+
+	/**
+	* Used for treeid depth sorting
+	*
+	* @param string	$a	First comparee
+	* @param string	$b	Second comparee
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _strlenCmp($a, $b)
+	{
+		return strlen($a) > strlen($b);
+
+	}//end _strlenCmp()
 
 
 }//end class

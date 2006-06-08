@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.25 2006/02/02 03:38:32 sdanis Exp $
+* $Id: calendar_event_cancellation.inc,v 1.26 2006/06/08 05:10:27 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -125,7 +125,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	{
 		// check that it has an occurrence on the date specified
 		if (!$parent->hasOccurrenceOnDate($this->getStartDate())) {
-			trigger_localised_error('CAL0055', E_USER_ERROR, $this->getStartDate());
+			trigger_localised_error('CAL0055', E_USER_WARNING, $this->getStartDate());
 			return FALSE;
 		}
 

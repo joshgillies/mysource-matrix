@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.29 2005/05/20 01:46:24 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.30 2006/06/08 05:10:28 tbarrett Exp $
 *
 */
 -->
@@ -32,11 +32,16 @@
 				<process_function name="processRootNodes" />
 			</function_call>
 		</field>
+	</section>
+	<section name="Event Source Restrictions" write_access="write:attributes">
 		<field attribute="personalised">
 			<boolean true_text="yes" false_text="no" />
 		</field>
+		<field attribute="parameter_map">
+			<parameter_map />
+		</field>
 	</section>
-	<section name="Overall Settings" write_access="write:attributes">
+	<section name="Overall Presentation Settings" write_access="write:attributes">
 		<field>
 			<function_call>
 				<paint_function	name="paintViewsChooser" />
@@ -49,6 +54,12 @@
 				<process_function name="processInitialView" />
 			</function_call>
 		</field>
+		<field attribute="week_starts_on">
+			<selection />
+		</field>
+		<field attribute="enable_description_popups">
+			<boolean true_text="enabled" false_text="disabled" />
+		</field>
 		<field attribute="up_link_text">
 			<text />
 		</field>
@@ -58,11 +69,8 @@
 		<field attribute="next_link_text">
 			<text />
 		</field>
-		<field attribute="week_starts_on">
-			<selection />
-		</field>
-		<field attribute="enable_description_popups">
-			<boolean true_text="enabled" false_text="disabled" />
+		<field attribute="today_link_text">
+			<text />
 		</field>
 	</section>
 
@@ -111,7 +119,7 @@
 		</field>
 	</section>
 
-	<section name="Settings for Week and Day Views" write_access="write:attributes">
+	<section name="Settings shared by Week and Day Views" write_access="write:attributes">
 		<field>
 			<function_call>
 				<paint_function	name="paintDayStart" />
@@ -161,7 +169,6 @@
 			<int width="6" />
 		</field>
 	</section>
-
 	<section name="Look and Feel">
 		<field>
 			<function_call>
