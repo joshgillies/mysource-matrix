@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.46 2006/06/08 05:10:28 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.47 2006/06/08 05:31:14 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -566,7 +566,7 @@ class Calendar_Common
 			if (in_array($details['type_code'], Array('calendar_event_cancellation', 'calendar_event_modification'))) {
 				$id_bits = explode(':', $id);
 				$real_id = $id_bits[0];
-				$exception_ids[] = $GLOBALS['SQ_SYSTEM']->db->quote($real_id);
+				$exception_ids[] = $GLOBALS['SQ_SYSTEM']->db->quoteSmart($real_id);
 				if ($details['type_code'] == 'calendar_event_cancellation') {
 					unset($res[$id]);
 				}

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.179 2006/06/08 05:10:28 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.180 2006/06/08 05:31:14 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.179 $
+* @version $Revision: 1.180 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1759,7 +1759,7 @@ class Page_Calendar extends Page
 		$end_ts = strtotime("$next_year-01-01 00:00:00") - 1;
 
 		// Get our single events
-		$date_sql = '(cd.start_date_year = '.$db->quote($year).') OR (cd.end_date_year = '.$db->quote($year).') OR  ((cd.start_date_ts < '.$db->quote($start_ts).') AND (cd.end_date_ts > '.$db->quote($start_ts).'))';
+		$date_sql = '(cd.start_date_year = '.$db->quoteSmart($year).') OR (cd.end_date_year = '.$db->quoteSmart($year).') OR  ((cd.start_date_ts < '.$db->quoteSmart($start_ts).') AND (cd.end_date_ts > '.$db->quoteSmart($start_ts).'))';
 		$sql = Calendar_Common::getSingleEventQueryBase($root_ids)."\n AND (".$date_sql.')';
 		$sql .= $this->_getRootNodeRestrictionSQL();
 		$single_events = $db->getAll($sql);
@@ -1768,7 +1768,7 @@ class Page_Calendar extends Page
 
 
 		// Get our recurring events
-		$date_sql = 'cd.start_date_ts < '.$db->quote($end_ts);
+		$date_sql = 'cd.start_date_ts < '.$db->quoteSmart($end_ts);
 		$sql = Calendar_Common::getRecurringEventQueryBase($root_ids, 'year', $year)."\nAND (".$date_sql.')';
 		$sql .= $this->_getRootNodeRestrictionSQL();
 		$recurring_events = $db->getAll($sql);
@@ -1887,7 +1887,7 @@ class Page_Calendar extends Page
 		$end_ts = strtotime("$next_year-$next_month-01 00:00:00 GMT") - 1;
 
 		// Get our single events
-		$date_sql = '((cd.start_date_year = '.$db->quote($year).' AND (cd.start_date_mon = '.$db->quote($month).' OR cd.end_date_mon = '.$db->quote($month).')) OR (cd.start_date_ts < '.$db->quote($start_ts).' AND cd.end_date_ts > '.$db->quote($start_ts).'))';
+		$date_sql = '((cd.start_date_year = '.$db->quoteSmart($year).' AND (cd.start_date_mon = '.$db->quoteSmart($month).' OR cd.end_date_mon = '.$db->quoteSmart($month).')) OR (cd.start_date_ts < '.$db->quoteSmart($start_ts).' AND cd.end_date_ts > '.$db->quoteSmart($start_ts).'))';
 
 		$sql = Calendar_Common::getSingleEventQueryBase($root_ids)."\n AND (".$date_sql.')';
 		$sql .= $this->_getRootNodeRestrictionSQL();
@@ -1900,7 +1900,7 @@ class Page_Calendar extends Page
 		$last_day = sprintf('%04d-%02d-%02d', $year, $month, days_in_month($month, $year));
 
 		// Get our recurring events
-		$date_sql = 'cd.start_date_ts < '.$db->quote($end_ts);
+		$date_sql = 'cd.start_date_ts < '.$db->quoteSmart($end_ts);
 		$sql = Calendar_Common::getRecurringEventQueryBase($root_ids, 'month', "$year-$month");
 		$sql .= $this->_getRootNodeRestrictionSQL();
 		$recur_result = $db->getAll($sql);
@@ -1981,7 +1981,7 @@ class Page_Calendar extends Page
 		// get the single events
 		$start_date_stamp = floor(strtotime($date.' 12:00:00 GMT')/86400);
 		$end_date_stamp = $start_date_stamp + 6;
-		$date_sql = '(cd.start_date_ds BETWEEN '.$db->quote($start_date_stamp).' AND '.$db->quote($end_date_stamp).') OR (cd.start_date_ds < '.$db->quote($start_date_stamp).' AND cd.end_date_ds >= '.$db->quote($start_date_stamp).')';
+		$date_sql = '(cd.start_date_ds BETWEEN '.$db->quoteSmart($start_date_stamp).' AND '.$db->quoteSmart($end_date_stamp).') OR (cd.start_date_ds < '.$db->quoteSmart($start_date_stamp).' AND cd.end_date_ds >= '.$db->quoteSmart($start_date_stamp).')';
 		$sql = Calendar_Common::getSingleEventQueryBase($root_ids).' AND ('.$date_sql.')';
 		$sql .= $this->_getRootNodeRestrictionSQL();
 		$single_result = $db->getAll($sql);
@@ -2684,19 +2684,18 @@ class Page_Calendar extends Page
 	*/
 	function _getClasses($treeids)
 	{
+		usort($treeids, Array(&$this, '_strlenCmp'));
+		$treeid_key = implode(',', $treeids);
 		$root_nodes = $this->attr('root_nodes');
 		if (!isset($this->_tmp['treeid_map'])) {
 			$root_node_roots = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids(array_keys($root_nodes));
 			$treeid_map = Array();
 			foreach ($root_node_roots as $assetid => $root_treeids) {
-				foreach ($root_treeids as $root_treeid) {
-					$treeid_map[$root_treeid] = $assetid;
-				}
+				$treeid_map[reset($root_treeids)] = $assetid;
 			}
 			uksort($treeid_map, Array(&$this, '_strlenCmp'));
 			$this->_tmp['treeid_map'] = $treeid_map;
 		}
-		usort($treeids, Array(&$this, '_strlenCmp'));
 		$treeids = $treeids;
 		$classes = Array();
 		$res = Array();
@@ -2723,6 +2722,9 @@ class Page_Calendar extends Page
 	*/
 	function _strlenCmp($a, $b)
 	{
+		if (strlen($a) == strlen($b)) {
+			return $a > $b;
+		}
 		return strlen($a) > strlen($b);
 
 	}//end _strlenCmp()

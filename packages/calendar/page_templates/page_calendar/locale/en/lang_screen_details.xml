@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2006/06/08 05:10:28 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.5 2006/06/08 05:31:14 tbarrett Exp $
 *
 */
 -->
@@ -30,7 +30,7 @@
 	<section name="Event Sources" write_access="write:attributes">
 		<field>
 			<display_name></display_name>
-			<note>Choose the locations in the asset tree from which you want to list events.  For each location you can specify a CSS class, or one of the CSS named colours, to use when displaying events from that location.  (The CSS named colours are black, blue, fuchsia, gray, green, lime, maroon, navy, olive, purple, red, silver, teal, white and yellow).  Events that are linked under several of these event sources will have several CSS classes applied.</note>
+			<note>Choose the locations in the asset tree from which you want to list events.  For each location you can specify a CSS class, or one of the CSS named colours, to use when displaying events from that location.  (The CSS named colours are black, blue, fuchsia, gray, green, lime, maroon, navy, olive, purple, red, silver, teal, white and yellow).  Events that are linked under several of these event sources will have several CSS classes applied (Note that where there are conflicts between CSS rules the CSS standard dictates that rules defined later in the CSS file will take precedence).</note>
 			<function_call>
 				<paint_function   name="paintRootNodes"   />
 				<process_function name="processRootNodes" />
