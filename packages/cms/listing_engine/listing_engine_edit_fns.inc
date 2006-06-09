@@ -18,12 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.55 2006/01/30 04:12:59 dmckee Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.55.2.1 2006/06/09 06:46:32 tbarrett Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
+require_once SQ_FUDGE_PATH.'/general/general.inc';
 
 
 /**
@@ -42,7 +43,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.55.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
