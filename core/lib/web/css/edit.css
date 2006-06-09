@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.60 2006/06/09 04:48:05 tbarrett Exp $
+* $Id: edit.css,v 1.61 2006/06/09 06:23:18 tbarrett Exp $
 *
 */
 
@@ -58,7 +58,7 @@ table.sq-backend-main-headings td {
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
 	font-size:			12px;
-	padding:			4px;
+	padding:			4px 2px;
 	vertical-align:		top; 
 	white-space:		nowrap;
 	border:				0px;
@@ -68,6 +68,7 @@ table.sq-backend-main-headings td.sq-backend-main-heading {
 }
 table.sq-backend-main-headings td.sq-backend-heading-icon {
 	padding-top: 6px;
+	padding-left:		5px;
 }
 .sq-backend-sub-heading {
 	background-color:	#594165;
@@ -82,19 +83,19 @@ table.sq-backend-nav-history-container {
 	width:				100%;
 	border-collapse:	collapse;
 	margin-bottom:		1px;
-
+	table-layout:fixed;
 }
 table.sq-backend-nav-history-container td {
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	background-color:	#C8BDCB;
 	color:				#000000;
 	font-size:			11px;
-	line-height:		25px;
 	font-weight:		bold;
 	vertical-align:		middle;
 	border-bottom:		1px solid #342939;
-	vertical-align:		middle;
-	padding:			2px 4px 0px 4px;
+	padding:			4px 4px 2px 4px;
+	white-space:		nowrap;
+	overflow:			hidden;
 }
 table.sq-backend-nav-history-container td.sq-backend-nav-history a {
 	text-decoration:	none;
@@ -102,16 +103,19 @@ table.sq-backend-nav-history-container td.sq-backend-nav-history a {
 	margin:				0px;
 }
 td.sq-backend-nav-history a img {
-	padding-bottom: 2px;
-	border:			0px;
+	padding-bottom:		2px;
+	border:				0px;
 }
 table.sq-backend-nav-history-container td img {
-	padding:		0px;
-	vertical-align: middle;
-	border:			0px;
+	padding:			0px;
+	vertical-align:		middle;
+	border:				0px;
 }
-td.sq-backend-nav-history-title  {
-	color: #342939;
+table.sq-backend-nav-history-container td.sq-backend-nav-history-title  {
+	color:				#342939;
+	width:				12ex;
+	white-space:		nowrap;
+	padding-top:		6px;
 }
 
 
@@ -143,7 +147,6 @@ table.sq-backend-main-headings .sq-backend-asset-info {
 td.sq-backend-data {
 	vertical-align:		top;
 	padding:			0px 0px 10px 0px;
-	width:				100%;
 }
 td.sq-backend-data-newline {
 	padding-left:		10px;
@@ -162,7 +165,6 @@ td.sq-backend-commit {
 	font-weight:		normal;
 	margin-top:			2px;
 	margin-bottom:		8px;
-	color:				#666;
 }
 
 .sq-backend-section-note {
@@ -228,10 +230,9 @@ table.sq-backend-section-table {
 	width:				100%;
 	border-collapse:	collapse;
 }
-
 table.sq-backend-section-table td table.sq-backend-section-table-inner {
-	margin:				10px 10px 0px 10px;
-	width:				100%;
+	width:				98%;
+	margin:				5px 10px;
 	border-collapse:	collapse;
 }
 
@@ -277,14 +278,8 @@ table.sq-backend-section-table td table.sq-backend-section-table-inner {
 	vertical-align:		top;
 	white-space:		nowrap;
 	padding:			0px 10px 10px 0px;
+	width:				5%;
 }
-
-
-.sq-backend-commit-button-container {
-	padding-right:30px;
-	text-align: right;
-}
-
 
 
 /* LIMBO OUTPUTTER - SECTIONS AND FIELDS */
@@ -373,9 +368,9 @@ td.sq-backend-table-cell a:hover, td.sq-backend-table-cell-alt a:hover, .sq-back
 }
 
 table.no-borders td, table.no-borders th {
-	border: 0px;
-	padding: 0px;
-	vertical-align: middle;
+	border:				0px;
+	padding:			0px;
+	vertical-align:		middle;
 }
 
 
@@ -526,49 +521,49 @@ td.sq-backend-lock-table-cell-alt {
 }
 
 .delete-button {
-	background-image: url(../images/icons/delete.png);
-	background-position: 50% 50%;
-	background-repeat: no-repeat;
-	width: 16px;
-	height: 16px;
-	background-color: transparent;
-	border: 0px;
-	cursor: pointer;
+	background-image:	url(../images/icons/delete.png);
+	background-position:	50% 50%;
+	background-repeat:	no-repeat;
+	width:				16px;
+	height:				16px;
+	background-color:	transparent;
+	border:				0px;
+	cursor:				pointer;
 }
 .clickable {
-	cursor: pointer;
-	text-decoration: underline;
+	cursor:				pointer;
+	text-decoration:	underline;
 }
 
 table.email-format th {
-	text-align: right;
-	font-weight: bold;
-	font-size: 11px;
-	padding-right: 1ex;
+	text-align:			right;
+	font-weight:		bold;
+	font-size:			11px;
+	padding-right:		1ex;
 }
 table.email-format th, table.email-format td {
-	vertical-align: top;
+	vertical-align:		top;
 }
 table.email-format td {
-	padding-bottom: 1ex;
+	padding-bottom:		1ex;
 }
 table.email-format td ul {
-	margin: 0px;
-	padding: 0px;
-	list-style-type: none;
+	margin:				0px;
+	padding:			0px;
+	list-style-type:	none;
 }
 table.email-format-body {
-	width: 100%;
-	border: 1px dashed #888;
-	border-collapse: collapse;
+	width:				100%;
+	border:				1px dashed #888;
+	border-collapse:	collapse;
 }
 table.email-format-body td {
-	border-top: 1px dashed #888;
-	padding: 2px;
+	border-top:			1px dashed #888;
+	padding:			2px;
 }
 td.email-format-version {
-	text-align: right;
-	white-space: nowrap;
-	vertical-align: middle;
-	width: 50ex;
+	text-align:			right;
+	white-space:		nowrap;
+	vertical-align:		middle;
+	width:				50ex;
 }
