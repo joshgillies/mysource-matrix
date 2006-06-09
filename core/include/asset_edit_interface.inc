@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.295 2006/06/05 05:04:58 rong Exp $
+* $Id: asset_edit_interface.inc,v 1.296 2006/06/09 04:47:44 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.295 $
+* @version $Revision: 1.296 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -170,7 +170,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
 			exit();
 		}
-
+		if ($creating) $o->addOnLoad('focusFirstTextInput()');
 		// if there are no screens or static screens, piss off
 		assert_false(!count($this->_screens) && empty($this->_edit_fns->static_screens));
 
@@ -660,16 +660,16 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 		$page_heading .= '&nbsp;&nbsp;|&nbsp;&nbsp;'.$active_screen_name;
 		if (!$creating) {
-			$page_heading .= '&nbsp;&nbsp;<a class="sq_asset_info_toggle" href="#" onclick="Javascript: sq_toggle_asset_info();"><span id="sq_asset_info_toggle">[ '.translate('more_info').' ]</span></a>';
+			$page_heading .= '&nbsp;&nbsp;<span class="sq_asset_info_toggle" onclick="sq_toggle_asset_info(this)" id="sq_asset_info_toggle">[ '.translate('more_info').' ]</span>';
 		}
 
-		$o->setHeading($page_heading, '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code).'", "16", "16", "");</script>');
+		$o->setHeading($page_heading, sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code), 16, 16, ''));
 
 		$sub_heading = '';
 		if ($closest_parentid != $owner->id) {
 			$closest_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($closest_parentid);
 			if (!is_null($closest_parent)) {
-				$sub_heading = translate('currently_editing', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($closest_parent->type(), 'name'), $closest_parent->name).'<br/>';
+				$sub_heading = translate('currently_editing', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($closest_parent->type(), 'name'), $closest_parent->name).'<br />';
 			}
 		}
 
@@ -680,15 +680,14 @@ class Asset_Edit_Interface extends MySource_Object
 			$updated_by_name = (isset($user_info[$owner->updated_userid]['short_name'])) ? $user_info[$owner->updated_userid]['short_name'] : '&lt;unknown&gt;';
 			$published_by_name = (isset($user_info[$owner->published_userid])) ? $user_info[$owner->published_userid]['short_name'] : '&lt;unknown&gt;';
 
-			$sub_heading .= '<div id="sq_asset_info" style="display: none;">
-							<table>
+			$sub_heading .= '<table id="sq_asset_info" style="display: none">
 								<tr>
 									<td valign="top">
-										<script language="JavaScript" type="text/javascript">sq_print_icon("'.sq_web_path('lib').'/web/images/icons/info.png", "16", "16", "");</script>
+										'.sq_get_icon(sq_web_path('lib').'/web/images/icons/info.png', 16, 16).'
 									</td>
-									<td class="sq-backend-asset-info" nowrap="nowrap">
-									'.translate('created_by', $created_by_name, readable_datetime($owner->created)).'<br/>
-									'.translate('last_updated', $updated_by_name, readable_datetime($owner->updated)).'<br/>';
+									<td class="sq-backend-asset-info">
+									'.translate('created_by', $created_by_name, readable_datetime($owner->created)).'<br />
+									'.translate('last_updated', $updated_by_name, readable_datetime($owner->updated)).'<br />';
 
 			if (!is_null($owner->published)) {
 				$sub_heading .= translate('last_published', $published_by_name, readable_datetime($owner->published));
@@ -698,8 +697,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$sub_heading .=	'		</td>
 								</tr>
-							</table>
-							<div>';
+							</table>';
 		}
 		$o->setSubHeading($sub_heading);
 

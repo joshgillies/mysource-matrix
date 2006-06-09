@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.135 2006/06/07 06:34:06 lwright Exp $
+* $Id: general.inc,v 1.136 2006/06/09 04:47:45 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.135 $
+* @version $Revision: 1.136 $
 * @package MySource_Matrix
 */
 
@@ -1018,7 +1018,6 @@ function trigger_localised_error($code, $error_level)
 
 }//end trigger_localised_error()
 
-
 /**
 * Print an icon with variable transparency in a manner that works cross-browser
 *
@@ -1037,6 +1036,29 @@ function trigger_localised_error($code, $error_level)
 */
 function sq_print_icon($path, $width, $height, $alt='', $title=NULL, $extras='')
 {
+	echo sq_get_icon($path, $width, $height, $alt, $title, $extras);
+
+}//end sq_print_icon()
+
+
+/**
+* Print an icon with variable transparency in a manner that works cross-browser
+*
+* This is done by actually printing an image tag for a blank image, and setting various background
+* CSS attributes to render the icon in several browsers
+*
+* @param string	$path	The absolute path of the image to print
+* @param string	$width	The width of the image being printed
+* @param string	$height	The height of the image being printed
+* @param string	$alt	Alt text for the image being printed
+* @param string	$title	Title of the image being printed
+* @param string	$extras	Extra HTML to put in the image tag
+*
+* @return void
+* @access public
+*/
+function sq_get_icon($path, $width, $height, $alt='', $title=NULL, $extras='')
+{
 	if (is_null($title) && !empty($alt)) {
 		$title = $alt;
 	}
@@ -1048,15 +1070,15 @@ function sq_print_icon($path, $width, $height, $alt='', $title=NULL, $extras='')
 	} else {
 		$extras = 'style="'.$style."\"\n\t     ".$extras;
 	}
-	?>
+	return '
 
-	<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif"
-		 alt="<?php echo $alt; ?>"
-		 title="<?php echo $title; ?>"
-		 <?php echo $extras; ?> />
-	<?php
+	<img src="'.sq_web_path('lib').'/web/images/blank.gif"
+		 alt="'.$alt.'"
+		 title="'.$title.'"
+		 '.$extras.' />
+	';
 
-}//end sq_print_icon()
+}//end sq_get_icon()
 
 
 /**

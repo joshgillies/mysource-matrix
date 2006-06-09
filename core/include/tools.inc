@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tools.inc,v 1.6 2006/05/05 06:48:09 tbarrett Exp $
+* $Id: tools.inc,v 1.7 2006/06/09 04:47:45 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Tools extends MySource_Object
@@ -51,7 +51,7 @@ class Tools extends MySource_Object
 	function paintBackend(&$backend)
 	{
 		$o =& $backend->out;
-		$o->setHeading(translate('system_tools'), '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/whereami.png').'", "20", "20", "HIPO Icon");</script>');
+		$o->setHeading(translate('system_tools'), sq_get_icon($o->filesPath('/images/icons/header/whereami.png'), 20, 20, 'Tools'));
 
 		// the user has pressed commit for a specific tool
 		if (isset($_REQUEST['committed_tool_type_code'])) {
@@ -119,7 +119,7 @@ class Tools extends MySource_Object
 		if ($am->installed($type_code)) {
 			$am->includeAsset($type_code);
 			$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
-			$o->setHeading('System Tools: '.$tool_info['name'], '<script type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/asset_tree.png').'", "20", "20", "HIPO Icon");</script>');
+			$o->setHeading('System Tools: '.$tool_info['name'], sq_get_icon($o->filesPath('/images/icons/header/asset_tree.png'), 20, 20, 'Tools'));
 			call_user_func_array(Array($type_code, 'paintTool'), Array(&$o, $type_code));
 			$o->addHiddenField('committed_tool_type_code', $type_code);
 			$o->openSection('', 'commit');

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.122 2006/06/02 00:22:13 tbarrett Exp $
+* $Id: backend_outputter.inc,v 1.123 2006/06/09 04:47:45 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.123 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -103,10 +103,10 @@ class Backend_Outputter
 
 	var $_files_path;
 
-	var $_raw_opened = false;
+	var $_raw_opened = FALSE;
 
 	var $_section_stack = Array();
-	var $_current_field = null;
+	var $_current_field = NULL;
 
 	var $_section_count = 0;
 	var $_field_count   = 0;
@@ -117,19 +117,19 @@ class Backend_Outputter
 	* If TRUE all output will be printed when paint is called
 	* @var boolean
 	*/
-	var $_buffering = true;
+	var $_buffering = TRUE;
 
 	/**
 	* If TRUE there is a section opened (used when we are not buffering)
 	* @var boolean
 	*/
-	var $_is_open_section = false;
+	var $_is_open_section = FALSE;
 
 	/**
 	* If TRUE there is a field opened (used when we are not buffering)
 	* @var boolean
 	*/
-	var $_is_open_field = false;
+	var $_is_open_field = FALSE;
 
 	/**
 	* If type of the current field being painted (used when we are not buffering)
@@ -168,7 +168,7 @@ class Backend_Outputter
 		$this->_action = $_SERVER['PHP_SELF'];
 
 		// register that we want to listen to link update events
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 
 		$em->addEventListener($this, Array(
 										'CreateLink',
@@ -186,21 +186,27 @@ class Backend_Outputter
 	/**
 	* Sets whether the backend output will buffer its output
 	*
-	* @param boolean $buffer if TRUE buffering will be turned on (on by default)
+	* @param boolean	$buffer	if TRUE buffering will be turned on (on by default)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setBuffering($buffer=true)
+	function setBuffering($buffer=TRUE)
 	{
 		$this->_buffering = (bool) $buffer;
-		return true;
+		return TRUE;
 
 	}//end setBuffering()
 
 
 	/**
 	* Set the redirect for the page
+	*
+	* @param string	$link	URL to redirect to
+	* @param string	$target	Frame to redirect in
+	*
+	* @return void
+	* @access public
 	*/
 	function setRedirect($link, $target='self')
 	{
@@ -223,8 +229,9 @@ class Backend_Outputter
 	/**
 	* Add an onLoad call, something JS that needs to be executed right after the page finishes loading
 	*
-	* @param string $call	JS code to execute
+	* @param string	$call	JS code to execute
 	*
+	* @return void
 	* @access public
 	*/
 	function addOnLoad($call)
@@ -244,17 +251,15 @@ class Backend_Outputter
 	* @return void
 	* @access public
 	*/
-	function addFormActionGetVar($name, $value, $persistant=false)
+	function addFormActionGetVar($name, $value, $persistant=FALSE)
 	{
-		// first check if we can replace an existing GET var with our new value
-		$new_action = preg_replace('|([&\?])'.rawurlencode($name).'=([^&]+)?(&)?|', '\\1'.rawurlencode($name).'='.rawurlencode($value).'\\3', $this->_action);
-
-		if ($new_action == $this->_action) {
-			$this->_action .= ((strstr($this->_action, '?')) ? '&' : '?').rawurlencode($name).'='.rawurlencode($value);
+		if (FALSE === strpos($this->_action, '?')) {
+			$url = $this->_action;
+			$query = '';
 		} else {
-			$this->_action = $new_action;
+			list($url, $query) = explode('?', $this->_action);
 		}
-
+		$this->_action = replace_query_string_vars(Array($name => $value), $url, $query);
 		if ($persistant) {
 			$this->_persistant_get_vars[$name] = $value;
 		}
@@ -265,6 +270,7 @@ class Backend_Outputter
 	/**
 	* Returns the current action, which realistically is going to be the way to get to the current location
 	*
+	* @return void
 	* @access public
 	*/
 	function getCurrentLocation()
@@ -277,6 +283,9 @@ class Backend_Outputter
 	/**
 	* Set the anchor that the page will submit to
 	*
+	* @param string	$anchor	Anchor name
+	*
+	* @return void
 	* @access public
 	*/
 	function setFormAnchor($anchor)
@@ -290,9 +299,10 @@ class Backend_Outputter
 	/**
 	* Set the heading for page
 	*
-	* @param string $heading	the heading to display
-	* @param string $icon		the icon img tag (if any)
+	* @param string	$heading	the heading to display
+	* @param string	$icon		the icon img tag (if any)
 	*
+	* @return void
 	* @access public
 	*/
 	function setHeading($heading, $icon='')
@@ -306,9 +316,10 @@ class Backend_Outputter
 	/**
 	* Set the sub heading for page
 	*
-	* @param string $heading	the heading to display
-	* @param string $icon		the icon img tag (if any)
+	* @param string	$heading	the heading to display
+	* @param string	$icon		the icon img tag (if any)
 	*
+	* @return void
 	* @access public
 	*/
 	function setSubHeading($heading, $icon='')
@@ -321,6 +332,10 @@ class Backend_Outputter
 	/**
 	* Add a message to be displayed to the user
 	*
+	* @param string	$type	Type of message
+	* @param string	$msg	Message contents
+	*
+	* @return void
 	* @access public
 	*/
 	function addMessage($type, $msg)
@@ -337,6 +352,9 @@ class Backend_Outputter
 	/**
 	* Add a stylesheet file to the page
 	*
+	* @param string	$file	URL of the CSS file
+	*
+	* @return void
 	* @access public
 	*/
 	function addCssInclude($file)
@@ -350,6 +368,9 @@ class Backend_Outputter
 	/**
 	* Add a javascript file to the page
 	*
+	* @param string	$file	URL of the JS file
+	*
+	* @return void
 	* @access public
 	*/
 	function addJsInclude($file)
@@ -361,8 +382,11 @@ class Backend_Outputter
 
 
 	/**
-	* Add an onSubmit call, something JS that needs to be executed before the form submits
+	* Add an onSubmit call, some JS that needs to be executed before the form submits
 	*
+	* @param string	$call	The JS code
+	*
+	* @return void
 	* @access public
 	*/
 	function addOnSubmit($call)
@@ -391,9 +415,10 @@ class Backend_Outputter
 	/**
 	* Adds a screen options to the drop down
 	*
-	* @param string $url	the url to go to when this screen is selected
-	* @param string $name	the name to display in the drop down
+	* @param string	$url	the url to go to when this screen is selected
+	* @param string	$name	the name to display in the drop down
 	*
+	* @return void
 	* @access public
 	*/
 	function addScreen($url, $name)
@@ -410,9 +435,10 @@ class Backend_Outputter
 	/**
 	* Adds a static screen for editing
 	*
-	* @param string $url
-	* @param string $name
+	* @param string	$url	The URL of the static screen
+	* @param string	$name	The friendly name of the static screen
 	*
+	* @return void
 	* @access public
 	*/
 	function addStaticScreen($url, $name)
@@ -429,6 +455,9 @@ class Backend_Outputter
 	/**
 	* Adds a preload image
 	*
+	* @param string	$file	The URL of the image
+	*
+	* @return void
 	* @access public
 	*/
 	function addPreloadImg($file)
@@ -441,8 +470,9 @@ class Backend_Outputter
 	/**
 	* Set the character set for the page
 	*
-	* @param string $charset the character set to use
+	* @param string	$charset	the character set to use
 	*
+	* @return void
 	* @access public
 	*/
 	function setCharset($charset)
@@ -455,6 +485,7 @@ class Backend_Outputter
 	/**
 	* Opens a section of the page for raw output
 	*
+	* @return void
 	* @access public
 	*/
 	function openRaw()
@@ -467,7 +498,7 @@ class Backend_Outputter
 
 		$ret_val = $this->_openSection($init_arr);
 		ob_start();
-		$this->_raw_opened = true;
+		$this->_raw_opened = TRUE;
 		return $ret_val;
 
 	}//end openRaw()
@@ -476,6 +507,7 @@ class Backend_Outputter
 	/**
 	* Closes a raw output section
 	*
+	* @return void
 	* @access public
 	*/
 	function closeRaw()
@@ -484,7 +516,7 @@ class Backend_Outputter
 		$stack_i = count($this->_section_stack) - 1;
 		$this->_section_stack[$stack_i]['contents'] = ob_get_contents();
 		ob_end_clean();
-		$this->_raw_opened = false;
+		$this->_raw_opened = FALSE;
 		$this->_closeSection();
 
 	}//end closeRaw()
@@ -493,9 +525,10 @@ class Backend_Outputter
 	/**
 	* Opens a section
 	*
-	* @param string		$heading
-	* @param string		$icon
+	* @param string	$heading	The heading name
+	* @param string	$icon		The heading icon
 	*
+	* @return void
 	* @access public
 	*/
 	function openSection($heading='', $icon='')
@@ -515,6 +548,7 @@ class Backend_Outputter
 	/**
 	* Closes a section
 	*
+	* @return void
 	* @access public
 	*/
 	function closeSection()
@@ -526,19 +560,10 @@ class Backend_Outputter
 		if ($this->_buffering) {
 			$this->_closeSection();
 		} else {
-								?>
-								</td>
-							</tr>
-						</table>
-					</td>
-					<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-				</tr>
-				</table>
-				<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>
-			<?php
+			$this->_nbCloseSection();
 			$this->_nb_section_count--;
 			if ($this->_nb_section_count == 0) {
-				$this->_is_open_section = false;
+				$this->_is_open_section = FALSE;
 			}
 		}
 
@@ -548,8 +573,9 @@ class Backend_Outputter
 	/**
 	* Opens a section, with the passed initialise array
 	*
-	* @param Array		$init_arr	some initialising data
+	* @param array	$init_arr	some initialising data
 	*
+	* @return void
 	* @access private
 	*/
 	function _openSection($init_arr)
@@ -589,7 +615,7 @@ class Backend_Outputter
 	/**
 	* Opens a section without buffering
 	*
-	* @param Array		$init_arr	some initialising data
+	* @param array	$init_arr	some initialising data
 	*
 	* @return void
 	* @access private
@@ -600,22 +626,22 @@ class Backend_Outputter
 
 		?>
 		<a name="section_<?php echo $this->_nb_section_count; ?>"></a>
-		<table width="100%" cellpadding="0" cellspacing="1" border="0">
+		<table class="sq-backend-section-table">
 		<?php
 		if ($init_arr['heading']) {
 			if ($this->_is_open_section) {
 				// printing a nested section - needs to look a little different
 				?>
 				<tr>
-					<td class="sq-backend-section-subheading" colspan="3"><?php echo $init_arr['heading'];?></td>
+					<td class="sq-backend-section-subheading"><?php echo $init_arr['heading'];?></td>
 				</tr>
 				<?php
 			} else {
-				$this->_is_open_section = true;
+				$this->_is_open_section = TRUE;
 				// printing a top level section
 				?>
 				<tr class="sq-backend-section-heading-container">
-					<td colspan="3">
+					<td>
 						<table border="0" cellspacing="0" cellpadding="0">
 							<tr>
 								<td class="sq-backend-section-heading"><?php echo $init_arr['heading'];?></td>
@@ -628,17 +654,10 @@ class Backend_Outputter
 			}//endif
 		}//endif
 
-		// print the section seperator
 		?>
-		<tr>
-			<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
-		</tr>
-		<tr>
-			<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-			<td width="100%">
-				<table cellspacing="0" cellpadding="0" border="0" width="100%">
-					<tr>
-						<td width="100%" valign="top" colspan="3">
+			<tr>
+				<td>
+					<table class="sq-backend-section-table-inner">
 		<?php
 
 	}//end _nbOpenSection()
@@ -647,6 +666,7 @@ class Backend_Outputter
 	/**
 	* Closes a section
 	*
+	* @return void
 	* @access private
 	*/
 	function _closeSection()
@@ -669,24 +689,28 @@ class Backend_Outputter
 	function _nbCloseSection()
 	{
 		?>
+					</table>
 				</td>
 			</tr>
+		</table>
 		<?php
+
 	}//end _nbCloseSection()
 
 
 	/**
 	* Opens a field inside a section
 	*
-	* @param string $name		label of the field
-	* @param string $format		format 'new_line' | 'blank' | 'commit' | ''
-	* @param string $note		a note to place with the field
-	* @param string $hidden		whether to hide the field inially or not
-	* @param string $id_name	the id name to give the element that we hide (so it can be found easily)
+	* @param string	$name		label of the field
+	* @param string	$format		format 'new_line' | 'blank' | 'commit' | ''
+	* @param string	$note		a note to place with the field
+	* @param string	$hidden		whether to hide the field inially or not
+	* @param string	$id_name	the id name to give the element that we hide (so it can be found easily)
 	*
+	* @return void
 	* @access public
 	*/
-	function openField($name, $format='', $note='', $hidden=false, $id_name='')
+	function openField($name, $format='', $note='', $hidden=FALSE, $id_name='')
 	{
 		if ($this->_buffering) {
 			if (!is_null($this->_current_field)) {
@@ -727,17 +751,18 @@ class Backend_Outputter
 	/**
 	* Print a field without buffering (nb == non-buffering)
 	*
-	* @param string $name		label of the field
-	* @param string $format		format 'new_line' | 'blank' | 'commit' | ''
-	* @param string $note		a note to place with the field
+	* @param string		$name	label of the field
+	* @param string		$format	format 'new_line' | 'blank' | 'commit' | ''
+	* @param string		$note	a note to place with the field
+	* @param boolean	$hidden	Whether the field should be hidden
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _nbOpenField($name, $format='', $note='', $hidden=false)
+	function _nbOpenField($name, $format='', $note='', $hidden=FALSE)
 	{
 		if ($this->_is_open_field) $this->closeField();
-		$this->_is_open_field = true;
+		$this->_is_open_field = TRUE;
 
 		// store the format and note of the current field for future reference
 		$this->_current_field_type = $format;
@@ -746,26 +771,22 @@ class Backend_Outputter
 		switch ($format) {
 			case 'new_line' :
 				?>
-					<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
-						<td class="sq-backend-field" colspan="3">
-							<a name="field_<?php echo $this->_field_count; ?>"></a>
-							<?php echo $name;?>
-						</td>
-					</tr>
-					<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
-						<td class="sq-backend-data" colspan="3">
-							<table cellpadding="0" cellspacing="0" border="0">
-								<tr>
-									<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
-									<td width="100%" class="sq-backend-data">
-									<?php
+				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
+					<td class="sq-backend-field sq-backend-field-newline" colspan="2">
+						<a name="field_<?php echo $this->_field_count; ?>"></a>
+						<?php echo $name;?>
+					</td>
+				</tr>
+				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
+					<td class="sq-backend-data sq-backend-data-newline" colspan="2">
+				<?php
 			break;
 
 			case 'commit' :
 				?>
 				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
-					<td width="100%" class="sq-backend-data" style="text-align: right;" colspan="3">
-					<?php
+					<td class="sq-backend-data" style="text-align: right;" colspan="2">
+				<?php
 			break;
 
 			case 'blank' :
@@ -773,15 +794,14 @@ class Backend_Outputter
 			break;
 
 			default :
-			?>
+				?>
 				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
-					<td class="sq-backend-field" style="padding-bottom: 10px">
+					<td class="sq-backend-field">
 						<a name="field_<?php echo $this->_field_count; ?>"></a>
 						<?php echo $name;?>
 					</td>
-					<td width="10"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-					<td width="100%" class="sq-backend-data" style="padding-bottom: 10px">
-					<?php
+					<td class="sq-backend-data">
+				<?php
 		}//end switch
 
 	}//end _nbOpenField()
@@ -802,7 +822,7 @@ class Backend_Outputter
 			ob_end_clean();
 			// unset the reference before setting to null, so we don't blow away the field's array
 			unset($this->_current_field);
-			$this->_current_field = null;
+			$this->_current_field = NULL;
 		} else {
 			$this->_nbCloseField();
 		}
@@ -818,38 +838,20 @@ class Backend_Outputter
 	*/
 	function _nbCloseField()
 	{
-		$this->_is_open_field = false;
+		$this->_is_open_field = FALSE;
 
 		// We need to end the field that we started
 		// Because they all start differently, we have to end what we started
 		switch ($this->_current_field_type) {
-
-			case 'new_line' :
-					if ($this->_current_field_note) $this->note($this->_current_field_note);
-						?>
-									</td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-				<?php
-
-			break;
-
-			case 'commit' :
-					if ($this->_current_field_note) $this->note($this->_current_field_note);
-							?>
-						</td>
-					</tr>
-				<?php
-			break;
 
 			case 'blank' :
 				// a blank field to be used just for formatting
 			break;
 
 			default :
-				if ($this->_current_field_note) $this->note($this->_current_field_note);
+				if ($this->_current_field_note) {
+					$this->note($this->_current_field_note);
+				}
 				?>
 					</td>
 				</tr>
@@ -862,7 +864,7 @@ class Backend_Outputter
 	/**
 	* Returns the path to the web dir in lib
 	*
-	* @param string $file  if supplied is concatinated onto the path before returning
+	* @param string	$file	if supplied is concatenated onto the path before returning
 	*
 	* @return string
 	* @access public
@@ -946,7 +948,7 @@ class Backend_Outputter
 		?>
 		<html>
 		<head>
-			<title><?php echo $this->_heading; ?></title>
+			<title><?php echo htmlspecialchars($this->_heading); ?></title>
 			<?php
 
 			$this->addCssInclude($this->filesPath('css/edit.css'));
@@ -969,11 +971,11 @@ class Backend_Outputter
 			foreach ($this->_js_includes as $file) {
 				$this->_paintJsInclude($file);
 			}
-		?>
-			<script type="text/javascript">
-			<!--
+			?>
+			<script type="text/javascript"><!--
+			//<![CDATA[
 				var SQ_DOCUMENT_LOADED = false;
-				function page_on_load() 
+				function page_on_load()
 				{
 					<?php
 					if (isset($_SESSION['backend_outputter_msgs'])) {
@@ -984,7 +986,7 @@ class Backend_Outputter
 						require_once 'XML/Tree.php';
 						require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 						$msgs =& new XML_Tree();
-						$msgs_root = &$msgs->addRoot('messages');
+						$msgs_root =& $msgs->addRoot('messages');
 						foreach ($this->_messages as $data) {
 							$msg_body = '<p>'.htmlentities(nl2br($data['msg'])).'</p>';
 							$msg_body .= '<span style="color: #333333">'.$GLOBALS['SQ_SYSTEM']->datetime().'<span>';
@@ -1002,13 +1004,14 @@ class Backend_Outputter
 					}
 					?>
 
+
 					// let everyone know the document is loaded
 					SQ_DOCUMENT_LOADED = true;
 
 				}//end page_on_load()
 
 
-				function page_on_unload() 
+				function page_on_unload()
 				{
 					if (parent.frames['sq_sidenav'] && window.self.name == 'sq_main' && parent.frames['sq_sidenav'].asset_finder_onunload) {
 						parent.frames['sq_sidenav'].asset_finder_onunload();
@@ -1018,7 +1021,7 @@ class Backend_Outputter
 
 
 				var SQ_FORM_SUBMITTED = false;
-				function form_on_submit() 
+				function form_on_submit()
 				{
 					if (SQ_FORM_SUBMITTED) {
 						alert(js_translate('form_already_submitted'));
@@ -1048,7 +1051,7 @@ class Backend_Outputter
 			}//end foreach
 			?>
 
-			// -->
+			//]]> -->
 			</script>
 		</head>
 		<body onload="page_on_load()">
@@ -1061,28 +1064,24 @@ class Backend_Outputter
 
 		if ($this->_heading || count($this->_screens) || count($this->_static_screens)) {
 			?>
-			<table width="100%" cellpadding="3" cellspacing="0" border="0" class="sq-backend-main-headings">
+			<table class="sq-backend-main-headings">
 				<tr>
 					<?php
 					if ($this->_heading_icon) {
 						?>
-						<td><?php echo $this->_heading_icon; ?></td>
-						<?php
-					} else {
-						?>
-						<td><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"/></td>
+						<td class="sq-backend-heading-icon"><?php echo $this->_heading_icon; ?></td>
 						<?php
 					}
 					?>
-					<td>
-						<?php echo $this->_heading; ?>
+					<td class="sq-backend-main-heading">
 						<?php
+							echo $this->_heading;
 							if ($this->_sub_heading) {
-								echo '</br><span class="sq-backend-sub-heading">'.$this->_sub_heading.'</span>';
+								echo '<br /><span class="sq-backend-sub-heading">'.$this->_sub_heading.'</span>';
 							}
 						?>
 					</td>
-					<td style="text-align: right; width: 100%">
+					<td class="sq-backend-screen-menu">
 						<div id="sq_screen_menu_filler" style="display: none"></div>
 						<div id="sq_screen_menu">
 							<?php $this->printScreenMenu(); ?>
@@ -1094,15 +1093,14 @@ class Backend_Outputter
 
 			if (isset($_SESSION['sq_nav_history'])) {
 				?>
-				<table width="100%" cellpadding="3" cellspacing="0" border="0">
+				<table class="sq-backend-nav-history-container">
 					<tr>
+						<td class="sq-backend-nav-history-title">
+							<?php sq_print_icon($this->filesPath('images/icons/history.png'), 20, 20, 'Navigation History'); ?>
+							<?php echo translate('back_to'); ?>:
+						</td>
 						<td class="sq-backend-nav-history">
-						<?php
-						sq_print_icon($this->filesPath('images/icons/history.png'), 20, 20, 'Navigation History');
-						?>
-						&nbsp;
-						<span style="color: #342939"><?php echo translate('back_to'); ?> : </span>
-						<?php
+							<?php
 							$nav_count = count($_SESSION['sq_nav_history']);
 							if ($nav_count < 5) {
 								$start = 0;
@@ -1114,18 +1112,20 @@ class Backend_Outputter
 								if (!isset($_SESSION['sq_nav_history'][$i])) continue;
 								$nav_details = $_SESSION['sq_nav_history'][$i];
 
-								$nav_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($nav_details['assetid'], '', true);
+								$nav_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($nav_details['assetid'], '', TRUE);
 								if (is_null($nav_asset)) {
 									array_splice($_SESSION['sq_nav_history'], $i, 1);
 									continue;
 								}
-
-								sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($nav_asset->type()), 16, 16, $nav_asset->short_name);
-
-								?><a href="<?php echo $nav_asset->getBackendHref($nav_details['screen']); ?>&sq_nav_goback=<?php echo $i; ?>" class="sq-backend-nav-history"><?php echo $nav_asset->short_name; ?></a><span style="font-size:8px;"><?php echo '['.($i + 1).']'; ?></span><?php
-
+								?>
+								<a style="margin: 0px" href="<?php echo $nav_asset->getBackendHref($nav_details['screen']); ?>&sq_nav_goback=<?php echo $i; ?>">
+									<?php
+									sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($nav_asset->type()), 16, 16, $nav_asset->short_name);
+									echo $nav_asset->short_name;
+									?></a><span style="font-size:8px;"> <?php echo '['.($i + 1).']'; ?></span>
+								<?php
 								if ($i < ($nav_count -1)) {
-									?> <span style="color: #FFFFFF">+</span> <?php
+									?> <span style="color: #FFFFFF">+</span> &nbsp;<?php
 								}
 
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($nav_asset);
@@ -1136,7 +1136,7 @@ class Backend_Outputter
 					</tr>
 				</table>
 				<?php
-			}
+			}//end if
 
 		}//end if
 
@@ -1146,8 +1146,8 @@ class Backend_Outputter
 	/**
 	* Paint the passed section onto the page
 	*
-	* @param Array()	$section	an array with some infor about the section
-	* @param integer	$depth		an indicator to the depth we are currently at used for nested sections
+	* @param array	$section	an array with some infor about the section
+	* @param int	$depth		an indicator to the depth we are currently at used for nested sections
 	*
 	* @return void
 	* @access private
@@ -1157,24 +1157,23 @@ class Backend_Outputter
 		if ($section['type'] == 'raw') {
 			echo $section['contents'];
 		} else {
-
-		?>
+			?>
 			<a name="section_<?php echo $section['section_count']; ?>"></a>
-			<table id="backend_section_<?php echo $section['section_count']; ?>" width="100%" cellpadding="0" cellspacing="1" border="0">
+			<table class="sq-backend-section-table" id="backend_section_<?php echo $section['section_count']; ?>">
 			<?php
 			if ($section['heading'] != '') {
 				if ($depth > 0) {
 					// printing a nested section - needs to look a little different
 					?>
 					<tr>
-						<td class="sq-backend-section-subheading" colspan="3"><?php echo $section['heading'];?></td>
+						<td class="sq-backend-section-subheading"><?php echo $section['heading'];?></td>
 					</tr>
 					<?php
 				} else {
 					// printing a top level section
 					?>
 					<tr class="sq-backend-section-heading-container">
-						<td colspan="3">
+						<td>
 							<table border="0" cellspacing="0" cellpadding="0">
 								<tr>
 									<td class="sq-backend-section-heading"><?php echo $section['heading'];?></td>
@@ -1186,62 +1185,47 @@ class Backend_Outputter
 					<?php
 				}
 			}//endif
-
-			// print the section seperator
 			?>
 			<tr>
-				<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
-			</tr>
-			<tr>
-				<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-				<td width="100%">
-					<table cellspacing="0" cellpadding="0" border="0" width="100%">
+				<td>
+					<table class="sq-backend-section-table-inner" cellspacing="0" cellpadding="0" border="0">
 			<?php
-
 			for ($j = 0; $j < count($section['areas']); $j++) {
 				switch ($section['areas'][$j]['area_type']) {
 					case 'section' :
 						?>
 							<tr>
-								<td width="100%" valign="top" colspan="3">
-								<?php
+								<td colspan="2">
+									<?php
 									$this->_paintSection($section['areas'][$j], $depth + 1);
-								?>
+									?>
 								</td>
 							</tr>
 						<?php
 					break;
 
 					case 'field' :
-						$field = &$section['areas'][$j];
+						$field =& $section['areas'][$j];
 						switch ($field['format']) {
 							case 'new_line' :
 								?>
 									<tr <?php
 										if ($field['hidden']) echo 'style="display: none"';
-									?> <?php
 										if ($field['id_name']) {
 											echo 'id="'.$field['id_name'].'"';
 										}
 									?>>
-										<td class="sq-backend-field" colspan="3">
+										<td class="sq-backend-field sq-backend-field-newline" colspan="2">
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
 											<?php echo $field['name'];?>
 										</td>
 									</tr>
 									<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
-										<td class="sq-backend-data" colspan="3">
-											<table cellpadding="0" cellspacing="0" border="0">
-												<tr>
-													<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
-													<td width="100%" class="sq-backend-data">
-													<?php
-														echo $field['contents'];
-														if ($field['note']) $this->note($field['note']);
-													?>
-													</td>
-												</tr>
-											</table>
+										<td class="sq-backend-data sq-backend-data-newline" colspan="2">
+											<?php
+											echo $field['contents'];
+											if ($field['note']) $this->note($field['note']);
+											?>
 										</td>
 									</tr>
 								<?php
@@ -1251,16 +1235,15 @@ class Backend_Outputter
 								?>
 								<tr <?php
 									if ($field['hidden']) echo 'style="display: none"';
-								?> <?php
 									if ($field['id_name']) {
 										echo 'id="'.$field['id_name'].'"';
 									}
 								?>>
-									<td width="100%" class="sq-backend-data" style="text-align: right;" colspan="3">
-									<?php
+									<td class="sq-backend-data sq-backend-commit" colspan="2">
+										<?php
 										echo $field['contents'];
 										if ($field['note']) $this->note($field['note']);
-									?>
+										?>
 									</td>
 								</tr>
 								<?php
@@ -1283,12 +1266,11 @@ class Backend_Outputter
 										<a name="field_<?php echo $field['field_count']; ?>"></a>
 										<?php echo $field['name'];?>
 									</td>
-									<td width="10"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-									<td width="100%" class="sq-backend-data" style="padding-bottom: 10px">
-									<?php
+									<td class="sq-backend-data">
+										<?php
 										echo $field['contents'];
 										if ($field['note']) $this->note($field['note']);
-									?>
+										?>
 									</td>
 								</tr>
 							<?php
@@ -1308,15 +1290,13 @@ class Backend_Outputter
 			}
 
 			?>
-					</table>
-				</td>
-				<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-			</tr>
+						</table>
+					</td>
+				</tr>
 			</table>
-			<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>
 			<?php
 
-		}//end if section type == raw
+		}//end else
 
 	}//end _paintSection()
 
@@ -1324,6 +1304,7 @@ class Backend_Outputter
 	/**
 	* Paint the footer of the page
 	*
+	* @return void
 	* @access private
 	*/
 	function _paintFooter()
@@ -1340,6 +1321,8 @@ class Backend_Outputter
 	/**
 	* Outputs a stylesheet include line for the passed file
 	*
+	* @param string	$file	The URL of the file to include
+	*
 	* @return void
 	* @access public
 	*/
@@ -1354,6 +1337,8 @@ class Backend_Outputter
 
 	/**
 	* Outputs a javascript include line for the passed file
+	*
+	* @param string	$file	The URL to the file
 	*
 	* @return void
 	* @access public
@@ -1370,6 +1355,8 @@ class Backend_Outputter
 	/**
 	* Outputs a note in the proper css format
 	*
+	* @param string	$str	The note contents
+	*
 	* @return void
 	* @access public
 	*/
@@ -1382,7 +1369,10 @@ class Backend_Outputter
 
 	/**
 	* Outputs a section note in the proper css format
+	*
 	* NOTE: a section can only have ONE note
+	*
+	* @param string	$str	The note contents
 	*
 	* @return void
 	* @access public
@@ -1401,13 +1391,23 @@ class Backend_Outputter
 	}//end sectionNote()
 
 
+	/**
+	* Outputs a section note in the proper css format
+	*
+	* NOTE: a section can only have ONE note
+	*
+	* @param string	$str	The note contents
+	*
+	* @return void
+	* @access public
+	*/
 	function _nbSectionNote($str)
 	{
 		?>
 				</td>
 			</tr>
 			<tr>
-				<td colspan="3">
+				<td colspan="2">
 					<div class="sq-backend-section-note"><strong><?php echo translate('note'); ?>: </strong><?php echo $str ?></div>
 		<?php
 
@@ -1424,7 +1424,7 @@ class Backend_Outputter
 	* @return void
 	* @access public
 	*/
-	function commitButton($value='', $release_lock=true)
+	function commitButton($value='', $release_lock=TRUE)
 	{
 		// value is empty, use default caption
 		if (empty($value)) {
@@ -1467,9 +1467,9 @@ class Backend_Outputter
 			} else {
 				$this->_screens = $this->_static_screens;
 			}
-			combo_box('screen_menu', $this->_screens, false, $this->_action, 1, 'id="screen_menu" onchange="self.location = this.value"');
+			combo_box('screen_menu', $this->_screens, FALSE, $this->_action, 1, 'id="screen_menu" onchange="self.location = this.value"');
 			echo '&nbsp;';
-			normal_button('screen_menu_go', translate('go'), 'self.location = get_form_element_value("screen_menu");', 'id="screen_menu_go"');
+			normal_button('screen_menu_go', translate('go'), 'self.location = get_form_element_value("screen_menu");');
 			echo '&nbsp;';
 		}
 
@@ -1479,8 +1479,8 @@ class Backend_Outputter
 	/**
 	* Event handler to add a message to the flash soeone broadcasts it
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param array			$vars	the vars that get submitted by the broadcaster
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$event_data		the vars that get submitted by the broadcaster
 	*
 	* @return void
 	* @access public
@@ -1495,8 +1495,8 @@ class Backend_Outputter
 	/**
 	* Event handler to refresh the asset map if a new link has been created
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param array			$vars	the vars that get submitted by the broadcaster
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$event_data		the vars that get submitted by the broadcaster
 	*
 	* @return void
 	* @access public
@@ -1514,8 +1514,8 @@ class Backend_Outputter
 	/**
 	* Event handler to refresh the asset map if a link has been deleted
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param array			$vars	the vars that get submitted by the broadcaster
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$event_data		the vars that get submitted by the broadcaster
 	*
 	* @return void
 	* @access public
@@ -1534,8 +1534,8 @@ class Backend_Outputter
 	/**
 	* Event handler to refresh the asset map if the short name of an asset has changed
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param array			$vars	the vars that get submitted by the broadcaster
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$event_data		the vars that get submitted by the broadcaster
 	*
 	* @return void
 	* @access public
@@ -1554,8 +1554,8 @@ class Backend_Outputter
 	/**
 	* Event handler to refresh the asset map if an asset has been morphed to a new type
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param array			$vars	the vars that get submitted by the broadcaster
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$event_data		the vars that get submitted by the broadcaster
 	*
 	* @return void
 	* @access public
@@ -1576,8 +1576,8 @@ class Backend_Outputter
 	/**
 	* Event handler to refresh the asset map if an asset's status has changed
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param array			$vars	the vars that get submitted by the broadcaster
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$event_data		the vars that get submitted by the broadcaster
 	*
 	* @return void
 	* @access public
@@ -1595,6 +1595,12 @@ class Backend_Outputter
 	}//end onAssetStatusUpdate()
 
 
+	/**
+	* Get the section number we are up to
+	*
+	* @return int
+	* @access public
+	*/
 	function getCurrentSectionNumber()
 	{
 		return $this->_section_count;

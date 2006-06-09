@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.93 2006/04/28 05:53:10 tbarrett Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.94 2006/06/09 04:47:45 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -398,7 +398,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 	{
 		$o =& $this->backend->out;
 
-		$o->setHeading('Asset Types', '<script type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/asset_tree.png').'", "20", "20", "HIPO Icon");</script>');
+		$o->setHeading('Asset Types', sq_get_icon($o->filesPath('/images/icons/header/asset_tree.png'), 20, 20, 'Asset Tree'));
 
 		$o->addHiddenField('am_action');
 		$o->addHiddenField('am_new_type_code');

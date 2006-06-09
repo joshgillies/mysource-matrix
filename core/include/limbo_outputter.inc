@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.26 2006/02/16 22:59:09 lwright Exp $
+* $Id: limbo_outputter.inc,v 1.27 2006/06/09 04:47:45 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -319,24 +319,21 @@ class Limbo_Outputter extends Backend_Outputter
 			case 'new_line' :
 				?>
 					<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
-						<td nowrap valign="top" class="sq-limbo-field" colspan="3">
+						<td class="sq-limbo-field" colspan="2">
 							<a name="field_<?php echo $this->_field_count; ?>"></a>
 							<?php echo $name;?>
 						</td>
 					</tr>
 					<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
-						<td valign="top" class="sq-backend-data" colspan="3">
-							<table cellpadding="0" cellspacing="0" border="0">
-								<tr>
-									<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
-									<td width="100%" valign="top" class="sq-backend-data">
+						<td class="sq-backend-data sq-backend-data-newline" colspan="2">
+
 				<?php
 			break;
 
 			case 'commit' :
 				?>
 				<tr>
-					<td width="100%" valign="top" class="sq-backend-data" style="text-align: right; border" colspan="3">
+					<td class="sq-backend-data sq-backend-commit" colspan="2">
 				<?php
 			break;
 
@@ -347,12 +344,11 @@ class Limbo_Outputter extends Backend_Outputter
 			default :
 			?>
 				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
-					<td nowrap valign="top" class="sq-limbo-field">
+					<td class="sq-limbo-field">
 						<a name="field_<?php echo $this->_field_count; ?>"></a>
 						<?php echo $name;?>
 					</td>
-					<td width="10"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-					<td width="100%" valign="top" class="sq-backend-data">
+					<td class="sq-backend-data">
 			<?php
 		}//end switch
 
@@ -372,14 +368,14 @@ class Limbo_Outputter extends Backend_Outputter
 		$this->_nb_section_count++;
 		?>
 			<a name="section_<?php echo $this->_nb_section_count; ?>"></a>
-			<table cellpadding="0" cellspacing="1" border="0">
+			<table class="sq-backend-section-table">
 			<?php
 			if ($section['heading']) {
 				if ($this->_is_open_section) {
 					// printing a nested section - needs to look a little different
 					?>
 					<tr>
-						<td class="sq-limbo-section-subheading" colspan="3"><?php echo $section['heading'];?></td>
+						<td class="sq-limbo-section-subheading" colspan="2"><?php echo $section['heading'];?></td>
 					</tr>
 					<?php
 				} else {
@@ -387,7 +383,7 @@ class Limbo_Outputter extends Backend_Outputter
 					// printing a top level section
 					?>
 					<tr>
-						<td class="sq-limbo-section-heading" colspan="3" style="border-bottom: 1px solid #000000"><?php echo $section['heading'];?></td>
+						<td class="sq-limbo-section-heading" colspan="2"><?php echo $section['heading'];?></td>
 					</tr>
 					<?php
 				}
@@ -396,14 +392,9 @@ class Limbo_Outputter extends Backend_Outputter
 			// print the section seperator
 			?>
 			<tr>
-				<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
-			</tr>
-			<tr>
-				<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-				<td width="100%">
-					<table cellspacing="0" cellpadding="0" border="0" width="100%">
-						<tr>
-							<td width="100%" valign="top" colspan="3">
+				<td>
+					<table class="sq-backend-section-table-inner">
+
 			<?php
 
 	}//end _nbOpenSection()
@@ -419,24 +410,23 @@ class Limbo_Outputter extends Backend_Outputter
 		if ($section['type'] == 'raw') {
 			echo $section['contents'];
 		} else {
-
-		?>
+			?>
 			<a name="section_<?php echo $section['section_count']; ?>"></a>
-			<table cellpadding="0" cellspacing="1" border="0">
+			<table class="sq-backend-section-table">
 			<?php
 			if ($section['heading']) {
 				if ($depth > 0) {
 					// printing a nested section - needs to look a little different
 					?>
 					<tr>
-						<td class="sq-limbo-section-subheading" colspan="3"><?php echo $section['heading'];?></td>
+						<td class="sq-limbo-section-subheading"><?php echo $section['heading'];?></td>
 					</tr>
 					<?php
 				} else {
 					// printing a top level section
 					?>
 					<tr>
-						<td class="sq-limbo-section-heading" colspan="3" style="border-bottom: 1px solid #000000"><?php echo $section['heading'];?></td>
+						<td class="sq-limbo-section-heading" style="border-bottom: 1px solid #000000"><?php echo $section['heading'];?></td>
 					</tr>
 					<?php
 				}
@@ -445,12 +435,8 @@ class Limbo_Outputter extends Backend_Outputter
 			// print the section seperator
 			?>
 			<tr>
-				<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
-			</tr>
-			<tr>
-				<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-				<td width="100%">
-					<table cellspacing="0" cellpadding="0" border="0" width="100%">
+				<td>
+					<table class="sq-backend-section-table-inner">
 			<?php
 
 			for ($j = 0; $j < count($section['areas']); $j++) {
@@ -458,10 +444,10 @@ class Limbo_Outputter extends Backend_Outputter
 					case 'section' :
 						?>
 							<tr>
-								<td width="100%" valign="top" colspan="3">
-								<?php
+								<td colspan="2">
+									<?php
 									$this->_paintSection($section['areas'][$j], $depth + 1);
-								?>
+									?>
 								</td>
 							</tr>
 						<?php
@@ -474,24 +460,17 @@ class Limbo_Outputter extends Backend_Outputter
 							case 'new_line' :
 								?>
 									<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
-										<td nowrap valign="top" class="sq-limbo-field" colspan="3">
+										<td class="sq-limbo-field" colspan="2">
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
 											<?php echo $field['name'];?>
 										</td>
 									</tr>
 									<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
-										<td valign="top" class="sq-backend-data" colspan="3">
-											<table cellpadding="0" cellspacing="0" border="0">
-												<tr>
-													<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
-													<td width="100%" valign="top" class="sq-backend-data">
-													<?php
-														echo $field['contents'];
-														if ($field['note']) $this->note($field['note']);
-													?>
-													</td>
-												</tr>
-											</table>
+										<td class="sq-backend-data sq-backend-data-newline" colspan="2">
+											<?php
+												echo $field['contents'];
+												if ($field['note']) $this->note($field['note']);
+											?>
 										</td>
 									</tr>
 								<?php
@@ -500,11 +479,11 @@ class Limbo_Outputter extends Backend_Outputter
 							case 'commit' :
 								?>
 								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
-									<td width="100%" valign="top" class="sq-backend-data" style="text-align: right; border" colspan="3">
-									<?php
+									<td class="sq-backend-data sq-limbl-data sq-backend-commit" colspan="2">
+										<?php
 										echo $field['contents'];
 										if ($field['note']) $this->note($field['note']);
-									?>
+										?>
 									</td>
 								</tr>
 								<?php
@@ -517,20 +496,16 @@ class Limbo_Outputter extends Backend_Outputter
 							default :
 							?>
 								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
-									<td nowrap valign="top" class="sq-limbo-field">
+									<td class="sq-limbo-field">
 										<a name="field_<?php echo $field['field_count']; ?>"></a>
 										<?php echo $field['name'];?>
 									</td>
-									<td width="10"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-									<td width="100%" valign="top" class="sq-backend-data">
-									<?php
+									<td class="sq-backend-data">
+										<?php
 										echo $field['contents'];
 										if ($field['note']) $this->note($field['note']);
-									?>
+										?>
 									</td>
-								</tr>
-								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
-									<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
 								</tr>
 							<?php
 						}//end switch
@@ -547,10 +522,8 @@ class Limbo_Outputter extends Backend_Outputter
 			?>
 					</table>
 				</td>
-				<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
 			</tr>
 			</table>
-			<table cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>
 			<?php
 
 		}//end if section type == raw
@@ -566,31 +539,18 @@ class Limbo_Outputter extends Backend_Outputter
 	function _paintBodyHeader()
 	{
 		// if a redirect has been set - add an onLoad call so we redirect as normal
-		?><script type="text/javascript"><?php
-		if ($this->_redirect) {
-			?>
-				<?php echo $this->_redirect_target; ?>.location = "<?php echo addslashes($this->_redirect); ?>";
-			<?php
-		} else {
-			?>page_on_load();<?php
-		}
 		?>
-		</script>
-
-		<!--
-			some special styles we need in limbo that dont get
-			overwritten by other stylsheets - thus the reason why we define
-			then within the source instead of in the backend css
-		-->
-		<style type="text/css">
-			#sq_backend_sections td {
-				border:			0px;
-				margin:			0px;
-				padding:		0px;
-				text-align:		left;
-				vertical-align:	top;
+		<script type="text/javascript"><!--
+		//<![CDATA[
+			<?php
+			if ($this->_redirect) {
+				echo $this->_redirect_target.'.location = "'.addslashes($this->_redirect).'";';
+			} else {
+				echo 'page_on_load()';
 			}
-		</style>
+		?>
+		//]]> -->
+		</script>
 
 		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onsubmit="return form_on_submit();">
 

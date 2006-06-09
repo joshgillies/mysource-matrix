@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.59 2006/06/01 23:41:59 tbarrett Exp $
+* $Id: edit.css,v 1.60 2006/06/09 04:48:05 tbarrett Exp $
 *
 */
 
@@ -47,6 +47,11 @@ a.hover {
 
 /* HEADING STYLES */
 
+table.sq-backend-main-headings {
+	width:				100%;
+	border-collapse:	collapse;
+}
+
 table.sq-backend-main-headings td {
 	background-color:	#594165;
 	color:				#FFFFFF;
@@ -54,10 +59,16 @@ table.sq-backend-main-headings td {
 	font-weight:		bold;
 	font-size:			12px;
 	padding:			4px;
-	vertical-align:		middle; 
+	vertical-align:		top; 
 	white-space:		nowrap;
+	border:				0px;
 }
-
+table.sq-backend-main-headings td.sq-backend-main-heading {
+	padding-top: 6px;
+}
+table.sq-backend-main-headings td.sq-backend-heading-icon {
+	padding-top: 6px;
+}
 .sq-backend-sub-heading {
 	background-color:	#594165;
 	color:				#FFFFFF;
@@ -67,35 +78,58 @@ table.sq-backend-main-headings td {
 	border-bottom:		1px solid #342939;
 }
 
+table.sq-backend-nav-history-container {
+	width:				100%;
+	border-collapse:	collapse;
+	margin-bottom:		1px;
 
-td.sq-backend-nav-history, a.sq-backend-nav-history {
+}
+table.sq-backend-nav-history-container td {
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	padding:			4px;
 	background-color:	#C8BDCB;
 	color:				#000000;
 	font-size:			11px;
-	text-decoration:	none;
+	line-height:		25px;
 	font-weight:		bold;
-}
-
-td.sq-backend-nav-history {
+	vertical-align:		middle;
 	border-bottom:		1px solid #342939;
 	vertical-align:		middle;
+	padding:			2px 4px 0px 4px;
+}
+table.sq-backend-nav-history-container td.sq-backend-nav-history a {
+	text-decoration:	none;
+	line-height:		25px;
+	margin:				0px;
+}
+td.sq-backend-nav-history a img {
+	padding-bottom: 2px;
+	border:			0px;
+}
+table.sq-backend-nav-history-container td img {
+	padding:		0px;
+	vertical-align: middle;
+	border:			0px;
+}
+td.sq-backend-nav-history-title  {
+	color: #342939;
 }
 
-.sq-backend-asset-info {
+
+table.sq-backend-main-headings .sq-backend-asset-info {
 	border:				1px solid #FFFFFF;
 	padding:			3px;
 	margin-top:			3px;
 	background-color:	#725B7D;
 	color:				#FFFFFF;
 	font-size:			10px;
+	white-space:		nowrap;
 }
 
 .sq_asset_info_toggle {
 	color:				#FFFFFF;
 	text-decoration:	none;
 	font-size:			10px;
+	cursor:				pointer;
 }
 
 
@@ -103,25 +137,35 @@ td.sq-backend-nav-history {
 /* GENERAL STYLES */
 
 .sq-backend-data, .sq-backend-data p, td.sq-backend-data, .sq-form-field {
-	color:				#000000;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:			11px;
 }
 td.sq-backend-data {
 	vertical-align:		top;
+	padding:			0px 0px 10px 0px;
+	width:				100%;
+}
+td.sq-backend-data-newline {
+	padding-left:		10px;
+}
+td.sq-backend-field-newline {
+	padding-bottom:		2px;
+}
+td.sq-backend-commit {
+	text-align:			right;
+	padding:			2px;
 }
 
 .sq-backend-smallprint {
-	color:				#000000;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:			11px;
 	font-weight:		normal;
-	margin-top:			3px;
+	margin-top:			2px;
 	margin-bottom:		8px;
+	color:				#666;
 }
 
 .sq-backend-section-note {
-	color:				#000000;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:			11px;
 	font-weight:		normal;
@@ -131,7 +175,7 @@ td.sq-backend-data {
 }
 
 .sq-backend-fineprint {
-	color:				#000000;
+	color:				green;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:			10px;
 }
@@ -175,24 +219,42 @@ td.sq-backend-data {
 
 /* BACKEND OUTPUTTER - SECTIONS AND FIELDS */
 
+td.sq-backend-screen-menu {
+	text-align:			right; 
+	width:				100%;
+}
+table.sq-backend-section-table {
+	margin:				0px 0px 10px 0px;
+	width:				100%;
+	border-collapse:	collapse;
+}
+
+table.sq-backend-section-table td table.sq-backend-section-table-inner {
+	margin:				10px 10px 0px 10px;
+	width:				100%;
+	border-collapse:	collapse;
+}
+
 .sq-backend-section-heading-container td {
-	border-bottom:		1px solid #B3B3B3
+	padding:			0px;
+	border-bottom:		1px solid #B3B3B3;
 }
 .sq-backend-section-heading-container td table {
 	border-bottom:		1px solid white;
 	width:				100%;
+	margin: 0px;
 }
 .sq-backend-section-heading-container td table td {
 	border:				0px;
 }
 
-.sq-backend-section-heading {
+.sq-backend-section-heading-container td table td.sq-backend-section-heading {
 	background-color:	#F4F4EB;
 	color:				#848479;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
 	font-size:			12px;
-	padding:			3px;
+	padding:			3px 5px;
 	border:				0px;
 	width:				100%;
 }
@@ -203,7 +265,7 @@ td.sq-backend-data {
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
 	font-size:			11px;
-	padding:			3px;
+	padding:			0px;
 }
 
 .sq-backend-field {
@@ -214,6 +276,7 @@ td.sq-backend-data {
 	font-weight:		bold;
 	vertical-align:		top;
 	white-space:		nowrap;
+	padding:			0px 10px 10px 0px;
 }
 
 
@@ -231,8 +294,8 @@ td.sq-backend-data {
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
 	font-size:			12px;
-	padding:			3px;
-	border: 			1px solid black;
+	padding:			0px 2px;
+	border-bottom:		1px solid black;
 }
 
 .sq-limbo-section-subheading {
@@ -240,7 +303,7 @@ td.sq-backend-data {
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
 	font-size:			11px;
-	padding:			3px;
+	padding:			0px px;
 }
 
 .sq-limbo-field {
@@ -249,9 +312,13 @@ td.sq-backend-data {
 	font-size:			11px;
 	font-weight:		bold;
 	vertical-align:		top;
+	white-space:		nowrap;
+	padding:			0px 10px 0px 0px;
 }
 
-
+#sq_backend_sections table tr td.sq-backend-data {
+	padding-bottom: 2px;
+}
 
 /* BACKEND TABLE STYLES */
 

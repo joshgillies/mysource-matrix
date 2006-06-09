@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.27 2006/06/05 04:25:51 tbarrett Exp $
+* $Id: system_config_edit_interface.inc,v 1.28 2006/06/09 04:47:45 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -68,7 +68,7 @@ class System_Config_Edit_Interface extends MySource_Object
 
 		$o = &$backend->out;
 
-		$o->setHeading(translate('system_configuration'), '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/system_config.png').'", "20", "20", "System Configuration");</script>');
+		$o->setHeading(translate('system_configuration'), sq_get_icon($o->filesPath('/images/icons/header/system_config.png'), 20, 20, 'System Configuration'));
 		$o->addHiddenField('config_posted', '1');
 
 

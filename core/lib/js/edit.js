@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.33 2006/04/04 01:50:50 tbarrett Exp $
+* $Id: edit.js,v 1.34 2006/06/09 04:48:05 tbarrett Exp $
 *
 */
 
@@ -110,15 +110,14 @@ function sq_toggle_lock_info() {
 
 
 // show or hide the asset info
-function sq_toggle_asset_info() {
+function sq_toggle_asset_info(clicked) {
 	var assetInfo = document.getElementById('sq_asset_info');
-	var infoToggle = document.getElementById('sq_asset_info_toggle');
 	if (assetInfo.style.display == 'none') {
 		assetInfo.style.display = 'block';
-		infoToggle.innerHTML = '[ '+ js_translate('less_info') +' ]';
+		clicked.innerHTML = '[ '+ js_translate('less_info') +' ]';
 	} else {
 		assetInfo.style.display = 'none';
-		infoToggle.innerHTML = '[ '+ js_translate('more_info') +' ]';
+		clicked.innerHTML = '[ '+ js_translate('more_info') +' ]';
 	}
 }//end sq_toggle_asset_info()
 
@@ -515,5 +514,16 @@ function attachDateListEventHandlers(parent)
 	var buttons = parent.getElementsByTagName('BUTTON');
 	for (var j=0; j < buttons.length; j++) {
 		buttons[j].onclick = deleteDateRowFn;
+	}
+}
+
+function focusFirstTextInput()
+{
+	var inputs = document.getElementsByTagName('INPUT');
+	for (var i=0; i < inputs.length; i++) {
+		if (inputs[i].type == 'text') {
+			inputs[i].focus();
+			return;
+		}
 	}
 }
