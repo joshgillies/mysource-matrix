@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.54 2006/02/26 22:47:03 pgannavarapu Exp $
+* $Id: listing_engine_management.inc,v 1.55 2006/06/09 06:44:49 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -251,7 +251,7 @@ class Listing_Engine_Management extends Asset_Management
 										'default'		=> Array(),
 										'parameters'	=> Array(
 															'parameters'	=> Array(
-																				'root_node'	=> 'Replacement Root node for the listing (must be a child of the static root node)',
+																				'root_node'	=> 'Replacement root nodes for the listing (must be children of static root nodes)',
 																			   ),
 														   ),
 									   );
