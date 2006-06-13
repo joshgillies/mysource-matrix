@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.86.2.1 2006/04/10 23:42:06 tbarrett Exp $
+* $Id: site.inc,v 1.86.2.2 2006/06/13 07:02:15 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86.2.1 $
+* @version $Revision: 1.86.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -531,6 +531,17 @@ class Site extends Folder
 
 		$index_page =& $this->getSpecialPage('index');
 		if (is_null($index_page)) {
+			if (SQ_IN_LIMBO) {
+				// no index page is set & we are in LIMBO.
+				$asset_url = strip_url($this->getURL(NULL, TRUE), TRUE);
+				$design_name = $this->getCurrentDesignName();
+				$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($asset_url, $design_name);
+				if (!empty($result)) {
+					// if site has design then print LIMBO
+					$this->paintAsset($this);
+					return;
+				}
+			}
 			trigger_localised_error('CORE0065', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id);
 			return;
 		}
@@ -549,9 +560,8 @@ class Site extends Folder
 	function printBody()
 	{
 		$index_page =& $this->getSpecialPage('index');
-		if (!is_null($index_page)) {
-			$index_page->printBody();
-		}
+		if (!is_null($index_page)) $index_page->printBody();
+
 		return;
 
 	}//end printBody()
@@ -650,15 +660,21 @@ class Site extends Folder
 	*/
 	function printLimbo()
 	{
-		$index_page =& $this->getSpecialPage('index');
-		if (is_null($index_page)) {
-			trigger_localised_error('CORE0065', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id);
-			return;
-		}
 
-		$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('assetid', $index_page->id);
-		$GLOBALS['SQ_SYSTEM']->backend->out->addHiddenField('backend_assetid', $index_page->id);
-		$index_page->printLimbo();
+		if (isset($_GET['limbo_assetid']) && $_GET['limbo_assetid'] == $this->id) {
+			// print this site's limbo instead of the index page
+			parent::printLimbo();
+		} else {
+			$index_page =& $this->getSpecialPage('index');
+			if (is_null($index_page)) {
+				parent::printLimbo();
+				return;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('assetid', $index_page->id);
+			$GLOBALS['SQ_SYSTEM']->backend->out->addHiddenField('backend_assetid', $index_page->id);
+			$index_page->printLimbo();
+		}
 
 	}//end printLimbo()
 
