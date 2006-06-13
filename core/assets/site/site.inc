@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.90 2006/04/28 05:53:51 tbarrett Exp $
+* $Id: site.inc,v 1.91 2006/06/13 06:45:09 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -534,6 +534,17 @@ class Site extends Folder
 
 		$index_page =& $this->getSpecialPage('index');
 		if (is_null($index_page)) {
+			if (SQ_IN_LIMBO) {
+				// no index page is set & we are in LIMBO.
+				$asset_url = strip_url($this->getURL(NULL, TRUE), TRUE);
+				$design_name = $this->getCurrentDesignName();
+				$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($asset_url, $design_name);
+				if (!empty($result)) {
+					// if site has design then print LIMBO
+					$this->paintAsset($this);
+					return;
+				}
+			}
 			trigger_localised_error('CORE0065', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id);
 			return;
 		}
@@ -652,15 +663,20 @@ class Site extends Folder
 	*/
 	function initLimbo()
 	{
-		$index_page =& $this->getSpecialPage('index');
-		if (is_null($index_page)) {
-			trigger_localised_error('CORE0065', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id);
-			return;
-		}
+		if (isset($_GET['limbo_assetid']) && $_GET['limbo_assetid'] == $this->id) {
+			// print this site's limbo instead of the index page
+			parent::initLimbo();
+		} else {
+			$index_page =& $this->getSpecialPage('index');
+			if (is_null($index_page)) {
+				parent::initLimbo();
+				return;
+			}
 
-		$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('assetid', $index_page->id);
-		$GLOBALS['SQ_SYSTEM']->backend->out->addHiddenField('backend_assetid', $index_page->id);
-		$index_page->initLimbo();
+			$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('assetid', $index_page->id);
+			$GLOBALS['SQ_SYSTEM']->backend->out->addHiddenField('backend_assetid', $index_page->id);
+			$index_page->initLimbo();
+		}
 
 	}//end initLimbo()
 
