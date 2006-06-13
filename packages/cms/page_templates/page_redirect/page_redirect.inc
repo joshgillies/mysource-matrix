@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.26.2.1 2006/06/06 04:58:13 lwright Exp $
+* $Id: page_redirect.inc,v 1.26.2.2 2006/06/13 07:00:52 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.26.2.1 $
+* @version $Revision: 1.26.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -168,6 +168,12 @@ class Page_Redirect extends Page
 		// check that the user has read access to the site
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', translate('cannot_access_asset', $this->name));
+			return;
+		}
+
+		if (SQ_IN_LIMBO) {
+			// if we are in LIMBO then do not redirect
+			$this->printFrontendAsset($this);
 			return;
 		}
 
