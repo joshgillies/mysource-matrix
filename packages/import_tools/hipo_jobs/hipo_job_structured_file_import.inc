@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.6 2006/06/05 01:32:25 skim Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.7 2006/06/13 06:38:40 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -436,6 +436,18 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		preg_replace($test_reg, $replace_asset, $this->_running_vars['file_data']);
 		// Replace all instances of this image, with its new asset id.
 		$body_data = preg_replace($test_reg, $replace_asset, $body_data);
+
+		// Handle vector format. Some images have this type of tags, if they were drawn from Drawing tool in MS Word
+		// Convert them into <img> tags
+		preg_match_all('/<v:imagedata\s+src=["\']{1}([^>]+)["\']{1}>/i', $body_data, $result=Array());
+		if (!empty($result)) {
+			for ($i=0; $i < count($result[1]); $i++) {
+				$str = trim($result[1][$i]);
+				if (!empty($str)) {
+					$body_data = str_replace($result[0][$i], '<img src="'.$result[1][$i].'" />', $body_data);
+				}
+			}
+		}
 
 		$new_file = NULL;
 
