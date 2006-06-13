@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.7 2006/06/13 06:38:40 skim Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.8 2006/06/13 23:33:42 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -669,7 +669,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 	function splitData($page_data, &$parent_asset)
 	{
 		set_time_limit(0);
-error_log($page_data);
+
 		if (empty($page_data)) return TRUE;
 
 		// Get the top page
