@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.8 2006/06/13 23:33:42 skim Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.9 2006/06/14 00:20:34 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -224,14 +224,6 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 			$body = str_replace($body_start_match[0][0], '', $body);
 		}
 
-		$this->_running_vars['headings_to_process'] = Array();
-		// Due to Word inserting newlines in some Heading tags, we need to strip them out, or our regex wont work
-		foreach ($this->_running_vars['headings'] as $heading) {
-			preg_match_all('/<\s*'.$heading.'/i', $body, $tidy_matches=Array(), PREG_OFFSET_CAPTURE);
-			foreach ($tidy_matches[0] as $data) {
-				$this->_running_vars['headings_to_process'][] = Array('heading' => $heading, 'data' => $data);
-			}
-		}
 		// Word Stuff
 		if ($this->_running_vars['remove_word']) {
 			// Fix the problems where the shorttags are not put in quotes
@@ -239,10 +231,18 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 			$body = preg_replace('/lang=([a-z]+[a-z\d-]*)/i', 'lang="\\1"', $body);
 			$body = preg_replace('/align=[a-z]+\s/i', ' ', $body);
 			$body = preg_replace('/<[\/]?st1:[^>]+>/i', ' ', $body);
+			// Vector formats
+			$body = preg_replace('/<v:shapetype [^>]+>/', '', $body);
+			$body = preg_replace('/<v:stroke [^>]+>/', '', $body);
+			$body = preg_replace('/<v:formulars [^>]+>/', '', $body);
+			$body = preg_replace('/<v:f [^>]+>/', '', $body);
+			$body = preg_replace('/<v:path [^>]+>/', '', $body);
+			$body = preg_replace('/<v:rect [^>]+>/', '', $body);
+			$body = preg_replace('/<v:line [^>]+>/', '', $body);
 		}
-		if ($this->_running_vars['run_tidy']) {
 
-			// Run HTMLTIDY
+		// Run HTMLTIDY
+		if ($this->_running_vars['run_tidy']) {
 			$success = FALSE;
 			if (is_writable($this->_running_vars['import_dir'])) {
 				$tmp_fname = $this->_running_vars['import_file'].'_tmp';
@@ -271,6 +271,14 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 			}
 		}//end if tidy
 
+		$this->_running_vars['headings_to_process'] = Array();
+		// Due to Word inserting newlines in some Heading tags, we need to strip them out, or our regex wont work
+		foreach ($this->_running_vars['headings'] as $heading) {
+			preg_match_all('/<\s*'.$heading.'/i', $body, $tidy_matches=Array(), PREG_OFFSET_CAPTURE);
+			foreach ($tidy_matches[0] as $data) {
+				$this->_running_vars['headings_to_process'][] = Array('heading' => $heading, 'data' => $data);
+			}
+		}
 
 		// Set the filtered data to the file_data var
 		$this->_running_vars['file_data'] = $body;
