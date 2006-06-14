@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.31 2006/05/29 04:23:22 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.431.2.32 2006/06/14 06:02:45 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.31 $
+* @version $Revision: 1.431.2.32 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3174,7 +3174,7 @@ class Asset_Manager extends MySource_Object
 
 		$assetids  = Array();
 		$majorids_str = '';
-		$exclude_str = implode(',', $exclude_list);
+
 		foreach ($majorids as $id) {
 			if (empty($tree_data[$id])) {
 				$majorids_str .= $db->quote($id).',';
@@ -3186,6 +3186,13 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (empty($majorids_str)) return $assetids;
+
+		for (reset($exclude_list); NULL !== ($k = key($exclude_list)); next($exclude_list)) {
+			$exclude_list[$k] = $db->quoteSmart((string) $exclude_list[$k]);
+		}
+
+		$exclude_str = implode(',', $exclude_list);
+
 		static $USERIDS_COND = NULL;
 
 		if (is_null($USERIDS_COND)) {
