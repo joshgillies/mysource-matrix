@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.11 2005/04/18 09:15:58 brobertson Exp $
+* $Id: system_move_update.php,v 1.11.4.1 2006/06/14 01:41:34 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Small script to be run AFTER the system root directory is changed
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.4.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -76,7 +76,9 @@ if (!isset($old_system_root)) {
 	} while (strtolower(get_line('Confirm "'.$old_system_root.'" (Y/N) : ')) != 'y');
 }
 
-$new_system_root = SQ_SYSTEM_ROOT;
+//$new_system_root = SQ_SYSTEM_ROOT;
+// use user entered path (symbolic link friendly)
+$new_system_root = $SYSTEM_ROOT;
 
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 function recurse_find_ffv_files($dir, $old_rep_root, $new_rep_root)
