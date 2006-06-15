@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.11 2006/02/16 01:12:05 rhoward Exp $
+* $Id: parameter_map.inc,v 1.12 2006/06/15 00:53:33 skim Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once dirname(dirname(__FILE__)).'/serialise/serialise.inc';
 *   When requesting the runtime value for a parameter you give its code.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -261,11 +261,16 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				case 'ASSET':
 					switch ($rule['attribute']) {
 						case 'assetid':
-							return $GLOBALS['SQ_SYSTEM']->frontend_asset->id;
+							return (SQ_IN_LIMBO) ? $_REQUEST['limbo_assetid'] : $GLOBALS['SQ_SYSTEM']->frontend_asset->id;
 						break;
 						case 'name':
 						case 'short_name':
-							return $GLOBALS['SQ_SYSTEM']->frontend_asset->attr($rule['attribute']);
+							if (SQ_IN_LIMBO) {
+								$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['limbo_assetid']);
+								return $asset->attr($rule['attribute']);
+							} else {
+								return $GLOBALS['SQ_SYSTEM']->frontend_asset->attr($rule['attribute']);
+							}
 						break;
 					}
 				break;
