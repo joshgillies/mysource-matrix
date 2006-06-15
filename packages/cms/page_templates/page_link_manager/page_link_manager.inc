@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.5 2006/06/15 04:14:11 rhoward Exp $
+* $Id: page_link_manager.inc,v 1.6 2006/06/15 06:38:00 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -155,7 +155,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 			$valid_nodes = Array();
 			foreach ($root_asset_ids as $root_asset_id) {
 				$new_valid_nodes = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($this->attr('types')), FALSE));
-				$valid_nodes     = $valid_nodes + $new_valid_nodes;
+				$valid_nodes = array_merge($valid_nodes, $new_valid_nodes);
 			}
 
 			$current_links = Array();
