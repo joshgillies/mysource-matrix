@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.481 2006/06/14 05:47:18 lwright Exp $
+* $Id: asset_manager.inc,v 1.482 2006/06/15 23:30:18 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.481 $
+* @version $Revision: 1.482 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3188,7 +3188,7 @@ class Asset_Manager extends MySource_Object
 
 		if (empty($majorids_str)) return $assetids;
 
-		for(reset($exclude_list); NULL !== ($k = key($exclude_list)); next($exclude_list)) {
+		for (reset($exclude_list); NULL !== ($k = key($exclude_list)); next($exclude_list)) {
 			$exclude_list[$k] = $db->quoteSmart((string) $exclude_list[$k]);
 		}
 
@@ -4882,14 +4882,21 @@ class Asset_Manager extends MySource_Object
 			$lock_info = @$this->getLockInfo($major->id, 'links');
 			$parent_was_locked = !empty($lock_info);
 			if (!$this->acquireLock($major->id, 'links')) {
-				trigger_localised_error('SYS0126', E_USER_WARNING, $major->name);
+				trigger_localised_error('SYS0126', E_USER_WARNING, 'major', $major->name);
+				return FALSE;
+			}
+			// to check if we can delete this link, we need to lock current asset
+			$minor_lock_info = @$this->getLockInfo($minor->id, 'links');
+			$asset_was_locked = !empty($minor_lock_info);
+			if (!$this->acquireLock($minor->id, 'links')) {
+				trigger_localised_error('SYS0126', E_USER_WARNING, 'minor', $minor->name);
 				return FALSE;
 			}
 		}
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 			// check if we are allowed to delete this link
-			if (($err_msg = $major->canDeleteLink($linkid)) !== TRUE) {
+			if (($err_msg = $minor->canDeleteLink($linkid)) !== TRUE) {
 				trigger_localised_error('SYS0302', E_USER_WARNING, $err_msg);
 				return FALSE;
 			}
@@ -5123,6 +5130,14 @@ class Asset_Manager extends MySource_Object
 			// release locks depending on if the parent was locked before the link
 			if (!$parent_was_locked) {
 				if (!$this->releaseLock($major->id, 'links')) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return FALSE;
+				}
+			}
+			// release locks depending on if the asset was locked before the link
+			if (!$asset_was_locked) {
+				if (!$this->releaseLock($minor->id, 'links')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
