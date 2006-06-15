@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.503.2.23 2006/06/07 23:16:31 lwright Exp $
+* $Id: asset.inc,v 1.503.2.24 2006/06/15 23:04:50 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.503.2.23 $
+* @version $Revision: 1.503.2.24 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3235,11 +3235,14 @@ class Asset extends MySource_Object
 				}
 			}
 		} else if (substr($keyword, 0, 15) == 'asset_metadata_') {
-			$metadata_keyword = substr($keyword, 15);
 			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			$mm_replacements = $mm->getMetadataFieldValues($this->id, Array($metadata_keyword));
+			$metadata_keyword = substr($keyword, 15);
+			$spaced_metadata_keyword = str_replace('_', ' ', $metadata_keyword);
+			$mm_replacements = $mm->getMetadataFieldValues($this->id, Array($metadata_keyword, $spaced_metadata_keyword));
 			if (isset($mm_replacements[$metadata_keyword])) {
 				$replacement = $mm_replacements[$metadata_keyword];
+			} else if (isset($mm_replacements[$spaced_metadata_keyword])) {
+				$replacement = $mm_replacements[$spaced_metadata_keyword];
 			} else {
 				$replacement = NULL;
 			}
