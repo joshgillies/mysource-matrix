@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.8.2.1 2006/02/10 03:51:48 lwright Exp $
+* $Id: page_user_group_manager.inc,v 1.8.2.2 2006/06/15 04:13:58 rhoward Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -158,7 +158,9 @@ class Page_User_Group_Manager extends Page
 		$link_type = $this->attr('link_type');
 
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($GLOBALS['SQ_SYSTEM']->currentUserId(), $link_type, '', FALSE, 'minor');
-		$valid_nodes = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($this->attr('root_node'), 'user_group', FALSE));
+		// only allow links we have write access to
+		$valid_nodes = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($this->attr('root_node'), 'user_group', FALSE, NULL, NULL, SQ_PERMISSION_WRITE));
+
 		$current_groups = Array();
 		foreach ($current_links as $id => $link) {
 			if (in_array($link['majorid'], $valid_nodes)) {
@@ -295,7 +297,7 @@ class Page_User_Group_Manager extends Page
 		ob_start();
 			$root_node = $this->attr('root_node');
 			$default = array_get_index($this->_tmp, 'selected', Array());
-			structured_drop_down($prefix.$suffix, $root_node, $full_types, $default, $this->attr('structured_width'), $this->attr('structured_height'), $this->attr('max_depth'), $this->attr('allow_multiple'), $this->attr('seperator'), $this->attr('include_root_node'), '', $this->attr('structured_style'), $this->attr('statuses'), TRUE, Array(), FALSE, SQ_PERMISSION_READ);
+			structured_drop_down($prefix.$suffix, $root_node, $full_types, $default, $this->attr('structured_width'), $this->attr('structured_height'), $this->attr('max_depth'), $this->attr('allow_multiple'), $this->attr('seperator'), $this->attr('include_root_node'), '', $this->attr('structured_style'), $this->attr('statuses'), TRUE, Array(), FALSE, SQ_PERMISSION_WRITE);
 			$selector = ob_get_contents();
 		ob_end_clean();
 		return $selector;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.55.2.1 2006/06/09 06:46:32 tbarrett Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.55.2.2 2006/06/15 04:13:58 rhoward Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.55.2.1 $
+* @version $Revision: 1.55.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -537,54 +537,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<td class="sq-backend-table-header"><?php echo translate('note') ?></td>
 			</tr>
 			<?php
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
-			if (!empty($link)) {
-				$info = Array($link['minorid'] => 'contents');
-				$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
-				?>
-				<tr>
-					<td class="sq-backend-table-cell">
-						<?php echo get_asset_tag_line($link['minorid'], 'contents'); ?>
-					</td>
-					<td class="sq-backend-table-cell">
-						<?php echo translate('cms_listing_page_contents_desc') ?>
-					</td>
-				</tr>
-				<?php
-			}
-
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'no_results');
-			if (!empty($link)) {
-				$info = Array($link['minorid'] => 'contents');
-				$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
-				?>
-				<tr>
-					<td class="sq-backend-table-cell">
-						<?php echo get_asset_tag_line($link['minorid'], 'contents'); ?>
-					</td>
-					<td class="sq-backend-table-cell">
-						<?php echo translate('cms_listing_no_results_bodycopy_desc') ?>
-					</td>
-				</tr>
-				<?php
-			}
+			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('cms_listing_page_contents_desc'));
+			$this->_paintDefaultFormatLink($asset->id, 'no_results', translate('cms_listing_no_results_bodycopy_desc'));
 
 			$folder =& $asset->getFolder('type_formats');
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'default_format');
-			if (!empty($link)) {
-				$info = Array($link['minorid'] => 'contents');
-				$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
-				?>
-				<tr>
-					<td class="sq-backend-table-cell">
-						<?php echo get_asset_tag_line($link['minorid'], 'contents'); ?>
-					</td>
-					<td class="sq-backend-table-cell">
-						<?php echo translate('cms_listing_default_asset_desc') ?>
-					</td>
-				</tr>
-				<?php
-			}
+			$this->_paintDefaultFormatLink($folder->id, 'default_format', translate('cms_listing_default_asset_desc'));
 			?>
 		</table>
 		<?php
@@ -593,6 +550,35 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 	}//end paintDefaultFormatLinks()
 
+
+	/**
+	* Prints the table containing the links to the bodycopies (and default type format)
+	*
+	* @param string $bodycopy_name			the name of the bodycopy to print, eg. 'no_results'
+	* @param string $bodycopy_description	the description to label the bodycopy with
+	* @param string	$root_assetid			the id of the asset to look under for bodycopies; NULL indicates the listing_engine asset itself
+	*
+	* @returns void
+	* @access private
+	*/
+	function _paintDefaultFormatLink($root_assetid, $bodycopy_name, $bodycopy_description)
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($root_assetid, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $bodycopy_name);
+		if (!empty($link)) {
+			$info = Array($link['minorid'] => 'contents');
+			$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
+			?>
+			<tr>
+				<td class="sq-backend-table-cell">
+					<?php echo get_asset_tag_line($link['minorid'], 'contents'); ?>
+				</td>
+				<td class="sq-backend-table-cell">
+					<?php echo $bodycopy_description; ?>
+				</td>
+			</tr>
+			<?php
+		}
+	}
 
 	/**
 	* Paint the interface for Group Formats

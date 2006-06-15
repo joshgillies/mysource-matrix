@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.116.2.2 2006/05/03 07:00:39 lwright Exp $
+* $Id: html_form.inc,v 1.116.2.3 2006/06/15 04:13:56 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.116.2.2 $
+* @version $Revision: 1.116.2.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1255,7 +1255,7 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 		}
 	}
 
-	if (!is_null($permission)) {
+	if (!is_null($permission) && !($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin())) {
 		$public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
 		foreach ($child_links as $treeid => $data) {
 			$perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($data['assetid'], $permission, NULL, TRUE, TRUE);
