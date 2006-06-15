@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.37.2.1 2006/05/15 06:20:36 skim Exp $
+* $Id: lang_errors.xml,v 1.37.2.2 2006/06/15 23:36:41 rong Exp $
 *
 */
 
@@ -941,7 +941,7 @@ As specified by %5$s and will be deferred</error><!-- core/include/package_manag
 	<error code="SYS0124">Unable to %1$s workflow schema "%2$s" on "%3$s" because this asset already has this schema %3$s</error><!-- core/include/workflow_manager.inc: -->
 	<error code="SYS0125">Unable to create new asset link - "links" lock not acquired on major asset "%s"</error><!-- core/include/asset_manager.inc: -->
 
-	<error code="SYS0126">Unable to delete asset link - "links" lock not acquired on major asset "%s"</error><!-- core/include/asset_manager.inc: -->
+	<error code="SYS0126">Unable to delete asset link - "links" lock not acquired on %1$s asset "%2$s"</error><!-- core/include/asset_manager.inc: -->
 
 	<error code="SYS0127">Unable to find event callback function "%1$s" in Asset "%2$s" (#%3$s)</error><!-- core/include/event_manager.inc: -->
 
