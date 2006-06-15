@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.181 2006/06/06 06:48:37 emcdonald Exp $
+* $Id: mysource.inc,v 1.182 2006/06/15 00:49:20 sdanis Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.181 $
+* @version $Revision: 1.182 $
 * @package MySource_Matrix
 */
 class MySource
@@ -930,11 +930,14 @@ class MySource
 					$auth_systems = $auth_folder->getAuthSystems();
 					// try each auth system in order to see if we can load a user asset
 					$user = NULL;
+					$user_status = NULL;
 					foreach ($auth_systems as $systemid) {
 						$system =& $this->am->getAsset($systemid);
 						if (is_null($system)) continue;
 						$user =& $system->authenticateUser($login_username, $login_password);
-
+						if (!is_null($user)) {
+							$user_status = $user->status;
+						}
 						// check that the user exists AND that it can login
 						// (ie. it is not yet live, or has been locked)
 						if (!is_null($user) && $user->canLogin()) {
@@ -942,7 +945,18 @@ class MySource
 						}
 					}
 
+					$failure_reason = translate('user_not_found');
+					if (!is_null($user_status)) {
+						if ($user_status & SQ_SC_STATUS_NOT_LIVE) {
+							$failure_reason = translate('user_status_not_live');
+						} else {
+							$failure_reason = translate('user_asset_in_trash');
+						}
+					}
+
 					$this->addMessage(translate('user_not_found'));
+					// log failed attempt
+					$this->_logSecurityMsg('system.security.login.failed', Array('login_name' => $login_username, 'failure_reason' => $failure_reason), TRUE);
 
 				} else {
 
@@ -1374,9 +1388,11 @@ class MySource
 	* @return void
 	* @access private
 	*/
-	function _logSecurityMsg($code, $extra_replacements=Array())
+	function _logSecurityMsg($code, $extra_replacements=Array(), $failed_login=FALSE)
 	{
-		if ($this->userPublic()) return;
+		if ($this->userPublic() && !$failed_login) {
+			return;
+		}
 		$ms =& $this->getMessagingService();
 		$msg_reps = Array('user_name' => $this->user->name) + $extra_replacements;
 		$log = $ms->newMessage(Array(), $code, $msg_reps);
