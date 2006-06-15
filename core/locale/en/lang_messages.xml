@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.10 2005/11/24 23:11:08 rong Exp $
+* $Id: lang_messages.xml,v 1.10.2.1 2006/06/15 05:07:18 sdanis Exp $
 *
 * Core Internal Messages File
 */
@@ -379,6 +379,10 @@ You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_
 	</message>
 	<message type="config.hipo_config">
 		<subject>HIPO Config Updated</subject>
+		<body>%setting% changed from %old_value% to %new_value%</body>
+	</message>
+	<message type="config.password_rules_config">
+		<subject>Password Rules Config Updated</subject>
 		<body>%setting% changed from %old_value% to %new_value%</body>
 	</message>
 	<message type="prefs.system">
