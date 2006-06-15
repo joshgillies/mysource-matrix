@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.123 2006/06/09 04:47:45 tbarrett Exp $
+* $Id: backend_outputter.inc,v 1.124 2006/06/15 22:51:29 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.123 $
+* @version $Revision: 1.124 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1469,7 +1469,7 @@ class Backend_Outputter
 			}
 			combo_box('screen_menu', $this->_screens, FALSE, $this->_action, 1, 'id="screen_menu" onchange="self.location = this.value"');
 			echo '&nbsp;';
-			normal_button('screen_menu_go', translate('go'), 'self.location = get_form_element_value("screen_menu");');
+			normal_button('screen_menu_go', ' '.translate('go').' ', 'self.location = get_form_element_value("screen_menu");');
 			echo '&nbsp;';
 		}
 
