@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2006/02/02 06:49:02 rhoward Exp $
+* $Id: lang_strings.xml,v 1.2 2006/06/15 04:14:11 rhoward Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -21,6 +21,8 @@
 
 <string source="cms_link_manager_error_messages_list">The list of error messages</string>
 <string source="cms_link_manager_success_messages_list">The list of success messages</string>
+
+<string source="cms_link_manager_not_logged_in_bodycopy_desc">This format defines the layout of the page when the user viewing the page is not logged in.</string>
 
 <!-- Printed on the frontend when the managed asset is linked -->
 <string source="cms_link_manager_message_add_success">Successfully added "%1s" to the following: %2s</string>

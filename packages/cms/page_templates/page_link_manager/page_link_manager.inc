@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.4 2006/03/06 23:00:00 rhoward Exp $
+* $Id: page_link_manager.inc,v 1.5 2006/06/15 04:14:11 rhoward Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -148,7 +148,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 		if (!isset($this->_tmp['linked_selections'])) {
 
 			// get the asset links
-			$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, $this->attr('link_type'), '', FALSE, 'minor');
+			$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, $this->attr('link_type'), '', FALSE, 'minor', NULL, NULL, NULL, NULL, SQ_PERMISSION_WRITE);
 
 			// gather the root nodes
 			$root_asset_ids = $this->getRootNodes();
