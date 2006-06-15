@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.12 2006/04/10 23:08:11 sdanis Exp $
+* $Id: lang_messages.xml,v 1.13 2006/06/15 00:50:23 sdanis Exp $
 *
 * Core Internal Messages File
 */
@@ -103,6 +103,10 @@
 	<message type="system.security.logout.manual">
 		<subject>User Logged Out</subject>
 		<body>User "%user_name%" logged themselves out</body><!-- user-name -->
+	</message>
+	<message type="system.security.login.failed">
+		<subject>User Login Failed</subject>
+		<body>User "%login_name%" failed to login (%failure_reason%)</body><!-- user-name -->
 	</message>
 	<message type="system.security.logout.idle">
 		<subject>User Automatically Logged Out</subject>
@@ -379,6 +383,10 @@ You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_
 	</message>
 	<message type="config.hipo_config">
 		<subject>HIPO Config Updated</subject>
+		<body>%setting% changed from %old_value% to %new_value%</body>
+	</message>
+	<message type="config.password_rules_config">
+		<subject>Password Rules Config Updated</subject>
 		<body>%setting% changed from %old_value% to %new_value%</body>
 	</message>
 	<message type="config.proxy_authentication_config">
