@@ -18,12 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history.inc,v 1.4 2005/10/11 02:05:02 tbarrett Exp $
+* $Id: design_area_access_history.inc,v 1.4.2.1 2006/06/15 01:24:45 tbarrett Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
+define('SQ_DESIGN_AREA_HISTORY_STATUS_IGNORE',	'0');
+define('SQ_DESIGN_AREA_HISTORY_STATUS_PRESENT',	'1');
+define('SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT',	'2');
 
 /**
 * Design_Area_Access_History
@@ -32,12 +35,21 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Access_History extends Design_Area
 {
+
+	/**
+	* @var Array	$request_types	Types and names of request variable requirements
+	*/
+	var $request_types = Array(
+							SQ_DESIGN_AREA_HISTORY_STATUS_IGNORE	=> 'Ignore',
+							SQ_DESIGN_AREA_HISTORY_STATUS_PRESENT	=> 'Must exist',
+							SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT	=> 'Must NOT exist',
+						 );
 
 
 	/**
