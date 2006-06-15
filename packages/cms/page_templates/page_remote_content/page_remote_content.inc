@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.32.2.2 2006/05/16 06:13:52 bcaldwell Exp $
+* $Id: page_remote_content.inc,v 1.32.2.3 2006/06/15 01:55:34 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define ('SQ_REMOTE_SOURCE', 'sq_content_src');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.32.2.2 $
+* @version $Revision: 1.32.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -66,7 +66,6 @@ class Page_Remote_Content extends Page
 	*/
 	function printBody()
 	{
-
 		// do not allow binary content, unless that decision has already been made elsewhere
 		$allow_binary = array_get_index($this->_tmp, 'allow_binary', FALSE);
 
@@ -371,7 +370,9 @@ class Page_Remote_Content extends Page
 
 
 		////// Remote Communication Section. Using HTTP_Client PEAR package
-		$HTTP_Client = array_get_index($_SESSION, 'SQ_REMOTE_HTTP_CLIENT');
+		// check whether or not the HTTP_Client object has already been
+		// cached in $_SESSION[SQ_REMOTE_HTTP_CLIENT][AssetID]
+		$HTTP_Client = array_get_index(array_get_index($_SESSION, 'SQ_REMOTE_HTTP_CLIENT'), $this->id);
 		if (!empty($HTTP_Client)) {
 			$HTTP_Client = unserialize($HTTP_Client);
 		} else {
@@ -444,7 +445,11 @@ class Page_Remote_Content extends Page
 
 		// get new cookies and save cookie manager
 		$HTTP_Client->_responses = NULL;
-		$_SESSION['SQ_REMOTE_HTTP_CLIENT'] = serialize($HTTP_Client);
+
+		if (!is_array($_SESSION['SQ_REMOTE_HTTP_CLIENT'])) {
+			$_SESSION['SQ_REMOTE_HTTP_CLIENT'] = Array();
+		}
+		$_SESSION['SQ_REMOTE_HTTP_CLIENT'][$this->id] = serialize($HTTP_Client);
 
 		unset($HTTP_Client);
 		return TRUE;
