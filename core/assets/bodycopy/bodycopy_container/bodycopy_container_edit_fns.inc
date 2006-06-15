@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.41 2006/05/29 00:54:04 emcdonald Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.42 2006/06/15 04:47:56 sdanis Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -262,6 +262,12 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				$output = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo (isset($keyword_replacements["'.$keyword.'"])) ? $keyword_replacements["'.$keyword.'"] : ""; ?'.'>\\4', $output);
 			}
 		}
+
+		// php removes new line character if closing php tag is before it
+		// add another new line character at the end of the line if line ends with php closing tag
+		$output = str_replace("\r\n","\n", $output);
+		$output = str_replace("\r","\n", $output);
+		$output = preg_replace("/\\?>\n/m", '?'.'>'."\n\n", $output);
 
 		create_directory($asset->data_path);
 		return string_to_file($output, $asset->data_path.'/content_file.php');
