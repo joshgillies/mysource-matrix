@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.51 2006/05/15 06:19:50 skim Exp $
+* $Id: lang_errors.xml,v 1.52 2006/06/15 01:02:05 sdanis Exp $
 *
 */
 
@@ -1646,6 +1646,9 @@ Full Node Contents :
 
 	<!-- Design Customisation Errors -->
 	<error code="CORE0259">Cannot find the design file to print the asset, "%s"</error>
+
+	<!-- Password Rule Errors -->
+	<error code="CORE0260">Password contains black listed word.</error>
 
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->

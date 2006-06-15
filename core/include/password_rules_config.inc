@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password_rules_config.inc,v 1.8 2005/06/24 05:12:01 ndvries Exp $
+* $Id: password_rules_config.inc,v 1.9 2006/06/15 01:01:47 sdanis Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class Password_Rules_Config extends Config
@@ -57,6 +57,8 @@ class Password_Rules_Config extends Config
 						'SQ_PASSWD_RULE_NUM_SPC'			=> Array('editable' => 1, 'default' => 0),
 						'SQ_PASSWD_RULE_DISALLOWED'			=> Array('editable' => 0, 'default' => -1),
 						'SQ_PASSWD_RULE_DISABLED'			=> Array('editable' => 0, 'default' => 0),
+						'SQ_PASSWD_RULE_BLACK_LIST'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_PASSWD_RULE_BLACK_LIST_EXACT'	=> Array('editable' => 1, 'default' => 1),
 					   );
 
 
@@ -75,15 +77,15 @@ class Password_Rules_Config extends Config
 	/**
 	* Rewrites the conf file with current variables
 	*
-	* @param Array		$vars				the array with any new values (that are allowed to be edited)
+	* @param array		$vars				the array with any new values (that are allowed to be edited)
 	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
-	* @param boolean 	$send_message		whether to send a message using the messaging system
+	* @param boolean	$send_message		whether to send a message using the messaging system
 	*
-	* @return boolean	indicates whether the file was written
+	* @return boolean
 	* @access public
 	*/
-	function save($vars, $backup_existing=false, $send_message=true)
+	function save($vars, $backup_existing=FALSE, $send_message=TRUE)
 	{
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
 			$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
@@ -92,7 +94,7 @@ class Password_Rules_Config extends Config
 			// if we dont have access, go away
 			if (!$is_admin) {
 				trigger_localised_error('SYS0267', E_USER_WARNING, $this->name);
-				return false;
+				return FALSE;
 			}
 		}
 
@@ -124,9 +126,9 @@ class Password_Rules_Config extends Config
 	*/
 	function writeAccess()
 	{
-		if (!parent::writeAccess()) return false;
+		if (!parent::writeAccess()) return FALSE;
 		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
-			return true;
+			return TRUE;
 		}
 
 		// need to be root or a sys admin
@@ -141,7 +143,7 @@ class Password_Rules_Config extends Config
 	* If you (as a sub-class) put your config vars so that when they are submitted appear in
 	* $_POST[get_class($this)] then you probably won't need to override processBackend()
 	*
-	* @param object Backend_Outputter	&$o		reference to the backend outputter
+	* @param object	&$o	reference to the backend outputter
 	*
 	* @return void
 	* @access public
@@ -158,10 +160,10 @@ class Password_Rules_Config extends Config
 
 		$class = get_class($this);
 
-		$o->openSection('Manage Password Rules');
+		$o->openSection(translate('manage_passwd_rules'));
 
 
-			$o->openField('Minimum Length', '', 'Specifiy a minimum password length');
+			$o->openField(translate('min_length'), '', translate('specify_min_length_passwd'));
 				if ($write_access && $is_root) {
 					text_box($class.'[SQ_PASSWD_RULE_LENGTH]', SQ_PASSWD_RULE_LENGTH, 5);
 				} else {
@@ -169,24 +171,23 @@ class Password_Rules_Config extends Config
 				}
 			$o->closeField();
 
-			$o->openField('Disallow User Info', '', 'If yes, then prevent users having their username or other user information as their password.');
+			$o->openField(translate('disallow_user_info'), '', translate('disallow_user_info_note'));
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_PASSWD_RULE_DISALLOW_USER_INFO]', Array('0' => 'Yes', '1' => 'No'), false, SQ_PASSWD_RULE_DISALLOW_USER_INFO);
+					combo_box($class.'[SQ_PASSWD_RULE_DISALLOW_USER_INFO]', Array('0' => translate('yes'), '1' => translate('no')), FALSE, SQ_PASSWD_RULE_DISALLOW_USER_INFO);
 				} else {
-					echo (SQ_PASSWD_RULE_DISALLOW_USER_INFO) ? 'No' : 'Yes';
+					echo (SQ_PASSWD_RULE_DISALLOW_USER_INFO) ? translate('no') : translate('yes');
 				}
 			$o->closeField();
 
-			$o->openField('Character Rules', '', 'Enforce the use of a certain type of character in passwords by specifying the minimum number of times it must be used.<br />
-												  Disallowing a character type will prevent users from including it in their passwords.');
+			$o->openField(translate('character_rules'), '', translate('character_rules_note'));
 
 				?>
 				<table class="sq-backend-table">
 				<tr>
-					<td style="width: 50px;" class="sq-backend-table-header">Active?</td>
-					<td style="width: 200px;" class="sq-backend-table-header">Character Type</td>
-					<td class="sq-backend-table-header">Minimum Number</td>
-					<td style="width: 150px;" class="sq-backend-table-header">Disallow Character Type?</td>
+					<td style="width: 50px;" class="sq-backend-table-header"><?php echo translate('active_question'); ?>?</td>
+					<td style="width: 200px;" class="sq-backend-table-header"><?php echo translate('character_type'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('min_number'); ?></td>
+					<td style="width: 150px;" class="sq-backend-table-header"><?php echo translate('disallow_char_type_question'); ?></td>
 				</tr>
 				<?php
 				foreach (get_constant_values('SQ_PASSWD_RULE_NUM') as $password_rule => $value) {
@@ -195,7 +196,7 @@ class Password_Rules_Config extends Config
 						<td class="sq-backend-table-cell">
 						<?php
 							if ($write_access) {
-								check_box($class.'_active'.'['.$password_rule.']', '1', ($value != SQ_PASSWD_RULE_DISABLED ? true : false));
+								check_box($class.'_active'.'['.$password_rule.']', '1', ($value != SQ_PASSWD_RULE_DISABLED ? TRUE : FALSE));
 							} else {
 								?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $value != SQ_PASSWD_RULE_DISABLED ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
 							}
@@ -205,19 +206,19 @@ class Password_Rules_Config extends Config
 							<?php
 							switch ($password_rule) {
 								case 'SQ_PASSWD_RULE_NUM_CAPS':
-									echo 'Capital letters';
+									echo translate('capital_letters');
 								break;
 								case 'SQ_PASSWD_RULE_NUM_LOWER':
-									echo 'Lower case letters';
+									echo translate('lower_case_letters');
 								break;
 								case 'SQ_PASSWD_RULE_NUM_INT':
-									echo 'Numbers';
+									echo translate('numbers');
 								break;
 								case 'SQ_PASSWD_RULE_NUM_PUNC':
-									echo 'Punctuation';
+									echo translate('punctuation');
 								break;
 								case 'SQ_PASSWD_RULE_NUM_SPC':
-									echo 'Spaces';
+									echo translate('spaces');
 								break;
 
 								default:
@@ -229,7 +230,7 @@ class Password_Rules_Config extends Config
 							<?php
 							if ($value != SQ_PASSWD_RULE_DISABLED && $value != SQ_PASSWD_RULE_DISALLOWED) {
 								if ($write_access) {
-									int_text_box($class.'['.$password_rule.']', $value, false, 5);
+									int_text_box($class.'['.$password_rule.']', $value, FALSE, 5);
 								} else {
 									echo $value;
 								}
@@ -261,7 +262,29 @@ class Password_Rules_Config extends Config
 			$o->closeField();
 		$o->closeSection();
 
-		if ($write_access) $o->commitButton('', true);
+		$o->openSection(translate('passwd_blacklist'));
+			$o->openField(translate('word_list'), '', translate('word_list_note'));
+
+				if ($write_access) {
+					text_area($class.'[SQ_PASSWD_RULE_BLACK_LIST]', SQ_PASSWD_RULE_BLACK_LIST, 30, 8);
+				} else {
+					echo nl2br(SQ_PASSWD_RULE_BLACK_LIST);
+				}
+			$o->closeField();
+
+			$o->openField(translate('exact_match'));
+
+				if ($write_access) {
+					check_box($class.'[SQ_PASSWD_RULE_BLACK_LIST_EXACT]', '1', SQ_PASSWD_RULE_BLACK_LIST_EXACT);
+				} else {
+					?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo SQ_PASSWD_RULE_BLACK_LIST_EXACT ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
+				}
+
+			$o->closeField();
+
+		$o->closeSection();
+
+		if ($write_access) $o->commitButton('', TRUE);
 
 	}//end paintBackend()
 
@@ -269,7 +292,7 @@ class Password_Rules_Config extends Config
 	/**
 	* Saves the config settings that were submitted
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	* @param object	&$o	reference to the backend outputter
 	*
 	* @return boolean
 	* @access public
@@ -296,13 +319,19 @@ class Password_Rules_Config extends Config
 				}
 			} else {
 				if ($active_check_box) {
-					if ($text_box === false) {
+					if ($text_box === FALSE) {
 						$_POST[$class][$password_rule] = 1;
 					}
 				} else {
 					$_POST[$class][$password_rule] = SQ_PASSWD_RULE_DISABLED;
 				}
 			}
+		}
+
+		if (!isset($_POST[$class]['SQ_PASSWD_RULE_BLACK_LIST_EXACT'])) {
+			$_POST[$class]['SQ_PASSWD_RULE_BLACK_LIST_EXACT'] = 0;
+		} else {
+			$_POST[$class]['SQ_PASSWD_RULE_BLACK_LIST_EXACT'] = 1;
 		}
 
 		return parent::processBackend($o);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.101 2006/03/14 03:08:44 dmckee Exp $
+* $Id: user.inc,v 1.102 2006/06/15 01:01:10 sdanis Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -341,6 +341,18 @@ class User extends Asset
 					if (isset($not_occurring_error_map[$rule])) {
 						trigger_localised_error($not_occurring_error_map[$rule], E_USER_WARNING, $tmp_counter, $value);
 					}
+				}
+			}
+		}
+
+		// check if this password contains blacklisted word
+		$blacklist = SQ_PASSWD_RULE_BLACK_LIST;
+		if (!empty($blacklist)) {
+			$blacklist = explode("\r\n", $blacklist);
+			foreach ($blacklist as $word) {
+				if ((!SQ_PASSWD_RULE_BLACK_LIST_EXACT && preg_match('/'.$word.'/', $passwd)) || (SQ_PASSWD_RULE_BLACK_LIST_EXACT && (strcmp($passwd, $word) == 0))) {
+					trigger_localised_error('CORE0260', E_USER_WARNING);
+					$status =  FALSE;
 				}
 			}
 		}

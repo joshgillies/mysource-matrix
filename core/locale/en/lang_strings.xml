@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.143 2006/06/01 01:48:21 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.144 2006/06/15 01:02:05 sdanis Exp $
 *
 */
 
@@ -58,7 +58,7 @@
 	<string source="inherit_types">Inherit Types</string>
 	<string source="at" js="1">At</string>
 	<string source="attribute_search_fields">Attribute Search Fields</string>
-	<string source="csv_upload">CSV Upload</string>
+	<string source="capital_letters">Capital letters</string>
 	<string source="cascade_options">Cascade Options</string>
 	<string source="cascade_permission_changes">Cascade Permission Changes?</string>
 	<string source="cascade">Cascade</string>
@@ -67,8 +67,11 @@
 	<string source="category_specific_search_settings">Category Specific Search Settings</string>
 	<string source="change_log_of_original_patch">Change Log of Original Patch</string>
 	<string source="change_log">Change Log</string>
+	<string source="change_question">Change ?</string>
 	<string source="change_status">Change Status ?</string>
-	<string source="no_status_selected">No statuses are selected</string>
+	<string source="character_rules">Character Rules</string>
+	<string source="character_rules_note">Enforce the use of a certain type of character in passwords by specifying the minimum number of times it must be used.&lt;br /&gt;Disallowing a character type will prevent users from including it in their passwords.</string>
+	<string source="character_type">Character Type</string>
 	<string source="children">Children</string>
 	<string source="clone_asset_threshold">Clone Asset Threshold</string>
 	<string source="commit_button_text">Commit Button Text</string>
@@ -81,6 +84,7 @@
 	<string source="content_tag">Content Tag</string>
 	<string source="content_tags">Content Tags</string>
 	<string source="cron_manager_appears_to_be_fine">Cron Manager appears to be fine.</string>
+	<string source="csv_upload">CSV Upload</string>
 	<string source="current_hipo_jobs">Current HIPO Jobs</string>
 	<string source="current_linking">Current Linking</string>
 	<string source="current_lock_status">Current Lock Status</string>
@@ -88,7 +92,6 @@
 	<string source="current">Current</string>
 	<string source="current_asset">Current Asset</string>
 	<string source="current_user">Current User</string>
-	<string source="change_question">Change ?</string>
 	<string source="custom_error_text">Custom Error Text</string>
 	<string source="customise_row">Customise Row</string>
 	<string source="debug_settings">Debug Settings</string>
@@ -104,6 +107,9 @@
 	<string source="design_code">Design Code</string>
 	<string source="design">Design</string>
 	<string source="details_of_original_patch">Details of Original Patch</string>
+	<string source="disallow_user_info">Disallow User Info</string>
+	<string source="disallow_user_info_note">If yes, then prevent users having their username or other user information as their password.</string>
+	<string source="disallow_char_type_question">Disallow Character Type?</string>
 	<string source="domain">Domain</string>
 	<string source="down">Down</string>
 	<string source="download">Download</string>
@@ -117,6 +123,7 @@
 	<string source="enable_pdftohtml">Enable pdftohtml</string>
 	<string source="error/debug_settings">Error/Debug Settings</string>
 	<string source="events">Events</string>
+	<string source="exact_match">Exact Match</string>
 	<string source="expires">Expires</string>
 	<string source="expiry_time">Expiry Time</string>
 	<string source="extension_list">Extension List</string>
@@ -158,6 +165,8 @@
 	<string source="logical_keywords">Logical Keywords</string>
 	<string source="login/session_settings">Login/Session Settings</string>
 	<string source="lookups_updating_threshold">Lookups Updating Threshold</string>
+	<string source="lower_case_letters">Lower case letters</string>
+	<string source="manage_passwd_rules">Manage Password Rules</string>
 	<string source="manually_cascade_permissions">Manually Cascade Permissions?</string>
 	<string source="match_condition">Match Condition</string>
 	<string source="max_file_upload">Max File Upload</string>
@@ -165,6 +174,8 @@
 	<string source="metadata_schemas">Metadata Schemas</string>
 	<string source="metadata_schema">Metadata Schema</string>
 	<string source="metadata_search_fields">Metadata Search Fields</string>
+	<string source="min_length">Minimum Length</string>
+	<string source="min_number">Minimum Number</string>
 	<string source="missing_metadata_fields">Missing Metadata Fields</string>
 	<string source="duplicate_metadata_fields">Duplicate Metadata Field(s) found</string>
 	<string source="move_confirmation">Move Confirmation</string>
@@ -183,7 +194,9 @@
 	<string source="new_url">New URL</string>
 	<string source="new_variety">New Variety</string>
 	<string source="no_preview_available">No preview available</string>
+	<string source="no_status_selected">No statuses are selected</string>
 	<string source="note">Note</string>
+	<string source="numbers">Numbers</string>
 	<string source="or_value_of_question">OR Value of Question</string>
 	<string source="old_url">Old URL</string>
 	<string source="operator">Operator</string>
@@ -192,6 +205,7 @@
 	<string source="other">Other</string>
 	<string source="override_design_question">Override ?</string>
 	<string source="override_design_explanation">You can override the design this asset would inherit from its parent, with a design that is applied to this asset only. This override design does not affect the inheritance to this asset's children of any parent design.</string>
+	<string source="passwd_blacklist">Password Blacklist</string>
 	<string source="patch_details">Patch Details</string>
 	<string source="patches_available_to_install">Patches Available To Install</string>
 	<string source="path_to_antiword">Path to Antiword</string>
@@ -210,6 +224,7 @@
 	<string source="proxy_authentication_passed">Passed</string>
 	<string source="proxy_authentication_disabled">Disabled</string>
 	<string source="proxy_authentication_status">Proxy Authentication Status</string>
+	<string source="punctuation">Punctuation</string>
 	<string source="purge_trash_threshold">Purge Trash Threshold</string>
 	<string source="regular_expression">Regular Expression</string>
 	<string source="remove_question">Remove ?</string>
@@ -223,6 +238,8 @@
 	<string source="severity">Severity</string>
 	<string source="show_in_asset_map">Show in Asset Map</string>
 	<string source="show_lineages">Show Lineages</string>
+	<string source="spaces">Spaces</string>
+	<string source="specify_min_length_passwd">Specify a minimum password length</string>
 	<string source="standard_asset_field">Standard Asset Field</string>
 	<string source="standard_search_fields">Standard Search Fields</string>
 	<string source="status_changed_date">Status Changed Date</string>
@@ -268,6 +285,8 @@
 	<string source="use_cache">Use Cache</string>
 	<string source="user_groups">User Groups</string>
 	<string source="user_not_found">Invalid username or password entered</string>
+	<string source="user_status_not_live">User asset status not live</string>
+	<string source="user_asset_in_trash">User asset is in trash</string>
 	<string source="value">Value</string>
 	<string source="key">Key</string>
 	<string source="variety_type">Variety Type</string>
@@ -284,6 +303,8 @@
 	<string source="wysiwyg_htmltidy_status_pass">HTMLTidy has validated this content</string>
 	<string source="wysiwyg_htmltidy_status_fail">HTMLTidy failed to validate this content</string>
 	<string source="warning_-_moving_to_trash">Warning - Moving To Trash</string>
+	<string source="word_list">Word List</string>
+	<string source="word_list_note">New line separated list of words that are not allowed to be used as password</string>
 	<string source="workflow_logs">Workflow Logs</string>
 	<string source="workflow_schemas_threshold">Workflow Schemas Threshold</string>
 	<string source="workflow_started">Workflow Started</string>
