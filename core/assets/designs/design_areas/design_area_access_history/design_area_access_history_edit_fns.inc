@@ -18,13 +18,10 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history_edit_fns.inc,v 1.7 2006/02/07 01:06:57 dmckee Exp $
+* $Id: design_area_access_history_edit_fns.inc,v 1.8 2006/06/15 01:16:29 tbarrett Exp $
 *
 */
 
-define('SQ_DESIGN_AREA_HISTORY_STATUS_IGNORE',	'0');
-define('SQ_DESIGN_AREA_HISTORY_STATUS_PRESENT',	'1');
-define('SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT',	'2');
 
 require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc';
 
@@ -35,21 +32,14 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *	Print the last N assets viewed
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 {
 
-	/**
-	* @var Array	$_request_types	Types and names of request variable requirements
-	*/
-	var $_request_types = Array(
-							SQ_DESIGN_AREA_HISTORY_STATUS_IGNORE	=> 'Ignore',
-							SQ_DESIGN_AREA_HISTORY_STATUS_PRESENT	=> 'Must exist',
-							SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT	=> 'Must NOT exist',
-						  );
+
 
 
 	/**
@@ -130,7 +120,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 		}
 
 		asort($print_types);
-		$req_type_count = count($this->_request_types);
+		$req_type_count = count($asset->request_types);
 		echo '
 			<table class="sq-backend-table">
 				<tr>
@@ -144,7 +134,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 		echo'</tr><tr>';
 
 		// request type headers
-		foreach ($this->_request_types as $name) {
+		foreach ($asset->request_types as $name) {
 			echo '<th>'.$name.'</th>';
 		}
 
@@ -159,7 +149,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 			$even = !$even;
 
 			echo '<tr '.$row_class.'><td>'.$present_types[$type].'</td>';
-			foreach ($this->_request_types as $req_type => $req_name) {
+			foreach ($asset->request_types as $req_type => $req_name) {
 				echo '<td>';
 				if ($write_access) {
 					radio_button($type_prefix.'[req_type]', $req_type, $req_type==$query_req);
@@ -191,7 +181,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 			// request types for new asset type
 			$new_radio_prefix = $prefix.'[new][require_query]';
 			$selected = TRUE;
-			foreach ($this->_request_types as $req_type => $name) {
+			foreach ($asset->request_types as $req_type => $name) {
 				echo '<td>';
 				radio_button($new_radio_prefix, $req_type, $selected);
 				echo '</td>';
