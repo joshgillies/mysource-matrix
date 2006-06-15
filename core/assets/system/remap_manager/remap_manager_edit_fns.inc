@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.19 2006/04/13 11:27:45 sdanis Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.20 2006/06/15 05:42:05 sdanis Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,6 +86,8 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
+		$link_offset = array_get_index($_POST, $prefix.'_link_offset', 0);
+
 		$sql = 'SELECT url, remap_url, expires
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
 		$remap_urls = $db->getAll($sql);
@@ -96,8 +98,76 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			return FALSE;
 		}
 
+		$num_per_page = 100;
+		$total_assets = count($remap_urls);
+		$remap_urls = array_slice($remap_urls, $link_offset, $num_per_page);
+		$num_pages = ceil($total_assets / $num_per_page);
+
 		?>
 		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header-header" colspan="4"><b><?php
+					hidden_field($prefix.'_link_offset', $link_offset);
+					if ($link_offset > 0) {
+						?><a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+					}
+					?>
+					&lt;&lt;
+					<?php
+					if ($link_offset > 0) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?> &nbsp; &nbsp; <?php
+					if ($link_offset > 0) {
+						?><a title="<?php echo translate('pagination_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+					}
+					?>
+					&lt;
+					<?php
+					if ($link_offset > 0) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?>
+					&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
+					<?php
+					if (($link_offset + $num_per_page) < $total_assets) {
+						?><a title="<?php echo translate('pagination_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+					}
+					?>
+					&gt;
+					<?php
+					if (($link_offset + $num_per_page) < $total_assets) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?> &nbsp; &nbsp; <?php
+					if (($link_offset + $num_per_page) < $total_assets) {
+						?><a title="<?php echo translate('pagination_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+					}
+					?>
+					&gt;&gt;
+					<?php
+					if (($link_offset + $num_per_page) < $total_assets) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?></b>
+				</td>
+			</tr>
 			<tr>
 				<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
 				<td class="sq-backend-table-header"><?php echo translate('remap_url'); ?></td>
