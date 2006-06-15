@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.174 2006/06/06 00:51:28 sdanis Exp $
+* $Id: listing_engine.inc,v 1.175 2006/06/15 06:42:16 tbarrett Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.174 $
+* @version $Revision: 1.175 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -356,12 +356,6 @@ class Listing_Engine extends Page
 
 			ob_start();
 			$used_fields = $this->getUsedFormFields();
-			$keys_to_remove = Array();
-
-			// we're removing all the contents
-			foreach ($used_fields as $key) {
-				$keys_to_remove[$key] = NULL;
-			}
 
 			$selections = $this->attr('asset_selections');
 
@@ -379,56 +373,52 @@ class Listing_Engine extends Page
 					}
 				}
 
-				// we're not using stuff that requires the select all code
-				$select_all_code = '';
-
-				if ($using_select_all) {
-					$select_all_code = $this->getSelectAllJSCodeKeywordReplacement();
-				}
-
+				$select_all_code = $using_select_all ? $this->getSelectAllJSCodeKeywordReplacement() : '';
 				$contents = str_replace('%select_all_js_code%', $select_all_code, $contents);
 
-				// if we are posting, we really shouldn't be having anything in the GET
-				if ($this->_getFormSubmitMethod() == 'post') {
-					$form_url = htmlspecialchars($this->getURL());
-				} else {
-					$form_url = htmlspecialchars(replace_query_string_vars($keys_to_remove, $this->getURL()));
-				}
-
 				if ($this->requires_form || !empty($used_fields)) {
-					?>
-					<form id="<?php echo $this->getPrefix() ?>" method="<?php echo $this->_getFormSubmitMethod() ?>" action="<?php echo $form_url; ?>">
-					<?php
-
-					// if the method is GET, the query vars won't be passed when the submit button is clicked
-					// the upshot of this is that dynamic query variables don't "stick" - we need to put them
-					// explicitly in hidden fields
-					if (preg_match('/get/i', $this->_getFormSubmitMethod())) {
-						// get the dynamic parameters, check if any are currently set (and hence need to be printed in hidden fields)
-						$parameter_map =& $this->getAttribute('parameter_map');
-						$parameters = $parameter_map->getParameters();
-						foreach ($parameters as $param_id) {
-							$param_value = $parameter_map->getParameterValue($param_id);
-							if (!empty($param_value)) {
-								if (is_array($param_value)) {
-									$param_value = implode(',', $param_value);
-								}
-								hidden_field($param_id, $param_value);
-							}
-						}
+					// Make a clean URL to submit to
+					$form_method = strtolower($this->_getFormSubmitMethod());
+					if ($form_method == 'get') {
+						// no point retaining query string vars for a GET form action because the browser
+						// won't submit them - instead we will preserve them as hidden fields below
+						$form_url = htmlspecialchars($this->getURL());
+					} else {
+						$form_url = htmlspecialchars(replace_query_string_vars(Array(), $this->getURL()));
 					}
+					?>
+
+					<form id="<?php echo $this->getPrefix() ?>" method="<?php echo $form_method ?>" action="<?php echo $form_url; ?>">
+
+						<?php
+						if ($form_method == 'get') {
+							// we couldn't preserve get vars in the form action URL so we add them as hidden fields
+							$vars_to_preserve = $_GET;
+							foreach ($vars_to_preserve as $name => $var) {
+								if (in_array($name, $used_fields)) {
+									unset($vars_to_preserve[$name]);
+								}
+							}
+							var_to_hidden_field($vars_to_preserve);
+						}
+						echo $contents;
+						?>
+
+					</form>
+
+					<?php
+				} else {
+
+					echo $contents;
 
 				}
-				echo $contents;
-				if ($this->requires_form || !empty($used_fields)) {
-					?>
-					</form>
-					<?php
-				}
+
 			} else {
+
 				// no form at all - remove the JS code relations stuff
 				$contents = str_replace('%select_all_js_code%', '', $contents);
 				echo $contents;
+
 			}
 
 			if (!empty($cache_key) && (strcmp($group_by, 'random') != 0)) {
@@ -1613,6 +1603,7 @@ class Listing_Engine extends Page
 							$onclick = Array();
 							$group_cb_id  = 'g_'.implode('_', $this->_tmp['group_info']);
 							$control_name = make_valid_html_id(str_replace(' ', '_', $selection_name.$group_cb_id));
+							$this->registerFormField($control_name);
 							check_box($control_name, '1', FALSE, 'sq_listing_check_state(this, \''.$selection_name.'\')');
 							$replacements[$selection_name.'_check_all_in_group'] = ob_get_clean();
 							$replacements[$selection_name.'_selection_id'] = $control_name;
@@ -2033,7 +2024,7 @@ class Listing_Engine extends Page
 
 				if ($buffering) {
 					ob_start();
-					$this->registerFormField($selection_name.'_asset_selection');
+					$this->registerFormField($selection_name);
 				}
 
 				// predefine some commonly used settings, for brevity's sake
@@ -2105,6 +2096,7 @@ class Listing_Engine extends Page
 								// present and not ticked, or not present at all
 								// only print this once, otherwise it ends up bloating the query string
 								if (empty($this->_tmp['asset_selection_checkbox_flag'][$selection_name])) {
+										$this->registerFormField('selection_flag_'.$selection_name_safe);
 										hidden_field('selection_flag_'.$selection_name_safe, '1');
 										$this->_tmp['asset_selection_checkbox_flag'][$selection_name] = TRUE;
 								}
@@ -3280,6 +3272,7 @@ class Listing_Engine extends Page
 				$onclick = Array();
 				$group_cb_id  = 'all';
 				$control_name = str_replace(' ', '_', $selection_name.$group_cb_id);
+				$this->registerFormField($control_name);
 				check_box($control_name, '1', FALSE, "sq_listing_check_state(this, '".$selection_name."')");
 				$replacements[$selection_name.'_check_all'] = ob_get_clean();
 				$replacements[$selection_name.'_selection_id'] = $control_name;
