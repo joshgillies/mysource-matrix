@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.34 2006/06/08 05:10:28 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.35 2006/06/16 06:02:35 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -160,41 +160,45 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 								 );
 
 		$current_list_entry_types = $asset->attr('list_entry_types');
-		?><table class="sq-backend-table"><?php
-		$view_options = $asset->getViewOptions();
-		foreach ($view_options as $category => $options) {
-			?>
-			<tr>
-				<td class="sq-backend-table-cell">
-					<b><label for="<?php echo $prefix.'_enabled_views['.$category.']'; ?>"><?php echo translate('cal_page_category_view', ucwords($category)); ?></label></b>
-				</td>
-				<td class="sq-backend-table-cell"><?php
-					if ($write_access) {
-						combo_box($prefix.'_enabled_views['.$category.']', $options, 0,  $current_views[$category], 0, 'style="width: 25ex"');
-					} else {
-						echo $view_options[$category][$current_views[$category]];
-					}
-					?>
-				</td>
-				<td class="sq-backend-table-cell"><?php
-					if ($write_access && (strpos($current_views[$category], 'list') !== FALSE)) {
-						ob_start();
-						combo_box($prefix.'_list_entry_types['.$category.']', $listing_entry_options, 0,  $current_list_entry_types[$category], 0);
-						$list_entry_cb = ob_get_contents();
-						ob_end_clean();
-						echo translate('cal_page_list_entry_cb', $list_entry_cb);
-
-					} else if (strpos($current_views[$category], 'list') !== FALSE) {
-						echo translate('cal_page_list_entry_unlocked', $listing_entry_options[$current_list_entry_types[$category]]);
-					} else {
-						echo '&nbsp;';
-					}
-					?>
-				</td>
-			</tr><?php
-		}
 		?>
-		</table><?php
+		<table class="sq-backend-table">
+			<?php
+			$view_options = $asset->getViewOptions();
+			foreach ($view_options as $category => $options) {
+				?>
+				<tr>
+					<td>
+						<b><label for="<?php echo $prefix.'_enabled_views['.$category.']'; ?>"><?php echo translate('cal_page_view_'.$category); ?></label></b>
+					</td>
+					<td>
+						<?php
+						if ($write_access) {
+							combo_box($prefix.'_enabled_views['.$category.']', $options, 0,  $current_views[$category], 0, 'style="width: 25ex"');
+						} else {
+							echo $view_options[$category][$current_views[$category]];
+						}
+						?>
+					</td>
+					<td><?php
+						if ($write_access && (strpos($current_views[$category], 'list') !== FALSE)) {
+							ob_start();
+							combo_box($prefix.'_list_entry_types['.$category.']', $listing_entry_options, 0,  $current_list_entry_types[$category], 0);
+							$list_entry_cb = ob_get_contents();
+							ob_end_clean();
+							echo translate('cal_page_list_entry_cb', $list_entry_cb);
+
+						} else if (strpos($current_views[$category], 'list') !== FALSE) {
+							echo translate('cal_page_list_entry_unlocked', strtolower($listing_entry_options[$current_list_entry_types[$category]]));
+						} else {
+							echo '&nbsp;';
+						}
+						?>
+					</td>
+				</tr><?php
+			}
+			?>
+		</table>
+		<?php
 		return TRUE;
 
 	}//end paintViewsChooser()

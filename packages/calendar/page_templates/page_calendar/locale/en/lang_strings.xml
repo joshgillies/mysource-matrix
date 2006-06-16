@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2006/06/08 05:10:28 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.5 2006/06/16 06:02:35 tbarrett Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -23,9 +23,13 @@
 	<string source="cal_page_event_css_class">CSS Class to apply to the events' display</string>
 	<string source="cal_page_show_title_only">Show Title Only</string>
 	<string source="cal_page_use_type_format_bodycopy">Use Type Format Bodycopy</string>
-	<string source="cal_page_category_view">%s View</string>
+	<string source="cal_page_view_year">Year View</string>
+	<string source="cal_page_view_month">Month View</string>
+	<string source="cal_page_view_week">Week View</string>
+	<string source="cal_page_view_day">Day View</string>
+	<string source="cal_page_view_event">Individual Event View</string>
 	<string source="cal_page_list_entry_cb">For each list entry, %s</string>
-	<string source="cal_page_list_entry_unlocked">Each entry shows %s</string>
+	<string source="cal_page_list_entry_unlocked">For each entry, %s</string>
 	<string source="cal_page_look_and_feel_1">The Calendar Page has a default CSS file that controls the look and feel of the Calendar views.  A link to this CSS file is automatically inserted into the head of the generated HTML document.</string>
 	<string source="cal_page_look_and_feel_2">If you want to customise some or all of the style rules you can <![CDATA[<a href="%s">download the default CSS file</a>]]> and modify it.  Put a link to your modified version in the parse file of the design that applies to this page, <![CDATA[<i>after</i>]]> the "head" design area tag.</string>
 	<string source="cal_page_look_and_feel_3"><![CDATA[<b>Note:</b>]]> For week and day view calendar tables to render correctly, your site design <![CDATA[<i>must</i>]]> put the browser in a mode that correctly implements the W3C box model, eg. by specifying the XHTML Strict doctype.</string>
@@ -51,7 +55,8 @@
 	<string source="cal_list_with_day_headings">List With Day Headings</string>
 	<string source="cal_list_with_month_headings">List With Month Headings</string>
 	<string source="cal_calendar_format">Calendar Format</string>
-	<string source="cal_single_event_display">Single Event Display</string>
+	<string source="cal_show_single_event_view">Display individual events using this page</string>
+	<string source="cal_show_single_event_itself">Show individual event assets at their own URLs</string>
 	<string source="cal_no_display">(none)</string>
 	<string source="confirm_delete_event" js="1">Are you sure you want to delete this event altogether?</string>
 	<string source="confirm_move_event_to_date" js="1">Move this event to %s?</string>

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.181 2006/06/16 04:38:26 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.182 2006/06/16 06:02:35 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.181 $
+* @version $Revision: 1.182 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -526,7 +526,7 @@ class Page_Calendar extends Page
 			$events = $this->getYearEvents($year);
 			uasort($events, Array('Calendar_Common', 'compareStartDates'));
 			if ($list_entry_types['year'] == 'title') {
-				echo $this->_getTitleList($events, $enabled_views['event']);
+				echo $this->_getTitleList($events);
 			} else {
 				$this->printEventList($events);
 			}
@@ -703,7 +703,6 @@ class Page_Calendar extends Page
 				}
 			}
 		} else {
-			$show_event_links = (bool)$enabled_views['event'];
 			$events = $this->getMonthEventsByDay($year, $month);
 			$column_width = $this->attr('month_column_width');
 			$row_height = $this->attr('month_row_height');
@@ -770,7 +769,7 @@ class Page_Calendar extends Page
 						$tag_attrs = Array();
 						$current_date = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
 						$_REQUEST['SQ_CALENDAR_DATE'] = $current_date;
-						$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $current_date, $root_nodes, $column_width*0.99);
+						$contents = $this->_getMonthCellContents($events[$current_day], $current_date, $root_nodes, $column_width*0.99);
 						$classes = Array('date');
 						if ($current_date == $today_iso) {
 							$classes[] = 'today';
@@ -812,7 +811,7 @@ class Page_Calendar extends Page
 						$tag_attrs = Array();
 						$current_date = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
 						$_REQUEST['SQ_CALENDAR_DATE'] = $current_date;
-						$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $current_date, $root_nodes, $column_width*0.99);
+						$contents = $this->_getMonthCellContents($events[$current_day], $current_date, $root_nodes, $column_width*0.99);
 						$classes = Array('date');
 						if ($current_date == date('Y-m-d')) {
 							$classes[] = 'today';
@@ -856,7 +855,7 @@ class Page_Calendar extends Page
 						$tag_attrs = Array();
 						$current_date = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
 						$_REQUEST['SQ_CALENDAR_DATE'] = $current_date;
-						$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $current_date, $root_nodes, $column_width*0.99);
+						$contents = $this->_getMonthCellContents($events[$current_day], $current_date, $root_nodes, $column_width*0.99);
 						$classes = Array('date');
 						if ($current_date == date('Y-m-d')) {
 							$classes[] = 'today';
@@ -1133,17 +1132,19 @@ class Page_Calendar extends Page
 	* @return string
 	* @access private
 	*/
-	function _getTitleList($events, $show_links=TRUE)
+	function _getTitleList($events)
 	{
 		$res = '<ul>';
 		foreach ($events as $id => $data) {
 			$real_id = strtok($id, ':');
 			$res .= '<li>';
-			if ($show_links) {
-				$res .= '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.sprintf('%04d-%02d-%02d', $data['start_date_year'], $data['start_date_mon'], $data['start_date_mday']).'&amp;SQ_CALENDAR_EVENT_ID='.$real_id.'">';
+			$event_date = sprintf('%04d-%02d-%02d', $data['start_date_year'], $data['start_date_mon'], $data['start_date_mday']);
+			$event_url = $this->_getEventLinkHref($real_id, $event_date);
+			if ($event_url) {
+				$res .= '<a href="'.$event_url.'">';
 			}
 			$res .= $data['name'];
-			if ($show_links) $res .= '</a>';
+			if ($event_url) $res .= '</a>';
 			$res .= '</li>';
 		}
 		$res .= '</ul>';
@@ -1160,12 +1161,11 @@ class Page_Calendar extends Page
 	* @param array		$column_names		A column_id=>name array of the columns in the table
 	* @param array		$column_links		A column_id=>href of places to link column headers to
 	* @param array		$events				A column_id=>array(hhmm=>array(events)) array of events to show
-	* @param boolean	$show_event_links	Whether to link the event names to the event view
 	*
 	* @return void
 	* @access private
 	*/
-	function _printTimedTable($table_id, $column_names, $column_links, $events, $show_event_links=FALSE)
+	function _printTimedTable($table_id, $column_names, $column_links, $events)
 	{
 		$partition_time = intval($this->attr('day_partition_time'));
 		$partition_height = $this->attr('day_partition_height');
@@ -1267,8 +1267,8 @@ class Page_Calendar extends Page
 					$event_href = $this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'&amp;SQ_CALENDAR_DATE='.$event_link_date;
 					$event_classes = $this->_getClasses($event['treeid']);
 					$event_classes[] = 'event';
-					$onclick_code = $show_event_links ? ' onclick="sq_cal_redirect(\''.$event_href.'\')"' : '';
-					$cursor_code = $show_event_links ? ' cursor: pointer; cursor: hand' : '';
+					$onclick_code = $event_href ? ' onclick="sq_cal_redirect(\''.$event_href.'\')"' : '';
+					$cursor_code = $event_href ? ' cursor: pointer; cursor: hand' : '';
 					$current_mouse_up_down_code = $mousedown_code.' '.$mouseup_code;
 					if (!empty($mousedown_code) && (($event['type_code'] == 'calendar_event_recurring') || (isset($event['expanded'])))) {
 						$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('cal_page_recurring_cannot_drag').'\')" onmouseup="statusBarMsg(\'\');"';
@@ -1288,7 +1288,7 @@ class Page_Calendar extends Page
 					// via javascript only, because otherwise the link elements cause trouble
 					// with the dragging
 					$label = $event['name'];
-					if ($show_event_links && empty($mousedown_code)) {
+					if ($event_href && empty($mousedown_code)) {
 						$label = '<a class="'.implode(' ', $event_classes).'" href="'.$event_href.'">'.$label.'</a>';
 					} else {
 						$label = '<span class="'.implode(' ', $event_classes).'">'.$label.'</span>';
@@ -1326,7 +1326,7 @@ class Page_Calendar extends Page
 				<td id="<?php echo $cell_id; ?>" class="sq-time-cell<?php echo $today_class; ?>" <?php echo $click_to_add_code; ?>>
 					<?php
 					$denominator = max($col_events['_overlap_'], $this->attr('column_capacity'));
-					echo $this->_getTimedTableCellContents($col_events[$time_key], $event_link_date, $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width / $denominator, $layout_maps[$id], $mousedown_code, $mouseup_code);
+					echo $this->_getTimedTableCellContents($col_events[$time_key], $event_link_date, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width / $denominator, $layout_maps[$id], $mousedown_code, $mouseup_code);
 					?>
 					<span style="font-size: 1px">&nbsp;</span>
 				</td>
@@ -1359,7 +1359,6 @@ class Page_Calendar extends Page
 	*
 	* @param array		&$events			The events for the cell, $assetid => details
 	* @param string		$event_link_date	The date to the event link
-	* @param boolean	$show_event_links	Whether to link the event's name to its event view
 	* @param array		&$root_nodes		The root nodes for this page, used for getting classnames
 	* @param int		$cell_ts			The timestamp (seconds today) of the earliest time in the cell
 	* @param int		$partition_time		The length of the partition in minutes
@@ -1372,19 +1371,19 @@ class Page_Calendar extends Page
 	* @return string
 	* @access private
 	*/
-	function _getTimedTableCellContents(&$events, $event_link_date, $show_event_links, &$root_nodes, $cell_ts, $partition_time, $cell_height, $event_width, &$layout_map, $mousedown_code, $mouseup_code)
+	function _getTimedTableCellContents(&$events, $event_link_date, &$root_nodes, $cell_ts, $partition_time, $cell_height, $event_width, &$layout_map, $mousedown_code, $mouseup_code)
 	{
 		if (empty($events)) return '';
 		$time_label = sprintf('%02d:%02d', (int)($cell_ts / 60), $cell_ts % 60);
 
 		// get events in order
-		$cmp_func = create_function('$a, $b', 'return ($b[\'end_date_ts\'] - $b[\'start_date_ts\']) - ($a[\'end_date_ts\'] - $a[\'start_date_ts\']);');
-		uasort($events, $cmp_func);
+		
+		uasort($events, Array('Calendar_Common', 'compareEventLengths'));
 		$res = '';
 		foreach ($events as $assetid => $details) {
 
 			$real_assetid = current(explode(':', $assetid));
-			$event_href = $this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$event_link_date.'&amp;SQ_CALENDAR_EVENT_ID='.$real_assetid;
+			$event_href = $this->_getEventLinkHref($real_assetid, $event_link_date);
 
 			// get horizontal position of div and update the layout map
 			$k = reset($layout_map);
@@ -1419,7 +1418,7 @@ class Page_Calendar extends Page
 			$event_classes[] = 'event';
 
 			// mouse action handlers
-			$onclick_code = $show_event_links ? 'onclick="sq_cal_redirect(\''.$event_href.'\')"' : '';
+			$onclick_code = $event_href ? 'onclick="sq_cal_redirect(\''.$event_href.'\')"' : '';
 			$current_mouse_up_down_code = $mousedown_code.' '.$mouseup_code;
 			if (!empty($mousedown_code) && (($details['type_code'] == 'calendar_event_recurring') || (isset($details['expanded'])))) {
 				$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('cal_page_recurring_cannot_drag').'\')" onmouseup="statusBarMsg(\'\');"';
@@ -1436,7 +1435,7 @@ class Page_Calendar extends Page
 
 			// other special CSS for cursors and zero-length events
 			$zero_length_code = $event_height ? '' : 'border-style: dashed; border-bottom: 0px; border-left: 0px; border-right: 0px; padding-top: 0px; background-color: transparent;';
-			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
+			$cursor_code = $event_href ? 'cursor: pointer; cursor: hand;' : '';
 
 			// showtime!
 			$res .= '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' class="'.implode(' ', $event_classes).' event" style="float: left; position: absolute; width: '.($event_width-3).'px; margin-left: '.$event_left_margin.'px; margin-top: '.$event_top_margin.'px; height: '.$event_height.'px; border-width: 1px; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'>';
@@ -1446,7 +1445,7 @@ class Page_Calendar extends Page
 			// via javascript only, because otherwise the link elements cause trouble
 			// with the dragging
 			$label = $details['name'];
-			if ($show_event_links && empty($mousedown_code)) {
+			if ($event_href && empty($mousedown_code)) {
 				$label = '<a class="'.implode(' ', $event_classes).'" href="'.$event_href.'">'.$label.'</a>';
 			} else {
 				$label = '<span class="'.implode(' ', $event_classes).'">'.$label.'</span>';
@@ -1465,7 +1464,6 @@ class Page_Calendar extends Page
 	* Get the contents of a cell in the month table
 	*
 	* @param array		&$events			The events for the cell, $assetid => details
-	* @param boolean	$show_event_link	Whether to link the event's name to its event view
 	* @param string		$event_link_date	The date to the event link
 	* @param array		&$root_nodes		The root nodes for this page, used for getting classnames
 	* @param float		$width				The width of the event, in pixels
@@ -1473,16 +1471,17 @@ class Page_Calendar extends Page
 	* @return string
 	* @access private
 	*/
-	function _getMonthCellContents(&$events, $show_event_link, $event_link_date, &$root_nodes, $width)
+	function _getMonthCellContents(&$events, $event_link_date, &$root_nodes, $width)
 	{
 		$res = '';
 		foreach ($events as $assetid => $details) {
 			$popup_div_id = str_replace(':', '_', $assetid);
 			$assetid = strtok($assetid, ':');
+			$event_url = $this->_getEventLinkHref($assetid, $event_link_date);
 			$event_classes = $this->_getClasses($details['treeid']);
 			$event_classes[] = 'event';
-			$onclick_code =$show_event_link ? ' onclick="clickChild(this); "' : '';
-			$cursor_code = $show_event_link ? 'cursor: pointer; cursor: hand;' : '';
+			$onclick_code =$event_url ? ' onclick="clickChild(this); "' : '';
+			$cursor_code = $event_url ? 'cursor: pointer; cursor: hand;' : '';
 
 			$current_mouse_over_out_code = '';
 
@@ -1496,11 +1495,11 @@ class Page_Calendar extends Page
 
 
 			$res .= '<div style="width: '.$width.'px; '.$cursor_code.'"'.$onclick_code.' '.$current_mouse_over_out_code.'><div style="width: auto; margin-bottom: 1px;" class="'.implode(' ', $event_classes).'">';
-			if ($show_event_link) {
-				$res .= '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$event_link_date.'&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'" class="'.implode(' ', $event_classes).'">';
+			if ($event_url) {
+				$res .= '<a href="'.$event_url.'" class="'.implode(' ', $event_classes).'">';
 			}
 			$res .= $details['name'];
-			if ($show_event_link) $res .= '</a>';
+			if ($event_url) $res .= '</a>';
 			$res .= '</div></div>';
 		}
 		return $res;
@@ -2667,8 +2666,9 @@ class Page_Calendar extends Page
 							'calendar_format'		=> translate('cal_calendar_format'),
 						   ),
 				'event'	=> Array(
-							''				=> translate('cal_no_display'),
-							'single_event'	=> translate('cal_single_event_display'),
+							''					=> translate('cal_no_display'),
+							'single_event_view'	=> translate('cal_show_single_event_view'),
+							'event_itself'		=> translate('cal_show_single_event_itself')
 						   ),
 			   );
 
@@ -2794,6 +2794,44 @@ class Page_Calendar extends Page
 		return strlen($a) > strlen($b);
 
 	}//end _strlenCmp()
+
+
+	/**
+	* 
+	*
+	* @param boolean	$varname
+	*
+	* @return void
+	* @access public
+	*/
+	function _getEventLinkHref($eventid, $date=NULL)
+	{
+		if (!isset($this->_tmp['single_event_view'])) {
+			$enabled_views = $this->attr('enabled_views');
+			$this->_tmp['single_event_view'] = $enabled_views['event'];
+		}
+		$res = '';
+		switch ($this->_tmp['single_event_view']) {
+			case '':
+				return '';
+				break;
+			case 'single_event_view':
+				$res = $this->getURL().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID='.$eventid;
+				if (!empty($res) && !is_null($date)) {
+					$res .= '&SQ_CALENDAR_DATE='.$date;
+				}
+				break;
+			case 'event_itself':
+				$res = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($eventid);
+				if (!empty($res) && !is_null($date)) {
+					$res .= '?SQ_CALENDAR_DATE='.$date;
+				}
+				break;
+		}
+
+		return $res;
+
+	}//end _getEventLinkHref()
 
 
 }//end class
