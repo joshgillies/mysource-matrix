@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.13.2.1 2006/04/24 00:46:07 rhoward Exp $
+* $Id: metadata_field_select.inc,v 1.13.2.2 2006/06/16 01:22:19 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.13.2.1 $
+* @version $Revision: 1.13.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,6 +81,25 @@ class Metadata_Field_Select extends Metadata_Field
 		return $selection;
 
 	}//end getSelectionAttribute()
+
+
+	/**
+	* Get the default values for this field
+	*
+	* @return array
+	* @access public
+	*/
+	function getDefaultValue()
+	{
+		// return the correct default key/value depending on the 'Visible Part'
+		$default_key = parent::getDefaultValue();
+		if ($this->attr('visible_part') == 'key') {
+			return $default_key;
+		} else if ($this->attr('visible_part') == 'value') {
+			return $this->getValueFromKey($default_key);
+		}
+
+	}//end getDefaultValue()
 
 
 	/**
