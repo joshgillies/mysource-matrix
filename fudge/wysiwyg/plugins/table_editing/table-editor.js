@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.16 2006/02/28 05:18:11 rong Exp $
+* $Id: table-editor.js,v 1.17 2006/06/16 05:00:03 sdanis Exp $
 *
 */
 
@@ -1450,7 +1450,7 @@ TTable = function(name, rows, cols)
 	this.setElementBorder = function(new_size, style)
 	{
 		//If border size text box is empty or text, set the size to zero
-		if (isNaN(new_size) || new_size == 0 || new_size == "") {
+		if (isNaN(new_size) || new_size.length == 0) {
 			this.border = null;
 			this.borderStyle = null;
 		} else {
