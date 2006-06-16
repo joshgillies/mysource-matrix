@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_management.inc,v 1.18 2006/02/02 02:29:32 ndvries Exp $
+* $Id: metadata_field_management.inc,v 1.19 2006/06/16 03:45:11 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -122,6 +122,54 @@ class Metadata_Field_Management extends Asset_Management
 			   );
 
 	}//end _getFileList()
+
+
+	/**
+	* Upgrade this asset to the most current version
+	*
+	* @param string	$current_version	The version this asset should be upgraded to
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+
+		if (version_compare($current_version,'0.2','<')) {
+			// changes metadata_field_* is_exclusive value to 0 so that they can be moved
+			// to other metadata sections
+
+			pre_echo('UPGRADING METADATA FIELD - FROM VERSION '.$current_version.' TO VERSION 0.2');
+
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+			// get number of assets to upgrade
+			$sql = 'SELECT count(assetid) FROM sq_ast WHERE type_code LIKE '.$db->quote('metadata_field_%');
+			$result = $db->getOne($sql);
+			assert_valid_db_result($result);
+
+			pre_echo('Upgrading '.$result.' assets');
+
+			$sql = 'UPDATE sq_ast_lnk SET is_exclusive = '.$db->quote('0').'
+					WHERE linkid IN (SELECT linkid FROM sq_ast as a
+					LEFT OUTER JOIN sq_ast_lnk l ON a.assetid = l.minorid
+					WHERE a.type_code LIKE '.$db->quote('metadata_field_%').'
+						AND l.is_exclusive = '.$db->quote('1').'
+						AND l.is_dependant = '.$db->quote('1').')';
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		}//end if
+
+		return parent::_upgrade($current_version);
+
+	}//end _upgrade()
 
 
 }//end class
