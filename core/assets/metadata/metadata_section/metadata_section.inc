@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section.inc,v 1.16 2006/01/26 22:34:04 lwright Exp $
+* $Id: metadata_section.inc,v 1.16.2.1 2006/06/16 03:43:25 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,7 +63,7 @@ class Metadata_Section extends Folder
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(),
-				SQ_LINK_TYPE_2	=> Array('metadata_field'	=> Array('card'	=> 'M', 'exclusive'	=> TRUE)),
+				SQ_LINK_TYPE_2	=> Array('metadata_field'	=> Array('card'	=> 'M', 'dependant'	=> TRUE)),
 				SQ_LINK_TYPE_3	=> Array(),
 				SQ_LINK_NOTICE	=> Array(),
 			   );
@@ -94,9 +94,9 @@ class Metadata_Section extends Folder
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if this is a metadata field then we need to make it a dependant and exclusive link
-		if ($side_of_link == 'major' && is_a($asset, 'metadata_field') && ($dependant != '1' || $exclusive != '1')) {
+		if ($side_of_link == 'major' && is_a($asset, 'metadata_field') && ($dependant != '1' || $exclusive == '1')) {
 			$dependant = '1';
-			$exclusive = '1';
+			$exclusive = '0';
 			return TRUE;
 		}
 

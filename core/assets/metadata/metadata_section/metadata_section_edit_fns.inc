@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.32 2006/01/26 22:34:04 lwright Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.32.2.1 2006/06/16 03:43:25 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,7 +65,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		$write_access = $asset->writeAccess('links');
 		$prefix = $asset->getPrefix();
 
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE, TRUE);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
 		if (!empty($current_links)) {
 			$assetids = Array();
 			foreach ($current_links as $link) {
