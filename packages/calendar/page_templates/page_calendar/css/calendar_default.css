@@ -17,8 +17,8 @@
  * GENERAL RULES
  */
 div#calendarTable { width: 100%; text-align: center; }
-div#calendarTable table td { text-align: left; padding: 0px; font-size: 70%; }
-div#calendarTable table th { text-align: center; padding: 1px }
+div#calendarTable table td { text-align: left; font-size: 70%; }
+div#calendarTable table th { text-align: center; font-size: 70%;  }
 #calendarTable table { margin-left: auto; margin-right: auto; } 
 #calendarTable div { margin: 0px }
 #calendarTable td div.eventText { margin: 0px 0px 0px 1px; text-align: center; padding: 0px; }
@@ -52,17 +52,23 @@ div.popup {
  * or contain a date and event(s). Several of the following
  * rules could apply to a given cell.
  */
-table#year { border: 1px solid #173e57; background-color: #f8f8f8; border-collapse: collapse; font-family: sans-serif  }
+table#year { border: 1px solid #173e57; background-color: #f8f8f8; border-collapse: collapse; font-family: sans-serif; font-size: 90%  }
 
 /* Header cells */
-#year th  { border: 1px solid #c8c8c8; }
+#year th { border: 1px solid #c8c8c8; padding: 0px; }
+#year td { padding: 0px; }
 #year th.monthLabel { background-color: #017ca5; color: white; font-weight: bold; }
 #year th.monthLabel a, #year td.monthLabel a:visited, #year td.monthLabel a:hover { color: white; font-weight: bold; text-decoration: none; }
-#year th.dayLabel { background-color: #41afe0; color: white}
+#year th.dayLabel { background-color: #41afe0; color: white; text-align: center}
 #year th.dayLabelWeekend { background-color: #93b0e6; }
-
+#year tr td a, #year tr th a {
+	display: block;
+	margin: 0px;
+	height: 100%;
+	width: 100%;
+}
 /* All data cells, including completely empty ones */
-#year td { text-align: center; border-top: 1px solid #d8d8d8; }
+#year td { text-align: center; border-top: 1px solid #d8d8d8; padding: 0px;}
 
 /* Cells with dates */
 #year td.date { background-color: white; text-align: center; color: black}
@@ -113,10 +119,10 @@ table#month { border: 1px solid #173e57; background-color: #f8f8f8; border-colla
 #month .event, #month a.event:visited, #month a.event:hover { font-weight: bold; text-decoration: none; padding: 0px 1px; text-align: center}
 
 /* Arrowed '»' (&raquo;) links to the week view from the month */
-#month th.weekLink { vertical-align: middle; padding: 0px 5px; cursor: pointer; cursor: hand }
+#month th.weekLink { vertical-align: middle; padding: 0px; cursor: pointer; cursor: hand; }
 
 /* Week view links text */
-#month th.weekLink a.dateLink, #month th.weekLink a.dateLink:visited, #month th.weekLink a.dateLink:hover { color: white; font-weight: bold; text-decoration: none; font-size:1.2em } 
+#month th.weekLink a.dateLink, #month th.weekLink a.dateLink:visited, #month th.weekLink a.dateLink:hover { display: block;  color: white; font-weight: bold; text-decoration: none; font-size:1.2em; padding: 3px; } 
 
 
 /**
@@ -132,11 +138,11 @@ table#week { border: 1px solid #173e57; background-color: white; border-collapse
 /* header cells */
 #week th { background-color: #41afe0; text-align: center; padding: 1px }
 #week th.timeLabel { background-color: #017ca5; color: white }
-#week th.columnLabel { background-color: #41afe0; vertical-align: middle; font-weight: bold; color: black }
+#week th.columnLabel { background-color: #41afe0; vertical-align: middle; font-weight: bold; color: black; white-space: nowrap; }
 #week th.columnLabel a, #week th.columnLabel a:visited, #week th.columnLabel a:hover { text-decoration: none; font-weight: bold; color: black }
 
 /* Event DIVs (root-node-specific classes will also apply) */
- #week td div.event { margin: 0px; border: 1px solid black; }
+#week td div.event { margin: 0px 0px 1px 0px; text-align: center; padding: 0px; border: 1px solid black; }
 
 /* Event Links (root-node-specific classes will also apply) */
 #week .event, #week a.event:visited, #week a.event:hover { text-decoration: none } 
@@ -155,12 +161,12 @@ table#day { border: 1px solid #173e57; background-color: white; border-collapse:
 /* header cells */
 #day th { background-color: #41afe0; text-align: center; padding: 1px }
 #day th.timeLabel { background-color: #017ca5; color: white }
-#day th.columnLabel { background-color: #41afe0; vertical-align: middle; font-weight: bold; color: black }
+#day th.columnLabel { background-color: #41afe0; vertical-align: middle; font-weight: bold; color: black; white-space: nowrap }
 #day th.columnLabel a, #week th.columnLabel a:visited, #week th.columnLabel a:hover { text-decoration: none; font-weight: bold; color: black }
 
 
 /* Event DIVs (root-node-specific classes will also apply) */
-#day td div.event { border: 1px solid black; }
+#day td div.event { margin: 0px 0px 1px 0px; text-align: center; padding: 0px; border: 1px solid black; }
 
 /* Event Links (root-node-specific classes will also apply) */
 #day .event, #day a.event:visited, #day a.event:hover { text-decoration: none } 
