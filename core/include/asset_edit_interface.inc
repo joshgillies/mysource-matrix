@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.297 2006/06/16 03:47:30 skim Exp $
+* $Id: asset_edit_interface.inc,v 1.298 2006/06/16 06:32:36 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.297 $
+* @version $Revision: 1.298 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -519,12 +519,6 @@ class Asset_Edit_Interface extends MySource_Object
 			// asset map sends comma-separated assetids indicating the path
 			$matches = preg_split('|,([0-9]+:?),?|', ($_REQUEST['sq_asset_path']), 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 			for (reset($matches); NULL !== ($k = key($matches)); next($matches)) {
-				// the first match is always fine
-				if ($k == 0) {
-					$asset_path[] = $matches[$k];
-					continue;
-				}
-
 				// if a match ends with the shadow id seperator, the next match
 				// is actually part of this match
 				if (substr($matches[$k], -1) == ':') {
