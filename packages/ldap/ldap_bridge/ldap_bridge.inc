@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.38.2.4 2006/05/12 04:24:28 sdanis Exp $
+* $Id: ldap_bridge.inc,v 1.38.2.5 2006/06/16 05:17:24 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38.2.4 $
+* @version $Revision: 1.38.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -41,6 +41,7 @@ class LDAP_Bridge extends Asset
 	*/
 	var $_group_types = Array(
 							'organizationalunit'	=> 'ou',
+							'posixgroup'			=> 'cn',
 							'group'					=> 'cn',
 							'groupofnames'			=> 'cn',
 							'domain'				=> 'dc',
@@ -377,17 +378,21 @@ class LDAP_Bridge extends Asset
 						if (empty($type)) {
 							foreach ($this->_user_types as $key => $value) {
 								if ($class == $key) {
-									if (!isset($attrs[$value]) || !isset($data[$attrs[$value]][0])) {
+									if (!isset($attrs[$value]) || (!isset($data[$attrs[$value]][0]) && !isset($data[$attrs[$value]]['value']))) {
 										continue(2);
 									}
 
-									$name = $data[$attrs[$value]][0];
+									if (isset($data[$attrs[$value]]['value']) && isset($data[$attrs[$value]]['value'][0])) {
+										$name = $data[$attrs[$value]]['value'][0];
+									} else {
+										$name = $data[$attrs[$value]][0];
+									}
 									$type = 'ldap_user';
 								}
 							}
 						}
 						if (!empty($type)) break;
-					}
+					}//end foreach
 
 					if (empty($type)) continue;
 					if (!empty($type_code)) {
@@ -403,6 +408,11 @@ class LDAP_Bridge extends Asset
 					}
 
 					// find the DN for the asset
+					// make sure we have dn
+					if (!isset($data['dn']) && isset($data['distinguishedname'])) {
+						$data['dn'] = $data['distinguishedname'];
+					}
+
 					if (is_array($data['dn'])) {
 						$dn = array_shift($data['dn']);
 					} else {
