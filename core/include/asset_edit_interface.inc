@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.296 2006/06/09 04:47:44 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.297 2006/06/16 03:47:30 skim Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.296 $
+* @version $Revision: 1.297 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1173,6 +1173,10 @@ class Asset_Edit_Interface extends MySource_Object
 				$o->setRedirect(strip_url(current_url()).'/?sq_redirect_url='.urlencode($url));
 			}
 		}
+
+		$o->openRaw();
+			hidden_field('sq_limbo_lock_type', serialize($locks));
+		$o->closeRaw();
 
 	}//end acquireLimboLocks()
 

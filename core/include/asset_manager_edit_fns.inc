@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.94 2006/06/09 04:47:45 tbarrett Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.95 2006/06/16 03:47:30 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -182,6 +182,15 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					// try to release a lock on this asset?
 					if (!empty($_POST['sq_lock_release_manual']) && !empty($_POST['sq_lock_type'])) {
 						$this->am->releaseLock($asset->id, $_POST['sq_lock_type']);
+
+						// limbo might require more locks so release them
+						if (SQ_IN_LIMBO && !empty($_POST['sq_limbo_lock_type'])) {
+							foreach (unserialize($_POST['sq_limbo_lock_type']) as $limbo_lock_type) {
+								if ($limbo_lock_type != $_POST['sq_limbo_lock_type']) {
+									$this->am->releaseLock($asset->id, $limbo_lock_type);
+								}
+							}
+						}
 						$do_process_backend = FALSE;
 					}
 
