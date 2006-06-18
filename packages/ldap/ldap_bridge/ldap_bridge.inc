@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.38.2.5 2006/06/16 05:17:24 sdanis Exp $
+* $Id: ldap_bridge.inc,v 1.38.2.6 2006/06/18 23:57:34 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38.2.5 $
+* @version $Revision: 1.38.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -182,6 +182,50 @@ class LDAP_Bridge extends Asset
 		return $asset;
 
 	}//end getAsset()
+
+
+	/**
+	* Returns an array of assetid => inherited_types for assets of the passed codes
+	*
+	* @param array		$assetids			an array of assets to limit
+	* @param array		$type_code			an array of types codes to limit the results to
+	* @param boolean	$strict_type_code	ensure returned assets are of the passed type codes
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetTypeInfo($assetids, $type_code=Array(), $strict_type_code=TRUE)
+	{
+		if (!is_array($assetids)) {
+			$assetids = Array($assetids);
+		}
+		assert_type($type_code, 'array');
+		if (empty($assetids)) return Array();
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$results = Array();
+		$type_codes = Array();
+
+		// filter assets and get their type info
+		$type_infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, $type_code, $strict_type_code, 'type_code');
+
+		foreach ($type_infos as $assetid => $type_code) {
+			if (!isset($type_codes[$type_code])) {
+				$sql = 'SELECT inhd_type_code FROM sq_ast_typ_inhd WHERE type_code = '.$db->quote($type_code).' ORDER BY inhd_type_code_lvl DESC';
+				$result = $db->getCol($sql);
+				assert_valid_db_result($result);
+				$type_codes[$type_code] = $result;
+			}
+
+			$results[$assetid] = $type_codes[$type_code];
+		}
+
+		ksort($results);
+
+		return $results;
+
+	}//end getAssetTypeInfo()
 
 
 	/**

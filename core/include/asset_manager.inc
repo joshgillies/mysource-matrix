@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.33 2006/06/15 23:36:41 rong Exp $
+* $Id: asset_manager.inc,v 1.431.2.34 2006/06/18 23:57:38 sdanis Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.33 $
+* @version $Revision: 1.431.2.34 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -469,6 +469,40 @@ class Asset_Manager extends MySource_Object
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$where = '';
 
+		$shadowids = Array();
+		$normalids = Array();
+		$shadow_results = Array();
+
+		// create a list of (hopefully) separated assetids and shadow assetids
+		for ($i = 0; $i < count($assetids); $i++) {
+			$id_parts = explode(':', $assetids[$i]);
+
+			if (isset($id_parts[1])) {
+				$shadowids[$id_parts[0]][] = $assetids[$i];
+			} else {
+				$normalids[] = $assetids[$i];
+			}
+		}
+
+		// set it to the array minus the shadowids
+		$assetids = $normalids;
+
+		// we have picked up some shadow assets
+		if (!empty($shadowids)) {
+			$shadow_result = Array();
+
+			// make each bridge get its info
+			foreach ($shadowids as $assetid => $shadows) {
+				$asset =& $this->getAsset($assetid);
+				if (method_exists($asset, 'getAssetInfo')) {
+					$shadow_results += $asset->getAssetTypeInfo($shadows, $type_code, $strict_type_code);
+				}
+			}
+		}
+
+		// breakout if nothing left to do
+		if (empty($assetids)) return $shadow_results;
+
 		for (reset($assetids); NULL !== ($k = key($assetids)); next($assetids)) {
 			$assetids[$k] = $db->quote($assetids[$k]);
 		}
@@ -504,6 +538,8 @@ class Asset_Manager extends MySource_Object
 
 		$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_DEFAULT, TRUE);
 		assert_valid_db_result($result);
+
+		$result += $shadow_results;
 
 		return $result;
 
