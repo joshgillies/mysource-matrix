@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.76 2006/05/12 01:46:44 tbarrett Exp $
+* $Id: hipo_herder.inc,v 1.77 2006/06/19 07:25:36 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -845,7 +845,7 @@ class HIPO_Herder extends MySource_Object
 		}//end if not empty herder posted
 
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-		$o->setHeading('HIPO Herder', '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/hipo_herder.png').'", "20", "20", "HIPO Icon");</script>');
+		$o->setHeading('HIPO Herder', sq_get_icon($o->filesPath('/images/icons/header/hipo_herder.png'), 20, 20, 'HIPO Icon'));
 		$o->addHiddenField('herder_posted', '1');
 
 		// lets tell the user if the asset is locked for editing
