@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.544 2006/06/15 22:54:59 tbarrett Exp $
+* $Id: asset.inc,v 1.545 2006/06/19 23:32:09 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.544 $
+* @version $Revision: 1.545 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4480,10 +4480,13 @@ class Asset extends MySource_Object
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// Remove all the old URLs
+		// include sort order so that we can figure out which one is which
 		$sql = 'SELECT l.url, l.http, l.https, u.urlid
 				FROM sq_ast_lookup l
 					LEFT OUTER JOIN sq_ast_url u ON l.root_urlid = u.urlid
-				WHERE l.assetid = '.$db->quote($this->id);
+					LEFT OUTER JOIN sq_ast_path p ON l.assetid = p.assetid
+				WHERE l.assetid = '.$db->quote($this->id).'
+				ORDER BY p.sort_order DESC';
 
 		$old_urls = $db->getAll($sql);
 		assert_valid_db_result($old_urls);
@@ -4543,10 +4546,12 @@ class Asset extends MySource_Object
 
 		if (!empty($current_urls)) {
 
+			// do not remove paint layout (non inhd) as we will update the url later
 			$sql = 'DELETE FROM
 						sq_ast_lookup_value
 					WHERE
-						url IN ('.implode(',', $current_urls).')';
+						url IN ('.implode(',', $current_urls).') AND
+						(name NOT LIKE '.$db->quote('paint_layout::%').' AND inhd != 0)';
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
@@ -4663,8 +4668,33 @@ class Asset extends MySource_Object
 								break;
 							} else if ($tmp_old_url['parent_url'] == $parent_urls[$j]['url']) {
 								// If the same parent URL, not the same path, but it's in our change list
+
 								if (isset($web_path_changes[$tmp_old_url['web_path']]) && $web_path_changes[$tmp_old_url['web_path']] == $paths[$k]) {
 									$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
+
+									// update each affected paint layout's url
+									$sql = 'SELECT
+												url
+											FROM
+												sq_ast_lookup_value
+											WHERE
+												url LIKE '.$db->quote($tmp_old_url['url'].'%').' AND
+												name LIKE '.$db->quote('paint_layout::%').' AND
+												inhd = 0';
+									$applied_layout = $db->getCol($sql);
+									assert_valid_db_result($applied_layout);
+
+									foreach ($applied_layout as $key => $old_layout_url) {
+										$new_layout_url = str_replace($tmp_old_url['url'], $new_url, $old_layout_url);
+										$sql = 'UPDATE
+													sq_ast_lookup_value
+												SET
+													url = '.$db->quoteSmart($new_layout_url).'
+												WHERE
+													url = '.$db->quoteSmart($old_layout_url);
+										$result = $db->query($sql);
+										assert_valid_db_result($result);
+									}
 									break;
 								}
 							}
