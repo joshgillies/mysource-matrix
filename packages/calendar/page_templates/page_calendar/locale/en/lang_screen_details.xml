@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2006/06/08 05:31:14 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.6 2006/06/19 02:39:12 tbarrett Exp $
 *
 */
 -->
@@ -93,7 +93,7 @@
 
 	<section name="Settings for Year View">
 		<field>
-			<display_name>Title Format</display_name>
+			<display_name>Year Title Format</display_name>
 			<note />
 			<function_call>
 				<paint_function name="paintYearTitleFormat" />
@@ -104,15 +104,19 @@
 
 	<section name="Settings for Month View">
 		<field>
-			<display_name>Title Format</display_name>
+			<display_name>Month Title Format</display_name>
 			<note />
 			<function_call>
 				<paint_function name="paintMonthTitleFormat" />
 				<process_function name="processMonthTitleFormat" />
 			</function_call>
 		</field>
+		<field attribute="month_view_event_label_format">
+			<display_name>Event Label Format</display_name>
+			<note>This setting applies only when month view is shown in calendar-table or simple-list format.  All keywords for an event asset can be used in this format value.</note>
+		</field>
 		<field attribute="month_column_width">
-			<display_name>Width of columns (px)</display_name>
+		<display_name>Width of columns (px)</display_name>
 			<note></note>
 		</field>
 		<field attribute="month_row_height">
@@ -127,12 +131,16 @@
 
 	<section name="Settings for Week View">
 		<field>
-			<display_name>Title Format</display_name>
+			<display_name>Week Title Format</display_name>
 			<note />
 			<function_call>
 				<paint_function name="paintWeekTitleFormat" />
 				<process_function name="processWeekTitleFormat" />
 			</function_call>
+		</field>
+		<field attribute="week_view_event_label_format">
+			<display_name>Event Label Format</display_name>
+			<note>This setting applies only when week view is shown in calendar-table or simple-list format.  All keywords for an event asset can be used in this format value.</note>
 		</field>
 		<field>
 			<display_name>Days to include in week</display_name> 
@@ -189,12 +197,16 @@
 
 	<section name="Settings for Day View">
 		<field>
-			<display_name>Title Format</display_name>
+			<display_name>Day Title Format</display_name>
 			<note />
 			<function_call>
 				<paint_function name="paintDayTitleFormat" />
 				<process_function name="processDayTitleFormat" />
 			</function_call>
+		</field>
+		<field attribute="day_view_event_label_format">
+			<display_name>Event Label Format</display_name>
+			<note>This setting applies only when day view is shown in calendar-table or simple-list format.  All keywords for an event asset can be used in this format value.</note>
 		</field>
 		<field>
 			<display_name>Columns</display_name> 

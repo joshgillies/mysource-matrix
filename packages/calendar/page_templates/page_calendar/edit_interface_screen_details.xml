@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.30 2006/06/08 05:10:28 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.31 2006/06/19 02:39:12 tbarrett Exp $
 *
 */
 -->
@@ -90,6 +90,9 @@
 				<process_function name="processMonthTitleFormat" />
 			</function_call>
 		</field>
+		<field attribute="month_view_event_label_format">
+			<text width="40" />
+		</field>
 		<field attribute="month_column_width">
 			<int width="6" />
 		</field>
@@ -107,6 +110,9 @@
 				<paint_function name="paintWeekTitleFormat" />
 				<process_function name="processWeekTitleFormat" />
 			</function_call>
+		</field>
+		<field attribute="week_view_event_label_format">
+			<text width="40" />
 		</field>
 		<field>
 			<function_call>
@@ -155,6 +161,9 @@
 				<paint_function name="paintDayTitleFormat" />
 				<process_function name="processDayTitleFormat" />
 			</function_call>
+		</field>
+		<field attribute="day_view_event_label_format">
+			<text width="40" />
 		</field>
 		<field>
 			<function_call>

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.35 2006/06/16 06:02:35 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.36 2006/06/19 02:39:12 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -195,7 +195,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 						?>
 					</td>
 				</tr><?php
-			}
+			}//end foreach
 			?>
 		</table>
 		<?php

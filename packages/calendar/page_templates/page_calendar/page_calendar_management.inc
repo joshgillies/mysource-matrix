@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.49 2006/06/08 05:10:28 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.50 2006/06/19 02:39:12 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -308,6 +308,22 @@ class Page_Calendar_Management extends Asset_Management
 																			   ),
 														   ),
 									   );
+
+		$this->vars['month_view_event_label_format'] = Array(
+														'added'		=> '0.1',
+														'type'		=> 'text',
+														'default'	=> '%asset_name%',
+													   );
+		$this->vars['week_view_event_label_format'] = Array(
+														'added'		=> '0.1',
+														'type'		=> 'text',
+														'default'	=> '%asset_name%',
+													   );
+		$this->vars['day_view_event_label_format'] = Array(
+														'added'		=> '0.1',
+														'type'		=> 'text',
+														'default'	=> '%asset_name%',
+													   );
 
 	}//end constructor
 
