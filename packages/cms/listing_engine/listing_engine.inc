@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.175 2006/06/15 06:42:16 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.176 2006/06/19 01:29:44 tbarrett Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.175 $
+* @version $Revision: 1.176 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1739,7 +1739,7 @@ class Listing_Engine extends Page
 		$keywords   = Array();
 		$customised = $this->getFormats('type_formats');
 
-		$asset_info_fields = $this->getSortableAssetInfo();
+		$asset_info_fields = $GLOBALS['SQ_SYSTEM']->am->getAssetInfoFields();
 		$bodycopy = NULL;
 
 		// if a ':' exists in the assetid, then it is a shadow asset
@@ -2144,12 +2144,7 @@ class Listing_Engine extends Page
 	*/
 	function getSortableAssetInfo()
 	{
-		return Array(
-				'assetid','type_code','version','name','short_name',
-				'status','languages','charset','force_secure','created',
-				'created_userid','updated','updated_userid','published',
-				'published_userid',
-			   );
+		return $GLOBALS['SQ_SYSTEM']->am->getAssetInfoFields();
 
 	}//end getSortableAssetInfo()
 
