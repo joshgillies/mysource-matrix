@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.484 2006/06/19 01:18:21 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.485 2006/06/19 07:25:14 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.484 $
+* @version $Revision: 1.485 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1415,7 +1415,7 @@ class Asset_Manager extends MySource_Object
 	{
 		if (!isset($this->_tmp['asset_info_fields'])) {
 			require SQ_DATA_PATH.'/private/db/table_columns.inc';
-			$this->_tmp['asset_info_fields'] = $tables['ast']['columns'];
+			$this->_tmp['asset_info_fields'] = array_diff($tables['ast']['columns'], Array('assetid'));
 			unset($tables);
 		}
 		return $this->_tmp['asset_info_fields'];
