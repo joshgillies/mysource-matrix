@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.93 2006/04/07 01:56:53 rhoward Exp $
+* $Id: page_asset_builder.inc,v 1.94 2006/06/19 00:42:00 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1246,7 +1246,7 @@ class Page_Asset_Builder extends Page
 	*/
 	function getCreatedAssetEditKeywordReplacement()
 	{
-		return $this->_tmp['created_asset']->getURL().'/_edit';
+		return $this->_tmp['created_asset']->getURL().'/'.SQ_CONF_LIMBO_SUFFIX;
 
 	}//end getCreatedAssetEditKeywordReplacement()
 
