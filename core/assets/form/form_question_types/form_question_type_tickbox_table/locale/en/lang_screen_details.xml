@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/07/20 00:02:45 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2006/06/19 01:03:45 lwright Exp $
 */
 -->
 
@@ -39,6 +39,10 @@
 				<paint_function   name="paintQuestionInterface"   />
 				<process_function name="processQuestionInterface" />
 			</function_call>
+		</field>
+		<field attribute="sticky">
+			<display_name>Sticky?</display_name>
+			<note>If set, the value of this field will be saved and used in questions of the same name that are also marked sticky.</note>
 		</field>
 	</section>
 </contents>

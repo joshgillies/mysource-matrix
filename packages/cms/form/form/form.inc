@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.137 2006/06/06 03:59:27 lwright Exp $
+* $Id: form.inc,v 1.138 2006/06/19 01:03:46 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.137 $
+* @version $Revision: 1.138 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1319,6 +1319,16 @@ class Form extends Asset
 			// save question values
 			for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
 				$question->saveValue();
+
+				// If the question is sticky, stick the value then
+				if ($question->attr('sticky')) {
+					$cookie_expiry = $this->attr('cookie_expiry');
+					if ($cookie_expiry == 0) {
+						$question->stickValue($question->getValue());
+					} else {
+						$question->stickValue($question->getValue(), time() + $this->attr('cookie_expiry'));
+					}
+				}
 			}
 
 			// create the submission asset

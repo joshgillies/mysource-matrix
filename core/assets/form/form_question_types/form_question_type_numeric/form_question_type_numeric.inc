@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_numeric.inc,v 1.1 2005/07/20 00:02:44 lwright Exp $
+* $Id: form_question_type_numeric.inc,v 1.2 2006/06/19 01:03:44 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,11 +77,13 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 	* @access public
 	* @return boolean
 	*/
-	function hasValidValue()
+	function hasValidValue($answer=NULL)
 	{
-		$val = $this->getValue();
+		if (is_null($answer)) {
+			$answer = $this->getValue();
+		}
 
-		if (!empty($val)) {
+		if (!empty($answer)) {
 			$req_rule = Array('rule_code' => 'numeric', 'operator' => 1);
 			array_unshift($this->vars['rules']['value'], $req_rule);
 
@@ -92,9 +94,9 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 			}
 		}
 
-		$ok = parent::hasValidValue();
+		$ok = parent::hasValidValue($answer);
 
-		if (!empty($val)) {
+		if (!empty($answer)) {
 			if ($this->attr('is_int')) {						// Remove Force Integer
 				array_shift($this->vars['rules']['value']);
 			}

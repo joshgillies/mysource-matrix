@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.5 2005/12/08 00:48:57 sdanis Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.6 2006/06/19 01:03:45 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -151,14 +151,16 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	* @access public
 	* @return boolean
 	*/
-	function hasValidValue()
+	function hasValidValue($answer=NULL)
 	{
-		$val = $this->getValue();
+		if (is_null($answer)) {
+			$answer = $this->getValue();
+		}
 
-		if (is_array($val)) {
-			$value = implode(', ', $this->getAnswerByOffset($val));
+		if (is_array($answer)) {
+			$value = implode(', ', $this->getAnswerByOffset($answer));
 		} else {
-			$value = $this->getAnswerByOffset($val);
+			$value = $this->getAnswerByOffset($answer);
 		}
 
 		if ($this->attr('is_required')) {
@@ -166,7 +168,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
-		$ok = parent::hasValidValue();
+		$ok = parent::hasValidValue($value);
 
 		if ($this->attr('is_required')) {
 			array_pop($this->vars['rules']['value']);

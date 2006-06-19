@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.42 2006/01/26 22:35:20 lwright Exp $
+* $Id: form_management.inc,v 1.43 2006/06/19 01:03:46 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -268,6 +268,30 @@ class Form_Management extends Asset_Management
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			pre_echo('DONE');
 		}//end if
+
+		if (version_compare($current_version, '0.8', '<')) {
+			pre_echo('UPGRADING FORM TO v0.8');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('form', TRUE);
+			foreach ($descendants as $i => $desc) {
+				$descendants[$i] = $db->quote($desc);
+			}
+			$form_assetids =  $db->getCol('SELECT assetid FROM sq_ast WHERE type_code IN ('.implode(',', $descendants).')');
+			assert_valid_db_result($form_assetids);
+
+			pre_echo('Upgrading '.count($form_assetids).' asset(s)...');
+
+			foreach ($form_assetids as $form_id) {
+				$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
+				// delete the content file so it gets regenerated next run
+				if (is_file($form->data_path.'/content_file.php')) {
+					unlink($form->data_path.'/content_file.php');
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($form);
+			}
+
+			pre_echo('DONE');
+		}
 
 		return $res;
 

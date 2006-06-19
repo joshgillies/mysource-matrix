@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.12 2006/04/11 05:45:12 sdanis Exp $
+* $Id: form_question.inc,v 1.13 2006/06/19 01:03:40 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -643,16 +643,25 @@ class Form_Question extends Asset
 
 
 	/**
-	* Look at user-specified and internal rules to see if this question currently has a valid value
+	* Look at user-specified and internal rules to see if this question
+	* currently has a valid value
 	*
 	* Returns TRUE if all validation rules pass
+	*
+	* @param mixed		$answer			Custom value to compare with - if left
+	*									NULL (or unspecified), use the current
+	*									value of the question
+	* @param boolean	$mute_errors	If TRUE, do not add to the "Failed
+	*									Rules" log, but simply return FALSE
 	*
 	* @return boolean
 	* @access public
 	*/
-	function hasValidValue()
+	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
-		$answer = $this->getValue();
+		if (is_null($answer)) {
+			$answer = $this->getValue();
+		}
 
 		// if the question is optional and answer is empty then dont check this rule
 		if (empty($answer) && !$this->attr('is_required')) {
@@ -671,11 +680,17 @@ class Form_Question extends Asset
 
 			if (!$rule_ok) {
 				$ok = FALSE;
-				$custom_text = array_get_index($rule, 'custom_text', '');
-				if (!empty($custom_text)) {
-					$this->failed_rules[] = $rule['custom_text'];
+				if (!$mute_errors) {
+					$custom_text = array_get_index($rule, 'custom_text', '');
+					if (!empty($custom_text)) {
+						$this->failed_rules[] = $rule['custom_text'];
+					} else {
+						$this->failed_rules[] = $rule_asset->defaultError($this, $rule);
+					}
 				} else {
-					$this->failed_rules[] = $rule_asset->defaultError($this, $rule);
+					// If we are muting errors, we don't need to evaluate any
+					// more rules, so we can just short-circuit and return now
+					return FALSE;
 				}
 			}
 
@@ -709,8 +724,48 @@ class Form_Question extends Asset
 	*/
 	function getValue()
 	{
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+
+		// First see if there is a sticky value for this question - if we're
+		// allowed to use it
+		if (is_null($this->value) && $this->attr('sticky')) {
+			$this->value = $this->getStickyValue();
+		}
+
+		// Still nothing? Go to the default value then
 		if (is_null($this->value)) {
-			return $this->attr('default');
+
+			$default_value = $this->attr('default');
+
+			if (!is_array($default_value)) {
+				$keywords = retrieve_keywords_replacements($default_value);
+				$replacements = Array();
+
+				foreach($keywords as $keyword) {
+					if (preg_match('|^current_user_|', $keyword)) {
+						$user_keyword = preg_replace('|^current_user_|', 'asset_', $keyword);
+						$user =& $GLOBALS['SQ_SYSTEM']->user;
+
+						// If we are the public user, this should be empty
+						if ($GLOBALS['SQ_SYSTEM']->userPublic()) {
+							$replacements[$keyword] = '';
+						} else {
+							$replacements[$keyword] = $user->getKeywordReplacement($user_keyword);
+						}
+					} else {
+						$replacements[$keyword] = $this->getKeywordReplacement($keyword);
+					}
+				}
+
+				$default_value = replace_keywords($default_value, $replacements);
+
+				// If the default value is a dud, blank it
+				if (!$this->hasValidValue($default_value, TRUE)) {
+					$default_value = '';
+				}
+			}
+
+			return $default_value;
 		}
 
 		if (is_array($this->value)) return $this->value;
@@ -901,6 +956,77 @@ class Form_Question extends Asset
 		return $form->_checkPermissionAccess($perm, $assetids);
 
 	}//end _checkPermissionAccess()
+
+
+	/**
+	* Sticks a value into the cookie for this question name
+	*
+	* @param mixed	$value	The value to stick into this question
+	*
+	* @return void
+	* @access public
+	*/
+	function stickValue($value)
+	{
+		$cookie_name = $this->_getCookieName();
+		$_SESSION['SQ_FORM_STICKY'][$GLOBALS['SQ_SYSTEM']->user->id][$cookie_name] = $value;
+
+	}//end stickValue()
+
+
+	/**
+	* Unsticks the value
+	*
+	* @return void
+	* @access public
+	*/
+	function unstickValue()
+	{
+		$cookie_name = $this->_getCookieName();
+		unset($_SESSION['SQ_FORM_STICKY'][$GLOBALS['SQ_SYSTEM']->user->id][$cookie_name]);
+
+	}//end unstickValue()
+
+
+	/**
+	* Gets a sticky value if any, or NULL if there is none (or if it's not valid)
+	*
+	* @return mixed
+	* @access public
+	*/
+	function getStickyValue()
+	{
+		$cookie_name = $this->_getCookieName();
+
+		if (!isset($_SESSION['SQ_FORM_STICKY'][$GLOBALS['SQ_SYSTEM']->user->id][$cookie_name])) {
+			return NULL;
+		}
+
+		$value = $_SESSION['SQ_FORM_STICKY'][$GLOBALS['SQ_SYSTEM']->user->id][$cookie_name];
+
+		// If the sticky value is a dud, blank it
+		if (!$this->hasValidValue($value, TRUE)) {
+			$value = NULL;
+		}
+
+		return $value;
+
+	}//end getStickyValue()
+
+
+	/**
+	* Generates a safe name for the question so it can be used in session vars
+	*
+	* @return string
+	* @access protected
+	*/
+	function _getCookieName()
+	{
+		// We use make_valid_web_paths() to make the name more safe to use
+		list($question_name) = make_valid_web_paths(Array($this->name));
+		return $question_name;
+
+	}//end _getCookieName()
 
 
 }//end class

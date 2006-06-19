@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.2 2005/10/07 00:01:27 lwright Exp $
+* $Id: form_question_type_text.inc,v 1.3 2006/06/19 01:03:45 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,14 +109,18 @@ class Form_Question_Type_Text extends Form_Question
 	* @access public
 	* @return boolean
 	*/
-	function hasValidValue()
+	function hasValidValue($answer=NULL)
 	{
+		if (is_null($answer)) {
+			$answer = $this->getValue();
+		}
+
 		if ($this->attr('is_required')) {
 			$req_rule = Array('rule_code' => 'comparison', 'operator' => '!=', 'value' => '');
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
-		$ok = parent::hasValidValue();
+		$ok = parent::hasValidValue($answer);
 
 		if ($this->attr('is_required')) {
 			array_pop($this->vars['rules']['value']);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.5 2006/04/19 01:37:07 skim Exp $
+* $Id: form_question_type_datetime.inc,v 1.6 2006/06/19 01:03:44 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -174,9 +174,12 @@ class Form_Question_Type_Datetime extends Form_Question
 	* @return boolean
 	* @access public
 	*/
-	function hasValidValue()
+	function hasValidValue($answer=NULL)
 	{
-		$answer = $this->getValue();
+		if (is_null($answer)) {
+			$answer = $this->getValue();
+		}
+
 		$required_fields = $this->attr('null');
 		$show_params = $this->attr('show');
 
@@ -212,7 +215,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		}
 
 		if (!is_iso8601($answer)) return FALSE;
-		return parent::hasValidValue();
+		return parent::hasValidValue($answer);
 
 	}//end hasValidValue()
 

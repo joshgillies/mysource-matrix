@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.3 2005/10/07 00:01:27 lwright Exp $
+* $Id: form_question_type_password.inc,v 1.4 2006/06/19 01:03:45 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -107,9 +107,12 @@ class Form_Question_Type_Password extends Form_Question
 	* @access public
 	* @return boolean
 	*/
-	function hasValidValue()
+	function hasValidValue($answer=NULL)
 	{
-		$val = $this->getValue();
+		if (is_null($answer)) {
+			$answer = $this->getValue();
+		}
+
 		if ($this->attr('verify') && ($val != $this->_tmp['verify_value'])) {
 			$this->failed_rules[] = translate('core_form_password_entered_differently', $this->attr('name'));
 		}
@@ -120,9 +123,9 @@ class Form_Question_Type_Password extends Form_Question
 			$this->failed_rules[] = translate('core_form_password_length_<=', $this->attr('name'), $this->attr('max'));
 		}
 
-		if (!empty($this->failed_rules)) return false;
+		if (!empty($this->failed_rules)) return FALSE;
 
-		return parent::hasValidValue();
+		return parent::hasValidValue($answer);
 
 	}//end hasValidValue()
 

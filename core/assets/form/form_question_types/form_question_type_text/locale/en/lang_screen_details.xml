@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2006/01/13 05:53:06 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.4 2006/06/19 01:03:45 lwright Exp $
 */
 -->
 
@@ -62,9 +62,13 @@
 			<display_name>Extras</display_name>
 			<note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes, eg class="yourCssClass"</note>
 		</field>
+		<field attribute="sticky">
+			<display_name>Sticky?</display_name>
+			<note>If set, the value of this field will be saved and used in questions of the same name that are also marked sticky.</note>
+		</field>
 	</section>
 	<section name="Simple Validation Rules">
-	    <field attribute="is_required">
+	    	<field attribute="is_required">
 			<display_name>Required Entry?</display_name>
 			<note>If required, this question must be answered before the form can be submitted</note>
 		</field>

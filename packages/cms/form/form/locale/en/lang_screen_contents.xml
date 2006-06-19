@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.4 2005/05/20 05:27:27 tbarrett Exp $
+* $Id: lang_screen_contents.xml,v 1.5 2006/06/19 01:03:46 lwright Exp $
 *
 */
 -->
@@ -82,14 +82,6 @@
 		</field>
 	</section>
 	<section name="Simple Formatting">
-		<field>
-			<display_name>Note</display_name>
-			<note />
-			<function_call>
-				<paint_function	name="paintSimpleFormatting" />
-				<process_function name="processSimpleFormatting" />
-			</function_call>
-		</field>
 		<field attribute="form_width">
 			<display_name>Form Width</display_name>
 			<note>The whole form will be this width when printed on the frontend. This can be a number of pixels or a percentage</note>
@@ -102,6 +94,9 @@
 			<display_name>Answer Width</display_name>
 			<note>The width of the column for the question answer fields. This can be a number of pixels or a percentage of the form width</note>
 		</field>
+		<note>
+			These options apply only if you use the 'Form Contents' <![CDATA[(<b>%form_contents%</b>)]]> keyword in your Page Contents bodycopy, or you do not have a Page Contents bodycopy set.
+		</note>
 	</section>
 	<section name="Complex Formatting">
 		<field>

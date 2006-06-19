@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.21 2005/05/20 01:46:25 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.22 2006/06/19 01:03:46 lwright Exp $
 *
 */
 -->
@@ -68,12 +68,6 @@
 		</field>
 	</section>
 	<section name="Simple Formatting">
-		<field>
-			<function_call>
-				<paint_function	name="paintSimpleFormatting" />
-				<process_function name="processSimpleFormatting" />
-			</function_call>
-		</field>
 		<field attribute="form_width">
 			<html_width />
 		</field>

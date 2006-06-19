@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.2 2005/10/13 03:57:26 sdanis Exp $
+* $Id: form_question_type_email_address.inc,v 1.3 2006/06/19 01:03:44 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,15 +77,18 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	* @return boolean
 	* @access public
 	*/
-	function hasValidValue()
+	function hasValidValue($answer=NULL)
 	{
-		$value = $this->getValue();
-		if (empty($value)) return parent::hasValidValue();
+		if (is_null($answer)) {
+			$answer = $this->getValue();
+		}
+
+		if (empty($answer)) return parent::hasValidValue();
 
 		// Since we know the answer is not empty, borrow a 'valid email address' rule
 		$req_rule = Array('rule_code' => 'email', 'operator' => '1');
 		array_push($this->vars['rules']['value'], $req_rule);
-		$ok = parent::hasValidValue();
+		$ok = parent::hasValidValue($answer);
 		array_pop($this->vars['rules']['value']);
 		return $ok;
 
