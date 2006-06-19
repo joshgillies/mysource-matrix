@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.157.2.5 2006/03/29 23:50:31 lwright Exp $
+* $Id: search_page.inc,v 1.157.2.6 2006/06/19 23:26:48 sdanis Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.157.2.5 $
+* @version $Revision: 1.157.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1830,13 +1830,15 @@ class Search_Page extends Listing_Engine
 	* of proxy search types require alternate logic to just getting ALL parents.
 	*
 	* @param array	$child_assetid	the asset to find the parents of
+	* @param array	$restrict_types	Group type restrictions
 	*
 	* @return array
 	* @access public
 	*/
-	function getGroupableParentAssetids($child_assetid)
+	function getGroupableParentAssetids($child_assetid, $restrict_types)
 	{
-		$parents = parent::getGroupableParentAssetids($child_assetid);
+
+		$parents = parent::getGroupableParentAssetids($child_assetid, $restrict_types);
 
 		$proxy_settings = $this->attr('proxy_types');
 		if (!empty($proxy_settings)) {
