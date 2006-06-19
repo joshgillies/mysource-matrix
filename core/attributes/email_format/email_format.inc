@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.30 2006/05/17 23:49:48 tbarrett Exp $
+* $Id: email_format.inc,v 1.31 2006/06/19 00:54:13 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -95,6 +95,8 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	*/
 	function paint($prefix, $read_only=FALSE)
 	{
+		$prefix = str_replace(':', '_', $prefix);
+
 		$current_value = @unserialize($this->value);
 		if (!is_array($current_value)) {
 			$current_value = Array();
@@ -265,6 +267,8 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	*/
 	function process($prefix)
 	{
+		$prefix = str_replace(':', '_', $prefix);
+
 		if (!isset($_REQUEST[$prefix.'_to_emails']) && !isset($_REQUEST[$prefix.'_to_assetids']) && !isset($_REQUEST[$prefix.'_from']) && !isset($_REQUEST[$prefix.'_subject']) && !isset($_REQUEST[$prefix.'_text_body'])) {
 			return FALSE;
 		}
