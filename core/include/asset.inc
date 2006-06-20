@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.398.2.26 2006/05/17 02:38:43 emcdonald Exp $
+* $Id: asset.inc,v 1.398.2.27 2006/06/20 00:58:25 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.398.2.26 $
+* @version $Revision: 1.398.2.27 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2134,7 +2134,8 @@ class Asset extends MySource_Object
 
 		// a menu lock allows editing of both attributes (such as name etc)
 		// and links (such as position in menu)
-		$lock_types['menu'] = $lock_types['attributes'] | $lock_types['links'];
+		$lock_types['menu']			= $lock_types['attributes'] | $lock_types['links'];
+		$lock_types['lookupValues']	= $lock_types['attributes'] | $lock_types['links'] | $lock_types['lookups'];
 
 		return $lock_types;
 
