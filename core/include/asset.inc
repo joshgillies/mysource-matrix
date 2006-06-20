@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.545 2006/06/19 23:32:09 rong Exp $
+* $Id: asset.inc,v 1.546 2006/06/20 00:01:11 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.545 $
+* @version $Revision: 1.546 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4546,12 +4546,10 @@ class Asset extends MySource_Object
 
 		if (!empty($current_urls)) {
 
-			// do not remove paint layout (non inhd) as we will update the url later
 			$sql = 'DELETE FROM
 						sq_ast_lookup_value
 					WHERE
-						url IN ('.implode(',', $current_urls).') AND
-						(name NOT LIKE '.$db->quote('paint_layout::%').' AND inhd != 0)';
+						url IN ('.implode(',', $current_urls).')';
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
