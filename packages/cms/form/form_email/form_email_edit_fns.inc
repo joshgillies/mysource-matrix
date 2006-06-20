@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.71 2006/04/28 06:02:36 tbarrett Exp $
+* $Id: form_email_edit_fns.inc,v 1.72 2006/06/20 01:34:22 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1507,7 +1507,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		ob_end_clean();
 
 		ob_start();
-			text_box($prefix.'_address', $all_se[$ruleid]['address'], 30, 255);
+			// requested in bug#1437 - changed input to a text area
+			text_area($prefix.'_address', $all_se[$ruleid]['address'], 30, 5);
 			$address_box = ob_get_contents();
 		ob_end_clean();
 
