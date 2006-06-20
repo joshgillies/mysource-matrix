@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.503.2.24 2006/06/15 23:04:50 tbarrett Exp $
+* $Id: asset.inc,v 1.503.2.25 2006/06/20 00:04:52 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.503.2.24 $
+* @version $Revision: 1.503.2.25 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4409,10 +4409,13 @@ class Asset extends MySource_Object
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// Remove all the old URLs
+		// include sort order so that we can figure out which one is which
 		$sql = 'SELECT l.url, l.http, l.https, u.urlid
 				FROM sq_ast_lookup l
 					LEFT OUTER JOIN sq_ast_url u ON l.root_urlid = u.urlid
-				WHERE l.assetid = '.$db->quote($this->id);
+					LEFT OUTER JOIN sq_ast_path p ON l.assetid = p.assetid
+				WHERE l.assetid = '.$db->quote($this->id).'
+				ORDER BY p.sort_order DESC';
 
 		$old_urls = $db->getAll($sql);
 		assert_valid_db_result($old_urls);
@@ -4587,6 +4590,30 @@ class Asset extends MySource_Object
 								// If the same parent URL, not the same path, but it's in our change list
 								if (isset($web_path_changes[$tmp_old_url['web_path']]) && $web_path_changes[$tmp_old_url['web_path']] == $paths[$k]) {
 									$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
+
+									// update each affected paint layout's url
+									$sql = 'SELECT
+												url
+											FROM
+												sq_ast_lookup_value
+											WHERE
+												url LIKE '.$db->quote($tmp_old_url['url'].'%').' AND
+												name LIKE '.$db->quote('paint_layout::%').' AND
+												inhd = 0';
+									$applied_layout = $db->getCol($sql);
+									assert_valid_db_result($applied_layout);
+
+									foreach ($applied_layout as $key => $old_layout_url) {
+										$new_layout_url = str_replace($tmp_old_url['url'], $new_url, $old_layout_url);
+										$sql = 'UPDATE
+													sq_ast_lookup_value
+												SET
+													url = '.$db->quoteSmart($new_layout_url).'
+												WHERE
+													url = '.$db->quoteSmart($old_layout_url);
+										$result = $db->query($sql);
+										assert_valid_db_result($result);
+									}
 									break;
 								}
 							}
