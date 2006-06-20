@@ -18,16 +18,18 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: add_user_own_access.php,v 1.3 2004/12/06 14:38:13 brobertson Exp $
+* $Id: add_user_own_access.php,v 1.3.2.1 2006/06/20 06:21:02 rhoward Exp $
 *
 */
 
 /**
-* Delete permissions that exist for deleted or non-existant users (eg. LDAP users that no longer
-* exist)
+* Ensures that each user in the system has
+* read access themselves, provided as a
+* failsafe in case the permissions have
+* become corrupted.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -62,7 +64,7 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	trigger_error("Failed login in as root user\n", E_USER_ERROR);
 }
 
-// go trough each wysiwyg in the system, lock it, validate it, unlock it
+// go through each user in the system, lock it, set permissions, unlock it
 $assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'user', false);
 foreach ($assets as $assetid => $type_code) {
 
