@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.150.2.14 2006/06/06 00:36:05 sdanis Exp $
+* $Id: listing_engine.inc,v 1.150.2.15 2006/06/20 01:19:27 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.150.2.14 $
+* @version $Revision: 1.150.2.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1075,6 +1075,18 @@ class Listing_Engine extends Page
 		$maximum_possible_position = count($all_assets);
 		foreach ($asset_positions as $position => $asset_data) {
 			$id = $asset_data['id'];
+
+			// Check to see whether we have read access to the asset - if we
+			// don't, don't use it
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+			$read_access = $asset->readAccess();
+			unset($asset);
+
+			if (!$read_access) {
+				unset($todo[$id]);
+				continue;
+			}
+
 			if ($position > $maximum_possible_position) {
 				// if this position does not fit, neither will anything else
 				break;
