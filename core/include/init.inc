@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.84 2005/05/30 05:20:01 rhoward Exp $
+* $Id: init.inc,v 1.84.2.1 2006/06/20 01:29:41 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.84.2.1 $
 * @package MySource_Matrix
 */
 
@@ -162,6 +162,7 @@ define('SQ_STATUS_EDITING_APPROVAL', 128); // asset is currently in workflow fro
 define('SQ_STATUS_EDITING_APPROVED', 256); // asset is approved waiting to go live from safe edit
 
 define('SQ_SC_STATUS_NOT_LIVE',      15); // short cut for ARCHIVED | UNDER_CONSTRUCTION | PENDING_APPROVAL | APPROVED
+define('SQ_SC_STATUS_LIVE_EDIT',     48); // short cut for LIVE | LIVE_APPROVAL
 define('SQ_SC_STATUS_CAN_APPROVE',   66); // short cut for UNDER_CONSTRUCTION | EDITING
 define('SQ_SC_STATUS_PENDING',      164); // short cut for PENDING_APPROVAL | EDITING_APPROVAL | LIVE_APPROVAL
 define('SQ_SC_STATUS_ALL_APPROVED', 264); // short cut for APPROVED | EDITING_APPROVED

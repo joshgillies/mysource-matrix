@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.398.2.27 2006/06/20 00:58:25 skim Exp $
+* $Id: asset.inc,v 1.398.2.28 2006/06/20 01:29:41 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.398.2.27 $
+* @version $Revision: 1.398.2.28 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3124,7 +3124,7 @@ class Asset extends MySource_Object
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
 		if (!$this->id) return true;
-		if ($this->status != SQ_STATUS_LIVE) return true;
+		if (!($this->status & SQ_SC_STATUS_LIVE_EDIT)) return TRUE;
 
 		if (!empty($lock_type)) {
 			if ($lock_type != 'attributes') {
