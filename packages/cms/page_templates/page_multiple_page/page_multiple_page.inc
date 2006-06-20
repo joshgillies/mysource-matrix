@@ -11,7 +11,7 @@
 * | Please refer to http:// www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page.inc,v 1.12.2.1 2006/05/09 01:32:04 lwright Exp $
+* $Id: page_multiple_page.inc,v 1.12.2.2 2006/06/20 02:03:36 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.12.2.1 $
+* @version $Revision: 1.12.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -702,7 +702,7 @@ class Page_Multiple_Page extends Page
 			$id = $link_data['minorid'];
 			$data = $infos[$id];
 			if ($id == $current_id && !$link_current) {
-				echo '<option value="" selected>'.$data['name'];
+				echo '<option value="" selected="selected">'.$data['name'];
 			} else {
 				echo '<option value="'.$urls[$id].'">'.$data['name'];
 			}
