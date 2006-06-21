@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.12.2.2 2006/04/07 05:57:22 skim Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.12.2.3 2006/06/21 04:15:44 skim Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12.2.2 $
+* @version $Revision: 1.12.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1668,7 +1668,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 		if ($wa) {
 			$sql = str_replace('<br />', ' ', $sql);
-			text_area($prefix.'_sql', $sql, 100, 2);
+			text_area($prefix.'_sql', $sql, 100, 25);
 		} else {
 			if (!empty($sql)) {
 				echo $sql;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.13 2005/12/21 21:58:35 rong Exp $
+* $Id: data_source_db.inc,v 1.13.2.1 2006/06/21 04:15:44 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
