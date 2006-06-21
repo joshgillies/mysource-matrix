@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.59 2006/06/15 05:24:48 tbarrett Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.60 2006/06/21 02:12:52 rong Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -554,11 +554,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Prints the table containing the links to the bodycopies (and default type format)
 	*
-	* @param string $bodycopy_name			the name of the bodycopy to print, eg. 'no_results'
-	* @param string $bodycopy_description	the description to label the bodycopy with
 	* @param string	$root_assetid			the id of the asset to look under for bodycopies; NULL indicates the listing_engine asset itself
+	* @param string	$bodycopy_name			the name of the bodycopy to print, eg. 'no_results'
+	* @param string	$bodycopy_description	the description to label the bodycopy with
 	*
-	* @returns void
+	* @return void
 	* @access private
 	*/
 	function _paintDefaultFormatLink($root_assetid, $bodycopy_name, $bodycopy_description)
@@ -578,7 +578,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			</tr>
 			<?php
 		}
-	}
+
+	}//end _paintDefaultFormatLink()
+
 
 	/**
 	* Paint the interface for Group Formats
@@ -1348,7 +1350,15 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						'type'		=> '',
 						'name'		=> 'No Sorting',
 					  );
+		$random_sort = Array (
+						'params'	=> Array (
+										'field'	=> '',
+									   ),
+						'type'		=> '',
+						'name'		=> 'Random',
+					   );
 		$save_list[] = $empty_sort;
+		$save_list[] = $random_sort;
 
 		// re-order the list so that the indexes are aligned
 		ksort($save_list);

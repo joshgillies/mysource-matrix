@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.177 2006/06/20 01:15:51 lwright Exp $
+* $Id: listing_engine.inc,v 1.178 2006/06/21 02:12:52 rong Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.177 $
+* @version $Revision: 1.178 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -639,7 +639,7 @@ class Listing_Engine extends Page
 	* Sort the list of assets
 	*
 	* @param array	$asset_list	an array of assets to be sorted
-	* @param string	$sort_info	sorting information as provided by getSortInfo()
+	* @param array	$sort_info	sorting information as provided by getSortInfo()
 	*
 	* @return array
 	* @access public
@@ -653,6 +653,18 @@ class Listing_Engine extends Page
 
 		if ((!is_array($asset_list)) || (empty($asset_list))) {
 			return Array();
+		}
+
+		// random sort, shuffle the asset list
+		if ($sort_info['type'] == '' && $sort_info['name'] == 'Random') {
+			$keys = array_keys($asset_list);
+			minibam($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($keys),'keys');
+			shuffle($keys);
+			$rand_asset_list = Array();
+			foreach ($keys as $key) {
+				$rand_asset_list[$key] = $asset_list[$key];
+			}
+			return ($rand_asset_list);
 		}
 
 		$skipped_assets = Array();
@@ -801,7 +813,6 @@ class Listing_Engine extends Page
 		foreach ($skipped_assets as $assetid) {
 			$assets_to_list[$assetid] = $asset_list[$assetid];
 		}
-
 		return $assets_to_list;
 
 	}//end sortAssetList()
