@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway.inc,v 1.5 2006/06/21 23:44:33 tbarrett Exp $
+* $Id: payment_gateway.inc,v 1.6 2006/06/21 23:56:42 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -64,6 +64,30 @@ class Payment_Gateway extends Asset
 		return parent::create($link);
 
 	}//end create()
+
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Pages add a default web path when they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return FALSE;
+
+		// set an initial web path
+		$initial_path = strtolower($this->attr('name'));
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($initial_path));
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, TRUE);
+		return $this->saveWebPaths($good_paths);
+
+	}//end _createAdditional()
 
 
 	/**
