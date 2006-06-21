@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_management.inc,v 1.4 2005/04/29 05:39:37 gsherwood Exp $
+* $Id: payment_gateway_management.inc,v 1.4.4.1 2006/06/21 23:49:31 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -42,14 +42,14 @@ class Payment_Gateway_Management extends Asset_Management
 		$this->vars = Array(
 			'name' => Array(
 				'added'       => '0.0.1',
-				'type'        => 'text',  'default'   => 'My Gateway',
+				'type'        => 'text',  'default'   => '',
 				'description' => 'The full name of the payment gateway',
 				'update_fn'   => '',
 			),
 
 			'short_name' => Array(
 				'added'       => '0.0.1',
-				'type'        => 'text',  'default'   => 'My Gateway',
+				'type'        => 'text',  'default'   => '',
 				'description' => 'The short name of the payment gateway',
 				'update_fn'   => '',
 			),

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway.inc,v 1.4 2005/04/29 05:39:37 gsherwood Exp $
+* $Id: payment_gateway.inc,v 1.4.4.1 2006/06/21 23:49:31 tbarrett Exp $
 *
 */
 
@@ -25,12 +25,46 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Payment_Gateway extends Asset
 {
+
+
+	/**
+	* Create this asset
+	*
+	* The return value will be:<br/>
+	* <ul>
+	*   <li>FALSE if the asset was not created</li>
+	*   <li>the ID of the newly created link if the asset and intital link were created</li>
+	* </ul>
+	*
+	* @param array	&$link	information used to create the initial link<br/>
+	* <pre>
+	* Array ('asset'         => [ref major asset to create link under],
+	*        'link_type'     => SQ_LINK_?,
+	*        'value'         => [link value],
+	*        'sort_order'    => [link sort order],
+	*        'is_dependant'  => [0|1],
+	*        'is_exclusive'  => [0|1]
+	*        )
+	* </pre>
+	*
+	* @return mixed int|boolean
+	* @access public
+	*/
+	function create(&$link)
+	{
+		if ($this->attr('short_name') == '') {
+			$this->setAttrValue('short_name', $this->attr('name'));
+		}
+		return parent::create($link);
+
+	}//end create()
+
 
 	/**
 	* Returns name of the asset
