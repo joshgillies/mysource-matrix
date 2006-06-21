@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2006/03/01 05:57:10 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2006/06/21 05:17:21 tbarrett Exp $
 *
 */
 -->
@@ -44,7 +44,7 @@
 			<boolean true_text="yes" false_text="no"/>
 		</field>
 		<field attribute="submit_to_page_url">
-			<boolean true_text="cms_asset_builder_this_page_own_url" false_text="cms_asset_builder_current_url" />
+			<boolean true_text="cms_this_page_own_url" false_text="cms_current_url" />
 		</field>
 	</section>
 </contents>

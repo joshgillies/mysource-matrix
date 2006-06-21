@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.9 2006/04/27 03:19:36 lwright Exp $
+* $Id: lang_strings.xml,v 1.10 2006/06/21 05:17:21 tbarrett Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -91,4 +91,6 @@
 <string source="html_code_classes">HTML Code Highlighting Classes</string>
 <string source="javascript_code_classes">Javascript Code Highlighting Classes</string>
 <string source="line_numbers">Line Numbers</string>
+<string source="cms_current_url">The current URL</string>
+<string source="cms_this_page_own_url">This page's own URL</string>
 </strings>

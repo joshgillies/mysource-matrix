@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.178 2006/06/21 02:12:52 rong Exp $
+* $Id: listing_engine.inc,v 1.179 2006/06/21 05:17:21 tbarrett Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.178 $
+* @version $Revision: 1.179 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -379,12 +379,13 @@ class Listing_Engine extends Page
 				if ($this->requires_form || !empty($used_fields)) {
 					// Make a clean URL to submit to
 					$form_method = strtolower($this->_getFormSubmitMethod());
+					$form_url = $this->attr('submit_to_page_url') ? $this->getURL() : current_url();
 					if ($form_method == 'get') {
 						// no point retaining query string vars for a GET form action because the browser
 						// won't submit them - instead we will preserve them as hidden fields below
-						$form_url = htmlspecialchars($this->getURL());
+						$form_url = htmlspecialchars($form_url);
 					} else {
-						$form_url = htmlspecialchars(replace_query_string_vars(Array(), $this->getURL()));
+						$form_url = htmlspecialchars(replace_query_string_vars(Array(), $form_url));
 					}
 					?>
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.57 2006/06/21 04:55:12 rong Exp $
+* $Id: listing_engine_management.inc,v 1.58 2006/06/21 05:17:21 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -344,7 +344,15 @@ class Listing_Engine_Management extends Asset_Management
 													   ),
 								   );
 
-	}//end constructor
+
+		$this->vars['submit_to_page_url'] = Array(
+												'added'			=> '0.1',
+												'type'			=> 'boolean',
+												'default'		=> TRUE,
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+											);	}//end constructor
 
 
 	/**
