@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.13.2.1 2006/06/21 04:15:44 skim Exp $
+* $Id: data_source_db.inc,v 1.13.2.2 2006/06/21 04:37:56 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.13.2.1 $
+* @version $Revision: 1.13.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,7 +76,7 @@ class Data_Source_DB extends Data_Source
 			foreach ($tables as $table) {
 				$query = 'select * from '.$table;
 				$result = $conn->getAll($query);
-				$assert_result = assert_valid_db_result($result, 'Query execution failed : '.$sql, false, false);
+				$assert_result = assert_valid_db_result($result, 'Query execution failed : '.$sql, FALSE, FALSE);
 				if (!$assert_result) {
 					$empty = Array();
 					return $empty;
@@ -104,21 +104,23 @@ class Data_Source_DB extends Data_Source
 		$result = Array();
 		$sql = $this->attr('sql');
 		$sql = str_replace('<br />', ' ', $sql);
-		//if the query is already excuted then we get results from cache otherwise we execute the
-		//query (only if in execute mode or the cache manager returns aan empty string instead of an empty array)
+		// if the query is already excuted then we get results from cache otherwise we execute the
+		// query (only if in execute mode or the cache manager returns aan empty string instead of an empty array)
 		$result = parent::getResultSet($this->attr('sql'));
 		if (empty($result)) {
 			if (isset($this->_tmp[$sql])) {
 				$result = $this->_tmp[$sql];
 			}
 			// use the sql query as the cache key of this cache entry
-			if (!empty($result)) $this->setResultSet($result, $this->attr('sql'));
+			if (!empty($result)) {
+				$this->setResultSet($result, $this->attr('sql'));
+			}
 		}
 		$mode = $this->attr('mode');
-		//if ((empty($result) && !is_array($result)) || ($mode == 'execute')) {
 		if ($mode == 'execute') {
 			if (!empty($sql)) {
-				$result = &$this->_executeQuery($sql);
+				$result =& $this->_executeQuery($sql);
+				if ($result === FALSE) $result = Array();
 				$this->setResultSet($result, $this->attr('sql'));
 				$this->_tmp[$sql] = $result;
 			}
@@ -142,11 +144,16 @@ class Data_Source_DB extends Data_Source
 		$dsn = $this->attr('dsn');
 		if (!empty($dsn)) {
 			$conn = $this->connectToDB();
-			$result = &$conn->getAll($sql);
-			$assert_result = assert_valid_db_result($result, 'Query execution failed : '.$sql, false, false);
-			if(!$assert_result) {
-				$empty = Array();
-				return $empty;
+			if ($conn !== FALSE) {
+				$result =& $conn->getAll($sql);
+				$assert_result = assert_valid_db_result($result, 'Query execution failed : '.$sql, FALSE, FALSE);
+				if (!$assert_result) {
+					$empty = Array();
+					return $empty;
+				}
+			} else {
+				$false = FALSE;
+				return $false;
 			}
 		}
 		return $result;
@@ -164,10 +171,10 @@ class Data_Source_DB extends Data_Source
 	{
 		$dsn = $this->attr('dsn');
 		if (!empty($dsn)) {
-			$conn = DB::connect($dsn);
+			$conn =& DB::connect($dsn);
 			if (DB::isError($conn)) {
-				trigger_error($conn->message, E_USER_ERROR);
-				return false;
+				trigger_error($conn->message, E_USER_WARNING);
+				return FALSE;
 			}
 			$conn->setFetchMode(DB_FETCHMODE_ASSOC);
 			return $conn;

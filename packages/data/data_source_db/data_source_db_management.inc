@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_management.inc,v 1.5.2.1 2006/02/24 01:06:03 arailean Exp $
+* $Id: data_source_db_management.inc,v 1.5.2.2 2006/06/21 04:37:56 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5.2.1 $
+* @version $Revision: 1.5.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,9 +76,9 @@ class Data_Source_DB_Management extends Asset_Management
 																					'oracle'	=> 'Oracle',
 																					'mysql'		=> 'My SQL',
 																				   ),
-																'multiple'		=> false,
-																'allow_other'	=> false,
-																'allow_empty'	=> false,
+																'multiple'		=> FALSE,
+																'allow_other'	=> FALSE,
+																'allow_empty'	=> FALSE,
 															   ),
 											'default'		=> 'postgres',
 										   ),
@@ -141,29 +141,29 @@ class Data_Source_DB_Management extends Asset_Management
 																					'execute'	=> 'Execute Mode',
 																					'edit'		=> 'Edit Manually',
 																				   ),
-																'multiple'		=> false,
-																'allow_other'	=> false,
-																'allow_empty'	=> false,
+																'multiple'		=> FALSE,
+																'allow_other'	=> FALSE,
+																'allow_empty'	=> FALSE,
 															   ),
 											'default'		=> 'builder',
 										   ),
 						'edit_on'		=> Array(
 											'added'		=> '0.1',
 											'type'		=> 'boolean',
-											'default'	=> false,
+											'default'	=> FALSE,
 										   ),
-						'reset_edit'		=> Array(
+						'reset_edit'	=> Array(
 											'added'		=> '0.1',
 											'type'		=> 'boolean',
-											'default'	=> false,
+											'default'	=> FALSE,
 										   ),
 						'limit'			=> Array(
 											'added'			=> '0.1',
 											'type'			=> 'int',
 											'default'		=> '',
 											'parameters'	=> Array(
-																'allow_empty'		=> true,
-																'allow_negative'	=> false,
+																'allow_empty'		=> TRUE,
+																'allow_negative'	=> FALSE,
 															   ),
 										   ),
 					  );
