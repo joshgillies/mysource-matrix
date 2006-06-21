@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.179 2006/06/21 05:17:21 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.180 2006/06/21 06:53:35 tbarrett Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.179 $
+* @version $Revision: 1.180 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -659,7 +659,6 @@ class Listing_Engine extends Page
 		// random sort, shuffle the asset list
 		if ($sort_info['type'] == '' && $sort_info['name'] == 'Random') {
 			$keys = array_keys($asset_list);
-			minibam($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($keys),'keys');
 			shuffle($keys);
 			$rand_asset_list = Array();
 			foreach ($keys as $key) {
@@ -1626,9 +1625,8 @@ class Listing_Engine extends Page
 							ob_start();
 							$onclick = Array();
 							$group_cb_id  = 'g_'.implode('_', $this->_tmp['group_info']);
-							$control_name = make_valid_html_id(str_replace(' ', '_', $selection_name.$group_cb_id));
-							$this->registerFormField($control_name);
-							check_box($control_name, '1', FALSE, 'sq_listing_check_state(this, \''.$selection_name.'\')');
+							$control_name = make_valid_html_id($this->_getSelectionFieldNamePrefix($selection_name).str_replace(' ', '_', $group_cb_id));
+							check_box($control_name, '1', FALSE, 'sq_listing_check_state(this, \''.$this->_getSelectionFieldNamePrefix($selection_name).'\')');
 							$replacements[$selection_name.'_check_all_in_group'] = ob_get_clean();
 							$replacements[$selection_name.'_selection_id'] = $control_name;
 						}
@@ -2045,10 +2043,11 @@ class Listing_Engine extends Page
 			foreach ($selections as $selection_name => $settings) {
 
 				$buffering = in_array($selection_name.'_asset_selection', $bc_keywords);
+				$selection_prefix = $this->_getSelectionFieldNamePrefix($selection_name);
 
 				if ($buffering) {
 					ob_start();
-					$this->registerFormField($selection_name);
+					$this->registerFormField($selection_prefix);
 				}
 
 				// predefine some commonly used settings, for brevity's sake
@@ -2069,8 +2068,8 @@ class Listing_Engine extends Page
 
 				switch (array_get_index($settings, 'type', $selection_defaults['type'])) {
 					case 'textbox':
-						$selection_name_field = str_replace(' ', '_', $selection_name.'['.$assetid.']');
-						$selection_id = make_valid_html_id(str_replace(' ', '_', $selection_name.'_'.$assetid), '_');
+						$selection_name_field = $selection_prefix.'['.$assetid.']';
+						$selection_id = make_valid_html_id($selection_prefix.'_'.$assetid, '_');
 
 						if ($buffering) {
 							if ($selection_restrict_enable) {
@@ -2082,8 +2081,8 @@ class Listing_Engine extends Page
 					break;
 
 					case 'selection':
-						$selection_name_field = str_replace(' ', '_', $selection_name.'['.$assetid.']');
-						$selection_id = make_valid_html_id(str_replace(' ', '_', $selection_name.'_'.$assetid), '_');
+						$selection_name_field = $selection_prefix.'['.$assetid.']';
+						$selection_id = make_valid_html_id($selection_prefix.'_'.$assetid, '_');
 
 						if ($buffering) {
 							// list contents
@@ -2109,25 +2108,24 @@ class Listing_Engine extends Page
 					case 'radio':
 					default:
 						if ($selection_allow_multiple) {
-							$selection_name_safe  = str_replace(' ', '_', $selection_name);
-							$selection_name_field = $selection_name_safe.'['.$assetid.']';
-							$selection_id         = make_valid_html_id($selection_name_safe.'_'.$assetid, '_');
+							$selection_name_field = $selection_prefix.'['.$assetid.']';
+							$selection_id = make_valid_html_id($selection_prefix.'_'.$assetid, '_');
 
 							if ($buffering) {
-								check_box($selection_name_field, '1', ($selection_value > 0 ? TRUE : FALSE), "sq_listing_check_state(this, '".$selection_name."')", 'id="'.$selection_id.'"');
+								check_box($selection_name_field, '1', ($selection_value > 0 ? TRUE : FALSE), "sq_listing_check_state(this, '".$selection_prefix."')", 'id="'.$selection_id.'"');
+								$this->registerFormField($selection_name_field);
 
 								// the flag is used to determine whether a checkbox is
 								// present and not ticked, or not present at all
 								// only print this once, otherwise it ends up bloating the query string
 								if (empty($this->_tmp['asset_selection_checkbox_flag'][$selection_name])) {
-										$this->registerFormField('selection_flag_'.$selection_name_safe);
-										hidden_field('selection_flag_'.$selection_name_safe, '1');
+										hidden_field('selection_flag_'.$selection_prefix, '1');
 										$this->_tmp['asset_selection_checkbox_flag'][$selection_name] = TRUE;
 								}
 							}
 						} else {
-							$selection_name_field = str_replace(' ', '_', $selection_name);
-							$selection_id = make_valid_html_id(str_replace(' ', '_', $selection_name.'_'.$assetid), '_');
+							$selection_name_field = $selection_prefix;
+							$selection_id = make_valid_html_id($selection_prefix.'_'.$assetid, '_');
 
 							if ($buffering) {
 								radio_button($selection_name_field, $assetid, ($selection_value == $assetid ? TRUE : FALSE), '', 'id="'.$selection_id.'"');
@@ -2158,6 +2156,21 @@ class Listing_Engine extends Page
 		$bodycopy->printBody();
 
 	}//end _printAsset()
+
+
+	/**
+	* Get the prefix to use for input elements relevant to the specified selection
+	*
+	* @param string	$selection_name	The name of the selection
+	*
+	* @return string
+	* @access protected
+	*/
+	function _getSelectionFieldNamePrefix($selection_name)
+	{
+		return str_replace(' ', '_', $selection_name);
+
+	}//end _getSelectionFieldNamePrefix()
 
 
 	/**
@@ -3290,9 +3303,9 @@ class Listing_Engine extends Page
 				ob_start();
 				$onclick = Array();
 				$group_cb_id  = 'all';
-				$control_name = str_replace(' ', '_', $selection_name.$group_cb_id);
+				$control_name = make_valid_html_id($this->_getSelectionFieldNamePrefix($selection_name).str_replace(' ', '_', $group_cb_id));
 				$this->registerFormField($control_name);
-				check_box($control_name, '1', FALSE, "sq_listing_check_state(this, '".$selection_name."')");
+				check_box($control_name, '1', FALSE, "sq_listing_check_state(this, '".$this->_getSelectionFieldNamePrefix($selection_name)."')");
 				$replacements[$selection_name.'_check_all'] = ob_get_clean();
 				$replacements[$selection_name.'_selection_id'] = $control_name;
 			} else {

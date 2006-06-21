@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.6 2006/06/15 06:38:00 tbarrett Exp $
+* $Id: page_link_manager.inc,v 1.7 2006/06/21 06:53:35 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -330,15 +330,16 @@ class Page_Link_Manager extends Page_Asset_Listing
 		// get the assets the managed asset is linked to, and make sure the list isn't cached
 		$asset_links = $this->_getAssetLinks($managed_asset, TRUE);
 
-		$asset_selection_linked = array_get_index($this->attr('asset_selections'), 'Linked', Array());
+		$asset_selection_linked = array_get_index($this->attr('asset_selections'), SQ_PAGE_LINK_MGR_PRESET_LINKED, Array());
 
 		// is the asset selection a checkbox?
 		$is_checkbox = array_get_index($asset_selection_linked, 'type', 'radio')
 					   && array_get_index(array_get_index($asset_selection_linked, 'options', Array()), 'allow_multiple', 1);
 
 		// take effect if the selection is present
-		if ((!$is_checkbox && isset($_REQUEST[SQ_PAGE_LINK_MGR_PRESET_LINKED])) || ($is_checkbox && isset($_REQUEST['selection_flag_'.SQ_PAGE_LINK_MGR_PRESET_LINKED]))) {
-			$new_links = array_get_index($_REQUEST, SQ_PAGE_LINK_MGR_PRESET_LINKED, Array());
+		$request_index = $this->_getSelectionFieldNamePrefix(SQ_PAGE_LINK_MGR_PRESET_LINKED);
+		if ((!$is_checkbox && isset($_REQUEST[$request_index])) || ($is_checkbox && isset($_REQUEST['selection_flag_'.$request_index]))) {
+			$new_links = array_get_index($_REQUEST, $request_index, Array());
 
 			// sanitise the new links for later
 			if (!is_array($new_links)) {
@@ -428,7 +429,6 @@ class Page_Link_Manager extends Page_Asset_Listing
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($major);
 		}
-
 		// handle links marked to be removed
 		foreach ($to_delete as $majorid) {
 			$curr_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($majorid, $minor_id, $link_type);
@@ -705,6 +705,21 @@ class Page_Link_Manager extends Page_Asset_Listing
 		return $string;
 
 	}//end _generateMessageList()
+
+
+	/**
+	* Get the prefix to use for input elements relevant to the specified selection
+	*
+	* @param string	$selection_name	The name of the selection
+	*
+	* @return string
+	* @access protected
+	*/
+	function _getSelectionFieldNamePrefix($selection_name)
+	{
+		return $this->getPrefix().'_'.parent::_getSelectionFieldNamePrefix($selection_name);
+
+	}//end _getSelectionFieldNamePrefix()
 
 
 }//end class
