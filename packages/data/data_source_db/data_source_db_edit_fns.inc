@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.17 2006/04/07 05:50:50 skim Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.18 2006/06/21 04:11:40 skim Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -175,7 +175,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				$asset->setAttrValue($key, $value);
 			}
 			$asset->setAttrValue('dsn', $new_dsn_string);
-			$res = $this->_resetAttributes($asset, 'reset');
 			return true;
 		}
 		return false;
@@ -254,33 +253,37 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	{
 		$wa = $asset->writeAccess('attributes');
 		$tables = $this->_getAllTables($asset);
-		$mode = $asset->attr('mode');
-		if (($wa) && ($mode != 'execute')) {
-			$wa = true;
-		} else {
-			$wa = false;
-		}
-		$chosen_tables = Array();
-		if (isset($_POST['tables'])) {
-			$chosen_tables = array_values($_POST['tables']);
-		} else {
-			$chosen_tables = $asset->attr('tables');
-			$chosen_tables = explode(', ', $chosen_tables);
-		}
-		if ($wa) {
-			if (!empty($tables)) {
-				combo_box('tables', $tables, true, !empty($chosen_tables) ? $chosen_tables : '', 6);
+		if ($tables !== FALSE) {
+			$mode = $asset->attr('mode');
+			if (($wa) && ($mode != 'execute')) {
+				$wa = true;
 			} else {
-				echo translate('no_tables_found');
+				$wa = false;
+			}
+			$chosen_tables = Array();
+			if (isset($_POST['tables'])) {
+				$chosen_tables = array_values($_POST['tables']);
+			} else {
+				$chosen_tables = $asset->attr('tables');
+				$chosen_tables = explode(', ', $chosen_tables);
+			}
+			if ($wa) {
+				if (!empty($tables)) {
+					combo_box('tables', $tables, true, !empty($chosen_tables) ? $chosen_tables : '', 6);
+				} else {
+					echo translate('no_tables_found');
+				}
+			} else {
+				echo implode(', ', $chosen_tables);
+			}
+			echo ('&nbsp;');
+			if ($wa) {
+				return true;
+			} else {
+				return false;
 			}
 		} else {
-			echo implode(', ', $chosen_tables);
-		}
-		echo ('&nbsp;');
-		if ($wa) {
-			return true;
-		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end paintTables()
@@ -333,6 +336,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			} else {
 				$conn = $this->conn;
 			}
+			if ($conn === FALSE) return FALSE;
 			if ($type == 'postgres') {
 				$tables =& $conn->getAll('select relname from pg_stat_user_tables order by relname');
 				$assert_result = assert_valid_db_result($tables, 'Query execution failed', false, false);
@@ -390,79 +394,83 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			$tables = explode(', ', $tables);
 		}
 		$fields = $this->_getFields($tables, $asset);
-		if (isset($fields['select'])) {
-			unset($fields['select']);
-		}
-		if (isset($_POST['fields'])) {
-			foreach ($_POST['fields'] as $table => $field_array) {
-				foreach ($field_array as $field) {
-					$field_name = substr($field, strpos($field, '.') + 1);
-					$selected[] = $field;
-				}
+		if ($fields !== FALSE) {
+			if (isset($fields['select'])) {
+				unset($fields['select']);
 			}
-		} else {
-			$selected = explode(', ', $asset->attr('fields'));
-		}
-		if (!empty($fields)) {
-			if ($wa) {
-				?>
-				<table class="sq-backend-table">
-					<tr>
-						<?php
-						foreach ($tables as $table) {
-							?><td><b><?php echo $table;?></b></td>
-							<td>&nbsp;</td>
-						<?php
-						}
-						?>
-					</tr>
-					<tr>
-						<?php
-						foreach ($fields as $table => $field_array) {
-							?>
-							<td>
-								<?php
-								if (!empty($field_array)) {
-									combo_box('fields['.$table.']', $field_array, true, $selected, 6);
-								} else {
-									echo 'Table Empty! No fields to select';
-									unset($tables[array_search($table, $tables)]);
-									$asset->setAttrValue('tables', implode(', ', $tables));
-								}
-								?>
-							</td>
-							<td> &nbsp; </td>
-						<?php
-						}
-						?>
-					</tr>
-				</table>
-				<?php
+			if (isset($_POST['fields'])) {
+				foreach ($_POST['fields'] as $table => $field_array) {
+					foreach ($field_array as $field) {
+						$field_name = substr($field, strpos($field, '.') + 1);
+						$selected[] = $field;
+					}
+				}
 			} else {
-				if (!empty($selected)) {
-					if ($selected[0] == '*') {
-						unset($selected[0]);
-						if (!empty($fields)) {
+				$selected = explode(', ', $asset->attr('fields'));
+			}
+			if (!empty($fields)) {
+				if ($wa) {
+					?>
+					<table class="sq-backend-table">
+						<tr>
+							<?php
+							foreach ($tables as $table) {
+								?><td><b><?php echo $table;?></b></td>
+								<td>&nbsp;</td>
+							<?php
+							}
+							?>
+						</tr>
+						<tr>
+							<?php
 							foreach ($fields as $table => $field_array) {
-								foreach ($field_array as $key => $field) {
-									$selected[] = $field;
+								?>
+								<td>
+									<?php
+									if (!empty($field_array)) {
+										combo_box('fields['.$table.']', $field_array, true, $selected, 6);
+									} else {
+										echo 'Table Empty! No fields to select';
+										unset($tables[array_search($table, $tables)]);
+										$asset->setAttrValue('tables', implode(', ', $tables));
+									}
+									?>
+								</td>
+								<td> &nbsp; </td>
+							<?php
+							}
+							?>
+						</tr>
+					</table>
+					<?php
+				} else {
+					if (!empty($selected)) {
+						if ($selected[0] == '*') {
+							unset($selected[0]);
+							if (!empty($fields)) {
+								foreach ($fields as $table => $field_array) {
+									foreach ($field_array as $key => $field) {
+										$selected[] = $field;
+									}
 								}
 							}
 						}
+						echo implode(', ', $selected);
+					} else {
+						echo '<b'.translate('no_selected_fields').'</b>';
 					}
-					echo implode(', ', $selected);
-				} else {
-					echo '<b'.translate('no_selected_fields').'</b>';
 				}
+			} else {
+				echo '<b'.translate('no_selected_tables').'</b>';
+			}
+			echo ('&nbsp;');
+			if ($wa) {
+				return true;
+			} else {
+				return false;
 			}
 		} else {
-			echo '<b'.translate('no_selected_tables').'</b>';
-		}
-		echo ('&nbsp;');
-		if ($wa) {
-			return true;
-		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end paintFields()
@@ -515,6 +523,8 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	function _getFields($tables, &$asset)
 	{
 		$conn = $asset->connectToDB();
+		if ($conn === FALSE) return $conn;
+
 		$fields = Array();
 		if (!is_array($tables)) $tables = Array($tables);
 		$db_type = $asset->attr('db_type');
@@ -1904,6 +1914,9 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 		}//end of if where checking if tables is not empty
 		$old_sql = $asset->attr('sql');
+
+
+
 		$mode = $asset->attr('mode');
 		//if the user has shifted into execute mode form edit mode then te old query has still to be retained!
 		if ($mode == 'execute') {
@@ -1949,7 +1962,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 					//$object_attr->_params
 					unset($object_attr->_params['options']['builder']);
 				}
-					return true;
+				return true;
 			} else {
 				//return true;
 				$tables = $asset->attr('tables');
