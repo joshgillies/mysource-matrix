@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.485 2006/06/19 07:25:14 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.486 2006/06/22 23:51:34 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.485 $
+* @version $Revision: 1.486 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2538,7 +2538,7 @@ class Asset_Manager extends MySource_Object
 				$asset =& $this->getAsset($real_assetid);
 				if (is_null($asset)) continue;
 
-				$links[$assetid] = $asset->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by);
+				$links[$assetid] = $asset->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by, $dependant, $exclusive);
 				$this->forgetAsset($asset);
 
 				// we also need the links to real assets for this shadow asset
