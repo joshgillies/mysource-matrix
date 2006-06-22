@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.38.2.6 2006/06/18 23:57:34 sdanis Exp $
+* $Id: ldap_bridge.inc,v 1.38.2.7 2006/06/22 01:13:55 sdanis Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38.2.6 $
+* @version $Revision: 1.38.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -619,7 +619,7 @@ class LDAP_Bridge extends Asset
 			// if we are using Active Directory, the tree structure does not quite work the same
 			// as openLDAP, so we can only do one level for now
 			if ($this->attr('system_type') == 'activedirectory') {
-				$links = $this->getLinks($assetid, SQ_LINK_TYPE_1 & SQ_LINK_TYPE_2, $type_code, $strict_type_code, 'major', $sort_by);
+				$links = $this->getLinks($assetid, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2, $type_code, $strict_type_code, 'major', $sort_by);
 
 				$children = Array();
 				foreach ($links as $link_data) {
