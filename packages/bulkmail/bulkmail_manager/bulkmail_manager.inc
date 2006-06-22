@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.41 2006/06/22 01:53:31 rong Exp $
+* $Id: bulkmail_manager.inc,v 1.42 2006/06/22 02:07:35 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -729,7 +729,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 				} else {
 					// cannot login as pre-selected user, is in trash or not live
 					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_gen_as']);
-					if (!$user->canLogin()) {
+					if (!is_a($user, 'Public_User') && !$user->canLogin()) {
 						$errors[] = translate('bm_warning_generate_as_login_error', $user->name, $user->id);
 					}
 					// pre-selected user does not have (effective) read permission for content page
