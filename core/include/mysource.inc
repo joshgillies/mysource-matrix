@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.182 2006/06/15 00:49:20 sdanis Exp $
+* $Id: mysource.inc,v 1.183 2006/06/22 23:47:03 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.182 $
+* @version $Revision: 1.183 $
 * @package MySource_Matrix
 */
 class MySource
@@ -467,12 +467,12 @@ class MySource
 	/**
 	* Sends appropiate HTTP Headers based on the system config
 	*
-	* @param object	$asset	the asset being processed
+	* @param object	&$asset	the asset being processed
 	*
 	* @return void
 	* @access private
 	*/
-	function _sendHTTPHeaders($asset)
+	function _sendHTTPHeaders(&$asset)
 	{
 		header('Cache-Control: public');
 		header('Pragma: cache');
