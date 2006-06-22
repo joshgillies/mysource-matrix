@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.40 2006/05/28 23:35:46 tbarrett Exp $
+* $Id: bulkmail_manager.inc,v 1.41 2006/06/22 01:53:31 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -754,6 +754,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 				}
 			}
 			if (!empty($problematic_list)) {
+				asort($problematic_list);
 				$errors[] = translate('bm_warning_recipient_no_read_access', $content_page->name, $content_page->id, implode(', ', $problematic_list));
 			}
 

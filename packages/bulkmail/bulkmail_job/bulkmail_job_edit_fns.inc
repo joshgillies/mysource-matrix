@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.28 2006/02/13 03:30:28 ndvries Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.29 2006/06/22 01:53:31 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -95,7 +95,7 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 						</tr>
 					<?php
 					foreach ($errors as $error) {
-						$error_msg = explode(':', $error);
+						$error_msg = explode(':', $error, 2);
 						?><tr>
 							<td><?php echo $error_msg[0]; ?></td>
 							<td><span class="sq-backend-warning"><?php echo $error_msg[1]; ?></span></td>

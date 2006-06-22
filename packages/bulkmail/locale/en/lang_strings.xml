@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.27 2006/05/28 23:35:46 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.28 2006/06/22 01:53:31 rong Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -99,16 +99,16 @@ Please click on the following link if you would like to proceed:
 	<string source="bm_warning_one_post_office_for_job">Bulkmail Jobs can only be linked under one Bulkmail Post Office</string>
 
 	<string source="bm_warning_server_details_error">Server Details: "%s"</string>
-	<string source="bm_warning_no_recipient">Recipients: Recipients not set</string>
-	<string source="bm_warning_no_asset_to_send">Content: 'Asset to Send' not set</string>
-	<string source="bm_warning_asset_to_send_not_live">Content: "Asset to Send", %1$s (Id #%2$s), is not live</string>
-	<string source="bm_warning_no_generate_as">Content: 'Generate As' not set</string>
-	<string source="bm_warning_generate_as_login_error">Content: Unable to generate content as %1$s (Id #%2$s), user is either in trash or not live</string>
-	<string source="bm_warning_generate_as_no_read_access">Content: %1$s (Id #%2$s) does not have Read Access to 'Asset to Send' - %3$s (Id #%4$s)</string>
-	<string source="bm_warning_recipient_no_read_access">Content: The following recipients do not have read Access to "%1$s" (ID #%2$s): %3$s.</string>
+	<string source="bm_warning_no_recipient">Recipients: Recipients not set.</string>
+	<string source="bm_warning_no_asset_to_send">Content: 'Asset to Send' not set.</string>
+	<string source="bm_warning_asset_to_send_not_live">Content: "Asset to Send", %1$s (Id #%2$s), is not live.</string>
+	<string source="bm_warning_no_generate_as">Content: 'Generate As' not set.</string>
+	<string source="bm_warning_generate_as_login_error">Content: Unable to generate content as %1$s (Id #%2$s), user is either in trash or not live.</string>
+	<string source="bm_warning_generate_as_no_read_access">Content: %1$s (Id #%2$s) does not have Read Access to 'Asset to Send' - %3$s (Id #%4$s).</string>
+	<string source="bm_warning_recipient_no_read_access">Content: The following recipients do not have Read Access to "%1$s" (ID #%2$s): %3$s.</string>
 	<string source="bm_warning_no_public_read_access">Content: %1$s (Id #%2$s) does not have public user read access. Check the status and permissions.</string>
-	<string source="bm_warning_no_from_field">Header Details: Missing 'From' field</string>
-	<string source="bm_warning_from_field_invalid_email">Header Details: Email address provided in 'From' field is invalid</string>
+	<string source="bm_warning_no_from_field">Header Details: Missing 'From' field.</string>
+	<string source="bm_warning_from_field_invalid_email">Header Details: Email address provided in 'From' field is invalid.</string>
 	<string source="bm_warning_no_subject_field">Header Details: Missing 'Subject' field</string>
 	<string source="bm_warning_send_rate_min">Warning: Minimum send rate is %1$s emails every minute</string>
 	<string source="bm_warning_send_rate_max">Warning: Maximum send rate is %1$s emails every minute</string>
