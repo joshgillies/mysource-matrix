@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: get_design_area_setable_attrs.php,v 1.6 2005/03/21 06:28:39 gsherwood Exp $
+* $Id: get_design_area_setable_attrs.php,v 1.6.4.1 2006/06/22 22:55:37 sdanis Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Small script to return the design areas setable attributes and their descriptions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.4.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -81,7 +81,7 @@ if (!SQ_PHP_CLI) {
 			font-size: 9pt;
 			background-color: #ffffff;
 		}
-	
+
 		table {
 			width: 100%;
 			border: 1px solid;
@@ -95,7 +95,7 @@ if (!SQ_PHP_CLI) {
 			background-color: #000000;
 			padding: 10px;
 		}
-	
+
 	</style>
 	<body>
 	<?php
@@ -105,9 +105,9 @@ foreach ($design_areas as $type_code) {
 
 	$am->includeAsset($type_code);
 	$da = new $type_code();
-	$edit_fns = $da->getEditFns();
 
-	$setable_vars = $edit_fns->getSetableVars($da);
+	$setable_vars = $da->vars;
+	$protected_vars = $da->getProtectedAttrs();
 
 	if (SQ_PHP_CLI) {
 		echo $type_code, " ", str_repeat('-', 80 - (strlen($type_code) + 1)), "\n";
@@ -128,21 +128,22 @@ foreach ($design_areas as $type_code) {
 	ksort($setable_vars);
 
 	foreach ($setable_vars as $var_name => $info) {
+		if (in_array($var_name, $protected_vars) || $info['type']=='serialise') continue;
 		$attr = $da->getAttribute($var_name);
 		$desc = $attr->description;
 
 		if ($info['type'] == 'selection') {
 			if (!SQ_PHP_CLI) $desc .= '<pre>';
 			else $desc .= "\n";
-			$desc .= "Options : \n";
+			$desc .= "\t\tOptions : \n";
 			foreach ($attr->_params['options'] as $value => $text) {
-				$desc .= $value.' => '.$text."\n";
+				$desc .= "\t\t\t".$value.' => '.$text."\n";
 			}
 			if (!SQ_PHP_CLI) $desc .= '</pre>';
 		}
 
 		if (SQ_PHP_CLI) {
-			echo "\t", $var_name, "\t" , $info['type'], "\t", $desc, "\n";
+			echo "\t-> ", $var_name, "\t" , $info['type'], "\t", $desc, "\n";
 		} else {
 			?>
 				<tr>
@@ -156,7 +157,7 @@ foreach ($design_areas as $type_code) {
 	}//end foreach
 
 	if (SQ_PHP_CLI) {
-		echo str_repeat('-', 80), "\n";
+		echo str_repeat('-', 80), "\n\n";
 	} else {
 		?>
 			</table>
