@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.115 2006/05/18 00:20:09 tbarrett Exp $
+* $Id: metadata_manager.inc,v 1.116 2006/06/23 01:56:59 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.115 $
+* @version $Revision: 1.116 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -782,7 +782,7 @@ class Metadata_Manager extends MySource_Object
 				echo '/* 1 */', "\n";
 				$replacements = $this->generateKeywordReplacements($asset, $keywords);
 				echo '/* 2 */', "\n";
-				$tag_values = replace_keywords($tag_values, $replacements);
+				replace_keywords($tag_values, $replacements);
 				echo '/* 3 */', "\n";
 				echo "\n\n";
 			}

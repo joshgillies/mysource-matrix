@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.32 2006/01/19 02:56:24 dmckee Exp $
+* $Id: bodycopy.inc,v 1.33 2006/06/23 01:56:58 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -335,7 +335,7 @@ class Bodycopy extends Asset
 					include($this->data_path.'/.content_file.php');
 					$content = ob_get_contents();
 				ob_end_clean();
-				$content = replace_keywords($content, $this->keyword_replacements);
+				replace_keywords($content, $this->keyword_replacements);
 
 				echo $content;
 			}

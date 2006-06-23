@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.172 2006/06/21 02:08:19 rong Exp $
+* $Id: search_page.inc,v 1.173 2006/06/23 01:57:02 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.172 $
+* @version $Revision: 1.173 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2542,7 +2542,7 @@ class Search_Page extends Listing_Engine
 									'result_number'	=> $this->_tmp['start_element'] + $list_position,
 								);
 
-		$element_contents = replace_keywords($element_contents, $element_replacements);
+		replace_keywords($element_contents, $element_replacements);
 
 		echo $element_contents;
 

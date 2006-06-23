@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.13 2006/06/19 01:03:40 lwright Exp $
+* $Id: form_question.inc,v 1.14 2006/06/23 01:56:58 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -757,7 +757,7 @@ class Form_Question extends Asset
 					}
 				}
 
-				$default_value = replace_keywords($default_value, $replacements);
+				replace_keywords($default_value, $replacements);
 
 				// If the default value is a dud, blank it
 				if (!$this->hasValidValue($default_value, TRUE)) {

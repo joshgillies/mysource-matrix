@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.27 2006/02/13 03:30:28 ndvries Exp $
+* $Id: bulkmail_job.inc,v 1.28 2006/06/23 01:57:01 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -137,7 +137,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_asset);
 
-		$subject = replace_keywords($subject, $replacements);
+		replace_keywords($subject, $replacements);
 
 		$header_details['subject'] = $subject;
 

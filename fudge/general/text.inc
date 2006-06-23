@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.23 2005/12/08 00:58:57 rhoward Exp $
+* $Id: text.inc,v 1.24 2006/06/23 01:57:00 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package Fudge
 * @subpackage Text
 */
@@ -44,13 +44,13 @@
 * the arguments pass validation, it passes them off to the latter function to do
 * the actual replacement)
 *
-* @param mixed	$text			the text or array to replace in
+* @param mixed	&$text			the text or array to replace in
 * @param array	&$replacements	an array of replacements (keyword => replacement)
 *
 * @return mixed string|array
 * @access public
 */
-function replace_keywords($text, &$replacements)
+function replace_keywords(&$text, &$replacements)
 {
 	// type verification
 	$is_replacements_array = is_array($replacements);
@@ -70,13 +70,13 @@ function replace_keywords($text, &$replacements)
 /**
 * Replaces any occurance of "%keyword%" with the replacements text
 *
-* @param mixed	$text			the text or array to replace in
+* @param mixed	&$text			the text or array to replace in
 * @param array	&$replacements	an array of replacements (keyword => replacement)
 *
 * @return mixed string|array
 * @access private
 */
-function _replace_keywords_recursive($text, &$replacements)
+function _replace_keywords_recursive(&$text, &$replacements)
 {
 	if (is_array($text)) {
 		$r = Array();

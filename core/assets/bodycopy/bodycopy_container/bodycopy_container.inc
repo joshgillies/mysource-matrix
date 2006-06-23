@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.31 2006/01/26 22:34:03 lwright Exp $
+* $Id: bodycopy_container.inc,v 1.32 2006/06/23 01:56:58 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -385,7 +385,7 @@ class Bodycopy_Container extends Asset
 			}
 
 			// replace keywords in the content
-			$output = replace_keywords($output, $keyword_replacements);
+			replace_keywords($output, $keyword_replacements);
 
 			echo $output;
 			return;

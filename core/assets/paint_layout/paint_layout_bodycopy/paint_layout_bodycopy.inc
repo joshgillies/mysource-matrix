@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.28 2006/04/11 04:21:41 tbarrett Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.29 2006/06/23 01:56:58 rong Exp $
 *
 */
 
@@ -50,7 +50,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -136,7 +136,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		}//end foreach
 
 		// Replace all the conditional keywords in our content with valid PHP code
-		$content = replace_keywords($content, $keyword_replacements);
+		replace_keywords($content, $keyword_replacements);
 
 		// Save the substitution keywords we will need to lookup for each asset display
 		create_directory($this->data_path);
@@ -224,7 +224,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			ob_start();
 				include($this->data_path.'/content_file.php');
 				$content = ob_get_contents();
-				$content = replace_keywords($content, $paint_layout_keywords);
+				replace_keywords($content, $paint_layout_keywords);
 			ob_end_clean();
 		} else {
 			$this->setKeywordReplacements($this->_getAssetKeywordReplacements($asset, $this->getKeywords()));

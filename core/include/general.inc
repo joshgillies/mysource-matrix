@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.137 2006/06/23 01:36:57 rong Exp $
+* $Id: general.inc,v 1.138 2006/06/23 01:56:59 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.137 $
+* @version $Revision: 1.138 $
 * @package MySource_Matrix
 */
 
@@ -1405,7 +1405,7 @@ function replace_global_keywords(&$text)
 				}
 			}
 		}
-		$text = replace_keywords($text, $replacements);
+		replace_keywords($text, $replacements);
 	}
 	return $text;
 
