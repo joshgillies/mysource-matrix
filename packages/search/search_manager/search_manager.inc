@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.114 2006/06/23 01:57:02 rong Exp $
+* $Id: search_manager.inc,v 1.115 2006/06/23 05:47:13 sdanis Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.114 $
+* @version $Revision: 1.115 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -888,7 +888,7 @@ class Search_Manager extends Asset
 			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
 			if (!isset($info[$assetid])) return FALSE;
 
-			if (!$this->isTypeIndexable($info[$assetid])) {
+			if (!$this->isTypeIndexable(array_get_index($info, $assetid, 0))) {
 				return FALSE;
 			}
 
@@ -1192,8 +1192,10 @@ class Search_Manager extends Asset
 			// check the asset type weightings.
 			if (empty($weightings)) {
 				$type_code = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
-				$type_code = $type_code[$assetid];
-				$weightings = $this->getAssetTypeWeightings($type_code);
+				$type_code = array_get_index($type_code, $assetid, '');
+				if (!empty($type_code)) {
+					$weightings = $this->getAssetTypeWeightings($type_code);
+				}
 
 				// if there are no type weightings, then we will have to create
 				// some default values for this assetid
