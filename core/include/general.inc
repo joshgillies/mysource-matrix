@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.136 2006/06/09 04:47:45 tbarrett Exp $
+* $Id: general.inc,v 1.137 2006/06/23 01:36:57 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.136 $
+* @version $Revision: 1.137 $
 * @package MySource_Matrix
 */
 
@@ -1381,12 +1381,12 @@ function get_asset_lineage_sort_order($asset_lineage=Array())
 /**
 * Replaces keywords on the global level
 *
-* @param string	$text	the text to replace keywords in
+* @param string	&$text	the text to replace keywords in
 *
 * @return string
 * @access public
 */
-function replace_global_keywords($text)
+function replace_global_keywords(&$text)
 {
 	require_once SQ_FUDGE_PATH.'/general/text.inc';
 	$keywords = retrieve_keywords_replacements($text);

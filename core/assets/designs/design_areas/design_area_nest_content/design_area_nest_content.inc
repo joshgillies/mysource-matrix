@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content.inc,v 1.21 2006/02/15 02:59:38 sdanis Exp $
+* $Id: design_area_nest_content.inc,v 1.22 2006/06/23 01:36:57 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -185,7 +185,7 @@ class Design_Area_Nest_Content extends Design_Area
 
 				// global keyword replacements
 				if (!empty($body)) {
-					$body = replace_global_keywords($body);
+					replace_global_keywords($body);
 				}
 
 				echo $body;

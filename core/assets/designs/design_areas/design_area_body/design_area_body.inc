@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.27 2006/02/07 01:06:57 dmckee Exp $
+* $Id: design_area_body.inc,v 1.28 2006/06/23 01:36:56 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,7 +103,7 @@ class Design_Area_Body extends Design_Area
 		}
 		// global keyword replacements
 		if (!empty($body)) {
-			$body = replace_global_keywords($body);
+			replace_global_keywords($body);
 		}
 
 		echo $body;
