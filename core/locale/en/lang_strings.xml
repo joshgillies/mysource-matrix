@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.30 2006/05/30 06:40:37 rhoward Exp $
+* $Id: lang_strings.xml,v 1.18.2.31 2006/06/26 01:59:50 skim Exp $
 *
 */
 
@@ -1389,6 +1389,7 @@ Unable to accept non-digit characters in this field.</string>
 	<string source="no_lock_held" js="1">No locks are held on "%s"</string>
 	<string source="search_found_nothing" js="1">Search for "%s" found nothing. Try Again</string>
 	<string source="form_already_submitted" js="1">The form has already been submitted, please wait ...</string>
+	<string source="form_contains_error" js="1">The form can not be submitted, please check javascript errors.</string>
 	<string source="max_characters_warning" js="1">This field can contain no more than %s characters.</string>
 	<string source="object_requires_selection" js="1">You need to select this object as though it was text, rather than just clicking on it.</string>
 	<string source="insert_anchor" js="1">Insert Anchor</string>

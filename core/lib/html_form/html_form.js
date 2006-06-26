@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.37.2.2 2005/09/02 01:28:17 dheppell Exp $
+* $Id: html_form.js,v 1.37.2.3 2006/06/26 01:59:47 skim Exp $
 *
 */
 
@@ -35,6 +35,15 @@
 function submit_form(f)
 {
 	if (f == null) { f = document.main_form; }
+
+	SQ_FORM_ERROR_CONTAINED = false;
+	inputs = f.getElementsByTagName('input');
+	for (i=0; i<inputs.length; i++) {
+		if (inputs[i].name == 'submit') {
+			SQ_FORM_ERROR_CONTAINED = true;
+		}
+	}
+
 	// make sure we clean any stuff up before we submit
 	if (!f.onsubmit || f.onsubmit()) {
 		f.submit();
@@ -112,7 +121,7 @@ function validate_numeric_text_field(name, allow_negative)
 			}
 		}
 		name.value = outstr;
-		
+
 		if (name.createTextRange) {
 			// ie support
 			var range = name.createTextRange();
