@@ -1,24 +1,24 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Open Source Licence                                      |
+* | Squiz.net Open Source Licence
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).
 * +--------------------------------------------------------------------+
-* | This source file may be used subject to, and only in accordance    |
-* | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
-* | Make sure you have read and accept the terms of that licence,      |
-* | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
-* | modify, adapt or enhance this software, you agree to assign your   |
-* | intellectual property rights in the modification, adaptation and   |
-* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | This source file may be used subject to, and only in accordance
+* | with, the Squiz Open Source Licence Agreement found at
+* | http://www.squiz.net/licence.
+* | Make sure you have read and accept the terms of that licence,
+* | including its limitations of liability and disclaimers, before
+* | using this software in any way. Your use of this software is
+* | deemed to constitute agreement to be bound by that licence. If you
+* | modify, adapt or enhance this software, you agree to assign your
+* | intellectual property rights in the modification, adaptation and
+* | enhancement to Squiz Pty Ltd for use and distribution under that
+* | licence.
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.24 2006/05/26 05:25:28 rong Exp $
+* $Id: www.inc,v 1.25 2006/06/26 10:52:25 trodger Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package Fudge
 * @subpackage General
 */
@@ -261,6 +261,32 @@ function make_valid_html_id($id, $replace_char='')
 	return $id;
 
 }//end make_valid_html_id()
+
+
+/**
+* Validate the parameter as a valid ip (4) address
+*
+* @param	string	$address The address to validate
+*
+* @return boolean
+* @access public
+*/
+function valid_ipaddress($address)
+{
+	$ips = explode('.', $address);
+
+	if (4 != count($ips)) return FALSE;
+
+	foreach ($ips as $ip) {
+		if (!ctype_digit($ip)) return FALSE;
+		$val = intval($ip);
+		if ((0 > $ip) || (255 < $ip)) {
+				return FALSE;
+		}
+	}
+	return TRUE;
+
+}//end valid_ipaddress()
 
 
 ?>
