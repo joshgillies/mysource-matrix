@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.42 2006/06/15 04:47:56 sdanis Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.43 2006/06/26 02:32:45 rong Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -238,7 +238,6 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$e = '|\\./\\?a=([0-9]+)([^0-9:])|';
 		$r = '<'.'?php echo array_get_index($sq_asset_url_list, $1, "./?a=$1"); ?'.'>$2';
 		$output = preg_replace($e, $r, $output);
-
 		// replacing shadow assetids isn't so simple because they can have any characters...and therefore need to be escaped
 		$e = '|\\./\\?a=([0-9]+:[^$]*)\\$|';
 		if (preg_match_all($e, $output, $matches=Array(), PREG_PATTERN_ORDER)) {
@@ -257,9 +256,16 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$keywords = retrieve_keywords_replacements($output);
 
 		$attributes = $asset->attr('attributes');
-		if (empty($attributes['disable_keywords']) && !empty($keywords)) {
+		if (empty($attributes['disable_keywords'])) {
 			foreach ($keywords as $keyword) {
 				$output = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo (isset($keyword_replacements["'.$keyword.'"])) ? $keyword_replacements["'.$keyword.'"] : ""; ?'.'>\\4', $output);
+			}
+		} else {
+			// if 'Disable Keywords' is checked, change '%' sign to '&#37;'
+			// so that keywords get printed out correctly on the frontend, and replacements at higher level are not affected
+			// content file is generated each time the user commits, so we dont have to bother to convert the special char back
+			foreach ($keywords as $keyword) {
+				$output = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo "&#37;'.$keyword.'&#37;"; ?'.'>\\4', $output);
 			}
 		}
 
