@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.28 2006/06/23 01:57:01 rong Exp $
+* $Id: bulkmail_job.inc,v 1.29 2006/06/26 02:33:19 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -127,17 +127,16 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$header_details['from'] = $from;
 
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
-		$subject = Bulk_Mailer::replaceContentKeywords($subject, $GLOBALS['SQ_SYSTEM']->user);
 		$keywords = retrieve_keywords_replacements($subject);
-
 		$replacements = Array();
 		$content_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($content_id);
 		foreach ($keywords as $word) {
 			$replacements[$word] = $content_asset->getKeywordReplacement($word);
 		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_asset);
-
 		replace_keywords($subject, $replacements);
+
+		$subject = Bulk_Mailer::replaceContentKeywords($subject, $GLOBALS['SQ_SYSTEM']->user);
 
 		$header_details['subject'] = $subject;
 
