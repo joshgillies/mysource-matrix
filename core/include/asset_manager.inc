@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.487 2006/06/22 23:54:55 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.488 2006/06/26 01:58:29 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.487 $
+* @version $Revision: 1.488 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2710,10 +2710,10 @@ class Asset_Manager extends MySource_Object
 	* Also returns basic information about the last link (linkid and link type)
 	* linkid => Array ('linkid' => linkid, 'link_type' => link_type, 'lineage' => Array(...))
 	*
-	* @param object					$assetid		the asset whose links lineages we are getting
-	* @param int					$result_limit	limits the number of results returned
-	* @param string					$from_treeid	Uses this treeid as the starting (root) node
-	* @param mixed string|array		$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
+	* @param object				$assetid		the asset whose links lineages we are getting
+	* @param int				$result_limit	limits the number of results returned
+	* @param string				$from_treeid	Uses this treeid as the starting (root) node
+	* @param mixed string|array	$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
 	*
 	* @return array
 	* @access public
@@ -3640,6 +3640,10 @@ class Asset_Manager extends MySource_Object
 		assert_false(!($link_type & SQ_SC_LINK_SIGNIFICANT) && $dependant, 'In order for a link to be dependant it must also be a significant link');
 		assert_false((strpos($major->id.$minor->id, ':') !== FALSE), 'You cannot create a link to or from a shadow asset');
 
+		// We want to use master DB from here on.  We will switch to db3 for the tree bit later on
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
 		// First, we should check that we don't already have a link of this type
 		$current_links = $this->getLinks($major->id, $link_type, $minor->type());
 		$num_curr_links = count($current_links);
@@ -3647,14 +3651,12 @@ class Asset_Manager extends MySource_Object
 		for ($i = 0; $i < $num_curr_links; $i++) {
 			// it already exists, so we don't need to do anything
 			if ($current_links[$i]['minorid'] == $minor->id && $current_links[$i]['value'] == $value) {
-				// if we are trashing the asset and it is already in the trash, just
-				// pretend that we created the link
-				$trash =& $this->getSystemAsset('trash_folder');
-				if ($trash->id == $major->id) {
-					return $current_links[$i]['linkid'];
+				// Throw error about attempt to create duplicate link,
+				// unless the major is the trash in which case we pretend we created it ok
+				if ($major->id != $this->getSystemAssetid('trash_folder')) {
+					trigger_localised_error('SYS0192', E_USER_WARNING);
 				}
-
-				trigger_localised_error('SYS0192', E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return $current_links[$i]['linkid'];
 			}
 		}//end for
@@ -3664,6 +3666,7 @@ class Asset_Manager extends MySource_Object
 			// are moving though, we need a different check which is done in moveLink()
 			if (!$moving) {
 				if (($err_msg = $major->canCreateLink($minor, $link_type, $exclusive)) !== TRUE) {
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					trigger_localised_error('SYS0301', E_USER_WARNING, $err_msg);
 					return 0;
 				}
@@ -3677,19 +3680,14 @@ class Asset_Manager extends MySource_Object
 			$parent_was_locked = !empty($lock_info);
 			if (!$this->acquireLock($major->id, 'links')) {
 				trigger_localised_error('CORE0012', E_USER_WARNING, $major->name);
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return 0;
 			}
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
 		// if this link is a significant link,
-		// then that we aren't moving under ourselves
+		// then check that we aren't moving under ourselves
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
-			// no transaction, switch to db3
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-			// reassign $db after changing the database connection because PHP doesn't handle the reference properly
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			//// Check we aren't moving the minor asset under itself ////
 			// get all the links where the minor asset is a parent
@@ -3715,16 +3713,10 @@ class Asset_Manager extends MySource_Object
 			assert_valid_db_result($moving_under);
 
 			if ($moving_under) {
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				trigger_localised_error('CORE0114', E_USER_WARNING, $minor->name, $minor->id, $major->name, $major->id);
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return 0;
 			}
-
-		} else {
-			// we are going into a transaction anyway so switch to db2
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
 		}
 
 		// make sure the sort order is in a valid range
@@ -3734,22 +3726,22 @@ class Asset_Manager extends MySource_Object
 					sq_ast_lnk
 				WHERE
 					majorid = '.$db->quoteSmart($major->id);
-
-
 		$row = $db->getRow($sql);
 		assert_valid_db_result($row);
-
 		$max = ($row['count'] > 0) ? (int) $row['max'] + 1 : 0;
 		if (is_null($sort_order) || (int) $sort_order > (int) $max || (int) $sort_order < 0) {
 			$sort_order = (int) $max;
 		}
 
+		// Get a linkid to use
 		$linkid = $db->nextId('sq_ast_lnk');
 		assert_valid_db_result($linkid);
 
+		// We are about to start changing things, so begin transaction
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		// Adjust existing links' sort order
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 		$sql = 'UPDATE
 					sq_ast_lnk
 				SET
@@ -3758,15 +3750,12 @@ class Asset_Manager extends MySource_Object
 						majorid		= '.$db->quoteSmart($major->id).'
 					AND	sort_order	>= '.$db->quoteSmart($sort_order);
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		// we need to insert into the link table
-		// before we can insert into the link_tree table to ensure
-		// referential constraints
-
+		// Insert into the link table
+		// (Need to do this before we can insert into the link_tree table
+		// to respect referential constraints)
 		$sql = 'INSERT INTO
 					sq_ast_lnk
 					(
@@ -3795,10 +3784,8 @@ class Asset_Manager extends MySource_Object
 						'.$db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserId()).'
 					)';
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// if this is a significant link, then do stuff with the tree
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
@@ -3826,7 +3813,6 @@ class Asset_Manager extends MySource_Object
 				trigger_localised_error('SYS0240', E_USER_WARNING, $major->name, $major->id);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
 				return 0;
 			}
 
@@ -3856,6 +3842,11 @@ class Asset_Manager extends MySource_Object
 
 			$i = 0;
 			$requires_update = FALSE;
+
+
+			// Switch to db3 for the treeid competition
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			// Yes, this is a do-while loop. Live with it. The following code is to stop
 			// constraint violations which may occur if two processes are trying to
@@ -4164,12 +4155,9 @@ class Asset_Manager extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			}//end if
 
-		}//end if significant link
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // no more db3
 
-		if (!($link_type & SQ_SC_LINK_SIGNIFICANT)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		}
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		}//end if significant link
 
 		// only call the linksUpdated() method on the parent if this link is dependent
 		if ($dependant) {
@@ -4198,24 +4186,28 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		// That's it, commit
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
+
+		// Log message
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$msg_reps = Array(
 						'major_name'	=> $major->name,
 						'minor_name'	=> $minor->name,
 					);
-
 		$message = $ms->newMessage(Array(), 'asset.linking.create', $msg_reps);
 		$message->parameters['majorid'] = $major->id;
 		$message->parameters['minorid'] = $minor->id;
 		$message->parameters['linkid']  = $linkid;
 		$message->send();
 
-		// Event Manager
+
+		// Broadcast Event
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($major, 'CreateLink', Array('linkid' => $linkid));
 
-		// Trigger Manager
+		// Process triggers
 		// check if the link involves the trash
 		if ($major->type() != 'trash_folder' && $minor->type() != 'trash_folder') {
 			// fire the 'Link Created' events, one for the major asset, one for the minor
@@ -4238,6 +4230,8 @@ class Asset_Manager extends MySource_Object
 			}
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_created', $minor, $event_data);
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end of db2
 
 		return $linkid;
 
@@ -4924,9 +4918,14 @@ class Asset_Manager extends MySource_Object
 			return FALSE;
 		}
 
+		// CHANGE TO DB 2
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
 		$major =& $this->getAsset($link['majorid'], $link['major_type_code']);
 		$minor =& $this->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($major) || is_null($minor)) {
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
@@ -4937,6 +4936,7 @@ class Asset_Manager extends MySource_Object
 			$parent_was_locked = !empty($lock_info);
 			if (!$this->acquireLock($major->id, 'links')) {
 				trigger_localised_error('SYS0126', E_USER_WARNING, 'major', $major->name);
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 			// to check if we can delete this link, we need to lock current asset
@@ -4944,6 +4944,7 @@ class Asset_Manager extends MySource_Object
 			$asset_was_locked = !empty($minor_lock_info);
 			if (!$this->acquireLock($minor->id, 'links')) {
 				trigger_localised_error('SYS0126', E_USER_WARNING, 'minor', $minor->name);
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 		}
@@ -4952,6 +4953,7 @@ class Asset_Manager extends MySource_Object
 			// check if we are allowed to delete this link
 			if (($err_msg = $minor->canDeleteLink($linkid)) !== TRUE) {
 				trigger_localised_error('SYS0302', E_USER_WARNING, $err_msg);
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 		}
@@ -4959,57 +4961,39 @@ class Asset_Manager extends MySource_Object
 		$id_parts = explode(':', $linkid);
 		$minorid_parts = explode(':', $link['minorid']);
 
-		// shadow asset found
 		if (isset($id_parts[1])) {
-			// if the parent is a bridge, let it handle the delete
+			// shadow asset found
 			if (implements_interface($major, 'bridge')) {
+				// the parent is a bridge, so let it handle the delete
 				$result = $major->deleteAssetLink($linkid);
 				$this->forgetAsset($asset);
 				return $result;
-			}
-		} else if (isset($minorid_parts[1])) {
-			// if the minor is a shadow asset and the major is a normal asset
-			// then we want to delete the link between these two assets
-			if (!implements_interface($major, 'bridge')) {
-				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			} else {
+				// the minor is a shadow asset and the major is a normal asset
+				// so we want to delete the link between these two assets
+				if (!implements_interface($major, 'bridge')) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					$sql = 'DELETE FROM
+								sq_shdw_ast_lnk
+							WHERE
+								linkid = '.$db->quoteSmart($linkid);
 
-				$db =& $GLOBALS['SQ_SYSTEM']->db;
-				$sql = 'DELETE FROM
-							sq_shdw_ast_lnk
-						WHERE
-							linkid = '.$db->quoteSmart($linkid);
+					$result = $db->query($sql);
+					assert_valid_db_result($result);
 
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
-
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-				return TRUE;
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return TRUE;
+				}
 			}
 		}//end if shadow asset
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// if this is a significant link
 		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
-
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-			// reassign $db after changing the database connection because PHP doesn't handle the reference properly
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-			$minor =& $this->getAsset($link['minorid'], $link['minor_type_code']);
-			if (is_null($minor)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return FALSE;
-			}
 
 			$num_other_links = $this->countLinks($minor->id, 'minor', SQ_SC_LINK_SIGNIFICANT, '', TRUE, $linkid);
 
@@ -5026,10 +5010,13 @@ class Asset_Manager extends MySource_Object
 				if (!$linked_outside_trash) {
 					// it's about to become linked to the trash only, so run the trigger
 					if (!$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_before_asset_deleted', $minor, Array())) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
 				}
 			}
+
 
 			// we create a new link to the trash if this is the last significant link
 			// being deleted and if we are not purging the trash. We check the moving
@@ -5078,6 +5065,9 @@ class Asset_Manager extends MySource_Object
 
 			//// UPDATE THE TREE ////
 
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+
 			// update the parents to tell them that they are going to be one kid less
 			$sql = 'UPDATE
 						sq_ast_lnk_tree
@@ -5100,8 +5090,10 @@ class Asset_Manager extends MySource_Object
 								t.linkid = '.$db->quoteSmart($linkid).'
 						)';
 
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 			// we can delete all the links under these nodes because it will be a clean start
 			// when we insert into the gap's we create below
@@ -5121,33 +5113,19 @@ class Asset_Manager extends MySource_Object
 								OR ct.treeid	= pt.treeid)
 						)';
 
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
-
-			// finished dealing with sq_ast_lnk_tree, restore the database connection and reassign $db
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+			// finished dealing with sq_ast_lnk_tree, so restore database connection to db2
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		} else {
-			// if not significant link
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		}//end if significant link
 
-			$minor =& $this->getAsset($link['minorid'], $link['minor_type_code']);
-			if (is_null($minor)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return FALSE;
-			}
 
-		} //end if significant link
-
-		// move 'em up, higher
-
+		// Update the actual link table
 		$sql = 'UPDATE
 					sq_ast_lnk
 				SET
@@ -5168,7 +5146,8 @@ class Asset_Manager extends MySource_Object
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		// tell the assets that they have been updated
+
+		// Tell the assets that they have been updated
 		if (!$major->linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -5180,8 +5159,8 @@ class Asset_Manager extends MySource_Object
 			return FALSE;
 		}
 
+		// Release locks if necessary
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-			// release locks depending on if the parent was locked before the link
 			if (!$parent_was_locked) {
 				if (!$this->releaseLock($major->id, 'links')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -5189,7 +5168,6 @@ class Asset_Manager extends MySource_Object
 					return FALSE;
 				}
 			}
-			// release locks depending on if the asset was locked before the link
 			if (!$asset_was_locked) {
 				if (!$this->releaseLock($minor->id, 'links')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -5199,8 +5177,11 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		// That's it, commit
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
+		// Log message
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$msg_reps = Array(
 						'major_name'	=> $major->name,
 						'minor_name'	=> $minor->name,
@@ -5211,12 +5192,9 @@ class Asset_Manager extends MySource_Object
 		$message->parameters['linkid']  = $linkid;
 		$message->send();
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
+		// Broadcast event
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($major, 'DeleteLink', Array('linkid' => $linkid));
-
 		if ($major->type() != 'trash_folder' && $minor->type() != 'trash_folder') {
 			$event_data = Array('link_info' => $link, 'linkid' => $linkid);
 			if (!$this->assetInTrash($minor->id, TRUE)) {
@@ -5227,6 +5205,7 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end of db2
 		return TRUE;
 
 	}//end deleteAssetLink()
