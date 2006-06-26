@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.547 2006/06/20 00:57:15 skim Exp $
+* $Id: asset.inc,v 1.548 2006/06/26 02:32:13 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.547 $
+* @version $Revision: 1.548 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3232,7 +3232,6 @@ class Asset extends MySource_Object
 
 	/**
 	* Get bodycopy keyword replacement
-	*
 	* Provides a mechanism for providing keyword replacement functions by
 	* looking up the function named 'getKeywordNameKeywordReplacement'
 	* so an asset wishing to add support for 'best_ever' custom keyword
@@ -3280,9 +3279,7 @@ class Asset extends MySource_Object
 					$attr =& $this->getAttribute($attr_name_cropped);
 					if (!$attr->is_admin && ($attr->type() == 'datetime')) {
 						$format_value = format_date(iso8601_ts($this->attr($attr_name_cropped)), $date_format);
-						if ($format_value) {
-							$replacement = $format_value;
-						}
+						if ($format_value) $replacement = $format_value;
 					}
 				}
 			}
@@ -3295,14 +3292,15 @@ class Asset extends MySource_Object
 				$replacement = $mm_replacements[$metadata_keyword];
 			} else if (isset($mm_replacements[$spaced_metadata_keyword])) {
 				$replacement = $mm_replacements[$spaced_metadata_keyword];
-			} else {
-				$replacement = NULL;
 			}
 		} else {
 			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$mm_keyword = $mm->generateKeywordReplacements($this, Array($keyword), FALSE);
 			if (isset($mm_keyword[$keyword])) {
 				$replacement = $mm_keyword[$keyword];
+			} else {
+				// replace at higher level
+				return "%$keyword%";
 			}
 		}
 
@@ -4696,8 +4694,8 @@ class Asset extends MySource_Object
 									}
 									break;
 								}
-							}
-						}
+							}//end if
+						}//end foreach
 
 						// all designs go to all urls (at the moment anyway), so merge them all in
 						foreach ($our_designs as $name => $data) {
