@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.45 2006/06/26 01:11:38 skim Exp $
+* $Id: html_form.js,v 1.46 2006/06/26 01:26:02 skim Exp $
 *
 */
 
@@ -36,6 +36,7 @@ function submit_form(f)
 {
 	if (f == null) { f = document.main_form; }
 
+	SQ_FORM_ERROR_CONTAINED = false;
 	inputs = f.getElementsByTagName('input');
 	for (i=0; i<inputs.length; i++) {
 		if (inputs[i].name == 'submit') {
