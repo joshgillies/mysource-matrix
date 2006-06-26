@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.57 2006/06/23 01:57:01 rong Exp $
+* $Id: bulk_mailer.inc,v 1.58 2006/06/26 02:33:07 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -227,7 +227,12 @@ class Bulk_Mailer
 		$replacements = Array();
 		$content_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details['content_id']);
 		foreach ($keywords as $word) {
-			$replacements[$word] = $content_asset->getKeywordReplacement($word);
+			if (0 === strpos($word, 'recipient_')) {
+				// keep recipient keyword until later
+				$replacements[$word] = "%$word%";
+			} else {
+				$replacements[$word] = $content_asset->getKeywordReplacement($word);
+			}
 		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_asset);
 
@@ -716,21 +721,27 @@ class Bulk_Mailer
 	/**
 	* Keyword replacement for customised email content of a user
 	*
-	* @param string	$content	page content before keyword replacement
-	* @param int	$user		personalise content for this user
+	* @param string	&$content	page content before keyword replacement
+	* @param int	&$user		personalise content for this user
 	*
 	* @return string
 	* @access public
 	*/
-	function replaceContentKeywords($content, $user)
+	function replaceContentKeywords(&$content, &$user)
 	{
 		// to insert user keywords in the 'Asset to Send' content,
 		// add 'recipient_' prefix in front of normal keywords
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
-		$keywords = $user->getAvailableKeywords();
+
+		$keywords = retrieve_keywords_replacements($content);
 		$keyword_replacements = Array();
-		foreach ($keywords as $key => $val) {
-			$keyword_replacements['recipient_'.$key] = $user->getKeywordReplacement($key);
+		foreach ($keywords as $word) {
+			if (0 === strpos($word, 'recipient_')) {
+				$user_keyword = substr($word, 10);
+				$keyword_replacements[$word] = $user->getKeywordReplacement($user_keyword);
+			} else {
+				$keyword_replacements[$word] = '';
+			}
 		}
 		replace_keywords($content, $keyword_replacements);
 
