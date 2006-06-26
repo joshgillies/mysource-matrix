@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.58 2006/06/21 05:17:21 tbarrett Exp $
+* $Id: listing_engine_management.inc,v 1.59 2006/06/26 00:00:30 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -352,7 +352,9 @@ class Listing_Engine_Management extends Asset_Management
 												'parameters'	=> Array(
 																	'allow_empty'	=> FALSE,
 																   ),
-											);	}//end constructor
+											);
+
+	}//end constructor
 
 
 	/**
@@ -669,6 +671,47 @@ class Listing_Engine_Management extends Asset_Management
 			}//end foreach Listing Engine asset
 
 			pre_echo('Upgraded '.$upgraded_count.' Listing Engine-based assets to version 0.7');
+
+		}//end if version < 0.7
+
+		// Version 0.15: Add 'Random' sort by option
+		if (version_compare($current_version, '0.15', '<')) {
+			pre_echo('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version.' TO VERSION 0.15');
+
+			$upgraded_count = 0;
+			$random_sort = Array (
+							'params'	=> Array (
+											'field'	=> '',
+										   ),
+							'type'		=> '',
+							'name'		=> 'Random',
+						   );
+
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('listing_engine', FALSE);
+			foreach ($children as $assetid) {
+
+				// find assets that do not have the 'Random' sort by option
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$sort_value = $asset->attr('sort_by');
+				$random = 0;
+				foreach ($sort_value as $sort_info) {
+					if ($sort_info['name'] == 'Random') $random = 1;
+				}
+
+				// append 'Random' sort by option to the end of 'sort_by' array
+				if (!$random) {
+					echo 'Upgrading asset: '.$asset->name.' ('.$assetid.')'."\n";
+					$sort_value[] = $random_sort;
+					if (!$asset->setAttrValue('sort_by', $sort_value)) {
+						trigger_localised_error('CMS0039', E_USER_WARNING, '0.15');
+					}
+					$upgraded_count++;
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+
+			pre_echo('Upgraded '.$upgraded_count.' Listing Engine-based assets to version 0.15');
 
 		}//end if version < 0.7
 
