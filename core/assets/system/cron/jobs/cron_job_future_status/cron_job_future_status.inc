@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.36 2006/05/01 04:15:34 sdanis Exp $
+* $Id: cron_job_future_status.inc,v 1.37 2006/06/26 01:22:16 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -269,7 +269,20 @@ class Cron_Job_Future_Status extends Cron_Job
 		}
 
 		if ($this->id) {
-			return (bool)  $this->createLink($asset, SQ_LINK_NOTICE, 'updating');
+			$existing_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', TRUE, 'major', $value='updating');
+			$link_exists = FALSE;
+			foreach ($existing_links as $old_link) {
+				if ($old_link['minorid'] == $asset->id) {
+					$link_exists = TRUE;
+				} else {
+					$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($old_link['linkid']);
+				}
+			}
+			if ($link_exists) {
+				return TRUE;
+			} else {
+				return (bool)  $this->createLink($asset, SQ_LINK_NOTICE, 'updating');
+			}
 		} else {
 			if (!isset($this->_tmp['asset_in_link'])) {
 				$this->_tmp['asset_in_link'] = Array();
