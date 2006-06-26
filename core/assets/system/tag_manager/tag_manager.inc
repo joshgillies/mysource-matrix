@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.2 2006/04/20 05:53:05 emcdonald Exp $
+* $Id: tag_manager.inc,v 1.3 2006/06/26 04:32:34 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends Asset
@@ -388,7 +388,8 @@ class Tag_Manager extends Asset
 
 
 	/**
-	* Checks whether a thesaurus term is from the tagging thesaurus
+	* Checks whether the tags are restricted to a single thesaurus, and if so,
+	* checks if a thesaurus term is from the selected tagging thesaurus
 	*
 	* @param string	$tagid	the id of the tag to check
 	*
@@ -397,16 +398,31 @@ class Tag_Manager extends Asset
 	*/
 	function isFromTaggingThesaurus($tagid)
 	{
-		$id_parts = explode(':', $tagid);
-		if ($this->attr('thesaurus') != $id_parts[0]) {
-			// this tag is not in the required thesaurus
-			return FALSE;
+		// are tags restricted to one thesaurus asset?
+		if ($this->isTagSourceRestricted()) {
+			$id_parts = explode(':', $tagid);
+			if ($this->attr('thesaurus') != $id_parts[0]) {
+				// this tag is not in the required thesaurus
+				return FALSE;
+			}
 		}
 
 		return TRUE;
 
 	}//end isFromTaggingThesaurus()
 
+
+	/**
+	* Determines whether or not tags are restricted to a single thesaurus
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isTagSourceRestricted()
+	{
+		return $this->attr('restrict_tag_source');
+
+	}//end isTagSourceRestricted()
 
 }//end class
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.15 2006/06/01 06:24:32 emcdonald Exp $
+* $Id: tagging.inc,v 1.16 2006/06/26 04:32:34 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 
@@ -125,12 +125,20 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 						foreach ($current_tag_links as $key => $current_tag_link) {
 							$current_tag_ids[$key] = $current_tag_link['minorid'];
 						}
-						if ($tag_manager->attr('thesaurus')) {
-							multiple_asset_finder($prefix.'_tags', $current_tag_ids, Array('thesaurus_term'=>'D'));
-							$o->note(translate('tag_thesaurus_note', get_asset_tag_line($tag_manager->attr('thesaurus'), 'details')));
+
+						if ($tag_manager->isTagSourceRestricted()) {
+							// restricted; check whether there's any thesaurus to choose from
+							if ($tag_manager->attr('thesaurus')) {
+								multiple_asset_finder($prefix.'_tags', $current_tag_ids, Array('thesaurus_term'=>'D'));
+								$o->note(translate('tag_thesaurus_note', get_asset_tag_line($tag_manager->attr('thesaurus'), 'details')));
+							} else {
+								$o->note(translate('tag_no_thesaurus_set_note'));
+							}
 						} else {
-							$o->note(translate('tag_no_thesaurus_set_note'));
+							// unrestricted; just print the asset finder
+							multiple_asset_finder($prefix.'_tags', $current_tag_ids, Array('thesaurus_term'=>'D'));
 						}
+
 					} else {
 						foreach ($current_tag_links as $key => $current_tag_link) {
 							echo get_asset_tag_line($current_tag_link['minorid']).'<br>';

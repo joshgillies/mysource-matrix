@@ -20,7 +20,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2006/04/20 04:21:55 emcdonald Exp $
+* $Id: asset.xml,v 1.2 2006/06/26 04:32:34 rhoward Exp $
 *
 */
 -->
@@ -28,7 +28,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
 	<package>__core__</package>
 	<type_code>tag_manager</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Tag Manager</name>
 	<description>Tag Manager</description>
 	<instantiable>yes</instantiable>

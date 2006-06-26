@@ -18,13 +18,16 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2006/04/20 04:21:55 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2006/06/26 04:32:34 rhoward Exp $
 *
 */
 -->
 
 <contents>
 	<section name="Tagging Configuration" write_access="write:attributes">
+		<field attribute="restrict_tag_source">
+			<boolean true_text="tag_manager_do_restrict_tag_source" false_text="tag_manager_do_not_restrict_tag_source" />
+		</field>
 		<field attribute="thesaurus">
 			<assetid type_codes="thesaurus:I" />
 		</field>

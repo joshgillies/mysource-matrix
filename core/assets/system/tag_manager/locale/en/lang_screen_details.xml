@@ -18,13 +18,17 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2006/04/20 04:21:56 emcdonald Exp $
+* $Id: lang_screen_details.xml,v 1.2 2006/06/26 04:32:34 rhoward Exp $
 *
 */
 -->
 
 <contents>
 	<section name="Tagging Configuration">
+		<field attribute="restrict_tag_source">
+			<display_name>Tag Source Restrictions</display_name>
+			<note>NOTE: Turning on Tag Source Restrictions will leave any assets already tagged with terms from another thesaurus unchanged.</note>
+		</field>
 		<field attribute="thesaurus">
 			<display_name>Tagging Thesaurus</display_name>
 			<note>The thesaurus from which tags may be selected</note>
