@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.183 2006/06/22 23:47:03 rong Exp $
+* $Id: mysource.inc,v 1.184 2006/06/26 02:32:29 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.183 $
+* @version $Revision: 1.184 $
 * @package MySource_Matrix
 */
 class MySource
@@ -427,13 +427,20 @@ class MySource
 			$this->frontend_asset = &$asset;
 			$this->broadcastTriggerEvent('trigger_event_asset_accessed', $asset);
 
-			// caching is enabled and asset is readable by public user, send HTTP headers
-			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user')
-				&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER) {
-				$this->_sendHTTPHeaders($asset);
-			} else {
-				$asset->printFrontend();
-			}
+			// buffer the content and do keyword replacement
+			ob_start();
+				// caching is enabled and asset is readable by public user, send HTTP headers
+				if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user')
+					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER) {
+					$this->_sendHTTPHeaders($asset);
+				} else {
+					$asset->printFrontend();
+				}
+				$content = ob_get_contents();
+			ob_end_clean();
+
+			$this->_replaceKeyword($content);
+			echo $content;
 
 		}//end else backend/limbo
 
@@ -536,6 +543,34 @@ class MySource
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
 
 	}//end _sendHTTPHeaders()
+
+
+	/**
+	* Highest level of keyword replacement is done here
+	*
+	* @param string	&$content					the text to replace keywords in
+	* @param array	$additional_replacements	extra replacements to add
+	*
+	* @return void
+	* @access private
+	*/
+	function _replaceKeyword(&$content, $additional_replacements=Array())
+	{
+		$keywords = retrieve_keywords_replacements($content);
+		foreach ($keywords as $word) {
+			if (!isset($additional_replacements[$word])) {
+				$replacement = $this->frontend_asset->getKeywordReplacement($word);
+				// still cannot replace it, blank it out
+				if ($replacement == "%$word%") {
+					$additional_replacements[$word] = '';
+				} else {
+					$additional_replacements[$word] = $replacement;
+				}
+			}
+		}
+		replace_keywords($content, $additional_replacements);
+
+	}//end _replaceKeyword()
 
 
 //--        GLOBAL DEFINES        --//
@@ -935,9 +970,7 @@ class MySource
 						$system =& $this->am->getAsset($systemid);
 						if (is_null($system)) continue;
 						$user =& $system->authenticateUser($login_username, $login_password);
-						if (!is_null($user)) {
-							$user_status = $user->status;
-						}
+						if (!is_null($user)) $user_status = $user->status;
 						// check that the user exists AND that it can login
 						// (ie. it is not yet live, or has been locked)
 						if (!is_null($user) && $user->canLogin()) {
@@ -1382,8 +1415,9 @@ class MySource
 	/**
 	* Log a message to do with system security (logging in / out)
 	*
-	* @param string	$code				The message code for the message
-	* @param array	$extra_replacements	Extra keyword replacements to use in the message (user_name is already there)
+	* @param string		$code				The message code for the message
+	* @param array		$extra_replacements	Extra keyword replacements to use in the message (user_name is already there)
+	* @param boolean	$failed_login		status of the log in process
 	*
 	* @return void
 	* @access private
