@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.115 2006/01/16 23:50:50 skim Exp $
+* $Id: backend_outputter.inc,v 1.115.2.1 2006/06/26 01:53:48 skim Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.115 $
+* @version $Revision: 1.115.2.1 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1043,17 +1043,24 @@ class Backend_Outputter
 
 
 				var SQ_FORM_SUBMITTED = false;
+				var SQ_FORM_ERROR_CONTAINED = false;
 				function form_on_submit() {
 					if (SQ_FORM_SUBMITTED) {
 						alert(js_translate('form_already_submitted'));
 						return;
 					}
 
-			<?php
-				foreach ($this->_on_submit_calls as $call) {
-					echo $call.";\n";
-				}
-			?>
+					<?php
+						foreach ($this->_on_submit_calls as $call) {
+							echo $call.";\n";
+						}
+					?>
+
+					// if the form contains errors and we don't want to submit, handle at here.
+					if (SQ_FORM_ERROR_CONTAINED) {
+						alert(js_translate('form_contains_error'));
+						return;
+					}
 
 					// basically if they get this far then we can submit
 					SQ_FORM_SUBMITTED = true;
