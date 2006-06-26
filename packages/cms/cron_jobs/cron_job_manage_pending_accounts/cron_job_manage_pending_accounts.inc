@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts.inc,v 1.2 2006/05/02 04:45:32 rong Exp $
+* $Id: cron_job_manage_pending_accounts.inc,v 1.3 2006/06/26 06:50:18 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,7 +103,7 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 	*/
 	function _getName($short_name=FALSE)
 	{
-		return translate('cron_job_manage_pending_accounts');
+		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
 	}//end _getName()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts_management.inc,v 1.1 2006/04/27 03:19:36 lwright Exp $
+* $Id: cron_job_manage_pending_accounts_management.inc,v 1.2 2006/06/26 06:50:18 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,6 +57,46 @@ class Cron_Job_Manage_Pending_Accounts_Management extends Asset_Management
 					  );
 
 	}//end constructor
+
+
+	/**
+	* Upgrade this asset to the most current version
+	*
+	* @param string	$current_version	The version this asset should be upgraded to
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		// fill in name, (due to compile locale error)
+		if (version_compare($current_version, '0.3', '<')) {
+			pre_echo('UPGRADING Manage Pending Accounts Cron Job - FROM VERSION '.$current_version);
+			$name = translate('cron_job_manage_pending_accounts');
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+			$sql = 'UPDATE
+						sq_ast
+					SET
+						name = '.$db->quoteSmart($name).',
+						short_name= '.$db->quoteSmart($name).'
+					WHERE
+						type_code = '.$db->quoteSmart('cron_job_manage_pending_accounts');
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			pre_echo('Manage Pending Accounts Cron Job UPGRADE COMPLETE - FROM VERSION '.$current_version);
+		}
+
+		return TRUE;
+
+	}//end _upgrade()
 
 
 }//end class
