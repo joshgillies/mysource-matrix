@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.164.2.6 2006/06/06 23:49:13 emcdonald Exp $
+* $Id: mysource.inc,v 1.164.2.7 2006/06/26 05:34:50 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.164.2.6 $
+* @version $Revision: 1.164.2.7 $
 * @package MySource_Matrix
 */
 class MySource
@@ -254,6 +254,8 @@ class MySource
 
 			// check to see if the session key is the same as that used to login
 			if ($session_set && $this->getUniqueSessionKey() != $_GET['SESSION_KEY']) {
+				define('SQ_ROLLBACK_VIEW', '0');
+				define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 				$ms =& $this->getMessagingService();
 				$log = $ms->newMessage(Array(), 'system.security.alert', Array());
 				$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
