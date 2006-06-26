@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.124 2006/06/15 22:51:29 tbarrett Exp $
+* $Id: backend_outputter.inc,v 1.125 2006/06/26 01:11:36 skim Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.124 $
+* @version $Revision: 1.125 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1021,6 +1021,7 @@ class Backend_Outputter
 
 
 				var SQ_FORM_SUBMITTED = false;
+				var SQ_FORM_ERROR_CONTAINED = false;
 				function form_on_submit()
 				{
 					if (SQ_FORM_SUBMITTED) {
@@ -1034,11 +1035,18 @@ class Backend_Outputter
 					}
 					?>
 
+					// if the form contains errors and we don't want to submit, handle at here.
+					if (SQ_FORM_ERROR_CONTAINED) {
+						alert(js_translate('form_contains_error'));
+						return;
+					}
+
 					// basically if they get this far then we can submit
 					SQ_FORM_SUBMITTED = true;
 
 					// disable all submit buttons
 					disable_buttons();
+
 					return true;
 
 				}//end form_on_submit()
@@ -1430,7 +1438,6 @@ class Backend_Outputter
 		if (empty($value)) {
 			$value = !defined('SQ_CONF_COMMIT_BUTTON_TEXT') ? 'Commit' : SQ_CONF_COMMIT_BUTTON_TEXT;
 		}
-
 		$release_lock = (int) $release_lock;
 		$this->openSection(' ');
 			$this->openField('', 'commit');
