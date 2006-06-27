@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_edit_fns.inc,v 1.3 2006/05/22 01:47:04 emcdonald Exp $
+* $Id: structured_asset_info_edit_fns.inc,v 1.4 2006/06/27 00:27:13 rong Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -577,6 +577,10 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 					$contents .= '<fields>'."\n";
 					$contents .= '<short_name><![CDATA['.$asset_info['short_name'].']]></short_name>';
 					$contents .= '<treeid>'.$asset_info['treeid'].'</treeid>';
+					if (!in_array('asset_type', $selected_asset_fields)) {
+						// add in asset type code as it will be used for other fields
+						$contents .= '<asset_type><![CDATA['.$asset_info['type_code'].']]></asset_type>';
+					}
 					foreach ($selected_asset_fields as $name) {
 						$contents .= '<'.$name.'>';
 						$function_name = '_generateField'.str_replace(' ', '', ucwords(str_replace('_', ' ', $name)));
