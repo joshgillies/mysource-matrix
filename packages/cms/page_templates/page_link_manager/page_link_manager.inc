@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.2.2.2 2006/06/15 04:13:58 rhoward Exp $
+* $Id: page_link_manager.inc,v 1.2.2.3 2006/06/27 23:20:13 skim Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2.2.2 $
+* @version $Revision: 1.2.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -464,11 +464,11 @@ class Page_Link_Manager extends Page_Asset_Listing
 			switch ($message_type) {
 				case 'add_success':
 				case 'delete_success':
-					$this->messages[] = translate('cms_link_manager_message_'.$message_type, $this->_getManagedAssetTypeName(), $this->_getCommaSeperatedNamesByAssetid($assetids));
+					$this->messages[] = translate('cms_link_manager_message_'.$message_type, $this->_getManagedAssetTypeName(), $this->_getCommaSeparatedNamesByAssetid($assetids));
 				break;
 				case 'add_error':
 				case 'delete_error':
-					$this->errors[] = translate('cms_link_manager_message_'.$message_type, $this->_getManagedAssetTypeName(), $this->_getCommaSeperatedNamesByAssetid($assetids));
+					$this->errors[] = translate('cms_link_manager_message_'.$message_type, $this->_getManagedAssetTypeName(), $this->_getCommaSeparatedNamesByAssetid($assetids));
 				break;
 			}
 		}
@@ -569,7 +569,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 	* @return string
 	* @access private
 	*/
-	function _getCommaSeperatedNamesByAssetid($assetids)
+	function _getCommaSeparatedNamesByAssetid($assetids)
 	{
 		$string = '';
 		$names = Array();
@@ -585,7 +585,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 
 		return $string;
 
-	}//end _getCommaSeperatedNamesByAssetid()
+	}//end _getCommaSeparatedNamesByAssetid()
 
 
 //--        Keywords        --//
