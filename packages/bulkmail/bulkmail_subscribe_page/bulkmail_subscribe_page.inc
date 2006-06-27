@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.6 2006/01/12 02:55:50 rong Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.7 2006/06/27 23:19:08 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -612,16 +612,16 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		foreach ($fail_success as $message_type => $assetids) {
 			switch ($message_type) {
 				case 'add_fail':
-					$this->errors[] = translate('bsp_add_failed').$this->_getCommaSeperatedNamesByAssetid($assetids);
+					$this->errors[] = translate('bsp_add_failed').$this->_getCommaSeparatedNamesByAssetid($assetids);
 				break;
 				case 'add_success':
-					$this->messages[] = translate('bsp_add_successful').$this->_getCommaSeperatedNamesByAssetid($assetids);
+					$this->messages[] = translate('bsp_add_successful').$this->_getCommaSeparatedNamesByAssetid($assetids);
 				break;
 				case 'delete_fail':
-					$this->errors[] = translate('bsp_remove_failed').$this->_getCommaSeperatedNamesByAssetid($assetids);
+					$this->errors[] = translate('bsp_remove_failed').$this->_getCommaSeparatedNamesByAssetid($assetids);
 				break;
 				case 'delete_success':
-					$this->messages[] = translate('bsp_remove_successful').$this->_getCommaSeperatedNamesByAssetid($assetids);
+					$this->messages[] = translate('bsp_remove_successful').$this->_getCommaSeparatedNamesByAssetid($assetids);
 				break;
 			}
 		}
@@ -669,12 +669,12 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 
 		if (!empty($subscriptions) && !empty($unsubscriptions)) {
 			$body .= translate('bsp_verification_email_body_sub_unsub',
-									$this->_getCommaSeperatedNamesByAssetid($subscriptions),
-									$this->_getCommaSeperatedNamesByAssetid($unsubscriptions));
+									$this->_getCommaSeparatedNamesByAssetid($subscriptions),
+									$this->_getCommaSeparatedNamesByAssetid($unsubscriptions));
 		} else if (!empty($subscriptions)) {
-			$body .= translate('bsp_verification_email_body_sub', $this->_getCommaSeperatedNamesByAssetid($subscriptions));
+			$body .= translate('bsp_verification_email_body_sub', $this->_getCommaSeparatedNamesByAssetid($subscriptions));
 		} else if (!empty($unsubscriptions)) {
-			$body .= translate('bsp_verification_email_body_unsub', $this->_getCommaSeperatedNamesByAssetid($unsubscriptions));
+			$body .= translate('bsp_verification_email_body_unsub', $this->_getCommaSeparatedNamesByAssetid($unsubscriptions));
 		}
 
 		$body .= translate('bsp_verification_email_body_part2', $url);
