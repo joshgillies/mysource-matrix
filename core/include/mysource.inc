@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.185 2006/06/26 05:33:34 tbarrett Exp $
+* $Id: mysource.inc,v 1.186 2006/06/27 01:31:10 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.185 $
+* @version $Revision: 1.186 $
 * @package MySource_Matrix
 */
 class MySource
@@ -522,7 +522,7 @@ class MySource
 		} else {
 			$info = unserialize($cache_info);
 			$last_modified = gmdate('D, d M Y H:i:s', $info['last_modified']).' GMT';
-			$headers = apache_request_headers();
+			$headers = $this->_getHeaders();
 			$not_modified = FALSE;
 			// if the last modified time matches the If-Modified-Since header in HEAD request
 			if (isset($headers['If-Modified-Since']) && ($last_modified == $headers['If-Modified-Since'])) {
@@ -2473,6 +2473,28 @@ class MySource
 		}
 
 	}//end broadcastTriggerEvent()
+
+
+
+	/**
+	* Replacement function that allows request headers to be taken from CGI
+	*
+	* @return array
+	* @access private
+	*/
+	function _getHeaders() {
+
+		if (function_exists('apache_request_headers')) {
+			// If the apache_request_headers function exists, we are
+			// in an Apache module
+			return apache_request_headers();
+		} else if (isset($_ENV)) {
+			// Otherwise, we are probably in CGI, where request headers are
+			// dumped into $_ENV, so return that instead
+			return $_ENV;
+		}
+
+	}//end _getHeaders()
 
 
 }//end class
