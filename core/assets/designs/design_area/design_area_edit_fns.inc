@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.47.2.5 2006/04/13 09:31:47 bcaldwell Exp $
+* $Id: design_area_edit_fns.inc,v 1.47.2.6 2006/06/27 00:59:57 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.47.2.5 $
+* @version $Revision: 1.47.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -626,6 +626,39 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _outputContents($contents, &$asset, &$design)
 	{
+		// remove any leading or trailing whitespace elements from the contents
+		// first, the leaders
+		if (count($contents) > 0) {
+			$current_element = array_shift($contents);
+			while(($current_element['_type'] == 'HTML') && (trim($current_element['contents']) == '')) {
+				if (count($contents) == 0) {
+					$current_element = NULL;
+					break;
+				}
+				$current_element = array_shift($contents);
+			}
+		}
+
+		if (!is_null($current_element)) {
+			array_unshift($contents, $current_element);
+		}
+
+		// now the trailers...
+		if (count($contents) > 0) {
+			$current_element = array_pop($contents);
+			while(($current_element['_type'] == 'HTML') && (trim($current_element['contents']) == '')) {
+				if (count($contents) == 0) {
+					$current_element = NULL;
+					break;
+				}
+				$current_element = array_pop($contents);
+			}
+		}
+
+		if (!is_null($current_element)) {
+			array_push($contents, $current_element);
+		}
+
 		// right, just loop over the contents and output each of the elements
 		foreach ($contents as $index => $element) {
 
