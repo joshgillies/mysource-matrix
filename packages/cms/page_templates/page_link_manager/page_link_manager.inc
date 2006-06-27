@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.9 2006/06/27 23:33:13 skim Exp $
+* $Id: page_link_manager.inc,v 1.10 2006/06/27 23:46:15 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -386,6 +386,11 @@ class Page_Link_Manager extends Page_Asset_Listing
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 				$done = $this->processMinorLinks($managed_asset->id, $asset_links, $new_links, $this->attr('link_type'));
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+			// Clear the user groups cache so that any new user groups are picked
+			// up (assuming we are working on a user here - otherwise this will
+			// have no effect, but no harm done either)
+			unset($_SESSION['sq_user_groups']);
 
 			$this->generateMessages($done);
 		}//end if
