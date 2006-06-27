@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.52.2.3 2006/05/08 02:29:03 sdanis Exp $
+* $Id: image.inc,v 1.52.2.4 2006/06/27 07:39:52 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52.2.3 $
+* @version $Revision: 1.52.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -517,15 +517,13 @@ class Image extends File
 			return FALSE;
 		}
 
-		$use_public_path = $this->usePublicPath();
-
 		$varieties = $this->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['lookups'] as $varietyid) {
 				$variety =& $this->getAsset($this->id.':'.$varietyid);
 				if (is_null($variety)) continue;
 
-				if (!$variety->updateLookups($use_public_path)) {
+				if (!$variety->updateLookups()) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
