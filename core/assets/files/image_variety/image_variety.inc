@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.35 2006/05/31 06:51:39 rong Exp $
+* $Id: image_variety.inc,v 1.36 2006/06/27 07:40:45 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -469,15 +469,17 @@ class Image_Variety extends Asset
 	/**
 	* Called to force an update of this assets lookup information
 	*
-	* @param boolean	$public	whether we have are allowed to have files in the public dir or not
-	*
 	* @return boolean
 	* @access public
 	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
-	function updateLookups($public=FALSE)
+	function updateLookups()
 	{
 		// if we aren't meant to be having the public paths, let our parent run as normal
+		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		if (!empty($image)) {
+			$public = $image->usePublicPath();
+		}
 		if (!$public) return parent::updateLookups();
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
