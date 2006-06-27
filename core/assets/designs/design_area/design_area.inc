@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.51 2006/04/12 16:57:06 tbarrett Exp $
+* $Id: design_area.inc,v 1.52 2006/06/27 01:00:18 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -450,7 +450,43 @@ class Design_Area extends Asset
 	*/
 	function _printPaintingCode()
 	{
-		foreach ($this->attr('contents') as $item) {
+		$contents = $this->attr('contents');
+
+		// remove any leading or trailing whitespace elements from the contents
+		// first, the leaders
+		if (count($contents) > 0) {
+			$current_element = array_shift($contents);
+			while(($current_element['_type'] == 'HTML') && (trim($current_element['contents']) == '')) {
+				if (count($contents) == 0) {
+					$current_element = NULL;
+					break;
+				}
+				$current_element = array_shift($contents);
+			}
+		}
+
+		if (!is_null($current_element)) {
+			array_unshift($contents, $current_element);
+		}
+
+		// now the trailers...
+		if (count($contents) > 0) {
+			$current_element = array_pop($contents);
+			while(($current_element['_type'] == 'HTML') && (trim($current_element['contents']) == '')) {
+				if (count($contents) == 0) {
+					$current_element = NULL;
+					break;
+				}
+				$current_element = array_pop($contents);
+			}
+		}
+
+		if (!is_null($current_element)) {
+			array_push($contents, $current_element);
+		}
+
+		// Now print out what we have left
+		foreach ($contents as $item) {
 			$this->_printContentItemCode($item);
 		}
 
