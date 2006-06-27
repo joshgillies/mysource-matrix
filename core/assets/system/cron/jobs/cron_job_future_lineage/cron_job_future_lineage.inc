@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.21 2006/01/26 22:34:06 lwright Exp $
+* $Id: cron_job_future_lineage.inc,v 1.21.2.1 2006/06/27 01:34:11 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -324,9 +324,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 				}//end if
 			}
 		} else if ($this->attr('delete_linkid') > 0) {
-			if (!$delete_link_success = $this->_execDeleteLink($this->attr('delete_linkid'))) {
-				break;
-			}
+			$delete_link_success = $this->_execDeleteLink($this->attr('delete_linkid'));
 		}//end if
 
 		if (!$delete_link_success) return $failed_ret_val;
