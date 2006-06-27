@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.503.2.26 2006/06/20 00:58:08 skim Exp $
+* $Id: asset.inc,v 1.503.2.27 2006/06/27 05:27:05 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.503.2.26 $
+* @version $Revision: 1.503.2.27 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1876,6 +1876,11 @@ class Asset extends MySource_Object
 		////////////////
 
 		if (in_array('metadata_schemas', $components) || in_array('all', $components)) {
+			// Setting metadata schemas usually require admin access to the asset.
+			// We do want these cloned in any case though (so that any metadata
+			// values are also cloned), so we will force the run level to apply them
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
 			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			// apply the schemas from the cloner to the clonee
 			$schemas = $mm->getSchemas($this->id);
@@ -1887,22 +1892,25 @@ class Asset extends MySource_Object
 				if (!$mm->setSchema($clone->id, $schemaid, $granted)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 					return FALSE;
 				}
 			}//end foreach
+
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 			// apply the actual metadata from the cloner to the clonee
 			if (in_array('metadata', $components) || in_array('all', $components)) {
 				$metadata = $mm->getMetadata($this->id);
 				if (!empty($metadata)) {
-					if (!$mm->setMetadata($clone->id, $metadata)) {
+					// (try to) set and regenerate the metadata
+					if (!$mm->setMetadata($clone->id, $metadata) || !$mm->regenerateMetadata($clone->id)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
 				}
 			}
-
 
 		}//end if metadata
 
@@ -1912,15 +1920,23 @@ class Asset extends MySource_Object
 		////////////////
 
 		if (in_array('workflow', $components) || in_array('all', $components)) {
+			// Force the run level to ensure workflow is applied - same reason
+			// as metadata schemas are forced
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
 			$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 			$schemas = $wfm->getSchemas($this->id);
 			foreach ($schemas as $schemaid => $granted) {
 				if (!$wfm->setSchema($clone->id, $schemaid, $granted)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 					return FALSE;
 				}
 			}//end foreach
+
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
 		}//end if workflow
 
 
@@ -1966,6 +1982,7 @@ class Asset extends MySource_Object
 					$GLOBALS['SQ_SYSTEM']->am->setRole($clone->id, $roleid, $userid);
 				}
 			}
+
 		}//end if roles
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
