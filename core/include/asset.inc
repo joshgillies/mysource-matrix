@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.549 2006/06/27 05:25:59 lwright Exp $
+* $Id: asset.inc,v 1.550 2006/06/27 05:27:51 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.549 $
+* @version $Revision: 1.550 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1905,7 +1905,7 @@ class Asset extends MySource_Object
 			if (in_array('metadata', $components) || in_array('all', $components)) {
 				$metadata = $mm->getMetadata($this->id);
 				if (!empty($metadata)) {
-					if (!$mm->setMetadata($clone->id, $metadata)) {
+					if (!$mm->setMetadata($clone->id, $metadata) || !$mm->regenerateMetadata($clone->id)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
