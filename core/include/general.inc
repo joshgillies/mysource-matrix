@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.138 2006/06/23 01:56:59 rong Exp $
+* $Id: general.inc,v 1.139 2006/06/27 23:32:59 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.138 $
+* @version $Revision: 1.139 $
 * @package MySource_Matrix
 */
 
@@ -1338,7 +1338,7 @@ function asset_locator_js($asset_lineage=Array(),$map_frame='sq_sidenav', $new_w
 
 
 /**
-* Returns assetids and their sort orders seperated by ~
+* Returns assetids and their sort orders separated by ~
 * Example: 12|14|254~3|11|123
 *
 * @param array	$asset_lineage	Asset IDs in an asset lineage. Indexed from root to leaf

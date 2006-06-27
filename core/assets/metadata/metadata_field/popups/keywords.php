@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keywords.php,v 1.2 2006/05/16 00:41:47 rong Exp $
+* $Id: keywords.php,v 1.3 2006/06/27 23:32:58 skim Exp $
 *
 */
 
@@ -120,15 +120,15 @@
 		<fieldset>
 			<legend><b>Permissions</b></legend>
 			<table border="0" width="100%">
-			<tr><td valign="top" width="200"><b>%asset_read_permission%</b></td><td valign="top">Comma seperated list of the full names for users with read access</td></tr>
-			<tr><td valign="top" width="200"><b>%asset_write_permission%</b></td><td valign="top">Comma seperated list of the full names for users with write access</td></tr>
-			<tr><td valign="top" width="200"><b>%asset_admin_permission%</b></td><td valign="top">Comma seperated list of the full names for users with administrator access</td></tr>
-			<tr><td valign="top" width="200"><b>%asset_read_permission_email%</b></td><td valign="top">Comma seperated list of email addresses for users with read access</td></tr>
-			<tr><td valign="top" width="200"><b>%asset_write_permission_email%</b></td><td valign="top">Comma seperated list of email addresses for users with write access</td></tr>
-			<tr><td valign="top" width="200"><b>%asset_admin_permission_email%</b></td><td valign="top">Comma seperated list of email addresses for users with administrator access</td></tr>
-			<tr><td valign="top" width="200"><b>%asset_read_permission_email_linked%</b></td><td valign="top">Comma seperated list of linked email addresses for users with read access</td></tr>
-			<tr><td valign="top" width="200"><b>%asset_write_permission_email_linked%</b></td><td valign="top">Comma seperated list of linked email addresses for users with write access</td></tr>
-			<tr><td valign="top" width="200"><b>%asset_admin_permission_email_linked%</b></td><td valign="top">Comma seperated list of linked email addresses for users with administrator access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_read_permission%</b></td><td valign="top">Comma separated list of the full names for users with read access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_write_permission%</b></td><td valign="top">Comma separated list of the full names for users with write access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_admin_permission%</b></td><td valign="top">Comma separated list of the full names for users with administrator access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_read_permission_email%</b></td><td valign="top">Comma separated list of email addresses for users with read access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_write_permission_email%</b></td><td valign="top">Comma separated list of email addresses for users with write access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_admin_permission_email%</b></td><td valign="top">Comma separated list of email addresses for users with administrator access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_read_permission_email_linked%</b></td><td valign="top">Comma separated list of linked email addresses for users with read access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_write_permission_email_linked%</b></td><td valign="top">Comma separated list of linked email addresses for users with write access</td></tr>
+			<tr><td valign="top" width="200"><b>%asset_admin_permission_email_linked%</b></td><td valign="top">Comma separated list of linked email addresses for users with administrator access</td></tr>
 			</table>
 		</fieldset>
 		</p>
@@ -163,15 +163,15 @@
 							</tr>
 							<tr>
 								<td valign="top" width="200"><b>%asset_role_<?php echo $roleid; ?>%</b></td>
-								<td valign="top">Comma seperated list of the full names for users/groups who can perform the "<?php echo $name; ?>" role</td>
+								<td valign="top">Comma separated list of the full names for users/groups who can perform the "<?php echo $name; ?>" role</td>
 							</tr>
 							<tr>
 								<td valign="top" width="200"><b>%asset_role_<?php echo $roleid; ?>_email%</b></td>
-								<td valign="top">Comma seperated list of email addresses for users/groups who can perform the "<?php echo $name; ?>" role</td>
+								<td valign="top">Comma separated list of email addresses for users/groups who can perform the "<?php echo $name; ?>" role</td>
 							</tr>
 							<tr>
 								<td valign="top" width="200"><b>%asset_role_<?php echo $roleid; ?>_email_linked%</b></td>
-								<td valign="top">Comma seperated list of linked email addresses for users/groups who can perform the "<?php echo $name; ?>" role</td>
+								<td valign="top">Comma separated list of linked email addresses for users/groups who can perform the "<?php echo $name; ?>" role</td>
 							</tr>
 							<?php
 						}

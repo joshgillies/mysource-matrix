@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.145 2006/06/26 01:11:39 skim Exp $
+* $Id: lang_strings.xml,v 1.146 2006/06/27 23:33:00 skim Exp $
 *
 */
 
@@ -298,6 +298,7 @@
 	<string source="wysiwyg_editor_tools">WYSIWYG Editor Tools</string>
 	<string source="wysiwyg_plugins">WYSIWYG Plugins</string>
 	<string source="wysiwyg_style">WYSIWYG Style</string>
+	<string source="wysiwyg_disable_image_resize">WYSIWYG Disable Image Resize</string>
 	<string source="wysiwyg_htmltidy_status_disabled">HTMLTidy is disabled</string>
 	<string source="wysiwyg_htmltidy_status_wait">HTMLTidy has not been used to validate this content</string>
 	<string source="wysiwyg_htmltidy_status_pass">HTMLTidy has validated this content</string>
@@ -1898,7 +1899,7 @@ Items to delete: %s</string>
 	<string source="messaging_service_db_black_list_note">Message Types that should never be logged to the database and never be visible on the asset's logs screen</string>
 	<string source="messaging_service_mail_white_list_note">Message Types that should always be emailed</string>
 	<string source="messaging_service_mail_black_list_note">Message Types that should never be emailed</string>
-	<string source="messaging_service_section_note">All fields should have individual options seperated by newlines.</string>
+	<string source="messaging_service_section_note">All fields should have individual options separated by newlines.</string>
 
 	<!-- Backend Pagination -->
 	<string source="pagination_go_to_next">Go to the next page</string>

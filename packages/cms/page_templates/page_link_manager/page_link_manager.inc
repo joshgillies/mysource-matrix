@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.8 2006/06/27 23:21:03 skim Exp $
+* $Id: page_link_manager.inc,v 1.9 2006/06/27 23:33:13 skim Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -562,7 +562,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 
 
 	/**
-	* Takes an array of assetids and returns the asset names as a comma-seperated string
+	* Takes an array of assetids and returns the asset names as a comma-separated string
 	*
 	* @param array	$assetids	the list of assetids to prettify
 	*

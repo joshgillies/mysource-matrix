@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.10 2006/06/15 04:14:11 rhoward Exp $
+* $Id: page_user_group_manager.inc,v 1.11 2006/06/27 23:33:16 skim Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -442,7 +442,7 @@ class Page_User_Group_Manager extends Page
 
 	/**
 	* Takes an array of assetids and returns the asset names as a comma
-	* seperated string
+	* separated string
 	*
 	* @param array	$assetids	Array of assetids
 	*
