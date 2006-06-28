@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_edit_fns.inc,v 1.4 2006/06/27 00:27:13 rong Exp $
+* $Id: structured_asset_info_edit_fns.inc,v 1.5 2006/06/28 05:32:40 rong Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -560,12 +560,14 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 
 			} else {
 
-
 				$asset_info = $am->getAssetInfo(Array($current_assetid));
-				$asset_info = $asset_info[$current_assetid];
+				if (isset($asset_info[$current_assetid])) {
+					// if getAssetInfo returns empty array, then might be a problem with the shadow asset bridge
+					$asset_info = $asset_info[$current_assetid];
+				}
 				$asset_info['assetid'] = $current_assetid;
 				$asset_info['treeid'] = $this->getTreeid($current_assetid, $open_asset['treeid']);
-				if (!$this->checkType($asset_info['type_code'], $owner->attr('types'))) {
+				if (!isset($asset_info['type_code']) || !$this->checkType($asset_info['type_code'], $owner->attr('types'))) {
 					// skip this asset - don't display it in the XML, but do check it's children, so add it to the stack
 					array_unshift($assets_skipped, $current_assetid);
 				} else {
