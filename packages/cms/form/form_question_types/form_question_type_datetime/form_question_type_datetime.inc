@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.23.2.2 2005/12/13 05:10:23 sdanis Exp $
+* $Id: form_question_type_datetime.inc,v 1.23.2.3 2006/06/28 05:14:42 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.23.2.2 $
+* @version $Revision: 1.23.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -99,7 +99,8 @@ class Form_Question_Type_Datetime extends Form_Question
 		foreach ($elements as $attr => $t) {
 			$parameters['style'][$t] = ($text_params[$t] ? 't' : 's');
 			if ($show_params[$t]) $parameters['show'][] = $t;
-			if ($null_params[$t]) $parameters['null'][$t] = 1;
+			// we will allow null if this field is required then check for blank value
+			$parameters['null'][] = $t;
 		}
 
 		$dt_field =& new Datetime_Field($name, $value, $parameters);
