@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.24.2.2 2006/05/31 07:17:57 rhoward Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.24.2.3 2006/06/28 23:42:01 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24.2.2 $
+* @version $Revision: 1.24.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -133,18 +133,6 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_acquiring_metadata_locks'),
-					'hipo_job'		=> Array(
-										'init_details_function'	=> 'getLockAssetDetails',
-									   ),
-					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> true,
-					'percent_done'	=> 0,
-					'complete'		=> false,
-					'message'		=> '',
-				),
-				Array(
 					'name'			=> translate('hipo_generating_metadata_files'),
 					'function_call'	=> Array(
 										'process_function'	=> 'processMetadata',
@@ -152,18 +140,6 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 					'running_mode'	=> 'server',
 					'auto_step'		=> true,
 					'allow_cancel'	=> true,
-					'percent_done'	=> 0,
-					'complete'		=> false,
-					'message'		=> '',
-				),
-				Array(
-					'name'			=> translate('hipo_releasing_metadata_locks'),
-					'function_call'	=> Array(
-										'process_function'	=> 'releaseLocks',
-									   ),
-					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> false,
 					'percent_done'	=> 0,
 					'complete'		=> false,
 					'message'		=> '',
@@ -266,23 +242,27 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			if (!is_null($asset)) {
-				// check whether we still have the lock, bomb out if we don't
-				$lock_info = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($assetid, 'metadata');
-				if (empty($lock_info)) {
-					// we don't, bugger :-(
-					trigger_localised_error('HIPO0077', E_USER_ERROR, $asset->name, $assetid);
-					return false;
-				} else if (!$asset->writeAccess('metadata')) {
+				// try to acquire lock
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'metadata')) {
+					$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+					trigger_localised_error('HIPO0077', E_USER_WARNING, $asset->name, $assetid);
+				}
+
+				if (!$asset->writeAccess('metadata')) {
 					// we don't have write access to this asset for another
 					// reason (eg. status = Archived), skip the asset
 					$step_data['message'] = translate('hipo_skipping_asset', $assetid);
 					trigger_localised_error('HIPO0078', E_USER_WARNING, $asset->name, $assetid);
 				} else {
-					if (!$mm->regenerateMetadata($asset->id)) return false;
+					if (!$mm->regenerateMetadata($asset->id)) return FALSE;
 					$step_data['message'] = translate('hipo_generate_metadata', $asset->name);
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
 				}
+
+				// release lock
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'metadata');
+
 			} else {
 				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
 				$this->_addError(translate('hipo_cannot_regenerate_metadata', $assetid));
@@ -296,6 +276,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = true;
 			unset($this->_running_vars['done_assetids']);
+			$this->_running_vars['todo_assetids'] = Array();
 		} else {
 			$total = count($this->_running_vars['process_metadata']) + count($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
@@ -305,76 +286,6 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 		return true;
 
 	}//end processMetadata()
-
-
-	/**
-	* This function is used to set-up the details for the locking the assets by the nested HIPO_Job
-	*
-	* @param string		&$job_type
-	* @param Array()	&$running_vars
-	* @param Array()	&$options
-	*
-	* @return void
-	* @access public
-	*/
-	function getLockAssetDetails(&$job_type, &$running_vars, &$options)
-	{
-		$job_type = 'hipo_job_acquire_locks';
-
-		$options['auto_complete'] = true;
-
-		$todo = Array();
-		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($this->_running_vars['todo_assetids']);
-		foreach ($asset_info as $assetid => $info) {
-			$todo[$assetid] = $info['type_code'];
-		}
-
-		$running_vars = Array(
-							'assetids'			=> array_keys($todo),
-							'todo_assetids'		=> $todo,
-							'lock_type'			=> Array('metadata'),
-							'dependants_only'	=> false,
-						);
-
-	}//end getLockAssetDetails()
-
-
-	/**
-	* Release the locks we acquired while setting the schemas
-	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
-	*
-	* @return boolean
-	* @access public
-	*/
-	function releaseLocks(&$step_data, $prefix)
-	{
-		if (!empty($this->_running_vars['todo_assetids'])) {
-			$assetid = array_shift($this->_running_vars['todo_assetids']);
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-
-			if (!is_null($asset)) {
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'metadata');
-				$step_data['message'] = translate('hipo_release_locks', $asset->name);
-			}
-
-			$this->_running_vars['done_assetids'][] = $assetid;
-		}
-
-		if (empty($this->_running_vars['todo_assetids'])) {
-			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
-			unset($this->_running_vars['done_assetids']);
-		} else {
-			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
-			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
-			$step_data['complete']     = false;
-		}
-
-		return true;
-
-	}//end releaseLocks()
 
 
 }//end class
