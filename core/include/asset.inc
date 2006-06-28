@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.550 2006/06/27 05:27:51 lwright Exp $
+* $Id: asset.inc,v 1.551 2006/06/28 06:35:26 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.550 $
+* @version $Revision: 1.551 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -349,16 +349,6 @@ class Asset extends MySource_Object
 				}
 			}
 
-			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
-				// only set the permission if there is a userid to set it for - otherwise we are going
-				// to be setting public write access
-				if (!$GLOBALS['SQ_SYSTEM']->userPublic()) {
-					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), SQ_PERMISSION_WRITE, TRUE)) {
-						return $this->_abortCreate($trigger_level_changed);
-					}
-				}
-			}
-
 			unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 		}
 
@@ -372,17 +362,12 @@ class Asset extends MySource_Object
 		$message->send();
 
 		// set the attribute values that have been stored temporarily
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
-				return $this->_abortCreate($trigger_level_changed);
-			}
-		}
-		if (!$this->saveAttributes(TRUE)) {
-			return $this->_abortCreate($trigger_level_changed);
-		}
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+		$ok = $this->saveAttributes(TRUE);
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
+		if (!$ok) {
+			return $this->_abortCreate($trigger_level_changed);
 		}
 
 		$this->_loadVars();
@@ -418,7 +403,10 @@ class Asset extends MySource_Object
 					return $this->_abortCreate($trigger_level_changed);
 				}
 			}
+
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['is_dependant'], $link['is_exclusive']);
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 			// get the link so we can find out if it was dependant (cant rely on the info passed in
 			// because other assets may have changed what happens in createLink)
@@ -429,9 +417,11 @@ class Asset extends MySource_Object
 				// has if the parent is not the root folder or the system management folder
 				$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
 
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 				if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow', 'content_tags', 'roles'))) {
 					return $this->_abortCreate($trigger_level_changed);
 				}
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 			}
 
@@ -496,6 +486,15 @@ class Asset extends MySource_Object
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
 			// perform any additional processing during the create - such as creating other assets
 			if (!$this->_createAdditional($link)) {
+				return $this->_abortCreate();
+			}
+		}
+
+		// If for some unknown reason they don't have write access to the asset
+		// from the cascaded permissions of the parent (goodness knows why - you
+		// shouldn't be here in the first place!), add an explicit permission
+		if (!$this->writeAccess()) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), SQ_PERMISSION_WRITE, TRUE)) {
 				return $this->_abortCreate();
 			}
 		}
