@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history.inc,v 1.6 2006/06/15 01:16:29 tbarrett Exp $
+* $Id: design_area_access_history.inc,v 1.7 2006/06/28 00:20:13 sdanis Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT',	'2');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,9 +70,37 @@ class Design_Area_Access_History extends Design_Area
 			case 'asset_link' :
 			case 'asset_short_name' :
 			case 'asset_name' :
-			case 'access_time' :
+			case 'visit_count' :
 				echo '<?php echo htmlspecialchars(array_get_index($asset_info,"'.$var.'")); ?>';
 			break;
+			case 'access_time' :
+			case 'last_visit_time' :
+			case 'first_visit_time' :
+				echo '<?php echo date("'.$this->attr('time_format').'", htmlspecialchars(array_get_index($asset_info,"'.$var.'"))); ?>';
+			break;
+
+			case 'has_update' :
+				echo '<?php
+					// has_update
+					$assetid = array_get_index($asset_info, "assetid");
+					if (!empty($assetid)) {
+						$last_visit_time = array_get_index($asset_info, "last_visit_time");
+						// get asset updated time
+						$upasset = $GLOBALS["SQ_SYSTEM"]->am->getAsset($assetid);
+						if (!is_null($upasset)) {
+							$updated = $upasset->updated;
+							if ($last_visit_time < $updated) {
+								';
+								if (isset($args['label'])) {
+									echo 'echo "'.$args['label'].'";';
+								}
+							echo '
+							}
+						}
+					}
+				?>';
+			break;
+
 			case 'query_var' :
 				echo '<?php
 						$url = array_get_index($asset_info,\'asset_link\');
@@ -94,6 +122,79 @@ class Design_Area_Access_History extends Design_Area
 
 			case 'history_count' :
 				echo '<?php echo $history_count; ?>';
+			break;
+
+			case 'add_to_history_button' :
+				$area_id  = $this->attr('id_name');
+				$exclude_assets = $this->attr('exclude_assets');
+				echo '<?php
+						$show_button = FALSE;
+						$exclude_assets = '.var_export($exclude_assets,TRUE).';
+						$excluded = in_array($ASSET->id, $exclude_assets);
+						if (!$excluded) {
+							$show_button_for_asset_types = '.var_export($this->attr('add_history_asset_types'), TRUE).';
+							if (isset($show_button_for_asset_types[$ASSET->type()])) {
+								$show_button = TRUE;
+							} else {
+								foreach ($show_button_for_asset_types as $type => $inherit) {
+									if ($GLOBALS["SQ_SYSTEM"]->am->isTypeDecendant($ASSET->type(), $type)) {
+										$show_button = TRUE;
+										break;
+									}
+								}
+							}
+						}
+					?>';
+				echo '<?php if ($show_button) { ?>';
+				echo '<form action="<?php echo $url; ?>" method="post" id="'.$area_id.'_add_form">';
+				echo '<div><input type="hidden" value="add" name="'.$area_id.'_add_to_history" /></div>';
+				$submit_str = 'document.getElementById(\''.$area_id.'_add_form\').submit();';
+				if (!$this->attr('add_history_button_image')) {
+					normal_button($area_id.'_add_to_history_button', $this->attr('add_history_button_label'), $submit_str);
+				} else {
+					echo '<?php $img_url = ""; ?>';
+					$image_id = $this->attr('add_history_image');
+					if (!empty($image_id)) {
+						echo '<?php
+						$img_url = $GLOBALS["SQ_SYSTEM"]->am->getAssetURL('.$image_id.');
+						?>';
+					}
+					echo '<img alt="" id="'.$area_id.'_add_to_history_button" src="<?php echo $img_url ?>" onclick="'.$submit_str.'" onmouseover="this.style.cursor=\'pointer\'" />';
+				}
+				echo '</form>';
+				echo '<?php } ?>';
+			break;
+
+			case 'remove_from_history_checkbox' :
+				echo '<?php check_box("'.$this->attr('id_name').'_rm_from_history[]", array_get_index($asset_info,\'asset_link\')); ?>';
+			break;
+
+			case 'remove_from_history_image' :
+				$area_id  = $this->attr('id_name');
+				echo '<?php $img_url = ""; ?>';
+				$image_id = $this->attr('remove_history_image_small');
+					if (!empty($image_id)) {
+						echo '<?php
+							$img_url = $GLOBALS["SQ_SYSTEM"]->am->getAssetURL('.$image_id.');
+						?>';
+					}
+					echo '<img alt="" id="'.$area_id.'_rm_from_history_<?php echo array_get_index($asset_info,\'assetid\'); ?>" src="<?php echo $img_url ?>" onclick="document.getElementById(\''.$area_id.'_form_remove_asset\').value=\'<?php echo array_get_index($asset_info,\'asset_link\'); ?>\'; document.getElementById(\''.$area_id.'_form\').submit();" onmouseover="this.style.cursor=\'pointer\'" />';
+			break;
+
+			case 'remove_from_history_button' :
+				$area_id  = $this->attr('id_name');
+				if (!$this->attr('remove_history_button_image')) {
+					normal_button($area_id.'_remove_from_history_button', $this->attr('remove_history_button_label'), 'document.getElementById(\''.$area_id.'_form\').submit();');
+				} else {
+					echo '<?php $img_url = ""; ?>';
+					$image_id = $this->attr('remove_history_image');
+					if (!empty($image_id)) {
+						echo '<?php
+							$img_url = $GLOBALS["SQ_SYSTEM"]->am->getAssetURL('.$image_id.');
+						?>';
+					}
+					echo '<img name="'.$area_id.'_remove_from_history_button" src="<?php echo $img_url ?>" onclick="document.getElementById(\''.$area_id.'_form\').submit();" onmouseover="this.style.cursor=\'pointer\'" />';
+				}
 			break;
 
 			default :
@@ -118,7 +219,15 @@ class Design_Area_Access_History extends Design_Area
 
 		switch (array_get_index($element, 'operation')) {
 			case 'asset' :
+				echo '<?php if (!isset($url)) {
+					$url = current_url();
+				}
+				include_once(SQ_SYSTEM_ROOT."/core/lib/html_form/html_form.inc");
+				?>';
 				echo '
+				<form action="<?php echo $url; ?>" method="post" id="'.$area_id.'_form">
+				<div><input type="hidden" id="'.$area_id.'_form_remove_asset" name="'.$area_id.'_form_remove_asset" value="" /></div>
+
 					<?php
 						foreach($history as $position => $asset_info) {
 					?>
@@ -132,6 +241,7 @@ class Design_Area_Access_History extends Design_Area
 					<?php
 						}//end foreach
 					?>
+					</form>
 				';
 				return TRUE;
 			default :
@@ -169,6 +279,7 @@ class Design_Area_Access_History extends Design_Area
 		$this_types = $this->attr('asset_types');
 		$max_count = $this->attr('asset_count');
 		$time_format = $this->attr('time_format');
+		$auto_access_history = $this->attr('auto_access_history');
 
 		echo '
 			<?php
@@ -209,40 +320,94 @@ class Design_Area_Access_History extends Design_Area
 
 					// now update history if necessary
 					if (!is_null($url)){
-						// if this url already exists in history, remove it
-						$history_index = array_get_index($history_hash, $url);
+						';
+						if (!$auto_access_history) {
+							echo 'if (isset($_REQUEST["'.$area_id.'_add_to_history"])) {';
+						}
+						echo '
+							// if this url already exists in history, remove it
+							$history_index = array_get_index($history_hash, $url);
 
+							$visit_count = 1;
+							$first_access_time = time();
+							if (!is_null($history_index)) {
+								$visit_count = array_get_index($history[$history_index], "visit_count", 0);
+								$first_access_time = array_get_index($history[$history_index], "first_visit_time", $first_access_time);
+								unset($history[$history_index]);
+							}
+
+							if (count($history) > $max_asset_count) {
+								array_pop($history);
+							}
+
+							// create a new history entry
+							$new_entry["assetid"] 			= $ASSET->id;
+							$new_entry["asset_link"] 		= $url;
+							$new_entry["asset_name"] 		= $ASSET->name;
+							$new_entry["asset_short_name"]	= $ASSET->short_name;
+							$new_entry["access_time"]		= time();
+							$new_entry["visit_count"]		= $visit_count;
+							$new_entry["first_visit_time"]	= $first_access_time;
+							$new_entry["last_visit_time"]	= time();
+
+							array_unshift($history, $new_entry);
+							';
+						if (!$auto_access_history) echo '}';
+
+						echo '
+						}//end if (!is_null(url))
+					}//end if (!is_null(require_query_vars))
+
+
+					// if current page is in history update its details like visit count, access time etc
+					$history_index = array_get_index($history_hash, current_url(), NULL);
+
+					if (!is_null($history_index)) {
+						$history[$history_index]["visit_count"] = array_get_index($history[$history_index], "visit_count", 0) + 1;
+						$history[$history_index]["last_visit_time"] = time();
+					}
+
+					// remove selected assets from history
+					if (isset($_REQUEST["'.$area_id.'_rm_from_history"]) && !empty($_REQUEST["'.$area_id.'_rm_from_history"])) {
+
+						foreach ($_REQUEST["'.$area_id.'_rm_from_history"] as $remove_url) {
+							$history_index = array_get_index($history_hash, urldecode($remove_url));
+
+							if (!is_null($history_index)) {
+								unset($history[$history_index]);
+							}
+						}
+					}
+
+					if (isset($_REQUEST["'.$area_id.'_form_remove_asset"]) && !empty($_REQUEST["'.$area_id.'_form_remove_asset"])) {
+						$remove_url = $_REQUEST["'.$area_id.'_form_remove_asset"];
+						$history_index = array_get_index($history_hash, urldecode($remove_url));
 						if (!is_null($history_index)) {
 							unset($history[$history_index]);
 						}
+					}
 
-						if (count($history) > $max_asset_count) {
-							array_pop($history);
-						}
-
-						// create a new history entry
-						$new_entry["assetid"] 			= $ASSET->id;
-						$new_entry["asset_link"] 		= $url;
-						$new_entry["asset_name"] 		= $ASSET->name;
-						$new_entry["asset_short_name"]	= $ASSET->short_name;
-						$new_entry["access_time"]		= date("'.$time_format.'");
-
-						array_unshift($history, $new_entry);
-
-						// update history hash
-						foreach ($history as $index => $contents) {
+					// update history hash
+					$new_history_hash = Array();
+					foreach ($history as $index => $contents) {
+						if (isset($contents["asset_link"])) {
 							$new_history_hash[$contents["asset_link"]] = $index;
 						}
+					}
 
-						$_SESSION["design_areas"]["'.$area_id.'"]["history"] = $history;
-						$_SESSION["design_areas"]["'.$area_id.'"]["history_hash"] = $new_history_hash;
 
+					$_SESSION["design_areas"]["'.$area_id.'"]["history"] = $history;
+					$_SESSION["design_areas"]["'.$area_id.'"]["history_hash"] = $new_history_hash;
+					';
+
+					if ($auto_access_history) {
+						echo '
 						// now that the session is saved, we want to remove the first item because
 						// we do not want to list the current page
 						array_shift($history);
+						';
 					}
-				}
-
+					echo '
 				$history = array_slice($history, 0, $max_asset_count);
 				$history_count = count($history);
 			?>

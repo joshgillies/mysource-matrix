@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2005/10/11 02:05:10 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.4 2006/06/28 00:20:13 sdanis Exp $
 *
 */
 -->
@@ -57,6 +57,48 @@
 			<function_call>
 				<paint_function   name="paintExcludeAssets"   />
 				<process_function name="processExcludeAssets" />
+			</function_call>
+		</field>
+		<field attribute="auto_access_history">
+			<display_name>Auto Add to History</display_name>
+			<note>If enabled assets will be added to access history automatically.</note>
+		</field>
+	</section>
+	<section name="Display Options" write_access="write:attributes">
+		<field attribute="add_history_button_image">
+			<display_name>Use Image for Access History Add Button</display_name>
+			<note>If enabled then image used instead of form button</note>
+		</field>
+		<field attribute="add_history_button_label">
+			<display_name>Access History Add Button Label</display_name>
+			<note>Label for the Add to Access History button</note>
+		</field>
+		<field attribute="add_history_image">
+			<display_name>Add to History Button Image</display_name>
+			<note>Selected asset will be used as the Add to History Button</note>
+		</field>
+		<field attribute="remove_history_button_image">
+			<display_name>Use Image for Access History Remove Button</display_name>
+			<note>If enabled then image used instead of form button</note>
+		</field>
+		<field attribute="remove_history_button_label">
+			<display_name>Access History Remove Button Label</display_name>
+			<note>Label for the Remove to Access History button</note>
+		</field>
+		<field attribute="remove_history_image">
+			<display_name>Remove from History Button Image</display_name>
+			<note>Selected asset will be used as the Remove from History Button</note>
+		</field>
+		<field attribute="remove_history_image_small">
+			<display_name>Remove from History Image</display_name>
+			<note>Selected asset will be used as the Remove from History Image when &lt;i&gt;remove_from_history_image&lt;/i&gt; var is specified in the parse file.</note>
+		</field>
+		<field>
+			<display_name>Add to History Asset Types</display_name>
+			<note>Add to Access History button will be displayed for these asset types only</note>
+			<function_call>
+				<paint_function   name="paintAddHistoryAssetTypes"   />
+				<process_function name="processAddHistoryAssetTypes" />
 			</function_call>
 		</field>
 	</section>

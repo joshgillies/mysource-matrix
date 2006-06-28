@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history_edit_fns.inc,v 1.8 2006/06/15 01:16:29 tbarrett Exp $
+* $Id: design_area_access_history_edit_fns.inc,v 1.9 2006/06/28 00:20:13 sdanis Exp $
 *
 */
 
@@ -32,14 +32,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *	Print the last N assets viewed
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 {
-
-
 
 
 	/**
@@ -148,7 +146,8 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 			$row_class = $even ? 'class="alt"' : '';
 			$even = !$even;
 
-			echo '<tr '.$row_class.'><td>'.$present_types[$type].'</td>';
+			echo '<tr '.$row_class.'><td>';
+			echo get_asset_type_icon($type).$present_types[$type].'</td>';
 			foreach ($asset->request_types as $req_type => $req_name) {
 				echo '<td>';
 				if ($write_access) {
@@ -262,7 +261,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 			$asset_ids = $asset->attr('exclude_assets');
 			$asset_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_ids, Array(), TRUE, 'name');
 			foreach ($asset_names as $id => $name) {
-				echo $name.' (id #'.$id.') <br />';
+				echo get_asset_tag_line($id);
 			}
 			return FALSE;
 		}
@@ -285,7 +284,9 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 		if (isset($_POST[$prefix.'exclude_assets'])) {
 			$asset_ids = Array();
 			foreach ( $_POST[$prefix.'exclude_assets']	as $asset_info ) {
-				$asset_ids[] = $asset_info['assetid'];
+				if (!empty($asset_info['assetid'])) {
+					$asset_ids[] = $asset_info['assetid'];
+				}
 			}
 			return ($asset->setAttrValue('exclude_assets',$asset_ids));
 		} else {
@@ -293,6 +294,159 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 		}
 
 	}//end processExcludeAssets()
+
+
+	/**
+	* Paint the interface for choosing which asset types to list
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAddHistoryAssetTypes(&$asset, &$o, $prefix)
+	{
+		$types = $asset->attr('add_history_asset_types');
+		if ($asset->writeAccess('attributes')) {
+			// print the form fields
+			$display_values = Array('type_code' => Array(), 'inherit' => Array());
+			foreach ($types as $type => $inherit) {
+				$display_values['type_code'][] = $type;
+				$display_values['inherit'][] = $inherit;
+			}
+			asset_type_chooser($prefix.'_button_types', TRUE, $display_values, NULL, TRUE, TRUE);
+			return TRUE;
+		} else {
+			// print the read-only version
+			if (empty($types)) {
+				echo '<p class="sq-backend-warning">'.translate('no_asset_types_selected').'</p>';
+			} else {
+				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
+				?>
+					<table class="sq-backend-table">
+						<tr>
+							<th><?php echo translate('type') ?></th>
+							<th><?php echo translate('inherit_question') ?></th>
+						</tr>
+				<?php
+				$inherit_image_path = sq_web_path('lib').'/web/images/';
+				foreach ($types as $type => $inherit) {
+					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.gif';
+					$inherit_alt = $inherit ? translate('yes') : translate('no');
+					?>
+						<tr>
+							<td><?php
+								echo get_asset_type_icon($type);
+								echo $type_names[$type];
+							?></td>
+							<td><img src="<?php echo $inherit_image; ?>" alt="<?php echo $inherit_alt; ?>" /></td>
+						</tr>
+					<?php
+				}
+				?>
+					</table>
+				<?php
+			}
+			return FALSE;
+		}//end else - if write access to content
+
+	}//end paintAddHistoryAssetTypes()
+
+
+	/**
+	* Process the asset types to list
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAddHistoryAssetTypes(&$asset, &$o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_button_types'])) {
+			$existing_types = $asset->attr('add_history_asset_types');
+			$submitted_types = Array();
+			foreach ($_POST[$prefix.'_button_types']['type_code'] as $i => $type_code) {
+				if (!empty($type_code)) {
+					$submitted_types[$type_code] = $_POST[$prefix.'_button_types']['inherit'][$i];
+				}
+			}
+
+			$asset->setAttrValue('add_history_asset_types', $submitted_types);
+			return TRUE;
+		} else {
+			return FALSE;
+		}
+
+	}//end processAddHistoryAssetTypes()
+
+
+	/**
+	* Show/Hide text box
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function useAddButton(&$asset, $prefix)
+	{
+		return !$asset->attr('add_history_button_image');
+
+	}//end useAddButton()
+
+
+	/**
+	* Show/Hide text box
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function useRemoveButton(&$asset, $prefix)
+	{
+		return !$asset->attr('remove_history_button_image');
+
+	}//end useRemoveButton()
+
+
+	/**
+	* Show/Hide asset picker
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function showRemoveImageSelection(&$asset, $prefix)
+	{
+		return $asset->attr('remove_history_button_image');
+
+	}//end showRemoveImageSelection()
+
+
+	/**
+	* Show/Hide asset picker
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function showAddImageSelection(&$asset, $prefix)
+	{
+		return $asset->attr('add_history_button_image');
+
+	}//end showAddImageSelection()
 
 
 }//end class
