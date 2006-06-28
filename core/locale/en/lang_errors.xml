@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.53 2006/06/15 23:30:18 rong Exp $
+* $Id: lang_errors.xml,v 1.54 2006/06/28 05:03:35 rhoward Exp $
 *
 */
 
@@ -1349,6 +1349,10 @@ Full Node Contents %3$s</error>
 
 	<!-- Apache Configuration Errors -->
 	<error code="SYS0314">Cannot set request note name for "%s". A request note with this name already exists.</error>
+
+	<error code="SYS0315">System Default email address has not been set.</error>
+	<error code="SYS0316">System Tech email address has not been set.</error>
+	<error code="SYS0317">Neither the System Default nor Tech email addresses have been set.</error>
 
 	<!-- CORE ASSETS -->
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.31 2006/06/19 00:54:13 lwright Exp $
+* $Id: email_format.inc,v 1.32 2006/06/28 05:03:34 rhoward Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -407,6 +407,12 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		// if no 'From:' address (possibly because of empty keyword replacement)
 		// send from the system's default email address
 		if (trim($from) == '') $from = SQ_CONF_DEFAULT_EMAIL;
+
+		// can't come up with a From: email address - bail for this email
+		if (empty($from)) {
+			trigger_localised_error('SYS0315', E_USER_WARNING);
+			return;
+		}
 
 		// replace internal links to pages and images with their full URLs
 		$matches = Array();

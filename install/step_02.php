@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.64 2006/01/31 00:35:57 lwright Exp $
+* $Id: step_02.php,v 1.65 2006/06/28 05:03:35 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -76,6 +76,19 @@ $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 $cfg =& new System_Config();
 $cfg->save(Array(), FALSE);
+
+// check that we have valid DEFAULT and TECH email addresses - warn if missing
+if (!(SQ_CONF_TECH_EMAIL) && !(SQ_CONF_DEFAULT_EMAIL)) {
+	trigger_error('Neither the System Default nor Tech email addresses have been set', E_USER_WARNING);
+} else {
+	if (!SQ_CONF_TECH_EMAIL) {
+		trigger_error('The System Tech email address has not been set', E_USER_WARNING);
+	}
+	if (!SQ_CONF_DEFAULT_EMAIL) {
+		trigger_error('The System Default email address has not been set', E_USER_WARNING);
+	}
+}
+
 
 $cached_table_columns = Array();
 

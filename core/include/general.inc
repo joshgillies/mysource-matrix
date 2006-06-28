@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.139 2006/06/27 23:32:59 skim Exp $
+* $Id: general.inc,v 1.140 2006/06/28 05:03:34 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.139 $
+* @version $Revision: 1.140 $
 * @package MySource_Matrix
 */
 
@@ -292,7 +292,11 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 					"*Back Trace*\n".
 					$bt_str."\n";
 
-			mail(SQ_CONF_TECH_EMAIL, '['.$err_name.'] '.SQ_CONF_SYSTEM_NAME, $str, 'From: '.SQ_CONF_TECH_EMAIL."\r\n");
+			// ensure we have a valid email address to send error notifications to
+			// fail silently if none present
+			if (SQ_CONF_TECH_EMAIL) {
+				mail(SQ_CONF_TECH_EMAIL, '['.$err_name.'] '.SQ_CONF_SYSTEM_NAME, $str, 'From: '.SQ_CONF_TECH_EMAIL."\r\n");
+			}
 
 		}//end if ($terminate)
 

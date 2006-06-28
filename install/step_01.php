@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_01.php,v 1.39 2006/01/26 22:34:09 lwright Exp $
+* $Id: step_01.php,v 1.40 2006/06/28 05:03:35 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -37,21 +37,21 @@ error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 
 if ((php_sapi_name() == 'cli')) {
-    if (isset($_SERVER['argv'][1])) {
-        $SYSTEM_ROOT = $_SERVER['argv'][1];
-    }
+	if (isset($_SERVER['argv'][1])) {
+		$SYSTEM_ROOT = $_SERVER['argv'][1];
+	}
 
-    $err_msg = "You need to supply the path to the System Root as the first argument\n";
+	$err_msg = "You need to supply the path to the System Root as the first argument\n";
 
 } else {
-    if (isset($_GET['SYSTEM_ROOT'])) {
-        $SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
-    }
+	if (isset($_GET['SYSTEM_ROOT'])) {
+		$SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
+	}
 
-    $err_msg = '
-    <div style="background-color: red; color: white; font-weight: bold;">
-        You need to supply the path to the System Root as a query string variable called SYSTEM_ROOT
-    </div>
+	$err_msg = '
+	<div style="background-color: red; color: white; font-weight: bold;">
+		You need to supply the path to the System Root as a query string variable called SYSTEM_ROOT
+	</div>
 	';
 }
 
@@ -71,8 +71,6 @@ require_once SQ_INCLUDE_PATH.'/system_config.inc';
 
 // override some of the default config values
 define('SQ_CONF_PEAR_PATH', SQ_SYSTEM_ROOT.'/php_includes');
-define('SQ_CONF_DEFAULT_EMAIL', 'matrix-team@squiz.net');
-define('SQ_CONF_TECH_EMAIL',    'matrix-team@squiz.net');
 
 $cfg =& new System_Config();
 $cfg->save(Array(), TRUE);

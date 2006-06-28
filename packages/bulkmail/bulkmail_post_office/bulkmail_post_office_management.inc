@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_management.inc,v 1.18 2006/02/13 03:30:29 ndvries Exp $
+* $Id: bulkmail_post_office_management.inc,v 1.19 2006/06/28 05:03:38 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -41,6 +41,9 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 	function Bulkmail_Post_Office_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
+		if (!strlen(SQ_CONF_DEFAULT_EMAIL)) {
+			trigger_localised_error('SYS0315', E_USER_WARNING);
+		}
 
 		$this->vars = Array(
 						'name'				=> Array(

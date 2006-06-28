@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.7 2006/06/27 23:19:08 skim Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.8 2006/06/28 05:03:38 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -415,8 +415,13 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		if ($sub_verify || $unsub_verify) {
 			$from_addr = $this->attr('verify_from_address');
 			$from_addr = empty($from_addr) ? SQ_CONF_DEFAULT_EMAIL : $from_addr;
-			$this->sendConfirmationEmail($email_address, $from_addr, $subscriptions, $unsubscriptions, $uniqid);
-			$this->messages[] = translate('bsp_verification_email_sent', $email_address);
+			if (empty($from_addr)) {
+				trigger_localised_email('SYS0315', E_USER_WARNING);
+				trigger_localised_error('BML0016', E_USER_WARNING);
+			} else {
+				$this->sendConfirmationEmail($email_address, $from_addr, $subscriptions, $unsubscriptions, $uniqid);
+				$this->messages[] = translate('bsp_verification_email_sent', $email_address);
+			}
 		}
 
 		// We need to verify both subscribing and unsubscribing
@@ -546,8 +551,13 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		if ($sub_verify || $unsub_verify) {
 			$from_addr = $this->attr('verify_from_address');
 			$from_addr = empty($from_addr) ? SQ_CONF_DEFAULT_EMAIL : $from_addr;
-			$this->sendConfirmationEmail($current_user_email, $from_addr, $subscriptions, $unsubscriptions, $uniqid);
-			$this->messages[] = translate('bsp_verification_email_sent', $current_user_email);
+			if (empty($from_addr)) {
+				trigger_localised_error('SYS0315', E_USER_WARNING);
+				trigger_localised_error('BML0016', E_USER_WARNING);
+			} else {
+				$this->sendConfirmationEmail($current_user_email, $from_addr, $subscriptions, $unsubscriptions, $uniqid);
+				$this->messages[] = translate('bsp_verification_email_sent', $current_user_email);
+			}
 		}
 
 		// We need to verify both subscribing and unsubscribing

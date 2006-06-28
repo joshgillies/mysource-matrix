@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.51 2006/03/29 03:37:36 skim Exp $
+* $Id: messaging_service.inc,v 1.52 2006/06/28 05:03:34 rhoward Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -708,6 +708,13 @@ class Messaging_Service extends MySource_Object
 						if (!empty($to_email)) $to_email .= ',';
 						$to_email .= $tech;
 					}
+
+					// can't come up with a To: email address - bail for this address
+					if (empty($to_email)) {
+						trigger_localised_error('SYS0317', E_USER_WARNING);
+						continue;
+					}
+
 					$user = SQ_CONF_SYSTEM_OWNER;
 				} else {
 					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($to);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.79 2006/05/29 06:30:35 tbarrett Exp $
+* $Id: system_config.inc,v 1.80 2006/06/28 05:03:34 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix
 */
 class System_Config extends Config

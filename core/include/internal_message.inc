@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.69 2006/01/26 22:34:08 lwright Exp $
+* $Id: internal_message.inc,v 1.70 2006/06/28 05:03:34 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -352,6 +352,12 @@ class Internal_Message extends MySource_Object
 					if (!empty($tech)) {
 						if (!empty($to_email)) $to_email .= ',';
 						$to_email .= $tech;
+					}
+
+					// can't come up with a To: email address - bail for this address
+					if (empty($to_email)) {
+						trigger_localised_error('SYS0317', E_USER_WARNING);
+						continue;
 					}
 
 					// get the body with a header and a footer attached
