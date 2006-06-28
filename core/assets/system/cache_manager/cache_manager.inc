@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.34.2.9 2006/06/02 04:30:24 rong Exp $
+* $Id: cache_manager.inc,v 1.34.2.10 2006/06/28 01:29:53 sdanis Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.34.2.9 $
+* @version $Revision: 1.34.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -181,7 +181,7 @@ class Cache_Manager extends Asset
 					if (!$contents) {
 						// if we cannot read from the cache file, remove this cache entry
 						$this->_deleteCache($cache_key, $perm_key, $url);
-						//trigger_localised_error('CORE0244', E_USER_WARNING, SQ_CACHE_PATH.'/'.$cached['path']);
+						// trigger_localised_error('CORE0244', E_USER_WARNING, SQ_CACHE_PATH.'/'.$cached['path']);
 						return '';
 					}
 					return $contents;
@@ -297,7 +297,7 @@ class Cache_Manager extends Asset
 					)';
 			$result = $db->query($sql);
 			// silent the error and check for cache entry (concurrency issue)
-			if (!assert_valid_db_result($result, '', true, false)) {
+			if (!assert_valid_db_result($result, '', TRUE, FALSE)) {
 				$error = TRUE;
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			} else {
@@ -334,15 +334,26 @@ class Cache_Manager extends Asset
 	{
 		if (!empty($assetids)) {
 
-			$sql = 'DELETE FROM
-						sq_cache
-					WHERE
-						assetid in ('.implode(',', $assetids).')';
-
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+			foreach ($assetids as $key => $assetid) {
+				$assetids[$key] = $db->quoteSmart((String)$assetid);
+			}
+
+			// break up the assets into chunks of 1000 so that oracle does not complain
+			$in_clauses = Array();
+			foreach (array_chunk($assetids, 999) as $chunk) {
+				$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
+			}
+
+			$sql = 'DELETE FROM
+						sq_cache
+					WHERE
+						('.implode(' OR ', $in_clauses).')';
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
@@ -366,12 +377,23 @@ class Cache_Manager extends Asset
 		if (!empty($assetids)) {
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+			foreach ($assetids as $key => $assetid) {
+				$assetids[$key] = $db->quoteSmart((String)$assetid);
+			}
+
+			// break up the assets into chunks of 1000 so that oracle does not complain
+			$in_clauses = Array();
+			foreach (array_chunk($assetids, 999) as $chunk) {
+				$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
+			}
+
 			$sql = 'SELECT
 						path
 					FROM
 						sq_cache
 					WHERE
-						assetid in ('.implode(',', $assetids).')';
+						('.implode(' OR ', $in_clauses).')';
 			$result = $db->getAll($sql);
 			assert_valid_db_result($result);
 			return $result;
