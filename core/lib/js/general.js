@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.js,v 1.15 2005/09/09 01:02:31 ndvries Exp $
+* $Id: general.js,v 1.15.2.1 2006/06/28 03:15:19 sdanis Exp $
 *
 */
 
@@ -271,7 +271,7 @@ function _number_format_thousand_separators(str, sep) {
 // ensures that PNGs have transparent background in IE and Mozilla
 function sq_print_icon(path, width, height, alt) {
 
-	if (document.all) {
+	if ((typeof window.ActiveXObject != "undefined")) {
 		// IE cant handle transparent PNGs
 		document.write ('<span style="height:'+height+'px;width:'+width+'px; filter:progid:DXImageTransform.Microsoft.AlphaImageLoader (src=\''+path+'\', sizingMethod=\'scale\')" title="' + alt + '"></span>');
 	} else {
