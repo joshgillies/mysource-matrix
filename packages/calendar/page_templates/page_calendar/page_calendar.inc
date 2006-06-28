@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.183 2006/06/19 02:39:12 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.184 2006/06/28 23:06:55 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.183 $
+* @version $Revision: 1.184 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2188,8 +2188,9 @@ class Page_Calendar extends Page
 				$replacements[$keyword] = $this->_getEventKeywordReplacement($keyword, $event_data);
 			}
 		}
-		return replace_keywords($this->_tmp['event_label_format'], $replacements);
-
+		$fmt = $this->_tmp['event_label_format'];
+		replace_keywords($fmt, $replacements);
+		return $fmt;
 
 	}//end _getEventLabel()
 
