@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_edit_fns.inc,v 1.5 2006/06/28 05:32:40 rong Exp $
+* $Id: structured_asset_info_edit_fns.inc,v 1.6 2006/06/28 06:38:16 rong Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -359,6 +359,55 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
+	* Generate the value of the Designs field
+	*
+	* @param array	$asset_info	Array returned by calling getAssetInfo for the current asset
+	*
+	* @return string
+	* @access private
+	*/
+	function _generateFieldDesigns($asset_info)
+	{
+		$value = '';
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_info['assetid']);
+		$designs = $asset->getDesignLookups();
+		ksort($designs);
+		/*
+		example xml, see _paintFieldDesigns() for example data
+			<designs>
+				<design url="url_one">
+					<design_type>
+						<type><![CDATA[design::user::printer friendly]]></type>
+						<id><![CDATA[88]]></id>
+					</design_type>
+					<design_type>
+						<type><![CDATA[design::system::frontend]]></type>
+						<id><![CDATA[91]]></id>
+					</design_type>
+					<design_type>
+						<type><![CDATA[design::system::login]]></type>
+						<id><![CDATA[41]]></id>
+					<design_type>
+				</design>
+			</designs>
+		*/
+		foreach ($designs as $url => $data) {
+			// store all design applied to this URL to the report
+			$value .= "<design url=\"$url\">\n";
+			foreach ($data as $type => $id) {
+				$value .= '<design_type>';
+				$value .= '<type>'.$this->_cData($type).'</type>';
+				$value .= '<id>'.$this->_cData($id).'</id>';
+				$value .= '</design_type>'."\n";
+			}
+			$value .= "</design>\n";
+		}
+		return $value;
+
+	}//end _generateFieldDesigns()
+
+
+	/**
 	* Generate the value of the MetadataSchemas field
 	*
 	* @param array	$asset_info	Array returned by calling getAssetInfo for the current asset
@@ -560,13 +609,15 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 
 			} else {
 
+
 				$asset_info = $am->getAssetInfo(Array($current_assetid));
 				if (isset($asset_info[$current_assetid])) {
 					// if getAssetInfo returns empty array, then might be a problem with the shadow asset bridge
 					$asset_info = $asset_info[$current_assetid];
 				}
-				$asset_info['assetid'] = $current_assetid;
 				$asset_info['treeid'] = $this->getTreeid($current_assetid, $open_asset['treeid']);
+				$asset_info['assetid'] = $current_assetid;
+
 				if (!isset($asset_info['type_code']) || !$this->checkType($asset_info['type_code'], $owner->attr('types'))) {
 					// skip this asset - don't display it in the XML, but do check it's children, so add it to the stack
 					array_unshift($assets_skipped, $current_assetid);
@@ -670,6 +721,10 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 			case 'children':
 				$depth++;
 			break;
+			case 'design':
+				// store the url attribute that will be applied to all design types
+				$this->_tmp['current_design_url'] = $attrs['url'];
+			break;
 
 			default:
 				// ignore tag
@@ -713,8 +768,19 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 			if (!is_array(array_get_index($current_asset,$parent_tag))) {
 				$current_asset[$parent_tag] = Array();
 			}
-
 			array_push($current_asset[$parent_tag], $data);
+
+		} else if ($parent_tag == 'design_type') {
+			// construct the design data array
+			if ($open_tag == 'type') {
+				$this->_tmp['current_design_type'] = $data;
+			} else if ($open_tag == 'id') {
+				if (!isset($current_asset['designs'][$this->_tmp['current_design_url']])) {
+					$current_asset['designs'][$this->_tmp['current_design_url']] = Array();
+				}
+				$current_asset['designs'][$this->_tmp['current_design_url']][$this->_tmp['current_design_type']] = $data;
+				unset($this->_tmp['current_design_type']);
+			}
 		}
 
 	}//end tagContent()
@@ -1069,6 +1135,45 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
+	* Paint the Designs field
+	*
+	* @param string	$data	the data belonging to the field
+	*
+	* @return void
+	* @access private
+	*/
+	function _paintFieldDesigns($data)
+	{
+		if (!empty($data)) {
+			/*
+			example data, see _generateFieldDesigns() for example xml
+				array(
+					"url_one" => array (
+						"design::user::printer friendly" => "88",
+						"design::system::frontend" => "91",
+						"design::system::login" => "41"
+					)
+				)
+			*/
+			foreach ($data as $url => $designs) {
+				echo '<fieldset><legend>'.$url.'</legend>';
+				foreach ($designs as $design_name => $design_id) {
+					// work out the display name of this design
+					$matches = Array();
+					preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches);
+					$design_type     = $matches[1];
+					$design_code     = $matches[2];
+					$display_name = translate('config_display_name', ucwords($design_type), ucwords(str_replace('_', ' ', $design_code)));
+					echo $display_name.': '.$this->_printAssetTagLine($design_id)."<br>\n";
+				}
+				echo '</fieldset><br>';
+			}
+		}
+
+	}//end _paintFieldDesigns()
+
+
+	/**
 	* Paint the MetadataSchemas field
 	*
 	* @param string	$data	the data belonging to the field
@@ -1150,7 +1255,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	*/
 	function getTreeid($assetid, $parent_treeid)
 	{
-				$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT
 					t.treeid
 				FROM

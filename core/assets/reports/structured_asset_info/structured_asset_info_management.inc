@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_management.inc,v 1.1 2006/05/15 06:13:31 emcdonald Exp $
+* $Id: structured_asset_info_management.inc,v 1.2 2006/06/28 06:38:16 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,6 +71,7 @@ class Structured_Asset_Info_Management extends Asset_Management
 																							'last_status_change_date'	=> 'Last Status Change Date',
 																							'last_status_change_user'	=> 'Last Status Change User',
 																							'urls'						=> 'URLs',
+																							'designs'					=> 'Designs',
 																							'metadata_schemas'			=> 'Metadata Schemas',
 																							'workflow_schemas'			=> 'Workflow Schemas',
 																						   ),
