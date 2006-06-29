@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.43 2006/06/26 02:32:45 rong Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.44 2006/06/29 07:02:42 rhoward Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -335,11 +335,13 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 			$replace_assetids = array_unique($replace_assetids);
 
-			// delete existing notice links that are no longer being used
+			// delete existing notice links that are no longer being used (only delete those without a link value)
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			foreach ($notice_links as $link_data) {
-				if ($link_data['value'] != 'thumbnail') {
+				// if the link value doesn't indicate a thumbnail, or tag weighting, etc.
+				// NOTE: This needs to be refactored.
+				if (empty($link_data['value'])) {
 					if (!in_array($link_data['minorid'], $replace_assetids)) {
 						if (!$asset->deleteLink($link_data['linkid'])) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
