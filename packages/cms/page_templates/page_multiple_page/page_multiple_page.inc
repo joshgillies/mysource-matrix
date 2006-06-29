@@ -11,7 +11,7 @@
 * | Please refer to http:// www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page.inc,v 1.16 2006/06/19 00:52:07 lwright Exp $
+* $Id: page_multiple_page.inc,v 1.17 2006/06/29 01:57:20 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -237,7 +237,7 @@ class Page_Multiple_Page extends Page
 	/**
 	* Allow any required processesing to occur when any link is updated for the asset
 	*
-	* @return boolean
+	* @return void
 	* @access protected
 	*/
 	function linksUpdated()
@@ -277,8 +277,6 @@ class Page_Multiple_Page extends Page
 
 		// This will store all current pages,
 		$this->setAttrValue('current_page_ids', $new_page_children);
-
-		return TRUE;
 
 	}//end linksUpdated()
 

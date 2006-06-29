@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_orphaned_assets.php,v 1.11 2006/05/01 01:03:34 emcdonald Exp $
+* $Id: system_integrity_orphaned_assets.php,v 1.12 2006/06/29 01:56:53 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * the minor) underneath a specified asset id, preferably a folder
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -204,13 +204,9 @@ foreach ($assets as $assetid => $type_code) {
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
-			// tell, the asset it has updated
+			// tell the asset it has updated
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
-			if (!$asset->linksUpdated()) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				$errors = TRUE; break 2;
-			}
+			$asset->linksUpdated();
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
