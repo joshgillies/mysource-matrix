@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.21 2006/01/17 22:30:19 lwright Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.21.2.1 2006/06/29 00:43:24 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -469,7 +469,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 					}
 				}
-				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_table_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'FALSE' : 'TRUE').');', translate('edit_properties', $asset->attr('name')), (($popup_attribute_list) ? translate('current_properties').':<br>'.$popup_attribute_list : ''), 'table_properties');
+				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_table_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', translate('edit_properties', $asset->attr('name')), (($popup_attribute_list) ? translate('current_properties').':<br>'.$popup_attribute_list : ''), 'table_properties');
 
 			} else {
 				echo '&nbsp;';
@@ -502,7 +502,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		?> </span> <?php
 
 		if ($i==0) {
-			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_col('$prefix', $asset->id, $x, TRUE);", translate('insert_new_column_on_left'), '', 'add', '[<< '.translate('add_column').']');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_col('$prefix', $asset->id, $x, true);", translate('insert_new_column_on_left'), '', 'add', '[<< '.translate('add_column').']');
 		}
 		$cell->paintCell($asset, $prefix, $asset->id, $i, $x);
 
@@ -519,7 +519,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_row_order('$prefix', $asset->id);", translate('reorder_rows_question', $asset->attr('name')), '', 'reorder', '['.translate('reorder_rows').']');
 			}
 			echo '<br/>';
-			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_row('$prefix', $asset->id,$i, TRUE);", translate('insert_new_row_above'), '', 'add', '[^ '.translate('add_row').']');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_row('$prefix', $asset->id,$i, true);", translate('insert_new_row_above'), '', 'add', '[^ '.translate('add_row').']');
 
 			echo '<br/>';
 			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_row_properties('$prefix', $asset->id,$i);", translate('edit_row_question', ($i + 1)), (($attribute_list) ? translate('current_properties').':<br>'.$attribute_list : ''), 'row_properties', '['.translate('edit_row').']');
@@ -528,7 +528,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_delete_table_row('$prefix', $asset->id, $i);", translate('delete_row_question', ($i + 1)), '', 'delete', '['.translate('delete_row').']');
 			}
 			echo '<br/>';
-			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_row('$prefix', $asset->id, $i, FALSE);", translate('insert_new_row_below'), '', 'add', '[v '.translate('add_row').']');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_row('$prefix', $asset->id, $i, false);", translate('insert_new_row_below'), '', 'add', '[v '.translate('add_row').']');
 			?>
 		</td>
 		<?php
