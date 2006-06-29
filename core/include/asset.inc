@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.551 2006/06/28 06:35:26 lwright Exp $
+* $Id: asset.inc,v 1.552 2006/06/29 01:55:16 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.551 $
+* @version $Revision: 1.552 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2630,12 +2630,12 @@ class Asset extends MySource_Object
 	* to occur but not cause integrity issues during script execution.
 	* ONLY TO BE CALLED FROM THE ASSET MANAGER
 	*
-	* @return boolean
+	* @return void
 	* @access protected
 	*/
 	function linksUpdated()
 	{
-		return TRUE;
+
 
 	}//end linksUpdated()
 

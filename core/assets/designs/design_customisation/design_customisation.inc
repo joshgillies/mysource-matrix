@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.46 2006/04/13 10:54:58 sdanis Exp $
+* $Id: design_customisation.inc,v 1.47 2006/06/29 01:55:16 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -255,16 +255,15 @@ class Design_Customisation extends Design
 	* to occur but not cause integrity issues during script execution
 	* returns true it it's successfull
 	*
-	* @return boolean
+	* @return void
 	* @access private
 	*/
 	function linksUpdated()
 	{
-		if (!parent::linksUpdated()) return FALSE;
+		parent::linksUpdated();
 		unset($this->_tmp['parent_design']);
 		unset($this->_tmp['customised_areas']);
 		unset($this->_tmp['uncustomised_areas']);
-		return TRUE;
 
 	}//end linksUpdated()
 

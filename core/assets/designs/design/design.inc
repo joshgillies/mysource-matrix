@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.113 2006/05/15 07:03:31 skim Exp $
+* $Id: design.inc,v 1.114 2006/06/29 01:55:16 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.113 $
+* @version $Revision: 1.114 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -141,18 +141,17 @@ class Design extends Design_Area
 	* to occur but not cause integrity issues during script execution
 	* returns TRUE it it's successful
 	*
-	* @return boolean
+	* @return void
 	* @access private
 	*/
 	function linksUpdated()
 	{
-		if (!parent::linksUpdated()) return FALSE;
+		parent::linksUpdated();
 		if (isset($this->_tmp['design_areas'])) {
 			foreach (array_keys($this->_tmp['design_areas']) as $id_name) {
 				unset($this->_tmp['design_areas'][$id_name]);
 			}
 		}
-		return TRUE;
 
 	}//end linksUpdated()
 

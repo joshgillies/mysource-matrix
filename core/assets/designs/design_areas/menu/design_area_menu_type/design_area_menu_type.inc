@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.82 2006/05/10 22:52:21 sdanis Exp $
+* $Id: design_area_menu_type.inc,v 1.83 2006/06/29 01:55:16 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -283,15 +283,14 @@ class Design_Area_Menu_Type extends Design_Area
 	* to occur but not cause integrity issues during script execution
 	* returns true it it's successfull
 	*
-	* @return boolean
+	* @return void
 	* @access private
 	*/
 	function linksUpdated()
 	{
-		if (!parent::linksUpdated()) return FALSE;
+		parent::linksUpdated();
 		unset($this->_tmp['sub_menu_link']);
 		unset($this->_tmp['parent_menu_link']);
-		return TRUE;
 
 	}//end linksUpdated()
 

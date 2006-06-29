@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css.inc,v 1.14 2006/02/08 02:52:24 sdanis Exp $
+* $Id: design_area_linked_css.inc,v 1.15 2006/06/29 01:55:16 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * Allows you to link to a CSS file or customisation from a standard design
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -123,14 +123,13 @@ class Design_Area_Linked_Css extends Design_Area
 	/**
 	* Called whenever any type of link is changed
 	*
-	* @return boolean
+	* @return void
 	* @access private
 	*/
 	function linksUpdated()
 	{
-		if (!parent::linksUpdated()) return FALSE;
+		parent::linksUpdated();
 		unset($this->_tmp['css_assetid']);
-		return TRUE;
 
 	}//end linksUpdated()
 
