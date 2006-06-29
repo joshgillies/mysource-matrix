@@ -11,15 +11,19 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_create.xml,v 1.3 2005/05/02 04:42:15 gsherwood Exp $
+* $Id: edit_interface_create.xml,v 1.4 2006/06/29 01:11:45 amiller Exp $
 *
 */
 -->
 
 <contents screen="details">
         <section name="Details">
-                <field attribute="name" />
-                <field attribute="contact_name" />
-                <field attribute="contact_phone" />
+            <field attribute="name" />
+            <field attribute="contact_name" />
+            <field attribute="contact_phone" />
         </section>
+		<section name="Edit Contents" write_access="write:attributes" limbo_access="1">
+        	<field attribute="summary" />
+	        <field attribute="body" />
+	    </section>
 </contents>
