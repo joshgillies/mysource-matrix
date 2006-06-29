@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.15 2006/05/30 06:39:47 rhoward Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.16 2006/06/29 04:27:58 skim Exp $
 *
 */
 
@@ -33,38 +33,44 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
 {
 	var $pref_vars = Array(
-						'SQ_WYSIWYG_STYLE'		=> Array(
-													'name'			=> 'WYSIWYG Style',
-													'description'	=> 'This preference allows you to change the style and size of the WYSIWYG editor',
-													'default'		=> Array(
-																		'body_type'	=> 'div',
-																		'width'		=> '100',
-																		'height'	=> '300',
-																		'units'		=> Array(
-																						'width'		=> '%',
-																						'height'	=> 'px',
-																					   ),
-																	   ),
-													'protected'		=> FALSE,
-												   ),
-						'SQ_WYSIWYG_PLUGINS'	=> Array(
-													'name'			=> 'WYSIWYG Plugins',
-													'description'	=> 'This preference allows you to select which features of the WYSIWYG editor you would like make available while editing',
-													'default'		=> 'all',
-													'protected'		=> FALSE,
-												   ),
-						'SQ_THESAURUS'			=> Array (
-													'name'			=> 'Thesaurus',
-													'description'	=> 'Which thesaurus asset you want to use when editing content, for example to provide keyword expansions',
-													'default'		=> 0,
-													'protected'		=> FALSE,
-												   ),
+						'SQ_WYSIWYG_STYLE'					=> Array(
+																'name'			=> 'WYSIWYG Style',
+																'description'	=> 'This preference allows you to change the style and size of the WYSIWYG editor',
+																'default'		=> Array(
+																					'body_type'	=> 'div',
+																					'width'		=> '100',
+																					'height'	=> '300',
+																					'units'		=> Array(
+																									'width'		=> '%',
+																									'height'	=> 'px',
+																								   ),
+																				   ),
+																'protected'		=> FALSE,
+															   ),
+						'SQ_WYSIWYG_PLUGINS'				=> Array(
+																'name'			=> 'WYSIWYG Plugins',
+																'description'	=> 'This preference allows you to select which features of the WYSIWYG editor you would like make available while editing',
+																'default'		=> 'all',
+																'protected'		=> FALSE,
+															   ),
+						'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE'	=> Array(
+																'name'			=> 'WYSIWYG Disable Image Resizing',
+																'description'	=> 'This preference allows you to select whether to disable the image resizing functionality in WYSIWYG',
+																'default'		=> 'no',
+																'protected'		=> FALSE,
+															   ),
+						'SQ_THESAURUS'						=> Array (
+																'name'			=> 'Thesaurus',
+																'description'	=> 'Which thesaurus asset you want to use when editing content, for example to provide keyword expansions',
+																'default'		=> 0,
+																'protected'		=> FALSE,
+															   ),
 					 );
 
 
@@ -182,45 +188,73 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				$o->openField(translate('wysiwyg_plugins'));
 			}
 
-				$plugins = Array();
-				if (!empty($this->pref_vars['SQ_WYSIWYG_PLUGINS']['default'])) {
-					$plugins = explode('|', $this->pref_vars['SQ_WYSIWYG_PLUGINS']['default']);
-				}
-				$all = in_array('all', $plugins);
+			$plugins = Array();
+			if (!empty($this->pref_vars['SQ_WYSIWYG_PLUGINS']['default'])) {
+				$plugins = explode('|', $this->pref_vars['SQ_WYSIWYG_PLUGINS']['default']);
+			}
+			$all = in_array('all', $plugins);
 
-				if ($have_lock && $is_admin) {
-					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-					$all_plugins = list_dirs(SQ_FUDGE_PATH.'/wysiwyg/plugins');
-					if (!empty($all_plugins)) {
-						hidden_field('prefs[SQ_WYSIWYG_PLUGINS_PRESENT]', '1');
+			if ($have_lock && $is_admin) {
+				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+				$all_plugins = list_dirs(SQ_FUDGE_PATH.'/wysiwyg/plugins');
+				if (!empty($all_plugins)) {
+					hidden_field('prefs[SQ_WYSIWYG_PLUGINS_PRESENT]', '1');
+				}
+				foreach ($all_plugins as $plugin_name) {
+					$plugin_path = SQ_FUDGE_PATH.'/wysiwyg/plugins/'.$plugin_name;
+					if (!is_file($plugin_path.'/'.$plugin_name.'.inc')) {
+						continue;
 					}
-					foreach ($all_plugins as $plugin_name) {
-						$plugin_path = SQ_FUDGE_PATH.'/wysiwyg/plugins/'.$plugin_name;
-						if (!is_file($plugin_path.'/'.$plugin_name.'.inc')) {
-							continue;
-						}
-						check_box('prefs[SQ_WYSIWYG_PLUGINS]['.$plugin_name.']', '1', ($all || in_array($plugin_name, $plugins)));
-						echo '&nbsp;'.ucwords(str_replace('_', ' ', $plugin_name)).'<br/>';
-					}
+					check_box('prefs[SQ_WYSIWYG_PLUGINS]['.$plugin_name.']', '1', ($all || in_array($plugin_name, $plugins)));
+					echo '&nbsp;'.ucwords(str_replace('_', ' ', $plugin_name)).'<br/>';
+				}
+			} else {
+				if ($all) {
+					echo translate('all_plugins_selected');
 				} else {
-					if ($all) {
-						echo translate('all_plugins_selected');
+					if (empty($plugins)) {
+						echo translate('no_plugins_selected');
 					} else {
-						if (empty($plugins)) {
-							echo translate('no_plugins_selected');
-						} else {
-							echo '<ul>';
-							foreach ($plugins as $plugin_name) {
-								echo '<li class="sq-backend-data">'.ucwords(str_replace('_', ' ', $plugin_name)).'</li>';
-							}
-							echo '</ul>';
+						echo '<ul>';
+						foreach ($plugins as $plugin_name) {
+							echo '<li class="sq-backend-data">'.ucwords(str_replace('_', ' ', $plugin_name)).'</li>';
 						}
+						echo '</ul>';
 					}
 				}
+			}
 
 			if (is_null($pref)) $o->closeField();
 
 		}//end if show SQ_WYSIWYG_PLUGINS
+
+		if (is_null($pref) || $pref == 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE') {
+			if (is_null($pref)) {
+				$o->openField(translate('wysiwyg_disable_image_resize'));
+			}
+				$wysiwyg_disable_image_resize = $this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['default'];
+				?>
+				<table class="sq-backend-table" style="width: 100px;">
+					<tr>
+						<td class="sq-backend-table-header" nowrap="nowrap">
+						<?php
+							echo translate('disable');
+						?>
+						</td>
+						<td class="sq-backend-table-cell" style="width: 100%;">
+						<?php
+						if ($have_lock && $is_admin) {
+							combo_box('prefs[SQ_WYSIWYG_DISABLE_IMAGE_RESIZE][default]', Array('yes' => 'Yes', 'no' => 'No'), FALSE, $wysiwyg_disable_image_resize);
+						} else {
+							echo ucfirst($wysiwyg_disable_image_resize);
+						}
+						?>
+						</td>
+					</tr>
+				</table>
+				<?php
+
+		}//end if show SQ_WYSIWYG_DISABLE_IMAGE_RESIZE
 
 		if ($GLOBALS['SQ_SYSTEM']->am->installed('thesaurus') && (is_null($pref) || $pref == 'SQ_THESAURUS')) {
 			if (is_null($pref)) {
@@ -302,6 +336,13 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 					$plugin_list = trim($plugin_list, '|');
 				}
 				$this->pref_vars['SQ_WYSIWYG_PLUGINS']['default'] = $plugin_list;
+			}
+		}
+
+		// WYSIWYG DISABLE IMAGE RESIZE
+		if (is_null($pref) || $pref == 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE') {
+			if (isset($_POST['prefs']['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE'])) {
+				$this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['default'] = $_POST['prefs']['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['default'];
 			}
 		}
 

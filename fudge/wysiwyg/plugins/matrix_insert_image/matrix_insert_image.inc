@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.28 2006/04/30 23:44:52 sdanis Exp $
+* $Id: matrix_insert_image.inc,v 1.29 2006/06/29 04:28:00 skim Exp $
 *
 */
 
@@ -35,7 +35,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -62,8 +62,8 @@ class matrix_insert_image extends wysiwyg_plugin
 	* A URL must be entered for the image you want to insert. Alt text must
 	* also be entered before the image will be inserted.
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
 	function paint_generic()
 	{
@@ -227,8 +227,8 @@ class matrix_insert_image extends wysiwyg_plugin
 	/**
 	* Call the insert image function when the button is clicked
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
 	function print_plugin_button_click()
 	{
@@ -240,6 +240,102 @@ class matrix_insert_image extends wysiwyg_plugin
 		<?php
 
 	}//end print_plugin_button_click()
+
+
+	/**
+	* Processes and returns the submitted HTML from the editor
+	* This allows plugins to modify the html as they see fit.
+	*
+	* @param string	&$html	the HTML that was submitted by the editor
+	*
+	* @return string
+	* @access public
+	*/
+	function process(&$html)
+	{
+		// Check whether any width or height has been updated
+		$disable_resize = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE');
+		if ($disable_resize == 'yes') {
+			$new_html = rawurldecode($html);
+			preg_match_all('/<img[^>]*>/i', $new_html, $images=Array());
+			if (!empty($images)) {
+				$html_updated = FALSE;
+				foreach ($images[0] as $img_tag) {
+					// matrix internal link?
+					preg_match('/src=["\']?\.\/\?a=([^ "\'>]*)["\']?/i', $img_tag, $src=Array());
+					$style_width_changed = FALSE;
+					$style_height_changed = FALSE;
+					$attr_width_changed = FALSE;
+					$attr_height_changed = FALSE;
+					$tmp_img_tag = $img_tag;
+
+					if (!empty($src)) {
+						$img_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($src[1]);
+						$width = $img_asset->attr('width');
+						$height = $img_asset->attr('height');
+
+						// inlined style?
+						preg_match('/style=["\']?([^>"\']*)["\']?/i', $img_tag, $style=Array());
+						if (!empty($style)) {
+							preg_match('/width: *(\d+) *(px)?/i', $img_tag, $style_width=Array());
+							if (!empty($style_width)) {
+								$style_w = (int) $style_width[1];
+								if ($style_w != $width) {
+									$style_width_changed = TRUE;
+									$replacement = 'width: '.$width.'px';
+									$tmp_img_tag = str_replace($style_width[0], $replacement, $tmp_img_tag);
+								}
+							}
+
+							preg_match('/height: *(\d+) *(px)?/i', $img_tag, $style_height=Array());
+							if (!empty($style_height)) {
+								$style_h = (int) $style_height[1];
+								if ($style_h != $height) {
+									$style_height_changed = TRUE;
+									$replacement = 'height: '.$height.'px';
+									$tmp_img_tag = str_replace($style_height[0], $replacement, $tmp_img_tag);
+								}
+							}
+
+						}
+
+						// width attribute?
+						preg_match('/width=["\']?([^> "\']*)["\']?/i', $img_tag, $width_attr=Array());
+						if (!empty($width_attr)) {
+							$w_attr = (int) $width_attr[1];
+							if ($w_attr != $width) {
+								$attr_width_changed = TRUE;
+								$replacement = 'width="'.$width.'"';
+								$tmp_img_tag = str_replace($width_attr[0], $replacement, $tmp_img_tag);
+							}
+						}
+
+						// height attribute?
+						preg_match('/height=["\']?([^> "\']*)["\']?/i', $img_tag, $height_attr=Array());
+						if (!empty($height_attr)) {
+							$h_attr = (int) $height_attr[1];
+							if ($h_attr != $height) {
+								$attr_height_changed = TRUE;
+								$replacement = 'height="'.$height.'"';
+								$tmp_img_tag = str_replace($height_attr[0], $replacement, $tmp_img_tag);
+							}
+						}
+
+						if ($style_width_changed || $style_height_changed || $attr_width_changed || $attr_height_changed) {
+								$new_html = str_replace($img_tag, $tmp_img_tag, $new_html);
+								if (!$html_updated) $html_updated = TRUE;
+						}
+					}//end if src
+
+				}//end foreach image tags
+
+				if ($html_updated) $html = $new_html;
+
+			}//end if images
+
+		}//end if disable_resize
+
+	}//end process()
 
 
 }//end class

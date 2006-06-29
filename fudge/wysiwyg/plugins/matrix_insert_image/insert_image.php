@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.41 2006/05/08 00:10:49 lwright Exp $
+* $Id: insert_image.php,v 1.42 2006/06/29 04:28:00 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 */
 
@@ -433,15 +433,46 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 									<legend><b><?php echo translate('size'); ?></b></legend>
 									<table style="width:100%">
 										<tr>
+											<?php
+											$disable_resize = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE');
+											?>
 											<td class="label" width="30%"><?php echo translate('width'); ?>:</td>
 											<td>
-												<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo $_REQUEST['f_width']?>" />
+												<?php
+												switch ($disable_resize) {
+													case 'yes':
+														echo $_REQUEST['f_width'].'&nbsp;px';
+														?>
+														<input type="hidden" name="width" id="f_width" size="5" title="Width" value="<?php echo $_REQUEST['f_width']?>" />
+														<?php
+													break;
+													case 'no':
+														?>
+														<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo $_REQUEST['f_width']?>" />&nbsp;px
+														<?php
+													break;
+												}
+												?>
 											</td>
 										</tr>
 										<tr>
 											<td class="label"><?php echo translate('height'); ?>:</td>
 											<td>
-												<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo $_REQUEST['f_height']?>" />
+												<?php
+												switch ($disable_resize) {
+													case 'yes':
+														echo $_REQUEST['f_height'].'&nbsp;px';
+														?>
+														<input type="hidden" name="height" id="f_height" size="5" title="Height" value="<?php echo $_REQUEST['f_height']?>" />
+														<?php
+													break;
+													case 'no':
+														?>
+														<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo $_REQUEST['f_height']?>" />&nbsp;px
+														<?php
+													break;
+												}
+												?>
 											</td>
 										</tr>
 									</table>
