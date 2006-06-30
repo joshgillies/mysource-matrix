@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.125 2006/06/26 01:11:36 skim Exp $
+* $Id: backend_outputter.inc,v 1.126 2006/06/30 05:58:16 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.125 $
+* @version $Revision: 1.126 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1130,10 +1130,12 @@ class Backend_Outputter
 									<?php
 									sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($nav_asset->type()), 16, 16, $nav_asset->short_name);
 									echo $nav_asset->short_name;
-									?></a><span style="font-size:8px;"> <?php echo '['.($i + 1).']'; ?></span>
+									?>
+									<span> [<?php echo ($i + 1); ?>]</span>
+								</a>
 								<?php
 								if ($i < ($nav_count -1)) {
-									?> <span style="color: #FFFFFF">+</span> &nbsp;<?php
+									?> <span class="divider">+</span> &nbsp;<?php
 								}
 
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($nav_asset);

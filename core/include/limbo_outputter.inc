@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.27 2006/06/09 04:47:45 tbarrett Exp $
+* $Id: limbo_outputter.inc,v 1.28 2006/06/30 05:58:16 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -479,7 +479,7 @@ class Limbo_Outputter extends Backend_Outputter
 							case 'commit' :
 								?>
 								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
-									<td class="sq-backend-data sq-limbl-data sq-backend-commit" colspan="2">
+									<td class="sq-backend-data sq-limbo-data sq-backend-commit" colspan="2">
 										<?php
 										echo $field['contents'];
 										if ($field['note']) $this->note($field['note']);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.298 2006/06/16 06:32:36 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.299 2006/06/30 05:58:16 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.298 $
+* @version $Revision: 1.299 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -317,7 +317,7 @@ class Asset_Edit_Interface extends MySource_Object
 					$o->openSection(translate('locking_editing'));
 					$o->openRaw();
 						?>
-						<p style="margin-top: 5px; margin-bottom: 2px"><?php
+						<p class="sq-lock-message"><?php
 							if (!$have_all_locks) {
 								if ($need_force_locks) {
 									if ($can_force_locks) {
@@ -331,7 +331,7 @@ class Asset_Edit_Interface extends MySource_Object
 								echo translate('release_lock', translate('release_lock_button'), $owner->name);
 							}
 							?>
-							<b><a href="#" onClick="Javascript: sq_toggle_lock_info();" id="sq_lock_info_toggle"><?php echo translate('show_lock_details'); ?></a></b><br />
+							<b class="clickable" onclick="sq_toggle_lock_info();" id="sq_lock_info_toggle"><?php echo translate('show_lock_details'); ?></b><br />
 						</p>
 
 						<div id="sq_lock_info" style="display: none;">

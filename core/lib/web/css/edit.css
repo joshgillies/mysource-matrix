@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.61 2006/06/09 06:23:18 tbarrett Exp $
+* $Id: edit.css,v 1.62 2006/06/30 05:58:16 tbarrett Exp $
 *
 */
 
@@ -64,10 +64,10 @@ table.sq-backend-main-headings td {
 	border:				0px;
 }
 table.sq-backend-main-headings td.sq-backend-main-heading {
-	padding-top: 6px;
+	padding-top:		6px;
 }
 table.sq-backend-main-headings td.sq-backend-heading-icon {
-	padding-top: 6px;
+	padding-top:		6px;
 	padding-left:		5px;
 }
 .sq-backend-sub-heading {
@@ -102,6 +102,12 @@ table.sq-backend-nav-history-container td.sq-backend-nav-history a {
 	line-height:		25px;
 	margin:				0px;
 }
+table.sq-backend-nav-history-container td.sq-backend-nav-history a span {
+	font-size:			8px;
+}
+table.sq-backend-nav-history-container td.sq-backend-nav-history span.divider {
+	color:				#FFFFFF;
+}
 td.sq-backend-nav-history a img {
 	padding-bottom:		2px;
 	border:				0px;
@@ -117,7 +123,6 @@ table.sq-backend-nav-history-container td.sq-backend-nav-history-title  {
 	white-space:		nowrap;
 	padding-top:		6px;
 }
-
 
 table.sq-backend-main-headings .sq-backend-asset-info {
 	border:				1px solid #FFFFFF;
@@ -226,13 +231,13 @@ td.sq-backend-screen-menu {
 	width:				100%;
 }
 table.sq-backend-section-table {
-	margin:				0px 0px 10px 0px;
+	margin:				0px 0px 3px 0px; 
 	width:				100%;
 	border-collapse:	collapse;
 }
 table.sq-backend-section-table td table.sq-backend-section-table-inner {
 	width:				98%;
-	margin:				5px 10px;
+	margin:				10px 10px;
 	border-collapse:	collapse;
 }
 
@@ -390,7 +395,12 @@ fieldset {
 
 
 
-/* LOCKING TABLE STYLES */
+/* LOCKING STYLES */
+
+p.sq-lock-message {
+	margin-top:			0px; 
+	margin-bottom:		2px;
+}
 
 .sq-backend-lock-table {
 	width:				100%;
@@ -417,23 +427,6 @@ td.sq-backend-lock-table-header {
 td.sq-backend-lock-table-cell-alt {
 	background-color:	#BFD3E6;
 }
-
-
-
-/* LOCKING MESSAGE STYLES */
-
-.sq-backend-locked-by-user, .sq-backend-locked-by-someone-else, .sq-backend-unlocked {
-	font-size:			10px;
-}
-
-.sq-backend-locked-by-someone-else {
-	color:				#C90404;
-}
-
-.sq-backend-unlocked {
-	color:				#0066CB;
-}
-
 
 
 /* ASSET FINDER */

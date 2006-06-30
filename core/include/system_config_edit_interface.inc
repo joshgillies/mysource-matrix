@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.28 2006/06/09 04:47:45 tbarrett Exp $
+* $Id: system_config_edit_interface.inc,v 1.29 2006/06/30 05:58:16 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -206,14 +206,15 @@ class System_Config_Edit_Interface extends MySource_Object
 		$is_admin = ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
 		$o->openSection(translate('locking_/_editing'));
-		$o->openField('&nbsp;');
+		$o->openRaw();
 		?>
 		<table border="0" cellspacing="3" cellpadding="1">
 			<tr>
-				<td valign="top" width="30">
+				<td>
 					<?php sq_print_icon(sq_web_path('lib').'/web/images/icons/'.((empty($lock)) ? 'un' : '').'locked.png', 16, 16); ?>
 				</td>
-				<td valign="top">
+				<td>
+					<p class="sq-lock-message">
 					<?php
 					if (!empty($lock)) {
 						// this asset is currently locked
@@ -226,25 +227,14 @@ class System_Config_Edit_Interface extends MySource_Object
 						$expires_in = easy_time_total(($lock['expires'] - $now), true);
 						if (!$expires_in) $expires_in = '1 second';
 						$expires_in = translate('due_to_expire', $expires_in);
-
-						?>
-						<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
-							<?php echo translate('release_lock', translate('release_lock_button'), translate('user_preferences')); ?><br/>
-							<?php echo $expires_in; ?>
-						</p>
-						<?php
+						echo translate('release_lock', translate('release_lock_button'), translate('user_preferences')); 
+						echo '<br />';
+						echo $expires_in; 
 
 					} else {
-						?>
-						<p class="sq-backend-unlocked">
-							<?php echo translate('acquire_lock', translate('acquire_lock_button'), translate('user_preferences')); ?>
-						</p>
-						<?php
+						echo translate('acquire_lock', translate('acquire_lock_button'), translate('user_preferences'));
 					}
-					?>
-				</td>
-				<td valign="top">
-					<?php
+					echo '</p>';
 					if (!empty($lock)) {
 						if ($have_lock) {
 							submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="r"');
@@ -257,7 +247,7 @@ class System_Config_Edit_Interface extends MySource_Object
 			</tr>
 		</table>
 		<?php
-
+		$o->closeRaw();
 		$o->closeSection();
 
 		include SQ_DATA_PATH.'/private/conf/preferences.inc';
