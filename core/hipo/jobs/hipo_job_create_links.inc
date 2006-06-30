@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.37 2006/06/06 05:42:01 emcdonald Exp $
+* $Id: hipo_job_create_links.inc,v 1.38 2006/06/30 03:46:04 skim Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -970,7 +970,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		$permission_vars = Array();
 
 		foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-			$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->_running_vars['to_parent_assetid'], $perm, NULL, FALSE, FALSE, TRUE);
+			$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->_running_vars['to_parent_assetid'], $perm, NULL, FALSE, FALSE, TRUE, TRUE);
+
 			foreach ($set_perms as $userid => $granted) {
 				$permission_vars[$perm][] = Array(
 												'granted'			=> $granted,
