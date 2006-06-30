@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.19.2.2 2006/04/18 06:30:48 tbarrett Exp $
+* $Id: wysiwyg.inc,v 1.19.2.3 2006/06/30 00:48:42 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19.2.2 $
+* @version $Revision: 1.19.2.3 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -149,10 +149,10 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		if ($iap || in_array('select_color', $ap))  $wysiwyg->add_plugin('select_color');
 
 		$wysiwyg->open_group();
-			if ($iap || in_array('matrix_insert_link', $ap) || in_array('insert_link', $ap))  $wysiwyg->add_plugin('matrix_insert_link');
+			//if ($iap || in_array('matrix_insert_link', $ap) || in_array('insert_link', $ap))  $wysiwyg->add_plugin('matrix_insert_link');
 			if ($iap || in_array('matrix_insert_anchor', $ap) || in_array('insert_anchor', $ap))  $wysiwyg->add_plugin('matrix_insert_anchor');
-			if ($iap || in_array('matrix_insert_image', $ap) || in_array('insert_image', $ap)) $wysiwyg->add_plugin('matrix_insert_image');
-			if ($iap || in_array('matrix_embed_movie', $ap))  $wysiwyg->add_plugin('matrix_embed_movie');
+			//if ($iap || in_array('matrix_insert_image', $ap) || in_array('insert_image', $ap)) $wysiwyg->add_plugin('matrix_insert_image');
+			//if ($iap || in_array('matrix_embed_movie', $ap))  $wysiwyg->add_plugin('matrix_embed_movie');
 		$wysiwyg->close_group();
 		$wysiwyg->open_group();
 			if ($iap || in_array('matrix_accessibility', $ap))  $wysiwyg->add_plugin('matrix_accessibility');
