@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_management_folder.inc,v 1.19 2006/01/27 03:46:39 lwright Exp $
+* $Id: system_management_folder.inc,v 1.20 2006/07/03 05:03:30 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -247,7 +247,7 @@ class System_Management_Folder extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($lock_type, $assetids=Array())
+	function writeAccess($lock_type='', $assetids=Array())
 	{
 		// only root can write to this folder so we add this extra checking
 		// before going up to our parent to check access
