@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.26 2006/01/25 04:58:34 sdanis Exp $
+* $Id: search_folder.inc,v 1.27 2006/07/03 04:40:54 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -80,9 +80,17 @@ class Search_Folder extends Asset
 	*/
 	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
-		trigger_localised_error('SCH0010', E_USER_ERROR);
-		$null = NULL;
-		return $null;
+		$asset = NULL;
+
+		$id_parts = explode(':', $shadowid);
+		if (isset($id_parts[1])) {
+			$shadowid = $id_parts[1];
+		} else {
+			return $asset;
+		}
+
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($shadowid);
+		return $asset;
 
 	}//end getAsset()
 
@@ -110,11 +118,18 @@ class Search_Folder extends Asset
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
 	{
+		// It does not return any links from the search result so that asset map refresh wouldn't have
+		// a clue that what is underneath.
+		$links = Array();
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) {
+			return $links;
+		}
+
 		assert_equals($assetid, $this->id, translate('sch_folder_only_own_links'));
 
 		if (!isset($this->_tmp['getLinks'])) {
 
-			$links = Array();
 			$settings = $this->attr('settings');
 
 			$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
@@ -240,9 +255,8 @@ class Search_Folder extends Asset
 
 			$sort_order = 0;
 			foreach ($asset_info as $assetid => $info) {
-				$num_kids = $GLOBALS['SQ_SYSTEM']->am->countLinks($assetid, 'major', SQ_SC_LINK_SIGNIFICANT);
 				$links[] = Array(
-							'assetid'		=> $assetid,
+							'assetid'		=> $this->id.':'.$assetid,
 							'short_name'	=> $info['short_name'],
 							'name'			=> $info['name'],
 							'accessible'	=> 1,
@@ -250,7 +264,7 @@ class Search_Folder extends Asset
 							'status'		=> $info['status'],
 							'linkid'		=> $this->id.':'.$assetid,
 							'link_type'		=> SQ_LINK_TYPE_2,
-							'num_kids'		=> $num_kids,
+							'num_kids'		=> 0,
 							'sort_order'	=> $sort_order,
 							'url'			=> '',
 							'path'			=> '',
@@ -266,6 +280,52 @@ class Search_Folder extends Asset
 		return $this->_tmp['getAssetMapLinks'];
 
 	}//end getAssetMapLinks()
+
+
+	/**
+	* Get asset info for use by asset map
+	*
+	* @param string $assetid    Full Asset id to get information for
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetMapAssetInfo($assetid)
+	{
+		$attrs = Array();
+
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) {
+			$assetid = $id_parts[1];
+		} else {
+			return $attrs;
+		}
+
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+		if (!is_null($assetid)) {
+			$attrs = Array(
+						'assetid'		=> $assetid,
+						'name'			=> $asset->short_name,
+						'type_code'		=> $asset->type(),
+						'accessible'	=> 1,
+						'status'		=> $asset->status,
+						'url'			=> $asset->getURL(),
+						'web_path'		=> '',
+						'num_kids'		=> -1,
+					 );
+		}
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+
+		$attrs['assetid'] = urlencode($attrs['assetid']);
+		$attrs['name'] = urlencode($attrs['name']);
+		if (isset($attrs['short_name'])) {
+			$attrs['short_name'] = urlencode($attrs['short_name']);
+		}
+
+		return $attrs;
+
+	}//end getAssetMapAssetInfo()
 
 
 	/**
