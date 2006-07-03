@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_cms.inc,v 1.5 2006/04/27 03:19:33 lwright Exp $
+* $Id: package_manager_cms.inc,v 1.5.2.1 2006/07/03 05:33:03 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -61,9 +61,11 @@ class Package_Manager_CMS extends Package_Manager
 	*/
 	function getSystemAssetTypes()
 	{
-		return Array(
-				'cron_job_manage_pending_accounts',
-			   );
+		if ($GLOBALS['SQ_SYSTEM']->am->installed('cron_job_manage_pending_accounts')) {
+			return Array('cron_job_manage_pending_accounts');
+		} else {
+			return Array();
+		}
 
 	}//end getSystemAssetTypes()
 
