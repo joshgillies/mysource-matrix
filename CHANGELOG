@@ -1,5 +1,25 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.6.10
+
+Complete Changelog
+----------------------
+
+Core
+
+* Fixed bug #1313: Cloning an asset with read-only metadata schema
+* Fixed bug #1436: Acquiring a lock on lookup values acquires one on metadata too
+* Fixed bug #1438: Having a form input name="submit" prevents "commiting" the page contents
+* Fixed bug #1447: White space in design areas
+
+CMS
+
+* Fixed bug #1435: Asset position setting displays Under Construction pages to users without permission (Listing Engine)
+* Fixed bug #1446: Date/Time Form Question does not respect blank default value (Date/Time Form Question)
+
+
+
+
 VERSION 3.6.9
 
 Complete Changelog
