@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: run.php,v 1.15 2006/05/12 03:23:33 lwright Exp $
+* $Id: run.php,v 1.16 2006/07/03 01:49:19 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The one file through which everything runs
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 
@@ -51,7 +51,6 @@ if (!empty($_SERVER['PWD'])) {
 }
 
 ini_set('memory_limit', '16M');
-ini_set('error_log', SQ_SYSTEM_ROOT.'/cache/error.log');
 require_once SQ_SYSTEM_ROOT.'/core/include/init.inc';
 
 $root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
