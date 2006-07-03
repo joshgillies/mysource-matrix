@@ -1,5 +1,83 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.8.4
+
+Featured Changes
+-----------------------------------
+
+Link Manager Page Now Clears Group Cache
+
+    When changes made by the Link Manager page are committed, the user asset's cache containing the groups the user is a member of is now cleared, so it can be refreshed with any changes to group memberships as a result of that commit.
+
+
+New Fields Added To News Item Create Screen
+
+    The Summary and Body attributes of the News Item asset (part of the News commercial package) have been added to the asset's create screen.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
+* Fixed bug #1313: Cloning an asset with read-only metadata schema
+* Fixed bug #1327: Error customising a DECLARED_VARS design area
+* Fixed bug #1368: WYSIWYG doesn't strip Javascript
+* Fixed bug #1412: Friendly title missing for thesaurus metadata fields
+* Fixed bug #1417: Trash lock not released on failure (Oracle)
+* Fixed bug #1421: Restriction on children of 'Approved to go live' assets
+* Fixed bug #1422: HTML <HR> tag differences, ff/ie
+* Fixed bug #1426: Parameter map -> current asset -> assetid doesn't work in limbo
+* Fixed bug #1428: Default metadata_X appears as key, never value
+* Fixed bug #1432: Paint layout lost when parent web path changes
+* Fixed bug #1436: Acquiring a lock on lookup values acquires one on metadata too
+* Fixed bug #1438: Having a form input name="submit" prevents "commiting" the page contents
+* Fixed bug #1445: get_design_area_setable_attrs.php no longer works
+* Fixed bug #1446: Date/Time Form Question does not respect blank default value
+* Fixed bug #1447: White space in design areas
+* Fixed bug #1448: Edit Status HIPO fails on custom form fields
+* Fixed bug #1449: Session theft warning message causes SQL error
+* Fixed bug #1454: Can not break fatal error
+* Fixed bug #1455: Cache manager won't clear for Oracle
+* Fixed bug #1456: Icons missing in admin interface
+* Fixed bug #1457: Failed creating a page underneath an asset with content tags applied
+* Fixed bug #1460: Properties Box for Tables Does not show
+* Fixed bug #1462: Cascading roles and permissions gets mixed up
+* Fixed bug #1464: Image variety gets incorrect public URL when both inside and outside the trash
+
+CMS
+
+* Fixed bug #1403: Metadata_X doesn't work in Asset Listing if X contains a space (Listing Engine)
+* Fixed bug #1410: Raw HTML bodycopy doesn't seem to create line breaks appropriately (Raw HTML Content Type)
+* Fixed bug #1414: User Group Manager not respecting Sys Admin write privileges (User Group Manager Page)
+* Fixed bug #1418: Delete Asset Selection results in a PHP error (Listing Engine)
+* Fixed bug #1435: Asset position setting displays Under Construction pages to users without permission (Listing Engine)
+* Fixed bug #1437: Email Options for Active Rule text box not large enough (Custom Form)
+
+Search
+
+* Fixed bug #1434: Asset grouping in search results (Search Page)
+
+Calendar
+
+* Fixed bug #1409: iCal recurrence rule keyword is using the incorrect "UNTIL" date (Recurring Calendar Event)
+
+LDAP
+
+* Fixed bug #1431: LDAP Groups in workflow schema causes error (LDAP Bridge)
+
+E-Commerce
+
+* Fixed bug #1440: Payment Gateway assets don't show their name correctly in the asset map (Payment Gateway)
+* Fixed bug #1441: Payment gateway assets don't get web paths by default (Payment Gateway)
+
+Bulkmail
+
+* Fixed bug #1443: Bulkmail validation error for the public user (Bulkmail Manager)
+
+
+
+
 VERSION 3.8.3
 
 Featured Changes
@@ -9,9 +87,11 @@ Image Variety URL Keyword
 
     The URL of an image variety can now be displayed using the keyword %image_v_<VARIETY_NAME>_url%. Previously, only the HTML image tag of the image variety could be printed through keywords.
 
+
 New Image Variety Constraint Type
 
     An Image Variety can now be constrained by both width and height at the same time, rather than just one or the other.
+
 
 New Graph Types for Data Source Graph
 
