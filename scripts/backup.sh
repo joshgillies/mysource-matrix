@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.6 2006/07/04 03:55:27 cboudjnah Exp $
+#* $Id: backup.sh,v 1.7 2006/07/04 04:05:42 cboudjnah Exp $
 #*
 #*/
 #
@@ -84,6 +84,7 @@ elif which php 2>/dev/null >/dev/null;then
     PHP="php"
 else
     echo "Cannot find the php binary please be sure to install it" 
+    exit 1
 fi
 
 # OK, what we are doing here is using PHP to do the parsing of the DSN for us (much less error prone :)
