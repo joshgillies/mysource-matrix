@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.5 2006/02/28 05:31:24 dmckee Exp $
+#* $Id: backup.sh,v 1.6 2006/07/04 03:55:27 cboudjnah Exp $
 #*
 #*/
 #
@@ -76,6 +76,16 @@ if [ ! -z $1 ]; then
 	fi
 fi
 
+if [[ -n ${PHP} ]] && [[ -e ${PHP} ]];then
+    PHP=${PHP}
+elif which php-cli 2>/dev/null >/dev/null;then
+    PHP="php-cli"
+elif which php 2>/dev/null >/dev/null;then
+    PHP="php"
+else
+    echo "Cannot find the php binary please be sure to install it" 
+fi
+
 # OK, what we are doing here is using PHP to do the parsing of the DSN for us (much less error prone :)
 # see the output of DB::parseDSN
 php_code="<?php
@@ -86,7 +96,8 @@ foreach(\$dsn as \$k => \$v) {
 	echo 'DB_'.strtoupper(\$k).'=\"'.addslashes(\$v).'\";';
 }
 ?>"
-eval `echo "${php_code}" | php`
+
+eval `echo "${php_code}" | $PHP`
 
 set | grep "^DB_"
 
