@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.31 2006/01/26 22:34:03 lwright Exp $
+* $Id: bodycopy_container.inc,v 1.31.2.1 2006/07/04 02:52:13 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -249,7 +249,7 @@ class Bodycopy_Container extends Asset
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if this is a content type then we need to make it a dependant link
-		if ($side_of_link == 'major' && is_a($asset, 'content_type') && $dependant != '1') {
+		if ($side_of_link == 'major' && is_a($asset, 'content_type') && $dependant != '1' && ($link_type & SQ_SC_LINK_SIGNIFICANT)) {
 			$dependant = '1';
 			return TRUE;
 		}
