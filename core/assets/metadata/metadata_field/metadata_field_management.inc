@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_management.inc,v 1.19 2006/06/16 03:45:11 sdanis Exp $
+* $Id: metadata_field_management.inc,v 1.19.2.1 2006/07/04 05:04:43 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -153,7 +153,7 @@ class Metadata_Field_Management extends Asset_Management
 			pre_echo('Upgrading '.$result.' assets');
 
 			$sql = 'UPDATE sq_ast_lnk SET is_exclusive = '.$db->quote('0').'
-					WHERE linkid IN (SELECT linkid FROM sq_ast as a
+					WHERE linkid IN (SELECT linkid FROM sq_ast a
 					LEFT OUTER JOIN sq_ast_lnk l ON a.assetid = l.minorid
 					WHERE a.type_code LIKE '.$db->quote('metadata_field_%').'
 						AND l.is_exclusive = '.$db->quote('1').'
