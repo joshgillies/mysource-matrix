@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.8 2006/06/28 05:03:38 rhoward Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.9 2006/07/04 04:46:55 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -52,6 +52,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 						'not_logged_in'	=> Array(
 											'error_messages_list',
 											'success_messages_list',
+											'subscriptions_picker',
+											'unsubscriptions_picker',
 											'subscribe_user_name',
 											'subscribe_email_address',
 											'commit_button',
@@ -231,6 +233,13 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		foreach ($child_links as $child_link) {
 			$available_locations[] = $child_link['assetid'];
 		}
+		
+		//if the root node is a user group and has the correct status, include it
+		$root_node =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('root_node'));
+		if (is_a($root_node, 'user_group') && in_array($root_node->status, $statuses)) {
+			$available_locations[] = $root_node->id;
+		}
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_node);
 
 		return $available_locations;
 
@@ -293,6 +302,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$unsubscriptions = array_get_index($_GET, 'unsubscribe', Array());
 		$subscriptions = empty($subscriptions) ? Array() : explode(',', $subscriptions);
 		$unsubscriptions = empty($unsubscriptions) ? Array() : explode(',', $unsubscriptions);
+		
 		if (empty($subscriptions) && empty($unsubscriptions)) {
 			return;
 		}
@@ -312,12 +322,12 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			return;
 		}
 
-		$bulkmail_user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bulkmail_user');
+		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 
 		// This is to trip up all the sneaky bastards who want to
 		// try and re-write the URL to link themselves under other groups
 		$all_mailing_lists = $this->getAvailableLocations();
-		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($bulkmail_user->id, 'user_group', FALSE));
+		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($user->id, 'user_group', FALSE));
 		$current_subscriptions = array_intersect($all_mailing_lists, $parents);
 
 		$bad_subscriptions = array_diff($subscriptions, $all_mailing_lists);
@@ -766,8 +776,13 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	function getCurrentSubscriptionsKeywordReplacement()
 	{
 		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
+		if (is_a($current_user, 'public_user')) {
+			// if current user is public user, %current_subscriptions keyword will be blanked.
+			return '';
+		}
 		$all_mailing_lists = $this->getAvailableLocations();
-		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($current_user->id, 'user_group', FALSE));
+		// only get direct parents
+		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($current_user->id, 'user_group', FALSE, NULL, NULL, NULL, 1));
 		$current_subscriptions = array_intersect($all_mailing_lists, $parents);
 		$string = '';
 		if (!empty($current_subscriptions)) {

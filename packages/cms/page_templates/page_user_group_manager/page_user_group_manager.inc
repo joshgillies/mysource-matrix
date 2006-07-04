@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.11 2006/06/27 23:33:16 skim Exp $
+* $Id: page_user_group_manager.inc,v 1.12 2006/07/04 04:46:56 rong Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -226,12 +226,14 @@ class Page_User_Group_Manager extends Page
 		// handle links marked to be removed
 		foreach ($to_delete as $majorid) {
 			$curr_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($majorid, $minor_id, $link_type);
-			$link_id = $curr_link['linkid'];
-
-			if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link_id)) {
-				$done['delete_fail'][] = $majorid;
-			} else {
-				$done['delete_success'][] = $majorid;
+			if (!empty($curr_link)) {
+				$link_id = $curr_link['linkid'];
+	
+				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link_id)) {
+					$done['delete_fail'][] = $majorid;
+				} else {
+					$done['delete_success'][] = $majorid;
+				}
 			}
 		}
 
