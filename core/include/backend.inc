@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.140 2006/06/01 01:05:29 rong Exp $
+* $Id: backend.inc,v 1.141 2006/07/04 04:24:09 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140 $
+* @version $Revision: 1.141 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -222,6 +222,7 @@ class Backend extends MySource_Object
 					  );
 
 		$limbo_hipo = SQ_IN_LIMBO && (strpos($main_url, 'SQ_ACTION=hipo') !== FALSE);
+		$limbo_hide_frames = SQ_IN_LIMBO && (isset($_GET['hide_frames']) && $_GET['hide_frames']);
 
 		// Give the page the appropriate title based on whether we are in limbo or backend
 		if (SQ_IN_LIMBO) {
@@ -247,12 +248,23 @@ class Backend extends MySource_Object
 			</head>
 			<?php
 			if (!$limbo_hipo) {
+				// if hide_frames is set, hide the header and remove the resizer
+				// i.e. one less column in the second frameset
+				// see _printMain() for more info
+				$header_height = $limbo_hide_frames ? 0 : 28;
+				$sidenav_width = SQ_IN_LIMBO ? 0 : 280;
+				$frameset_cols = $sidenav_width.','.($limbo_hide_frames ? '' : '10,').'*';
 				?>
-				<frameset rows="28,*" frameborder="0" border="0">
+				<frameset rows="<?php echo $header_height; ?>,*" frameborder="0" border="0">
 					<frame src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0">
-					<frameset cols="<?php echo (SQ_IN_LIMBO ? 0 : 280) ?>,10,*" frameborder="0" border="0" id ="main_frameset">
+					<frameset cols="<?php echo $frameset_cols; ?>" frameborder="0" border="0" id ="main_frameset">
 						<frame src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0">
-						<frame src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0">
+						?><?php
+						if (!$limbo_hide_frames) {
+							// if hide_frames is not set, include the resizer for asset map
+							?><frame src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0"><?php
+						}
+						?>
 						<frame src="<?php echo $frame_urls['main']; ?>" name="sq_main" marginwidth="0" marginheight="0" scrolling="yes">
 					</frameset>
 				</frameset>
@@ -1031,7 +1043,10 @@ class Backend extends MySource_Object
 		// add an onLoad event that checks if the current window is in the frameset
 		// and redirects the user to the frameset version if they are not
 		if (empty($_REQUEST['ignore_frames'])) {
-			$redirect_url = strip_url(current_url()).'/?sq_redirect_url='.urlencode($_SERVER['REQUEST_URI']);
+			// if hide_frames is set, pass the parameter
+			$hide_frames = (isset($_REQUEST['hide_frames']) && $_REQUEST['hide_frames']) ? 'hide_frames=1&': '';
+
+			$redirect_url = strip_url(current_url()).'/?'.$hide_frames.'sq_redirect_url='.urlencode($_SERVER['REQUEST_URI']);
 			$this->out->addOnLoad('if (!parent.frames["sq_header"]) { sq_redirect("'.$redirect_url.'"); }');
 		}
 
