@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.36 2006/01/17 22:30:19 lwright Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.36.2.1 2006/07/04 05:34:11 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,6 +113,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		// get all the containers linked to this bodycopy
 		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
 		if (!$write_access) {
+			ob_start();
 			foreach ($containers as $container_data) {
 				$container =& $am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 				if ($container->useSystemVersion()) {
@@ -122,6 +123,9 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 					$container_edit->paintContainer($container, $o, $prefix);
 				}
 			}
+			$html = ob_get_clean();
+			$html = preg_replace('|<script\b[^>]*>(.*?)</script>|is', '', $html);
+			echo $html;
 			return FALSE;
 		}
 
