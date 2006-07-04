@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.180 2006/06/21 06:53:35 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.181 2006/07/04 23:54:07 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.180 $
+* @version $Revision: 1.181 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1086,9 +1086,13 @@ class Listing_Engine extends Page
 			$id = $asset_data['id'];
 
 			// Check to see whether we have read access to the asset - if we
-			// don't, don't use it
+			// don't (or if the asset no longer exists at all...!), don't use it
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
-			$read_access = $asset->readAccess();
+			if (is_null($asset)) {
+				$read_access = FALSE;
+			} else {
+				$read_access = $asset->readAccess();
+			}
 			unset($asset);
 
 			if (!$read_access) {
