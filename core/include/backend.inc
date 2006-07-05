@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.141 2006/07/04 04:24:09 rong Exp $
+* $Id: backend.inc,v 1.142 2006/07/05 04:04:18 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.141 $
+* @version $Revision: 1.142 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -253,18 +253,14 @@ class Backend extends MySource_Object
 				// see _printMain() for more info
 				$header_height = $limbo_hide_frames ? 0 : 28;
 				$sidenav_width = SQ_IN_LIMBO ? 0 : 280;
-				$frameset_cols = $sidenav_width.','.($limbo_hide_frames ? '' : '10,').'*';
+				$resizer_width = $limbo_hide_frames ? 0 : 10;
+				$frameset_cols = $sidenav_width.','.$resizer_width.',*';
 				?>
 				<frameset rows="<?php echo $header_height; ?>,*" frameborder="0" border="0">
 					<frame src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0">
 					<frameset cols="<?php echo $frameset_cols; ?>" frameborder="0" border="0" id ="main_frameset">
 						<frame src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0">
-						?><?php
-						if (!$limbo_hide_frames) {
-							// if hide_frames is not set, include the resizer for asset map
-							?><frame src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0"><?php
-						}
-						?>
+						<frame src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0">
 						<frame src="<?php echo $frame_urls['main']; ?>" name="sq_main" marginwidth="0" marginheight="0" scrolling="yes">
 					</frameset>
 				</frameset>
@@ -980,17 +976,23 @@ class Backend extends MySource_Object
 
 		<script language="Javascript" type="text/javascript">
 			var clickSize = 50;
-			var lastSize = "280,10,*";
 			var fset = top.document.getElementById('main_frameset');
 			hidden = <?php var_export(SQ_IN_LIMBO); ?>;
 
 			function toggleFrame() {
 				if (hidden == false) {
-					lastSize = fset.cols;
-					fset.cols = "0,10,*";
+					if (fset.cols == "280,10,*") {
+						fset.cols = "0,10,*";
+					} else if (fset.cols == "280,0,*") {
+						fset.cols = "0,0,*";
+					}
 					hidden = true;
 				} else {
-					fset.cols = lastSize;
+					if (fset.cols == "0,10,*") {
+						fset.cols = "280,10,*";
+					} else if (fset.cols == "0,0,*") {
+						fset.cols = "280,0,*";
+					}
 					hidden = false;
 				}
 			}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.57 2006/06/20 00:57:20 skim Exp $
+* $Id: asset_edit_fns.inc,v 1.58 2006/07/05 04:04:18 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -269,11 +269,7 @@ class Asset_Edit_Fns extends MySource_Object
 			return FALSE;
 		}
 
-		if (SQ_IN_LIMBO) {
-			asset_finder($field_name, $selected, $type_codes, '', FALSE);
-		} else {
-			asset_finder($field_name, $selected, $type_codes);
-		}
+		asset_finder($field_name, $selected, $type_codes);
 
 		return TRUE;
 
