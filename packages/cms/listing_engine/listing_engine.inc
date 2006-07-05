@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.181 2006/07/04 23:54:07 lwright Exp $
+* $Id: listing_engine.inc,v 1.182 2006/07/05 05:54:30 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.181 $
+* @version $Revision: 1.182 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -518,6 +518,17 @@ class Listing_Engine extends Page
 		// get our page chunk here
 		$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
 
+		// If random grouping, we should now shove fixed positions in (it would
+		// normally be in filterAssetList). Note that in this case we must still
+		// respect the 'per page' settings - but with only one page in random
+		// mode that's easy to take care of
+		if ($this->attr('group_by') == 'random') {
+			$this->adjustAssetPositions($todo);
+			while (count($todo) > max($num_per_page, 1)) {
+				array_pop($todo);
+			}
+		}
+
 		// get any extra keyword replacements from this asset or asset_listing
 		$replacements = $this->getContentsKeywordReplacements($keywords) + $replacements;
 		$num_assets_showing = count($todo);
@@ -839,10 +850,16 @@ class Listing_Engine extends Page
 		// remove unwanted asset types
 		switch ($group_by) {
 			case 'number' :
-			case 'random' :
 			case 'grouped' :
 				$this->filterAssetTypes($todo);
+				$todo = $this->sortAssetList($todo, $this->getSortInfo());
 				$this->adjustAssetPositions($todo);
+			break;
+
+			case 'random' :
+				// adjusting of asset positions happens in printContents(),
+				// after the random chunk is gathered
+				$this->filterAssetTypes($todo);
 			break;
 
 			case 'letter' :
@@ -858,6 +875,9 @@ class Listing_Engine extends Page
 					}
 				}
 				unset($filtered_todo);
+
+				$todo = $this->sortAssetList($todo, $this->getSortInfo());
+
 			break;
 		}
 
@@ -1499,9 +1519,6 @@ class Listing_Engine extends Page
 		if ($this->attr('group_by') == 'grouped') {
 			$this->_printGroups($todo, $this->attr('asset_grouping'));
 		} else {
-			if ($this->attr('group_by') != 'random') {
-				$todo = $this->sortAssetList($todo, $this->getSortInfo());
-			}
 			$this->_printAssetList($todo);
 		}
 
