@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.59 2006/06/26 00:00:30 rong Exp $
+* $Id: listing_engine_management.inc,v 1.60 2006/07/06 08:10:28 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -85,52 +85,52 @@ class Listing_Engine_Management extends Asset_Management
 									'default'	=> Array(
 													0	=> Array (
 															'params'	=> Array (
+																			'field'	=> '',
+																		   ),
+															'type'		=> '',
+															'name'		=> 'No Sorting',
+														   ),
+													1	=> Array (
+															'params'	=> Array (
 																			'field'	=> 'name',
 																		   ),
 															'type'		=> 'field',
 															'name'		=> 'Name',
 														   ),
-													1	=> Array (
+													2	=> Array (
 															'params'	=> Array (
 																			'field'	=> 'short_name',
 																		   ),
 															'type'		=> 'field',
 															'name'		=> 'Short Name',
 														   ),
-													2	=> Array (
+													3	=> Array (
 															'params'	=> Array (
 																			'field'	=> 'created',
 																		   ),
 															'type'		=> 'field',
 															'name'		=> 'Created Date',
 														   ),
-													3	=> Array (
+													4	=> Array (
 															'params'	=> Array (
 																			'field'	=> 'updated',
 																		   ),
 															'type'		=> 'field',
 															'name'		=> 'Last Updated Date',
 														   ),
-													4	=> Array (
+													5	=> Array (
 															'params'	=> Array (
 																			'field'	=> 'published',
 																		   ),
 															'type'		=> 'field',
 															'name'		=> 'Last Published Date',
 														   ),
-													5	=> Array (
+													6	=> Array (
 															'params'	=> Array (
 																			'field'	=> 'type_code',
 																		   ),
 															'name'		=> 'Asset Type',
 															'type'		=> 'field',
-														   ),
-													6	=> Array (
-															'params'	=> Array (
-																			'field'	=> '',
-																		   ),
-															'type'		=> '',
-															'name'		=> 'No Sorting',
 														   ),
 													7	=> Array (
 															'params'	=> Array (
@@ -145,7 +145,7 @@ class Listing_Engine_Management extends Asset_Management
 		$this->vars['default_sort_by'] = Array(
 											'added'		=> '0.1',
 											'type'		=> 'int',
-											'default'	=> 6,
+											'default'	=> 0,
 										 );
 
 		$this->vars['reverse_sort'] = Array(
