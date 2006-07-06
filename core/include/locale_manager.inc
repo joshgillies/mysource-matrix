@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.16 2006/02/02 02:29:33 ndvries Exp $
+* $Id: locale_manager.inc,v 1.16.4.1 2006/07/06 03:04:51 rong Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.4.1 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -585,7 +585,8 @@ class Locale_Manager extends MySource_Object
 		}
 
 		if ($valid_code) {
-			$subject = replace_keywords($this->_internal_messages[$locale][$type]['subject'], $keywords);
+			$subject = $this->_internal_messages[$locale][$type]['subject'];
+			replace_keywords($subject, $keywords);
 		} else {
 			$subject = 'Internal message translation not found for this code and locale ['.$type.']';
 		}
@@ -621,7 +622,8 @@ class Locale_Manager extends MySource_Object
 		}
 
 		if ($valid_code) {
-			$body    = replace_keywords($this->_internal_messages[$locale][$type]['body'], $keywords);
+			$body = $this->_internal_messages[$locale][$type]['body'];
+			replace_keywords($body, $keywords);
 		} else {
 			$body    = 'Internal message translation not found for this code and locale ['.$type.']';
 		}
