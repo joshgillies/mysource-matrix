@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.142 2006/07/07 04:32:53 skim Exp $
+* $Id: general.inc,v 1.143 2006/07/07 05:00:26 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.142 $
+* @version $Revision: 1.143 $
 * @package MySource_Matrix
 */
 
@@ -518,7 +518,7 @@ function get_asset_hash($assetid=0)
 * @return string
 * @access public
 */
-function asset_data_path_suffixS($type_code, $assetid)
+function asset_data_path_suffix($type_code, $assetid)
 {
 	return 'assets/'.$type_code.'/'.get_asset_hash($assetid).'/'.$assetid;
 
