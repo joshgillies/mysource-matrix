@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_structure_tree_edit_fns.inc,v 1.5 2006/05/30 01:58:54 rhoward Exp $
+* $Id: content_type_structure_tree_edit_fns.inc,v 1.6 2006/07/07 05:14:56 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz
 */
@@ -81,6 +81,7 @@ class Content_Type_Structure_Tree_Edit_Fns extends Content_Type_Edit_Fns
 			</style>
 
 			<script type="text/javascript" src="<?php echo sq_web_path('fudge'); ?>/var_serialise/var_serialise.js"></script>
+			<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/general.js"></script>
 			<script type="text/javascript">
 
 				var data_path = "<?php echo sq_web_path('data').'/asset_types/'.$asset->type(); ?>/files/";
@@ -149,7 +150,7 @@ class Content_Type_Structure_Tree_Edit_Fns extends Content_Type_Edit_Fns
 							if (this.rows[i].underline == '1') inline_style += 'text-decoration: underline;';
 							inline_style += '"';
 							src += '<span style="margin-left: ' + indent + 'px; ">';
-							src += '<input class="structure" type="text" value="' + this.rows[i].content + '" ';
+							src += '<input class="structure" type="text" value="' + htmlspecialchars(this.rows[i].content) + '" ';
 							src += inline_style;
 							src += ' onBlur="<?php echo $prefix; ?>_structure.updateText(' + i + ', this);" />';
 							src += '</span></td><td style="margin-right: 0px; width: 55px; border-left: 1px dotted #999999;border-bottom: 1px dotted #999999;">';
