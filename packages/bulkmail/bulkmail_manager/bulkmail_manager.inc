@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.43 2006/07/03 02:21:46 rong Exp $
+* $Id: bulkmail_manager.inc,v 1.43.2.1 2006/07/07 05:52:56 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -733,7 +733,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 						$errors[] = translate('bm_warning_generate_as_login_error', $user->name, $user->id);
 					}
 					// pre-selected user does not have (effective) read permission for content page
-					$ids = $GLOBALS['SQ_SYSTEM']->am->getParents($user->id, 'user_group');
+					$ids = $GLOBALS['SQ_SYSTEM']->am->getParents($user->id, 'user_group', FALSE);
 					$ids[$user->id] = 'content_generate_as';
 					$content_gen_as_read_access = $content_page->readAccess(array_keys($ids));
 					$public_read_access = $content_page->readAccess(Array($public_user->id));
@@ -749,7 +749,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$permission_denied = $GLOBALS['SQ_SYSTEM']->am->getPermission($details_info['content_id'], SQ_PERMISSION_READ, FALSE, FALSE);
 			foreach ($recipients as $recipient_id) {
 				// get parent user group and get the effective permission on the asset to send
-				$ids = $GLOBALS['SQ_SYSTEM']->am->getParents($recipient_id, 'user_group');
+				$ids = $GLOBALS['SQ_SYSTEM']->am->getParents($recipient_id, 'user_group', FALSE);
 				$ids[$recipient_id] = 'recipient_id';
 				if (!$content_page->readAccess(array_keys($ids))) {
 					$problematic_list[] = $recipient_id;
