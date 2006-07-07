@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.59.2.1 2006/07/06 08:10:47 rong Exp $
+* $Id: listing_engine_management.inc,v 1.59.2.2 2006/07/07 01:34:23 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59.2.1 $
+* @version $Revision: 1.59.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -703,6 +703,9 @@ class Listing_Engine_Management extends Asset_Management
 					echo 'Upgrading asset: '.$asset->name.' ('.$assetid.')'."\n";
 					$sort_value[] = $random_sort;
 					if (!$asset->setAttrValue('sort_by', $sort_value)) {
+						trigger_localised_error('CMS0039', E_USER_WARNING, '0.15');
+					}
+					if (!$asset->saveAttributes()) {
 						trigger_localised_error('CMS0039', E_USER_WARNING, '0.15');
 					}
 					$upgraded_count++;
