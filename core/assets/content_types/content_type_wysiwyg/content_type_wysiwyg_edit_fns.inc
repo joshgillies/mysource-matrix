@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.32.2.1 2006/07/07 05:15:18 rhoward Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.32.2.2 2006/07/07 06:08:47 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32.2.1 $
+* @version $Revision: 1.32.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -340,8 +340,8 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$html = preg_replace('|(<htmlarea_special[^>]*?>)(.*?)(</htmlarea_special>)|si', '$2', $html);
 		if ($generating) {
 			// escape dangerous content, eg. <?php, <?, <script language="php">
-			$output = str_replace('<?', "<?php echo '<'.'?'; ?>", $output);
-			$output = preg_replace('/<script[^>]*language=[^>]*php[^>]*>/i', '<?php echo \'<\'.\'script language="php">\'; ?>', $output);
+			$html = str_replace('<?', "<?php echo '<'.'?'; ?>", $html);
+			$html = preg_replace('/<script[^>]*language=[^>]*php[^>]*>/i', '<?php echo \'<\'.\'script language="php">\'; ?>', $html);
 		}
 		echo $html;
 
