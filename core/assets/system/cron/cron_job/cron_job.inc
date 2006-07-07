@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.45 2006/05/12 06:25:49 rong Exp $
+* $Id: cron_job.inc,v 1.46 2006/07/07 06:23:57 tbarrett Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -516,7 +516,7 @@ class Cron_Job extends Asset
 						$val = explode(',', $when);
 						$next_run = $val[0];
 						$interval = $val[1];
-						$interval_unit = $val[2];
+						$interval_unit = (int)$val[2];
 						// store the next run time and interval info of this repeating job
 						$when_arr['duration'] = $next_run;
 						$when_arr[$time_unit[$interval_unit]] = $interval;
