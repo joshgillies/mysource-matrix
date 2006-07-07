@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_file_garbage_collection.php,v 1.1 2006/07/06 05:42:45 tbarrett Exp $
+* $Id: session_file_garbage_collection.php,v 1.1.4.1 2006/07/07 05:51:06 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * PHP's internal garbage collection mechanism doesn't run.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.4.1 $
 * @package MySource_Matrix
 */
 
