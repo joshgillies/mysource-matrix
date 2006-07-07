@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code_edit_fns.inc,v 1.3.2.1 2006/05/30 05:18:16 rhoward Exp $
+* $Id: content_type_code_edit_fns.inc,v 1.3.2.2 2006/07/07 05:15:09 rhoward Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3.2.1 $
+* @version $Revision: 1.3.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -186,8 +186,9 @@ class Content_Type_Code_Edit_Fns extends Content_Type_Edit_Fns
 		// what it will look like. If $editing == TRUE, then we do this
 		$output =  $asset->attr('html');
 		if ($generating) {
-			// escape dangerous content, eg. <?php, <? - leaves <?xml intact and working
+			// escape dangerous content, eg. <?php, <?, <script language="javascript">
 			$output = str_replace('<?', "<?php echo '<'.'?'; ?>", $output);
+			$output = preg_replace('/<script[^>]*language=[^>]*php[^>]*>/i', '<?php echo \'<\'.\'script language="php">\'; ?>', $output);
 		}
 		echo $output;
 

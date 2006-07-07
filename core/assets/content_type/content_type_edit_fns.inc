@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_edit_fns.inc,v 1.7.2.1 2006/05/30 05:18:15 rhoward Exp $
+* $Id: content_type_edit_fns.inc,v 1.7.2.2 2006/07/07 05:15:07 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7.2.1 $
+* @version $Revision: 1.7.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,8 +74,9 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	{
 		$output = $asset->attr('html');
 		if ($generating) {
-			// escape dangerous content, eg. <?php, <? - leaves <?xml intact and working
+			// escape dangerous content, eg. <?php, <?, <script language="php">
 			$output = str_replace('<?', "<?php echo '<'.'?'; ?>", $output);
+			$output = preg_replace('/<script[^>]*language=[^>]*php[^>]*>/i', '<?php echo \'<\'.\'script language="php">\'; ?>', $output);
 		}
 		echo $output;
 
