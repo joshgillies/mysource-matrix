@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.143 2006/07/07 05:00:26 skim Exp $
+* $Id: general.inc,v 1.144 2006/07/07 06:20:14 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.143 $
+* @version $Revision: 1.144 $
 * @package MySource_Matrix
 */
 
@@ -649,7 +649,7 @@ function replace_query_string_vars($replacements, $base_url=NULL, $query_string=
 {
 	if (is_null($base_url)) $base_url = current_url();
 	if (is_null($query_string)) {
-		$query_string = $_SERVER['QUERY_STRING'];
+		$query_string = array_get_index($_SERVER, 'QUERY_STRING', '');
 	}
 
 	$replaced_vars = array_keys($replacements);
