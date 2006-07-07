@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_data_dirs.php,v 1.1 2006/07/07 03:53:14 skim Exp $
+* $Id: upgrade_data_dirs.php,v 1.2 2006/07/07 04:32:57 skim Exp $
 *
 */
 
 /**
 *
 * @author Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -162,7 +162,7 @@ function process($base_dir, $curr_dir, $handle_file_vers=FALSE)
 
 			//if (is_dir($SYSTEM_ROOT.$base_dir.'/'.$curr_dir.'/'.$assetid)) {
 
-				$hash = getAssetHash($assetid);
+				$hash = get_asset_hash($assetid);
 				$old_dir_path = SQ_SYSTEM_ROOT.$base_dir.'/'.$curr_dir.'/'.$assetid;
 				$new_dir_path = SQ_SYSTEM_ROOT.$base_dir.'/'.$curr_dir.'/'.$hash.'/'.$assetid;
 
@@ -215,7 +215,7 @@ function process_file_versioning($base_dir, $curr_dir)
 
 			if (is_dir(SQ_SYSTEM_ROOT.$base_dir.'/'.$curr_dir.'/'.$assetid)) {
 
-				$hash = getAssetHash($assetid);
+				$hash = get_asset_hash($assetid);
 				$old_dir_path = SQ_SYSTEM_ROOT.$base_dir.'/'.$curr_dir.'/'.$assetid;
 				$new_dir_path = SQ_SYSTEM_ROOT.$base_dir.'/'.$curr_dir.'/'.$hash.'/'.$assetid;
 
@@ -335,7 +335,7 @@ function _process_public_dir_lookup($base_dir, $curr_dir, $assetid)
 	foreach ($lookup_tables as $table) {
 		$sql = 'SELECT * FROM '.$table.' WHERE url LIKE ';
 
-		$hash = getAssetHash($assetid);
+		$hash = get_asset_hash($assetid);
 		$old_public_url = '__data/assets/'.$curr_dir.'/'.$assetid;
 		$new_public_url = '__data/assets/'.$curr_dir.'/'.$hash.'/'.$assetid;
 
