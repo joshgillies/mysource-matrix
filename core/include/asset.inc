@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.503.2.27 2006/06/27 05:27:05 lwright Exp $
+* $Id: asset.inc,v 1.503.2.28 2006/07/07 01:01:18 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.503.2.27 $
+* @version $Revision: 1.503.2.28 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3617,7 +3617,10 @@ class Asset extends MySource_Object
 				}
 			}
 
-			if (!$GLOBALS['SQ_PURGING_TRASH']) {
+			// If we are purging trash, don't bother about statuses
+			// Links are not part of workflow either, so don't bother checking
+			// on statuses if we are checking links access
+			if (!($GLOBALS['SQ_PURGING_TRASH'] || ($lock_type == 'links'))) {
 				// if we are in a state of total approval no editing allowed
 				if ($this->status & SQ_SC_STATUS_ALL_APPROVED) {
 					return FALSE;
