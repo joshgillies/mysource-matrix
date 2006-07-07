@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.140 2006/06/28 05:03:34 rhoward Exp $
+* $Id: general.inc,v 1.141 2006/07/07 03:53:16 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140 $
+* @version $Revision: 1.141 $
 * @package MySource_Matrix
 */
 
@@ -478,6 +478,38 @@ function sq_web_path($path='base')
 
 
 /**
+* Return the hash of and asset between 0 and num_cache_dirs
+*
+* @param string	$assetid	the assetid to create the hash from
+*
+* @return string
+* @access public
+*/
+function getAssetHash($assetid=0)
+{
+	$type_code = trim($assetid);
+	do {
+		$hash = 0;
+		$len = strlen($assetid);
+		for ($i = 0; $i < $len; $i++) {
+			if ((int) $assetid{$i} != $assetid{$i}) {
+				$hash += ord($assetid{$i});
+			} else {
+				$hash += (int) $assetid{$i};
+			}
+		}
+		$assetid = (string) $hash;
+	} while ($hash > SQ_CONF_NUM_DATA_DIRS);
+
+	while (strlen($hash) != 4) {
+		$hash = '0'.$hash;
+	}
+	return $hash;
+
+}//end getAssetHash()
+
+
+/**
 * Get the data path suffix for an asset
 *
 * @param string	$type_code	the type_code of the asset
@@ -488,7 +520,7 @@ function sq_web_path($path='base')
 */
 function asset_data_path_suffix($type_code, $assetid)
 {
-	return 'assets/'.$type_code.'/'.$assetid;
+	return 'assets/'.$type_code.'/'.getAssetHash($assetid).'/'.$assetid;
 
 }//end asset_data_path_suffix()
 

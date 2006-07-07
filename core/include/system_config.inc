@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.80 2006/06/28 05:03:34 rhoward Exp $
+* $Id: system_config.inc,v 1.81 2006/07/07 03:53:17 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -87,7 +87,8 @@ class System_Config extends Config
 						'SQ_CONF_LOG_FILE_ERROR'			=> Array('editable' => 0, 'default' => 'error'),
 						'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
 						'SQ_CONF_SESSION_GC_MAXLIFETIME'	=> Array('editable' => 1, 'default'	=> 604800),
-						'SQ_CONF_EDITING_TIME'				=> Array('editable'	=> 0, 'default' => 3600),
+						'SQ_CONF_EDITING_TIME'				=> Array('editable' => 0, 'default' => 3600),
+						'SQ_CONF_NUM_DATA_DIRS'				=> Array('editable' => 0, 'default' => 20),
 					   );
 
 	/**
