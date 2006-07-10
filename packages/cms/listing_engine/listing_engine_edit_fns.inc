@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.60 2006/06/21 02:12:52 rong Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.60.2.1 2006/07/10 04:31:32 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.60.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -418,6 +418,20 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		foreach ($deleted_rows as $row => $on) {
 			if (isset($column_layout[$row])) {
 				unset($column_layout[$row]);
+			}
+		}
+
+		// Check if the existing column settings are at least 1 column
+		for (reset($column_layout); NULL !== ($row = key($column_layout)); next($column_layout)) {
+			if ((int)$column_layout[$row] < 1) {
+				// Tailor the error message depending on whether it's a customised
+				// row or an "all remaining rows" list
+				if ($row == 0) {
+					trigger_localised_error('CMS0061', E_USER_NOTICE);
+				} else {
+					trigger_localised_error('CMS0060', E_USER_NOTICE, $row);
+				}
+				$column_layout[$row] = 1;
 			}
 		}
 
