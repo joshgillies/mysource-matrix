@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.13 2006/01/30 04:37:42 sdanis Exp $
+* $Id: search_list.inc,v 1.13.4.1 2006/07/10 02:10:23 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -100,7 +100,7 @@ class Search_List extends Listing_Engine
 		$search_info = $search_page->populateBaseSearchInfo();
 		$query_comps = $sm->constructBaseSearchQuery($search_info);
 
-		$query_comps['from'][] = 'sq_sch_idx ai';
+		array_unshift($query_comps['from'], 'sq_sch_idx ai');
 		$query_comps['where'][] = 'ai.assetid = a.assetid';
 		$query_comps['select'][] = 'ai.value';
 		$query_comps['select'][] = 'ai.assetid';
