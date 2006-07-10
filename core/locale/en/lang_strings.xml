@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.146 2006/06/27 23:33:00 skim Exp $
+* $Id: lang_strings.xml,v 1.147 2006/07/10 05:34:50 skim Exp $
 *
 */
 
@@ -566,6 +566,8 @@
 	<string source="valid_cache_length">The length of time a cache entry is valid in seconds</string>
 	<string source="customise_asset_selection">Please select a Asset Type above to customise</string>
 	<string source="cannot_clear_cache">You do not have access to clear the cache'</string>
+	<string source="clear_cache_threshold">Clear Cache Threshold</string>
+	<string source="delete_all_cache">Delete All System Cache</string>
 	<string source="this_asset">This asset</string>
 	<string source="this_asset_and_dependants">This asset and its dependants</string>
 	<string source="this_asset_and_children">This asset and its children</string>
@@ -1598,9 +1600,11 @@ show the image inside this window instead of opening a new one.</string>
 	<string source="must_select_at_least_one_protocol" js="1">You need to select at least one protocol, otherwise the url will be deleted.
 Do you want to delete "%s" ?</string>
 	<string source="confirm_purge_trash" js="1">Are you sure you want to purge all assets currently in the trash?</string>
+	<string source="confirm_purge_cache" js="1">Are you sure you want to delete all cache currently in the system?</string>
 	<string source="confirm_delete_component" js="1">Deleting a component cannot be undone.
 Are you sure you want to proceed?</string>
-	<string source="confirm_delete_trigger" js="1">Are you sure you want to delete the selected triggers?
+	<string source="confirm_delete_trigger" js="1">Are you sure you want to delete the selected triggers?</string>
+	<string source="trash_cache_warning">This will delete all cache existing in the system.
 
 Items to delete: %s</string>
 	<string source="confirm_cancel" js="1">Are you sure you want to cancel?</string>

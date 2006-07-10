@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.16 2006/06/02 04:23:19 rong Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.17 2006/07/10 05:34:49 skim Exp $
 *
 */
 
@@ -27,9 +27,17 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 /**
 * Highly Intensive Processing Object (HIPO) to clear cache
 *
+* <pre>
+* Initial Running Vars :
+*    int              assetid       - the assetids with whose children we are going to attempt to clear cache
+*    string           level         - 'single', 'dependants' or 'children'
+*    string|array     type_codes    - the type codes whose cache will be clearedto clear cache
+* </pre>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $
+* @author  Rayn Ong <rong@squiz.net>
+* @author  Scott Kim <skim@squiz.net>
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -50,6 +58,50 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 
 
 	/**
+	* Paints backend of this job
+	*
+	* @param object	&$o		reference to the backend outputter
+	* @param string	$class	calling class name
+	*
+	* @return void
+	* @access private
+	*/
+	function paintConfig(&$o, $class)
+	{
+		$write_access = $this->writeAccess();
+
+		// metadata regeneration threshhold HIPO config entry
+		$o->openField(translate('clear_cache_threshold'));
+
+		if ($write_access) {
+			text_box($class.'[SQ_HIPO_CLEAR_CACHE_THRESHOLD]', SQ_HIPO_PERMISSIONS_THRESHOLD, 5);
+			echo ' '.translate('assets');
+		} else {
+			echo SQ_HIPO_PERMISSIONS_THRESHOLD;
+			echo ' '.translate('assets');
+		}
+
+		$o->closeField();
+
+	}//end paintConfig()
+
+
+	/**
+	* Sets some info about thresholds that this hipo requires.
+	*
+	* @return array
+	* @access public
+	*/
+	function getConfigVars()
+	{
+		return Array(
+				'SQ_HIPO_CLEAR_CACHE_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 100),
+			   );
+
+	}//end getConfigVars()
+
+
+	/**
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
 	*
 	* @return string
@@ -60,7 +112,11 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 		if (isset($this->_running_vars['linkid'])) {
 			return parent::getCodeName().$this->_running_vars['linkid'];
 		} else {
-			return parent::getCodeName().$this->_running_vars['assetid'];
+			if ($this->_running_vars['delete_all'] == 'yes') {
+				return parent::getCodeName().md5($this->_running_vars['delete_all']);
+			} else {
+				return parent::getCodeName().$this->_running_vars['assetid'];
+			}
 		}
 
 	}//end getCodeName()
@@ -90,70 +146,44 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_clearing_cache'),
+					'name'			=> 'Process File Paths',
 					'function_call'	=> Array(
-										'process_function'	=> 'processClearCache',
+										'process_function'	=> 'processFilePaths',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> true,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> 'Clear Cache Table',
+					'function_call'	=> Array(
+										'process_function'	=> 'processClearCacheTable',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
+					'percent_done'	=> 0,
+					'complete'		=> FALSE,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_clearing_cache'),
+					'function_call'	=> Array(
+										'process_function'	=> 'processClearCacheFiles',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
+					'percent_done'	=> 0,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 			   );
 
 	}//end getInitialStepData()
-
-
-	/**
-	* Prepares the running vars and gets a list of the cache directories in the system
-	*
-	* @return boolean
-	* @access public
-	*/
-	function prepare()
-	{
-		if (empty($this->_running_vars['assetid'])) {
-			trigger_localised_error('HIPO0033', E_USER_WARNING);
-			return false;
-		}
-
-		// so we have an assetid to start at, but make sure it is a valid assetid
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
-		if (is_null($asset)) {
-			trigger_localised_error('HIPO0032', E_USER_WARNING, $this->_running_vars['assetid']);
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-
-		switch ($this->_running_vars['level']) {
-			case 'single':
-				$this->_running_vars['todo_assetids'] = Array($this->_running_vars['assetid']);
-			break;
-			case 'dependants':
-				$this->_running_vars['todo_assetids'] = array_keys($GLOBALS['SQ_SYSTEM']->am->getDependantChildren($this->_running_vars['assetid'], $this->_running_vars['type_codes']));
-				$this->_running_vars['todo_assetids'][] = $this->_running_vars['assetid'];
-			break;
-			case 'children':
-				$this->_running_vars['todo_assetids'] = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($this->_running_vars['assetid'], $this->_running_vars['type_codes']));
-				$this->_running_vars['todo_assetids'][] = $this->_running_vars['assetid'];
-			break;
-		}
-
-		// get all the cache file path to be cleared
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$this->_running_vars['todo_filepaths'] = $cm->getFilePaths($this->_running_vars['todo_assetids']);
-		$this->_running_vars['done_filepaths'] = Array();
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
-
-		// set the number of filepath to process per step, max is 100
-		$count = count($this->_running_vars['todo_filepaths']) / 5;
-		$this->_running_vars['count'] = min(100, $count);
-		return parent::prepare();
-
-	}//end prepare()
 
 
 	/**
@@ -164,14 +194,104 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	*/
 	function freestyle()
 	{
-		while (!empty($this->_running_vars['todo_filepaths'])) {
-			if (!$this->processClearCache($this->_steps[0], get_class($this))) {
-				return false;
+		while (!empty($this->_running_vars['todo_assetids'])) {
+			if (!$this->processFilePaths($this->_steps[0], get_class($this))) {
+				return FALSE;
 			}
 		}
-		return true;
+
+		while (!empty($this->_running_vars['todo_assetids'])) {
+			if (!$this->processClearCacheTable($this->_steps[1], get_class($this))) {
+				return FALSE;
+			}
+		}
+
+		while (!empty($this->_running_vars['todo_filepaths'])) {
+			if (!$this->processClearCacheFiles($this->_steps[2], get_class($this))) {
+				return FALSE;
+			}
+		}
+
+		return TRUE;
 
 	}//end freestyle()
+
+
+	/**
+	* Returns the current Threshold.
+	*
+	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
+	*
+	* @return float
+	* @access public
+	*/
+	function getThresholdPercentageRequired()
+	{
+		if (SQ_HIPO_CLEAR_CACHE_THRESHOLD == 0) return 0;
+		if (!isset($this->_running_vars['todo_assetids'])) {
+			return 0;
+		}
+		return ((count($this->_running_vars['todo_assetids']) / (SQ_HIPO_CLEAR_CACHE_THRESHOLD)) * 100);
+
+	}//end getThresholdPercentageRequired()
+
+
+	/**
+	* Prepares the running vars and gets a list of the cache directories in the system
+	*
+	* @return boolean
+	* @access public
+	*/
+	function prepare()
+	{
+		if (empty($this->_running_vars['assetid']) && $this->_running_vars['delete_all'] == 'no') {
+			trigger_localised_error('HIPO0033', E_USER_WARNING);
+			return FALSE;
+		}
+
+		if ($this->_running_vars['delete_all'] == 'no') {
+
+			// so we have an assetid to start at, but make sure it is a valid assetid
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
+			if (is_null($asset)) {
+				trigger_localised_error('HIPO0032', E_USER_WARNING, $this->_running_vars['assetid']);
+				return FALSE;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+
+			switch ($this->_running_vars['level']) {
+				case 'single':
+					$this->_running_vars['todo_assetids'] = Array($this->_running_vars['assetid']);
+				break;
+				case 'dependants':
+					$this->_running_vars['todo_assetids'] = array_keys($GLOBALS['SQ_SYSTEM']->am->getDependantChildren($this->_running_vars['assetid'], $this->_running_vars['type_codes']));
+					$this->_running_vars['todo_assetids'][] = $this->_running_vars['assetid'];
+				break;
+				case 'children':
+					$this->_running_vars['todo_assetids'] = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($this->_running_vars['assetid'], $this->_running_vars['type_codes']));
+					$this->_running_vars['todo_assetids'][] = $this->_running_vars['assetid'];
+				break;
+			}
+
+			// get all the cache file path to be cleared
+			$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			$this->_running_vars['total_assetids'] = count($this->_running_vars['todo_assetids']);
+			$this->_running_vars['todo_filepaths'] = Array();
+			$this->_running_vars['done_filepaths'] = Array();
+			$this->_running_vars['done_assetids'] = Array();
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
+
+		} else if ($this->_running_vars['delete_all'] == 'yes') {
+			$this->_running_vars['todo_filepaths'] = Array();
+			$this->_running_vars['done_filepaths'] = Array();
+			$this->_running_vars['delete_all'] = TRUE;
+
+		}
+
+		return parent::prepare();
+
+	}//end prepare()
 
 
 	/**
@@ -180,46 +300,141 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	* foreach of the todo assetids, the groups containing the cache files are
 	* traversed and the cache files belonging to that assetid are deleted
 	*
-	* @param &Array 	$step_		data the data for the steps
-	* @param string 	$prefix 	the unique prefix
+	* @param array	&$step_data	data the data for the steps
+	* @param string	$prefix		the unique prefix
+	*
+	* @return boolean
+	* @access public
 	*/
-	function processClearCache(&$step_data, $prefix)
+	function processFilePaths(&$step_data, $prefix)
 	{
-		if (!empty($this->_running_vars['todo_filepaths'])) {
+		if ($this->_running_vars['delete_all']) {
+			$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			$this->_running_vars['todo_filepaths'] = $cm->getAllFilePaths();
+			$this->_running_vars['total_filepaths'] = count($this->_running_vars['todo_filepaths']);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
 
-			// clear all related db entries
-			if (!empty($this->_running_vars['todo_assetids'])) {
-				$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-				$cm->clearCache($this->_running_vars['todo_assetids']);
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
-				$this->_running_vars['todo_assetids'] = Array();
-			}
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = TRUE;
+			return TRUE;
+		}
 
-			$index = 0;
-			// process some number of filepaths in this step
-			while ($index < $this->_running_vars['count'] && !empty($this->_running_vars['todo_filepaths'])) {
-				$path = array_shift($this->_running_vars['todo_filepaths']);
+		$count = count($this->_running_vars['todo_assetids']);
+		if ($count > 0) {
+			$num_shift = ($count > SQ_HIPO_CLEAR_CACHE_THRESHOLD) ? SQ_HIPO_CLEAR_CACHE_THRESHOLD : $count;
+			$todos = array_splice($this->_running_vars['todo_assetids'], 0, $num_shift);
+			$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			$file_paths = $cm->getFilePaths($todos);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
+			$this->_running_vars['todo_filepaths'] = array_merge($this->_running_vars['todo_filepaths'], $file_paths);
+			$this->_running_vars['done_assetids'] = array_merge($this->_running_vars['done_assetids'], $todos);
+		}
+
+		if (empty($this->_running_vars['todo_assetids'])) {
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = TRUE;
+			$this->_running_vars['total_filepaths'] = count($this->_running_vars['todo_filepaths']);
+			$this->_running_vars['todo_assetids'] = $this->_running_vars['done_assetids'];
+			$this->_running_vars['done_assetids'] = Array();
+		} else {
+			$total = count($this->_running_vars['done_assetids']);
+			$step_data['percent_done'] = (($this->_running_vars['total_assetids']) / $total) * 100;
+			$step_data['complete'] = FALSE;
+		}
+		return TRUE;
+
+	}//end processFilePaths()
+
+
+	/**
+	* Processes the clearing of the actual cache files
+	*
+	* foreach of the todo assetids, the groups containing the cache files are
+	* traversed and the cache files belonging to that assetid are deleted
+	*
+	* @param array	&$step_data	data the data for the steps
+	* @param string	$prefix		the unique prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processClearCacheTable(&$step_data, $prefix)
+	{
+		if ($this->_running_vars['delete_all']) {
+			$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			$cm->clearAllCache();
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
+
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = TRUE;
+			return TRUE;
+		}
+
+		$count = count($this->_running_vars['todo_assetids']);
+		if ($count > 0) {
+			$num_shift = ($count > SQ_HIPO_CLEAR_CACHE_THRESHOLD) ? SQ_HIPO_CLEAR_CACHE_THRESHOLD : $count;
+			$todos = array_splice($this->_running_vars['todo_assetids'], 0, $num_shift);
+			$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			$cm->clearCache($todos);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cm);
+			$this->_running_vars['done_assetids'] = array_merge($this->_running_vars['done_assetids'], $todos);
+		}
+
+		if (empty($this->_running_vars['todo_assetids'])) {
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = TRUE;
+		} else {
+			$total = count($this->_running_vars['done_assetids']);
+			$step_data['percent_done'] = (($this->_running_vars['total_assetids']) / $total) * 100;
+			$step_data['complete'] = FALSE;
+		}
+		return TRUE;
+
+	}//end processClearCacheTable()
+
+
+	/**
+	* Processes the clearing of the actual cache files
+	*
+	* foreach of the todo assetids, the groups containing the cache files are
+	* traversed and the cache files belonging to that assetid are deleted
+	*
+	* @param array	&$step_data	data the data for the steps
+	* @param string	$prefix		the unique prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processClearCacheFiles(&$step_data, $prefix)
+	{
+		$count = count($this->_running_vars['todo_filepaths']);
+		if ($count > 0) {
+			$num_shift = ($count > SQ_HIPO_CLEAR_CACHE_THRESHOLD) ? SQ_HIPO_CLEAR_CACHE_THRESHOLD : $count;
+			$paths = array_splice($this->_running_vars['todo_filepaths'], 0, $num_shift);
+			foreach ($paths as $path) {
 				$path_name = SQ_CACHE_PATH.'/'.$path['path'];
 				if (is_file($path_name)) {
-					unlink($path_name);
+					if (!unlink($path_name)) {
+						$this->_addError('Failed to delete a cache file, '.$path_name, TRUE);
+					}
+				} else {
+					$this->_addError('The cache file can not be found : '.$path_name, TRUE);
 				}
-				$this->_running_vars['done_filepaths'][] = $path;
-				$index++;
 			}
-
-		}//end if
+			$this->_running_vars['done_filepaths'] = array_merge($this->_running_vars['done_filepaths'], $paths);
+		}
 
 		if (empty($this->_running_vars['todo_filepaths'])) {
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 		} else {
-			$total = count($this->_running_vars['todo_filepaths']) + count($this->_running_vars['done_filepaths']);
-			$step_data['percent_done'] =(count($this->_running_vars['done_filepaths']) / $total) * 100;
-			$step_data['complete'] = false;
+			$total = count($this->_running_vars['done_filepaths']);
+			$step_data['percent_done'] = ($total / $this->_running_vars['total_filepaths']) * 100;
+			$step_data['complete'] = FALSE;
 		}
-		return true;
+		return TRUE;
 
-	}//end processClearCache()
+	}//end processClearCacheFiles()
 
 
 }//end class

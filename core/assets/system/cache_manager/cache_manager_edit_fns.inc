@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.9 2006/04/11 02:11:00 sdanis Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.10 2006/07/10 05:34:48 skim Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.9 $ - 1.0
+* @version $Revision: 1.10 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -304,6 +304,15 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			combo_box($prefix.'_type_codes', $type_options, TRUE, '', 8);
 		$o->closeField();
 
+		$o->openField(translate('delete_all_cache'));
+			$delete_all_ops = Array(
+								'yes'	=> translate('yes'),
+								'no'	=> translate('no'),
+							  );
+			combo_box($prefix.'_delete_all', $delete_all_ops, FALSE, 'no', 0, "onChange=\"Javascript: if (this.value == 'yes') { if(!confirm(js_translate('confirm_purge_cache'))) { this.value = 'no'; } } \"");
+				$o->note(translate('trash_purge_warning'));
+		$o->closeField();
+
 		return TRUE;
 
 	}//end paintClearCache()
@@ -330,18 +339,27 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				$type_codes = Array();
 			}
 
+			$delete_all = $_POST[$prefix.'_delete_all'];
+
 			$assetid = $_POST[$prefix.'_clear_cache']['assetid'];
 			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-
 			$vars = Array(
 						'assetid'		=> $assetid,
 						'level'			=> $level,
 						'type_codes'	=> $type_codes,
+						'delete_all'	=> $delete_all,
 					);
 			$hh->queueHipo('hipo_job_clear_cache', $vars);
 
-			return TRUE;
+		} else if ($_POST[$prefix.'_delete_all'] == 'yes') {
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$vars = Array(
+						'delete_all'	=> 'yes',
+					);
+			$hh->queueHipo('hipo_job_clear_cache', $vars);
+
 		}
+		return TRUE;
 
 	}//end processClearCache()
 
