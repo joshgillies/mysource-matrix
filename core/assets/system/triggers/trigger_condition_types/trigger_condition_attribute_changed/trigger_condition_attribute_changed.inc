@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_attribute_changed.inc,v 1.1 2006/04/20 07:40:44 rhoward Exp $
+* $Id: trigger_condition_attribute_changed.inc,v 1.2 2006/07/10 06:34:24 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(dirname(__FILE__)).'/trigger_condition_asset_type/trigger_c
 *
 *
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,7 +120,7 @@ class Trigger_Condition_Attribute_Changed extends Trigger_Condition_Asset_Type
 		// asset type selector
 		ob_start();
 			if ($write_access) {
-				asset_type_chooser($prefix.'[type_code]', FALSE, Array('type_code' => $selected_type), NULL, FALSE, FALSE);
+				asset_type_chooser($prefix.'[type_code]', FALSE, Array('type_code' => $selected_type), NULL, TRUE, FALSE);
 				echo ' ( ';
 				check_box($prefix.'[inherit]', 1, array_get_index($settings, 'inherit'), '', 'id="'.$prefix.'_inherit" style="margin: 0px"');
 				echo ' ';
