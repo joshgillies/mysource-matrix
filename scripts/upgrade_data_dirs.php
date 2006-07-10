@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_data_dirs.php,v 1.2 2006/07/07 04:32:57 skim Exp $
+* $Id: upgrade_data_dirs.php,v 1.3 2006/07/10 05:47:05 lwright Exp $
 *
 */
 
 /**
 *
 * @author Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -220,7 +220,7 @@ function process_file_versioning($base_dir, $curr_dir)
 				$new_dir_path = SQ_SYSTEM_ROOT.$base_dir.'/'.$curr_dir.'/'.$hash.'/'.$assetid;
 
 				$old_file_vers_path = 'assets/'.$curr_dir.'/'.$assetid;
-				$new_file_vers_path = 'assets/'.$curr_dir.'/'.'/'.$hash.'/'.$assetid;
+				$new_file_vers_path = 'assets/'.$curr_dir.'/'.$hash.'/'.$assetid;
 
 				if (_copy_over_folder($old_dir_path, $new_dir_path)) {
 					$count['file_vers_count']++;
