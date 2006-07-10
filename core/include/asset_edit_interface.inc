@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.299 2006/06/30 05:58:16 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.300 2006/07/10 02:23:03 rong Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.299 $
+* @version $Revision: 1.300 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -170,6 +170,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
 			exit();
 		}
+
 		if ($creating) $o->addOnLoad('focusFirstTextInput()');
 		// if there are no screens or static screens, piss off
 		assert_false(!count($this->_screens) && empty($this->_edit_fns->static_screens));
@@ -215,6 +216,11 @@ class Asset_Edit_Interface extends MySource_Object
 			// this user is not allowed to view the current screen
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_inline_asset_screen', $active_screen, $owner->name));
 			exit();
+		} else {
+			if (SQ_IN_LIMBO) {
+					// broadcast the 'entering simple edit'
+					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_enter_simple_edit', $owner);
+			}
 		}
 
 		if (!isset($this->_edit_fns->static_screens[$active_screen]) && empty($this->_screens[$active_screen])) {
