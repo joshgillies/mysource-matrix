@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_file_garbage_collection.php,v 1.1 2006/07/06 05:42:45 tbarrett Exp $
+* $Id: session_file_garbage_collection.php,v 1.2 2006/07/10 00:04:08 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * PHP's internal garbage collection mechanism doesn't run.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -42,9 +42,10 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
 	exit();
 }
-include_once $SYSTEM_ROOT.'/data/private/conf/main.inc';
+define('SQ_SYSTEM_ROOT', $SYSTEM_ROOT);
+include_once SQ_SYSTEM_ROOT.'/core/include/init.inc';
 chdir($SYSTEM_ROOT.'/cache');
-if (exec('find . -name \'sess_????????????????????????????????\'')) {
+if (exec('find . -name \'sess_????????????????????????????????\' -mmin +'.SQ_CONF_SESSION_GC_MAXLIFETIME/60)) {
 	system('find . -name \'sess_????????????????????????????????\' -mmin +'.(SQ_CONF_SESSION_GC_MAXLIFETIME/60).' | xargs rm');
 }
 ?>
