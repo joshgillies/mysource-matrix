@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.14 2006/07/10 02:09:09 tbarrett Exp $
+* $Id: search_list.inc,v 1.15 2006/07/10 02:25:42 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -60,7 +60,8 @@ class Search_List extends Listing_Engine
 	*/
 	function _createAdditional(&$link)
 	{
-		return $this->_createBodycopies();
+		if (!Page::_createAdditional($link)) return FALSE;
+		return $this->_createBodycopies(Array('content' => '%asset_listing%'));
 
 	}//end _createAdditional()
 
