@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.6 2006/03/06 00:33:08 sdanis Exp $
+* $Id: form_question_type_file_upload.inc,v 1.7 2006/07/10 02:53:44 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -267,11 +267,13 @@ class Form_Question_Type_File_Upload extends Form_Question
 				case 'R':
 					// find a new name to rename the file to
 					include_once SQ_FUDGE_PATH.'/general/file_system.inc';
+					$filename = $this->getValue();
 					while ($existing_file) {
-						$file['name'] = increment_filename($file['name']);
-						$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
+						$filename = increment_filename($filename);
+						$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($filename));
 						assert_valid_db_result($existing_file);
 					}
+					$this->setValue($filename);
 				break;
 			}
 		}
@@ -301,9 +303,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 			// set the run level to ensure the file is correctly saved without
 			// the hassle of having to deal with permission errors
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-
-			$file_asset->setAttrValue('name', $this->getValue());
 			$link = Array('asset' => &$create_loc_asset, 'link_type' => SQ_LINK_TYPE_2);
+			$this->_tmp['file_info']['name'] = $this->getValue();
 			if (!$file_asset->create($link, $this->_tmp['file_info'])) {
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				return FALSE;
