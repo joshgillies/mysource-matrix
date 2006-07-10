@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_status.inc,v 1.12 2006/02/07 02:27:12 sdanis Exp $
+* $Id: trigger_action_set_status.inc,v 1.13 2006/07/10 02:21:28 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,7 +81,15 @@ class Trigger_Action_Set_Status extends Trigger_Action
 				return FALSE;
 			}
 
-			if (!$state['asset']->processStatusChange($settings['status'])) {
+			// need to use a hipo job to set status (handles dependant children)
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$vars = Array(
+						'assetid'		=> $state['assetid'],
+						'new_status'	=> $settings['status'],
+					);
+			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
+
+			if (!empty($status_errors)) {
 				return FALSE;
 			}
 		}
