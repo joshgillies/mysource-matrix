@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_url_matches.inc,v 1.1 2006/07/10 02:23:23 rong Exp $
+* $Id: trigger_condition_url_matches.inc,v 1.2 2006/07/11 23:57:02 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,8 +106,8 @@ class Trigger_Condition_URL_Matches extends Trigger_Condition
 			$form_element_extras = '';
 		}
 
-		$pattern = ($settings['pattern']) ? $settings['pattern'] : '';
-		$match = ($settings['match']) ? $settings['match'] : FALSE;
+		$pattern = (isset($settings['pattern'])) ? $settings['pattern'] : '';
+		$match = (isset($settings['match'])) ? $settings['match'] : FALSE;
 
 		// begin buffering basic options
 		ob_start();
