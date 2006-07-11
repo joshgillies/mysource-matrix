@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.491 2006/06/29 01:55:17 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.492 2006/07/11 23:35:01 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.491 $
+* @version $Revision: 1.492 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3117,18 +3117,19 @@ class Asset_Manager extends MySource_Object
 	*
 	* It returns an array of assetids
 	*
-	* @param int			$assetid			the id of the asset to get its children for
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
+	* @param int			$assetid				the id of the asset to get its children for
+	* @param string|array	$type_code				the type of asset that is linked
+	*												(eg 'Page', 'File', etc)
+	*												if an array returns link if matches any
+	*												of the array values
+	* @param boolean		$strict_type_code		whether we are finding assets that are just a $type_code
+	*												or $type_code and any of it's sub-classes
+	* @param boolean		$include_all_dependants	When FALSE, only show the top level of dependant parents
 	*
 	* @return array
 	* @access public
 	*/
-	function getDependantParents($assetid, $type_code='', $strict_type_code=TRUE)
+	function getDependantParents($assetid, $type_code='', $strict_type_code=TRUE, $include_all_dependants=TRUE)
 	{
 		$parents = Array();
 
@@ -3136,10 +3137,15 @@ class Asset_Manager extends MySource_Object
 		if (!is_null($asset)) {
 
 			$dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'minor', NULL, 1);
+			if (empty($dependant_links) && !$include_all_dependants) {
+				$parents[] = $assetid;
+			}
 			for (reset($dependant_links); NULL !== ($k = key($dependant_links)); next($dependant_links)) {
 				$parentid = $dependant_links[$k]['majorid'];
-				$parents[] = $parentid;
-				$parents = array_merge($parents, $this->getDependantParents($parentid, $type_code, $strict_type_code));
+				if ($include_all_dependants) {
+					$parents[] = $parentid;
+				}
+				$parents = array_merge($parents, $this->getDependantParents($parentid, $type_code, $strict_type_code, $include_all_dependants));
 			}
 
 			$this->forgetAsset($asset);

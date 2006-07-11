@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_status.inc,v 1.13 2006/07/10 02:21:28 rong Exp $
+* $Id: trigger_action_set_status.inc,v 1.14 2006/07/11 23:35:01 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,8 +48,13 @@ class Trigger_Action_Set_Status extends Trigger_Action
 	* The settings used by this action are in the form:<BR />
 	* <PRE>
 	* Array(
-	*       'status' => int // the status value to set the asset to
-	*       );
+	*	'status'			=> int		// the status value to set the asset to
+	*	'dependant_parents'	=> boolean	// whether or not to set the status of the asset's dependant
+	*									// parents instead (eg. set the status of a bodycopy DIV's
+	*									// Standard Page parents, instead of itself;  if no dependant
+	*									// parents are found, then this option will be ignored and the
+	*									// status set normally))
+	* );
 	* </PRE>
 	*
 	* @param array	$settings	the stored settings for this action
@@ -72,32 +77,63 @@ class Trigger_Action_Set_Status extends Trigger_Action
 			}
 		}
 
-		$old_status = $state['asset']->status;
-		if ($old_status != $settings['status']) {
-			$available_statuses = $state['asset']->getAvailableStatii();
+		// assume dependant_parents is turned off, unless told otherwise
+		if (!isset($settings['dependant_parents'])) {
+			$settings['dependant_parents'] = FALSE;
+		}
 
-			if (!isset($available_statuses[$settings['status']])) {
-				// invalid status, fail
-				return FALSE;
-			}
-
-			// need to use a hipo job to set status (handles dependant children)
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$vars = Array(
-						'assetid'		=> $state['assetid'],
-						'new_status'	=> $settings['status'],
-					);
-			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
-
-			if (!empty($status_errors)) {
-				return FALSE;
+		// if dependant_parents is turned on, look for all our dependant parents
+		// and change their statuses, instead of our own
+		$target_assets = Array();
+		if ($settings['dependant_parents']) {
+			// get only the top level
+			$target_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($state['asset']->id, '', TRUE, FALSE);
+			if (!empty($target_assets)) {
+				// returns Array(0 => Assetid), so flip the array
+				$target_assets = array_flip($target_assets);
+				foreach ($target_assets as $assetid => $null) {
+					$target_assets[$assetid] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				}
 			}
 		}
 
+		if (empty($target_assets) || !$settings['dependant_parents']) {
+			$target_assets[$state['asset']->id] =& $state['asset'];
+		}
+
+
+		foreach ($target_assets as $target_assetid => $target_asset) {
+
+			// couldn't load asset, fail
+			if (is_null($target_asset)) return FALSE;
+
+			$old_status = $target_asset->status;
+			if ($old_status != $settings['status']) {
+				$available_statuses = $target_asset->getAvailableStatii();
+
+				if (!isset($available_statuses[$settings['status']])) {
+					return FALSE;
+				}
+
+				// need to use a hipo job to set status (handles dependant children)
+				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$vars = Array(
+							'assetid'		=> $target_assetid,
+							'new_status'	=> $settings['status'],
+						);
+				$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
+
+				if (!empty($status_errors)) return FALSE;
+			}
+
+		}//end foreach ($target_assets)
+
+
 		return Array(
-				'assetid'		=> $state['asset']->id,
-				'old_status'	=> $old_status,
-				'new_status'	=> $state['asset']->status,
+				'assetid'			=> $state['asset']->id,
+				'affected_assetids'	=> $target_assets,
+				'old_status'		=> $old_status,
+				'new_status'		=> $state['asset']->status,
 			   );
 
 	}//end execute()
@@ -135,8 +171,13 @@ class Trigger_Action_Set_Status extends Trigger_Action
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();
 
+		ob_start();
+			check_box($prefix.'[dependant_parents]', 1, array_get_index($settings, 'dependant_parents', FALSE));
+			$basic_part_2 = ob_get_contents();
+		ob_end_clean();
 
-		return translate('trigger_set_status', $basic_part_1);
+
+		return translate('trigger_set_status', $basic_part_1, $basic_part_2);
 
 	}//end getInterface()
 
@@ -154,18 +195,24 @@ class Trigger_Action_Set_Status extends Trigger_Action
 	*/
 	function processInterface(&$settings, $request_data)
 	{
-		$status = array_get_index($request_data, 'status', FALSE);
-		if (!$status) return 'Status has not been specified';
+		// dependant_parents
+		$settings['dependant_parents'] = array_get_index($request_data, 'dependant_parents', FALSE);
+
+		// status
+		$status = array_get_index($request_data, 'status', NULL);
+		if (is_null($status)) {
+			return 'Status has not been specified';
+		}
 
 		$status_list = Trigger_Action_Set_Status::_getStatusList();
 
 		// check if the status is valid
-		if (isset($status_list[$status])) {
-			$settings['status'] = $status;
-			return FALSE;
-		} else {
+		if (!isset($status_list[$status])) {
 			return 'Specified status is invalid';
 		}
+		$settings['status'] = $status;
+
+		return FALSE;
 
 	}//end processInterface()
 
