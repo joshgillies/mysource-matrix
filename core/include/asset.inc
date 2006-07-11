@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.553 2006/07/07 01:11:17 lwright Exp $
+* $Id: asset.inc,v 1.554 2006/07/11 00:48:51 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.553 $
+* @version $Revision: 1.554 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4210,7 +4210,7 @@ class Asset extends MySource_Object
 	*/
 	function getWebDataPath()
 	{
-		return sq_web_path('data').'/assets/'.$this->type().'/'.$this->id;
+		return sq_web_path('data').'/assets/'.$this->type().'/'.get_asset_hash($this->id).'/'.$this->id;
 
 	}//end getWebDataPath()
 
