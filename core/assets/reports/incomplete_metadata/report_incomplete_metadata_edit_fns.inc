@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.11 2006/01/26 22:34:05 lwright Exp $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.11.2.1 2006/07/11 05:20:40 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,7 +67,6 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$owner =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_incomplete_metadata');
-		error_log(var_export($job->_running_vars,TRUE));
 
 		$asset_types = $owner->getAllowedAssetTypeMap();
 
@@ -106,8 +105,6 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 			if (!is_null($asset)) {
 				// If asset type list is empty, then none were set and therefore we do all asset
 				// types. If set, then it needs to be a key in the $asset_types
-				error_log('asset types empty = '.var_export(empty($asset_types),TRUE));
-				error_log('asset type '.$asset->type().' found = '.var_export(isset($asset_types[$asset->type()]),TRUE));
 				if (empty($asset_types) || isset($asset_types[$asset->type()])) {
 					$step_data['message'] = translate('core_checking_for_metadata', $asset->name);
 
@@ -179,7 +176,6 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 	*/
 	function paintReport(&$asset, &$o, $prefix)
 	{
-		error_log('Start  '.memory_get_usage());
 		require_once 'XML/Tree.php';
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
@@ -191,7 +187,6 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 
 		$input =& new XML_Tree($report_path);
 		$root  =& $input->getTreeFromFile();
-		error_log('Load '.memory_get_usage());
 		if (PEAR::isError($root)) {
 			trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;
