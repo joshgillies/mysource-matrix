@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.35 2006/06/02 06:07:02 lwright Exp $
+* $Id: db_install.inc,v 1.36 2006/07/12 23:14:08 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -404,6 +404,16 @@ function db_install($xml_file, $verbose=true)
 
 		//--        TABLES        --//
 
+		if ($tablename == 'cache') {
+			// change the db connection
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			// check existing tables in the new connection
+			$old_tables_in_db = $tables_in_db;
+			$tables_in_db = get_database_tables();
+		}
+
 		// create this table if it doesn't exist in the database
 		if (!in_array('sq_'.$tablename, $tables_in_db)) {
 			create_table($tablename, $table_info);
@@ -467,6 +477,14 @@ function db_install($xml_file, $verbose=true)
 				}
 			}// end foreach
 		}//end if
+
+		if ($tablename == 'cache') {
+			// restore the db connection
+			$tables_in_db = $old_tables_in_db;
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		}
 
 	}//end foreach tables
 
@@ -546,6 +564,10 @@ function grant_secondary_user_perms($verbose=true)
 		$primary_dsn   = DB::parseDSN(SQ_CONF_DB_DSN);
 		$secondary_dsn = DB::parseDSN(SQ_CONF_DB2_DSN);
 		$tertiary_dsn = DB::parseDSN(SQ_CONF_DB3_DSN);
+		$cache_dsn = Array();
+		if (SQ_CONF_DBCACHE_DSN != '') {
+			$cache_dsn = DB::parseDSN(SQ_CONF_DBCACHE_DSN);
+		}
 
 		// grant to the primary user
 		$grant_sql = 'SELECT sq_grant_access('.$db->quote($primary_dsn['username']).')';
@@ -569,6 +591,27 @@ function grant_secondary_user_perms($verbose=true)
 		if ($verbose) {
 			pre_echo('PGSQL SECONDARY AND TERTIARY USER PERMISSIONS FIXED');
 		}
+
+		// grant to the cache user, if dsn is defined
+		if (!empty($cache_dsn)) {
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+			if ($db->phptype == 'pgsql') {
+				$grant_sql = 'SELECT sq_grant_access('.$db->quote($cache_dsn['username']).')';
+				$result = $db->query($grant_sql);
+				assert_valid_db_result($result);
+
+				if ($verbose) {
+					pre_echo('PGSQL CACHE USER PERMISSIONS FIXED');
+				}
+			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		}
+
+
 	}
 
 }//end grant_secondary_user_perms()
