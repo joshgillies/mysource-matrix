@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.34 2006/06/18 23:57:38 sdanis Exp $
+* $Id: asset_manager.inc,v 1.431.2.35 2006/07/12 04:23:47 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.34 $
+* @version $Revision: 1.431.2.35 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5719,7 +5719,7 @@ class Asset_Manager extends MySource_Object
 							$expanded_users = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid_assetid, Array('user'), FALSE));
 							if (!empty($expanded_users)) {
 								if (isset($roles[$roleid])) {
-									$roles[$roleid] += $expanded_users;
+									$roles[$roleid] = array_merge($roles[$roleid], $expanded_users);
 								} else {
 									$roles[$roleid] = $expanded_users;
 								}
