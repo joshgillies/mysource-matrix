@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.148 2006/07/11 23:35:01 rhoward Exp $
+* $Id: lang_strings.xml,v 1.149 2006/07/12 00:32:37 rhoward Exp $
 *
 */
 
@@ -1007,7 +1007,6 @@
 
 	<string source="trigger_set_design_basic">Set the asset's design to: %s</string>
 	<string source="trigger_set_status">Set the Asset's status to: %1$s&lt;br /&gt;%2$s Set status of dependant parents instead (eg. set the status of a bodycopy DIV's Standard Page parents, instead of itself; if no dependant parents are found, then this option will be ignored and the status set normally).</string>
-	<string source="trigger_set_status">Set the Asset's status to: %s</string>
 	<string source="trigger_increment_version">Increment this component of the Asset's version number: %s</string>
 
 
