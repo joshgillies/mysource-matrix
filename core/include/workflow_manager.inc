@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.89 2006/04/11 00:21:28 skim Exp $
+* $Id: workflow_manager.inc,v 1.90 2006/07/12 03:46:06 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -653,7 +653,7 @@ class Workflow_Manager extends MySource_Object
 									if ($userid == '0') continue;
 									$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
 									if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
-										$can_publish_cond += array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE));
+										$can_publish_cond = array_merge($can_publish_cond, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE)));
 									} else {
 										$can_publish_cond[] = $userid;
 									}
