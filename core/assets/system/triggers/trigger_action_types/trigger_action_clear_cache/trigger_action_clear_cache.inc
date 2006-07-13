@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_clear_cache.inc,v 1.2 2006/03/03 02:57:29 rong Exp $
+* $Id: trigger_action_clear_cache.inc,v 1.3 2006/07/13 03:30:19 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -89,6 +89,7 @@ class Trigger_Action_Clear_Cache extends Trigger_Action
 						'assetid'		=> $id,
 						'level'			=> $settings['level'],
 						'type_codes'	=> $type_code,
+						'delete_all'	=> 'no',
 					);
 			$status_errors = $hh->freestyleHipo('hipo_job_clear_cache', $vars);
 		}
