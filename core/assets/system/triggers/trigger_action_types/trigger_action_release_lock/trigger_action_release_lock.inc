@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_release_lock.inc,v 1.1 2006/07/13 23:46:06 rong Exp $
+* $Id: trigger_action_release_lock.inc,v 1.2 2006/07/13 23:49:25 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,7 +68,6 @@ class Trigger_Action_Release_Lock extends Trigger_Action
 		}
 
 		// release all locks with the same source_lockid prefix
-		error_log('release lock '.$state['asset']->id);
 		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($state['asset']->id, 'all')) {
 			return FALSE;
 		}
