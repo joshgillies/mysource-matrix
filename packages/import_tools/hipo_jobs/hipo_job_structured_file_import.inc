@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.9 2006/06/14 00:20:34 skim Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.10 2006/07/13 03:59:03 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -232,13 +232,14 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 			$body = preg_replace('/align=[a-z]+\s/i', ' ', $body);
 			$body = preg_replace('/<[\/]?st1:[^>]+>/i', ' ', $body);
 			// Vector formats
-			$body = preg_replace('/<v:shapetype [^>]+>/', '', $body);
-			$body = preg_replace('/<v:stroke [^>]+>/', '', $body);
-			$body = preg_replace('/<v:formulars [^>]+>/', '', $body);
-			$body = preg_replace('/<v:f [^>]+>/', '', $body);
-			$body = preg_replace('/<v:path [^>]+>/', '', $body);
-			$body = preg_replace('/<v:rect [^>]+>/', '', $body);
-			$body = preg_replace('/<v:line [^>]+>/', '', $body);
+			$body = preg_replace('/<(\/)?v:shapetype[^>]*>/', '', $body);
+			$body = preg_replace('/<(\/)?v:shape[^>]*>/', '', $body);
+			$body = preg_replace('/<v:stroke[^>]*>/', '', $body);
+			$body = preg_replace('/<(\/)?v:formulas[^>]*>/', '', $body);
+			$body = preg_replace('/<v:f[^>]*>/', '', $body);
+			$body = preg_replace('/<v:path[^>]*>/', '', $body);
+			$body = preg_replace('/<v:rect[^>]*>/', '', $body);
+			$body = preg_replace('/<v:line[^>]*>/', '', $body);
 		}
 
 		// Run HTMLTIDY
@@ -543,7 +544,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 
 			for ($i=$counter; $i < count($matches); $i+=2) {
 				$initial_data[] = Array (
-									'name'		=> strip_tags(str_replace('&nbsp;', ' ', $matches[$i])),
+									'name'		=> $this->_cleanHeading($matches[$i]),
 									'title'		=> $matches[$i],
 									'children'	=> Array(),
 									'data'		=> $matches[$i + 1],
@@ -614,7 +615,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		for ($i = $counter; $i < count($matches); $i += 2) {
 
 			$new_match = Array(
-							'name'	=> strip_tags(str_replace('&nbsp;', ' ', $matches[$i])),
+							'name'	=> $this->_cleanHeading($matches[$i]),
 							'title'	=> $matches[$i],
 							'data'	=> $matches[$i + 1],
 						 );
@@ -864,6 +865,26 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		return TRUE;
 
 	}//end processAdditional()
+
+
+	/**
+	* It returns the cleaned title of the page.
+	*
+	* @param array	$heading	heading HTML
+	*
+	* @return string
+	* @access private
+	*/
+	function _cleanHeading($heading)
+	{
+		$heading = strip_tags($heading);
+		$heading = preg_replace('/(&nbsp;){2,}/', '&nbsp;', $heading);
+		$heading = str_replace('&nbsp;', ' ', $heading);
+		$heading = preg_replace('/ {2,}/', ' ', $heading);
+
+		return $heading;
+
+	}//end _cleanHeading()
 
 
 }//end class
