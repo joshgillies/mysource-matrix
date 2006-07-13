@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.164.2.7 2006/06/26 05:34:50 tbarrett Exp $
+* $Id: mysource.inc,v 1.164.2.8 2006/07/13 00:13:33 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.164.2.7 $
+* @version $Revision: 1.164.2.8 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1806,6 +1806,11 @@ class MySource
 
 			case 'db3':
 				$dsn = SQ_CONF_DB3_DSN;
+			break;
+
+			case 'dbcache':
+				// if empty, use DB2
+				$dsn = (SQ_CONF_DBCACHE_DSN == '') ? SQ_CONF_DB2_DSN : SQ_CONF_DBCACHE_DSN;
 			break;
 
 			default:

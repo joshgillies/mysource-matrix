@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.73.2.5 2006/05/29 06:41:11 tbarrett Exp $
+* $Id: system_config.inc,v 1.73.2.6 2006/07/13 00:13:33 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.73.2.5 $
+* @version $Revision: 1.73.2.6 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -47,6 +47,7 @@ class System_Config extends Config
 						'SQ_CONF_DB_DSN'					=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_DB2_DSN'					=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_DB3_DSN'					=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_DBCACHE_DSN'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
 						'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 1, 'default' => '_admin'),
 						'SQ_CONF_LIMBO_SUFFIX'				=> Array('editable' => 1, 'default' => '_edit'),
@@ -632,13 +633,13 @@ class System_Config extends Config
 
 		$o->openSection(translate('http_header_section_name'));
 				$o->openField(translate('http_header_cacheable_field'));
-  	                                 if ($write_access && $is_root) {
-  	                                         combo_box($class.'[SQ_CONF_SEND_CACHEABLE_HEADER]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_SEND_CACHEABLE_HEADER);
-  	                                 } else {
-  	                                         echo (SQ_CONF_SEND_CACHEABLE_HEADER) ? translate('yes') : translate('no');
-  	                                 }
-  	                                 $o->note(translate('http_header_cacheable_field_note'));
-  	                         $o->closeField();
+									 if ($write_access && $is_root) {
+											 combo_box($class.'[SQ_CONF_SEND_CACHEABLE_HEADER]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_SEND_CACHEABLE_HEADER);
+									 } else {
+											 echo (SQ_CONF_SEND_CACHEABLE_HEADER) ? translate('yes') : translate('no');
+									 }
+									 $o->note(translate('http_header_cacheable_field_note'));
+							 $o->closeField();
 			$o->openField(translate('http_header_last_modified_field'));
 				if ($write_access && $is_root) {
 					combo_box($class.'[SQ_CONF_SEND_LAST_MODIFIED_HEADER]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_SEND_LAST_MODIFIED_HEADER);
