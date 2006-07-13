@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.103.2.8 2006/06/26 01:53:51 skim Exp $
+* $Id: lang_strings.xml,v 1.103.2.9 2006/07/13 03:55:46 rong Exp $
 *
 */
 
@@ -522,6 +522,9 @@
 	<string source="this_asset">This asset</string>
 	<string source="this_asset_and_dependants">This asset and its dependants</string>
 	<string source="this_asset_and_children">This asset and its children</string>
+	<string source="selected_asset">Selected assets</string>
+	<string source="selected_asset_and_dependants">Selected assets and their dependants</string>
+	<string source="selected_asset_and_children">Selected assets and their children</string>
 	<string source="all_asset_types">All Asset Types</string>
 	<string source="no_charactet_set_set">Unkown character set %1$s is currently set for "%2$s"</string>
 	<string source="new_type">New Type</string>
@@ -639,7 +642,7 @@
 	<string source="body_type">Body Type</string>
 	<string source="mozilla_always_uses_iframe">In Mozilla, an iFrame will always be used. This setting only affects Internet Explorer.</string>
 	<string source="all_plugins_selected">All plugins are selected</string>
-    <string source="no_plugins_selected">No plugins are selected</string>
+	<string source="no_plugins_selected">No plugins are selected</string>
 	<string source="thesaurus_used_by_matrix_expand_keywords_plugin">The thesaurus asset used by the Matrix Expand Keywords plugin</string>
 
 	<string source="automated_patching_system">Automated Patching System</string>
@@ -970,6 +973,11 @@
 
 	<string source="trigger_log_name">Log name: %1$s</string>
 
+	<string source="trigger_clear_cache_current_asset">Include Current Asset?</string>
+	<string source="trigger_clear_cache_include_current_asset">Includes the asset that the action is executing on?</string>
+	<string source="trigger_clear_cache_choose_asset">Choose Assets</string>
+	<string source="trigger_clear_cache_choose_asset_selected">Selected Assets</string>
+	<string source="trigger_clear_cache_asset_types_selected">Selected Asset Types</string>
 
 
 	<!-- common single word strings -->
@@ -1788,7 +1796,7 @@ Items to delete: %s</string>
 	<!-- HTTP Headers Strings -->
 	<string source="http_header_section_name">HTTP Headers Settings</string>
 	<string source="http_header_cacheable_field">Send Cacheable Header</string>
-  	<string source="http_header_cacheable_field_note">If enabled, server will send cacheable Cache-Control and Pragma headers.</string>
+	<string source="http_header_cacheable_field_note">If enabled, server will send cacheable Cache-Control and Pragma headers.</string>
 	<string source="http_header_last_modified_field">Send Last-Modified Header</string>
 	<string source="http_header_last_modified_field_note">If enabled, server will send a timestamp indicating when the asset was last modified.</string>
 	<string source="http_header_not_modified_field">Send Not Modified Status-Code</string>

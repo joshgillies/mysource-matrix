@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_clear_cache_edit_fns.inc,v 1.1 2006/02/14 23:28:11 rong Exp $
+* $Id: trigger_action_clear_cache_edit_fns.inc,v 1.1.4.1 2006/07/13 03:55:46 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * Trigger_Action_Clear_Cache_Edit_Fns
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
