@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.46 2006/06/28 01:27:52 sdanis Exp $
+* $Id: cache_manager.inc,v 1.46.2.1 2006/07/13 00:41:26 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.46.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -259,7 +259,7 @@ class Cache_Manager extends Asset
 		}
 		umask($old_umask);
 
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$error = FALSE;
@@ -324,7 +324,7 @@ class Cache_Manager extends Asset
 	{
 		if (!empty($assetids)) {
 
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -367,6 +367,7 @@ class Cache_Manager extends Asset
 	{
 		if (!empty($assetids)) {
 
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			foreach ($assetids as $key => $assetid) {
@@ -387,6 +388,7 @@ class Cache_Manager extends Asset
 						('.implode(' OR ', $in_clauses).')';
 			$result = $db->getAll($sql);
 			assert_valid_db_result($result);
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $result;
 		}
 
@@ -574,7 +576,7 @@ class Cache_Manager extends Asset
 	function _getCache($cache_key, $perm_key, $url)
 	{
 		// to get rid of replication lag if the system has multiple db
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT
@@ -607,7 +609,7 @@ class Cache_Manager extends Asset
 	*/
 	function _deleteCache($cache_key, $perm_key, $url)
 	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -642,7 +644,7 @@ class Cache_Manager extends Asset
 	function _updateCache($cache_key, $perm_key, $url, $expiry_sql, $file_path='', $updated_content='')
 	{
 		// update the expiry time
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'UPDATE
