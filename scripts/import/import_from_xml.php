@@ -7,7 +7,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
@@ -50,14 +50,51 @@ $import_action_outputs = Array();
 foreach ($import_actions['actions'][0]['action'] as $action) {
 
 	// Execute the action
+	printActionId($action['action_id'][0]);
 	if (!execute_import_action($action, $import_action_outputs)) {
-		$action_id = $action['action_id'][0];
-		trigger_error('Action ID, "'.$action_id.'" could not be executed', E_USER_ERROR);
+		printStatus('--');
+		//trigger_error('Action ID, "'.$action_id.'" could not be executed', E_USER_ERROR);
+	} else {
+		printStatus('OK');
 	}
 }
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+
+
+/**
+* Prints the Action ID as a padded string
+*
+* @param string	$action_id	the id of the action
+*
+* @return void
+* @access public
+*/
+function printActionId($action_id)
+{
+	if (strlen($action_id) > 66) {
+		$action_id = substr($action_id, 0, 66).'...';
+	}
+	printf ('%s%'.(70 - strlen($action_id)).'s', $action_id,'');
+
+}//end printActionId()
+
+
+/**
+* Prints the status of the import action
+*
+* @param string	$status	the status of the action
+*
+* @return void
+* @access public
+*/
+function printStatus($status)
+{
+	echo "[ $status ]\n";
+
+}//end printStatus()
 
 ?>
