@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.300 2006/07/10 02:23:03 rong Exp $
+* $Id: asset_edit_interface.inc,v 1.301 2006/07/14 06:34:41 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.300 $
+* @version $Revision: 1.301 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -217,7 +217,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_inline_asset_screen', $active_screen, $owner->name));
 			exit();
 		} else {
-			if (SQ_IN_LIMBO) {
+			if (SQ_IN_LIMBO && $owner->id) {
 					// broadcast the 'entering simple edit'
 					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_enter_simple_edit', $owner);
 			}
