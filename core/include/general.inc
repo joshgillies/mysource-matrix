@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.140.2.1 2006/07/07 05:55:34 tbarrett Exp $
+* $Id: general.inc,v 1.140.2.2 2006/07/14 07:03:20 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140.2.1 $
+* @version $Revision: 1.140.2.2 $
 * @package MySource_Matrix
 */
 
@@ -55,6 +55,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	static $num_errors = 0;
+	$err_msg = strip_tags($err_msg);
 
 	$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
 
