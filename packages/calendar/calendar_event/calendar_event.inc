@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.65 2006/07/14 00:41:03 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.66 2006/07/14 00:43:29 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -242,38 +242,42 @@ class Calendar_Event extends Asset
 		$start_has_date = $this->getStartDate();
 		$end_has_date   = $this->getEndDate();
 
-		// All events must have a starting date at least!
-		if (!$start_has_date) {
-			trigger_localised_error('CAL0009', E_USER_WARNING);
-			return FALSE;
-		}
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
 
-		// cannot have End Date being like '---------- 11:00:00'
-		if (!$end_has_date && $end_has_time) {
-			trigger_localised_error('CAL0010', E_USER_WARNING);
-			return FALSE;
-		}
-
-		// Cannot have an end time if you have no start time
-		if ($end_has_time && (!$start_has_time)) {
-			trigger_localised_error('CAL0011', E_USER_WARNING);
-			return FALSE;
-		}
-
-		// Cannot have an end date and start time if you have no end time
-		if ($end_has_date && $start_has_time && (!$end_has_time)) {
-			trigger_localised_error('CAL0012', E_USER_WARNING);
-			return FALSE;
-		}
-
-		// If an End Date is specified (and we need date component so we can use that to check),
-		// the End Date must be no earlier than the start Date
-		if ($end_has_date) {
-			if (iso8601_ts($end_date) < iso8601_ts($start_date)) {
-				trigger_localised_error('CAL0013', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			// All events must have a starting date at least!
+			if (!$start_has_date) {
+				trigger_localised_error('CAL0009', E_USER_WARNING);
 				return FALSE;
 			}
-		}
+
+			// cannot have End Date being like '---------- 11:00:00'
+			if (!$end_has_date && $end_has_time) {
+				trigger_localised_error('CAL0010', E_USER_WARNING);
+				return FALSE;
+			}
+
+			// Cannot have an end time if you have no start time
+			if ($end_has_time && (!$start_has_time)) {
+				trigger_localised_error('CAL0011', E_USER_WARNING);
+				return FALSE;
+			}
+
+			// Cannot have an end date and start time if you have no end time
+			if ($end_has_date && $start_has_time && (!$end_has_time)) {
+				trigger_localised_error('CAL0012', E_USER_WARNING);
+				return FALSE;
+			}
+
+			// If an End Date is specified (and we need date component so we can use that to check),
+			// the End Date must be no earlier than the start Date
+			if ($end_has_date) {
+				if (iso8601_ts($end_date) < iso8601_ts($start_date)) {
+					trigger_localised_error('CAL0013', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+					return FALSE;
+				}
+			}
+
+		}//end if
 
 		// oh no, we're not using this to display anything... just to use its units extraction :-)
 		$datetime =& new Datetime_Field('', $value='', $params=Array());
