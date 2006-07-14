@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.129 2006/05/28 23:10:51 lwright Exp $
+* $Id: file.inc,v 1.130 2006/07/14 01:13:35 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.129 $
+* @version $Revision: 1.130 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -93,35 +93,41 @@ class File extends Asset
 	{
 		$this->_tmp['file_create_data'] =& $info;
 
+		if (empty($info)) {
+			// Try getting the uploaded file details
+			$info = get_file_upload_info($this->getPrefix());
+		}
+
+		if ($info === FALSE || empty($info)) {
+			// See if they've chosen a pre-uploaded file
+			$edit = $this->getEditFns();
+			$info = $edit->getChosenFileInfo($this->getPrefix());
+		}
+
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
-			// check that a file was uploaded at least and that it succeeded
-			if (empty($info)) {
-				$info = get_file_upload_info($this->getPrefix());
-			}
 			if ($info === FALSE || empty($info)) {
-				$edit = $this->getEditFns();
-				$info = $edit->getChosenFileInfo($this->getPrefix());
-				if ($info === FALSE || empty($info)) {
-					trigger_localised_error('CORE0056', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-					return FALSE;
-				}
+				trigger_localised_error('CORE0056', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+				return FALSE;
 			}
+		}
 
-			// make the info array look like a result from getExistingFile()
-			if (!isset($info['path'])) {
-				$info['path'] = array_get_index($info, 'tmp_name', '');
-			}
-			if (!isset($info['filename'])) {
-				$info['filename'] = array_get_index($info, 'name', '');
-			}
-			if (!$this->validFile($info)) return FALSE;
+		// Make the info array look like a result from getExistingFile()
+		if (!isset($info['path'])) {
+			$info['path'] = array_get_index($info, 'tmp_name', '');
+		}
+		if (!isset($info['filename'])) {
+			$info['filename'] = array_get_index($info, 'name', '');
+		}
 
-			// check that we are not going to have web path conflicts
+		if (!$this->validFile($info)) return FALSE;
+
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
+			// Check that we are not going to have web path conflicts
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			$valid_names = make_valid_web_paths(Array($info['name']));
 			$name = array_shift($valid_names);
 
-			// make sure the new web path is not already is use
+			// Make sure the new web path is not already is use
 			$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
 			if (!empty($bad_paths)) {
 				trigger_localised_error('CORE0086', E_USER_WARNING, $name);
@@ -130,6 +136,7 @@ class File extends Asset
 
 			$this->setAttrValue('name', $name);
 		}//end if
+
 		return parent::create($link);
 
 	}//end create()
@@ -1031,7 +1038,7 @@ class File extends Asset
 			header('Content-Length: '.$existing['size']);
 
 			readfile($existing['path']);
-		}
+		}//end if
 
 	}//end printFrontend()
 
