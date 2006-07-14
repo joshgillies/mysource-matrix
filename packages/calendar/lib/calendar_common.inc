@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.47 2006/06/08 05:31:14 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.48 2006/07/14 00:47:09 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -587,10 +587,10 @@ class Calendar_Common
 	/**
 	* Return true if event $a starts before $b
 	*
-	* @param int	$a	Start date timestamp
-	* @param int	$b	Start date timestamp
+	* @param array	$a	Details of first comparee event
+	* @param array	$b	Details of second comparee event
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	function compareStartDates($a, $b)
@@ -598,6 +598,22 @@ class Calendar_Common
 		return ($a['start_date_ts'] < $b['start_date_ts']) ? -1 : 1;
 
 	}//end compareStartDates()
+
+
+	/**
+	* compare lengths of two events
+	*
+	* @param array	$a	Details of first comparee event
+	* @param array	$b	Details of second comparee event
+	*
+	* @return int
+	* @access public
+	*/
+	function compareEventLengths($a, $b)
+	{
+		return ($b['end_date_ts'] - $b['start_date_ts']) - ($a['end_date_ts'] - $a['start_date_ts']);
+
+	}//end compareEventLengths()
 
 
 	/**
