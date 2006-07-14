@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.130 2006/07/14 01:13:35 tbarrett Exp $
+* $Id: file.inc,v 1.131 2006/07/14 02:20:24 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.131 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,7 +119,9 @@ class File extends Asset
 			$info['filename'] = array_get_index($info, 'name', '');
 		}
 
-		if (!$this->validFile($info)) return FALSE;
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
+			if (!$this->validFile($info)) return FALSE;
+		}
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
 			// Check that we are not going to have web path conflicts
