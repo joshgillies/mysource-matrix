@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.64 2006/06/08 05:10:16 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.65 2006/07/14 00:41:03 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -66,7 +66,7 @@ class Calendar_Event extends Asset
 		if (!parent::_preCreateCheck($link)) return FALSE;
 
 		$name = $this->attr('name');
-		if ($name == '') {
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY) && ($name == '')) {
 			trigger_localised_error('CAL0008', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return FALSE;
 		}
