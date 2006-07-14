@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_prefs.inc,v 1.10 2006/03/16 23:11:46 rong Exp $
+* $Id: file_prefs.inc,v 1.11 2006/07/14 01:13:57 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 class File_Prefs extends Prefs
@@ -226,7 +226,7 @@ class File_Prefs extends Prefs
 				} else {
 					$merged_prefs[$var_name]['protected'] = $prefs1[$var_name]['protected'];
 				}
-			}
+			}//end if
 
 		}//end foreach
 
