@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.554 2006/07/11 00:48:51 skim Exp $
+* $Id: asset.inc,v 1.555 2006/07/14 05:36:40 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.554 $
+* @version $Revision: 1.555 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -362,7 +362,7 @@ class Asset extends MySource_Object
 		$message->send();
 
 		// set the attribute values that have been stored temporarily
-		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+		$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
 		$ok = $this->saveAttributes(TRUE);
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
@@ -404,7 +404,7 @@ class Asset extends MySource_Object
 				}
 			}
 
-			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
 			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['is_dependant'], $link['is_exclusive']);
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
@@ -417,7 +417,7 @@ class Asset extends MySource_Object
 				// has if the parent is not the root folder or the system management folder
 				$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
 
-				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
 				if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow', 'content_tags', 'roles'))) {
 					return $this->_abortCreate($trigger_level_changed);
 				}
@@ -1834,7 +1834,7 @@ class Asset extends MySource_Object
 		// access to save attributes, schemas etc later on
 
 		if (in_array('permissions', $components) || in_array('all', $components)) {
-			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
 
 			$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
 			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
@@ -1880,7 +1880,7 @@ class Asset extends MySource_Object
 			// Setting metadata schemas usually require admin access to the asset.
 			// We do want these cloned in any case though (so that any metadata
 			// values are also cloned), so we will force the run level to apply them
-			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
 
 			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			// apply the schemas from the cloner to the clonee
@@ -1923,7 +1923,7 @@ class Asset extends MySource_Object
 		if (in_array('workflow', $components) || in_array('all', $components)) {
 			// Force the run level to ensure workflow is applied - same reason
 			// as metadata schemas are forced
-			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
 
 			$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 			$schemas = $wfm->getSchemas($this->id);
