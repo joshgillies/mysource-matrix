@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.10.2.4 2006/05/30 06:40:25 rhoward Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.10.2.5 2006/07/17 04:55:02 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10.2.4 $
+* @version $Revision: 1.10.2.5 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -348,7 +348,11 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 					case 'SQ_WYSIWYG_PLUGINS' :
 						$plug1 = explode('|', $prefs1['SQ_WYSIWYG_PLUGINS']['default']);
-						$plug2 = explode('|', $prefs2['SQ_WYSIWYG_PLUGINS']['default']);
+						if (is_array($prefs2['SQ_WYSIWYG_PLUGINS']) && isset($prefs2['SQ_WYSIWYG_PLUGINS']['default'])) {
+							$plug2 = explode('|', $prefs2['SQ_WYSIWYG_PLUGINS']['default']);
+						} else {
+							$plug2 = explode('|', $prefs2['SQ_WYSIWYG_PLUGINS']);
+						}
 						$merged_prefs['SQ_WYSIWYG_PLUGINS']['default'] = implode('|', array_unique(array_merge($plug1, $plug2)));
 					break;
 

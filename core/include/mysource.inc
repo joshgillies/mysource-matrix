@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.164.2.8 2006/07/13 00:13:33 rong Exp $
+* $Id: mysource.inc,v 1.164.2.9 2006/07/17 04:55:02 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.164.2.8 $
+* @version $Revision: 1.164.2.9 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1482,7 +1482,11 @@ class MySource
 					}
 					if ($value_only) {
 						foreach ($final_prefs[$type] as $pref_name => $pref_details) {
-							$final_prefs[$type][$pref_name] = $pref_details['default'];
+							if (is_array($pref_details) && isset($pref_details['default'])) {
+								$final_prefs[$type][$pref_name] = $pref_details['default'];
+							} else {
+								$final_prefs[$type][$pref_name] = $pref_details;
+							}
 						}
 					}
 				}
