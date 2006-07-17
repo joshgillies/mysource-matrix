@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset.inc,v 1.4.2.1 2006/02/10 03:51:48 lwright Exp $
+* $Id: page_password_reset.inc,v 1.4.2.2 2006/07/17 04:17:46 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	Allows a user to reset their password.
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.4.2.1 $
+* @version $Revision: 1.4.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -242,6 +242,7 @@ class Page_Password_Reset extends Page
 		$replacements = Array();
 		if (!isset($_POST['username']) || empty($_POST['username'])) {
 			$replacements['password_reset_error'] = translate('cms_password_reset_message_empty_username');
+			return $this->_buildContents('request', $replacements);
 		} else {
 			$username = $_POST['username'];
 
@@ -289,7 +290,8 @@ class Page_Password_Reset extends Page
 				$email_attr->value = serialize($email_value);
 
 				@$email_attr->sendMail($email_replacements);
-			}
+			} 
+			
 		}//end else
 
 		return $this->_buildContents('request_receipt', $replacements);
@@ -530,11 +532,12 @@ class Page_Password_Reset extends Page
 		if (is_null($parent)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2'); 
 
 			// That's right, delete any existing links.
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($parent->id, $assetid, SQ_LINK_TYPE_1, NULL, 'major', TRUE);
 			foreach ($links as $link) {
-				$parent->deleteLink($link['linkid']);
+				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
 			}
 
 			$hash_value = MD5(implode('::', Array($this->id, $asset->id, $asset->_getName(), (time() * rand()))));
@@ -544,6 +547,7 @@ class Page_Password_Reset extends Page
 				$return_value = $hash_value;
 			}
 
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 
