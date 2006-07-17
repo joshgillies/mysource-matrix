@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset.inc,v 1.6 2006/03/06 00:10:05 tbarrett Exp $
+* $Id: page_password_reset.inc,v 1.7 2006/07/17 03:06:22 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	Allows a user to reset their password.
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -532,11 +532,12 @@ class Page_Password_Reset extends Page
 		if (is_null($parent)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2'); 
 
 			// That's right, delete any existing links.
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($parent->id, $assetid, SQ_LINK_TYPE_1, NULL, 'major', TRUE);
 			foreach ($links as $link) {
-				$parent->deleteLink($link['linkid']);
+				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
 			}
 
 			$hash_value = MD5(implode('::', Array($this->id, $asset->id, $asset->_getName(), (time() * rand()))));
@@ -546,6 +547,7 @@ class Page_Password_Reset extends Page
 				$return_value = $hash_value;
 			}
 
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 
