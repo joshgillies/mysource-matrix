@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.35 2006/07/12 04:23:47 lwright Exp $
+* $Id: asset_manager.inc,v 1.431.2.36 2006/07/17 05:09:20 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.35 $
+* @version $Revision: 1.431.2.36 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4901,21 +4901,15 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		$id_parts = explode(':', $linkid);
 		$minorid_parts = explode(':', $link['minorid']);
-
 		// shadow asset found
-		if (isset($id_parts[1])) {
+		if (isset($minorid_parts[1])) {
 			// if the parent is a bridge, let it handle the delete
 			if (implements_interface($major, 'bridge')) {
 				$result = $major->deleteAssetLink($linkid, $moving);
 				$this->forgetAsset($asset);
 				return $result;
-			}
-		} else if (isset($minorid_parts[1])) {
-			// if the minor is a shadow asset and the major is a normal asset
-			// then we want to delete the link between these two assets
-			if (!implements_interface($major, 'bridge')) {
+			} else {
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -4924,7 +4918,6 @@ class Asset_Manager extends MySource_Object
 							sq_shdw_ast_lnk
 						WHERE
 							linkid = '.$db->quoteSmart($linkid);
-
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
 
