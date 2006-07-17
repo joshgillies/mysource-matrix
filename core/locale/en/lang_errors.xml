@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.37.2.2 2006/06/15 23:36:41 rong Exp $
+* $Id: lang_errors.xml,v 1.37.2.3 2006/07/17 23:06:57 lwright Exp $
 *
 */
 
@@ -1609,6 +1609,7 @@ Full Node Contents :
 	<error code="CORE0246">Metadata field "%1$s" (Id: #%2$s) is marked as not editable; it cannot be set as the field to set</error>
 
 	<!-- Design Customisation Errors -->
-	<error code="CORE0247">Cannot find the design file to print the asset, "%s"</error>
+	<!-- Note: CORE0259: changed from CORE0247 to bring into line with 3.10+ versions -->
+	<error code="CORE0259">Cannot find the design file to print the asset, "%s"</error>
 
 </errors>

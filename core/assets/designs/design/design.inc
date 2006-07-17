@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.104.2.5 2006/05/15 07:03:32 skim Exp $
+* $Id: design.inc,v 1.104.2.6 2006/07/17 23:06:56 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104.2.5 $
+* @version $Revision: 1.104.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -825,7 +825,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 				do {
 					$arr = $GLOBALS['SQ_SYSTEM']->am->getLink($arr['majorid'], NULL, 'design', FALSE, NULL,'minor', FALSE);
 					if (empty($arr)) {
-						trigger_localised_error('CORE0257', E_USER_WARNING, $ASSET->id);
+						trigger_localised_error('CORE0259', E_USER_WARNING, $ASSET->id);
 						break;
 					}
 					$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($arr['majorid']);
