@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.493 2006/07/12 03:46:06 lwright Exp $
+* $Id: asset_manager.inc,v 1.494 2006/07/17 03:08:21 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.493 $
+* @version $Revision: 1.494 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4911,9 +4911,8 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		$id_parts = explode(':', $linkid);
 		$minorid_parts = explode(':', $link['minorid']);
-		if (isset($id_parts[1])) {
+		if (isset($minorid_parts[1])) {
 			// Shadow asset found
 			if (implements_interface($major, 'bridge')) {
 				// Let the bridge handle it
