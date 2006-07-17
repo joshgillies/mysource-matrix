@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.494 2006/07/17 03:08:21 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.495 2006/07/17 05:46:06 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.494 $
+* @version $Revision: 1.495 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7118,7 +7118,7 @@ class Asset_Manager extends MySource_Object
 
 			}
 
-			$where = '('.implode(') OR (', $where_comps).')';
+			$where = '(('.implode(') OR (', $where_comps).'))';
 
 		} else {
 			// No conditions, just stick the treeids query straight into the main query
