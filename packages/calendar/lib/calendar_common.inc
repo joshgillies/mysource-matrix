@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.47.2.1 2006/07/14 00:48:29 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.47.2.2 2006/07/17 02:00:52 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.47.2.1 $
+* @version $Revision: 1.47.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -740,7 +740,7 @@ class Calendar_Common
 	*/
 	function _getTableList()
 	{
-		$base = ($GLOBALS['SQ_SYSTEM']->userSystemAdmin() || $GLOBALS['SQ_SYSTEM']->userRoot()) ? SQ_TABLE_RUNNING_PREFIX.'ast a' : '('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON a.assetid = p.assetid)';
+		$base = ($GLOBALS['SQ_SYSTEM']->userSystemAdmin() || $GLOBALS['SQ_SYSTEM']->userRoot()) ? SQ_TABLE_RUNNING_PREFIX.'ast a' : '('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p ON a.assetid = p.assetid)';
 		return '('.$base.' JOIN ('.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid) ON l.minorid = a.assetid) JOIN '.SQ_TABLE_RUNNING_PREFIX.'cal_date_val cd ON a.assetid = cd.assetid';
 
 	}//end _getTableList()
