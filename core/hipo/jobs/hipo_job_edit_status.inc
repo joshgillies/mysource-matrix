@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.38.2.4 2006/06/23 05:41:01 sdanis Exp $
+* $Id: hipo_job_edit_status.inc,v 1.38.2.5 2006/07/17 05:22:46 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38.2.4 $
+* @version $Revision: 1.38.2.5 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -220,7 +220,9 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		$this->_running_vars['done_assetids'] = Array();
 
 		// internal messages being stored
-		$this->_running_vars['messages']     = Array();
+		if (!isset($this->_running_vars['messages']) || empty($this->_running_vars['messages'])) {
+			$this->_running_vars['messages']     = Array();
+		}
 
 		unset($asset);
 
@@ -405,7 +407,8 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 					// this asset has dependants, so we are going to spawn another edit_status hipo
 					// to take care of processing them
 					if (!empty($dependants) && empty($this->_running_vars['process_dependants'])) {
-						if ($code_name = $this->spawnDependantStatusHipo($asset->id, $new_status)) {
+						$messages = array_merge($this->_running_vars['messages'], $ms->queueContents());
+						if ($code_name = $this->spawnDependantStatusHipo($asset->id, $new_status, $messages)) {
 							$this->_running_vars['dependant_hipo_job'] = $code_name;
 						}
 					}
@@ -448,11 +451,12 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	*
 	* @param string	$assetid	The ID of the asset to process dependants of
 	* @param int	$new_status	The status to change dependants to
+	* @param array	$messages	The current message queue
 	*
 	* @return string
 	* @access private
 	*/
-	function spawnDependantStatusHipo($assetid, $new_status)
+	function spawnDependantStatusHipo($assetid, $new_status, $messages)
 	{
 		$init_hipo = new Hipo_Job_Edit_Status();
 
@@ -465,6 +469,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 						'assetid'				=> $assetid,
 						'new_status'			=> $new_status,
 						'process_dependants'	=> TRUE,
+						'messages'				=> $messages,
 					);
 
 		$init_hipo->setRunningVars($running_vars);
