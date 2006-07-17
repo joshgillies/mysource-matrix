@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.24 2006/06/23 01:57:00 rong Exp $
+* $Id: text.inc,v 1.25 2006/07/17 01:20:22 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package Fudge
 * @subpackage Text
 */
@@ -84,7 +84,8 @@ function _replace_keywords_recursive(&$text, &$replacements)
 			$key = _replace_keywords_recursive($key, $replacements);
 			$r[$key] = _replace_keywords_recursive($value, $replacements);
 		}
-		return $r;
+		$text = $r;
+		return $text;
 	}
 	foreach ($replacements as $keyword => $replacement) {
 		if ($keyword == '') continue;
