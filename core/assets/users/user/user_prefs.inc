@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.5 2006/03/16 23:18:31 rong Exp $
+* $Id: user_prefs.inc,v 1.5.2.1 2006/07/17 05:09:13 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/duration/duration.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
@@ -291,7 +291,7 @@ class User_Prefs extends Prefs
 			// Follow the princple that the most-open option (the one with the check disabled,
 			// or with the longest timeout) wins.
 			$session_settings_1 = $prefs1['SQ_USER_SESSION_PREFS']['default'];
-			if (isset($prefs2['SQ_USER_SESSION_PREFS']['default'])) {
+			if (is_array($prefs2['SQ_USER_SESSION_PREFS']) && isset($prefs2['SQ_USER_SESSION_PREFS']['default'])) {
 				$session_settings_2 = $prefs2['SQ_USER_SESSION_PREFS']['default'];
 			} else {
 				$session_settings_2 = $prefs2['SQ_USER_SESSION_PREFS'];
@@ -310,7 +310,7 @@ class User_Prefs extends Prefs
 
 			// asset map settings merge get the common
 			$asset_map_settings1 = $prefs1['SQ_USER_ASSET_MAP_LINEAGE']['default'];
-			if (is_array($prefs2['SQ_USER_ASSET_MAP_LINEAGE'])) {
+			if (is_array($prefs2['SQ_USER_ASSET_MAP_LINEAGE']) && isset($prefs2['SQ_USER_ASSET_MAP_LINEAGE']['default'])) {
 				$asset_map_settings2 = $prefs2['SQ_USER_ASSET_MAP_LINEAGE']['default'];
 			} else {
 				$asset_map_settings2 = $prefs2['SQ_USER_ASSET_MAP_LINEAGE'];
