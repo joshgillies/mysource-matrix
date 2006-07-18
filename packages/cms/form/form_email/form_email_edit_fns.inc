@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.68.2.2 2006/06/20 01:37:19 rong Exp $
+* $Id: form_email_edit_fns.inc,v 1.68.2.3 2006/07/18 01:52:33 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.68.2.2 $
+* @version $Revision: 1.68.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -446,7 +446,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				return FALSE;
 			}
 
-			$submission_link =& $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $delete_assetid, SQ_LINK_TYPE_3);
+			$submission_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $delete_assetid, SQ_LINK_TYPE_3);
 			if (!$submission_link) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -465,7 +465,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
-		}
+		}//end foreach
 
 		// now release the links lock on the form itself
 		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'links')) {
