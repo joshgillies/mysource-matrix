@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.27 2006/04/09 23:04:19 sdanis Exp $
+* $Id: permissions.inc,v 1.28 2006/07/18 05:12:02 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 
@@ -48,7 +48,23 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 	$prefix = $owner->getPrefix();
 	$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
 
-	if (empty($perms)) return FALSE;
+	$direct = Array();
+
+	foreach ($perms as $title => $perm) {
+		$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
+
+		foreach ($permissions as $userid => $granted) {
+			if (!isset($direct[$perm][$granted])) {
+				$direct[$perm][$granted] = Array();
+			}
+			$direct[$perm][$granted][] = $userid;
+		}
+
+		if (!empty($direct[$perm])) ksort($direct[$perm]);
+	}
+
+	// No permissions set at all for this asset?
+	if (empty($direct)) return FALSE;
 
 	$o->openSection(translate('permissions'));
 		$o->openField('&nbsp;');
@@ -67,22 +83,10 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 				</tr>
 		<?php
 
+	// Print out the permissions, then
 	foreach ($perms as $title => $perm) {
-
-		$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
-
-		$direct = Array();
-		foreach ($permissions as $userid => $granted) {
-			if (!isset($direct[$granted])) {
-				$direct[$granted] = Array();
-			}
-			$direct[$granted][] = $userid;
-		}
-		ksort($direct);
-		if (empty($direct)) continue;
-
-		if (!empty($direct)) {
-			foreach ($direct as $granted => $userids) {
+		if (!empty($direct[$perm])) {
+			foreach ($direct[$perm] as $granted => $userids) {
 				foreach ($userids as $userid) {
 					if ($userid) {
 						$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), FALSE);
@@ -96,7 +100,7 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 					?>
 						</td>
 						<td class="sq-backend-table-cell">
-							<?php echo $title.' Access'?>
+							<?php echo $title.' Permission'?>
 						</td>
 						<td class="sq-backend-table-cell" align="right">
 							<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>; font-weight:bold;"><?php echo (($granted == '0') ? translate('denied') : translate('granted')) ?></span>

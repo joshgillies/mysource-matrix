@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.20 2006/06/05 00:48:00 lwright Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.21 2006/07/18 05:12:02 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -604,6 +604,15 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 			$step_data['complete']     = false;
 		}
 
+		if ($this->_canSkipCascadeSteps($parent_asset->id)) {
+			$this->skipStep(4);
+			$this->skipStep(5);
+			$this->skipStep(6);
+			$this->skipStep(7);
+			$this->skipStep(8);
+			$this->skipStep(9);
+		}
+
 		return true;
 
 	}//end processCloneAssets()
@@ -789,6 +798,49 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		return true;
 
 	}//end processInterface()
+
+
+	/**
+	* Returns true if parent asset has nothing to cascade
+	* checked settings are: permissions, workflow sch, metadata sch, tag links
+	*
+	* @param string	$assetid	Id of the asset that is being moved
+	* @param string	$parentid	Id of the new parent asset
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _canSkipCascadeSteps($parentid)
+	{
+		// Permissions
+		$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
+		foreach ($perms as $title => $perm) {
+			$ppermissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($parentid, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
+			if (!empty($ppermissions)) return FALSE;
+		}
+
+		// Workflow Schemas
+		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$pschemas = $wfm->getSchemas($parentid);
+		if (!empty($pschemas)) return FALSE;
+
+		// Metadata Schemas
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$pschemas = $mm->getSchemas($parentid);
+		if (!empty($pschemas)) return FALSE;
+
+		// Tag links
+		$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
+		$ptls = $tag_manager->getTagLinks($parentid);
+		if (count($ptls) != 0) return FALSE;
+
+		// Roles
+		$proles = $GLOBALS['SQ_SYSTEM']->am->getRole($parentid);
+		if (!empty($proles)) return FALSE;
+
+		return TRUE;
+
+	}//end _canSkipCascadeSteps()
 
 
 	/**
