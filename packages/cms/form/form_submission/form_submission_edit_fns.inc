@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.15 2006/03/24 01:12:08 sdanis Exp $
+* $Id: form_submission_edit_fns.inc,v 1.15.2.1 2006/07/18 01:24:16 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -74,6 +74,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$wa = $asset->writeAccess('attributes');
+		$is_editable_q = FALSE;
 
 		$answers = $asset->attr('attributes');
 		reset($answers['answers']);
@@ -91,6 +92,9 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		}
 		foreach ($form->attr('sort_order') as $q_id) {
 			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_id);
+			if ($q->isEditable() && !$is_editable_q) {
+				$is_editable_q = TRUE;
+			}
 			if (isset($section_questions[$form_id][$q_id])) {
 				$q->setValue($section_questions[$form_id][$q_id]['answer']);
 			}
@@ -134,6 +138,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 			}
 			$o->closeSection();
 		}
+		return $wa && $is_editable_q;
 
 	}//end paintSubmissionDetails()
 
@@ -174,7 +179,8 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 			$section_questions[$section_id][$q_id] = $details;
 		}
 
-		for (reset($unanswered_questions); $q =& current($unanswered_questions); next($unanswered_questions)) {
+		for ($i = 0; $i < count($unanswered_questions); $i++) {
+			$q =& $unanswered_questions[$i];
 			if (!$q->isEditable()) continue;
 			$q->setAttrValue('is_required', FALSE); // temporarily
 			$q->populate();
