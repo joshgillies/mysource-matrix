@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.72 2006/06/20 01:34:22 rong Exp $
+* $Id: form_email_edit_fns.inc,v 1.73 2006/07/18 01:10:55 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -447,7 +447,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				return FALSE;
 			}
 
-			$submission_link =& $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $delete_assetid, SQ_LINK_TYPE_3);
+			$submission_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $delete_assetid, SQ_LINK_TYPE_3);
 			if (!$submission_link) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
