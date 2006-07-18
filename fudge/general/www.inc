@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.19.2.1 2006/03/27 23:30:30 rong Exp $
+* $Id: www.inc,v 1.19.2.2 2006/07/18 04:05:11 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19.2.1 $
+* @version $Revision: 1.19.2.2 $
 * @package Fudge
 * @subpackage General
 */
@@ -115,9 +115,22 @@ function relative_href($from,$to)
 */
 function valid_email($e)
 {
-	if (!is_string($e)) return false;
+	if (!is_string($e)) return FALSE;
 
-	return preg_match('/^[a-zA-Z]+(([\'\,\.\- ][a-zA-Z ])?[a-zA-Z]*)*\s+<([\da-zA-Z][-.\w]*[\d_a-zA-Z-]@[\da-zA-Z][-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})>$|^([\da-zA-Z][-.\w\']*[\d_a-zA-Z-]@[\da-zA-Z][\'-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})$/', $e);
+	$local = '\da-zA-Z-_+';
+	// dot character cannot be the first or last character in the local-part.
+	$local_middle = $local.'.\w';
+
+	if (preg_match('/^[a-zA-Z]+(([\'\,\.\- ][a-zA-Z ])?[a-zA-Z]*)*\s+<(['.$local.']['.$local_middle.']*['.$local.']@[\da-zA-Z][-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})>$/', $e)) {
+		// matches email with display name, for example, 'Someone <some.one@squiz.net>'
+		return TRUE;
+	} else if (preg_match('/^(['.$local.']['.$local_middle.'\']*['.$local.']@[\da-zA-Z][\'-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})$/', $e)) {
+		// matches normal email address
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+
 
 }//end valid_email()
 
