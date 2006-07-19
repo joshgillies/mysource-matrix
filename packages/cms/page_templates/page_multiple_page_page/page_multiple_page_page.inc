@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page_page.inc,v 1.10 2006/06/07 23:16:41 lwright Exp $
+* $Id: page_multiple_page_page.inc,v 1.10.2.1 2006/07/19 01:41:59 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -203,12 +203,12 @@ class Page_Multiple_Page_Page extends Bodycopy
 		// Multiple page page has no metadata screen, so it should always use
 		// its parent's metadata
 		if (preg_match('|^asset_metadata_|', $value)) {
-			$replacement = NULL;
+			$replacement = '%'.$value.'%';
 		} else {
 			$replacement = parent::getKeywordReplacement($value);
 		}
 
-		if (is_null($replacement)) {
+		if ($replacement == '%'.$value.'%') {
 			$parent = $this->getMultiplePageAsset();
 			$replacement = $parent->getKeywordReplacement($value);
 		}
