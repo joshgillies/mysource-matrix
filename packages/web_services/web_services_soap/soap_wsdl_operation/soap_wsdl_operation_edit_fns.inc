@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation_edit_fns.inc,v 1.1 2006/07/18 06:41:55 bcaldwell Exp $
+* $Id: soap_wsdl_operation_edit_fns.inc,v 1.2 2006/07/19 00:30:02 bcaldwell Exp $
 *
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element/soap_wsdl_element_edit_fns.inc';
 
 /**
 * SOAP_WSDL_Operation_Edit_Fns
@@ -32,11 +32,11 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
-class SOAP_WSDL_Operation_Edit_Fns extends Asset_Edit_Fns
+class SOAP_WSDL_Operation_Edit_Fns extends SOAP_WSDL_Element_Edit_Fns
 {
 
 
@@ -44,11 +44,11 @@ class SOAP_WSDL_Operation_Edit_Fns extends Asset_Edit_Fns
 	* Constructor
 	*
 	*/
-	function SOAP_WSDL_Operation_Edit_Fns()
+	/*function SOAP_WSDL_Operation_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
 
-	}//end constructor
+	}//end constructor*/
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_schema.inc,v 1.1 2006/07/18 06:41:56 bcaldwell Exp $
+* $Id: soap_wsdl_schema.inc,v 1.2 2006/07/19 00:30:03 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once 'SOAP/Client.php';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -170,13 +170,41 @@ class SOAP_WSDL_Schema extends Asset
 
 		$get_element_func = 'getWsdl'.ucwords($element_type).'Asset';
 		if (method_exists($this, $get_element_func)) {
-			return $this->$get_element_func($element_name);
+			return $this->$get_element_func($shadowid);
 		}
 
 		$null = NULL;
 		return $null;
 
 	}//end getAsset()
+
+
+	/**
+	* Get details of a link with the specified characteristics
+	*
+	* @param int		$assetid			id of the the $side_of_link asset
+	* @param int		$link_type			integer that should be a single integer of the SQ_LINK_* constants
+	* @param mixed		$type_code			the type of asset that is linked
+	*										(eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding an asset that
+	*										is just a $type_code or potentially an inherited type
+	*										or $type_code and any of it's sub-classes
+	* @param string		$value				the value that is associated with this link
+	* @param string		$side_of_link		Which side of the link this (the current) asset
+	*										is on ('major' or 'minor')
+	* @param boolean	$exclusive			The exclusive status for the link must be
+	*										this (if not NULL)
+	*
+	* @return array
+	* @access public
+	*/
+	function getLink($assetid, $link_type=NULL, $type_code='', $strict_type_code=TRUE, $value=NULL, $side_of_link='major', $exclusive=NULL)
+	{
+		return Array();
+
+	}//end getLink()
 
 
 	/**
@@ -393,13 +421,13 @@ class SOAP_WSDL_Schema extends Asset
 
 	/**
 	*/
-	function &getWsdlOperationAsset($operation_name)
+	function &getWsdlOperationAsset($operation_assetid)
 	{
-		if (empty($operation_name)) return $null = NULL;
+		if (empty($operation_assetid)) return $null = NULL;
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('soap_wsdl_operation');
 
-		$operation =& new SOAP_WSDL_Operation($operation_name);
+		$operation =& new SOAP_WSDL_Operation($operation_assetid);
 		return $operation;
 
 	}//end getWsdlOperationAsset()

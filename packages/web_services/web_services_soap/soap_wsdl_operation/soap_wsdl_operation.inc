@@ -18,13 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.1 2006/07/18 06:41:55 bcaldwell Exp $
+* $Id: soap_wsdl_operation.inc,v 1.2 2006/07/19 00:30:02 bcaldwell Exp $
 *
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset.inc';
-require_once 'SOAP/Client.php';
+require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element/soap_wsdl_element.inc';
 
 
 /**
@@ -34,28 +33,29 @@ require_once 'SOAP/Client.php';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
-class SOAP_WSDL_Operation extends Asset
+class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 {
 
 
 	/**
-	* Constructor
+	* Attempts to load all the information for this asset
 	*
-	* @param string	$assetid	the name of the operation
+	* @param string	$assetid	The id of this asset
 	*
+	* @access private
+	* @return boolean
 	*/
-	function SOAP_WSDL_Operation($assetid=0)
+	function loadElement($assetid)
 	{
-		$this->Asset(0);
+		if (!parent::loadElement($assetid)) return FALSE;
 
-		// the name of the operation is very important!
 		$this->setAttrValue('operation', $assetid);
 
-	}//end constructor
+	}//end loadElement()
 
 
 	/**
