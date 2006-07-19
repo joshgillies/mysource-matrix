@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_data_dirs.php,v 1.3 2006/07/10 05:47:05 lwright Exp $
+* $Id: upgrade_data_dirs.php,v 1.4 2006/07/19 00:08:33 skim Exp $
 *
 */
 
 /**
 *
 * @author Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -36,7 +36,7 @@ if ((php_sapi_name() != 'cli')) {
 require_once 'Console/Getopt.php';
 
 $shortopt = 's:';
-$longopt = Array('report-only', 'start-upgrade', 'show-details');
+$longopt = Array('report-only', 'start-upgrade', 'show-details', 'fix-lookups');
 
 $args = Console_Getopt::readPHPArgv();
 array_shift($args);
@@ -46,6 +46,7 @@ if (empty($options[0])) usage();
 $REPORT_ONLY = FALSE;
 $START_UPGRADE = FALSE;
 $SHOW_DETAILS = FALSE;
+$FIX_LOOKUPS = FALSE;
 $_SYSTEM_ROOT = '';
 foreach ($options[0] as $option) {
 	switch ($option[0]) {
@@ -63,6 +64,9 @@ foreach ($options[0] as $option) {
 		case '--show-details':
 			$SHOW_DETAILS = TRUE;
 		break;
+		case '--fix-lookups':
+			$FIX_LOOKUPS = TRUE;
+		break;
 	}
 
 }
@@ -76,7 +80,7 @@ include_once $_SYSTEM_ROOT.'/data/private/conf/main.inc';
 
 $data_dirs = Array('/data/private/assets', '/data/public/assets', '/data/file_repository/assets');
 $lookup_tables = Array('sq_ast_lookup', 'sq_ast_lookup_value', 'sq_ast_lookup_remap');
-$skip_dirs = Array('.', '..', 'CVS');
+$skip_dirs = Array('.stop_pruning', '.cvsignore', '.', '..', 'CVS');
 
 $log = read_log();
 $count = Array(
@@ -99,6 +103,56 @@ $count = Array(
 			'sq_ast_lookup_remap'		=> 0,
 			'sq_ast_lookup_remap_ex'	=> 0,
 		 );
+
+
+// Fix wrong lookup values due to the wrong hash function
+if ($FIX_LOOKUPS) {
+	require_once 'DB.php';
+	$db = NULL;
+	$db =& DB::connect(SQ_CONF_DB2_DSN);
+	if (PEAR::isError($db)) {
+		print_log("[ERROR Failed to connect to database] ".$db->getMessage(), 0, TRUE);
+		$db->disconnect();
+		exit();
+	}
+	$db->autoCommit(FALSE);
+
+
+	// Process private/public assets data directories
+	foreach ($data_dirs as $data_path) {
+		if ($dh = opendir(SQ_SYSTEM_ROOT.$data_path)) {
+			while (false !== ($asset_type = readdir($dh))) {
+				if (array_search($asset_type, $skip_dirs) !== FALSE) continue;
+
+				// $file == asset type
+				if ($dh2 = opendir(SQ_SYSTEM_ROOT.$data_path.'/'.$asset_type)) {
+					while (false !== ($hash = readdir($dh2))) {
+						if (array_search($hash, $skip_dirs) !== FALSE) continue;
+
+						// $file == asset type
+						if ($dh3 = opendir(SQ_SYSTEM_ROOT.$data_path.'/'.$asset_type.'/'.$hash)) {
+							while (false !== ($assetid = readdir($dh3))) {
+								if (array_search($assetid, $skip_dirs) !== FALSE) continue;
+
+								fix_lookups($asset_type, $hash, $assetid);
+
+							}//end while assetid
+							closedir($dh3);
+
+						}
+					}//end while hash
+					closedir($dh2);
+
+				}
+			}//end while asset_type
+
+			closedir($dh);
+		}//end if opendir
+
+	}//end foreach()
+	$db->disconnect();
+	exit();
+}
 
 generate_report();
 if (!$START_UPGRADE) exit();
@@ -145,6 +199,9 @@ $db->disconnect();
 
 /**
 * Process data directories for assets
+*
+* @return void
+* @access public
 */
 function process($base_dir, $curr_dir, $handle_file_vers=FALSE)
 {
@@ -160,27 +217,24 @@ function process($base_dir, $curr_dir, $handle_file_vers=FALSE)
 			// Assumption. No assetid starts with zero
 			if (substr($assetid, 0, 1) == '0') continue;
 
-			//if (is_dir($SYSTEM_ROOT.$base_dir.'/'.$curr_dir.'/'.$assetid)) {
+			$hash = get_asset_hash($assetid);
+			$old_dir_path = SQ_SYSTEM_ROOT.$base_dir.'/'.$curr_dir.'/'.$assetid;
+			$new_dir_path = SQ_SYSTEM_ROOT.$base_dir.'/'.$curr_dir.'/'.$hash.'/'.$assetid;
 
-				$hash = get_asset_hash($assetid);
-				$old_dir_path = SQ_SYSTEM_ROOT.$base_dir.'/'.$curr_dir.'/'.$assetid;
-				$new_dir_path = SQ_SYSTEM_ROOT.$base_dir.'/'.$curr_dir.'/'.$hash.'/'.$assetid;
-
-				if (_copy_over_folder($old_dir_path, $new_dir_path)) {
-					if ($base_dir == '/data/private/assets') {
-						$count['data_private_count']++;
-					} else if ($base_dir == '/data/public/assets') {
-						$count['data_public_count']++;
-						_process_public_dir_lookup($base_dir, $curr_dir, $assetid);
-					}
-
-					print_log("[SUCCESS] $old_dir_path", 1);
-				} else {
-					_generate_result_report();
-					exit();
+			if (_copy_over_folder($old_dir_path, $new_dir_path)) {
+				if ($base_dir == '/data/private/assets') {
+					$count['data_private_count']++;
+				} else if ($base_dir == '/data/public/assets') {
+					$count['data_public_count']++;
+					_process_public_dir_lookup($base_dir, $curr_dir, $assetid);
 				}
 
-			//}//end if
+				print_log("[SUCCESS] $old_dir_path", 1);
+			} else {
+				_generate_result_report();
+				exit();
+			}
+
 
 		}//end while readdir
 
@@ -288,6 +342,104 @@ function process_file_versioning($base_dir, $curr_dir)
 	}//end if
 
 }//end process_file_versioning()
+
+
+/**
+* Fix asset lookup values generated due to the wrong hash function
+*
+* @return void
+* @access public
+*/
+function fix_lookups($asset_type, $hash, $assetid)
+{
+	global $data_dirs, $skip_dirs, $log, $db, $count;
+	$sql = 'SELECT * FROM sq_ast_lookup WHERE assetid = '.$db->quoteSmart($assetid).';';
+	$result =& $db->getAssoc($sql);
+	$updated_url = Array();
+	foreach ($result as $url => $data) {
+		if (($index = strpos($url, '/'.$assetid.'/')) !== FALSE) {
+			$old_hash = substr($url, $index - 4, 4);
+			if (($old_hash != $hash) && (preg_match('/\d{4}/', $old_hash))) {
+				$new_url = substr($url, 0, ($index - 4)).$hash.substr($url, $index);
+
+				// Fix lookup table
+				$sql = 'UPDATE
+							sq_ast_lookup
+						SET
+							url = '.$db->quoteSmart($new_url).'
+						WHERE
+							url = '.$db->quoteSmart($url);
+
+				$result =& $db->query('BEGIN');
+				$result =& $db->query($sql);
+				if (PEAR::isError($result)) {
+					print_log($result->getMessage(), 0, TRUE);
+					$db->rollback();
+				} else {
+					$db->commit();
+					print_log("[FIX LOOKUP SUCCESS sq_ast_lookup]\nFROM: $url\nTO  : $new_url\n", 0);
+					$updated_url[$url] = $new_url;
+				}
+
+			}
+		}
+	}
+
+	if (!empty($updated_url)) {
+		foreach ($updated_url as $url => $new_url) {
+			foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup_remap') as $table) {
+
+				if ($table == 'sq_ast_lookup_value') {
+					$sql = 'SELECT * FROM '.$table.' WHERE url = '.$db->quoteSmart($url).';';
+				} else if ($table == 'sq_ast_lookup_remap') {
+					$sql = 'SELECT * FROM '.$table.' WHERE url LIKE '.$db->quoteSmart('%'.$url).';';
+				}
+
+				$result =& $db->getAssoc($sql);
+				if (PEAR::isError($result)) {
+					echo "$sql\n";
+					print_log($result->getMessage(), 0, TRUE);
+				} else {
+					foreach ($result as $key => $data) {
+
+						if ($table == 'sq_ast_lookup_value') {
+							$sql = 'UPDATE
+										'.$table.'
+									SET
+										url = '.$db->quoteSmart($new_url).'
+									WHERE
+										url = '.$db->quoteSmart($key);
+						} else if ($table == 'sq_ast_lookup_remap') {
+							$new_url = str_replace($url, $new_url, $key);
+							$sql = 'UPDATE
+										'.$table.'
+									SET
+										url = '.$db->quoteSmart($new_url).'
+									WHERE
+										url = '.$db->quoteSmart($key);
+						}
+
+						$result =& $db->query('BEGIN');
+						$result =& $db->query($sql);
+						if (PEAR::isError($result)) {
+							print_log($result->getMessage(), 0, TRUE);
+							$db->rollback();
+						} else {
+							if ($table == 'sq_ast_lookup_value') {
+								print_log("[FIX LOOKUP SUCCESS sq_ast_lookup_value]\nFROM: $key\nTO  : $new_url\n", 0);
+							} else if ($table == 'sq_ast_lookup_remap') {
+								print_log("[FIX LOOKUP SUCCESS sq_ast_lookup_remap]\nFROM: $key\nTO  : $new_url\n", 0);
+							}
+							$db->commit();
+						}
+					}
+				}
+			}
+		}
+
+	}//end if updated_url
+
+}//end fix_lookups()
 
 
 /**
@@ -444,7 +596,8 @@ function usage()
 	echo "USAGE: upgrade_data_dirs.php -s <system_root> [--start-upgrade] [--report-only] [--show-details]\n\n";
 	echo "--start-upgrade : This option should be specified to start the upgrade\n";
 	echo "--report-only   : The script generates the report only without any changes\n";
-	echo "--show-details  : Prints the detailed progress\n\n";
+	echo "--show-details  : Prints the detailed progress\n";
+	echo "--fix-lookups   : Use only if the script ran with the wrong hash function\n\n";
 	echo "*************************************************************************\n";
 	echo "*    DON'T FORGET TO BACK UP YOUR SYSTEM BEFORE YOU RUN THIS SCRIPT     *\n";
 	echo "*************************************************************************\n";
