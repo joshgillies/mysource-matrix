@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_schema.inc,v 1.2 2006/07/19 00:30:03 bcaldwell Exp $
+* $Id: soap_wsdl_schema.inc,v 1.3 2006/07/19 01:12:56 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once 'SOAP/Client.php';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -170,7 +170,7 @@ class SOAP_WSDL_Schema extends Asset
 
 		$get_element_func = 'getWsdl'.ucwords($element_type).'Asset';
 		if (method_exists($this, $get_element_func)) {
-			return $this->$get_element_func($shadowid);
+			return $this->$get_element_func($shadowid, $element_name);
 		}
 
 		$null = NULL;
@@ -421,13 +421,13 @@ class SOAP_WSDL_Schema extends Asset
 
 	/**
 	*/
-	function &getWsdlOperationAsset($operation_assetid)
+	function &getWsdlOperationAsset($operation_assetid, $operation_name)
 	{
 		if (empty($operation_assetid)) return $null = NULL;
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('soap_wsdl_operation');
 
-		$operation =& new SOAP_WSDL_Operation($operation_assetid);
+		$operation =& new SOAP_WSDL_Operation($operation_assetid, $operation_name);
 		return $operation;
 
 	}//end getWsdlOperationAsset()

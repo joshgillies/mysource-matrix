@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.2 2006/07/19 00:30:02 bcaldwell Exp $
+* $Id: soap_wsdl_operation.inc,v 1.3 2006/07/19 01:12:56 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -42,20 +42,33 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 
 
 	/**
-	* Attempts to load all the information for this asset
+	* Constructor
 	*
-	* @param string	$assetid	The id of this asset
-	*
-	* @access private
-	* @return boolean
 	*/
-	function loadElement($assetid)
+	function SOAP_WSDL_Operation($assetid, $operation)
 	{
-		if (!parent::loadElement($assetid)) return FALSE;
+		if (empty($operation)) return;
+		parent::SOAP_WSDL_Element($assetid);
 
-		$this->setAttrValue('operation', $assetid);
+		// the name of this operation
+		$this->setAttrValue('operation', $operation);
 
-	}//end loadElement()
+	}//end SOAP_WSDL_Operation()
+
+
+	/**
+	*/
+	function call($parameters)
+	{
+		$operation = $this->attr('operation');
+		if (empty($operation)) return NULL;
+
+		$bridge = $this->getBridge();
+		if (is_null($bridge)) return NULL;
+
+		return $bridge->callWsdlOperation($operation, $parameters);
+
+	}//end call()
 
 
 	/**

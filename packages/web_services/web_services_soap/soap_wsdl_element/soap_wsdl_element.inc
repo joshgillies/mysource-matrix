@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_element.inc,v 1.1 2006/07/19 00:29:02 bcaldwell Exp $
+* $Id: soap_wsdl_element.inc,v 1.2 2006/07/19 01:12:56 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once 'SOAP/Client.php';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
