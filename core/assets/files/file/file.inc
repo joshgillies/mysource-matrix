@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.131 2006/07/14 02:20:24 tbarrett Exp $
+* $Id: file.inc,v 1.132 2006/07/20 06:07:19 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.132 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -980,6 +980,9 @@ class File extends Asset
 	/**
 	* Prints out the frontend for this file with no design
 	*
+	* This function only prints out the header information
+	* according to the permission and file type
+	*
 	* @return void
 	* @access public
 	*/
@@ -1039,10 +1042,28 @@ class File extends Asset
 			header('Content-Disposition: inline; filename='.$existing['filename'].';');
 			header('Content-Length: '.$existing['size']);
 
-			readfile($existing['path']);
+			$this->_printFrontendFile($existing);
+
 		}//end if
 
 	}//end printFrontend()
+
+
+	/**
+	* Prints out the frontend for this file with no design
+	*
+	* This function actually sends the content of the file to the
+	* frontend. The way it sends to the browser can vary with the
+	* type of the file. It also may send any extra header infomation needed.
+	*
+	* @return void
+	* @access private
+	*/
+	function _printFrontendFile(&$info)
+	{
+		readfile($info['path']);
+
+	}//end _printFrontendFile()
 
 
 	/**
