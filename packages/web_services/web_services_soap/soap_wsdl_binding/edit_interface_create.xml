@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_create.xml,v 1.1 2006/07/18 06:41:55 bcaldwell Exp $
+* $Id: edit_interface_create.xml,v 1.2 2006/07/20 04:57:31 bcaldwell Exp $
 *
 */
 -->
 
 <contents screen="details">
 	<section name="Details">
-		<field attribute="wsdl_uri" />
+		<field attribute="binding" />
 	</section>
 </contents>

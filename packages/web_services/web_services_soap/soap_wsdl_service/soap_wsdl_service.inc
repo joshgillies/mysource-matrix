@@ -18,13 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_service.inc,v 1.1 2006/07/18 06:41:56 bcaldwell Exp $
+* $Id: soap_wsdl_service.inc,v 1.2 2006/07/20 04:57:31 bcaldwell Exp $
 *
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset.inc';
-require_once 'SOAP/Client.php';
+require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element/soap_wsdl_element.inc';
 
 
 /**
@@ -34,88 +33,84 @@ require_once 'SOAP/Client.php';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
-class SOAP_WSDL_Service extends Asset
+class SOAP_WSDL_Service extends SOAP_WSDL_Element
 {
 
 
-	// ---------- {{{ START ASSET FUNCTIONS ---------- //
-
-
 	/**
-	* Constructor
+	* Attempts to load all the information for this asset
 	*
-	* @param int	$assetid	the asset id to be loaded
+	* @param string	$assetid	The id of this asset
 	*
-	*/
-	function SOAP_WSDL_Service($assetid=0)
-	{
-		$this->Asset($assetid);
-
-	}//end constructor
-
-
-	/**
-	* Get the value of an attribute
-	*
-	* @param string	$name	the name of the attribute whose value you want to get
-	*
-	* @return mixed string|NULL
-	* @access public
-	*/
-	function attr($name)
-	{
-		if ($name != 'wsdl_cache') return parent::attr($name);
-
-		// yes, this is terrible
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'soap_wsdl_schema');
-		if (empty($parents) || count($parents) > 1) return NULL;
-
-		$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset(key($parents), 'soap_wsdl_schema');
-		if (is_null($parent)) return NULL;
-
-		return $parent->attr('wsdl_cache');
-
-	}//end attr()
-
-
-	/**
-	* Perform any additional processing required during the creation of this asset
-	*
-	* For example, creating other child assets should be performed in this method
-	*
-	* @param array	&$link	information used to create the initial link<br/>
-	*
-	* @return boolean
 	* @access private
+	* @return boolean
 	*/
-	function _createAdditional(&$link)
+	function loadElement($assetid)
 	{
-		if (!parent::_createAdditional($link)) return FALSE;
+		if (!parent::loadElement($assetid)) return FALSE;
 
-		// add bindings to this service when creating
-		$wsdl = $this->attr('wsdl_cache');
-		if (is_null($wsdl)) return FALSE;
+		$schema =& $this->getWsdlSchema();
+		if (is_null($schema)) return FALSE;
 
-		// pull service information from the wsdl
-		$service_desc = array_get_index($wsdl->services, $this->attr('service'));
-		if (is_null($service_desc)) return FALSE;
+		$service_name = $schema->getWsdlElementDescription($assetid, 'service');
+		$this->setAttrValue('service', $service_name);
 
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('soap_wsdl_binding');
-		$binding_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+		$this->name = $this->attr('service');
+		$this->short_name = $this->attr('service');
 
-		foreach ($service_desc['ports'] as $port_desc) {
-			$binding =& new SOAP_WSDL_Binding();
-
-			$binding->setAttrValue('binding', $port_desc['binding']);
-			if (!$binding->create($binding_link)) return FALSE;
-		}
 		return TRUE;
 
-	}//end _createAdditional()
+	}//end loadElement()
+
+
+	/**
+	* Used by asset map to return a asset map-style link array
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetMapLinks()
+	{
+		$links = Array();
+
+		$schema =& $this->getWsdlSchema();
+		if (is_null($schema)) return Array();
+
+		$element_links = $schema->getWsdlBindingLinks($this->id);
+		foreach ($element_links as $element_link) {
+			$link = Array();
+
+			// mould it all to the asset map's liking
+			$link['url'] = '';
+			$link['path'] = '';
+			$link['num_kids'] = 1;
+			$link['accessible'] = 1;
+
+			$link['majorid'] = $element_link['majorid'];
+			$link['minorid'] = $element_link['minorid'];
+			$link['assetid'] = $element_link['minorid'];
+			$link['minor_type_code'] = $element_link['minor_type_code'];
+			$link['type_code'] = $element_link['minor_type_code'];
+			$link['linkid'] = $element_link['minorid'];
+
+			// make name and short name the same
+			$link['name'] = $schema->getWsdlElementDescription($element_link['minorid'], 'binding');
+			$link['short_name'] = $schema->getWsdlElementDescription($element_link['minorid'], 'binding');
+			$link['status'] = $this->status;
+
+			$link['link_type'] = $element_link['link_type'];
+
+			$link['sort_order'] = $element_link['sort_order'];
+
+			$links[] = $link;
+		}
+		return $links;
+
+	}//end getAssetMapLinks()
 
 
 	/**

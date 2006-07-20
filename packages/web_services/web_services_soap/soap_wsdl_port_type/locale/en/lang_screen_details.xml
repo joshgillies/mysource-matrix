@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2006/07/18 06:41:56 bcaldwell Exp $
+* $Id: lang_screen_details.xml,v 1.2 2006/07/20 04:57:31 bcaldwell Exp $
 *
 */
 -->
 
 <contents>
 	<section name="Details">
-		<field attribute="wsdl_uri">
-			<display_name>WSDL URL</display_name>
+		<field attribute="port_type">
+			<display_name>Port</display_name>
 			<note />
 		</field>
 	</section>

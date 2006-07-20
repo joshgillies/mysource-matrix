@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_element.inc,v 1.2 2006/07/19 01:12:56 bcaldwell Exp $
+* $Id: soap_wsdl_element.inc,v 1.3 2006/07/20 04:57:31 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once 'SOAP/Client.php';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -43,22 +43,22 @@ class SOAP_WSDL_Element extends Asset
 
 
 	/**
-	* The asset id of the bridge for this asset
+	* The asset id of the WSDL Schema (bridge) for this asset
 	*
 	* @var string
 	* @access private
 	*/
-	var $bridge_assetid = 0;
+	var $schema_assetid = 0;
 
 
 	/**
-	* A reference to the bridge asset for this asset
+	* A reference to the WSDL Schema (bridge) asset for this asset
 	*
 	* @var &object
 	* @access private
-	* @see &getBridge()
+	* @see &getWsdlSchema()
 	*/
-	var $bridge_asset = NULL;
+	var $schema_asset = NULL;
 
 
 	/**
@@ -98,18 +98,18 @@ class SOAP_WSDL_Element extends Asset
 		$this->_loadVars();
 
 		// important parts of the assetid
-		$bridge_assetid = reset($id_parts);
+		$schema_assetid = reset($id_parts);
 		$element_assetid = end($id_parts);
 
 		// set up the bridge
-		if (!$this->setBridge($bridge_assetid)) {
+		if (!$this->setWsdlSchema($schema_assetid)) {
 			return FALSE;
 		}
-		$bridge =& $this->getBridge();
+		$schema =& $this->getWsdlSchema();
 
 		// set up this asset
 		$this->id = $assetid;
-		$this->status = $bridge->status;
+		$this->status = $schema->status;
 
 		return TRUE;
 
@@ -117,35 +117,47 @@ class SOAP_WSDL_Element extends Asset
 
 
 	/**
+	* Set the id of the WSDL Schema (bridge)
+	*
+	* @param string	$assetid	the id of the wsdl schema asset
+	*
+	* @access private
+	* @return boolean
 	*/
-	function setBridge($assetid)
+	function setWsdlSchema($assetid)
 	{
 		if (empty($assetid)) return FALSE;
 
 		// check bridge assetid
-		$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		if (is_null($bridge)) return FALSE;
+		$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($schema)) return FALSE;
 
-		$this->bridge_assetid = $bridge->id;
+		$this->schema_assetid = $schema->id;
 		return TRUE;
 
 	}//end setBridgeAssetid()
 
 
 	/**
+	* Get a reference to the WSDL Schema (bridge)
+	*
+	* @access public
+	* @return &object
 	*/
-	function &getBridge()
+	function &getWsdlSchema()
 	{
-		if (!is_null($this->bridge_asset)) {
-			return $this->bridge_asset;
+		if (empty($this->schema_assetid)) return $null = NULL;
+
+		if (is_null($this->schema_asset)) {
+			// use the schema asset id to load the asset if need be
+			$assetid = $this->schema_assetid;
+
+			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if (is_null($schema)) return $null = NULL;
+
+			$this->schema_asset =& $schema;
 		}
-		$assetid = $this->bridge_assetid;
-		if (empty($assetid)) return $null = NULL;
-
-		$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		if (is_null($bridge)) return $null = NULL;
-
-		return $bridge;
+		return $this->schema_asset;
 
 	}//end getBridge()
 

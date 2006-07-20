@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.3 2006/07/19 01:12:56 bcaldwell Exp $
+* $Id: soap_wsdl_operation.inc,v 1.4 2006/07/20 04:57:31 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -45,13 +45,16 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 	* Constructor
 	*
 	*/
-	function SOAP_WSDL_Operation($assetid, $operation)
+	function SOAP_WSDL_Operation($assetid=0, $operation='')
 	{
 		if (empty($operation)) return;
 		parent::SOAP_WSDL_Element($assetid);
 
 		// the name of this operation
 		$this->setAttrValue('operation', $operation);
+
+		$schema =& $this->getWsdlSchema();
+		bam($schema->getWsdlOperationDescription($operation));
 
 	}//end SOAP_WSDL_Operation()
 

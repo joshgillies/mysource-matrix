@@ -18,13 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_binding.inc,v 1.1 2006/07/18 06:41:55 bcaldwell Exp $
+* $Id: soap_wsdl_binding.inc,v 1.2 2006/07/20 04:57:31 bcaldwell Exp $
 *
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset.inc';
-require_once 'SOAP/Client.php';
+require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element/soap_wsdl_element.inc';
 
 
 /**
@@ -34,82 +33,81 @@ require_once 'SOAP/Client.php';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
-class SOAP_WSDL_Binding extends Asset
+class SOAP_WSDL_Binding extends SOAP_WSDL_Element
 {
 
 
 	/**
-	* Constructor
+	* Attempts to load all the information for this asset
 	*
-	* @param int	$assetid	the asset id to be loaded
+	* @param string	$assetid	The id of this asset
 	*
+	* @access private
+	* @return boolean
 	*/
-	function SOAP_WSDL_Binding($assetid=0)
+	function loadElement($assetid)
 	{
-		$this->Asset($assetid);
+		if (!parent::loadElement($assetid)) return FALSE;
 
-	}//end constructor
+		$schema =& $this->getWsdlSchema();
+		if (is_null($schema)) return FALSE;
+
+		$binding_name = $schema->getWsdlElementDescription($assetid, 'binding');
+		$this->setAttrValue('binding', $binding_name);
+
+		return TRUE;
+
+	}//end loadElement()
 
 
 	/**
-	* Get the value of an attribute
+	* Used by asset map to return a asset map-style link array
 	*
-	* @param string	$name	the name of the attribute whose value you want to get
-	*
-	* @return mixed string|NULL
+	* @return array
 	* @access public
 	*/
-	function attr($name)
+	function getAssetMapLinks()
 	{
-		if ($name != 'wsdl_cache') return parent::attr($name);
+		$links = Array();
 
-		// yes, this is terrible
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'soap_wsdl_schema');
-		if (empty($parents) || count($parents) > 1) return NULL;
+		$schema =& $this->getWsdlSchema();
+		if (is_null($schema)) return Array();
 
-		$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset(key($parents), 'soap_wsdl_schema');
-		if (is_null($parent)) return NULL;
+		$element_links = $schema->getWsdlPortLinks($this->id);
+		foreach ($element_links as $element_link) {
+			$link = Array();
 
-		return $parent->attr('wsdl_cache');
+			// mould it all to the asset map's liking
+			$link['url'] = '';
+			$link['path'] = '';
+			$link['num_kids'] = 1;
+			$link['accessible'] = 1;
 
-	}//end attr()
+			$link['majorid'] = $element_link['majorid'];
+			$link['minorid'] = $element_link['minorid'];
+			$link['assetid'] = $element_link['minorid'];
+			$link['minor_type_code'] = $element_link['minor_type_code'];
+			$link['type_code'] = $element_link['minor_type_code'];
+			$link['linkid'] = $element_link['minorid'];
 
+			// make name and short name the same
+			$link['name'] = $schema->getWsdlElementDescription($element_link['minorid'], 'port');
+			$link['short_name'] = $schema->getWsdlElementDescription($element_link['minorid'], 'port');
+			$link['status'] = $this->status;
 
-	/**
-	* Perform any additional processing required during the creation of this asset
-	*
-	* For example, creating other child assets should be performed in this method
-	*
-	* @param array	&$link	information used to create the initial link<br/>
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _createAdditional(&$link)
-	{
-		if (!parent::_createAdditional($link)) return FALSE;
+			$link['link_type'] = $element_link['link_type'];
 
-		// add bindings to this service when creating
-		$wsdl = $this->attr('wsdl_cache');
-		if (is_null($wsdl)) return FALSE;
+			$link['sort_order'] = $element_link['sort_order'];
 
-		// pull service information from the wsdl
-		$binding_desc = array_get_index($wsdl->bindings, $this->attr('binding'));
-		if (is_null($binding_desc)) return FALSE;
+			$links[] = $link;
+		}
+		return $links;
 
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('soap_wsdl_port_type');
-		$port_type_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-
-		$port_type =& new SOAP_WSDL_Port_Type();
-
-		$port_type->setAttrValue('port_type', array_get_index($binding_desc, 'type'));
-		return $port_type->create($port_type_link);
-
-	}//end _createAdditional()
+	}//end getAssetMapLinks()
 
 
 	/**
