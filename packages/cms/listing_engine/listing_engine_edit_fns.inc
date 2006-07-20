@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.55.2.3 2006/07/10 04:31:45 lwright Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.55.2.4 2006/07/20 00:03:51 rong Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.55.2.3 $
+* @version $Revision: 1.55.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1407,6 +1407,37 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			$names = Array();
 			$default =  $asset->attr('default_sort_by');
+			$last_index = count($sort_by_list) - 1;
+			
+			// bug fix 1513, move 'No Sorting' option to the end
+			if ($sort_by_list[$last_index]['name'] != 'No Sorting') {
+				// if 'No Sort' is not at the end, find and move it
+				$reordered = Array();
+				$no_sort = Array();
+				foreach ($sort_by_list as $id => $info) {
+					if ($info['name'] == 'No Sorting') {
+						// update the default index accordingly
+						if ($default > $id) {
+							$default--;
+						} else if ($default == $id) {
+							$default = $last_index;
+						}
+						$no_sort = $info;
+					} else {
+						$reordered[] = $info;
+					}
+					
+				}
+				
+				// move 'No Sorting' to the end, and update the attributes
+				$reordered[] = $no_sort;
+				$sort_by_list = $reordered;
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+				$asset->setAttrValue('default_sort_by', $default);
+				$asset->setAttrValue('sort_by', $sort_by_list);
+				$asset->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			}
 
 			foreach ($sort_by_list as $id => $info) {
 				$names[$id] = $info['name'];
@@ -1555,14 +1586,18 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 									?>
 									<td class="sq-backend-table-cell">
 										<?php
-											if ($i != 0) {
-												?><a href="#" onclick="sortOrderMoveUp(<?php echo $id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "<?php echo translate('move_up'); ?>");</script></a><?php
+											// bug fix 1513
+											// 'No Sorting' should always stay as the last option, no reorder available
+											if ($info['name'] != 'No Sorting') {
+												if ($i != 0) {
+													?><a href="#" onclick="sortOrderMoveUp(<?php echo $id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "<?php echo translate('move_up'); ?>");</script></a><?php
+												}
+	
+												if ($i != count($sort_by_list) - 2) {
+													?><a href="#" onclick="sortOrderMoveDown(<?php echo $id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "<?php echo translate('move_down'); ?>");</script></a><?php
+												}
 											}
-
-											if ($i != count($sort_by_list) - 1) {
-												?><a href="#" onclick="sortOrderMoveDown(<?php echo $id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "<?php echo translate('move_down'); ?>");</script></a><?php
-											}
-											?>
+										?>
 									</td>
 									<?php
 								}
@@ -1614,6 +1649,18 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		if ($save) {
 			$asset->setAttrValue('sort_by', $save_list);
+			
+			// list order changed
+			$default_sort_by = $asset->attr('default_sort_by');
+			if ($sort_order[$default_sort_by] != $default_sort_by) {
+				foreach ($sort_order as $key => $val) {
+					if ($val == $default_sort_by) {
+						// update the default sort by index too
+						$asset->setAttrValue('default_sort_by', $key);
+					}
+				}
+			}
+			
 			return TRUE;
 		}
 		return FALSE;
