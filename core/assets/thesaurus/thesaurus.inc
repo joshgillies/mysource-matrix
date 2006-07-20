@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.27 2006/04/20 05:02:15 rhoward Exp $
+* $Id: thesaurus.inc,v 1.28 2006/07/20 02:26:59 rhoward Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1802,10 +1802,22 @@ class Thesaurus extends Asset
 	*/
 	function getLinkByAsset($assetid, $other_assetid, $link_types=NULL, $value=NULL, $side_of_link='major', $force_array=FALSE, $dependant=NULL, $exclusive=NULL)
 	{
-		$major_parts = explode(':',$assetid);
+		assert_valid_assetid($assetid);
+		assert_valid_assetid($other_assetid);
+		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
+
+		if ($side_of_link == 'major') {
+			$major_assetid = $assetid;
+			$minor_assetid = $other_assetid;
+		} else {
+			$major_assetid = $other_assetid;
+			$minor_assetid = $assetid;
+		}
+
+		$major_parts = explode(':', $major_assetid);
 		$majorid = array_get_index($major_parts, 1, NULL);
 
-		$minor_parts = explode(':',$other_assetid);
+		$minor_parts = explode(':', $minor_assetid);
 		$minorid = array_get_index($minor_parts, 1, NULL);
 		if (empty($minorid)) return Array();
 
@@ -1815,8 +1827,8 @@ class Thesaurus extends Asset
 
 		// construct template
 		$link = Array(
-					'majorid'			=> $assetid,
-					'minorid'			=> $other_assetid,
+					'majorid'			=> $major_assetid,
+					'minorid'			=> $minor_assetid,
 					'link_type'			=> SQ_LINK_TYPE_2,
 					'major_type_code'	=> '',
 					'minor_type_code'	=> 'thesaurus_term',
