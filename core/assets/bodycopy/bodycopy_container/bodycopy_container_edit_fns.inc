@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.36.2.5 2006/06/29 23:30:50 rhoward Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.36.2.6 2006/07/20 05:07:42 rong Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36.2.5 $
+* @version $Revision: 1.36.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -301,8 +301,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$existing_links[] = $link_data['minorid'];
 		}
 
-		$shadow_reg = '|.\/?a=(\d+:\w*)|';
-		$normal_reg = '|.\/?a=(\d+)|';
+		// only matches './?a=(normal or shadow id)'
+		$shadow_reg = '|\./\?a=(\d+:\w*)|';
+		$normal_reg = '|\./\?a=(\d+)|';
 		preg_match_all($shadow_reg, $output, $shadow_matches=Array());
 		preg_match_all($normal_reg, $output, $normal_matches=Array());
 		$shadow_matches = $shadow_matches[1];
