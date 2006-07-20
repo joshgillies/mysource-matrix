@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.61 2006/07/10 04:30:57 lwright Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.62 2006/07/20 00:05:59 rong Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1371,8 +1371,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						'type'		=> '',
 						'name'		=> 'Random',
 					   );
-		$save_list[] = $empty_sort;
 		$save_list[] = $random_sort;
+		$save_list[] = $empty_sort;
+
 
 		// re-order the list so that the indexes are aligned
 		ksort($save_list);
@@ -1417,6 +1418,67 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			$names = Array();
 			$default =  $asset->attr('default_sort_by');
+			$last_index = count($sort_by_list) - 1;
+
+			// bug fix 1513, move 'No Sorting' option to the end
+			if ($sort_by_list[$last_index]['name'] != 'No Sorting') {
+				// if 'No Sort' is not at the end, find and move it
+				$reordered = Array();
+				$no_sort = Array();
+				foreach ($sort_by_list as $id => $info) {
+					if ($info['name'] == 'No Sorting') {
+						// update the default index accordingly
+						if ($default > $id) {
+							$default--;
+						} else if ($default == $id) {
+							$default = $last_index;
+						}
+						$no_sort = $info;
+					} else {
+						$reordered[] = $info;
+					}
+				}
+
+				// move 'No Sorting' to the end, and update the attributes
+				$reordered[] = $no_sort;
+				$sort_by_list = $reordered;
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+				$asset->setAttrValue('default_sort_by', $default);
+				$asset->setAttrValue('sort_by', $sort_by_list);
+				$asset->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			}
+			// bug fix 1513, move 'Random' option to before 'No Sorting'
+			if ($sort_by_list[$last_index-1]['name'] != 'Random') {
+				// if 'Random' is not before 'No Sorting', find and move it
+				$reordered = Array();
+				$random_sort = Array();
+				foreach ($sort_by_list as $id => $info) {
+					if ($info['name'] == 'Random') {
+						// update the default index accordingly
+						if ($default > $id) {
+							$default--;
+						} else if ($default == $id) {
+							$default = $last_index - 1;
+						}
+						$random_sort = $info;
+					} else {
+						$reordered[] = $info;
+					}
+				}
+
+				// move 'Random' to the before 'No Sort', and update the attributes
+				$last_item = array_pop($reordered);
+				$reordered[] = $random_sort;
+				$reordered[] = $last_item;
+				$sort_by_list = $reordered;
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+				$asset->setAttrValue('default_sort_by', $default);
+				$asset->setAttrValue('sort_by', $sort_by_list);
+				$asset->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			}
+
 
 			foreach ($sort_by_list as $id => $info) {
 				$names[$id] = $info['name'];
@@ -1437,7 +1499,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Processes the default sory by option
+	* Processes the default sort by option
 	*
 	* @param object	&$asset	asset being painted
 	* @param object	&$o		backend outputter
@@ -1565,13 +1627,15 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 									?>
 									<td>
 										<?php
+										if ($info['name'] != 'No Sorting' && $info['name'] != 'Random') {
 											if ($i != 0) {
 												?><a href="#" onclick="sortOrderMoveUp(<?php echo $id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "<?php echo translate('move_up'); ?>");</script></a><?php
 											}
 
-											if ($i != count($sort_by_list) - 1) {
+											if ($i != count($sort_by_list) - 3) {
 												?><a href="#" onclick="sortOrderMoveDown(<?php echo $id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "<?php echo translate('move_down'); ?>");</script></a><?php
 											}
+										}
 											?>
 									</td>
 									<?php
@@ -1582,7 +1646,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							<?php
 
 							$i++;
-						}
+						}//end foreach
 					?>
 			</table>
 		<?php
@@ -1624,6 +1688,18 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		if ($save) {
 			$asset->setAttrValue('sort_by', $save_list);
+
+			// list order changed
+			$default_sort_by = $asset->attr('default_sort_by');
+			if ($sort_order[$default_sort_by] != $default_sort_by) {
+				foreach ($sort_order as $key => $val) {
+					if ($val == $default_sort_by) {
+						// update the default sort by index too
+						$asset->setAttrValue('default_sort_by', $key);
+					}
+				}
+			}
+
 			return TRUE;
 		}
 		return FALSE;
