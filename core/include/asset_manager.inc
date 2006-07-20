@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.37 2006/07/17 05:47:19 skim Exp $
+* $Id: asset_manager.inc,v 1.431.2.38 2006/07/20 02:27:19 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.37 $
+* @version $Revision: 1.431.2.38 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2397,12 +2397,50 @@ class Asset_Manager extends MySource_Object
 			return Array();
 		}
 
-		$id_parts = explode(':', $assetid);
+
+		// handle shadow assets
+		if ($side_of_link == 'major') {
+			$majorid = $assetid;
+			$minorid = $other_assetid;
+		} else {
+			$majorid = $other_assetid;
+			$minorid = $assetid;
+		}
+
+		$major_shadow_parts = FALSE;
+		$id_parts           = explode(':', $majorid);
 		if (isset($id_parts[1])) {
-			$asset =& $this->getAsset($id_parts[0]);
-			$link = $asset->getLinkByAsset($assetid, $other_assetid, $link_types, $value, $side_of_link, $force_array, $dependant, $exclusive);
-			$this->forgetAsset($asset);
+			$major_shadow_parts = Array(
+									'bridgeid'	=> $id_parts[0],
+									'shadowid'	=> $id_parts[1],
+								   );
+		}
+
+		$minor_shadow_parts = FALSE;
+		$id_parts           = explode(':', $minorid);
+		if (isset($id_parts[1])) {
+			$minor_shadow_parts = Array(
+									'bridgeid'	=> $id_parts[0],
+									'shadowid'	=> $id_parts[1],
+								   );
+		}
+
+		if (!empty($major_shadow_parts)) {
+			// major is shadow asset, use bridge
+			$link = Array();
+			$asset =& $this->getAsset($major_shadow_parts['bridgeid']);
+			if (!is_null($asset)) {
+				$link = $asset->getLinkByAsset($assetid, $other_assetid, $link_types, $value, $side_of_link, $force_array, $dependant, $exclusive);
+				$this->forgetAsset($asset);
+			}
 			return $link;
+		} else {
+			if (!empty($minor_shadow_parts)) {
+				// minor is shadow asset, look at the shadow link table
+				// instead of the regular link table
+				$link = $this->getShadowLinkByAsset($assetid, $other_assetid, $link_types, $value, $side_of_link, $force_array, $dependant, $exclusive);
+				return $link;
+			}
 		}
 
 
