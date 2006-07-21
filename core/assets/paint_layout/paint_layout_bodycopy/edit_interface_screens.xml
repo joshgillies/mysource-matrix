@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.2 2005/04/14 16:19:52 brobertson Exp $
+* $Id: edit_interface_screens.xml,v 1.3 2006/07/21 06:32:30 rong Exp $
 *
 */
 -->
 
 <screens>
 	<screen code_name="contents" display_name="Edit Contents" icon="create" default="1" force_unlock="0" lock_type="content" />
-	<screen code_name="conditional_keywords" display_name="Conditional Keywords" icon="web" force_unlock="0" />
+	<screen code_name="conditional_keywords" display_name="Conditional Keywords" icon="web" force_unlock="0" lock_type="attributes"/>
 </screens>
