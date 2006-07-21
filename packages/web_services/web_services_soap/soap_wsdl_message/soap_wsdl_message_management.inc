@@ -18,85 +18,48 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_binding.inc,v 1.3 2006/07/21 04:56:55 bcaldwell Exp $
+* $Id: soap_wsdl_message_management.inc,v 1.1 2006/07/21 04:56:55 bcaldwell Exp $
 *
 */
 
 
-require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element/soap_wsdl_element.inc';
-
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* SOAP_WSDL_Binding
+* SOAP_WSDL_Message_Management
 *
 * Purpose
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
-class SOAP_WSDL_Binding extends SOAP_WSDL_Element
+class SOAP_WSDL_Message_Management extends Asset_Management
 {
 
 
 	/**
-	* Attempts to load all the information for this asset
+	* Constructor
 	*
-	* @param string	$assetid	The id of this asset
-	*
-	* @access private
-	* @return boolean
 	*/
-	function loadElement($assetid)
+	function SOAP_WSDL_Message_Management(&$pm)
 	{
-		if (!parent::loadElement($assetid)) return FALSE;
+		$this->Asset_Management($pm);
 
-		$schema =& $this->getWsdlSchema();
-		if (is_null($schema)) return FALSE;
+		$this->vars = Array(
+						'message'	=> Array(
+										'added'			=> '0.0.1',
+										'type'			=> 'text',
+										'default'		=> '',
+										'description'	=> 'The full name of the operation',
+										'update_fn'		=> '',
+										'is_admin'		=> FALSE,
+									   ),
+					  );
 
-		$binding_name = $schema->getElementName($this->id);
-		$this->setAttrValue('binding', $binding_name);
-
-		$this->name = $this->_getName();
-
-		return TRUE;
-
-	}//end loadElement()
-
-
-	/**
-	* Used by asset map to return a asset map-style link array
-	*
-	* @return array
-	* @access public
-	*/
-	function getAssetMapLinks()
-	{
-		$schema =& $this->getWsdlSchema();
-		if (is_null($schema)) return Array();
-
-		$port_links = $schema->getPortLinks($this->id);
-		return $schema->_getAssetMapLinks($port_links);
-
-	}//end getAssetMapLinks()
-
-
-	/**
-	* Returns name of the asset
-	*
-	* @param boolean	$short_name	whether or not we are after the short name or the full name
-	*
-	* @return string
-	* @access private
-	* @see Asset::_getName()
-	*/
-	function _getName($short_name=FALSE)
-	{
-		return $this->attr('binding');
-
-	}//end _getName()
+	}//end constructor
 
 
 }//end class

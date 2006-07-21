@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_binding_management.inc,v 1.1 2006/07/18 06:41:55 bcaldwell Exp $
+* $Id: soap_wsdl_binding_management.inc,v 1.2 2006/07/21 04:56:55 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -53,7 +53,7 @@ class SOAP_WSDL_Binding_Management extends Asset_Management
 										'added'			=> '0.0.1',
 										'type'			=> 'text',
 										'default'		=> '',
-										'description'	=> 'The full name of the binding',
+										//'description'	=> 'The full name of the binding',
 										'update_fn'		=> '',
 										'is_admin'		=> FALSE,
 									   ),

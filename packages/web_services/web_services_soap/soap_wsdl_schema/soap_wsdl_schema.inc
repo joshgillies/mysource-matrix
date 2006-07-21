@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_schema.inc,v 1.4 2006/07/20 04:57:31 bcaldwell Exp $
+* $Id: soap_wsdl_schema.inc,v 1.5 2006/07/21 04:56:55 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once 'SOAP/Client.php';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -43,7 +43,9 @@ class SOAP_WSDL_Schema extends Asset
 {
 
 
-	/* {{{ START ASSET FUNCTIONS */
+	/**
+	*/
+	var $assetid_format = Array('service', 'binding', 'port', 'operation', 'message');
 
 
 	/**
@@ -85,11 +87,6 @@ class SOAP_WSDL_Schema extends Asset
 	}//end setAttrvalue()
 
 
-	/* END ASSET FUNCTIONS }}} */
-
-	/* {{{ START BRIDGE FUNCTIONS */
-
-
 	/**
 	* Used by asset map to return a asset map-style link array
 	*
@@ -98,37 +95,8 @@ class SOAP_WSDL_Schema extends Asset
 	*/
 	function getAssetMapLinks()
 	{
-		$links = Array();
-
-		$element_links = $this->getWsdlServiceLinks();
-		foreach ($element_links as $element_link) {
-			$link = Array();
-
-			// mould it all to the asset map's liking
-			$link['url'] = '';
-			$link['path'] = '';
-			$link['num_kids'] = count($this->getWsdlBindingLinks($element_link['minorid']));
-			$link['accessible'] = 1;
-
-			$link['majorid'] = $element_link['majorid'];
-			$link['minorid'] = $element_link['minorid'];
-			$link['assetid'] = $element_link['minorid'];
-			$link['minor_type_code'] = $element_link['minor_type_code'];
-			$link['type_code'] = $element_link['minor_type_code'];
-			$link['linkid'] = $element_link['minorid'];
-
-			// make name and short name the same
-			$link['name'] = $this->getWsdlElementDescription($element_link['minorid'], 'service');
-			$link['short_name'] = $this->getWsdlElementDescription($element_link['minorid'], 'service');
-			$link['status'] = $this->status;
-
-			$link['link_type'] = $element_link['link_type'];
-
-			$link['sort_order'] = $element_link['sort_order'];
-
-			$links[] = $link;
-		}
-		return $links;
+		$service_links = $this->getServiceLinks();
+		return $this->_getAssetMapLinks($service_links);
 
 	}//end getAssetMapLinks()
 
@@ -141,19 +109,19 @@ class SOAP_WSDL_Schema extends Asset
 	* @return array
 	* @access public
 	*/
-	/*function getAssetMapAssetInfo($assetid)
+	function getAssetMapAssetInfo($assetid)
 	{
 		$asset_info = Array();
 
-		$id_parts = explode(':', $assetid);
-		if (empty($id_parts[1])) return $asset_info;
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) return $asset_info;
 
-		$asset_info['assetid']		= $assetid;
-		$asset_info['name']			= $assetid;
-		$asset_info['short_name']	= $assetid;
+		$asset_info['assetid']		= $asset->id;
+		$asset_info['name']			= $asset->name;
+		$asset_info['short_name']	= $asset->short_name;
 		$asset_info['version']		= $this->version;
 		$asset_info['status']		= $this->status;
-		$asset_info['type_code']	= 'soap_wsdl_binding';
+		$asset_info['type_code']	= get_class($asset); // todo: find another way to do this
 		$asset_info['num_kids']		= 1;
 		$asset_info['accessible']	= 1;
 		$asset_info['url']			= '';
@@ -161,7 +129,7 @@ class SOAP_WSDL_Schema extends Asset
 
 		return $asset_info;
 
-	}//end getAssetMapAssetInfo()*/
+	}//end getAssetMapAssetInfo()
 
 
 	/**
@@ -180,17 +148,11 @@ class SOAP_WSDL_Schema extends Asset
 	*/
 	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
-		$assetid_parts = $this->getWsdlElementDescription($shadowid);
-		if (is_null($assetid_parts)) return $null = NULL;
+		$element_type = $this->getElementType($shadowid);
 
-		// extract the information we need to get the asset
-		$element_type = end(array_keys($assetid_parts));
-		$element_name = end($assetid_parts);
-
-		$get_element_func = 'getWsdl'.ucwords($element_type).'Asset';
-		log_dump($get_element_func);
+		$get_element_func = '_get'.ucwords($element_type).'Asset';
 		if (method_exists($this, $get_element_func)) {
-			return $this->$get_element_func($shadowid, $element_name);
+			return $this->$get_element_func($shadowid);
 		}
 
 		$null = NULL;
@@ -347,11 +309,6 @@ class SOAP_WSDL_Schema extends Asset
 	}//end getChildren()
 
 
-	/* END START BRIDGE FUNCTIONS }}} */
-
-	/* {{{ START SOAP_WSDL_SCHEMA FUNCTIONS */
-
-
 	/**
 	* Perform some extra actions when setting the value of the 'wsdl_uri' attribute
 	*
@@ -379,68 +336,242 @@ class SOAP_WSDL_Schema extends Asset
 
 
 	/**
-	* Attempts to extract the specified information from the wsdl object
+	*/
+	function _getAssetMapLinks($links=Array())
+	{
+		if (empty($links)) return Array();
+
+		$asset_map_links = Array();
+		foreach ($links as $link) {
+			$asset_map_links[] = Array(
+									'url'				=> '',
+									'path'				=> '',
+									'num_kids'			=> 1, // todo: don't always assume kids
+									'accessible'		=> 1,
+
+									'majorid'			=> $link['majorid'],
+									'minorid'			=> $link['minorid'],
+									'assetid'			=> $link['minorid'],
+									'minor_type_code'	=> $link['minor_type_code'],
+									'type_code'			=> $link['minor_type_code'],
+									'linkid'			=> $link['linkid'],
+
+									'name'				=> $this->getElementName($link['minorid']),
+									'short_name'		=> $this->getElementName($link['minorid']),
+
+									'status'			=> $this->status,
+									'sort_order'		=> $link['sort_order'],
+									'link_type'			=> $link['link_type'],
+								  );
+		}
+		return $asset_map_links;
+
+	}//end _getAssetMapLinks()
+
+
+	/**
+	*/
+	function callOperation($port_name, $operation_name, $parameters)
+	{
+		$wsdl = $this->attr('wsdl_cache');
+		if (empty($wsdl)) return NULL;
+
+		$proxy = $wsdl->getProxy($port_name);
+		return call_user_func_array(array($proxy, $operation_name), $parameters);
+
+	}//end callOperation()
+
+
+	/**
+	* Returns the asset id of the shadow asset with the specified type
 	*
-	* @param string	$element_type	the type of element (i.e. service, binding)
-	* @param string	$element_name	optionally the name of the element
+	* @param string	$assetid	the full asset id
+	* @param string	$type		the type of asset you want the id for
+	*
+	* @access public
+	* @return string
+	*/
+	function getElement($assetid, $type='')
+	{
+		$elements = $this->getElements($assetid);
+
+		if (empty($type)) $type = $this->getElementType($assetid);
+		return array_get_index($elements, $type);
+
+	}//end getElement()
+
+
+	/**
+	* Breaks apart a shadow asset id and rebuilds shadow asset ids for it's parents
+	*
+	* @param string	$assetid	the full asset id
 	*
 	* @access public
 	* @return array
 	*/
-	function getWsdlElementDefinition($element_type, $element_name='')
+	function getElements($assetid)
 	{
-		// we'll need to deal with the wsdl object
-		$wsdl = $this->attr('wsdl_cache');
-		if (empty($wsdl)) return Array();
-
-		// element type needs to make sense
-		if (empty($element_type) || !isset($wsdl->$element_type)) {
-			return Array();
-		}
-		$element_def = $wsdl->$element_type;
-
-		// attempt to return a specific element, if we can
-		if (!empty($element_name)) {
-			$element_def = array_get_index($element_def, $element_name);
-			if (is_null($element_def)) return Array();
-		}
-		return $element_def;
-
-	}//end getWsdlElementDefinition()
-
-
-	/**
-	*/
-	function getWsdlElementDescription($element_assetid, $element_type='')
-	{
-		// bah, we care not about the silly shadow asset id
-		$id_parts = explode(':', $element_assetid);
+		$id_parts = explode(':', $assetid);
 		if (!isset($id_parts[1])) {
 			return $null = NULL;
 		}
+		$bridge_assetid = $id_parts[0];
 		$element_assetid = $id_parts[1];
 
-		// we can use this to map parts from the shadow id to what they represent
-		$format = Array('service', 'binding', 'port', 'operation');
+		$element_parts = $this->_getElements($element_assetid);
+
+		$elements = Array();
+		foreach (array_reverse(array_keys($element_parts)) as $type) {
+			$elements[$type] = $bridge_assetid.':'.implode('/', $element_parts);
+			array_pop($element_parts);
+		}
+		return $elements;
+
+	}//end getElements()
+
+
+	/**
+	* Given a string, will break it down into the names of each individual element
+	*
+	* @param string	$element_string	the string that defines the element, no bridge id
+	*
+	* @access private
+	* @return array
+	*/
+	function _getElements($element_string)
+	{
+		$format = $this->assetid_format;
 
 		$element_parts = Array();
-		foreach (explode('/', $element_assetid) as $type => $name) {
+		foreach (explode('/', $element_string) as $type => $name) {
 			$element_parts[$format[$type]] = $name;
-		}
-
-		if (!empty($element_type)) {
-			return array_get_index($element_parts, $element_type);
 		}
 		return $element_parts;
 
-	}//end getWsdlElementDescription()
+	}//end _getElements()
+
+
+	/**
+	* Returns the WSDL defined name of the element of the specified type based on assetid
+	*
+	* @param string	$assetid	the full asset id of the element
+	* @param string	$type		the type of element you want the name of
+	*
+	* @access public
+	* @return string
+	*/
+	function getElementName($assetid, $type='')
+	{
+		$element_assetid = $this->getElement($assetid, $type);
+		if (is_null($element_assetid)) return '';
+
+		if (empty($type)) $type = $this->getElementType($assetid);
+
+		$id_parts = explode(':', $element_assetid);
+		if (!isset($id_parts[1])) {
+			return '';
+		}
+		$element_part = $id_parts[1];
+
+		$element_parts = $this->_getElements($element_part);
+		return array_get_index($element_parts, $type);
+
+	}//end getElementName()
+
+
+	/**
+	* Given an asset id, and the desired type of element, returns the wsdl definition
+	*
+	* @param string	$assetid	the full id of the element
+	* @param string	$type		the type of element you want the definition of
+	*
+	* @access public
+	* @return array
+	*/
+	function getElementWsdl($assetid, $type='')
+	{
+		$assetid = $this->getElement($assetid, $type);
+		if (empty($type)) $type = $this->getElementType($assetid);
+
+		$element_name = $this->getElementName($assetid, $type);
+
+		$element_wsdl_fn = '_get'.ucwords($type).'Wsdl';
+		if (method_exists($this, $element_wsdl_fn)) {
+			return $this->$element_wsdl_fn($assetid);
+		}
+		return Array();
+
+	}//end getElementWsdl()
+
+
+	/**
+	* Given an asset id, returns the type of asset
+	*
+	* @param string	$assetid	the full id of the asset
+	*
+	* @access public
+	* @return string
+	*/
+	function getElementType($assetid)
+	{
+		$id_parts = explode(':', $assetid);
+		if (!isset($id_parts[1])) {
+			return '';
+		}
+		$element_part = $id_parts[1];
+
+		$element_parts = $this->_getElements($element_part);
+		return end(array_keys($element_parts));
+
+	}//end getElementType()
+
+
+	/**
+	* Returns a reference to the asset of the type specified
+	*
+	* @param string	$assetid	the full asset id
+	* @param string	$type		the type of asset you want a reference to
+	*
+	* @access public
+	* @return string
+	*/
+	function &getElementAsset($assetid, $type='')
+	{
+		$element_assetid = $this->getElement($assetid, $type);
+		if (is_null($element_assetid)) return $null = NULL;
+
+		$element_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($element_assetid);
+		return $element_asset;
+
+	}//end getElementAsset()
+
+
+	/**
+	* Returns a reference to the service asset with the supplied id
+	*
+	* @param string	$assetid	the full asset id of the service
+	*
+	* @access private
+	* @return &object
+	* @see &getAsset()
+	*/
+	function &_getServiceAsset($assetid)
+	{
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('soap_wsdl_service');
+
+		$service =& new SOAP_WSDL_Service($assetid);
+		return $service;
+
+	}//end _getServiceAsset()
 
 
 	/**
 	*/
-	function getWsdlServiceLinks()
+	function getServiceLinks()
 	{
-		$service_def = $this->getWsdlElementDefinition('services');
+		//$service_def = $this->getWsdlElementDefinition('services');
+
+		$service_def = $this->getElementWsdl($this->id, 'service');
 
 		$service_links = Array();
 		foreach (array_keys($service_def) as $service_name) {
@@ -466,27 +597,51 @@ class SOAP_WSDL_Schema extends Asset
 		}
 		return $service_links;
 
-	}//end getWsdlServiceLinks()
+	}//end getServiceLinks()
 
 
 	/**
 	*/
-	function &getWsdlServiceAsset($assetid)
+	function _getServiceWsdl($assetid)
 	{
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('soap_wsdl_service');
+		$wsdl = $this->attr('wsdl_cache');
+		if (empty($wsdl)) return NULL;
 
-		$service =& new SOAP_WSDL_Service($assetid);
-		return $service;
+		$service_wsdl = $wsdl->services;
+		if (!empty($assetid)) {
+			$service_name = $this->getElementName($assetid, 'service');
+			$service_wsdl = array_get_index($service_wsdl, $service_name);
+		}
+		return $service_wsdl;
 
-	}//end getWsdlServiceAsset();
+	}//end _getServiceWsdl()
+
+
+	/**
+	* Returns a reference to the binding asset with the supplied id
+	*
+	* @param string	$assetid	the full id of the binding asset
+	*
+	* @access private
+	* @return &object
+	* @see &getAsset()
+	*/
+	function &_getBindingAsset($assetid)
+	{
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('soap_wsdl_binding');
+
+		$binding =& new SOAP_WSDL_Binding($assetid);
+		return $binding;
+
+	}//end _getBindingAsset()
 
 
 	/**
 	*/
-	function getWsdlBindingLinks($service_assetid)
+	function getBindingLinks($service_assetid)
 	{
-		$service_name = $this->getWsdlElementDescription($service_assetid, 'service');
-		$service_def = $this->getWsdlElementDefinition('services', $service_name);
+		$service_name = $this->getElementName($service_assetid);
+		$service_def = $this->getElementWsdl($service_assetid);
 
 		// the ports for this service
 		$ports = array_get_index($service_def, 'ports');
@@ -515,27 +670,51 @@ class SOAP_WSDL_Schema extends Asset
 		}
 		return $binding_links;
 
-	}//end getWsdlBindingLinks()
+	}//end getBindingLinks()
 
 
 	/**
 	*/
-	function &getWsdlBindingAsset($assetid)
+	function _getBindingWsdl($assetid)
 	{
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('soap_wsdl_binding');
+		$wsdl = $this->attr('wsdl_cache');
+		if (empty($wsdl)) return NULL;
 
-		$binding =& new SOAP_WSDL_Binding($assetid);
-		return $binding;
+		$binding_wsdl = $wsdl->bindings;
+		if (!empty($assetid)) {
+			$binding_name = $this->getElementName($assetid, 'binding');
+			$binding_wsdl = array_get_index($binding_wsdl, $binding_name);
+		}
+		return $binding_wsdl;
 
-	}//end getWsdlBindingAsset()
+	}//end _getBindingWsdl()
+
+
+	/**
+	* Returns a reference to the port asset with the supplied id
+	*
+	* @param string	$asestid	the full asset id of the port
+	*
+	* @access private
+	* @return &object
+	* @see &getAsset()
+	*/
+	function &_getPortAsset($assetid)
+	{
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('soap_wsdl_port_type');
+
+		$port_type =& new SOAP_WSDL_Port_Type($assetid);
+		return $port_type;
+
+	}//end _getWsdlAsset()
 
 
 	/**
 	*/
-	function getWsdlPortLinks($binding_assetid)
+	function getPortLinks($binding_assetid)
 	{
-		$binding_name = $this->getWsdlElementDescription($binding_assetid, 'binding');
-		$binding_def = $this->getWsdlElementDefinition('bindings', $binding_name);
+		$binding_name = $this->getElementName($binding_assetid);
+		$binding_def = $this->getElementWsdl($binding_assetid);
 
 		$port_name = array_get_index($binding_def, 'type');
 		if (is_null($port_name)) return Array();
@@ -560,27 +739,51 @@ class SOAP_WSDL_Schema extends Asset
 
 		return Array($port_link);
 
-	}//end getWsdlPortLinks()
+	}//end getPortLinks()
 
 
 	/**
 	*/
-	function &getWsdlPortAsset($assetid)
+	function _getPortWsdl($assetid)
 	{
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('soap_wsdl_port_type');
+		$wsdl = $this->attr('wsdl_cache');
+		if (empty($wsdl)) return NULL;
 
-		$port_type =& new SOAP_WSDL_Port_Type($assetid);
-		return $port_type;
+		$port_wsdl = $wsdl->portTypes;
+		if (!empty($assetid)) {
+			$port_name = $this->getElementName($assetid, 'port');
+			$port_wsdl = array_get_index($port_wsdl, $port_name);
+		}
+		return $port_wsdl;
 
-	}//end getWsdlPortAsset()
+	}//end _getPortWsdl()
+
+
+	/**
+	* Returns a reference to the operation asset with the suppiled id
+	*
+	* @param string	$assetid	the full asset id of the operation
+	*
+	* @access private
+	* @return &object
+	* @see &getAsset()
+	*/
+	function &_getOperationAsset($assetid)
+	{
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('soap_wsdl_operation');
+
+		$operation =& new SOAP_WSDL_Operation($assetid);
+		return $operation;
+
+	}//end _getOperationAsset()
 
 
 	/**
 	*/
-	function getWsdlOperationLinks($port_assetid)
+	function getOperationLinks($port_assetid)
 	{
-		$port_name = $this->getWsdlElementDescription($port_assetid, 'port');
-		$port_def = $this->getWsdlElementDefinition('portTypes', $port_name);
+		$port_name = $this->getElementName($port_assetid);
+		$port_def = $this->getElementWsdl($port_assetid);
 
 		$operation_links = Array();
 		foreach (array_keys($port_def) as $operation_name) {
@@ -606,22 +809,74 @@ class SOAP_WSDL_Schema extends Asset
 		}
 		return $operation_links;
 
-	}//end getWsdlOperationLinks()
+	}//end getOperationLinks()
 
 
 	/**
 	*/
-	function &getWsdlOperationAsset($assetid)
+	function _getOperationWsdl($assetid)
 	{
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('soap_wsdl_operation');
+		$operation_name = $this->getElementName($assetid, 'operation');
 
-		$operation =& new SOAP_WSDL_Operation($assetid);
-		return $operation;
+		$port_name = $this->getElementName($assetid, 'port');
+		$port_wsdl = $this->getElementWsdl($assetid, 'port');
 
-	}//end getWsdlOperationAsset()
+		$operation_desc = array_get_index($port_wsdl, $operation_name);
+		return $operation_desc;
+
+	}//end _getOperationWsdl()
 
 
-	/* END SOAP_WSDL_SCHEMA FUNCTIONS }}} */
+	/**
+	*/
+	function &_getMessageAsset($assetid)
+	{
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('soap_wsdl_message');
+
+		$message =& new SOAP_WSDL_Message($assetid);
+		return $message;
+
+	}//end _getMessageAsset()
+
+
+	/**
+	*/
+	function getMessageLinks($operation_assetid)
+	{
+		$operation_name = $this->getElementName($operation_assetid);
+		$operation_wsdl = $this->getElementWsdl($operation_assetid);
+
+		$message_types = Array('input', 'output', 'fault');
+
+		$message_links = Array();
+		foreach ($operation_wsdl as $message_type => $message_wsdl) {
+			// check to see if this is actually a message
+			if (!in_array($message_type, $message_types)) continue;
+			$message_name = array_get_index($message_wsdl, 'message');
+
+			// generate the id of the operation
+			$message_assetid = implode('/', Array($operation_assetid, $message_name));
+
+			// the link
+			$message_link = Array(
+								'linkid'			=> $message_assetid,
+
+								'majorid'			=> $operation_assetid,
+								'minorid'			=> $message_assetid,
+								'major_type_code'	=> 'soap_wsdl_operation',
+								'minor_type_code'	=> 'soap_wsdl_message',
+
+								'link_type'			=> SQ_LINK_TYPE_2,
+								'is_dependant'		=> TRUE,
+								'is_exclusive'		=> FALSE,
+
+								'sort_order'		=> $message_assetid,
+							   );
+			$message_links[] = $message_link;
+		}
+		return $message_links;
+
+	}//end getMessageLinks()
 
 
 }//end class

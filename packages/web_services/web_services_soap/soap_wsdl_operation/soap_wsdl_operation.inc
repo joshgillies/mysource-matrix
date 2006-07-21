@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.4 2006/07/20 04:57:31 bcaldwell Exp $
+* $Id: soap_wsdl_operation.inc,v 1.5 2006/07/21 04:56:55 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -42,36 +42,61 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 
 
 	/**
-	* Constructor
+	* Attempts to load all the information for this asset
 	*
+	* @param string	$assetid	The id of this asset
+	*
+	* @access private
+	* @return boolean
 	*/
-	function SOAP_WSDL_Operation($assetid=0, $operation='')
+	function loadElement($assetid)
 	{
-		if (empty($operation)) return;
-		parent::SOAP_WSDL_Element($assetid);
-
-		// the name of this operation
-		$this->setAttrValue('operation', $operation);
+		if (!parent::loadElement($assetid)) return FALSE;
 
 		$schema =& $this->getWsdlSchema();
-		bam($schema->getWsdlOperationDescription($operation));
+		if (is_null($schema)) return FALSE;
 
-	}//end SOAP_WSDL_Operation()
+		$operation_name = $schema->getElementName($this->id);
+		$this->setAttrValue('operation', $operation_name);
+
+		$this->name = $this->_getName();
+		$this->short_name = $this->_getName(TRUE);
+
+		return TRUE;
+
+	}//end loadElement()
+
+
+	/**
+	* Used by asset map to return a asset map-style link array
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetMapLinks()
+	{
+		$schema =& $this->getWsdlSchema();
+		if (is_null($schema)) return Array();
+
+		$message_links = $schema->getMessageLinks($this->id);
+		return $schema->_getAssetMapLinks($message_links);
+
+	}//end getAssetMapLinks()
 
 
 	/**
 	*/
-	function call($parameters)
+	function process($parameters=Array())
 	{
-		$operation = $this->attr('operation');
-		if (empty($operation)) return NULL;
+		$schema =& $this->getWsdlSchema();
+		if (is_null($schema)) return NULL;
 
-		$bridge = $this->getBridge();
-		if (is_null($bridge)) return NULL;
+		$port_name = $this->getElementName($this->id, 'port');
+		$operation_name = $this->attr('operation');
 
-		return $bridge->callWsdlOperation($operation, $parameters);
+		return $schema->callOperation($port_name, $operation_name, $parameters);
 
-	}//end call()
+	}//end process()
 
 
 	/**

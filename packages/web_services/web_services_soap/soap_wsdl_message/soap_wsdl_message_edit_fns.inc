@@ -18,83 +18,27 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_port_type.inc,v 1.3 2006/07/21 04:56:55 bcaldwell Exp $
+* $Id: soap_wsdl_message_edit_fns.inc,v 1.1 2006/07/21 04:56:55 bcaldwell Exp $
 *
 */
 
 
-require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element/soap_wsdl_element.inc';
-
+require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element/soap_wsdl_element_edit_fns.inc';
 
 /**
-* SOAP_WSDL_Port_Type
+* SOAP_WSDL_Message_Edit_Fns
 *
 * Purpose
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
-class SOAP_WSDL_Port_Type extends SOAP_WSDL_Element
+class SOAP_WSDL_Message_Edit_Fns extends SOAP_WSDL_Element_Edit_Fns
 {
 
-
-	/**
-	* Attempts to load all the information for this asset
-	*
-	* @param string	$assetid	The id of this asset
-	*
-	* @access private
-	* @return boolean
-	*/
-	function loadElement($assetid)
-	{
-		if (!parent::loadElement($assetid)) return FALSE;
-
-		$schema =& $this->getWsdlSchema();
-		if (is_null($schema)) return FALSE;
-
-		$port_name = $schema->getElementName($assetid);
-		$this->setAttrValue('port_type', $port_name);
-
-		return TRUE;
-
-	}//end loadElement()
-
-
-	/**
-	* Used by asset map to return a asset map-style link array
-	*
-	* @return array
-	* @access public
-	*/
-	function getAssetMapLinks()
-	{
-		$schema =& $this->getWsdlSchema();
-		if (is_null($schema)) return Array();
-
-		$operation_links = $schema->getOperationLinks($this->id);
-		return $schema->_getAssetMapLinks($operation_links);
-
-	}//end getAssetMapLinks()
-
-
-	/**
-	* Returns name of the asset
-	*
-	* @param boolean	$short_name	whether or not we are after the short name or the full name
-	*
-	* @return string
-	* @access private
-	* @see Asset::_getName()
-	*/
-	function _getName($short_name=FALSE)
-	{
-		return $this->attr('port_type');
-
-	}//end _getName()
 
 }//end class
 

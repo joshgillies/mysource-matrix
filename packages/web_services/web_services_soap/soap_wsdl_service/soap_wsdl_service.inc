@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_service.inc,v 1.2 2006/07/20 04:57:31 bcaldwell Exp $
+* $Id: soap_wsdl_service.inc,v 1.3 2006/07/21 04:56:55 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -56,11 +56,11 @@ class SOAP_WSDL_Service extends SOAP_WSDL_Element
 		$schema =& $this->getWsdlSchema();
 		if (is_null($schema)) return FALSE;
 
-		$service_name = $schema->getWsdlElementDescription($assetid, 'service');
+		$service_name = $schema->getElementName($this->id);
 		$this->setAttrValue('service', $service_name);
 
-		$this->name = $this->attr('service');
-		$this->short_name = $this->attr('service');
+		$this->name = $this->_getName();
+		$this->short_name = $this->_getName(TRUE);
 
 		return TRUE;
 
@@ -75,40 +75,11 @@ class SOAP_WSDL_Service extends SOAP_WSDL_Element
 	*/
 	function getAssetMapLinks()
 	{
-		$links = Array();
-
 		$schema =& $this->getWsdlSchema();
 		if (is_null($schema)) return Array();
 
-		$element_links = $schema->getWsdlBindingLinks($this->id);
-		foreach ($element_links as $element_link) {
-			$link = Array();
-
-			// mould it all to the asset map's liking
-			$link['url'] = '';
-			$link['path'] = '';
-			$link['num_kids'] = 1;
-			$link['accessible'] = 1;
-
-			$link['majorid'] = $element_link['majorid'];
-			$link['minorid'] = $element_link['minorid'];
-			$link['assetid'] = $element_link['minorid'];
-			$link['minor_type_code'] = $element_link['minor_type_code'];
-			$link['type_code'] = $element_link['minor_type_code'];
-			$link['linkid'] = $element_link['minorid'];
-
-			// make name and short name the same
-			$link['name'] = $schema->getWsdlElementDescription($element_link['minorid'], 'binding');
-			$link['short_name'] = $schema->getWsdlElementDescription($element_link['minorid'], 'binding');
-			$link['status'] = $this->status;
-
-			$link['link_type'] = $element_link['link_type'];
-
-			$link['sort_order'] = $element_link['sort_order'];
-
-			$links[] = $link;
-		}
-		return $links;
+		$binding_links = $schema->getBindingLinks($this->id);
+		return $schema->_getAssetMapLinks($binding_links);
 
 	}//end getAssetMapLinks()
 
