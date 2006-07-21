@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.23 2006/07/20 06:07:20 skim Exp $
+* $Id: pdf_file.inc,v 1.24 2006/07/21 06:39:47 skim Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -145,35 +145,6 @@ class PDF_File extends File
 		return $content;
 
 	}//end getContent()
-
-
-	/**
-	* Prints out the PDF file to the frontend
-	*
-	* Recent bug found. Some types of pdf files can not be read with readfile() or
-	* fpassthru() function and it caused a problem with the various pdf readers.
-	* Instead of using PHP wrapper funtions, it attempts to send the file buffer by buffer until
-	* it meets the end of file.
-	*
-	* @return void
-	* @access private
-	*/
-	function _printFrontendFile(&$info)
-	{
-		header('Accept-Ranges: bytes');
-
-		@ob_end_clean();
-		$bufsize = 1024 * 8; // 8 bytes
-		if(file_exists($info['path']) && ($fh = fopen($info['path'], "rb"))){
-			while (!feof($fh)) {
-				print(fread($fh, $bufsize));
-				flush();
-				@ob_flush();
-			}
-			fclose($fh);
-		}
-
-	}//end _printFrontendFile()
 
 
 }//end class
