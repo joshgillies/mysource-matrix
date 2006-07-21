@@ -1,0 +1,41 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1 2006/07/21 06:51:48 arailean Exp $
+*
+*/
+-->
+
+<contents>
+
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="SOAP Configuration">
+		<field attribute="soap_operation_asset">
+			<display_name>SOAP Operation Asset</display_name>
+		</field>
+
+		<field>
+			<display_name>Input Map</display_name>
+			<function_call>
+				<paint_function name="paintOperationInputs" />
+				<process_function name="processOperationInputs" />
+			</function_call>
+		</field>
+	</section>
+
+</contents>

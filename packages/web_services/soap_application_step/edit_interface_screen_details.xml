@@ -1,0 +1,36 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1 2006/07/21 06:51:48 arailean Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes">
+		<field attribute="name">
+			<text width="35" height="1" />
+		</field>
+	</section>
+	<section name="SOAP Configuration" write_access="write:attributes">
+		<field attribute="soap_operation_asset">
+			<assetid type_codes="soap_wsdl_operation:I" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintOperationInputs" />
+				<process_function name="processOperationInputs" />
+			</function_call>
+		</field>
+	</section>
+</contents>
