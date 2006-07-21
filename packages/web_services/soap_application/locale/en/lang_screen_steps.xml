@@ -1,0 +1,35 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_steps.xml,v 1.1 2006/07/21 06:50:15 arailean Exp $
+*
+*/
+-->
+<contents>
+	<section name="Application Steps">`
+		<field>
+			<display_name>Add Steps</display_name>
+			<function_call>
+				<paint_function name="paintAddSteps" />
+				<process_function name="processAddSteps" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Step List</display_name>
+			<function_call>
+				<paint_function name="paintStepList" />
+				<process_function name="processStepList" />
+			</function_call>
+		</field>
+	</section>
+</contents>
