@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.23 2006/01/30 04:27:07 sdanis Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.24 2006/07/21 04:56:01 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -40,6 +40,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	function Design_Area_Searchbox_Edit_Fns()
 	{
 		$this->Design_Area_Edit_Fns();
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
