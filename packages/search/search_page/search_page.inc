@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.157.2.6 2006/06/19 23:26:48 sdanis Exp $
+* $Id: search_page.inc,v 1.157.2.7 2006/07/21 05:00:30 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.157.2.6 $
+* @version $Revision: 1.157.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1422,13 +1422,13 @@ class Search_Page extends Listing_Engine
 				}
 			} else {
 
-				if ($form_name == 'sis_form') {
+				if ($form_name == 'sis_form' || $form_name == 'search_form') {
 					if (substr($keyword, -17) == '_category_chooser') {
-						$cat_name = substr($keyword, 0, -17);
-						$selected_option = array_get_index($_REQUEST, 'search_category', '');
 						$categories = $this->attr('categories');
-						$replacements[$keyword] = ($selected_option) ? $categories[$cat_name][$selected_option]['full_name'] : $categories[$cat_name]['unselected_text'];
-						break;
+						$cat_name = substr($keyword, 0, -17);
+						$selected_option = array_get_index($_REQUEST, 'category_'.$cat_name, '');
+
+						$replacements[$keyword] = $this->getCategoryChooserReplacement($cat_name, $categories[$cat_name], $selected_option);
 					} else {
 						$replacements[$keyword] = $this->getGeneralReplacement($keyword);
 					}
