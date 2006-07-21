@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
+* $Id: form_question_rule_type_file_type.inc,v 1.2.2.1 2006/07/21 05:56:21 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,40 +70,6 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 	}//end getOperators()
 
 
-	/**
-	* processes a test on a single static value
-	*
-	* Used when we are using rules outside of validating a form - for example selective emails.
-	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically.
-	*
-	* The value being tested in this case should be the file name of the uploaded file.
-	*
-	* @param mixed	$answer			the answer being passed to us
-	* @param string	$operator		the operator being used to compare
-	* @param mixed	&$comparison	either a value or a form_question asset (based on
-	*								comparison question id), being used to compare
-	*
-	* @static
-	* @access public
-	* @return boolean true only if rule succeeds
-	*/
-	function valueTest($answer, $operator, &$comparison)
-	{
-		if (strrpos($answer, '.') === false) {
-			$extension = '';
-		} else {
-			$extension = substr($answer, strrpos($answer, '.'));
-		}
-
-		$valid = (strpos(strtolower($comparison), strtolower($answer)) !== false) ? 1 : 0;
-
-		return ($valid == $operator);
-
-
-	}//end valueTest()
-
 
 	/**
 	* processes a test on a single static value
@@ -129,13 +95,12 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$comparison = array_get_index($rule_data, 'value', '');
 
-		if (strrpos($answer, '.') === false) {
-			$extension = '';
+		if (($answer == '') || (strrpos($answer, '.') === FALSE)) {
+			$valid = FALSE;
 		} else {
 			$extension = substr($answer, strrpos($answer, '.') + 1);
+			$valid = (strpos(strtolower($comparison), strtolower($extension)) !== false) ? 1 : 0;
 		}
-
-		$valid = (strpos(strtolower($comparison), strtolower($extension)) !== false) ? 1 : 0;
 
 		return ($valid == $operator);
 

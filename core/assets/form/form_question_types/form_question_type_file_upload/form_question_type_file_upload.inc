@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.5.2.1 2006/07/10 02:58:44 tbarrett Exp $
+* $Id: form_question_type_file_upload.inc,v 1.5.2.2 2006/07/21 05:56:21 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5.2.1 $
+* @version $Revision: 1.5.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -115,46 +115,70 @@ class Form_Question_Type_File_Upload extends Form_Question
 	*/
 	function hasValidValue()
 	{
-		$create_loc = $this->attr('create_location');
-		if (empty($create_loc)) {
-			// no create location set
-			$this->failed_rules[] = translate('core_form_file_upload_no_create_locs', $this->attr('name'));' "'.$this->attr('name').'"';
-			return false;
-		}
-
-		if ($this->_tmp['file_info'] === false) {
-			// there was an upload error
-			$this->failed_rules[] = translate('core_form_file_upload_error', $this->attr('name'));
-			return false;
-		}
-
 		$ok = true;
 
-		if (is_array($this->_tmp['file_info']) && empty($this->_tmp['file_info']) && $this->attr('is_required')) {
-			// no file uploaded to required field
-			if (strlen($this->attr('cust_required_error'))) {
-				$this->failed_rules[] = $this->attr('cust_required_error');
-			} else {
-				$this->failed_rules[] = translate('core_form_file_upload_none_rule', $this->attr('name'));
-			}
-			$ok = false;
-		}
+		// if the question is optional and answer is empty then dont check this rule
+		if (!empty($this->_tmp['file_info']['name']) || $this->attr('is_required')) {
 
-		if ($this->attr('overwrite_rule') == 'D') {
-			// we want to throw an error if a file with this name already exists, so see if one does
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
-			$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($this->getValue()));
-			assert_valid_db_result($existing_file);
-			if ($existing_file) {
-				// file already exists so throw the error
+			$create_loc = $this->attr('create_location');
+			if (empty($create_loc)) {
+				// no create location set
+				$this->failed_rules[] = translate('core_form_file_upload_no_create_locs', $this->attr('name'));' "'.$this->attr('name').'"';
+				return false;
+			}
+
+			if ($this->_tmp['file_info'] === false) {
+				// there was an upload error
+				$this->failed_rules[] = translate('core_form_file_upload_error', $this->attr('name'));
+				return false;
+			}
+
+			if (is_array($this->_tmp['file_info']) && empty($this->_tmp['file_info']) && $this->attr('is_required')) {
+				// no file uploaded to required field
+				if (strlen($this->attr('cust_required_error'))) {
+					$this->failed_rules[] = $this->attr('cust_required_error');
+				} else {
+					$this->failed_rules[] = translate('core_form_file_upload_none_rule', $this->attr('name'));
+				}
 				$ok = false;
-				$this->failed_rules[] = translate('core_form_file_upload_already_exists', $this->attr('name'));
 			}
+
+			if ($this->attr('overwrite_rule') == 'D') {
+				// we want to throw an error if a file with this name already exists, so see if one does
+				$db =& $GLOBALS['SQ_SYSTEM']->db;
+				$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($this->getValue()));
+				assert_valid_db_result($existing_file);
+				if ($existing_file) {
+					// file already exists so throw the error
+					$ok = false;
+					$this->failed_rules[] = translate('core_form_file_upload_already_exists', $this->attr('name'));
+				}
+			}
+
+			$rules = $this->getRules();
+			$answer = $this->getValue();
+			foreach ($rules as $k=>$rule) {
+				$type_code = 'form_question_rule_type_'.$rule['rule_code'];
+
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+				$rule_asset =& new $type_code();
+				$rule_ok = $rule_asset->evaluate($answer, $rule, $this);
+
+				if (!$rule_ok) {
+					$ok = false;
+					$custom_text = array_get_index($rule, 'custom_text', '');
+					if (!empty($custom_text)) {
+						$this->failed_rules[] = $rule['custom_text'];
+					} else {
+						$this->failed_rules[] = $rule_asset->defaultError($this, $rule);
+					}
+				}
+
+			}
+
 		}
 
-		if ($ok) return parent::hasValidValue();
-
-		return false;
+		return $ok;
 
 	}//end hasValidValue()
 
