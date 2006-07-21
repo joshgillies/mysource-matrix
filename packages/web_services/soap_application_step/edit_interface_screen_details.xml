@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2006/07/21 06:51:48 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2006/07/21 06:58:41 tbarrett Exp $
 *
 */
 -->
@@ -30,6 +30,12 @@
 			<function_call>
 				<paint_function name="paintOperationInputs" />
 				<process_function name="processOperationInputs" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintAddForm" />
+				<process_function name="processAddForm" />
 			</function_call>
 		</field>
 	</section>
