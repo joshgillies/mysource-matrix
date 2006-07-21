@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.16 2006/06/26 04:32:34 rhoward Exp $
+* $Id: tagging.inc,v 1.17 2006/07/21 06:25:31 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 
@@ -48,7 +48,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 {
 	$root =& $ei->findScreen('static_screen_tagging');
 	if (is_null($root)) return FALSE;
-	$write_access = $owner->writeAccess('links');
+	$write_access = $owner->writeAccess('menu');
 	$prefix = $owner->getPrefix();
 	$print_commit_button = FALSE;
 
@@ -297,7 +297,7 @@ function processTagging(&$owner, &$o, $ei)
 		exit();
 	}
 	// if we dont have write access, dont process anything
-	if (!$owner->writeAccess('all')) return FALSE;
+	if (!$owner->writeAccess('menu')) return FALSE;
 	$prefix = $owner->getPrefix();
 
 	$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();

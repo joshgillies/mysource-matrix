@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.58 2006/07/05 04:04:18 rong Exp $
+* $Id: asset_edit_fns.inc,v 1.59 2006/07/21 06:25:31 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -110,7 +110,7 @@ class Asset_Edit_Fns extends MySource_Object
 							'tagging'			=> Array(
 													'name'			=> 'Tagging',
 													'force_unlock'	=> TRUE,
-													'lock_type'		=> 'all',
+													'lock_type'		=> 'menu',
 												   ),
 						  );
 
