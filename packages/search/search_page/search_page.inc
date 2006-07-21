@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.173 2006/06/23 01:57:02 rong Exp $
+* $Id: search_page.inc,v 1.174 2006/07/21 04:59:14 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.173 $
+* @version $Revision: 1.174 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1487,14 +1487,13 @@ class Search_Page extends Listing_Engine
 					$replacements[$keyword] = $this->getFieldReplacement($matches[1]);
 				}
 			} else {
-
-				if ($form_name == 'sis_form') {
+				if ($form_name == 'sis_form' || $form_name == 'search_form') {
 					if (substr($keyword, -17) == '_category_chooser') {
-						$cat_name = substr($keyword, 0, -17);
-						$selected_option = array_get_index($_REQUEST, 'search_category', '');
 						$categories = $this->attr('categories');
-						$replacements[$keyword] = ($selected_option) ? $categories[$cat_name][$selected_option]['full_name'] : $categories[$cat_name]['unselected_text'];
-						break;
+						$cat_name = substr($keyword, 0, -17);
+						$selected_option = array_get_index($_REQUEST, 'category_'.$cat_name, '');
+
+						$replacements[$keyword] = $this->getCategoryChooserReplacement($cat_name, $categories[$cat_name], $selected_option);
 					} else {
 						$replacements[$keyword] = $this->getGeneralReplacement($keyword);
 					}
@@ -2608,6 +2607,13 @@ class Search_Page extends Listing_Engine
 			$bodycopy_links[] = $sis_bodycopy_link;
 		}
 
+		// if there is a search in search bodycopy add it to the bodycopy list
+		// it will need some of the initial page keywords
+		$search_bodycopy_link    = $this->getFormatBodycopyLink('search_form');
+		if (!empty($search_bodycopy_link)) {
+			$bodycopy_links[] = $search_bodycopy_link;
+		}
+
 		$bodycopies = Array();
 		$type_formats = Array();
 
@@ -2626,12 +2632,12 @@ class Search_Page extends Listing_Engine
 		}
 
 		// work out if forms are customised
-		$search_bodycopy_link = $this->getFormatBodycopyLink('search_form');
-		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
-		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
+		$search_bodycopy_link	= $this->getFormatBodycopyLink('search_form');
+		$search_customised		= !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
+		$sis_customised			= !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 
 		foreach ($bodycopies as $bodycopy) {
-			if ($bodycopy == 'initial' || $bodycopy == 'sis_form') {
+			if ($bodycopy == 'initial' || $bodycopy == 'sis_form' || $bodycopy == 'search_form') {
 				// work out the query field keywords
 				$fields = $this->attr('fields');
 				foreach ($fields as $field => $field_data) {
@@ -2640,16 +2646,13 @@ class Search_Page extends Listing_Engine
 						$keywords[$field.'_query_logic'] = translate('sch_page_keyword_search_field_logic', $field);
 					}
 				}
-
-				if ($bodycopy == 'initial') {
-					// work out search category keywords
-					foreach ($this->attr('categories') as $cat_name => $cat_details) {
-						$keywords[$cat_name.'_category_chooser'] = 'Dropdown box for category set '.$cat_name;
-					}
+				// work out search category keywords
+				foreach ($this->attr('categories') as $cat_name => $cat_details) {
+					$keywords[$cat_name.'_category_chooser'] = 'Dropdown box for category set '.$cat_name;
 				}
 			}
 
-			if ($bodycopy != 'sis_form') {
+			if ($bodycopy != 'sis_form' && $bodycopy != 'search_form') {
 				foreach ($this->keywords[$bodycopy] as $keyword) {
 					$keywords[$keyword] = ucwords(str_replace('_', ' ', $keyword));
 				}
@@ -2660,12 +2663,11 @@ class Search_Page extends Listing_Engine
 				}
 
 				// search in search
-				if ($sis_customised) {
+				if ($sis_customised && $bodycopy == 'results') {
 					$keywords += $this->_getSearchInSearchKeywords();
 				}
 			}
 		}//end foreach
-
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
