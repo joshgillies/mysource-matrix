@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.157.2.7 2006/07/21 05:00:30 skim Exp $
+* $Id: search_page.inc,v 1.157.2.8 2006/07/21 05:12:30 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.157.2.7 $
+* @version $Revision: 1.157.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -925,6 +925,7 @@ class Search_Page extends Listing_Engine
 									$this->_printDateRange('queries_'.$query_var, $current_value);
 								break;
 								case 'metadata_field_text' :
+								case 'metadata_field_thesaurus':
 									text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
 								break;
 								case 'metadata_field_select' :
@@ -1038,6 +1039,7 @@ class Search_Page extends Listing_Engine
 									$this->_printDateRange('queries_'.$query_var, $current_value, TRUE);
 								break;
 								case 'metadata_field_text' :
+								case 'metadata_field_thesaurus':
 									text_box('queries_'.$query_var, '', $this->defaults['query_width']);
 								break;
 								case 'metadata_field_select' :
@@ -1194,6 +1196,7 @@ class Search_Page extends Listing_Engine
 									$this->_printDateRangeDescription($current_value);
 								break;
 								case 'metadata_field_text' :
+								case 'metadata_field_thesaurus' :
 									echo $query;
 								break;
 								case 'metadata_field_select' :
