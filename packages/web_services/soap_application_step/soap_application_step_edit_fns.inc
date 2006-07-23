@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step_edit_fns.inc,v 1.2 2006/07/21 06:58:41 tbarrett Exp $
+* $Id: soap_application_step_edit_fns.inc,v 1.3 2006/07/23 23:22:09 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -81,24 +81,7 @@ class SOAP_Application_Step_Edit_Fns extends Asset_Edit_Fns
 	}
 
 
-	/**
-	* Get the ID of the simple form linked to the supplied asset, if any
-	*
-	* @param object	&$asset	The asset under which the form may be linked
-	*
-	* @return int
-	* @access private
-	*/
-	function _getFormId(&$asset)
-	{
-		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'simple_form', TRUE, 'form');
-		if (empty($form_link)) {
-			return 0;
-		} else {
-			return $form_link['minorid'];
-		}
 
-	}//end _getFormId()
 
 
 	/**
@@ -113,7 +96,7 @@ class SOAP_Application_Step_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintAddForm(&$asset, &$o, $prefix)
 	{
-		$formid = $this->_getFormId($asset);
+		$formid = $asset->getFormId($asset);
 		if (!empty($formid)) {
 			echo 'This asset already has a form: '.get_asset_tag_line($formid, 'details'); // TODO: translate
 		} else {
@@ -143,18 +126,7 @@ class SOAP_Application_Step_Edit_Fns extends Asset_Edit_Fns
 	function processAddForm(&$asset, &$o, $prefix)
 	{
 		if (!empty($_POST[$prefix.'_add_form'])) {
-			$formid = $this->_getFormId($asset);
-			if (empty($formid)) {
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset('simple_form');
-				$form =& new Simple_Form();
-				$form->setAttrValue('name', 'Form');
-				$link = Array(
-							'asset'			=> &$asset,
-							'link_type'		=> SQ_LINK_TYPE_2,
-							'sort_order'	=> -1,
-						);
-				$form->create($link);
-			}
+			$asset->addForm();
 		}
 		return FALSE; // No need to save attrs on parent
 

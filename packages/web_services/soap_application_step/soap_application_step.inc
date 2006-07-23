@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.1 2006/07/21 06:51:48 arailean Exp $
+* $Id: soap_application_step.inc,v 1.2 2006/07/23 23:22:09 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -203,8 +203,15 @@ class SOAP_Application_Step extends Asset
 	function validateInput()
 	{
 		// ask the form to process itself and prepare the data
+		$formid = $this->getFormId();
+		if (!empty($formid)) {
+			$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($formid, 'simple_form');
+			if (!empty($form)) {
+				return $form->process();
+			}
+		}
+		return TRUE;
 
-		return true;
 	}
 
 
@@ -212,7 +219,7 @@ class SOAP_Application_Step extends Asset
 	{
 		// get the SOAP processor to talk to the remote system
 
-		return true;
+		return TRUE;
 	}
 
 
@@ -248,6 +255,83 @@ class SOAP_Application_Step extends Asset
 
 
 
-}//end class
+	/**
+	* Get the ID of the simple form linked to this asset, if any
+	*
+	* @return int
+	* @access private
+	*/
+	function getFormId()
+	{
+		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'simple_form', TRUE, 'form');
+		if (empty($form_link)) {
+			return 0;
+		} else {
+			return $form_link['minorid'];
+		}
 
+	}//end getFormId()
+
+
+	/**
+	* Add a simple form linked under this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function addForm()
+	{
+		$formid = $this->getFormId();
+		if (empty($formid)) {
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('simple_form');
+			$form =& new Simple_Form();
+			$form->setAttrValue('name', 'Form');
+			$link = Array(
+						'asset'			=> &$this,
+						'link_type'		=> SQ_LINK_TYPE_2,
+						'sort_order'	=> -1,
+						'value'			=> 'form',
+					);
+			$form->create($link);
+		}
+
+	}//end addForm()
+
+
+	/**
+	* Get the replacement for the form_contents keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormContentsKeywordReplacement()
+	{
+		$formid = $this->getFormId();
+		if (empty($formid)) return '';
+		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($formid, 'simple_form');
+		ob_start();
+			$form->printBody();
+			$res = ob_get_contents();
+		ob_end_clean();
+		return $res;
+
+	}//end getFormContentsKeywordReplacement()
+
+
+	/**
+	* Get the keywords that can be replaced by this asset
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableKeywords()
+	{
+		$res = parent::getAvailableKeywords();
+		$res['form_contents'] = 'Form Contents';
+		return $res;
+
+	}//end getAvailableKeywords()
+
+
+}//end class
 ?>
