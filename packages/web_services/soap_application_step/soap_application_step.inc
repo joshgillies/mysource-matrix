@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.2 2006/07/23 23:22:09 tbarrett Exp $
+* $Id: soap_application_step.inc,v 1.3 2006/07/23 23:33:06 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -76,7 +76,7 @@ class SOAP_Application_Step extends Asset
 							'link_type'		=> SQ_LINK_TYPE_2,
 							'dependant'		=> TRUE,
 							'exclusive'		=> TRUE,
-							'content'		=> Array('content' => 'Step content has not been customised: %assetid%'),
+							'content'		=> Array('content' => 'Step content has not been customised: %asset_assetid%'),
 							'link_value'	=> 'bodycopy'
 						),
 					  );
