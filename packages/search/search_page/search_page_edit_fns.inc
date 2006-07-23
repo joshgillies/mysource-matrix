@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.69 2006/01/26 22:35:32 lwright Exp $
+* $Id: search_page_edit_fns.inc,v 1.69.2.1 2006/07/23 23:28:15 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.69.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -159,7 +159,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	*/
 	function paintFields(&$asset, &$o, $prefix)
 	{
-		$write_access = $asset->writeAccess('attributes');
+		$write_access = $asset->writeAccess('all');
 		$fields = $asset->attr('fields');
 		$query_types = Array(
 						'none'			=> '-- '.ucfirst(translate('sch_page_add_data_source').' --'),
@@ -433,7 +433,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		</table>
 		<?php
-		if ($asset->writeAccess('attributes')) {
+		if ($write_access) {
 			label(translate('sch_page_new_search_field'), $prefix.'_new_field_name');
 			echo '&nbsp;';
 			text_box($prefix.'_new_field_name', '', 15);
@@ -517,7 +517,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	function paintExcludeFields(&$asset, &$o, $prefix)
 	{
 		$fields = $asset->attr('fields');
-		$write_access = $asset->writeAccess('attributes');
+		$write_access = $asset->writeAccess('all');
 		?>
 		<table class="sq-backend-table" style="margin-bottom: 7px">
 			<tr>

@@ -11,13 +11,13 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_fields.xml,v 1.21 2005/08/10 04:12:35 tbarrett Exp $
+* $Id: edit_interface_screen_fields.xml,v 1.21.2.1 2006/07/23 23:28:15 rong Exp $
 *
 */
 -->
 <contents>
 	<section name="Logical Grouping">
-		<field attribute="logic">
+		<field write_access="write:attributes" attribute="logic">
 			<selection />
 		</field>
 	</section>
@@ -39,7 +39,7 @@
 		</field>
 	</section>
 	<section name="Field Styles">
-		<field attribute="use_picker">
+		<field write_access="write:attributes" attribute="use_picker">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field read_access="" write_access="write:attributes">
