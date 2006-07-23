@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.2 2006/07/23 23:26:56 tbarrett Exp $
+* $Id: soap_application.inc,v 1.3 2006/07/23 23:34:56 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('SQ_SOAP_APP_STEP_1', 0);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -393,7 +393,7 @@ HEREDOC;
 		$current_step = $this->getCurrentStep();
 
 		if (is_null($current_step)) {
-			trigger_error('Could not determine the step this application is on.', E_USER_ERROR);
+			trigger_error('Could not determine the step this application is on.', E_USER_WARNING);
 		} else {
 			$current_step->paintInterface();
 		}
