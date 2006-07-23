@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.1 2006/07/21 06:50:15 arailean Exp $
+* $Id: soap_application.inc,v 1.2 2006/07/23 23:26:56 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('SQ_SOAP_APP_STEP_1', 0);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -340,11 +340,11 @@ HEREDOC;
 		} else {
 			if (!$current_step->validateInput()) {
 				$success = false;
-				$error = $current_step->getError();
+				//$error = $current_step->getError();
 			} else {
 				if (!$current_step->performOperation()) {
 					$success = false;
-					$error = $current_step->getError();
+					//$error = $current_step->getError();
 				} else {
 					$this->setNextStep();
 				}
