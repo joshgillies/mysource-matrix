@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2006/07/24 01:29:28 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2006/07/24 06:08:38 tbarrett Exp $
 *
 */
 -->
@@ -41,5 +41,11 @@
 				<process_function name="processAddForm" />
 			</function_call>
 		</field>
+	</section>
+	<section name="Data Mappings" write_access="write:attributes" show_if="hasFormQuestionMappings">
+		<function_call>
+			<paint_function name="paintFormQuestionMappings" />
+			<process_function name="processFormQuestionMappings" />
+		</function_call>
 	</section>
 </contents>

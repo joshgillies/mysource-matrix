@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step_edit_fns.inc,v 1.3 2006/07/23 23:22:09 tbarrett Exp $
+* $Id: soap_application_step_edit_fns.inc,v 1.4 2006/07/24 06:08:38 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -131,6 +131,75 @@ class SOAP_Application_Step_Edit_Fns extends Asset_Edit_Fns
 		return FALSE; // No need to save attrs on parent
 
 	}//end processAddForm()
+
+
+	function paintFormQuestionMappings(&$asset, &$o, $prefix)
+	{
+		$data_fields = $asset->getDataFields();
+		if (!empty($data_fields)) {
+			$o->openRaw();
+			$wa = $asset->writeAccess('attributes');
+			$chosen_qs = $asset->getFormQuestionMappings();
+			?>
+			<table class="sq-backend-table">
+			<?php
+			foreach ($data_fields as $codename => $details) {
+				?>
+				<tr>
+					<th><?php echo $details['name']; ?></th>
+					<td>
+						<?php
+						$question_id = array_get_index($chosen_qs, $codename, 0);
+						if ($wa) {
+							asset_finder($prefix.'_question_for_'.$codename, $question_id, Array($details['question_type'] => 'D'));
+						} else if (!empty($question_id)) {
+							echo get_asset_tag_line($question_id, 'details');
+						}
+						?>
+					</td>
+				</tr>
+				<?php
+			}
+			?>
+			</table>
+			<?php
+			$o->closeRaw();
+			return TRUE;
+		}
+		return FALSE;
+
+	}//end paintFormQuestionMappings()
+
+
+	function processFormQuestionMappings(&$asset, &$o, $prefix)
+	{
+		$data_fields = $asset->getDataFields();
+		foreach ($data_fields as $codename => $details) {
+			if (!empty($_POST[$prefix.'_question_for_'.$codename]) && !empty($_POST[$prefix.'_question_for_'.$codename]['assetid'])) {
+				$asset->setFormQuestionMapping($codename, $_POST[$prefix.'_question_for_'.$codename]['assetid']);
+			}
+		}
+		return FALSE; // no attrs changed
+
+	}//end processFormQuestionMappings()
+
+
+
+	/**
+	* Return whether the asset has form question mappings
+	*
+	* @param boolean	&$asset	The asset being edited
+	*
+	* @return void
+	* @access public
+	*/
+	function hasFormQuestionMappings(&$asset)
+	{
+		$data_fields = $asset->getDataFields();
+		return !empty($data_fields);
+
+	}//end hasFormQuestionMappings()
+
 
 
 }//end class

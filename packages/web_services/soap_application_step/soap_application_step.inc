@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.5 2006/07/24 04:43:18 rhoward Exp $
+* $Id: soap_application_step.inc,v 1.6 2006/07/24 06:08:38 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -340,6 +340,69 @@ class SOAP_Application_Step extends Asset
 		trigger_error('SOAP Application Steps must be accessed via their application parent rather than directly', E_USER_WARNING);
 
 	}//end printBody()
+
+
+	/**
+	* Get the data fields for this app
+	*
+	* @return void
+	* @access public
+	*/
+	function getDataFields()
+	{
+		return Array();
+
+	}//end getDataFields()
+
+
+	/**
+	* Set the form question to be mapped to a particular data field
+	*
+	* @param string	$code_name		The code name of the data field
+	* @param string	$question_id	The ID of the question asset
+	*
+	* @return void
+	* @access public
+	*/
+	function setFormQuestionMapping($code_name, $question_id)
+	{
+		$existing_link = $GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($this->id, $question_id, SQ_LINK_NOTICE, NULL, 'major', FALSE);
+		// note:  the above call would ideally have an additional condition that the link value be 'data_mapping_'.$code_name, but we need to work with the fact that there can't be more than one shadow link between any pair of assets.
+		if (!empty($existing_link)) {
+			if ($existing_link['minorid'] == $question_id) {
+				// link already exists
+				return;
+			} else {
+				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($existing_link['linkid']);
+			}
+		}
+		$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
+		if (!is_null($question)) {
+			$GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $question, SQ_LINK_NOTICE, 'data_mapping_'.$code_name);
+		}
+
+
+	}//end setFormQuestionMapping()
+
+
+	/**
+	* Get all the form question mappings
+	*
+	* @return array
+	* @access public
+	*/
+	function getFormQuestionMappings()
+	{
+		$links = $GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($this->id, NULL, SQ_LINK_NOTICE, NULL, 'major', TRUE);
+		$mappings = Array();
+		foreach ($links as $link) {
+			if (0 === strpos($link['value'], 'data_mapping_')) {
+				$mappings[substr($link['value'], 13)] = $link['minorid'];
+			}
+		}
+		return $mappings;
+
+	}//end getFormQuestionMappings()
 
 
 	/**
