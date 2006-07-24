@@ -11,28 +11,9 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.10 2006/07/24 12:31:01 arailean Exp $
+* $Id: soap_application_step.inc,v 1.11 2006/07/24 23:37:39 arailean Exp $
 *
 */
-
-// -------- <HACK> --------
-//
-// Currently still waiting for data source; in the mean time, I'm providing my own.
-//
-class Standin_stdClass
-{
-	var $foliotypein       = 'Folio Type In';
-	var $folioreferencein  = 'Folio Reference In';
-	var $foliotypeout      = 'Folio Type Out';
-	var $folioreferenceout = 'Folio Reference Out';
-	var $nooflines         = 'No of Lines';
-	var $pages             = Array(
-							'This is a line',
-							'This is a second line',
-							'This is the last!',
-						);
-}
-// ------- </HACK> -------
 
 
 define('SQ_SOAP_APP_TYPE_KEYWORD_PREFIX',  'wsdl_type');
@@ -47,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -139,12 +120,16 @@ class SOAP_Application_Step extends Asset
 	function &getApplication()
 	{
 		if (empty($this->_app)) {
-			$app_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'soap_application', TRUE, 'minor', 'step');
+log_dump('a');
+			$app_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'soap_application', FALSE, 'minor', 'step');
+log_dump($app_links);
 
 			if (!empty($app_links)) {
+log_dump('b');
 				$app_link = array_shift($app_links);
 				$this->_app =& $GLOBALS['SQ_SYSTEM']->am->getAsset($app_link['majorid']);
 			} else {
+log_dump('c');
 				$this->_app = NULL;
 			}
 		}
@@ -259,6 +244,11 @@ class SOAP_Application_Step extends Asset
 			$op =& $GLOBALS['SQ_SYSTEM']->am->getAsset($op_assetid, 'soap_operation_asset');
 			$result_message = $op->process($input_message);
 
+//log_dump($op);
+log_dump('performOperation');
+log_dump($result_message);
+log_dump($input_message);
+
 			$this->_tmp['op_result'] = $result_message;
 		}
 		// TODO: Work out what to do in case of fault
@@ -274,17 +264,23 @@ class SOAP_Application_Step extends Asset
 	}
 
 
-	function getPreviousStepOutputMessage()
+	function &getPreviousStepOutputMessage()
 	{
 		$output_message = NULL;
 
 		$app = $this->getApplication();
+//		log_dump($app);
 		$prev_step_assetid = $app->getPreviousStepId();
 		if (!is_null($prev_step_assetid)) {
+			log_dump('step found');
 			$prev_step_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($prev_step_assetid);
 			$output_message = $prev_step_asset->getOutputMessage();
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($prev_step_asset);
+		} else {
+			log_dump('step not found');
 		}
+
+		log_dump($output_message);
 
 		return $output_message;
 
@@ -556,7 +552,7 @@ class SOAP_Application_Step extends Asset
 		}
 
 		if (!isset($this->_tmp['input_data'])) {
-			$this->_tmp['input_data'] =& $this->getPreviousStepData();
+			$this->_tmp['input_data'] = $this->getPreviousStepOutputMessage();
 		}
 		$input_data = get_object_vars($this->_tmp['input_data']);
 
@@ -686,19 +682,6 @@ class SOAP_Application_Step extends Asset
 
 	}//end getPagesKeywordReplace()
 
-
-	function &getPreviousStepData()
-	{
-		if (isset($this->_tmp['input_data'])) {
-			return $this->_tmp['input_data'];
-		}
-
-		// <hack>
-		$res = new Standin_stdClass();
-		return $res;
-		// </hack>
-
-	}//end getPreviousStepData()
 
 }//end class
 ?>
