@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.5 2006/07/24 01:29:28 tbarrett Exp $
+* $Id: soap_application.inc,v 1.6 2006/07/24 04:39:08 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('SQ_SOAP_APP_STEP_1', 0);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -117,8 +117,8 @@ Hello, this is a SOAP application. You're on <strong>%step_name%</strong> (%curr
 </div>
 HEREDOC;
 
-		$sub_assets = Array(
-						Array(
+		$sub_assets	= $this->_getInitialStepDefinitions();
+		$main_bc_data = Array(
 							'type_code'		=> 'bodycopy',
 							'name'			=> 'Main Bodycopy',
 							'link_type'		=> SQ_LINK_TYPE_2,
@@ -126,24 +126,8 @@ HEREDOC;
 							'exclusive'		=> TRUE,
 							'content'		=> Array('content' => $default_bodycopy),
 							'link_value'	=> 'bodycopy',
-						),
-						Array(
-							'type_code'		=> 'soap_application_step',
-							'name'			=> 'Step 1',
-							'link_type'		=> SQ_LINK_TYPE_2,
-							'exclusive'		=> TRUE,
-							'dependant'		=> TRUE,
-							'link_value'	=> 'step'
-						),
-						Array(
-							'type_code'		=> 'soap_application_step',
-							'name'			=> 'Second Step',
-							'link_type'		=> SQ_LINK_TYPE_2,
-							'exclusive'		=> TRUE,
-							'dependant'		=> TRUE,
-							'link_value'	=> 'step'
-						),
-					  );
+						);
+		$sub_assets = array_merge(Array($main_bc_data), $this->_getInitialStepDefinitions());
 
 		$success = TRUE;
 
@@ -174,6 +158,36 @@ HEREDOC;
 		return $success;
 
 	}//end _createAdditional()
+
+
+	/**
+	* Get the details of steps that should be created for this application automatically
+	*
+	* @return array
+	* @access protected
+	*/
+	function _getInitialStepDefinitions()
+	{
+		return Array(
+				Array(
+					'type_code'		=> 'soap_application_step',
+					'name'			=> 'Step 1',
+					'link_type'		=> SQ_LINK_TYPE_2,
+					'exclusive'		=> TRUE,
+					'dependant'		=> TRUE,
+					'link_value'	=> 'step'
+				),
+				Array(
+					'type_code'		=> 'soap_application_step',
+					'name'			=> 'Second Step',
+					'link_type'		=> SQ_LINK_TYPE_2,
+					'exclusive'		=> TRUE,
+					'dependant'		=> TRUE,
+					'link_value'	=> 'step'
+				),
+			   );
+
+	}//end _getInitialStepDefinitions()
 
 
 	/**
