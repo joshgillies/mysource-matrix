@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.18 2006/05/12 03:51:37 gsherwood Exp $
+* $Id: data_source_graph.inc,v 1.19 2006/07/24 00:43:52 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -602,6 +602,7 @@ class Data_Source_Graph extends Image
 
 			if ($this->attr('variety_count') > 0) {
 				// Update varieties
+				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
 				$am =& $GLOBALS['SQ_SYSTEM']->am;
 				$links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'image_variety');
 				foreach ($links as $link) {
@@ -610,6 +611,7 @@ class Data_Source_Graph extends Image
 						trigger_error('Failed to update the image varieties', E_USER_WARNING);
 					}
 				}
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 			}
 		} else {
 			$graph->done();
