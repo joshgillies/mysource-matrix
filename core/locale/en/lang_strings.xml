@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.149 2006/07/12 00:32:37 rhoward Exp $
+* $Id: lang_strings.xml,v 1.150 2006/07/24 00:08:56 rong Exp $
 *
 */
 
@@ -698,7 +698,7 @@
 	<string source="body_type">Body Type</string>
 	<string source="mozilla_always_uses_iframe">In Mozilla, an iFrame will always be used. This setting only affects Internet Explorer.</string>
 	<string source="all_plugins_selected">All plugins are selected</string>
-    <string source="no_plugins_selected">No plugins are selected</string>
+	<string source="no_plugins_selected">No plugins are selected</string>
 	<string source="thesaurus_used_by_matrix_expand_keywords_plugin">The thesaurus asset used by the Matrix Expand Keywords plugin</string>
 
 	<string source="automated_patching_system">Automated Patching System</string>
@@ -822,6 +822,8 @@
 	<string source="condition_logged_in_false">The user is not logged in</string>
 	<string source="condition_admin_access_true">The user has admin access</string>
 	<string source="condition_admin_access_false">The user does not have admin access</string>
+	<string source="condition_form_posted_true">The form has been posted</string>
+	<string source="condition_form_posted_false">The form has not been posted</string>
 	<string source="condition_write_access_true">The user has write access</string>
 	<string source="condition_write_access_false">The user does not have write access</string>
 	<string source="condition_simple_edit_mode_true">The user is using the simple edit interface</string>
@@ -908,6 +910,7 @@
 
 	<string source="cannot_delete_inbox-user_link">You cant delete the link between a user and their inbox</string>
 	<string source="cannot_delete_workspace-user_link">You cant delete the link between a user and their workspace</string>
+	<string source="no_user_groups_selected">No User Group has been selected for this condition</string>
 	<string source="user_group_unrestricted_access_granted">Unrestricted access has been granted. No security restrictions apply on this user group.</string>
 	<string source="user_group_unrestricted_access_denied">Unrestricted access has not been granted. Security restrictions do apply on this user group.</string>
 	<string source="restrict_screen_access">Restrict access for screen</string>
