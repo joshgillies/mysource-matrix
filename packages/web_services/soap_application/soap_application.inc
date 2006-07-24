@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.6 2006/07/24 04:39:08 tbarrett Exp $
+* $Id: soap_application.inc,v 1.7 2006/07/24 04:43:18 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('SQ_SOAP_APP_STEP_1', 0);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -223,7 +223,6 @@ HEREDOC;
 	*/
 	function _preProcessInterface()
 	{
-
 		$success = TRUE;
 
 		$current_step =& $this->getCurrentStep();
@@ -270,6 +269,7 @@ HEREDOC;
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'bodycopy');
 		$content_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 		if (is_null($content_bodycopy)) {
+			// TODO: localise
 			trigger_error('main bodycopy not found', E_USER_WARNING);
 			return;
 		}
@@ -283,6 +283,7 @@ HEREDOC;
 
 		$content_bodycopy->setKeywordReplacements($replacements);
 		$content_bodycopy->printBody();
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_bodycopy);
 
 	}//end printBody()
 

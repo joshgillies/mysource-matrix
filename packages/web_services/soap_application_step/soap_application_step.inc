@@ -11,9 +11,11 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.4 2006/07/24 01:07:55 tbarrett Exp $
+* $Id: soap_application_step.inc,v 1.5 2006/07/24 04:43:18 rhoward Exp $
 *
 */
+
+define('SQ_SOAP_APP_SUBTYPE_KEYWORD_PREFIX', 'wsdl_type');
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
@@ -24,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -61,13 +63,15 @@ class SOAP_Application_Step extends Asset
 		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, TRUE);
 		if (!$this->saveWebPaths($good_paths)) return FALSE;
 
+		// note that any further bodycopies need to have 'exclusive' set to FALSE, and the
+		// link value to the name of the bodycopy
 		$sub_assets = Array(
 						Array(
 							'type_code'		=> 'bodycopy',
 							'name'			=> 'Step Bodycopy',
 							'link_type'		=> SQ_LINK_TYPE_2,
 							'dependant'		=> TRUE,
-							'exclusive'		=> TRUE,
+							'exclusive'		=> FALSE,
 							'content'		=> Array('content' => 'Step content has not been customised: %asset_assetid%'),
 							'link_value'	=> 'bodycopy'
 						),
@@ -336,6 +340,84 @@ class SOAP_Application_Step extends Asset
 		trigger_error('SOAP Application Steps must be accessed via their application parent rather than directly', E_USER_WARNING);
 
 	}//end printBody()
+
+
+	/**
+	* Get bodycopy keyword replacement
+	*
+	* Provides a mechanism for providing keyword replacement functions by
+	* looking up the function named 'getKeywordNameKeywordReplacement'
+	* so an asset wishing to add support for 'best_ever' custom keyword
+	* should implement a function getBestEverKeywordReplacement()
+	* which returns a replacement string
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getKeywordReplacement($keyword)
+	{
+		// Bodycopies have link values that denote what level they are on, on who their parents are.
+		// Relations are denoted with '-', so if, for example, Bodycopy A has a bodycopy 'underneath'
+		// it called B. Thus, the link value for A will be 'A', and B 'A-B'.
+		// Note that the second bodycopy isn't represented by the asset map, only by the link values
+		// (and, presumably, name).
+		//
+		// Bodycopies have keywords in the format '%wsdl_type-A-B%' (an absolute reference to the A-B bodycopy)
+
+
+		// check if $this->_tmp already contains a cached-out copy of the bodycopy links
+		if (isset($this->_tmp['bodycopy_links'])) {
+			$bodycopy_links =& $this->_tmp['bodycopy_links'];
+		} else {
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE);
+			foreach ($links as $link) {
+				// ignore the main bodycopy, it's always presumed to exist
+				if ($link['value'] != 'bodycopy') {
+					$bodycopy_links[$link['value']] = $link['minorid'];
+				}
+			}
+		}
+
+		// work out what the subtype id is
+		$matches = Array();
+		preg_match('/'.SQ_SOAP_APP_SUBTYPE_KEYWORD_PREFIX.'-(.+)/', $keyword, $matches);
+		if (empty($matches[1])) {
+			return '%'.$keyword.'%';
+		}
+		$wsdl_type = $matches[1];
+
+		// grab immediately if primitive, otherwise interrogate the bodycopies
+		if (false) {
+			// TODO: Insert code to grab the primitive
+		} else {
+			// not there, look up bodycopy based on keyword, get bodycopy to print itself
+			$content_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_links[$wsdl_type]);
+			if (is_null($content_bodycopy)) {
+				// TODO: Localise
+				trigger_error('Step bodycopy "'.$wsdl_type.'" not found', E_USER_WARNING);
+				return;
+			}
+
+			require_once SQ_FUDGE_PATH.'/general/text.inc';
+			$keywords = $content_bodycopy->getKeywords();
+			$replacements = Array();
+			foreach ($keywords as $keyword) {
+				$replacements[$keyword] = $this->getKeywordReplacement($keyword);
+			}
+
+			$content_bodycopy->setKeywordReplacements($replacements);
+			ob_start();
+				$content_bodycopy->printBody();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_bodycopy);
+			return ob_get_clean();
+		}
+
+
+		return "%$keyword%";
+
+	}//end getKeywordReplacement()
 
 
 }//end class
