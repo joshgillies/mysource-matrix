@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.3 2006/07/23 23:33:06 tbarrett Exp $
+* $Id: soap_application_step.inc,v 1.4 2006/07/24 01:07:55 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -34,24 +34,9 @@ class SOAP_Application_Step extends Asset
 
 	function SOAP_Application_Step($assetid=0)
 	{
-		parent::Asset($assetid);
-	}
+		$this->Asset($assetid);
 
-
-	/**
-	* Return an array of all the permitted link types, the type asset and the cardinality
-	*
-	* @return array
-	* @access private
-	* @see Asset::_getAllowLinks()
-	*/
-	function _getAllowedLinks()
-	{
-		$_links = Array();
-
-		return $_links;
-
-	}//end _getAllowedLinks()
+	}//end SOAP_Application_Step()
 
 
 	/**
@@ -67,7 +52,14 @@ class SOAP_Application_Step extends Asset
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
+
+		// set an initial web path
+		$initial_path = strtolower($this->attr('name'));
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($initial_path));
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, TRUE);
+		if (!$this->saveWebPaths($good_paths)) return FALSE;
 
 		$sub_assets = Array(
 						Array(
@@ -81,7 +73,7 @@ class SOAP_Application_Step extends Asset
 						),
 					  );
 
-		$success = true;
+		$success = TRUE;
 
 		foreach ($sub_assets as $sub_asset) {
 			$asset_type = $sub_asset['type_code'];
@@ -119,14 +111,14 @@ class SOAP_Application_Step extends Asset
 	}
 
 
-	function getApplication()
+	function &getApplication()
 	{
 		if (empty($this->_app)) {
 			$app_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'soap_application', TRUE, 'minor', 'step');
 
 			if (!empty($app_links)) {
 				$app_link = array_shift($app_links);
-				$this->_app = $GLOBALS['SQ_SYSTEM']->am->getAsset($app_link['majorid']);
+				$this->_app =& $GLOBALS['SQ_SYSTEM']->am->getAsset($app_link['majorid']);
 			} else {
 				$this->_app = null;
 			}
@@ -331,6 +323,19 @@ class SOAP_Application_Step extends Asset
 		return $res;
 
 	}//end getAvailableKeywords()
+
+
+	/**
+	* Print the body of this asset on the frontend
+	*
+	* @return void
+	* @access public
+	*/
+	function printBody()
+	{
+		trigger_error('SOAP Application Steps must be accessed via their application parent rather than directly', E_USER_WARNING);
+
+	}//end printBody()
 
 
 }//end class
