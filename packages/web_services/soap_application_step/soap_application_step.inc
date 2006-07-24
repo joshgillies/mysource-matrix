@@ -11,11 +11,32 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.8 2006/07/24 06:48:56 tbarrett Exp $
+* $Id: soap_application_step.inc,v 1.9 2006/07/24 09:00:20 rhoward Exp $
 *
 */
 
-define('SQ_SOAP_APP_SUBTYPE_KEYWORD_PREFIX', 'wsdl_type');
+// -------- <HACK> --------
+//
+// Currently still waiting for data source; in the mean time, I'm providing my own.
+//
+class Standin_stdClass
+{
+	var $foliotypein       = 'Folio Type In';
+	var $folioreferencein  = 'Folio Reference In';
+	var $foliotypeout      = 'Folio Type Out';
+	var $folioreferenceout = 'Folio Reference Out';
+	var $nooflines         = 'No of Lines';
+	var $pages             = Array(
+							'This is a line',
+							'This is a second line',
+							'This is the last!',
+						);
+}
+// ------- </HACK> -------
+
+
+define('SQ_SOAP_APP_TYPE_KEYWORD_PREFIX',  'wsdl_type');
+define('SQ_SOAP_APP_VALUE_KEYWORD_PREFIX', 'wsdl_value');
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
@@ -26,7 +47,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -213,10 +234,9 @@ class SOAP_Application_Step extends Asset
 
 	function performOperation()
 	{
-
 		// construct input message
 		$input_message = $this->getInputMessage();
-		bam($input_message);
+		//bam($input_message);
 
 		// get the SOAP processor to talk to the remote system
 		$op_assetid = $this->attr('soap_operation_asset');
@@ -486,8 +506,10 @@ class SOAP_Application_Step extends Asset
 		//
 		// Bodycopies have keywords in the format '%wsdl_type-A-B%' (an absolute reference to the A-B bodycopy)
 
+		$res_failed = "%$keyword%";
+
 		$res = parent::getKeywordReplacement($keyword);
-		if ($res != "%$keyword%") return $res;
+		if ($res != $res_failed) return $res;
 
 		// check if $this->_tmp already contains a cached-out copy of the bodycopy links
 		if (isset($this->_tmp['bodycopy_links'])) {
@@ -502,18 +524,78 @@ class SOAP_Application_Step extends Asset
 			}
 		}
 
-		// work out what the subtype id is
-		$matches = Array();
-		preg_match('/'.SQ_SOAP_APP_SUBTYPE_KEYWORD_PREFIX.'-(.+)/', $keyword, $matches);
-		if (empty($matches[1])) {
-			return '%'.$keyword.'%';
+		if (!isset($this->_tmp['input_data'])) {
+			$this->_tmp['input_data'] =& $this->getPreviousStepData();
 		}
-		$wsdl_type = $matches[1];
+		$input_data = get_object_vars($this->_tmp['input_data']);
+
+
+		// work out what the type id is
+		$type_matches = Array();
+		preg_match('/^'.SQ_SOAP_APP_TYPE_KEYWORD_PREFIX.'-(.+)/', $keyword, $type_matches);
+		$wsdl_type = array_get_index($type_matches, 1);
+
+		$value_matches = Array();
+		preg_match('/^'.SQ_SOAP_APP_VALUE_KEYWORD_PREFIX.'-(.+)/', $keyword, $value_matches);
+		$wsdl_value = array_get_index($value_matches, 1);
+
+		// TODO: ========================================
+		// TODO: === Unable to handle arrays of types ===
+		// TODO: ========================================
 
 		// grab immediately if primitive, otherwise interrogate the bodycopies
-		if (false) {
-			// TODO: Insert code to grab the primitive
-		} else {
+		if (!empty($wsdl_value)) {
+			// TODO: Remove - Dummy Data
+			/*
+			$next_step_input = Array(
+				'response' =>
+				Object (
+					'resulttype' = string,
+					'searchtype' = string,
+					'foliotypein' = string,
+					'foliotypeout' = string,
+					'nooflines' = int,
+					'pages' = Array(
+						Object (
+							line = Array(string)
+						),
+					),
+				),
+			);
+			*/
+
+			// does the value exist?
+			if (!isset($input_data[$wsdl_value])) {
+				return $res_failed;
+			}
+
+			// check the type
+			if (is_object($input_data[$wsdl_value])) {
+				// can't handle objects
+				// TODO: localise, write better error message
+				trigger_error('Soap Application unable to display object', E_USER_WARNING);
+				return $res_failed;
+			}
+
+			if (is_array($input_data[$wsdl_value])) {
+				// TODO: ===================================================
+				// TODO: ===== Horrible, nasty hack. Fix it with fire. =====
+				// TODO: ===================================================
+				if ($wsdl_value == 'pages') {
+					$res = $this->_getPagesKeywordReplace($keyword, $input_data[$wsdl_value], $bodycopy_links['lines']);
+					if (!$res) {
+						return $res_failed;
+					}
+					return $res;
+				}
+
+			} else {
+				// just return the value
+				return $input_data[$wsdl_value];
+			}
+
+		} else if (!empty($wsdl_type)) {
+
 			// not there, look up bodycopy based on keyword, get bodycopy to print itself
 			$content_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_links[$wsdl_type]);
 			if (is_null($content_bodycopy)) {
@@ -534,13 +616,58 @@ class SOAP_Application_Step extends Asset
 				$content_bodycopy->printBody();
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_bodycopy);
 			return ob_get_clean();
+
+		} else {
+			// no match, bug out
+			return $res_failed;
 		}
 
 
-		return "%$keyword%";
+		return $res_failed;
 
 	}//end getKeywordReplacement()
 
+
+	function _getPagesKeywordReplace($keyword, $lines_array, $bodycopy_assetid)
+	{
+		$content_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_assetid);
+		if (is_null($content_bodycopy)) {
+			// TODO: Localise
+			trigger_error('Step bodycopy not found', E_USER_WARNING);
+			return FALSE;
+		}
+
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+
+		$output = '';
+		foreach ($lines_array as $current_line) {
+			$replacements = Array(
+								$keyword	=> $current_line,
+							);
+			$content_bodycopy->setKeywordReplacements($replacements);
+			ob_start();
+				$content_bodycopy->printBody();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_bodycopy);
+			$output .= ob_get_clean();
+		}
+
+		return $output;
+
+	}//end getPagesKeywordReplace()
+
+
+	function &getPreviousStepData()
+	{
+		if (isset($this->_tmp['input_data'])) {
+			return $this->_tmp['input_data'];
+		}
+
+		// <hack>
+		$res = new Standin_stdClass();
+		return $res;
+		// </hack>
+
+	}//end getPreviousStepData()
 
 }//end class
 ?>
