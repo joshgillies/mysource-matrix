@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.7 2006/07/24 04:43:18 rhoward Exp $
+* $Id: soap_application.inc,v 1.8 2006/07/24 06:48:56 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('SQ_SOAP_APP_STEP_1', 0);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -231,9 +231,11 @@ HEREDOC;
 		} else {
 			if (!$current_step->validateInput()) {
 				$success = FALSE;
+				bam("INPUT DID NOT VALIDATE");
 				//$error = $current_step->getError();
 			} else {
 				if (!$current_step->performOperation()) {
+					bam("OPERATION DID NOT PERFORM");
 					$success = FALSE;
 					//$error = $current_step->getError();
 				} else {
@@ -398,7 +400,7 @@ HEREDOC;
 	function _loadSteps()
 	{
 
-		$step_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'soap_application_step', TRUE, 'major', 'step');
+		$step_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'soap_application_step', FALSE, 'major', 'step');
 
 		$steps = Array();
 

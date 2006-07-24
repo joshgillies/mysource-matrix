@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.7 2006/07/24 06:31:29 arailean Exp $
+* $Id: soap_application_step.inc,v 1.8 2006/07/24 06:48:56 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -215,17 +215,31 @@ class SOAP_Application_Step extends Asset
 	{
 
 		// construct input message
-		$input_message = Array();
+		$input_message = $this->getInputMessage();
+		bam($input_message);
 
 		// get the SOAP processor to talk to the remote system
-		$op_assetid = $asset->attr('soap_operation_asset');
-		$op =& $GLOBALS['SQ_SYSTEM']->am->getAsset($op_assetid, 'soap_operation_asset');
-		$result_message = $op->process($input_message);
-
-		$this->_tmp['op_result'] = $result_message;
+		$op_assetid = $this->attr('soap_operation_asset');
+		if ($op_assetid) {
+			$op =& $GLOBALS['SQ_SYSTEM']->am->getAsset($op_assetid, 'soap_operation_asset');
+			$result_message = $op->process($input_message);
+			$this->_tmp['op_result'] = $result_message;
+		}
 
 		return TRUE;
 	}
+
+	/**
+	* Get input message
+	*
+	* @return void
+	* @access public
+	*/
+	function getInputMessage()
+	{
+		return Array();
+
+	}//end getInputMessage()
 
 
 	/**
@@ -364,6 +378,22 @@ class SOAP_Application_Step extends Asset
 	}//end getDataFields()
 
 
+	function getDataFieldQuestionValue($code_name)
+	{
+		$formid = $this->getFormId();
+		$questionid = $this->getFormQuestionMapping($code_name);
+		if ($formid) {
+			$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($formid, 'simple_form');
+			$answers = $form->getAnswers();
+			if (isset($answers[$questionid])) {
+				return $answers[$questionid]['value'];
+			}
+		}
+		return NULL;
+
+	}//end getDataFieldQuestionValue()
+
+
 	/**
 	* Set the form question to be mapped to a particular data field
 	*
@@ -415,6 +445,24 @@ class SOAP_Application_Step extends Asset
 
 
 	/**
+	* Get the form question mapping for the supplied code name
+	*
+	* @return array
+	* @access public
+	*/
+	function getFormQuestionMapping($code_name)
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($this->id, NULL, SQ_LINK_NOTICE, 'data_mapping_'.$code_name, 'major', FALSE);
+		if (empty($link)) {
+			return NULL;
+		} else {
+			return $link['minorid'];
+		}
+
+	}//end getFormQuestionMappings()
+
+
+	/**
 	* Get bodycopy keyword replacement
 	*
 	* Provides a mechanism for providing keyword replacement functions by
@@ -438,6 +486,8 @@ class SOAP_Application_Step extends Asset
 		//
 		// Bodycopies have keywords in the format '%wsdl_type-A-B%' (an absolute reference to the A-B bodycopy)
 
+		$res = parent::getKeywordReplacement($keyword);
+		if ($res != "%$keyword%") return $res;
 
 		// check if $this->_tmp already contains a cached-out copy of the bodycopy links
 		if (isset($this->_tmp['bodycopy_links'])) {
