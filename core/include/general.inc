@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.147 2006/07/24 23:23:53 arailean Exp $
+* $Id: general.inc,v 1.148 2006/07/24 23:25:58 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.147 $
+* @version $Revision: 1.148 $
 * @package MySource_Matrix
 */
 
@@ -1147,7 +1147,6 @@ function get_asset_tag_line($assetid, $screen='')
 		list($real_assetid, $shadowid) = explode(':', $assetid, 2);
 		$asset_info = Array();
 		$shadow_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-log_dump($shadow_asset);
 		if ($shadow_asset) {
 			$asset_info['type_code'] = $shadow_asset->type();
 			$asset_info['name'] = $shadow_asset->name;
