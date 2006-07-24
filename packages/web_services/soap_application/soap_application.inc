@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.3 2006/07/23 23:34:56 tbarrett Exp $
+* $Id: soap_application.inc,v 1.4 2006/07/24 01:08:39 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('SQ_SOAP_APP_STEP_1', 0);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -34,6 +34,14 @@ class SOAP_Application extends Asset
 {
 
 
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	* @return object
+	* @access public
+	*/
 	function SOAP_Application($assetid=0)
 	{
 		parent::Asset($assetid);
@@ -43,115 +51,7 @@ class SOAP_Application extends Asset
 			$_SESSION['asset'][$assetid] = Array();
 		}
 
-	}
-
-
-	/**
-	* Perform any additional processing required during the creation of this asset
-	*
-	* This will create the following asset hierarchy upon creation (asset types
-	* in square brackets):
-	*
-	* @param array	&$link	information used to create the initial link
-	*
-	* @access private
-	* @return boolean
-	*/
-	function _createAdditional(&$link)
-	{
-		if (!parent::_createAdditional($link)) return false;
-
-$default_bodycopy = <<<HEREDOC
-Hello, this is a SOAP application. You're on <strong>%step_name%</strong> (%current_step_number%/%step_count%)
-
-<div style="background: #faf; padding: 2em">
-%step_data%
-</div>
-HEREDOC;
-
-		$sub_assets = Array(
-						Array(
-							'type_code'		=> 'bodycopy',
-							'name'			=> 'Main Bodycopy',
-							'link_type'		=> SQ_LINK_TYPE_2,
-							'dependant'		=> TRUE,
-							'exclusive'		=> TRUE,
-							'content'		=> Array('content' => $default_bodycopy),
-							'link_value'	=> 'bodycopy',
-						),
-
-						Array(
-							'type_code'		=> 'soap_application_step',
-							'name'			=> 'Step 1',
-							'link_type'		=> SQ_LINK_TYPE_2,
-							'exclusive'		=> TRUE,
-							'dependant'		=> TRUE,
-							'link_value'	=> 'step'
-						),
-						Array(
-							'type_code'		=> 'soap_application_step',
-							'name'			=> 'Second Step',
-							'link_type'		=> SQ_LINK_TYPE_2,
-							'exclusive'		=> TRUE,
-							'dependant'		=> TRUE,
-							'link_value'	=> 'step'
-						),
-					  );
-
-		$success = true;
-
-		foreach ($sub_assets as $sub_asset) {
-			$asset_type = $sub_asset['type_code'];
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type);
-
-			$asset =& new $asset_type();
-			$copy_link = Array(
-							'asset'			=> &$this,
-							'value'			=> array_get_index($sub_asset, 'link_value'),
-							'link_type'		=> $sub_asset['link_type'],
-							'is_dependant'	=> array_get_index($sub_asset, 'dependant', FALSE),
-							'is_exclusive'	=> $sub_asset['exclusive'],
-						 );
-
-			$asset->setAttrValue('name', $sub_asset['name']);
-
-			$success = $asset->create($copy_link, array_get_index($sub_asset, 'content'));
-
-
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			unset($asset);
-
-			if (!$success) break;
-		}
-
-		if ($success) {
-			// set an initial web path
-			$initial_path = strtolower($this->attr('name'));
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			$valid_paths = make_valid_web_paths(Array($initial_path));
-			$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, TRUE);
-			$success = $this->saveWebPaths($good_paths);
-		}
-
-		return $success;
-
-	}//end _createAdditional()
-
-
-	/**
-	* Return an array of all the permitted link types, the type asset and the cardinality
-	*
-	* @return array
-	* @access private
-	* @see Asset::_getAllowLinks()
-	*/
-	function _getAllowedLinks()
-	{
-		$_links = Array();
-
-		return $_links;
-
-	}//end _getAllowedLinks()
+	}//end constructor
 
 
 	/**
@@ -188,162 +88,140 @@ HEREDOC;
 
 
 	/**
-	* Returns name of the forum
+	* Perform any additional processing required during the creation of this asset
 	*
-	* @param boolean	$short_name	whether or not we are after the shortname or the full name
+	* This will create the following asset hierarchy upon creation (asset types
+	* in square brackets):
 	*
-	* @return string
+	* @param array	&$link	information used to create the initial link
+	*
 	* @access private
-	* @see Asset::_getName()
+	* @return boolean
 	*/
-	function _getName($short_name=FALSE)
+	function _createAdditional(&$link)
 	{
-		return $this->attr(($short_name?'short_':'').'name');
+		if (!parent::_createAdditional($link)) return FALSE;
 
-	}//end _getName()
+		// set an initial web path
+		$initial_path = strtolower($this->attr('name'));
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($initial_path));
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, TRUE);
+		if (!$this->saveWebPaths($good_paths)) return FALSE;
+
+$default_bodycopy = <<<HEREDOC
+Hello, this is a SOAP application. You're on <strong>%step_name%</strong> (%current_step_number%/%step_count%)
+
+<div style="background: #faf; padding: 2em">
+%step_data%
+</div>
+HEREDOC;
+
+		$sub_assets = Array(
+						Array(
+							'type_code'		=> 'bodycopy',
+							'name'			=> 'Main Bodycopy',
+							'link_type'		=> SQ_LINK_TYPE_2,
+							'dependant'		=> TRUE,
+							'exclusive'		=> TRUE,
+							'content'		=> Array('content' => $default_bodycopy),
+							'link_value'	=> 'bodycopy',
+						),
+						Array(
+							'type_code'		=> 'soap_application_step',
+							'name'			=> 'Step 1',
+							'link_type'		=> SQ_LINK_TYPE_2,
+							'exclusive'		=> TRUE,
+							'dependant'		=> TRUE,
+							'link_value'	=> 'step'
+						),
+						Array(
+							'type_code'		=> 'soap_application_step',
+							'name'			=> 'Second Step',
+							'link_type'		=> SQ_LINK_TYPE_2,
+							'exclusive'		=> TRUE,
+							'dependant'		=> TRUE,
+							'link_value'	=> 'step'
+						),
+					  );
+
+		$success = TRUE;
+
+		foreach ($sub_assets as $sub_asset) {
+			$asset_type = $sub_asset['type_code'];
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type);
+
+			$asset =& new $asset_type();
+			$copy_link = Array(
+							'asset'			=> &$this,
+							'value'			=> array_get_index($sub_asset, 'link_value'),
+							'link_type'		=> $sub_asset['link_type'],
+							'is_dependant'	=> array_get_index($sub_asset, 'dependant', FALSE),
+							'is_exclusive'	=> $sub_asset['exclusive'],
+						 );
+
+			$asset->setAttrValue('name', $sub_asset['name']);
+
+			$success = $asset->create($copy_link, array_get_index($sub_asset, 'content'));
 
 
-	function getCurrentStepId()
-	{
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			unset($asset);
 
-		if (!isset($this->_tmp['current_step_id'])) {
-			$current_step_id = array_get_index($_SESSION['asset'][$this->id], 'current_step_id');
-
-			if (!is_null($current_step_id)) {
-				// work out the first step here
-
-				$this->_tmp['current_step_id'] = $current_step_id;
-			} else {
-				$this->_tmp['current_step_id'] = NULL;
-			}
+			if (!$success) break;
 		}
 
-		return $this->_tmp['current_step_id'];
+		return $success;
 
-	}
-
-
-	function setCurrentStep($step_asset)
-	{
-		// move current step to previous step
-		if (isset($_SESSION['asset'][$this->id]['current_step_id'])) {
-			$_SESSION['asset'][$this->id]['previous_step_id'] = $_SESSION['asset'][$this->id]['current_step_id'];
-		}
-		$_SESSION['asset'][$this->id]['current_step_id'] = $step_asset->id;
-		unset($this->_tmp['current_step_id']);
-	}
+	}//end _createAdditional()
 
 
-	function setCurrentStepId($step_id)
-	{
-		// move current step to previous step
-		if (isset($_SESSION['asset'][$this->id]['current_step_id'])) {
-			$_SESSION['asset'][$this->id]['previous_step_id'] = $_SESSION['asset'][$this->id]['current_step_id'];
-		}
-		$_SESSION['asset'][$this->id]['current_step_id'] = $step_id;
-		unset($this->_tmp['current_step_id']);
-	}
-
-	function getFirstStepId()
-	{
-		// get first step (first child in asset map order)
-		$first_step = NULL;
-
-		return $this->_steps[SQ_SOAP_APP_STEP_1];
-	}
-
-
-	function setFirstStep()
-	{
-		if (isset($this->_steps[SQ_SOAP_APP_STEP_1])) {
-			$_SESSION['asset'][$this->id]['current_step_no'] = SQ_SOAP_APP_STEP_1;
-		}
-	}
-
-
-	function setNextStep()
-	{
-		$current_step = $this->getCurrentStepNo();
-		$next_step = $current_step + 1;
-		if (isset($this->_steps[$next_step])) {
-			$_SESSION['asset'][$this->id]['current_step_no'] = $next_step;
-		} else {
-			$_SESSION['asset'][$this->id]['current_step_no'] = null;
-		}
-	}
-
-
-	function getCurrentStepNo()
-	{
-		$current_step_no = array_get_index($_SESSION['asset'][$this->id], 'current_step_no');
-
-		return $current_step_no;
-	}
-
-
-	function getCurrentStep()
-	{
-		$current_step = NULL;
-
-		$current_step_no = $this->getCurrentStepNo();
-
-		$current_step_id = array_get_index($this->_steps, $current_step_no);
-
-		if (!is_null($current_step_id)) {
-			$current_step =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_step_id);
-		}
-
-		return $current_step;
-	}
-
-
-	function _loadSteps()
-	{
-
-		$step_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'soap_application_step', TRUE, 'major', 'step');
-
-		$steps = Array();
-
-		foreach($step_links as $link) {
-			$steps[$link['sort_order']] = $link['minorid'];
-		}
-
-		ksort($steps);
-		$steps = array_values($steps);
-
-		$this->_steps = $steps;
-
-		return TRUE;
-
-	}//end _loadSteps()
-
-
-	function printBody()
+	/**
+	* Prints out the Frontend for this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printFrontend()
 	{
 		$this->_loadSteps();
 
 		$this->_preProcessInterface();
 
-		$this->_printBodycopy();
-	}
+		$step =& $this->getCurrentStep();
+		if (empty($step)) return parent::printFrontend();
+
+		$step_url = strip_url($step->getUrl(), TRUE);
+		$design_info = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($step_url, 'design::system::frontend');
+		$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($design_info['designid'], $design_info['type_code']);
+
+		$this->printFrontendAsset($this, $design);
 
 
+	}//end printFrontend()
+
+
+	/**
+	* Process the interface
+	*
+	* @return boolean
+	* @access public
+	*/
 	function _preProcessInterface()
 	{
 
-		$success = true;
+		$success = TRUE;
 
 		$current_step = $this->getCurrentStep();
-
 		if (is_null($current_step)) {
 			$this->setFirstStep();
 		} else {
 			if (!$current_step->validateInput()) {
-				$success = false;
+				$success = FALSE;
 				//$error = $current_step->getError();
 			} else {
 				if (!$current_step->performOperation()) {
-					$success = false;
+					$success = FALSE;
 					//$error = $current_step->getError();
 				} else {
 					$this->setNextStep();
@@ -352,21 +230,21 @@ HEREDOC;
 		}
 
 		return $success;
-	}
+
+	}//end _preProcessInterface()
 
 
 	/**
-	* Print the main bodycopy
+	* Called by the design to print the body of this asset
 	*
-	* Provided that the context has already been determined, this function simply find an appropriate
-	* bodycopy and prints it, providing it with keywords
+	* Finds the correct main bodycopy, replaces its keywords, and prints it
 	*
 	* @return void
 	* @access public
 	*/
-	function _printBodycopy()
+	function printBody()
 	{
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'bodycopy');
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'bodycopy');
 		$content_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 		if (is_null($content_bodycopy)) {
 			trigger_error('main bodycopy not found', E_USER_WARNING);
@@ -383,15 +261,148 @@ HEREDOC;
 		$content_bodycopy->setKeywordReplacements($replacements);
 		$content_bodycopy->printBody();
 
-	}//end _printBodycopy()
+	}//end printBody()
 
 
+
+	/**
+	* Returns name of the forum
+	*
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
+	*
+	* @return string
+	* @access private
+	* @see Asset::_getName()
+	*/
+	function _getName($short_name=FALSE)
+	{
+		return $this->attr(($short_name?'short_':'').'name');
+
+	}//end _getName()
+
+
+	/**
+	* Get the assetid of the first step in this application
+	*
+	* @return int
+	* @access public
+	*/
+	function getFirstStepId()
+	{
+		// get first step (first child in asset map order)
+		$first_step = NULL;
+		return $this->_steps[SQ_SOAP_APP_STEP_1];
+
+	}//end getFirstStepId()
+
+
+	/**
+	* Set the first step as the current step
+	*
+	* @return void
+	* @access public
+	*/
+	function setFirstStep()
+	{
+		if (isset($this->_steps[SQ_SOAP_APP_STEP_1])) {
+			$_SESSION['asset'][$this->id]['current_step_no'] = SQ_SOAP_APP_STEP_1;
+		}
+
+	}//end setFirstStep()
+
+
+	/**
+	* Go to the next step
+	*
+	* @return void
+	* @access public
+	*/
+	function setNextStep()
+	{
+		$current_step = $this->getCurrentStepNo();
+		$next_step = $current_step + 1;
+		if (isset($this->_steps[$next_step])) {
+			$_SESSION['asset'][$this->id]['current_step_no'] = $next_step;
+		} else {
+			$_SESSION['asset'][$this->id]['current_step_no'] = NULL;
+		}
+
+	}//end setNextStep()
+
+
+	/**
+	* Get the number of the current step
+	*
+	* @return int
+	* @access public
+	*/
+	function getCurrentStepNo()
+	{
+		$current_step_no = array_get_index($_SESSION['asset'][$this->id], 'current_step_no', 0);
+		return $current_step_no;
+
+	}//end getCurrentStepNo()
+
+
+	/**
+	* Get the current step asset
+	*
+	* @return object
+	* @access public
+	*/
+	function &getCurrentStep()
+	{
+		$current_step = NULL;
+
+		$current_step_no = $this->getCurrentStepNo();
+		$current_step_id = array_get_index($this->_steps, $current_step_no);
+		if (!is_null($current_step_id)) {
+			$current_step =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_step_id);
+		}
+
+		return $current_step;
+
+	}//end getCurrentStep()
+
+
+	/**
+	* Load the step data
+	*
+	* @return void
+	* @access private
+	*/
+	function _loadSteps()
+	{
+
+		$step_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'soap_application_step', TRUE, 'major', 'step');
+
+		$steps = Array();
+
+		foreach ($step_links as $link) {
+			$steps[$link['sort_order']] = $link['minorid'];
+		}
+
+		ksort($steps);
+		$steps = array_values($steps);
+
+		$this->_steps = $steps;
+
+		return TRUE;
+
+	}//end _loadSteps()
+
+
+	/**
+	* Get the replacement for the step data keyword
+	*
+	* @return string
+	* @access public
+	*/
 	function getStepDataKeywordReplacement()
 	{
 		ob_start();
 
 		$current_step = $this->getCurrentStep();
-
 		if (is_null($current_step)) {
 			trigger_error('Could not determine the step this application is on.', E_USER_WARNING);
 		} else {
@@ -399,28 +410,50 @@ HEREDOC;
 		}
 
 		return ob_get_clean();
-	}
+
+	}//end getStepDataKeywordReplacement()
 
 
+	/**
+	* Get the replacement for the step name keyword
+	*
+	* @return string
+	* @access public
+	*/
 	function getStepNameKeywordReplacement()
 	{
 		$current_step = $this->getCurrentStep();
 		if (!is_null($current_step)) {
 			return $current_step->_getName();
 		}
-	}
+
+	}//end getStepNameKeywordReplacement()
 
 
+	/**
+	* Get the replacement for the step count keyword
+	*
+	* @return string
+	* @access public
+	*/
 	function getStepCountKeywordReplacement()
 	{
 		return count($this->_steps);
-	}
+
+	}//end getStepCountKeywordReplacement()
 
 
+	/**
+	* Get the replacement for the step number keyword
+	*
+	* @return string
+	* @access public
+	*/
 	function getCurrentStepNumberKeywordReplacement()
 	{
 		return $this->getCurrentStepNo() + 1;
-	}
+
+	}//end getCurrentStepNumberKeywordReplacement()
 
 
 }//end class

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_edit_fns.inc,v 1.1 2006/07/21 06:50:15 arailean Exp $
+* $Id: soap_application_edit_fns.inc,v 1.2 2006/07/24 01:08:39 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -51,7 +51,7 @@ class SOAP_Application_Edit_Fns extends Asset_Edit_Fns
 		$o->openRaw();
 		$asset->_loadSteps();
 		foreach ($asset->_steps as $step_id) {
-			$step = $GLOBALS['SQ_SYSTEM']->am->getAsset($step_id);
+			$step =& $GLOBALS['SQ_SYSTEM']->am->getAsset($step_id);
 			echo '<div>'.$step->_getName().'</div>';
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($step);
 		}
