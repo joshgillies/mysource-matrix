@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.7 2006/07/24 06:37:23 bcaldwell Exp $
+* $Id: soap_wsdl_operation.inc,v 1.8 2006/07/24 06:39:15 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -61,8 +61,6 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 
 		$this->name = $this->_getName();
 		$this->short_name = $this->_getName(TRUE);
-
-		$this->process();
 
 		return TRUE;
 
@@ -187,14 +185,15 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 		$operation_name = $this->attr('operation');
 
 		// lets find some interesting stuff out about the message
-		$message_assetid =& $this->_getMessageIdByType('input');
+		$message_assetid = $this->_getMessageIdByType('input');
 		$message_wsdl = $schema->getElementWsdl($message_assetid);
 
 		$parameters = Array();
 		foreach (array_keys($message_wsdl) as $parameter_name) {
 			$parameters[] = array_get_index($message_parameters, $parameter_name);
 		}
-		return $schema->callOperation($port_name, $operation_name, $parameters);
+		bam($parameters);
+		//return $schema->callOperation($port_name, $operation_name, $parameters);
 
 	}//end process()
 
