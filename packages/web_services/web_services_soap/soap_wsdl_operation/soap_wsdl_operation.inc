@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.9 2006/07/24 22:46:17 bcaldwell Exp $
+* $Id: soap_wsdl_operation.inc,v 1.10 2006/07/24 23:39:13 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -192,8 +192,9 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 		foreach (array_keys($message_wsdl) as $parameter_name) {
 			$parameters[] = array_get_index($message_parameters, $parameter_name);
 		}
-		bam($parameters);
-		//return $schema->callOperation($port_name, $operation_name, $parameters);
+		log_dump('operation->process');
+
+		return $schema->callOperation($port_name, $operation_name, $parameters);
 
 	}//end process()
 
