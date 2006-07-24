@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.6 2006/07/24 06:08:38 tbarrett Exp $
+* $Id: soap_application_step.inc,v 1.7 2006/07/24 06:31:29 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -213,7 +213,16 @@ class SOAP_Application_Step extends Asset
 
 	function performOperation()
 	{
+
+		// construct input message
+		$input_message = Array();
+
 		// get the SOAP processor to talk to the remote system
+		$op_assetid = $asset->attr('soap_operation_asset');
+		$op =& $GLOBALS['SQ_SYSTEM']->am->getAsset($op_assetid, 'soap_operation_asset');
+		$result_message = $op->process($input_message);
+
+		$this->_tmp['op_result'] = $result_message;
 
 		return TRUE;
 	}
