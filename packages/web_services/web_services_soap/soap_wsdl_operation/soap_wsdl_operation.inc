@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.8 2006/07/24 06:39:15 bcaldwell Exp $
+* $Id: soap_wsdl_operation.inc,v 1.9 2006/07/24 22:46:17 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */

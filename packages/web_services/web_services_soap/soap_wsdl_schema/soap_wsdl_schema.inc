@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_schema.inc,v 1.6 2006/07/24 00:38:42 bcaldwell Exp $
+* $Id: soap_wsdl_schema.inc,v 1.7 2006/07/24 22:46:17 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once 'SOAP/Client.php';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -314,6 +314,26 @@ class SOAP_WSDL_Schema extends Asset
 
 
 	/**
+	* Returns name of the asset
+	*
+	* @param boolean	$short_name	whether or not we are after the short name or the full name
+	*
+	* @return string
+	* @access private
+	* @see Asset::_getName()
+	*/
+	function _getName($short_name=FALSE)
+	{
+		$name = parent::_getName($short_name);
+		$wsdl = $this->attr('wsdl_cache');
+		if (!empty($wsdl)) $name = basename($wsdl->uri);
+
+		return $name;
+
+	}//end _getName()
+
+
+	/**
 	* Perform some extra actions when setting the value of the 'wsdl_uri' attribute
 	*
 	* This method will automatically parse and cache the file located at 'wsdl_uri' when
@@ -380,7 +400,7 @@ class SOAP_WSDL_Schema extends Asset
 		$wsdl = $this->attr('wsdl_cache');
 		if (empty($wsdl)) return NULL;
 
-		$proxy = $wsdl->getProxy($port_name);
+		$proxy = $wsdl->getProxy(/*$port_name*/);
 		return call_user_func_array(array($proxy, $operation_name), $parameters);
 
 	}//end callOperation()
