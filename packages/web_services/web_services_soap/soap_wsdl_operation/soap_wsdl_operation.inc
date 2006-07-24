@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.5 2006/07/21 04:56:55 bcaldwell Exp $
+* $Id: soap_wsdl_operation.inc,v 1.6 2006/07/24 00:38:42 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -82,6 +82,95 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 		return $schema->_getAssetMapLinks($message_links);
 
 	}//end getAssetMapLinks()
+
+
+	/**
+	* Returns a reference to the input message for this operation.
+	*
+	* @access public
+	* @return &object
+	*/
+	function getInputMessageAsset()
+	{
+		$input_message_asset =& $this->getMessageAssetByType('input');
+		return $input_message_asset;
+
+	}//end getInputMessageAsset()
+
+
+	/**
+	* Returns a reference to the output message for this operation.
+	*
+	* @access public
+	* @return &object
+	*/
+	function getOutputMessageAsset()
+	{
+		$output_message_asset =& $this->getMessageAssetByType('output');
+		return $output_message_asset;
+
+	}//end getOutputMessageAsset()
+
+
+	/**
+	* Given the type of message, will attempt to return a reference to it
+	*
+	* @param string	$type	the type of message (input, output, fault)
+	*
+	* @access public
+	* @return &object
+	*/
+	function &getMessageAssetByType($type)
+	{
+		$message_assetid = $this->_getMessageIdByType($type);
+		if (is_null($message_assetid)) return $null = NULL;
+
+		$message_asset = $this->getMessageAsset($message_assetid);
+		return $message_asset;
+
+	}//end _getMessageAssetByType()
+
+
+	/**
+	* Given a type, attempts to determing the asset id of the corresponding message for this operation
+	*
+	* @param string	$type	the type of message (input, output, fault)
+	*
+	* @access private
+	* @return string
+	*/
+	function _getMessageIdByType($type)
+	{
+		$schema =& $this->getWsdlSchema();
+		if (is_null($schema)) return;
+
+		// extract this information from the operation definition
+		$operation_wsdl = $schema->getElementWsdl($this->id);
+
+		// details of the particular message
+		$message_wsdl = array_get_index($operation_wsdl, $type);
+		if (is_null($message_wsdl)) return;
+
+		$message_name = array_get_index($message_wsdl, 'message');
+		return implode('/', Array($this->id, $message_name));
+
+	}//end _getMessageIdByType()
+
+
+	/**
+	* Given the asset id of a message, returns a reference to it
+	*
+	* @param string	$assetid	the full asset id of the message
+	*
+	* @access public
+	* @return &object
+	*/
+	function &getMessageAsset($assetid)
+	{
+		$message_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		return $message_asset;
+
+	}//end getMessageAsset()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_schema.inc,v 1.5 2006/07/21 04:56:55 bcaldwell Exp $
+* $Id: soap_wsdl_schema.inc,v 1.6 2006/07/24 00:38:42 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once 'SOAP/Client.php';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -44,6 +44,10 @@ class SOAP_WSDL_Schema extends Asset
 
 
 	/**
+	* The allowed structure of the shadow asset ids for this bridge
+	*
+	* @var array
+	* @access public
 	*/
 	var $assetid_format = Array('service', 'binding', 'port', 'operation', 'message');
 
@@ -877,6 +881,23 @@ class SOAP_WSDL_Schema extends Asset
 		return $message_links;
 
 	}//end getMessageLinks()
+
+
+	/**
+	*/
+	function _getMessageWsdl($assetid)
+	{
+		$wsdl = $this->attr('wsdl_cache');
+		if (empty($wsdl)) return Array();
+
+		$message_wsdl = $wsdl->messages;
+		if (!empty($wsdl)) {
+			$message_name = $this->getElementName($assetid, 'message');
+			$message_wsdl = array_get_index($message_wsdl, $message_name);
+		}
+		return $message_wsdl;
+
+	}//end _getMessageWsdl()
 
 
 }//end class

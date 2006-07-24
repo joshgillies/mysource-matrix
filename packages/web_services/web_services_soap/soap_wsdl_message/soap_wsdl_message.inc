@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_message.inc,v 1.1 2006/07/21 04:56:55 bcaldwell Exp $
+* $Id: soap_wsdl_message.inc,v 1.2 2006/07/24 00:38:42 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -65,6 +65,17 @@ class SOAP_WSDL_Message extends SOAP_WSDL_Element
 		return TRUE;
 
 	}//end loadElement()
+
+
+	/**
+	*/
+	function getStructure()
+	{
+		$schema =& $this->getWsdlSchema();
+		if (is_null($schema)) return Array();
+
+		return $schema->getElementWsdl($this->id);
+	}
 
 
 	/**
