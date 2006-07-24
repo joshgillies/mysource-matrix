@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2006/07/21 06:58:41 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2006/07/24 01:29:28 tbarrett Exp $
 *
 */
 -->
@@ -31,6 +31,9 @@
 				<paint_function name="paintOperationInputs" />
 				<process_function name="processOperationInputs" />
 			</function_call>
+		</field>
+		<field attribute="use_application_layout">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field>
 			<function_call>
