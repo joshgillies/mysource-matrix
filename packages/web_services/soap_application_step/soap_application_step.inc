@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.9 2006/07/24 09:00:20 rhoward Exp $
+* $Id: soap_application_step.inc,v 1.10 2006/07/24 12:31:01 arailean Exp $
 *
 */
 
@@ -47,7 +47,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -145,7 +145,7 @@ class SOAP_Application_Step extends Asset
 				$app_link = array_shift($app_links);
 				$this->_app =& $GLOBALS['SQ_SYSTEM']->am->getAsset($app_link['majorid']);
 			} else {
-				$this->_app = null;
+				$this->_app = NULL;
 			}
 		}
 
@@ -232,23 +232,6 @@ class SOAP_Application_Step extends Asset
 	}
 
 
-	function performOperation()
-	{
-		// construct input message
-		$input_message = $this->getInputMessage();
-		//bam($input_message);
-
-		// get the SOAP processor to talk to the remote system
-		$op_assetid = $this->attr('soap_operation_asset');
-		if ($op_assetid) {
-			$op =& $GLOBALS['SQ_SYSTEM']->am->getAsset($op_assetid, 'soap_operation_asset');
-			$result_message = $op->process($input_message);
-			$this->_tmp['op_result'] = $result_message;
-		}
-
-		return TRUE;
-	}
-
 	/**
 	* Get input message
 	*
@@ -257,9 +240,55 @@ class SOAP_Application_Step extends Asset
 	*/
 	function getInputMessage()
 	{
-		return Array();
+		$input_message = Array();
+
+		return $input_message;
 
 	}//end getInputMessage()
+
+
+	function performOperation()
+	{
+
+		// construct input message
+		$input_message = $this->getInputMessage();
+
+		// get the SOAP processor to talk to the remote system
+		$op_assetid = $this->attr('soap_operation_asset');
+		if (!empty($op_assetid)) {
+			$op =& $GLOBALS['SQ_SYSTEM']->am->getAsset($op_assetid, 'soap_operation_asset');
+			$result_message = $op->process($input_message);
+
+			$this->_tmp['op_result'] = $result_message;
+		}
+		// TODO: Work out what to do in case of fault
+
+		return TRUE;
+	}
+
+
+	function getOutputMessage()
+	{
+		$output_message = array_get_index($this->_tmp, 'op_result');
+		return $output_message;
+	}
+
+
+	function getPreviousStepOutputMessage()
+	{
+		$output_message = NULL;
+
+		$app = $this->getApplication();
+		$prev_step_assetid = $app->getPreviousStepId();
+		if (!is_null($prev_step_assetid)) {
+			$prev_step_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($prev_step_assetid);
+			$output_message = $prev_step_asset->getOutputMessage();
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($prev_step_asset);
+		}
+
+		return $output_message;
+
+	}
 
 
 	/**
@@ -320,6 +349,7 @@ class SOAP_Application_Step extends Asset
 	*/
 	function addForm()
 	{
+		// TODO: Only allow one form to be added. Hide the 'Add' interface if form exists (in edit fns)
 		$formid = $this->getFormId();
 		if (empty($formid)) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('simple_form');
@@ -366,6 +396,7 @@ class SOAP_Application_Step extends Asset
 	function getAvailableKeywords()
 	{
 		$res = parent::getAvailableKeywords();
+		// TODO: Add Logic to see if there is a form on this asset and conditionally display this keyword
 		$res['form_contents'] = 'Form Contents';
 		return $res;
 
