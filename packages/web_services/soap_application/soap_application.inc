@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.8 2006/07/24 06:48:56 tbarrett Exp $
+* $Id: soap_application.inc,v 1.9 2006/07/24 12:16:52 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('SQ_SOAP_APP_STEP_1', 0);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -112,8 +112,8 @@ class SOAP_Application extends Asset
 $default_bodycopy = <<<HEREDOC
 Hello, this is a SOAP application. You're on <strong>%step_name%</strong> (%current_step_number%/%step_count%)
 
-<div style="background: #faf; padding: 2em">
-%step_data%
+<div style="background: #f79121; padding: 2em; border: solid 2px grey">
+%step_content%
 </div>
 HEREDOC;
 
@@ -203,6 +203,8 @@ HEREDOC;
 		$this->_preProcessInterface();
 
 		$step =& $this->getCurrentStep();
+
+
 		if (empty($step)) return parent::printFrontend();
 
 		$step_url = strip_url($step->getUrl(), TRUE);
@@ -226,19 +228,22 @@ HEREDOC;
 		$success = TRUE;
 
 		$current_step =& $this->getCurrentStep();
+
 		if (is_null($current_step)) {
 			$this->setFirstStep();
+//log_dump('a');
 		} else {
 			if (!$current_step->validateInput()) {
 				$success = FALSE;
-				bam("INPUT DID NOT VALIDATE");
+//log_dump('b');
 				//$error = $current_step->getError();
 			} else {
 				if (!$current_step->performOperation()) {
-					bam("OPERATION DID NOT PERFORM");
+//log_dump('c');
 					$success = FALSE;
 					//$error = $current_step->getError();
 				} else {
+//log_dump('d');
 					$this->setNextStep();
 				}
 			}
@@ -350,8 +355,10 @@ HEREDOC;
 		if (isset($this->_steps[$next_step])) {
 			$_SESSION['asset'][$this->id]['current_step_no'] = $next_step;
 		} else {
-			$_SESSION['asset'][$this->id]['current_step_no'] = NULL;
+			// if we're past the last step, first step is the next step 8)
+			$_SESSION['asset'][$this->id]['current_step_no'] = SQ_SOAP_APP_STEP_1;
 		}
+
 
 	}//end setNextStep()
 
@@ -364,7 +371,7 @@ HEREDOC;
 	*/
 	function getCurrentStepNo()
 	{
-		$current_step_no = array_get_index($_SESSION['asset'][$this->id], 'current_step_no', 0);
+		$current_step_no = array_get_index($_SESSION['asset'][$this->id], 'current_step_no');
 		return $current_step_no;
 
 	}//end getCurrentStepNo()
@@ -381,6 +388,7 @@ HEREDOC;
 		$current_step = NULL;
 
 		$current_step_no = $this->getCurrentStepNo();
+
 		$current_step_id = array_get_index($this->_steps, $current_step_no);
 		if (!is_null($current_step_id)) {
 			$current_step =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_step_id);
@@ -424,7 +432,7 @@ HEREDOC;
 	* @return string
 	* @access public
 	*/
-	function getStepDataKeywordReplacement()
+	function getStepContentKeywordReplacement()
 	{
 		ob_start();
 
@@ -480,6 +488,28 @@ HEREDOC;
 		return $this->getCurrentStepNo() + 1;
 
 	}//end getCurrentStepNumberKeywordReplacement()
+
+
+	function getStepIdByNo($step_no=NULL)
+	{
+		$step_id = array_get_index($this->_steps, $step_no);
+
+		return $step_id;
+
+	}
+
+
+	function getPreviousStepId()
+	{
+		$previous_step_assetid = NULL;
+
+		$current_step_no = $this->getCurrentStepNo();
+
+		$previous_step_assetid = $this->getStepIdByNo($current_step_no);
+
+		return $previous_step_assetid;
+
+	}
 
 
 }//end class
