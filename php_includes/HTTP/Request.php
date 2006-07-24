@@ -32,7 +32,7 @@
 // | Author: Richard Heyes <richard@phpguru.org>                           |
 // +-----------------------------------------------------------------------+
 //
-// $Id: Request.php,v 1.1 2006/01/13 05:46:07 arailean Exp $
+// $Id: Request.php,v 1.2 2006/07/24 23:23:53 arailean Exp $
 //
 // HTTP_Request Class
 //
@@ -755,7 +755,7 @@ class HTTP_Request {
 
 		$host = isset($this->_proxy_host) ? $this->_url->protocol . '://' . $this->_url->host : '';
 		$port = (isset($this->_proxy_host) AND $this->_url->port != 80) ? ':' . $this->_url->port : '';
-		$path = $this->_url->getEncodedPath() . $querystring;
+		$path = $this->_url->getPreparedPath() . $querystring;
 		$url  = $host . $port . $path;
 		$request = $this->_method . ' ' . $url . ' HTTP/' . $this->_http . "\r\n";
 

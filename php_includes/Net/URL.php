@@ -32,7 +32,7 @@
 // | Author: Richard Heyes <richard at php net>                            |
 // +-----------------------------------------------------------------------+
 //
-// $Id: URL.php,v 1.2 2006/02/20 03:47:38 arailean Exp $
+// $Id: URL.php,v 1.3 2006/07/24 23:23:54 arailean Exp $
 //
 // Net_URL Class
 
@@ -292,49 +292,36 @@ class Net_URL
 		return $querystring;
 	}
 
+
 	/**
-	* Returns encoded path
+	* Get prepared path
 	*
-	* Result is properly encoded and ready for use in the request.
+	* Result is both resolved and properly encoded for use in the request.
 	* Complies with RFC 2396 - Uniform Resource Identifiers (URI): Generic Syntax
 	* Does not modify the internal state
 	*
-	* Code Based on work by: By Esben Maal?e esm-at-baseclass.modulweb.dk
-	* see: http://baseclass.modulweb.dk/urlvalidator
-	*
-	* @author Andrei Railean <arailean@squiz.net>
+	* @author Andrei Railean <andreiDOTraileanATgmailDOTcom>
 	*
 	* @return string Path
 	* @access public
 	*/
-	function getEncodedPath()
+	function getPreparedPath()
 	{
-		$is_dir = false;
-		if (strlen($this->path) > 1 && substr($this->path, -1) == '/') {
-			$is_dir = true;
-		}
+		$path = $this->path;
+		$path = $this->resolvePath($path);
 
-		$path_parts = preg_split('|/|', $this->path, -1, PREG_SPLIT_NO_EMPTY);
-
-		if (empty($path_parts)) {
-			return '/';
-		}
-
-		foreach ($path_parts as $key => $part) {
-			// Check for % that is NOT an escape sequence || invalid chars
-			if (preg_match('/%[^a-f0-9]/i', $part) || preg_match('/[^@a-z0-9_.!~*\'()$+&,:=-]/i', $part)) {
-				$path_parts[$key] = urlencode(urldecode($part));
-			}
-		}
-
-		$path = '/'.implode('/', $path_parts);
-
-		if ($is_dir) {
-			$path .= '/';
-		}
+		$path = preg_replace_callback(
+			'/%(?![\da-f]{2})|[^\w-\.\!\~\*\'\(\)\:\@\&\=\+\$\,\/\%]/i',
+			create_function(
+			   '$matches',
+			   'return rawurlencode($matches[0]);'
+			),
+			$path
+		);
 
 		return $path;
 	}
+
 
 	/**
 	* Parses raw querystring and returns an array of it
