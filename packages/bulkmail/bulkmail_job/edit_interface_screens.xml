@@ -1,4 +1,4 @@
 <screens>
-	<screen code_name="preview" display_name="Preview" />
+	<screen code_name="preview" display_name="Preview" lock_type="attributes"/>
 	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups"/>
 </screens>
