@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.182 2006/07/05 05:54:30 lwright Exp $
+* $Id: listing_engine.inc,v 1.183 2006/07/24 07:06:49 rong Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.182 $
+* @version $Revision: 1.183 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1571,7 +1571,7 @@ class Listing_Engine extends Page
 						case 'metadata':
 						case 'standard_asset':
 							// format type codes for printing
-							if ($remaining_groups['field'] == 'type_code') {
+							if (isset($remaining_groups['field']) && $remaining_groups['field'] == 'type_code') {
 								$group_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($group_level, 'name');
 							} else {
 								// the field value will have been the index
