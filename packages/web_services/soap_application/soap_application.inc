@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.9 2006/07/24 12:16:52 arailean Exp $
+* $Id: soap_application.inc,v 1.10 2006/07/25 23:12:18 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('SQ_SOAP_APP_STEP_1', 0);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -207,10 +207,14 @@ HEREDOC;
 
 		if (empty($step)) return parent::printFrontend();
 
+		// Find the design applied to the current step and use that
 		$step_url = strip_url($step->getUrl(), TRUE);
 		$design_info = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($step_url, 'design::system::frontend');
-		$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($design_info['designid'], $design_info['type_code']);
-
+		if (!empty($design_info['designid'])) {
+			$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($design_info['designid'], $design_info['type_code']);
+		} else {
+			$design = NULL;
+		}
 		$this->printFrontendAsset($this, $design);
 
 
