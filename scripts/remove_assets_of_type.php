@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_assets_of_type.php,v 1.4 2006/01/30 06:00:14 emcdonald Exp $
+* $Id: remove_assets_of_type.php,v 1.5 2006/07/25 05:57:27 rhoward Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * assets of exactly the type you specify
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -44,8 +44,9 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 }
 
 $DELETING_ASSET_TYPE = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
+if (empty($DELETING_ASSET_TYPE)) {
 	echo "ERROR: You need to supply an asset type code as the second argument\n";
+	exit();
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
