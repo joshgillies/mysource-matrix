@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_schema.inc,v 1.7 2006/07/24 22:46:17 bcaldwell Exp $
+* $Id: soap_wsdl_schema.inc,v 1.8 2006/07/26 00:51:39 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once 'SOAP/Client.php';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -401,7 +401,10 @@ class SOAP_WSDL_Schema extends Asset
 		if (empty($wsdl)) return NULL;
 
 		$proxy = $wsdl->getProxy(/*$port_name*/);
-		return call_user_func_array(array($proxy, $operation_name), $parameters);
+
+		$result = call_user_func_array(array($proxy, $operation_name), $parameters);
+		bam($result);
+		return $result['response'];
 
 	}//end callOperation()
 

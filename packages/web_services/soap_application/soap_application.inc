@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.10 2006/07/25 23:12:18 tbarrett Exp $
+* $Id: soap_application.inc,v 1.11 2006/07/26 00:51:39 bcaldwell Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('SQ_SOAP_APP_STEP_1', 0);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -509,7 +509,13 @@ HEREDOC;
 
 		$current_step_no = $this->getCurrentStepNo();
 
-		$previous_step_assetid = $this->getStepIdByNo($current_step_no);
+		$prev_step_no = $current_step_no - 1;
+
+		if ($prev_step_no < SQ_SOAP_APP_STEP_1) {
+			return NULL;
+		}
+
+		$previous_step_assetid = $this->getStepIdByNo($prev_step_no);
 
 		return $previous_step_assetid;
 
