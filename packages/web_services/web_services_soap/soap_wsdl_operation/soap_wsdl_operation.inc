@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.11 2006/07/26 23:20:09 bcaldwell Exp $
+* $Id: soap_wsdl_operation.inc,v 1.12 2006/07/26 23:40:16 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -113,6 +113,16 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 
 
 	/**
+	*/
+	function getFaultMessageAsset()
+	{
+		$fault_message_asset =& $this->getMessageAssetByType('fault');
+		return $fault_message_asset;
+
+	}//end getFaultMessageAsset
+
+
+	/**
 	* Given the type of message, will attempt to return a reference to it
 	*
 	* @param string	$type	the type of message (input, output, fault)
@@ -181,32 +191,22 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 		if (is_null($schema)) return NULL;
 
 		// multi-port support
-		//$port_name = $schema->getElementName($this->id, 'port');
+		$port_name = $schema->getElementName($this->id, 'port');
 
 		$operation_name = $this->attr('operation');
-		/*$message_args = $message->getMessageArgs();
-
-		$parameters = Array();
-		foreach ($message_args as $arg_wsdl) {
-			$parameters[] = array_get_index($arg_wsdl, 'value');
-		}*/
 		$parameters = $input_message->getArgValues();
 
-
-
 		$result = $schema->callOperation($port_name, $operation_name, $parameters);
-
-		// if result is core fault create $result = error message
-		/*
-		if (result is pear;soap;fault) {
-			if (error is core) {
-				result = result->getError string out
-			} else {
-				result = result->getMessage;
+		if (get_class($result) == 'soap_fault') {
+			if (isset($result->userinfo) && !empty($result->userinfo)) {
+				$output_message =& $this->getFaultMessageAsset();
+				return NULL;
 			}
+			return $result->message;
 		}
-		*/
-		return $result;
+
+		$output_message =& $this->getOutputMessageAsset();
+		return NULL;
 
 	}//end process()
 
