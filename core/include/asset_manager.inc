@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.496 2006/07/20 02:26:59 rhoward Exp $
+* $Id: asset_manager.inc,v 1.497 2006/07/26 06:13:05 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.496 $
+* @version $Revision: 1.497 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6220,6 +6220,24 @@ class Asset_Manager extends MySource_Object
 				}//end if
 			}//end if
 		}//end if
+
+		// Check whether the asset is in Safe edit. If it is, load the save version of asset.
+		// for name and short_name attribute
+		foreach ($result as $key => $entry) {
+			$asset =& $this->getAsset($entry['assetid']);
+			if ($asset->useSystemVersion()) {
+				$asset->_loadDataPaths();
+				if (!$asset->loadSystemVersion()) {
+					trigger_localised_error('SYS0088', E_USER_WARNING, $asset->id);
+					$this->forgetAsset($asset);
+					return;
+				}
+
+				$result[$key]['name']			= $asset->name;
+				$result[$key]['short_name']	= $asset->short_name;
+			}
+			$this->forgetAsset($asset);
+		}
 
 		return $result;
 
