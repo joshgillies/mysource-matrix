@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_schema.inc,v 1.8 2006/07/26 00:51:39 bcaldwell Exp $
+* $Id: soap_wsdl_schema.inc,v 1.9 2006/07/26 23:20:09 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once 'SOAP/Client.php';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -394,16 +394,22 @@ class SOAP_WSDL_Schema extends Asset
 
 
 	/**
+	* Calls the operation using the PEAR SOAP package.
+	*
+	* @param string	$port_name		the name of the port this operation is on
+	* @param string $opeartion_name	the name of the operation to call
+	* @param array	$parameters		the parameters for this operation
 	*/
 	function callOperation($port_name, $operation_name, $parameters)
 	{
 		$wsdl = $this->attr('wsdl_cache');
 		if (empty($wsdl)) return NULL;
 
-		$proxy = $wsdl->getProxy(/*$port_name*/);
+		// todo: repair multi-proxy support. specify port name as first parameter
+		$proxy = $wsdl->getProxy();
 
+		// todo: change what we return here (it should not be an element in the result)
 		$result = call_user_func_array(array($proxy, $operation_name), $parameters);
-		bam($result);
 		return $result['response'];
 
 	}//end callOperation()

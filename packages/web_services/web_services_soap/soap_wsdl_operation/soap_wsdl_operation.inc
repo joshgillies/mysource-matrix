@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.10 2006/07/24 23:39:13 arailean Exp $
+* $Id: soap_wsdl_operation.inc,v 1.11 2006/07/26 23:20:09 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -175,26 +175,38 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 
 	/**
 	*/
-	function process($message_parameters)
+	function process($input_message, &$output_message)
 	{
 		$schema =& $this->getWsdlSchema();
 		if (is_null($schema)) return NULL;
 
 		// multi-port support
-		$port_name = $schema->getElementName($this->id, 'port');
-		$operation_name = $this->attr('operation');
+		//$port_name = $schema->getElementName($this->id, 'port');
 
-		// lets find some interesting stuff out about the message
-		$message_assetid = $this->_getMessageIdByType('input');
-		$message_wsdl = $schema->getElementWsdl($message_assetid);
+		$operation_name = $this->attr('operation');
+		/*$message_args = $message->getMessageArgs();
 
 		$parameters = Array();
-		foreach (array_keys($message_wsdl) as $parameter_name) {
-			$parameters[] = array_get_index($message_parameters, $parameter_name);
-		}
-		log_dump('operation->process');
+		foreach ($message_args as $arg_wsdl) {
+			$parameters[] = array_get_index($arg_wsdl, 'value');
+		}*/
+		$parameters = $input_message->getArgValues();
 
-		return $schema->callOperation($port_name, $operation_name, $parameters);
+
+
+		$result = $schema->callOperation($port_name, $operation_name, $parameters);
+
+		// if result is core fault create $result = error message
+		/*
+		if (result is pear;soap;fault) {
+			if (error is core) {
+				result = result->getError string out
+			} else {
+				result = result->getMessage;
+			}
+		}
+		*/
+		return $result;
 
 	}//end process()
 

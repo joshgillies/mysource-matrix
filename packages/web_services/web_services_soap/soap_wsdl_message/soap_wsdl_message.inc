@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_message.inc,v 1.3 2006/07/24 06:37:23 bcaldwell Exp $
+* $Id: soap_wsdl_message.inc,v 1.4 2006/07/26 23:20:08 bcaldwell Exp $
 *
 */
 
@@ -33,12 +33,30 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
 class SOAP_WSDL_Message extends SOAP_WSDL_Element
 {
+
+
+	/**
+	* The arguments that make up this message
+	*
+	* @var array
+	* @access private
+	*/
+	var $arg_structure = Array();
+
+
+	/**
+	* A placeholder for the values of the above arguments
+	*
+	* @var array
+	* @access private
+	*/
+	var $arg_values = Array();
 
 
 	/**
@@ -56,15 +74,101 @@ class SOAP_WSDL_Message extends SOAP_WSDL_Element
 		$schema =& $this->getWsdlSchema();
 		if (is_null($schema)) return FALSE;
 
-		$message_name = $schema->getElementname($this->id);
+		$message_name = $schema->getElementName($this->id);
 		$this->setAttrValue('message', $message_name);
 
 		$this->name = $this->_getName();
 		$this->short_name = $this->_getName(TRUE);
 
-		return TRUE;
+		return $this->_loadArgs();
 
 	}//end loadElement()
+
+
+	/**
+	* Loads the arguments for this message
+	*
+	* The arguments aren't really arguments, a little more like parameters or
+	* maybe components. Regardless, they are what makes up the message, as only
+	* arguments contain data. A message can contain one or more argument, and
+	* are defined in the wsdl.
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _loadArgs()
+	{
+		$schema =& $this->getWsdlSchema();
+		if (is_null($schema)) return FALSE;
+
+		// the wsdl defined structure of this message
+		$message_wsdl = $schema->getElementWsdl($this->id);
+		if (empty($message_wsdl)) return FALSE;
+
+		// populate this object with the info we have
+		foreach ($message_wsdl as $arg_name => $arg_wsdl) {
+			$this->arg_structure[$arg_name] = $arg_wsdl;
+			$this->arg_values[$arg_name] = NULL;
+		}
+		return TRUE;
+
+	}//end _loadArgs()
+
+
+	/**
+	* Attempts to set the specified argument to the specified value
+	*
+	* @param string	$arg	the name of the argument
+	* @param mixed	$value	the vaue to set the argument to
+	*
+	* @access public
+	* @return boolean
+	*/
+	function setArgValue($arg, $value)
+	{
+		if (!in_array($arg, array_keys($this->arg_values))) return FALSE;
+
+		$this->arg_values[$arg] = $value;
+		return TRUE;
+
+	}//end setArgValue()
+
+
+	/**
+	* Returns the value for the specified argument
+	*
+	* @param string	$arg	the name of the argument
+	*
+	* @access public
+	* @return mixed
+	*/
+	function getArgValue($arg)
+	{
+		return array_get_index($this->arg_values, $arg);
+
+	}//end getArgValue()
+
+
+	/**
+	*/
+	function getArgValues()
+	{
+		return $this->arg_values;
+
+	}//end getArgValues()
+
+
+	/**
+	* Returns the argument structure of this message
+	*
+	* @access public
+	* @return array
+	*/
+	function getArgs()
+	{
+		return $this->arg_structure;
+
+	}//end getMessageArgs()
 
 
 	/**
