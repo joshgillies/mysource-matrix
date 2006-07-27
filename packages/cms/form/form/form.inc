@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.138 2006/06/19 01:03:46 lwright Exp $
+* $Id: form.inc,v 1.139 2006/07/27 06:03:38 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.138 $
+* @version $Revision: 1.139 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1072,6 +1072,7 @@ class Form extends Asset
 				$q_name = $q_asset->attr('name');
 				$replacements['question_field_'.$this->id.'_q'.$q_id] = $q_asset->getHtmlField();
 				$replacements['question_id_'.$question->id.'_q'.$q_id] = 'q'.$this->id.'_q'.$q_id;
+				$replacements['question_note_'.$this->id.'_q'.$q_id] = $q_asset->attr('note');
 			}
 
 			foreach ($sections as $section) {
@@ -1082,6 +1083,7 @@ class Form extends Asset
 					$q_name = $section->attr('name').': '.$q_asset->attr('name');
 					$replacements['question_field_'.$section->id.'_q'.$q_id] = $q_asset->getHtmlField();
 					$replacements['question_id_'.$section->id.'_q'.$q_id] = 'q'.$section->id.'_q'.$q_id;
+					$replacements['question_note_'.$section->id.'_q'.$q_id] = $q_asset->attr('note');
 				}
 			}
 
@@ -1730,14 +1732,13 @@ class Form extends Asset
 			if ($bodycopy == 'Page Contents') {
 				$keywords['form_contents'] = translate('cms_form_contents');
 				$keywords['form_errors']   = translate('cms_form_errors');
-				$keywords['submit_button'] = translate('cms_form_submit_button');
-				$keywords['reset_button']  = translate('cms_form_reset_button');
 
 				foreach ($questions as $q_id => $question) {
 					$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 					$q_name = $q_asset->attr('name');
 					$keywords['question_field_'.$this->id.'_q'.$q_id] = translate('cms_form_question_field', ellipsisize($q_name,30));
 					$keywords['question_id_'.$this->id.'_q'.$q_id] = translate('cms_form_question_id', ellipsisize($q_name,30));
+					$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_question_note', ellipsisize($q_name,30));
 				}
 
 				foreach ($sections as $section) {
@@ -1746,10 +1747,15 @@ class Form extends Asset
 					foreach ($questions as $q_id => $question) {
 						$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $q_asset->attr('name');
-						$keywords['question_field_'.$section->id.'_q'.$q_id] = translate('cms_form_section_field', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
-						$keywords['question_id_'.$section->id.'_q'.$q_id] = translate('cms_form_section_id', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
+						$keywords['question_field_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_field', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
+						$keywords['question_id_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_id', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
+						$keywords['question_note_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_note', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));					
 					}
 				}
+
+				// These are best at the end
+				$keywords['reset_button']  = translate('cms_form_reset_button');
+				$keywords['submit_button'] = translate('cms_form_submit_button');
 
 			} else if ($bodycopy == 'Thank You') {
 				$keywords['form_summary'] = translate('cms_form_submission_summary');

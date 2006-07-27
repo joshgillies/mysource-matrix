@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2006/04/05 01:13:05 sdanis Exp $
+* $Id: lang_strings.xml,v 1.6 2006/07/27 06:03:38 tbarrett Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -33,13 +33,15 @@
 <string source="cms_form_submission_errors">The following errors must be corrected before the form can be submitted:</string>
 <string source="cms_form_submission_id">Submission Id</string>
 <string source="cms_form_submission_summary">Submission Summary</string>
-<string source="cms_form_question_response">Response: %s</string>
-<string source="cms_form_section_response">Response: %1$s: %2$s</string>
-<string source="cms_form_section_title">Section Title: %s</string>
-<string source="cms_form_section_id">Section Asset ID: %s</string>
-<string source="cms_form_question_field">Field: %s</string>
-<string source="cms_form_question_id">Question Asset ID: %s</string>
-<string source="cms_form_section_field">Field: %1$s: %2$s</string>
+<string source="cms_form_question_response">Response to %s</string>
+<string source="cms_form_section_response">Response to %1$s: %2$s</string>
+<string source="cms_form_section_title">Section Title for %s</string>
+<string source="cms_form_question_field">Input field for %s</string>
+<string source="cms_form_question_id">Asset ID of %s</string>
+<string source="cms_form_question_note">Question note for %s</string>
+<string source="cms_form_section_q_field">Input field for %1$s: %2$s</string>
+<string source="cms_form_section_q_id">Asset ID of %1$s: %2$s</string>
+<string source="cms_form_section_q_note">Question note for %1$s: %2$s</string>
 
 <string source="cms_form_contents">Form Contents</string>
 <string source="cms_form_errors">List of Submission Errors</string>
