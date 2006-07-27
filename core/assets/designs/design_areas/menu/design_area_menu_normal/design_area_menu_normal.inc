@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_normal.inc,v 1.15 2005/10/11 02:06:39 tbarrett Exp $
+* $Id: design_area_menu_normal.inc,v 1.15.2.1 2006/07/27 05:34:14 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,18 +44,19 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 	* Outputs the way for this menu type to get their information and place it in the
 	* $GLOBALS['MENU_DATA'] array
 	*
+	* @return void
 	* @access public
 	*/
 	function printDataCollection()
 	{
-		$parent_menu = &$this->getParentMenu();
+		$parent_menu =& $this->getParentMenu();
 
 		// if we aren't a sub menu, or if our parent is only showing subs if we are in the lineage, use the asset from the lineage
 		if (is_null($parent_menu) || $parent_menu->attr('show_subs') == 'on_current') {
 			$majorids = 'Array((int) $ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\'])';
 			echo '
 			if (isset($ASSET_LINEAGE[$'.$this->attr('id_name').'_level])) {
-				$'.$this->attr('id_name').'_assetids = menu_get_assets(Array((int) $ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']));
+				$'.$this->attr('id_name').'_assetids = menu_get_assets(\''.$this->attr('id_name').'\', Array((int) $ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']));
 			} else {
 				$'.$this->attr('id_name').'_assetids = Array();
 			}
@@ -63,12 +64,12 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 			';
 		} else {
 			echo '
-			$'.$this->attr('id_name').'_assetids = menu_get_assets($'.$parent_menu->attr('id_name').'_assetids);
+			$'.$this->attr('id_name').'_assetids = menu_get_assets(\''.$this->attr('id_name').'\', $'.$parent_menu->attr('id_name').'_assetids);
 
 			';
 		}// end if
 
-		$sub_menu = &$this->getSubMenu();
+		$sub_menu =& $this->getSubMenu();
 		if (!is_null($sub_menu)) {
 			echo '
 		if (!empty($'.$this->attr('id_name').'_assetids)) {

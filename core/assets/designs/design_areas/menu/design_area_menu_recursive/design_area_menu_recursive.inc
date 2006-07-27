@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive.inc,v 1.22 2005/10/11 02:06:44 tbarrett Exp $
+* $Id: design_area_menu_recursive.inc,v 1.22.2.1 2006/07/27 05:34:14 tbarrett Exp $
 *
 */
 
@@ -32,17 +32,19 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.22.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 {
 
+
 	/**
 	* Performs any outputting needed to by all design areas of this menu type
 	* NOTE: assumes PHP tags are open
 	*
+	* @return void
 	* @access public
 	*/
 	function printStaticInitOutput()
@@ -55,7 +57,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 			// because we need to be able to get to this with the recurse fn
 			$GLOBALS[\'RECURSIVE_MENU_ASSET_LINEAGE\'] = &$ASSET_LINEAGE;
 			';
-			$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$GLOBALS['DESIGN_BEING_GENERATED']->id] = true;
+			$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$GLOBALS['DESIGN_BEING_GENERATED']->id] = TRUE;
 		}
 
 	}//end printStaticInitOutput()
@@ -64,6 +66,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	/**
 	* Performs any outputting needed to intialise this instance of the menu type
 	*
+	* @return void
 	* @access public
 	*/
 	function printInitOutput()
@@ -78,6 +81,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	* Prints the recursive fn that will be used by this menu to printout its details
 	* NOTE: to be overridden by our children, this can be used as an example of how to recurse
 	*
+	* @return void
 	* @access public
 	*/
 	function printRecursiveFn()
@@ -87,20 +91,18 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 		function '.$this->attr('id_name').'_recursive_fn($level, $parentid, $'.$this->attr('id_name').'_base_url)
 		{
 			global $RECURSIVE_MENU_ASSET_LINEAGE;
-			static $'.$this->attr('id_name').'_settings = '.var_export($this->_getSettingsArray(), true).';
+			static $'.$this->attr('id_name').'_settings = '.var_export($this->_getSettingsArray(), TRUE).';
 
 			$'.$this->attr('id_name').'_lineage_assetid = (empty($RECURSIVE_MENU_ASSET_LINEAGE[$level + 1])) ? 0 : $RECURSIVE_MENU_ASSET_LINEAGE[$level + 1][\'assetid\'];
 			$'.$this->attr('id_name').'_lineage_setting = (count($RECURSIVE_MENU_ASSET_LINEAGE) - 1 == $level + 1) ? \'current\' : \'hierarchy\';
-			$'.$this->attr('id_name').'_urls = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetURL(array_keys($GLOBALS[\'MENU_DATA\'][$parentid]), $'.$this->attr('id_name').'_base_url);
+			$'.$this->attr('id_name').'_urls = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetURL(array_keys($GLOBALS[\'MENU_DATA\'][\''.$this->attr('id_name').'\'][$parentid]), $'.$this->attr('id_name').'_base_url);
 
 			?', '>
 			<ul>
 			<', '?php
-#			pre_echo("Lineage Setting : $'.$this->attr('id_name').'_lineage_setting");
-#			pre_echo("Lineage Assetid : $'.$this->attr('id_name').'_lineage_assetid");
-			$num_kids = count($GLOBALS[\'MENU_DATA\'][$parentid]);
+			$num_kids = count($GLOBALS[\'MENU_DATA\'][\''.$this->attr('id_name').'\'][$parentid]);
 			$i = 0;
-			foreach ($GLOBALS[\'MENU_DATA\'][$parentid] as $'.$this->attr('id_name').'_row) {
+			foreach ($GLOBALS[\'MENU_DATA\'][\''.$this->attr('id_name').'\'][$parentid] as $'.$this->attr('id_name').'_row) {
 				$i++;
 				$end = ($i == $num_kids);
 				// if not live, we have to get the proper object, sorry
@@ -115,12 +117,12 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 			?', '>
 			';
 		if ($asset_contents = $this->attr('asset_contents')) {
-			$this->_tmp['outputting_asset_section'] = true;
+			$this->_tmp['outputting_asset_section'] = TRUE;
 			foreach ($asset_contents as $item) {
 				$this->_printContentItemCode($item);
 			}
 			unset($this->_tmp['outputting_asset_section']);
-		}//	end if
+		}//end if
 		echo '
 			<', '?php
 		';
@@ -138,7 +140,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 			$recurse_condition = '$level < '.($this->attr('max_num_levels') + $this->attr('level') - 1).' && ('.$recurse_condition.')';
 		}
 		echo '
-				if (('.$recurse_condition.') && !empty($GLOBALS[\'MENU_DATA\'][$'.$this->attr('id_name').'_row[\'assetid\']])) {
+				if (('.$recurse_condition.') && !empty($GLOBALS[\'MENU_DATA\'][\''.$this->attr('id_name').'\'][$'.$this->attr('id_name').'_row[\'assetid\']])) {
 					'.$this->attr('id_name').'_recursive_fn($level + 1, $'.$this->attr('id_name').'_row[\'assetid\'], $'.$this->attr('id_name').'_urls[$'.$this->attr('id_name').'_row[\'assetid\']]);
 				} // end if
 
@@ -158,11 +160,12 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	* Outputs the way for this menu type to get their information and place it in the
 	* $GLOBALS['MENU_DATA'] array
 	*
+	* @return void
 	* @access public
 	*/
 	function printDataCollection()
 	{
-		$parent_menu = &$this->getParentMenu();
+		$parent_menu =& $this->getParentMenu();
 
 		echo '
 		$'.$this->attr('id_name').'_num_repeats = count($ASSET_LINEAGE) - $'.$this->attr('id_name').'_level;
@@ -220,7 +223,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 
 		echo '
 			unset($'.$this->attr('id_name').'_assetids);
-			$'.$this->attr('id_name').'_assetids = menu_get_assets('.$majorids.');
+			$'.$this->attr('id_name').'_assetids = menu_get_assets(\''.$this->attr('id_name').'\', '.$majorids.');
 
 		}//end for '.$this->attr('id_name').'_i
 
@@ -229,14 +232,15 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	}//end printDataCollection()
 
 
-	/*
+	/**
 	* Outputs the var either as straight HTML or PHP code, depending on the type
 	*
 	* @param string	$var			the name of the var to print out
-	* @param Array	$args			array of any extra arguments that existed in the print command
+	* @param array	$args			array of any extra arguments that existed in the print command
 	* @param string	$value_prefix	PHP code to wrap put before the value before outputting it
 	* @param string	$value_suffix	PHP code to wrap put after  the value before outputting it
 	*
+	* @return void
 	* @access public
 	*/
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
@@ -254,10 +258,10 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	/**
 	* Print code that outputs a given element from this DA's contents
 	*
-	* @param array	$item	An entry from our contents array
+	* @param array	$element	An entry from our contents array
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _printContentItemCode($element)
 	{
@@ -267,7 +271,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 				echo '<', '?php
 				';
 
-				$parent_menu = &$this->getParentMenu();
+				$parent_menu =& $this->getParentMenu();
 				// if we aren't a sub menu
 				if (is_null($parent_menu)) {
 					$parent_assetid_name = '$ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']';
@@ -290,12 +294,12 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 				'.$this->attr('id_name').'_recursive_fn($'.$this->attr('id_name').'_level, '.$parent_assetid_name.', $'.$this->attr('id_name').'_base_url);
 				?', '>';
 
-				return true;
+				return TRUE;
 
 
 			case 'sub' :
-				# there ain't going to be any subs :)
-				return true;
+				// there ain't going to be any subs :)
+				return TRUE;
 
 			default :
 				return parent::_printContentItemCode($element);
