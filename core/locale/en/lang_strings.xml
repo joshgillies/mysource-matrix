@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.150 2006/07/24 00:08:56 rong Exp $
+* $Id: lang_strings.xml,v 1.151 2006/07/27 22:46:55 rong Exp $
 *
 */
 
@@ -1046,6 +1046,10 @@
 	<string source="trigger_clear_cache_choose_asset">Choose Assets</string>
 	<string source="trigger_clear_cache_choose_asset_selected">Selected Assets</string>
 	<string source="trigger_clear_cache_asset_types_selected">Selected Asset Types</string>
+
+	<string source="trigger_set_cache_expiry">Set cache entries related to current asset to expire in: %s.</string>
+	<string source="trigger_set_cache_expiry_default_dsn">Default Cache DSN: %s</string>
+	<string source="trigger_set_cache_expiry_alt_dsn">Alternative Cache DSN: %s</string>
 
 	<string source="security_key_incorrect_message">The security key entered was incorrect. The lock on "%s" has not been forceably acquired. You may try again using the new security key displayed below.</string>
 
