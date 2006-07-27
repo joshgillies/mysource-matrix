@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.14 2006/07/27 01:40:57 bcaldwell Exp $
+* $Id: soap_wsdl_operation.inc,v 1.15 2006/07/27 04:36:18 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -165,6 +165,27 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 		return implode('/', Array($this->id, $message_name));
 
 	}//end _getMessageIdByType()
+
+
+	/**
+	*/
+	function getMessageTypeById($assetid)
+	{
+		$schema =& $this->getWsdlSchema();
+		if (is_null($schema)) return;
+
+		$type_map = Array();
+
+		$operation_wsdl = $schema->getElementWsdl($this->id);
+		foreach ($operation_wsdl as $message_type => $message_wsdl) {
+			if (!is_array($message_wsdl)) continue;
+			$type_map[array_get_index($message_wsdl, 'message')] = $message_type;
+		}
+		$message_name = $schema->getElementName($assetid, 'message');
+
+		return array_get_index($type_map, $message_name);
+
+	}//end getMessageTypeById()
 
 
 	/**
