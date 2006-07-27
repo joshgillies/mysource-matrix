@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_schema.inc,v 1.10 2006/07/26 23:40:16 bcaldwell Exp $
+* $Id: soap_wsdl_schema.inc,v 1.11 2006/07/27 00:46:40 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once 'SOAP/Client.php';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -308,7 +308,7 @@ class SOAP_WSDL_Schema extends Asset
 	*/
 	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
-		return $this->getWsdlBindingLinks($assetid);
+		return Array();
 
 	}//end getChildren()
 
@@ -409,7 +409,7 @@ class SOAP_WSDL_Schema extends Asset
 		$proxy = $wsdl->getProxy();
 
 		// todo: change what we return here (it should not be an element in the result)
-		$result = call_user_func_array(array($proxy, $operation_name), $parameters);
+		$result = call_user_func_array(array(&$proxy, $operation_name), $parameters);
 		return $result;
 
 	}//end callOperation()
