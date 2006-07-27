@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.15 2006/07/27 04:36:18 bcaldwell Exp $
+* $Id: soap_wsdl_operation.inc,v 1.16 2006/07/27 04:56:58 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -231,7 +231,7 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 		$result = $schema->callOperation($port_name, $operation_name, $parameters);
 		if (get_class($result) == 'soap_fault') {
 			// a fault has occured
-			$output_message =& $this->getFaultMessageAsset();
+			$output_message = $this->getFaultMessageAsset();
 
 			// fault was received from the service, otherwise internal fault
 			if (isset($result->userinfo) && !empty($result->userinfo)) {
@@ -240,7 +240,7 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 			}
 			return $result->message;
 		}
-		$output_message =& $this->getOutputMessageAsset();
+		$output_message = $this->getOutputMessageAsset();
 
 		// err... we assume a lot here. this might need to be fixed
 		$message_arg = reset(array_keys($output_message->getArgs()));
