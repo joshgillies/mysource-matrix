@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.116 2006/07/27 06:43:56 tbarrett Exp $
+* $Id: design.inc,v 1.117 2006/07/27 06:50:10 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.117 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,6 +77,10 @@ class Design extends Design_Area
 		touch($parse_file);
 		if (!$fv->add($this->data_path_suffix, $parse_file, '')) {
 			trigger_localised_error('CORE1057', E_USER_WARNING);
+		}
+		if (!$fv->checkOut($this->data_path_suffix.'/parse.txt', $this->data_path)) {
+			trigger_localised_error('CORE0158', E_USER_WARNING);
+			return FALSE;
 		}
 
 		// set an initial web path
