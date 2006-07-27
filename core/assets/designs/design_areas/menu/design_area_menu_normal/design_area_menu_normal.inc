@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_normal.inc,v 1.16 2006/02/15 02:52:58 sdanis Exp $
+* $Id: design_area_menu_normal.inc,v 1.17 2006/07/27 04:20:41 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 			$majorids = 'Array((int) $ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\'])';
 			echo '
 			if (isset($ASSET_LINEAGE[$'.$this->attr('id_name').'_level])) {
-				$'.$this->attr('id_name').'_assetids = menu_get_assets(Array((int) $ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']));
+				$'.$this->attr('id_name').'_assetids = menu_get_assets(\''.$this->attr('id_name').'\', Array((int) $ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']));
 			} else {
 				$'.$this->attr('id_name').'_assetids = Array();
 			}
@@ -64,7 +64,7 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 			';
 		} else {
 			echo '
-			$'.$this->attr('id_name').'_assetids = menu_get_assets($'.$parent_menu->attr('id_name').'_assetids);
+			$'.$this->attr('id_name').'_assetids = menu_get_assets(\''.$this->attr('id_name').'\', $'.$parent_menu->attr('id_name').'_assetids);
 
 			';
 		}// end if

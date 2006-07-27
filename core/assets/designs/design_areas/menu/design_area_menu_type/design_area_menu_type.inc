@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.83 2006/06/29 01:55:16 tbarrett Exp $
+* $Id: design_area_menu_type.inc,v 1.84 2006/07/27 04:20:42 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -391,7 +391,7 @@ class Design_Area_Menu_Type extends Design_Area
 	{
 		echo '
 			<?php
-			if (isset('.$this->_tmp['parent_assetid_name'].') && !empty($GLOBALS[\'MENU_DATA\']['.$this->_tmp['parent_assetid_name'].'])) {
+			if (isset('.$this->_tmp['parent_assetid_name'].') && !empty($GLOBALS[\'MENU_DATA\']['.$this->_safeStringLiteral($this->attr('id_name')).']['.$this->_tmp['parent_assetid_name'].'])) {
 				?', '>
 		';
 
@@ -425,15 +425,19 @@ class Design_Area_Menu_Type extends Design_Area
 
 			$GLOBALS[\'MENU_DATA\'] = Array();
 
-			function menu_get_assets($majorids)
+			function menu_get_assets($id_name, $majorids)
 			{
+				if (!isset($GLOBALS[\'MENU_DATA\'][$id_name])) {
+					$GLOBALS[\'MENU_DATA\'][$id_name] = Array();
+				}
+				$storage =& $GLOBALS[\'MENU_DATA\'][$id_name];
 				$assetids = Array();
 				$majorids_str = \'\';
 				foreach ($majorids as $id) {
-					if (empty($GLOBALS[\'MENU_DATA\'][$id])) {
+					if (empty($storage[$id])) {
 						$majorids_str .= $id.\',\';
 					} else {
-						foreach ($GLOBALS[\'MENU_DATA\'][$id] as $row) {
+						foreach ($storage[$id] as $row) {
 							$assetids[] = (int) $row[\'assetid\'];
 						}
 					}
@@ -525,8 +529,8 @@ class Design_Area_Menu_Type extends Design_Area
 						if (!$read_access) continue;
 					}
 					$assetids[] = $row[\'assetid\'];
-					if (!isset($GLOBALS[\'MENU_DATA\'][$row[\'majorid\']])) $GLOBALS[\'MENU_DATA\'][$row[\'majorid\']] = Array();
-					$GLOBALS[\'MENU_DATA\'][$row[\'majorid\']][$row[\'assetid\']] = $row;
+					if (!isset($storage[$row[\'majorid\']])) $storage[$row[\'majorid\']] = Array();
+					$storage[$row[\'majorid\']][$row[\'assetid\']] = $row;
 
 				}
 				$result->free();
@@ -845,7 +849,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 					echo '
 				$'.$this->attr('id_name').'_base_url = (empty($ASSET_LINEAGE[$'.$this->attr('id_name').'_level])) ? \'\' : current_protocol().\'://\'.$ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'url\'];
-				$'.$this->attr('id_name').'_urls     = $am->getAssetURL(array_keys($GLOBALS[\'MENU_DATA\'][$ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']]), $'.$this->attr('id_name').'_base_url);
+				$'.$this->attr('id_name').'_urls     = $am->getAssetURL(array_keys($GLOBALS[\'MENU_DATA\']['.$this->_safeStringLiteral($this->attr('id_name')).'][$ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']]), $'.$this->attr('id_name').'_base_url);
 					';
 
 				} else {
@@ -853,7 +857,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 					echo '
 				$'.$this->attr('id_name').'_base_url = $'.$parent_menu->attr('id_name').'_urls[$'.$parent_menu->attr('id_name').'_row[\'assetid\']];
-				$'.$this->attr('id_name').'_urls     = $am->getAssetURL(array_keys($GLOBALS[\'MENU_DATA\'][$'.$parent_menu->attr('id_name').'_row[\'assetid\']]), $'.$this->attr('id_name').'_base_url);
+				$'.$this->attr('id_name').'_urls     = $am->getAssetURL(array_keys($GLOBALS[\'MENU_DATA\']['.$this->_safeStringLiteral($this->attr('id_name')).'][$'.$parent_menu->attr('id_name').'_row[\'assetid\']]), $'.$this->attr('id_name').'_base_url);
 					';
 
 				}// end if
@@ -864,13 +868,13 @@ class Design_Area_Menu_Type extends Design_Area
 					echo '
 
 				$'.$this->attr('id_name').'_i = -1;
-				$'.$this->attr('id_name').'_total = count($GLOBALS[\'MENU_DATA\']['.$this->_tmp['parent_assetid_name'].']);
+				$'.$this->attr('id_name').'_total = count($GLOBALS[\'MENU_DATA\']['.$this->_safeStringLiteral($this->attr('id_name')).']['.$this->_tmp['parent_assetid_name'].']);
 					';
 				}
 
 				echo '
 
-				foreach ($GLOBALS[\'MENU_DATA\']['.$this->_tmp['parent_assetid_name'].'] as $'.$this->attr('id_name').'_row) {
+				foreach ($GLOBALS[\'MENU_DATA\']['.$this->_safeStringLiteral($this->attr('id_name')).']['.$this->_tmp['parent_assetid_name'].'] as $'.$this->attr('id_name').'_row) {
 					$'.$this->attr('id_name').'_current_setting = ($'.$this->attr('id_name').'_lineage_assetid == $'.$this->attr('id_name').'_row[\'assetid\']) ? $'.$this->attr('id_name').'_lineage_setting : \'normal\';
 				?', '>';
 				if ($this_contents = $this->attr('asset_contents')) {
