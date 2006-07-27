@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.24 2006/02/27 04:28:37 bcaldwell Exp $
+* $Id: design_area_menu_stalks.inc,v 1.24.2.1 2006/07/27 04:39:55 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_r
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,7 +143,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 			static $'.$this->attr('id_name').'_settings = '.var_export($this->_getSettingsArray(), TRUE).';
 
 			$blank_src    = sq_web_path(\'lib\').\'/web/images/blank.gif\';
-			$stalk_prefix = sq_web_path(\'data\').\'/assets/'.$this->type().'/'.$this->id.'/\';
+			$stalk_prefix = sq_web_path(\'data\').\'/'.$this->data_path_suffix.'/\';
 
 			// The indenting level, stalk on/off
 			$depth[] = true;
@@ -151,13 +151,13 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 
 			$'.$this->attr('id_name').'_lineage_assetid = (empty($RECURSIVE_MENU_ASSET_LINEAGE[$level + 1])) ? 0 : $RECURSIVE_MENU_ASSET_LINEAGE[$level + 1][\'assetid\'];
 			$'.$this->attr('id_name').'_lineage_setting = (count($RECURSIVE_MENU_ASSET_LINEAGE) - 1 == $level + 1) ? \'current\' : \'hierarchy\';
-			$'.$this->attr('id_name').'_urls = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetURL(array_keys($GLOBALS[\'MENU_DATA\'][$parentid]), $'.$this->attr('id_name').'_base_url);
+			$'.$this->attr('id_name').'_urls = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetURL(array_keys($GLOBALS[\'MENU_DATA\']['.$this->_safeStringLiteral($this->attr('id_name')).'][$parentid]), $'.$this->attr('id_name').'_base_url);
 
 #			pre_echo("Lineage Setting : $'.$this->attr('id_name').'_lineage_setting");
 #			pre_echo("Lineage Assetid : $'.$this->attr('id_name').'_lineage_assetid");
-			$num_kids = count($GLOBALS[\'MENU_DATA\'][$parentid]);
+			$num_kids = count($GLOBALS[\'MENU_DATA\'][\''.$this->attr('id_name').'\'][$parentid]);
 			$i = 0;
-			foreach ($GLOBALS[\'MENU_DATA\'][$parentid] as $'.$this->attr('id_name').'_row) {
+			foreach ($GLOBALS[\'MENU_DATA\']['.$this->_safeStringLiteral($this->attr('id_name')).'][$parentid] as $'.$this->attr('id_name').'_row) {
 				$i++;
 				$end = ($i == $num_kids);
 				// if not live, we have to get the proper object, sorry
@@ -262,7 +262,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 			$recurse_condition = '$level < '.($this->attr('max_num_levels') + $this->attr('level') - 1).' && ('.$recurse_condition.')';
 		}
 		echo '
-				if (('.$recurse_condition.') && !empty($GLOBALS[\'MENU_DATA\'][$'.$this->attr('id_name').'_row[\'assetid\']])) {
+				if (('.$recurse_condition.') && !empty($GLOBALS[\'MENU_DATA\']['.$this->_safeStringLiteral($this->attr('id_name')).'][$'.$this->attr('id_name').'_row[\'assetid\']])) {
 					if ($end) $depth[$depth_count - 1] = false;
 					'.$this->attr('id_name').'_recursive_fn($level + 1, $'.$this->attr('id_name').'_row[\'assetid\'], $'.$this->attr('id_name').'_urls[$'.$this->attr('id_name').'_row[\'assetid\']], $depth);
 				} // end if
