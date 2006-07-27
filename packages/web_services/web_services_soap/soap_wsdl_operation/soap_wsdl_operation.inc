@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.13 2006/07/27 01:17:09 rhoward Exp $
+* $Id: soap_wsdl_operation.inc,v 1.14 2006/07/27 01:40:57 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -90,7 +90,7 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 	* @access public
 	* @return &object
 	*/
-	function getInputMessageAsset()
+	function &getInputMessageAsset()
 	{
 		$input_message_asset =& $this->getMessageAssetByType('input');
 		return $input_message_asset;
@@ -104,7 +104,7 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 	* @access public
 	* @return &object
 	*/
-	function getOutputMessageAsset()
+	function &getOutputMessageAsset()
 	{
 		$output_message_asset =& $this->getMessageAssetByType('output');
 		return $output_message_asset;
@@ -114,7 +114,7 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 
 	/**
 	*/
-	function getFaultMessageAsset()
+	function &getFaultMessageAsset()
 	{
 		$fault_message_asset =& $this->getMessageAssetByType('fault');
 		return $fault_message_asset;
@@ -184,6 +184,17 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 
 
 	/**
+	* Performs this operation
+	*
+	* This function is a wrapper for the callOpeartion() function in SOAP_WSDL_Schema
+	* that uses the PEAR SOAP Package and the supplied WSDL to perform a SOAP opeartion
+	* to an external web service.
+	*
+	* @param object	$input_message	the message that contains the input for this operation
+	* @param object $output_message	a place we can dump the output message
+	*
+	* @access public
+	* @return string
 	*/
 	function process($input_message, &$output_message)
 	{
@@ -198,14 +209,22 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 
 		$result = $schema->callOperation($port_name, $operation_name, $parameters);
 		if (get_class($result) == 'soap_fault') {
+			// a fault has occured
+			$output_message =& $this->getFaultMessageAsset();
+
+			// fault was received from the service, otherwise internal fault
 			if (isset($result->userinfo) && !empty($result->userinfo)) {
-				$output_message =& $this->getFaultMessageAsset();
+				$output_message->setArgValues(get_object_vars($result->userinfo));
 				return NULL;
 			}
 			return $result->message;
 		}
+		$output_message =& $this->getOutputMessageAsset();
 
-		$output_message = $this->getOutputMessageAsset();
+		// err... we assume a lot here. this might need to be fixed
+		$message_arg = reset(array_keys($output_message->getArgs()));
+		$output_message->setArgValues(Array($message_arg => $result));
+
 		return NULL;
 
 	}//end process()
