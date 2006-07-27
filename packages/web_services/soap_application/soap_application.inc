@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.11 2006/07/26 00:51:39 bcaldwell Exp $
+* $Id: soap_application.inc,v 1.12 2006/07/27 01:17:09 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('SQ_SOAP_APP_STEP_1', 0);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -229,6 +229,7 @@ HEREDOC;
 	*/
 	function _preProcessInterface()
 	{
+		// TODO: Remove debug
 		$success = TRUE;
 
 		$current_step =& $this->getCurrentStep();
@@ -249,6 +250,7 @@ HEREDOC;
 				} else {
 //log_dump('d');
 					$this->setNextStep();
+
 				}
 			}
 		}
@@ -394,6 +396,7 @@ HEREDOC;
 		$current_step_no = $this->getCurrentStepNo();
 
 		$current_step_id = array_get_index($this->_steps, $current_step_no);
+
 		if (!is_null($current_step_id)) {
 			$current_step =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_step_id);
 		}
@@ -411,7 +414,6 @@ HEREDOC;
 	*/
 	function _loadSteps()
 	{
-
 		$step_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'soap_application_step', FALSE, 'major', 'step');
 
 		$steps = Array();

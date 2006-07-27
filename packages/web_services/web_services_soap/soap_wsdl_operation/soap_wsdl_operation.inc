@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.12 2006/07/26 23:40:16 bcaldwell Exp $
+* $Id: soap_wsdl_operation.inc,v 1.13 2006/07/27 01:17:09 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -205,7 +205,7 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 			return $result->message;
 		}
 
-		$output_message =& $this->getOutputMessageAsset();
+		$output_message = $this->getOutputMessageAsset();
 		return NULL;
 
 	}//end process()

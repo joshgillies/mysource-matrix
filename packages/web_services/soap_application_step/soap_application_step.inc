@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.11 2006/07/24 23:37:39 arailean Exp $
+* $Id: soap_application_step.inc,v 1.12 2006/07/27 01:17:09 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -75,7 +75,16 @@ class SOAP_Application_Step extends Asset
 							'dependant'		=> TRUE,
 							'exclusive'		=> FALSE,
 							'content'		=> Array('content' => 'Step content has not been customised: %asset_assetid%'),
-							'link_value'	=> 'bodycopy'
+							'link_value'	=> 'bodycopy',
+						),
+						Array(
+							'type_code'		=> 'bodycopy',
+							'name'			=> 'Fault Bodycopy',
+							'link_type'		=> SQ_LINK_TYPE_2,
+							'dependant'		=> TRUE,
+							'exclusive'		=> FALSE,
+							'content'		=> Array('content' => 'A fault has occurred.'),
+							'link_value'	=> 'fault',
 						),
 					  );
 
@@ -234,27 +243,48 @@ log_dump('c');
 
 	function performOperation()
 	{
-
 		// construct input message
 		$input_message = $this->getInputMessage();
+		$output_message = NULL;
 
 		// get the SOAP processor to talk to the remote system
 		$op_assetid = $this->attr('soap_operation_asset');
 		if (!empty($op_assetid)) {
-			$op =& $GLOBALS['SQ_SYSTEM']->am->getAsset($op_assetid, 'soap_operation_asset');
-			$result_message = $op->process($input_message);
+			$op =& $GLOBALS['SQ_SYSTEM']->am->getAsset($op_assetid);
 
-//log_dump($op);
+			$error_status = $op->process($input_message, $output_message);
+
+			if (!is_null($error_status)) {
+				// serious failure, could not get response
+				// TODO: Either use fault bodycopy, or trigger_error();
+				trigger_error('Could not establish SOAP connection: '.$error_status, E_USER_WARNING);
+				return FALSE;
+			}
+
+			// TODO: Replace this with something that determines whether the message is a fault or not
+			//if (message_is_fault($output_message)) {
+			if (FALSE) {
+				// mark our state as faulty, so we know to print the fault bodycopy
+				// TODO: Replace this with the error message grabbed from the fault
+				$this->_tmp['op_fault_msg'] = 'An error message';
+				$this->_tmp['op_fault'] = $output_message;
+				return FALSE;
+			}
+			unset($this->_tmp['op_fault']);
+			unset($this->_tmp['op_fault_msg']);
+			$this->_tmp['op_result'] = $output_message;
+
 log_dump('performOperation');
-log_dump($result_message);
+log_dump($error_status);
+log_dump($output_message);
 log_dump($input_message);
 
-			$this->_tmp['op_result'] = $result_message;
+			return TRUE;
 		}
-		// TODO: Work out what to do in case of fault
 
-		return TRUE;
-	}
+		return FALSE;
+
+	}//end performOperation()
 
 
 	function getOutputMessage()
@@ -298,10 +328,20 @@ log_dump($input_message);
 	*/
 	function _printBodycopy()
 	{
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'bodycopy');
+		// TODO: if faulty, use FAULT bodycopy
+		// something went wrong, use the fault bodycopy instead
+		if (!empty($this->_tmp['op_fault'])) {
+			$bodycopy_type = 'fault';
+			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'fault');
+		} else {
+			$bodycopy_type = 'main';
+			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'bodycopy');
+		}
+
 		$content_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 		if (is_null($content_bodycopy)) {
-			trigger_error('main bodycopy not found', E_USER_WARNING);
+			// TODO: localise
+			trigger_error($bodycopy.' bodycopy not found', E_USER_WARNING);
 			return;
 		}
 
@@ -525,6 +565,12 @@ log_dump($input_message);
 	*/
 	function getKeywordReplacement($keyword)
 	{
+		/*
+			Add an initial check:
+			if (preg_match('/^'.SQ_SOAP_APP_TYPE_KEYWORD_PREFIX.'_step1-a-b-c')
+			etc.
+		*/
+
 		// Bodycopies have link values that denote what level they are on, on who their parents are.
 		// Relations are denoted with '-', so if, for example, Bodycopy A has a bodycopy 'underneath'
 		// it called B. Thus, the link value for A will be 'A', and B 'A-B'.
