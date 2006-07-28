@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.46.2.1 2006/07/13 00:41:26 rong Exp $
+* $Id: cache_manager.inc,v 1.46.2.2 2006/07/28 04:21:31 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.46.2.1 $
+* @version $Revision: 1.46.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -672,6 +672,37 @@ class Cache_Manager extends Asset
 		}
 
 	}//end _updateCache()
+
+
+	/**
+	* Returns an array of all file paths for clear cache HIPO job
+	*
+	* @param string	$option	the option of the result
+	*
+	* @return array
+	* @access public
+	*/
+	function getAllFilePaths($option='')
+	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT DISTINCT
+					path
+				FROM
+					sq_cache
+				';
+		if ($option == 'col') {
+			$result = $db->getCol($sql);
+		} else {
+			$result = $db->getAll($sql);
+		}
+		assert_valid_db_result($result);
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return $result;
+
+	}//end getAllFilePaths()
 
 
 }//end class

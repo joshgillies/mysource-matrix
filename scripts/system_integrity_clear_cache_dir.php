@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_clear_cache_dir.php,v 1.1 2006/07/28 04:20:18 rong Exp $
+* $Id: system_integrity_clear_cache_dir.php,v 1.1.2.1 2006/07/28 04:21:31 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Delete cache files that exist for deleted/expired cache entries in sq_cache
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -71,11 +71,13 @@ exec('find '.SQ_CACHE_PATH."  -type d -name '[0-9]*'", $current_dirs);
 $count = 0;
 $total = 0;
 // loop through each directory, to make it less memory intensive
+bam($current_dirs);
 foreach ($current_dirs as $dir) {
 
 	$current_files = Array();
 	// remove the file if there isnt a corresponding entry in the sq_cache table
 	exec("find $dir -type f -name '[a-z0-9]*'", $current_files);
+	bam($current_files);
 	foreach ($current_files as $file) {
 		$file_name = substr($file, $cache_path_len);
 		if (!in_array($file_name, $valid_files)) {
