@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_clear_cache_dir.php,v 1.1 2006/07/28 04:20:18 rong Exp $
+* $Id: system_integrity_clean_cache_dir.php,v 1.2 2006/07/28 05:27:13 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Delete cache files that exist for deleted/expired cache entries in sq_cache
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
