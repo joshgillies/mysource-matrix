@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.13 2006/07/28 00:12:09 arailean Exp $
+* $Id: soap_application.inc,v 1.14 2006/07/28 02:08:45 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('SQ_SOAP_APP_STEP_1', 0);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -206,7 +206,6 @@ HEREDOC;
 
 
 		if (empty($step)) return parent::printFrontend();
-
 		// Find the design applied to the current step and use that
 		$step_url = strip_url($step->getUrl(), TRUE);
 		$design_info = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($step_url, 'design::system::frontend');
@@ -229,29 +228,16 @@ HEREDOC;
 	*/
 	function _preProcessInterface()
 	{
-		// TODO: Remove debug
-		$success = TRUE;
 
 		$current_step =& $this->getCurrentStep();
 
 		if (is_null($current_step)) {
 			$this->setFirstStep();
 		} else {
-			if (!$current_step->validateInput()) {
-				$success = FALSE;
-				//$error = $current_step->getError();
-			} else {
-				if (!$current_step->performOperation()) {
-					$success = FALSE;
-					//$error = $current_step->getError();
-				} else {
-					$this->setNextStep();
-
-				}
+			if ($current_step->validateInput() && $current_step->performOperation()) {
+				$this->setNextStep();
 			}
 		}
-
-		return $success;
 
 	}//end _preProcessInterface()
 
