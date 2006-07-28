@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.14 2006/07/28 01:41:40 arailean Exp $
+* $Id: soap_application_step.inc,v 1.15 2006/07/28 03:16:26 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -222,25 +222,10 @@ class SOAP_Application_Step extends Asset
 	}
 
 
-	/**
-	* Get input message
-	*
-	* @return void
-	* @access public
-	*/
-	function getInputMessage()
-	{
-		$input_message = Array();
-
-		return $input_message;
-
-	}//end getInputMessage()
-
-
 	function performOperation()
 	{
 		// construct input message
-		$input_message = $this->getInputMessage();
+		$input_message =& $this->getInputMessage();
 		$output_message = NULL;
 
 		// get the SOAP processor to talk to the remote system
@@ -251,30 +236,19 @@ class SOAP_Application_Step extends Asset
 			$error_status = $op->process($input_message, $output_message);
 
 			if (!is_null($error_status)) {
-				// serious failure, could not get response
-				// TODO: Either use fault bodycopy, or trigger_error();
-				trigger_error('Could not establish SOAP connection: '.$error_status, E_USER_WARNING);
+				// transport failure, could not get valid
+				$this->_tmp['transport_error'] = $error_status;
 				return FALSE;
 			}
 
-			// TODO: Replace this with something that determines whether the message is a fault or not
-			//if (message_is_fault($output_message)) {
 			if ($output_message->isFault()) {
 				// mark our state as faulty, so we know to print the fault bodycopy
 				// TODO: Replace this with the error message grabbed from the fault
-				$this->_tmp['op_fault_msg'] = 'An error message';
-				$this->_tmp['op_fault'] = $output_message;
+				$this->_tmp['op_fault'] =& $output_message;
 				return FALSE;
 			}
-			unset($this->_tmp['op_fault']);
-			unset($this->_tmp['op_fault_msg']);
 			$this->_tmp['op_result'] = $output_message;
-/*
-log_dump('performOperation');
-log_dump($error_status);
-log_dump($output_message);
-log_dump($input_message);
-*/
+
 			return TRUE;
 		}
 		// if no operation, processing is successful
@@ -284,7 +258,7 @@ log_dump($input_message);
 	}//end performOperation()
 
 
-	function getOutputMessage()
+	function &getOutputMessage()
 	{
 		$output_message = array_get_index($this->_tmp, 'op_result');
 		return $output_message;
@@ -325,20 +299,14 @@ log_dump($input_message);
 	*/
 	function _printBodycopy()
 	{
-		// TODO: if faulty, use FAULT bodycopy
-		// something went wrong, use the fault bodycopy instead
-		if (!empty($this->_tmp['op_fault'])) {
-			$bodycopy_type = 'fault';
-			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'fault');
-		} else {
-			$bodycopy_type = 'main';
-			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'bodycopy');
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'bodycopy');
+		if (empty($bodycopy_link)) {
+			trigger_error('Main bodycopy not found', E_USER_WARNING);
+			return;
 		}
-
 		$content_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 		if (is_null($content_bodycopy)) {
-			// TODO: localise
-			trigger_error($bodycopy.' bodycopy not found', E_USER_WARNING);
+			trigger_error('Main bodycopy not found', E_USER_WARNING);
 			return;
 		}
 
@@ -426,41 +394,69 @@ log_dump($input_message);
 	* @return string
 	* @access public
 	*/
-	function getFaultKeywordReplacement()
+	function getFaultDetailsKeywordReplacement()
 	{
 		if (empty($this->_tmp['op_fault'])) {
-			return;
+			return '';
 		}
 
-		$bodycopy_type = 'fault';
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'fault');
+		if (empty($bodycopy_link)) {
+			return '';
+		}
 
-			$formid = $this->getFormId();
-		if (empty($formid)) return '';
-		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($formid, 'simple_form');
+		$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], 'bodycopy');
+		if (is_null($bodycopy)) {
+			return '';
+		}
+
 		ob_start();
-			$form->printBody();
+			require_once SQ_FUDGE_PATH.'/general/text.inc';
+			$keywords = $bodycopy->getKeywords();
+			bam($keywords);
+			$replacements = Array();
+			foreach ($keywords as $keyword) {
+				$replacements[$keyword] = $this->getKeywordReplacement($keyword);
+			}
+			$bodycopy->setKeywordReplacements($replacements);
+			$bodycopy->printBody();
 			$res = ob_get_contents();
 		ob_end_clean();
 		return $res;
 
-	}//end getFormContentsKeywordReplacement()
+	}//end getFaultDetailsKeywordReplacement()
 
 
 	/**
-	* Get the keywords that can be replaced by this asset
+	* Get the replacement for the transport error keyword
 	*
-	* @return array
+	* @return string
 	* @access public
 	*/
-	function getAvailableKeywords()
+	function getTransportErrorKeywordReplacement()
 	{
-		$res = parent::getAvailableKeywords();
-		// TODO: Add Logic to see if there is a form on this asset and conditionally display this keyword
-		$res['form_contents'] = 'Form Contents';
-		return $res;
+		$err = array_get_index($this->_tmp, 'transport_error', '');
+		return empty($err) ? '' : 'Error when calling SOAP service: '.$err;
 
-	}//end getAvailableKeywords()
+	}//end getFaultDetailsKeywordReplacement()
+
+
+	/**
+	* Get the replacement for the fault message (used within the fault bodycopy)
+	*
+	* @return string
+	* @access public
+	*/
+	function getFaultMessageKeywordReplacement()
+	{
+		
+		if (empty($this->_tmp['op_fault'])) {
+			return 'No msg';
+		}
+		// TODO:  represent this message properly
+		return '<pre>'.print_r($this->_tmp['op_fault'], 1).'</pre>';
+
+	}//end getFaultMessageKeywordReplacement()
 
 
 	/**
@@ -484,7 +480,23 @@ log_dump($input_message);
 	*/
 	function getDataFields()
 	{
-		return Array();
+		$op_assetid = $this->attr('soap_operation_asset');
+		if (empty($op_assetid)) {
+			return Array();
+		}
+		$op_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($op_assetid);
+		if (is_null($op_asset)) {
+			return Array();
+		}
+		$input_message =& $op_asset->getInputMessageAsset();
+		if (is_null($input_message)) {
+			return Array();
+		}
+		$res = $input_message->getArgs();
+		foreach ($res as $i => $v) {
+			$res[$i]['question_type'] = 'form_question_type_text'; // HACK
+		}
+		return $res;
 
 	}//end getDataFields()
 
@@ -503,6 +515,36 @@ log_dump($input_message);
 		return NULL;
 
 	}//end getDataFieldQuestionValue()
+
+
+	/**
+	* Get input message
+	*
+	* @return void
+	* @access public
+	*/
+	function &getInputMessage()
+	{
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('soap_wsdl_message');
+		$empty_message =& new SOAP_WSDL_Message();
+		$op_assetid = $this->attr('soap_operation_asset');
+		if (empty($op_assetid)) {
+			return $empty_message;
+		}
+		$op_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($op_assetid);
+		if (is_null($op_asset)) {
+			return $empty_message;
+		}
+		$input_message =& $op_asset->getInputMessageAsset();
+		if (is_null($input_message)) {
+			return $empty_message;
+		}
+		foreach ($input_message->getArgs() as $name => $details) {
+			$input_message->setArgValue($name, $this->getDataFieldQuestionValue($name));
+		}
+		return $input_message;
+
+	}//end getInputMessage()
 
 
 	/**
