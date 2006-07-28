@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step_management.inc,v 1.2 2006/07/24 01:29:28 tbarrett Exp $
+* $Id: soap_application_step_management.inc,v 1.3 2006/07/28 03:33:03 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -62,6 +62,33 @@ class SOAP_Application_Step_Management extends Asset_Management
 												);
 
 	}//end constructor
+
+
+	/**
+	* Return an array with information about the events that this page is listening for
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'					=> 'requestKeywords',
+					'broadcast_type_code'			=> 'content_type',
+					'broadcast_strict_type_code'	=> FALSE,
+					'options'						=> Array(
+														'side_of_link'	=> 'major',
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
+														'is_dependant'	=> 1,
+														'value'			=> '',
+														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+													   ),
+				),
+			   );
+
+	}//end getEventList()
 
 
 }//end class

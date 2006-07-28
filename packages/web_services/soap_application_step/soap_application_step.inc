@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.15 2006/07/28 03:16:26 tbarrett Exp $
+* $Id: soap_application_step.inc,v 1.16 2006/07/28 03:33:03 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -793,6 +793,66 @@ class SOAP_Application_Step extends Asset
 		return $output;
 
 	}//end getPagesKeywordReplace()
+
+
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		$vars['keywords'] = isset($vars['keywords']) ? $vars['keywords'] : Array();
+		$requester_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
+		$bc_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE);
+		$requester_name = '';
+		foreach ($bc_links as $bc_link) {
+			if (isset($requester_parents[$bc_link['minorid']])) {
+				$requester_name = $bc_link['value'];
+				break;
+			}
+		}
+		$vars['keywords'] += $this->getAvailableKeywords($requester_name);
+
+	}//end onRequestKeywords()
+
+
+	/**
+	* 
+	*
+	* @param boolean	$varname
+	*
+	* @return void
+	* @access public
+	*/
+	function getAvailableKeywords($requester_name='')
+	{
+		if (empty($requester_name)) return parent::getAvailableKeywords();
+		$res = Array();
+		switch ($requester_name) {
+			case 'bodycopy':
+				// main BC
+				$res['fault_details'] = 'Fault Details';
+				if ($this->getFormId()) {
+					$res['form_contents'] = 'Form Contents'; // only if form present
+				}
+				$res['transport_error'] = 'Details of any error that occurred while calling the soap service';
+			break;
+
+			case 'fault':
+				// fault BC
+				$res['fault_message'] = 'Fault message';
+			break;
+		}
+		return $res;
+
+	}//end getAvailableKeywords()
 
 
 }//end class
