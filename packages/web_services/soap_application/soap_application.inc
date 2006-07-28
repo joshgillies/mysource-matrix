@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.12 2006/07/27 01:17:09 rhoward Exp $
+* $Id: soap_application.inc,v 1.13 2006/07/28 00:12:09 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('SQ_SOAP_APP_STEP_1', 0);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -171,7 +171,7 @@ HEREDOC;
 		return Array(
 				Array(
 					'type_code'		=> 'soap_application_step',
-					'name'			=> 'Step 1',
+					'name'			=> 'First Step',
 					'link_type'		=> SQ_LINK_TYPE_2,
 					'exclusive'		=> TRUE,
 					'dependant'		=> TRUE,
@@ -236,19 +236,15 @@ HEREDOC;
 
 		if (is_null($current_step)) {
 			$this->setFirstStep();
-//log_dump('a');
 		} else {
 			if (!$current_step->validateInput()) {
 				$success = FALSE;
-//log_dump('b');
 				//$error = $current_step->getError();
 			} else {
 				if (!$current_step->performOperation()) {
-//log_dump('c');
 					$success = FALSE;
 					//$error = $current_step->getError();
 				} else {
-//log_dump('d');
 					$this->setNextStep();
 
 				}
@@ -326,9 +322,9 @@ HEREDOC;
 	*/
 	function getFirstStepId()
 	{
-		// get first step (first child in asset map order)
-		$first_step = NULL;
-		return $this->_steps[SQ_SOAP_APP_STEP_1];
+		$first_step = array_get_index($this->_steps, SQ_SOAP_APP_STEP_1);
+
+		return $first_step;
 
 	}//end getFirstStepId()
 
