@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.12 2006/07/27 01:17:09 rhoward Exp $
+* $Id: soap_application_step.inc,v 1.13 2006/07/28 00:07:48 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -129,16 +129,12 @@ class SOAP_Application_Step extends Asset
 	function &getApplication()
 	{
 		if (empty($this->_app)) {
-log_dump('a');
 			$app_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'soap_application', FALSE, 'minor', 'step');
-log_dump($app_links);
 
 			if (!empty($app_links)) {
-log_dump('b');
 				$app_link = array_shift($app_links);
 				$this->_app =& $GLOBALS['SQ_SYSTEM']->am->getAsset($app_link['majorid']);
 			} else {
-log_dump('c');
 				$this->_app = NULL;
 			}
 		}
@@ -273,12 +269,12 @@ log_dump('c');
 			unset($this->_tmp['op_fault']);
 			unset($this->_tmp['op_fault_msg']);
 			$this->_tmp['op_result'] = $output_message;
-
+/*
 log_dump('performOperation');
 log_dump($error_status);
 log_dump($output_message);
 log_dump($input_message);
-
+*/
 			return TRUE;
 		}
 
@@ -412,6 +408,33 @@ log_dump($input_message);
 	function getFormContentsKeywordReplacement()
 	{
 		$formid = $this->getFormId();
+		if (empty($formid)) return '';
+		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($formid, 'simple_form');
+		ob_start();
+			$form->printBody();
+			$res = ob_get_contents();
+		ob_end_clean();
+		return $res;
+
+	}//end getFormContentsKeywordReplacement()
+
+
+	/**
+	* Get the replacement for the form_contents keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getFaultKeywordReplacement()
+	{
+		if (empty($this->_tmp['op_fault'])) {
+			return;
+		}
+
+		$bodycopy_type = 'fault';
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'fault');
+
+			$formid = $this->getFormId();
 		if (empty($formid)) return '';
 		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($formid, 'simple_form');
 		ob_start();
