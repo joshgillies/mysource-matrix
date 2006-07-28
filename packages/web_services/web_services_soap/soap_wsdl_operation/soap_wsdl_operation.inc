@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.17 2006/07/28 02:08:12 tbarrett Exp $
+* $Id: soap_wsdl_operation.inc,v 1.18 2006/07/28 03:11:30 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -235,12 +235,14 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 			// a fault has occured
 			$output_message = $this->getFaultMessageAsset();
 
-			// fault was received from the service, otherwise internal fault
 			if (isset($result->userinfo) && !empty($result->userinfo)) {
+				// fault object was received from the service
 				$output_message->setArgValues(get_object_vars($result->userinfo));
 				return NULL;
+			} else {
+				// internal / transport error
+				return $result->message;
 			}
-			return $result->message;
 		}
 		$output_message =& $this->getOutputMessageAsset();
 
