@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_message.inc,v 1.6 2006/07/27 04:36:18 bcaldwell Exp $
+* $Id: soap_wsdl_message.inc,v 1.7 2006/07/28 01:39:43 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -241,6 +241,12 @@ class SOAP_WSDL_Message extends SOAP_WSDL_Element
 		return $this->attr('message');
 
 	}//end _getName()
+
+
+	function isFault()
+	{
+		return ($this->message_type == 'fault');
+	}
 
 
 }//end class
