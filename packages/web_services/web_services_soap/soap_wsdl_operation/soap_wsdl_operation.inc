@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.16 2006/07/27 04:56:58 bcaldwell Exp $
+* $Id: soap_wsdl_operation.inc,v 1.17 2006/07/28 02:08:12 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -211,6 +211,8 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 	* that uses the PEAR SOAP Package and the supplied WSDL to perform a SOAP opeartion
 	* to an external web service.
 	*
+	* Returns string on pear client error, null on success
+	*
 	* @param object	$input_message	the message that contains the input for this operation
 	* @param object $output_message	a place we can dump the output message
 	*
@@ -240,7 +242,7 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 			}
 			return $result->message;
 		}
-		$output_message = $this->getOutputMessageAsset();
+		$output_message =& $this->getOutputMessageAsset();
 
 		// err... we assume a lot here. this might need to be fixed
 		$message_arg = reset(array_keys($output_message->getArgs()));
