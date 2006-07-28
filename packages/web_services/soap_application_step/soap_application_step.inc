@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.13 2006/07/28 00:07:48 arailean Exp $
+* $Id: soap_application_step.inc,v 1.14 2006/07/28 01:41:40 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -259,7 +259,7 @@ class SOAP_Application_Step extends Asset
 
 			// TODO: Replace this with something that determines whether the message is a fault or not
 			//if (message_is_fault($output_message)) {
-			if (FALSE) {
+			if ($output_message->isFault()) {
 				// mark our state as faulty, so we know to print the fault bodycopy
 				// TODO: Replace this with the error message grabbed from the fault
 				$this->_tmp['op_fault_msg'] = 'An error message';
@@ -277,8 +277,9 @@ log_dump($input_message);
 */
 			return TRUE;
 		}
+		// if no operation, processing is successful
 
-		return FALSE;
+		return TRUE;
 
 	}//end performOperation()
 
