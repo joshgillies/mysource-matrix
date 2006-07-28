@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_cache_expiry_edit_fns.inc,v 1.1 2006/07/27 07:11:13 rong Exp $
+* $Id: trigger_action_set_cache_expiry_edit_fns.inc,v 1.1.4.1 2006/07/28 00:15:50 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * Trigger_Action_Set_Cache_Expiry_Edit_Fns
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
