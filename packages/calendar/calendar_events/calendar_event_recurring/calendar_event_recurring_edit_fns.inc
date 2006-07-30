@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.26 2006/02/02 03:38:32 sdanis Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.26.2.1 2006/07/30 23:41:10 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -313,13 +313,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				}
 			break;
 
-			case '':
-				trigger_localised_error('CAL0047', E_USER_WARNING);
-				return FALSE;
-			break;
-
 			default:
-				trigger_localised_error('CAL0048', E_USER_WARNING);
 				return FALSE;
 			break;
 		}//end switch

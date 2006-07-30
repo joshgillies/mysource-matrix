@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.70.2.3 2006/06/06 05:43:21 rong Exp $
+* $Id: calendar_event_recurring.inc,v 1.70.2.4 2006/07/30 23:41:10 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.70.2.3 $
+* @version $Revision: 1.70.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -47,6 +47,38 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$this->Calendar_Event($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Perform any pre-validation required during the creation of this asset
+	*
+	* For example, checking that attributes are set should bee performed in this method
+	*
+	* @param array	&$link	information used to create the initial link<br/>
+	* <pre>
+	* Array (
+	*   'asset'        => [ref major asset to create link under],
+	*   'link_type'    => SQ_LINK_?,
+	*   'value'        => [link value],
+	*   'sort_order'   => [link sort order],
+	*   'is_dependant' => [0|1],
+	*   'is_exclusive' => [0|1],
+	* )
+	* </pre>
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _preCreateCheck(&$link)
+	{
+		$freq = $this->attr('frequency');
+		if (empty($freq)) {
+			trigger_localised_error('CAL0047', E_USER_WARNING);
+			return FALSE;
+		}
+		return parent::_preCreateCheck($link);
+
+	}//end _preCreateCheck()
 
 
 	/**
