@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge.inc,v 1.6 2006/04/07 03:31:01 skim Exp $
+* $Id: ipb_bridge.inc,v 1.7 2006/07/30 23:35:25 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/ipb/ipb.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -560,7 +560,7 @@ class IPB_Bridge extends Asset
 			}
 
 			// put in $_tmp
-			$this->_tmp['getLinks'][$assetid][$side_of_link] = Array($links);
+			$this->_tmp['getLinks'][$assetid][$side_of_link] = $links;
 
 		}//end if
 
