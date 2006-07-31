@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.175.2.3 2006/05/04 02:52:03 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.175.2.4 2006/07/31 06:45:19 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.175.2.3 $
+* @version $Revision: 1.175.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2535,6 +2535,7 @@ class Page_Calendar extends Page
 			$assetid = strtok($assetid, ':');
 
 			// Determine which bodycopy to use
+			$bodycopy = NULL;
 			if (isset($type_format_bodycopies[$type_code])) {
 				$bodycopy =& $type_format_bodycopies[$type_code];
 			} else if ($type_code == 'calendar_event_modification' ) {
@@ -2546,21 +2547,19 @@ class Page_Calendar extends Page
 			} else {
 				// check parent type
 				$type_ancestors = $am->getTypeAncestors($type_code);
-				$parent_cancellation = FALSE;
 				foreach ($type_ancestors as $parent_type) {
-					if (isset($this->_tmp['allowed_type_formats'][$parent_type])) {
-						$type_format_bodycopies[$type_code] = $type_format_bodycopies[$parent_type];
+					if (isset($type_format_bodycopies[$parent_type])) {
+						$type_format_bodycopies[$type_code] =& $type_format_bodycopies[$parent_type];
 						$bodycopy =& $type_format_bodycopies[$parent_type];
 						break;
-					} else if ($type_code == 'calendar_event_cancellation' ) {
-						$parent_cancellation = TRUE;
-						break;
+					} else if ($parent_type == 'calendar_event_cancellation' ) {
+						continue(2);
 					}
 				}
-				if (!$parent_cancellation) {
+				if (is_null($bodycopy)) {
 					trigger_localised_error('CAL0061', E_USER_WARNING, $assetid);
+					continue;
 				}
-				continue;
 			}
 
 			$replacements = Array();
