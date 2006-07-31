@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.14 2006/07/28 02:08:45 arailean Exp $
+* $Id: soap_application.inc,v 1.15 2006/07/31 00:42:35 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('SQ_SOAP_APP_STEP_1', 0);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -109,13 +109,7 @@ class SOAP_Application extends Asset
 		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, TRUE);
 		if (!$this->saveWebPaths($good_paths)) return FALSE;
 
-$default_bodycopy = <<<HEREDOC
-Hello, this is a SOAP application. You're on <strong>%step_name%</strong> (%current_step_number%/%step_count%)
-
-<div style="background: #f79121; padding: 2em; border: solid 2px grey">
-%step_content%
-</div>
-HEREDOC;
+		$default_bodycopy = translate('soap_app_default_contents');
 
 		$sub_assets	= $this->_getInitialStepDefinitions();
 		$main_bc_data = Array(

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2006/07/21 06:50:15 arailean Exp $
+* $Id: lang_strings.xml,v 1.2 2006/07/31 00:42:35 tbarrett Exp $
 *
 *
 * SOAP Application Localised Strings File
@@ -19,4 +19,10 @@
 -->
 <strings>
 	<string source="soap_application_NOTHING">Nothing</string>
+	<string source="soap_app_default_contents"><![CDATA[
+Hello, this is a SOAP application. You're on <strong>%%step_name%%</strong> (%%current_step_number%%/%%step_count%%)
+<div style="background: #f79121; padding: 2em; border: solid 2px grey">
+%%step_content%%
+</div>
+]]></string>
 </strings>
