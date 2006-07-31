@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_clear_cache.xml,v 1.1 2005/03/30 00:39:54 lwright Exp $
+* $Id: lang_screen_clear_cache.xml,v 1.2 2006/07/31 05:07:06 skim Exp $
 *
 */
 -->
@@ -30,6 +30,14 @@
 			<function_call>
 				<paint_function name="paintClearCache" />
 				<process_function name="processClearCache" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Clear System Wide Cache">
+		<field>
+			<function_call>
+				<paint_function name="paintSystemWideClearCache" />
+				<process_function name="processSystemWideClearCache" />
 			</function_call>
 		</field>
 	</section>

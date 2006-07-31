@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.10 2006/07/10 05:34:48 skim Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.11 2006/07/31 05:07:06 skim Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.10 $ - 1.0
+* @version $Revision: 1.11 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -304,15 +304,6 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			combo_box($prefix.'_type_codes', $type_options, TRUE, '', 8);
 		$o->closeField();
 
-		$o->openField(translate('delete_all_cache'));
-			$delete_all_ops = Array(
-								'yes'	=> translate('yes'),
-								'no'	=> translate('no'),
-							  );
-			combo_box($prefix.'_delete_all', $delete_all_ops, FALSE, 'no', 0, "onChange=\"Javascript: if (this.value == 'yes') { if(!confirm(js_translate('confirm_purge_cache'))) { this.value = 'no'; } } \"");
-				$o->note(translate('trash_purge_warning'));
-		$o->closeField();
-
 		return TRUE;
 
 	}//end paintClearCache()
@@ -330,7 +321,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processClearCache(&$asset, &$o, $prefix)
 	{
-		if (isset($_POST[$prefix.'_clear_cache']) && !empty($_POST[$prefix.'_clear_cache']['assetid'])) {
+		if (isset($_POST[$prefix.'_clear_cache']) && !empty($_POST[$prefix.'_clear_cache']['assetid']) && $_POST[$prefix.'_delete_all'] != 'yes') {
 			$level = (isset($_POST[$prefix.'_level'])) ? $_POST[$prefix.'_level'] : 'single';
 
 			if (isset($_POST[$prefix.'_type_codes']) && !empty($_POST[$prefix.'_type_codes'][0])) {
@@ -351,17 +342,67 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 					);
 			$hh->queueHipo('hipo_job_clear_cache', $vars);
 
-		} else if ($_POST[$prefix.'_delete_all'] == 'yes') {
+		}
+
+		return TRUE;
+
+	}//end processClearCache()
+
+
+	/**
+	* Paints the interface for clearing the cache files
+	*
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSystemWideClearCache(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) {
+			echo translate('cannot_clear_cache');
+			return FALSE;
+		}
+
+		$o->openField(translate('delete_all_cache'));
+			$delete_all_ops = Array(
+								'yes'	=> translate('yes'),
+								'no'	=> translate('no'),
+							  );
+			combo_box($prefix.'_delete_all', $delete_all_ops, FALSE, 'no', 0, "onChange=\"Javascript: if (this.value == 'yes') { if(!confirm(js_translate('confirm_purge_cache'))) { this.value = 'no'; } } \"");
+			$o->note(translate('trash_cache_warning'));
+		$o->closeField();
+
+		return TRUE;
+
+	}//end paintSystemWideClearCache()
+
+
+	/**
+	* Processes the interface for clearing the cache files, and starts the clear cache hipo
+	*
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSystemWideClearCache(&$asset, &$o, $prefix)
+	{
+		if ($_POST[$prefix.'_delete_all'] == 'yes') {
 			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array(
 						'delete_all'	=> 'yes',
 					);
 			$hh->queueHipo('hipo_job_clear_cache', $vars);
-
 		}
+
 		return TRUE;
 
-	}//end processClearCache()
+	}//end processSystemWideClearCache()
 
 
 	/**
