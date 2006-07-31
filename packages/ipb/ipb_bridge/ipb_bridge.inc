@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge.inc,v 1.4.2.1 2006/02/16 03:29:08 skim Exp $
+* $Id: ipb_bridge.inc,v 1.4.2.2 2006/07/31 04:34:58 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/ipb/ipb.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4.2.1 $
+* @version $Revision: 1.4.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -491,7 +491,7 @@ class IPB_Bridge extends Asset
 				} else {
 
 					// minor
-					$links[] = Array(
+					$links = Array(
 								'linkid'		=> 0,
 								'value'			=> '',
 								'link_type'		=> $this->ipb_shdw_link_type,
@@ -628,30 +628,30 @@ class IPB_Bridge extends Asset
 				$ipb =& $this->getIpbConn();
 				if ($prefix == 'u') {
 					// IPB USER
-					$parents['g_0'] = 'ipb_user_group';
+					$parents[$id_parts[0].':'.'g_0'] = 'ipb_user_group';
 					$result = $ipb->getMemberParent($id_parts[0].':'.$assetid);
-					$parents['g_'.$result['mgroup']] = 'ipb_user_group';
+					$parents[$id_parts[0].':'.'g_'.$result['mgroup']] = 'ipb_user_group';
 
 				} else if ($prefix == 'f') {
 					// IPB FORUM
-					$parents['f_0'] = 'ipb_forum';
+					$parents[$id_parts[0].':'.'f_0'] = 'ipb_forum';
 					$result = $ipb->getForumParent($id_parts[0].':'.$assetid);
-					$parents['r_'.$result['parent_id']] = 'ipb_root_forum';
+					$parents[$id_parts[0].':'.'r_'.$result['parent_id']] = 'ipb_root_forum';
 
 				} else if ($prefix == 't') {
 					// IPB TOPIC
-					$parents['f_0'] = 'ipb_forum';
+					$parents[$id_parts[0].':'.'f_0'] = 'ipb_forum';
 					$result = $ipb->getTopicParent($id_parts[0].':'.$assetid);
-					$parents['r_'.$result['parent_id']] = 'ipb_root_forum';
-					$parents['f_'.$result['forum_id']] = 'ipb_forum';
+					$parents[$id_parts[0].':'.'r_'.$result['parent_id']] = 'ipb_root_forum';
+					$parents[$id_parts[0].':'.'f_'.$result['forum_id']] = 'ipb_forum';
 
 				} else if ($prefix == 'p') {
 					// IPB POST
-					$parents['f_0'] = 'ipb_forum';
+					$parents[$id_parts[0].':'.'f_0'] = 'ipb_forum';
 					$result = $ipb->getPostParent($id_parts[0].':'.$assetid);
-					$parents['r_'.$result['parent_id']] = 'ipb_root_forum';
-					$parents['f_'.$result['forum_id']] = 'ipb_forum';
-					$parents['t_'.$result['topic_id']] = 'ipb_topic';
+					$parents[$id_parts[0].':'.'r_'.$result['parent_id']] = 'ipb_root_forum';
+					$parents[$id_parts[0].':'.'f_'.$result['forum_id']] = 'ipb_forum';
+					$parents[$id_parts[0].':'.'t_'.$result['topic_id']] = 'ipb_topic';
 				}
 
 			}
