@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.60 2006/04/21 03:42:09 bcaldwell Exp $
+* $Id: install.inc,v 1.61 2006/07/31 00:36:15 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1527,7 +1527,7 @@ function extract_strings_from_xml($file, $root_element, $child_element, $key_att
 			return Array(Array(), Array(), Array());
 		} else if (empty($translation)) {
 			trigger_error('Skipping translation for code "'.$source_code.'" as the translation appears to be empty', E_USER_NOTICE);
-		} else if (preg_match_all('|%s|', $translation, $matches) > 1) {
+		} else if (preg_match_all('|[^%]%s|', $translation, $matches) > 1) {
 			trigger_error('Skipping translation for code "'.$source_code.'"; it has multiple occurrences of unpositioned "%s" - use positioned replacements (eg. "%1$s") when you have more than one', E_USER_WARNING);
 		} else {
 
