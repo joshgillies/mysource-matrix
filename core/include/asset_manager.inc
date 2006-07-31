@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.491.2.5 2006/07/26 06:14:31 skim Exp $
+* $Id: asset_manager.inc,v 1.491.2.6 2006/07/31 04:07:24 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.491.2.5 $
+* @version $Revision: 1.491.2.6 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6443,7 +6443,7 @@ class Asset_Manager extends MySource_Object
 			) as weighting
 			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 			'.$where.'
-			ORDER BY weighting DESC, l.url';
+			ORDER BY weighting DESC, LENGTH(l.url) ASC';
 
 			$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
 			assert_valid_db_result($result);
