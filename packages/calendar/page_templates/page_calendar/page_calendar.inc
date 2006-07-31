@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.184 2006/06/28 23:06:55 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.184.2.1 2006/07/31 07:21:58 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.184 $
+* @version $Revision: 1.184.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1930,32 +1930,34 @@ class Page_Calendar extends Page
 			$assetid = strtok($assetid, ':');
 
 			// Determine which bodycopy to use
+			$found_bodycopy = FALSE;
 			if (isset($type_format_bodycopies[$type_code])) {
 				$bodycopy =& $type_format_bodycopies[$type_code];
+				$found_bodycopy = TRUE;
 			} else if ($type_code == 'calendar_event_modification' ) {
 				// Modification Event
 				$link = $am->getLink($assetid, SQ_LINK_TYPE_2, 'calendar_event_recurring', TRUE, NULL, 'minor');
 				$bodycopy =& $type_format_bodycopies[$link['major_type_code']];
+				$found_bodycopy = TRUE;
 			} else if ($type_code == 'calendar_event_cancellation' ) {
 				continue;
 			} else {
 				// check parent type
 				$type_ancestors = $am->getTypeAncestors($type_code);
-				$parent_cancellation = FALSE;
 				foreach ($type_ancestors as $parent_type) {
-					if (isset($this->_tmp['allowed_type_formats'][$parent_type])) {
-						$type_format_bodycopies[$type_code] = $type_format_bodycopies[$parent_type];
+					if (isset($type_format_bodycopies[$parent_type])) {
+						$type_format_bodycopies[$type_code] =& $type_format_bodycopies[$parent_type];
 						$bodycopy =& $type_format_bodycopies[$parent_type];
+						$found_bodycopy = TRUE;
 						break;
-					} else if ($type_code == 'calendar_event_cancellation' ) {
-						$parent_cancellation = TRUE;
-						break;
+					} else if ($parent_type == 'calendar_event_cancellation' ) {
+						continue(2);
 					}
 				}
-				if (!$parent_cancellation) {
+				if (!$found_bodycopy) {
 					trigger_localised_error('CAL0061', E_USER_WARNING, $assetid);
+					continue;
 				}
-				continue;
 			}
 
 			$replacements = Array();
