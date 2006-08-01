@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.183 2006/07/24 07:06:49 rong Exp $
+* $Id: listing_engine.inc,v 1.184 2006/08/01 05:36:25 rong Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.183 $
+* @version $Revision: 1.184 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2474,11 +2474,11 @@ class Listing_Engine extends Page
 				} else {
 					$current_parent = $group_data['group'][$last_parent_asset];
 				}
-
 				switch ($group_level['group_type']) {
 					case 'parent_asset':
 						$restrict_types = array_get_index($group_level, 'restrict_types', Array());
-						$value = $this->getGroupableParentAssetids($current_parent, $restrict_types);
+						$direct_parent_only = array_get_index($group_level, 'direct_parent_only', FALSE);
+						$value = $this->getGroupableParentAssetids($current_parent, $restrict_types, $direct_parent_only);
 
 						// skip this whole section if both depth fields are NULL
 						// otherwise, we are limiting by parent's depth, relative
@@ -2630,13 +2630,14 @@ class Listing_Engine extends Page
 	* function needs to be overridden in assets like Search_Page where the use
 	* of proxy search types require alternate logic to just getting ALL parents.
 	*
-	* @param array	$child_assetid	the asset to find the parents of
-	* @param array	$restrict_types	Group type restrictions
+	* @param array		$child_assetid		the asset to find the parents of
+	* @param array		$restrict_types		Group type restrictions
+	* @param boolean	$direct_parent_only	include the direct parent which matches the restriction type
 	*
 	* @return array
 	* @access public
 	*/
-	function getGroupableParentAssetids($child_assetid, $restrict_types=Array())
+	function getGroupableParentAssetids($child_assetid, $restrict_types=Array(), $direct_parent_only=FALSE)
 	{
 		$root_nodes = $this->getRootNodes();
 
@@ -2647,7 +2648,7 @@ class Listing_Engine extends Page
 				$parent_link_assetids[] = $parent_link['majorid'];
 			}
 		} else {
-			$parent_link_assetids = $this->_getGroupableParentAssetids($child_assetid, $restrict_types, $root_nodes);
+			$parent_link_assetids = $this->_getGroupableParentAssetids($child_assetid, $restrict_types, $root_nodes, $direct_parent_only);
 		}
 
 		return $parent_link_assetids;
@@ -2658,14 +2659,15 @@ class Listing_Engine extends Page
 	/**
 	* Get all the parents of this asset which can be used for grouping.
 	*
-	* @param array	$child_assetid	the asset to find the parents of
-	* @param array	$restrict_types	Group type restrictions
-	* @param array	$root_nodes		Root Nodes for this listing
+	* @param array		$child_assetid		the asset to find the parents of
+	* @param array		$restrict_types		Group type restrictions
+	* @param array		$root_nodes			Root Nodes for this listing
+	* @param boolean	$direct_parent_only	include the direct parent which matches the restriction type
 	*
 	* @return array
 	* @access public
 	*/
-	function _getGroupableParentAssetids($child_assetid, $restrict_types=Array(), $root_nodes=Array())
+	function _getGroupableParentAssetids($child_assetid, $restrict_types=Array(), $root_nodes=Array(), $direct_parent_only=FALSE)
 	{
 		// get single treeid for each root node, children of root node should be the same on all trees
 		$root_nodes_treeid = Array();
@@ -2680,6 +2682,16 @@ class Listing_Engine extends Page
 			$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($child_assetid, 0, $treeid, 'type_code');
 
 			foreach ($lineages as $lineage_info) {
+
+				// only get direct parent, if it is set in the group by option
+				if ($direct_parent_only && !empty($lineage_info['lineage'])) {
+					$all_assetids = array_keys($lineage_info['lineage']);
+					$direct_parent_assetid = array_pop($all_assetids);
+					$direct_parent_type = array_pop($lineage_info['lineage']);
+					// in the form of (assetid => type_code)
+					$lineage_info['lineage'] = Array($direct_parent_assetid => $direct_parent_type);
+				}
+
 				// if not one of the selected link types continue
 				if (!($lineage_info['link_type'] & $this->attr('link_types'))) {
 					continue;

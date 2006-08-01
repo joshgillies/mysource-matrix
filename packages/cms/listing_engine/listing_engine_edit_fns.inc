@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.62 2006/07/20 00:05:59 rong Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.63 2006/08/01 05:36:25 rong Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2277,6 +2277,19 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			$o->note(translate('cms_listing_group_asset_restriction_note'));
 		$o->closeField();
 
+		// option to include only assets with direct parent that matches one of the restricted types
+		$o->openField('Direct Parent Only ?');
+			if ($write_access) {
+				check_box($prefix.'[direct_parent_only]', '1', array_get_index($group_by_option, 'direct_parent_only', FALSE));
+				label('Only list assets with direct parent that matches the Restricted Types', $prefix.'[direct_parent_only]');
+			} else {
+				?>
+				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo array_get_index($group_by_option, 'direct_parent_only', FALSE) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+				<?php
+				echo 'Only list assets with direct parent that matches the Restricted Types';
+			}
+		$o->closeField();
+
 		$o->openField(translate('sort_by'));
 
 			// for now we will only sort by the original set of options (not
@@ -2334,6 +2347,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				}
 			}
 
+			$group_by_option['direct_parent_only'] = array_get_index($posted_option, 'direct_parent_only', FALSE);
 			$group_by_option['sort_by']		= $posted_option['sort_by'];
 			$group_by_option['sort_order']	= $posted_option['sort_order'];
 
