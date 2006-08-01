@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.116 2006/08/01 04:27:11 skim Exp $
+* $Id: search_manager.inc,v 1.117 2006/08/01 05:11:42 skim Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.117 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -623,7 +623,6 @@ class Search_Manager extends Asset
 		if (!is_array($index_content)) return FALSE;
 
 		$param_data = Array();
-		$search_key_hash = Array();
 		$keys = array_keys($index_content);
 		foreach ($keys as $key) {
 			$data =& $index_content[$key];
@@ -655,20 +654,13 @@ class Search_Manager extends Asset
 					// nothing yet
 			}
 
-			// Bug Fix for duplicated key.
-			// Since we extract a raw number from the text, there is a possibility that it can have the same values
-			// and it generates a duplicated key violation error
-			$hash = md5($value.$data['type_code'].$data['component'].$data['type'].((string)$data['score']));
-			if (!isset($search_key_hash[$hash])) {
-				$param_data[] = Array(
-									'value'		=> $value,
-									'type_code'	=> $data['type_code'],
-									'type'		=> $data['type'],
-									'component'	=> $data['component'],
-									'score'		=> $data['score'],
-								);
-				$search_key_hash[$hash] = TRUE;
-			}
+			$param_data[] = Array(
+								'value'		=> $value,
+								'type_code'	=> $data['type_code'],
+								'type'		=> $data['type'],
+								'component'	=> $data['component'],
+								'score'		=> $data['score'],
+							);
 
 		}//end foreach
 
