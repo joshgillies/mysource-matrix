@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.16 2006/07/28 03:33:03 tbarrett Exp $
+* $Id: soap_application_step.inc,v 1.17 2006/08/01 00:30:47 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -225,7 +225,7 @@ class SOAP_Application_Step extends Asset
 	function performOperation()
 	{
 		// construct input message
-		$input_message =& $this->getInputMessage();
+		$input_message = $this->getInputMessage();
 		$output_message = NULL;
 
 		// get the SOAP processor to talk to the remote system
@@ -449,7 +449,7 @@ class SOAP_Application_Step extends Asset
 	*/
 	function getFaultMessageKeywordReplacement()
 	{
-		
+
 		if (empty($this->_tmp['op_fault'])) {
 			return 'No msg';
 		}
@@ -824,7 +824,7 @@ class SOAP_Application_Step extends Asset
 
 
 	/**
-	* 
+	*
 	*
 	* @param boolean	$varname
 	*
