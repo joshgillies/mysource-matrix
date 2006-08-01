@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.22 2006/03/14 17:47:23 trodger Exp $
+* $Id: pdf_file.inc,v 1.22.2.1 2006/08/01 05:12:09 skim Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.22.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -137,7 +137,7 @@ class PDF_File extends File
 		}
 
 		// strip out the unnecessary whitespace and html entities like &amp;
-		$search = Array('/[\s]+/', '/\&[^;\s]+;/');
+		$search = Array('/[\s,]+/', '/\&[^;\s]+;/');
 		$replace = Array(' ', '');
 
 		$content = strtolower(trim(preg_replace($search, $replace, $content)));
