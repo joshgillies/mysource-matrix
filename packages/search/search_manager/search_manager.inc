@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.115 2006/06/23 05:47:13 sdanis Exp $
+* $Id: search_manager.inc,v 1.116 2006/08/01 04:27:11 skim Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.115 $
+* @version $Revision: 1.116 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -589,7 +589,6 @@ class Search_Manager extends Asset
 			// ask the asset for its content, and store it under a contents component
 			// we don't want to index any tags so strip them
 			$contents = strtolower(strip_tags(html_entity_decode($asset->getContent())));
-
 			if (trim($contents) != '') {
 				foreach (get_word_counts($contents) as $word => $count) {
 					$index_content[] = Array(
@@ -624,7 +623,7 @@ class Search_Manager extends Asset
 		if (!is_array($index_content)) return FALSE;
 
 		$param_data = Array();
-
+		$search_key_hash = Array();
 		$keys = array_keys($index_content);
 		foreach ($keys as $key) {
 			$data =& $index_content[$key];
@@ -643,7 +642,6 @@ class Search_Manager extends Asset
 				case 'text':
 
 					$value = $this->_getRawNumberInText($value);
-
 					// filter noise words
 					if (!$this->isWordIndexable($value)) continue 2; // continue the foreach loop
 
@@ -657,14 +655,20 @@ class Search_Manager extends Asset
 					// nothing yet
 			}
 
-			$param_data[] = Array(
-								'value'		=> $value,
-								'type_code'	=> $data['type_code'],
-								'type'		=> $data['type'],
-								'component'	=> $data['component'],
-								'score'		=> $data['score'],
-							);
-
+			// Bug Fix for duplicated key.
+			// Since we extract a raw number from the text, there is a possibility that it can have the same values
+			// and it generates a duplicated key violation error
+			$hash = md5($value.$data['type_code'].$data['component'].$data['type'].((string)$data['score']));
+			if (!isset($search_key_hash[$hash])) {
+				$param_data[] = Array(
+									'value'		=> $value,
+									'type_code'	=> $data['type_code'],
+									'type'		=> $data['type'],
+									'component'	=> $data['component'],
+									'score'		=> $data['score'],
+								);
+				$search_key_hash[$hash] = TRUE;
+			}
 
 		}//end foreach
 
@@ -695,7 +699,6 @@ class Search_Manager extends Asset
 							?
 						)'
 					);
-
 		assert_valid_db_result($insert_st);
 		$result = $db->executeMultiple($insert_st, $param_data);
 		assert_valid_db_result($result);
