@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.133 2006/07/21 06:39:46 skim Exp $
+* $Id: file.inc,v 1.134 2006/08/02 04:29:57 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.133 $
+* @version $Revision: 1.134 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1063,7 +1063,6 @@ class File extends Asset
 	{
 		header('Accept-Ranges: bytes');
 
-		@ob_end_clean();
 		$bufsize = 1024 * 8; // 8 bytes
 		if(file_exists($info['path']) && ($fh = fopen($info['path'], "rb"))){
 			while (!feof($fh)) {
