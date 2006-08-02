@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_user.inc,v 1.2 2005/12/21 04:18:25 skim Exp $
+* $Id: ipb_user.inc,v 1.3 2006/08/02 04:46:01 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -154,6 +154,17 @@ class Ipb_User extends Backend_User
 
 		$this->vars['avatar_type']['type']		= 'text';
 		$this->vars['avatar_type']['value']		= (empty($data['avatar_type'])) ? 'none' : $data['avatar_type'];
+
+		// custom fields
+		$ipb =& $ipb_bridge->getIpbConn();
+		$custom_fields = $ipb->getCustomFields();
+		$user_custom_data = $ipb->getMemberCustomFieldData($this->id);
+		foreach ($custom_fields as $field) {
+			$field_name = strtolower($field['pf_title']);
+			$field_name = str_replace(' ', '_', $field_name);	
+			$this->vars[$field_name]['value'] = $user_custom_data[0]['field_'.$field['pf_id']];
+			$this->vars[$field_name]['type'] = 'text';
+		}
 
 	}//end constructor
 
