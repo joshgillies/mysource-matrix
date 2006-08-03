@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.94 2006/06/19 00:42:00 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.95 2006/08/03 23:13:12 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -763,12 +763,14 @@ class Page_Asset_Builder extends Page
 	function _setCreateStatus(&$new_asset)
 	{
 		$create_status = $this->attr('create_status');
-		if ($new_asset->status != $create_status) {
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$vars = Array('assetid' => $new_asset->id, 'new_status' => $create_status);
-			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
-			$this->_errors = array_merge($this->_errors, $status_errors);
-			return empty($this->_errors);
+		if ($create_status != 0) {
+			if ($new_asset->status != $create_status) {
+				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$vars = Array('assetid' => $new_asset->id, 'new_status' => $create_status);
+				$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
+				$this->_errors = array_merge($this->_errors, $status_errors);
+				return empty($this->_errors);
+			}
 		}
 		return TRUE;
 

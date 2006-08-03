@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2006/05/16 01:20:39 sdanis Exp $
+* $Id: lang_screen_details.xml,v 1.7 2006/08/03 23:13:13 lwright Exp $
 *
 */
 -->
@@ -38,7 +38,7 @@
 		</field>
 		<field>
 			<display_name>Create Status</display_name>
-			<note />
+			<note>Note that the Asset Builder will attempt to change status AFTER any 'asset created' triggers are run. If these triggers involve changing the status of an asset automatically, you should use the 'Do not change status' option. With this option, the Asset Builder will not attempt to change the status of the asset. If nothing else changes the status of the asset, the status will default to Under Construction.</note>
 			<function_call>
 				<paint_function   name="paintCreateStatus"   />
 				<process_function name="processCreateStatus" />

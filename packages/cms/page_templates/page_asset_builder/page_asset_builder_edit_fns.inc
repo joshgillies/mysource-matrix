@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.39 2006/05/16 01:46:51 sdanis Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.40 2006/08/03 23:13:12 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -128,6 +128,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			echo get_status_description($asset->attr('create_status'));
 		} else {
 			$status_options = Array(
+								0								=> translate('cms_asset_builder_do_not_change_status'),
 								SQ_STATUS_ARCHIVED				=> translate('archived'),
 								SQ_STATUS_UNDER_CONSTRUCTION	=> translate('under_construction'),
 								SQ_STATUS_LIVE					=> translate('live'),
