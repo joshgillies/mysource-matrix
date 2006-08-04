@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.38 2006/06/15 03:52:40 rhoward Exp $
+* $Id: page_remote_content.inc,v 1.39 2006/08/04 06:12:21 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define ('SQ_REMOTE_SOURCE', 'sq_content_src');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -605,6 +605,7 @@ class Page_Remote_Content extends Page
 
 		// CSS url definitions for scripts
 		$patterns[] = '/(@import\s+url\s*\([\'"]?\s*)([^\'" ]+)([\'"]?\s*\))/i';
+		$patterns[] = '/(@import\s+[\'"]\s*)([^\'" ]+)([\'"])/i';
 
 		// find whatever matches the above patterns
 		foreach ($patterns as $pattern) {
