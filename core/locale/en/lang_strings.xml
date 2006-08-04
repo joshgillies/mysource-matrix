@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.152 2006/07/31 05:07:06 skim Exp $
+* $Id: lang_strings.xml,v 1.153 2006/08/04 00:19:59 tbarrett Exp $
 *
 */
 
@@ -1939,5 +1939,8 @@ Are you sure you want to proceed?</string>
 	<string source="keyword_settings_section_name">Keyword Replacement Settings</string>
 	<string source="hide_unknown_keywords">Hide Unknown Keywords</string>
 	<string source="hide_unknown_keywords_note">If this setting is enabled, words that begin and end with percent signs but are not recognised keywords will be blanked out on the frontend at all times</string>
+
+	<!-- Data Source -->
+	<string source="data_source_no_keywords">No keywords available - this data source, as currently configured, does not have any record sets.</string>
 
 </strings>
