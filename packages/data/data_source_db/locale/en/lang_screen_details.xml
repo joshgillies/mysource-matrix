@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2006/04/07 05:50:54 skim Exp $
+* $Id: lang_screen_details.xml,v 1.3 2006/08/04 00:13:54 tbarrett Exp $
 *
 */
 -->
@@ -30,7 +30,7 @@
 			<note />
 		</field>
 		<field attribute="db_type">
-			<display_name>DataBase Type</display_name>
+			<display_name>Database Type</display_name>
 			<note />
 		</field>
 		<field>
@@ -38,7 +38,7 @@
 				<paint_function name="paintDSN" />
 				<process_function name="processDSN" />
 			</function_call>
-			<display_name>DataSource Details</display_name>
+			<display_name>Database Details</display_name>
 			<note />
 		</field>
 		<field>
@@ -46,8 +46,8 @@
 				<paint_function   name="paintDSNAlone"   />
 				<process_function name="processDSNAlone" />
 			</function_call>
-			<display_name>Alternatively Please Enter Your Complete DSN Here</display_name>
-			<note>Please note that if you enter dsn here then the other fields in the Datasource details section would be ignored. To accept the input from the other fields please leave this field empty. Also, the typed password is not displayed here.</note>
+			<display_name>OR Complete DSN</display_name>
+			<note>Please note that if you enter a DSN here then the fields in the Database Details section above will be ignored. To accept input from the other fields please leave this field empty.  Also note that passwords in the DSN will not be re-displayed after entry.</note>
 		</field>
 	</section>
 </contents>

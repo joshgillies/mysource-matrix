@@ -18,18 +18,18 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_query.xml,v 1.7 2006/06/21 04:11:40 skim Exp $
+* $Id: edit_interface_screen_query.xml,v 1.8 2006/08/04 00:13:54 tbarrett Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Choose Your Mode" write_access="write:attributes" limbo_access="1" show_if="notEditMode">
+	<section name="Choose Mode" write_access="write:attributes" limbo_access="1" show_if="notEditMode">
 		<field attribute="mode">
 			<selection style="list" />
 		</field>
 	</section>
-	<section name="query" write_access="write:attributes" limbo_access="1" show_if="notEditModeAndTablesNotEmpty">
+	<section name="Query Builder" write_access="write:attributes" limbo_access="1" show_if="notEditModeAndTablesNotEmpty">
 		<field>
 			<function_call>
 				<paint_function   name="paintTables"   />
@@ -54,16 +54,16 @@
 				<process_function name="processAggregateFunctions" />
 			</function_call>
 		</field>
-		<field show_if="multiTablesSelectedWithWriteAccess">
-			<function_call>
-				<paint_function   name="paintNewJoin"/>
-				<process_function name="processNewJoin" />
-			</function_call>
-		</field>
 		<field show_if="multiTablesSelectedWithJoinsOrWriteAccess">
 			<function_call>
 				<paint_function   name="paintJoins"   />
 				<process_function name="processJoins" />
+			</function_call>
+		</field>
+		<field show_if="multiTablesSelectedWithWriteAccess">
+			<function_call>
+				<paint_function   name="paintNewJoin"/>
+				<process_function name="processNewJoin" />
 			</function_call>
 		</field>
 		<field show_if="tablesSelectedWithWhereHaving">
@@ -90,7 +90,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Shadow Asset Name" write_access="write:attributes">
+	<section name="Record Set Asset Names" write_access="write:attributes">
 		<field>
 			<function_call>
 				<paint_function   name="paintShadow"   />
@@ -98,8 +98,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Available Keywords" write_access="write:attributes" show_if="resultSetExists">
-
+	<section name="Available Keywords" write_access="write:attributes">
 		<field>
 			<function_call>
 				<paint_function   name="paintKeywords"   />
