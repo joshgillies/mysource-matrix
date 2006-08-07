@@ -1,5 +1,93 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.8.5
+
+Featured Changes
+-----------------------------------
+
+Session File Garbage Collection Script
+
+    Bug #1475 was caused by PHP's internal session garbage collection system being disabled by moving the storage of session files to MySource Matrix's cache directory. This bug was fixed by adding a separate garbage collection script (scripts/session_cleanup.sh) that clears stale session files instead.
+
+    This script should be added to the directly added to the crontab to handle garbage collection periodically. This should only need to be run once a day on most systems, but may need to be run more often on high-traffic systems.
+
+
+Set Cache Expiry Trigger Action
+
+    A new trigger action has been added that allows you to set the expiry time of an asset's cache entries. The expiry time is based on the current time plus a defined number of minutes, hours or days. The trigger action also allows you to set the DSN of the cache database if you want to update the expiry on a slave cache server, for example.
+
+
+Scrip to Clean-up Cache Directory
+
+    A new system integrity script has been added to clean up the cache directory. The script will delete all cache files that do not have an entry in the sq_cache table (ie. they are orphaned). The script must be run as a user that has access to delete the cache files. If files cannot be removed, an error will be generated at the end of the script to let you know.
+
+    The script is run using the following command:
+    $ php scripts/system_integrity_clean_cache_dir.php .
+
+
+Clear Cache Trigger Action
+
+    A new trigger action has been developed that allows you to clear the MySource Matrix cache for one or more assets when an event is fired. You may select to clear the cache for the asset that the event is fired on and/or any other assets in the tree. You can also select to clear the cache for these assets only, or their dependent assets or children. You can also select the types of assets you want the cache cleared for.
+
+
+Cache Database DSN
+
+    MySource Matrix now has a DBCACHE_DSN configuration setting. This allows you to place the cache table in a different database to your main one. For systems that have configured database replication, this can be quite useful. The cache table is the only table that really needs write access on a publishing server. By placing this table in a separate database, the publishing server can have read-only access to the main database of information (allowing for one-way database replication) as well as write access to the cache table.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
+* Fixed bug #1468: Asset Chooser in Simple Edit Mode is broken
+* Fixed bug #1474: Archived assets cannot be moved to Trash
+* Fixed bug #1475: Session files not cleaned up
+* Fixed bug #1487: 'Trigger Action Set Status' not updating dependant assets statuses
+* Fixed bug #1470: Workflow e-mail invalid for User asset
+* Fixed bug #1495: Cascading No Permissions
+* Fixed bug #1499: getParents ignores type when restricting by level
+* Fixed bug #1515: Metadata thesaurus fields
+* Fixed bug #1516: URLs containing "a=" bug
+* Fixed bug #1514: Edit screens with partially-acquired locks are still editable
+* Fixed bug #1524: Short name of page in Safe Edit is inconsistent between breadcrumb and keyword
+* Fixed bug #1526: Menu area: show_subs value cascade to other menu design area
+* Fixed bug #1537: Preferences Screen of User Group - locale strings missing
+
+CMS
+
+* Fixed bug #1471: Asset Listing with missing fixed position asset fails horribly (Asset Listing)
+* Fixed bug #1472: Asset Listing fixed positions overridden by sort order (Asset Listing)
+* Fixed bug #1485: Custom Form File Upload Field Overwrite Rule Problem (Custom Form)
+* Fixed bug #1489: Asset Listing Column Layout (Asset Listing)
+* Fixed bug #1500: Submission Log Edit screen (Custom Form)
+* Fixed bug #1502: valid email address not valid for email form field (Custom Form)
+* Fixed bug #1509: Password reset page can generate DB errors (Password Reset Page)
+* Fixed bug #1513: Asset Listing 'Default Sort By Option' index problem (Asset Listing)
+
+Search
+
+* Fixed bug #1480: Search List Asset - Web Path (Search List)
+* Fixed bug #1481: Search List Error (Search List)
+* Fixed bug #1482: Category Keyword on the Default Search Bodycopy (Search Page)
+* Fixed bug #1483: File Upload Field giving error message when it is optional (Search Page)
+
+Calendar
+
+* Fixed bug #1506: Role based permissions on calendar month view (Calendar Page)
+* Fixed bug #1529: DB error thrown if no frequency selected when creating recurring event (Calendar Page)
+
+Bulkmail
+
+* Fixed bug #1469: Bulkmail Subscribe Page Asset not working (Bulkmail Subscribe Page)
+
+Data
+
+* Fixed bug #1535: Data Source Graph - PHP Notice
+* Fixed bug #1536: Data Source Graph - PHP Notice when deleting a plot
+
+
+
 VERSION 3.8.4
 
 Featured Changes
