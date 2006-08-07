@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.180.2.2 2006/07/05 06:09:44 lwright Exp $
+* $Id: listing_engine.inc,v 1.180.2.3 2006/08/07 01:08:45 skim Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.180.2.2 $
+* @version $Revision: 1.180.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -879,7 +879,7 @@ class Listing_Engine extends Page
 				$todo = $this->sortAssetList($todo, $this->getSortInfo());
 
 			break;
-		}
+		}//end switch
 
 	}//end filterAssetList()
 
@@ -1136,7 +1136,7 @@ class Listing_Engine extends Page
 			}
 
 			$adjusted_positions[$position] = $id;
-		}
+		}//end foreach
 
 		// check if adjustment is still required
 		if (empty($adjusted_positions)) return;
@@ -1907,13 +1907,10 @@ class Listing_Engine extends Page
 					$found_root = FALSE;
 
 					// prepare the url for getLineageFromUrl
-					$nurl = $asset->getUrl();
-					$nurl = strip_url($nurl);
-					$nurl = stristr($nurl,'/');
-					$nurl = substr($nurl,2);
+					$urls = $asset->getURLs();
 
 					// no URL, have to use get Parents
-					if (empty($nurl)) {
+					if (empty($urls)) {
 
 						$parent_asset_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id));
 
@@ -1936,49 +1933,86 @@ class Listing_Engine extends Page
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ancestor_asset);
 						}
 					} else {
-						$parent_assets = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(NULL, $nurl);
-
 						// searching for the root asset
 						$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, 'root');
 						$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
 						$show_root = $this->attr('root_in_lineage');
-						$started = FALSE;
-						foreach ($parent_assets as $data) {
-							if ($data['assetid'] == $root_assetid) {
-								$found_root = TRUE;
-							}
-							if (!$found_root) continue;
-							if ($first && !$show_root) {
-								$first = FALSE;
-								continue;
-							}
 
-							// If this is the asset itself, don't put it in the lineage.
-							if ($data['assetid'] == $assetid) continue;
-							if (!$first && $lineage != '') {
-								$lineage .= htmlspecialchars($this->attr('lineage_seperator'));
-								$linked_lineage .= htmlspecialchars($this->attr('lineage_seperator'));
-							}
-							$linked_lineage .= '<a href="'.$data['protocol'].'://'.$data['url'].'">'.$data['short_name'].'</a>';
-							$lineage .= $data['short_name'];
-							$first = FALSE;
-						}
+						// multiple urls, let's work out which one to use
+						// none includes root node. pick the first one
+						$index = 0;
+						$one_lineage_inc_root = FALSE;
+						$multiple_lineage_inc_root = FALSE;
 
-						// We didn't find the search_root in the lineage, it's probably a file
-						// It is a valid lineage valid though, so lets print it, as it's better than the
-						// warning messages it used to spit out
-						if (!$found_root) {
-							$first = TRUE;
-							foreach ($parent_assets as $data) {
-								if (!$first && $lineage != '') {
-									$lineage .= htmlspecialchars($this->attr('lineage_seperator'));
-									$linked_lineage .= htmlspecialchars($this->attr('lineage_seperator'));
+						foreach ($urls as $idx => $data) {
+							$lineage_array						= $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(NULL, $data['url']);
+							$found_root						= FALSE;
+							$first								= TRUE;
+							$first_full						= TRUE;
+							$urls[$idx]['lineage']				= '';
+							$urls[$idx]['linked_lineage']		= '';
+							$urls[$idx]['lineage_full']		= '';
+							$urls[$idx]['linked_lineage_full']	= '';
+
+							foreach ($lineage_array as $lineage_item) {
+
+								if ($lineage_item['assetid'] == $root_assetid) {
+									$found_root = TRUE;
 								}
-								$lineage .= $data['short_name'];
-								$linked_lineage .= '<a href="'.$data['protocol'].'://'.$data['url'].'">'.$data['short_name'].'</a>';
-								$first = FALSE;
+
+								if ($first_full) $first_full = FALSE;
+
+								// Full lineage without concerning root
+								if (!$first_full && $urls[$idx]['lineage_full'] != '') {
+									$urls[$idx]['lineage_full'] .= $this->attr('lineage_seperator');
+									$urls[$idx]['linked_lineage_full'] .= $this->attr('lineage_seperator');
+								}
+								$urls[$idx]['lineage_full'] .= $lineage_item['short_name'];
+								$urls[$idx]['linked_lineage_full'] .= '<a href="'.$lineage_item['protocol'].'://'.$lineage_item['url'].'">'.$lineage_item['short_name'].'</a>';
+
+								if ($found_root) {
+
+									// Record the index
+									$index = $idx;
+
+									if (!$one_lineage_inc_root) {
+										$one_lineage_inc_root = TRUE;
+									} else {
+										$multiple_lineage_inc_root = TRUE;
+									}
+
+									if ($first && !$show_root) {
+										$first = FALSE;
+										continue;
+									}
+
+									if (!$first && $urls[$idx]['lineage'] != '') {
+										$urls[$idx]['lineage'] .= $this->attr('lineage_seperator');
+										$urls[$idx]['linked_lineage'] .= $this->attr('lineage_seperator');
+									}
+									$urls[$idx]['lineage'] .= $lineage_item['short_name'];
+									$urls[$idx]['linked_lineage'] .= '<a href="'.$lineage_item['protocol'].'://'.$lineage_item['url'].'">'.$lineage_item['short_name'].'</a>';
+									$first = FALSE;
+								}
+								$first_full = FALSE;
+							}//end foreach
+
+							// We already found one lineage including root node
+							// do not go further
+							if ($multiple_lineage_inc_root) break;
+						}//end foreach
+
+						if (!empty($urls)) {
+							if ($found_root) {
+								$lineage = htmlspecialchars($urls[$index]['lineage']);
+								$linked_lineage = $urls[$index]['linked_lineage'];
+							} else {
+								$url = array_pop($urls);
+								$lineage = htmlspecialchars($url['lineage_full']);
+								$linked_lineage = $url['linked_lineage_full'];
 							}
 						}
+
 					}//end else
 					$keywords['asset_lineage'] = $lineage;
 					$keywords['asset_lineage_linked'] = $linked_lineage;
