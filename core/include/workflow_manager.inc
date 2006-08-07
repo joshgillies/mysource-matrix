@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.90 2006/07/12 03:46:06 lwright Exp $
+* $Id: workflow_manager.inc,v 1.91 2006/08/07 05:52:25 skim Exp $
 *
 */
 
@@ -30,11 +30,18 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
 {
+
+	/**
+	* Logic operators require the right operands
+	*
+	* @var array
+	*/
+	var $_valid_logic_with_right_operand = Array('>=');
 
 	/**
 	* Logic strings that are valid for steps

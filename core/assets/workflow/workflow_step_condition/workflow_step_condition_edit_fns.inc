@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.22 2006/01/26 22:34:08 lwright Exp $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.23 2006/08/07 05:52:28 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -222,7 +222,13 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		// work out the logic expression
 		$logic = $asset->attr('logic');
 		$logic_num = $asset->attr('logic_num');
-		$logic = $logic.(($logic_num) ? " $logic_num" : '');
+
+		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		if (in_array($logic, $wfm->_valid_logic_with_right_operand)) {
+			$logic = $logic.(($logic_num) ? " $logic_num" : ' 0');
+		} else {
+			$logic = $logic.(($logic_num) ? " $logic_num" : '');
+		}
 
 		$publisher = $asset->attr('userid');
 		$workflow_array[$publisher] = Array('logic' => $logic, 'published_by' => Array());
