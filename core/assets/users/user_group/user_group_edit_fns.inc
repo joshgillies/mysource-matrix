@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.33 2006/04/21 06:28:18 sdanis Exp $
+* $Id: user_group_edit_fns.inc,v 1.33.2.1 2006/08/07 03:58:18 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -378,10 +378,13 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 		foreach ($preferences as $type_code => $pref_vars) {
 			$o->openSection($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name').' Preferences');
+				// load up the asset (for locale) and prefs to display
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 				$path = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
 				require_once $path;
 				$pref_name = $type_code.'_Prefs';
 				$prefs =& new $pref_name($pref_file_path);
+
 				foreach ($pref_vars as $var_name => $var_data) {
 					$o->openField($var_data['name']);
 						if (isset($custom_preferences[$type_code][$var_name])) {
