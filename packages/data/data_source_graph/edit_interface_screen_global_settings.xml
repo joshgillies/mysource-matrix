@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_global_settings.xml,v 1.1.2.1 2006/02/16 03:52:44 skim Exp $
+* $Id: edit_interface_screen_global_settings.xml,v 1.1.2.2 2006/08/07 04:20:18 skim Exp $
 *
 */
 -->
@@ -31,6 +31,9 @@
 		<field attribute="height">
 			<int width="5" />
 		</field>
+		<field attribute="show_graph_title">
+			<boolean true_text="yes" false_text="no" />
+		</field>
 		<field attribute="x_set_title">
 			<text width="25" height="1" />
 		</field>
@@ -42,6 +45,9 @@
 		</field>
 		<field attribute="y_label_interval">
 			<int width="2" />
+		</field>
+		<field attribute="graph_angle">
+			<boolean true_text="vertical" false_text="horizontal" />
 		</field>
 		<field attribute="x_font_label_angle">
 			<boolean true_text="vertical" false_text="horizontal" />
@@ -69,6 +75,18 @@
 		</field>
 		<field attribute="y_font_axis_colour">
 			<colour />
+		</field>
+		<field attribute="axis_left_padding">
+			<int width="5" />
+		</field>
+		<field attribute="axis_right_padding">
+			<int width="5" />
+		</field>
+		<field attribute="axis_top_padding">
+			<int width="5" />
+		</field>
+		<field attribute="axis_bottom_padding">
+			<int width="5" />
 		</field>
 	</section>
 	<section name="Preview" write_access="write:attributes" limbo_access="1">

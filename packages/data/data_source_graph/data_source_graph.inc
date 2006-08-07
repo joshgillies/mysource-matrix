@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.8.2.3 2006/05/12 03:34:30 skim Exp $
+* $Id: data_source_graph.inc,v 1.8.2.4 2006/08/07 04:20:18 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8.2.3 $
+* @version $Revision: 1.8.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -535,7 +535,7 @@ class Data_Source_Graph extends Image
 			}//end switch
 
 			if ($dataset['settings']['plot_name'] != $dataset['settings']['display_name']) {
-				$plot->setTitle($dataset['settings']['display_name'].'1');
+				$plot->setTitle($dataset['settings']['display_name']);
 			} else {
 				$plot->setTitle($dataset['settings']['plot_name']);
 			}
@@ -602,6 +602,7 @@ class Data_Source_Graph extends Image
 
 			if ($this->attr('variety_count') > 0) {
 				// Update varieties
+				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
 				$am =& $GLOBALS['SQ_SYSTEM']->am;
 				$links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'image_variety');
 				foreach ($links as $link) {
@@ -610,6 +611,7 @@ class Data_Source_Graph extends Image
 						trigger_error('Failed to update the image varieties', E_USER_WARNING);
 					}
 				}
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 			}
 		} else {
 			$graph->done();

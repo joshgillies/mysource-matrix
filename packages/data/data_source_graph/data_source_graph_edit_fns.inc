@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.7.2.3 2006/06/21 04:15:45 skim Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.7.2.4 2006/08/07 04:20:18 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.7.2.3 $
+* @version $Revision: 1.7.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -598,7 +598,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 						text_box($prefix.'_bar_spacing', empty($datasets[$plot_name]['settings']['bar_spacing']) ? '0' : $datasets[$plot_name]['settings']['bar_spacing'], '10');
 					$o->closeField();
 					$o->openField('Stacked');
-						check_box($prefix.'_use_stacked', '1', $datasets[$plot_name]['settings']['use_stacked']);
+						check_box($prefix.'_use_stacked', '1', isset($datasets[$plot_name]['settings']['use_stacked']) ? $datasets[$plot_name]['settings']['use_stacked'] : FALSE);
 						$o->note('Do you want to use stacked bar graph?');
 						?>
 						<table class="sq-backend-table">
