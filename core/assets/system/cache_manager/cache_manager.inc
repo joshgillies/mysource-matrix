@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.49 2006/07/28 04:20:18 rong Exp $
+* $Id: cache_manager.inc,v 1.50 2006/08/08 05:07:51 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -514,7 +514,7 @@ class Cache_Manager extends Asset
 			}
 		}//end else - if logged in
 
-		return $perm_key;
+		return md5($perm_key);
 
 	}//end _getPermKey()
 
