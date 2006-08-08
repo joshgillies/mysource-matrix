@@ -18,12 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_cache_expiry.inc,v 1.1.4.1 2006/07/28 00:15:50 rong Exp $
+* $Id: trigger_action_set_cache_expiry.inc,v 1.1.4.2 2006/08/08 04:33:14 rong Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action_types/trigger_action_clear_cache/trigger_action_clear_cache.inc';
 
 /**
 * Trigger Action Set Status
@@ -32,11 +33,11 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.1.4.1 $
+* @version $Revision: 1.1.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Trigger_Action_Set_Cache_Expiry extends Trigger_Action
+class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 {
 
 
@@ -62,6 +63,7 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action
 	*/
 	function execute($settings, &$state)
 	{
+
 		$use_alternative = array_get_index($settings, 'use_alternative', FALSE);
 		$alt_dsn = array_get_index($settings, 'alt_dsn', '');
 
@@ -97,22 +99,46 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action
 			$GLOBALS['SQ_SYSTEM']->tm->begin($db);
 		}
 
-		// work out the expiry time, current time + (value * unit)
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		$value = array_get_index($settings, 'value', 1);
-		$unit = array_get_index($settings, 'unit', 60);
-		$expiry = time() + ($value * $unit);
-		$expiry_sql = db_extras_todate($db, ts_iso8601($expiry));
+		// work out all affected assetids
+		$todo_assetids = Array();
+		if ($settings['use_current_asset']) {
+			$todo_assetids = Trigger_Action_Set_Cache_Expiry::_getAssetIDs($state['assetid'], $settings);
+		}
+		foreach ($settings['selected_assets'] as $id) {
+			$todo_assetids = array_merge($todo_assetids, Trigger_Action_Set_Cache_Expiry::_getAssetIDs($id, $settings));
+		}
 
-		// update all cache entries that has the current assetid
-		$sql = 'UPDATE
-					sq_cache
-				SET
-					expires = '.$expiry_sql.'
-				WHERE
-					assetid = '.$db->quoteSmart($state['assetid']);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		// only update db if at least one asset has been selected
+		if (!empty($todo_assetids)) {
+
+			// quote id correctly
+			foreach ($todo_assetids as $key => $assetid) {
+				$todo_assetids[$key] = $db->quoteSmart((String) $assetid);
+			}
+			// break up assetids into chunks of 1000 so that oracle does not complain
+			$in_clauses = Array();
+			foreach (array_chunk($todo_assetids, 999) as $chunk) {
+					$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
+			}
+
+			// work out the expiry time, current time + (value * unit)
+			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+			$value = array_get_index($settings, 'value', 1);
+			$unit = array_get_index($settings, 'unit', 60);
+			$expiry = time() + ($value * $unit);
+			$expiry_sql = db_extras_todate($db, ts_iso8601($expiry));
+
+			// update all cache entries that has the current assetid
+			$sql = 'UPDATE
+						sq_cache
+					SET
+						expires = '.$expiry_sql.'
+					WHERE
+						('.implode(' OR ', $in_clauses).')';
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+		}
 
 		if (!$use_alternative) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -123,8 +149,7 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action
 		}
 
 		return Array(
-				'assetid'		=> $state['asset']->id,
-				'new_expiry'	=> $expiry,
+				'assetid'	=> $state['asset']->id,
 			   );
 
 	}//end execute()
@@ -142,7 +167,8 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action
 	*/
 	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
-		$output = Trigger_Action_Set_Cache_Expiry::_paintTimeUnit($settings, $prefix, $write_access);
+		$output = parent::getInterface($settings, $prefix, $write_access);
+		$output .= Trigger_Action_Set_Cache_Expiry::_paintTimeUnit($settings, $prefix, $write_access);
 		$output .= '<br />';
 		$output .= Trigger_Action_Set_Cache_Expiry::_paintDSN($settings, $prefix, $write_access);
 
@@ -164,6 +190,8 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action
 	*/
 	function processInterface(&$settings, $request_data)
 	{
+		parent::processInterface($settings, $request_data);
+
 		$settings['value'] = array_get_index($request_data, 'value', 1);
 		$settings['unit'] = array_get_index($request_data, 'unit', 60);
 
@@ -308,6 +336,40 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action
 		return $db;
 
 	}//end _connectAltDSN()
+
+
+	/**
+	* Gets list of assetids to update based on the settings
+	*
+	* @param int	$id			the asset id that we are processing
+	* @param array	$settings	settings that this condition saves in processInterface()
+	*
+	* @return array
+	* @access private
+	*/
+	function _getAssetIDs($id, $settings)
+	{
+		// empty asset_types = include all type
+		$type_code = empty($settings['asset_types']) ? '' : $settings['asset_types'];
+		$todo_assetids = Array();
+
+		switch ($settings['level']) {
+			case 'single':
+				$todo_assetids = Array($id);
+			break;
+			case 'dependants':
+				$todo_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getDependantChildren($id, $type_code));
+				$todo_assetids[] = $id;
+			break;
+			case 'children':
+				$todo_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($id, $type_code));
+				$todo_assetids[] = $id;
+			break;
+		}
+
+		return $todo_assetids;
+
+	}//end _getAssetIDs()
 
 
 }//end class
