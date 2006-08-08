@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.16 2006/08/08 06:48:09 arailean Exp $
+* $Id: simple_form.inc,v 1.17 2006/08/08 06:57:56 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -636,48 +636,52 @@ class Simple_Form extends Asset
 	*/
 	function process()
 	{
-		$this->_errors = Array();
-		$this->_answers = Array();
+		if (!isset($this->_is_processed)) {
+			$this->_errors = Array();
+			$this->_answers = Array();
 
-		foreach ($this->attr('questions') as $shadowid => $data) {
-			// get the question
-			$assetid = $this->id.':q'.$shadowid;
-			$name = 'q'.$assetid;
-			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			foreach ($this->attr('questions') as $shadowid => $data) {
+				// get the question
+				$assetid = $this->id.':q'.$shadowid;
+				$name = 'q'.$assetid;
+				$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
-			// set the value and check whether it's valid
-			if (isset($_POST[$name])) $q->setValue($_POST[$name]);
-			$valid = $q->hasValidValue();
+				// set the value and check whether it's valid
+				if (isset($_POST[$name])) $q->setValue($_POST[$name]);
+				$valid = $q->hasValidValue();
 
-			if (!$valid) $this->_errors += $q->getErrors();
+				if (!$valid) $this->_errors += $q->getErrors();
 
-			$this->_answers[$assetid] = Array(
-											'name'		=> $data['name'],
-											'type_code'	=> $data['type_code'],
-											'value'		=> $q->getValue(),
-											'summary'	=> $q->getSummary(),
-											'is_error'	=> !$valid,
-										);
+				$this->_answers[$assetid] = Array(
+												'name'		=> $data['name'],
+												'type_code'	=> $data['type_code'],
+												'value'		=> $q->getValue(),
+												'summary'	=> $q->getSummary(),
+												'is_error'	=> !$valid,
+											);
 
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($q);
-			unset($q);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($q);
+				unset($q);
 
-		}//end foreach question
+			}//end foreach question
 
-		// Now, handle nested forms
-		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', FALSE) as $link) {
-			$sectionid = $link['minorid'];
-			$s =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
+			// Now, handle nested forms
+			foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', FALSE) as $link) {
+				$sectionid = $link['minorid'];
+				$s =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
 
-			$valid = $s->process();
-			if (!$valid) {
-				$this->_errors = array_merge($this->_errors, $s->getErrors());
+				$valid = $s->process();
+				if (!$valid) {
+					$this->_errors = array_merge($this->_errors, $s->getErrors());
+				}
+
+				$this->_answers += array_merge($this->_answers, $s->getAnswers());
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($s);
+				unset($s);
 			}
 
-			$this->_answers += array_merge($this->_answers, $s->getAnswers());
-
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($s);
-			unset($s);
+			$this->_is_processed = true;
 		}
 
 		return empty($this->_errors);
