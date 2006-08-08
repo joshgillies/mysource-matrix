@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.52 2006/03/09 01:26:00 sdanis Exp $
+* $Id: site_edit_fns.inc,v 1.52.2.1 2006/08/08 05:05:05 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.52.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -279,6 +279,8 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		foreach ($urls as $urlid => $url_data) {
+
+			// Skip the new URL
 			if (!isset($old_urls[$urlid])) continue;
 
 			// update the root url in the asset url table to the new url
@@ -294,6 +296,9 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 			// update any urls that use this url in the lookup and lookup value tables
 			foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup') as $tablename) {
+
+				// Skip if the url was not changed
+				if ($urls[$urlid]['url'] == $old_urls[$urlid]['url']) continue;
 
 				$sql = 'UPDATE
 							'.$tablename.'
