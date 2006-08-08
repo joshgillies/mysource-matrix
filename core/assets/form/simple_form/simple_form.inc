@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.15 2006/01/12 04:06:41 lwright Exp $
+* $Id: simple_form.inc,v 1.16 2006/08/08 06:48:09 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1015,12 +1015,12 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 
 		// Submit Button, Reset Button, Form Errors
 		ob_start();
-			submit_button('submit_button', 'Submit');
+			submit_button('submit_button', $this->attr('submit_button'));
 			$submit_button = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
-			reset_button('reset_button', 'Clear Form');
+			reset_button('reset_button', $this->attr('reset_button'));
 			$reset_button = ob_get_contents();
 		ob_end_clean();
 
