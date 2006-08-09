@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.18 2006/07/28 03:11:30 tbarrett Exp $
+* $Id: soap_wsdl_operation.inc,v 1.19 2006/08/09 05:22:26 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -132,8 +132,10 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 	*/
 	function &getMessageAssetByType($type)
 	{
+		$null = NULL;
+
 		$message_assetid = $this->_getMessageIdByType($type);
-		if (is_null($message_assetid)) return $null = NULL;
+		if (is_null($message_assetid)) return $null;
 
 		$message_asset = $this->getMessageAsset($message_assetid);
 		return $message_asset;
@@ -221,6 +223,8 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 	*/
 	function process($input_message, &$output_message)
 	{
+		if (is_null($input_message)) return TRUE;
+
 		$schema =& $this->getWsdlSchema();
 		if (is_null($schema)) return NULL;
 
@@ -231,6 +235,7 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 		$parameters = $input_message->getArgValues();
 
 		$result = $schema->callOperation($port_name, $operation_name, $parameters);
+		bam($result);
 		if (get_class($result) == 'soap_fault') {
 			// a fault has occured
 			$output_message = $this->getFaultMessageAsset();
