@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_movie.inc,v 1.20 2005/07/04 23:44:32 dmckee Exp $
+* $Id: matrix_embed_movie.inc,v 1.21 2006/08/09 04:45:50 skim Exp $
 *
 */
 
@@ -34,7 +34,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     in the editable document using a file asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -159,7 +159,7 @@ class matrix_embed_movie extends wysiwyg_plugin
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				strPage = "<?php echo $this->get_popup_href('embed_movie.php')?>?f_fileurl=" + escape(fileurl) + "&f_fileprotocol=" + escape(fileprotocol) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_auto_start=" + escape(auto_start) + "&f_show_controls=" + escape(show_controls) + "&f_embed_loop=" + escape(embed_loop) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixEmbedMovie", strPage, 600, 480, true, function(param) {
+				this._popupDialog("matrixEmbedMovie", strPage, 640, 500, true, function(param) {
 					if (!param) {
 						// user must have pressed Cancel
 						return false;

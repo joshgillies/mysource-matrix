@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.24 2005/08/03 23:06:29 dmckee Exp $
+* $Id: embed_movie.php,v 1.25 2006/08/09 04:45:50 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 ?>
 
-<html style="width: 600px; height: 480px;">
+<html style="width: 640px; height: 500px;">
 	<head>
 		<title>Embed Movie</title>
 
@@ -293,13 +293,13 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 											<tr>
 												<td class="label" width="50%"><?php echo translate('width'); ?>:</td>
 												<td>
-													<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo $_REQUEST['f_width']?>" />
+												<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo empty($_REQUEST['f_width']) ? '100' : $_REQUEST['f_width']?>" />
 												</td>
 											</tr>
 											<tr>
 												<td class="label"><?php echo translate('height'); ?>:</td>
 												<td>
-													<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo $_REQUEST['f_height']?>" />
+												<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo empty($_REQUEST['f_height']) ? '100' : $_REQUEST['f_height']?>" />
 												</td>
 											</tr>
 										</table>
