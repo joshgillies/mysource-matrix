@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.134 2006/08/02 04:29:57 skim Exp $
+* $Id: file.inc,v 1.135 2006/08/09 01:18:13 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.134 $
+* @version $Revision: 1.135 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1042,38 +1042,12 @@ class File extends Asset
 			header('Content-Disposition: inline; filename='.$existing['filename'].';');
 			header('Content-Length: '.$existing['size']);
 
-			$this->_printFrontendFile($existing);
+			readfile($existing['path']);
+			@ob_flush();
 
 		}//end if
 
 	}//end printFrontend()
-
-
-	/**
-	* Prints out the frontend for this file with no design
-	*
-	* This function actually sends the content of the file to the
-	* frontend. The way it sends to the browser can vary with the
-	* type of the file. It also may send any extra header infomation needed.
-	*
-	* @return void
-	* @access private
-	*/
-	function _printFrontendFile(&$info)
-	{
-		header('Accept-Ranges: bytes');
-
-		$bufsize = 1024 * 8; // 8 bytes
-		if(file_exists($info['path']) && ($fh = fopen($info['path'], "rb"))){
-			while (!feof($fh)) {
-				print(fread($fh, $bufsize));
-				flush();
-				@ob_flush();
-			}
-			fclose($fh);
-		}
-
-	}//end _printFrontendFile()
 
 
 	/**
