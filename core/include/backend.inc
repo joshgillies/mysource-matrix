@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.137.2.2 2006/06/01 01:02:04 rong Exp $
+* $Id: backend.inc,v 1.137.2.3 2006/08/09 06:55:12 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.137.2.2 $
+* @version $Revision: 1.137.2.3 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -579,7 +579,7 @@ class Backend extends MySource_Object
 			<tr>
 				<td nowrap class="sq-backend-header-item" valign="middle">
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1" />
-					<a class="sq-backend-header-item" style="text-decoration: none;" href="#" onclick="Javascript: reloadHeader(); return false;">
+					<a class="sq-backend-header-item" style="text-decoration: none; margin-left: 9px" href="#" onclick="Javascript: reloadHeader(); return false;">
 					<?php echo translate('logged_in_as', $GLOBALS['SQ_SYSTEM']->user->name, date('d M Y g:i a', $now)); ?></a>
 				</td>
 				<td nowrap class="sq-backend-header-item" valign="middle" align="right">
@@ -820,7 +820,7 @@ class Backend extends MySource_Object
 			?>
 				<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%">
 					<tr>
-						<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 7px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="MySource Matrix" /></td>
+						<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 21px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="MySource Matrix" /></td>
 					</tr>
 					<tr>
 						<td height="100%" valign="top">&nbsp;</td>
@@ -844,7 +844,7 @@ class Backend extends MySource_Object
 			?>
 				<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%">
 					<tr>
-						<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 7px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="MySource Matrix" /></td>
+						<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 21px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="MySource Matrix" /></td>
 					</tr>
 					<tr>
 						<td height="100%" valign="top">
