@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.118 2006/08/10 23:14:15 skim Exp $
+* $Id: search_manager.inc,v 1.119 2006/08/10 23:21:04 skim Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.118 $
+* @version $Revision: 1.119 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2557,7 +2557,7 @@ class Search_Manager extends Asset
 				foreach ($root_tree_ids as $treeid) {
 					$treeid_wheres[] = '(t.treeid LIKE '.$db->quote($treeid.'%').')';
 				}
-				if (!empty($query)) {
+				if (!empty($treeid_wheres)) {
 					$query['where'][] = implode(' OR ', $treeid_wheres);
 				}
 			}
