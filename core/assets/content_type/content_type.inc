@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.14 2006/01/17 21:40:33 lwright Exp $
+* $Id: content_type.inc,v 1.14.2.1 2006/08/10 07:24:57 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -190,6 +190,35 @@ class Content_Type extends Asset
 		return $success;
 
 	}//end saveAttributes()
+
+
+	/**
+	* This function mainly exists to update the paint layout bodycopy
+	*
+	* @return void
+	* @access public
+	*/
+	function linksUpdated()
+	{
+		// Bug Fix 1541
+		// Paintlayout bodycopy is not updated if the content type is updated but its attributes
+		// was not changed. For instance, the nested content type, it does not change any of its attributes
+		// although you change the asset to nest within. Consequently, saveAttributes() function can not
+		// propagate to all the parents resulting in paint layout bodycopy unchanged.
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$bc_container_link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE, NULL, 'minor');
+
+		if (!empty($bc_container_link)) {
+			$bc_container =& $am->getAsset($bc_container_link['majorid']);
+			$bc_link = $am->getLink($bc_container->id, SQ_LINK_TYPE_2, 'paint_layout_bodycopy', TRUE, NULL, 'minor');
+
+			if (!empty($bc_link)) {
+				$bodycopy =& $am->getAsset($bc_link['majorid']);
+				$bodycopy->_updated();
+			}
+		}
+
+	}//end linksUpdated()
 
 
 }//end class
