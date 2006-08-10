@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.38 2006/01/31 23:54:04 arailean Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.38.4.1 2006/08/10 07:23:40 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -243,6 +243,14 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				}
 
 				$asset->setAttrValue('html', $html);
+
+				// Bug Fix 1541
+				if (!$current_assetid && $assetid) {
+					// Normally you are not supposed to call linksUpdated() directly, however,
+					// createAssetLink() does not call linksUpdated() to the major unless its dependant link.
+					// let's manually update the paint layout bodycopy if there is any
+					$asset->linksUpdated();
+				}
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();

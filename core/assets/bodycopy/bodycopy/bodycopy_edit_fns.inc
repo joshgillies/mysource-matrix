@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.37.2.1 2006/07/04 05:33:53 lwright Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.37.2.2 2006/08/10 07:23:33 skim Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37.2.1 $
+* @version $Revision: 1.37.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -396,6 +396,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 					case 'delete_container' :
 						if ($this->deleteContainer($asset, $bc_data['containerid'])) {
+							$asset->_updated();
 							$updated = TRUE;
 						}
 					break;
