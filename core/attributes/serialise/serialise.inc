@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: serialise.inc,v 1.10 2005/07/13 01:51:19 mmcintyre Exp $
+* $Id: serialise.inc,v 1.11 2006/08/10 21:44:34 amiller Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -88,7 +88,7 @@ class Asset_Attribute_Serialise extends Asset_Attribute
 	*/
 	function getContent()
 	{
-		return '';
+		return var_export($this->value, true).';';
 
 	}//end getContent()
 
