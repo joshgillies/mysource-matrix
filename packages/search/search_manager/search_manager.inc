@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.119 2006/08/10 23:21:04 skim Exp $
+* $Id: search_manager.inc,v 1.120 2006/08/11 03:29:56 amiller Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.119 $
+* @version $Revision: 1.120 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -530,8 +530,8 @@ class Search_Manager extends Asset
 				// continue;
 			}
 
-			// don't index passwords
-			if ($var_data['type'] == 'password') continue;
+			// don't index passwords or serialise attributes
+			if ($var_data['type'] == 'password' || $var_data['type'] == 'serialise') continue;
 
 			$attribute =& $asset->getAttribute($var_name);
 			$value = strtolower($attribute->getContent());
