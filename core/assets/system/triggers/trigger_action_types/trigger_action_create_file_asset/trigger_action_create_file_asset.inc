@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_file_asset.inc,v 1.1 2006/08/11 03:23:16 amiller Exp $
+* $Id: trigger_action_create_file_asset.inc,v 1.2 2006/08/11 03:26:34 amiller Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,10 +116,14 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 		}
 
 		$linkid = $new_asset->create($link, $info);
-		$uploaded = $new_asset->_createAdditional($linkid);
-		
 		if (!$linkid) return FALSE;
-
+		
+		// If we're running at a low runlevel, we need to run the _createAdditional function here
+		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
+			if (!$new_asset->_createAdditional($linkid)) return FALSE;
+			
+		}
+		
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 
 		return Array(
