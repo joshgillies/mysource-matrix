@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.17 2006/08/01 00:30:47 arailean Exp $
+* $Id: soap_application_step.inc,v 1.18 2006/08/11 04:06:28 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -720,6 +720,7 @@ class SOAP_Application_Step extends Asset
 				// TODO: ===================================================
 				// TODO: ===== Horrible, nasty hack. Fix it with fire. =====
 				// TODO: ===================================================
+/*
 				if ($wsdl_value == 'pages') {
 					$res = $this->_getPagesKeywordReplace($keyword, $input_data[$wsdl_value], $bodycopy_links['lines']);
 					if (!$res) {
@@ -727,7 +728,7 @@ class SOAP_Application_Step extends Asset
 					}
 					return $res;
 				}
-
+*/
 			} else {
 				// just return the value
 				return $input_data[$wsdl_value];
@@ -761,39 +762,9 @@ class SOAP_Application_Step extends Asset
 			return $res_failed;
 		}
 
-
 		return $res_failed;
 
 	}//end getKeywordReplacement()
-
-
-	function _getPagesKeywordReplace($keyword, $lines_array, $bodycopy_assetid)
-	{
-		$content_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_assetid);
-		if (is_null($content_bodycopy)) {
-			// TODO: Localise
-			trigger_error('Step bodycopy not found', E_USER_WARNING);
-			return FALSE;
-		}
-
-		require_once SQ_FUDGE_PATH.'/general/text.inc';
-
-		$output = '';
-		foreach ($lines_array as $current_line) {
-			$replacements = Array(
-								$keyword	=> $current_line,
-							);
-			$content_bodycopy->setKeywordReplacements($replacements);
-			ob_start();
-				$content_bodycopy->printBody();
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_bodycopy);
-			$output .= ob_get_clean();
-		}
-
-		return $output;
-
-	}//end getPagesKeywordReplace()
-
 
 
 	/**

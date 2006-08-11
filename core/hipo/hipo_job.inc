@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.82 2006/05/19 04:48:41 bcaldwell Exp $
+* $Id: hipo_job.inc,v 1.83 2006/08/11 04:06:20 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -390,7 +390,7 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Get all the errors that have been produced by this running of this HIPO_Job
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getErrors()
@@ -420,11 +420,12 @@ class HIPO_Job extends MySource_Object
 	*
 	* This function should be run before any painting or processing of the HIPO. It will
 	* write the initial database entry for the HIPO so that the vars needed by the HIPO
-	* are available on successive reloads.
+	* are available on successive reloads
+	* This function returns the code_name for the new job
 	*
 	* @param string	$source_code_name	the code name of the top level hipo job that this job is being run under
 	*
-	* @return string	returns the code_name for the new job
+	* @return string
 	* @access public
 	*/
 	function initialise($source_code_name=NULL)
@@ -689,6 +690,80 @@ class HIPO_Job extends MySource_Object
 		$this->_running_vars    = unserialize($result['running_vars']);
 		$this->last_updated     = iso8601_ts($result['last_updated']);
 
+		// previous last_updated - the last_updated var from the last time load() was called
+		$prev_last_updated = array_get_index($this->_hipo_vars, 'timeout_prev_last_updated', $this->last_updated);
+
+
+		if ($this->_current_mode != 'server' && SQ_HIPO_USE_SERVER) {
+
+			if ($this->last_updated > $prev_last_updated) {
+				// keep the last_updated record up to date
+				$prev_last_updated = $this->last_updated;
+
+			} else {
+				$time_since_update = time() - $prev_last_updated;
+
+				// is it time to send a request yet?
+				// check whether we've failed to update
+				if ($time_since_update > SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD) {
+					// check whether the process is still alive - send a request to the server
+
+					// if there is no system taskid then there is nothing we can do
+					if (empty($this->_hipo_vars['server_taskid'])) {
+						trigger_localised_error('HIPO0049', E_USER_NOTICE);
+						return FALSE;
+					}
+
+					require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_client_mysource3.inc';
+
+					$data = Array(
+								'command'			=> 'alive',
+								'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
+								'source_code_name'	=> $this->source_code_name,
+								'taskid'			=> $this->_hipo_vars['server_taskid'],
+							);
+
+					$alive = FALSE;
+					$client =& new Squiz_Server_Client_MySource3();
+					if ($client->connect()) {
+						if ($client->write('HIPO_Job', $data)) {
+							$ack = $client->read();
+							if (!is_null($ack)) {
+								switch ($ack['result']) {
+									case 'ack':
+										$successful_status_checks_count++;
+										$this->_renewLastUpdated();
+										$prev_last_updated = $this->last_updated;
+										$alive = TRUE;
+									break;
+
+									case 'error':
+									case 'dead':
+										$alive = FALSE;
+										trigger_localised_error('HIPO0048', E_USER_WARNING, $ack['msg']);
+									break;
+
+									default :
+										trigger_localised_error('HIPO0047', E_USER_WARNING, print_r($ack, TRUE));
+								}//end switch ($ack['result'])
+							}//end if (!is_null($ack))
+						}//end if ($client->write())
+						$client->disconnect();
+					}//end if ($client->connect())
+
+					// not alive, die
+					if (!$alive) {
+						$this->abort();
+						return FALSE;
+					}
+
+				}//end if ($time_since_update > SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD)
+			}//end else ($this->last_updated > $prev_last_updated)
+
+			$this->_hipo_vars['timeout_prev_last_update'] = $prev_last_updated;
+
+		}//end if ($this->_current_mode != 'server')
+
 		return TRUE;
 
 	}//end load()
@@ -812,6 +887,48 @@ class HIPO_Job extends MySource_Object
 
 
 	/**
+	* Updates the last_updated time directly in the database, rather than
+	* modifying the hipo_job object and waiting for it to save()
+	*
+	* @param int	$new_time	the time to set the last_updated time to - NULL defaults to the current time
+	*
+	* @return void
+	* @access private
+	*/
+	function _renewLastUpdated($new_time=NULL)
+	{
+		if (is_null($new_time)) $new_time = time();
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
+		$prepared = $db->prepare(
+								'UPDATE
+									sq_hipo_job
+								SET
+									last_updated	= '.db_extras_prepare_todate($db).'
+								WHERE
+									code_name	= ?');
+		assert_valid_db_result($prepared);
+
+		$values = Array(
+					ts_iso8601($new_time),
+					'YYYY-MM-DD HH24:MI:SS',
+					$this->code_name,
+				  );
+		$result = $db->execute($prepared, $values);
+		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+	}//end _renewLastUpdated()
+
+
+	/**
 	* If we are currently in a hipo_job step then it returns the job that we are executing
 	* Otherwise returns NULL
 	*
@@ -850,11 +967,12 @@ class HIPO_Job extends MySource_Object
 
 	/**
 	* Set the mode that we are running (ie processing) in
+	* Returns whether or not the set was successful
 	*
 	* @param string	$mode			[web|server]
 	* @param string	$server_taskid	when the $mode == 'server' this must be supplied, it is the taskid given to it by the server
 	*
-	* @return boolean	whether set was successfull
+	* @return boolean
 	* @access public
 	*/
 	function setRunningMode($mode, $server_taskid='')
@@ -1579,6 +1697,9 @@ class HIPO_Job extends MySource_Object
 				$text_msg .= ' ('.$err_file.':'.$err_line.')';
 			}
 			$this->_addError($msg, !$terminate);
+
+			// the hipo job is about to die, make sure the errors are saved to be discovered later
+			if ($terminate) $this->save();
 
 		}//end error_reporting
 

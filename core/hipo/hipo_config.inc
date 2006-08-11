@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.32 2006/04/03 05:01:50 lwright Exp $
+* $Id: hipo_config.inc,v 1.33 2006/08/11 04:06:20 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -44,8 +44,9 @@ class HIPO_Config extends Config
 	* @var Array()
 	*/
 	var $config_vars = Array(
-						'SQ_HIPO_USE_SERVER'		=> Array('editable' => 1, 'default' => FALSE),
-						'SQ_HIPO_TOTAL_THRESHOLD'	=> Array('editable' => 1, 'default' => 80),
+						'SQ_HIPO_USE_SERVER'					=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 30),
+						'SQ_HIPO_TOTAL_THRESHOLD'				=> Array('editable' => 1, 'default' => 80),
 					   );
 
 
@@ -210,6 +211,17 @@ class HIPO_Config extends Config
 			} else {
 				echo (SQ_HIPO_USE_SERVER) ? translate('yes') : translate('no');
 			}
+			$o->closeField();
+
+			// server check threshold config entry
+			$o->openField(translate('hipo_status_check_threshold'));
+			if ($write_access) {
+				text_box($class.'[SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD]', SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD, 5);
+				echo '&nbsp;';
+			} else {
+				echo SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD;
+			}
+			echo translate('hipo_status_check_threshold_note');
 			$o->closeField();
 
 			// total threshold HIPO config entry
