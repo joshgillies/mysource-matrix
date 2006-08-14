@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2006/07/24 06:08:38 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2006/08/14 01:49:46 arailean Exp $
 *
 */
 -->
@@ -26,12 +26,6 @@
 		<field attribute="soap_operation_asset">
 			<assetid type_codes="soap_wsdl_operation:I" />
 		</field>
-		<field>
-			<function_call>
-				<paint_function name="paintOperationInputs" />
-				<process_function name="processOperationInputs" />
-			</function_call>
-		</field>
 		<field attribute="use_application_layout">
 			<boolean true_text="yes" false_text="no" />
 		</field>
@@ -42,10 +36,9 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Data Mappings" write_access="write:attributes" show_if="hasFormQuestionMappings">
-		<function_call>
-			<paint_function name="paintFormQuestionMappings" />
-			<process_function name="processFormQuestionMappings" />
-		</function_call>
+	<section name="Data Mappings" write_access="write:attributes">
+		<field attribute="parameter_map" format="new_line">
+			<parameter_map />
+		</field>
 	</section>
 </contents>

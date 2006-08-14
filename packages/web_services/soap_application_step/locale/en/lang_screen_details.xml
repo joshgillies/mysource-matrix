@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2006/07/24 06:08:38 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.5 2006/08/14 01:49:46 arailean Exp $
 *
 */
 -->
@@ -25,20 +25,15 @@
 		</field>
 	</section>
 	<section name="SOAP Configuration">
+
 		<field attribute="soap_operation_asset">
 			<display_name>SOAP Operation Asset</display_name>
 		</field>
 
-		<field>
-			<display_name>Input Map</display_name>
-			<function_call>
-				<paint_function name="paintOperationInputs" />
-				<process_function name="processOperationInputs" />
-			</function_call>
-		</field>
 		<field attribute="use_application_layout">
 			<display_name>Use application's layout bodycopy?</display_name>
 		</field>
+
 		<field>
 			<function_call>
 				<paint_function name="paintAddForm" />
@@ -46,11 +41,11 @@
 			</function_call>
 			<display_name>Form</display_name>
 		</field>
+
 	</section>
-	<section name="Data Mappings" write_access="write:attributes" show_if="hasDataMappings">
-		<function_call>
-			<paint_function name="paintDataMappings" />
-			<process_function name="processDataMappings" />
-		</function_call>
+	<section name="Data Mappings" write_access="write:attributes">
+		<field attribute="parameter_map">
+			<display_name />
+		</field>
 	</section>
 </contents>

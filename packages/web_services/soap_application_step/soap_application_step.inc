@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.18 2006/08/11 04:06:28 rhoward Exp $
+* $Id: soap_application_step.inc,v 1.19 2006/08/14 01:49:46 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -39,6 +39,17 @@ class SOAP_Application_Step extends Asset
 	function SOAP_Application_Step($assetid=0)
 	{
 		$this->Asset($assetid);
+
+		$map =& $this->getAttribute('parameter_map');
+
+		$data_fields = $this->getDataFields();
+		$parameters = Array();
+		foreach ($data_fields as $code => $field) {
+			$map->setParameter($code, $field['name']);
+			$parameters[$code] = $field['name'];
+		}
+
+//		log_dump($map);
 
 	}//end SOAP_Application_Step()
 
@@ -226,6 +237,9 @@ class SOAP_Application_Step extends Asset
 	{
 		// construct input message
 		$input_message = $this->getInputMessage();
+
+//		log_dump($input_message);
+
 		$output_message = NULL;
 
 		// get the SOAP processor to talk to the remote system
@@ -472,8 +486,15 @@ class SOAP_Application_Step extends Asset
 	}//end printBody()
 
 
+	function getSettableElements()
+	{
+		$elements = Array();
+		return $elements;
+	}
+
+
 	/**
-	* Get the data fields for this app
+	* Get the data fields for this step
 	*
 	* @return void
 	* @access public
@@ -484,10 +505,12 @@ class SOAP_Application_Step extends Asset
 		if (empty($op_assetid)) {
 			return Array();
 		}
+
 		$op_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($op_assetid);
 		if (is_null($op_asset)) {
 			return Array();
 		}
+
 		$input_message =& $op_asset->getInputMessageAsset();
 		if (is_null($input_message)) {
 			return Array();
@@ -499,6 +522,16 @@ class SOAP_Application_Step extends Asset
 		return $res;
 
 	}//end getDataFields()
+
+
+	function getSettableElementValue($element_code)
+	{
+		$parameter_map =& $this->getAttribute('parameter_map');
+
+		$value = $parameter_map->getParameterValue($element_code);
+
+		return $value;
+	}
 
 
 	function getDataFieldQuestionValue($code_name)
@@ -527,6 +560,7 @@ class SOAP_Application_Step extends Asset
 	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('soap_wsdl_message');
 		$empty_message =& new SOAP_WSDL_Message();
+
 		$op_assetid = $this->attr('soap_operation_asset');
 		if (empty($op_assetid)) {
 			return $empty_message;
@@ -540,7 +574,7 @@ class SOAP_Application_Step extends Asset
 			return $empty_message;
 		}
 		foreach ($input_message->getArgs() as $name => $details) {
-			$input_message->setArgValue($name, $this->getDataFieldQuestionValue($name));
+			$input_message->setArgValue($name, $this->getSettableElementValue($name));
 		}
 		return $input_message;
 

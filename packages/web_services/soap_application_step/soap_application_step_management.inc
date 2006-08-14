@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step_management.inc,v 1.3 2006/07/28 03:33:03 tbarrett Exp $
+* $Id: soap_application_step_management.inc,v 1.4 2006/08/14 01:49:46 arailean Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -61,6 +61,14 @@ class SOAP_Application_Step_Management extends Asset_Management
 													'parameters'	=> Array('allow_empty' => FALSE),
 												);
 
+		$this->vars['parameter_map'] = Array(
+										'added'			=> '0.1',
+										'type'			=> 'parameter_map',
+										'default'		=> Array(),
+										'parameters'	=> Array(
+															'parameters'	=> Array(),
+														   ),
+									   );
 	}//end constructor
 
 
