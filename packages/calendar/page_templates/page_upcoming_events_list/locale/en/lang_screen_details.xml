@@ -1,0 +1,54 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1 2006/08/14 03:20:28 tbarrett Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
+		</field>
+		<field attribute="short_name">
+			<display_name>Short Name</display_name>
+			<note />
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintEventSources" />
+				<process_function name="processEventSources" />
+			</function_call>
+			<display_name>Event Sources</display_name>
+			<note />
+		</field>
+		<field attribute="horizon">
+			<display_name>Event Horizon</display_name>
+			<note>Events that start more than this number of days in the future will not be shown</note>
+		</field>
+		<field attribute="num_events">
+			<display_name>Number of Events to show</display_name>
+			<note>At most, this number of events will be displayed</note>
+		</field>
+		<note>This asset will list upcoming events in chronological order, up to the maximum number specified.  Events that begin beyond the event horizon will not be shown.</note>
+	</section>
+</contents>
