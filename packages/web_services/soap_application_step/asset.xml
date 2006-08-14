@@ -14,7 +14,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2006/07/21 06:51:48 arailean Exp $
+* $Id: asset.xml,v 1.2 2006/08/14 04:34:00 arailean Exp $
 *
 */
 -->
@@ -28,5 +28,11 @@
 	<instantiable>no</instantiable>
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>asset</parent_type>
+	<requirements>
+		<requirement type="asset">
+			<code>soap_application</code>
+			<version>0.1</version>
+		</requirement>
+	</requirements>
 	<flash_menu_path />
 </asset_info>
