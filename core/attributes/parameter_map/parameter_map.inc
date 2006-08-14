@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.12 2006/06/15 00:53:33 skim Exp $
+* $Id: parameter_map.inc,v 1.13 2006/08/14 01:35:40 arailean Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once dirname(dirname(__FILE__)).'/serialise/serialise.inc';
 *   When requesting the runtime value for a parameter you give its code.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -59,7 +59,25 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 		if ($value == NULL) $value = Array();
 		$this->Asset_Attribute_Serialise($attributeid, $value);
 
+		// TODO: Investigate efficiency of unserialising once vs. every time the value is needed.
+
 	}//end constructor
+
+
+	/**
+	* Prints the interface for filling in a value
+	*
+	* @param string	$code	Parameter code
+	* @param string	$label	Friendly name describing the parameter
+	*
+	* @return void
+	* @access public
+	*/
+	function setParameter($code, $label)
+	{
+		$this->_params['parameters'][$code] = $label;
+
+	}//end setParameter()
 
 
 	/**
@@ -74,56 +92,44 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	function paint($prefix, $read_only=FALSE)
 	{
 		$value = unserialize($this->value);
-		if (!$read_only) {
-			?>
-			<script type="text/javascript"><!--
-			//<![CDATA[
-				function updateFieldChooser(dataSource)
-				{
-				  if (dataSource.options[dataSource.selectedIndex].value == 'ASSET' || dataSource.options[dataSource.selectedIndex].value == 'USER') {
-					var selectElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[attribute]');
-					selectElts[0].style.display = 'inline';
-					var inputElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[index]');
-					inputElts[0].style.display = 'none';
-				  } else {
-					var selectElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[attribute]');
-					selectElts[0].style.display = 'none';
-					var inputElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[index]');
-					inputElts[0].style.display = 'inline';
-				  }
-				}
-			//]]> -->
-			</script>
-			<?php
-		}
+
 		?>
+
 		<table border="0" cellpadding="0" cellspacing="0" class="sq-backend-table">
 			<tr>
 				<th><?php echo translate('parameter'); ?></th>
 				<th><?php echo translate('source'); ?></th>
 			</tr>
 			<?php
+
+			$source_types = $this->_getSourceTypes();
 			foreach ($value as $parameter => $sources) {
 				?>
 				<tr>
 					<td><?php echo $this->_params['parameters'][$parameter]; ?></td>
 					<td>
+						<table border="0" cellpadding="5" cellspacing="0" class="sq-backend-table">
 						<?php
-							foreach ($sources as $index => $details) {
-								if (!$read_only) {
-									$this->_printSourceChooser($prefix.'['.$parameter.']['.$index.']', $details['source'], ($details['source'] == 'ASSET' || $details['source'] == 'USER') ? $details['attribute'] : $details['index']);
-								} else {
-									$source_types = $this->_getSourceTypes();
-									echo $source_types[$details['source']];
-									if ($details['source'] == 'ASSET' || $details['source'] == 'USER') {
-										echo ' '.$details['attribute'];
-									} else {
-										echo '['.$details['index'].']';
+						foreach ($sources as $index => $details) {
+							$source_type = $details['source'];
+							$one_source_prefix = $prefix.'['.$parameter.']['.$index.']';
+							?>
+							<tr>
+								<td style="width:30ex"><strong><?php echo $source_types[$source_type]; ?></strong></td>
+								<td><?php $this->_printSourceInterface($one_source_prefix, $details, $read_only); ?></td>
+								<td style="text-align:right">
+									<?php
+									if (!$read_only) {
+										check_box($one_source_prefix.'[delete]');
+										echo '<label for="'.$one_source_prefix.'[delete]">'.translate('delete').'</label>';
 									}
-									echo '<br />';
-								}
-							}
+									?>
+								</td>
+							</tr>
+							<?php
+						}
 						?>
+						</table>
 					</td>
 				</tr>
 				<?php
@@ -132,7 +138,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				?>
 				<tr>
 					<td><?php $this->_printParameterChooser($prefix.'[new][0]'); ?></td>
-					<td><?php $this->_printSourceChooser($prefix.'[new][0]'); ?></td>
+					<td><?php $this->_printNewSourceChooser($prefix.'[new][0]'); ?></td>
 				</tr>
 				<?php
 			}
@@ -144,28 +150,82 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 
 
 	/**
-	* Paint the fields to choose a data source
+	* Paint the chooser for a new source
 	*
-	* @param string	$prefix			The prefix for the fields' names
-	* @param string	$source_type	The current value for the source-type field
-	* @param string	$component		The current value for the array-index or asset-attribute field
+	* @param string	$prefix	The prefix for the fields' names
 	*
 	* @return void
 	* @access private
 	*/
-	function _printSourceChooser($prefix, $source_type=NULL, $component=NULL)
+	function _printNewSourceChooser($prefix)
 	{
-		combo_box($prefix.'[source]', $this->_getSourceTypes(), FALSE, Array($source_type), 0, 'onchange="updateFieldChooser(this)" onkeyup="updateFieldChooser(this)"');
-		echo '&nbsp;';
-		text_box($prefix.'[index]', (($source_type == 'ASSET') || ($source_type == 'USER') ? '' : $component), '', '', FALSE, 'style="width: 25ex; '.(($source_type == 'ASSET') || ($source_type == 'USER') ? 'display: none' : '').'"');
-		combo_box($prefix.'[attribute]', $this->_getAssetAttributeOptions(), FALSE, Array($component), 0, 'style="width: 25ex; '.(($source_type == 'ASSET') || ($source_type == 'USER') ? '' : 'display: none').'"');
-		if ($source_type != NULL) {
-			check_box($prefix.'[delete]');
-			echo '<label for="'.$prefix.'[delete]">'.translate('delete').'</label>';
-		}
-		echo '<br />';
+		combo_box($prefix.'[source]', $this->_getSourceTypes(), FALSE, Array());
 
-	}//end _printSourceChooser()
+	}//end _printNewSourceChooser()
+
+
+	/**
+	* Paint the fields to choose a data source
+	*
+	* @param string	$prefix		The prefix for the fields' names
+	* @param string	$data		The current value for the source-type field
+	* @param string	$read_only	True if the interface to be printed is read-only
+	*
+	* @return void
+	* @access private
+	*/
+	function _printSourceInterface($prefix, $data, $read_only=TRUE)
+	{
+		$source_type = array_get_index($data, 'source');
+
+		if (!$read_only) {
+			hidden_field($prefix.'[source]', $source_type);
+		}
+
+		switch ($source_type) {
+			case 'ASSET':
+			case 'USER':
+				$attribute = array_get_index($data, 'attribute');
+				if ($read_only) {
+					if (is_null($attribute)) {
+						echo translate('not_configured');
+					} else {
+						echo $attribute;
+					}
+				} else {
+					combo_box($prefix.'[attribute]', $this->_getAssetAttributeOptions(), FALSE, Array($attribute));
+				}
+			break;
+
+			case 'ASSET_QUESTION':
+				$asset_id = array_get_index($data, 'index');
+				if ($read_only) {
+					if (is_null($asset_id)) {
+						echo translate('not_configured');
+					} else {
+						echo get_asset_tag_line($asset_id, 'details');
+					}
+				} else {
+					asset_finder($prefix.'[asset_finder]', $asset_id, Array('form_question' => 'D'));
+				}
+			break;
+
+			default:
+				$value = array_get_index($data, 'index');
+				if ($read_only) {
+					if (is_null($value)) {
+						echo translate('not_configured');
+					} else {
+						echo $value;
+					}
+				} else {
+					text_box($prefix.'[index]', $value);
+				}
+
+
+		}//end switch
+
+	}//end _printSourceInterface()
 
 
 	/**
@@ -178,13 +238,13 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	*/
 	function _printParameterChooser($prefix)
 	{
-		combo_box($prefix.'[parameter]', Array(''=>'-- New Mapping --')+$this->_params['parameters'], FALSE, Array());
+		combo_box($prefix.'[parameter]', Array(''=>'-- '.translate('new_mapping').' --')+$this->_params['parameters'], FALSE, Array());
 
 	}//end _printParameterChooser()
 
 
 	/**
-	* Prints the interface for filling in a value
+	* Processes the interface for filling in a value
 	*
 	* @param string	$prefix	prefix for the form element
 	*
@@ -201,32 +261,35 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				foreach ($details as $j => $fields) {
 					if ($fields['source'] == 'ASSET' || $fields['source'] == 'USER') {
 						unset($value[$index][$j]['index']);
+					} else if ($fields['source'] == 'ASSET_QUESTION') {
+						unset($value[$index][$j]['attribute']);
+						$value[$index][$j]['index'] = $fields['asset_finder']['assetid'];
+						unset($value[$index][$j]['asset_finder']);
 					} else {
 						unset($value[$index][$j]['attribute']);
 					}
+
 					if (isset($fields['delete'])) {
 						unset($value[$index][$j]);
 						if (empty($value[$index])) unset($value[$index]);
 					}
+
 				}
 			}
+
 			foreach ($_POST[$prefix]['new'] as $new_mapping) {
 				if (empty($new_mapping['parameter'])) continue;
+
 				$param = $new_mapping['parameter'];
 				unset($new_mapping['parameter']);
-				if ($new_mapping['source'] == 'ASSET' | $new_mapping['source'] == 'USER') {
-					unset($new_mapping['index']);
-				} else {
-					unset($new_mapping['attribute']);
-				}
-				if (!isset($value[$param])) {
-					$value[$param] = Array($new_mapping);
-				} else {
-					$value[$param][] = $new_mapping;
-				}
+
+				$value[$param][] = $new_mapping;
 			}
-			$this->validateValue($value);
+
+			if (!$this->validateValue($value)) return FALSE;
+
 			$this->processed = $this->setValue($value);
+
 		}//end if (is_array())
 
 	}//end process()
@@ -242,7 +305,9 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	*/
 	function getParameterValue($parameter)
 	{
+		// TODO: Check why we need to unserialize every time (see constructor)
 		$value = unserialize($this->value);
+
 		if (!isset($value[$parameter])) return NULL;
 		foreach ($value[$parameter] as $rule) {
 			switch ($rule['source']) {
@@ -285,8 +350,33 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 							return $GLOBALS['SQ_SYSTEM']->user->attr($rule['attribute']);
 						break;
 					}
+
+				// this is primitive, but allows for great flexibility
+				case 'STATIC':
+					// need to restructure the rules array to be more logical
+					return $rule['index'];
+
+				break;
+
+
+				// NOTE: This might need to be replaced by a general asset handler
+				case 'ASSET_QUESTION':
+					// question id is stored in the index
+					$asset_id = $rule['index'];
+
+					$question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
+
+					// TODO: (maybe?) Check that the form has been processed
+					$value = $question_asset->getValue();
+					return $value;
+
+				break;
+
+
 			}//end switch ($rule['source'])
+
 		}//end foreach ($value[$parameter])
+
 		return NULL;
 
 	}//end getParameterValue()
@@ -313,11 +403,17 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	*/
 	function _getSourceTypes()
 	{
+		// TODO: Implement Generic Asset Chooser
+		// Should allow any asset to be selected and data to be extracted from it based on what the asset makes available
+		// 'ASSET_ANY'		=> 'Any Asset (Paint Asset Chooser)',
+
 		return Array(
-				'GET'	=> 'GET',
-				'POST'	=> 'POST',
-				'ASSET'	=> translate('current_asset'),
-				'USER'	=> translate('current_user'),
+				'GET'				=> 'GET '.translate('variable_name'),
+				'POST'				=> 'POST '.translate('variable_name'),
+				'ASSET'				=> translate('current_asset'),
+				'USER'				=> translate('current_user'),
+				'ASSET_QUESTION'	=> translate('form_question_asset'),
+				'STATIC'			=> translate('static_value'),
 			   );
 
 	}//end _getSourceTypes()
@@ -331,9 +427,11 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	*/
 	function _getAssetAttributeOptions()
 	{
-		return Array(
-				'assetid'	=> translate('asset_id'),
-			   );
+		$options = Array(
+					'assetid'	=> translate('asset_id'),
+				   );
+
+		return $options;
 
 	}//end _getAssetAttributeOptions()
 
