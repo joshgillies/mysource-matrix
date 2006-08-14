@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.154 2006/08/11 04:06:22 rhoward Exp $
+* $Id: lang_strings.xml,v 1.155 2006/08/14 01:26:07 arailean Exp $
 *
 */
 
@@ -1944,5 +1944,12 @@ Are you sure you want to proceed?</string>
 
 	<!-- Data Source -->
 	<string source="data_source_no_keywords">No keywords available - this data source, as currently configured, does not have any record sets.</string>
+
+	<!-- Attributes -->
+	<string source="not_configured">Not Configured</string>
+	<string source="new_mapping">New Mapping</string>
+	<string source="variable_name">Variable Name</string>
+	<string source="form_question_asset">Form Question Asset</string>
+	<string source="static_value">Static Value</string>
 
 </strings>
