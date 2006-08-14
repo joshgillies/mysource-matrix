@@ -11,13 +11,13 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.16 2006/08/14 05:13:38 arailean Exp $
+* $Id: soap_application.inc,v 1.17 2006/08/14 05:25:41 bcaldwell Exp $
 *
 */
 
+
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
-define('SQ_SOAP_APP_STEP_1', 0);
 
 /**
 * SOAP Application
@@ -26,7 +26,7 @@ define('SQ_SOAP_APP_STEP_1', 0);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -45,11 +45,6 @@ class SOAP_Application extends Asset
 	function SOAP_Application($assetid=0)
 	{
 		parent::Asset($assetid);
-
-		// init the session, to avoid extra checks in other places
-		if (!isset($_SESSION['asset'][$assetid])) {
-			$_SESSION['asset'][$assetid] = Array();
-		}
 
 	}//end constructor
 
@@ -111,6 +106,9 @@ class SOAP_Application extends Asset
 
 		$default_bodycopy = translate('soap_app_default_contents');
 
+		$sub_assets	= $this->_getInitialStepDefinitions();
+		if (empty($sub_assets)) return FALSE;
+
 		$main_bc_data = Array(
 							'type_code'		=> 'bodycopy',
 							'name'			=> 'Main Bodycopy',
@@ -147,7 +145,6 @@ class SOAP_Application extends Asset
 
 			if (!$success) break;
 		}
-
 		return $success;
 
 	}//end _createAdditional()
@@ -161,24 +158,8 @@ class SOAP_Application extends Asset
 	*/
 	function _getInitialStepDefinitions()
 	{
-		return Array(
-				Array(
-					'type_code'		=> 'soap_application_step',
-					'name'			=> 'First Step',
-					'link_type'		=> SQ_LINK_TYPE_2,
-					'exclusive'		=> TRUE,
-					'dependant'		=> TRUE,
-					'link_value'	=> 'step'
-				),
-				Array(
-					'type_code'		=> 'soap_application_step',
-					'name'			=> 'Second Step',
-					'link_type'		=> SQ_LINK_TYPE_2,
-					'exclusive'		=> TRUE,
-					'dependant'		=> TRUE,
-					'link_value'	=> 'step'
-				),
-			   );
+		// basic soap application has no steps
+		return Array();
 
 	}//end _getInitialStepDefinitions()
 
@@ -196,9 +177,8 @@ class SOAP_Application extends Asset
 		$this->_preProcessInterface();
 
 		$step =& $this->getCurrentStep();
-
-
 		if (empty($step)) return parent::printFrontend();
+
 		// Find the design applied to the current step and use that
 		$step_url = strip_url($step->getUrl(), TRUE);
 		$design_info = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($step_url, 'design::system::frontend');
@@ -208,7 +188,6 @@ class SOAP_Application extends Asset
 			$design = NULL;
 		}
 		$this->printFrontendAsset($this, $design);
-
 
 	}//end printFrontend()
 
@@ -221,15 +200,10 @@ class SOAP_Application extends Asset
 	*/
 	function _preProcessInterface()
 	{
-
 		$current_step =& $this->getCurrentStep();
 
-		if (is_null($current_step)) {
-			$this->setFirstStep();
-		} else {
-			if ($current_step->validateInput() && $current_step->performOperation()) {
-				$this->setNextStep();
-			}
+		if ($current_step->validateInput() && $current_step->performOperation()) {
+			$this->setNextStep();
 		}
 
 	}//end _preProcessInterface()
@@ -245,7 +219,6 @@ class SOAP_Application extends Asset
 	*/
 	function printBody()
 	{
-
 		$current_step =& $this->getCurrentStep();
 		if (!is_null($current_step)) {
 			if (!$current_step->attr('use_application_layout')) {
@@ -261,8 +234,8 @@ class SOAP_Application extends Asset
 			trigger_error('main bodycopy not found', E_USER_WARNING);
 			return;
 		}
-
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
+
 		$keywords = $content_bodycopy->getKeywords();
 		$replacements = Array();
 		foreach ($keywords as $keyword) {
@@ -271,10 +244,10 @@ class SOAP_Application extends Asset
 
 		$content_bodycopy->setKeywordReplacements($replacements);
 		$content_bodycopy->printBody();
+
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_bodycopy);
 
 	}//end printBody()
-
 
 
 	/**
@@ -294,36 +267,6 @@ class SOAP_Application extends Asset
 
 
 	/**
-	* Get the assetid of the first step in this application
-	*
-	* @return int
-	* @access public
-	*/
-	function getFirstStepId()
-	{
-		$first_step = array_get_index($this->_steps, SQ_SOAP_APP_STEP_1);
-
-		return $first_step;
-
-	}//end getFirstStepId()
-
-
-	/**
-	* Set the first step as the current step
-	*
-	* @return void
-	* @access public
-	*/
-	function setFirstStep()
-	{
-		if (isset($this->_steps[SQ_SOAP_APP_STEP_1])) {
-			$_SESSION['asset'][$this->id]['current_step_no'] = SQ_SOAP_APP_STEP_1;
-		}
-
-	}//end setFirstStep()
-
-
-	/**
 	* Go to the next step
 	*
 	* @return void
@@ -331,54 +274,10 @@ class SOAP_Application extends Asset
 	*/
 	function setNextStep()
 	{
-		$current_step = $this->getCurrentStepNo();
-		$next_step = $current_step + 1;
-		if (isset($this->_steps[$next_step])) {
-			$_SESSION['asset'][$this->id]['current_step_no'] = $next_step;
-		} else {
-			// if we're past the last step, first step is the next step 8)
-			$_SESSION['asset'][$this->id]['current_step_no'] = SQ_SOAP_APP_STEP_1;
-		}
-
+		$next_step_assetid = $this->_getNextStepAssetId();
+		$_REQUEST['s'] = $next_step_assetid;
 
 	}//end setNextStep()
-
-
-	/**
-	* Get the number of the current step
-	*
-	* @return int
-	* @access public
-	*/
-	function getCurrentStepNo()
-	{
-		$current_step_no = array_get_index($_SESSION['asset'][$this->id], 'current_step_no');
-		return $current_step_no;
-
-	}//end getCurrentStepNo()
-
-
-	/**
-	* Get the current step asset
-	*
-	* @return object
-	* @access public
-	*/
-	function &getCurrentStep()
-	{
-		$current_step = NULL;
-
-		$current_step_no = $this->getCurrentStepNo();
-
-		$current_step_id = array_get_index($this->_steps, $current_step_no);
-
-		if (!is_null($current_step_id)) {
-			$current_step =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_step_id);
-		}
-
-		return $current_step;
-
-	}//end getCurrentStep()
 
 
 	/**
@@ -392,19 +291,183 @@ class SOAP_Application extends Asset
 		$step_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'soap_application_step', FALSE, 'major', 'step');
 
 		$steps = Array();
-
 		foreach ($step_links as $link) {
 			$steps[$link['sort_order']] = $link['minorid'];
 		}
-
 		ksort($steps);
-		$steps = array_values($steps);
 
+		$steps = array_values($steps);
 		$this->_steps = $steps;
 
 		return TRUE;
 
 	}//end _loadSteps()
+
+
+	/**
+	* Get the asset id of the previous step
+	*
+	* @access private
+	* @return string
+	*/
+	function _getPreviousStepAssetId()
+	{
+		$step_num = $this->getCurrentStepNo();
+		$prev_step_num = $step_num - 1;
+
+		$prev_step_assetid = array_get_index($this->_steps, $prev_step_num);
+		if (is_null($prev_step_assetid)) {
+			$prev_step_assetid = reset($this->_steps);
+		}
+		return $prev_step_assetid;
+
+	}//end _getPreviousStepAssetId()
+
+
+	/**
+	* Get the asset id of the current step
+	*
+	* @return string
+	* @access private
+	*/
+	function _getCurrentStepAssetId()
+	{
+		$step_assetid = array_get_index($_REQUEST, 's');
+		if (is_null($step_assetid)) {
+			$step_assetid = reset($this->_steps);
+		}
+		return $step_assetid;
+
+	}//end _getCurrentStepAssetId()
+
+
+	/**
+	* Get the asset id of the next step
+	*
+	* @access private
+	* @return string
+	*/
+	function _getNextStepAssetId()
+	{
+		$step_num = $this->getCurrentStepNo();
+		$next_step_num = $step_num + 1;
+
+		$next_step_assetid = array_get_index($this->_steps, $next_step_num);
+		if (is_null($next_step_assetid)) {
+			$next_step_assetid = reset($this->_steps);
+		}
+		return $next_step_assetid;
+
+	}//end _getNextStepAssetId()
+
+
+	/**
+	* Returns the number of the previous step
+	*
+	* @access public
+	* @return int
+	*/
+	function getPreviousStepNo()
+	{
+		$step_num = 0;
+		$step_assetids = array_flip($this->_steps);
+
+		$prev_step_assetid = $this->_getPreviousStepAssetId();
+		if (in_array($prev_step_assetid, $this->_steps)) {
+			$step_num = array_get_index($step_assetids, $prev_step_assetid);
+		}
+		return $step_num;
+
+	}//end getPreviousStepNo()
+
+
+	/**
+	* Get the number of the current step
+	*
+	* @return int
+	* @access public
+	*/
+	function getCurrentStepNo()
+	{
+		$step_num = 0;
+		$step_assetids = array_flip($this->_steps);
+
+		// this is the current step asset
+		$step_assetid = $this->_getCurrentStepAssetId();
+		if (in_array($step_assetid, $this->_steps)) {
+			$step_num = array_get_index($step_assetids, $step_assetid);
+		}
+		return $step_num;
+
+	}//end getCurrentStepNo()
+
+
+	/**
+	* Returns the number of the next step
+	*
+	* @access publc
+	* @return int
+	*/
+	function getNextStepNo()
+	{
+		$step_num = 0;
+		$step_assetids = array_flip($this->_steps);
+
+		$next_step_assetid = $this->_getNextStepAssetId();
+		if (in_array($next_step_assetid, $this->_steps)) {
+			$step_num = array_get_index($step_assetids, $next_step_assetid);
+		}
+		return $step_num;
+
+	}//end getNextStepNo()
+
+
+	/**
+	* Returns a reference to the previous step asset
+	*
+	* @access public
+	* @return &object
+	*/
+	function &getPreviousStep()
+	{
+		$previous_step_id = $this->_getPreviousStepAssetId();
+
+		$previous_step =& $GLOBALS['SQ_SYSTEM']->am->getAsset($previous_step_id);
+		return $previous_step;
+
+	}//end getPreviousStep()
+
+
+	/**
+	* Get the current step asset
+	*
+	* @return object
+	* @access public
+	*/
+	function &getCurrentStep()
+	{
+		$current_step_id = $this->_getCurrentStepAssetId();
+
+		$current_step =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_step_id);
+		return $current_step;
+
+	}//end getCurrentStep()
+
+
+	/**
+	* Returns a reference to the next step asset
+	*
+	* @access public
+	* @return &object
+	*/
+	function &getNextStep()
+	{
+		$next_step_id = $this->_getNextStepAssetId();
+
+		$next_step =& $GLOBALS['SQ_SYSTEM']->am->getAsset($next_step_id);
+		return $next_step;
+
+	}//end getNextStep()
 
 
 	/**
@@ -469,34 +532,6 @@ class SOAP_Application extends Asset
 		return $this->getCurrentStepNo() + 1;
 
 	}//end getCurrentStepNumberKeywordReplacement()
-
-
-	function getStepIdByNo($step_no=NULL)
-	{
-		$step_id = array_get_index($this->_steps, $step_no);
-
-		return $step_id;
-
-	}
-
-
-	function getPreviousStepId()
-	{
-		$previous_step_assetid = NULL;
-
-		$current_step_no = $this->getCurrentStepNo();
-
-		$prev_step_no = $current_step_no - 1;
-
-		if ($prev_step_no < SQ_SOAP_APP_STEP_1) {
-			return NULL;
-		}
-
-		$previous_step_assetid = $this->getStepIdByNo($prev_step_no);
-
-		return $previous_step_assetid;
-
-	}
 
 
 }//end class
