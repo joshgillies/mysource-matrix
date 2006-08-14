@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page_page.inc,v 1.11 2006/07/19 01:41:24 lwright Exp $
+* $Id: page_multiple_page_page.inc,v 1.12 2006/08/14 17:45:54 gnoel Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -101,7 +101,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 	function printBody()
 	{
 		// We have to redirect to our parent, so that page numbers, and other stuff can be printed
-		$parent = $this->getMultiplePageAsset();
+		$parent =& $this->getMultiplePageAsset();
 		$parent->printPage($this);
 
 	}//end printBody()
@@ -132,7 +132,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 	* @return string
 	* @access public
 	*/
-	function getMultiplePageAsset()
+	function &getMultiplePageAsset()
 	{
 		$multi_id = $this->getMultiplePageId();
 		if ($multi_id != '0') {
@@ -209,7 +209,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 		}
 
 		if ($replacement == '%'.$value.'%') {
-			$parent = $this->getMultiplePageAsset();
+			$parent =& $this->getMultiplePageAsset();
 			$replacement = $parent->getKeywordReplacement($value);
 		}
 
