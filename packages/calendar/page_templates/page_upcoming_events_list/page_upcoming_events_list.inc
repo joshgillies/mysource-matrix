@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.1 2006/08/14 03:20:28 tbarrett Exp $
+* $Id: page_upcoming_events_list.inc,v 1.2 2006/08/14 04:46:34 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -341,7 +341,7 @@ class Page_Upcoming_Events_List extends Page
 			$end_ts = strtotime('+'.$this->attr('num_events').' days', $start_ts);
 
 			// get the single events
-			$date_sql = '(cd.start_date_ts BETWEEN '.$db->quote($start_ts).' AND '.$db->quote($end_ts).') OR (cd.start_date_ts < '.$db->quote($start_ts).' AND cd.end_date_ds >= '.$db->quote($start_ts).')';
+			$date_sql = '(cd.start_date_ts BETWEEN '.$db->quote($start_ts).' AND '.$db->quote($end_ts).') OR (cd.start_date_ts < '.$db->quote($start_ts).' AND cd.end_date_ts >= '.$db->quote($start_ts).')';
 			$sql = Calendar_Common::getSingleEventQueryBase(array_keys($root_nodes)).' AND ('.$date_sql.')';
 			$single_result = $db->getAll($sql);
 			assert_valid_db_result($single_result);
