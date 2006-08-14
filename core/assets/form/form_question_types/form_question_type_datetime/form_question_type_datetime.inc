@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.6 2006/06/19 01:03:44 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.7 2006/08/14 05:01:00 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -169,12 +169,21 @@ class Form_Question_Type_Datetime extends Form_Question
 
 
 	/**
-	* Look at user-specified and internal rules to see if this question currently has a valid value
+	* Look at user-specified and internal rules to see if this question
+	* currently has a valid value
 	*
-	* @return boolean
+	* Returns TRUE if all validation rules pass
+	*
+	* @param mixed		$answer			Custom value to compare with - if left
+	*									NULL (or unspecified), use the current
+	*									value of the question
+	* @param boolean	$mute_errors	If TRUE, do not add to the "Failed
+	*									Rules" log, but simply return FALSE
+	*
 	* @access public
+	* @return boolean
 	*/
-	function hasValidValue($answer=NULL)
+	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
 		if (is_null($answer)) {
 			$answer = $this->getValue();
@@ -215,7 +224,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		}
 
 		if (!is_iso8601($answer)) return FALSE;
-		return parent::hasValidValue($answer);
+		return parent::hasValidValue($answer, $mute_errors);
 
 	}//end hasValidValue()
 

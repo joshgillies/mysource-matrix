@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.7 2006/07/10 02:53:44 tbarrett Exp $
+* $Id: form_question_type_file_upload.inc,v 1.8 2006/08/14 05:01:01 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -108,12 +108,21 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 
 	/**
-	* Look at user-specified and internal rules to see if this question currently has a valid value
+	* Look at user-specified and internal rules to see if this question
+	* currently has a valid value
 	*
-	* @return boolean
+	* Returns TRUE if all validation rules pass
+	*
+	* @param mixed		$answer			Custom value to compare with - if left
+	*									NULL (or unspecified), use the current
+	*									value of the question
+	* @param boolean	$mute_errors	If TRUE, do not add to the "Failed
+	*									Rules" log, but simply return FALSE
+	*
 	* @access public
+	* @return boolean
 	*/
-	function hasValidValue()
+	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
 		$create_loc = $this->attr('create_location');
 		if (empty($create_loc)) {
@@ -152,7 +161,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 			}
 		}
 
-		if ($ok) return parent::hasValidValue();
+		if ($ok) return parent::hasValidValue($answer, $mute_errors);
 
 		return FALSE;
 
