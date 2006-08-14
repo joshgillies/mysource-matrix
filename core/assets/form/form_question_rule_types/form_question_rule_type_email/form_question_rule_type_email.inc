@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.4 2006/05/17 02:02:34 sdanis Exp $
+* $Id: form_question_rule_type_email.inc,v 1.5 2006/08/14 07:19:19 rhoward Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,6 +116,12 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 
 			}
 
+			$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
+			?>
+			form = document.getElementById("<?php echo $form->getPrefix(); ?>");
+			<?php
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($form);
+
 			?>
 				if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_email(form.elements["q<?php echo $q_asset->id; ?>"].value)) {
 					submission_errors[submission_errors.length] = "<?php
@@ -169,7 +175,7 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
-		$error_str = translate('core_form_rule_email_desc_'.($rule_data['operator'] ? 'true' : 'false'), $q_asset->attr('name'));
+		$error_str = translate('core_form_rule_email_desc_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'), $q_asset->attr('name'));
 
 		return $error_str;
 

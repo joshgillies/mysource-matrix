@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.5 2006/08/11 06:16:03 rhoward Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.6 2006/08/14 07:19:19 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,16 +83,17 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 
 		ob_start();			// buffer this please
 
+			$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
+			?>
+			form = document.getElementById("<?php echo $form->getPrefix(); ?>");
+			<?php
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($form);
+
 			if ($cq_id != 0) {
 				$comparison = 'form.elements["q'.$cq_id.'"].value';
 			} else {
 				$comparison = '"'.addslashes($value).'"';
 			}
-
-			$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
-			$code =  'form = document.getElementById("'.$form->getPrefix().'");'."\n";
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($form);
-
 
 			// if it's a numeric field, make sure that JavaScript
 			// interprets it as a number

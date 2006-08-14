@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_found_in.inc,v 1.4 2006/06/19 01:03:44 lwright Exp $
+* $Id: form_question_rule_type_found_in.inc,v 1.5 2006/08/14 07:19:19 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,7 +81,7 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 	*/
 	function generateJSCode(&$q_asset, $rule_data)
 	{
-				// have we printed out the validation function yet?
+		// have we printed out the validation function yet?
 		// (since this is static across all class instances, this will work)
 		static $printed_fn = false;
 
@@ -107,6 +107,12 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 					<?php
 
 			}
+
+			$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
+			?>
+			form = document.getElementById("<?php echo $form->getPrefix(); ?>");
+			<?php
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($form);
 
 			if ($cq_id != 0) {
 				$comparison = 'form.elements["q'.$cq_id.'"].value';
@@ -156,18 +162,14 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 		$value = array_get_index($rule_data, 'value', '');
 		$case_sensitive = array_get_index($rule_data, 'case_sensitive', 1);
 
-		bam($answer);
-
 		if ($cq_id != 0) {
 			$comparison =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
-			bam('COMPARISON: '.$comparison->getValue());
 			if ($case_sensitive) {
 				$valid = (strpos($comparison->getValue(), $answer) !== false) ? 1 : 0;
 			} else {
 				$valid = (strpos(strtolower($comparison->getValue()), strtolower($answer)) !== false) ? 1 : 0;
 			}
 		} else {	// sent just a value
-			bam($value);
 			if ($case_sensitive) {
 				$valid = (strpos($value, $answer) !== false) ? 1 : 0;
 			} else {

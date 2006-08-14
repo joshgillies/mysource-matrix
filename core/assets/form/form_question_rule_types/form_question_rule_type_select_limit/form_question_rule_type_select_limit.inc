@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.4 2005/10/13 03:53:12 sdanis Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.5 2006/08/14 07:19:20 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,6 +113,12 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 
 		// For a selection list (and descendants) we need something like this.......
 		ob_start();
+
+			$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
+			?>
+			form = document.getElementById("<?php echo $form->getPrefix(); ?>");
+			<?php
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($form);
 
 			?>
 			var selectCount = 0;
