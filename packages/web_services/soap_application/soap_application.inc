@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.15 2006/07/31 00:42:35 tbarrett Exp $
+* $Id: soap_application.inc,v 1.16 2006/08/14 05:13:38 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('SQ_SOAP_APP_STEP_1', 0);
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -111,7 +111,6 @@ class SOAP_Application extends Asset
 
 		$default_bodycopy = translate('soap_app_default_contents');
 
-		$sub_assets	= $this->_getInitialStepDefinitions();
 		$main_bc_data = Array(
 							'type_code'		=> 'bodycopy',
 							'name'			=> 'Main Bodycopy',
