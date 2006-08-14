@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.17 2006/08/14 05:25:41 bcaldwell Exp $
+* $Id: soap_application.inc,v 1.18 2006/08/14 08:05:50 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -90,8 +90,8 @@ class SOAP_Application extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
@@ -202,11 +202,28 @@ class SOAP_Application extends Asset
 	{
 		$current_step =& $this->getCurrentStep();
 
-		if ($current_step->validateInput() && $current_step->performOperation()) {
-			$this->setNextStep();
-		}
+		if (!$current_step->validateInput()) return FALSE;
+
+		if (!$this->executeStepOperation()) return FALSE;
+
+		$this->setNextStep();
 
 	}//end _preProcessInterface()
+
+
+	/**
+	* Process the interface
+	*
+	* @return boolean
+	* @access public
+	*/
+	function executeStepOperation()
+	{
+		$current_step =& $this->getCurrentStep();
+		$result = $current_step->performOperation();
+		return $result;
+
+	}//end executeStepOperation()
 
 
 	/**
@@ -261,7 +278,7 @@ class SOAP_Application extends Asset
 	*/
 	function _getName($short_name=FALSE)
 	{
-		return $this->attr(($short_name?'short_':'').'name');
+		return $this->attr(($short_name ? 'short_' : '').'name');
 
 	}//end _getName()
 
@@ -307,8 +324,8 @@ class SOAP_Application extends Asset
 	/**
 	* Get the asset id of the previous step
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _getPreviousStepAssetId()
 	{
@@ -344,8 +361,8 @@ class SOAP_Application extends Asset
 	/**
 	* Get the asset id of the next step
 	*
-	* @access private
 	* @return string
+	* @access private
 	*/
 	function _getNextStepAssetId()
 	{
@@ -364,8 +381,8 @@ class SOAP_Application extends Asset
 	/**
 	* Returns the number of the previous step
 	*
-	* @access public
 	* @return int
+	* @access public
 	*/
 	function getPreviousStepNo()
 	{
@@ -405,8 +422,8 @@ class SOAP_Application extends Asset
 	/**
 	* Returns the number of the next step
 	*
-	* @access publc
 	* @return int
+	* @access public
 	*/
 	function getNextStepNo()
 	{
@@ -425,8 +442,8 @@ class SOAP_Application extends Asset
 	/**
 	* Returns a reference to the previous step asset
 	*
+	* @return object
 	* @access public
-	* @return &object
 	*/
 	function &getPreviousStep()
 	{
@@ -457,8 +474,8 @@ class SOAP_Application extends Asset
 	/**
 	* Returns a reference to the next step asset
 	*
+	* @return object
 	* @access public
-	* @return &object
 	*/
 	function &getNextStep()
 	{
@@ -489,7 +506,7 @@ class SOAP_Application extends Asset
 
 		return ob_get_clean();
 
-	}//end getStepDataKeywordReplacement()
+	}//end getStepContentKeywordReplacement()
 
 
 	/**
