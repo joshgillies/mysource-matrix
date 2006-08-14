@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.17 2006/08/08 06:57:56 arailean Exp $
+* $Id: simple_form.inc,v 1.18 2006/08/14 05:17:00 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1224,10 +1224,13 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	* @return void
 	* @access public
 	*/
-	function printBody($print_form_tags=TRUE, $submit_buttons=TRUE)
+	function printBody($print_form_tags=TRUE, $submit_buttons=TRUE, $form_action='')
 	{
 		// return custom bodycopy but ONLY if enabled
 		$format_bodycopy =& $this->getFormatBodycopy(TRUE);
+
+		// default form action
+		if (empty($form_action)) $form_action = $_SERVER['PHP_SELF'];
 
 		if ($print_form_tags) {
 			if ($this->attr('client_side')) {
@@ -1236,7 +1239,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 				$client_side = '';
 			}
 			echo $client_side;
-			?><form id="<?php echo $this->getPrefix() ?>" enctype="multipart/form-data" action="<?php $_SERVER['PHP_SELF'] ?>" method="post"<?php echo empty($client_side) ? '' : ' onSubmit="return beforeSubmit_'.$this->getPrefix().'()"' ?>><?php
+			?><form id="<?php echo $this->getPrefix() ?>" enctype="multipart/form-data" action="<?php echo $form_action; ?>" method="post"<?php echo empty($client_side) ? '' : ' onSubmit="return beforeSubmit_'.$this->getPrefix().'()"' ?>><?php
 		}
 
 		// if format bodycopy enabled, print with that, otherwise print default
