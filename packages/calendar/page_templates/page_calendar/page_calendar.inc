@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.185 2006/07/31 07:21:08 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.186 2006/08/14 06:53:53 tbarrett Exp $
 *
 */
 
@@ -19,9 +19,9 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
-require_once dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
-require_once dirname(__FILE__).'/../../calendar_events/calendar_event_recurring/calendar_event_recurring.inc';
-require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
+require_once SQ_PACKAGES_PATH.'/calendar/calendar_event/calendar_event.inc';
+require_once SQ_PACKAGES_PATH.'/calendar/calendar_events/calendar_event_recurring/calendar_event_recurring.inc';
+require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 
 /**
 * Page_Calendar
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.185 $
+* @version $Revision: 1.186 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */

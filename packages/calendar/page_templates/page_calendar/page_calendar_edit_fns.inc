@@ -11,12 +11,12 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.36 2006/06/19 02:39:12 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.37 2006/08/14 06:53:53 tbarrett Exp $
 *
 */
 
 
-require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset_listing_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
