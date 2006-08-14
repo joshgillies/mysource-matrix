@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.20 2006/08/09 05:27:17 bcaldwell Exp $
+* $Id: soap_wsdl_operation.inc,v 1.21 2006/08/14 05:41:19 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -223,7 +223,7 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 	*/
 	function process($input_message, &$output_message)
 	{
-		if (is_null($input_message)) return TRUE;
+		if (is_null($input_message)) return FALSE;
 
 		$schema =& $this->getWsdlSchema();
 		if (is_null($schema)) return NULL;
@@ -248,7 +248,7 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Element
 				return $result->message;
 			}
 		}
-		$output_message =& $this->getOutputMessageAsset();
+		$output_message = $this->getOutputMessageAsset();
 
 		// err... we assume a lot here. this might need to be fixed
 		$message_arg = reset(array_keys($output_message->getArgs()));

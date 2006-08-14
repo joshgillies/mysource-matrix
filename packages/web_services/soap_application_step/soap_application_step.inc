@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.19 2006/08/14 01:49:46 arailean Exp $
+* $Id: soap_application_step.inc,v 1.20 2006/08/14 05:41:19 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -248,20 +248,19 @@ class SOAP_Application_Step extends Asset
 			$op =& $GLOBALS['SQ_SYSTEM']->am->getAsset($op_assetid);
 
 			$error_status = $op->process($input_message, $output_message);
-
 			if (!is_null($error_status)) {
 				// transport failure, could not get valid
 				$this->_tmp['transport_error'] = $error_status;
 				return FALSE;
 			}
 
-			if ($output_message->isFault()) {
+/*			if ($output_message->isFault()) {
 				// mark our state as faulty, so we know to print the fault bodycopy
 				// TODO: Replace this with the error message grabbed from the fault
 				$this->_tmp['op_fault'] =& $output_message;
 				return FALSE;
-			}
-			$this->_tmp['op_result'] = $output_message;
+			}*/
+			$this->_tmp['op_result'] =& $output_message;
 
 			return TRUE;
 		}
@@ -285,7 +284,7 @@ class SOAP_Application_Step extends Asset
 
 		$app = $this->getApplication();
 //		log_dump($app);
-		$prev_step_assetid = $app->getPreviousStepId();
+		$prev_step_assetid = $app->_getPreviousStepAssetId();
 		if (!is_null($prev_step_assetid)) {
 			log_dump('step found');
 			$prev_step_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($prev_step_assetid);
@@ -392,9 +391,11 @@ class SOAP_Application_Step extends Asset
 	{
 		$formid = $this->getFormId();
 		if (empty($formid)) return '';
+
 		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($formid, 'simple_form');
+
 		ob_start();
-			$form->printBody();
+			$form->printBody(TRUE, TRUE, $_SERVER['PHP_SELF'].'?s='.$this->id);
 			$res = ob_get_contents();
 		ob_end_clean();
 		return $res;
@@ -427,7 +428,7 @@ class SOAP_Application_Step extends Asset
 		ob_start();
 			require_once SQ_FUDGE_PATH.'/general/text.inc';
 			$keywords = $bodycopy->getKeywords();
-			bam($keywords);
+			//bam($keywords);
 			$replacements = Array();
 			foreach ($keywords as $keyword) {
 				$replacements[$keyword] = $this->getKeywordReplacement($keyword);
