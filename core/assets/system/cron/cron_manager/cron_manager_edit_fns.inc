@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.37 2006/04/27 01:52:28 lwright Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.37.2.1 2006/08/15 06:27:20 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.37.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -604,7 +604,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						6	=> translate('saturday'),
 					  );
 
-		$write_access = $asset->writeAccess('all');
+		$write_access = $asset->writeAccess('all') && $GLOBALS['SQ_SYSTEM']->userRoot();
 
 		$exclude_times = $asset->attr('exclude_times');
 
