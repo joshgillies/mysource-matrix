@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.10 2006/06/08 05:10:28 tbarrett Exp $
+* $Id: page_calendar_rolling.inc,v 1.10.2.1 2006/08/15 00:36:34 rhoward Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -312,7 +312,8 @@ class Page_Calendar_Rolling extends Page
 					}
 				}
 
-				$event_list .= replace_keywords($type_formats[$format_type], $replacements);
+				$type_format = $type_formats[$format_type];
+				$event_list .= replace_keywords($type_format, $replacements);
 
 			}//end foreach events in day
 
