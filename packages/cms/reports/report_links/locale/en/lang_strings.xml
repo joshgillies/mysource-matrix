@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2006/04/10 23:33:07 sdanis Exp $
+* $Id: lang_strings.xml,v 1.5.2.1 2006/08/15 04:26:50 rong Exp $
 *
 *
 * CMS Package: Report Links Asset Localised Strings File
@@ -40,8 +40,8 @@
 <string source="cms_report_links_current"><![CDATA[<b>Note</b>]]> The current links report is shown below. You can regenerate this report on the details screen.</string>
 <string source="cms_report_links_no_external_links">No external links were found</string>
 <string source="cms_report_links_email_links">Email Links</string>
-<string source="cms_report_links_external_links">Email Links</string>
-<string source="cms_report_links_internal_links">Email Links</string>
+<string source="cms_report_links_external_links">External Links</string>
+<string source="cms_report_links_internal_links">Internal Links</string>
 <string source="cms_report_links_no_email_links">No email links were found</string>
 <string source="cms_report_links_display_section">Display %s Links Section</string>
 <string source="cms_report_links_display_broken">Display Broken Links</string>
