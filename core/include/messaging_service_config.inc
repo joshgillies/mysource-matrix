@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service_config.inc,v 1.23 2006/04/18 10:32:49 gnoel Exp $
+* $Id: messaging_service_config.inc,v 1.23.2.1 2006/08/15 05:02:05 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.2.1 $
 * @package MySource_Matrix
 */
 class Messaging_Service_Config extends Config
@@ -85,7 +85,7 @@ class Messaging_Service_Config extends Config
 		$write_access = $this->writeAccess();
 		$class = get_class($this);
 
-		$o->openSection(translate('hipo_server_configuration'));
+		$o->openSection(translate('messaging_service_configuration'));
 			$o->openField(translate('messaging_service_file_white_list'));
 				if ($write_access) {
 					text_area($class.'[SQ_MS_LOG_TO_FILE_WHITE_LIST]', SQ_MS_LOG_TO_FILE_WHITE_LIST, 60, 10);
