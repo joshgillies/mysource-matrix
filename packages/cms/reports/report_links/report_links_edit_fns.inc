@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.16.2.1 2006/08/16 05:13:20 bcaldwell Exp $
+* $Id: report_links_edit_fns.inc,v 1.16.2.2 2006/08/16 06:33:41 bcaldwell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16.2.1 $
+* @version $Revision: 1.16.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -763,9 +763,11 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		if (is_null($asset)) {
 			$asset_type = '';
 			$asset_name = 'Unknown asset #'.$assetid;
+			$asset_short_name = 'Unknown asset #'.$assetid;
 			$asset_string = 'Unknown asset #'.$assetid;
 			$asset_bg = 'FFFFFF';
 			$asset_status = '';
+			$asset_status_code = 0;
 			$asset_url = '';
 			$asset_preview_url = '';
 		} else {
@@ -774,16 +776,20 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			if (!is_null($parent)) {
 				$asset_type = $parent->type();
 				$asset_name = $parent->name;
+				$asset_short_name = $parent->short_name;
 				$asset_bg = get_asset_status_icon($parent->status);
 				$asset_status = get_status_description($parent->status);
+				$asset_status_code = $parent->status;
 				$assetid = $parent->id;
 				$asset_url = $parent->getBackendHref();
 				$asset_preview_url = $parent->getURL();
 			} else {
 				$asset_type = $asset->type();
 				$asset_name = $asset->name;
+				$asset_short_name = $asset->short_name;
 				$asset_bg = get_asset_status_icon($asset->status);
 				$asset_status = get_status_description($asset->status);
+				$asset_status_code = $asset->status;
 				$asset_url = $asset->getBackendHref();
 				$asset_preview_url = $asset->getURL();
 			}
@@ -798,10 +804,13 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		return Array(
 				'assetid'		=> $assetid,
 				'name'			=> $asset_name,
+				'short_name'	=> $asset_short_name,
 				'type'			=> $asset_type,
+				'type_code'		=> $asset_type,
 				'string'		=> $asset_string,
 				'bg'			=> $asset_bg,
 				'status'		=> $asset_status,
+				'status_code'	=> $asset_status_code,
 				'backend_url'	=> $asset_url,
 			   );
 
@@ -1114,9 +1123,19 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 		foreach ($root->children as $asset_node) {
 			$persistent_values = Array();
+			$parent_ast_info = $this->_getAssetReportInfo($asset_node->attributes['assetid']);
 			// Have to initialise the headers
 			foreach ($asset_node->attributes as $attr => $value) {
 				if ($top_headers) $headers[] = $attr;
+
+				// the xml data might not be the data we want to export
+				if (isset($parent_ast_info[$attr])) {
+					$value = array_get_index($parent_ast_info, $attr);
+					if ($attr == 'status') {
+						// use the numerical representation of assets status
+						$value = array_get_index($parent_ast_info, 'status_code');
+					}
+				}
 				// Need to setup the persistent values for each of the nodes (like source asset, type etc)
 				$persistent_values[] = $value;
 			}
