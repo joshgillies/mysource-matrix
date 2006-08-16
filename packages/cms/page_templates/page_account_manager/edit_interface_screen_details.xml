@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.14 2006/04/27 03:19:36 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.15 2006/08/16 06:49:25 bcaldwell Exp $
 *
 */
 -->
@@ -66,7 +66,7 @@
 	</section>
 	<section name="Advanced Settings" write_access="write:attributes">
 		<field attribute="submit_to_page_url">
-			<boolean true_text="cms_asset_builder_this_page_own_url" false_text="cms_asset_builder_current_url" />
+			<boolean true_text="cms_this_page_own_url" false_text="cms_current_url" />
 		</field>
 	</section>
 </contents>
