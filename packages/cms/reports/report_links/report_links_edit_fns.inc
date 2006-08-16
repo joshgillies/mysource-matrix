@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.16 2006/05/15 05:52:32 emcdonald Exp $
+* $Id: report_links_edit_fns.inc,v 1.16.2.1 2006/08/16 05:13:20 bcaldwell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1048,7 +1048,18 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 		echo hidden_field($prefix.'_export_switch', '0');
 
-		echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
+		$enabled = FALSE;
+		$report_path = $asset->data_path.'/report.xml';
+		if (file_exists($report_path)) {
+			$enabled = TRUE;
+		}
+		$extras = '';
+
+		// we're going to disable the button if no report is available
+		if (!$enabled) {
+			$extras = 'disabled="disabled"';
+		}
+		echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;', $extras);
 
 		return TRUE;
 
