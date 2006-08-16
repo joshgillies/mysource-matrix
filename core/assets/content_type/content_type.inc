@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.14.2.1 2006/08/10 07:24:57 skim Exp $
+* $Id: content_type.inc,v 1.14.2.2 2006/08/16 00:11:16 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.14.2.1 $
+* @version $Revision: 1.14.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -217,6 +217,7 @@ class Content_Type extends Asset
 				$bodycopy->_updated();
 			}
 		}
+		return TRUE;
 
 	}//end linksUpdated()
 
