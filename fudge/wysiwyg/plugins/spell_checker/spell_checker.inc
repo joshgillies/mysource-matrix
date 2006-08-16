@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.inc,v 1.7 2006/03/21 22:28:56 rong Exp $
+* $Id: spell_checker.inc,v 1.7.2.1 2006/08/16 05:47:57 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to allow the user to Check the spelling of the document
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -74,9 +74,10 @@ class spell_checker extends wysiwyg_plugin
 	function _add_button($id, $cmd, $tooltip, $textmode, $position, $context='')
 	{
 		// checks for the required PEAR package before adding the plugin to the editor
-		$output = Array();
-		exec('pear list | grep "\bXML_HTMLSax\b"', $output);
-		if (!empty($output)) {
+		// use include_once so that it will still run if the package is not installed
+		@include_once('XML/XML_HTMLSax.php');
+
+		if (defined('XML_HTMLSAX')) {
 			parent::_add_button($id, $cmd, $tooltip, $textmode, $position, $context='');
 		} else {
 			trigger_localised_error('CORE0252', E_USER_WARNING, '"Spell Checker"', 'Required PEAR Package "XML_HTMLSax" not installed');
