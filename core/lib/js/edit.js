@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.34 2006/06/09 04:48:05 tbarrett Exp $
+* $Id: edit.js,v 1.35 2006/08/17 05:36:12 bcaldwell Exp $
 *
 */
 
@@ -343,10 +343,10 @@ function expandOptionList(input)
 }
 
 // move up a row
-function listMoveUp(obj) {
+function listMoveUp(obj, optionList) {
 	var currentOrder = 0;
-	var inputs = optionList.getElementsByTagName('INPUT');
 
+	var inputs = optionList.getElementsByTagName('INPUT');
 	for (var i=0 ; i < inputs.length; i++) {
 		if (obj.id == inputs[i].id) {
 			currentOrder = i;
@@ -361,7 +361,7 @@ function listMoveUp(obj) {
 }
 
 // move down a row
-function listMoveDown(obj) {
+function listMoveDown(obj, optionList) {
 	var currentOrder = 0;
 
 	var inputs = optionList.getElementsByTagName('INPUT');
