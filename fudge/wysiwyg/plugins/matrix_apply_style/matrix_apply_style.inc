@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.13 2006/08/17 05:38:50 tbarrett Exp $
+* $Id: matrix_apply_style.inc,v 1.14 2006/08/17 23:03:03 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to apply a style from the effective design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -254,12 +254,11 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 					parent = parent.parentElement;
 				}
 				var selectedHTML = range.htmlText.replace(/^\s+|\s+$/, '');
-				var parentHTML = parent.innerHTML.replace(/^\s+|\s+$/, '');
 
 				if (selectedHTML == range.text.replace(/^\s+|\s+$/, '')) {
 					// we are within a single element
 					range.text = 'MYOPENSPAN'+range.text+'MYCLOSESPAN';
-				} else if ((parentHTML == selectedHTML) || (parent.outerHTML.replace(/^\s+|\s+$/, '') == selectedHTML)) {
+				} else if ((parent.innerHTML == selectedHTML) || (parent.outerHTML.replace(/\s/g, '') == selectedHTML.replace(/\s/g, ''))) {
 					// Apply class to parent element directly
 					parent.className = value;
 				} else {
