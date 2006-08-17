@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_size.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
+* $Id: form_question_rule_type_file_size.inc,v 1.2.2.1 2006/08/17 06:40:33 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,7 +90,10 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 	*/
 	function evaluate($answer, $rule_data, &$q_asset)
 	{
-		$answer = $_FILES[$q_asset->id];
+		// prefix is added in form_question_type_file_upload::getHtmlField()
+		$q_file_index = 'q'.$q_asset->id;
+
+		$answer = $_FILES[$q_file_index];
 		$operator = array_get_index($rule_data, 'operator', '<=');
 
 		// comparison value will be the concatenation of the value and the
