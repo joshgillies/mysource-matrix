@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.184.2.1 2006/07/31 07:21:58 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.184.2.2 2006/08/17 06:54:04 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.184.2.1 $
+* @version $Revision: 1.184.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1848,7 +1848,7 @@ class Page_Calendar extends Page
 	{
 		$event_dts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
 		$event_end_dts = $details['end_date_hours'] * 60 + $details['end_date_minutes'];
-		if (($event_end_dts < $day_start_dts) || ($event_dts > $day_end_dts)) {
+		if ((!empty($details['end_date_ts']) && ($event_end_dts < $day_start_dts)) || ($event_dts > $day_end_dts)) {
 			$details = Array();
 		}
 
