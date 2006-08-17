@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.14 2006/05/09 04:24:00 sdanis Exp $
+* $Id: design_area_asset_lineage.inc,v 1.15 2006/08/17 06:25:31 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -160,8 +160,16 @@ class Design_Area_Asset_Lineage extends Design_Area
 
 				if (!empty($unwanted_types)) {
 					$unwanted_types_literal_array = 'Array("'.implode('", "', $unwanted_types).'")';
-					echo 'if (in_array($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'type_code\'], '.$unwanted_types_literal_array.')) continue;
-					';
+					if ($this->attr('prefix_with_home_link')) {
+						// make the home-link-prefix setting override
+						// the unwanted-types setting
+						echo 'if (($'.$this->attr('id_name').'_i != 0) && in_array($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'type_code\'], '.$unwanted_types_literal_array.')) continue;
+						';
+					} else {
+						echo 'if (in_array($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'type_code\'], '.$unwanted_types_literal_array.')) continue;
+						';
+					}
+
 				}
 
 				if ($asset_contents = $this->attr('asset_contents')) {
