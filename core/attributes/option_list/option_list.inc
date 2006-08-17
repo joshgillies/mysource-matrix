@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.30 2006/05/17 23:42:09 tbarrett Exp $
+* $Id: option_list.inc,v 1.30.2.1 2006/08/17 05:30:12 bcaldwell Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.30.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -140,7 +140,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	function _printMoveDownButton($order, $prefix)
 	{
 		?>
-			<a href="#" style="cursor:pointer;" onclick="listMoveDown(this);return false;" tabindex="99999" name="movedown" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
+			<a href="#" style="cursor:pointer;" onclick="listMoveDown(this, document.getElementById('option-list-<?php echo $prefix; ?>'));return false;" tabindex="99999" name="movedown" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
 		<?php
 
 	}//end _printMoveDownButton()
@@ -158,7 +158,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	function _printMoveUpButton($order, $prefix)
 	{
 		?>
-			<a href="#" style="cursor:pointer;" onclick="listMoveUp(this);return false;" tabindex="99999" name="moveup" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
+			<a href="#" style="cursor:pointer;" onclick="listMoveUp(this, document.getElementById('option-list-<?php echo $prefix; ?>')); return false;" tabindex="99999" name="moveup" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
 		<?php
 
 	}//end _printMoveUpButton()
