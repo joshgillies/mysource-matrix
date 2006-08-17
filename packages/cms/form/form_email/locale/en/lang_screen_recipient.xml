@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_recipient.xml,v 1.3 2006/06/06 00:39:50 rong Exp $
+* $Id: lang_screen_recipient.xml,v 1.4 2006/08/17 00:30:54 bcaldwell Exp $
 *
 */
 -->
@@ -51,7 +51,7 @@
 			<display_name>Receipt Email Format</display_name>
 			<note>Note that the receipt will always be sent to the address entered in the e-mail field specified above. You can use the 'To' address to specify additional email addresses that the receipt should also be sent to. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
 			&lt;ul&gt;
-			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
+			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, submission time, and the name and asset id of the site&lt;/li&gt;
 			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
 			&lt;/ul&gt;
 			</note>
