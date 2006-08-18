@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.15 2006/08/16 06:49:25 bcaldwell Exp $
+* $Id: edit_interface_screen_details.xml,v 1.16 2006/08/18 00:56:12 tbarrett Exp $
 *
 */
 -->
@@ -44,7 +44,7 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="validation_email_format" show_if="usingEmailValidation">
-			<email_format />
+			<email_format with_asset_finder="1" />
 		</field>
 		<field attribute="resend_validation_button" show_if="usingEmailValidation">
 			<text width="15" height="1" />
