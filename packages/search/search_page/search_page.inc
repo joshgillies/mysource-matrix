@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.173.2.2 2006/07/21 05:12:59 rhoward Exp $
+* $Id: search_page.inc,v 1.173.2.3 2006/08/18 00:06:12 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.173.2.2 $
+* @version $Revision: 1.173.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -74,6 +74,8 @@ class Search_Page extends Listing_Engine
 											'result_page_index',
 											'previous_result_page_link',
 											'next_result_page_link',
+											'previous_result_page_href',
+											'next_result_page_href',
 											'initial_layout',
 											'category_list_linked',
 											'structured_root_node',
@@ -1692,6 +1694,22 @@ class Search_Page extends Listing_Engine
 					$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries.'">'.$this->attr('next_page_text').'</a>';
 				break;
 
+				case 'previous_result_page_href':
+					if ($current_result_page < 1) {
+						$replacement = '';
+						break;
+					}
+					$replacement = $this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries;
+				break;
+
+				case 'next_result_page_href':
+					if ($current_result_page >= $total_pages - 1) {
+						$replacement = '';
+						break;
+					}
+					$replacement = $this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries;
+				break;
+				
 				case 'initial_layout':
 					$replacement = $this->getBodycopyContents('initial', $this->getInitialBodyReplacements());
 				break;
