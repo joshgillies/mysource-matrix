@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.14 2006/08/17 23:03:03 tbarrett Exp $
+* $Id: matrix_apply_style.inc,v 1.15 2006/08/18 00:34:10 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to apply a style from the effective design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -279,8 +279,14 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 									tempRange.moveStart('character', 1);
 								}
 								tempRange.moveToElementText(elt);
-								tempRange.text = tempRange.text.substring(0, offset)+"MYOPENSPAN"+tempRange.text.substring(offset, tempRange.text.length)+"MYCLOSESPAN";
-								tempRange.moveToElementText(elt);
+								var newText = tempRange.text.substring(0, offset)+"MYOPENSPAN"+tempRange.text.substring(offset, tempRange.text.length)+"MYCLOSESPAN";
+								if (elt.nodeType == 3) {
+									elt.data = newText;
+								} else if ((elt.childNodes.length == 1) && (elt.firstChild.nodeType == 3)) {
+									elt.innerHTML = newText;
+								} else {
+									tempRange.text = newText; // IE stuffs this up often so we avoid it
+								}
 							} else if (endsAfter) {
 								// This element extends beyond the selection
 								var offset = 0;
@@ -289,9 +295,7 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 									tempRange.moveEnd('character', -1);
 								}
 								tempRange.moveToElementText(elt);
-								var newText = "MYOPENSPAN"+tempRange.text.substring(0, tempRange.text.length-offset+1)+"MYCLOSESPAN"+tempRange.text.substring(tempRange.text.length-offset+1, tempRange.text.length);
-								tempRange.text = newText;
-								tempRange.moveToElementText(elt);
+								tempRange.text = "MYOPENSPAN"+tempRange.text.substring(0, tempRange.text.length-offset+1)+"MYCLOSESPAN"+tempRange.text.substring(tempRange.text.length-offset+1, tempRange.text.length);
 							} else {
 								// This element is fully within the selection
 								// Apply class to it, or wrap a classed span around it
