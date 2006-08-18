@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.173.2.3 2006/08/18 00:06:12 tbarrett Exp $
+* $Id: search_page.inc,v 1.173.2.4 2006/08/18 04:33:15 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.173.2.3 $
+* @version $Revision: 1.173.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1917,9 +1917,11 @@ class Search_Page extends Listing_Engine
 
 
 	/**
-	* Get all the parents of this asset which can be used for grouping. This
-	* function needs to be overridden in assets like Search_Page where the use
-	* of proxy search types require alternate logic to just getting ALL parents.
+	* Get all the parents of this asset which can be used for grouping.
+	*
+	* This function is overridden here because if we are grouping by a type
+	* that is selected as a proxy parent, then we only want to group by
+	* those parents of that type which are actually acting as proxies
 	*
 	* @param array	$child_assetid	the asset to find the parents of
 	* @param array	$restrict_types	Group type restrictions
@@ -1930,13 +1932,20 @@ class Search_Page extends Listing_Engine
 	function getGroupableParentAssetids($child_assetid, $restrict_types)
 	{
 		$parents = parent::getGroupableParentAssetids($child_assetid, $restrict_types);
-
 		$proxy_settings = $this->attr('proxy_types');
 		if (!empty($proxy_settings)) {
-			// this child became a search result by proxy
-			if (!empty($this->_tmp['proxy_grouping'][$child_assetid])) {
-				$valid_parents = array_unique(array_values($this->_tmp['proxy_grouping'][$child_assetid]));
-				$parents = array_intersect($valid_parents, $parents);
+			$grouping_by_proxy_type = FALSE;
+			foreach ($restrict_types['type_code'] as $group_type) {
+				if (isset($proxy_settings[$group_type])) {
+					$grouping_by_proxy_type = TRUE;
+					break;
+				}
+			}
+			if ($grouping_by_proxy_type) {
+				if (!empty($this->_tmp['proxy_grouping'][$child_assetid])) {
+					$valid_parents = array_unique(array_values($this->_tmp['proxy_grouping'][$child_assetid]));
+					$parents = array_intersect($valid_parents, $parents);
+				}
 			}
 		}
 		return $parents;
