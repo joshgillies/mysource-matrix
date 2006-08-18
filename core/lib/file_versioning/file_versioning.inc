@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.26 2006/02/09 23:14:56 lwright Exp $
+* $Id: file_versioning.inc,v 1.27 2006/08/18 00:15:44 rhoward Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -707,15 +707,17 @@ class File_Versioning
 	*/
 	function _validateFileVersion($rep_file, $info)
 	{
-		// work out if its a relative or absolute path
-		if (substr($rep_file, 0, 1) != '/') {
-			$rep_file = $this->_dir.'/'.$rep_file;
+		// work out if its a relative or absolute path, and whether or not
+		// the prefix has already been added
+		$dir_prefix = $this->_dir.'/';
+		if (substr($rep_file, 0, 1) != '/' && substr($rep_file, 0, strlen($dir_prefix)) != $dir_prefix) {
+			$rep_file = $dir_prefix.$rep_file;
 		}
 
 		$existing_version = $info['version'];
 		$exists = file_exists($rep_file.',ffv'.$existing_version);
 
-		// we our file is real, so lets do some hash checks
+		// our file is real, so lets do some hash checks
 		if ($exists) {
 			if ($info['md5'] && $info['sha1']) {
 				$current = $rep_file.',ffv'.$existing_version;
