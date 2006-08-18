@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.120 2006/08/11 03:29:56 amiller Exp $
+* $Id: search_manager.inc,v 1.121 2006/08/18 07:08:13 tbarrett Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.120 $
+* @version $Revision: 1.121 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -588,7 +588,11 @@ class Search_Manager extends Asset
 
 			// ask the asset for its content, and store it under a contents component
 			// we don't want to index any tags so strip them
-			$contents = strtolower(strip_tags(html_entity_decode($asset->getContent())));
+
+			$contents = strtolower($asset->getContent());
+			// strip tags and replace with whitespace so as to preserve word boundaries
+			$contents = preg_replace('/<\/?[^>]+>/i', ' ', $contents);
+			$contents = html_entity_decode($contents, ENT_NOQUOTES);
 			if (trim($contents) != '') {
 				foreach (get_word_counts($contents) as $word => $count) {
 					$index_content[] = Array(
