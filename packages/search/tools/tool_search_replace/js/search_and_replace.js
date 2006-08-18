@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_and_replace.js,v 1.2 2005/05/16 06:36:50 lwright Exp $
+* $Id: search_and_replace.js,v 1.2.4.1 2006/08/18 06:06:13 tbarrett Exp $
 *
 */
 
@@ -28,8 +28,11 @@ function toggleTBodyDisplay(elt)
 	while (table.tagName != 'TABLE') {
 		table = table.parentNode;
 	}
-	var tbody = table.getElementsByTagName('TBODY')[0];
-	tbody.style.display = (tbody.style.display == 'none') ? '' : 'none';
+	tb = table.firstChild;
+	while (tb.tagName != 'TBODY') {
+		tb = tb.nextSibling;
+	}
+	tb.style.display = (tb.style.display == 'none') ? '' : 'none';
 	updateGlobalLinks();
 }
 
