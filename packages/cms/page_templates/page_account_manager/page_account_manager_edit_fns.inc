@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.20 2006/05/24 23:06:25 sdanis Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.21 2006/08/18 06:21:35 bcaldwell Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -192,7 +192,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header-header" <?php echo ($write_access ? 'colspan="2"' : ''); ?>>
+				<td class="sq-backend-table-header-header" <?php echo ($write_access ? 'colspan="4"' : ''); ?>>
 				<?php
 					if ($asset_offset > 0) {
 						?><a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_asset_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
@@ -259,6 +259,8 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 				<?php
 					if ($write_access) {
 						?><td class="sq-backend-table-header"><?php echo translate('cms_account_manager_validate'); ?></td><?php
+						?><td class="sq-backend-table-header"><?php echo translate('cms_account_manager_pending'); ?></td><?php
+						?><td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
 					}
 				?>
 			</tr>
@@ -270,7 +272,9 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 				<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($userid, 'details'); ?></td>
 				<?php
 					if ($write_access) {
-						?><td width="10%" class="sq-backend-table-cell"><?php check_box($prefix.'_validate['.$userid.']'); ?></td><?php
+						?><td width="10%" class="sq-backend-table-cell" style="text-align: center;"><?php radio_button($prefix.'_validate_action['.$userid.']', 'validate'); ?></td><?php
+						?><td width="10%" class="sq-backend-table-cell" style="text-align: center;"><?php radio_button($prefix.'_validate_action['.$userid.']', '', TRUE); ?></td><?php
+						?><td width="10%" class="sq-backend-table-cell" style="text-align: center;"><?php radio_button($prefix.'_validate_action['.$userid.']', 'delete'); ?></td><?php
 					}
 				?>
 
@@ -301,10 +305,24 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		if ($write_access) {
-			$selected_users = array_get_index($_REQUEST, $prefix.'_validate', Array());
-			if (!empty($selected_users)) {
+			$pending_users = array_get_index($_REQUEST, $prefix.'_validate_action', Array());
+
+			$user_actions = Array();
+			foreach ($pending_users as $userid => $action) {
+				if (empty($action)) continue;
+				$user_actions[$action][] = $userid;
+			}
+
+			// validate some users
+			if (!empty($user_actions['validate'])) {
 				// queue up a hipo to loop through the users, validating each one
-				quick_hipo($asset->id, 'hipoValidateUser', array_keys($selected_users), Array(), TRUE);
+				quick_hipo($asset->id, 'hipoValidateUser', $user_actions['validate'], Array(), TRUE);
+			}
+
+			// delete some users
+			if (!empty($user_actions['delete'])) {
+				// queue up a hipo to loop through the users, deleting them
+				quick_hipo($asset->id, 'hipoDeleteUser', $user_actions['delete'], Array(), TRUE);
 			}
 		}
 		return $write_access;

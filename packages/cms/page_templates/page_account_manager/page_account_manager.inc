@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.44 2006/04/30 23:28:43 tbarrett Exp $
+* $Id: page_account_manager.inc,v 1.45 2006/08/18 06:21:35 bcaldwell Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -709,6 +709,51 @@ class Page_Account_Manager extends Page_Asset_Builder
 		return $validated;
 
 	}//end hipoValidateUser()
+
+
+	/**
+	* A Quick HIPO callback function that deletes a user that is passetd to it
+	*
+	* @param mixed	$index		The index of the item currently being processed
+	* @param mixed	$item		The complete list of items to process
+	* @param mixed	$settings	An array containing whatever settings this Quick HIPO requires
+	*
+	* @return boolean
+	* @access public
+	*/
+	function hipoDeleteUser($index, $item, $settings)
+	{
+		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($item);
+		$GLOBALS['SQ_SYSTEM']->am->trashAsset($item);
+
+		// trick the user asset into thinking we're purging the
+		// assets (which we are, just not from the trash), so it
+		// will release its hold on its inbox and workspace
+		$GLOBALS['SQ_PURGING_TRASH'] = TRUE;
+
+			// Delete the inbox and remove its URLs
+			$inbox_link = $user->getInboxLink();
+			$inbox =& $GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid']);
+			$GLOBALS['SQ_SYSTEM']->am->trashAsset($inbox->id);
+			$inbox->updateLookups();
+
+			// Delete the workspace and remove its URLs
+			$workspace =& $user->getWorkspace();
+			$GLOBALS['SQ_SYSTEM']->am->trashAsset($workspace->id);
+			$workspace->updateLookups();
+
+			$inbox->delete(FALSE);
+			$workspace->delete(FALSE);
+
+		$GLOBALS['SQ_PURGING_TRASH'] = FALSE;
+
+		// Delete the account
+		$user->delete(FALSE);
+		unset($user);
+
+		return TRUE;
+
+	}//end hipoDeleteUser()
 
 
 	/**
