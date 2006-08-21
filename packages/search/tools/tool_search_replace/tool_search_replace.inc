@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.17 2006/01/27 00:48:04 dmckee Exp $
+* $Id: tool_search_replace.inc,v 1.17.2.1 2006/08/21 04:15:23 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -274,7 +274,7 @@ class Tool_Search_Replace extends Tool
 						$asset_contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
 
 						foreach ($asset_contents as $contents_id => $contents_value) {
-							if (preg_match("/$search_string/i", $contents_value)) {
+							if (preg_match('/'.htmlentities($search_string).'/i', $contents_value) || preg_match("/".($search_string)."/i", $contents_value)) {
 								$formatted_results[$assetid]['contents'][$contents_id] = $contents_value;
 							}
 						}
