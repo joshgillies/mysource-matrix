@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.14 2005/11/29 22:47:24 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.14.4.1 2006/08/21 00:08:13 tbarrett Exp $
 *
 */
 -->
@@ -43,7 +43,7 @@
 	<section name="Asset Locations">
 		<field>
 			<display_name>Link Types</display_name>
-			<note>Only assets that are linked underneath the root node(s) with the appropriate link types will be listed. The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links. This setting only applies when &lt;b&gt;Direct Links Only&lt;/b&gt; is turned on.</note>
+			<note>This setting only applies when &lt;em&gt;Direct Links Only &lt;/em&gt; is turned on.  Assets will only be listed if their link to a root node is of one of the link types selected here.  The default is to show links visible in the asset map, that is TYPE_1 and TYPE_2 links.</note>
 			<function_call>
 				<paint_function   name="paintLinkTypes"  />
 				<process_function name="processLinkTypes" />
@@ -51,11 +51,11 @@
 		</field>
 		<field attribute="min_depth">
 			<display_name>Minimum Depth/Height</display_name>
-			<note>Optional setting that defines the minimum number of levels below/above a root node an asset must be to qualify for listing. The immediate child/parent is level '1' for the purposes of this and the Maximum Depth/Height setting. Only makes sense when &lt;b&gt;Direct Links Only&lt;/b&gt; is turned off.</note>
+			<note>This optional setting only applies when &lt;em&gt;Direct Links Only &lt;/em&gt; is turned off.  If a number is entered here, assets must be at least this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'.</note>
 		</field>
 		<field attribute="max_depth">
 			<display_name>Maximum Depth/Height</display_name>
-			<note>Optional setting that defines the maximum number of levels below/above a root node an asset can be to qualify for listing.</note>
+			<note>This optional setting only applies when &lt;em&gt;Direct Links Only &lt;/em&gt; is turned off.  If a number is entered here, assets must be no more than this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'.</note>
 		</field>
 	</section>
 	<section name="Button Text">
