@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.59.2.2 2006/07/07 01:34:23 rong Exp $
+* $Id: listing_engine_management.inc,v 1.59.2.3 2006/08/21 04:09:27 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59.2.2 $
+* @version $Revision: 1.59.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -232,6 +232,15 @@ class Listing_Engine_Management extends Asset_Management
 										   );
 
 		$this->vars['root_in_lineage'] = Array(
+											'added'			=> '1.0',
+											'type'			=> 'boolean',
+											'default'		=> FALSE,
+											'parameters'	=> Array(
+																'allow_empty'	=> FALSE,
+															   ),
+										 );
+
+		$this->vars['self_in_lineage'] = Array(
 											'added'			=> '1.0',
 											'type'			=> 'boolean',
 											'default'		=> FALSE,

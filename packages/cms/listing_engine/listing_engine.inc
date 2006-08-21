@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.180.2.3 2006/08/07 01:08:45 skim Exp $
+* $Id: listing_engine.inc,v 1.180.2.4 2006/08/21 04:09:27 skim Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.180.2.3 $
+* @version $Revision: 1.180.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1937,6 +1937,7 @@ class Listing_Engine extends Page
 						$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, 'root');
 						$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
 						$show_root = $this->attr('root_in_lineage');
+						$show_self = $this->attr('self_in_lineage');
 
 						// multiple urls, let's work out which one to use
 						// none includes root node. pick the first one
@@ -1953,6 +1954,8 @@ class Listing_Engine extends Page
 							$urls[$idx]['linked_lineage']		= '';
 							$urls[$idx]['lineage_full']		= '';
 							$urls[$idx]['linked_lineage_full']	= '';
+
+							if (!$show_self) array_pop($lineage_array);
 
 							foreach ($lineage_array as $lineage_item) {
 
