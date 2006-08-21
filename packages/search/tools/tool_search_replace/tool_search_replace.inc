@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.19 2006/08/18 07:06:25 tbarrett Exp $
+* $Id: tool_search_replace.inc,v 1.20 2006/08/21 02:31:05 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -192,7 +192,7 @@ class Tool_Search_Replace extends Tool
 			return FALSE;
 		}
 
-		$formatted_results = Tool_Search_Replace::getFormattedResults($search_results, htmlentities($_REQUEST[$type_code.'_search_string']));
+		$formatted_results = Tool_Search_Replace::getFormattedResults($search_results, $_REQUEST[$type_code.'_search_string']);
 
 		// after formatting the results, there were no real replaceable matches
 		if (empty($formatted_results)) {
@@ -203,7 +203,7 @@ class Tool_Search_Replace extends Tool
 		$vars = Array(
 					'root_assetid'		=> $root_assetid,
 					'search_data'		=> $formatted_results,
-					'search_string'		=> htmlentities($_REQUEST[$type_code.'_search_string']),
+					'search_string'		=> $_REQUEST[$type_code.'_search_string'],
 					'replace_string'	=> $_REQUEST[$type_code.'_replace_string'],
 					'match_case'		=> isset($_REQUEST[$type_code.'_match_case']),
 				);
@@ -256,7 +256,7 @@ class Tool_Search_Replace extends Tool
 						$asset_contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
 
 						foreach ($asset_contents as $contents_id => $contents_value) {
-							if (preg_match("/$search_string/i", $contents_value)) {
+							if (preg_match("/".htmlentities($search_string)."/i", $contents_value) || preg_match("/".($search_string)."/i", $contents_value)) {
 								$formatted_results[$assetid]['contents'][$contents_id] = $contents_value;
 							}
 						}
