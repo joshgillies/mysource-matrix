@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.5 2006/01/30 04:28:08 sdanis Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.5.4.1 2006/08/21 02:38:17 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -355,12 +355,16 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 				foreach ($contents['attributes'] as $index => $value) {
 					preg_match_all("/$search_string/i", $value, $matches);
 					$search_count[$assetid] += count($matches[0]);
+					preg_match_all('/'.htmlentities($search_string).'/i', $value, $matches);
+					$search_count[$assetid] += count($matches[0]);
 					unset($matches);
 				}
 			}
 			if (isset($contents['contents'])) {
 				foreach ($contents['contents'] as $index => $value) {
 					preg_match_all("/$search_string/i", $value, $matches);
+					$search_count[$assetid] += count($matches[0]);
+					preg_match_all('/'.htmlentities($search_string).'/i', $value, $matches);
 					$search_count[$assetid] += count($matches[0]);
 					unset($matches);
 				}
@@ -369,12 +373,16 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 				foreach ($contents['metadata'] as $index => $value) {
 					preg_match_all("/$search_string/i", $value['value'], $matches);
 					$search_count[$assetid] += count($matches[0]);
+					preg_match_all('/'.htmlentities($search_string).'/i', $value, $matches);
+					$search_count[$assetid] += count($matches[0]);
 					unset($matches);
 				}
 			}
 			if (isset($contents['schema'])) {
 				foreach ($contents['schema'] as $index => $value) {
 					preg_match_all("/$search_string/i", $value['value'], $matches);
+					$search_count[$assetid] += count($matches[0]);
+					preg_match_all('/'.htmlentities($search_string).'/i', $value, $matches);
 					$search_count[$assetid] += count($matches[0]);
 					unset($matches);
 				}
@@ -981,6 +989,13 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			$offset = $result + strlen($needle);
 			$result = strpos($haystack, $needle, $offset);
 		}
+		$offset = 0;
+		$result = strpos($haystack, htmlentities($needle));
+		while (FALSE !== $result) {
+			$occurrences[] = $result;
+			$offset = $result + strlen($needle);
+			$result = strpos($haystack, htmlentities($needle), $offset);
+		}
 		return $occurrences;
 
 	}//end _getOccurrences()
@@ -1002,15 +1017,18 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	{
 		if (empty($offsets)) return $haystack;
 		$search_len = strlen($needle);
+		$encoded_search_len = strlen(htmlentities($needle));
 		$result_str = '';
 		$last_offset = 0;
 		foreach ($offsets as $id => $offset) {
+			$encoded = (strtolower(substr($haystack, $offset, $search_len)) != strtolower($needle));
+			$this_search_len = $encoded ? $encoded_search_len : $search_len;
 			$rep_str = $new_needle;
 			if ($case_match) {
-				$rep_str = $this->_matchCapitals(substr($haystack, $offset, $search_len), $new_needle);
+				$rep_str = $this->_matchCapitals(substr($haystack, $offset, $this_search_len), $new_needle);
 			}
 			$result_str .= substr($haystack, $last_offset, $offset - $last_offset).$rep_str;
-			$last_offset = $offset + $search_len;
+			$last_offset = $offset + $this_search_len;
 		}
 		$result_str .=  substr($haystack, $last_offset);
 		return $result_str;
@@ -1075,10 +1093,13 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	*/
 	function _printHighlightedMatch($needle, $haystack, $offset)
 	{
+		if (substr($haystack, $offset, strlen($needle)) != $needle) {
+			$needle = htmlentities($needle);
+		}
 		$back_limit = $this->_findBackBreak($haystack, $offset);
 		$forward_limit = $this->_findForwardbreak($haystack, $offset + strlen($needle));
 		echo htmlentities(ltrim(substr($haystack, $back_limit, $offset - $back_limit), '\n\r'));
-		echo '<span style="background:yellow">'.substr($haystack, $offset, strlen($needle)).'</span>';
+		echo '<span style="background:yellow">'.$needle.'</span>';
 		echo htmlentities(rtrim(substr($haystack, $offset + strlen($needle), $forward_limit - ($offset + strlen($needle)))));
 
 	}//end _printHighlightedMatch()
