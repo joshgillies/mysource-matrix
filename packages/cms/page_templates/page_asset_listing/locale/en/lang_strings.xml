@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2005/07/21 04:11:30 skim Exp $
+* $Id: lang_strings.xml,v 1.5 2006/08/21 00:00:35 tbarrett Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -28,8 +28,8 @@
 <string source="cms_listing_page_asset_count">Assets Listed On This Page</string>
 <string source="cms_listing_first_asset_position">First Asset on Page's Position Number</string>
 <string source="cms_listing_last_asset_position">Last Asset on Page's Position Number</string>
-<string source="cms_listing_no_asset_types_chosen">No asset types have been chosen</string>
 <string source="cms_listing_edit_group_format">Edit Group Format</string>
 <string source="cms_listing_unique_asset_count">Number of unique assets</string>
+<string source="cms_listing_no_link_types_selected">No link types have been selected - &lt;b&gt;no assets will be displayed&lt;/b&gt;</string>
 
 </strings>
