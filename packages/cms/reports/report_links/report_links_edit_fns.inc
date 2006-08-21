@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.9.2.1 2006/04/06 06:39:46 arailean Exp $
+* $Id: report_links_edit_fns.inc,v 1.9.2.2 2006/08/21 05:25:14 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9.2.1 $
+* @version $Revision: 1.9.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -231,7 +231,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			} else {
 			// otherwise lets traul the contents for a matching anchor
 				foreach ($contents as $content) {
-					if (preg_match('/<a name="'.$link[2].'">/', $content, $matches)) {
+					if (preg_match('/<a\s+(name|id)="#?'.$link[2].'"(\s+(name|id)="#?'.$link[2].'")?>/', $content, $matches)) {
 						$anchorExists = TRUE;
 						break;
 					}
