@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.37 2006/03/31 03:42:23 lwright Exp $
+* $Id: asset_status_under_construction.inc,v 1.37.2.1 2006/08/21 06:43:16 rong Exp $
 *
 */
 
@@ -33,12 +33,11 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 * Valid Transitions
 *    UNDER_CONSTRUCTION -> ARCHIVED         if user is an admin
 *    UNDER_CONSTRUCTION -> PENDING_APROVAL  if there is a workflow and user has write access
-*    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin OR
-*                                           there is workflow but current user's approval will complete
-*                                           the workflow and all required metadata is complete
+*    UNDER_CONSTRUCTION -> APPROVED         if there is a workflow and user is admin
+*    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.37.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
