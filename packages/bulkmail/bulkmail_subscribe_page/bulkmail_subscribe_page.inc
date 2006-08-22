@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.6.2.2 2006/07/04 22:58:41 rong Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.6.2.3 2006/08/22 05:27:27 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.6.2.2 $
+* @version $Revision: 1.6.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -233,7 +233,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		foreach ($child_links as $child_link) {
 			$available_locations[] = $child_link['assetid'];
 		}
-		
+
 		//if the root node is a user group and has the correct status, include it
 		$root_node =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('root_node'));
 		if (is_a($root_node, 'user_group') && in_array($root_node->status, $statuses)) {
@@ -302,7 +302,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$unsubscriptions = array_get_index($_GET, 'unsubscribe', Array());
 		$subscriptions = empty($subscriptions) ? Array() : explode(',', $subscriptions);
 		$unsubscriptions = empty($unsubscriptions) ? Array() : explode(',', $unsubscriptions);
-		
+
 		if (empty($subscriptions) && empty($unsubscriptions)) {
 			return;
 		}
@@ -396,6 +396,22 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 
 		$subscriptions = array_get_index($_REQUEST, $this->getPrefix().'_subscriptions', Array());
 		$unsubscriptions = array_get_index($_REQUEST, $this->getPrefix().'_unsubscriptions', Array());
+
+		// if the values are not passed as an array, force it into an array
+		if (!is_array($subscriptions)) {
+			if (empty($subscriptions)) {
+				$subscriptions = Array();
+			} else {
+				$subscriptions = Array($subscriptions);
+			}
+		}
+		if (!is_array($unsubscriptions)) {
+			if (empty($unsubscriptions)) {
+				$unsubscriptions = Array();
+			} else {
+				$unsubscriptions = Array($unsubscriptions);
+			}
+		}
 		if (empty($subscriptions) && empty($unsubscriptions)) {
 			return;
 		}
@@ -525,6 +541,22 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	{
 		$subscriptions = array_get_index($_REQUEST, $this->getPrefix().'_subscriptions', Array());
 		$unsubscriptions = array_get_index($_REQUEST, $this->getPrefix().'_unsubscriptions', Array());
+
+		// if the values are not passed as an array, force it into an array
+		if (!is_array($subscriptions)) {
+			if (empty($subscriptions)) {
+				$subscriptions = Array();
+			} else {
+				$subscriptions = Array($subscriptions);
+			}
+		}
+		if (!is_array($unsubscriptions)) {
+			if (empty($unsubscriptions)) {
+				$unsubscriptions = Array();
+			} else {
+				$unsubscriptions = Array($unsubscriptions);
+			}
+		}
 		if (empty($subscriptions) && empty($unsubscriptions)) {
 			return;
 		}
