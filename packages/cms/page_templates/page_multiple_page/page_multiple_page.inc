@@ -11,7 +11,7 @@
 * | Please refer to http:// www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page.inc,v 1.17 2006/06/29 01:57:20 tbarrett Exp $
+* $Id: page_multiple_page.inc,v 1.18 2006/08/22 05:03:53 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -242,38 +242,48 @@ class Page_Multiple_Page extends Page
 	*/
 	function linksUpdated()
 	{
-		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes', 0, TRUE);
+
+		$AM = $GLOBALS['SQ_SYSTEM']->am;
+
+		$AM->acquireLock($this->id, 'attributes', 0, TRUE);
 		// This is bugging out so we can delay the updating of our web paths
 		if (isset($this->_tmp['deleting_links']) && $this->_tmp['deleting_links'] == TRUE) {
 			return TRUE;
 		}
 		$current_children = array_flip($this->attr('current_page_ids'));
 
+
+		// Work out new ordering and web paths
 		$new_page_children = Array();
 		$page_links = $this->getPageLinks();
-		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$new_paths = Array();
 		foreach ($page_links as $data) {
 			$new_page_children[] = $data['minorid'];
-			$page =& $am->getAsset($data['minorid']);
+			$page =& $AM->getAsset($data['minorid']);
 			unset($current_children[$data['minorid']]);
 			$paths = $page->getWebPaths();
 			$new_paths[strval(intval($data['sort_order']) + 1)] = &$page;
 			$page->saveWebPaths(Array());
 		}
 
-		foreach ($current_children as $id => $bla) {
-			$deleted =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
-			if (!is_null($deleted)) {
-				$deleted->saveWebPaths(Array());
+
+		// whatever is left in current_children now are the deleted children
+		foreach (array_keys($current_children) as $id) {
+			$asset_to_delete_paths_from =& $AM->getAsset($id);
+			if (!is_null($asset_to_delete_paths_from)) {
+				$asset_to_delete_paths_from->saveWebPaths(Array());
 			}
+			$AM->forgetAsset($asset_to_delete_paths_from);
 		}
 
 		parent::linksUpdated();
 
+
 		foreach ($new_paths as $path => $asset) {
 			$asset->saveWebPaths(Array($path));
+			$AM->forgetAsset($asset);
 		}
+
 
 		// This will store all current pages,
 		$this->setAttrValue('current_page_ids', $new_page_children);
