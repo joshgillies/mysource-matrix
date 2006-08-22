@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.555 2006/07/14 05:36:40 tbarrett Exp $
+* $Id: asset.inc,v 1.556 2006/08/22 05:14:32 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.555 $
+* @version $Revision: 1.556 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3684,7 +3684,7 @@ class Asset extends MySource_Object
 			// otherwise they can edit if they have permission access
 			return $this->_checkPermissionAccess($perm, Array(), $only_workflow);
 
-		}// end if
+		}//end else
 
 	}//end checkAccess()
 
@@ -4272,7 +4272,12 @@ class Asset extends MySource_Object
 			return TRUE;
 		}
 
+
 		//// CHECK INSERTED PATHS ////
+
+		// change db connection because in a nested db transaction lookup on db1 may not produce a valid result
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+
 		// to make sure that they path name is not in use by any of our siblings
 		$inserts = array_diff($save_paths, $current_paths);
 		if (!empty($inserts)) {
@@ -4285,12 +4290,12 @@ class Asset extends MySource_Object
 				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, $inserts, $this->id);
 				if (!empty($bad_paths)) {
 					trigger_localised_error('SYS0201', E_USER_WARNING, implode('", "', $bad_paths), $parent->name);
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
 			}
 		}// end if inserts
 
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
