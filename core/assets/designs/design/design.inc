@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.114.2.1 2006/07/17 23:03:31 lwright Exp $
+* $Id: design.inc,v 1.114.2.2 2006/08/22 04:27:00 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.114.2.1 $
+* @version $Revision: 1.114.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -559,7 +559,7 @@ echo '<!--   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 if (!empty($SQ_PRIMARY_URL)) {
 	?>
 	<script type="text/javascript" src="<?php echo sq_web_path(\'lib\'); ?>/js/JsHttpConnector.js"></script>
-	<script type="text/javascript" src="<?php echo sq_web_path(\'lib\'); ?>/session/session.php?in_primary=<?php echo (sq_web_path(\'root_url\') == $SQ_PRIMARY_URL) ? 1 : 0; ?>&site_network=<?php echo $SQ_SITE_NETWORK->id; ?>"></script>
+	<script type="text/javascript" src="<?php echo $SQ_PRIMARY_URL; ?>/__lib/session/session.php?in_primary=<?php echo (sq_web_path(\'root_url\') == $SQ_PRIMARY_URL) ? 1 : 0; ?>&site_network=<?php echo $SQ_SITE_NETWORK->id; ?>"></script>
 	<?php
 	if (sq_web_path(\'root_url\') != $SQ_PRIMARY_URL) {
 		?>

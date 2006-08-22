@@ -21,7 +21,7 @@ function reload_browser($do_js_request=false, $site_network)
 		<html>
 			<head>
 				<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/JsHttpConnector.js"></script>
-				<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/session/session.php?in_primary=<?php echo (sq_web_path('root_url') == $primary_url) ? 1 : 0; ?>&site_network=<?php echo $site_network->id; ?>"></script>
+				<script type="text/javascript" src="<?php echo $primary_url; ?>/__lib/session/session.php?in_primary=<?php echo (sq_web_path('root_url') == $primary_url) ? 1 : 0; ?>&site_network=<?php echo $site_network->id; ?>"></script>
 				<script type="text/javascript">
 					<?php
 						if ($do_js_request) {
