@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_network.inc,v 1.9 2006/04/26 23:28:02 sdanis Exp $
+* $Id: site_network.inc,v 1.10 2006/08/22 04:46:39 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -197,6 +197,7 @@ class Site_Network extends Folder
 				$primary_url = 'http://'.$primary_url;
 			}
 
+			$primary_url = strip_url(sq_root_url($primary_url));
 			$this->_tmp['primary_url'] = $primary_url;
 		}
 
