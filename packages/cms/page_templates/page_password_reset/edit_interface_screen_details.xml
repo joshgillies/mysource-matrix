@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2005/12/02 00:40:31 bcaldwell Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2006/08/22 23:15:13 skim Exp $
 *
 */
 -->
@@ -27,7 +27,7 @@
 	</section>
 	<section name="Request Validation" write_access="write:attributes">
 		<field attribute="request_email_format">
-			<email_format />
+			<email_format with_asset_finder="1" />
 		</field>
 	</section>
 </contents>
