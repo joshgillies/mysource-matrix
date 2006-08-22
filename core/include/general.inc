@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.120.2.10 2006/07/14 07:03:41 tbarrett Exp $
+* $Id: general.inc,v 1.120.2.11 2006/08/22 03:42:56 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.120.2.10 $
+* @version $Revision: 1.120.2.11 $
 * @package MySource_Matrix
 */
 
@@ -462,6 +462,45 @@ function sq_web_path($path='base')
 	return $paths[$path];
 
 }//end sq_web_path()
+
+
+/**
+* Returns the root url closest to the passed url
+*
+* @param string		$url			url the user wants to match closest to
+* @param boolean	$inc_protocol	whether to include protocol info in the result
+*
+* @return string
+*/
+function sq_root_url($url, $inc_protocol=TRUE)
+{
+	// see sq_web_path('root_url') for more info
+	$protocol = ($inc_protocol) ? array_get_index(parse_url($url), 'scheme', 'http').'://' : '';
+	$current_url = strip_url($url);
+	$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+
+	// if we are in the backend strip the suffix
+	if (SQ_IN_BACKEND) {
+		$current_url = preg_replace('/\\/'.SQ_CONF_BACKEND_SUFFIX.'$/', '', $current_url);
+	}
+	$tmp = $root_urls[0];
+	for ($i = 1; $i < count($root_urls); $i++) {
+		if (substr($current_url, 0, strlen($root_urls[$i])) == $root_urls[$i]) {
+			// if the current tmp has the same start
+			if (substr($tmp, 0, strlen($root_urls[$i])) == $root_urls[$i]) {
+				// then we only use it if it's a longer (and therefore closer) string
+				if (strlen($tmp) < strlen($root_urls[$i])) {
+					$tmp = $root_urls[$i];
+				}
+			} else {
+				$tmp = $root_urls[$i];
+			}
+		}
+	}
+
+	return strip_url($protocol.preg_replace('/\/index.php$/', '', $tmp));
+
+}//end sq_root_url()
 
 
 /**
