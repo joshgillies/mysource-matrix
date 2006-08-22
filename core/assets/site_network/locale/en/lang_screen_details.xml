@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:39:53 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.1.4.1 2006/08/22 03:43:16 rong Exp $
 *
 */
 -->
@@ -31,7 +31,7 @@
 		</field>
 		<field>
 			<display_name>Primary URL</display_name>
-			<note>Select a Site within the Site Network to use as the primary site. The first URL assigned to the Site will be used as the primary URL.</note>
+			<note>Select a Site within the Site Network to use as the primary site. The Root URL assigned to the first Site will be used as the primary URL.</note>
 			<function_call>
 				<paint_function   name="paintPrimaryURL"  />
 				<process_function name="processPrimaryURL" />
