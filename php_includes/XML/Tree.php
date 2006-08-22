@@ -19,7 +19,7 @@
 // |          Michele Manzato <michele.manzato@verona.miz.it>             |
 // +----------------------------------------------------------------------+
 //
-// $Id: Tree.php,v 1.5 2005/07/26 00:51:56 mmcintyre Exp $
+// $Id: Tree.php,v 1.5.4.1 2006/08/22 06:04:28 lwright Exp $
 //
 
 // MM: See line 293 for why we override this file
@@ -288,9 +288,12 @@ class XML_Tree extends XML_Parser
             if (!empty($this->cdata)) {
                 $parent_id = 'obj' . ($this->i - 1);
                 $parent    =& $this->$parent_id;
-             // Squiz: (MM) we have to comment out this line so that we don't get new XML_Tree_Nodes
-             // for whitespace betweeen nodes
-             // $parent->children[] = &new XML_Tree_Node(null, $this->cdata, null, $lineno);
+                // Squiz: (MM/LWr) We have to handle this differently because we
+                // don't want XML_Tree_Node objects created for whitespace
+                // between nodes. But it's still valid when it's not whitespace...
+                if (trim($this->cdata) != '') {
+                    $parent->children[] = &new XML_Tree_Node(null, $this->cdata, null, $lineno);
+                }
             }
             $obj_id = 'obj' . $this->i++;
             $this->$obj_id = &new XML_Tree_Node($elem, null, $attribs, $lineno);
