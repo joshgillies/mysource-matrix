@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.60.2.2 2006/07/20 00:04:10 rong Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.60.2.3 2006/08/23 23:42:26 rong Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.60.2.2 $
+* @version $Revision: 1.60.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1410,15 +1410,19 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		$o->openField(translate('cms_listing_default_sort_by_option'));
 
+			foreach ($sort_by_list as $key => $list) {
+				// to get rid of the empty options
+				if (empty($list)) unset($sort_by_list[$key]);
+			}
 			if (empty($sort_by_list)) {
 				$asset->setAttrValue('default_sort_by', 0);
 				echo 'No Sorting';
 				return FALSE;
 			}
+			$last_index = count($sort_by_list) - 1;
 
 			$names = Array();
 			$default =  $asset->attr('default_sort_by');
-			$last_index = count($sort_by_list) - 1;
 
 			// bug fix 1513, move 'No Sorting' option to the end
 			if ($sort_by_list[$last_index]['name'] != 'No Sorting') {
@@ -1440,6 +1444,14 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				}
 
 				// move 'No Sorting' to the end, and update the attributes
+				if (empty($no_sort)) {
+					// 3.6 to 3.8, no sorting not yet added
+					$no_sort = Array (
+								'params'	=> Array ('field'	=> ''),
+								'type'		=> '',
+								'name'		=> 'No Sorting',
+							   );
+				}
 				$reordered[] = $no_sort;
 				$sort_by_list = $reordered;
 				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
