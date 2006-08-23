@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.25 2006/05/29 06:50:56 skim Exp $
+* $Id: lang_strings.xml,v 1.25.2.1 2006/08/23 22:52:14 skim Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -48,7 +48,7 @@
 <string source="cms_listing_asset_position">Asset Position</string>
 <string source="cms_listing_asset_position_even">even</string>
 <string source="cms_listing_asset_position_odd">odd</string>
-<string source="cms_listing_asset_position_odd_even">Asset's possition is odd or even</string>
+<string source="cms_listing_asset_position_odd_even">Asset's position is odd or even</string>
 <string source="cms_listing_asset_selection">Asset Selection</string>
 <string source="cms_listing_asset_selection_check_all">Asset Selection Check All (%s)</string>
 <string source="cms_listing_asset_selection_check_all_in_group">Asset Selection Check All In Group (%s)</string>
