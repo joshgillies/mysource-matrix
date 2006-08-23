@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.20 2006/01/26 22:35:23 lwright Exp $
+* $Id: form_ecommerce.inc,v 1.21 2006/08/23 23:11:10 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -485,17 +485,21 @@ class Form_Ecommerce extends Form_Email
 		if ($as_html) {
 			$receipt_fmt   = '<hr /><table class="sq_ecomTable">%s%s</table><hr />';
 			$order_row_fmt = '<tr class="sq_ecomTableItemRow"><td class="sq_ecomTableItemName">%s</td><td class="sq_ecomTableItemValue" align="right">%01.2f</td></tr>';
+			$divider_row = '<tr class="sq_ecomTableItemRow"><td class="sq_ecomTableItemName">&nbsp;</td><td class="sq_ecomTableItemValue" align="right"><hr /></td></tr>';
 			$total_row_fmt = '<tr class="sq_ecomTableTotalRow"><td class="sq_ecomTableTotalName" align="right">%s</td><td class="sq_ecomTableTotalValue" align="right">$%01.2f</td></tr>';
 		} else {
 			$receipt_fmt   = strtoupper(translate('ecom_form_receipt:'))."\n############################\n%s\n%s\n############################";
 			$order_row_fmt = "%s: %01.2f\n";
-			$total_row_fmt = "*** %s: $%01.2f ***\n";
+			$divider_row = "----------------------------\n";
+			$total_row_fmt = "*** %s $%01.2f ***\n";
 		}
 
 		$rows = '';
 		foreach ($order['items'] as $item) {
 			$rows .= sprintf($order_row_fmt, $item['name'], $item['price']);
 		}
+
+		$rows .= $divider_row;
 
 		$total   = sprintf($total_row_fmt, translate('ecom_form_total:'), $order['total']);
 		$receipt = sprintf($receipt_fmt, $rows, $total);
