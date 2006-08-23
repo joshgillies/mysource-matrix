@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.55.2.4 2006/07/20 00:03:51 rong Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.55.2.5 2006/08/23 23:42:17 rong Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.55.2.4 $
+* @version $Revision: 1.55.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -572,7 +572,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	* @param string $bodycopy_description	the description to label the bodycopy with
 	* @param string	$root_assetid			the id of the asset to look under for bodycopies; NULL indicates the listing_engine asset itself
 	*
-	* @returns void
+	* @return void
 	* @access private
 	*/
 	function _paintDefaultFormatLink($root_assetid, $bodycopy_name, $bodycopy_description)
@@ -592,7 +592,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			</tr>
 			<?php
 		}
-	}
+
+	}//end _paintDefaultFormatLink()
+
 
 	/**
 	* Paint the interface for Group Formats
@@ -603,7 +605,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*
 	* @return boolean
 	* @access public
-	 */
+	*/
 	function paintGroupFormatLinks(&$asset, &$o, $prefix)
 	{
 		// first lets get the bodycopies we want
@@ -1399,16 +1401,20 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		$o->openField(translate('cms_listing_default_sort_by_option'));
 
+			foreach ($sort_by_list as $key => $list) {
+				// to get rid of the empty options
+				if (empty($list)) unset($sort_by_list[$key]);
+			}
 			if (empty($sort_by_list)) {
 				$asset->setAttrValue('default_sort_by', 0);
 				echo 'No Sorting';
 				return FALSE;
 			}
+			$last_index = count($sort_by_list) - 1;
 
 			$names = Array();
 			$default =  $asset->attr('default_sort_by');
-			$last_index = count($sort_by_list) - 1;
-			
+
 			// bug fix 1513, move 'No Sorting' option to the end
 			if ($sort_by_list[$last_index]['name'] != 'No Sorting') {
 				// if 'No Sort' is not at the end, find and move it
@@ -1426,10 +1432,18 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					} else {
 						$reordered[] = $info;
 					}
-					
+
 				}
-				
+
 				// move 'No Sorting' to the end, and update the attributes
+				if (empty($no_sort)) {
+					// 3.6 to 3.8, no sorting not yet added
+					$no_sort = Array (
+								'params'	=> Array ('field'	=> ''),
+								'type'		=> '',
+								'name'		=> 'No Sorting',
+							   );
+				}
 				$reordered[] = $no_sort;
 				$sort_by_list = $reordered;
 				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -1437,7 +1451,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$asset->setAttrValue('sort_by', $sort_by_list);
 				$asset->saveAttributes();
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-			}
+			}//end if
 
 			foreach ($sort_by_list as $id => $info) {
 				$names[$id] = $info['name'];
@@ -1592,7 +1606,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 												if ($i != 0) {
 													?><a href="#" onclick="sortOrderMoveUp(<?php echo $id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "<?php echo translate('move_up'); ?>");</script></a><?php
 												}
-	
+
 												if ($i != count($sort_by_list) - 2) {
 													?><a href="#" onclick="sortOrderMoveDown(<?php echo $id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "<?php echo translate('move_down'); ?>");</script></a><?php
 												}
@@ -1607,7 +1621,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							<?php
 
 							$i++;
-						}
+						}//end foreach
 					?>
 			</table>
 		<?php
@@ -1649,7 +1663,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		if ($save) {
 			$asset->setAttrValue('sort_by', $save_list);
-			
+
 			// list order changed
 			$default_sort_by = $asset->attr('default_sort_by');
 			if ($sort_order[$default_sort_by] != $default_sort_by) {
@@ -1660,7 +1674,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					}
 				}
 			}
-			
+
 			return TRUE;
 		}
 		return FALSE;
