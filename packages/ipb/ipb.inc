@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.6 2006/02/16 01:18:03 gsherwood Exp $
+* $Id: ipb.inc,v 1.7 2006/08/23 01:59:53 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage ipb
 */
@@ -719,7 +719,7 @@ class Ipb
 	*/
 	function getMemberInfoByName($member_name)
 	{
-		$sql = $this->_buildQuery('*', 'members', 'm', ' WHERE m.name=\''.$member_name.'\'', ' LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'member_extra me ON me.id=m.id');
+		$sql = $this->_buildQuery('*', 'members', 'm', ' WHERE m.name=\''.htmlspecialchars($member_name, ENT_QUOTES).'\'', ' LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'member_extra me ON me.id=m.id');
 
 		return $this->_getResult($sql, Array(), TRUE);
 
