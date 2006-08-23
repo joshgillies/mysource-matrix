@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.135 2006/08/09 01:18:13 skim Exp $
+* $Id: file.inc,v 1.136 2006/08/23 23:06:23 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.135 $
+* @version $Revision: 1.136 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -543,7 +543,7 @@ class File extends Asset
 				}
 			}
 		} else {
-			// need to make sure our file is in the NOT in the public data directory
+			// need to make sure our file is NOT in the public data directory
 			if (is_file($unrestricted)) {
 				$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 				if ($fv->clearOut($unrestricted) & FUDGE_FV_OK) {
