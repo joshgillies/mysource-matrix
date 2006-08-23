@@ -18,7 +18,7 @@
 * | licence.                                                      |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.27 2006/02/21 04:14:49 emcdonald Exp $
+* $Id: dev.inc,v 1.28 2006/08/23 22:59:41 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 *     Generic functions that are useful for developers
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package Fudge
 * @subpackage dev
 */
@@ -467,7 +467,7 @@ function log_dump($var=NULL)
 	if (is_null($var)) {
 		$var = '---------- Debugging ----------';
 	}
-	error_log($count++.': '.get_calling_func().': '.print_r($var, 1));
+	error_log("\n".$count++.': '.get_calling_func().": \n".print_r($var, 1));
 
 }//end log_dump()
 
