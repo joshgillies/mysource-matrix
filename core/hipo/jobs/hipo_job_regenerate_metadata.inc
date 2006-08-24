@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.26.2.2 2006/06/16 03:41:50 sdanis Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.26.2.3 2006/08/24 23:54:48 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26.2.2 $
+* @version $Revision: 1.26.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -208,7 +208,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 		$this->_running_vars['done_assetids'] = Array();
 
 		foreach ($this->_running_vars['schemaids'] as $schemaid) {
-			$this->_running_vars['todo_assetids'] += $mm->getSchemaAssets($schemaid, TRUE);
+			$this->_running_vars['todo_assetids'] = array_merge($this->_running_vars['todo_assetids'], $mm->getSchemaAssets($schemaid, TRUE));
 		}
 
 		// if nothing to do, bail out
@@ -222,7 +222,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 
 
 	/**
-	* Regenerate Metatdata for a single asset in the todo list
+	* Regenerate Metadata for a single asset in the todo list
 	*
 	* @param array	&$step_data	a reference to the array of information about the current step
 	* @param string	$prefix		prefix for form vars
