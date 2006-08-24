@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.25 2006/07/17 01:20:22 rhoward Exp $
+* $Id: text.inc,v 1.26 2006/08/24 01:25:51 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package Fudge
 * @subpackage Text
 */
@@ -170,6 +170,23 @@ function escape_double_quotes(&$subject)
 	$subject = str_replace('"', '\"', $subject);
 
 }//end escape_double_quotes()
+
+
+/**
+* Escape dangerous content (eg. <?php, <?, <script language="php">) by reference
+*
+* @param string	&$subject	subject
+*
+* @return void
+* @access public
+*/
+function escape_php(&$subject)
+{
+	// not necessary to escape the php end tag when outside of a PHP block
+	$subject = str_replace('<?', "<?php echo '<'.'?'; ?>", $subject);
+	$subject = preg_replace('/<script[^>]*language=[^>]*php[^>]*>/i', "<?php echo '<'.'script language=\"php\">\'; ?>", $subject);
+
+}//end escape_php()
 
 
 /**
