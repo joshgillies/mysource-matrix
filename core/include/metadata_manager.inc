@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.110.2.3 2006/05/03 05:55:37 bcaldwell Exp $
+* $Id: metadata_manager.inc,v 1.110.2.4 2006/08/24 01:26:25 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.110.2.3 $
+* @version $Revision: 1.110.2.4 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -798,7 +798,7 @@ class Metadata_Manager extends MySource_Object
 						// we have a nested field name
 						for ($i = 0; $i < count($nested_tag_values); $i++) {
 							if (isset($nested_tag_values[$i][$field_name])) {
-								$v = preg_replace('|(\$metadata_values)(\[\')('.$field_name.')(\'\])|', '$metadata_values_'.$i.'[\'\\3\']', $v);
+								$v = preg_replace('|(\$metadata_values)(\[\')('.preg_quote($field_name, '|').')(\'\])|', '$metadata_values_'.$i.'[\'\\3\']', $v);
 								if ($i >= $nested_index) $nested_index = $i + 1;
 								break;
 							}
@@ -807,15 +807,15 @@ class Metadata_Manager extends MySource_Object
 				}
 
 				$nested_tag_values[$nested_index][$n] = $v;
-				$tag_nested_index[$n] = $nested_index;
+				$tag_nested_index[$this->escapeMetadata($n, TRUE)] = $nested_index;
 			}
 
 			foreach ($nested_tag_values as $i => $values) {
 				echo '$metadata_values_'.$i.' = Array(';
 				foreach ($values as $n => $v) {
+					$n = $this->escapeMetadata($n, TRUE);
 					$v = stripslashes($v);
-					$v = preg_replace('%\'%', '\\\'', $v);
-					$v = preg_replace('%\"%', '&quot;', $v);
+					$v = $this->escapeMetadata($v, TRUE);
 					$v = preg_replace('|(\$metadata_replacements\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
 					$v = preg_replace('|(\$metadata_values[^\[]+\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
 					echo "'$n' => '$v',\n";
@@ -829,8 +829,8 @@ class Metadata_Manager extends MySource_Object
 
 		$metadata_matches = Array();
 		preg_match_all('|\$metadata_values\[\'([^\]]+)\'\]|', $metadata_str, $metadata_matches);
-		foreach ($metadata_matches[1] as $field_name) {
-			$metadata_str = preg_replace('|\$metadata_values\[\''.$field_name.'\'\]|', '$metadata_values_'.$tag_nested_index[$field_name].'[\''.$field_name.'\']', $metadata_str);
+		foreach ($metadata_matches[1] as $escaped_field_name) {
+			$metadata_str = preg_replace('|\$metadata_values\[\''.preg_quote($escaped_field_name, '|').'\'\]|', '$metadata_values_'.$tag_nested_index[$escaped_field_name].'[\''.$escaped_field_name.'\']', $metadata_str);
 		}
 
 		$metadata_str = $php_str."\n\n".$metadata_str;
@@ -1120,8 +1120,8 @@ class Metadata_Manager extends MySource_Object
 							// Print the asset variety of a thumbnail
 							$variety_name = substr($keyword, 18);
 							if (!$thumbnail_generated) {
-								echo '$thumbnail = null;';
-								echo 'if ($metadata_asset->id) {';
+								echo '$thumbnail = null;'."\n";
+								echo 'if ($metadata_asset->id) {'."\n";
 								echo '    $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
 								echo '    if (!empty($link)) {'."\n";
 								echo '        $thumbnail =& $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\'], $link[\'minor_type_code\']);'."\n";
@@ -1423,6 +1423,41 @@ class Metadata_Manager extends MySource_Object
 		return TRUE;
 
 	}//end setMetadataFieldDefaultValue()
+
+
+	/**
+	* Escapes the passed value to be used inside quotes in a block of PHP (eg.
+	* when the field names and values are cached out to each asset's metadata.php)
+	*
+	* @var string	$value			the value to escape
+	* @var boolean	$escape_single	whether or not the apostrophes are escaped with backslashes; defaults to FALSE
+	*
+	* @return string
+	* @access public
+	*/
+	function escapeMetadata($value, $escape_single=FALSE)
+	{
+		if ($escape_single) {
+			$value = str_replace("'", "\'", $value);
+		}
+
+		// escape only html-specific chars for the moment
+		$value = htmlspecialchars($value);
+
+		// escape everything else (chars > 126)
+		$result = '';
+		for($i = 0; $i < strlen($value); ++$i) {
+			$ord = ord($value[$i]);
+			if($ord >= 126) {
+				$result .= "&#".$ord.";";
+			} else {
+				$result .= $value[$i];
+			}
+		}
+
+		return $result;
+
+	}//end escapeMetadataField()
 
 
 }//end class

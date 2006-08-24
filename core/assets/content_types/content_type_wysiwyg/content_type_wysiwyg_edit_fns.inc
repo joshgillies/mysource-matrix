@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.22.2.6 2006/07/07 06:09:01 rhoward Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.22.2.7 2006/08/24 01:26:24 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22.2.6 $
+* @version $Revision: 1.22.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -274,9 +274,9 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$html = $asset->attr('html');
 		$html = preg_replace('|(<htmlarea_special[^>]*?>)(.*?)(</htmlarea_special>)|si', '$2', $html);
 		if ($generating) {
-			// escape dangerous content, eg. <?php, <?, <script language="php">
-			$html = str_replace('<?', "<?php echo '<'.'?'; ?>", $html);
-			$html = preg_replace('/<script[^>]*language=[^>]*php[^>]*>/i', '<?php echo \'<\'.\'script language="php">\'; ?>', $html);
+			// escape dangerous content
+			require_once SQ_FUDGE_PATH.'/general/text.inc';
+			escape_php($html);
 		}
 		echo $html;
 
