@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.25.2.1 2006/02/09 23:40:06 lwright Exp $
+* $Id: file_versioning.inc,v 1.25.2.2 2006/08/24 04:21:47 bcaldwell Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25.2.1 $
+* @version $Revision: 1.25.2.2 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -735,16 +735,18 @@ class File_Versioning
 		// attempt recovery from private
 		if (copy(SQ_DATA_PATH.'/private/'.$info['path'].'/'.$info['filename'], $destination)) {
 			if ($this->_updateFileVersion($destination, $info['fileid'], $info['version'])) {
-				trigger_localised_error('FVER0029', E_USER_WARNING, $info['version'], translate('data').' '.translate('private'));
 				return true;
+			} else {
+				trigger_localised_error('FVER0029', E_USER_WARNING, $info['version'], translate('data').' '.translate('private'));
 			}
 		}
 
 		// attempt recovery from public
 		if (@copy(SQ_DATA_PATH.'/public/'.$info['path'].'/'.$info['filename'], $destination)) {
 			if ($this->_updateFileVersion($destination, $info['fileid'], $info['version'])) {
-				trigger_localised_error('FVER0029', E_USER_WARNING, $info['version'], translate('data').' '.translate('public'));
 				return true;
+			} else {
+				trigger_localised_error('FVER0029', E_USER_WARNING, $info['version'], translate('data').' '.translate('public'));
 			}
 		}
 
