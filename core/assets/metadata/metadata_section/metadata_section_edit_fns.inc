@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.33 2006/06/16 03:43:00 sdanis Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.33.2.1 2006/08/24 01:26:11 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -312,7 +312,8 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		// if we aren't printing this on the frontend then don't print anything
 		if (!$frontend_option) return TRUE;
 
-		echo "<!-- $asset->name //-->\n";
+		$mm =& $GLOBALS['SQ_SYSTEM']->mm;
+		echo '<!-- '.$mm->escapeMetadata($asset->name).' //-->'."\n";
 
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
 		$valid_fields = Array();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.40 2006/02/02 02:29:32 ndvries Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.40.4.1 2006/08/24 01:26:11 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.40.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -361,6 +361,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	function generateMetadata(&$asset, $value_str, &$tag_value, &$keywords)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
+		$mm =& $GLOBALS['SQ_SYSTEM']->mm;
 
 		$frontend_option = $asset->attr('frontend');
 		// if we aren't printing this on the frontend then don't print anything
@@ -391,15 +392,15 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			return TRUE;
 		}
 
-		echo '<meta name="'.$asset->name.'"';
+		echo '<meta name="'.$mm->escapeMetadata($asset->name).'"';
 		if (trim($asset->attr('language')) != '') {
-			echo ' lang="'.$asset->attr('language').'"';
+			echo ' lang="'.$mm->escapeMetadata($asset->attr('language')).'"';
 		}
 		if (trim($asset->attr('scheme'))   != '') {
-			echo ' scheme="'.$asset->attr('scheme').'"';
+			echo ' scheme="'.$mm->escapeMetadata($asset->attr('scheme')).'"';
 		}
 
-		echo ' content="<?php echo $metadata_values[\''.$asset->name.'\']; ?>" />'."\n";
+		echo ' content="<?php echo $metadata_values[\''.$mm->escapeMetadata($asset->name, TRUE).'\']; ?>" />'."\n";
 
 		$tag_value = $value_str;
 

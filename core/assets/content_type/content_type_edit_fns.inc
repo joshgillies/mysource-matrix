@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_edit_fns.inc,v 1.9.2.1 2006/07/07 05:15:17 rhoward Exp $
+* $Id: content_type_edit_fns.inc,v 1.9.2.2 2006/08/24 01:26:11 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9.2.1 $
+* @version $Revision: 1.9.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,9 +74,9 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	{
 		$output =  $asset->attr('html');
 		if ($generating) {
-			// escape dangerous content, eg. <?php, <?, <script language="php">
-			$output = str_replace('<?', "<?php echo '<'.'?'; ?>", $output);
-			$output = preg_replace('/<script[^>]*language=[^>]*php[^>]*>/i', '<?php echo \'<\'.\'script language="php">\'; ?>', $output);
+			// escape dangerous content
+			require_once SQ_FUDGE_PATH.'/general/text.inc';
+			escape_php($output);
 		}
 		echo $output;
 
