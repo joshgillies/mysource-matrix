@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.64 2006/08/23 23:42:35 rong Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.65 2006/08/24 00:23:13 rong Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1481,6 +1481,13 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 				// move 'Random' to the before 'No Sort', and update the attributes
 				$last_item = array_pop($reordered);
+				if (empty($random_sort)) {
+					$random_sort = Array (
+									'params'	=> Array ('field'	=> ''),
+									'type'		=> '',
+									'name'		=> 'Random',
+								   );
+				}
 				$reordered[] = $random_sort;
 				$reordered[] = $last_item;
 				$sort_by_list = $reordered;
