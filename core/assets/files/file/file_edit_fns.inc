@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.75 2006/08/23 23:03:28 arailean Exp $
+* $Id: file_edit_fns.inc,v 1.76 2006/08/24 02:14:58 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -268,7 +268,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			return FALSE;
 		}
 
-		if (SQ_IN_LIMBO && $name_changed && $redirect_in_limbo) {
+		if (SQ_IN_LIMBO && $name_changed && $redirect_in_limbo && !isset($_REQUEST['limbo_assetid'])) {
 			// if we are in limbo and the name of the file has changed, the URL will also change
 			// so we need to redirect to the new limbo URL
 			$o->setRedirect(strip_url($asset->getUrl()).'/'.SQ_CONF_LIMBO_SUFFIX);
