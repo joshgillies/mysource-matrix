@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_data_dirs.php,v 1.4 2006/07/19 00:08:33 skim Exp $
+* $Id: upgrade_data_dirs.php,v 1.5 2006/08/24 00:38:05 skim Exp $
 *
 */
 
 /**
 *
 * @author Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -305,12 +305,14 @@ function process_file_versioning($base_dir, $curr_dir)
 						$file_path = $file_data[0];
 						$file_name = $file_data[1];
 
-						$result =& $db->query('BEGIN');
-						if (PEAR::isError($result)) {
-							$db->disconnect();
-							print_log("[fileid:$fileid :(] transaction can not start. ".$result->getMessage(), 0, TRUE);
-							_generate_result_report();
-							exit();
+						if ($db->phptype != 'oci8') {
+							$result =& $db->query('BEGIN');
+							if (PEAR::isError($result)) {
+								$db->disconnect();
+								print_log("[fileid:$fileid :(] transaction can not start. ".$result->getMessage(), 0, TRUE);
+								_generate_result_report();
+								exit();
+							}
 						}
 
 						$sql = 'UPDATE
@@ -370,7 +372,9 @@ function fix_lookups($asset_type, $hash, $assetid)
 						WHERE
 							url = '.$db->quoteSmart($url);
 
-				$result =& $db->query('BEGIN');
+				if ($db->phptype != 'oci8') {
+					$result =& $db->query('BEGIN');
+				}
 				$result =& $db->query($sql);
 				if (PEAR::isError($result)) {
 					print_log($result->getMessage(), 0, TRUE);
@@ -419,7 +423,9 @@ function fix_lookups($asset_type, $hash, $assetid)
 										url = '.$db->quoteSmart($key);
 						}
 
-						$result =& $db->query('BEGIN');
+						if ($db->phptype != 'oci8') {
+							$result =& $db->query('BEGIN');
+						}
 						$result =& $db->query($sql);
 						if (PEAR::isError($result)) {
 							print_log($result->getMessage(), 0, TRUE);
@@ -551,7 +557,9 @@ function _process_public_dir_lookup($base_dir, $curr_dir, $assetid)
 
 					}//end switch
 
-					$result =& $db->query('BEGIN');
+					if ($db->phptype != 'oci8') {
+						$result =& $db->query('BEGIN');
+					}
 					if (PEAR::isError($result)) {
 						print_log($result->getMessage(), 0, TRUE);
 						$db->disconnect();
