@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.70.2.1 2006/05/19 01:28:45 rong Exp $
+* $Id: file_edit_fns.inc,v 1.70.2.2 2006/08/24 04:18:07 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.70.2.1 $
+* @version $Revision: 1.70.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -205,7 +205,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			if ($asset->usePublicPath()) {
 				$unrestricted = $asset->data_path_public.'/'.$existing['filename'];
 				if (file_exists($unrestricted)) {
-					unlink($unrestricted);
+					$fv->clearOut($unrestricted);
 				}
 			}
 		}
