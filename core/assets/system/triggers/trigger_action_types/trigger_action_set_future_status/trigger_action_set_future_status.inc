@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.10 2006/05/09 04:56:43 skim Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.10.2.1 2006/08/25 01:57:17 bcaldwell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -94,18 +94,19 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		// bail if we cannot set the asset that this cron job is to update
+		if (!$fs->setAssetToUpdate($state['asset'])) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+		
 		if ($cron_mgr->addJob($fs, $user_for_status_change)) {
 			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($fs->id, 'links')) {
-				if ($fs->setAssetToUpdate($state['asset'])) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					$is_updated = TRUE;
-					$GLOBALS['SQ_SYSTEM']->am->releaseLock($fs->id, 'links');
-				} else {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return FALSE;
-				}
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				$is_updated = TRUE;
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($fs->id, 'links');
 			} else {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
