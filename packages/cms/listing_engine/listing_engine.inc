@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.186 2006/08/21 04:07:19 skim Exp $
+* $Id: listing_engine.inc,v 1.187 2006/08/25 06:02:36 bcaldwell Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.186 $
+* @version $Revision: 1.187 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1569,6 +1569,10 @@ class Listing_Engine extends Page
 						break;
 
 						case 'metadata':
+							// we already worked this information out somewhere else
+							$group_name = $group_level;
+						break;
+
 						case 'standard_asset':
 							// format type codes for printing
 							if (isset($remaining_groups['field']) && $remaining_groups['field'] == 'type_code') {
