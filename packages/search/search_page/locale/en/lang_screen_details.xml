@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.16 2006/08/21 04:07:24 skim Exp $
+* $Id: lang_screen_details.xml,v 1.17 2006/08/25 06:42:15 skim Exp $
 *
 */
 -->
@@ -74,7 +74,7 @@
 			<note></note>
 		</field>
 		<field attribute="self_in_lineage">
-			<display_name>Show itself in lineage</display_name>
+			<display_name>Show result asset in lineage</display_name>
 			<note></note>
 		</field>
 		<field attribute="submit_button_text">
