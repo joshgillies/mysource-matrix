@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.129 2006/05/28 23:10:51 lwright Exp $
+* $Id: file.inc,v 1.129.2.1 2006/08/27 23:49:07 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.129 $
+* @version $Revision: 1.129.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -984,6 +984,10 @@ class File extends Asset
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
 			return;
 		}
+
+		// we want to tell mysource::start() that it should not try to replace
+		// keywords in this output, it could be a binary file after all
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
 
 		$existing = $this->getExistingFile();
 		if (!empty($existing)) {

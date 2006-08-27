@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.186.2.2 2006/07/17 05:09:13 lwright Exp $
+* $Id: mysource.inc,v 1.186.2.3 2006/08/27 23:48:43 bcaldwell Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.186.2.2 $
+* @version $Revision: 1.186.2.3 $
 * @package MySource_Matrix
 */
 class MySource
@@ -441,7 +441,9 @@ class MySource
 				$content = ob_get_contents();
 			ob_end_clean();
 
-			$this->_replaceKeyword($content);
+			if ($this->getGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', TRUE)) {
+				$this->_replaceKeyword($content);
+			}
 			echo $content;
 
 		}//end else backend/limbo
