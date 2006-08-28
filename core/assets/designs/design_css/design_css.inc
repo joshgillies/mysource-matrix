@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.20 2006/03/08 23:22:48 tbarrett Exp $
+* $Id: design_css.inc,v 1.21 2006/08/28 02:12:31 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -93,6 +93,25 @@ class Design_Css extends Design
 		return TRUE;
 
 	}//end _preCreateCheck()
+
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* For example, creating other child assets should be performed in this method
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return FALSE;
+		$this->_createCacheFile();
+		return TRUE;
+
+	}//end _createAdditional()
 
 
 	/**
@@ -409,14 +428,14 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		// status of the cache_css attribute has gone from FALSE to TRUE or strip_whitespace has changed,
 		// we've gotta update the static cache to reflect that this has changed.
 		if ($regen && !$this->_tmp['updated_cache']) {
-			$this->generateStaticFile();
+			$this->_updateCacheFile();
 			$am =& $GLOBALS['SQ_SYSTEM']->am;
 			$customisation_links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', TRUE, 'major', 'customisation');
 
 			foreach ($customisation_links as $link) {
 				$customisation =& $am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
-				$customisation->generateStaticFile();
+				$customisation->_updateCacheFile();
 			}// end foreach
 		}
 
@@ -438,7 +457,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		parent::generateDesignFile($do_customisations);
 
 		if ($this->attr('cache_css')) {
-			$this->generateStaticFile();
+			$this->_updateCacheFile();
 		}
 
 	}//end generateDesignFile()
@@ -474,10 +493,8 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	* @return boolean
 	* @access public
 	*/
-	function generateStaticFile()
+	function _updateCacheFile()
 	{
-		// See if the cache file asset already exists.
-		/* @var $am Asset_Manager */
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// Generate the CSS static file. Note that we've turned error_reporting off for this
@@ -490,24 +507,21 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		ob_end_clean();
 		error_reporting($old_level);
 
-		$cache_link =& $am->getLink($this->id, SQ_LINK_TYPE_3, 'file', 'false', 'css_cache');
+		$cache_link = $am->getLink($this->id, SQ_LINK_TYPE_3, 'file', FALSE, 'css_cache');
 		if (empty($cache_link)) {
-			$cache_asset = $this->createCache();
+			$cache_asset = $this->_createCacheFile();
 		} else {
 			$cache_asset =& $am->getAsset($cache_link['minorid']);
 		}
-
 		if ($cache_asset == NULL) return FALSE;
 
 		// Strip excess whitespace
 		if ($this->attr('strip_whitespace')) {
 			$file_contents = preg_replace('/\s+/is', ' ', $file_contents);
 		}
-		/* @var $cache_asset File */
 		$existing = $cache_asset->getExistingFile();
 		string_to_file($file_contents, $existing['path']);
 
-		/* @var $fv File_Versioning */
 		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		$file_status = $fv->upToDate($cache_asset->data_path.'/'.$cache_asset->_getName());
 		if (FUDGE_FV_MODIFIED & $file_status) {
@@ -519,7 +533,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		$this->_tmp['updated_cache'] = TRUE;
 		return $cache_asset->_updated();
 
-	}//end generateStaticFile()
+	}//end _updateCacheFile()
 
 
 	/**
@@ -528,16 +542,14 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	* @return string
 	* @access public
 	*/
-	function getStaticCacheId()
+	function getCacheFileId()
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$cache_link = $am->getLink($this->id, SQ_LINK_TYPE_3, 'file', 'false', 'css_cache');
-		if (empty($cache_link) || !$this->attr('cache_css')) {
-			return 0;
-		}
+		if (empty($cache_link)) return 0;
 		return $cache_link['minorid'];
 
-	}//end getStaticCacheId()
+	}//end getCacheFileId()
 
 
 	/**
@@ -546,7 +558,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	* @return object
 	* @access public
 	*/
-	function &createCache()
+	function &_createCacheFile()
 	{
 		$null = NULL;
 
@@ -555,8 +567,9 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		if (substr($filename, -4) != '.css') {
 			$filename .= '.css';
 		}
-
-		
+		if (!is_dir($this->data_path)) {
+			create_directory($this->data_path);
+		}
 		if (!string_to_file('', $this->data_path.'/'.$filename)) {
 			return $null;
 		}
@@ -578,7 +591,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 		return $new_file;
 
-	}//end createCache()
+	}//end _createCacheFile()
 
 
 	/**
@@ -656,5 +669,4 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 
 }//end class
-
 ?>
