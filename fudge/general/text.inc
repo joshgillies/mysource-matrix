@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.23.2.1 2006/08/24 01:26:26 rhoward Exp $
+* $Id: text.inc,v 1.23.2.2 2006/08/28 06:00:45 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23.2.1 $
+* @version $Revision: 1.23.2.2 $
 * @package Fudge
 * @subpackage Text
 */
@@ -130,7 +130,7 @@ function retrieve_keywords_replacements($text, $additional='')
 * @return array
 * @access public
 */
-function get_word_counts($text, $split_regexp="[\t\n\r ]+", $word_match_regexp="[^ \t\n\r]+", $min_length=1)
+function get_word_counts($text, $split_regexp="/[\t\n\r ]+/", $word_match_regexp="/[^ \t\n\r]+/", $min_length=1)
 {
 	// type verification
 	if (!is_string($text) || !is_string($split_regexp) || !is_string($word_match_regexp) || !is_int($min_length)) {
@@ -139,18 +139,21 @@ function get_word_counts($text, $split_regexp="[\t\n\r ]+", $word_match_regexp="
 		return Array();
 	}
 
-	$words = split($split_regexp, $text);
+	$words = preg_split($split_regexp, $text);
 
+	$silent_chars = Array('.', ':', ';', ',', '!', '?', '\'', '"', '(', ')');
 	foreach ($words as $key => $word) {
-		$words[$key] = trim($word, '.:;,!?\'"');
+		$words[$key] = trim(str_replace($silent_chars, '', $word));
 	}
+
 
 	$word_counts = array_count_values($words);
 	foreach ($word_counts as $word => $count) {
-		if (strlen($word) < $min_length || !ereg($word_match_regexp, $word, $matches)) {
+		if (strlen($word) < $min_length || !preg_match($word_match_regexp, $word, $matches)) {
 			unset($word_counts[$word]);
 		}
 	}
+
 	return $word_counts;
 
 }//end get_word_counts()

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.97.2.14 2006/08/21 04:15:23 tbarrett Exp $
+* $Id: search_manager.inc,v 1.97.2.15 2006/08/28 06:03:08 skim Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97.2.14 $
+* @version $Revision: 1.97.2.15 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -587,6 +587,10 @@ class Search_Manager extends Asset
 			$contents = preg_replace('/<\/?[^>]+>/i', ' ', $contents);
 			$contents = html_entity_decode($contents, ENT_NOQUOTES);
 
+			// html_entity_decode does not converts '$nbsp;' into an empty string.
+			// Check the function documentation from httpwww.php.net
+			$contents = str_replace('&nbsp;', ' ', $contents);
+
 			if (trim($contents) != '') {
 				foreach (get_word_counts($contents) as $word => $count) {
 					$index_content[] = Array(
@@ -667,7 +671,6 @@ class Search_Manager extends Asset
 		}//end foreach
 
 		if (empty($param_data)) return FALSE;
-
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
