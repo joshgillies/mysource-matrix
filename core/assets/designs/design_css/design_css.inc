@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.21 2006/08/28 02:12:31 tbarrett Exp $
+* $Id: design_css.inc,v 1.22 2006/08/28 02:54:14 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -583,11 +583,14 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		$new_file =& new File();
 		$new_file->_tmp['uploading_file'] = TRUE;
 		$new_file->setAttrValue('name', $filename);
+		$new_file->setAttrValue('allow_unrestricted', FALSE);
 
 		if (!$new_file->create($import_link, $temp_info)) {
 			trigger_localised_error('CORE0058', E_USER_WARNING, $filename);
 			return $null;
 		}
+
+		$new_file->saveWebPaths(Array());
 
 		return $new_file;
 
@@ -663,9 +666,51 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		}
 
 		// Now we just include the design file to get it to print
-		require_once $file_path;
+		if (file_exists($file_path)) require_once $file_path;
 
 	}//end paint()
+
+
+	/**
+	* Save attrs to the DB
+	*
+	* @return void
+	* @access public
+	*/
+	function saveAttributes()
+	{
+		if (!parent::saveAttributes()) {
+			return FALSE;
+		}
+		if ($this->id) $this->_setCacheFileEnabled($this->attr('cache_css'));
+		return TRUE;
+
+	}//end saveAttributes()
+
+
+	/**
+	* Enable or disable the cache file, by setting or clearing its web paths
+	*
+	* @param boolean	$enabled	Whether the cache should be enabled
+	*
+	* @return void
+	* @access public
+	*/
+	function _setCacheFileEnabled($enabled)
+	{
+		$cache_id = $this->getCacheFileId();
+		$cache_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($cache_id);
+		if (empty($cache_url) == $enabled) {
+			// it either has a url but shouldn't or doesn't have a url but should
+			$cache_file =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cache_id);
+			$paths = $enabled ? Array($cache_file->name) : Array();
+			$cache_file->saveWebPaths($paths);
+			$cache_file->setAttrValue('allow_unrestricted', $enabled);
+			$cache_file->saveAttributes();
+		}
+
+	}//end _setCacheFileEnabled()
+
 
 
 }//end class
