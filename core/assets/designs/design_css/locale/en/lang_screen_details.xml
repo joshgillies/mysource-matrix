@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2006/08/28 02:12:31 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.5 2006/08/28 03:01:51 tbarrett Exp $
 *
 */
 -->
@@ -52,7 +52,7 @@
 		<field attribute="cache_css">
 			<display_name>Use Static Cache File?</display_name>
 		</field>
-		<note>If caching is enabled and this asset is live and has public read access granted, a static file representation of this CSS file will be served, thus placing less load on the web server.  However, when caching is enabled contextual design areas such as menus will not function.</note>
+		<note>If this option is enabled and this asset is live and has public read access granted, a static file representation of this CSS file will be served, thus reducing the load on the web server.  Note, however, that contextual design areas such as menus will not function when the static cache file is used.</note>
 	</section>
 	<section name="Associated Files">
 		<field>
