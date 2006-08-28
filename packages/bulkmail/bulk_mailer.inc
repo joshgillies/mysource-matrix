@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.51 2006/02/03 05:31:41 sdanis Exp $
+* $Id: bulk_mailer.inc,v 1.51.2.1 2006/08/28 03:22:13 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.51 $
+* @version $Revision: 1.51.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -366,10 +366,15 @@ class Bulk_Mailer
 	*/
 	function _reconnectDB()
 	{
-			$GLOBALS['SQ_SYSTEM']->db->disconnect();
-			unset($GLOBALS['SQ_SYSTEM']->_db_conns);
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		// need to reset both, so that other processes wont break
+		if (!empty($GLOBALS['SQ_SYSTEM']->_db_conns['db2'])) {
+			$GLOBALS['SQ_SYSTEM']->_db_conns['db2']->disconnect();
+		}
+
+		$GLOBALS['SQ_SYSTEM']->db->disconnect();
+		unset($GLOBALS['SQ_SYSTEM']->_db_conns);
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end _reconnectDB()
 
