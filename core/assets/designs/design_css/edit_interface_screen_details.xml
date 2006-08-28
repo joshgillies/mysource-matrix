@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2005/06/27 01:36:01 mnyeholt Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7.4.1 2006/08/28 07:22:47 tbarrett Exp $
 *
 */
 -->
@@ -43,9 +43,9 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Cache CSS File" write_access="write:attributes">
+	<section name="Static Caching" write_access="write:attributes">
 		<field attribute="cache_css">
-			<boolean true_text="on" false_text="off"/>
+			<boolean true_text="yes" false_text="no"/>
 		</field>
 	</section>
 	<section name="Associated Files" write_access="write:parsing" read_access="write:">

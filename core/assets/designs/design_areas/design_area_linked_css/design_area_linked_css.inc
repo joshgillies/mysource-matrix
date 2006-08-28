@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css.inc,v 1.15 2006/06/29 01:55:16 tbarrett Exp $
+* $Id: design_area_linked_css.inc,v 1.15.2.1 2006/08/28 07:22:47 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * Allows you to link to a CSS file or customisation from a standard design
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -146,42 +146,43 @@ class Design_Area_Linked_Css extends Design_Area
 	*/
 	function _printPaintingCode()
 	{
-		$assetid = (int) $this->_getLinkedCSSInfo('minorid');
+		$css_assetid = (int) $this->_getLinkedCSSInfo('minorid');
 
 		// return true because it just means that they haven't set anything yet
-		if (empty($assetid)) return TRUE;
+		if (empty($css_assetid)) return TRUE;
 
-		// Okay, go ahead and get this linked css asset.
-		$linked_css =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		if ($linked_css == NULL) return TRUE;
+		$css_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($css_assetid);
+		$cache_file_assetid = $css_asset->getCacheFileId();
 
-		// Try and get the cached version of the css file. If it exists, we'll use that url,
-		// if not we'll use the url directly to the css file asset itself.
-		$cached_css = $linked_css->getStaticCacheId();
-		if ($cached_css) $assetid = $cached_css;
-
-		$tag_type = $this->attr('tag_type');
-		$media = $this->attr('media');
+		// The code we are about to add to the design file will check if caching
+		// is enabled for the css asset and if so will try to get a URL
+		// from the cache file asset.  But if for any reason it didn't get a
+		// URL for the cache file asset it will use the URL of the CSS asset itself.
 
 		echo '<', '?php
-		$linked_'.$this->attr('id_name').'_url = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetURL('.$assetid.');
-		if (!is_null($linked_'.$this->attr('id_name').'_url)) {
-		','?', '>';
+		$linked_css_'.$this->attr('id_name').'_url = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetURL('.$cache_file_assetid.');
+		if (empty($linked_css_'.$this->attr('id_name').'_url)) {
+			$linked_css_'.$this->attr('id_name').'_url = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetURL('.$css_assetid.');
+		}
+		if (!empty($linked_css_'.$this->attr('id_name').'_url)) {
+			','?', '>
+			';
 
-		switch ($tag_type) {
-			case 'link_tag' :
-				echo '<link rel="stylesheet" type="text/css" href="', '<', '?php echo $linked_'.$this->attr('id_name').'_url; ?', '>', '"';
-				echo ' media="', $media, '" />
-				';
-			break;
-			case 'import_tag' :
-				echo '@import url(', '<', '?php echo $linked_'.$this->attr('id_name').'_url; ?', '>);
-				';
-			break;
-		} //end switch
+			switch ($this->attr('tag_type')) {
+				case 'link_tag' :
+					echo '<link rel="stylesheet" type="text/css" href="', '<', '?php echo $linked_css_'.$this->attr('id_name').'_url; ?', '>', '"';
+					echo ' media="', $this->attr('media'), '" />
+					';
+				break;
+				case 'import_tag' :
+					echo '@import url(', '<', '?php echo $linked_css_'.$this->attr('id_name').'_url; ?', '>);
+					';
+				break;
+			} //end switch
 
 		echo '<', '?php
-		} ?', '>';
+		}
+		?', '>';
 
 	}//end _printPaintingCode()
 
