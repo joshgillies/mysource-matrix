@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.17 2006/01/26 22:34:04 lwright Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.17.4.1 2006/08/28 00:20:11 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -192,7 +192,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 						text_box($prefix.'_value', $value, 30, '', FALSE, ($is_default ? 'disabled="disabled" ' : '').'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
 					}
 					echo ' &nbsp; &nbsp; &nbsp; ';
-					check_box($prefix.'_default', '1', $is_default, 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.addslashes($asset->getDefaultValue()).'\'; } }');
+					check_box($prefix.'_default', '1', $is_default, 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.str_replace("'", "\'", $asset->getDefaultValue()).'\'; } }');
 					echo ' '.translate('use_default');
 				} else {
 					echo $value;
