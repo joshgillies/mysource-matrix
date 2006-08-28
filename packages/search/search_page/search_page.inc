@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.177 2006/08/18 04:07:30 tbarrett Exp $
+* $Id: search_page.inc,v 1.178 2006/08/28 01:18:20 bcaldwell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.177 $
+* @version $Revision: 1.178 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1001,7 +1001,7 @@ class Search_Page extends Listing_Engine
 								break;
 								case 'metadata_field_select' :
 									$selection = $asset->getSelectionAttribute();
-									$selection->setValue($query);
+									if (!empty($query)) $selection->setValue($query);
 									$selection->paint('queries_'.$query_var);
 								break;
 							}//end switch
