@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.25.2.1 2006/08/23 22:52:14 skim Exp $
+* $Id: lang_strings.xml,v 1.25.2.2 2006/08/29 04:14:08 colivar Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -42,7 +42,8 @@
 <string source="cms_listing_root_node_link_desc">The root node of the Asset Listing</string>
 <string source="cms_listing_cannot_delete_type_formats_link">You cannot delete the link between the type formats folder and the %s page</string>
 <string source="cms_listing_cannot_delete_position_formats_link">You cannot delete the link between the position formats folder and the %s page</string>
-<string source="cms_listing_asset_contents">Asset Contents</string>
+<string source="cms_listing_asset_contents">Asset Contents (including paintlayout)</string>
+<string source="cms_listing_asset_contents_raw">Asset Contents (excluding paintlayout)</string>
 <string source="cms_listing_asset_name_linked">Asset Name Linked</string>
 <string source="cms_listing_asset_short_name_linked">Short Asset Name Linked</string>
 <string source="cms_listing_asset_position">Asset Position</string>

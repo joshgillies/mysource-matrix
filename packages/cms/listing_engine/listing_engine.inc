@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.180.2.5 2006/08/25 05:59:56 bcaldwell Exp $
+* $Id: listing_engine.inc,v 1.180.2.6 2006/08/29 04:14:08 colivar Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.180.2.5 $
+* @version $Revision: 1.180.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1572,7 +1572,7 @@ class Listing_Engine extends Page
 							// we already worked this information out somewhere else
 							$group_name = $group_level;
 						break;
-						
+
 						case 'standard_asset':
 							// format type codes for printing
 							if ($remaining_groups['field'] == 'type_code') {
@@ -3112,6 +3112,7 @@ class Listing_Engine extends Page
 		$keywords['asset_position'] = translate('cms_listing_asset_position');
 		$keywords['asset_odd_even'] = translate('cms_listing_asset_position_odd_even');
 		$keywords['root_nodes'] = translate('cms_listing_keyword_root_nodes');
+		$keywords['asset_contents_raw'] = translate('cms_listing_asset_contents_raw');
 
 		// asset selections
 		$selections = $this->attr('asset_selections');
