@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.150.2.19 2006/08/21 04:11:06 skim Exp $
+* $Id: listing_engine.inc,v 1.150.2.20 2006/08/29 04:13:32 colivar Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.150.2.19 $
+* @version $Revision: 1.150.2.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3053,6 +3053,7 @@ class Listing_Engine extends Page
 		$keywords['asset_position'] = translate('cms_listing_asset_position');
 		$keywords['asset_odd_even'] = translate('cms_listing_asset_position_odd_even');
 		$keywords['root_nodes'] = translate('cms_listing_keyword_root_nodes');
+		$keywords['asset_contents_raw'] = translate('cms_listing_asset_contents_raw');
 
 		// asset selections
 		$selections = $this->attr('asset_selections');
