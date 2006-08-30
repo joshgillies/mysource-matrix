@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.101 2006/05/09 05:09:43 sdanis Exp $
+* $Id: page_asset_listing.inc,v 1.102 2006/08/30 00:34:48 colivar Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -150,15 +150,17 @@ class Page_Asset_Listing extends Listing_Engine
 
 			switch ($group_by) {
 				case 'letter' :
+					$min_depth = ($this->attr('min_depth') === '') ? NULL : $this->attr('min_depth');
+					$max_depth = ($this->attr('max_depth') === '') ? NULL : $this->attr('max_depth');
 					foreach ($root_asset_ids as $root_asset_id) {
 						if ($this->attr('direction') == 'down') {
 							$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
-							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, SQ_PERMISSION_READ);
+							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, SQ_PERMISSION_READ, TRUE, $min_depth, $max_depth);
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
 							$table_alias = 'a';
 						} else {
 							$table_alias = 'll';
-							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset_id, array_keys($wanted_types), FALSE, $letter_sort_by, SQ_PERMISSION_READ);
+							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset_id, array_keys($wanted_types), FALSE, $letter_sort_by, SQ_PERMISSION_READ, TRUE, $min_depth, $max_depth);
 						}
 						if (empty($query)) $new_assets_to_list = Array();
 
