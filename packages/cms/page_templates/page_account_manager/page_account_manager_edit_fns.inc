@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.20.2.1 2006/08/18 06:29:36 bcaldwell Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.20.2.2 2006/08/30 02:58:30 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20.2.1 $
+* @version $Revision: 1.20.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -259,7 +259,6 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 				<?php
 					if ($write_access) {
 						?><td class="sq-backend-table-header"><?php echo translate('cms_account_manager_validate'); ?></td><?php
-						?><td class="sq-backend-table-header"><?php echo translate('cms_account_manager_pending'); ?></td><?php
 						?><td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
 					}
 				?>
@@ -272,9 +271,14 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 				<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($userid, 'details'); ?></td>
 				<?php
 					if ($write_access) {
-						?><td width="10%" class="sq-backend-table-cell" style="text-align: center;"><?php radio_button($prefix.'_validate_action['.$userid.']', 'validate'); ?></td><?php
-						?><td width="10%" class="sq-backend-table-cell" style="text-align: center;"><?php radio_button($prefix.'_validate_action['.$userid.']', '', TRUE); ?></td><?php
-						?><td width="10%" class="sq-backend-table-cell" style="text-align: center;"><?php radio_button($prefix.'_validate_action['.$userid.']', 'delete'); ?></td><?php
+						// javascript to uncheck the other option when one is checked
+						$name = $prefix.'_validate_action['.$userid.']';
+						?><td width="10%" class="sq-backend-table-cell" style="text-align: center;"><?php
+							check_box($name, 'validate', FALSE, 'document.getElementById(\''.$prefix.'_delete_'.$userid.'\').checked=0', 'id="'.$prefix.'_validate_'.$userid.'"');
+						?></td><?php
+						?><td width="10%" class="sq-backend-table-cell" style="text-align: center;"><?php
+							check_box($name, 'delete', FALSE, 'document.getElementById(\''.$prefix.'_validate_'.$userid.'\').checked=0', 'id="'.$prefix.'_delete_'.$userid.'"');
+						?></td><?php
 					}
 				?>
 
