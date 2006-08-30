@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.146.2.2 2006/07/27 23:20:34 rong Exp $
+* $Id: lang_strings.xml,v 1.146.2.3 2006/08/30 05:04:13 rhoward Exp $
 *
 */
 
@@ -178,6 +178,7 @@
 	<string source="min_number">Minimum Number</string>
 	<string source="missing_metadata_fields">Missing Metadata Fields</string>
 	<string source="duplicate_metadata_fields">Duplicate Metadata Field(s) found</string>
+	<string source="circular_reference_metadata_field_keywords">Circular Keyword Reference(s) found</string>
 	<string source="move_confirmation">Move Confirmation</string>
 	<string source="nb">NB</string>
 	<string source="name">Name</string>

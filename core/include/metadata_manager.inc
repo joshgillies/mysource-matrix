@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.116.2.1 2006/08/24 01:26:12 rhoward Exp $
+* $Id: metadata_manager.inc,v 1.116.2.2 2006/08/30 05:04:12 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.116.2.1 $
+* @version $Revision: 1.116.2.2 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -772,13 +772,13 @@ class Metadata_Manager extends MySource_Object
 		$metadata_str = ob_get_contents();
 		ob_end_clean();
 
+
 		ob_start();
 			echo '<'.'?php'."\n";
 			if (!empty($keywords)) {
 				require_once SQ_FUDGE_PATH.'/general/text.inc';
 				echo '$am =& $GLOBALS[\'SQ_SYSTEM\']->am;'."\n";
 				echo '$metadata_asset = &$am->getAsset('.$asset->id.', \'\', TRUE);'."\n\n";
-				echo '$metadata_asset =& $GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$asset->id.');'."\n\n";
 				echo '/* 1 */', "\n";
 				$replacements = $this->generateKeywordReplacements($asset, $keywords);
 				echo '/* 2 */', "\n";
@@ -787,38 +787,91 @@ class Metadata_Manager extends MySource_Object
 				echo "\n\n";
 			}
 
-			$nested_tag_values = Array();
-			$tag_nested_index = Array();
-			foreach ($tag_values as $n => $v) {
-				$matches = Array();
-				$nested_index = 0;
-				preg_match_all('|\$metadata_values\[\'([^\]]+)\'\]|', $v, $matches);
-				if (!empty($matches[1])) {
-					foreach ($matches[1] as $field_name) {
-						// we have a nested field name
-						for ($i = 0; $i < count($nested_tag_values); $i++) {
-							if (isset($nested_tag_values[$i][$field_name])) {
-								$v = preg_replace('|(\$metadata_values)(\[\')('.preg_quote($field_name, '|').')(\'\])|', '$metadata_values_'.$i.'[\'\\3\']', $v);
-								if ($i >= $nested_index) $nested_index = $i + 1;
-								break;
-							}
+
+			// the following handles the replacement of the %metadata_field_xxxxx% keywords by
+			// looping over the copy of tag_values (field_list) - if the value doesn't have
+			// any metadata_field keywords, shift it over to the "replaced" list
+
+			// if the value does contain keywords, however, for each keyword check whether or not
+			// replaced_list contains the desired field; do this until all possible keyword
+			// replacements have been made (if everything is replaced, leaving no keywords, this
+			// value will be picked up in the next pass and added to replaced_list)
+
+			// if a pass is completed without any modifications to field_list or replaced_list being
+			// made, we bail out and leave any circular references unreplaced
+			$field_list    = $tag_values;
+			$replaced_list = Array();
+
+			$field_replacements = Array();
+
+			// keep looping until we run out of items to shift over to $replaced_list
+			do {
+				$fields_modified = FALSE;
+				foreach ($field_list as $n => $v) {
+
+					// get all the %metadata_field_xxxxx% keywords in $v
+					$value_keywords = retrieve_keywords_replacements($v);
+
+					// cull any keywords that aren't in the format %metadata_field_xxxxx%
+					$metadata_keywords = Array();
+					foreach ($value_keywords as $keyword) {
+						if (preg_match('/^metadata_field_/', $keyword)) {
+							$metadata_keywords[] = $keyword;
 						}
 					}
-				}
+					$metadata_keywords = array_unique($metadata_keywords);
 
-				$nested_tag_values[$nested_index][$n] = $v;
-				$tag_nested_index[$this->escapeMetadata($n, TRUE)] = $nested_index;
+					// if no metadata_field, put it directly on the $replaced stack,
+					if (empty($metadata_keywords)) {
+						// muck around with the stack; don't touch the original $metadata_values
+						$replaced_list[$n] = $v;
+						$field_replacements['metadata_field_'.$n] = $v;
+
+						unset($field_list[$n]);
+
+						$fields_modified = TRUE;
+
+					} else {
+						// replace all the field references with their replaced_list counterparts
+						// if everything is successfully replaced, leave until next time
+						// to move to replaced_list
+						$pre_replacement = $field_list[$n];
+						replace_keywords($field_list[$n], $field_replacements);
+
+						// if keywords were replaced...
+						if ($pre_replacement != $field_list[$n]) {
+							// mirror value changes back to the original
+							// $metadata_values list, and the keyword replacement list
+							$tag_values[$n] = $field_list[$n];
+							$fields_modified = TRUE;
+						}
+					}//end else (empty($field_refs))
+
+				}//end foreach ($metadata_values)
+			} while ($fields_modified);
+
+			// print the values, to be referenced by the meta tags later
+			echo '$metadata_values = Array(';
+			foreach ($tag_values as $n => $v) {
+				$n = $this->escapeMetadata($n, TRUE);
+				$v = stripslashes($v);
+				$v = $this->escapeMetadata($v, TRUE);
+				// unescape metadata_replacements
+				// leave metadata_values for later - unescape them at runtime
+				$v = preg_replace('|(\$metadata_replacements\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
+				echo "'$n' => '$v',\n";
 			}
+			echo ");\n\n";
 
-			foreach ($nested_tag_values as $i => $values) {
-				echo '$metadata_values_'.$i.' = Array(';
-				foreach ($values as $n => $v) {
+			// print the warnings
+			echo '$metadata_warnings = Array();'."\n";
+
+			// if the field_list is empty, it means we still have keywords left to replace
+			if (!empty($field_list)) {
+				echo '$metadata_warnings[\'keyword_circular_references\'] = Array('."\n";
+				foreach ($field_list as $n => $v) {
 					$n = $this->escapeMetadata($n, TRUE);
-					$v = stripslashes($v);
-					$v = $this->escapeMetadata($v, TRUE);
-					$v = preg_replace('|(\$metadata_replacements\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
-					$v = preg_replace('|(\$metadata_values[^\[]+\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
-					echo "'$n' => '$v',\n";
+					echo "'$n',\n";
 				}
 				echo ");\n";
 			}
@@ -827,11 +880,6 @@ class Metadata_Manager extends MySource_Object
 			$php_str = ob_get_contents();
 		ob_end_clean();
 
-		$metadata_matches = Array();
-		preg_match_all('|\$metadata_values\[\'([^\]]+)\'\]|', $metadata_str, $metadata_matches);
-		foreach ($metadata_matches[1] as $escaped_field_name) {
-			$metadata_str = preg_replace('|\$metadata_values\[\''.preg_quote($escaped_field_name, '|').'\'\]|', '$metadata_values_'.$tag_nested_index[$escaped_field_name].'[\''.$escaped_field_name.'\']', $metadata_str);
-		}
 
 		$metadata_str = $php_str."\n\n".$metadata_str;
 
@@ -1107,8 +1155,9 @@ class Metadata_Manager extends MySource_Object
 
 							// searching for keywords that replace the content of another field
 						} else if (substr($keyword, 0, 15) == 'metadata_field_') {
-							$field_name = substr($keyword, 15);
-							$metadata_replacements[$keyword] = '$metadata_values[\''.$field_name.'\']';
+							// avoid replacing metadata_field_xxxxx keywords until later
+							// override the default replacement with the original keyword
+							$metadata_replacements[$keyword] = '%'.$keyword.'%';
 
 						} else if (substr($keyword, 0, 18) == 'asset_thumbnail_v_') {
 							// Print the asset variety of a thumbnail
@@ -1423,8 +1472,8 @@ class Metadata_Manager extends MySource_Object
 	* Escapes the passed value to be used inside quotes in a block of PHP (eg.
 	* when the field names and values are cached out to each asset's metadata.php)
 	*
-	* @var string	$value			the value to escape
-	* @var boolean	$escape_single	whether or not the apostrophes are escaped with backslashes; defaults to FALSE
+	* @param string		$value			the value to escape
+	* @param boolean	$escape_single	whether or not the apostrophes are escaped with backslashes; defaults to FALSE
 	*
 	* @return string
 	* @access public
@@ -1440,10 +1489,10 @@ class Metadata_Manager extends MySource_Object
 
 		// escape everything else (chars > 126)
 		$result = '';
-		for($i = 0; $i < strlen($value); ++$i) {
+		for ($i = 0; $i < strlen($value); ++$i) {
 			$ord = ord($value[$i]);
-			if($ord >= 126) {
-				$result .= "&#".$ord.";";
+			if ($ord >= 126) {
+				$result .= '&#'.$ord.';';
 			} else {
 				$result .= $value[$i];
 			}
@@ -1451,7 +1500,7 @@ class Metadata_Manager extends MySource_Object
 
 		return $result;
 
-	}//end escapeMetadataField()
+	}//end escapeMetadata()
 
 
 }//end class

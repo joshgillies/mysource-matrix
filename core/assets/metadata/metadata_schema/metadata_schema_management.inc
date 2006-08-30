@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_management.inc,v 1.11.4.1 2006/08/24 23:54:14 rhoward Exp $
+* $Id: metadata_schema_management.inc,v 1.11.4.2 2006/08/30 05:04:12 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11.4.1 $
+* @version $Revision: 1.11.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -88,11 +88,12 @@ class Metadata_Schema_Management extends Asset_Management
 
 		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
 
-		if (version_compare($current_version, '0.2', '<')) {
-			// version 0.1 -> 0.2
-			// metadata schema names, sections, fields, etc. are now escaped
-			// for safety's sake, regenerate all the schemas in the system
-			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.2');
+		if (version_compare($current_version, '0.3', '<')) {
+			// version 0.1 -> 0.3
+			// 0.2: metadata schema names, sections, fields, etc. are now escaped
+			//      for safety's sake, regenerate all the schemas in the system
+			// 0.3: metadata cache file changed format
+			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.3');
 			// get all 'metadata_schema' assets (or their descendants)
 			$schemas = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetIds($this->getAssetType(), FALSE);
 			pre_echo('Upgrading '.count($schemas).' assets...');
@@ -101,9 +102,9 @@ class Metadata_Schema_Management extends Asset_Management
 			$vars = Array('schemaids' => $schemas);
 			$hh->freestyleHipo('hipo_job_regenerate_metadata', $vars);
 
-			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.2');
+			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.3');
 
-		}//end version 0.2 upgrade
+		}//end version 0.3 upgrade
 
 		return TRUE;
 
