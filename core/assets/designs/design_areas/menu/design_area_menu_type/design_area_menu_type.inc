@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.85 2006/08/30 06:15:21 bcaldwell Exp $
+* $Id: design_area_menu_type.inc,v 1.86 2006/08/30 06:33:02 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -427,6 +427,8 @@ class Design_Area_Menu_Type extends Design_Area
 
 			function menu_get_assets($id_name, $majorids)
 			{
+				$db = &$GLOBALS[\'SQ_SYSTEM\']->db;
+
 				if (!isset($GLOBALS[\'MENU_DATA\'][$id_name])) {
 					$GLOBALS[\'MENU_DATA\'][$id_name] = Array();
 				}
@@ -435,7 +437,7 @@ class Design_Area_Menu_Type extends Design_Area
 				$majorids_str = \'\';
 				foreach ($majorids as $id) {
 					if (empty($storage[$id])) {
-						$majorids_str .= $id.\',\';
+						$majorids_str .= $db->quote((String)$id).\',\';
 					} else {
 						foreach ($storage[$id] as $row) {
 							$assetids[] = (int) $row[\'assetid\'];
@@ -446,8 +448,6 @@ class Design_Area_Menu_Type extends Design_Area
 				if (empty($majorids_str)) return $assetids;
 
 				static $USERIDS_COND = NULL;
-
-				$db = &$GLOBALS[\'SQ_SYSTEM\']->db;
 
 				if (is_null($USERIDS_COND)) {
 					// if they are logged in add their parents to the list
