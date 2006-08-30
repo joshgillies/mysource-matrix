@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.22 2006/05/16 05:23:22 rong Exp $
+* $Id: metadata.inc,v 1.23 2006/08/30 05:03:49 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 
@@ -54,6 +54,8 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 
 	$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 	$schemas = $mm->getSchemas($owner->id, TRUE);
+
+	$metadata_warnings = Array();
 
 	for ($i = 0; $i < count($root->children); $i++) {
 
@@ -92,7 +94,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 
 			switch (strtolower($field->attributes['code'])) {
 
-				///// CURRENT METADATA ////
+				///// CURRENT METADATA /////
 
 				case 'metadata_current' :
 
@@ -120,7 +122,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 
 				break;
 
-				///// METADATA INSTRUCTIONS ////
+				///// METADATA INSTRUCTIONS /////
 
 				case 'metadata_instructions' :
 
@@ -177,7 +179,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 
 				break;
 
-				///// METADATA EDITING INTERFACE ////
+				///// METADATA EDITING INTERFACE /////
 
 				case 'metadata_values' :
 
@@ -251,6 +253,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($field);
 		}
 	}
+
 	if (!empty($duplicate_field_names)) {
 		$o->openSection(translate('warning'));
 			$o->openField('&nbsp;');
@@ -261,6 +264,23 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 				?><li><?php echo $name ?></li><?php
 			}
 			?></ul><span class="sq-backend-warning"><?php echo translate('duplicate_metadata_fields'); ?></span>
+			<?php
+			ob_end_flush();
+			$o->closeField();
+		$o->closeSection();
+	}
+
+	// $metadata_warnings is provided by the metadata cache file
+	if (!empty($metadata_warnings['keyword_circular_references'])) {
+		$o->openSection(translate('warning'));
+			$o->openField('&nbsp;');
+			// paint required field
+			ob_start();
+			?><ul><?php
+			foreach ($metadata_warnings['keyword_circular_references'] as $name) {
+				?><li><?php echo $name ?></li><?php
+			}
+			?></ul><span class="sq-backend-warning"><?php echo translate('circular_reference_metadata_field_keywords'); ?></span>
 			<?php
 			ob_end_flush();
 			$o->closeField();
