@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.10 2006/08/24 23:53:55 rhoward Exp $
+* $Id: asset.xml,v 1.11 2006/08/30 23:58:03 rhoward Exp $
 *
 */
 -->
@@ -29,7 +29,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>__core__</package>
 	<type_code>metadata_schema</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Metadata Schema</name>
 	<description>Metadata Schema, define a schema for metadata to be attached to assets in the system</description>
 	<instantiable>yes</instantiable>
