@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.76.2.5 2006/07/27 05:34:14 tbarrett Exp $
+* $Id: design_area_menu_type.inc,v 1.76.2.6 2006/08/31 04:12:34 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76.2.5 $
+* @version $Revision: 1.76.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -427,6 +427,8 @@ class Design_Area_Menu_Type extends Design_Area
 
 			function menu_get_assets($id_name, $majorids)
 			{
+				$db = &$GLOBALS[\'SQ_SYSTEM\']->db;
+
 				if (!isset($GLOBALS[\'MENU_DATA\'][$id_name])) {
 					$GLOBALS[\'MENU_DATA\'][$id_name] = Array();
 				}
@@ -435,7 +437,7 @@ class Design_Area_Menu_Type extends Design_Area
 				$majorids_str = \'\';
 				foreach ($majorids as $id) {
 					if (empty($storage[$id])) {
-						$majorids_str .= $id.\',\';
+						$majorids_str .= $db->quote((String)$id).\',\';
 					} else {
 						foreach ($storage[$id] as $row) {
 							$assetids[] = (int) $row[\'assetid\'];
@@ -446,8 +448,6 @@ class Design_Area_Menu_Type extends Design_Area
 				if (empty($majorids_str)) return $assetids;
 
 				static $USERIDS_COND = NULL;
-
-				$db = &$GLOBALS[\'SQ_SYSTEM\']->db;
 
 				if (is_null($USERIDS_COND)) {
 					// if they are logged in add their parents to the list
@@ -465,15 +465,15 @@ class Design_Area_Menu_Type extends Design_Area
 						$USERIDS_COND = \'AND (p.userid  IN (\'.$userids_str.\') \';
 						$USERIDS_COND .= \'OR r.userid  IN (\'.$userids_str.\')) \';
 						$USERIDS_COND .= \' AND (
-							(p.permission = \'.$db->quote((String)SQ_PERMISSION_READ).\' AND (
+							(p.permission = \'.$db->quote((Integer)SQ_PERMISSION_READ).\' AND (
 									p.userid <> \'.$db->quote($public_userid).\'
 									OR r.userid <> \'.$db->quote($public_userid).\'
-									OR (p.userid = \'.$db->quote($public_userid).\' AND p.granted = 1)
-									OR (r.userid = \'.$db->quote($public_userid).\' AND p.granted = 1)
+									OR (p.userid = \'.$db->quote($public_userid).\' AND p.granted = \\\'1\\\')
+									OR (r.userid = \'.$db->quote($public_userid).\' AND p.granted = \\\'1\\\')
 								)
 							)
 							OR	(
-									p.permission > \'.$db->quote((String)SQ_PERMISSION_READ).\' AND p.granted = 1
+									p.permission > \'.$db->quote((Integer)SQ_PERMISSION_READ).\' AND p.granted = \\\'1\\\'
 								)
 						)\';
 					}
@@ -481,7 +481,7 @@ class Design_Area_Menu_Type extends Design_Area
 					if (!empty($USERIDS_COND)) {
 						$USERIDS_COND .= \'
 										  GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order, p.assetid
-										  HAVING MIN(p.granted) <> 0\';
+										  HAVING MIN(p.granted) <> \\\'0\\\'\';
 					}
 				}
 
