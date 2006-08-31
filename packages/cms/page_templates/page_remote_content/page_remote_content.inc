@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.38.2.1 2006/08/31 02:32:53 arailean Exp $
+* $Id: page_remote_content.inc,v 1.38.2.2 2006/08/31 05:27:50 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define ('SQ_REMOTE_SOURCE', 'sq_content_src');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.38.2.1 $
+* @version $Revision: 1.38.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -66,6 +66,9 @@ class Page_Remote_Content extends Page
 	*/
 	function printBody()
 	{
+		// Encoded URLs look like they've got keywords in them. Disable blanking out of unknown keywords
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
+
 		// do not allow binary content, unless that decision has already been made elsewhere
 		$allow_binary = array_get_index($this->_tmp, 'allow_binary', FALSE);
 
@@ -177,8 +180,6 @@ class Page_Remote_Content extends Page
 	function printFrontend()
 	{
 		$this->_process();
-
-		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
 
 		if (array_get_index($this->_tmp, 'binary', FALSE)) {
 			$this->_tmp['allow_binary'] = TRUE;
