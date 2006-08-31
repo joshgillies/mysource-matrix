@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.118 2006/08/30 05:03:49 rhoward Exp $
+* $Id: metadata_manager.inc,v 1.119 2006/08/31 01:46:18 emcdonald Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.118 $
+* @version $Revision: 1.119 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -711,6 +711,7 @@ class Metadata_Manager extends MySource_Object
 
 		return TRUE;
 
+
 	}//end setMetadata()
 
 
@@ -1271,7 +1272,7 @@ class Metadata_Manager extends MySource_Object
 
 
 	/**
-	* Get the value of an asset's metadata field based on that field's asset ID
+	* Get the value of an asset's metadata field based on that field's asset ID to populate its interface
 	*
 	* @param string		$assetid		The ID of the asset that we want the
 	*									metadata value of
@@ -1283,7 +1284,7 @@ class Metadata_Manager extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getMetadataValueByAssetid($assetid, $field_assetid, $mute_errors=FALSE)
+	function getMetadataInterfaceValueByAssetid($assetid, $field_assetid, $mute_errors=FALSE)
 	{
 		// is this actually a metadata field or what?!
 		if (!$this->isMetadataFieldAssetid($field_assetid)) {
@@ -1319,6 +1320,31 @@ class Metadata_Manager extends MySource_Object
 
 		$value = $db->getOne($sql.$where);
 		assert_valid_db_result($value);
+
+		return $value;
+
+
+	}//end getMetadataInterfaceValueByAssetid()
+
+
+	/**
+	* Get the value of an asset's metadata field based on that field's asset ID
+	*
+	* Because this value is for displaying on the front end, use the default value if required
+	*
+	* @param string		$assetid		The ID of the asset that we want the
+	*									metadata value of
+	* @param string		$field_assetid	The field that we wish to check
+	* @param boolean	$mute_errors	Set TRUE to mute errors that occur when
+	*									the asset (specified in $assetid) does
+	*									not have a schema applied to it
+	*
+	* @return array
+	* @access public
+	*/
+	function getMetadataValueByAssetid($assetid, $field_assetid, $mute_errors=FALSE)
+	{
+		$value = getMetadataInterfaceValueByAssetid($assetid, $field_assetid, $mute_errors);
 
 		if (is_null($value)) {
 			// not set - need the default value
