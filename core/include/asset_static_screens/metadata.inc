@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.23 2006/08/30 05:03:49 rhoward Exp $
+* $Id: metadata.inc,v 1.24 2006/08/31 01:41:17 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 
@@ -285,6 +285,36 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 			ob_end_flush();
 			$o->closeField();
 		$o->closeSection();
+	}
+
+	// set the keyword replacements for any numbered field keywords
+	if (!is_null($keywords) && isset($keywords['fields'])) {
+
+		// get the schemas that apply to this asset
+		$schemas = $mm->getSchemas($owner->id, TRUE);
+		$write_access = $owner->writeAccess('metadata');
+
+		foreach ($keywords['fields'] as $field_assetid => $keyword) {
+
+			// is this actually a metadata field or what?!
+			if ($mm->isMetadataFieldAssetid($field_assetid)) {
+				// get the parent schema of this metadata field
+				$schemaid = $GLOBALS['SQ_SYSTEM']->am->getParents($field_assetid, 'metadata_schema');
+
+				// If the field isn't in any of this asset's schemas, display nothing
+				if (array_intersect($schemas, array_keys($schemaid)) != Array()) {
+					$value = $mm->getMetadataInterfaceValueByAssetid($owner->id, $field_assetid);
+
+					$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($field_assetid);
+					$edit_fns = $field->getEditFns();
+
+					ob_start();
+					$edit_fns->paintInlineValueInterface($field, $o, $value, $write_access);
+					$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][$field_assetid]] = ob_get_contents();
+					ob_end_flush();
+				}
+			}
+		}
 	}
 
 	return $print_commit_button;
