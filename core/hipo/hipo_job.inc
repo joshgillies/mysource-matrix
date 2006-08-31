@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.83 2006/08/11 04:06:20 rhoward Exp $
+* $Id: hipo_job.inc,v 1.84 2006/08/31 01:11:03 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -731,7 +731,6 @@ class HIPO_Job extends MySource_Object
 							if (!is_null($ack)) {
 								switch ($ack['result']) {
 									case 'ack':
-										$successful_status_checks_count++;
 										$this->_renewLastUpdated();
 										$prev_last_updated = $this->last_updated;
 										$alive = TRUE;
