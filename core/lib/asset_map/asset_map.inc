@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.210.2.11 2006/06/01 04:15:58 sdanis Exp $
+* $Id: asset_map.inc,v 1.210.2.12 2006/08/31 06:11:25 colivar Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.210.2.11 $
+* @version $Revision: 1.210.2.12 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1366,6 +1366,12 @@ class Asset_Map
 			$output->insertChild(Array('responses'), $response_count++, $successTree);
 		}
 
+		// if we have only one asset. if we cant move it to the parent we dont continue further
+		if ((count($assets) == 1) && ($new_parent->canCreateLink($asset, SQ_LINK_TYPE_1, FALSE) !== TRUE)) {
+			$this->_error('HIPO0020', $asset->id, $new_parent->id);
+			return;
+		}
+
 		// Only run the HIPO if assets need to be moved from one parent to another
 		if (count($assets) > 0) {
 			//// START HIPO PROCESSING ////
@@ -1465,6 +1471,12 @@ class Asset_Map
 								  );
 		}
 
+		// if we have only one asset. if we cant clone it under the new parent we dont continue further
+		if ((count($assets) == 1) && ($new_parent->canCreateLink($asset, SQ_LINK_TYPE_1, FALSE) !== TRUE)) {
+			$this->_error('HIPO0030', $new_parent->id);
+			return;
+		}
+
 		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
 					'assets'			=> $assets,
@@ -1548,6 +1560,15 @@ class Asset_Map
 															'link_type'	=> $link_type,
 															'parentid'	=> $old_parent->id,
 														  );
+		}
+
+		// if we have only one asset. if we cant link it under the new parent we dont continue further
+		if (count($assets) == 1) {
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->children[0]->attributes['assetid']);
+			if ($new_parent->canCreateLink($asset, SQ_LINK_TYPE_1, FALSE) !== TRUE) {
+				$this->_error('HIPO0021', $asset->id,  $new_parent->id);
+				return;
+			}
 		}
 
 		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
