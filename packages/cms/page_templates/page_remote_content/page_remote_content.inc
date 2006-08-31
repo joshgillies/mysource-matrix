@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.39 2006/08/04 06:12:21 arailean Exp $
+* $Id: page_remote_content.inc,v 1.40 2006/08/31 02:07:30 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define ('SQ_REMOTE_SOURCE', 'sq_content_src');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -177,6 +177,8 @@ class Page_Remote_Content extends Page
 	function printFrontend()
 	{
 		$this->_process();
+
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
 
 		if (array_get_index($this->_tmp, 'binary', FALSE)) {
 			$this->_tmp['allow_binary'] = TRUE;
@@ -629,7 +631,8 @@ class Page_Remote_Content extends Page
 
 			// if images need to be tunneled, prepare a new source url
 			if ($this->attr('tunnel_scripts') && $this->isUrlAllowed($url)) {
-				$url = $replacement_url.$this->_encodeURL($url);
+				$encoded_url = $this->_encodeURL($url);
+				$url = $replacement_url.$encoded_url;
 			}
 
 			$subjects[]     = $subject;
@@ -662,7 +665,8 @@ class Page_Remote_Content extends Page
 
 			// if images need to be tunneled, prepare a new source url
 			if ($this->attr('tunnel_media') && $this->isUrlAllowed($url)) {
-				$url = $replacement_url.$this->_encodeURL($url);
+				$encoded_url = $this->_encodeURL($url);
+				$url = $replacement_url.$encoded_url;
 			}
 
 			$subjects[]     = $subject;
@@ -701,7 +705,8 @@ class Page_Remote_Content extends Page
 
 			// if images need to be tunneled, prepare a new source url
 			if ($this->attr('tunnel_media') && $this->isUrlAllowed($url)) {
-				$url = $replacement_url.$this->_encodeURL($url);
+				$encoded_url = $this->_encodeURL($url);
+				$url = $replacement_url.$encoded_url;
 			}
 
 			$subjects[]		= $subject;
@@ -747,7 +752,8 @@ class Page_Remote_Content extends Page
 
 			// if images need to be tunneled, prepare a new source url
 			if ($this->attr('tunnel_images') && $this->isUrlAllowed($url)) {
-				$url = $replacement_url.$this->_encodeURL($url);
+				$encoded_url = $this->_encodeURL($url);
+				$url = $replacement_url.$encoded_url;
 			}
 
 			$subjects[]		= $subject;
@@ -776,6 +782,8 @@ class Page_Remote_Content extends Page
 			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
 			$matches = array_merge($matches, $matches_local);
 		}
+
+
 		// local cleanup
 		$matches_local = NULL;
 
@@ -794,7 +802,8 @@ class Page_Remote_Content extends Page
 
 			// if urls need to point back to us, prepare a new url
 			if ($load_links && $this->isUrlAllowed($url)) {
-				$url = $replacement_url.$this->_encodeURL($url);
+				$encoded_url = $this->_encodeURL($url);
+				$url = $replacement_url.$encoded_url;
 			}
 
 			$subjects[]		= $subject;
@@ -836,7 +845,8 @@ class Page_Remote_Content extends Page
 				// forms require the parameters to be set to the hidden fields for proper functioning
 				$postfix .= '<input type="hidden" name="sq_content_src" value="'.$this->_encodeURL($url).'" />';
 
-				$url = $replacement_url.$this->_encodeURL($url);
+				$encoded_url = $this->_encodeURL($url);
+				$url = $replacement_url.$encoded_url;
 			}
 
 			$subjects[]		= $subject;
@@ -847,7 +857,6 @@ class Page_Remote_Content extends Page
 
 		// finally, we replace all the urls with the re-written ones.
 		$content = str_replace($subjects, $replacements, $content);
-
 		// replace keywords
 		preg_match_all('/%(\w+)%/i', $content, $matches);
 
@@ -982,7 +991,10 @@ class Page_Remote_Content extends Page
 	*/
 	function _encodeURL($url)
 	{
-		return urlencode(base64_encode($url));
+		// the + is needed for detection of PHP auto-decoding of urls. See _decodeURL
+		$encoded_url = urlencode('+'.base64_encode($url));
+
+		return $encoded_url;
 
 	}//end _encodeURL()
 
@@ -1000,7 +1012,17 @@ class Page_Remote_Content extends Page
 	*/
 	function _decodeURL($url)
 	{
-		return html_entity_decode(base64_decode(urldecode($url)));
+
+		// this is a micro hack to detect if PHP has prematurely decoded the url
+		if ($url{0} != '+') $url = urldecode($url);
+
+		// remove the plus, it was in URL for verification purposes only
+		$url = substr($url, 1);
+
+		$decoded_url = base64_decode($url);
+		$decoded_url = html_entity_decode($decoded_url);
+
+		return $decoded_url;
 
 	}//end _decodeURL()
 
