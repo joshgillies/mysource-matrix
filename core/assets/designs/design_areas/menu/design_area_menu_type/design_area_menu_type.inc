@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.83.2.2 2006/08/31 04:07:35 bcaldwell Exp $
+* $Id: design_area_menu_type.inc,v 1.83.2.3 2006/08/31 04:08:55 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.83.2.2 $
+* @version $Revision: 1.83.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -437,7 +437,7 @@ class Design_Area_Menu_Type extends Design_Area
 				$majorids_str = \'\';
 				foreach ($majorids as $id) {
 					if (empty($storage[$id])) {
-						$majorids_str .= $db->quote($id).\',\';
+						$majorids_str .= $db->quote((String)$id).\',\';
 					} else {
 						foreach ($storage[$id] as $row) {
 							$assetids[] = (int) $row[\'assetid\'];
@@ -481,7 +481,7 @@ class Design_Area_Menu_Type extends Design_Area
 					if (!empty($USERIDS_COND)) {
 						$USERIDS_COND .= \'
 										  GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order, p.assetid
-										  HAVING MIN(p.granted) <> \\\'0\\\'\';
+										  HAVING MIN(p.granted) <> \\\'0\\\'p\';
 					}
 				}
 
