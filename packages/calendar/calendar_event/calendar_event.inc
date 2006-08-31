@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.66 2006/07/14 00:43:29 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.67 2006/08/31 00:50:17 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -171,7 +171,7 @@ class Calendar_Event extends Asset
 	function getAvailableKeywords()
 	{
 		$keywords = parent::getAvailableKeywords();
-		
+
 		$our_keywords = Array();
 		$our_keywords[] = 'asset_attribute_start_date'; // = translate('start_date_iso'); //'Start date (iso8601)';
 		$our_keywords[] = 'asset_attribute_end_date'; // = translate('end_date_iso'); //'End date (iso8601)';
@@ -189,6 +189,9 @@ class Calendar_Event extends Asset
 		$our_keywords[] = 'event_duration'; // = 'Duration of the Event';
 		$our_keywords[] = 'edit_link'; // = 'Link to edit this event in Limbo (if user has permission)';
 		$our_keywords[] = 'delete_link'; // = 'Link to delete this event altogether (if user has permission)';
+		$our_keywords[] = 'event_start_datetime_XXXX'; // = dynamic keyword to print start date and time
+		$our_keywords[] = 'event_end_datetime_XXXX'; // = dynamic keyword to print end date and time
+
 
 		foreach ($our_keywords as $keyword) {
 			$keywords[$keyword] = translate('cal_evt_keyword_'.$keyword);
@@ -814,6 +817,16 @@ class Calendar_Event extends Asset
 			case 'delete_link':
 				return $this->_getDeleteLink();
 			default:
+				// if the keyword at this point starts with event_start_datetime_ or event_end_datetime_
+				// it means this is a dynamic keyword to display a date
+				preg_match('/event_start_datetime_(\w+)/', $keyword, $matches);
+				if ($matches != NULL) {
+					return date($matches[1], iso8601_ts($this->attr('start_date')));
+				}
+				preg_match('/event_end_datetime_(\w+)/', $keyword, $matches);
+				if ($matches != NULL) {
+					return $end_date_not_set ? '' : date($matches[1], iso8601_ts($this->attr('end_date')));
+				}
 				return parent::getKeywordReplacement($keyword);
 		}//end switch
 
