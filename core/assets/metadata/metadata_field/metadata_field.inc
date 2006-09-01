@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.25 2006/01/26 22:34:04 lwright Exp $
+* $Id: metadata_field.inc,v 1.25.2.1 2006/09/01 05:36:20 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,16 +143,16 @@ class Metadata_Field extends Asset
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
+		// get the default value
+		if (is_null($value_str)) {
+			$value_str = $this->getDefaultValue();
+		}
+
 		// if there are no components that we know about and we are not being displayed on the frontend,
 		// then just unescape the value string and return that
 		if (!$this->attr('value_components') && $this->attr('frontend') == 'hide') {
 			Metadata_Field::decodeValueString($value_str, $value='', $components=Array());
 			return $value;
-		}
-
-		// get the default value
-		if (is_null($value_str)) {
-			$value_str = $this->getDefaultValue();
 		}
 
 		$used_keywords = retrieve_keywords_replacements($value_str, '.');
