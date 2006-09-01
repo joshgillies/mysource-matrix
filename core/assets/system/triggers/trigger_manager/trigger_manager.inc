@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.38 2006/04/21 03:21:00 tbarrett Exp $
+* $Id: trigger_manager.inc,v 1.39 2006/09/01 02:04:15 rong Exp $
 *
 */
 
@@ -50,7 +50,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -318,7 +318,7 @@ class Trigger_Manager extends Asset
 		$asset_info['name']			= $trigger['active'] ? $trigger['name'] : $trigger['name'].' (disabled)';
 		$asset_info['short_name']	= $trigger['active'] ? $trigger['name'] : $trigger['name'].' (disabled)';
 		$asset_info['version']		= $this->version;
-		$asset_info['status']		= $this->status;
+		$asset_info['status']		= $trigger['active'] ? SQ_STATUS_LIVE : SQ_STATUS_UNDER_CONSTRUCTION;
 		$asset_info['type_code']	= 'trigger';
 		$asset_info['num_kids']		= 0;
 		$asset_info['accessible']	= 1;
