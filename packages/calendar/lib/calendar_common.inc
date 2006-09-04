@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.49 2006/07/17 01:56:50 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.50 2006/09/04 01:01:38 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -331,8 +331,25 @@ class Calendar_Common
 				$last_date_components = Calendar_Common::getDateComponents($last_date);
 				$last_day = $last_date_components['ds'];
 
-				$sql_freqs[] = '((frequency = '.$db->quoteSmart('DED').') AND ((period <= '.$length.') OR (FLOOR(('.$now['ds'].' - start_date_ds) / period) < FLOOR(('.$last_date_components['ds'].' - start_date_ds) / period)) OR (floor(('.$now['ds'].' - end_date_ds) / period) < FLOOR(('.$last_date_components['ds'].' - end_date_ds) / period))))';
+				// GENERIC MATCES
+				$sql_freqs[] = 	'(
+									(start_date_ds BETWEEN '.$now['ds'].' AND '.$last_date_components['ds'].')
+									OR 
+									(end_date_ds BETWEEN '.$now['ds'].' AND '.$last_date_components['ds'].')
+								)';
 
+				// DAILY-RECURRING
+				$sql_freqs[] = '(
+									(frequency = '.$db->quoteSmart('DED').') 
+									AND 
+									(
+										(period <= '.$length.') 
+										OR 
+										(FLOOR(('.$now['ds'].' - start_date_ds) / period) < FLOOR(('.$last_date_components['ds'].' - start_date_ds) / period)) 
+										OR 
+										(floor(('.$now['ds'].' - end_date_ds) / period) < FLOOR(('.$last_date_components['ds'].' - end_date_ds) / period))
+									)
+								)';
 				if (($length > 2) || !in_array($now['wday'], Array(0, 6)) || !in_array($last_date_components['wday'], Array(0, 6))) {
 					// the period includes a weekday
 					$sql_freqs[] = '(frequency = '.$db->quoteSmart('DWD').')';
@@ -342,10 +359,21 @@ class Calendar_Common
 					$sql_freqs[] = '(frequency = '.$db->quoteSmart('DWE').')';
 				}
 
-				$sql_freqs[] = '((frequency = '.$db->quoteSmart('WEW').') AND (((period * 7) <= '.$length.') OR (FLOOR(('.($now['ds']-1).' - start_date_ds) / (period * 7)) < FLOOR(('.$last_date_components['ds'].' - start_date_ds) / (period * 7))) OR (FLOOR(('.($now['ds']-1).' - end_date_ds) / (period * 7)) < FLOOR(('.$last_date_components['ds'].' - end_date_ds) / (period * 7)))))';
+				// WEEKLY-RECURRING
+				$sql_freqs[] = '(
+									(frequency = '.$db->quoteSmart('WEW').')
+									AND 
+									(
+										((period * 7) <= '.$length.') 
+										OR
+										(FLOOR(('.($now['ds']-1).' - start_date_ds) / (period * 7)) < FLOOR(('.$last_date_components['ds'].' - start_date_ds) / (period * 7))) 
+										OR 
+										(FLOOR(('.($now['ds']-1).' - end_date_ds) / (period * 7)) < FLOOR(('.$last_date_components['ds'].' - end_date_ds) / (period * 7)))
+									)
+								)';
 
+				// MONTHLY-RECURRING
 				$monthly_conditions = Array();
-
 				if ($last_date_components['ms'] == $now['ms']) {
 					// we are within one month
 
