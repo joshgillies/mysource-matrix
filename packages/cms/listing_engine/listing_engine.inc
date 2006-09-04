@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.188 2006/08/29 04:14:18 colivar Exp $
+* $Id: listing_engine.inc,v 1.189 2006/09/04 00:54:45 arailean Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.188 $
+* @version $Revision: 1.189 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1564,7 +1564,7 @@ class Listing_Engine extends Page
 									$replacements[$format_keyword] = $asset->getKeywordReplacement($keyword);
 								}
 							}
-							$replacements['group_name_linked'] = '<a href="'.$asset->getUrl().'">'.$asset->name.'</a>';
+							$replacements['group_name_linked'] = '<a href="'.$asset->getUrl().'">'.htmlspecialchars($asset->name).'</a>';
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 						break;
 
@@ -1900,8 +1900,8 @@ class Listing_Engine extends Page
 				}
 
 				// stuff carried over results body replacements
-				$keywords['asset_name_linked'] = '<a href="'.$asset->getUrl().'">'.$asset->name.'</a>';
-				$keywords['asset_short_name_linked'] = '<a href="'.$asset->getUrl().'">'.$asset->short_name.'</a>';
+				$keywords['asset_name_linked'] = '<a href="'.$asset->getUrl().'">'.htmlspecialchars($asset->name).'</a>';
+				$keywords['asset_short_name_linked'] = '<a href="'.$asset->getUrl().'">'.htmlspecialchars($asset->short_name).'</a>';
 
 				if (in_array('asset_lineage', $bc_keywords) || in_array('asset_lineage_linked', $bc_keywords)) {
 					// there is a lineage keyword in the bodycopy
@@ -1932,7 +1932,7 @@ class Listing_Engine extends Page
 							}
 							$first = FALSE;
 							$ancestor_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_asset_id);
-							$linked_lineage .= '<a href="'.$ancestor_asset->getUrl().'">'.$ancestor_asset->name.'</a>';
+							$linked_lineage .= '<a href="'.$ancestor_asset->getUrl().'">'.htmlspecialchars($ancestor_asset->name).'</a>';
 							$lineage .= $ancestor_asset->short_name;
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ancestor_asset);
 						}
@@ -1975,7 +1975,7 @@ class Listing_Engine extends Page
 									$urls[$idx]['linked_lineage_full'] .= $this->attr('lineage_seperator');
 								}
 								$urls[$idx]['lineage_full'] .= $lineage_item['short_name'];
-								$urls[$idx]['linked_lineage_full'] .= '<a href="'.$lineage_item['protocol'].'://'.$lineage_item['url'].'">'.$lineage_item['short_name'].'</a>';
+								$urls[$idx]['linked_lineage_full'] .= '<a href="'.$lineage_item['protocol'].'://'.$lineage_item['url'].'">'.htmlspecialchars($lineage_item['short_name']).'</a>';
 
 								if ($found_root) {
 
@@ -1998,7 +1998,7 @@ class Listing_Engine extends Page
 										$urls[$idx]['linked_lineage'] .= $this->attr('lineage_seperator');
 									}
 									$urls[$idx]['lineage'] .= $lineage_item['short_name'];
-									$urls[$idx]['linked_lineage'] .= '<a href="'.$lineage_item['protocol'].'://'.$lineage_item['url'].'">'.$lineage_item['short_name'].'</a>';
+									$urls[$idx]['linked_lineage'] .= '<a href="'.$lineage_item['protocol'].'://'.$lineage_item['url'].'">'.htmlspecialchars($lineage_item['short_name']).'</a>';
 									$first = FALSE;
 								}
 								$first_full = FALSE;
@@ -2515,6 +2515,7 @@ class Listing_Engine extends Page
 				} else {
 					$current_parent = $group_data['group'][$last_parent_asset];
 				}
+
 				switch ($group_level['group_type']) {
 					case 'parent_asset':
 						$restrict_types = array_get_index($group_level, 'restrict_types', Array());
