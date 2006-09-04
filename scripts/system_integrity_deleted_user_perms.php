@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_deleted_user_perms.php,v 1.5.4.3 2006/04/21 04:26:55 lwright Exp $
+* $Id: system_integrity_deleted_user_perms.php,v 1.5.4.4 2006/09/04 02:01:22 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * exist)
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5.4.3 $
+* @version $Revision: 1.5.4.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -65,6 +65,9 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $db =& $GLOBALS['SQ_SYSTEM']->db;
 
+//--        CLEANING PERMISSIONS        --//
+echo 'Cleaning up permissions...'."\n";
+
 $sql = 'SELECT
 			DISTINCT userid
 		FROM sq_ast_perm
@@ -94,6 +97,54 @@ foreach ($user_ids as $user_id) {
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 	$sql = 'DELETE FROM sq_ast_perm WHERE userid = '.$db->quote($user_id);
+
+	$result = $db->query($sql);
+	if (assert_valid_db_result($result)) {
+		// all good
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		printUpdateStatus('FIXED');
+	} else {
+		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		printUpdateStatus('FAILED');
+	}
+
+}//end for
+
+//--        CLEANING ROLES        --//
+// Note that userid of 0 is legitimate as this indicates a global role
+
+echo 'Cleaning up roles...'."\n";
+
+$sql = 'SELECT
+			DISTINCT userid
+		FROM sq_ast_role
+		WHERE userid <> 0
+		ORDER BY userid';
+$user_ids = $db->getCol($sql);
+
+foreach ($user_ids as $user_id) {
+
+	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($user_id, '', TRUE);
+	if (!is_null($asset)) {
+		// print info the asset, as it exists
+		printAssetName($asset);
+		printUpdateStatus('OK');
+
+		// conserve memory and move on to the next perm
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+		continue;
+	}
+
+	// the asset doesn't exist
+	$dummy_asset->id = $user_id;
+	$dummy_asset->name = 'Unknown Asset';
+
+	printAssetName($dummy_asset);
+
+	// open the transaction
+	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+	$sql = 'DELETE FROM sq_ast_role WHERE userid = '.$db->quote($user_id);
 
 	$result = $db->query($sql);
 	if (assert_valid_db_result($result)) {
