@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.6.2.3 2006/09/04 01:19:03 colivar Exp $
+* $Id: form_question_type_file_upload.inc,v 1.6.2.4 2006/09/04 02:07:29 colivar Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6.2.3 $
+* @version $Revision: 1.6.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -257,7 +257,12 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($this->getValue()));
+		// Check that we are not going to have web path conflicts
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_names = make_valid_web_paths(Array($this->getValue()));
+		$name = array_shift($valid_names);
+
+		$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($name));
 		assert_valid_db_result($existing_file);
 
 		$ok = TRUE;
@@ -275,7 +280,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 				case 'R':
 					// find a new name to rename the file to
 					include_once SQ_FUDGE_PATH.'/general/file_system.inc';
-					$filename = $this->getValue();
+					$filename = $name;
 					while ($existing_file) {
 						$filename = increment_filename($filename);
 						$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($filename));
