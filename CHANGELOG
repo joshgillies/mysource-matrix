@@ -1,5 +1,95 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.10.1
+
+Featured Changes
+-----------------------------------
+
+Updated Set Cache Expiry Trigger Action
+
+    This trigger action has been extended to feature many of the options available in the Clear Cache trigger action, namely:
+
+    - the ability to choose assets to act upon in addition to the current asset;
+    - the ability to set whether the action should apply to the asset(s) selected, their dependant children, or all of their children; and
+    - the ability to restrict the types of assets to be affected by this trigger action.
+
+
+Show Result Asset in Search Result Lineages
+
+    This new option on the Search Page's Details screen modifies each search result's lineage keyword replacement to include the asset being printed.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
+* Fixed bug #1531: incorrect < span > tag placement and unwanted < li > tags added
+* Fixed bug #1534: Setting an unwanted type of "Folder" hides the Site asset in the lineage
+* Fixed bug #1539: Workflow step with empty logic number generate a parser error
+* Fixed bug #1541: Cant display nested content from Default Format of Paint Layout
+* Fixed bug #1546: Blackout Period on Cron manager is editable for a sys admin
+* Fixed bug #1552: embed movie plugin break in IE
+* Fixed bug #1553: Encoding HTML entities
+* Fixed bug #1555: Messaging Service Configuration - Section Name
+* Fixed bug #1559: Metadata Field Name containing apostrophe causes parse error
+* Fixed bug #1561: Spell checker fails check for XML_HTMLSax PEAR package on Solaris
+* Fixed bug #1572: Session info not passed correctly between sites in a site network
+* Fixed bug #1584: Updating files using simple edit
+* Fixed bug #1594: CSS File asset caching doesn't disable properly
+* Fixed bug #1595: Nested Metadata Field Keywords Broken
+* Fixed bug #1597: Future status cron jobs created by trigger action don't have proper names
+* Fixed bug #1598: Double-escaping in Metadata Field default values
+* Fixed bug #1608: No warning about improper linking before commencing HIPO
+* Fixed bug #1613: Trigger status colours odd behaviour
+* Fixed bug #1618: Spaces in attachment name break email attachments
+* Fixed bug #1620: Custom Form causes spurious workflow errors
+* Fixed bug #1624: Script: system_integrity_deleted_user_perms.php does not take into account roles' permissions
+* Fixed bug #1625: Spaces/special characters in attachment filename break submission logs
+* Fixed bug #1628: Special characters and/or spaces in the uploaded file's name will break the Overwrite Rule
+* Fixed bug #1629: Read permission checking not bypassed on forced run level
+
+CMS
+
+* Fixed bug #1545: Links report and the exported csv of the links report does not match (Links Report)
+* Fixed bug #1547: Display options section titles on the links report details screen (Links Report)
+* Fixed bug #1563: Asset listings do not convert & characters to html entities (Listing Engine)
+* Fixed bug #1564: Account Manager Details Screen - drop down list string incorrect (Account Manager)
+* Fixed bug #1567: Up and Down Arrows on Custom Form/Email Options/To fields don't work (Custom Form)
+* Fixed bug #1568: Custom Form/Email Options - %form_info% - descriptive text hasn't been updated (Custom Form)
+* Fixed bug #1570: Removing a step from Multiple Page asset makes all steps after it inaccessible (Multiple Page)
+* Fixed bug #1580: Invalid Link due to lack of quotes around Anchor name and id (Links Report)
+* Fixed bug #1589: Spelling mistake in Keyword Replacement description (Listing Engine)
+* Fixed bug #1601: Nested Content recursion errors (Nest Content Content Type)
+* Fixed bug #1602: Keyword %asset_contents_raw% missing from Keyword Dropdown (Listing Engine)
+* Fixed bug #1603: Asset Listing Min/Max Height has no effect (Asset Listing Page)
+* Fixed bug #1610: Account Manager - Pending Accounts Screen (Account Manager)
+* Fixed bug #1614: Remote Content urls with % get garbled (Remote Content Page)
+
+Search
+
+* Fixed bug #1560: New Keywords not in Keyword Drop Down List for Search Page (Search Page)
+* Fixed bug #1574: Proxy Asset Type Issue - Grouping by parent asset not working correctly (Search Page)
+* Fixed bug #1575: Can't use global search and replace on words containing an ampersand (Global Search and Replace Tool)
+* Fixed bug #1577: List of matches in global search and replace tool hipo won't expand (Global Search and Replace Tool)
+* Fixed bug #1600: Duplicate key violation from search (Search Manager)
+
+Calendar
+
+* Fixed bug #1557: Events with zero length don't show up in calendar week or day views (Calendar Event)
+* Fixed bug #1558: Rolling calendar page shows all event titles the same as the first one (Rolling Calendar Page)
+* Fixed bug #1626: First instance of daily or weekly recurring events doesn't show in restricted or rolling calendar pages (Rolling Calendar Page)
+
+Bulkmail
+
+* Fixed bug #1585: Bulkmail Subscribe Page throws error when "Allow Multiple Selections" option is set to "No" (Bulkmail Subscribe Page)
+
+IPB Bridge
+
+* Fixed bug #1588: Topic posted by the user with name including a single quote generates sql error
+
+
+
 VERSION 3.10.0
 
 Featured Changes
@@ -17,7 +107,7 @@ Set Cache Expiry Trigger Action
     A new trigger action has been added that allows you to set the expiry time of an asset's cache entries. The expiry time is based on the current time plus a defined number of minutes, hours or days. The trigger action also allows you to set the DSN of the cache database if you want to update the expiry on a slave cache server, for example.
 
 
-Scrip to Clean-up Cache Directory
+Script to Clean-up Cache Directory
 
     A new system integrity script has been added to clean up the cache directory. The script will delete all cache files that do not have an entry in the sq_cache table (ie. they are orphaned). The script must be run as a user that has access to delete the cache files. If files cannot be removed, an error will be generated at the end of the script to let you know.
 
