@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.9 2006/09/04 00:59:00 colivar Exp $
+* $Id: form_question_type_file_upload.inc,v 1.10 2006/09/04 01:18:46 colivar Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -210,7 +210,13 @@ class Form_Question_Type_File_Upload extends Form_Question
 	{
 		if (!isset($this->_tmp['summary'])) {
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
-			$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($this->attr('create_location')).' and a.name = '.$db->quoteSmart($this->getValue()));
+
+			// Check that we are not going to have web path conflicts
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			$valid_names = make_valid_web_paths(Array($this->getValue()));
+			$name = array_shift($valid_names);
+
+			$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($this->attr('create_location')).' and a.name = '.$db->quoteSmart($name));
 			assert_valid_db_result($existing_file);
 			if (!is_null($existing_file)) {
 				$existing_file_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
