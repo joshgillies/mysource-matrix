@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.5 2006/05/15 05:52:31 emcdonald Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.6 2006/09/04 23:21:26 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -47,7 +47,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	*/
 	function HIPO_Job_Import_Thesaurus_XML($code_name='')
 	{
-		$this->uses_trans = true;
+		$this->uses_trans = TRUE;
 		$this->HIPO_Job($code_name);
 
 	}//end constructor
@@ -95,10 +95,10 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 										'process_function'	=> 'processStart',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> translate('thesaurus_hipo_setting_up_env'),
 				),
 				Array(
@@ -107,10 +107,10 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 										'init_details_function'	=> 'getLockAssetDetails',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> true,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -120,10 +120,10 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 										'process_function'	=> 'processEraseContents',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> false,
-					'allow_cancel'	=> true,
+					'auto_step'		=> FALSE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -132,11 +132,11 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 										'process_function'	=> 'processParseXML',
 									   ),
 					'running_mode'	=> 'server',
-					'skip_step'		=> false,
-					'auto_step'		=> true,
-					'allow_cancel'	=> false,
+					'skip_step'		=> FALSE,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 			   );
@@ -155,14 +155,14 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		// to start regenerating metadata, we need to have a root assetid - default to root folder if none is supplied
 		if (is_null($this->_running_vars['thesaurus_id'])) {
 			trigger_localised_error('HIPO0061', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// so we have an assetid to start at, but make sure it is a valid assetid
-		$asset = &$this->getThesaurusRef();
+		$asset =& $this->getThesaurusRef();
 		if (is_null($asset)) {
 			trigger_localised_error('HIPO0062', E_USER_WARNING, $this->_running_vars['thesaurus_id']);
-			return false;
+			return FALSE;
 		}
 
 		return parent::prepare();
@@ -183,8 +183,8 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	function processStart(&$step_data, $prefix)
 	{
 		$step_data['percent_done'] = 100;
-		$step_data['complete'] = true;
-		return true;
+		$step_data['complete'] = TRUE;
+		return TRUE;
 
 	}//end processStart()
 
@@ -209,7 +209,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		$o->closeField();
 		$o->closeSection();
 
-		return true;
+		return TRUE;
 
 	}//end paintEraseContents()
 
@@ -226,17 +226,17 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	function processEraseContents(&$step_data, $prefix)
 	{
 
-		$th_asset = &$this->getThesaurusRef();
+		$th_asset =& $this->getThesaurusRef();
 
 		if (!$th_asset->erase()) {
 			trigger_localised_error('HIPO0063', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		$step_data['percent_done'] = 100;
-		$step_data['complete'] = true;
+		$step_data['complete'] = TRUE;
 
-		return true;
+		return TRUE;
 
 	}//end processEraseContents()
 
@@ -262,23 +262,23 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 
 		if (empty($stack) && $tag != 'thesaurus') {
 			trigger_error('EMPTY STACK');
-			return false;
+			return FALSE;
 		}
 
 		switch ($tag) {
 			case 'thesaurus':
 				if (empty($stack)) {
-					array_unshift($stack, Array('term' => null, 'relation' => null));
+					array_unshift($stack, Array('term' => NULL, 'relation' => NULL));
 				} else {
 					trigger_localised_error('HIPO0067', E_USER_WARNING, $tag);
-					return false;
+					return FALSE;
 				}
 			break;
 
 			case 'relation':
 				if (!is_null($stack[0]['relation'])) {
 					trigger_localised_error('HIPO0065', E_USER_WARNING, $tag);
-					return false;
+					return FALSE;
 				} else {
 					$stack[0]['relation'] = array_get_index($attrs, 'name');
 				}
@@ -287,31 +287,31 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			case 'term':
 				if (empty($attrs['name'])) {
 					trigger_localised_error('HIPO0066', E_USER_WARNING);
-					return false;
+					return FALSE;
 
 				} else {
 					// add the term
 					if (is_null($stack[0]['term'])) {
 						$parent_asset =& $this->getThesaurusRef();
 					} else {
-						$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($stack[0]['term']);
+						$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($stack[0]['term']);
 					}
 
 					$create_link['asset'] = &$parent_asset;
 					$create_link['value'] = $stack[0]['relation'];
 
-					$term_asset = new Thesaurus_Term();
+					$term_asset =& new Thesaurus_Term();
 					$term_asset->setAttrValue('name', $attrs['name']);
 					$term_asset->create($create_link);
 
 					// put it onto the stack
-					array_unshift($stack, Array('term' => $term_asset->id, 'relation' => null));
+					array_unshift($stack, Array('term' => $term_asset->id, 'relation' => NULL));
 				}
 			break;
 
 			default:
 				trigger_localised_error('HIPO0067', E_USER_WARNING, $tag);
-		}
+		}//end switch $tag
 
 	}//end startElement()
 
@@ -335,7 +335,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 
 		if (empty($stack)) {
 			trigger_error('EMPTY STACK');
-			return false;
+			return FALSE;
 		}
 
 		switch ($tag) {
@@ -344,16 +344,16 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 					array_shift($stack);
 				} else {
 					trigger_error('Malformed XML. Unexpected tag: <'.$tag.'>.');
-					return false;
+					return FALSE;
 				}
 			break;
 
 			case 'relation':
 				if (!is_null($stack[0]['relation'])) {
-					$stack[0]['relation'] = null;
+					$stack[0]['relation'] = NULL;
 				} else {
 					trigger_error('Malformed XML. Unexpected tag: <'.$tag.'>.');
-					return false;
+					return FALSE;
 				}
 			break;
 
@@ -362,13 +362,14 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 					array_shift($stack);
 				} else {
 					trigger_error('Malformed XML. Unexpected tag: <'.$tag.'>.');
-					return false;
+					return FALSE;
 				}
 			break;
 
 			default:
 				trigger_localised_error('HIPO0067', E_USER_WARNING, $tag);
 		}
+
 	}//end endElement()
 
 
@@ -391,7 +392,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('thesaurus_term');
 
 		if (!isset($step_data['total_read'])) {
-			//assume this is the first step because we must read something on each step
+			// assume this is the first step because we must read something on each step
 			$step_data['total_parsed'] = 0;
 			$step_data['total_read'] = 0;
 			$step_data['remainder'] = '';
@@ -403,17 +404,17 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 
 
 		$xml_parser = xml_parser_create();
-		//stop the parser ucasing everything
+		// stop the parser ucasing everything
 		xml_parser_set_option ($xml_parser, XML_OPTION_CASE_FOLDING, 0);
 
 
-		//initialise the file pointer
-		$th_asset = &$this->getThesaurusRef();
+		// initialise the file pointer
+		$th_asset =& $this->getThesaurusRef();
 		$import_path = $th_asset->getXmlFilePath();
 
 		if (!($fp = fopen($import_path, 'r'))) {
 			trigger_localised_error('CORE0257', E_USER_WARNING, $import_path);
-			return false;
+			return FALSE;
 			die();
 		}
 
@@ -421,23 +422,23 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		$file_size = $fstat['size'];
 
 		if ($step_data['total_read'] > 0) {
-			// We have to parse the seen portion of the file with the tag handlers unset to recreate the parser state. Sad but true.
+			// we have to parse the seen portion of the file with the tag handlers unset to recreate the parser state. Sad but true.
 			$data = fread($fp, $step_data['total_read']);
 			if (!xml_parse($xml_parser, $data, feof($fp))) {
 				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
-				return false;
+				return FALSE;
 			}
 		}
 
 		$blocks = 1;
 		while (!feof($fp) && $blocks <= $blocks_per_step) {
 
-			// Parse blocks from the file
+			// parse blocks from the file
 			$data = fread($fp, $block_size);
 			xml_set_element_handler($xml_parser, Array(&$this,'startElement'), Array(&$this,'endElement'));
 			if (!xml_parse($xml_parser, $data, feof($fp))) {
 				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
-				return false;
+				return FALSE;
 			}
 
 			$parsed = xml_get_current_byte_index($xml_parser);
@@ -449,18 +450,19 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		}
 
 
-		$step_data['percent_done'] = ($step_data['total_parsed']/$file_size) * 100;
+		$step_data['percent_done'] = ($step_data['total_read']/$file_size) * 100;
 
 		if (feof($fp)) {
-			//unset all running vars we are now finished with
-			$step_data['complete'] = true;
+			// unset all running vars we are now finished with
+			$step_data['complete'] = TRUE;
 			xml_parser_free($xml_parser);
 		} else {
-			$step_data['complete'] = false;
+			$step_data['complete'] = FALSE;
 		}
 		$step_data['message']  = 'Parsed '.sprintf('%01.2f',$step_data['total_read']/1024).' Kb of '.sprintf('%01.2f',$file_size/1024).' Kb';
 		fclose($fp);
-		return true;
+		return TRUE;
+
 	}//end processParseXml()
 
 
@@ -478,14 +480,15 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	{
 		$job_type = 'hipo_job_acquire_locks';
 
-		$options['auto_complete'] = true;
+		$options['auto_complete'] = TRUE;
 
 		$running_vars = Array(
 							'assetids'			=> Array($this->_running_vars['thesaurus_id'],),
 							'lock_type'			=> 'attributes',
-							'dependants_only'	=> false,
-							'forceably_acquire'	=> false,
+							'dependants_only'	=> FALSE,
+							'forceably_acquire'	=> FALSE,
 						);
+
 	}//end getLockAssetDetails()
 
 
