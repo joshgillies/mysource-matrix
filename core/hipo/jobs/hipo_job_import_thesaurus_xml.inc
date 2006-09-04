@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.3 2005/12/07 00:48:34 arailean Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.3.2.1 2006/09/04 23:25:44 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -449,7 +449,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		}
 
 
-		$step_data['percent_done'] = ($step_data['total_parsed']/$file_size) * 100;
+		$step_data['percent_done'] = ($step_data['total_read']/$file_size) * 100;
 
 		if (feof($fp)) {
 			//unset all running vars we are now finished with
