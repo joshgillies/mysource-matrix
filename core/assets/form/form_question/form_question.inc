@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.14 2006/06/23 01:56:58 rong Exp $
+* $Id: form_question.inc,v 1.14.2.1 2006/09/04 03:29:42 skim Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1027,6 +1027,24 @@ class Form_Question extends Asset
 		return $question_name;
 
 	}//end _getCookieName()
+
+
+	/**
+	* Processes the changes required when a new status is set
+	*
+	* Ignore the status changes since the bridge handles it.
+	*
+	* @param int		$new_status		the new status to set for this asset
+	* @param boolean	$update_parents	Specify if we want to update the parent as well
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatusChange($new_status, $update_parent=TRUE)
+	{
+		return TRUE;
+
+	}//end processStatusChange()
 
 
 }//end class
