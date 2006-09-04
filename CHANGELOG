@@ -1,5 +1,87 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.8.6
+
+Featured Changes
+-----------------------------------
+
+Updated Set Cache Expiry Trigger Action
+
+    This trigger action has been extended to feature many of the options available in the Clear Cache trigger action, namely the ability to:
+
+    - choose assets to act upon in addition to the current asset;
+    - set whether the action should apply to the asset(s) selected, their dependant children, or all of their children; and
+    - restrict the types of assets to be affected by this trigger action.
+
+
+New Data Source Graph Features
+
+Some features already available in the 3.10.x branch versions of MySource Matrix have been backported to version 3.8.6. These include the ability to:
+
+    - draw the graph horizontally;
+    - allow the user to specify padding of the graph's axes; and
+    - specify specific plot options for each data set.
+
+    Also, any associated Image Variety assets will be updated whenever the graph is updated.
+
+
+Show Result Asset in Search Result Lineages
+
+    This new option on the Search Page's Details screen modifies each search result's lineage keyword replacement to include the asset being printed.
+
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
+* Fixed bug #1531: incorrect < span > tag placement and unwanted < li > tags added
+* Fixed bug #1534: Setting an unwanted type of "Folder" hides the Site asset in the lineage
+* Fixed bug #1539: Workflow step with empty logic number generate a parser error
+* Fixed bug #1541: Cant display nested content from Default Format of Paint Layout
+* Fixed bug #1552: embed movie plugin break in IE
+* Fixed bug #1553: Encoding HTML entities
+* Fixed bug #1559: Metadata Field Name containing apostrophe causes parse error
+* Fixed bug #1571: Parse error when uploading a file to custom form with file size limit rule
+* Fixed bug #1572: Session info not passed correctly between sites in a site network
+* Fixed bug #1594: CSS File asset caching doesn't disable properly
+* Fixed bug #1597: Future status cron jobs created by trigger action don't have proper names
+* Fixed bug #1598: Double-escaping in Metadata Field default values
+* Fixed bug #1608: No warning about improper linking before commencing HIPO
+* Fixed bug #1620: Custom Form causes spurious workflow errors
+* Fixed bug #1624: Script: system_integrity_deleted_user_perms.php does not take into account roles' permissions
+* Fixed bug #1629: Read permission checking not bypassed on forced run level
+
+CMS
+
+* Fixed bug #1580: Invalid Link due to lack of quotes around Anchor name and id (Links Report)
+* Fixed bug #1589: Spelling mistake in Keyword Replacement description (Listing Engine)
+* Fixed bug #1601: Nested Content recursion errors (Nest Content Content Type)
+* Fixed bug #1602: Keyword %asset_contents_raw% missing from Keyword Dropdown (Listing Engine)
+* Fixed bug #1603: Asset Listing Min/Max Height has no effect (Asset Listing Page)
+
+Search
+
+* Fixed bug #1574: Proxy Asset Type Issue - Grouping by parent asset not working correctly (Search Page)
+* Fixed bug #1575: Can't use global search and replace on words containing an ampersand (Global Search and Replace Tool)
+* Fixed bug #1577: List of matches in global search and replace tool hipo won't expand (Global Search and Replace Tool)
+* Fixed bug #1600: Duplicate key violation from search (Search Manager)
+
+Calendar
+
+* Fixed bug #1626: First instance of daily or weekly recurring events doesn't show in restricted or rolling calendar pages (Rolling Calendar Page)
+
+Bulkmail
+
+* Fixed bug #1585: Bulkmail Subscribe Page throws error when "Allow Multiple Selections" option is set to "No" (Bulkmail Subscribe Page)
+
+IPB Bridge
+
+* Fixed bug #1588: Topic posted by the user with name including a single quote generates sql error
+
+
+
 VERSION 3.8.5
 
 Featured Changes
