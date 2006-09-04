@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.503.2.28 2006/07/07 01:01:18 lwright Exp $
+* $Id: asset.inc,v 1.503.2.29 2006/09/04 02:11:10 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.503.2.28 $
+* @version $Revision: 1.503.2.29 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3392,6 +3392,9 @@ class Asset extends MySource_Object
 	function readAccess($assetids=Array())
 	{
 		if (!$this->id) return TRUE;
+		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+			return TRUE;
+		}
 
 		// if the asset is in the middle of workflow and the current user
 		// can approve the asset, we really need to give them read access to it
