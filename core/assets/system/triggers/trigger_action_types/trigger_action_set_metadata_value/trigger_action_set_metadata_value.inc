@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.4 2006/01/17 03:28:43 lwright Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.4.2.1 2006/09/05 01:20:18 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,7 +65,15 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		if (empty($settings['fieldid'])) return false;
 		if (empty($settings['value'])) return false;
 		if (empty($settings['field_name'])) return false;
-		if (is_null($state['asset'])) return false;
+
+		if (empty($state['asset'])) {
+			// grab the asset if assetid is given, but not the asset.
+			if (empty($state['assetid'])) {
+				return FALSE;
+			} else {
+				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+			}
+		}
 
 		// verify the fieldid
 		$success = $mm->isMetadataFieldAssetid($settings['fieldid']);
