@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.18.2.1 2006/08/07 04:20:58 skim Exp $
+* $Id: data_source_graph.inc,v 1.18.2.2 2006/09/05 05:16:07 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.18.2.1 $
+* @version $Revision: 1.18.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -829,6 +829,7 @@ class Data_Source_Graph extends Image
 			header('Last-Modified: '.gmdate('D, d M Y H:i:s',$existing['modified']).' GMT');
 			header('Content-Length: '.$existing['size']);
 			readfile($existing['path']);
+			@ob_flush();
 		}
 
 	}//end printFrontend()
