@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.6 2006/09/05 01:12:23 skim Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.7 2006/09/05 03:24:47 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,7 +64,6 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		// check required settings
 		if (empty($settings['fieldid'])) return FALSE;
 		if (empty($settings['value'])) return FALSE;
-		if (empty($settings['field_name'])) return FALSE;
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
@@ -85,12 +84,20 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		// get the current metadata values
 		$metadata = $mm->getMetadata($asset->id);
 
+		// get the field name
+		$field_name = $metadata[$settings['fieldid']]['name'];
+
+		// if the field name is provided in $settings, then verify it.
+		if (isset($settings['field_name']) && $settings['field_name'] != $field_name) {
+			return FALSE;
+		}
+
 		$value = '';
 		$value_component = Array();
 
 		// set the new value
 		$metadata[$settings['fieldid']] = Array(
-											'name'	=> $settings['field_name'],
+											'name'	=> $field_name,
 											'value'	=> $settings['value'],
 										  );
 		$success = $mm->setMetadata($asset->id, $metadata);
@@ -99,7 +106,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		if ($success) {
 			return Array(
 					'fieldid'		=> $settings['fieldid'],
-					'field_name'	=> $settings['field_name'],
+					'field_name'	=> $field_name,
 					'value'			=> $settings['value'],
 				   );
 		} else {
