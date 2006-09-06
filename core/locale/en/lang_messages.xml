@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.13 2006/06/15 00:50:23 sdanis Exp $
+* $Id: lang_messages.xml,v 1.14 2006/09/06 23:34:35 bcaldwell Exp $
 *
 * Core Internal Messages File
 */
@@ -91,6 +91,10 @@
 	<message type="hipo.force_kill">
 		<subject>HIPO Herder</subject>
 		<body>FORCE KILL %hipo_code_name%</body><!-- hipo-code-name -->
+	</message>
+	<message type="hipo.orphan_kill">
+		<subject>HIPO Herder</subject>
+		<body>ORPHAN KILL %hipo_code_name%</body><!-- hipo-code-name -->
 	</message>
 	<message type="system.security.locked">
 		<subject>User Account Locked</subject>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.78 2006/06/30 05:58:16 tbarrett Exp $
+* $Id: hipo_herder.inc,v 1.79 2006/09/06 23:33:25 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -829,6 +829,33 @@ class HIPO_Herder extends MySource_Object
 
 			}//end if have lock, and forece kill is set
 
+			// we want to remove some job records from the database, that is all
+			if ($have_lock && !empty($_POST['process_form']) && !empty($_POST['remove_job'])) {
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
+				$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+				$jobs_to_remove = Array();
+				foreach ($_POST['remove_job'] as $code_name) {
+					$jobs_to_remove[] = $db->quoteSmart($code_name);
+				}
+				$sql = 'DELETE FROM sq_hipo_job
+						WHERE code_name IN ('.implode(', ', $jobs_to_remove).')';
+
+				$result = $db->query($sql);
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+				// log each job that was cleared
+				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				foreach ($_POST['remove_job'] as $code_name) {
+					$msg_reps = Array(
+									'hipo_code_name'	=> $code_name,
+								);
+					$message = $ms->newMessage(Array(), 'hipo.orphan_kill', $msg_reps);
+					$message->send();
+				}
+
+			}// end if have lock, and removing orphaned jobs
+
 			if (!empty($_POST['sq_lock_release']) || !empty($_POST['sq_lock_release_manual'])) {
 				$GLOBALS['SQ_SYSTEM']->releaseLock(get_class($this));
 			}
@@ -872,9 +899,9 @@ class HIPO_Herder extends MySource_Object
 						$expires_in = easy_time_total(($lock['expires'] - $now), true);
 						if (!$expires_in) $expires_in = '1 second';
 						$expires_in = translate('due_to_expire', $expires_in);
-						echo translate('release_lock', translate('release_lock_button'), translate('user_preferences')); 
+						echo translate('release_lock', translate('release_lock_button'), translate('user_preferences'));
 						echo '<br />';
-						echo $expires_in; 
+						echo $expires_in;
 
 					} else {
 						echo translate('acquire_lock', translate('acquire_lock_button'), translate('user_preferences'));
@@ -1028,6 +1055,83 @@ class HIPO_Herder extends MySource_Object
 			}//end else
 
 
+		$o->closeSection();
+
+		//.get jobs that have a non-existant source job
+		$o->openSection(translate('orphaned_hipo_jobs'));
+			$o->openField('', 'new_line');
+
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
+				$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+				$sql = 'SELECT code_name, source_code_name, job_type, userid, last_updated
+						FROM sq_hipo_job
+						WHERE source_code_name NOT IN (SELECT code_name FROM sq_hipo_job)';
+
+				// regular users can only see own HIPO
+				if (!$hipo_admin) {
+					$sql .= ' AND userid = '.$db->quoteSmart($current_user_id);
+				}
+
+				$orphaned_jobs = $db->getAssoc($sql);
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+				// no orphaned jobs, yay
+				if (empty($orphaned_jobs)) {
+					echo translate('hipo_currently_no_oprhaned_jobs');
+				} else {
+					?>
+					<table class="sq-backend-table">
+						<tr>
+							<td class="sq-backend-table-header"><?php echo translate('hipo_herder_job_type'); ?></td>
+							<td class="sq-backend-table-header"><?php echo translate('hipo_herder_parent_job_type'); ?></td>
+							<td class="sq-backend-table-header"><?php echo translate('owner'); ?></td>
+							<td class="sq-backend-table-header"><?php echo translate('hipo_last_updated'); ?></td>
+					<?php
+					if ($have_lock) {
+						?>
+							<td class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
+						<?php
+					} // end if have lock
+					?>
+						</tr>
+					<?php
+
+					// display some information on each orphaned job. we only use the info
+					// we pulled earlier because calling something like getJob() may result in
+					// attempt to abort the job in hipo_job::load(). we don't really want any
+					// error messages to be displayed, just a way to remove this from the db
+					foreach ($orphaned_jobs as $code_name => $job_info) {
+						?>
+						<tr>
+							<td><?php echo ucwords(str_replace('_', ' ', $job_info['job_type'])); ?></td>
+							<td><?php
+								$parent_job_type = reset(explode('-', $job_info['source_code_name']));
+								echo ucwords(str_replace('_', ' ', $parent_job_type));
+							?></td>
+							<td><?php
+								$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_info['userid']);
+								echo $user->name.' (Id #'.$user->id.')';
+							?></td>
+							<td><?php
+								$now = time();
+								echo easy_time_total(strtotime($job_info['last_updated']) - $now, TRUE);
+							?></td>
+							<?php
+							if ($have_lock) {
+								?>
+								<td class="sq-backend-table-cell" style="text-align: center;">
+									<?php check_box('remove_job[]', $code_name); ?>
+								</td>
+								<?php
+							}// end if have_lock
+						?>
+						</tr>
+						<?php
+					}
+				}
+
+			$o->closeField();
 		$o->closeSection();
 
 		if ($have_lock) $o->commitButton('', TRUE);
