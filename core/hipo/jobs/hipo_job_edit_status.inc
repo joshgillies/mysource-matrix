@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.48 2006/07/17 05:17:42 rong Exp $
+* $Id: hipo_job_edit_status.inc,v 1.49 2006/09/06 06:12:40 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -51,8 +51,8 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	/**
 	* Paints backend of this job
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
-	* @param string						$class		calling class name
+	* @param object	&$o		reference to the backend outputter
+	* @param string	$class	calling class name
 	*
 	* @return void
 	* @access private
@@ -79,7 +79,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	/**
 	* Sets some info about thresholds that this hipo requires.
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getConfigVars()
@@ -188,7 +188,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		}
 
 		// so we have an assetid to start at, but make sure it is a valid assetid
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 		if (is_null($asset)) {
 			trigger_localised_error('HIPO0011', E_USER_WARNING, $this->_running_vars['assetid']);
 			return '';
@@ -212,7 +212,6 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 				$this->_running_vars['dependants_only'] = TRUE;
 				$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, '', TRUE, FALSE);
 			}
-			//$child_assets[$asset->id] = get_class($asset);
 
 			$this->_running_vars['todo_assetids'] = $child_assets;
 			$this->_running_vars['done_root']     = FALSE;
@@ -309,7 +308,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	* This function manages the message queue during the status changes
 	*
 	* @param array	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -318,7 +317,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	{
 		// we are probably going to be sending some internal messages during this
 		// process, so we'll open a new queue here
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openQueue();
 
 		if (!parent::processServer($step_data, $prefix)) {
@@ -371,7 +370,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			return TRUE;
 
 		}
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 		// create a queue to store the messages
 		$ms->openQueue();
@@ -407,8 +406,8 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 					// this asset has dependants, so we are going to spawn another edit_status hipo
 					// to take care of processing them
 					if (!empty($dependants) && empty($this->_running_vars['process_dependants'])) {
-						$messages = array_merge($this->_running_vars['messages'], $ms->queueContents());
-						if ($code_name = $this->spawnDependantStatusHipo($asset->id, $new_status, $messages)) {
+						$this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], $ms->queueContents());
+						if ($code_name = $this->spawnDependantStatusHipo($asset->id, $new_status, $this->_running_vars['messages'])) {
 							$this->_running_vars['dependant_hipo_job'] = $code_name;
 						}
 					}
@@ -423,7 +422,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			}
 			// add this assetid to the done array so we dont do it again
 			$this->_running_vars['done_assetids'][] = $assetid;
-		}
+		}//end if empty done ids and not done root
 
 		$this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], $ms->queueContents());
 		$ms->abortQueue();	// we don't need the messages anymore, dump them
@@ -434,7 +433,9 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		if (empty($this->_running_vars['todo_assetids']) && empty($this->_running_vars['dependant_hipo_job'])) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;
-			$ms->send($this->_running_vars['messages']);
+			if (!empty($this->_running_vars['process_dependants'])) {
+				$ms->send($this->_running_vars['messages']);
+			}
 		} else {
 			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
@@ -451,14 +452,14 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	*
 	* @param string	$assetid	The ID of the asset to process dependants of
 	* @param int	$new_status	The status to change dependants to
-	* @param array	$messages	The current message queue
+	* @param array	&$messages	The current message queue
 	*
 	* @return string
 	* @access private
 	*/
-	function spawnDependantStatusHipo($assetid, $new_status, $messages)
+	function spawnDependantStatusHipo($assetid, $new_status, &$messages)
 	{
-		$init_hipo = new Hipo_Job_Edit_Status();
+		$init_hipo =& new Hipo_Job_Edit_Status();
 
 		$options['auto_complete'] = TRUE;
 
@@ -466,11 +467,11 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		// and the 'process_dependants' flag. the sub-sub-hipo thingy will
 		// take care of working out what assets (depdants) to process
 		$running_vars = Array(
-						'assetid'				=> $assetid,
-						'new_status'			=> $new_status,
-						'process_dependants'	=> TRUE,
-						'messages'				=> $messages,
-					);
+							'assetid'				=> $assetid,
+							'new_status'			=> $new_status,
+							'process_dependants'	=> TRUE,
+							'messages'				=> $messages,
+						);
 
 		$init_hipo->setRunningVars($running_vars);
 		foreach ($options as $k => $v) {
@@ -480,9 +481,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		// create our sub-sub-hipo thingy, until this job is completed, we need
 		// to process it in place of our todo assets
 		$code_name = $init_hipo->initialise($this->source_code_name);
-		if ($code_name) {
-			return $code_name;
-		}
+		if ($code_name) return $code_name;
 		return FALSE;
 
 	}//end spawnDependantStatusHipo()
