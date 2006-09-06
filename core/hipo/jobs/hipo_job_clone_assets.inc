@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.20.2.1 2006/07/18 05:19:27 lwright Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.20.2.2 2006/09/06 03:55:20 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20.2.1 $
+* @version $Revision: 1.20.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -53,8 +53,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	/**
 	* Paints backend of this job
 	*
-	* @param object Backend_Outputter	&$o		reference to the backend outputter
-	* @param string						$class	calling class name
+	* @param object 	&$o		reference to the backend outputter
+	* @param string		$class	calling class name
 	*
 	* @return void
 	* @access private
@@ -81,7 +81,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	/**
 	* Sets some info about thresholds that this hipo requires.
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getConfigVars()
@@ -141,11 +141,11 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 										'process_function'	=> 'processCloneOptions',
 									   ),
 					'running_mode'	=> 'web',
-					'skip_step'		=> false,
-					'auto_step'		=> false,
-					'allow_cancel'	=> true,
+					'skip_step'		=> FALSE,
+					'auto_step'		=> FALSE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -154,10 +154,10 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 										'init_details_function'	=> 'getLockAssetDetails',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -166,11 +166,11 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 										'process_function'	=> 'processCloneAssets',
 									   ),
 					'running_mode'	=> 'server',
-					'skip_step'		=> false,
-					'auto_step'		=> true,
-					'allow_cancel'	=> true,
+					'skip_step'		=> FALSE,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -179,11 +179,11 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 										'process_function'	=> 'processRemap',
 									   ),
 					'running_mode'	=> 'server',
-					'skip_step'		=> false,
-					'auto_step'		=> true,
-					'allow_cancel'	=> false,
+					'skip_step'		=> FALSE,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -193,11 +193,11 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 										'process_function'	=> 'processInterface',
 									   ),
 					'running_mode'	=> 'web',
-					'auto_step'		=> false,
-					'skip_step'		=> false,
-					'allow_cancel'	=> false,
+					'auto_step'		=> FALSE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -206,11 +206,11 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 										'init_details_function'	=> 'cascadePermissions',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'skip_step'		=> false,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -219,11 +219,11 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 										'init_details_function'	=> 'cascadeMetadata',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'skip_step'		=> false,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -232,11 +232,11 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 										'init_details_function'	=> 'cascadeWorkflow',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'skip_step'		=> false,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -271,11 +271,11 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 										'process_function'	=> 'releaseLocks',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'skip_step'		=> false,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -285,11 +285,11 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 										'process_function'	=> 'processRefresh',
 									   ),
 					'running_mode'	=> 'web',
-					'auto_step'		=> true,
-					'skip_step'		=> false,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'skip_step'		=> FALSE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 			   );
@@ -327,10 +327,10 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	{
 		while (!empty($this->_running_vars['todo_assetids'])) {
 			if (!$this->processLookups($this->_steps[0], get_class($this))) {
-				return false;
+				return FALSE;
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end freestyle()
 
@@ -346,7 +346,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		// there must be assets in the _running_vars to clone
 		if (empty($this->_running_vars['assets'])) {
 			trigger_localised_error('HIPO0031', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		$this->_running_vars['remap'] = Array();
@@ -370,13 +370,13 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	{
 		$job_type = 'hipo_job_acquire_locks';
 
-		$options['auto_complete'] = true;
+		$options['auto_complete'] = TRUE;
 
 		$running_vars = Array(
 							'assetids'			=> array_keys($this->_running_vars['assets']),
 							'lock_type'			=> Array('all'),
-							'forceably_acquire'	=> false,
-							'dependants_only'	=> true,
+							'forceably_acquire'	=> FALSE,
+							'dependants_only'	=> TRUE,
 						);
 
 	}//end getLockAssetDetails()
@@ -385,7 +385,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	/**
 	* Release the locks that were acquired while cloning assets
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
+	* @param array		&$step_data	a reference to the array of information about the current step
 	* @param string		$prefix		prefix for form vars
 	*
 	* @return boolean
@@ -417,13 +417,13 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		if (empty($this->_running_vars['re_lock_assets'])) {
 			unset($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 		} else {
 			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / count($this->_running_vars['assets'])) * 100;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end releaseLocks()
 
@@ -434,8 +434,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	* All dependant asset will be automatically cloned, so no interface will be
 	* supplied for duping dependant assets which should save some space.
 	*
-	* @param &array							$step_data	a reference to the step data for this step
-	* @param &object Hipo_Backend_Outputter	$o			the hipo backend outputter object
+	* @param array							&$step_data	a reference to the step data for this step
+	* @param object 		&$o			the hipo backend outputter object
 	* @param string							$prefix		a string for prefixing form variables
 	*
 	* @return boolean
@@ -443,7 +443,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	*/
 	function paintCloneOptions(&$step_data, &$o, $prefix)
 	{
-		$to_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
+		$to_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 
 		$o->openSection(translate('cloning_confirmation'));
 			$o->openField(translate('confirm'));
@@ -452,7 +452,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 				<ul>
 					<?php
 					$assets = $this->_running_vars['assets'];
-					for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
+					for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 						?><li>"<?php echo $asset_info[$assetid]['short_name']; ?>"</li><?php
 					}
@@ -470,7 +470,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	* Does nothing
 	*
 	* @param array		&$step_data	a reference to the step data for this step
-	* @param String		$prefix		a string for prefixing form variables
+	* @param string		$prefix		a string for prefixing form variables
 	*
 	* @return boolean
 	* @access public
@@ -481,10 +481,10 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 			$step_data['percent_done'] = 50;
 		} else {
 			$step_data['percent_done'] = 100;
-			$step_data['complete'] = true;
+			$step_data['complete'] = TRUE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processCloneOptions()
 
@@ -493,7 +493,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	* Processes the assets that need to be cloned, and clones them
 	*
 	* @param array		&$step_data	a reference to the step data for this step
-	* @param String		$prefix		a string for prefixing form vairables
+	* @param string		$prefix		a string for prefixing form vairables
 	*
 	* @return boolean
 	* @access public
@@ -512,18 +512,18 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		$assetid = key($this->_running_vars['clone_assets']);
 
-		$parent_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
+		$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 
 		if (is_null($parent_asset)) {
 			trigger_localised_error('HIPO0030', E_USER_WARNING, $this->_running_vars['to_parent_assetid']);
-			return false;
+			return FALSE;
 		}
 
-		$orig = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$orig =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 		if (is_null($orig)) {
 			trigger_localised_error('HIPO0029', E_USER_WARNING, $assetid);
-			return false;
+			return FALSE;
 		}
 
 		$link = Array(
@@ -554,11 +554,11 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		$step_data['message'] = 'Cloning "'.$orig->name.'" to "'.$parent_asset->name.'".';
 
-		$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($orig, $link, $remap, $components, true);
+		$clone =& $GLOBALS['SQ_SYSTEM']->am->cloneAsset($orig, $link, $remap, $components, TRUE);
 
 		if (is_null($clone)) {
 			trigger_localised_error('HIPO0028', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// the web path of this asset may confict with the children
@@ -566,7 +566,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		// of the path before using it
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_paths = make_valid_web_paths($orig->getWebPaths());
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $clone->id, true);
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $clone->id, TRUE);
 
 		$link_info = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($clone->id, $this->_running_vars['to_parent_assetid'], $link['link_type'], '', 'minor');
 
@@ -574,7 +574,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$this->_running_vars['cloned_asset'][$clone->id]['parentid'] = $this->_running_vars['to_parent_assetid'];
 
 
-		if (!$clone->saveWebPaths($good_paths)) return false;
+		if (!$clone->saveWebPaths($good_paths)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_asset);
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($orig);
@@ -598,10 +598,10 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 			unset($this->_running_vars['done_asset_count']);
 			unset($this->_running_vars['todo_asset_count']);
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 		} else {
 			$step_data['percent_done'] = (int)(($this->_running_vars['done_asset_count'] / $this->_running_vars['todo_asset_count']) * 100);
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
 		if ($this->_canSkipCascadeSteps($parent_asset->id)) {
@@ -613,7 +613,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 			$this->skipStep(9);
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processCloneAssets()
 
@@ -624,7 +624,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	* Uses a map returned from the clone() function in asset.inc
 	*
 	* @param array		&$step_data	a reference to the step data for this step
-	* @param String		$prefix		a string for prefixing form vairables
+	* @param string		$prefix		a string for prefixing form vairables
 	*
 	* @return boolean
 	* @access public
@@ -633,7 +633,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	{
 		$assetid = key($this->_running_vars['remap']);
 
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		$map = $this->_running_vars['remap'][$assetid];
 		unset($this->_running_vars['remap'][$assetid]);
 
@@ -641,7 +641,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		if (!$asset->remapAssetids($map)) {
 			trigger_localised_error('HIPO0027', E_USER_WARNING, $asset->id);
-			return false;
+			return FALSE;
 		}
 
 		$this->_running_vars['done_assetids'][] = $assetid;
@@ -649,13 +649,15 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		if (empty($this->_running_vars['remap'])) {
 			unset($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 		} else {
-			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / count($this->_running_vars['remap'])) * 100;
-			$step_data['complete']     = false;
+			$remap_total = count($this->_running_vars['done_assetids'])+count($this->_running_vars['remap']);
+			$remap_percentage = (int)(count($this->_running_vars['done_assetids']) / $remap_total * 100);
+			$step_data['percent_done'] = $remap_percentage;
+			$step_data['complete']     = FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processRemap()
 
@@ -664,31 +666,31 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	* Paint the interface for accepting user input on what to cascade (permissions/metadata/workflow)
 	*
 	* @param array							&$step_data	a reference to the array of information about the current step
-	* @param object Hipo_Backend_Outputter	&$o			the backend outputter class
+	* @param object 	&$o			the backend outputter class
 	* @param string							$prefix		prefix for form vars
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function paintInterface(&$step_data, &$o, $prefix)
 	{
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		if (is_null($hh)) return false;
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		if (is_null($hh)) return FALSE;
 
 		$assets = $this->_running_vars['assets'];
 
 		$c = 1;
-		for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
+		for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 			$o->addHiddenField('link_assetid['.$c.']',  $assetid);
 			$c++;
 		}
 
 		$o->addHiddenField('link_parentid', $this->_running_vars['to_parent_assetid']);
 
-		$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
+		$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 		if (is_null($parent)) {
 			trigger_localised_error('HIPO0018', E_USER_WARNING, $this->_running_vars['to_parent_assetid']);
-			return false;
+			return FALSE;
 		}
 
 		$o->openSection(translate('note'));
@@ -698,7 +700,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 				if (count($this->_running_vars['assets']) > 0) {
 					echo '<p><b>'.translate('hipo_asset_cloning_successful', $parent->name).'</b></p>';
 					echo '<ul>';
-					for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
+					for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid,));
 						echo '<li>"'.$asset_info[$assetid]['name'].'"</li>';
 					}
@@ -711,7 +713,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_select', $parent->name); ?></p>
 				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_none'); ?></p>
 				<?php
-				$ei = &$parent->getEI();
+				$ei =& $parent->getEI();
 
 				$ei->includeStaticScreen('permissions');
 				$pe = paintInlinePermissions($parent, $o, $ei);
@@ -745,7 +747,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
 		unset($parent);
 
-		return true;
+		return TRUE;
 
 	}//end paintInterface()
 
@@ -753,11 +755,11 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	/**
 	* Process the user's selections to cascade whatever, and skip those steps that they don't want to run
 	*
-	* @param	&array	$step_data		the step data for this job
+	* @param	array	&$step_data		the step data for this job
 	* @param	string	$prefix			prefix to be used with this job
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$step_data, $prefix)
 	{
@@ -772,7 +774,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 				if (!in_array('cascade_ms', $_REQUEST['cascade'])) {
 					$this->skipStep(6);
 				}
-				//workflow
+				// workflow
 				if (!in_array('cascade_wf', $_REQUEST['cascade'])) {
 					$this->skipStep(7);
 				}
@@ -792,10 +794,10 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 				$this->skipStep(9); // roles
 			}
 			$step_data['percent_done'] = 100;
-			$step_data['complete'] = true;
-		}
+			$step_data['complete'] = TRUE;
+		}//end if
 
-		return true;
+		return TRUE;
 
 	}//end processInterface()
 
@@ -804,7 +806,6 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	* Returns true if parent asset has nothing to cascade
 	* checked settings are: permissions, workflow sch, metadata sch, tag links
 	*
-	* @param string	$assetid	Id of the asset that is being moved
 	* @param string	$parentid	Id of the new parent asset
 	*
 	* @return boolean
@@ -859,12 +860,12 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$permission_vars = Array();
 
 		foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-			$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->_running_vars['to_parent_assetid'], $perm, null, false, false, true);
+			$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->_running_vars['to_parent_assetid'], $perm, NULL, FALSE, FALSE, TRUE);
 			foreach ($set_perms as $userid => $granted) {
 				$permission_vars[$perm][] = Array(
 												'granted'			=> $granted,
 												'userid'			=> $userid,
-												'previous_access'	=> null,
+												'previous_access'	=> NULL,
 											);
 			}
 		}
@@ -888,7 +889,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	function cascadeMetadata(&$job_type, &$running_vars, &$options)
 	{
 		$job_type = 'hipo_job_edit_metadata_schemas';
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$schemas = $mm->getSchemas($this->_running_vars['to_parent_assetid']);
 		$schema_vars = Array();
 
@@ -896,11 +897,12 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 			$schema_vars[] = Array(
 								'granted'			=> $granted,
 								'schemaid'			=> $schemaid,
-								'previous_access'	=> null,
+								'previous_access'	=> NULL,
 							 );
 		}
 		$running_vars['schema_changes'] = $schema_vars;
 		$running_vars['assets'] = $this->_running_vars['cloned_asset'];
+
 	}//end cascadeMetadata()
 
 
@@ -917,7 +919,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	function cascadeWorkflow(&$job_type, &$running_vars, &$options)
 	{
 		$job_type = 'hipo_job_edit_workflow_schemas';
-		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$schemas = $wfm->getSchemas($this->_running_vars['to_parent_assetid']);
 		$schema_vars = Array();
 
@@ -925,7 +927,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 			$schema_vars[] = Array(
 								'granted'			=> $granted,
 								'schemaid'			=> $schemaid,
-								'previous_access'	=> null,
+								'previous_access'	=> NULL,
 							 );
 		}
 		$running_vars['schema_changes'] = $schema_vars;
@@ -994,17 +996,17 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	* Refreshes the asset map to reflect cloned assets that were added
 	*
 	* @param array							&$step_data	a reference to the array of information about the current step
-	* @param object Hipo_Backend_Outputter	&$o			the backend outputter class
+	* @param object 	&$o			the hipo backend outputter class
 	* @param string							$prefix		prefix for form vars
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function paintRefresh(&$step_data, &$o, $prefix)
 	{
 		$o->addOnLoad('if (window.opener.parent.frames["sq_sidenav"] && window.opener.parent.frames["sq_sidenav"].reload_asset) window.opener.parent.frames["sq_sidenav"].reload_asset("'.$this->_running_vars['to_parent_assetid'].'");');
 
-		return true;
+		return TRUE;
 
 	}//end paintRefresh()
 
@@ -1015,8 +1017,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	* @param array	&$step_data	the step data for this job
 	* @param string	$prefix		prefix to be used with this job
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processRefresh(&$step_data, $prefix)
 	{
@@ -1024,10 +1026,10 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 			$step_data['percent_done'] = 50;
 		} else {
 			$step_data['percent_done'] = 100;
-			$step_data['complete'] = true;
+			$step_data['complete'] = TRUE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processRefresh()
 
