@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.18.2.2 2006/07/18 05:31:26 lwright Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.18.2.3 2006/09/06 03:55:10 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18.2.2 $
+* @version $Revision: 1.18.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -632,7 +632,9 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = true;
 		} else {
-			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / count($this->_running_vars['remap'])) * 100;
+			$remap_total = count($this->_running_vars['done_assetids'])+count($this->_running_vars['remap']);
+			$remap_percentage = (int)(count($this->_running_vars['done_assetids']) / $remap_total * 100);
+			$step_data['percent_done'] = $remap_percentage;
 			$step_data['complete']     = false;
 		}
 
