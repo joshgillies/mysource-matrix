@@ -18,13 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.11 2006/08/15 00:37:57 rhoward Exp $
+* $Id: page_calendar_rolling.inc,v 1.12 2006/09/06 00:57:00 rhoward Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
+require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 
 /**
@@ -34,12 +35,32 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
 class Page_Calendar_Rolling extends Page
 {
+
+
+	/**
+	* An array of bodycopies and their names that are attached underneath this page asset
+	* @var array
+	*/
+	var $bodycopies = Array(
+						''			=> Array(
+										'name'		=> 'Page Contents',
+										'content'	=> Array(
+														'content'	=> '%event_list%',
+													   ),
+									   ),
+						'time_unit'	=> Array(
+										'name'		=> 'Time Unit Format',
+										'content'	=> Array(
+														'content'	=> "<h3>%time_unit_start_datetime_Y-m-d%</h3>\n%time_unit_event_list%",
+													   ),
+									   ),
+					  );
 
 
 	/**
@@ -71,16 +92,18 @@ class Page_Calendar_Rolling extends Page
 		if (!parent::_createAdditional($link)) return FALSE;
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
-		// create a page contents bodycopy
+		$link = Array(
+					'asset'			=> &$this,
+					'link_type'		=> SQ_LINK_TYPE_2,
+					'is_dependant'	=> 1,
+					'is_exclusive'	=> 1,
+				);
+
+		$am->includeAsset('folder');
 		$am->includeAsset('bodycopy');
-		$page_contents_bc =& new Bodycopy();
-		$page_contents_bc->setAttrValue('name', 'Page Contents');
-		if (!$page_contents_bc->create($link)) return FALSE;
 
 		// create a type formats folder
-		$am->includeAsset('folder');
 		$type_formats_folder =& new Folder();
 		$type_formats_folder->setAttrValue('name', 'Type Formats');
 		if (!$type_formats_folder->create($link)) return FALSE;
@@ -89,10 +112,30 @@ class Page_Calendar_Rolling extends Page
 		$tf_link = Array('asset' => &$type_formats_folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 0);
 		foreach (Array('calendar_event_single', 'calendar_event_recurring') as $event_type) {
 			$tf_link['value'] = $event_type;
+			$content          = Array(
+									'content'	=> '%asset_name% (%event_start_date%)',
+								);
 			$format_bc =& new Bodycopy();
 			$format_bc->setAttrValue('name', $am->getTypeInfo($event_type, 'name').' Format');
-			if (!$format_bc->create($tf_link)) return FALSE;
+			if (!$format_bc->create($tf_link, $content)) return FALSE;
 			$format_bc = NULL;
+		}
+
+		// create the page contents and time_unit bodycopies
+		foreach ($this->bodycopies as $value => $details) {
+			$copy_link = Array(
+							'asset'			=> &$this,
+							'link_type'		=> SQ_LINK_TYPE_2,
+							'is_dependant'	=> 1,
+							'is_exclusive'	=> 1,
+							'value'			=> $value,
+						 );
+
+			$bodycopy =& new Bodycopy();
+			$bodycopy->setAttrValue('name', array_get_index($details, 'name'));
+			if (!$bodycopy->create($copy_link, array_get_index($details, 'content'))) {
+				return FALSE;
+			}
 		}
 
 		return TRUE;
@@ -131,9 +174,15 @@ class Page_Calendar_Rolling extends Page
 		if (!isset($vars['keywords'])) {
 			$vars['keywords'] = Array();
 		}
+
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		$links               = $am->getLinks($this->id, SQ_LINK_TYPE_2, Array('bodycopy', 'folder'), TRUE, 'major', NULL, TRUE);
+		$broadcaster_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id);
+
+		// check if the broadcaster is in the type formats folder
 		$tf_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, '', 'major', TRUE);
 		$tf_folder_id = $tf_folder_link['minorid'];
-		$broadcaster_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id);
 		if (isset($broadcaster_parents[$tf_folder_id])) {
 			$tf_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($tf_folder_id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major');
 			$tf_bcs = Array();
@@ -150,11 +199,32 @@ class Page_Calendar_Rolling extends Page
 				}
 				return TRUE;
 			}
-		} else if (isset($broadcaster_parents[$this->id])) {
-			// it's the contents BC
-			$vars['keywords']['event_list'] = 'List of Events';
-			return TRUE;
+			return FALSE;
 		}
+
+
+		// get the bodycopy parent of the broadcaster
+		$format_bodycopy         = FALSE;
+		$format_bodycopies_links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE);
+		foreach ($format_bodycopies_links as $link) {
+			if (isset($broadcaster_parents[$link['minorid']])) {
+				$format_bodycopy = $link['value'];
+			}
+		}
+
+		switch ($format_bodycopy) {
+			case '':
+				$vars['keywords']['event_list'] = translate('cal_rolling_keyword_event_list');
+				return TRUE;
+			break;
+			case 'time_unit':
+				$vars['keywords']['time_unit_event_list'] = translate('cal_rolling_keyword_time_unit_event_list', $this->attr('time_unit'));
+				$vars['keywords']['time_unit_start_datetime_xxxx'] = translate('cal_rolling_keyword_time_unit_start_datetime_xxxx');
+				$vars['keywords']['time_unit_end_datetime_xxxx'] = translate('cal_rolling_keyword_time_unit_end_datetime_xxxx');
+				return TRUE;
+			break;
+		}
+
 		return FALSE;
 
 	}//end onRequestKeywords()
@@ -169,17 +239,20 @@ class Page_Calendar_Rolling extends Page
 	function printBody()
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$mm = NULL;
+
 		$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2, Array('folder', 'bodycopy'), TRUE, 'major', NULL, TRUE);
 		$tf_folder_id = NULL;
 		$pb_bodycopy_id = NULL;
+
 		foreach ($page_links as $link) {
 			switch ($link['minor_type_code']) {
 				case 'folder':
 					$this->_tmp['tf_folder_id'] = $link['minorid'];
 				break;
 				case 'bodycopy':
-					$pb_bodycopy_id = $link['minorid'];
+					if ($link['value'] == '') {
+						$pb_bodycopy_id = $link['minorid'];
+					}
 				break;
 			}
 		}
@@ -193,7 +266,8 @@ class Page_Calendar_Rolling extends Page
 		}
 
 		$pb =& $am->getAsset($pb_bodycopy_id, 'bodycopy');
-		$pb->setKeywordReplacements($this->_getPageContentsReplacements());
+		$replacements = $this->_getPageContentsReplacements();
+		$pb->setKeywordReplacements($replacements);
 		$pb->printBody();
 
 	}//end printBody()
@@ -208,6 +282,8 @@ class Page_Calendar_Rolling extends Page
 	function _getPageContentsReplacements()
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		// prepare keywords for the type format replacement we're going to perform later
 		$type_format_links = $am->getLinks($this->_tmp['tf_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', NULL, TRUE);
 		$type_formats = Array();
 		$needs_asset = Array();
@@ -256,10 +332,9 @@ class Page_Calendar_Rolling extends Page
 			}
 		}
 
-		$heading_tag = $this->attr('day_heading_tag');
-		$heading_format = $this->attr('day_heading_format');
-
-		$all_events = $this->_getEvents();
+		// get the events to display
+		$time = time();
+		$all_events = $this->_getEvents($time);
 		$all_ids = Array();
 		foreach ($all_events as $day => $event_list) {
 			$all_ids = array_merge($all_ids, array_keys($event_list));
@@ -268,56 +343,148 @@ class Page_Calendar_Rolling extends Page
 			$asset_infos = $am->getAssetInfo($all_ids);
 		}
 
+		// break up events into months, weeks, or days
+		$events_by_time_unit = Array();
+		$start_date = reset(array_keys($all_events));
+		$start_time = iso8601_ts($start_date);
+		switch ($this->attr('time_unit')) {
+			case 'months':
+				$current_year  = date('Y', $time);
+				$current_month = date('m', $time);
+
+				foreach ($all_events as $event_date => $events) {
+					$event_time  = iso8601_ts($event_date);
+					$event_year  = date('Y', $event_time);
+					$event_month = date('m', $event_time);
+
+					$difference = ($event_month - $current_month) + (($event_year - $current_year) * 12);
+					$events_by_time_unit[$difference][$event_date] = $events;
+				}
+			break;
+
+			case 'weeks':
+				// assumes week starts on sunday; further development required in order to have weeks start on a different day
+				$current_year  = date('Y', $time);
+
+				// hack required - php 'W' assumes week starts on monday, 'w' assumes week starts on sunday
+				// "correct" so that weeks start on sunday
+				$current_week  = date('W', strtotime(date('Y-m-d', $time).' +1 day'));
+
+				foreach ($all_events as $event_date => $events) {
+					$event_time  = iso8601_ts($event_date);
+					$event_year  = date('Y', $event_time);
+
+					// hack required - same as above
+					$event_week  = date('W', strtotime(date('Y-m-d', $event_time).' +1 day'));
+
+					$difference = ($event_week - $current_week) + (($event_year - $current_year) * 52);
+					$events_by_time_unit[$difference][$event_date] = $events;
+				}
+			break;
+
+			case 'days':
+			default:
+				foreach ($all_events as $event_date => $events) {
+					$difference = days_between_isos($event_date, date('Y-m-d', $time));
+					$events_by_time_unit[$difference][$event_date] = $events;
+				}
+			break;
+		}//end switch ($this->attr('time_unit'))
+
+
+		$unit_bodycopy_link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'time_unit');
+		if (empty($unit_bodycopy_link)) return FALSE;
+
+		$unit_bodycopy =& $am->getAsset($unit_bodycopy_link['minorid'], $unit_bodycopy_link['minor_type_code']);
+		if (is_null($unit_bodycopy)) return FALSE;
+
 		$event_list = '';
 		$recurring_event_descendants = $am->getTypeDescendants('calendar_event_recurring', TRUE);
-		foreach ($all_events as $date => $events) {
-			$event_list .= "\n\n<".$heading_tag.'>'.date($heading_format, strtotime($date)).'</'.$heading_tag.">\n";
-			foreach ($events as $id => $event) {
+		foreach ($events_by_time_unit as $unit_count => $events_by_date) {
 
-				$format_type = (in_array($event['type_code'], $recurring_event_descendants)) ? 'calendar_event_recurring' : 'calendar_event_single';
+			// get all the events for this time_unit (day/week/month), stuff them into $event_list
+			$unit_contents = '';
+			foreach ($events_by_date as $date => $events) {
 
-				// get asset keywords
-				if ($needs_asset[$format_type]) {
-					$asset =& $am->getAsset($id);
-					foreach ($required_keywords[$format_type] as $keyword) {
-						if ($keyword == 'asset_contents') {
-							ob_start();
-								$asset->printBody();
-								$replacements[$keyword] = ob_get_contents();
-							ob_end_clean();
-						} else {
-							$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+				// loop through the events for this date
+				foreach ($events as $id => $event) {
+
+					$format_type = (in_array($event['type_code'], $recurring_event_descendants)) ? 'calendar_event_recurring' : 'calendar_event_single';
+
+					// get asset keywords
+					if ($needs_asset[$format_type]) {
+						$asset =& $am->getAsset($id);
+						foreach ($required_keywords[$format_type] as $keyword) {
+							if ($keyword == 'asset_contents') {
+								ob_start();
+									$asset->printBody();
+									$replacements[$keyword] = ob_get_contents();
+								ob_end_clean();
+							} else {
+								$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+							}
+						}
+					} else {
+						// we can do this without the asset
+						foreach ($asset_infos[$id] as $field => $value) {
+							$replacements['asset_'.$field] = $value;
+						}
+						$replacements['asset_assetid'] = $id;
+					}
+
+					// get metadata keywords
+					if (!empty($metadata_keywords[$event['type_code']])) {
+						if (!empty($metadata_keywords)) {
+							if (is_null($mm)) {
+								$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+							}
+							// get all the metadata keywords for this asset
+							$metadata_values = $mm->getMetadataFieldValues($id, $metadata_keywords);
+
+							foreach ($metadata_values as $field => $value) {
+								$replacements['asset_metadata_'.$field] = $value;
+							}
 						}
 					}
-				} else {
-					// we can do this without the asset
-					foreach ($asset_infos[$id] as $field => $value) {
-						$replacements['asset_'.$field] = $value;
-					}
-					$replacements['asset_assetid'] = $id;
-				}
 
-				// get metadata keywords
-				if (!empty($metadata_keywords[$event['type_code']])) {
-					if (!empty($metadata_keywords)) {
-						if (is_null($mm)) {
-							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+					$type_format    = $type_formats[$format_type];
+					$unit_contents .= replace_keywords($type_format, $replacements);
+
+				}//end foreach events in day
+			}//end foreach ($events_by_date)
+
+
+			$unit_keywords = $unit_bodycopy->getKeywords();
+			foreach ($unit_keywords as $keyword) {
+				switch ($keyword) {
+					case 'time_unit_event_list':
+						$replacements[$keyword] = $unit_contents;
+					break;
+
+					default:
+						// if the keyword at this point starts with event_start_datetime_ or event_end_datetime_
+						// it means this is a dynamic keyword to display a date
+						preg_match('/^time_unit_(start|end)_datetime_(.+)/', $keyword, $matches);
+						if ($matches != NULL) {
+							$start_end   = $matches[1];
+							$date_format = $matches[2];
+
+							$time_unit              = $this->attr('time_unit');
+							// construct a string in the format "YEAR/MONTH/DATE +UNIT_COUNT TIME_UNITs", and pass it to strtotime() to calculate
+							$start_end_dates        = $this->_getStartEndDates($time_unit, $time, $unit_count);
+							$replacements[$keyword] = date($date_format, strtotime($start_end_dates[$start_end]));
 						}
-						// get all the metadata keywords for this asset
-						$metadata_values = $mm->getMetadataFieldValues($id, $metadata_keywords);
+					break;
+				}//end switch ($keyword)
+			}//end foreach ($unit_keywords)
 
-						foreach ($metadata_values as $field => $value) {
-							$replacements['asset_metadata_'.$field] = $value;
-						}
-					}
-				}
+			ob_start();
+				// print the contents of page - replacing the global keywords
+				$unit_bodycopy->setKeywordReplacements($replacements);
+				$unit_bodycopy->printBody();
+			$event_list .= ob_get_clean();
 
-				$type_format = $type_formats[$format_type];
-				$event_list .= replace_keywords($type_format, $replacements);
-
-			}//end foreach events in day
-
-		}//end foreach events
+		}//end foreach ($events_by_time_unit)
 
 		return Array('event_list' => $event_list);
 
@@ -325,32 +492,92 @@ class Page_Calendar_Rolling extends Page
 
 
 	/**
+	* Gets the start and end dates by time unit (eg. months) for a passed time
+	*
+	* (eg. pass in 'months' and strtotime('2006-08-10'), and this function will return '2006-08-01' and '2006-08-30')
+	*
+	* @param string	$time_unit	either 'days', 'weeks', or 'months'
+	* @param int	$time		the time to use as a point of reference, in unix timestamp
+	* @param int	$modifier	modifies the time so that it's shifted $modifier days/weeks/months in the future/past
+	*
+	* @return mixed array|FALSE
+	* @access private
+	*/
+	function _getStartEndDates($time_unit, $time, $modifier=0)
+	{
+		if (!is_int($time)) return FALSE;
+
+		// use the modifier, calculate the new date
+		$time = strtotime(date('Y-m-d', $time).' '.($modifier < 0 ? $modifier : '+'.$modifier).' '.$time_unit);
+
+		// check for day/week/month, bail out if other
+		preg_match('/(day|week|month)([s]?)/', $time_unit, $matches);
+		if (empty($matches)) return FALSE;
+		$unit = array_get_index($matches, 1);
+
+		// calculate the start and end times for the time unit
+		switch ($unit) {
+			case 'month':
+				// construct a date that looks like:  YEAR/MONTH/01 00:00.00
+				$tmp_start = mktime(0, 0, 0, date('m', $time), 1, date('y', $time));
+				$start     = date('Y-m-d', $tmp_start);
+				$end       = date('Y-m-d', strtotime($start.' +1 month -1 day'));
+			break;
+
+			case 'week':
+				// get current day, diff to monday/sunday
+				$day_of_week = date('w', $time);
+				$start       = date('Y-m-d', strtotime(date('Y-m-d', $time).' -'.$day_of_week.' days'));
+				$end         = date('Y-m-d', strtotime($start.' +6 days'));
+			break;
+
+			case 'day':
+			default:
+				// just snip off anything beyond the day
+				$start     = date('Y-m-d', $time);
+				$end       = $start;
+			break;
+		}
+
+		return Array(
+				'start'	=> $start,
+				'end'	=> $end,
+			   );
+
+	}//end _getStartEndDates()
+
+
+	/**
 	* Get the events that should be displayed in this calendar page
 	* Returns: (date => array (assetid => array ( details )))
 	*
+	* @param int	$time		The time to use as a point of reference when calculating start_date and end_date - if the latter two variables are set, $time goes unused
 	* @param string	$start_date	Start date
 	* @param string	$end_date	End date
 	*
 	* @return array
 	* @access protected
 	*/
-	function _getEvents($start_date=NULL, $end_date=NULL)
+	function _getEvents($time=NULL, $start_date=NULL, $end_date=NULL)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		if (is_null($start_date)) {
-			$days_from = $this->attr('days_from');
-			$days_to   = $this->attr('days_to');
+			$unit = $this->attr('time_unit');
+			$from = $this->attr('duration_from');
+			$to   = $this->attr('duration_to');
 
 			// switch if the values are the wrong way around
-			if ($days_from > $days_to) {
-				$tmp       = $days_from;
-				$days_from = $days_to;
-				$days_to   = $tmp;
+			if ($from > $to) {
+				$tmp  = $from;
+				$from = $to;
+				$to   = $tmp;
 			}
 
-			$now_ts = time();
-			$start_date = date('Y-m-d', $now_ts + ($days_from * 60 * 60 * 24));
-			$end_date   = date('Y-m-d', $now_ts + ($days_to   * 60 * 60 * 24));
+			$from_dates = $this->_getStartEndDates($unit, $time, $from);
+			$to_dates   = $this->_getStartEndDates($unit, $time, $to);
+
+			$start_date = $from_dates['start'];
+			$end_date   = $to_dates['end'];
 		}
 		$length = (iso8601_ts($end_date) - iso8601_ts($start_date)) / (60 * 60 * 24);
 

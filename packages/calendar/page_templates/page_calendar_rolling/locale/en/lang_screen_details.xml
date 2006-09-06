@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2006/02/15 01:06:48 rhoward Exp $
+* $Id: lang_screen_details.xml,v 1.3 2006/09/06 00:57:00 rhoward Exp $
 *
 */
 -->
@@ -43,31 +43,13 @@
 		</field>
 		<field>
 			<function_call>
-				<paint_function name="paintDaysFrom" />
-				<process_function name="processDaysFrom" />
+				<paint_function name="paintDurationFromTo" />
+				<process_function name="processDurationFromTo" />
 			</function_call>
-			<display_name>From</display_name>
-			<note>The display will include days from after this number of days.</note>
-		</field>
-		<field>
-			<function_call>
-				<paint_function name="paintDaysTo" />
-				<process_function name="processDaysTo" />
-			</function_call>
-			<display_name>To</display_name>
-			<note>The display will include days from before this number of days (Note, if 'From' set to a value later than 'To', the two will be reversed).</note>
 		</field>
 		<field attribute="day_filter">
 			<display_name>Day Filter</display_name>
 			<note>Select the days that will be included in the list.</note>
-		</field>
-		<field attribute="day_heading_format">
-			<display_name>Day Heading Format</display_name>
-			<note>Day headings will display the date in this format. (Symbols are from the PHP date function)</note>
-		</field>
-		<field attribute="day_heading_tag">
-			<display_name>Day Heading Tag</display_name>
-			<note />
 		</field>
 	</section>
 </contents>
