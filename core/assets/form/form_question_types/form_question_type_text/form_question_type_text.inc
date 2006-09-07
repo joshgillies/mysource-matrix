@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.3 2006/06/19 01:03:45 lwright Exp $
+* $Id: form_question_type_text.inc,v 1.3.2.1 2006/09/07 02:09:47 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,8 +82,10 @@ class Form_Question_Type_Text extends Form_Question
 		$extras = $this->attr('extra');
 		$name   = 'q'.$this->id;
 
-		$value = $this->getValue();
+		// prepare a valid value for the field id
+		$extras = $extras.' id="'.str_replace(':', '_', $name).'"';
 
+		$value = $this->getValue();
 		$value  = htmlspecialchars($value);
 
 		ob_start();
