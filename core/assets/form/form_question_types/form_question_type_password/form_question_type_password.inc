@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.3 2005/10/07 00:01:27 lwright Exp $
+* $Id: form_question_type_password.inc,v 1.3.2.1 2006/09/07 03:49:39 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,16 +79,20 @@ class Form_Question_Type_Password extends Form_Question
 		$width  = $this->attr('width');
 		$max    = $this->attr('max');
 		$extras = $this->attr('extra');
-		$name   = 'q'.$this->id;
-		$name2   = 'q'.$this->id.'_2';
+		$name_a   = 'q'.$this->id;
+		$name_b  = 'q'.$this->id.'_2';
+
+		// prepare a valid value for the field id
+		$extras_a = $extras.' id="'.str_replace(':', '_', $name_a).'"';
+		$extras_b = $extras.' id="'.str_replace(':', '_', $name_b).'"';
 
 		$value = $this->attr('default');
 
 		ob_start();
-		password_box($name, $value, $width, $max, $extras);
+		password_box($name_a, $value, $width, $max, $extras_a);
 		if ($this->attr('verify')) {
 			echo '<br />';
-			password_box($name2, $value, $width, $max, $extras);
+			password_box($name_b, $value, $width, $max, $extras_b);
 		}
 		$html = ob_get_contents();
 		ob_end_clean();
