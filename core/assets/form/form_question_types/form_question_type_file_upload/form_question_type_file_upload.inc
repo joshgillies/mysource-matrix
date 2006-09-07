@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.13 2006/09/07 03:42:11 bcaldwell Exp $
+* $Id: form_question_type_file_upload.inc,v 1.14 2006/09/07 04:20:23 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -122,8 +122,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 	* @param boolean	$mute_errors	If TRUE, do not add to the "Failed
 	*									Rules" log, but simply return FALSE
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
@@ -170,7 +170,9 @@ class Form_Question_Type_File_Upload extends Form_Question
 			}
 		}
 
-		if ($ok) return parent::hasValidValue($answer, $mute_errors);
+		if ($ok) {
+			return parent::hasValidValue($answer, $mute_errors);
+		}
 
 		return FALSE;
 
@@ -270,8 +272,6 @@ class Form_Question_Type_File_Upload extends Form_Question
 			return;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
-
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// Check that we are not going to have web path conflicts
@@ -326,8 +326,45 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 		} else {
 
-			// create a new file asset
-			$file_asset =& new File();
+			// Check the filetype of the file being uploaded and create the
+			// appropriate asset type
+
+			// We could do a lot more with mime types if it weren't for Firefox (1.5)
+			// apparently determining MIME type based on file extension anyway
+
+			list($mime_type, $mime_subtype) = explode('/', $this->_tmp['file_info']['type']);
+
+			switch (get_file_type($this->getValue())) {
+
+				case 'pdf' :
+						$new_asset_type = 'pdf_file';
+				break;
+				case 'doc' :
+				case 'dot' :
+						$new_asset_type = 'word_doc';
+				break;
+				case 'gif' :
+				case 'jpg' :
+				case 'jpeg' :
+				case 'png' :
+						$new_asset_type = 'image';
+				break;
+				default :
+						// could be text or file. Use mime type
+						if ($mime_type=='text') {
+							$new_asset_type = 'text_file';
+						} else {
+							$new_asset_type = 'file';
+						}
+				break;
+			}//end switch
+
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($new_asset_type);
+
+
+			$file_asset =& new $new_asset_type();
+
+
 			$file_asset->_tmp['uploading_file'] = TRUE;
 
 			// set the run level to ensure the file is correctly saved without
@@ -342,7 +379,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-		}
+		}//end else $existing_file
 
 		return TRUE;
 
