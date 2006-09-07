@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.12 2006/09/04 03:54:32 colivar Exp $
+* $Id: form_question_type_file_upload.inc,v 1.13 2006/09/07 03:42:11 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,6 +79,9 @@ class Form_Question_Type_File_Upload extends Form_Question
 	{
 		$extras = $this->attr('extra');
 		$name   = 'q'.$this->id;
+
+		// prepare a valid value for the field id
+		$extras = $extras.' id="'.str_replace(':', '_', $name).'"';
 
 		ob_start();
 		file_upload($name, $extras);
