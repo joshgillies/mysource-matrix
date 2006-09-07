@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.103.2.10 2006/07/28 00:15:50 rong Exp $
+* $Id: lang_strings.xml,v 1.103.2.11 2006/09/07 00:13:43 bcaldwell Exp $
 *
 */
 
@@ -82,6 +82,7 @@
 	<string source="content_tags">Content Tags</string>
 	<string source="cron_manager_appears_to_be_fine">Cron Manager appears to be fine.</string>
 	<string source="current_hipo_jobs">Current HIPO Jobs</string>
+	<string source="orphaned_hipo_jobs">Orphaned HIPO Jobs</string>
 	<string source="current_linking">Current Linking</string>
 	<string source="current_lock_status">Current Lock Status</string>
 	<string source="current_variety">Current Variety</string>
@@ -565,6 +566,7 @@
 	<string source="hipo_error_report">%s HIPO Error Report</string>
 	<string source="hipo_herder_completion">( HIPO job was %s completed )</string>
 	<string source="hipo_currently_no_jobs">There are currently no HIPO Jobs on the system</string>
+	<string source="hipo_currently_no_oprhaned_jobs">There are currently no orphaned HIPO Jobs on the system</string>
 	<string source="source_job_code_name">Source Job Code Name</string>
 	<string source="code_name">Code Name</string>
 	<string source="owner">Owner</string>
@@ -627,6 +629,7 @@
 	<string source="hipo_abort_complete">Abort Complete</string>
 	<string source="hipo_cannot_edit_tags">Could not edit tags for asset #%s, asset does not exist</string>
 	<string source="hipo_editing_tags">Editing Tags for "%s"</string>
+	<string source="hipo_herder_parent_job_type">Parent Job Type</string>
 
 	<string source="inbox_lock">Please lock the Inbox to send messages</string>
 	<string source="inbox_trash_empty">Your trash is empty.</string>
