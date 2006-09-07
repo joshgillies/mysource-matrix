@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.2 2005/10/07 00:01:27 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.2.2.1 2006/09/07 03:37:12 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,8 +91,13 @@ class Form_Question_Type_Select extends Form_Question
 	*/
 	function getHtmlField()
 	{
+		$name = 'q'.$this->id;
+
+		// prepare a valid value for the field id
+		$extras = 'id="'.str_replace(':', '_', $name).'"';
+
 		ob_start();
-		combo_box('q'.$this->id, $this->getOptions(), $this->attr('multiple'), $this->getValue(), $this->attr('height'), '');
+		combo_box($name, $this->getOptions(), $this->attr('multiple'), $this->getValue(), $this->attr('height'), $extras);
 		$html = ob_get_contents();
 		ob_end_clean();
 
