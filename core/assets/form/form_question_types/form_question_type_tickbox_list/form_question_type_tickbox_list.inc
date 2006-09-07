@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.6 2006/06/19 01:03:45 lwright Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.6.2.1 2006/09/07 04:26:43 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,6 +98,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			$extras .= ' class="sq-form-field"';
 		}
 		$name  = 'q'.$this->id;
+		$safe_name = str_replace(':', '_', $name);
 
 		$html = '<ul>';
 		$defaults = $this->getValue();
@@ -107,14 +108,14 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 
 			$html .= '<input type="'.$type.'" ';
 			$html .= 'name="'.$name.(($multiple) ? '[]' : '').'" ';
-			$html .= 'id="'.$name.'_'.$key.'"';
+			$html .= 'id="'.$safe_name.'_'.$key.'" ';
 			$html .= 'value="'.htmlspecialchars($key).'"';
 			if (in_array($key, $defaults)) {
 				$html .= ' checked="checked"';
 			}
 			$html .= ($extras == '') ? '/>' : ' '.$extras.' />';
 
-			$html .= '&nbsp;<label for="'.$name.'_'.$key.'">'.$value.'</label>';
+			$html .= '&nbsp;<label for="'.$safe_name.'_'.$key.'">'.$value.'</label>';
 
 			$html .= '</li>';
 		}
