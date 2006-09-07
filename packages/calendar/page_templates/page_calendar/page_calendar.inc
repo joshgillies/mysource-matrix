@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.184.2.2 2006/08/17 06:54:04 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.184.2.3 2006/09/07 05:25:28 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.184.2.2 $
+* @version $Revision: 1.184.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -991,7 +991,7 @@ class Page_Calendar extends Page
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$raw_events = $this->getWeekEvents($date);
-			$events = $this->groupWeekEventsByDay($events, $date);
+			$events = $this->groupWeekEventsByDay($raw_events, $date);
 			$done_events = Array();
 
 			// loop through each day but exclude events that have already
