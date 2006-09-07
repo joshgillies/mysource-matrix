@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.38 2006/08/15 06:27:11 arailean Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.39 2006/09/07 04:46:05 colivar Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -168,13 +168,21 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintJobs(&$asset, &$o, $prefix)
 	{
-
 		$jobs = $asset->getJobs('cron_job', FALSE);
 		if (empty($jobs)) {
 			$o->openField('');
 				$o->note(translate('cron_no_jobs_registered'));
 		} else {
+			$num_per_page = 20;
+			$total_assets = count($jobs);
+			$num_pages = ceil($total_assets / $num_per_page);
 
+			$link_offset = array_get_index($_POST, $prefix.'_link_offset', 0);
+
+			// if the page number is greater to the total of pages
+			if ( (round(($link_offset + $num_per_page) / $num_per_page)) > (ceil($total_assets / $num_per_page)) ) {
+				$link_offset = (ceil($total_assets / $num_per_page)-1)*$num_per_page;
+			}
 			$whens = Array(
 						'OO'	=> Array(),
 						'ET'	=> Array(),
@@ -189,7 +197,80 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 				$w = $jobs[$i]->attr('when');
 				$whens[substr($w, 0, 2)][$i] = $jobs[$i]->attr('when');
 			}
+			?>
 
+			<!-- start print pagination bar top -->
+			<?php $o->openField('', 'new_line')?>
+			<table class="sq-backend-table">
+				<tr><td class="sq-backend-table-header-header"><b>
+					<?php
+					hidden_field($prefix.'_link_offset', $link_offset);
+					if ($link_offset > 0) {
+					?>
+						<a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;">
+					<?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+					}
+					?>
+					&lt;&lt;
+					<?php
+					if ($link_offset > 0) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?> &nbsp; &nbsp; <?php
+					if ($link_offset > 0) {
+						?><a title="<?php echo translate('pagination_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+					}
+					?>
+					&lt;
+					<?php
+					if ($link_offset > 0) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?>
+					&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
+					<?php
+					if (($link_offset + $num_per_page) < $total_assets) {
+						?><a title="<?php echo translate('pagination_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+					}
+					?>
+					&gt;
+					<?php
+					if (($link_offset + $num_per_page) < $total_assets) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?> &nbsp; &nbsp; <?php
+					if (($link_offset + $num_per_page) < $total_assets) {
+						?><a title="<?php echo translate('pagination_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+					}
+					?>
+					&gt;&gt;
+					<?php
+					if (($link_offset + $num_per_page) < $total_assets) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?>
+				</b></td><tr>
+				</table>
+				<?php $o->closeField(); ?>
+				<!-- end print pagination bar -->
+			<?php
+			$counter = 0;
 			for (reset($whens); NULL !== ($type = key($whens)); next($whens)) {
 				if (empty($whens[$type])) continue;
 				asort($whens[$type], SORT_STRING);
@@ -214,8 +295,8 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					?>
 					</tr>
 				<?php
-
 				foreach ($whens[$type] as $i => $when) {
+					if (!(($counter < $link_offset) || (($link_offset+$num_per_page-1) < $counter))) {
 				?>
 					<tr>
 						<td class="sq-backend-table-cell">
@@ -274,7 +355,14 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					?>
 					</tr>
 				<?php
+					}//end if
+					$counter++;
 				}//end foreach
+				?>
+				</table>
+				<?php
+				$o->closeField();
+
 			}//end for
 
 			?>
@@ -282,7 +370,6 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			<?php
 
 		}//end else
-
 		return TRUE;
 
 	}//end paintJobs()
