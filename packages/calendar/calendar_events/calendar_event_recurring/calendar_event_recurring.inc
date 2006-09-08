@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.78 2006/09/08 04:30:14 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.79 2006/09/08 05:09:23 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -468,7 +468,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				}
 				$res['start'] = $this->getFirstOccurrenceAfter($first_occur);
 			}
-			$res['end'] = add_days_to_iso($res['start'], $this->getDuration() / -86400);
+			$res['end'] = add_days_to_iso($res['start'], $this->getDuration() / 86400);
 			if ($this->getStartTime()) {
 				$res['start'] .= ' '.$this->getStartTime();
 			}
@@ -1257,18 +1257,34 @@ class Calendar_Event_Recurring extends Calendar_Event
 	{
 		$res = parent::getAvailableKeywords();
 
+		$our_keywords[] = 'asset_attribute_start_date'; // = translate('start_date_iso'); //'Start date (iso8601)';
+		$our_keywords[] = 'asset_attribute_end_date'; // = translate('end_date_iso'); //'End date (iso8601)';
+		$our_keywords[] = 'event_start_date'; // = translate('start_date_only_readable'); //'Event Start Date';
+		$our_keywords[] = 'event_end_date'; // = tralsate('end_date_only_readable'); //'Event End Date';
+		$our_keywords[] = 'event_start_datetime'; // = translate('Event start date/time';
+		$our_keywords[] = 'event_end_datetime'; // = 'Event end date/time';
+		$our_keywords[] = 'event_start_time_12h'; // = 'Start time (12 hour)';
+		$our_keywords[] = 'event_end_time_12h'; // = 'End time (12 hour)';
+		$our_keywords[] = 'event_start_time_24h'; // = 'Start time (24 hour)';
+		$our_keywords[] = 'event_end_time_24h'; // = 'End time (24 hour)';
+		$our_keywords[] = 'event_start_time_ical'; // = 'Start time (iCalendar)';
+		$our_keywords[] = 'event_end_time_ical'; // = 'End time (iCalendar)';
+		$our_keywords[] = 'event_duration'; // = 'Duration of the Event';
+		$our_keywords[] = 'event_start_datetime_XX'; // = dynamic keyword to print start date and time
+		$our_keywords[] = 'event_end_datetime_XX'; // = dynamic keyword to print end date and time
 		$our_keywords[] = 'event_frequency'; 
-		$our_keywords[] = 'event_ical_frequency';
-		$our_keywords[] = 'event_ical_exceptions';
-		$our_keywords[] = 'instance_start_datetime';
+		$our_keywords[] = 'instance_end_datetime';
 		$our_keywords[] = 'instance_start_datetime';
 		$our_keywords[] = 'instance_start_datetime_XX';
 		$our_keywords[] = 'instance_end_datetime_XX';
 		$our_keywords[] = 'event_stop_date_XX';
-
+		$our_keywords[] = 'event_ical_frequency';
+		$our_keywords[] = 'event_ical_exceptions';
+		
 		foreach ($our_keywords as $keyword) {
-			$res[$keyword] = translate('cal_evt_keyword_'.$keyword);
+			$res[$keyword] = translate('cal_evt_recur_keyword_'.$keyword);
 		}
+		ksort($res);
 		return $res;
 
 	}//end getAvailableKeywords()
