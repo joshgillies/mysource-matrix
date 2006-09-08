@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.6 2006/09/08 04:25:14 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.7 2006/09/08 05:10:37 tbarrett Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -22,8 +22,8 @@
 <string source="cal_event_occurs_on">Occurs on</string>
 <string source="cal_event_edit_link_text">Edit</string>
 
-<string source="cal_evt_keyword_asset_attribute_start_date">Event Start (iso8601)</string>
-<string source="cal_evt_keyword_asset_attribute_end_date">Event End (iso8601)</string>
+<string source="cal_evt_keyword_asset_attribute_start_date">Event Start (ISO8601 Format)</string>
+<string source="cal_evt_keyword_asset_attribute_end_date">Event End (ISO8601 Format)</string>
 <string source="cal_evt_keyword_event_start_date">Event Start (readable date)</string>
 <string source="cal_evt_keyword_event_end_date">Event End (readable date)</string>
 <string source="cal_evt_keyword_event_start_datetime">Event Start (Readable date/time)</string>
