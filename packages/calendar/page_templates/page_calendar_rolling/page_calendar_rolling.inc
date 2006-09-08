@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.12 2006/09/06 00:57:00 rhoward Exp $
+* $Id: page_calendar_rolling.inc,v 1.13 2006/09/08 04:25:14 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -405,6 +405,7 @@ class Page_Calendar_Rolling extends Page
 			// get all the events for this time_unit (day/week/month), stuff them into $event_list
 			$unit_contents = '';
 			foreach ($events_by_date as $date => $events) {
+				$_REQUEST['SQ_CALENDAR_DATE'] = $date;
 
 				// loop through the events for this date
 				foreach ($events as $id => $event) {

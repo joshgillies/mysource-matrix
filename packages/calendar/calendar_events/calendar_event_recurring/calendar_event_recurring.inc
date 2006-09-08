@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.76 2006/07/30 23:45:48 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.77 2006/09/08 04:25:14 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -446,36 +446,38 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function getInstanceDates($date)
 	{
-		$res = Array();
-		if ($this->hasOccurrenceOnDate($date)) {
-			$res['start'] = $date;
-		} else {
-			$period = substr($this->attr('frequency'), 3);
-			switch (substr($this->attr('frequency'), 0, 1)) {
-				case 'D':
-					$first_occur = add_days_to_iso($date, -$period);
-				break;
+		if (empty($this->_tmp['instance_dates'][$date])) {
+			$res = Array();
+			if ($this->hasOccurrenceOnDate($date)) {
+				$res['start'] = $date;
+			} else {
+				$period = substr($this->attr('frequency'), 3);
+				switch (substr($this->attr('frequency'), 0, 1)) {
+					case 'D':
+						$first_occur = add_days_to_iso($date, -$period);
+					break;
 
-				case 'W':
-					$first_occur = add_days_to_iso($date, -$period);
-				break;
+					case 'W':
+						$first_occur = add_days_to_iso($date, -$period);
+					break;
 
-				case 'M':
-					$first_occur = add_months_to_iso($date, -$period).'-'.date('d', $date);
-				break;
+					case 'M':
+						$first_occur = add_months_to_iso($date, -$period).'-'.date('d', $date);
+					break;
 
+				}
+				$res['start'] = $this->getFirstOccurrenceAfter($first_occur);
 			}
-			$res['start'] = $this->getFirstOccurrenceAfter($first_occur);
+			$res['end'] = add_days_to_iso($res['start'], $this->getDuration() / -86400);
+			if ($this->getStartTime()) {
+				$res['start'] .= ' '.$this->getStartTime();
+			}
+			if ($this->getEndTime()) {
+				$res['end'] .= ' '.$this->getEndTime();
+			}
+			$this->_tmp['instance_dates'][$date] = $res;
 		}
-		$res['end'] = add_days_to_iso($res['start'], $this->getDuration() / -86400);
-		if ($this->getStartTime()) {
-			$res['start'] .= ' '.$this->getStartTime();
-		}
-		if ($this->getEndTime()) {
-			$res['end'] .= ' '.$this->getEndTime();
-		}
-
-		return $res;
+		return $this->_tmp['instance_dates'][$date];
 
 	}//end getInstanceDates()
 
@@ -815,7 +817,6 @@ class Calendar_Event_Recurring extends Calendar_Event
 				return $this->getiCalExceptions();
 			default:
 				if (in_array($keyword, Array('instance_start_datetime', 'instance_end_datetime', 'cancel_link', 'modify_link'))) {
-					$write_access = $this->writeAccess('');
 					if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
 						if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
 							// exception today
@@ -829,8 +830,10 @@ class Calendar_Event_Recurring extends Calendar_Event
 								case 'instance_end_datetime':
 									return $instance_dates['end'];
 								case 'cancel_link':
+									$write_access = $this->writeAccess('');
 									return $write_access ? $this->_getCancelLink() : translate('cal_event_cancel_link_default');
 								case 'modify_link':
+									$write_access = $this->writeAccess('');
 									return $write_access ? $this->_getModifyLink() : translate('cal_event_modify_link_default');
 							}
 						}
@@ -839,9 +842,38 @@ class Calendar_Event_Recurring extends Calendar_Event
 						// keywords to blank for tidiness's sake
 						return '';
 					}
-				} else {
-					return parent::getKeywordReplacement($keyword);
 				}
+				$matches = Array();
+				preg_match('/^instance_start_datetime_(.+)/', $keyword, $matches);
+				if ((!empty($matches)) && !empty($_REQUEST['SQ_CALENDAR_DATE'])) {
+					if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
+						// exception today
+						return '';
+					} else {
+						// we are showing a normal instance of this event
+						$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
+						return date($matches[1], iso8601_ts($instance_dates['start']));
+					}
+				}
+				$matches = Array();
+				preg_match('/^instance_end_datetime_(.+)/', $keyword, $matches);
+				if ((!empty($matches)) && !empty($_REQUEST['SQ_CALENDAR_DATE'])) {
+					if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
+						// exception today
+						return '';
+					} else {
+						// we are showing a normal instance of this event
+						$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
+						return date($matches[1], iso8601_ts($instance_dates['end']));
+					}
+				}
+				$matches = Array();
+				preg_match('/^event_stop_date_(.+)/', $keyword, $matches);
+				$stop_date = $this->attr('stop_date');
+				if ((!empty($matches)) && !empty($stop_date) && (FALSE === strpos('----', $stop_date))) {
+					return date($matches[1], iso8601_ts($stop_date));
+				}
+				return parent::getKeywordReplacement($keyword);
 		}//end switch
 
 	}//end getKeywordReplacement()
@@ -1218,9 +1250,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 	{
 		$res = parent::getAvailableKeywords();
 
-		$our_keywords[] = 'event_frequency'; //] = 'Description of the event\'s frequency';
-		$our_keywords[] = 'event_ical_frequency'; //] = 'Event frequency (ical format)';
-		$our_keywords[] = 'event_ical_exceptions'; //] = 'List of exceptions (ical format)';
+		$our_keywords[] = 'event_frequency'; 
+		$our_keywords[] = 'event_ical_frequency';
+		$our_keywords[] = 'event_ical_exceptions';
+		$our_keywords[] = 'instance_start_datetime';
+		$our_keywords[] = 'instance_start_datetime';
+		$our_keywords[] = 'instance_start_datetime_XX';
+		$our_keywords[] = 'instance_end_datetime_XX';
+		$our_keywords[] = 'event_stop_date_XX';
 
 		foreach ($our_keywords as $keyword) {
 			$res[$keyword] = translate('cal_evt_keyword_'.$keyword);

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.8 2006/05/11 06:58:21 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.9 2006/09/08 04:25:14 tbarrett Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -75,6 +75,14 @@
 <string source="cal_evt_keyword_event_frequency">Description of the event's frequency</string>
 <string source="cal_evt_keyword_event_ical_frequency">Event frequency (iCalendar format)</string>
 <string source="cal_evt_keyword_event_ical_exceptions">List of exceptions (iCalendar format)</string>
+
+
+<string source="cal_evt_keyword_event_stop_date_XX">Event Stop Date expressed with PHP date format XX</string>
+<string source="cal_evt_keyword_instance_start_datetime">Current Instance Start expressed with PHP date format XX</string>
+<string source="cal_evt_keyword_instance_end_datetime">Current Instance End expressed with PHP date format XX</string>
+<string source="cal_evt_keyword_instance_start_datetime_XX">Current Instance Start expressed with PHP date format XX</string>
+<string source="cal_evt_keyword_instance_end_datetime_XX">Current Instance End expressed with PHP date format XX</string>
+
 
 </strings>
 
