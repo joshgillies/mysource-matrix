@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.160 2006/09/08 06:21:59 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.161 2006/09/08 06:52:02 emcdonald Exp $
 *
 */
 
@@ -47,6 +47,8 @@
 	<string source="assetid">Assetid</string>
 	<string source="asset_limit_per_node">Asset Limit Per Set</string>
 	<string source="asset_limit_per_node_note">This setting limits the number of child assets displayed under an asset. You will be able to navigate between sets by using next and previous buttons.</string>
+	<string source="asset_display_name">Asset Display Name</string>
+	<string source="asset_display_name_note">Keywords available for use in the asset display name are <![CDATA[&#37;asset_assetid&#37;, &#37;asset_name&#37; &#37;asset_short_name&#37; &#37;asset_type_code&#37; &#37;asset_status&#37; and &#37;asset_num_kids&#37;. Other characters may also be used for formatting, eg [&#37;asset_assetid&#37;] - &#37;asset_short_name&#37;]]></string>
 	<string source="asset_map_settings">Asset Map Settings</string>
 	<string source="asset_metadata">Asset Metadata</string>
 	<string source="asset_status">Asset Status</string>

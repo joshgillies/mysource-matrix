@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.82 2006/07/12 23:14:08 rong Exp $
+* $Id: system_config.inc,v 1.83 2006/09/08 06:52:02 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -44,52 +44,53 @@ class System_Config extends Config
 	* @var array
 	*/
 	var $config_vars = Array(
-						'SQ_CONF_DB_DSN'					=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_DB2_DSN'					=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_DB3_DSN'					=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_DBCACHE_DSN'				=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
-						'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 1, 'default' => '_admin'),
-						'SQ_CONF_LIMBO_SUFFIX'				=> Array('editable' => 1, 'default' => '_edit'),
-						'SQ_CONF_NOCACHE_SUFFIX'			=> Array('editable' => 1, 'default' => '_nocache'),
-						'SQ_CONF_ASSET_TREE_BASE'			=> Array('editable' => 0, 'default' => 64),
-						'SQ_CONF_ASSET_TREE_SIZE'			=> Array('editable' => 0, 'default' =>  4),
-						'SQ_CONF_ASSET_CACHE_SIZE_WEB'		=> Array('editable' => 0, 'default' =>  -1),
-						'SQ_CONF_ASSET_CACHE_SIZE_CLI'		=> Array('editable' => 0, 'default' =>  -1),
-						'SQ_CONF_ROLLBACK_ENABLED'			=> Array('editable' => 0, 'default' => '0'),
-						'SQ_CONF_DEBUG'						=> Array('editable' => 1, 'default' => 0),
-						'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'The System'),
-						'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_SYSTEM_ROOT_URLS'			=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_SYSTEM_PARENT_DOMAINS'		=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_STATIC_ROOT_URL'			=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_WEB_PATH_SEPARATOR'		=> Array('editable'	=> 1, 'default'	=> '_'),
-						'SQ_CONF_STATIC_ROOT_HTTP'			=> Array('editable' => 1, 'default' => true),
-						'SQ_CONF_STATIC_ROOT_HTTPS'			=> Array('editable' => 1, 'default' => false),
-						'SQ_CONF_DEFAULT_EMAIL'				=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_TECH_EMAIL'				=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_MAX_LOGIN_ATTEMPTS'		=> Array('editable' => 1, 'default' => 3),
-						'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => 120),
-						'SQ_CONF_LOCK_LENGTH'				=> Array('editable' => 1, 'default' => 600),
-						'SQ_CONF_ASSET_MAP_ASSET_LIMIT'		=> Array('editable' => 1, 'default' => 50),
-						'SQ_CONF_SEND_CACHEABLE_HEADER'		=> Array('editable' => 1, 'default' => '1'),
-						'SQ_CONF_SEND_LAST_MODIFIED_HEADER'	=> Array('editable' => 1, 'default' => '0'),
-						'SQ_CONF_SEND_NOT_MODIFIED_HEADER'	=> Array('editable' => 1, 'default' => '0'),
-						'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => false),
-						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
-						'SQ_CONF_DEFAULT_BACKEND_LOCALE'	=> Array('editable' => 1, 'default' => 'en_AU'),
-						'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
-						'SQ_CONF_ALLOW_IP_CHANGE'			=> Array('editable' => 1, 'default' => '0'),
-						'SQ_CONF_ALLOW_HTTP_LOGIN'			=> Array('editable' => 1, 'default' => '0'),
-						'SQ_CONF_ACCEPT_HTTP_CREDS'			=> Array('editable' => 1, 'default' => '0'),
-						'SQ_CONF_COMMIT_BUTTON_TEXT'		=> Array('editable' => 1, 'default' => 'Commit'),
-						'SQ_CONF_LOG_EXTENSION'				=> Array('editable' => 0, 'default' => '.log'),
-						'SQ_CONF_LOG_FILE_SYSTEM'			=> Array('editable' => 0, 'default' => 'system'),
-						'SQ_CONF_LOG_FILE_ERROR'			=> Array('editable' => 0, 'default' => 'error'),
-						'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
-						'SQ_CONF_SESSION_GC_MAXLIFETIME'	=> Array('editable' => 1, 'default'	=> 604800),
-						'SQ_CONF_EDITING_TIME'				=> Array('editable' => 0, 'default' => 3600),
-						'SQ_CONF_NUM_DATA_DIRS'				=> Array('editable' => 0, 'default' => 20),
+						'SQ_CONF_DB_DSN'						=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_DB2_DSN'						=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_DB3_DSN'						=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_DBCACHE_DSN'					=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_PEAR_PATH'						=> Array('editable' => 0, 'default' => ''),
+						'SQ_CONF_BACKEND_SUFFIX'				=> Array('editable' => 1, 'default' => '_admin'),
+						'SQ_CONF_LIMBO_SUFFIX'					=> Array('editable' => 1, 'default' => '_edit'),
+						'SQ_CONF_NOCACHE_SUFFIX'				=> Array('editable' => 1, 'default' => '_nocache'),
+						'SQ_CONF_ASSET_TREE_BASE'				=> Array('editable' => 0, 'default' => 64),
+						'SQ_CONF_ASSET_TREE_SIZE'				=> Array('editable' => 0, 'default' =>  4),
+						'SQ_CONF_ASSET_CACHE_SIZE_WEB'			=> Array('editable' => 0, 'default' =>  -1),
+						'SQ_CONF_ASSET_CACHE_SIZE_CLI'			=> Array('editable' => 0, 'default' =>  -1),
+						'SQ_CONF_ROLLBACK_ENABLED'				=> Array('editable' => 0, 'default' => '0'),
+						'SQ_CONF_DEBUG'							=> Array('editable' => 1, 'default' => 0),
+						'SQ_CONF_SYSTEM_NAME'					=> Array('editable' => 1, 'default' => 'The System'),
+						'SQ_CONF_SYSTEM_OWNER'					=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_SYSTEM_ROOT_URLS'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_SYSTEM_PARENT_DOMAINS'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_STATIC_ROOT_URL'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_WEB_PATH_SEPARATOR'			=> Array('editable'	=> 1, 'default'	=> '_'),
+						'SQ_CONF_STATIC_ROOT_HTTP'				=> Array('editable' => 1, 'default' => TRUE),
+						'SQ_CONF_STATIC_ROOT_HTTPS'				=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_CONF_DEFAULT_EMAIL'					=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_TECH_EMAIL'					=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_MAX_LOGIN_ATTEMPTS'			=> Array('editable' => 1, 'default' => 3),
+						'SQ_CONF_REFRESH_INTERVAL'				=> Array('editable' => 1, 'default' => 120),
+						'SQ_CONF_LOCK_LENGTH'					=> Array('editable' => 1, 'default' => 600),
+						'SQ_CONF_ASSET_MAP_ASSET_LIMIT'			=> Array('editable' => 1, 'default' => 50),
+						'SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME'	=> Array('editable' => 1, 'default' => '%asset_shortname%'),
+						'SQ_CONF_SEND_CACHEABLE_HEADER'			=> Array('editable' => 1, 'default' => '1'),
+						'SQ_CONF_SEND_LAST_MODIFIED_HEADER'		=> Array('editable' => 1, 'default' => '0'),
+						'SQ_CONF_SEND_NOT_MODIFIED_HEADER'		=> Array('editable' => 1, 'default' => '0'),
+						'SQ_CONF_ERRORS_HIDE_FRONTEND'			=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'		=> Array('editable' => 1, 'default' => 'en'),
+						'SQ_CONF_DEFAULT_BACKEND_LOCALE'		=> Array('editable' => 1, 'default' => 'en_AU'),
+						'SQ_CONF_DEFAULT_CHARACTER_SET'			=> Array('editable' => 1, 'default' => 'iso-8859-1'),
+						'SQ_CONF_ALLOW_IP_CHANGE'				=> Array('editable' => 1, 'default' => '0'),
+						'SQ_CONF_ALLOW_HTTP_LOGIN'				=> Array('editable' => 1, 'default' => '0'),
+						'SQ_CONF_ACCEPT_HTTP_CREDS'				=> Array('editable' => 1, 'default' => '0'),
+						'SQ_CONF_COMMIT_BUTTON_TEXT'			=> Array('editable' => 1, 'default' => 'Commit'),
+						'SQ_CONF_LOG_EXTENSION'					=> Array('editable' => 0, 'default' => '.log'),
+						'SQ_CONF_LOG_FILE_SYSTEM'				=> Array('editable' => 0, 'default' => 'system'),
+						'SQ_CONF_LOG_FILE_ERROR'				=> Array('editable' => 0, 'default' => 'error'),
+						'SQ_CONF_LOG_ERRORS'					=> Array('editable' => 1, 'default' => TRUE),
+						'SQ_CONF_SESSION_GC_MAXLIFETIME'		=> Array('editable' => 1, 'default'	=> 604800),
+						'SQ_CONF_EDITING_TIME'					=> Array('editable' => 0, 'default' => 3600),
+						'SQ_CONF_NUM_DATA_DIRS'					=> Array('editable' => 0, 'default' => 20),
 					   );
 
 	/**
@@ -130,7 +131,7 @@ class System_Config extends Config
 	* @return boolean
 	* @access public
 	*/
-	function save($vars, $backup_existing=false, $send_message=true)
+	function save($vars, $backup_existing=FALSE, $send_message=TRUE)
 	{
 		if (isset($GLOBALS['SQ_SYSTEM'])) {
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
@@ -141,11 +142,11 @@ class System_Config extends Config
 				// if we dont have access, go away
 				if (!$is_admin) {
 					trigger_localised_error('SYS0267', E_USER_WARNING, $this->name);
-					return false;
+					return FALSE;
 				}
 			} else {
-				$is_root = true;
-				$is_admin = true;
+				$is_root = TRUE;
+				$is_admin = TRUE;
 			}//end if checking permissions
 
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
@@ -193,18 +194,18 @@ class System_Config extends Config
 	* @return boolean
 	* @access private
 	*/
-	function _paintConfigVar($var_name, $value, $var_export=true)
+	function _paintConfigVar($var_name, $value, $var_export=TRUE)
 	{
 		switch ($var_name) {
 			case 'SQ_CONF_PEAR_PATH' :
 				// if this looks like a plain value and it starts with the system root, then put the system root constant in
 				if ($var_export && substr($value, 0, strlen(SQ_SYSTEM_ROOT)) == SQ_SYSTEM_ROOT) {
-					if (!parent::_paintConfigVar($var_name, 'SQ_SYSTEM_ROOT.'.var_export(substr($value, strlen(SQ_SYSTEM_ROOT)), true), false)) {
-						return false;
+					if (!parent::_paintConfigVar($var_name, 'SQ_SYSTEM_ROOT.'.var_export(substr($value, strlen(SQ_SYSTEM_ROOT)), TRUE), FALSE)) {
+						return FALSE;
 					}
 				} else {
 					if (!parent::_paintConfigVar($var_name, $value, $var_export)) {
-						return false;
+						return FALSE;
 					}
 				}
 				if ($value) {
@@ -217,19 +218,19 @@ class System_Config extends Config
 					echo "\$inc_dir = (substr(\$inc_dir, 0, 2) == '.".$sep."') ? '.".$sep."'.SQ_CONF_PEAR_PATH.'".$sep."'.substr(\$inc_dir, 2) : SQ_CONF_PEAR_PATH.'".$sep."'.\$inc_dir;\n";
 					echo "ini_set('include_path', \$inc_dir);\n\n";
 				}
-				return true;
+				return TRUE;
 			break;
 
 
 			case 'SQ_CONF_LOG_ERRORS' :
 				if (!parent::_paintConfigVar($var_name, $value, $var_export)) {
-					return false;
+					return FALSE;
 				}
 				// NOTE: if they don't want to log errors we will leave
 				//       them with whatever their PHP settings are
 				if ($value) echo "ini_set('log_errors', '1');\n";
 
-				return true;
+				return TRUE;
 			break;
 
 
@@ -251,11 +252,11 @@ class System_Config extends Config
 				}
 
 				if (!parent::_paintConfigVar($var_name, $value, $var_export)) {
-					return false;
+					return FALSE;
 				}
 
 				echo "ini_set('error_log',  SQ_LOG_PATH.'/'.SQ_CONF_LOG_FILE_ERROR.SQ_CONF_LOG_EXTENSION);\n";
-				return true;
+				return TRUE;
 			break;
 
 
@@ -274,10 +275,10 @@ class System_Config extends Config
 
 			case 'SQ_CONF_SESSION_GC_MAXLIFETIME' :
 				if (!parent::_paintConfigVar($var_name, $value, $var_export)) {
-					return false;
+					return FALSE;
 				}
 				echo "ini_set('session.gc_maxlifetime', $value);\n";
-				return true;
+				return TRUE;
 			break;
 
 			default :
@@ -311,10 +312,10 @@ class System_Config extends Config
 	*/
 	function writeAccess()
 	{
-		if (!parent::writeAccess()) return false;
-		if (!isset($GLOBALS['SQ_SYSTEM'])) return true;
+		if (!parent::writeAccess()) return FALSE;
+		if (!isset($GLOBALS['SQ_SYSTEM'])) return TRUE;
 		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
-			return true;
+			return TRUE;
 		}
 
 		// need to be root or a sys admin
@@ -424,17 +425,17 @@ class System_Config extends Config
 
 			$o->openField(translate('system_static_url_http'));
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_STATIC_ROOT_HTTP]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_STATIC_ROOT_HTTP);
+					combo_box($class.'[SQ_CONF_STATIC_ROOT_HTTP]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_STATIC_ROOT_HTTP);
 				} else {
-					echo (SQ_CONF_STATIC_ROOT_HTTP) ? translate('yes'): translate('no');
+					echo (SQ_CONF_STATIC_ROOT_HTTP) ? translate('yes') : translate('no');
 				}
 			$o->closeField();
 
 			$o->openField(translate('system_static_url_https'));
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_STATIC_ROOT_HTTPS]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_STATIC_ROOT_HTTPS);
+					combo_box($class.'[SQ_CONF_STATIC_ROOT_HTTPS]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_STATIC_ROOT_HTTPS);
 				} else {
-					echo (SQ_CONF_STATIC_ROOT_HTTPS) ? translate('yes'): translate('no');
+					echo (SQ_CONF_STATIC_ROOT_HTTPS) ? translate('yes') : translate('no');
 				}
 			$o->closeField();
 
@@ -489,25 +490,25 @@ class System_Config extends Config
 
 			$o->openField(translate('allow_ip_change'));
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ALLOW_IP_CHANGE]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_ALLOW_IP_CHANGE);
+				combo_box($class.'[SQ_CONF_ALLOW_IP_CHANGE]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_ALLOW_IP_CHANGE);
 			} else {
-				echo (SQ_CONF_ALLOW_IP_CHANGE) ? translate('yes'): translate('no');
+				echo (SQ_CONF_ALLOW_IP_CHANGE) ? translate('yes') : translate('no');
 			}
 			$o->note(translate('allow_user_ip_to_fluctuate'));
 
 			$o->openField(translate('process_php_credentials'));
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ACCEPT_HTTP_CREDS]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_ACCEPT_HTTP_CREDS);
+				combo_box($class.'[SQ_CONF_ACCEPT_HTTP_CREDS]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_ACCEPT_HTTP_CREDS);
 			} else {
-				echo (SQ_CONF_ACCEPT_HTTP_CREDS) ? translate('yes'): translate('no');
+				echo (SQ_CONF_ACCEPT_HTTP_CREDS) ? translate('yes') : translate('no');
 			}
 			$o->note(translate('process_php_credentials_note'));
 
 			$o->openField(translate('allow_single_sign_in'));
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ALLOW_HTTP_LOGIN]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_ALLOW_HTTP_LOGIN);
+				combo_box($class.'[SQ_CONF_ALLOW_HTTP_LOGIN]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_ALLOW_HTTP_LOGIN);
 			} else {
-				echo (SQ_CONF_ALLOW_HTTP_LOGIN) ? translate('yes'): translate('no');
+				echo (SQ_CONF_ALLOW_HTTP_LOGIN) ? translate('yes') : translate('no');
 			}
 			$o->note(translate('allow_single_sign_in_note'));
 
@@ -539,14 +540,14 @@ class System_Config extends Config
 
 			$o->openField(translate('log_errors'));
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_LOG_ERRORS]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_LOG_ERRORS);
+				combo_box($class.'[SQ_CONF_LOG_ERRORS]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_LOG_ERRORS);
 			} else {
 				echo (SQ_CONF_LOG_ERRORS) ? translate('yes') : translate('no');
 			}
 
 			$o->openField(translate('hide_errors_on_the_frontend'));
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ERRORS_HIDE_FRONTEND]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_ERRORS_HIDE_FRONTEND);
+				combo_box($class.'[SQ_CONF_ERRORS_HIDE_FRONTEND]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_ERRORS_HIDE_FRONTEND);
 			} else {
 				echo (SQ_CONF_ERRORS_HIDE_FRONTEND) ? translate('yes') : translate('no');
 			}
@@ -596,7 +597,7 @@ class System_Config extends Config
 			$o->openField(translate('default_frontend_language'));
 			require SQ_FUDGE_PATH.'/standards_lists/languages.inc';
 			if ($write_access) {
-				combo_box($class.'[SQ_CONF_DEFAULT_FRONTEND_LANGUAGE]', $standards_lists_languages, false, SQ_CONF_DEFAULT_FRONTEND_LANGUAGE);
+				combo_box($class.'[SQ_CONF_DEFAULT_FRONTEND_LANGUAGE]', $standards_lists_languages, FALSE, SQ_CONF_DEFAULT_FRONTEND_LANGUAGE);
 			} else {
 				echo $standards_lists_languages[SQ_CONF_DEFAULT_FRONTEND_LANGUAGE];
 			}
@@ -606,7 +607,7 @@ class System_Config extends Config
 			// default to English (Australia) in upgraded systems
 			$current_locale = !defined('SQ_CONF_DEFAULT_BACKEND_LOCALE') ? 'en_AU' : SQ_CONF_DEFAULT_BACKEND_LOCALE;
 			if ($write_access) {
-				combo_box($class.'[SQ_CONF_DEFAULT_BACKEND_LOCALE]', $standards_lists_locales, false, $current_locale);
+				combo_box($class.'[SQ_CONF_DEFAULT_BACKEND_LOCALE]', $standards_lists_locales, FALSE, $current_locale);
 			} else {
 				echo $standards_lists_locales[$current_locale];
 			}
@@ -614,7 +615,7 @@ class System_Config extends Config
 			$o->openField(translate('default_character_set'));
 			require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
 			if ($write_access) {
-				combo_box($class.'[SQ_CONF_DEFAULT_CHARACTER_SET]', $standards_lists_character_sets, false, SQ_CONF_DEFAULT_CHARACTER_SET);
+				combo_box($class.'[SQ_CONF_DEFAULT_CHARACTER_SET]', $standards_lists_character_sets, FALSE, SQ_CONF_DEFAULT_CHARACTER_SET);
 			} else {
 				echo $standards_lists_character_sets[SQ_CONF_DEFAULT_CHARACTER_SET];
 			}
@@ -645,13 +646,22 @@ class System_Config extends Config
 			$o->note(translate('asset_limit_per_node_note'));
 			$o->closeField();
 
+			$o->openField(translate('asset_display_name'));
+			if ($write_access) {
+				text_box($class.'[SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME]', !defined('SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME') ?  $this->config_vars['SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME']['default']  : SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME, 50);
+			} else {
+				echo !defined('SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME') ? $this->config_vars['SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME']['default'] : SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME;
+			}
+			$o->note(translate('asset_display_name_note'));
+			$o->closeField();
+
 		$o->closeSection();
 
 		$o->openSection(translate('http_header_section_name'));
 
 			$o->openField(translate('http_header_cacheable_field'));
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_SEND_CACHEABLE_HEADER]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_SEND_CACHEABLE_HEADER);
+					combo_box($class.'[SQ_CONF_SEND_CACHEABLE_HEADER]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_SEND_CACHEABLE_HEADER);
 				} else {
 					echo (SQ_CONF_SEND_CACHEABLE_HEADER) ? translate('yes') : translate('no');
 				}
@@ -660,7 +670,7 @@ class System_Config extends Config
 
 			$o->openField(translate('http_header_last_modified_field'));
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_SEND_LAST_MODIFIED_HEADER]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_SEND_LAST_MODIFIED_HEADER);
+					combo_box($class.'[SQ_CONF_SEND_LAST_MODIFIED_HEADER]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_SEND_LAST_MODIFIED_HEADER);
 				} else {
 					echo (SQ_CONF_SEND_LAST_MODIFIED_HEADER) ? translate('yes') : translate('no');
 				}
@@ -669,7 +679,7 @@ class System_Config extends Config
 
 			$o->openField(translate('http_header_not_modified_field'));
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_SEND_NOT_MODIFIED_HEADER]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_SEND_NOT_MODIFIED_HEADER);
+					combo_box($class.'[SQ_CONF_SEND_NOT_MODIFIED_HEADER]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_SEND_NOT_MODIFIED_HEADER);
 				} else {
 					echo (SQ_CONF_SEND_NOT_MODIFIED_HEADER) ? translate('yes') : translate('no');
 				}
@@ -679,7 +689,7 @@ class System_Config extends Config
 
 		$o->closeSection();
 
-		if ($write_access) $o->commitButton('', true);
+		if ($write_access) $o->commitButton('', TRUE);
 
 	}//end paintBackend()
 

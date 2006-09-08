@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.227 2006/09/08 05:49:06 skim Exp $
+* $Id: asset_map.inc,v 1.228 2006/09/08 06:52:02 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.227 $
+* @version $Revision: 1.228 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -633,7 +633,8 @@ class Asset_Map
 				if (!is_null($link_asset)) {
 					$attrs = Array(
 								'assetid'		=> $assetid,
-								'name'			=> $link_asset->short_name,
+								'short_name'	=> $link_asset->short_name,
+								'name'			=> $link_asset->name,
 								'type_code'		=> $link_asset->type(),
 								'accessible'	=> 1,
 								'status'		=> $link_asset->status,
@@ -682,7 +683,7 @@ class Asset_Map
 				$secondary_protocol = 'http';
 			}
 
-			$sql = 'SELECT l.assetid, l.short_name, l.type_code, l.status, u.url,
+			$sql = 'SELECT l.assetid, l.short_name, l.name, l.type_code, l.status, u.url,
 						l.link_type, l.sort_order, ap.path,
 						(CASE u.'.$primary_protocol.'
 							WHEN '.$db->quote('1').' THEN '.$db->quote($primary_protocol).'
@@ -776,7 +777,8 @@ class Asset_Map
 
 			$attrs = Array(
 						'assetid'		=> urlencode($asset['assetid']),
-						'name'			=> urlencode($this->_convertCharset($asset['short_name'])),
+						'short_name'	=> urlencode($this->_convertCharset($asset['short_name'])),
+						'name'			=> urlencode($this->_convertCharset($asset['name'])),
 						'type_code'		=> $asset['type_code'],
 						'link_type'		=> $asset['link_type'],
 						'accessible'	=> $asset['accessible'],
@@ -789,6 +791,10 @@ class Asset_Map
 					 );
 
 		}//end else shadow asset
+
+		// replace 'name' with the configured display name
+
+		$attrs['name'] = urlencode($this->_convertCharset($this->_getAssetDisplayName($asset)));
 
 		return $attrs;
 
@@ -837,7 +843,7 @@ class Asset_Map
 			$secondary_protocol = 'http';
 		}
 
-		$sql = 'SELECT l.assetid, l.short_name, l.type_code, l.status,
+		$sql = 'SELECT l.assetid, l.short_name, l.name, l.type_code, l.status,
 					l.linkid, l.link_type, l.sort_order, ap.path, u.url,
 					(CASE u.'.$primary_protocol.'
 						WHEN '.$db->quote('1').' THEN '.$db->quote($primary_protocol).'
@@ -1063,7 +1069,6 @@ class Asset_Map
 
 			$attrs = Array(
 						'assetid'		=> urlencode($asset['assetid']),
-						'name'			=> urlencode($this->_convertCharset($asset['short_name'])),
 						'type_code'		=> $asset['type_code'],
 						'link_type'		=> $asset['link_type'],
 						'accessible'	=> $asset['accessible'],
@@ -1075,11 +1080,59 @@ class Asset_Map
 						'web_path'		=> urlencode($asset['path']),
 					 );
 
+			$attrs['name']	= urlencode($this->_convertCharset($this->_getAssetDisplayName($asset)));
 			if (!$attrs['accessible']) $attrs['child_count'] = 0;
 			$root->addChild('asset', '', $attrs);
 		}//end foreach
 
 	}//end _getChildAssets()
+
+
+	/**
+	* Generates the name that should label an asset in the asset map from the string in the config and asset names and id
+	*
+	* @param string	$asset_assetid		the asset id of the asset
+	* @param string	$asset_name			the name of the asset
+	* @param string	$asset_short_name	the short_name of the asset
+	*
+	* @return void
+	* @access private
+	*/
+	function _getAssetDisplayName($asset)
+	{
+		// get the string from the config var and replace the assetid, name and shortname
+		$display_name = SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME;
+		$keywords = Array (
+						'assetid',
+						'name',
+						'short_name',
+						'type_code',
+						'status',
+						'num_kids',
+					);
+		$status_names = get_status_names();
+
+		foreach ($keywords as $keyword) {
+			$replacement_value = array_get_index($asset, $keyword);
+
+			switch ($keyword) {
+				case 'type_code':
+					$replacement_value = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($replacement_value, 'name');
+				break;
+				case 'status':
+					$replacement_value = $status_names[$replacement_value];
+				break;
+				case 'num_kids':
+					if ($replacement_value=='-1') $replacement_value = 'N/A';
+				break;
+			}
+
+			$display_name = preg_replace('/%asset_'.$keyword.'%/', $replacement_value, $display_name);
+		}
+
+		return $display_name;
+
+	}//end _getAssetDisplayName()
 
 
 	/**
