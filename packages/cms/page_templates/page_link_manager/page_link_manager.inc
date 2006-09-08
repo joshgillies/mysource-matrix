@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.10 2006/06/27 23:46:15 lwright Exp $
+* $Id: page_link_manager.inc,v 1.11 2006/09/08 06:46:53 rhoward Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -365,7 +365,18 @@ class Page_Link_Manager extends Page_Asset_Listing
 					$this->sortGroups($this->attr('asset_grouping'), $children, $children);
 				}
 
-				$result_page  = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
+				$asset_result_page_var   = $this->id.'_result_page';
+				$generic_result_page_var = 'result_page';
+
+				// have [assetid]_result_page take precedence over result_page
+				$result_page = 1;
+				if (isset($_REQUEST[$generic_result_page_var])) {
+					$result_page = (int)$_REQUEST[$generic_result_page_var];
+				}
+				if (isset($_REQUEST[$asset_result_page_var])) {
+					$result_page = (int)$_REQUEST[$asset_result_page_var];
+				}
+
 				$num_per_page = $this->attr('num_per_page');
 				if ($result_page <= 0) $result_page = 1;
 

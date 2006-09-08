@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.25 2006/02/10 02:47:14 lwright Exp $
+* $Id: ecommerce_cart.inc,v 1.26 2006/09/08 06:46:55 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -265,7 +265,19 @@ class Ecommerce_Cart extends Listing_Engine
 		}
 
 		$num_per_page = $this->attr('num_per_page');
-		$result_page = (isset($_REQUEST['result_page'])) ? (int) $_REQUEST['result_page'] : 1;
+
+		$asset_result_page_var   = $this->id.'_result_page';
+		$generic_result_page_var = 'result_page';
+
+		// have [assetid]_result_page take precedence over result_page
+		$result_page = 1;
+		if (isset($_REQUEST[$generic_result_page_var])) {
+			$result_page = (int)$_REQUEST[$generic_result_page_var];
+		}
+		if (isset($_REQUEST[$asset_result_page_var])) {
+			$result_page = (int)$_REQUEST[$asset_result_page_var];
+		}
+
 		if ($result_page <= 0) $result_page = 1;
 
 		// get our page chunk here

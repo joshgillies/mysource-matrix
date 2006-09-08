@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.179 2006/08/28 01:35:34 bcaldwell Exp $
+* $Id: search_page.inc,v 1.180 2006/09/08 06:46:57 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.179 $
+* @version $Revision: 1.180 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -271,7 +271,7 @@ class Search_Page extends Listing_Engine
 					// preserve the previous query
 					$this->_tmp['potential_searched_queries'] = $_SESSION['SQ_LAST_SEARCH'][$this->id];
 
-					// we intentioally fall-through to default
+					// we intentionally fall-through to default
 				default:
 					$_SESSION['SQ_LAST_SEARCH'][$this->id] = Array();
 				break;
