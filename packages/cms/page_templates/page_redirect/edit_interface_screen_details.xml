@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.14 2005/11/21 22:56:29 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.14.2.1 2006/09/08 01:43:28 tbarrett Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
+	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
 			<text width="35" height="1" />
 		</field>
@@ -32,7 +32,7 @@
 			<text width="25" height="1" />
 		</field>
 	</section>
-	<section name="Location" write_access="write:redirect">
+	<section name="Location" write_access="write:redirect" limbo_access="1">
 		<field attribute="redirect_url">
 			<text width="80" height="1" />
 		</field>
@@ -46,7 +46,7 @@
  			<text width="20" height="1"/>
  		</field>
 	</section>
-	<section name="Location Options" write_access="write:attributes">
+	<section name="Location Options" write_access="write:attributes" limbo_access="1">
 		<field attribute="url_suffix">
 			<text width="80" height="1" />
 		</field>
@@ -57,7 +57,7 @@
 			<float width="5" height="1" />
 		</field>
 	</section>
-	<section name="New Window" write_access="write:attributes">
+	<section name="New Window" write_access="write:attributes" limbo_access="1">
 		<field attribute="new_window">
 			<boolean true_text="yes" false_text="no" />
 		</field>
