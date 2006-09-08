@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.28 2006/08/23 23:09:08 arailean Exp $
+* $Id: file_versioning.inc,v 1.29 2006/09/08 05:49:06 skim Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -910,6 +910,7 @@ class File_Versioning
 		}
 
 		readfile($info['source_file']);
+		@ob_flush();
 		return true;
 
 	}//end output()

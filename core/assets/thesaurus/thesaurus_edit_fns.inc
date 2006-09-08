@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.5 2006/03/22 04:15:17 emcdonald Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.6 2006/09/08 05:49:06 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -217,6 +217,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 			header('Content-Length: '.@filesize($filepath));
 
 			readfile($filepath);
+			@ob_flush();
 		}
 
 		exit;

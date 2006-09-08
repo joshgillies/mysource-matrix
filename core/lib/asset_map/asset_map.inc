@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.226 2006/08/31 06:10:53 colivar Exp $
+* $Id: asset_map.inc,v 1.227 2006/09/08 05:49:06 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.226 $
+* @version $Revision: 1.227 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -566,6 +566,7 @@ class Asset_Map
 						while (($file = readdir($d)) !== FALSE) {
 							if (substr($file, -4) == '.xml') {
 								@readfile($dir.'/'.$file);
+								@ob_flush();
 							}
 						}
 						closedir($d);
