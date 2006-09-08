@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.13 2006/09/08 04:25:14 tbarrett Exp $
+* $Id: page_calendar_rolling.inc,v 1.14 2006/09/08 08:14:03 rhoward Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -334,7 +334,7 @@ class Page_Calendar_Rolling extends Page
 
 		// get the events to display
 		$time = time();
-		$all_events = $this->_getEvents($time);
+		$all_events = $this->_getEvents(NULL, NULL, $time);
 		$all_ids = Array();
 		foreach ($all_events as $day => $event_list) {
 			$all_ids = array_merge($all_ids, array_keys($event_list));
@@ -559,9 +559,12 @@ class Page_Calendar_Rolling extends Page
 	* @return array
 	* @access protected
 	*/
-	function _getEvents($time=NULL, $start_date=NULL, $end_date=NULL)
+	function _getEvents($start_date=NULL, $end_date=NULL, $time=NULL)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		if (is_null($time)) {
+			$time = time();
+		}
 		if (is_null($start_date)) {
 			$unit = $this->attr('time_unit');
 			$from = $this->attr('duration_from');

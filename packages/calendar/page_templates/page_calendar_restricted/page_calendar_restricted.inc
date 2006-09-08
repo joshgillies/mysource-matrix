@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_restricted.inc,v 1.3 2006/02/02 03:55:37 sdanis Exp $
+* $Id: page_calendar_restricted.inc,v 1.4 2006/09/08 08:14:03 rhoward Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/page_templates/page_calendar_rolling/pa
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -71,16 +71,16 @@ class Page_Calendar_Restricted extends Page_Calendar_Rolling
 		if (!isset($vars['keywords'])) {
 			$vars['keywords'] = Array();
 		}
-		$tf_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, '', 'major', TRUE);
-		$tf_folder_id = $tf_folder_link['minorid'];
+
+		// get the bodycopy parent of the broadcaster
 		$broadcaster_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id);
-		if (isset($broadcaster_parents[$this->id]) && !isset($broadcaster_parents[$tf_folder_id])) {
-			// it's the contents BC
-			$vars['keywords']['event_list'] = 'List of Events';
+		$format_bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', '', 'TRUE'));
+		if (!empty($format_bodycopy_link['minorid']) && isset($broadcaster_parents[$format_bodycopy_link['minorid']])) {
+			// this is the page_contents bodycopy
 			$vars['keywords']['next_link'] = 'Link to the next page of events';
 			$vars['keywords']['prev_link'] = 'Link to the previous page of events';
-			return TRUE;
 		}
+
 		return parent::onRequestKeywords($broadcaster, $vars);
 
 	}//end onRequestKeywords()

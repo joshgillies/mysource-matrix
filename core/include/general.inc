@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.149 2006/08/22 04:46:36 rong Exp $
+* $Id: general.inc,v 1.150 2006/09/08 08:14:01 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.149 $
+* @version $Revision: 1.150 $
 * @package MySource_Matrix
 */
 
@@ -713,6 +713,7 @@ function replace_query_string_vars($replacements, $base_url=NULL, $query_string=
 	// now add in any new query string vars
 	foreach ($replacements as $var => $value) {
 		if (in_array($var, $matches[1])) continue;
+		if (is_null($value)) continue;
 		$new_query_string .= '&'.$var.'='.$value;
 	}
 	$new_query_string = trim($new_query_string, '&');

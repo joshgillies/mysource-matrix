@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2005/06/27 02:54:48 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2006/09/08 08:14:03 rhoward Exp $
 *
 */
 -->
@@ -33,20 +33,20 @@
 		</field>
 		<field attribute="start_date">
 		<datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_period="0" use_picker="1">
-                          <show>
-                                <y style="t" allow_null="1" />
-                                <m style="s" allow_null="1" />
-                                <d style="s" allow_null="1" />
-                          </show>
+						  <show>
+								<y style="t" allow_null="1" />
+								<m style="s" allow_null="1" />
+								<d style="s" allow_null="1" />
+						  </show>
 		</datetime>
 		</field>
 		<field attribute="end_date">
 		<datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_period="0" use_picker="1">
-                          <show>
-                                <y style="t" allow_null="1" />
-                                <m style="s" allow_null="1" />
-                                <d style="s" allow_null="1" />
-                          </show>
+						  <show>
+								<y style="t" allow_null="1" />
+								<m style="s" allow_null="1" />
+								<d style="s" allow_null="1" />
+						  </show>
 		</datetime>
 		</field>
 		<field attribute="days_per_page">
@@ -57,12 +57,6 @@
 				<paint_function name="paintEventSources" />
 				<process_function name="processEventSources" />
 			</function_call>
-		</field>
-		<field attribute="day_heading_format">
-			<text width="20" height="1" />
-		</field>
-		<field attribute="day_heading_tag">
-			<selection />
 		</field>
 		<field attribute="next_text">
 			<text height="1" width="40" />
