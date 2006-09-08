@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.36.2.1 2006/09/08 06:09:56 tbarrett Exp $
+* $Id: workflow.inc,v 1.36.2.2 2006/09/08 06:24:26 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.36.2.1 $
+* @version $Revision: 1.36.2.2 $
 * @package MySource_Matrix
 */
 
@@ -252,7 +252,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 							if ($require_comment) {
 								$button_js = "elt = document.getElementById('".$prefix."_workflow_new_log_message'); if (elt && elt.value.replace(".'/^\s+|\s+$/g'.", '').length == 0) alert(js_translate('must_enter_comment_error')); else submit_form();";
 							}
-							normal_button($prefix.'_workflow_status_update', translate('commit_button'), $button_js);
+							normal_button($prefix.'_workflow_status_update', SQ_CONF_COMMIT_BUTTON_TEXT, $button_js);
 
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_commit'])) {
