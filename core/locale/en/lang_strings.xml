@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.157 2006/09/06 23:34:35 bcaldwell Exp $
+* $Id: lang_strings.xml,v 1.158 2006/09/08 00:29:34 tbarrett Exp $
 *
 */
 
@@ -1956,4 +1956,6 @@ Are you sure you want to proceed?</string>
 	<string source="form_question_asset">Form Question Asset</string>
 	<string source="static_value">Static Value</string>
 
+	<!-- Paint Layout -->
+	<string source="paint_layout_usage_explanation">This screen shows which parts of the asset tree this paint layout is used in, by listing the highest-level assets to which it has been applied and the number of their children to which it has cascaded.</string>
 </strings>

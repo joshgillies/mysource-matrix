@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.500 2006/09/06 01:10:32 skim Exp $
+* $Id: asset_manager.inc,v 1.501 2006/09/08 00:29:33 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.500 $
+* @version $Revision: 1.501 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2432,7 +2432,7 @@ class Asset_Manager extends MySource_Object
 			$major_shadow_parts = Array(
 									'bridgeid'	=> $id_parts[0],
 									'shadowid'	=> $id_parts[1],
-								   );
+								  );
 		}
 
 		$minor_shadow_parts = FALSE;
@@ -2441,7 +2441,7 @@ class Asset_Manager extends MySource_Object
 			$minor_shadow_parts = Array(
 									'bridgeid'	=> $id_parts[0],
 									'shadowid'	=> $id_parts[1],
-								   );
+								  );
 		}
 
 		if (!empty($major_shadow_parts)) {
@@ -3180,9 +3180,7 @@ class Asset_Manager extends MySource_Object
 			}
 			for (reset($dependant_links); NULL !== ($k = key($dependant_links)); next($dependant_links)) {
 				$parentid = $dependant_links[$k]['majorid'];
-				if ($include_all_dependants) {
-					$parents[] = $parentid;
-				}
+				if ($include_all_dependants) $parents[] = $parentid;
 				$parents = array_merge($parents, $this->getDependantParents($parentid, $type_code, $strict_type_code, $include_all_dependants));
 			}
 
@@ -3260,7 +3258,7 @@ class Asset_Manager extends MySource_Object
 	*															1	=> FALSE,
 	*														   ),
 	*										)
-	*
+cd 
 	* @return boolean
 	* @access private
 	*/
@@ -6346,6 +6344,33 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getValueFromURL()
+
+
+	/**
+	* Get assetids that match the given lookup name and value
+	*
+	* @param string	$lookup_name_exp	The name of the lookup value, or a SQL expression to match it
+	* @param string	$lookup_value_exp	The value of the lookup value, or a SQL expression to match it
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetidsByLookupValue($lookup_name_exp, $lookup_value_exp)
+	{
+		$use_like_for_name = ((FALSE !== strpos($lookup_name_exp, '?')) || (FALSE !== strpos($lookup_name_exp, '%')));
+		$name_operator = $use_like_for_name ? 'LIKE' : '=';
+		$use_like_for_value = ((FALSE !== strpos($lookup_value_exp, '?')) || (FALSE !== strpos($lookup_value_exp, '%')));
+		$value_operator = $use_like_for_value ? 'LIKE' : '=';
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT l.assetid
+				FROM sq_ast_lookup l JOIN sq_ast_lookup_value lv ON l.url = lv.url
+				WHERE lv.name '.$name_operator.' '.$db->quoteSmart($lookup_name_exp).'
+					AND lv.value '.$value_operator.' '.$db->quoteSmart($lookup_value_exp);
+		$res = $db->getCol($sql);
+		assert_valid_db_result($res);
+		return $res;
+
+	}//end getAssetidsByLookupValue()
 
 
 	/**
