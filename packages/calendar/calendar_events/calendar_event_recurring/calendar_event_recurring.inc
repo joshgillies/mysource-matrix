@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.77 2006/09/08 04:25:14 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.78 2006/09/08 04:30:14 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -872,6 +872,13 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$stop_date = $this->attr('stop_date');
 				if ((!empty($matches)) && !empty($stop_date) && (FALSE === strpos('----', $stop_date))) {
 					return date($matches[1], iso8601_ts($stop_date));
+				}
+				if (in_array($keyword, Array('asset_url', 'asset_href'))) {
+					$res = parent::getKeywordReplacement($keyword);
+					if (!empty($_REQUEST['SQ_CALENDAR_DATE'])) {
+						$res = replace_query_string_vars(Array('SQ_CALENDAR_DATE' => $_REQUEST['SQ_CALENDAR_DATE']), $res);
+					}
+					return $res;
 				}
 				return parent::getKeywordReplacement($keyword);
 		}//end switch
