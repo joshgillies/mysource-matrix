@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.92 2006/01/26 22:34:08 lwright Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.92.2.1 2006/09/08 06:26:32 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.92.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -380,7 +380,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o->openField('', 'commit');
 		normal_button('cancel', translate('cancel'), 'window.close()');
 		echo '&nbsp;';
-		submit_button('commit', translate('commit_button'));
+		submit_button('commit', SQ_CONF_COMMIT_BUTTON_TEXT);
 
 	}//end _forceablyAcquireLock()
 
