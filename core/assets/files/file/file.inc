@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.129.2.1 2006/08/27 23:49:07 bcaldwell Exp $
+* $Id: file.inc,v 1.129.2.2 2006/09/08 05:58:21 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.129.2.1 $
+* @version $Revision: 1.129.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1035,6 +1035,7 @@ class File extends Asset
 			header('Content-Length: '.$existing['size']);
 
 			readfile($existing['path']);
+			@ob_flush();
 		}
 
 	}//end printFrontend()
