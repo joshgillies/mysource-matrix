@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.26.2.10 2006/06/27 07:39:52 lwright Exp $
+* $Id: image_variety.inc,v 1.26.2.11 2006/09/08 06:00:44 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.26.2.10 $
+* @version $Revision: 1.26.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -743,6 +743,7 @@ class Image_Variety extends Asset
 			header('Content-Length: '.filesize($file));
 
 			readfile($file);
+			@ob_flush();
 		}
 
 	}//end printFrontend()
