@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.158 2006/09/08 00:29:34 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.159 2006/09/08 01:05:43 tbarrett Exp $
 *
 */
 
@@ -1958,4 +1958,8 @@ Are you sure you want to proceed?</string>
 
 	<!-- Paint Layout -->
 	<string source="paint_layout_usage_explanation">This screen shows which parts of the asset tree this paint layout is used in, by listing the highest-level assets to which it has been applied and the number of their children to which it has cascaded.</string>
+
+	<!-- design asset -->
+	<string source="design_usage_explanation">This screen shows which parts of the asset tree this design is used in, by listing the highest-level assets to which it has been applied and the number of their children to which it has cascaded.</string>
+
 </strings>

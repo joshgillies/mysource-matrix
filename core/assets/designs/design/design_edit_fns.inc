@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.111 2006/05/03 01:55:35 sdanis Exp $
+* $Id: design_edit_fns.inc,v 1.112 2006/09/08 01:05:43 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.111 $
+* @version $Revision: 1.112 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1288,6 +1288,120 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		return $write_access;
 
 	}//end processCurrentFiles()
+
+
+	/**
+	* Paint the usage of this paint layout
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return void
+	* @access public
+	*/
+	function paintUsage(&$asset, &$o, $prefix)
+	{
+		$o->openRaw();
+		echo '<p><i>'.translate('design_usage_explanation').'</i></p>';
+		echo '<div style="line-height: 160%">';
+		$res = $GLOBALS['SQ_SYSTEM']->am->getAssetidsByLookupValue('design::%', $asset->id);
+		$res = $this->_getTreeTops($res);
+		$singular = strtolower(translate('child'));
+		$plural = strtolower(translate('children'));
+		$paginate = (count($res) > 20);
+		if ($paginate) {
+			$current_page_no = array_get_index($_REQUEST, 'usage_page_no', 0);
+			$total_pages = ceil(count($res) / 20);
+			$res = array_slice($res, $current_page_no * 20, 20);
+		}
+		foreach ($res as $entry) {
+			$count = $entry['child_count'];
+			echo get_asset_tag_line($entry['assetid'], 'lookupValues');
+			if (!empty($count)) {
+				echo ' and '.$count.' '.(($count > 1) ? $plural : $singular);
+			}
+			echo '<br />';
+		}
+		echo '</div>';
+		if ($paginate) {
+			echo '<p>';
+			if ($current_page_no > 0) {
+				echo '<a href="'.replace_query_string_vars(Array('usage_page_no' => $current_page_no-1)).'">'.translate('previous_page').'</a> &nbsp; ';
+			}
+			echo translate('page_number', $current_page_no + 1, $total_pages);
+			if ($current_page_no < ($total_pages-1)) {
+				echo ' &nbsp; <a href="'.replace_query_string_vars(Array('usage_page_no' => $current_page_no+1)).'">'.translate('next_page').'</a> ';
+			}
+			echo '</p>';
+		}
+
+
+		$o->closeRaw();
+
+	}//end paintUsage()
+
+
+	/**
+	* Get the "tree tops" in the supplied list of assets
+	*
+	* An asset is a "tree top" in a set of assets if none of its ancestors
+	* in the asset tree are in the set with it.  Conversely if an asset's parent
+	* or grandparent etc is in the set, then that asset is not a tree top.
+	*
+	* Returns an array indexed by treeid, where each value is another array
+	* containing assetid and number of children of that assetid found in
+	* the set.
+	*
+	* @param array	$assetids	The assetids we are analysing
+	*
+	* @return array
+	* @access public
+	*/
+	function _getTreeTops($assetids)
+	{
+		$treeids = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($assetids);
+		$all_treeids = Array();
+		foreach ($treeids as $assetid => $asset_treeids) {
+			foreach ($asset_treeids as $asset_treeid) {
+				$all_treeids[$asset_treeid] = $assetid;
+			}
+		}
+		uksort($all_treeids, Array($this, '_strlenCmp'));
+		$res = Array();
+		foreach ($all_treeids as $treeid => $assetid) {
+			$treeid_copy = $treeid;
+			while (!empty($treeid_copy)) {
+				if (isset($res[$treeid_copy])) {
+					$res[$treeid_copy]['child_count']++;
+					continue(2);
+				}
+				$treeid_copy = substr($treeid_copy, 0, -SQ_CONF_ASSET_TREE_SIZE);
+			}
+			$res[$treeid]['assetid'] = $assetid;
+			$res[$treeid]['child_count'] = 0;
+
+		}
+		ksort($res); // put in treeid order
+		return $res;
+
+	}//end _getTreeTops()
+
+
+	/**
+	* Compare the lengths of two strings
+	*
+	* @param string	$a	First comparee
+	* @param string	$b	Second comparee
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _strlenCmp($a, $b)
+	{
+		return strlen($a) > strlen($b);
+
+	}//end _strlenCmp()
 
 
 }//end class
