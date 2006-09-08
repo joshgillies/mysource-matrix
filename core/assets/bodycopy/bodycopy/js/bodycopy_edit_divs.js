@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_divs.js,v 1.8 2005/01/20 13:07:31 brobertson Exp $
+* $Id: bodycopy_edit_divs.js,v 1.9 2006/09/08 05:20:59 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ function bodycopy_insert_div(bodycopy_name, divid, before) {
 	bodycopy_current_edit["data"]["containerid"]    = divid;
 	bodycopy_current_edit["data"]["container_type"] = 'div';
 	bodycopy_current_edit["data"]["before"]         = before;
-	bodycopy_show_popup("insert_div.php", 300, 220);
+	bodycopy_show_popup("insert_div.php", 300, 250);
 }// end bodycopy_insert_div()
 
 function bodycopy_save_insert_div(attributes) {

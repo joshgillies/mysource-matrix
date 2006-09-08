@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_div.php,v 1.10 2006/03/05 23:03:35 dmckee Exp $
+* $Id: insert_div.php,v 1.11 2006/09/08 05:20:59 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,7 +63,6 @@ include(dirname(__FILE__).'/header.php');
 	$default_content_type = $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DEFAULT_CONTENT_TYPE');
 ?>
 <div class="title" style="text-align: right;"><?php echo translate('insert_div'); ?></div>
-
 <form name="main_form">
 <input type="hidden" name="bodycopy_name" value="">
 <input type="hidden" name="divid" value="">
@@ -83,6 +82,25 @@ include(dirname(__FILE__).'/header.php');
 			<legend><b><?php echo translate('style_information'); ?></b></legend>
 			<table style="width:100%">
 				<tr>
+					<td class="bodycopy-popup-heading"><?php echo translate('presentation'); ?>:</td>
+					<td>
+						<select name="layout_type">
+							<option value="div" ><?php echo translate('block-level'); ?></option>
+							<option value="span"><?php echo translate('inline'); ?></option>
+							<option value="none"><?php echo translate('raw_html'); ?></option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td class="label"><?php echo translate('class'); ?>:</td>
+					<td><input type="text" name="css_class" value="" size="15"></td>
+				</tr>
+			</table>
+		</fieldset>
+		<fieldset>
+			<legend><b><?php echo translate('content_type'); ?></b></legend>
+			<table style="width:100%">
+				<tr>
 					<td class="bodycopy-popup-heading"><?php echo translate('content_type'); ?>:</td>
 					<td>
 						<select name="content_type" id="content_type">
@@ -100,23 +118,8 @@ include(dirname(__FILE__).'/header.php');
 						</select>
 					</td>
 				</tr>
-				<tr>
-					<td class="bodycopy-popup-heading"><?php echo translate('presentation'); ?>:</td>
-					<td>
-						<select name="layout_type">
-							<option value="div" ><?php echo translate('block-level'); ?></option>
-							<option value="span"><?php echo translate('inline'); ?></option>
-							<option value="none"><?php echo translate('raw_html'); ?></option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td class="label"><?php echo translate('class'); ?>:</td>
-					<td><input type="text" name="css_class" value="" size="15"></td>
-				</tr>
 			</table>
 		</fieldset>
-		</td>
 	</tr>
 	<tr>
 		<td>
