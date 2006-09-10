@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.45 2006/08/18 06:21:35 bcaldwell Exp $
+* $Id: page_account_manager.inc,v 1.46 2006/09/10 23:47:21 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -564,12 +564,23 @@ class Page_Account_Manager extends Page_Asset_Builder
 	*/
 	function _getBodycopies()
 	{
-		return Array(
-				'create_login'		=> translate('cms_account_manager_created_live'),
-				'create_no_login'	=> translate('cms_account_manager_created_not_live'),
-				'logged_in'			=> translate('logged_in'),
-				'not_logged_in'		=> translate('not_logged_in'),
-			   );
+		$res = Array();
+
+		$res['not_logged_in']['name'] = translate('not_logged_in');
+		$res['not_logged_in']['content'] = '<p>%create_error%%login_error%</p>'."\n".
+											'%create_invite%%create_form%%login_invite%%login_form%';
+
+		$res['create_no_login']['name'] = translate('cms_account_manager_created_not_live');
+		$res['create_no_login']['content'] = translate('cms_account_manager_created_need_activation');
+
+		$res['create_login']['name'] = translate('cms_account_manager_created_live');
+		$res['create_login']['content'] = translate('cms_account_manager_created_please_log_in')."\n%login_form%";
+
+		$res['logged_in']['name'] = translate('logged_in');
+		$res['logged_in']['content'] = '<p>%edit_details_lock_error%%edit_details_success%</p>'."\n".
+										'%edit_details_invite%%edit_details_form%';
+
+		return $res;
 
 	}//end _getBodycopies()
 

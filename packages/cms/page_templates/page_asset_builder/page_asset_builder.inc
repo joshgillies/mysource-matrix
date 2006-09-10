@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.95 2006/08/03 23:13:12 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.96 2006/09/10 23:47:22 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -95,11 +95,12 @@ class Page_Asset_Builder extends Page
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => '');
 
-		foreach ($this->_getBodycopies() as $value => $name) {
+		foreach ($this->_getBodycopies() as $value => $details) {
 			$bodycopy =& new Bodycopy();
-			$bodycopy->setAttrValue('name', $name);
+			$bodycopy->setAttrValue('name', $details['name']);
 			$copy_link['value'] = $value;
-			if (!$bodycopy->create($copy_link)) return FALSE;
+			unset($details['name']);
+			if (!$bodycopy->create($copy_link, $details)) return FALSE;
 		}
 		return TRUE;
 
@@ -972,11 +973,24 @@ class Page_Asset_Builder extends Page
 	*/
 	function _getBodycopies()
 	{
-		return Array(
-				'created'		=> translate('created'),
-				'logged_in'		=> translate('logged_in'),
-				'not_logged_in'	=> translate('not_logged_in'),
-			   );
+		$res = Array();
+		$res['not_logged_in']= Array(
+								'name'		=> translate('not_logged_in'),
+								'content'	=> '%login_error%
+												%login_invite%
+												%login_form',
+							   );
+		$res['logged_in']= Array(
+								'name'		=> translate('logged_in'),
+								'content'	=> '%create_error%
+												%create_invite%
+												%create_form%',
+							   );
+		$res['created']= Array(
+								'name'		=> translate('created'),
+								'content'	=> translate('cms_asset_builder_default_created_message'),
+							   );
+		return $res;
 
 	}//end _getBodycopies()
 
