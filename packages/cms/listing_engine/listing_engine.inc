@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.190 2006/09/08 06:46:51 rhoward Exp $
+* $Id: listing_engine.inc,v 1.191 2006/09/10 23:58:48 tbarrett Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.190 $
+* @version $Revision: 1.191 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -108,7 +108,8 @@ class Listing_Engine extends Page
 		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$type_formats, 'value' => 'default_format' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', translate('default_format'));
-		if (!$asset->create($copy_link)) return FALSE;
+		$args = Array('content' => '%asset_name_linked%');
+		if (!$asset->create($copy_link, $args)) return FALSE;
 
 		return $this->_createBodycopies(Array('content' => '%asset_listing%'));
 
@@ -3803,9 +3804,10 @@ class Listing_Engine extends Page
 							'is_dependant'	=> 1,
 							'is_exclusive'	=> 1,
 						 );
+			$args = Array('content' => translate('cms_listing_no_results'));
 
 			$asset->setAttrValue('name', 'Page Contents (No Results)');
-			if (!$asset->create($copy_link)) return FALSE;
+			if (!$asset->create($copy_link, $args)) return FALSE;
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			unset($asset);
