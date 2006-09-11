@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.46 2006/09/10 23:47:21 tbarrett Exp $
+* $Id: page_account_manager.inc,v 1.47 2006/09/11 04:26:33 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -46,6 +46,38 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$this->Page_Asset_Builder($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Create this asset
+	*
+	* The return value will be:<br/>
+	* <ul>
+	*   <li>FALSE if the asset was not created</li>
+	*   <li>the ID of the newly created link if the asset and intital link were created</li>
+	* </ul>
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @return mixed int|boolean
+	* @access public
+	*/
+	function create(&$link)
+	{
+		// Set default value for validation email format attr
+		$val = Array();
+		$val['subject'] = translate('cms_account_manager_validation_email_default_subject');
+		$val['text_format'] = translate('cms_account_manager_validation_email_default_content', '%validation_url%');
+		$val['html_format'] = '<p>'.translate('cms_account_manager_validation_email_default_content', '<a href="%validation_url%">%validation_url%</a>').'</p>';
+		$val['from'] = SQ_CONF_SYSTEM_NAME.' <'.SQ_CONF_DEFAULT_EMAIL.'>';
+		$this->setAttrVAlue('validation_email_format', $val);
+
+
+
+
+		return parent::create($link);
+
+	}//end create()
 
 
 	/**
