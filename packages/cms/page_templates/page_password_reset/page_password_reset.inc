@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset.inc,v 1.8 2006/09/11 02:59:30 tbarrett Exp $
+* $Id: page_password_reset.inc,v 1.9 2006/09/11 04:26:49 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	Allows a user to reset their password.
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -80,7 +80,7 @@ class Page_Password_Reset extends Page
 		$val['subject'] = translate('cms_password_reset_email_subject');
 		$val['text_format'] = translate('cms_password_reset_email_msg', '%asset_attribute_username%', '%password_reset_url%');
 		$val['html_format'] = '<p>'.translate('cms_password_reset_email_msg', '%asset_attribute_username%', '<a href="%password_reset_url%">%password_reset_url%</a>').'</p>';
-		$val['from'] = SQ_CONF_DEFAULT_EMAIL;
+		$val['from'] = SQ_CONF_SYSTEM_NAME.' <'.SQ_CONF_DEFAULT_EMAIL.'>';
 		$this->setAttrVAlue('request_email_format', $val);
 
 		return parent::create($link);
