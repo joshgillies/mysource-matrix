@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.29 2006/06/29 04:28:00 skim Exp $
+* $Id: matrix_insert_image.inc,v 1.29.2.1 2006/09/11 04:27:59 skim Exp $
 *
 */
 
@@ -35,7 +35,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.2.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -270,6 +270,9 @@ class matrix_insert_image extends wysiwyg_plugin
 					$tmp_img_tag = $img_tag;
 
 					if (!empty($src)) {
+						$id_parts = explode(':', $src[1]);
+						if (isset($id_parts[1])) continue;
+
 						$img_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($src[1]);
 						$width = $img_asset->attr('width');
 						$height = $img_asset->attr('height');
