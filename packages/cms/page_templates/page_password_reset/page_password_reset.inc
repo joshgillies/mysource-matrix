@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset.inc,v 1.7 2006/07/17 03:06:22 tbarrett Exp $
+* $Id: page_password_reset.inc,v 1.8 2006/09/11 02:59:30 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	Allows a user to reset their password.
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -53,9 +53,39 @@ class Page_Password_Reset extends Page
 	*/
 	function Page_Password_Reset($assetid=0)
 	{
+		$this->_ser_attrs = TRUE;
 		$this->Page($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Create this asset
+	*
+	* The return value will be:<br/>
+	* <ul>
+	*   <li>FALSE if the asset was not created</li>
+	*   <li>the ID of the newly created link if the asset and intital link were created</li>
+	* </ul>
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @return mixed int|boolean
+	* @access public
+	*/
+	function create(&$link)
+	{
+		// Set default value for email format attr
+		$val = Array();
+		$val['subject'] = translate('cms_password_reset_email_subject');
+		$val['text_format'] = translate('cms_password_reset_email_msg', '%asset_attribute_username%', '%password_reset_url%');
+		$val['html_format'] = '<p>'.translate('cms_password_reset_email_msg', '%asset_attribute_username%', '<a href="%password_reset_url%">%password_reset_url%</a>').'</p>';
+		$val['from'] = SQ_CONF_DEFAULT_EMAIL;
+		$this->setAttrVAlue('request_email_format', $val);
+
+		return parent::create($link);
+
+	}//end create()
 
 
 	/**
@@ -84,12 +114,13 @@ class Page_Password_Reset extends Page
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => '');
 
-		foreach ($this->_getBodycopies() as $value => $name) {
+		foreach ($this->_getBodycopies() as $value => $details) {
 			$bodycopy =& new Bodycopy();
 			$copy_link['value'] = $value;
 
-			$bodycopy->setAttrValue('name', $name);
-			if (!$bodycopy->create($copy_link)) return FALSE;
+			$bodycopy->setAttrValue('name', $details['name']);
+			unset($details['name']);
+			if (!$bodycopy->create($copy_link, $details)) return FALSE;
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
 		}
 		return TRUE;
@@ -290,8 +321,8 @@ class Page_Password_Reset extends Page
 				$email_attr->value = serialize($email_value);
 
 				@$email_attr->sendMail($email_replacements);
-			} 
-			
+			}
+
 		}//end else
 
 		return $this->_buildContents('request_receipt', $replacements);
@@ -532,7 +563,7 @@ class Page_Password_Reset extends Page
 		if (is_null($parent)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2'); 
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 
 			// That's right, delete any existing links.
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($parent->id, $assetid, SQ_LINK_TYPE_1, NULL, 'major', TRUE);
@@ -761,12 +792,20 @@ class Page_Password_Reset extends Page
 	*/
 	function _getBodycopies()
 	{
-		return Array(
-				'request'			=> translate('cms_password_reset_request'),
-				'request_receipt'	=> translate('cms_password_reset_request_receipt'),
-				'reset'				=> translate('cms_password_reset_reset'),
-				'reset_receipt'		=> translate('cms_password_reset_reset_receipt'),
-			   );
+		$res = Array();
+		$res['request']['name'] = translate('cms_password_reset_request');
+		$res['request']['content'] = '<p>%password_reset_error%</p><p>'.translate('cms_password_reset_request_msg').'</p><p>%username_input% %submit_button% </p>';
+
+		$res['request_receipt']['name'] = translate('cms_password_reset_request_receipt');
+		$res['request_receipt']['content'] = '<p>'.translate('cms_password_reset_request_receipt_msg').'</p>';
+
+		$res['reset']['name'] = translate('cms_password_reset_reset');
+		$res['reset']['content'] = '<p>%password_reset_error%</p><p>'.translate('cms_password_reset_reset_msg').'</p><p>%password_input%&nbsp;%submit_button%</p>';
+
+		$res['reset_receipt']['name'] = translate('cms_password_reset_reset_receipt');
+		$res['reset_receipt']['content'] = '<p>'.translate('cms_password_reset_reset_receipt_msg').'</p>';
+
+		return $res;
 
 	}//end _getBodycopies()
 
