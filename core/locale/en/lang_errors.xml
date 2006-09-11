@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.54 2006/06/28 05:03:35 rhoward Exp $
+* $Id: lang_errors.xml,v 1.55 2006/09/11 06:49:21 arailean Exp $
 *
 */
 
@@ -1663,5 +1663,8 @@ Full Node Contents :
 		<!-- packages/cms/reports/broken_links/report_broken_links_edit_fns.inc:183: -->
 	<error code="RPRT0003">No attributes were selected</error>
 	<error code="RPRT0004">Root node was not selected</error>
+
+	<!-- Triggering System -->
+	<error code="TRIG0001">Cannot save trigger without a name</error>
 
 </errors>

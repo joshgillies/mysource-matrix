@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger.inc,v 1.5 2006/04/03 00:41:50 bcaldwell Exp $
+* $Id: trigger.inc,v 1.6 2006/09/11 06:49:21 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *	in the Trigger_Manager.
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 *
@@ -225,12 +225,18 @@ class Trigger extends Asset
 		}
 
 		// build trigger info from attributes
-		$trigger_info['name']							= $this->attr('name'); 
+		$trigger_info['name']							= $this->attr('name');
 		$trigger_info['description']					= $this->attr('description');
 		$trigger_info['data']['events']					= $this->attr('events');
 		$trigger_info['data']['conditions']				= $this->attr('conditions');
 		$trigger_info['data']['actions']				= $this->attr('actions');
 		$trigger_info['active']							= $this->attr('active');
+
+		// Name cannot be empty
+		if (empty($trigger_info['name'])) {
+			trigger_localised_error('TRIG0001', E_USER_NOTICE);
+			return FALSE;
+		}
 
 		// special condition for blocking
 		if ($this->attr('blocking')) {
