@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.51.2.4 2006/04/18 06:30:49 tbarrett Exp $
+* $Id: wysiwyg.inc,v 1.51.2.5 2006/09/11 02:14:46 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51.2.4 $
+* @version $Revision: 1.51.2.5 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -638,7 +638,7 @@ class wysiwyg
 
 					// retrieve the HTML
 					html = this.make_relative_hrefs(html);
-					this._textArea.value = escape(html);
+					this._textArea.value = encodeURIComponent(html);
 				};
 			</script>
 
@@ -1145,8 +1145,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 	{
 		if (!isset($_REQUEST[$this->name])) return FALSE;
 		$html = $_REQUEST[$this->name];
-		$html = str_replace('%A0', '', $html);	// these chars just cause trouble, in the DB and 
-												// when painting the WYSIWYG
+
 		$html = rawurldecode($html);
 
 		// replace out special form tags back with real form tags
