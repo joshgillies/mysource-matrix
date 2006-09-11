@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.12 2006/07/04 04:46:56 rong Exp $
+* $Id: page_user_group_manager.inc,v 1.13 2006/09/11 04:48:44 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -106,11 +106,35 @@ class Page_User_Group_Manager extends Page
 
 			$bodycopy =& new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
-			if (!$bodycopy->create($copy_link)) return FALSE;
+			$args = Array('content' => $this->_getDefaultBodycopyContents($value));
+			if (!$bodycopy->create($copy_link, $args)) return FALSE;
 		}
 		return TRUE;
 
 	}//end _createAdditional()
+
+
+	/**
+	* Get the default contents for a bodycopy
+	*
+	* @param string	$code	The code name for the bodycopy
+	*
+	* @return void
+	* @access public
+	*/
+	function _getDefaultBodycopyContents($code)
+	{
+		switch ($code) {
+			case 'logged_in':
+				return '<h2>'.translate('cms_user_group_manager_title', '%user_name%').'</h2>'."\n".
+						'%error_messages_list%%success_messages_list%'."\n".
+						'<p>%location_picker%%commit_button%</p>';
+			case 'not_logged_in':
+				return translate('cms_user_group_manager_must_be_logged_in');
+		}
+		return '';
+
+	}//end _getDefaultBodycopyContents()
 
 
 	/**
