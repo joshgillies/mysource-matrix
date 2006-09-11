@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2006/08/21 00:00:35 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.6 2006/09/11 06:23:30 rhoward Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -22,6 +22,7 @@
 <string source="cms_listing_previous_page_link">Previous Page Link</string>
 <string source="cms_listing_next_page_link">Next Page Link</string>
 <string source="cms_listing_page_list">Page List</string>
+<string source="cms_listing_page_list_without_unused">Page List (without unused letters)</string>
 <string source="cms_listing_page_number">Page Number</string>
 <string source="cms_listing_asset_count">Total Assets Listed</string>
 <string source="cms_listing_total_pages">Total Pages</string>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.192 2006/09/11 01:45:24 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.193 2006/09/11 06:23:30 rhoward Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.192 $
+* @version $Revision: 1.193 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1287,6 +1287,8 @@ class Listing_Engine extends Page
 					}
 				}
 				$replacements['page_list'] = $page_list;
+				$replacements['page_list_without_unused'] = $page_list;
+
 				unset($chunks);
 			break;
 
@@ -1365,9 +1367,12 @@ class Listing_Engine extends Page
 
 				// list of pages and links to them
 				$page_list = '';
+				$page_list_without_unused = '';
 				foreach ($all_letters as $one_letter => $text_value) {
 					if (isset($todo[$one_letter])) {
-						$page_list .= ' <a href="'.replace_query_string_vars(Array($asset_result_page_var => $one_letter)).'">'.$text_value.'</a> ';
+						$letter_link               = ' <a href="'.replace_query_string_vars(Array($asset_result_page_var => $one_letter)).'">'.$text_value.'</a> ';
+						$page_list                .= $letter_link;
+						$page_list_without_unused .= $letter_link;
 					} else {
 						$page_list .= ' '.$text_value.' ';
 					}
@@ -1375,6 +1380,7 @@ class Listing_Engine extends Page
 
 				$todo = $todo[$result_page];
 				$replacements['page_list'] = $page_list;
+				$replacements['page_list_without_unused'] = $page_list_without_unused;
 
 			break;
 
@@ -1468,6 +1474,7 @@ class Listing_Engine extends Page
 					}
 				}
 				$replacements['page_list'] = $page_list;
+				$replacements['page_list_without_unused'] = $page_list;
 
 			break;
 
@@ -3251,14 +3258,19 @@ class Listing_Engine extends Page
 		$keywords['previous_page_href']		= translate('cms_listing_previous_page_link_href');
 		$keywords['next_page']				= translate('cms_listing_next_page_link');
 		$keywords['next_page_href']			= translate('cms_listing_next_page_link_href');
+
 		$keywords['page_list']				= translate('cms_listing_page_list');
+		if ($this->attr('group_by') == 'letter') {
+			$keywords['page_list_without_unused'] = translate('cms_listing_page_list_without_unused');
+		}
+
 		$keywords['page_number']			= translate('cms_listing_page_number');
 		$keywords['asset_count']			= translate('cms_listing_asset_count');
 		$keywords['page_asset_count']		= translate('cms_listing_page_asset_count');
 		$keywords['total_pages']			= translate('cms_listing_total_pages');
 		$keywords['first_asset_position']	= translate('cms_listing_first_asset_position');
 		$keywords['last_asset_position']	= translate('cms_listing_last_asset_position');
-		$keywords['unique_asset_count']     = translate('cms_listing_unique_asset_count');
+		$keywords['unique_asset_count']		= translate('cms_listing_unique_asset_count');
 		$keywords['structured_root_node']	= translate('cms_listing_structured_root_node');
 
 		$keywords['select_all_js_code']		= 'Select All Script Code';
