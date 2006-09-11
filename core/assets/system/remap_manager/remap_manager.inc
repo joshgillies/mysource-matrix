@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.25 2006/06/01 03:24:22 rong Exp $
+* $Id: remap_manager.inc,v 1.26 2006/09/11 01:14:34 emcdonald Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -342,15 +342,8 @@ class Remap_Manager extends Asset
 
 		// if we have a remap url, display it
 		if (!empty($remap_url)) {
-			?>
-			<html>
-				<head>
-					<title><?php echo translate('redirecting_you_to', $remap_url); ?></title>
-					<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib');?>/js/general.js"></script>
-				</head>
-				<body onLoad="Javascript: sq_redirect('<?php echo $remap_url; ?>');"></body>
-			</html>
-			<?php
+			header('HTTP/1.1 301 Moved Permanently');
+			header('Location: '.$remap_url);
 
 			return TRUE;
 		}
