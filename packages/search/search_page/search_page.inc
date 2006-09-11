@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.182 2006/09/11 01:01:18 tbarrett Exp $
+* $Id: search_page.inc,v 1.183 2006/09/11 01:45:53 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.182 $
+* @version $Revision: 1.183 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -134,14 +134,14 @@ class Search_Page extends Listing_Engine
 	/**
 	* Get the default content for a bodycopy
 	*
-	* @param string	$value	The value of the link to the bodycopy
+	* @param string	$value	The code name for the bodycopy
 	*
 	* @return string
 	* @access private
 	*/
-	function _getDefaultBodycopyContent($value)
+	function _getDefaultBodycopyContent($bodycopy_code)
 	{
-		switch ($value) {
+		switch ($bodycopy_code) {
 			case 'initial':
 				return '<p>'.translate('sch_page_search_for').'</p><p>%submit_button%</p>';
 			case 'results':
@@ -149,7 +149,7 @@ class Search_Page extends Listing_Engine
 			case 'no_results':
 				return '<p>'.translate('sch_page_no_results_try_again').'</p>%initial_layout%';
 		}
-		return '';
+		return parent::_getDefaultBodycopyContent($bodycopy_code);
 
 	}//end _getDefaultBodycopyContent();
 
