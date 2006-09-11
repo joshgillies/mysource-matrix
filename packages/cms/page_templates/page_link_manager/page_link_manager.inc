@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.11 2006/09/08 06:46:53 rhoward Exp $
+* $Id: page_link_manager.inc,v 1.12 2006/09/11 01:45:24 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -87,10 +87,34 @@ class Page_Link_Manager extends Page_Asset_Listing
 						'is_dependant'	=> 1,
 						'is_exclusive'	=> 1,
 					 );
+		$args = Array('content' => $this->_getDefaultBodycopyContent('not_logged_in'));
 		$asset->setAttrValue('name', 'Page Contents (Not Logged In)');
-		return $asset->create($copy_link);
+		return $asset->create($copy_link, $args);
 
 	}//end _createBodycopies()
+
+
+	/**
+	* Get the default content for a bodycopy
+	*
+	* @param string	$value	The code name for the bodycopy
+	*
+	* @return string
+	* @access private
+	*/
+	function _getDefaultBodycopyContent($bodycopy_code)
+	{
+		switch ($bodycopy_code) {
+			case 'not_logged_in':
+				return '<p>'.translate('cms_link_manager_not_logged_in_msg').'</p>';
+			case 'page_contents':
+				return '<h2>'.translate('cms_link_manager_managing_links_for', '%managed_asset_asset_name%').'</h2>%asset_listing%<p>%submit_button%</p>';
+			case 'default_format':
+				return '%Linked_asset_selection% %asset_name%';
+		}
+		return parent::_getDefaultBodycopyContent($bodycopy_code);
+
+	}//end _getDefaultBodycopyContent();
 
 
 	/**

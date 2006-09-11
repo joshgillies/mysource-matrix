@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.191 2006/09/10 23:58:48 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.192 2006/09/11 01:45:24 tbarrett Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.191 $
+* @version $Revision: 1.192 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -108,10 +108,10 @@ class Listing_Engine extends Page
 		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$type_formats, 'value' => 'default_format' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', translate('default_format'));
-		$args = Array('content' => '%asset_name_linked%');
+		$args = Array('content' => $this->_getDefaultBodycopyContent('default_format'));
 		if (!$asset->create($copy_link, $args)) return FALSE;
 
-		return $this->_createBodycopies(Array('content' => '%asset_listing%'));
+		return $this->_createBodycopies();
 
 	}//end _createAdditional()
 
@@ -120,20 +120,17 @@ class Listing_Engine extends Page
 	* Creates bodycopies for this asset
 	* Override if different bodycopies are needed (eg. in search page).
 	*
-	* @param array	$contents	Content for the bodycopies
-	*							['attributes']['identifier'] => id for the default div container
-	*							['content'] => html content for the default div container
-	*
 	* @return boolean
 	* @access protected
 	*/
-	function _createBodycopies($contents=Array())
+	function _createBodycopies()
 	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', 'Page Contents');
-		if (!$asset->create($copy_link, $contents)) {
+		$args = Array('content' => $this->_getDefaultBodycopyContent('page_contents'));
+		if (!$asset->create($copy_link, $args)) {
 			return FALSE;
 		}
 
@@ -144,6 +141,29 @@ class Listing_Engine extends Page
 		return TRUE;
 
 	}//end _createBodycopies()
+
+
+	/**
+	* Get the default content for a bodycopy
+	*
+	* @param string	$value	The code name for the bodycopy
+	*
+	* @return string
+	* @access private
+	*/
+	function _getDefaultBodycopyContent($bodycopy_code)
+	{
+		switch ($bodycopy_code) {
+			case 'page_contents':
+				return '%asset_listing%';
+			case 'no_results':
+				return '<p>'.translate('cms_listing_no_results').'</p>';
+			case 'default_format':
+				return '%asset_name_linked%';
+		}
+		return '';
+
+	}//end _getDefaultBodycopyContent();
 
 
 	/**
@@ -3804,9 +3824,9 @@ class Listing_Engine extends Page
 							'is_dependant'	=> 1,
 							'is_exclusive'	=> 1,
 						 );
-			$args = Array('content' => translate('cms_listing_no_results'));
 
 			$asset->setAttrValue('name', 'Page Contents (No Results)');
+			$args = Array('content' => $this->_getDefaultBodycopyContent('no_results'));
 			if (!$asset->create($copy_link, $args)) return FALSE;
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
