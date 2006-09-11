@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.181 2006/09/11 00:33:01 tbarrett Exp $
+* $Id: search_page.inc,v 1.182 2006/09/11 01:01:18 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.181 $
+* @version $Revision: 1.182 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -122,12 +122,36 @@ class Search_Page extends Listing_Engine
 
 			$bodycopy =& new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
-			if (!$bodycopy->create($copy_link)) return FALSE;
+			$args = Array('content' => $this->_getDefaultBodycopyContent($value));
+			if (!$bodycopy->create($copy_link, $args)) return FALSE;
 		}
 
 		return TRUE;
 
 	}//end _createBodycopies()
+
+
+	/**
+	* Get the default content for a bodycopy
+	*
+	* @param string	$value	The value of the link to the bodycopy
+	*
+	* @return string
+	* @access private
+	*/
+	function _getDefaultBodycopyContent($value)
+	{
+		switch ($value) {
+			case 'initial':
+				return '<p>'.translate('sch_page_search_for').'</p><p>%submit_button%</p>';
+			case 'results':
+				return '<p>'.translate('sch_page_x_results_found', '%result_count%').'</p>%result_list%';
+			case 'no_results':
+				return '<p>'.translate('sch_page_no_results_try_again').'</p>%initial_layout%';
+		}
+		return '';
+
+	}//end _getDefaultBodycopyContent();
 
 
 	/**

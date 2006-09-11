@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2005/11/16 00:44:11 lwright Exp $
+* $Id: lang_strings.xml,v 1.6 2006/09/11 01:01:18 tbarrett Exp $
 *
 *
 * Search Package Localised Strings File
@@ -66,4 +66,9 @@
 <string source="sch_page_numeric_search_exact">Provide a single text box for exact numeric searching</string>
 <string source="sch_page_numeric_search_range">Provide two text boxes (upper and lower bound) for range searching</string>
 <string source="sch_page_numeric_search_custom">Provide a drop-down list of named ranges</string>
+
+<!-- default bodycopy contents-->
+<string source="sch_page_search_for">Search for ...</string>
+<string source="sch_page_x_results_found">%s results found:</string>
+<string source="sch_page_no_results_try_again">No results found.  Try searching again:</string>
 </strings>
