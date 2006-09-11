@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.41 2006/08/31 05:31:54 arailean Exp $
+* $Id: page_remote_content.inc,v 1.42 2006/09/11 05:18:45 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define ('SQ_REMOTE_SOURCE', 'sq_content_src');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -325,6 +325,7 @@ class Page_Remote_Content extends Page
 		}
 
 		if (!$url) {
+			trigger_localised_error('CMS0062', E_USER_WARNING);
 			$this->_tmp['success'] = FALSE;
 			$this->_tmp['processed'] = TRUE;
 			return FALSE;
@@ -414,7 +415,15 @@ class Page_Remote_Content extends Page
 		}
 
 		// exit on error
-		if (PEAR::isError($result) || preg_match('/^[45].*?/', $result)) {
+		if (PEAR::isError($result)) {
+			trigger_localised_error('CMS0063', E_USER_WARNING, $url, $result->getMessage());
+			$this->_tmp['success']		= FALSE;
+			$this->_tmp['processed']	= TRUE;
+			unset($HTTP_Client);
+			return FALSE;
+		}
+		if (preg_match('/^[45].*?/', $result)) {
+			trigger_localised_error('CMS0064', E_USER_WARNING, $result, $url);
 			$this->_tmp['success']		= FALSE;
 			$this->_tmp['processed']	= TRUE;
 			unset($HTTP_Client);
