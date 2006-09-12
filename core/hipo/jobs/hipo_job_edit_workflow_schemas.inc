@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_workflow_schemas.inc,v 1.33 2006/01/19 21:54:41 lwright Exp $
+* $Id: hipo_job_edit_workflow_schemas.inc,v 1.33.2.1 2006/09/12 06:58:53 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit workflow schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -204,11 +204,20 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 	function freestyle()
 	{
 		while (!empty($this->_running_vars['todo_assetids'])) {
-			if (!$this->processSchemas($this->_steps[0], get_class($this))) {
-				return false;
+			$id = key($this->_running_vars['todo_assetids']);
+			$result = $GLOBALS['SQ_SYSTEM']->am->acquireLock($id, 'workflow');
+			if ($result) {
+				if (!$this->processSchemas($this->_steps[0], get_class($this))) {
+					return FALSE;
+				}
+				if ($result == 1) {
+					$result = $GLOBALS['SQ_SYSTEM']->am->releaseLock($id, 'workflow');
+				}
+			} else {
+				return FALSE;
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end freestyle()
 
@@ -240,7 +249,11 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 					trigger_localised_error('HIPO0009', E_USER_WARNING, $assetid);
 					return '';
 				}
-				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+				if (array_get_index($this->_running_vars, 'dependants_only')) {
+					$child_assets += $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
+				} else {
+					$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+				}
 				$child_assets[$assetid] = $asset->type();
 				unset($asset);
 			}

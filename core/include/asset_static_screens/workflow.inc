@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.34.2.2 2006/09/08 06:26:32 tbarrett Exp $
+* $Id: workflow.inc,v 1.34.2.3 2006/09/12 06:58:54 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.34.2.2 $
+* @version $Revision: 1.34.2.3 $
 * @package MySource_Matrix
 */
 
@@ -828,13 +828,15 @@ function processWorkflow(&$owner, &$o, &$ei)
 
 	$schema_vars = Array();
 	$post_data = $_POST[$prefix.'_workflow'];
+	$depandants = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($owner->id);
+	$has_dependants = !empty($depandants);
 
 	// apply a schema
 	if (!empty($post_data['new']['schemaid']['assetid'])) {
 		if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
 			trigger_localised_error('SYS0268', E_USER_NOTICE, $post_data['new']['schemaid']['assetid']);
 		} else {
-			if ($cascade_changes) {
+			if ($cascade_changes || $has_dependants) {
 				// cascading access of some kind, so queue it up for the HIPO
 				$schema_vars[] = Array(
 									'granted'			=> (int)$post_data['new']['granted'],
@@ -854,7 +856,7 @@ function processWorkflow(&$owner, &$o, &$ei)
 	if (!empty($post_data['delete'])) {
 		foreach ($post_data['delete'] as $schemaid => $on) {
 			$schemaid = (int)$schemaid;
-			if ($cascade_changes) {
+			if ($cascade_changes || $has_dependants) {
 				$schemas = $wfm->getSchemas($owner->id);
 				$current_access = $schemas[$schemaid];
 				$schema_vars[] = Array(
@@ -883,8 +885,18 @@ function processWorkflow(&$owner, &$o, &$ei)
 
 
 	if (!empty($schema_vars)) {
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assets' => Array($owner->id => Array('type_code' => $owner->type())), 'schema_changes' => $schema_vars);
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array(
+					'assets'			=> Array(
+											$owner->id	=> Array(
+															'type_code'	=> $owner->type(),
+														  ),
+										   ),
+					'schema_changes'	=> $schema_vars,
+				);
+		// We are not cascading but the asset has dependant children,
+		// then update the workflow of the only dependant children
+		if (!$cascade_changes && $has_dependants) $vars['dependants_only'] = 1;
 		$hh->queueHipo('hipo_job_edit_workflow_schemas', $vars);
 	}
 
