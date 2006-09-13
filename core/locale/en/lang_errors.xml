@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.54.2.1 2006/09/11 06:58:58 arailean Exp $
+* $Id: lang_errors.xml,v 1.54.2.2 2006/09/13 01:19:31 colivar Exp $
 *
 */
 
@@ -604,7 +604,7 @@
 	<error code="AMAP0041">Unable to Create New Link, existing parent (Asset #%s) not found</error>
 	<error code="AMAP0042">Unable to Create New Link, Link #%s not found</error>
 	<error code="AMAP0043">Unable to Create New Link, can't create a new link to the trash</error>
-
+	<error code="AMAP0044">Unable to Clone Asset, %s</error>
 	<!-- FILE VERSIONING -->
 
 	<error code="FVER0001">Directory "%s" doesn't exist or is not writable</error>
