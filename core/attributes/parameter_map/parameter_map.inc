@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.13 2006/08/14 01:35:40 arailean Exp $
+* $Id: parameter_map.inc,v 1.14 2006/09/13 00:17:14 colivar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once dirname(dirname(__FILE__)).'/serialise/serialise.inc';
 *   When requesting the runtime value for a parameter you give its code.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -184,6 +184,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 
 		switch ($source_type) {
 			case 'ASSET':
+			case 'CURRENT_SITE':
 			case 'USER':
 				$attribute = array_get_index($data, 'attribute');
 				if ($read_only) {
@@ -259,7 +260,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				if ($index == 'new') continue;
 				$value[$index] = $details;
 				foreach ($details as $j => $fields) {
-					if ($fields['source'] == 'ASSET' || $fields['source'] == 'USER') {
+					if ($fields['source'] == 'ASSET' || $fields['source'] == 'USER' || $fields['source'] == 'CURRENT_SITE') {
 						unset($value[$index][$j]['index']);
 					} else if ($fields['source'] == 'ASSET_QUESTION') {
 						unset($value[$index][$j]['attribute']);
@@ -372,7 +373,23 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 
 				break;
 
-
+				case 'CURRENT_SITE':
+					// if the attribute is not set we use assetid by default
+					if (!isset($rule['attribute'])) {
+						$rule['attribute'] = 'assetid';
+					}
+					switch ($rule['attribute']) {
+						case 'assetid':
+							$current_site_id = NULL;
+							$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL();
+							if (isset($asset_lineage[0])) {
+								$current_site_id = $asset_lineage[0]['assetid'];
+								return $current_site_id;
+							}
+						break;
+					}
+					return NULL;
+				break;
 			}//end switch ($rule['source'])
 
 		}//end foreach ($value[$parameter])
@@ -412,6 +429,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				'POST'				=> 'POST '.translate('variable_name'),
 				'ASSET'				=> translate('current_asset'),
 				'USER'				=> translate('current_user'),
+				'CURRENT_SITE'		=> translate('current_site'),
 				'ASSET_QUESTION'	=> translate('form_question_asset'),
 				'STATIC'			=> translate('static_value'),
 			   );

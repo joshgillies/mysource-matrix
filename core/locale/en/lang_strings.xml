@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.161 2006/09/08 06:52:02 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.162 2006/09/13 00:17:15 colivar Exp $
 *
 */
 
@@ -1962,5 +1962,8 @@ Are you sure you want to proceed?</string>
 
 	<!-- design asset -->
 	<string source="design_usage_explanation">This screen shows which parts of the asset tree this design is used in, by listing the highest-level assets to which it has been applied and the number of their children to which it has cascaded.</string>
+
+	<!-- Parameter Map -->
+	<string source="current_site">Current Site</string>
 
 </strings>
