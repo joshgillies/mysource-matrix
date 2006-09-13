@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.210.2.13 2006/09/12 22:30:40 colivar Exp $
+* $Id: asset_map.inc,v 1.210.2.14 2006/09/13 01:19:20 colivar Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.210.2.13 $
+* @version $Revision: 1.210.2.14 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1367,9 +1367,16 @@ class Asset_Map
 		}
 
 		// if we have only one asset. if we cant move it to the parent we dont continue further
-		if ((count($assets) == 1) && ($new_parent->canCreateLink($asset, SQ_LINK_TYPE_1, FALSE) !== TRUE)) {
-			$this->_error('HIPO0020', $asset->id, $new_parent->id);
-			return;
+		if (count($assets) == 1) {
+			$canCreate = $new_parent->canCreateLink($asset, SQ_LINK_TYPE_1, FALSE);
+			if ($canCreate !== TRUE) {
+				if ($canCreate === FALSE) {
+					$this->_error('HIPO0020', $asset->id, $new_parent->id);
+				} else {
+					$this->_error('AMAP0018', $canCreate);
+				}
+				return;
+			}
 		}
 
 		// Only run the HIPO if assets need to be moved from one parent to another
@@ -1472,9 +1479,16 @@ class Asset_Map
 		}
 
 		// if we have only one asset. if we cant clone it under the new parent we dont continue further
-		if ((count($assets) == 1) && ($new_parent->canCreateLink($asset, SQ_LINK_TYPE_1, FALSE) !== TRUE)) {
-			$this->_error('HIPO0030', $new_parent->id);
-			return;
+		if (count($assets) == 1) {
+			$canCreate = $new_parent->canCreateLink($asset, SQ_LINK_TYPE_1, FALSE);
+			if ($canCreate !== TRUE) {
+				if ($canCreate === FALSE) {
+					$this->_error('HIPO0030', $new_parent->id);
+				} else {
+					$this->_error('AMAP0044', $canCreate);
+				}
+				return;
+			}
 		}
 
 		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();

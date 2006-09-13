@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.37.2.3 2006/07/17 23:06:57 lwright Exp $
+* $Id: lang_errors.xml,v 1.37.2.4 2006/09/13 01:19:19 colivar Exp $
 *
 */
 
@@ -595,6 +595,7 @@
 	<error code="AMAP0041">Unable to Create New Link, existing parent (Asset #%s) not found</error>
 	<error code="AMAP0042">Unable to Create New Link, Link #%s not found</error>
 	<error code="AMAP0043">Unable to Create New Link, can't create a new link to the trash</error>
+	<error code="AMAP0044">Unable to Clone Asset, %s</error>
 
 	<!-- FILE VERSIONING -->
 
