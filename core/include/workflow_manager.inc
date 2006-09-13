@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.89.2.2 2006/08/07 05:53:44 skim Exp $
+* $Id: workflow_manager.inc,v 1.89.2.3 2006/09/13 04:10:16 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.89.2.2 $
+* @version $Revision: 1.89.2.3 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -879,7 +879,7 @@ class Workflow_Manager extends MySource_Object
 		$log->type = 'asset.workflow.log.approve';
 		$log->parameters['assetid'] = $asset->id;
 		$log->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
-		$log->send();
+		$ms->enqueueMessage($log);
 
 		// send internal messages to everyone who could approve before to let them know that someone did
 		if (!$this->silentWorkflowParty($asset->id)) {
@@ -887,7 +887,7 @@ class Workflow_Manager extends MySource_Object
 			$msg->type    = 'asset.workflow.announce.approve';
 			$msg->parameters['assetid'] = $asset->id;
 			$msg->replacements = $msg_reps;
-			$msg->send();
+			$ms->enqueueMessage($msg);
 		}
 
 		// now check if any workflows have progressed to the next step
@@ -919,7 +919,7 @@ class Workflow_Manager extends MySource_Object
 					$msg->type    = 'asset.workflow.invitation.progress';
 					$msg->parameters['assetid'] = $asset->id;
 					$msg->replacements = $msg_reps;
-					$msg->send();
+					$ms->enqueueMessage($msg);
 				}
 			}
 		}
