@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.491.2.7 2006/09/06 01:10:59 skim Exp $
+* $Id: asset_manager.inc,v 1.491.2.8 2006/09/13 04:46:26 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.491.2.7 $
+* @version $Revision: 1.491.2.8 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2876,6 +2876,8 @@ class Asset_Manager extends MySource_Object
 			// work out some values we are going to need
 			$parent_data = $link_tree[count($link_tree) -1];
 			$majorid = $parent_data['assetid'];
+
+			if (!isset($link_info[$majorid])) continue;
 
 			foreach ($link_info[$majorid] as $link_data) {
 				$link_type = $link_data['link_type'];
