@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Asset.java,v 1.12 2006/03/15 00:39:25 sdanis Exp $
+* $Id: Asset.java,v 1.12.2.1 2006/09/14 03:23:19 rong Exp $
 *
 */
 
@@ -623,17 +623,45 @@ public class Asset implements MatrixConstants, Serializable {
 		Iterator nodeIterator = getTreeNodes();
 		while (nodeIterator.hasNext()) {
 			MatrixTreeNode node = (MatrixTreeNode) nodeIterator.next();
-			if (!node.hasNextNode() && node.getChildCount() >= AssetManager.getLimit()) {
+
+			// boolean to control the refresh of the ExpandingNodes
+			boolean removedNext = false;
+			boolean removedPrev = false;
+
+			if (!node.hasNextNode() && node.getChildCount() >= AssetManager.getLimit() && getNumKids() > AssetManager.getLimit() && node.getParent() != null) {
+				// TODO: BUG1666-1
+				// getChildCount is not updated here, i.e. the count is from the previous run
+				// when you add a new asset, >= is correct
+				// when you remove an asset, (i.e. assetmap limit - 1), a new nextNode will be inserted
 				MatrixTreeModelBus.insertNodeInto((MatrixTreeNode)new ExpandingNextNode(getNumKids(), node.getChildCount(),
 					getTotalKidsLoaded()), node, node.getChildCount());
 			} else if (node.hasNextNode() && (getNumKids() <= AssetManager.getLimit())) {
 				MatrixTreeNode nextNode = (MatrixTreeNode) node.getChildAt(node.getChildCount()-1);
 				MatrixTreeModelBus.removeNodeFromParent(nextNode);
+				removedNext = true;
 			}
 
 			if (node.hasPreviousNode() && (getNumKids() == 0)) {
 				MatrixTreeNode prevNode = (MatrixTreeNode) node.getChildAt(0);
 				MatrixTreeModelBus.removeNodeFromParent(prevNode);
+				removedPrev = true;
+			}
+
+			// refresh the count by adding expanding nodes again BUG1538
+			if (node.hasPreviousNode() && !removedPrev) {
+				MatrixTreeNode prevNode = (MatrixTreeNode) node.getChildAt(0);
+				MatrixTreeModelBus.removeNodeFromParent(prevNode);
+				// TODO: BUG1666-3,
+				// need a refresh here, not by removing and adding the expanding node
+				// and check if it jumps to the previous set automatically
+				MatrixTreeModelBus.insertNodeInto((MatrixTreeNode)new ExpandingPreviousNode(getNumKids(), node.getChildCount(),
+					getTotalKidsLoaded()), node, 0);
+			}
+			if (node.hasNextNode() && !removedNext) {
+				MatrixTreeNode nextNode = (MatrixTreeNode) node.getChildAt(node.getChildCount()-1);
+				MatrixTreeModelBus.removeNodeFromParent(nextNode);
+				MatrixTreeModelBus.insertNodeInto((MatrixTreeNode)new ExpandingNextNode(getNumKids(), node.getChildCount(),
+					getTotalKidsLoaded()), node, node.getChildCount());
 			}
 
 			MatrixTreeModelBus.nodeChanged(node);
