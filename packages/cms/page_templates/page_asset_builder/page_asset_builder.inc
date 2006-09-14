@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.97 2006/09/14 00:27:53 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.98 2006/09/14 00:28:58 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1192,7 +1192,8 @@ class Page_Asset_Builder extends Page
 					<td valign="top">&nbsp;</td>
 					<td valign="top">
 						<input type="hidden" name="SQ_ACTION" value="" id="SQ_ACTION" />
-					<?php echo submit_button('', 'Login', 'document.getElementById(\'SQ_ACTION\').value = \'login\'; document.getElementById(\'ASSET_BUILDER_ACTION\').value = \'login\';'); ?></td>
+						<?php echo submit_button('', 'Login', 'document.getElementById(\'SQ_ACTION\').value = \'login\'; document.getElementById(\'ASSET_BUILDER_ACTION\').value = \'login\';'); ?>
+					</td>
 				</tr>
 			</table>
 
