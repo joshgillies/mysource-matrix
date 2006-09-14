@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.230 2006/09/13 01:19:37 colivar Exp $
+* $Id: asset_map.inc,v 1.231 2006/09/14 07:06:06 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.230 $
+* @version $Revision: 1.231 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -619,7 +619,7 @@ class Asset_Map
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) {
 
-			// this is a shadow asset so we need to get info differently
+			// This is a shadow asset so we need to get info differently
 
 			$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id_parts[0]);
 			if (method_exists($bridge, 'getAssetMapAssetInfo')) {
@@ -628,22 +628,22 @@ class Asset_Map
 				// note that we pretend these assets have children so we dont have to actually
 				// load all their kids - we dont know what kind of speed hit we get for the different
 				// types of shadow assets
-				$link_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
-				if (!is_null($link_asset)) {
+				if (!is_null($asset)) {
 					$attrs = Array(
 								'assetid'		=> $assetid,
-								'short_name'	=> $link_asset->short_name,
-								'name'			=> $link_asset->name,
-								'type_code'		=> $link_asset->type(),
+								'short_name'	=> $asset->short_name,
+								'name'			=> $asset->name,
+								'type_code'		=> $asset->type(),
 								'accessible'	=> 1,
-								'status'		=> $link_asset->status,
-								'url'			=> $link_asset->getURL(),
+								'status'		=> $asset->status,
+								'url'			=> $asset->getURL(),
 								'web_path'		=> '',
 								'num_kids'		=> -1,
 							 );
 				}
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($link_asset);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bridge);
 
@@ -654,6 +654,8 @@ class Asset_Map
 			}
 
 		} else {
+
+			// Not a shadow asset
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$assetid = (String)$assetid;
@@ -720,10 +722,10 @@ class Asset_Map
 								p.permission > '.$db->quote(SQ_PERMISSION_READ).' AND p.granted = 1
 							)
 					) '.$userid_cond.') GROUP BY p.assetid, p.permission HAVING MIN(p.granted) <> 0) p ON (l.assetid = p.assetid) ';
-		}
+			}
 
-		$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u '.$u_where.' ';
-		$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where.' ';
+			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u '.$u_where.' ';
+			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where.' ';
 
 			$where = ' l.assetid = '.$db->quoteSmart((string)$assetid);
 			if ($linkid) {
@@ -793,8 +795,7 @@ class Asset_Map
 		}//end else shadow asset
 
 		// replace 'name' with the configured display name
-
-		$attrs['name'] = urlencode($this->_convertCharset($this->_getAssetDisplayName($asset)));
+		$attrs['name'] = urlencode($this->_convertCharset($this->_getAssetDisplayName($attrs)));
 
 		return $attrs;
 
@@ -1091,9 +1092,7 @@ class Asset_Map
 	/**
 	* Generates the name that should label an asset in the asset map from the string in the config and asset names and id
 	*
-	* @param string	$asset_assetid		the asset id of the asset
-	* @param string	$asset_name			the name of the asset
-	* @param string	$asset_short_name	the short_name of the asset
+	* @param string	$asset		Array of info about the asset
 	*
 	* @return void
 	* @access private
@@ -1102,24 +1101,30 @@ class Asset_Map
 	{
 		// get the string from the config var and replace the assetid, name and shortname
 		$display_name = SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME;
-		$keywords = Array (
-						'assetid',
-						'name',
-						'short_name',
-						'type_code',
-						'status',
-						'num_kids',
-					);
-		$status_names = get_status_names();
+		if (!isset($this->_tmp['display_name_keywords'])) {
+			$keywords = Array (
+							'assetid',
+							'name',
+							'short_name',
+							'type_code',
+							'status',
+							'num_kids',
+						);
+			foreach ($keywords as $keyword) {
+				if (FALSE !== strpos(SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME, '%asset_'.$keyword.'%')) {
+					$this->_tmp['display_name_keywords'][] = $keyword;
+				}
+			}
+		}
 
-		foreach ($keywords as $keyword) {
+		foreach ($this->_tmp['display_name_keywords'] as $keyword) {
 			$replacement_value = array_get_index($asset, $keyword);
-
 			switch ($keyword) {
 				case 'type_code':
 					$replacement_value = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($replacement_value, 'name');
 				break;
 				case 'status':
+					$status_names = get_status_names();
 					$replacement_value = $status_names[$replacement_value];
 				break;
 				case 'num_kids':
@@ -1128,7 +1133,6 @@ class Asset_Map
 				}
 				break;
 			}
-
 			$display_name = preg_replace('/%asset_'.$keyword.'%/', $replacement_value, $display_name);
 		}
 
