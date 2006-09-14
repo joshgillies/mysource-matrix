@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.7 2006/07/04 04:05:42 cboudjnah Exp $
+#* $Id: backup.sh,v 1.8 2006/09/14 23:30:06 rong Exp $
 #*
 #*/
 #
@@ -90,6 +90,8 @@ fi
 # OK, what we are doing here is using PHP to do the parsing of the DSN for us (much less error prone :)
 # see the output of DB::parseDSN
 php_code="<?php
+define('SQ_SYSTEM_ROOT', '${SYSTEM_ROOT}');
+define('SQ_LOG_PATH',    SQ_SYSTEM_ROOT.'/data/private/logs');
 require_once '${SYSTEM_ROOT}/data/private/conf/main.inc';
 require_once 'DB.php';
 \$dsn = DB::parseDSN(SQ_CONF_DB_DSN);
