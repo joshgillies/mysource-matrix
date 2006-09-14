@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.38 2006/05/12 01:48:00 tbarrett Exp $
+* $Id: datetime.inc,v 1.39 2006/09/14 05:06:10 tbarrett Exp $
 *
 */
 
@@ -46,7 +46,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -492,6 +492,27 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			   );
 
 	}//end _getAgeOptions()
+
+
+	/**
+	* Returns the content of this attribute as it should be shown in a keyword replacement
+	*
+	* @param string	$format	Format suffix
+	*
+	* @return void
+	* @access public
+	*/
+	function getKeywordValue($format='')
+	{
+		if ($format !== '') {
+			$format_value = format_date(iso8601_ts($this->value), $format);
+			if ($format_value) {
+				return $format_value;
+			}
+		}
+		return parent::getKeywordValue($format);
+
+	}//end getKeywordValue()
 
 
 }//end class

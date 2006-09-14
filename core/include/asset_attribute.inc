@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.51 2006/05/01 04:30:35 tbarrett Exp $
+* $Id: asset_attribute.inc,v 1.52 2006/09/14 05:06:11 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -383,6 +383,22 @@ class Asset_Attribute extends MySource_Object
 		return $this->value;
 
 	}//end getContent()
+
+
+	/**
+	* Returns the content of this attribute as it should be shown in a keyword replacement
+	*
+	* @param string	$format	Format suffix
+	*
+	* @return void
+	* @access public
+	*/
+	function getKeywordValue($format='')
+	{
+		if ($format !== '') return ''; // no formats supported by default
+		return $this->value;
+
+	}//end getKeywordValue()
 
 
 	/**

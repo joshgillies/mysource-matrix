@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.23 2006/06/30 00:53:52 rong Exp $
+* $Id: wysiwyg.inc,v 1.24 2006/09/14 05:06:11 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -228,6 +228,42 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		}
 
 	}//end process()
+
+
+	/**
+	* Returns the content of this attribute as it should be shown in a keyword replacement
+	*
+	* @param string	$format	Format suffix
+	*
+	* @return void
+	* @access public
+	*/
+	function getKeywordValue($format='')
+	{
+		if ($format !== '') return ''; // no formats supported
+		preg_match_all('|\\./\\?a=([0-9]+)([^0-9:])|', $this->value, $matches=Array());
+		$normal_assetids = empty($matches[1]) ? Array() : $matches[1];
+		preg_match_all('|\\./\\?a=([0-9]+:[^$]*)\\$|', $this->value, $matches=Array(), PREG_PATTERN_ORDER);
+		$shadow_assetids = empty($matches[1]) ? Array() : $matches[1];
+		$assetids = array_unique(array_merge($normal_assetids, $shadow_assetids));
+		$urls = $GLOBALS['SQ_SYSTEM']->am->getAssetUrl($assetids);
+		$res = $this->value;
+		foreach ($urls as $id => $url) {
+			if (FALSE === strpos($id, ':')) {
+				if (!empty($url)) {
+					$res = str_replace('./?a='.$id, $url, $res);
+				}
+			} else {
+				if (!empty($url)) {
+					$res = str_replace('./?a='.$id.'$', $url, $res);
+				} else {
+					$res = str_replace('./?a='.$id.'$', './?a='.$id, $res);
+				}
+			}
+		}
+		return $res;
+
+	}//end getKeywordValue()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.557 2006/09/04 01:34:41 lwright Exp $
+* $Id: asset.inc,v 1.558 2006/09/14 05:06:11 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.557 $
+* @version $Revision: 1.558 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3280,22 +3280,18 @@ class Asset extends MySource_Object
 			$replacement = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 		} else if (0 === strpos($keyword, 'asset_attribute_')) {
 			$attr_name = substr($keyword, strlen('asset_attribute_'));
-			preg_match('/(_([^_]*)){0,1}$/', $attr_name, $matches);
 			if (array_key_exists($attr_name, $this->vars)) {
 				$attr =& $this->getAttribute($attr_name);
 				if (!$attr->is_admin) {
-					$replacement = $this->attr($attr_name);
+					$replacement = $attr->getKeywordValue();
 				}
-			} else if (!empty($matches[1])) {
-				// we might have a datetime attribute with a date formatting suffix (readable, iso8601 etc)
-				$date_format = $matches[2];
-				$attr_name_cropped = substr($attr_name, 0, (strlen($attr_name) - strlen($matches[1])));
-				if (array_key_exists($attr_name_cropped, $this->vars)) {
-					$attr =& $this->getAttribute($attr_name_cropped);
-					if (!$attr->is_admin && ($attr->type() == 'datetime')) {
-						$format_value = format_date(iso8601_ts($this->attr($attr_name_cropped)), $date_format);
-						if ($format_value) $replacement = $format_value;
-					}
+			} else {
+				preg_match('/(_([^_]*)){0,1}$/', $attr_name, $matches);
+				if (!empty($matches[1])) {
+					$attr_name = substr($attr_name, 0, (strlen($attr_name) - strlen($matches[1])));
+					$format = $matches[2];
+					$attr =& $this->getAttribute($attr_name);
+					$replacement = $attr->getKeywordValue($format);
 				}
 			}
 		} else if (substr($keyword, 0, 15) == 'asset_metadata_') {
