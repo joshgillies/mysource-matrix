@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.491.2.8 2006/09/13 04:46:26 colivar Exp $
+* $Id: asset_manager.inc,v 1.491.2.9 2006/09/14 00:11:59 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.491.2.8 $
+* @version $Revision: 1.491.2.9 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3282,12 +3282,12 @@ class Asset_Manager extends MySource_Object
 
 		if (empty($majorids_str)) return $assetids;
 
+		$exclude_list_before_quote = $exclude_list;
 		for (reset($exclude_list); NULL !== ($k = key($exclude_list)); next($exclude_list)) {
 			$exclude_list[$k] = $db->quoteSmart((string) $exclude_list[$k]);
 		}
 
 		$exclude_str = implode(',', $exclude_list);
-
 		static $USERIDS_COND = NULL;
 
 		if (is_null($USERIDS_COND)) {
@@ -3345,7 +3345,7 @@ class Asset_Manager extends MySource_Object
 				INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p ON a.assetid = p.assetid ';
 		}
 		$where  = 'l.majorid IN ('.substr($majorids_str, 0, -1).')
-					 AND '.db_extras_bitand($db, 'l.link_type', $link_type).' > 0';
+					 AND ('.db_extras_bitand($db, 'l.link_type', $link_type).' > 0) ';
 		if (!empty($exclude_list)) {
 			$where .= 'AND a.assetid NOT IN ('.$exclude_str.')';
 		}
@@ -3395,7 +3395,7 @@ class Asset_Manager extends MySource_Object
 
 		if (!empty($assetids) && ($levels > 1 || is_null($levels))) {
 			$levels--;
-			$this->_getAssetTree($assetids, $tree_data, $levels, $exclude_list, $link_type, $include_type_list);
+			$this->_getAssetTree($assetids, $tree_data, $levels, $exclude_list_before_quote, $link_type, $include_type_list);
 		}
 		return TRUE;
 
