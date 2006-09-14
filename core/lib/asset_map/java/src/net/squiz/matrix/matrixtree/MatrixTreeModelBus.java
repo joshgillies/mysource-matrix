@@ -81,6 +81,11 @@ public class MatrixTreeModelBus {
 				if (parent.hasPreviousNode() && !(newChild instanceof ExpandingNextNode)) {
 					index++;
 				}
+				// if we are inserting this new node to the end, make sure we insert it before the ExpandingNextNode
+				// ref: BUG1666-2
+				if (parent.hasNextNode() && !(newChild instanceof ExpandingPreviousNode) && (index == parent.getChildCount()) && index != 0) {
+					index--;
+				}
 
 				parent.insert(newChild, index);
 				int[] newIndexs = new int[1];
