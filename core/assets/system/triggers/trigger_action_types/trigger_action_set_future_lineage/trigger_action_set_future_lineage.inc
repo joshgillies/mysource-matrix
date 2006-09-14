@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_lineage.inc,v 1.3 2006/02/07 02:27:12 sdanis Exp $
+* $Id: trigger_action_set_future_lineage.inc,v 1.3.2.1 2006/09/14 02:32:08 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,35 +98,22 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		if ($cron_mgr->addJob($fs, $user_for_status_change)) {
-			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($fs->id, 'links')) {
-				if ($fs->setAssetInLink($state['asset'], 'major')) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					$is_updated = TRUE;
-					$GLOBALS['SQ_SYSTEM']->am->releaseLock($fs->id, 'links');
-				} else {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return FALSE;
-				}
-			} else {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		$major_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['major_assetid']);
+		if ($fs->setAssetInLink($state['asset'], 'minor') && $fs->setAssetInLink($major_asset, 'major')) {
+			if ($cron_mgr->addJob($fs, $user_for_status_change)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return FALSE;
+				return Array(
+						'jobid'			=> $fs->id,
+						'userid'		=> $user_for_status_change->id,
+						'major_assetid'	=> $settings['major_assetid'],
+						'when'			=> $fs->attr('when'),
+					   );
 			}
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
 		}
-
-		return Array(
-				'jobid'			=> $fs->id,
-				'userid'		=> $user_for_status_change->id,
-				'major_assetid'	=> $settings['major_assetid'],
-				'when'			=> $fs->attr('when'),
-			   );
+		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return FALSE;
 
 	}//end execute()
 
