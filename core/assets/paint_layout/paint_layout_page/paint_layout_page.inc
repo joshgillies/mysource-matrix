@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page.inc,v 1.10 2006/01/26 22:34:05 lwright Exp $
+* $Id: paint_layout_page.inc,v 1.11 2006/09/14 06:36:41 tbarrett Exp $
 *
 */
 
@@ -41,7 +41,7 @@ define('SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME', 'default_format');
 * Those bodycopies also support conditions.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,7 +75,7 @@ class Paint_Layout_Page extends Page_Standard
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return FALSE;
+		if (!parent::_createAdditional($link, Array('content' => '%paint_layout%'))) return FALSE;
 
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset(SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE);
@@ -115,7 +115,7 @@ class Paint_Layout_Page extends Page_Standard
 
 		$asset->setAttrValue('name', 'Default Format');
 
-		return $asset->create($copy_link);
+		return $asset->create($copy_link, Array('content' => '%asset_contents%'));
 
 	}//end _createAdditional()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.19 2006/04/28 05:53:51 tbarrett Exp $
+* $Id: page_standard.inc,v 1.20 2006/09/14 06:36:41 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,7 +64,7 @@ class Page_Standard extends Page
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link)
+	function _createAdditional(&$link, $args=Array())
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
@@ -74,7 +74,7 @@ class Page_Standard extends Page
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		$bodycopy->setAttrValue('name', 'Page Contents');
-		if ($bodycopy->create($copy_link)) {
+		if ($bodycopy->create($copy_link, $args)) {
 			$child_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy->id, SQ_LINK_TYPE_2, 'bodycopy_div');
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($child_bodycopy['minorid'], 'attributes');
 			return TRUE;
