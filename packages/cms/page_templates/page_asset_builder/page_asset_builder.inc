@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.96 2006/09/10 23:47:22 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.97 2006/09/14 00:27:53 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1190,7 +1190,9 @@ class Page_Asset_Builder extends Page
 				</tr>
 				<tr>
 					<td valign="top">&nbsp;</td>
-					<td valign="top"><?php echo submit_button('', 'Login', 'this.form.action = \''.$_SERVER['PHP_SELF'].'?SQ_ACTION=login\'; document.getElementById(\'ASSET_BUILDER_ACTION\').value = \'login\';'); ?></td>
+					<td valign="top">
+						<input type="hidden" name="SQ_ACTION" value="" id="SQ_ACTION" />
+					<?php echo submit_button('', 'Login', 'document.getElementById(\'SQ_ACTION\').value = \'login\'; document.getElementById(\'ASSET_BUILDER_ACTION\').value = \'login\';'); ?></td>
 				</tr>
 			</table>
 
