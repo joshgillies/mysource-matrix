@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.138 2006/06/19 01:03:46 lwright Exp $
+* $Id: form.inc,v 1.138.2.1 2006/09/14 04:27:36 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.138 $
+* @version $Revision: 1.138.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -94,6 +94,22 @@ class Form extends Asset
 		return $this->attr('name');
 
 	}//end _getName()
+
+
+	/**
+	* Allow any required processesing to occur when any link is updated for the asset
+	*
+	* Bug Fix #1671
+	* When a new link to the section is created or deleted, update the content file
+	*
+	* @return void
+	* @access protected
+	*/
+	function linksUpdated()
+	{
+		$this->fileRegeneration();
+
+	}//end linksUpdated()
 
 
 //--        BRIDGE FUNCTIONS        --//
@@ -525,7 +541,7 @@ class Form extends Asset
 	*/
 	function canCreateLink(&$minor, $link_type, $exclusive)
 	{
-		if (is_a($minor, 'form_submission')) return TRUE;
+		if (is_a($minor, 'form_submission') || is_a($minor, 'form_section')) return TRUE;
 
 		return parent::canCreateLink($minor, $link_type, $exclusive);
 
@@ -555,6 +571,7 @@ class Form extends Asset
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		if ($side_of_link == 'major' && $asset->type() == 'form_section') {
+			$link_type = SQ_LINK_TYPE_2;
 			$dependant = TRUE;
 		}
 
