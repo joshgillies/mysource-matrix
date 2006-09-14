@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_single.inc,v 1.15 2006/02/02 03:38:32 sdanis Exp $
+* $Id: calendar_event_single.inc,v 1.16 2006/09/14 05:07:50 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -80,7 +80,7 @@ class Calendar_Event_Single extends Calendar_Event
 	* @return void
 	* @access public
 	*/
-	function printBody()
+	function printBody2()
 	{
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 		?>
@@ -129,7 +129,7 @@ class Calendar_Event_Single extends Calendar_Event
 			</tr>
 			<tr>
 				<td><b><?php echo translate('description') ?></b></td>
-				<td><?php echo $this->attr('description'); ?></td>
+				<td><?php echo $this->getKeywordReplacement('asset_attribute_description'); ?></td>
 			</tr>
 		</table>
 		<?php

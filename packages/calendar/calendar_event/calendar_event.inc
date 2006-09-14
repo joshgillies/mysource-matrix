@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.69 2006/09/08 04:25:14 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.70 2006/09/14 05:07:50 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -603,7 +603,7 @@ class Calendar_Event extends Asset
 			</tr>
 			<tr>
 				<td><b>Description</b></td>
-				<td><?php echo $this->attr('description'); ?></td>
+				<td><?php echo $this->getKeywordReplacement('asset_attribute_description'); ?></td>
 			</tr>
 		</table>
 		<?php
