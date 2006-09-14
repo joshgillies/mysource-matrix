@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.139 2006/07/27 06:03:38 tbarrett Exp $
+* $Id: form.inc,v 1.140 2006/09/14 04:33:13 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.139 $
+* @version $Revision: 1.140 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -94,6 +94,22 @@ class Form extends Asset
 		return $this->attr('name');
 
 	}//end _getName()
+
+
+	/**
+	* Allow any required processesing to occur when any link is updated for the asset
+	*
+	* Bug Fix #1671
+	* When a new link to the section is created or deleted, update the content file
+	*
+	* @return void
+	* @access protected
+	*/
+	function linksUpdated()
+	{
+		$this->fileRegeneration();
+
+	}//end linksUpdated()
 
 
 //--        BRIDGE FUNCTIONS        --//
@@ -525,7 +541,7 @@ class Form extends Asset
 	*/
 	function canCreateLink(&$minor, $link_type, $exclusive)
 	{
-		if (is_a($minor, 'form_submission')) return TRUE;
+		if (is_a($minor, 'form_submission') || is_a($minor, 'form_section')) return TRUE;
 
 		return parent::canCreateLink($minor, $link_type, $exclusive);
 
@@ -555,6 +571,7 @@ class Form extends Asset
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		if ($side_of_link == 'major' && $asset->type() == 'form_section') {
+			$link_type = SQ_LINK_TYPE_2;
 			$dependant = TRUE;
 		}
 
@@ -1749,7 +1766,7 @@ class Form extends Asset
 						$q_name = $q_asset->attr('name');
 						$keywords['question_field_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_field', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
 						$keywords['question_id_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_id', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
-						$keywords['question_note_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_note', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));					
+						$keywords['question_note_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_note', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
 					}
 				}
 
