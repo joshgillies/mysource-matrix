@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.44.2.1 2006/08/18 06:29:36 bcaldwell Exp $
+* $Id: page_account_manager.inc,v 1.44.2.2 2006/09/14 00:37:48 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.44.2.1 $
+* @version $Revision: 1.44.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1083,7 +1083,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	{
 		ob_start();
 			text_box($this->getPrefix().'_resend_validation_username', '',20);
-			submit_button('', $this->attr('resend_validation_button'), 'this.form.action = \''.$_SERVER['PHP_SELF'].'\'; document.getElementById(\'ASSET_BUILDER_ACTION\').value = \'resend_validation\';');
+			submit_button('', $this->attr('resend_validation_button'), 'document.getElementById(\'ASSET_BUILDER_ACTION\').value = \'resend_validation\';');
 		return ob_get_clean();
 
 	}//end getReSendValidationFormKeywordReplacement()
