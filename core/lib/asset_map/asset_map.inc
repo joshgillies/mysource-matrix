@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.225.2.4 2006/09/15 00:22:51 skim Exp $
+* $Id: asset_map.inc,v 1.225.2.5 2006/09/15 03:59:02 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.225.2.4 $
+* @version $Revision: 1.225.2.5 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -223,7 +223,7 @@ class Asset_Map
 			$site_found = FALSE;
 			if ($num_assets > 0 && !empty($asset_link_lineage[0]['lineage'])) {
 				foreach ($asset_link_lineage[0]['lineage'] as $assetid => $asset_name) {
-					if ($asset_lineage[0]['assetid'] != $assetid) {
+					if ((int) $assetid != 1 && $asset_lineage[0]['assetid'] != $assetid) {
 						$tmp_assetids .= $assetid.'|';
 						$num_site_parents++;
 					} else {
