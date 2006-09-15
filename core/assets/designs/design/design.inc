@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.118 2006/08/22 04:46:39 rong Exp $
+* $Id: design.inc,v 1.119 2006/09/15 03:51:18 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.118 $
+* @version $Revision: 1.119 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -568,7 +568,7 @@ echo '<!--   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	Running <?php echo SQ_SYSTEM_LONG_NAME; ?> - <?php echo SQ_SYSTEM_URL."\n"; ?>
    Developed by Squiz  - http://www.squiz.net
   (c) Copyright <?php echo date(\'Y\') ?>. All rights reserved.
-  Page generated: <?php echo date(\'d F Y\')."\n"; ?>
+  Page generated: <?php echo date(\'d F Y H:i:s\')."\n"; ?>
 -->
 
 <?php
@@ -600,7 +600,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	Running <?php echo SQ_SYSTEM_LONG_NAME; ?> - <?php echo SQ_SYSTEM_URL."\n"; ?>
    Developed by Squiz  - http://www.squiz.net
   (c) Copyright <?php echo date(\'Y\') ?>. All rights reserved.
-  Page generated: <?php echo date(\'d F Y\')."\n"; ?>
+  Page generated: <?php echo date(\'d F Y H:i:s\')."\n"; ?>
 */
 
 ';
