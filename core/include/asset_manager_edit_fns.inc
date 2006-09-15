@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.96 2006/09/08 06:21:59 tbarrett Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.97 2006/09/15 01:32:13 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -291,9 +291,9 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			return;
 		}
 
-		$o->openSection(translate('forceably_acquire'));
+		$o->openSection(translate('forcibly_acquire'));
 			$o->openField('');
-				$o->note(translate('forceably_acquire_lock_can_cause_losses', $asset->name, $asset->name));
+				$o->note(translate('forcibly_acquire_lock_can_cause_losses', $asset->name, $asset->name));
 			$o->openField('');
 		?>
 		<table border="0">

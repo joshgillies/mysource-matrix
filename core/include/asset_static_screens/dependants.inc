@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dependants.inc,v 1.8 2006/02/07 02:18:51 skim Exp $
+* $Id: dependants.inc,v 1.9 2006/09/15 01:32:13 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Dependants Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 
@@ -92,13 +92,13 @@ function paintDependants(&$owner, &$o, &$ei)
 		<tr>
 			<td class="sq-backend-data"><span style="color:red"><b>*</b></span></td>
 			<td class="sq-backend-data">
-				<?php echo translate('status_dependance_higher', $owner->name); ?>
+				<?php echo translate('status_dependence_higher', $owner->name); ?>
 			</td>
 		</tr>
 		<tr>
 			<td class="sq-backend-data"><span style="color:red"><b>**</b></span></td>
 			<td class="sq-backend-data">
-				<?php echo translate('status_dependance_lower', $owner->name); ?>
+				<?php echo translate('status_dependence_lower', $owner->name); ?>
 			</td>
 		</tr>
 	</table>

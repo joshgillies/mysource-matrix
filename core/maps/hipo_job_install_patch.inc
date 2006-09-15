@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_install_patch.inc,v 1.17 2006/01/26 22:34:08 lwright Exp $
+* $Id: hipo_job_install_patch.inc,v 1.18 2006/09/15 01:32:13 rhoward Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -358,7 +358,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 					  ) ? translate('no') : translate('yes');
 				echo '&nbsp;&nbsp;<b>'.translate('maps_database_changes').':</b>&nbsp;';
 				echo (empty($patch_info['queries'])) ? translate('no') : translate('yes');
-				echo '&nbsp;&nbsp;<b>'.translate('reversable').':</b>&nbsp;';
+				echo '&nbsp;&nbsp;<b>'.translate('reversible').':</b>&nbsp;';
 				echo ($patch_info['reversible']) ? translate('yes') : translate('no');
 			$o->closeField();
 			$o->openField(translate('description'));

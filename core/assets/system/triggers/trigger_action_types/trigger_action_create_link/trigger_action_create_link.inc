@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.13 2006/02/07 02:27:12 sdanis Exp $
+* $Id: trigger_action_create_link.inc,v 1.14 2006/09/15 01:32:13 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -214,8 +214,8 @@ class Trigger_Action_Create_Link extends Trigger_Action
 
 		ob_start();
 			$is_dependant_list = Array(
-									0	=> translate('non_dependantly'),
-									1	=> translate('dependantly'),
+									0	=> translate('non_dependently'),
+									1	=> translate('dependently'),
 								 );
 			combo_box($prefix.'[is_dependant]', $is_dependant_list, FALSE, $is_dependant, NULL, $form_element_extras);
 			$advanced_part_2 = ob_get_contents();
