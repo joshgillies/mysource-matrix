@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.491.2.9 2006/09/14 00:11:59 colivar Exp $
+* $Id: asset_manager.inc,v 1.491.2.10 2006/09/15 01:32:25 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.491.2.9 $
+* @version $Revision: 1.491.2.10 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4320,12 +4320,12 @@ class Asset_Manager extends MySource_Object
 		// if you dont have write access to this asset you cant create any links
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
 			if (!$major->writeAccess('')) {
-				return 'Cannot create link from '.$major->name.' (# '.$major->id.') to '.$minor->name.' (# '.$minor->id.'), permission denied (no write access to "'.$major->name.'")';
+				return translate('cannot_create_link_permission_denied', $major->name, $major->id, $minor->name, $minor->id);
 			}
 		}
 
 		if (!is_a($minor, 'Asset')) {
-			return 'Minor is not an asset';
+			return translate('minor_is_not_asset');
 		}
 
 		// check if we are allowed to link to these type of assets
@@ -4341,7 +4341,7 @@ class Asset_Manager extends MySource_Object
 			$paths = $minor->getWebPaths();
 			$bad_paths = $this->webPathsInUse($major, $paths, $minor->id);
 			if (!empty($bad_paths)) {
-				return 'Cannot create link from '.$major->name.' (# '.$major->id.') to '.$minor->name.' (# '.$minor->id.'), path(s) "'.implode('", "', $bad_paths).'" already in use by one of the children of "'.$major->name.'"';
+				return translate('cannot_create_link_paths_in_use', $major->name, $major->id, $minor->name, $minor->id, '"'.implode('", "', $bad_paths).'"');
 			}
 		}
 
@@ -4362,12 +4362,12 @@ class Asset_Manager extends MySource_Object
 
 			$current_majorid = $db->getOne($sql);
 			if (!assert_valid_db_result($current_majorid, '', TRUE, FALSE)) {
-				return 'Database Error';
+				return translate('database_error');
 			}
 
 			if ($current_majorid) {
 				$current_major =& $this->getAsset($current_majorid);
-				return 'Asset "'.$minor->name.'" (Asset #'.$minor->id.') cannot be linked to "'.$major->name.'" (Asset #'.$major->id.') it is exclusively linked to Asset #'.$current_majorid.' ("'.$current_major->name.'")';
+				return translate($minor->name, $minor->id, $major->name, $major->id, $current_major->name, $current_majorid);
 			}
 
 		}//end if
@@ -4397,15 +4397,15 @@ class Asset_Manager extends MySource_Object
 	{
 		// type checking
 		if (!is_a($major, 'asset')) {
-			return 'Variable passed in major asset parameter is not an asset object';
+			return translate('major_is_not_asset');
 		}
 
 		if (!is_string($type_code)) {
-			return 'Variable passed in type code parameter is not a string';
+			return translate('type_code_is_not_string');
 		}
 
 		if (!is_numeric($link_type)) {
-			return 'Variable passed in link type parameter is not numeric';
+			return translate('link_type_is_not_integer');
 		}
 
 		// get the minor assets parents and add it's type to the front of the indexed array
@@ -4427,16 +4427,16 @@ class Asset_Manager extends MySource_Object
 
 		if (empty($allowed_links[$link_type][$type])) {
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			return 'Assets of Type "'.$type_code.'" cannot be "'.link_type_name($link_type).'" linked to a "'.$major->type().'"';
+			return translate('asset_type_cannot_be_linktype_linked_to_type', $type_code, link_type_name($link_type), $major->type());
 		}
 
 		if (!($link_type & SQ_SC_LINK_SIGNIFICANT) && $exclusive) {
-			return 'In order for a link to be exclusive it must also be a significant link';
+			return translate('exclusive_links_must_be_significant');
 		}
 
 		if (!$exclusive && !empty($allowed_links[$link_type][$type]['exclusive'])) {
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			return 'Assets of Type "'.$type_code.'" must be "'.link_type_name($link_type).'" exclusivly linked to a "'.$major->type().'"';
+			return translate('asset_type_must_be_linktype_exclusively_linked_to_type', $type_code, link_type_name($link_type), $major->type());
 		}
 
 		//// Now we need to check that the cardinality is kept valid ////
@@ -4447,7 +4447,7 @@ class Asset_Manager extends MySource_Object
 			//  and we already have our quota of links, bugger off
 			if ($num_curr_links >= (int) $allowed_links[$link_type][$type]['card']) {
 				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-				return '"'.$this->getTypeInfo($major->type(), 'name').'" Assets can only have '.((int) $allowed_links[$link_type][$type]['card']).' "'.link_type_name($link_type).'" link(s) to a "'.$type.'"';
+				return translate('asset_type_can_have_only_linktypes_links_to_type', $this->getTypeInfo($major->type(), 'name'), ((int) $allowed_links[$link_type][$type]['card']), link_type_name($link_type), $type);
 			}
 		}
 

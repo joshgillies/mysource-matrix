@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.120 2006/06/15 04:14:09 rhoward Exp $
+* $Id: html_form.inc,v 1.120.2.1 2006/09/15 01:32:25 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.120 $
+* @version $Revision: 1.120.2.1 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1085,7 +1085,7 @@ function url_tester($name, $value='', $protocols=Array('http'), $width=50)
 		{
 			switch (responseState) {
 				case "0":
-					responseText = js_translate('non_existant_page');
+					responseText = js_translate('non_existent_page');
 				break;
 				case "1":
 					responseText = js_translate('valid_page');

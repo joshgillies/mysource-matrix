@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.54.2.2 2006/09/13 01:19:31 colivar Exp $
+* $Id: lang_errors.xml,v 1.54.2.3 2006/09/15 01:32:25 rhoward Exp $
 *
 */
 
@@ -38,7 +38,7 @@
 	<error code="HIPO0002">Unable to initialise Trigger Batch Events HIPO, no assets or events specified</error>
 		<!-- core/hipo/jobs/hipo_job_trigger_batch_events.inc:196: -->
 
-	<error code="HIPO0003">Unable to initialise Regenerate Metdata HIPO, no schemaID(s) specified</error>
+	<error code="HIPO0003">Unable to initialise Regenerate Metadata HIPO, no schemaID(s) specified</error>
 		<!-- core/hipo/jobs/hipo_job_regenerate_metadata.inc:204: -->
 
 	<error code="HIPO0004">Purge aborted, unable to delete "%1$s" (Id: #%2$s)</error>
@@ -159,7 +159,7 @@
 	<error code="HIPO0042">Unable to have auto_step set to false on the HIPO Server</error>
 		<!-- core/hipo/hipo_job.inc:414: -->
 
-	<error code="HIPO0043">Unable to run a hipo job requiring "web" running mode, when initialised from the server</error>
+	<error code="HIPO0043">Unable to run a HIPO job requiring "web" running mode, when initialised from the server</error>
 		<!-- core/hipo/hipo_job.inc:406: -->
 
 	<error code="HIPO0044">HIPO Option "%s" not known</error>
@@ -274,7 +274,7 @@
 		<!-- core/assets/system/cron/cron_manager/cron_manager.inc:391: -->
 
 	<error code="CRON0012">The Cron Manager should not be run() while nested within any transactions.
- This stops each job from being independant of each other</error>
+ This stops each job from being independent of each other</error>
 		<!-- core/assets/system/cron/cron_manager/cron_manager.inc:386: -->
 
 	<error code="CRON0013">The security key entered was incorrect.</error>
@@ -610,7 +610,7 @@
 	<error code="FVER0001">Directory "%s" doesn't exist or is not writable</error>
 		<!-- 1 core/lib/file_versioning/file_versioning.inc:703: -->
 
-	<error code="FVER0002">Error occured getting file information, unable to run %s()</error>
+	<error code="FVER0002">Error occurred getting file information, unable to run %s()</error>
 		<!-- 1 core/lib/file_versioning/file_versioning.inc:1085, 781, 848, 966: -->
 
 	<error code="FVER0003">File "%s" doesn't exist or is not readable</error>
@@ -677,7 +677,7 @@
 	<error code="FVER0023">Unable to remove "%1$s/%2$s", it is checked out as version #%3$s, and needs to be updated to the latest version (#%4$s), before removal can occur</error>
 		<!-- core/lib/file_versioning/file_versioning.inc:1015: -->
 
-	<error code="FVER0024">Unable to use File Versioning, an error occured and integrity needs to be restored, read %s/.FFV/error.log for more details, then remove this file</error>
+	<error code="FVER0024">Unable to use File Versioning, an error occurred and integrity needs to be restored, read %s/.FFV/error.log for more details, then remove this file</error>
 		<!-- core/lib/file_versioning/file_versioning.inc:77: -->
 
 	<error code="FVER0025">File Versioning information corrupt</error>
@@ -686,7 +686,7 @@
 	<error code="FVER0026">No current information found for "%s"</error>
 		<!-- core/lib/file_versioning/file_versioning.inc:770: -->
 
-	<error code="FVER0027">File "%1$s/%2$s" with verison #%3$s not found in the repository</error>
+	<error code="FVER0027">File "%1$s/%2$s" with version #%3$s not found in the repository</error>
 		<!-- core/lib/file_versioning/file_versioning.inc:222: -->
 
 	<error code="FVER0028">File versioning information at version %1$s missing for file #%2$s</error>
@@ -829,7 +829,7 @@
 
 	<error code="SYS0061">In order for a link to be exclusive it must also be a significant link</error>
 
-	<error code="SYS0062">Assets of Type "%1$s" must be "%2$s" exclusivly linked to a "%3$s"</error>
+	<error code="SYS0062">Assets of Type "%1$s" must be "%2$s" exclusively linked to a "%3$s"</error>
 
 	<error code="SYS0063">"%1$s" Assets can only have %2$s "%3$s" link(s) to a "%4$s"</error>
 
@@ -897,7 +897,7 @@ As specified by %5$s and will be deferred</error><!-- core/include/package_manag
 
 	<error code="SYS0098">Backend Section "%s" not known</error><!-- core/include/backend.inc: -->
 
-	<error code="SYS0099">Unable to Log. An error has occured</error><!-- core/include/general.inc: -->
+	<error code="SYS0099">Unable to Log. An error has occurred</error><!-- core/include/general.inc: -->
 
 	<error code="SYS0100">Unable to acquire "%1$s" lock on "%2$s", %3$s</error><!-- core/include/asset_manager.inc: -->
 
@@ -941,7 +941,7 @@ As specified by %5$s and will be deferred</error><!-- core/include/package_manag
 
 	<error code="SYS0120">Unable to trash asset #%1$s - link to parent asset #%2$s cannot be deleted (%3$s)</error><!-- core/include/asset_manager.inc: -->
 
-	<error code="SYS0121">Unable to update link #%1$s, path(s) "%2$s" already in use by one of the chlidren of "%3$s"</error><!-- core/include/asset_manager.inc: -->
+	<error code="SYS0121">Unable to update link #%1$s, path(s) "%2$s" already in use by one of the children of "%3$s"</error><!-- core/include/asset_manager.inc: -->
 
 	<error code="SYS0122">Unable to update lock on asset #%1$s, %2$s</error><!-- core/include/asset_manager.inc: -->
 
@@ -1000,7 +1000,7 @@ As specified by %5$s and will be deferred</error><!-- core/include/package_manag
 
 	<error code="SYS0150">Failed completing workflow, Asset #%s does not exist</error><!-- core/include/workflow_manager.inc: -->
 
-	<error code="SYS0151">Failed deleteing asset "%s", could not delete restricted data directory</error><!-- core/include/asset.inc: -->
+	<error code="SYS0151">Failed deleting asset "%s", could not delete restricted data directory</error><!-- core/include/asset.inc: -->
 <!-- core/include/asset.inc: -->
 	<error code="SYS0152">Failed deleting link %s</error><!-- core/include/asset_manager.inc: -->
 
@@ -1014,7 +1014,7 @@ As specified by %5$s and will be deferred</error><!-- core/include/package_manag
 
 	<error code="SYS0157">Failed incrementing version of "%1$s" [#%2$s], number part "%3$s" not known.</error><!-- core/include/asset.inc: -->
 
-	<error code="SYS0158">Failed incrementing version of "%1$s" [#%2$s], version updated of dependant parent "%3$s" [#%4$s] failed.</error><!-- core/include/asset.inc: -->
+	<error code="SYS0158">Failed incrementing version of "%1$s" [#%2$s], version updated of dependent parent "%3$s" [#%4$s] failed.</error><!-- core/include/asset.inc: -->
 
 	<error code="SYS0159">Failed loading asset "%1$s" from cache, object data file "%2$s/.object_data" not found</error><!-- core/include/asset.inc: -->
 
@@ -1273,7 +1273,7 @@ Current version: %3$s</error>
 
 	<error code="SYS0280">Config Generation Failed</error><!-- /install/step_04.php:77: -->
 
-	<error code="SYS0281">Failed to install (due to dependancies) following assets: %s</error><!-- /install/step_03.php:143: -->
+	<error code="SYS0281">Failed to install (due to dependencies) following assets: %s</error><!-- /install/step_03.php:143: -->
 
 	<error code="SYS0282">One or more of the parents for the asset type '%1$s' no longer exists in the system. The system may be broken until you restore the necessary files of the parent asset type to their proper location
 '%2$s' depends on: %3$s</error><!-- /install/install.inc:138: -->
@@ -1316,7 +1316,7 @@ Current version: %3$s</error>
 
 	<error code="SYS0298">Static screen sections need a code for each field</error><!-- /install/install.inc:991: -->
 
-	<error code="SYS0299">Failed clearing system version of asset "%s", could not create sytem directory</error>
+	<error code="SYS0299">Failed clearing system version of asset "%s", could not create system directory</error>
 
 	<error code="SYS0300">XML Tree Node type "%1$s" not compatible with attribute type "%2$s"
 Full Node Contents %3$s</error>
@@ -1425,7 +1425,7 @@ Full Node Contents %3$s</error>
 	<error code="CORE0068">No icon file found for asset type "%s" or its ancestors.</error>
 	<error code="CORE0069">Permission denied to add an Image Variety to "%1$s" (#%2$s)</error>
 	<error code="CORE0070">Permission denied to delete an Image Variety to "%1$s" (#%2$s)</error>
-	<error code="CORE0071">Primary session is currupt</error>
+	<error code="CORE0071">Primary session is corrupt</error>
 	<error code="CORE0072">Session file "%s" does not exist</error>
 	<error code="CORE0073">Shadow Asset #%1$s:%2$s not known</error>
 	<error code="CORE0074">Shadow asset #%1$s is not known to %2$s Asset #%3$s</error>
@@ -1458,7 +1458,7 @@ Full Node Contents %3$s</error>
 	<error code="CORE0099">Unable to save variety. It belongs to another asset</error>
 	<error code="CORE0100">Unable to save variety. It must have a name</error>
 	<error code="CORE0101">Unable to set %1$s in "$%2$s" (#%3$s) - it must be greater than or equal to zero</error>
-	<error code="CORE0102">Unable to set %1$s in "%2$s" (#%3$s) - it must be greater than zero if it is going to be contrained to</error>
+	<error code="CORE0102">Unable to set %1$s in "%2$s" (#%3$s) - it must be greater than zero if it is going to be constrained to</error>
 	<error code="CORE0103">Update failed checking-out latest version of file</error>
 	<error code="CORE0104">Update failed deleting file from public data directory</error>
 	<error code="CORE0105">Uploaded file is not a PDF file</error>

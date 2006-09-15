@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.146.2.5 2006/09/08 06:24:27 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.146.2.6 2006/09/15 01:32:25 rhoward Exp $
 *
 */
 
@@ -132,7 +132,7 @@
 	<string source="fields">Fields</string>
 	<string source="file_size">File Size</string>
 	<string source="find">Find</string>
-	<string source="forceably_acquire">Forceably Acquire</string>
+	<string source="forcibly_acquire">Forcibly Acquire</string>
 	<string source="format">Format</string>
 	<string source="freestyle_threshold">Freestyle threshold</string>
 	<string source="future_linking">Future Linking</string>
@@ -372,17 +372,17 @@
 
 	<string source="scheduled_future_status_change">Scheduled Future Status Changes</string>
 	<string source="locking_editing">Locking / Editing</string>
-	<string source="forcibly_acquire_lock">You can forcibly acquire this lock, which will remove the lock from "%1$s" and give the lock to yourself.&lt;br /&gt;Any changes currently being made by "%1$s" will be lost if this lock is forceably acquired.</string>
+	<string source="forcibly_acquire_lock">You can forcibly acquire this lock, which will remove the lock from "%1$s" and give the lock to yourself.&lt;br /&gt;Any changes currently being made by "%1$s" will be lost if this lock is forcibly acquired.</string>
 	<string source="acquire_lock">Press the &lt;span class="sq-backend-button-fake"&gt;%1$s&lt;/span&gt; button to lock "%2$s" for editing.</string>
 	<string source="release_lock">Press the &lt;span class="sq-backend-button-fake"&gt;%1$s&lt;/span&gt; button to release the locks you hold on "%2$s".</string>
 	<string source="lock_type">Lock Type</string>
 	<string source="other_assets_in_chain">Other Assets in Chain</string>
-	<string source="forceably_acquire_lock_can_cause_losses">You are about to forceably acquire the following locks on "%1$s"&lt;br&gt;&lt;b&gt;Any changes being made to "%2$s" or any other asset in the locking chain (&lt;i&gt;see full list below&lt;/i&gt;) will be lost.&lt;/b&gt;</string>
+	<string source="forcibly_acquire_lock_can_cause_losses">You are about to forcibly acquire the following locks on "%1$s"&lt;br&gt;&lt;b&gt;Any changes being made to "%2$s" or any other asset in the locking chain (&lt;i&gt;see full list below&lt;/i&gt;) will be lost.&lt;/b&gt;</string>
 	<string source="currently_not_held">Currently not held</string>
 	<string source="no_access_to_edit">You do not have access to edit "%s"</string>
 	<string source="due_to_expire">The lock is due to expire in %s</string>
 	<string source="enter_eight_character_security_string">To acquire the lock, enter the 8 character string you see below into the box supplied, then press the Commit button</string>
-	<string source="lock_held_indefinitely">The lock is being held indefinitely and will not expire. The lock must be released manually or be forceably acquired by a System Administrator.</string>
+	<string source="lock_held_indefinitely">The lock is being held indefinitely and will not expire. The lock must be released manually or be forcibly acquired by a System Administrator.</string>
 	<string source="lock_held_by">Held by user "%1$s" at "%2$s"</string>
 	<string source="acquire_lock_button">Acquire Lock(s)</string>
 	<string source="release_lock_button">Release Lock(s)</string>
@@ -431,8 +431,8 @@
 	<string source="show_file_and_line_errors">Show File and Line number in error messages</string>
 	<string source="show_stack_trace_errors">Show Stack Trace in error messages</string>
 
-	<string source="status_dependance_higher">The status of the dependant asset is higher than the status of "%s"</string>
-	<string source="status_dependance_lower">The status of the dependant asset is lower than the status of "%s"</string>
+	<string source="status_dependence_higher">The status of the dependent asset is higher than the status of "%s"</string>
+	<string source="status_dependence_lower">The status of the dependent asset is lower than the status of "%s"</string>
 
 	<string source="version_duration">Version Duration</string>
 	<string source="time_since_version">Time Since Version</string>
@@ -575,14 +575,14 @@
 	<string source="selected_asset_and_dependants">Selected assets and their dependants</string>
 	<string source="selected_asset_and_children">Selected assets and their children</string>
 	<string source="all_asset_types">All Asset Types</string>
-	<string source="no_charactet_set_set">Unkown character set %1$s is currently set for "%2$s"</string>
+	<string source="no_charactet_set_set">Unknown character set %1$s is currently set for "%2$s"</string>
 	<string source="new_type">New Type</string>
 
 
 
 	<string source="no_asset_selected">No asset selected</string>
 	<string source="invalid_assetid">Invalid assetid</string>
-	<string source="fail_setting_assetid">Atempted to set value of attribute "%1$s" [#%2$s] to an invalid asset ID</string>
+	<string source="fail_setting_assetid">Attempted to set value of attribute "%1$s" [#%2$s] to an invalid asset ID</string>
 
 	<string source="true_text">True Text</string>
 	<string source="false_text">False Text</string>
@@ -609,7 +609,7 @@
 
 	<string source="leave_empty">Leave Empty</string>
 
-	<string source="unknown_error_occurred">Unknown Error Occured</string>
+	<string source="unknown_error_occurred">Unknown Error Occurred</string>
 	<string source="hipo_progress">%s HIPO Progress</string>
 	<string source="hipo_complete">%s HIPO Complete</string>
 	<string source="reported">Reported</string>
@@ -631,7 +631,7 @@
 	<string source="hipo_skipping_asset">Skipping asset #%s</string>
 	<string source="hipo_asset_not_exist">Could not Acquire Lock for asset #%s, asset does not exist</string>
 	<string source="hipo_release_locks">Releasing locks on %s</string>
-	<string source="hipo_release_locks_dependents"> and its dependant assets</string>
+	<string source="hipo_release_locks_dependents"> and its dependent assets</string>
 	<string source="cloning_confirmation">Cloning Confirmation</string>
 	<string source="hipo_cloning_confirm">Please confirm that you are cloning the following asset(s) to under "%s":</string>
 	<string source="hipo_asset_cloning_successful">The following asset(s) have been successfully Cloned under "%s":</string>
@@ -670,7 +670,7 @@
 	<string source="hipo_skipping_exists_outside_trash">as it also exists outside of the trash</string>
 	<string source="hipo_deleting_link">Deleting link #%s</string>
 	<string source="hipo_deleting">Deleting "%1$s" [%2$s]</string>
-	<string source="hipo_cannot_regenerate_metadata">Could not regenerate metatdata file for asset #%s, asset does not exist</string>
+	<string source="hipo_cannot_regenerate_metadata">Could not regenerate metadata file for asset #%s, asset does not exist</string>
 	<string source="hipo_generate_metadata">Generating metadata file for "%s"</string>
 	<string source="hipo_broadcast_event">Broadcasting Event %1$s from Asset #%2$s</string>
 	<string source="hipo_updating_lookups_for">Updating Lookups for "%s"</string>
@@ -695,7 +695,7 @@
 	<string source="path_to_not_executable">The path to %s is not executable</string>
 
 	<string source="warn_set_max_file_size">You have not set a maximum file upload size. The current PHP limit of %s will be applied to all file uploads.</string>
-	<string source="warn_max_settable_file_size">The maximum file size can be entered in shorthand notation: 'K' for kilobytes, 'M' for megabytes. The maximum file size allowed by PHP on this sytem is "%s"</string>
+	<string source="warn_max_settable_file_size">The maximum file size can be entered in shorthand notation: 'K' for kilobytes, 'M' for megabytes. The maximum file size allowed by PHP on this system is "%s"</string>
 	<string source="file_size_above_limit">The current setting of %1$s is greater than than the PHP limit of %2$s. The PHP limit will be applied to all file uploads.</string>
 	<string source="body_type">Body Type</string>
 	<string source="mozilla_always_uses_iframe">In Mozilla, an iFrame will always be used. This setting only affects Internet Explorer.</string>
@@ -706,7 +706,7 @@
 	<string source="automated_patching_system">Automated Patching System</string>
 	<string source="patching">Patching</string>
 	<string source="maps_not_installed">The MySource Automated Patching System does not appear to be installed properly.</string>
-	<string source="maps_patch_to_download_directory">Uploading a valid patch file here will not install the patch immediatly. It will be installed into your &lt;i&gt;download patches&lt;/i&gt; directory and appear in the &lt;b&gt;Patches Available To Install&lt;/b&gt; list below.</string>
+	<string source="maps_patch_to_download_directory">Uploading a valid patch file here will not install the patch immediately. It will be installed into your &lt;i&gt;download patches&lt;/i&gt; directory and appear in the &lt;b&gt;Patches Available To Install&lt;/b&gt; list below.</string>
 	<string source="maps_reversible">Reversible</string>
 	<string source="maps_no_patches_available">There are no patches available to be installed</string>
 	<string source="maps_no_patches_installed">There are no patches currently installed</string>
@@ -803,7 +803,7 @@
 	<string source="core_obtaining_asset_list">Obtaining and preparing the list of assets ...</string>
 	<string source="core_no_types_defined">There are no Types Defined</string>
 	<string source="core_checking_for_metadata">Checking metadata for %s ...</string>
-	<string source="core_cannot_generate_incomplete_metadata_report">Could not generate incomplete metadata report for assetd #%s, asset does not exist</string>
+	<string source="core_cannot_generate_incomplete_metadata_report">Could not generate incomplete metadata report for asset #%s, asset does not exist</string>
 	<string source="core_no_missing_metadata_fields_found">No missing metadata fields were found</string>
 	<string source="core_site_index_page">The index page for the site</string>
 	<string source="core_site_not_found_page">The not found page for the site</string>
@@ -916,7 +916,7 @@
 	<string source="user_group_unrestricted_access_granted">Unrestricted access has been granted. No security restrictions apply on this user group.</string>
 	<string source="user_group_unrestricted_access_denied">Unrestricted access has not been granted. Security restrictions do apply on this user group.</string>
 	<string source="restrict_screen_access">Restrict access for screen</string>
-	<string source="granted_unrestricted_access_explanation">You have granted access to all screens so you cannot grant access to any more. Remove the "All Screens" option to futher customise this asset type</string>
+	<string source="granted_unrestricted_access_explanation">You have granted access to all screens so you cannot grant access to any more. Remove the "All Screens" option to further customise this asset type</string>
 	<string source="grant_screen_access">Allow access to the following screen (any screen not specified will be restricted): </string>
 	<string source="remove_all_screens_explanation">If you delete the "All Screens" option, the "Details" screen will be added as a default. You can choose to remove this later.</string>
 	<string source="preference_currently_customised">This preference is currently customised. The global preference setting is currently being overridden for users in this user group.</string>
@@ -994,8 +994,8 @@
 	<string source="trigger_create_link_basic">Link as the %1$s of the asset: %2$s using a %3$s link.</string>
 	<string source="trigger_create_link_advanced">Use this value as the link value: %1$s and link the child %2$s and %3$s to the parent</string>
 	<string source="trigger_create_link_remove_others">Unlink this asset from all its existing parents</string>
-	<string source="dependantly">Dependantly</string>
-	<string source="non_dependantly">Non-dependantly</string>
+	<string source="dependently">Dependently</string>
+	<string source="non_dependently">Non-dependently</string>
 	<string source="trigger_create_under_broadcaster">Create under the broadcasting asset</string>
 
 	<string source="exclusively">Exclusively</string>
@@ -1011,7 +1011,7 @@
 	<string source="trigger_set_attribute_value_serialise_note">You have selected a serialised attribute.  The value you set it to must be a valid PHP expression, for example "Array(1, 2, 4)"</string>
 
 	<string source="trigger_set_design_basic">Set the asset's design to: %s</string>
-	<string source="trigger_set_status">Set the Asset's status to: %s</string>
+	<string source="trigger_set_status">Set the Asset's status to: %1$s&lt;br /&gt;%2$s Set status of dependent parents instead (eg. set the status of a bodycopy DIV's Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the status set normally).</string>
 	<string source="trigger_increment_version">Increment this component of the Asset's version number: %s</string>
 
 
@@ -1053,7 +1053,7 @@
 	<string source="trigger_set_cache_expiry_default_dsn">Default Cache DSN: %s</string>
 	<string source="trigger_set_cache_expiry_alt_dsn">Alternative Cache DSN: %s</string>
 
-	<string source="security_key_incorrect_message">The security key entered was incorrect. The lock on "%s" has not been forceably acquired. You may try again using the new security key displayed below.</string>
+	<string source="security_key_incorrect_message">The security key entered was incorrect. The lock on "%s" has not been forcibly acquired. You may try again using the new security key displayed below.</string>
 
 
 	<!-- common single word strings -->
@@ -1118,7 +1118,7 @@
 	<string source="uninstall">Uninstall</string>
 	<string source="user">User</string>
 	<string source="danger">Danger</string>
-	<string source="reversable">Reversable</string>
+	<string source="reversible">Reversible</string>
 	<string source="username">Username</string>
 	<string source="password">Password</string>
 	<string source="layout">Layout</string>
@@ -1316,7 +1316,7 @@
 	<string source="users">Users</string>
 	<string source="role_assigned_to">User/Group</string>
 	<string source="role_reassign">Reassign?</string>
-	<string source="role_dependant_child_warning">Please note that dependant assets are not included in this list, but they will be affected if roles are re-assigned.</string>
+	<string source="role_dependent_child_warning">Please note that dependent assets are not included in this list, but they will be affected if roles are re-assigned.</string>
 	<string source="role_indirectly_assigned">These roles are applied to a parent asset and indirectly affect this asset.</string>
 	<string source="role_new_assignee">The user you would like the selected roles re-assigned to.</string>
 	<string source="global_role_assignment">Globally assigned</string>
@@ -1435,7 +1435,7 @@
 	<string source="delete_column_question">Delete Column %s ?</string>
 	<string source="add_column">Add Column</string>
 	<string source="delete_column">Delete Column</string>
-	<string source="reorder_columns">Redorder Columns</string>
+	<string source="reorder_columns">Reorder Columns</string>
 	<string source="reoder_columns_question">Reorder %s's Columns ?</string>
 	<string source="edit_properties">Edit %s's Properties</string>
 	<string source="current_properties">Current Properties</string>
@@ -1548,8 +1548,8 @@
 (HTTP Status = %s)</string>
 	<string source="unable_to_use_layers" js="1">Unable to use layers on your page, sorry</string>
 	<string source="element_not_combo_box" js="1">Element "%s" is not a combo box</string>
-	<string source="not_leap_year" js="1">%1$s is not a leap year, there is no %2$sth of Feburary.</string>
-	<string source="day_not_in_feburary" js="1">There is no %sth of Feburary</string>
+	<string source="not_leap_year" js="1">%1$s is not a leap year, there is no %2$sth of February.</string>
+	<string source="day_not_in_february" js="1">There is no %sth of February</string>
 	<string source="no_31st_of_month" js="1">There is no 31st of %s.</string>
 
 	<string source="ie6_or_above_required" js="1">You need to use Internet Explorer 6.0 or above for the communication between the Asset Map and the Javascript</string>
@@ -1567,7 +1567,7 @@
 I'll try, though, but it might not work.</string>
 	<string source="changing_dictionary" js="1">Please wait: changing dictionary to: "%s".</string>
 	<string source="spellcheck_complete" js="1">Spelling checking is complete</string>
-	<string source="impossible_condition_occured" js="1">An impossible condition just happened.  Call FBI.  ;-)</string>
+	<string source="impossible_condition_occurred" js="1">An impossible condition just happened.  Call FBI.  ;-)</string>
 	<string source="occurrence" js="1">occurrence</string>
 	<string source="occurrencea" js="1">occurrences</string>
 	<string source="found_occurrences_of_word" js="1">Found %1$s for word "%2$s"</string>
@@ -1602,7 +1602,7 @@ Unable to accept non-digit characters in this field.</string>
 	<string source="brower_does_not_support_innerhtml" js="1">Browser cannot support script - Inner HTML is not defined</string>
 	<string source="order_type_unknown" js="1">ORDER TYPE : "%s" unknown</string>
 	<string source="enter_positive_number" js="1">Please enter a positive number</string>
-	<string source="invalid_colour_code" js="1">Invalid color code: %s</string>
+	<string source="invalid_colour_code" js="1">Invalid colour code: %s</string>
 	<string source="preview_needs_rewritten" js="1">FIXME: preview needs rewritten:
 show the image inside this window instead of opening a new one.</string>
 	<string source="must_select_at_least_one_protocol" js="1">You need to select at least one protocol, otherwise the url will be deleted.
@@ -1793,7 +1793,7 @@ Items to delete: %s</string>
 	<string source="asset_map_button_export" java="1">Export</string>
 	<string source="asset_map_button_close" java="1">Close</string>
 
-	<string source="non_existant_page" js="1">The URL you have entered points to a non-existant page</string>
+	<string source="non_existent_page" js="1">The URL you have entered points to a non-existent page</string>
 	<string source="valid_page" js="1">Valid URL</string>
 	<string source="unknown_state" js="1">Unknown State</string>
 	<string source="testing" js="1">Testing...</string>
@@ -1940,5 +1940,19 @@ Items to delete: %s</string>
 	<string source="keyword_settings_section_name">Keyword Replacement Settings</string>
 	<string source="hide_unknown_keywords">Hide Unknown Keywords</string>
 	<string source="hide_unknown_keywords_note">If this setting is enabled, words that begin and end with percent signs but are not recognised keywords will be blanked out on the frontend at all times</string>
+
+	<!-- Linking errors -->
+	<string source="cannot_create_link_permission_denied">Cannot create link from "%1$s" (# %2$s) to "%3$s" (# %4$s), permission denied (no write access to "%1$s")</string>
+	<string source="cannot_create_link_paths_in_use">Cannot create link from "%1$s" (# %2$s) to "%3$s" (# %4$s), path(s) %5$s already in use by one of the children of "%1$s"</string>
+	<string source="cannot_create_link_exclusive_link">Asset "%1$s" (# %2$s) cannot be linked to "%3$s" (# %4$s), it is exclusively linked to "%5$s" (# %6$s)</string>
+	<string source="database_error">Database Error</string>
+	<string source="major_is_not_asset">Variable passed in major asset parameter is not an asset object</string>
+	<string source="minor_is_not_asset">Variable passed in minor asset parameter is not an asset object</string>
+	<string source="type_code_is_not_string">Variable passed in type code parameter is not a string</string>
+	<string source="link_type_is_not_integer">Variable passed in link type parameter is not numeric</string>
+	<string source="asset_type_cannot_be_linktype_linked_to_type">Assets of Type "%1$s" cannot be "%2$s" linked to a "%3$s"</string>
+	<string source="exclusive_links_must_be_significant">In order for a link to be exclusive it must also be a significant link</string>
+	<string source="asset_type_must_be_linktype_exclusively_linked_to_type">Assets of Type "%1$s" must be "%2$s" exclusively linked to a "%3$s"</string>
+	<string source="asset_type_can_have_only_linktypes_links_to_type">"%1$s" Assets can only have %2$s "%3$s" link(s) to a "%4$s"</string>
 
 </strings>
