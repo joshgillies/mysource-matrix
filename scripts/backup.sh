@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.5.2.1 2006/09/14 23:34:25 rong Exp $
+#* $Id: backup.sh,v 1.5.2.2 2006/09/15 02:40:15 colivar Exp $
 #*
 #*/
 #
@@ -189,7 +189,7 @@ fi
 # Hence the --exclude....
 #
 
-tar -C `dirname ${SYSTEM_ROOT}` -cv -f ${backupdir}/${backupfilename} `basename ${SYSTEM_ROOT}` --exclude=${backupfilename} --exclude=${SYSTEM_ROOT}/cache/* --exclude=matrix-*-backup.tar*
+tar --exclude=${backupfilename} --exclude=${SYSTEM_ROOT}/cache/* --exclude=matrix-*-backup.tar* -C `dirname ${SYSTEM_ROOT}` -cv -f ${backupdir}/${backupfilename} `basename ${SYSTEM_ROOT}`
 
 gzip -f ${backupdir}/${backupfilename}
 if [ $? -gt 0 ]; then
