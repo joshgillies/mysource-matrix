@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.8 2006/09/14 23:30:06 rong Exp $
+#* $Id: backup.sh,v 1.9 2006/09/15 02:40:22 colivar Exp $
 #*
 #*/
 #
@@ -77,14 +77,14 @@ if [ ! -z $1 ]; then
 fi
 
 if [[ -n ${PHP} ]] && [[ -e ${PHP} ]];then
-    PHP=${PHP}
+	PHP=${PHP}
 elif which php-cli 2>/dev/null >/dev/null;then
-    PHP="php-cli"
+	PHP="php-cli"
 elif which php 2>/dev/null >/dev/null;then
-    PHP="php"
+	PHP="php"
 else
-    echo "Cannot find the php binary please be sure to install it" 
-    exit 1
+	echo "Cannot find the php binary please be sure to install it"
+	exit 1
 fi
 
 # OK, what we are doing here is using PHP to do the parsing of the DSN for us (much less error prone :)
@@ -201,7 +201,7 @@ fi
 # Hence the --exclude....
 #
 
-tar -C `dirname ${SYSTEM_ROOT}` -cv -f ${backupdir}/${backupfilename} `basename ${SYSTEM_ROOT}` --exclude=${backupfilename} --exclude=${SYSTEM_ROOT}/cache/* --exclude=matrix-*-backup.tar*
+tar --exclude=${backupfilename} --exclude=${SYSTEM_ROOT}/cache/* --exclude=matrix-*-backup.tar* -C `dirname ${SYSTEM_ROOT}` -cv -f ${backupdir}/${backupfilename} `basename ${SYSTEM_ROOT}`
 
 gzip -f ${backupdir}/${backupfilename}
 if [ $? -gt 0 ]; then
