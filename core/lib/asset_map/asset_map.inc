@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.225.2.3 2006/09/13 01:19:31 colivar Exp $
+* $Id: asset_map.inc,v 1.225.2.4 2006/09/15 00:22:51 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.225.2.3 $
+* @version $Revision: 1.225.2.4 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -181,6 +181,7 @@ class Asset_Map
 
 			// get assets lineage info
 			$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL();
+			$asset_link_lineage = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id);
 
 			$assetids = '';
 			$sort_orders = '';
@@ -215,6 +216,57 @@ class Asset_Map
 				$sort_orders .= $sort_order.'|';
 
 			}//end for
+
+			// Do we have any other assets between the root and the site?
+			$num_site_parents = 0;
+			$tmp_assetids = '';
+			$site_found = FALSE;
+			if ($num_assets > 0 && !empty($asset_link_lineage[0]['lineage'])) {
+				foreach ($asset_link_lineage[0]['lineage'] as $assetid => $asset_name) {
+					if ($asset_lineage[0]['assetid'] != $assetid) {
+						$tmp_assetids .= $assetid.'|';
+						$num_site_parents++;
+					} else {
+						$site_found = TRUE;
+						break;
+					}
+				}
+			}
+
+			// Asset link lineage does not have the site asset, but are we looking after the site itself?
+			if (!$site_found) {
+				if ($num_assets == 1) {
+					$site_found = TRUE;
+					$asset_link_lineage[0]['lineage'][$asset_lineage[0]['assetid']] = $asset_lineage[0]['name'];
+				}
+			}
+
+			// Ok, this site is under other assets. The assetmap wouldn't find the location
+			// unless we fix it
+			if ($site_found && $num_site_parents > 0) {
+				$assetids = $tmp_assetids.$assetids;
+
+				// Add sort order but do not join with lookup table
+				$i = 0;
+				foreach ($asset_link_lineage[0]['lineage'] as $assetid => $asset_name) {
+
+					if ($i == $num_site_parents + 1) break;
+					if ($i == 0) {
+						$previd = 1;
+					} else {
+						$previd = $currentid;
+					}
+					$currentid = $assetid;
+
+					$sql = 'SELECT l.sort_order FROM sq_ast_lnk l
+					WHERE l.majorid = '.$db->quoteSmart($previd).'
+									AND l.minorid = '.$db->quoteSmart($currentid);
+					$sort_order = $db->getOne($sql);
+					assert_valid_db_result($sort_order);
+					$sort_orders = '|'.$sort_order.$sort_orders;
+					$i++;
+				}
+			}
 
 			$assetids = trim($assetids, '|');
 			$sort_orders = trim($sort_orders, '|');
