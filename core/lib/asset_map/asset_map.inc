@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.232 2006/09/15 00:21:14 skim Exp $
+* $Id: asset_map.inc,v 1.233 2006/09/15 01:39:30 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.232 $
+* @version $Revision: 1.233 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -700,10 +700,6 @@ class Asset_Map
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bridge);
 
 			$attrs['assetid'] = urlencode($attrs['assetid']);
-			$attrs['name'] = urlencode($attrs['name']);
-			if (isset($attrs['short_name'])) {
-				$attrs['short_name'] = urlencode($attrs['short_name']);
-			}
 
 		} else {
 
@@ -831,8 +827,8 @@ class Asset_Map
 
 			$attrs = Array(
 						'assetid'		=> urlencode($asset['assetid']),
-						'short_name'	=> urlencode($this->_convertCharset($asset['short_name'])),
-						'name'			=> urlencode($this->_convertCharset($asset['name'])),
+						'short_name'	=> $this->_convertCharset($asset['short_name']),
+						'name'			=> $this->_convertCharset($asset['name']),
 						'type_code'		=> $asset['type_code'],
 						'link_type'		=> $asset['link_type'],
 						'accessible'	=> $asset['accessible'],
@@ -848,6 +844,7 @@ class Asset_Map
 
 		// replace 'name' with the configured display name
 		$attrs['name'] = urlencode($this->_convertCharset($this->_getAssetDisplayName($attrs)));
+		if (isset($attr['short_name'])) $attr['short_name'] = urlencode($attrs['short_name']);
 
 		return $attrs;
 
