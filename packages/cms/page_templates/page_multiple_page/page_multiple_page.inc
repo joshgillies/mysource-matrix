@@ -11,7 +11,7 @@
 * | Please refer to http:// www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page.inc,v 1.18 2006/08/22 05:03:53 arailean Exp $
+* $Id: page_multiple_page.inc,v 1.19 2006/09/15 01:10:37 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -318,6 +318,7 @@ class Page_Multiple_Page extends Page
 		$keywords['toc_unordered'] = translate('cms_page_multiple_page_toc_unordered');
 		$keywords['toc_ordered'] = translate('cms_page_multiple_page_toc_ordered');
 		$keywords['navigation_menu_selection_list'] = translate('cms_page_multiple_page_navigation_menu_selection_list');
+		$keywords['multiple_page_assetid'] = 'Multiple Page Asset ID';
 
 		return $keywords;
 
@@ -584,8 +585,13 @@ class Page_Multiple_Page extends Page
 
 			case 'current_page_assetid':
 				if (!is_null($this->_tmp['current_page_asset'])) {
-					$this->_tmp['current_page_asset']->id;
+					$replacement = $this->_tmp['current_page_asset']->id;
 				}
+			break;
+
+			// parent page of all subpages, which is this asset
+			case 'multiple_page_assetid':
+				$replacement = $this->id;
 			break;
 
 			// Defaults, probably a standard keyword
