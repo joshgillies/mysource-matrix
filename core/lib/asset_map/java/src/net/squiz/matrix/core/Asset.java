@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Asset.java,v 1.14 2006/09/14 06:33:33 rong Exp $
+* $Id: Asset.java,v 1.15 2006/09/17 23:28:00 rong Exp $
 *
 */
 
@@ -629,12 +629,12 @@ public class Asset implements MatrixConstants, Serializable {
 			boolean removedPrev = false;
 
 			if (!node.hasNextNode() && node.getChildCount() >= AssetManager.getLimit() && getNumKids() > AssetManager.getLimit() && node.getParent() != null) {
-				// TODO: BUG1666-1
+				// BUG1666-1, added condition to check number of kids
 				// getChildCount have not been updated here, i.e. the count is from the previous run
-				MatrixTreeModelBus.insertNodeInto((MatrixTreeNode)new ExpandingNextNode(getNumKids(), node.getChildCount(),
-					getTotalKidsLoaded()), node, node.getChildCount());
+				MatrixTreeNode nextNode = (MatrixTreeNode) new ExpandingNextNode(getNumKids(), node.getChildCount(), getTotalKidsLoaded());
+				MatrixTreeModelBus.insertNodeInto((MatrixTreeNode) nextNode, node, node.getChildCount());
 			} else if (node.hasNextNode() && (getNumKids() <= AssetManager.getLimit())) {
-				// TODO: BUG1666-3
+				// TODO:
 				// when the last asset in the current set is removed, the nextNode should be removed
 				// and the assetmap should show the previous set automatically
 				MatrixTreeNode nextNode = (MatrixTreeNode) node.getChildAt(node.getChildCount()-1);
