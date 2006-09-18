@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.49 2006/01/26 22:35:20 lwright Exp $
+* $Id: form_section.inc,v 1.50 2006/09/18 00:50:32 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -493,7 +493,7 @@ class Form_Section extends Asset
 	*/
 	function &getQuestionByOrder($orderid)
 	{
-		$sort_order =& $this->attr('sort_order');
+		$sort_order = $this->attr('sort_order');
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($sort_order[$orderid]);
 
 	}//end getQuestionByOrder()
