@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.14 2006/09/08 08:14:03 rhoward Exp $
+* $Id: page_calendar_rolling.inc,v 1.15 2006/09/18 01:15:10 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -400,6 +400,7 @@ class Page_Calendar_Rolling extends Page
 
 		$event_list = '';
 		$recurring_event_descendants = $am->getTypeDescendants('calendar_event_recurring', TRUE);
+		$mm = NULL;
 		foreach ($events_by_time_unit as $unit_count => $events_by_date) {
 
 			// get all the events for this time_unit (day/week/month), stuff them into $event_list
@@ -435,16 +436,14 @@ class Page_Calendar_Rolling extends Page
 
 					// get metadata keywords
 					if (!empty($metadata_keywords[$event['type_code']])) {
-						if (!empty($metadata_keywords)) {
-							if (is_null($mm)) {
-								$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-							}
-							// get all the metadata keywords for this asset
-							$metadata_values = $mm->getMetadataFieldValues($id, $metadata_keywords);
+						if (is_null($mm)) {
+							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						}
+						// get all the metadata keywords for this asset
+						$metadata_values = $mm->getMetadataFieldValues($id, array_values($metadata_keywords));
 
-							foreach ($metadata_values as $field => $value) {
-								$replacements['asset_metadata_'.$field] = $value;
-							}
+						foreach ($metadata_values as $field => $value) {
+							$replacements['asset_metadata_'.$field] = $value;
 						}
 					}
 
