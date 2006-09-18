@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.35.2.1 2006/06/22 02:07:45 rong Exp $
+* $Id: bulkmail_manager.inc,v 1.35.2.2 2006/09/18 23:30:10 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once 'Mail/RFC822.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.35.2.1 $
+* @version $Revision: 1.35.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -456,10 +456,15 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		// add progress/details info to each job result
 		foreach ($results as $job_id => $result) {
-			$progress_info = $this->getJobProgress($job_id);
-			$results[$job_id]['progress'] = $progress_info;
-			$details_info = $this->getJobDetails($job_id);
-			$results[$job_id]['details'] = $details_info;
+			if ($GLOBALS['SQ_SYSTEM']->am->assetExists($job_id)) {
+				$progress_info = $this->getJobProgress($job_id);
+				$results[$job_id]['progress'] = $progress_info;
+				$details_info = $this->getJobDetails($job_id);
+				$results[$job_id]['details'] = $details_info;
+			} else {
+				// if this job has been removed, then delete it from the bmail queue too
+				$this->deleteJob($job_id);
+			}
 		}
 
 		return $results;
