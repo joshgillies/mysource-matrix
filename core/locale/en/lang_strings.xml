@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.163 2006/09/15 01:32:13 rhoward Exp $
+* $Id: lang_strings.xml,v 1.164 2006/09/18 07:29:01 tbarrett Exp $
 *
 */
 
@@ -1171,6 +1171,8 @@
 	<string source="question">Question</string>
 	<string source="action">Action</string>
 	<string source="match">Match</string>
+	<string source="ascending">Ascending</string>
+	<string source="descending">Descending</string>
 
 	<!-- priority level strings -->
 
@@ -1979,5 +1981,28 @@ Are you sure you want to proceed?</string>
 	<string source="exclusive_links_must_be_significant">In order for a link to be exclusive it must also be a significant link</string>
 	<string source="asset_type_must_be_linktype_exclusively_linked_to_type">Assets of Type "%1$s" must be "%2$s" exclusively linked to a "%3$s"</string>
 	<string source="asset_type_can_have_only_linktypes_links_to_type">"%1$s" Assets can only have %2$s "%3$s" link(s) to a "%4$s"</string>
+
+	<string source="asset_field_assetid">Asset ID</string>
+	<string source="asset_field_version">Version</string>
+	<string source="asset_field_name">Name</string>
+	<string source="asset_field_short_name">Short Name</string>
+	<string source="asset_field_created">When the asset was created</string>
+	<string source="asset_field_updated">When the asset was last updated</string>
+	<string source="asset_field_published">When the asset was last published</string>
+
+	<string source="asset_field_status">Status</string>
+	<string source="asset_field_languages">Languages</string>
+	<string source="asset_field_charset">Character Set</string>
+	<string source="asset_field_created_userid">User who created the asset</string>
+	<string source="asset_field_force_secure">Whether secure access is required</string>
+	<string source="asset_field_updated_userid">User who last updated the asset</string>
+	<string source="asset_field_status_changed_userid">User who last changed the status</string>
+	<string source="asset_field_published_userid">User who last published the asset</string>
+	<string source="asset_field_status_changed">When the asset's status was last changed</string>
+	<string source="asset_field_type_code">Type Code</string>
+
+	<string source="tool_asset_sorter_must_select_parent">You must select a parent asset whose children you want to sort</string>
+	<string source="tool_asset_sorter_complete_heading">Asset sorting complete</string>
+	<string source="tool_asset_sorter_complete_msg">The children of $1%s have been sorted by $2%s</string>
 
 </strings>
