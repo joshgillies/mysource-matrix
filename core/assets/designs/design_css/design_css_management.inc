@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_management.inc,v 1.6.2.1 2006/08/28 07:40:41 tbarrett Exp $
+* $Id: design_css_management.inc,v 1.6.2.2 2006/09/18 23:51:32 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6.2.1 $
+* @version $Revision: 1.6.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,9 +77,13 @@ class Design_Css_Management extends Asset_Management
 	*/
 	function _upgrade($current_version)
 	{
+		if (!parent::_upgrade($current_version)) {
+			return FALSE;
+		}
+
 		if (version_compare($current_version,'0.3','<')) {
 			pre_echo('UPGRADING CSS FILE ASSET TYPE - FROM VERSION '.$current_version);
-			// As of v0.3 all 
+			// As of v0.3 all
 			$css_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design_css');
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('design_css');
 			$asset =& new Design_CSS();
