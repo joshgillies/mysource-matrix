@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tools.inc,v 1.7 2006/06/09 04:47:45 tbarrett Exp $
+* $Id: tools.inc,v 1.8 2006/09/18 07:37:44 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 class Tools extends MySource_Object
@@ -53,11 +53,10 @@ class Tools extends MySource_Object
 		$o =& $backend->out;
 		$o->setHeading(translate('system_tools'), sq_get_icon($o->filesPath('/images/icons/header/whereami.png'), 20, 20, 'Tools'));
 
-		// the user has pressed commit for a specific tool
 		if (isset($_REQUEST['committed_tool_type_code'])) {
-			if ($this->_processTool($o)) {
-				return;
-			} else {
+			// the user has pressed commit for a specific tool
+			if (!$this->_processTool($o)) {
+				// something went wrong - need to show the interface again
 				$_REQUEST['tool_type_code'] = $_REQUEST['committed_tool_type_code'];
 			}
 		}
