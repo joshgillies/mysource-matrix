@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.225.2.5 2006/09/15 03:59:02 skim Exp $
+* $Id: asset_map.inc,v 1.225.2.6 2006/09/18 06:02:10 colivar Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.225.2.5 $
+* @version $Revision: 1.225.2.6 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1617,12 +1617,22 @@ class Asset_Map
 
 		// if we have only one asset. if we cant move it to the parent we dont continue further
 		if (count($assets) == 1) {
-			$canCreate = $new_parent->canCreateLink($asset, SQ_LINK_TYPE_1, FALSE);
-			if ($canCreate !== TRUE) {
-				if ($canCreate === FALSE) {
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->children[0]->attributes['assetid']);
+			$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode($input->root->children[0]->attributes['parentid']));
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($input->root->children[0]->attributes['linkid']);
+			$link_type = array_get_index($link, 'link_type', SQ_LINK_TYPE_1);
+			$value = array_get_index($link, 'value', '');
+			$dependant = array_get_index($link, 'is_dependant', '0');
+			$exclusive = array_get_index($link, 'is_exclusive', '0');
+			$sort_order = $input->root->attributes['to_parent_pos'];
+			$asset->prepareLink($new_parent, 'minor', $link_type, $value, $sort_order, $dependant, $exclusive);
+			$new_parent->prepareLink($asset, 'major', $link_type, $value, $sort_order, $dependant, $exclusive);
+			$can_create = $new_parent->canCreateLink($asset, $link_type, $exclusive);
+			if ($can_create !== TRUE) {
+				if ($can_create === FALSE) {
 					$this->_error('HIPO0020', $asset->id, $new_parent->id);
 				} else {
-					$this->_error('AMAP0018', $canCreate);
+					$this->_error('AMAP0018', $can_create);
 				}
 				return;
 			}
@@ -1729,12 +1739,20 @@ class Asset_Map
 
 		// if we have only one asset. if we cant clone it under the new parent we dont continue further
 		if (count($assets) == 1) {
-			$canCreate = $new_parent->canCreateLink($asset, SQ_LINK_TYPE_1, FALSE);
-			if ($canCreate !== TRUE) {
-				if ($canCreate === FALSE) {
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->children[0]->attributes['assetid']);
+			$link_type = SQ_LINK_TYPE_1;
+			$value = '';
+			$dependant = FALSE;
+			$exclusive = FALSE;
+			$sort_order = $input->root->attributes['to_parent_pos'];
+			$asset->prepareLink($new_parent, 'minor', $link_type, $value, $sort_order, $dependant, $exclusive);
+			$new_parent->prepareLink($asset, 'major', $link_type, $value, $sort_order, $dependant, $exclusive);
+			$can_create = $new_parent->canCreateLink($asset, $link_type, $exclusive);
+			if ($can_create !== TRUE) {
+				if ($can_create === FALSE) {
 					$this->_error('HIPO0030', $new_parent->id);
 				} else {
-					$this->_error('AMAP0044', $canCreate);
+					$this->_error('AMAP0044', $can_create);
 				}
 				return;
 			}
@@ -1803,7 +1821,7 @@ class Asset_Map
 
 		foreach ($input->root->children as $asset_node) {
 			$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode($asset_node->attributes['parentid']));
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid'], $old_parent->id);
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid']);
 			$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 
 			if (is_null($old_parent)) {
@@ -1816,7 +1834,7 @@ class Asset_Map
 				return;
 			}
 
-			$link_type = array_get_index('link_type', $link, 1);
+			$link_type = array_get_index($link, 'link_type', SQ_LINK_TYPE_1);
 
 			$assets[$asset_node->attributes['assetid']] = Array(
 															'linkid'	=> $asset_node->attributes['linkid'],
@@ -1828,12 +1846,19 @@ class Asset_Map
 		// if we have only one asset. if we cant link it under the new parent we dont continue further
 		if (count($assets) == 1) {
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->children[0]->attributes['assetid']);
-			$canCreate = $new_parent->canCreateLink($asset, SQ_LINK_TYPE_1, FALSE);
-			if ($canCreate !== TRUE) {
-				if ($canCreate === FALSE) {
+			$link_type = SQ_LINK_TYPE_1;
+			$value = '';
+			$dependant = FALSE;
+			$exclusive = FALSE;
+			$sort_order = $input->root->attributes['to_parent_pos'];
+			$asset->prepareLink($new_parent, 'minor', $link_type, $value, $sort_order, $dependant, $exclusive);
+			$new_parent->prepareLink($asset, 'major', $link_type, $value, $sort_order, $dependant, $exclusive);
+			$can_create = $new_parent->canCreateLink($asset, $link_type, $exclusive);
+			if ($can_create !== TRUE) {
+				if ($can_create === FALSE) {
 					$this->_error('HIPO0021', "$asset->name (#$asset->id)",  "$new_parent->name (#$new_parent->id)");
 				} else {
-					$this->_error('AMAP0011', $canCreate);
+					$this->_error('AMAP0011', $can_create);
 				}
 				return;
 			}
