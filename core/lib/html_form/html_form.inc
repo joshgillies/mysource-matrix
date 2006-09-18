@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.121 2006/09/15 01:32:13 rhoward Exp $
+* $Id: html_form.inc,v 1.122 2006/09/18 00:08:12 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.121 $
+* @version $Revision: 1.122 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -408,7 +408,7 @@ function check_box($name, $value='1', $checked=FALSE, $on_click='', $extras='')
 * @return void
 * @access public
 */
-function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras='', $maxlength=0)
+function combo_box($name, $contents, $multiple=FALSE, $defaults='', $height=0, $extras='', $maxlength=0)
 {
 	$height    = (int) $height;
 	$maxlength = (int) $maxlength;
