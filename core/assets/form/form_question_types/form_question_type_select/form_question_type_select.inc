@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.3 2006/09/07 03:37:46 bcaldwell Exp $
+* $Id: form_question_type_select.inc,v 1.4 2006/09/18 01:57:11 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,8 +60,8 @@ class Form_Question_Type_Select extends Form_Question
 	*
 	* Returned array is 'short name' => 'full name'
 	*
+	* @return array
 	* @access public
-	* @return Array(string => string)
 	*/
 	function getAllowedRules()
 	{
@@ -73,8 +73,9 @@ class Form_Question_Type_Select extends Form_Question
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -86,8 +87,8 @@ class Form_Question_Type_Select extends Form_Question
 	/**
 	* generates the html for this question to display it in the frontend or backend
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getHtmlField()
 	{
@@ -109,8 +110,8 @@ class Form_Question_Type_Select extends Form_Question
 	/**
 	* returns the options currently in the dropdown list
 	*
+	* @return array
 	* @access public
-	* @return Array()
 	*/
 	function getOptions()
 	{
@@ -119,7 +120,11 @@ class Form_Question_Type_Select extends Form_Question
 		foreach (array_keys($options) as $k) {
 			if ($options[$k] == '') unset($options[$k]);
 		}
-
+		// if allow empty is true, add the '-- Leave Empty --' as the first option
+		if ($this->attr('allow_empty')) {
+			$empty = Array('-- Leave Empty --');
+			$options = array_merge($empty, $options);
+		}
 		return $options;
 
 	}//end getOptions()
@@ -130,22 +135,34 @@ class Form_Question_Type_Select extends Form_Question
 	*
 	* @param string	$answer	The answer the print the summary for (optional)
 	*
+	* @return mixed array|string
 	* @access public
-	* @return mixed
 	*/
-	function getSummary($answer=null)
+	function getSummary($answer=NULL)
 	{
 		if (is_null($answer)) $answer = $this->getValue();
 
 		if (is_array($answer)) {
 			$ans_str = Array();
 			foreach ($answer as $a) {
-				$ans_str[] = $this->getAnswerByOffset($a);
+				// if the option is '-- Leave Empty --', we should return empty string
+				$answer_by_offset = $this->getAnswerByOffset($a);
+				if ($answer_by_offset != '-- Leave Empty --') {
+					$ans_str[] = $this->getAnswerByOffset($a);
+				} else {
+					$ans_str[] = '';
+				}
 			}
 			return implode(', ', $ans_str);
 		}
 
-		return $this->getAnswerByOffset($answer);
+		// if the option is '-- Leave Empty --', we should return empty string
+		$answer_by_offset = $this->getAnswerByOffset($answer);
+		if ($answer_by_offset != '-- Leave Empty --') {
+			return $this->getAnswerByOffset($answer);
+		} else {
+			return '';
+		}
 
 	}//end getSummary()
 
@@ -155,8 +172,8 @@ class Form_Question_Type_Select extends Form_Question
 	*
 	* @param mixed	$answer	the answer for the question
 	*
+	* @return string
 	* @access public
-	* @return string the summary XML
 	*/
 	function getXML($answer)
 	{
@@ -181,10 +198,10 @@ class Form_Question_Type_Select extends Form_Question
 	/**
 	* returns TRUE if this particuar option is selected
 	*
-	* @param string $value     the value to check
+	* @param string	$option	the value to check
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function isSelected($option)
 	{
@@ -199,10 +216,10 @@ class Form_Question_Type_Select extends Form_Question
 	* Get the name for one particular option, specified by option code.
 	* Assumes option id is valid
 	*
-	* @param string $option_code    unique option id for this question
+	* @param string	$option_code	unique option id for this question
 	*
+	* @return array
 	* @access public
-	* @return Array
 	*/
 	function getOptionName($option_code)
 	{

@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2006/06/19 01:03:45 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.3 2006/09/18 01:57:11 rong Exp $
 */
 -->
 
 <contents>
 	<section name="Locking / Editing">
-	    <field>
+		<field>
 			<display_name></display_name>
 			<note></note>
 			<function_call>
@@ -34,7 +34,7 @@
 		</field>
 	</section>
 	<section name="Question Options">
-	    <field attribute="name">
+		<field attribute="name">
 			<display_name>Title</display_name>
 			<note></note>
 		</field>
@@ -61,6 +61,10 @@
 		<field attribute="multiple">
 			<display_name>Multiple?</display_name>
 			<note></note>
+		</field>
+		<field attribute="allow_empty">
+			<display_name>Allow Empty Option?</display_name>
+			<note>If this is enabled, a '-- Leave Empty --' option will be added to the selection</note>
 		</field>
 		<field attribute="extra">
 			<display_name>Extras</display_name>
