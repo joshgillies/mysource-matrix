@@ -18,7 +18,7 @@
 * | licence.                                                      |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.28 2006/08/23 22:59:41 arailean Exp $
+* $Id: dev.inc,v 1.29 2006/09/18 05:40:40 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 *     Generic functions that are useful for developers
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package Fudge
 * @subpackage dev
 */
@@ -243,12 +243,14 @@ function pre_echo($x, $max_depth=0, $style='')
 /**
 * For optimisaiton, this little function lets you track down the slow bits.
 *
-* @param string	$str	a comment that you want to have displayed with the speed result
+* @param string		$str	a comment that you want to have displayed with the speed result
+* @param boolean	$html	whether to print the value in html mode
+* @param boolean	$error	whether to log the speed check in error log
 *
-* @return void
+* @return mixed void|string
 * @access public
 */
-function speed_check($str='')
+function speed_check($str='', $html=TRUE, $log_error=TRUE)
 {
 	list($msec, $sec) = explode(' ',microtime());
 	// Record time (note we ignore time spent IN this function)
@@ -258,7 +260,16 @@ function speed_check($str='')
 	if ($SPEED_CHECK_LAST_HIT) {
 		$elapsed = $BAM - $SPEED_CHECK_LAST_HIT;
 		$SPEED_CHECK_TOTAL += $elapsed;
-		echo('<table cellpadding=0 cellspacing=0 border=0 bgcolor="#ffff88"><tr><td><p style="color:red;font-weight:bold;font-family:sans-serif;font-size:13px;">'.sprintf('%.5f&nbsp;/&nbsp;%.5f',$elapsed,$SPEED_CHECK_TOTAL)."&nbsp;&nbsp;$str</p></td></tr></table>");
+		if ($html) {
+			echo('<table cellpadding=0 cellspacing=0 border=0 bgcolor="#ffff88"><tr><td><p style="color:red;font-weight:bold;font-family:sans-serif;font-size:13px;">'.sprintf('%.5f&nbsp;/&nbsp;%.5f',$elapsed,$SPEED_CHECK_TOTAL)."&nbsp;&nbsp;$str</p></td></tr></table>");
+		} else {
+			if (!$log_error) {
+				echo sprintf('%.5f/%.5f', $elapsed, $SPEED_CHECK_TOTAL).' '.$str;
+			} else {
+				error_log(sprintf('%.5f/%.5f', $elapsed, $SPEED_CHECK_TOTAL).' '.$str);
+			}
+		}
+
 	}
 	list($msec, $sec) = explode(' ',microtime());
 	// initialize
