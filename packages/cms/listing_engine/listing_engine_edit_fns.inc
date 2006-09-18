@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.65 2006/08/24 00:23:13 rong Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.66 2006/09/18 07:33:16 tbarrett Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1794,23 +1794,14 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function _getSortByOptions(&$asset)
 	{
+		$asset_fields = $GLOBALS['SQ_SYSTEM']->am->getAssetInfoFields();
 		if ($asset->attr('group_by') == 'letter') {
 			return Array(
 					'name'			=> translate('name'),
 					'short_name'	=> translate('short_name'),
 				   );
 		} else {
-			return Array(
-					'assetid'		=> translate('asset_id'),
-					'version'		=> translate('version'),
-					'name'			=> translate('name'),
-					'short_name'	=> translate('short_name'),
-					'created'		=> translate('created_date'),
-					'updated'		=> translate('last_updated_date'),
-					'published'		=> translate('last_published_date'),
-					'type_code'		=> translate('type_code'),
-					'asset_attrib'	=> translate('cms_listing_asset_attribute(s)'),
-				   );
+			return $asset_fields + Array('asset_attrib'	=> translate('cms_listing_asset_attribute(s)'));
 		}
 
 	}//end _getSortByOptions()

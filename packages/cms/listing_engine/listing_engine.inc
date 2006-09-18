@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.193 2006/09/11 06:23:30 rhoward Exp $
+* $Id: listing_engine.inc,v 1.194 2006/09/18 07:33:15 tbarrett Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.193 $
+* @version $Revision: 1.194 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -835,8 +835,8 @@ class Listing_Engine extends Page
 
 		} else {
 			$sort_field = $sort_params['field'];
-
-			if (in_array($sort_field, $this->getSortableAssetInfo())) {
+			$sortable_info = $this->getSortableAssetInfo();
+			if (isset($sortable_info[$sort_field])) {
 				$sort_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, NULL, TRUE, $sort_field);
 				for (reset($sort_assets); NULL !== ($assetid = key($sort_assets)); next($sort_assets)) {
 					$sort_assets[$assetid] = strtolower($sort_assets[$assetid]);
@@ -1933,7 +1933,7 @@ class Listing_Engine extends Page
 			$keywords = $this->_getShadowAssetKeywordReplacements($assetid, $bc_keywords);
 		} else {
 			foreach ($bc_keywords as $keyword) {
-				if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
+				if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!isset($asset_info_fields[substr($keyword, 6)])))) {
 					$this_needs_asset = TRUE;
 					break;
 				}

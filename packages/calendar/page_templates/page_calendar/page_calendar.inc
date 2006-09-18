@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.187 2006/08/17 06:52:38 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.188 2006/09/18 07:34:51 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.187 $
+* @version $Revision: 1.188 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2137,7 +2137,6 @@ class Page_Calendar extends Page
 	{
 		$calendar_result_keywords = Array('asset_attribute_start_date', 'asset_attribute_end_date');
 		$asset_info_fields = $GLOBALS['SQ_SYSTEM']->am->getAssetInfoFields();
-		$asset_info_fields[] = 'assetid';
 		$date_formats = get_date_formats();
 		$need_asset_info = FALSE;
 		$need_asset = FALSE;
@@ -2152,7 +2151,7 @@ class Page_Calendar extends Page
 			}
 			if (0 === strpos($keyword, 'asset_')) {
 				$fieldname = substr($keyword, 6);
-				if (in_array($fieldname, $asset_info_fields)) {
+				if (!isset($asset_info_fields[$fieldname])) {
 					$need_asset_info = TRUE;
 					continue;
 				}
