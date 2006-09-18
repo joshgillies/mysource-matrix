@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.505 2006/09/18 01:31:20 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.506 2006/09/18 07:28:37 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.505 $
+* @version $Revision: 1.506 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1415,13 +1415,15 @@ class Asset_Manager extends MySource_Object
 	{
 		if (!isset($this->_tmp['asset_info_fields'])) {
 			require SQ_DATA_PATH.'/private/db/table_columns.inc';
-			$this->_tmp['asset_info_fields'] = array_diff($tables['ast']['columns'], Array('assetid'));
+			$this->_tmp['asset_info_fields'] = Array();
+			foreach ($tables['ast']['columns'] as $col) {
+				$this->_tmp['asset_info_fields'][$col] = translate('asset_field_'.$col);
+			}
 			unset($tables);
 		}
 		return $this->_tmp['asset_info_fields'];
 
 	}//end getAssetInfoFields()
-
 
 	/**
 	* Returns list of all assetids of a certain type
