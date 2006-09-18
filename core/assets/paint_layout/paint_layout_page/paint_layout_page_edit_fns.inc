@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page_edit_fns.inc,v 1.7 2006/09/08 00:29:33 tbarrett Exp $
+* $Id: paint_layout_page_edit_fns.inc,v 1.8 2006/09/18 01:31:43 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/paint_layout/paint_layout_page/paint_layout_
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -251,9 +251,9 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	function paintUsage(&$asset, &$o, $prefix)
 	{
 		$o->openRaw();
-		echo '<p><i>'.translate('paint_layout_usage_explanation').'</i></p>';
+		echo '<p><i>'.translate('design_usage_explanation').'</i></p>';
 		echo '<div style="line-height: 160%">';
-		$res = $GLOBALS['SQ_SYSTEM']->am->getAssetidsByLookupValue('paint_layout::%', $asset->id);
+		$res = $GLOBALS['SQ_SYSTEM']->am->getAssetidsByLookupValue('paint_layout::%', $asset->id, TRUE);
 		$res = $this->_getTreeTops($res);
 		$singular = strtolower(translate('child'));
 		$plural = strtolower(translate('children'));
@@ -283,8 +283,6 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 			}
 			echo '</p>';
 		}
-
-
 		$o->closeRaw();
 
 	}//end paintUsage()
@@ -306,9 +304,8 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	* @return array
 	* @access public
 	*/
-	function _getTreeTops($assetids)
+	function _getTreeTops($treeids)
 	{
-		$treeids = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($assetids);
 		$all_treeids = Array();
 		foreach ($treeids as $assetid => $asset_treeids) {
 			foreach ($asset_treeids as $asset_treeid) {

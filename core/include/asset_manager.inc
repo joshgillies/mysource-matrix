@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.504 2006/09/15 01:32:13 rhoward Exp $
+* $Id: asset_manager.inc,v 1.505 2006/09/18 01:31:20 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.504 $
+* @version $Revision: 1.505 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2748,10 +2748,10 @@ class Asset_Manager extends MySource_Object
 	* Also returns basic information about the last link (linkid and link type)
 	* linkid => Array ('linkid' => linkid, 'link_type' => link_type, 'lineage' => Array(...))
 	*
-	* @param object					$assetid		the asset whose links lineages we are getting
-	* @param int					$result_limit	limits the number of results returned
-	* @param string					$from_treeid	Uses this treeid as the starting (root) node
-	* @param mixed string|array		$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
+	* @param object				$assetid		the asset whose links lineages we are getting
+	* @param int				$result_limit	limits the number of results returned
+	* @param string				$from_treeid	Uses this treeid as the starting (root) node
+	* @param string|array		$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
 	*
 	* @return array
 	* @access public
@@ -3260,7 +3260,7 @@ class Asset_Manager extends MySource_Object
 	*															1	=> FALSE,
 	*														   ),
 	*										)
-cd
+	*
 	* @return boolean
 	* @access private
 	*/
@@ -6352,24 +6352,36 @@ cd
 	/**
 	* Get assetids that match the given lookup name and value
 	*
-	* @param string	$lookup_name_exp	The name of the lookup value, or a SQL expression to match it
-	* @param string	$lookup_value_exp	The value of the lookup value, or a SQL expression to match it
+	* @param string		$lookup_name_exp	The name of the lookup value, or a SQL expression to match it
+	* @param string		$lookup_value_exp	The value of the lookup value, or a SQL expression to match it
+	* @param boolean	$include_treeids	If true, the result will be an array indexed by assetid where the values are arrays of treeids for that assetid.  Otherwise it will be a simple array of treeids.
 	*
 	* @return array
 	* @access public
 	*/
-	function getAssetidsByLookupValue($lookup_name_exp, $lookup_value_exp)
+	function getAssetidsByLookupValue($lookup_name_exp, $lookup_value_exp, $include_treeids)
 	{
 		$use_like_for_name = ((FALSE !== strpos($lookup_name_exp, '?')) || (FALSE !== strpos($lookup_name_exp, '%')));
 		$name_operator = $use_like_for_name ? 'LIKE' : '=';
 		$use_like_for_value = ((FALSE !== strpos($lookup_value_exp, '?')) || (FALSE !== strpos($lookup_value_exp, '%')));
 		$value_operator = $use_like_for_value ? 'LIKE' : '=';
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT l.assetid
-				FROM sq_ast_lookup l JOIN sq_ast_lookup_value lv ON l.url = lv.url
+		$sql = 'SELECT l.assetid'.($include_treeids ? ', lt.treeid' : '').'
+				FROM sq_ast_lookup l 
+					JOIN sq_ast_lookup_value lv ON l.url = lv.url';
+		if ($include_treeids) {
+			$sql .= '
+					JOIN sq_ast_lnk al ON l.assetid = al.minorid
+					JOIN sq_ast_lnk_tree lt ON lt.linkid = al.linkid';
+		}
+		$sql .= '
 				WHERE lv.name '.$name_operator.' '.$db->quoteSmart($lookup_name_exp).'
 					AND lv.value '.$value_operator.' '.$db->quoteSmart($lookup_value_exp);
-		$res = $db->getCol($sql);
+		if ($include_treeids) {
+			$res = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
+		} else {
+			$res = $db->getCol($sql);
+		}
 		assert_valid_db_result($res);
 		return $res;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.112 2006/09/08 01:05:43 tbarrett Exp $
+* $Id: design_edit_fns.inc,v 1.113 2006/09/18 01:31:43 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1305,7 +1305,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$o->openRaw();
 		echo '<p><i>'.translate('design_usage_explanation').'</i></p>';
 		echo '<div style="line-height: 160%">';
-		$res = $GLOBALS['SQ_SYSTEM']->am->getAssetidsByLookupValue('design::%', $asset->id);
+		$res = $GLOBALS['SQ_SYSTEM']->am->getAssetidsByLookupValue('design::%', $asset->id, TRUE);
 		$res = $this->_getTreeTops($res);
 		$singular = strtolower(translate('child'));
 		$plural = strtolower(translate('children'));
@@ -1336,7 +1336,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			echo '</p>';
 		}
 
-
 		$o->closeRaw();
 
 	}//end paintUsage()
@@ -1358,9 +1357,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @return array
 	* @access public
 	*/
-	function _getTreeTops($assetids)
+	function _getTreeTops($treeids)
 	{
-		$treeids = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($assetids);
 		$all_treeids = Array();
 		foreach ($treeids as $assetid => $asset_treeids) {
 			foreach ($asset_treeids as $asset_treeid) {
