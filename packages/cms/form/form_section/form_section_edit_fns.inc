@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.44 2006/02/15 03:27:17 lwright Exp $
+* $Id: form_section_edit_fns.inc,v 1.45 2006/09/18 00:50:20 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -61,6 +61,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$admin_access = $asset->writeAccess('attributes');
 		$prefix = $asset->getPrefix();
+		$questions = $asset->getQuestions();
 
 		// include script for re-ordering questions
 		?>
@@ -154,6 +155,15 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			  form.elements['<?php echo $prefix ?>_order[reorder][' + currentOrder + ']'].value = temp;
 
 			}
+
+			function changeAllDelStatuses(status)
+			{
+					var inputs = document.getElementsByTagName('INPUT');
+					for (var i = 0; i < inputs.length; i++) {
+						if (inputs[i].id.indexOf("_order[delete][") < 0) continue;
+							inputs[i].checked = status;
+					}
+			}
 		</script>
 				<table class="sq-backend-table">
 					<tr>
@@ -165,14 +175,21 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 						</td>
 						<?php
 						if ($admin_access) {
-							?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('delete_question') ?></td>
+							?>
+							<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php
+								if (!empty($questions)) {
+									$delete_all = check_box($prefix.'_order[delete]', '1', FALSE, 'changeAllDelStatuses(this.checked)');
+								} else {
+									$delete_all = '';
+								}
+								echo translate('delete_question').$delete_all; ?>
+							</td>
 							<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('move') ?></td>
 							<?php
 						}
 						?>
 					</tr>
 				<?php
-				$questions = $asset->getQuestions();
 				$sort_order = $asset->attr('sort_order');
 
 				if (!empty($sort_order)) {
