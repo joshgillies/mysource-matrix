@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime_management.inc,v 1.2 2005/10/30 23:26:29 lwright Exp $
+* $Id: form_question_type_datetime_management.inc,v 1.2.4.1 2006/09/19 02:31:52 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -129,6 +129,18 @@ class Form_Question_Type_Datetime_Management extends Asset_Management
 											'type'		=> 'text',
 											'default'	=> 'Y-m-d H:i:s',
 										   ),
+						'extras'		=>	Array(
+											'added'		=> '0.3',
+											'type'		=> 'serialise',
+											'default'	=> Array(
+															'd'	=> '',
+															'm'	=> '',
+															'y'	=> '',
+															'h'	=> '',
+															'i'	=> '',
+															's'	=> '',
+														   ),
+											),
 					  );
 
 	}//end constructor
