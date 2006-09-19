@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2006/06/19 01:03:44 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.5 2006/09/19 02:21:58 rong Exp $
 */
 -->
 
 <contents>
 	<section name="Locking / Editing">
-	    <field>
+		<field>
 			<display_name></display_name>
 			<note></note>
 			<function_call>
@@ -34,7 +34,7 @@
 		</field>
 	</section>
 	<section name="Question Options">
-	    <field attribute="name">
+		<field attribute="name">
 			<display_name>Title</display_name>
 			<note></note>
 		</field>
@@ -66,9 +66,13 @@
 			<display_name>Print Format</display_name>
 			<note>This &lt;a href="http://au.php.net/date"&gt;PHP date()&lt;/a&gt; format will be used to format this question's summary. This will be the format displayed on the Thank You screen when this field is shown, and when viewing and exporting submission logs. If you need to use a letter that has special meaning, you will need to escape it with a backslash. A default date will be used if you specify a date() component that is not offered to the user above.</note>
 		</field>
-		<field attribute="extra">
+		<field>
 			<display_name>Extras</display_name>
-			<note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes, eg class="yourCssClass"</note>
+			<note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes for each date time element, eg class="yourCssClass"</note>
+			<function_call>
+				<paint_function   name="paintExtras"   />
+				<process_function name="processExtras" />
+			</function_call>
 		</field>
 		<field attribute="sticky">
 			<display_name>Sticky?</display_name>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime_edit_fns.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
+* $Id: form_question_type_datetime_edit_fns.inc,v 1.3 2006/09/19 02:21:58 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -311,6 +311,131 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 		return true;
 
 	}//end processInterface()
+
+
+	/**
+	* paint the interface for the Extras options
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @access public
+	* @return boolean
+	*/
+	function paintExtras(&$asset, &$o, $prefix)
+	{
+		$extra_params = $asset->attr('extras');
+		$edit = ($asset->writeAccess('attributes')) ? TRUE : FALSE;
+		?>
+			<table class="sq-backend-table">
+				<tr>
+				<td width="5%" class="sq-backend-table-header"><?php
+					echo translate('day');
+				?></td>
+				<td class="sq-backend-table-cell"><?php
+					if ($edit) {
+						text_box($prefix.'_d_extras', $extra_params['d']);
+					} else {
+						echo $extra_params['d'];
+					}
+				?></td>
+				</tr>
+
+				<tr>
+				<td width="5%" class="sq-backend-table-header"><?php
+					echo translate('month'); ?>
+				</td>
+				<td class="sq-backend-table-cell"><?php
+					if ($edit) {
+						text_box($prefix.'_m_extras', $extra_params['m']);
+					} else {
+						echo $extra_params['m'];
+					}
+				?></td>
+				</tr>
+				<tr>
+				<td width="5%" class="sq-backend-table-header"><?php
+					echo translate('year');
+				?></td>
+				<td class="sq-backend-table-cell"><?php
+					if ($edit) {
+						text_box($prefix.'_y_extras', $extra_params['y']);
+					} else {
+						echo $extra_params['y'];
+					}
+				?></td>
+				</tr>
+				<tr>
+				<td width="5%" class="sq-backend-table-header"><?php
+					echo translate('hour');
+				?></td>
+				<td class="sq-backend-table-cell"><?php
+					if ($edit) {
+						text_box($prefix.'_h_extras', $extra_params['h']);
+					} else {
+						echo $extra_params['h'];
+					}
+				?></td>
+				</tr>
+				<tr>
+				<td width="5%" class="sq-backend-table-header"><?php
+					echo translate('minute');
+				?></td>
+				<td class="sq-backend-table-cell"><?php
+					if ($edit) {
+						text_box($prefix.'_i_extras', $extra_params['i']);
+					} else {
+						echo $extra_params['i'];
+					}
+				?></td>
+				</tr>
+				<tr>
+				<td width="5%" class="sq-backend-table-header"><?php
+					echo translate('second');
+				?></td>
+				<td class="sq-backend-table-cell"><?php
+					if ($edit) {
+						text_box($prefix.'_s_extras', $extra_params['s']);
+					} else {
+						echo $extra_params['s'];
+					}
+				?></td>
+				</tr>
+			</table>
+			<?php
+
+	}//end paintExtras()
+
+
+	/**
+	* process the interface for the Extras options
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @access public
+	* @return boolean
+	*/
+	function processExtras(&$asset, &$o, $prefix)
+	{
+		$elements = Array('d', 'm', 'y', 'h', 'i', 's');
+		$current_param = Array();
+
+		foreach ($elements as $e) {
+			if (isset($_POST[$prefix.'_'.$e.'_extras'])) {
+				$current_param[$e] = $_POST[$prefix.'_'.$e.'_extras'];
+			} else {
+				$current_param[$e] = '';
+			}
+		}
+		if (!$asset->setAttrValue('extras', $current_param)) {
+			return FALSE;
+		}
+		return TRUE;
+
+	}//end processExtras()
 
 
 }//end class
