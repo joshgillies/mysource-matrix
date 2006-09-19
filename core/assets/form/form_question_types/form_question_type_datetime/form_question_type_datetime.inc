@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.3.2.2 2006/06/28 05:14:24 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.3.2.3 2006/09/19 02:38:52 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3.2.2 $
+* @version $Revision: 1.3.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,9 +76,7 @@ class Form_Question_Type_Datetime extends Form_Question
 	*/
 	function getHtmlField()
 	{
-		$extras = $this->attr('extra');
 		$name   = 'q'.$this->id;
-
 		$html = '';
 		$value = $this->getValue();
 
@@ -96,6 +94,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		if ($parameters['max'] == '---------- --:--:--') {
 			$parameters['max'] = '2099-12-31 23:59:59';
 		}
+		$parameters['extras'] = $this->attr('extras');
 
 		$show_params = $this->attr('show');
 		$text_params = $this->attr('text');
