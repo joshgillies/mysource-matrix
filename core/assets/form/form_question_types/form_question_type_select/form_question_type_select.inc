@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.4 2006/09/18 01:57:11 rong Exp $
+* $Id: form_question_type_select.inc,v 1.5 2006/09/19 01:42:32 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,7 +95,7 @@ class Form_Question_Type_Select extends Form_Question
 		$name = 'q'.$this->id;
 
 		// prepare a valid value for the field id
-		$extras = 'id="'.str_replace(':', '_', $name).'"';
+		$extras = 'id="'.str_replace(':', '_', $name).'" '.$this->attr('extra');
 
 		ob_start();
 		combo_box($name, $this->getOptions(), $this->attr('multiple'), $this->getValue(), $this->attr('height'), $extras);
