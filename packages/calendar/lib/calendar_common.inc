@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.47.2.4 2006/09/21 06:31:56 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.47.2.5 2006/09/21 06:53:37 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.47.2.4 $
+* @version $Revision: 1.47.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -313,6 +313,7 @@ class Calendar_Common
 				$sql_freqs[] = '(frequency LIKE '.$db->quoteSmart('M%').' AND (FLOOR(('.($year * 12).' - start_date_ms) / period) < FLOOR(('.(($year + 1) * 12).' - start_date_ms) / period)))';
 			break;
 
+			case 'period' :
 				$last_date = date('Y-m-d', strtotime("$iso 12:00:00 +$length days"));
 				$last_date_components = Calendar_Common::getDateComponents($last_date);
 				$last_day = $last_date_components['ds'];
