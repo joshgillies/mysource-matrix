@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.5.2.1 2006/09/04 23:38:35 emcdonald Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.5.2.2 2006/09/21 23:08:47 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.5.2.1 $
+* @version $Revision: 1.5.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -142,6 +142,30 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			   );
 
 	}//end getInitialStepData()
+
+
+	/**
+	* Performs the duties of this hipo, without showing any output on the frontend.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function freestyle()
+	{
+		$step_data = Array();
+		if (!$this->processEraseContents($step_data, '')) {
+			return FALSE;
+		}
+
+		$step_data['complete'] = false;
+		while (!$step_data['complete']) {
+			if (!$this->processParseXml($step_data, '')) {
+				return FALSE;
+			}
+		}
+		return TRUE;
+
+	}//end freestyle()
 
 
 	/**
@@ -461,6 +485,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		$step_data['message']  = 'Parsed '.sprintf('%01.2f',$step_data['total_read']/1024).' Kb of '.sprintf('%01.2f',$file_size/1024).' Kb';
 		fclose($fp);
 		return true;
+
 	}//end processParseXml()
 
 
