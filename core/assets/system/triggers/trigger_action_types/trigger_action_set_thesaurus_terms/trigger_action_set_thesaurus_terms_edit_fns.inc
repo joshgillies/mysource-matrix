@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_thesaurus_terms_edit_fns.inc,v 1.1 2006/09/21 23:26:24 skim Exp $
+* $Id: trigger_action_set_thesaurus_terms_edit_fns.inc,v 1.1.2.1 2006/09/21 23:27:01 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
