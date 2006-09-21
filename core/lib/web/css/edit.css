@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.62 2006/06/30 05:58:16 tbarrett Exp $
+* $Id: edit.css,v 1.63 2006/09/21 23:58:40 rong Exp $
 *
 */
 
@@ -59,7 +59,7 @@ table.sq-backend-main-headings td {
 	font-weight:		bold;
 	font-size:			12px;
 	padding:			4px 2px;
-	vertical-align:		top; 
+	vertical-align:		top;
 	white-space:		nowrap;
 	border:				0px;
 }
@@ -227,11 +227,11 @@ td.sq-backend-commit {
 /* BACKEND OUTPUTTER - SECTIONS AND FIELDS */
 
 td.sq-backend-screen-menu {
-	text-align:			right; 
+	text-align:			right;
 	width:				100%;
 }
 table.sq-backend-section-table {
-	margin:				0px 0px 3px 0px; 
+	margin:				0px 0px 3px 0px;
 	width:				100%;
 	border-collapse:	collapse;
 }
@@ -303,7 +303,7 @@ table.sq-backend-section-table td table.sq-backend-section-table-inner {
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
 	font-size:			11px;
-	padding:			0px px;
+	padding:			0px 2px;
 }
 
 .sq-limbo-field {
@@ -398,7 +398,7 @@ fieldset {
 /* LOCKING STYLES */
 
 p.sq-lock-message {
-	margin-top:			0px; 
+	margin-top:			0px;
 	margin-bottom:		2px;
 }
 
