@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.40.2.5 2006/09/04 01:12:42 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.40.2.6 2006/09/21 04:10:08 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.40.2.5 $
+* @version $Revision: 1.40.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -64,7 +64,8 @@ function build_single_event_query_base(&$trees, $group_by_root_node=FALSE, $even
 	if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
 		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
 			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-			array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+			array_push($userids, (string) $GLOBALS['SQ_SYSTEM']->user->id);
+			array_push($userids, (string) $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'));
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 				$userids[$i] = $db->quoteSmart($userids[$i]);
 			}
