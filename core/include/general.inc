@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.150 2006/09/08 08:14:01 rhoward Exp $
+* $Id: general.inc,v 1.151 2006/09/21 23:36:15 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.150 $
+* @version $Revision: 1.151 $
 * @package MySource_Matrix
 */
 
@@ -490,7 +490,8 @@ function sq_root_url($url, $inc_protocol=TRUE)
 {
 	// see sq_web_path('root_url') for more info
 	$protocol = ($inc_protocol) ? array_get_index(parse_url($url), 'scheme', 'http').'://' : '';
-	$current_url = strip_url($url);
+	// strip the protocol, only append it if inc_protocol is true
+	$current_url = strip_url($url, TRUE);
 	$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 
 	// if we are in the backend strip the suffix
