@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hash.inc,v 1.9 2005/11/16 03:04:57 arailean Exp $
+* $Id: hash.inc,v 1.9.2.1 2006/09/21 05:33:23 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package MySource_Matrix
 */
 class Hash
@@ -98,7 +98,9 @@ class Hash
 		if (!is_array($value)) $value = Array($value);
 
 		foreach ($value as $one_value) {
-			$this->hash[$name][] = $one_value;
+			if (!in_array($one_value, $this->hash[$name])) {
+				$this->hash[$name][] = $one_value;
+			}
 		}
 
 	}//end _set()
