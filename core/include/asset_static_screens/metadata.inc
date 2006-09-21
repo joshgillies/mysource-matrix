@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.22.2.1 2006/08/30 05:04:12 rhoward Exp $
+* $Id: metadata.inc,v 1.22.2.2 2006/09/21 22:54:03 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.22.2.1 $
+* @version $Revision: 1.22.2.2 $
 * @package MySource_Matrix
 */
 
@@ -79,7 +79,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 		}
 
 		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
-
+		echo '<tr><td>';
 		if (!($num_fields = count($section->children))) {
 			continue;
 		}
@@ -175,7 +175,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 
 					// we close the section so each of the metadata schemas printed below us have their own
 					// section headings based on their schema names - makes the interface cleaner
-					$o->closeSection();
+					// $o->closeSection(); this line was commented to fix bug #1665
 
 				break;
 
@@ -230,6 +230,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 
 		}//end for
 
+		echo '</td></tr>';
 		$o->closeSection();
 
 		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
