@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.558 2006/09/14 05:06:11 tbarrett Exp $
+* $Id: asset.inc,v 1.559 2006/09/21 03:56:27 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.558 $
+* @version $Revision: 1.559 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3405,11 +3405,18 @@ class Asset extends MySource_Object
 		// if only shadow assets are loaded, ignore
 		if (empty($assetids)) return 0;
 
+		// break up the assets into chunks of 1000 so that oracle does not complain
+		$in_clauses = Array();
+		foreach (array_chunk($assetids, 999) as $chunk) {
+			$in_clauses[] = ' (assetid IN ('.implode(', ', $chunk).'))';
+		}
+		$where = '('.implode(' OR ', $in_clauses).')';
+
 		// get all updated time from DB
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT assetid, updated
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast
-				WHERE assetid in ('.implode(',', $assetids).')
+				WHERE '.$where.'
 				ORDER BY updated DESC';
 		$result =& $db->getAssoc($sql);
 		assert_valid_db_result($result);
