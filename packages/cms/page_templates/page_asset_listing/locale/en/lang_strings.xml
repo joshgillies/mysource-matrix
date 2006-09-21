@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.6 2006/09/11 06:23:30 rhoward Exp $
+* $Id: lang_strings.xml,v 1.7 2006/09/21 06:07:14 lwright Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -32,5 +32,6 @@
 <string source="cms_listing_edit_group_format">Edit Group Format</string>
 <string source="cms_listing_unique_asset_count">Number of unique assets</string>
 <string source="cms_listing_no_link_types_selected">No link types have been selected - &lt;b&gt;no assets will be displayed&lt;/b&gt;</string>
-
+<string source="cms_listing_all_root_nodes_yes">Assets must be a child of ALL selected root nodes</string>
+<string source="cms_listing_all_root_nodes_no">Assets must be a child of at least ONE root node</string>
 </strings>

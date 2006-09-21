@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.102 2006/08/30 00:34:48 colivar Exp $
+* $Id: page_asset_listing.inc,v 1.103 2006/09/21 06:07:14 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -72,8 +72,10 @@ class Page_Asset_Listing extends Listing_Engine
 	*/
 	function getAssetList()
 	{
-		$assets_to_list = Array();
+		$assets_to_list = NULL;
 		$group_by = $this->attr('group_by');
+
+		$logic = $this->attr('all_root_nodes') ? 'AND' : 'OR';
 
 		// this is the list of all type codes that we are going to show
 		// we pass this list to the getLinks and getChildren functions (below) to narrow
@@ -102,7 +104,6 @@ class Page_Asset_Listing extends Listing_Engine
 			}
 		}
 
-		$assets_to_list = Array();
 		if ($this->attr('subs_only')) {
 
 			$side_of_link = ($this->attr('direction') == 'down') ? 'major' : 'minor';
@@ -120,28 +121,36 @@ class Page_Asset_Listing extends Listing_Engine
 						$query['select'] .= ', SUBSTR(l.'.$letter_sort_by.', 1, 1) AS first_letter';
 
 						$db =& $GLOBALS['SQ_SYSTEM']->db;
-						$new_links = $db->getAll(implode(' ', $query));
-						assert_valid_db_result($new_links);
-						$links = array_merge($links, $new_links);
+						$links = $db->getAll(implode(' ', $query));
+						assert_valid_db_result($links);
+
+						$new_assets_to_list = Array();
+						foreach ($links as $link_info) {
+							$new_assets_to_list[$link_info[$link_type.'id']] = Array(
+																				'type_code'		=> $link_info[$link_type.'_type_code'],
+																				'first_letter'	=> $link_info['first_letter'],
+																			   );
+						}
+
+						$assets_to_list = $this->_combineAssets($logic, $new_assets_to_list, $assets_to_list);
 					}
-					foreach ($links as $link_info) {
-						$assets_to_list[$link_info[$link_type.'id']] = Array(
-																		'type_code'		=> $link_info[$link_type.'_type_code'],
-																		'first_letter'	=> $link_info['first_letter'],
-																	   );
-					}
+
 				break;
 
 				case 'random' :
 				case 'number' :
 				case 'grouped' :
 					foreach ($root_asset_ids as $root_asset_id) {
-						$new_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, $side_of_link, NULL, NULL, NULL, NULL, SQ_PERMISSION_READ);
-						$links = array_merge($links, $new_links);
+						$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, $side_of_link, NULL, NULL, NULL, NULL, SQ_PERMISSION_READ);
+
+						$new_assets_to_list = Array();
+						foreach ($links as $link_info) {
+							$new_assets_to_list[$link_info[$link_type.'id']] = $link_info[$link_type.'_type_code'];
+						}
+
+						$assets_to_list = $this->_combineAssets($logic, $new_assets_to_list, $assets_to_list);
 					}
-					foreach ($links as $link_info) {
-						$assets_to_list[$link_info[$link_type.'id']] = $link_info[$link_type.'_type_code'];
-					}
+
 
 				break;
 			}//end switch
@@ -173,9 +182,11 @@ class Page_Asset_Listing extends Listing_Engine
 						$query['union_select'] .= ', null AS first_letter';
 
 						$db =& $GLOBALS['SQ_SYSTEM']->db;
+
 						$new_assets_to_list = $db->getAssoc(implode(' ', $query));
 						assert_valid_db_result($new_assets_to_list);
-						$assets_to_list = $assets_to_list + $new_assets_to_list;
+
+						$assets_to_list = $this->_combineAssets($logic, $new_assets_to_list, $assets_to_list);
 					}
 				break;
 
@@ -187,11 +198,11 @@ class Page_Asset_Listing extends Listing_Engine
 
 					if ($this->attr('direction') == 'down') {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, SQ_PERMISSION_READ, $min_depth, $max_depth);
+							$assets_to_list = $this->_combineAssets($logic, $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, SQ_PERMISSION_READ, $min_depth, $max_depth), $assets_to_list);
 						}
 					} else {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), NULL, NULL, SQ_PERMISSION_READ, $min_depth, $max_depth);
+							$assets_to_list = $this->_combineAssets($logic, $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), NULL, NULL, SQ_PERMISSION_READ, $min_depth, $max_depth), $assets_to_list);
 						}
 					}
 
@@ -209,6 +220,47 @@ class Page_Asset_Listing extends Listing_Engine
 		return $assets_to_list;
 
 	}//end getAssetList()
+
+
+	/**
+	* Combines assets according to the logic given
+	*
+	* If $existing is NULL, the new assets array will be returned unchanged.
+	* This allows a starting point for the first root node, which can then be
+	* updated using this method for further root nodes.
+	*
+	* The arrays $new_assets and $existing are keyed by asset ID.
+	*
+	* @param string		$logic		either "OR" (union) or "AND" (intersection)
+	* @param array		$new_assets Set of new assets to add (or keep)
+	* @param array|NULL	$existing	Set of existing assets to use as a base or
+	* 								NULL if first root node (see above)
+	*
+	* @return array
+	* @access private
+	*/
+	function _combineAssets($logic='OR', $new_assets=Array(), $existing=NULL)
+	{
+		if (is_null($existing)) {
+			return $new_assets;
+		}
+
+		if ($logic !== 'AND') {
+			// OR logic: as it was before, just add 'em
+			$existing += $new_assets;
+		} else {
+			// AND logic: Oh how we long for PHP 5.1 and array_intersect_key()
+			// So we need to do this instead...
+			foreach($existing as $assetid => $data) {
+				if (!isset($new_assets[$assetid])) {
+					unset($existing[$assetid]);
+				}
+			}
+		}
+
+		return $existing;
+
+	}//end _combineAssets()
 
 
 }//end class

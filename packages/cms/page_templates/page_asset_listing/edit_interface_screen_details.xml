@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.29 2005/11/29 22:45:45 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.30 2006/09/21 06:07:14 lwright Exp $
 *
 */
 -->
@@ -52,6 +52,9 @@
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />
 			</function_call>
+		</field>
+		<field attribute="all_root_nodes">
+			<boolean true_text="cms_listing_all_root_nodes_yes" false_text="cms_listing_all_root_nodes_no" />
 		</field>
 		<field attribute="subs_only">
 			<boolean true_text="yes" false_text="no" />
