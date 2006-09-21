@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.50 2006/09/04 01:01:38 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.51 2006/09/21 06:58:52 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -65,20 +65,14 @@ class Calendar_Common
 
 		$sql .= ' AND '.Calendar_Common::_getTreeClause($root_ids);
 
-		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
-			if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
-				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
-				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$userids[$i] = $db->quoteSmart($userids[$i]);
-				}
-				$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
+		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
+			$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE);
+			$userids[$GLOBALS['SQ_SYSTEM']->user->id] = 1;
+			$userids[$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user')] = 1;
+			foreach ($userids as $userid => $type) {
+				$quoted_userids[] = $db->quoteSmart((string)$userid);
 			}
-		} else {
-			// public users
-			$userid_cond = ' AND p.userid = 0';
-		}
-		if (isset($userid_cond)) {
+			$userid_cond = ' AND p.userid  IN ('.implode(',', $quoted_userids).')';
 			$sql .= $userid_cond.' AND p.granted = 1 AND (p.permission >= '.$db->quoteSmart(SQ_PERMISSION_WRITE).' OR (status >= '.$db->quoteSmart(SQ_STATUS_LIVE).' AND p.permission >= '.$db->quoteSmart(SQ_PERMISSION_READ).'))';
 		}
 
@@ -127,21 +121,14 @@ class Calendar_Common
 		}
 		$sql .= "\nFROM ".Calendar_Common::_getTableList()." \nWHERE (a.type_code IN (".implode(',', $type_codes).")) \n\tAND (a.status >= ".$db->quoteSmart(SQ_STATUS_LIVE).")\n";
 
-		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
-			if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
-				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
-				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$userids[$i] = $db->quoteSmart($userids[$i]);
-				}
-				$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
+		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
+			$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE);
+			$userids[$GLOBALS['SQ_SYSTEM']->user->id] = 1;
+			$userids[$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user')] = 1;
+			foreach ($userids as $userid => $type) {
+				$quoted_userids[] = $db->quoteSmart((string)$userid);
 			}
-		} else {
-			// public users
-			$userid_cond = ' AND p.userid = 0';
-		}
-		// if user id condition is set - currently not set when user is root or system admin
-		if (isset($userid_cond)) {
+			$userid_cond = ' AND p.userid  IN ('.implode(',', $quoted_userids).')';
 			$sql .= $userid_cond.' AND p.granted = 1 AND (p.permission >= '.$db->quoteSmart(SQ_PERMISSION_WRITE).' OR (status >= '.$db->quoteSmart(SQ_STATUS_LIVE).' AND p.permission >= '.$db->quoteSmart(SQ_PERMISSION_READ).'))';
 		}
 		$sql .= ' AND ';
@@ -326,7 +313,7 @@ class Calendar_Common
 				$sql_freqs[] = '(frequency LIKE '.$db->quoteSmart('M%').' AND (FLOOR(('.($year * 12).' - start_date_ms) / period) < FLOOR(('.(($year + 1) * 12).' - start_date_ms) / period)))';
 			break;
 
-			case 'period':
+			case 'period' :
 				$last_date = date('Y-m-d', strtotime("$iso 12:00:00 +$length days"));
 				$last_date_components = Calendar_Common::getDateComponents($last_date);
 				$last_day = $last_date_components['ds'];
@@ -334,19 +321,19 @@ class Calendar_Common
 				// GENERIC MATCES
 				$sql_freqs[] = 	'(
 									(start_date_ds BETWEEN '.$now['ds'].' AND '.$last_date_components['ds'].')
-									OR 
+									OR
 									(end_date_ds BETWEEN '.$now['ds'].' AND '.$last_date_components['ds'].')
 								)';
 
 				// DAILY-RECURRING
 				$sql_freqs[] = '(
-									(frequency = '.$db->quoteSmart('DED').') 
-									AND 
+									(frequency = '.$db->quoteSmart('DED').')
+									AND
 									(
-										(period <= '.$length.') 
-										OR 
-										(FLOOR(('.$now['ds'].' - start_date_ds) / period) < FLOOR(('.$last_date_components['ds'].' - start_date_ds) / period)) 
-										OR 
+										(period <= '.$length.')
+										OR
+										(FLOOR(('.$now['ds'].' - start_date_ds) / period) < FLOOR(('.$last_date_components['ds'].' - start_date_ds) / period))
+										OR
 										(floor(('.$now['ds'].' - end_date_ds) / period) < FLOOR(('.$last_date_components['ds'].' - end_date_ds) / period))
 									)
 								)';
@@ -362,12 +349,12 @@ class Calendar_Common
 				// WEEKLY-RECURRING
 				$sql_freqs[] = '(
 									(frequency = '.$db->quoteSmart('WEW').')
-									AND 
+									AND
 									(
-										((period * 7) <= '.$length.') 
+										((period * 7) <= '.$length.')
 										OR
-										(FLOOR(('.($now['ds']-1).' - start_date_ds) / (period * 7)) < FLOOR(('.$last_date_components['ds'].' - start_date_ds) / (period * 7))) 
-										OR 
+										(FLOOR(('.($now['ds']-1).' - start_date_ds) / (period * 7)) < FLOOR(('.$last_date_components['ds'].' - start_date_ds) / (period * 7)))
+										OR
 										(FLOOR(('.($now['ds']-1).' - end_date_ds) / (period * 7)) < FLOOR(('.$last_date_components['ds'].' - end_date_ds) / (period * 7)))
 									)
 								)';
