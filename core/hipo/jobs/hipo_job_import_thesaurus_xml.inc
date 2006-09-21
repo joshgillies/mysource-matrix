@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.6 2006/09/04 23:21:26 emcdonald Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.7 2006/09/21 23:08:18 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -142,6 +142,30 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			   );
 
 	}//end getInitialStepData()
+
+
+	/**
+	* Performs the duties of this hipo, without showing any output on the frontend.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function freestyle()
+	{
+		$step_data = Array();
+		if (!$this->processEraseContents($step_data, '')) {
+			return FALSE;
+		}
+
+		$step_data['complete'] = false;
+		while (!$step_data['complete']) {
+			if (!$this->processParseXml($step_data, '')) {
+				return FALSE;
+			}
+		}
+		return TRUE;
+
+	}//end freestyle()
 
 
 	/**
