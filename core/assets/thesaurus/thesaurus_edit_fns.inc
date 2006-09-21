@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.6 2006/09/08 05:49:06 skim Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.7 2006/09/21 23:15:04 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -93,6 +93,18 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 
 		// copy over the new uploaded file
 		if (is_uploaded_file($info['tmp_name'])) {
+
+			// if the data directory is not created yet, make one!
+			// This would be the situation where a thesaurus asset is created from the import script
+			// since the run level is SQ_RUN_LEVEL_OPEN, _createAdditional() is not being called.
+			// Actually, do we need to create the data_path directory in _createAdditional() ?
+			if (!file_exists($asset->data_path)) {
+				if (!create_directory($asset->data_path)) {
+					trigger_localised_error('CORE0261', E_USER_WARNING, $asset->data_path);
+					return FALSE;
+				}
+			}
+
 			// a normal uploaded file
 			if (!move_uploaded_file($info['tmp_name'], $asset->getXmlFilePath())) {
 				trigger_localised_error('CORE0235', E_USER_WARNING, $info['tmp_name'], $asset->getXmlFilePath());
