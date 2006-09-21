@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.40.2.6 2006/09/21 04:10:08 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.40.2.7 2006/09/21 07:03:21 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.40.2.6 $
+* @version $Revision: 1.40.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -61,21 +61,14 @@ function build_single_event_query_base(&$trees, $group_by_root_node=FALSE, $even
 	$sql .= 'WHERE a.type_code IN ( '.implode(',', $type_codes).') '."\n";
 	$sql .= "\t".'AND (a.status >= '.$db->quoteSmart(SQ_STATUS_LIVE).")\n\t";;
 
-	if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
-		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
-			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-			array_push($userids, (string) $GLOBALS['SQ_SYSTEM']->user->id);
-			array_push($userids, (string) $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'));
-			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-				$userids[$i] = $db->quoteSmart($userids[$i]);
-			}
-			$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
+	if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
+		$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE);
+		$userids[$GLOBALS['SQ_SYSTEM']->user->id] = 1;
+		$userids[$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user')] = 1;
+		foreach ($userids as $userid => $type) {
+			$quoted_userids[] = $db->quoteSmart((string)$userid);
 		}
-	} else {
-		// public users
-		$userid_cond = ' AND p.userid = 0';
-	}
-	if (isset($userid_cond)) {
+		$userid_cond = ' AND p.userid  IN ('.implode(',', $quoted_userids).')';
 		$sql .= $userid_cond.' AND p.granted = 1 AND (p.permission >= '.$db->quoteSmart(SQ_PERMISSION_WRITE).' OR (status >= '.$db->quoteSmart(SQ_STATUS_LIVE).' AND p.permission >= '.$db->quoteSmart(SQ_PERMISSION_READ).'))';
 	}
 
@@ -178,23 +171,17 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=NULL, $g
 	}
 	$sql .= "\nFROM ".build_join_statements()." \nWHERE (a.type_code IN (".implode(',', $type_codes).")) \n\tAND (a.status >= ".$db->quoteSmart(SQ_STATUS_LIVE).")\n";
 
-	if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
-		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
-			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-			array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
-			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-				$userids[$i] = $db->quoteSmart($userids[$i]);
-			}
-			$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
+	if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
+		$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE);
+		$userids[$GLOBALS['SQ_SYSTEM']->user->id] = 1;
+		$userids[$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user')] = 1;
+		foreach ($userids as $userid => $type) {
+			$quoted_userids[] = $db->quoteSmart((string)$userid);
 		}
-	} else {
-		// public users
-		$userid_cond = ' AND p.userid = 0';
-	}
-	// if user id condition is set - currently not set when user is root or system admin
-	if (isset($userid_cond)) {
+		$userid_cond = ' AND p.userid  IN ('.implode(',', $quoted_userids).')';
 		$sql .= $userid_cond.' AND p.granted = 1 AND (p.permission >= '.$db->quoteSmart(SQ_PERMISSION_WRITE).' OR (status >= '.$db->quoteSmart(SQ_STATUS_LIVE).' AND p.permission >= '.$db->quoteSmart(SQ_PERMISSION_READ).'))';
 	}
+
 	$sql .= ' AND ';
 
 	$sql_freqs = Array();
