@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.62 2006/06/30 05:58:16 tbarrett Exp $
+* $Id: edit.css,v 1.62.2.1 2006/09/21 23:58:58 rong Exp $
 *
 */
 
@@ -303,7 +303,7 @@ table.sq-backend-section-table td table.sq-backend-section-table-inner {
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
 	font-size:			11px;
-	padding:			0px px;
+	padding:			0px 2px;
 }
 
 .sq-limbo-field {
