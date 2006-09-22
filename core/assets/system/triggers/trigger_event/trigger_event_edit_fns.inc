@@ -18,17 +18,18 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_event_edit_fns.inc,v 1.2 2005/03/01 00:25:31 arailean Exp $
+* $Id: trigger_event_edit_fns.inc,v 1.3 2006/09/22 00:58:17 rong Exp $
 *
 */
 
+require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 
 /**
 * Trigger_Event_Edit_Fns
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
