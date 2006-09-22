@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2006/09/18 01:57:11 rong Exp $
+* $Id: lang_screen_details.xml,v 1.4 2006/09/22 02:09:09 rong Exp $
 */
 -->
 
@@ -64,7 +64,11 @@
 		</field>
 		<field attribute="allow_empty">
 			<display_name>Allow Empty Option?</display_name>
-			<note>If this is enabled, a '-- Leave Empty --' option will be added to the selection</note>
+			<note></note>
+		</field>
+		<field attribute="empty_text">
+			<display_name>Empty Text</display_name>
+			<note>If 'Allow Empty Option' is enabled, this text will be added as the empty option</note>
 		</field>
 		<field attribute="extra">
 			<display_name>Extras</display_name>

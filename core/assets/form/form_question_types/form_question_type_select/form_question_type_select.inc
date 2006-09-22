@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.5 2006/09/19 01:42:32 rong Exp $
+* $Id: form_question_type_select.inc,v 1.6 2006/09/22 02:09:09 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -118,11 +118,12 @@ class Form_Question_Type_Select extends Form_Question
 		$options = split("\r\n", $this->attr('options'));
 		// remove empty options
 		foreach (array_keys($options) as $k) {
+			$options[$k] = htmlspecialchars($options[$k]);
 			if ($options[$k] == '') unset($options[$k]);
 		}
 		// if allow empty is true, add the '-- Leave Empty --' as the first option
 		if ($this->attr('allow_empty')) {
-			$empty = Array('-- Leave Empty --');
+			$empty = Array(htmlspecialchars($this->attr('empty_text')));
 			$options = array_merge($empty, $options);
 		}
 		return $options;
@@ -147,7 +148,7 @@ class Form_Question_Type_Select extends Form_Question
 			foreach ($answer as $a) {
 				// if the option is '-- Leave Empty --', we should return empty string
 				$answer_by_offset = $this->getAnswerByOffset($a);
-				if ($answer_by_offset != '-- Leave Empty --') {
+				if ($answer_by_offset != $this->attr('empty_text')) {
 					$ans_str[] = $this->getAnswerByOffset($a);
 				} else {
 					$ans_str[] = '';
@@ -158,7 +159,7 @@ class Form_Question_Type_Select extends Form_Question
 
 		// if the option is '-- Leave Empty --', we should return empty string
 		$answer_by_offset = $this->getAnswerByOffset($answer);
-		if ($answer_by_offset != '-- Leave Empty --') {
+		if ($answer_by_offset != $this->attr('empty_text')) {
 			return $this->getAnswerByOffset($answer);
 		} else {
 			return '';

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_management.inc,v 1.2 2006/09/18 01:57:11 rong Exp $
+* $Id: form_question_type_select_management.inc,v 1.3 2006/09/22 02:09:09 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,6 +84,11 @@ class Form_Question_Type_Select_Management extends Asset_Management
 											'parameters'	=> Array(
 																'allow_empty'	=> FALSE,
 															   ),
+										   ),
+						'empty_text'	=> Array(
+											'added'		=> '0.3',
+											'type'		=> 'text',
+											'default'	=> '-- Leave Empty --',
 										   ),
 					  );
 
