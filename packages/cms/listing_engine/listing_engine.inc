@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.194 2006/09/18 07:33:15 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.195 2006/09/22 02:11:54 skim Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.194 $
+* @version $Revision: 1.195 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2007,8 +2007,7 @@ class Listing_Engine extends Page
 						}
 					} else {
 						// searching for the root asset
-						$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, 'root');
-						$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
+						$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
 						$show_root = $this->attr('root_in_lineage');
 						$show_self = $this->attr('self_in_lineage');
 
@@ -2032,8 +2031,10 @@ class Listing_Engine extends Page
 
 							foreach ($lineage_array as $lineage_item) {
 
-								if ($lineage_item['assetid'] == $root_assetid) {
-									$found_root = TRUE;
+								foreach ($root_links as $root_link) {
+									if ($lineage_item['assetid'] == $root_link['minorid']) {
+										$found_root = TRUE;
+									}
 								}
 
 								if ($first_full) $first_full = FALSE;
