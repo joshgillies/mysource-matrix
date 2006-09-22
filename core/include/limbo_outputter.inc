@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.28 2006/06/30 05:58:16 tbarrett Exp $
+* $Id: limbo_outputter.inc,v 1.28.2.1 2006/09/22 06:09:47 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -62,10 +62,10 @@ class Limbo_Outputter extends Backend_Outputter
 	* @return void
 	* @access public
 	*/
-	function addFormActionGetVar($name, $value, $persistant=false)
+	function addFormActionGetVar($name, $value, $persistant=FALSE)
 	{
 		if ($persistant) {
-			return parent::addFormActionGetVar($name, $value, true);
+			return parent::addFormActionGetVar($name, $value, TRUE);
 		}
 		return $this->addHiddenField($name, $value);
 
@@ -113,6 +113,7 @@ class Limbo_Outputter extends Backend_Outputter
 	/**
 	* Paint the header of the page as it should appear in the <head> of the document
 	*
+	* @return void
 	* @access private
 	*/
 	function _paintHeader()
@@ -181,8 +182,8 @@ class Limbo_Outputter extends Backend_Outputter
 	/**
 	* Paint the header as it would appear if the contents of this ouputter were being printed in the <body> of a document
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function _paintInlineHeader()
 	{
@@ -243,8 +244,8 @@ class Limbo_Outputter extends Backend_Outputter
 	/**
 	* Print the JS that attaches the specified onload and onsubmit handlers
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function _paintEventHandlers()
 	{
@@ -302,14 +303,15 @@ class Limbo_Outputter extends Backend_Outputter
 	* @param string $name		label of the field
 	* @param string $format		format 'new_line' | 'blank' | 'commit' | ''
 	* @param string $note		a note to place with the field
+	* @param boolean $hidden	boolean
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _nbOpenField($name, $format='', $note='', $hidden=false)
+	function _nbOpenField($name, $format='', $note='', $hidden=FALSE)
 	{
 		if ($this->_is_open_field) $this->closeField();
-		$this->_is_open_field = true;
+		$this->_is_open_field = TRUE;
 
 		// store the format and note of the current field for future reference
 		$this->_current_field_type = $format;
@@ -358,13 +360,14 @@ class Limbo_Outputter extends Backend_Outputter
 	/**
 	* Opens a section without buffering
 	*
-	* @param Array		$section	some initialising data
+	* @param array		$section	some initialising data
 	*
 	* @return void
 	* @access private
 	*/
 	function _nbOpenSection($section)
 	{
+		if ($this->_nb_section_count > 0) echo '<tr><td>';
 		$this->_nb_section_count++;
 		?>
 			<a name="section_<?php echo $this->_nb_section_count; ?>"></a>
@@ -379,7 +382,7 @@ class Limbo_Outputter extends Backend_Outputter
 					</tr>
 					<?php
 				} else {
-					$this->_is_open_section = true;
+					$this->_is_open_section = TRUE;
 					// printing a top level section
 					?>
 					<tr>
@@ -403,6 +406,10 @@ class Limbo_Outputter extends Backend_Outputter
 	/**
 	* Paint the passed section onto the page
 	*
+	* @param array $section	section
+	* @param int $depth		depth
+	*
+	* @return void
 	* @access private
 	*/
 	function _paintSection($section, $depth=0)
@@ -455,7 +462,7 @@ class Limbo_Outputter extends Backend_Outputter
 					break;
 
 					case 'field' :
-						$field = &$section['areas'][$j];
+						$field =& $section['areas'][$j];
 						switch ($field['format']) {
 							case 'new_line' :
 								?>
@@ -515,7 +522,7 @@ class Limbo_Outputter extends Backend_Outputter
 					default :
 						trigger_localised_error('SYS0257', E_USER_ERROR, $section['areas'][$j]['area_type']);
 
-				}// end switch area type
+				}//end switch area type
 
 			}//end for
 
@@ -526,7 +533,7 @@ class Limbo_Outputter extends Backend_Outputter
 			</table>
 			<?php
 
-		}//end if section type == raw
+		}//end else if section type == raw
 
 	}//end _paintSection()
 
@@ -534,6 +541,7 @@ class Limbo_Outputter extends Backend_Outputter
 	/**
 	* Paint the footer of the page
 	*
+	* @return void
 	* @access private
 	*/
 	function _paintBodyHeader()
@@ -564,8 +572,8 @@ class Limbo_Outputter extends Backend_Outputter
 	/**
 	* Paint the buffered hidden fields
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function _paintHiddenFields()
 	{
@@ -579,6 +587,7 @@ class Limbo_Outputter extends Backend_Outputter
 	/**
 	* Paint the footer of the page
 	*
+	* @return void
 	* @access private
 	*/
 	function _paintBodyFooter()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.40.4.2 2006/09/21 22:54:03 colivar Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.40.4.3 2006/09/22 06:09:46 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40.4.2 $
+* @version $Revision: 1.40.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -248,7 +248,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	function paintInlineValueInterface(&$asset, &$o, $values, $write_access)
 	{
 		$o->openSection($asset->name);
-		echo '<tr><td>';
+
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
 			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
@@ -258,7 +258,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 				return FALSE;
 			}
 		}
-		echo '</td></tr>';
+
 		$o->closeSection();
 
 		return TRUE;
