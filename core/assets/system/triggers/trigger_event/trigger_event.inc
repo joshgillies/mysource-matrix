@@ -18,10 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_event.inc,v 1.4 2005/04/14 04:58:12 rhoward Exp $
+* $Id: trigger_event.inc,v 1.4.6.1 2006/09/22 00:59:30 rong Exp $
 *
 */
 
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
 * Trigger Event
@@ -31,7 +32,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
