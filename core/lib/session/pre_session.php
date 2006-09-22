@@ -28,7 +28,7 @@ function reload_browser($do_js_request=false, $site_network)
 							echo 'start_session_handler("'.sq_web_path('lib').'/session/session.php?site_network='.$site_network->id.'");'."\n";
 						}
 					?>
-					document.location.href = document.location.href.replace('SQ_ACTION=logout','');
+					setTimeout("document.location.href = document.location.href.replace('SQ_ACTION=logout','')", 100);
 				</script>
 			</head>
 			<body>
