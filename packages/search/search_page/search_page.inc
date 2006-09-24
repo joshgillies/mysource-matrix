@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.183 2006/09/11 01:45:53 tbarrett Exp $
+* $Id: search_page.inc,v 1.184 2006/09/24 22:54:32 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.183 $
+* @version $Revision: 1.184 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -123,7 +123,9 @@ class Search_Page extends Listing_Engine
 			$bodycopy =& new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
 			$args = Array('content' => $this->_getDefaultBodycopyContent($value));
-			if (!$bodycopy->create($copy_link, $args)) return FALSE;
+			if (!$bodycopy->create($copy_link, $args)) {
+				return FALSE;
+			}
 		}
 
 		return TRUE;
@@ -134,7 +136,7 @@ class Search_Page extends Listing_Engine
 	/**
 	* Get the default content for a bodycopy
 	*
-	* @param string	$value	The code name for the bodycopy
+	* @param string	$bodycopy_code	The code name for the bodycopy
 	*
 	* @return string
 	* @access private
@@ -1614,10 +1616,10 @@ class Search_Page extends Listing_Engine
 			if (!in_array($query_name, Array('mode', 'current_result_page', 'results_per_page'))) {
 				if (is_array($query_value)) {
 					foreach ($query_value as $value_index => $value_contents) {
-						$queries .= '&'.htmlspecialchars($query_name.'['.$value_index.']='.$value_contents);
+						$queries .= '&'.urlencode($query_name).'['.urlencode($value_index).']='.urlencode($value_contents);
 					}
 				} else {
-					$queries .= '&'.$query_name.'='.$query_value;
+					$queries .= '&'.urlencode($query_name).'='.urlencode($query_value);
 				}
 			}
 		}
@@ -1697,7 +1699,7 @@ class Search_Page extends Listing_Engine
 						if ($i == $current_result_page) {
 							$replacement .= '<b>'.($i + 1).'</b>';
 						} else {
-							$replacement .= '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries.'">'.($i + 1).'</a>';
+							$replacement .= '<a href="'.$this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries).'">'.($i + 1).'</a>';
 						}
 					}
 				break;
@@ -1707,7 +1709,7 @@ class Search_Page extends Listing_Engine
 						$replacement = $this->attr('prev_page_text');
 						break;
 					}
-					$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries.'">'.$this->attr('prev_page_text').'</a>';
+					$replacement = '<a href="'.$this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries).'">'.$this->attr('prev_page_text').'</a>';
 				break;
 
 				case 'next_result_page_link':
@@ -1715,7 +1717,7 @@ class Search_Page extends Listing_Engine
 						$replacement = $this->attr('next_page_text');
 						break;
 					}
-					$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries.'">'.$this->attr('next_page_text').'</a>';
+					$replacement = '<a href="'.$this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries).'">'.$this->attr('next_page_text').'</a>';
 				break;
 
 				case 'previous_result_page_href':
@@ -1723,7 +1725,7 @@ class Search_Page extends Listing_Engine
 						$replacement = '';
 						break;
 					}
-					$replacement = $this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries;
+					$replacement = $this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries);
 				break;
 
 				case 'next_result_page_href':
@@ -1731,7 +1733,7 @@ class Search_Page extends Listing_Engine
 						$replacement = '';
 						break;
 					}
-					$replacement = $this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries;
+					$replacement = $this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries);
 				break;
 
 				case 'initial_layout':
