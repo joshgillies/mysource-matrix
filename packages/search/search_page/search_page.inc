@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.157.2.9 2006/08/18 04:35:32 tbarrett Exp $
+* $Id: search_page.inc,v 1.157.2.10 2006/09/24 22:53:43 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.157.2.9 $
+* @version $Revision: 1.157.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1521,7 +1521,7 @@ class Search_Page extends Listing_Engine
 		foreach ($_GET as $query_name => $query_value) {
 			// skip some get vars that will be added later by the keyword replacements
 			if (!in_array($query_name, Array('mode', 'current_result_page', 'results_per_page'))) {
-				$queries .= '&'.$query_name.'='.$query_value;
+				$queries .= '&'.urlencode($query_name).'='.urlencode($query_value);
 			}
 		}
 
@@ -1600,7 +1600,7 @@ class Search_Page extends Listing_Engine
 						if ($i == $current_result_page) {
 							$replacement .= '<b>'.($i + 1).'</b>';
 						} else {
-							$replacement .= '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries.'">'.($i + 1).'</a>';
+							$replacement .= '<a href="'.$this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries).'">'.($i + 1).'</a>';
 						}
 					}
 				break;
@@ -1610,7 +1610,7 @@ class Search_Page extends Listing_Engine
 						$replacement = $this->attr('prev_page_text');
 						break;
 					}
-					$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries.'">'.$this->attr('prev_page_text').'</a>';
+					$replacement = '<a href="'.$this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries).'">'.$this->attr('prev_page_text').'</a>';
 				break;
 
 				case 'next_result_page_link':
@@ -1618,7 +1618,7 @@ class Search_Page extends Listing_Engine
 						$replacement = $this->attr('next_page_text');
 						break;
 					}
-					$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries.'">'.$this->attr('next_page_text').'</a>';
+					$replacement = '<a href="'.$this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries).'">'.$this->attr('next_page_text').'</a>';
 				break;
 
 				case 'initial_layout':
