@@ -18,20 +18,16 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:39:59 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2006/09/24 23:38:09 emcdonald Exp $
 *
 */
 -->
 
 <contents>
 	<section name="Purge Assets In Trash">
-		<field>
-			<display_name>Empty Trash ?</display_name>
-			<note />
-			<function_call>
-				<paint_function   name="paintPurgeTrash"   />
-				<process_function name="processPurgeTrash" />
-			</function_call>
-		</field>
+		<function_call>
+			<paint_function   name="paintPurgeTrash"   />
+			<process_function name="processPurgeTrash" />
+		</function_call>
 	</section>
 </contents>

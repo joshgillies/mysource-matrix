@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder_edit_fns.inc,v 1.37 2006/04/11 02:13:11 sdanis Exp $
+* $Id: trash_folder_edit_fns.inc,v 1.38 2006/09/24 23:38:09 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,11 +81,20 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 		if ($asset->purgeAccess()) {
 			$num_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id);
 			if (!$num_links) {
-				echo translate('trash_is_empty');
+				$o->openField('');
+					echo translate('trash_is_empty');
+				$o->closeField();
 				return FALSE;
 			} else {
+				$o->openField(translate('purge_root_node'));
+					asset_finder($prefix.'_purge_root');
+					$o->note(translate('purge_root_note'));
+				$o->closeField();
+
+				$o->openField(translate('purge_trash'));
 				combo_box($prefix.'_purge_trash', Array(0 => translate('no'), 1 => translate('yes')), FALSE, 0, 0, "onChange=\"Javascript: if (this.value == 1) { if(!confirm(js_translate('confirm_purge_trash'))) { this.value = 0; } } \"");
 				$o->note(translate('trash_purge_warning'));
+				$o->closeField();
 				return TRUE;
 			}
 		}
@@ -114,7 +123,11 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 			//// START HIPO PROCESSING ////
 			$on_complete = $_SERVER['REQUEST_URI'].'&'.$prefix.'_purge_complete=1';
 			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$hh->queueHipo('hipo_job_purge_trash', Array(), $on_complete);
+
+
+			$purge_root_id = $_POST[$prefix.'_purge_root']['assetid'];
+
+			$hh->queueHipo('hipo_job_purge_trash', Array('purge_root_id' => $purge_root_id), $on_complete);
 			////  END HIPO PROCESSING  ////
 			return TRUE;
 		}
