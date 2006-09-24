@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.173.2.6 2006/08/28 01:35:48 bcaldwell Exp $
+* $Id: search_page.inc,v 1.173.2.7 2006/09/24 22:54:09 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.173.2.6 $
+* @version $Revision: 1.173.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1585,15 +1585,16 @@ class Search_Page extends Listing_Engine
 		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
 		$this->_tmp['start_element'] = $current_result_page * $results_per_page;
 		$queries = '';
+
 		foreach ($_GET as $query_name => $query_value) {
 			// skip some get vars that will be added later by the keyword replacements
 			if (!in_array($query_name, Array('mode', 'current_result_page', 'results_per_page'))) {
 				if (is_array($query_value)) {
 					foreach ($query_value as $value_index => $value_contents) {
-						$queries .= '&'.htmlspecialchars($query_name.'['.$value_index.']='.$value_contents);
+						$queries .= '&'.urlencode($query_name).'['.urlencode($value_index).']='.urlencode($value_contents);
 					}
 				} else {
-					$queries .= '&'.$query_name.'='.$query_value;
+					$queries .= '&'.urlencode($query_name).'='.urlencode($query_value);
 				}
 			}
 		}
@@ -1673,7 +1674,7 @@ class Search_Page extends Listing_Engine
 						if ($i == $current_result_page) {
 							$replacement .= '<b>'.($i + 1).'</b>';
 						} else {
-							$replacement .= '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries.'">'.($i + 1).'</a>';
+							$replacement .= '<a href="'.$this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries).'">'.($i + 1).'</a>';
 						}
 					}
 				break;
@@ -1683,7 +1684,7 @@ class Search_Page extends Listing_Engine
 						$replacement = $this->attr('prev_page_text');
 						break;
 					}
-					$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries.'">'.$this->attr('prev_page_text').'</a>';
+					$replacement = '<a href="'.$this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries).'">'.$this->attr('prev_page_text').'</a>';
 				break;
 
 				case 'next_result_page_link':
@@ -1691,7 +1692,7 @@ class Search_Page extends Listing_Engine
 						$replacement = $this->attr('next_page_text');
 						break;
 					}
-					$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries.'">'.$this->attr('next_page_text').'</a>';
+					$replacement = '<a href="'.$this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries).'">'.$this->attr('next_page_text').'</a>';
 				break;
 
 				case 'previous_result_page_href':
@@ -1699,7 +1700,7 @@ class Search_Page extends Listing_Engine
 						$replacement = '';
 						break;
 					}
-					$replacement = $this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries;
+					$replacement = $this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries);
 				break;
 
 				case 'next_result_page_href':
@@ -1707,7 +1708,7 @@ class Search_Page extends Listing_Engine
 						$replacement = '';
 						break;
 					}
-					$replacement = $this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries;
+					$replacement = $this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries);
 				break;
 
 				case 'initial_layout':
