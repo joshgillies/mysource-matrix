@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.25.2.1 2006/02/16 23:47:39 lwright Exp $
+* $Id: limbo_outputter.inc,v 1.25.2.2 2006/09/24 23:15:13 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25.2.1 $
+* @version $Revision: 1.25.2.2 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -369,6 +369,7 @@ class Limbo_Outputter extends Backend_Outputter
 	*/
 	function _nbOpenSection($section)
 	{
+		if ($this->_nb_section_count > 0) echo '<tr><td>';
 		$this->_nb_section_count++;
 		?>
 			<a name="section_<?php echo $this->_nb_section_count; ?>"></a>

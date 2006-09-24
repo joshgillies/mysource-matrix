@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.115.2.1 2006/06/26 01:53:48 skim Exp $
+* $Id: backend_outputter.inc,v 1.115.2.2 2006/09/24 23:15:13 colivar Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.115.2.1 $
+* @version $Revision: 1.115.2.2 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -558,6 +558,7 @@ class Backend_Outputter
 			}
 		}
 
+		echo '<!-- close section -->';
 	}//end closeSection()
 
 
@@ -612,6 +613,8 @@ class Backend_Outputter
 	*/
 	function _nbOpenSection($init_arr)
 	{
+		if ($this->_nb_section_count > 0) echo '<tr><td>';
+
 		$this->_nb_section_count++;
 
 		?>
@@ -693,6 +696,8 @@ class Backend_Outputter
 	*/
 	function _nbCloseSection()
 	{
+		if ($this->_nb_section_count > 0) echo '</td></tr>';
+
 		?>
 				</td>
 			</tr>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.21.2.1 2006/09/21 22:54:11 colivar Exp $
+* $Id: metadata.inc,v 1.21.2.2 2006/09/24 23:15:13 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.21.2.1 $
+* @version $Revision: 1.21.2.2 $
 * @package MySource_Matrix
 */
 
@@ -77,7 +77,6 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 		}
 
 		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
-		echo '<tr><td>';
 
 		if (!($num_fields = count($section->children))) {
 			continue;
@@ -172,10 +171,6 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 					$o->closeField();
 
-					// we close the section so each of the metadata schemas printed below us have their own
-					// section headings based on their schema names - makes the interface cleaner
-					// $o->closeSection(); this line was commented to fix bug #1665
-
 				break;
 
 				///// METADATA EDITING INTERFACE ////
@@ -214,7 +209,9 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 
 						// if there is a keyword replacement for this, add it to the replacements
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) {
-							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['metadata_values']] = ob_get_contents();
+							// Wrap this keyword's contents in table tags because it is printing out the contents of nested sections,
+							// but the top level section (opened earlier in this file) is not printed along with it.
+							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['metadata_values']] = '<table>'.ob_get_contents().'</table>';
 							ob_end_flush();
 						}
 					}
@@ -228,7 +225,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 			}
 
 		}//end for
-		echo '</td></tr>';
+
 		$o->closeSection();
 
 		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
