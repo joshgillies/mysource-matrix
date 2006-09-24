@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.165 2006/09/19 00:41:04 rong Exp $
+* $Id: lang_strings.xml,v 1.166 2006/09/24 23:36:11 emcdonald Exp $
 *
 */
 
@@ -899,8 +899,11 @@
 	<string source="csv_upload_instructions_example_2">&lt;b&gt;Example 2 (no expiry date):&lt;/b&gt; http://www.mysite.com/page_1, http://www.mysite.com/home,</string>
 	<string source="404_remap_description">The page where 404 requests are remapped to</string>
 	<string source="redirecting_you_to">Redirecting you to %s</string>
-	<string source="trash_purge_warning">This will purge all assets from the trash and make them unavailable for restoring or editing.</string>
+	<string source="trash_purge_warning">This will purge the selected assets from the trash and make them unavailable for restoring or editing.</string>
 	<string source="trash_is_empty">The trash is currently empty</string>
+	<string source="purge_root_node">Purge Root Node</string>
+	<string source="purge_root_note">Only this asset and it's children will be purged</string>
+	<string source="purge_trash">Purge Trash?</string>
 	<string source="minor_not_asset">Minor is not an asset</string>
 
 	<string source="add_url">Add the URL</string>
@@ -1615,7 +1618,7 @@ Unable to accept non-digit characters in this field.</string>
 show the image inside this window instead of opening a new one.</string>
 	<string source="must_select_at_least_one_protocol" js="1">You need to select at least one protocol, otherwise the url will be deleted.
 Do you want to delete "%s" ?</string>
-	<string source="confirm_purge_trash" js="1">Are you sure you want to purge all assets currently in the trash?</string>
+	<string source="confirm_purge_trash" js="1">Are you sure you want to purge the selected assets from the trash?</string>
 	<string source="confirm_purge_cache" js="1">Are you sure you want to delete all cache currently in the system?</string>
 	<string source="confirm_delete_component" js="1">Deleting a component cannot be undone.
 Are you sure you want to proceed?</string>
@@ -1967,7 +1970,7 @@ Are you sure you want to proceed?</string>
 
 	<!-- Parameter Map -->
 	<string source="current_site">Current Site</string>
-	
+
 	<!-- Linking errors -->
 	<string source="cannot_create_link_permission_denied">Cannot create link from "%1$s" (# %2$s) to "%3$s" (# %4$s), permission denied (no write access to "%1$s")</string>
 	<string source="cannot_create_link_paths_in_use">Cannot create link from "%1$s" (# %2$s) to "%3$s" (# %4$s), path(s) %5$s already in use by one of the children of "%1$s"</string>

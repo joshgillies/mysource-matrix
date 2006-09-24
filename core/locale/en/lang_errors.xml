@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.58 2006/09/21 23:15:06 skim Exp $
+* $Id: lang_errors.xml,v 1.59 2006/09/24 23:36:11 emcdonald Exp $
 *
 */
 
@@ -240,6 +240,12 @@
 	<error code="HIPO0081">Callback method ("%s") is not valid</error>
 
 	<error code="HIPO0082">HIPO Job failed</error>
+
+
+	<error code="HIPO0083">Purge aborted, Purge root is not in the trash"</error>
+	<!-- core/hipo/jobs/hipo_job_purge_trash.inc: -->
+
+
 
 	<!-- CRON MANAGER -->
 
