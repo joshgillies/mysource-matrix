@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.40 2006/09/24 23:38:09 emcdonald Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.41 2006/09/25 02:18:12 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -410,7 +410,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	{
 		$GLOBALS['SQ_PURGING_TRASH'] = TRUE;
 		$links = Array();
-		if ($this->_running_vars['purge_root_id'] == $this->_running_vars['trash_id']) {
+		if (empty($this->_running_vars['purge_root_id'])) {
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->_running_vars['trash_id'], SQ_SC_LINK_ALL);
 		} else {
 			// if the root node has not been deleted, it should be unlinked from the trash
