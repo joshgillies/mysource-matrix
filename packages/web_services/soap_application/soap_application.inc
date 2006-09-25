@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.18 2006/08/14 08:05:50 arailean Exp $
+* $Id: soap_application.inc,v 1.19 2006/09/25 06:13:40 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -200,10 +200,10 @@ class SOAP_Application extends Asset
 	*/
 	function _preProcessInterface()
 	{
+		if (!isset($_REQUEST['s'])) return TRUE;
+
 		$current_step =& $this->getCurrentStep();
-
 		if (!$current_step->validateInput()) return FALSE;
-
 		if (!$this->executeStepOperation()) return FALSE;
 
 		$this->setNextStep();
