@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.20 2006/08/14 05:41:19 bcaldwell Exp $
+* $Id: soap_application_step.inc,v 1.21 2006/09/25 06:16:24 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -225,6 +225,7 @@ class SOAP_Application_Step extends Asset
 		if (!empty($formid)) {
 			$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($formid, 'simple_form');
 			if (!empty($form)) {
+				// check to see if form has sent us anything
 				return $form->process();
 			}
 		}
@@ -278,6 +279,8 @@ class SOAP_Application_Step extends Asset
 	}
 
 
+	/**
+	*/
 	function &getPreviousStepOutputMessage()
 	{
 		$output_message = NULL;
@@ -286,17 +289,30 @@ class SOAP_Application_Step extends Asset
 //		log_dump($app);
 		$prev_step_assetid = $app->_getPreviousStepAssetId();
 		if (!is_null($prev_step_assetid)) {
-			log_dump('step found');
 			$prev_step_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($prev_step_assetid);
 			$output_message = $prev_step_asset->getOutputMessage();
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($prev_step_asset);
-		} else {
-			log_dump('step not found');
 		}
-
-		log_dump($output_message);
-
 		return $output_message;
+
+	}
+
+
+	/**
+	*/
+	function &getPreviousStepInputMessage()
+	{
+		$input_message = NULL;
+
+		$app = $this->getApplication();
+
+		$prev_step_assetid = $app->_getPreviousStepAssetId();
+		if (!is_null($prev_step_assetid)) {
+			$prev_step_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($prev_step_assetid);
+			$input_message = $prev_step_asset->getInputMessage();
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($prev_step_asset);
+		}
+		return $input_message;
 
 	}
 
