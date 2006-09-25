@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.42 2006/09/11 05:18:45 rhoward Exp $
+* $Id: page_remote_content.inc,v 1.43 2006/09/25 05:07:36 arailean Exp $
 *
 */
 
@@ -19,9 +19,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once 'HTTP/Client.php';
+require_once 'persistent_cookie_manager.inc';
 
 define ('SQ_REMOTE_MAX_REDIRECTS', 10);
 define ('SQ_REMOTE_SOURCE', 'sq_content_src');
+define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
+
 
 /**
 * Page_Remote_Content
@@ -30,7 +33,7 @@ define ('SQ_REMOTE_SOURCE', 'sq_content_src');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -382,6 +385,10 @@ class Page_Remote_Content extends Page
 		$HTTP_Client = array_get_index(array_get_index($_SESSION, 'SQ_REMOTE_HTTP_CLIENT'), $this->id);
 		if (!empty($HTTP_Client)) {
 			$HTTP_Client = unserialize($HTTP_Client);
+			if (!array_get_index($_COOKIE, SQ_REMOTE_SESSION_COOKIE_NAME)) {
+				$HTTP_Client->_cookieManager->deleteSessionCookies();
+				setcookie(SQ_REMOTE_SESSION_COOKIE_NAME, 1);
+			}
 		} else {
 			// parameters for HTTP_Request. See Package for description.
 			$request_parameters['timeout'] = $this->attr('timeout');
@@ -400,7 +407,11 @@ class Page_Remote_Content extends Page
 			require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
 			addProxyInfo($request_parameters, $default_headers);
 
-			$HTTP_Client =& new HTTP_Client($request_parameters, $default_headers);
+			// we need a persistent cookie manager for this
+			$cookie_man =& new Persistent_Cookie_Manager();
+
+			$HTTP_Client =& new HTTP_Client($request_parameters, $default_headers, $cookie_man);
+			setcookie(SQ_REMOTE_SESSION_COOKIE_NAME, 1);
 
 			if ($this->attr('allow_redirect')) {
 				$HTTP_Client->setMaxRedirects(SQ_REMOTE_MAX_REDIRECTS);
@@ -408,11 +419,13 @@ class Page_Remote_Content extends Page
 			$HTTP_Client->enableHistory(FALSE);
 		}
 
+
 		if ($is_post) {
 			$result = $HTTP_Client->post($url, $raw_post, TRUE);
 		} else {
 			$result = $HTTP_Client->get($url);
 		}
+
 
 		// exit on error
 		if (PEAR::isError($result)) {
@@ -466,6 +479,7 @@ class Page_Remote_Content extends Page
 		if (!is_array(array_get_index($_SESSION, 'SQ_REMOTE_HTTP_CLIENT'))) {
 			$_SESSION['SQ_REMOTE_HTTP_CLIENT'] = Array();
 		}
+
 		$_SESSION['SQ_REMOTE_HTTP_CLIENT'][$this->id] = serialize($HTTP_Client);
 
 		unset($HTTP_Client);
