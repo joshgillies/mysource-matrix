@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: persistent_cookie_manager.inc,v 1.1 2006/09/25 04:54:07 arailean Exp $
+* $Id: persistent_cookie_manager.inc,v 1.1.4.1 2006/09/25 05:56:44 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'HTTP/Client/CookieManager.php';
 * Necessary because PEAR's class erases session cookies every time the object is serialised, which we don't want
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
