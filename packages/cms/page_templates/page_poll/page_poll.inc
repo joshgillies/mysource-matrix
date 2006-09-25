@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.16 2006/05/22 07:01:10 sdanis Exp $
+* $Id: page_poll.inc,v 1.17 2006/09/25 07:15:16 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -230,7 +230,7 @@ class Page_Poll extends Page
 		// determine which method is used to check if a user can vote
 		if (!$this->attr('allow_multiple_votes')) {
 			// A user is logged in
-			if (!is_null($GLOBALS['SQ_SYSTEM']->user->name)) {
+			if ((!is_null($GLOBALS['SQ_SYSTEM']->user->name))  && (!$GLOBALS['SQ_SYSTEM']->userPublic())) {
 				// check the "shadow link" table whether this user has already voted...
 				if (!$GLOBALS['SQ_SYSTEM']->am->getShadowLinkByAsset($question->id, $GLOBALS['SQ_SYSTEM']->user->id, SQ_LINK_NOTICE)) {
 					// add them to the array of previously-voted users, only if they are voting though
