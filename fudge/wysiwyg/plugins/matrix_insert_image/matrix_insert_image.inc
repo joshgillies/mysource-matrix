@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.29.2.1 2006/09/11 04:27:59 skim Exp $
+* $Id: matrix_insert_image.inc,v 1.29.2.2 2006/09/25 01:38:59 skim Exp $
 *
 */
 
@@ -35,7 +35,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.29.2.1 $
+* @version $Revision: 1.29.2.2 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -119,7 +119,19 @@ class matrix_insert_image extends wysiwyg_plugin
 					height		= (!image_tag.height)	? ""  : image_tag.height;
 					hspace		= (!image_tag.hspace)	? ""  : image_tag.hspace;
 					vspace		= (!image_tag.vspace)	? ""  : image_tag.vspace;
-					border		= (!image_tag.border)	? "0" : image_tag.border;
+
+					// Bug #1708 - If border attribute is used in ima tag, change it to style attribute.
+					if (!image_tag.border && !image_tag.style.border) {
+						border = "0";
+					} else {
+						if (image_tag.border) {
+							border = image_tag.border;
+						} else if (image_tag.style.border) {
+							border = image_tag.style.border;
+							border = border.match(/(\d{1})px/)[1];
+						}
+					}
+
 					longdesc	= (!image_tag.longDesc)	? ""  : image_tag.longDesc;
 					if (image_tag.longDesc) {
 						var result = image_tag.longDesc.match(/(.+)\/\?a=(\d+)/);
@@ -203,7 +215,7 @@ class matrix_insert_image extends wysiwyg_plugin
 						html += ' vspace="' + param["f_vert"] + '"';
 					}
 					if (param["f_border"] != "") {
-						html += ' border="' + param["f_border"] + '"';
+						html += ' style="border: ' + param["f_border"] + 'px solid rgb(0, 0, 0);"';
 					}
 					html += '>';
 					html = editor.make_absolute_urls(html);
