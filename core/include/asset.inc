@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.559 2006/09/21 03:56:27 rong Exp $
+* $Id: asset.inc,v 1.560 2006/09/25 05:23:18 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.559 $
+* @version $Revision: 1.560 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1192,10 +1192,10 @@ class Asset extends MySource_Object
 						sq_ast
 					SET ';
 
-			if (!empty($name)) {
+			if (($name === '0') || (!empty($name))) {
 				$sql .= 'name = '.$db->quoteSmart($name).',';
 			}
-			if (!empty($short_name)) {
+			if (($short_name === '0') || (!empty($short_name))) {
 				$sql .= 'short_name = '.$db->quoteSmart($short_name).',';
 			}
 
