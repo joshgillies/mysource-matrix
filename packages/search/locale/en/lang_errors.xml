@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.6 2005/06/02 23:07:13 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.6.6.1 2006/09/26 07:00:01 colivar Exp $
 *
 */
 
@@ -102,4 +102,5 @@
 
 	<error code="SCH0027">You have not selected a metadata field asset for metadata search field "%1$s".  This search field will be ignored.</error>
 
+	<error code="SCH0028">The datasource of the search field "%1$s" is not specified</error>
 </errors>
