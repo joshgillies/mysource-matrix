@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.184 2006/09/24 22:54:32 skim Exp $
+* $Id: search_page.inc,v 1.185 2006/09/26 06:58:55 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.184 $
+* @version $Revision: 1.185 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -153,7 +153,7 @@ class Search_Page extends Listing_Engine
 		}
 		return parent::_getDefaultBodycopyContent($bodycopy_code);
 
-	}//end _getDefaultBodycopyContent();
+	}//end _getDefaultBodycopyContent()
 
 
 	/**
@@ -2144,6 +2144,11 @@ class Search_Page extends Listing_Engine
 							'to'	=> '---------- --:--:--',
 						   );
 			if ($value == $empty_dates) continue;
+
+			if (count($fields[$field_name]['data_sources']) == 0) {
+				trigger_localised_error('SCH0028', E_USER_NOTICE, $field_name);
+				continue;
+			}
 
 			if (!$this->_hasMixedFieldTypes($fields[$field_name]) && $fields[$field_name]['data_sources'][0]['type'] == 'exclude') {
 				$search_info['exclude'][] = $value;
