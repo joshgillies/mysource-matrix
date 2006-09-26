@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.87 2006/09/26 04:23:18 amiller Exp $
+* $Id: design_area_menu_type.inc,v 1.88 2006/09/26 05:00:11 amiller Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -422,7 +422,7 @@ class Design_Area_Menu_Type extends Design_Area
 			$db = &$GLOBALS[\'SQ_SYSTEM\']->db;
 
 			require_once SQ_FUDGE_PATH.\'/db_extras/db_extras.inc\';
-			require_once SQ_LIB_PATH.\'/menu/menu.inc\';
+			require_once SQ_CORE_PACKAGE_PATH.\'/designs/design_areas/menu/design_area_menu_type/menu_get_assets.inc\';
 
 			$GLOBALS[\'MENU_DATA\'] = Array();
 
