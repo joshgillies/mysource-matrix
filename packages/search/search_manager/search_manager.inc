@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.122 2006/08/28 06:05:35 skim Exp $
+* $Id: search_manager.inc,v 1.123 2006/09/26 07:25:39 rhoward Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.123 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2579,8 +2579,15 @@ class Search_Manager extends Asset
 			$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
 
 			$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
-			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-			array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
+
+			// sanity check; if the global user isn't set, assume we're a public user
+			if (empty($GLOBALS['SQ_SYSTEM']->user->id) || $GLOBALS['SQ_SYSTEM']->user->id == $public_userid) {
+				$userids = Array($public_userid);
+			} else {
+				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+				array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
+			}
+
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 				$userids[$i] = $db->quoteSmart((String)$userids[$i]);
 			}
