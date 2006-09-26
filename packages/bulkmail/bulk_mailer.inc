@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.51.2.1 2006/08/28 03:22:13 rong Exp $
+* $Id: bulk_mailer.inc,v 1.51.2.2 2006/09/26 01:30:23 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.51.2.1 $
+* @version $Revision: 1.51.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -370,11 +370,10 @@ class Bulk_Mailer
 		if (!empty($GLOBALS['SQ_SYSTEM']->_db_conns['db2'])) {
 			$GLOBALS['SQ_SYSTEM']->_db_conns['db2']->disconnect();
 		}
-
-		$GLOBALS['SQ_SYSTEM']->db->disconnect();
-		unset($GLOBALS['SQ_SYSTEM']->_db_conns);
+		$GLOBALS['SQ_SYSTEM']->_db_conns['db']->disconnect();
+		$GLOBALS['SQ_SYSTEM']->_db_stack = Array();
+		$GLOBALS['SQ_SYSTEM']->_db_conns = Array();
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end _reconnectDB()
 
