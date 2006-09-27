@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.189 2006/08/27 23:54:43 bcaldwell Exp $
+* $Id: mysource.inc,v 1.190 2006/09/27 01:23:14 skim Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.189 $
+* @version $Revision: 1.190 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1006,10 +1006,12 @@ class MySource
 			case 'logout' :
 				if ($this->user && !is_a($this->user, 'public_user')) {
 					$this->_logSecurityMsg('system.security.logout.manual');
+					$this->broadcastTriggerEvent('trigger_event_user_logout', $this->user, NULL);
 				}
 				$this->_clearSession();
 				$this->_loginPublicUser();
 				$this->generateLoginKey(TRUE);
+
 			break;
 
 			case 'send_security_key' :
@@ -1205,6 +1207,10 @@ class MySource
 		$_SESSION['user_is_public'] = $this->_user_is_public;
 		$_SESSION['user_last_access'] = time();
 		$_SESSION['user_last_authentication'] = time();
+
+		// Do pass any event data since we can get it from $_SESSION
+		$event_data = Array('password' => array_get_index($_POST, 'SQ_LOGIN_PASSWORD'));
+		$this->broadcastTriggerEvent('trigger_event_user_login', $user, $event_data);
 
 		return TRUE;
 
