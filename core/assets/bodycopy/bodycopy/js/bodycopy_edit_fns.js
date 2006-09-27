@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.js,v 1.5 2005/05/16 06:36:31 lwright Exp $
+* $Id: bodycopy_edit_fns.js,v 1.5.6.1 2006/09/27 23:52:40 gsherwood Exp $
 *
 */
 
@@ -39,7 +39,7 @@
 	var bodycopy_popup_visible = false;	// boolean indicating whether the popup is visisble ( not access directly )
 	var bodycopy_nested_doc = null;		// pointer to the Netscape Layer or the IE Iframe
 
-// initialise the popup
+	// initialise the popup
 	function bodycopy_init() {
 		bodycopy_popup   = new Layer_Handler("bodycopyPopupDiv", 0,init_layer_width,init_layer_height,0);
 		set_bodycopy_nested_doc();
@@ -111,7 +111,7 @@
 		bodycopy_popup_visible = true;
 
 		if (is_ie4up) {
-			// %!%#, frameElement is IE 5.5 only
+			// frameElement is IE 5.5 only
 			bodycopy_nested_doc.width  = w - border;
 			bodycopy_nested_doc.height = h - border;
 			bodycopy_nested_doc.location = file;
