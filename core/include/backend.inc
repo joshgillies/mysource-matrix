@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.143 2006/08/09 06:48:33 skim Exp $
+* $Id: backend.inc,v 1.144 2006/09/27 00:08:45 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.143 $
+* @version $Revision: 1.144 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -104,7 +104,6 @@ class Backend extends MySource_Object
 		if (!isset($_REQUEST['assetid']) && isset($_REQUEST['a'])) {
 			$_REQUEST['assetid'] = $_REQUEST['a'];
 		}
-
 		if (isset($_REQUEST['assetid'])) {
 			$printing_assetid = (SQ_IN_LIMBO) ? $_REQUEST['limbo_assetid'] : $_REQUEST['assetid'];
 			$printing_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($printing_assetid);
@@ -138,11 +137,9 @@ class Backend extends MySource_Object
 
 		// if we are in limbo, we are going to mix the frontend with the backend
 		// so we need to do things a little differently
-		if (SQ_IN_LIMBO && !isset($_REQUEST['SQ_BACKEND_PAGE']) && !isset($_REQUEST['sq_redirect_url'])) {
-			require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
-			$this->out =& new Limbo_Outputter();
-			$this->_printMain();
-			return;
+		if (empty($_REQUEST['SQ_BACKEND_PAGE']) && isset($_REQUEST['ignore_frames']) && $_REQUEST['ignore_frames'] == '1') {
+			// ignore_frames check, only print main
+			$_REQUEST['SQ_BACKEND_PAGE'] = 'main';
 		}
 
 		if (empty($_REQUEST['SQ_BACKEND_PAGE']) || $_REQUEST['SQ_BACKEND_PAGE'] == 'frames') {
@@ -155,10 +152,19 @@ class Backend extends MySource_Object
 
 		} else {
 
-			require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
-			$this->out =& new Backend_Outputter();
+			if (SQ_IN_LIMBO && $_REQUEST['SQ_BACKEND_PAGE'] == 'main') {
+				// use limbo outputter for main frame
+				require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
+				$this->out =& new Limbo_Outputter();
+			} else {
+				// use backend outputter for other frames
+				require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
+				$this->out =& new Backend_Outputter();
+			}
+
 			if (isset($_REQUEST['SQ_BACKEND_PAGE'])) {
-				$this->out->addFormActionGetVar('SQ_BACKEND_PAGE', $_REQUEST['SQ_BACKEND_PAGE']);
+				// make sure to set persistant SQ_BACKEND_PAGE
+				$this->out->addFormActionGetVar('SQ_BACKEND_PAGE', $_REQUEST['SQ_BACKEND_PAGE'], TRUE);
 			}
 
 			switch ($_REQUEST['SQ_BACKEND_PAGE']) {
@@ -183,7 +189,10 @@ class Backend extends MySource_Object
 
 			}//end switch
 
-			$this->out->paint();
+			if (!SQ_IN_LIMBO || $_REQUEST['SQ_BACKEND_PAGE'] != 'main') {
+				// main frame printing is handled by the asset itself
+				$this->out->paint();
+			}
 
 		}//end else
 
@@ -220,7 +229,6 @@ class Backend extends MySource_Object
 						'sidenav'	=> $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=sidenav',
 						'resizer'	=> $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=resizer',
 					  );
-
 		$limbo_hipo = SQ_IN_LIMBO && (strpos($main_url, 'SQ_ACTION=hipo') !== FALSE);
 		$limbo_hide_frames = SQ_IN_LIMBO && (isset($_GET['hide_frames']) && $_GET['hide_frames']);
 
