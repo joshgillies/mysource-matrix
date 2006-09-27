@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.560 2006/09/25 05:23:18 colivar Exp $
+* $Id: asset.inc,v 1.561 2006/09/27 06:36:16 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.560 $
+* @version $Revision: 1.561 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1854,6 +1854,18 @@ class Asset extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}//end if permissions
 
+		  /////////////
+		 /// ROLES ///
+		/////////////
+
+		if (in_array('roles', $components) || in_array('all', $components)) {
+			$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($this->id);
+			foreach ($roles as $roleid => $userids) {
+				foreach ($userids as $userid) {
+					$GLOBALS['SQ_SYSTEM']->am->setRole($clone->id, $roleid, $userid);
+				}
+			}
+		}//end if roles
 
 		  //////////////////
 		 /// ATTRIBUTES ///
@@ -1976,18 +1988,6 @@ class Asset extends MySource_Object
 		}//end if content tags
 
 
-		  /////////////
-		 /// ROLES ///
-		/////////////
-
-		if (in_array('roles', $components) || in_array('all', $components)) {
-			$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($this->id);
-			foreach ($roles as $roleid => $userids) {
-				foreach ($userids as $userid) {
-					$GLOBALS['SQ_SYSTEM']->am->setRole($clone->id, $roleid, $userid);
-				}
-			}
-		}//end if roles
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
