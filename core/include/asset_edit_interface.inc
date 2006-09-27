@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.303 2006/09/27 23:14:50 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.304 2006/09/27 23:37:16 gsherwood Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.303 $
+* @version $Revision: 1.304 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1824,7 +1824,7 @@ class Asset_Edit_Interface extends MySource_Object
 						// if there is nothing declared there is nothing for us to do
 						if (empty($process_node->attributes['name'])) {
 							continue;
-						// There is something declared but the bloody thing doesn't exist
+						// There is something declared but it doesn't exist
 						} else if (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
 							trigger_localised_error('SYS0188', E_USER_WARNING, $section->attributes['name']);
 						} else {
@@ -1888,7 +1888,7 @@ class Asset_Edit_Interface extends MySource_Object
 								// if there is nothing declared there is nothing for use to do
 								if (empty($process_node->attributes['name'])) {
 									continue;
-								// There is something declared but the bloody thing doesn't exist
+								// There is something declared but it doesn't exist
 								} else if (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
 									trigger_localised_error('SYS0187', E_USER_WARNING, $section->attributes['name'], $field->children[$last_child]->content);
 								} else {
