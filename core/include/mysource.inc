@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.190 2006/09/27 01:23:14 skim Exp $
+* $Id: mysource.inc,v 1.191 2006/09/27 23:14:50 gsherwood Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.190 $
+* @version $Revision: 1.191 $
 * @package MySource_Matrix
 */
 class MySource
@@ -703,8 +703,7 @@ class MySource
 
 		}//end if
 
-		// shit we can't find a design, something has well and truly F@#ked up,
-		// resort to our backup
+		// we can't find a design, resort to our backup
 		if ($this->_msgs) echo implode('<br />', $this->_msgs);
 		require_once SQ_INCLUDE_PATH.'/login.inc';
 
@@ -1936,7 +1935,7 @@ class MySource
 		switch ($conn) {
 			case 'db':
 				// If we are in the backend, we don't want any external concurrency
-				// issues (eg. slow replication) to screw around with us. So we'll
+				// issues (eg. slow replication) to muck around with us. So we'll
 				// grab db2 instead if we are in an editing mode
 				if (SQ_IN_BACKEND || SQ_IN_LIMBO || SQ_PHP_CLI) {
 					$dsn = SQ_CONF_DB2_DSN;

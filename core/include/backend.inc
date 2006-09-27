@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.144 2006/09/27 00:08:45 rong Exp $
+* $Id: backend.inc,v 1.145 2006/09/27 23:14:50 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.144 $
+* @version $Revision: 1.145 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -111,7 +111,7 @@ class Backend extends MySource_Object
 				trigger_localised_error('SYS0195', E_USER_WARNING, $printing_assetid);
 				return;
 			}
-			// lets ask the asset itself if we are allowed access to its backend (no dirty thoughts)
+			// lets ask the asset itself if we are allowed access to its backend interface
 			if (!$printing_asset->backendAccess()) {
 				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $printing_asset->name));
 				return;

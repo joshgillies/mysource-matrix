@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.39 2006/07/20 05:07:25 rong Exp $
+* $Id: matrix_insert_link.inc,v 1.40 2006/09/27 23:14:54 gsherwood Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -241,7 +241,7 @@ class matrix_insert_link extends wysiwyg_plugin
 
 						// if the position of the first tag is the same as the last then we have only one paragraph
 						// we don't want more than one paragraph because these can start or end from half-way through
-						// a para, which would fuck up the formatting when we go to re-insert the text with the href
+						// a para, which would break the formatting when we go to re-insert the text with the href
 						if (para_html.indexOf("<p") != para_html.lastIndexOf("<p")) {
 							alert(js_translate('select_one_paragraph_at_a_time'));
 							return;

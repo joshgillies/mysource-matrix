@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.84 2006/08/31 01:11:03 rhoward Exp $
+* $Id: hipo_job.inc,v 1.85 2006/09/27 23:14:50 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -453,7 +453,7 @@ class HIPO_Job extends MySource_Object
 
 		for ($i = 0; $i < count($init_steps); $i++) {
 			// if we are starting from a server script but this job needs the web to run,
-			// then we are fucked, so get out of here
+			// then we are in trouble, so get out of here
 			if ($source_initialise_mode == 'server' && $init_steps[$i]['running_mode'] == 'web') {
 				trigger_localised_error('HIPO0043', E_USER_WARNING);
 				return '';
@@ -784,7 +784,7 @@ class HIPO_Job extends MySource_Object
 			return FALSE;
 		}
 
-		// if we have called save and we aren't the running version, bugger off
+		// if we have called save and we aren't the running version, dont save
 		if (!$ignore_running_mode && $this->_current_mode != $this->_hipo_vars['running_mode']) {
 			return FALSE;
 		}
@@ -1506,7 +1506,7 @@ class HIPO_Job extends MySource_Object
 			if ($ret_val) return TRUE;
 
 			trigger_localised_error('HIPO0046', E_USER_WARNING);
-			// fall through and delete this bugger, set the running mode to allow the saving
+			// fall through and delete this job, set the running mode to allow the saving
 			$this->setRunningMode('web');
 
 		}//end if

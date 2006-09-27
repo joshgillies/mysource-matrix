@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: utility.js,v 1.21 2006/01/16 23:51:07 skim Exp $
+* $Id: utility.js,v 1.22 2006/09/27 23:14:53 gsherwood Exp $
 *
 */
 
@@ -317,9 +317,6 @@ HTMLArea.getHTML = function(root, outputRoot) {
 						// 1; other values might be doomed too.
 						// For this reason we extract the
 						// values directly from the root node.
-						// I'm starting to HATE JavaScript
-						// development.  Browser differences
-						// suck.
 						if (typeof root[a.nodeName] != "undefined") {
 							value = root[a.nodeName];
 						} else {

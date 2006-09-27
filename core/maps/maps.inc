@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.24 2006/06/19 07:25:37 tbarrett Exp $
+* $Id: maps.inc,v 1.25 2006/09/27 23:14:51 gsherwood Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -65,7 +65,7 @@ class Maps extends MySource_Object
 	*/
 	function paintBackend(&$backend)
 	{
-		// if we dont have access, get lost
+		// if we dont have access, go away
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', translate('automated_patching_system')));
 			exit();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: colour.inc,v 1.14 2004/12/06 14:39:53 brobertson Exp $
+* $Id: colour.inc,v 1.15 2006/09/27 23:14:53 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Colour manipulation functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package Fudge
 * @subpackage Colour
 */
@@ -463,7 +463,7 @@ class Colour
 		// remove any hashes from the start
 		$input = preg_replace('/^#/', '', strtolower($input));
 		if (sprintf('%06x',hexdec($input)) != $input) {
-			// Must be a colour name, or a fuck-up
+			// must be a colour name
 			if ($hex = Colour::colourPalette($input) ) {
 				$input = $hex;
 			}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.506 2006/09/18 07:28:37 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.507 2006/09/27 23:14:50 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.506 $
+* @version $Revision: 1.507 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2018,7 +2018,7 @@ class Asset_Manager extends MySource_Object
 		foreach ($current_locks as $lock_type => $lock) {
 			if (empty($lock)) continue;
 
-			// is this asset already locked by someone else and we can't forceably acquire it, piss off
+			// is this asset already locked by someone else and we can't forceably acquire it, error
 			if ((int) $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserid() && !$can_force) {
 				$user =& $this->getAsset($lock['userid']);
 				trigger_localised_error('SYS0264', E_USER_WARNING, $lock_type, $asset->name, $user->name);
@@ -4451,7 +4451,7 @@ class Asset_Manager extends MySource_Object
 		// if we are only allowed up to a certain number of these links
 		if ($allowed_links[$link_type][$type]['card'] != 'M' && $major->id) {
 			$num_curr_links = $this->countLinks($major->id, 'major', $link_type, $type, TRUE, $ignore_linkid);
-			//  and we already have our quota of links, bugger off
+			//  and we already have our quota of links
 			if ($num_curr_links >= (int) $allowed_links[$link_type][$type]['card']) {
 				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 				return translate('asset_type_can_have_only_linktypes_links_to_type', $this->getTypeInfo($major->type(), 'name'), ((int) $allowed_links[$link_type][$type]['card']), link_type_name($link_type), $type);
@@ -4657,7 +4657,7 @@ class Asset_Manager extends MySource_Object
 			// We need to make sure that we aren't going to have to be stuffing
 			// about with tree to get the update working
 			// so because the tree only contains significant links if the
-			// significant state has changed... barf
+			// significant state has changed... error
 			$current_is_sig = (bool) ((int) $link['link_type'] & SQ_SC_LINK_SIGNIFICANT);
 			$new_is_sig     = (bool) ($link_type & SQ_SC_LINK_SIGNIFICANT);
 			if ($current_is_sig !== $new_is_sig) {

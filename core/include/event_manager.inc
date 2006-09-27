@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.23 2005/08/17 06:19:10 tbarrett Exp $
+* $Id: event_manager.inc,v 1.24 2006/09/27 23:14:50 gsherwood Exp $
 *
 */
 
@@ -61,7 +61,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -191,7 +191,7 @@ class Event_Manager extends MySource_Object
 			$this->_loadCachedEventListeners();
 		}
 
-		// if we don't have an entry for this event, then g.t.f.o
+		// we don't have an entry for this event
 		if (!isset($this->_tmp['event_listeners']['global'][$event_name]) && !isset($this->_tmp['event_listeners'][get_class($broadcaster)][$event_name])) {
 			return false;
 		}

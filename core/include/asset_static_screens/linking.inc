@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.26 2006/05/12 01:48:17 sdanis Exp $
+* $Id: linking.inc,v 1.27 2006/09/27 23:14:50 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 
@@ -382,7 +382,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 */
 function processLinking(&$owner, &$o, &$ei)
 {
-	// if we dont have admin access, piss off
+	// if we dont have admin access, go away
 	if ($owner->id && !$owner->writeAccess('')) {
 		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
 		exit();

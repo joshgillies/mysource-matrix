@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: translation.js,v 1.1 2005/05/16 06:36:32 lwright Exp $
+* $Id: translation.js,v 1.2 2006/09/27 23:14:51 gsherwood Exp $
 *
 */
 
@@ -122,8 +122,7 @@ function js_translate()
 		return vsprintf(translated_strings[locale][arguments[0]], replacements);
 	}
 
-	// if there is no string code to be found anywhere, well you are very well
-	// stuffed, very yes
+	// no string code to be found anywhere
 	return 'string code '+arguments[0]+' not found';
 
 }//end js_translate();

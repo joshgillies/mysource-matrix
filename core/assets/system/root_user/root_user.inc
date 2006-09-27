@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_user.inc,v 1.38 2006/01/27 03:46:38 lwright Exp $
+* $Id: root_user.inc,v 1.39 2006/09/27 23:14:50 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/system_user/system_user.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -104,7 +104,7 @@ class Root_User extends System_User
 	*/
 	function morph($new_type_code)
 	{
-		// you cant morph a bloody root user... GEZZZ get serious
+		// you cant morph a root user... GEZZZ get serious
 		trigger_localised_error('CORE0091', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return FALSE;
 

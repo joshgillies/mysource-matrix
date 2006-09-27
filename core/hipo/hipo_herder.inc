@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.79 2006/09/06 23:33:25 bcaldwell Exp $
+* $Id: hipo_herder.inc,v 1.80 2006/09/27 23:14:50 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -136,7 +136,7 @@ class HIPO_Herder extends MySource_Object
 			$this->_jobs[$code_name] =& new $job_type($code_name);
 
 			if (!$this->_jobs[$code_name]->code_name) {
-				// something buggered up, not our problem
+				// something broke, not our problem
 				$null = NULL;
 				return $null;
 			}

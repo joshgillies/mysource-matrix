@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.39 2006/06/05 23:33:50 rong Exp $
+* $Id: html_tidy.inc,v 1.40 2006/09/27 23:14:53 gsherwood Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -128,9 +128,9 @@ class HTML_Tidy extends Wysiwyg_Plugin
 			// replace unicode's URL '%u' character entities with their HTML entity equivs
 			$html = preg_replace('/%u([0-9A-Fa-f]{4})/', '&#x$1;', $html);
 
-			////////////////////
-			//  MS WORD CRAP  //
-			////////////////////
+			////////////////////////
+			//  MS WORD CLEANUP  //
+			//////////////////////
 
 			// Remove weird tags MS Word leaves in its output
 			$html = preg_replace('|<([\w]+)([^>]+?)class="mso[^"]+"([^>]+)?>|is', '<\\1>', $html);

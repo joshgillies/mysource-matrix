@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_anchor.inc,v 1.12 2006/03/03 03:21:07 skim Exp $
+* $Id: matrix_insert_anchor.inc,v 1.13 2006/09/27 23:14:54 gsherwood Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -160,7 +160,7 @@ class matrix_insert_anchor extends wysiwyg_plugin
 
 						// if the position of the first tag is the same as the last then we have only one paragraph
 						// we don't want more than one paragraph because these can start or end from half-way through
-						// a para, which would fuck up the formatting when we go to re-insert the text with the href
+						// a para, which would break the formatting when we go to re-insert the text with the href
 						if (para_html.indexOf("<p") != para_html.lastIndexOf("<p")) {
 							alert("Please select only one paragraph to link at a time otherwise bad things happen.");
 							return;

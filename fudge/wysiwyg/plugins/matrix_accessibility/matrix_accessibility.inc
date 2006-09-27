@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_accessibility.inc,v 1.8 2006/02/28 06:22:31 skim Exp $
+* $Id: matrix_accessibility.inc,v 1.9 2006/09/27 23:14:54 gsherwood Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     Triple-A level accessibility tags (e.g. abbr and acronym)
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -149,7 +149,7 @@ class matrix_accessibility extends wysiwyg_plugin
 
 						// if the position of the first tag is the same as the last then we have only one paragraph
 						// we don't want more than one paragraph because these can start or end from half-way through
-						// a para, which would fuck up the formatting when we go to re-insert the text with the href
+						// a para, which would break the formatting when we go to re-insert the text with the href
 						if (para_html.indexOf("<p") != para_html.lastIndexOf("<p")) {
 							alert(js_translate('select_one_paragraph_at_a_time'));
 							return;
@@ -260,7 +260,7 @@ class matrix_accessibility extends wysiwyg_plugin
 
 						// if the position of the first tag is the same as the last then we have only one paragraph
 						// we don't want more than one paragraph because these can start or end from half-way through
-						// a para, which would fuck up the formatting when we go to re-insert the text with the href
+						// a para, which would break the formatting when we go to re-insert the text with the href
 						if (para_html.indexOf("<p") != para_html.lastIndexOf("<p")) {
 							alert("Please select only one paragraph to link at a time otherwise bad things happen.");
 							return;

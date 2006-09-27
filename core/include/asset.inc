@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.561 2006/09/27 06:36:16 colivar Exp $
+* $Id: asset.inc,v 1.562 2006/09/27 23:14:50 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.561 $
+* @version $Revision: 1.562 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -815,7 +815,6 @@ class Asset extends MySource_Object
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// say to other assets: 'Delete me bitch cause I'm outa here'
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 		foreach ($links as $link) {
 			$major =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
@@ -1729,7 +1728,6 @@ class Asset extends MySource_Object
 			return TRUE;
 
 		} else {
-			// bugger something went wrong190
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
@@ -2346,7 +2344,8 @@ class Asset extends MySource_Object
 	function canForceablyAcquireLock($lock_type)
 	{
 		$current_locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, TRUE, FALSE);
-		// lock type not known ? bugger off
+		
+		// lock type not known
 		if (empty($current_locks)) return FALSE;
 
 		foreach ($current_locks as $lock) {
