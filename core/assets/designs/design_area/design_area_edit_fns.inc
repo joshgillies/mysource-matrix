@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.54 2006/04/10 03:19:36 bcaldwell Exp $
+* $Id: design_area_edit_fns.inc,v 1.54.2.1 2006/09/27 23:52:59 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.54.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -325,7 +325,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 						$currently_getting = 'value';
 						$current_value = '';
 
-					// if its whitespace then they fucked up so discard this name
+					// if its whitespace then discard this name
 					} else if ($this->_isWhitespace($file_contents{$cur_pos})) {
 						$currently_getting = '';
 						$current_name = '';
@@ -496,7 +496,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 				}
 				$set_attrs[] = $element['attributes']['name'];
 
-			// else something is amiss and we don't know what we can do, so barf in their direction
+			// else something is amiss and we don't know what we can do
 			} else {
 				trigger_localised_error('CORE0188', E_USER_WARNING, $element['attributes']['name'], $asset->attr('id_name'));
 

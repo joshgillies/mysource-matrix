@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.103 2006/06/15 05:48:25 sdanis Exp $
+* $Id: user.inc,v 1.103.2.1 2006/09/27 23:52:59 gsherwood Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.103.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -573,7 +573,7 @@ class User extends Asset
 
 			$match = $condition->evaluate($this, $restriction['condition_data']);
 
-			// they don't match up, then get the hell out of mah group!!
+			// they don't match up, so not in this group
 			if ($match != $restriction['match']) return FALSE;
 
 		}

@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: var_serialise.js,v 1.8 2005/05/16 06:36:35 lwright Exp $
+* $Id: var_serialise.js,v 1.8.6.1 2006/09/27 23:53:01 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@
 *     </script>
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.6.1 $
 * @package Fudge
 * @subpackage var_serialise
 */
@@ -202,7 +202,7 @@ function _var_unserialise(lines, indent)
 		var indent_len = indent.length;
 		VAR_UNSERIALISE_I++;
 		var val = new Array();
-		// just incase some bastard has set up some prototype vars, nullify them
+		// just incase someone has set up some prototype vars, nullify them
 		// then at least we can test for them
 		for(var key in val) val[key] = null;
 		// while the indent is still the same unserialise our contents

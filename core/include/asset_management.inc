@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.75 2006/01/26 22:34:08 lwright Exp $
+* $Id: asset_management.inc,v 1.75.4.1 2006/09/27 23:53:00 gsherwood Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.75.4.1 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -178,7 +178,7 @@ class Asset_Management extends MySource_Object
 				$from_icon_path = SQ_INCLUDE_PATH.'/asset_edit/icon.png';
 			} else {
 				// our parent should already have gone through all this and have
-				// an icon we can... 'borrow' <evil_laugh> mwahhaha </evil_laugh>
+				// an icon we can borrow
 				$from_icon_path = SQ_DATA_PATH.'/public/asset_types/'.$parent_type.'/icon.png';
 			}
 		}

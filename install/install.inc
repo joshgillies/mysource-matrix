@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.60.2.1 2006/07/31 00:47:34 tbarrett Exp $
+* $Id: install.inc,v 1.60.2.2 2006/09/27 23:53:00 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.60.2.1 $
+* @version $Revision: 1.60.2.2 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -159,7 +159,7 @@ function uninstall_asset_types()
 			}
 		}
 
-		// failed dependency tests => we're stuffed; bail
+		// failed dependency tests => bail
 		if ($errors) {
 			trigger_error('Asset hierarchy would be corrupted, uninstall not committed', E_USER_WARNING);
 			exit(1);

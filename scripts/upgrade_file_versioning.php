@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_file_versioning.php,v 1.10 2005/08/02 03:29:47 gsherwood Exp $
+* $Id: upgrade_file_versioning.php,v 1.10.4.1 2006/09/27 23:53:00 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrade menu design areas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.4.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -112,7 +112,7 @@ if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHFIELD)) {
 	// reports 'field not exist' - fine
 	printUpdateStatus('--');
 } else if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHTABLE)) {
-	// reports 'table not exist' (damn you PostgreSQL...) - fine
+	// reports 'table not exist'
 	printUpdateStatus('--');
 } else if (DB::isError($result)) {
 	// miscellaneous error

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.114.2.2 2006/08/22 04:27:00 rong Exp $
+* $Id: design.inc,v 1.114.2.3 2006/09/27 23:52:59 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.114.2.2 $
+* @version $Revision: 1.114.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1050,7 +1050,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 					$var_ref_values[$id_name] = Array();
 				}
 				foreach ($da_var_refs[$id_name] as $var) {
-					// does this var want the whole design area ? (It bloody shouldn't)
+					// does this var want the whole design area ?
 					if ($var === '') {
 						$da_refs[] = $id_name; // REMOVE THIS SOON
 					// else just a normal var (make sure we don't have it already)

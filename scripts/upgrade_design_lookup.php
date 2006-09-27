@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_design_lookup.php,v 1.5 2005/08/02 03:29:47 gsherwood Exp $
+* $Id: upgrade_design_lookup.php,v 1.5.4.1 2006/09/27 23:53:00 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrade the *_ast_lookup_design table to *_ast_lookup_value
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.4.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -162,7 +162,7 @@ foreach ($design_lookups as $row) {
 		// get the designid that we would use on the frontend for this url
 		$used_design = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($row['url'], $row['name']);
 
-	// bugger....right must be an old entry, just take a guess....
+	// must be an old entry, just take a guess....
 	} else {
 
 		// get the designid that we would use on the frontend for this url

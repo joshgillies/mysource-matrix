@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.44.2.1 2006/07/20 05:07:51 rong Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.44.2.2 2006/09/27 23:52:59 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44.2.1 $
+* @version $Revision: 1.44.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -603,7 +603,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				bodycopy_popup_visible = true;
 
 				if (is_ie4up) {
-					// %!%#, frameElement is IE 5.5 only
+					// frameElement is IE 5.5 only
 					bodycopy_nested_doc.width  = w - border;
 					bodycopy_nested_doc.height = h - border;
 					bodycopy_nested_doc.location = file;

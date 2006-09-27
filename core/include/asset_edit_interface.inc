@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.299.2.1 2006/09/27 00:30:55 rong Exp $
+* $Id: asset_edit_interface.inc,v 1.299.2.2 2006/09/27 23:53:00 gsherwood Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.299.2.1 $
+* @version $Revision: 1.299.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -171,7 +171,7 @@ class Asset_Edit_Interface extends MySource_Object
 			exit();
 		}
 		if ($creating) $o->addOnLoad('focusFirstTextInput()');
-		// if there are no screens or static screens, piss off
+		// if there are no screens or static screens, go away
 		assert_false(!count($this->_screens) && empty($this->_edit_fns->static_screens));
 
 
@@ -767,7 +767,7 @@ class Asset_Edit_Interface extends MySource_Object
 			return FALSE;
 		}
 
-		// if there are no screens or static screens, piss off
+		// if there are no screens or static screens, go away
 		assert_false(!count($this->_screens) && empty($this->_edit_fns->static_screens));
 
 
@@ -1669,7 +1669,7 @@ class Asset_Edit_Interface extends MySource_Object
 		// used to check if anything has bed saved
 		$saved = FALSE;
 
-		// if there are no screens or static screens, piss off
+		// if there are no screens or static screens, go away
 		if (!count($this->_screens) && empty($this->_edit_fns->static_screens)) {
 			return FALSE;
 		}
@@ -1818,7 +1818,7 @@ class Asset_Edit_Interface extends MySource_Object
 						// if there is nothing declared there is nothing for us to do
 						if (empty($process_node->attributes['name'])) {
 							continue;
-						// There is something declared but the bloody thing doesn't exist - inform the Idiot
+						// There is something declared but it doesn't exist
 						} else if (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
 							trigger_localised_error('SYS0188', E_USER_WARNING, $section->attributes['name']);
 						} else {
@@ -1882,7 +1882,7 @@ class Asset_Edit_Interface extends MySource_Object
 								// if there is nothing declared there is nothing for use to do
 								if (empty($process_node->attributes['name'])) {
 									continue;
-								// There is something declared but the bloody thing doesn't exist - inform the Idiot
+								// There is something declared but it doesn't exist
 								} else if (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
 									trigger_localised_error('SYS0187', E_USER_WARNING, $section->attributes['name'], $field->children[$last_child]->content);
 								} else {
@@ -1937,7 +1937,7 @@ class Asset_Edit_Interface extends MySource_Object
 			if (method_exists($edit_fns, $show_if_fn)) {
 				if (!$edit_fns->$show_if_fn($owner, $prefix)) return 0;
 			} else {
-				// if show if function doesn't exist, spew, then continue as normal
+				// if show if function doesn't exist, error, then continue as normal
 				trigger_localised_error('SYS0136', E_USER_WARNING, $show_if_fn, $node->name);
 				return 0;
 			}

@@ -32,7 +32,7 @@
 // | Author: Richard Heyes <richard@phpguru.org>                           |
 // +-----------------------------------------------------------------------+
 //
-// $Id: Request.php,v 1.1 2006/01/13 05:46:07 arailean Exp $
+// $Id: Request.php,v 1.1.6.1 2006/09/27 23:53:00 gsherwood Exp $
 //
 // HTTP_Request Class
 //
@@ -610,7 +610,7 @@ class HTTP_Request {
 			$host = 'ssl://' . $host;
 		}
 
-		// magic quotes may fuck up file uploads and chunked response processing
+		// magic quotes may break file uploads and chunked response processing
 		$magicQuotes = ini_get('magic_quotes_runtime');
 		ini_set('magic_quotes_runtime', false);
 
