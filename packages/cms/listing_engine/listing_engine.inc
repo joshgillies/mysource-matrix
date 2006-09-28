@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.195 2006/09/22 02:11:54 skim Exp $
+* $Id: listing_engine.inc,v 1.196 2006/09/28 07:09:37 colivar Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.195 $
+* @version $Revision: 1.196 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -130,9 +130,7 @@ class Listing_Engine extends Page
 		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', 'Page Contents');
 		$args = Array('content' => $this->_getDefaultBodycopyContent('page_contents'));
-		if (!$asset->create($copy_link, $args)) {
-			return FALSE;
-		}
+		if (!$asset->create($copy_link, $args)) return FALSE;
 
 		if (!$this->createNoResultsBodycopy(TRUE)) {
 			return FALSE;
@@ -146,7 +144,7 @@ class Listing_Engine extends Page
 	/**
 	* Get the default content for a bodycopy
 	*
-	* @param string	$value	The code name for the bodycopy
+	* @param string	$bodycopy_code	The code name for the bodycopy
 	*
 	* @return string
 	* @access private
@@ -163,7 +161,7 @@ class Listing_Engine extends Page
 		}
 		return '';
 
-	}//end _getDefaultBodycopyContent();
+	}//end _getDefaultBodycopyContent()
 
 
 	/**
@@ -498,6 +496,9 @@ class Listing_Engine extends Page
 			$replacements['next_page_href']			= '';
 
 			if (!is_null($no_results_bodycopy)) {
+				foreach ($keywords as $word) {
+					$replacements[$word] = $this->getKeywordReplacement($word);
+				}
 				$no_results_bodycopy->setKeywordReplacements($replacements);
 				$no_results_bodycopy->printBody();
 			} else {
@@ -511,7 +512,7 @@ class Listing_Engine extends Page
 				$format_bodycopy->printBody();
 			}
 			return;
-		}
+		}//end if
 
 		if (!in_array('asset_listing', $keywords)) {
 			// there is no asset listing keyword in the contents, so we dont
