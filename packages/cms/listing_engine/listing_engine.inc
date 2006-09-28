@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.180.2.8 2006/09/22 02:10:11 skim Exp $
+* $Id: listing_engine.inc,v 1.180.2.9 2006/09/28 07:09:28 colivar Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.180.2.8 $
+* @version $Revision: 1.180.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -477,6 +477,9 @@ class Listing_Engine extends Page
 			$replacements['next_page_href']			= '';
 
 			if (!is_null($no_results_bodycopy)) {
+				foreach ($keywords as $word) {
+					$replacements[$word] = $this->getKeywordReplacement($word);
+				}
 				$no_results_bodycopy->setKeywordReplacements($replacements);
 				$no_results_bodycopy->printBody();
 			} else {
@@ -490,7 +493,7 @@ class Listing_Engine extends Page
 				$format_bodycopy->printBody();
 			}
 			return;
-		}
+		}//end if
 
 		if (!in_array('asset_listing', $keywords)) {
 			// there is no asset listing keyword in the contents, so we dont
