@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.21 2006/03/29 02:42:06 sdanis Exp $
+* $Id: asset_map.js,v 1.22 2006/09/28 04:32:29 colivar Exp $
 *
 */
 
@@ -349,6 +349,18 @@ function asset_finder_onunload()
 	// got a name ? we must be finding assets, cancel it
 	if (ASSET_FINDER_FIELD_NAME != null) {
 		asset_finder_cancel();
+
+		// reset the asset finder button
+		ASSET_FINDER_OBJ.set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', js_translate('change'));
+		ASSET_FINDER_FIELD_NAME = null;
+		ASSET_FINDER_FIELD_SAFE_NAME = null;
+
+		if (resizer_frame) {
+			if (ASSET_FINDER_WAS_HIDDEN && !resizer_frame.hidden) {
+				resizer_frame.toggleFrame();
+			}
+		}
+		ASSET_FINDER_WAS_HIDDEN = null;
 	}
 
 }//end asset_finder_onunload()
