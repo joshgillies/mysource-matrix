@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_anchor.inc,v 1.12.2.1 2006/09/27 23:53:02 gsherwood Exp $
+* $Id: matrix_insert_anchor.inc,v 1.12.2.2 2006/09/28 00:43:40 skim Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.12.2.1 $
+* @version $Revision: 1.12.2.2 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -119,7 +119,7 @@ class matrix_insert_anchor extends wysiwyg_plugin
 				// Is this aready a link?
 				if (current_a) {
 
-					if (visual_aid_mode) {
+					if (typeof(visual_aid_mode) != 'undefined' && visual_aid_mode) {
 						// If visual aid is being used now, remove it before processing
 						// we keep the copy here in the case of canceling
 						var copied_html = current_a.innerHTML;
@@ -180,7 +180,7 @@ class matrix_insert_anchor extends wysiwyg_plugin
 
 					if (!param) {
 						// user must have pressed Cancel
-						if (visual_aid_mode) {
+						if (typeof(visual_aid_mode) != 'undefined' && visual_aid_mode) {
 							if (current_a != null) {
 								current_a.innerHTML = copied_html;
 							}
@@ -206,7 +206,7 @@ class matrix_insert_anchor extends wysiwyg_plugin
 						var visual_aid_style = 'padding-left: 1px; padding-right: 1px; padding-top: 1px; padding-bottom: 1px; background-color : #37DF5E; font: 10px Verdana,Tahoma,sans-serif; font-weight: bold; border-left: 1px solid; border-right: 1px solid; border-top: 1px solid; border-bottom: 1px solid;';
 
 						if (param["name"] != "") {
-							if (visual_aid_mode) {
+							if (typeof(visual_aid_mode) != 'undefined' && visual_aid_mode) {
 								visual_aid_tag = '<span id="wysiwyg-visual-aid-plugin-anchor" style="' + visual_aid_style + '">A "' + param["name"] + '"</span>';
 							}
 							if (current_a) {

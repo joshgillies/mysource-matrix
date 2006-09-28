@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: choose_language.inc,v 1.3 2006/03/03 03:48:28 skim Exp $
+* $Id: choose_language.inc,v 1.3.2.1 2006/09/28 00:43:37 skim Exp $
 *
 */
 
@@ -34,7 +34,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to add keywords to the editor using a nice interface
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -227,7 +227,7 @@ class Choose_Language extends WYSIWYG_Plugin
 										}
 									} else if (HTMLArea.is_ie) {
 										var new_child = this._doc.createTextNode(child_node.innerHTML);
-										if (visual_aid_mode) {
+										if (typeof(visual_aid_mode) != 'undefined' && visual_aid_mode) {
 											var e = '<span id=wysiwyg-visual-aid-plugin-lang[^>]*>[^>]*<\/span>';
 											var re = new RegExp(e, "ig");
 											new_child.nodeValue = new_child.nodeValue.replace(re, '');
