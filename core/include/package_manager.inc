@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.77 2006/02/24 05:49:40 sdanis Exp $
+* $Id: package_manager.inc,v 1.78 2006/09/29 04:41:45 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -690,7 +690,7 @@ class Package_Manager extends MySource_Object
 
 		// if we are inheriting from something else then go find it from the installed list
 		if (!isset($this->assets[$type_code])) {
-			$new_arr = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
+			$new_arr = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, TRUE, TRUE);
 			foreach ($new_arr as $type_code) {
 				$arr[] = $type_code;
 			}

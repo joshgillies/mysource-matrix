@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.62 2006/09/27 23:14:51 gsherwood Exp $
+* $Id: install.inc,v 1.63 2006/09/29 04:42:10 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -149,7 +149,7 @@ function uninstall_asset_types()
 		// to see whether it depended on something that is being deleted... if it is then
 		// we have massive problems and should bail
 		foreach (array_diff($all_asset_types,$asset_types) as $asset_type) {
-			$asc = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($asset_type);
+			$asc = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($asset_type, FALSE, TRUE);
 			$deleted_parents = array_intersect($asset_types, $asc);
 
 			// are our parents going to be binned?
@@ -606,7 +606,9 @@ function generate_global_preferences()
 function cache_asset_types()
 {
 	$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes();
-
+	foreach ($asset_types as $type_code => $details) {
+		$asset_types[$type_code]['ancestor_types'] = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, FALSE, TRUE);
+	}
 	$output = '<'.'?php'."\n".' $asset_types = ';
 	$output .= var_export($asset_types, TRUE);
 	$output .= "\n?".'>';
