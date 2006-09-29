@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.22 2006/09/28 04:32:29 colivar Exp $
+* $Id: asset_map.js,v 1.23 2006/09/29 01:14:26 emcdonald Exp $
 *
 */
 
@@ -245,8 +245,9 @@ function asset_finder_done(params, label, url, linkid)
 
 	// we are in java, params is actually the assetid
 	if (assetid != -1) {
-		ASSET_FINDER_OBJ.set_hidden_field(ASSET_FINDER_FIELD_NAME + '[assetid]',assetid);
+		ASSET_FINDER_OBJ.set_hidden_field(ASSET_FINDER_FIELD_NAME + '[assetid]', assetid);
 		ASSET_FINDER_OBJ.set_hidden_field(ASSET_FINDER_FIELD_NAME + '[url]', url);
+		ASSET_FINDER_OBJ.set_hidden_field(ASSET_FINDER_FIELD_NAME + '[linkid]', linkid);
 		ASSET_FINDER_OBJ.set_text_field(ASSET_FINDER_FIELD_SAFE_NAME + '_label', (assetid == 0) ? '' : label + ' (Id : #' + assetid + ')');
 
 	}

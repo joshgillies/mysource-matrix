@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.122 2006/09/18 00:08:12 tbarrett Exp $
+* $Id: html_form.inc,v 1.123 2006/09/29 01:14:26 emcdonald Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.123 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -780,6 +780,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 
 	hidden_field($name.'[assetid]', $assetid);
 	hidden_field($name.'[url]', '');
+	hidden_field($name.'[linkid]', '');
 	// call the js function to set where the finder frame is
 	text_box($safe_name.'_label', $label, 30, 0, FALSE, 'readonly="readonly" class="sq-form-asset-finder" onfocus="this.tmp = this.value;" onblur="this.value = this.tmp;"');
 
