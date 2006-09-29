@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.507 2006/09/27 23:14:50 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.508 2006/09/29 03:58:17 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.507 $
+* @version $Revision: 1.508 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1425,6 +1425,7 @@ class Asset_Manager extends MySource_Object
 
 	}//end getAssetInfoFields()
 
+
 	/**
 	* Returns list of all assetids of a certain type
 	*
@@ -2750,10 +2751,10 @@ class Asset_Manager extends MySource_Object
 	* Also returns basic information about the last link (linkid and link type)
 	* linkid => Array ('linkid' => linkid, 'link_type' => link_type, 'lineage' => Array(...))
 	*
-	* @param object				$assetid		the asset whose links lineages we are getting
-	* @param int				$result_limit	limits the number of results returned
-	* @param string				$from_treeid	Uses this treeid as the starting (root) node
-	* @param string|array		$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
+	* @param object			$assetid		the asset whose links lineages we are getting
+	* @param int			$result_limit	limits the number of results returned
+	* @param string			$from_treeid	Uses this treeid as the starting (root) node
+	* @param string|array	$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
 	*
 	* @return array
 	* @access public
@@ -3466,6 +3467,43 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getAssetTreeids()
+
+
+	/**
+	* Returns the treeids for linkids passed in.
+	*
+	* Accepts a single treeid int or an array of treeids for which to get link ids
+	*
+	* @param int|array	$linkid	the id of the link passed, or array of linkids
+	*
+	* @return array
+	* @access public
+	*/
+	function getLinkTreeid($linkid)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		if (is_array($linkid)) {
+			$sql = 'SELECT linkid, treeid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ';
+			$where = 'WHERE linkid IN ('.implode(', ', $linkid).')';
+		} else {
+			$sql = 'SELECT treeid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ';
+			$where = 'WHERE linkid  = '.$db->quoteSmart($linkid);
+		}
+
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+		if (is_array($linkid)) {
+			$result = $db->getAssoc($sql.$where, FALSE, Array(), DB_FETCHMODE_ASSOC);
+		} else {
+			$result = $db->getCol($sql.$where);
+		}
+		assert_valid_db_result($result);
+
+		return $result;
+
+	}//end getLinkTreeid()
 
 
 	/**
@@ -6369,7 +6407,7 @@ class Asset_Manager extends MySource_Object
 		$value_operator = $use_like_for_value ? 'LIKE' : '=';
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT l.assetid'.($include_treeids ? ', lt.treeid' : '').'
-				FROM sq_ast_lookup l 
+				FROM sq_ast_lookup l
 					JOIN sq_ast_lookup_value lv ON l.url = lv.url';
 		if ($include_treeids) {
 			$sql .= '
