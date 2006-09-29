@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.33 2006/07/04 04:57:12 rhoward Exp $
+* $Id: bodycopy_container.inc,v 1.34 2006/09/29 04:31:03 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -349,22 +349,28 @@ class Bodycopy_Container extends Asset
 	{
 		if (!$this->readAccess()) return;
 
-		// create an array of urls that the content file is
-		// going to try and use to work out file urls, link hrefs etc
+		if (!isset($this->_tmp['asset_url_list'])) {
 
-		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
-		$get_href_ids = $this->attr('shadow_links');
+			// create an array of urls that the content file is
+			// going to try and use to work out file urls, link hrefs etc
 
-		foreach ($notice_links as $link) {
-			$get_href_ids[] = $link['minorid'];
-		}
+			$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
+			$get_href_ids = $this->attr('shadow_links');
 
-		$sq_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($get_href_ids));
-		for (reset($sq_asset_url_list); NULL !== ($minorid = key($sq_asset_url_list)); next($sq_asset_url_list)) {
-			if ($sq_asset_url_list[$minorid] == '') {
-				$sq_asset_url_list[$minorid] = './?a='.$minorid;
+			foreach ($notice_links as $link) {
+				$get_href_ids[] = $link['minorid'];
 			}
+
+			$this->_tmp['asset_url_list'] = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($get_href_ids));
+			for (reset($this->_tmp['asset_url_list']); NULL !== ($minorid = key($this->_tmp['asset_url_list'])); next($this->_tmp['asset_url_list'])) {
+				if ($this->_tmp['asset_url_list'][$minorid] == '') {
+					$this->_tmp['asset_url_list'][$minorid] = './?a='.$minorid;
+				}
+			}
+
 		}
+
+		$sq_asset_url_list =& $this->_tmp['asset_url_list'];
 
 		if (SQ_ROLLBACK_VIEW) {
 			$edit = $this->getEditFns();
