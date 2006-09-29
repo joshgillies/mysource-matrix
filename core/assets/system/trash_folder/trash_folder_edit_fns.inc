@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder_edit_fns.inc,v 1.38 2006/09/24 23:38:09 emcdonald Exp $
+* $Id: trash_folder_edit_fns.inc,v 1.39 2006/09/29 04:30:00 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -124,10 +124,9 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 			$on_complete = $_SERVER['REQUEST_URI'].'&'.$prefix.'_purge_complete=1';
 			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
+			$purge_root_linkid = $_POST[$prefix.'_purge_root']['linkid'];
+			$hh->queueHipo('hipo_job_purge_trash', Array('purge_root_linkid' => $purge_root_linkid), $on_complete);
 
-			$purge_root_id = $_POST[$prefix.'_purge_root']['assetid'];
-
-			$hh->queueHipo('hipo_job_purge_trash', Array('purge_root_id' => $purge_root_id), $on_complete);
 			////  END HIPO PROCESSING  ////
 			return TRUE;
 		}
