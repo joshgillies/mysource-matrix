@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.146 2006/09/29 05:56:27 rong Exp $
+* $Id: backend.inc,v 1.147 2006/09/29 06:07:26 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.146 $
+* @version $Revision: 1.147 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -845,7 +845,7 @@ class Backend extends MySource_Object
 			?>
 				<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%">
 					<tr>
-						<td class="sq-backend-header-item" style="width: 100%;"><img 1style="margin-left: 21px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="MySource Matrix" /></td>
+						<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 21px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="MySource Matrix" /></td>
 					</tr>
 					<tr>
 						<td height="100%" valign="top">&nbsp;</td>
