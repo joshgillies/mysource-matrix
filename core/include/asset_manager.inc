@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.508 2006/09/29 03:58:17 emcdonald Exp $
+* $Id: asset_manager.inc,v 1.509 2006/09/29 04:41:35 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.508 $
+* @version $Revision: 1.509 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -588,30 +588,42 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param string		$type_code		the code name for the asset that you want to check
 	* @param boolean	$include_asset	when TRUE adds the "Asset" type to the parent list,
-	*									even though it's an unistantiable object
+	*									even though it's an uninstantiable object
+	* @param boolean	$query_db	whether to ask the DB instead of using the cache file
 	*
 	* @return array
 	* @access public
 	*/
-	function getTypeAncestors($type_code, $include_asset=TRUE)
+	function getTypeAncestors($type_code, $include_asset=TRUE, $query_db=FALSE)
 	{
 		if ($type_code == 'asset') return Array();
 		assert_isset_array_index($this->_asset_types, $type_code, 'Asset Type "'.$type_code.'" is not installed on the system');
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT
-					inhd_type_code
-				FROM
-					sq_ast_typ_inhd
-				WHERE
-					type_code = '.$db->quote($type_code).'
-				AND	inhd_type_code <> type_code
-					'.(($include_asset) ? '' : ' AND inhd_type_code <> '.$db->quote('asset')).'
-				ORDER BY inhd_type_code_lvl DESC';
+		if ($query_db || !isset($this->_asset_types[$type_code]['ancestor_types'])) {
 
-		$result = $db->getCol($sql);
-		assert_valid_db_result($result);
-		return $result;
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'SELECT
+						inhd_type_code
+					FROM
+						sq_ast_typ_inhd
+					WHERE
+						type_code = '.$db->quote($type_code).'
+					AND	inhd_type_code <> type_code
+						'.(($include_asset) ? '' : ' AND inhd_type_code <> '.$db->quote('asset')).'
+					ORDER BY inhd_type_code_lvl DESC';
+
+			$result = $db->getCol($sql);
+			assert_valid_db_result($result);
+			return $result;
+
+		} else {
+			$res = $this->_asset_types[$type_code]['ancestor_types'];
+			if ($include_asset) {
+				$res[] = 'asset';
+			}
+			return $res;
+
+		}
 
 	}//end getTypeAncestors()
 
@@ -900,8 +912,7 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 		if (empty($asset)) {
-
-			// check if we are getting links for a shadow asset, and palm the request off to the
+			// check if we are getting a shadow asset, and palm the request off to the
 			// handler of the shadow asset if we are
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
@@ -2751,10 +2762,10 @@ class Asset_Manager extends MySource_Object
 	* Also returns basic information about the last link (linkid and link type)
 	* linkid => Array ('linkid' => linkid, 'link_type' => link_type, 'lineage' => Array(...))
 	*
-	* @param object			$assetid		the asset whose links lineages we are getting
-	* @param int			$result_limit	limits the number of results returned
-	* @param string			$from_treeid	Uses this treeid as the starting (root) node
-	* @param string|array	$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
+	* @param string				$assetid		ID of the asset whose linages we want
+	* @param int				$result_limit	limits the number of results returned
+	* @param string|array		$from_treeid	Uses this/these treeid(s) as the root node
+	* @param string|array		$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
 	*
 	* @return array
 	* @access public
@@ -2841,7 +2852,15 @@ class Asset_Manager extends MySource_Object
 				  AND pt.treeid <= ct.treeid';
 
 		if (!is_null($from_treeid)) {
-			$where .= ' AND pt.treeid LIKE '.$db->quoteSmart((string) $from_treeid.'%');
+			if (is_array($from_treeid)) {
+				$treeid_bits = Array();
+				foreach ($from_treeid as $ftid) {
+					$treeid_bits[] = '(pt.treeid LIKE '.$db->quoteSmart((string)$ftid.'%').')';
+				}
+				$where .= ' AND ('.implode(' OR ', $treeid_bits).')';
+			} else {
+				$where .= ' AND pt.treeid LIKE '.$db->quoteSmart((string) $from_treeid.'%');
+			}
 		}
 
 		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_lineage_treeids('.$db->quoteSmart((string) $assetid).', '.
