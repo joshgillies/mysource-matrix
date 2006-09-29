@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.105 2006/09/27 23:14:50 gsherwood Exp $
+* $Id: user.inc,v 1.106 2006/09/29 04:44:34 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -527,17 +527,16 @@ class User extends Asset
 	*/
 	function getUserGroups()
 	{
-		$groups = Array();
-		$groupids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'user_group', FALSE);
-
-		foreach ($groupids as $key => $value) {
-			// if we pass the conditions, let us belong to this group
-			if ($this->_belongsToGroup($key)) {
-				array_push($groups, $key);
+		if (!isset($this->_tmp['effective_groups'])) {
+			$this->_tmp['effective_groups'] = Array();
+			foreach ($this->getGroups() as $groupid) {
+				// if we pass the conditions, let us belong to this group
+				if ($this->_belongsToGroup($groupid)) {
+					$this->_tmp['effective_groups'][] = $groupid;
+				}
 			}
 		}
-
-		return $groups;
+		return $this->_tmp['effective_groups'];
 
 	}//end getUserGroups()
 
