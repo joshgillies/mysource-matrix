@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.196 2006/09/28 07:09:37 colivar Exp $
+* $Id: listing_engine.inc,v 1.197 2006/09/29 05:11:07 tbarrett Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.196 $
+* @version $Revision: 1.197 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -522,6 +522,7 @@ class Listing_Engine extends Page
 		}
 
 		$this->_tmp['assets_info']    = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($children));
+		$this->_tmp['asset_urls'] = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($children));
 
 		// the list is sorted and positions set, now we can split to groups
 		if ($this->attr('group_by') == 'grouped') {
@@ -665,7 +666,7 @@ class Listing_Engine extends Page
 		// if we don't have a cache key from the listing it's because we shouldn't be caching
 		if ($cache_key) {
 			// because the root nodes can be dynamic we need to cache the results based upon root node
-			$root_nodes = $this->getRootNodes();
+			$root_nodes = $this->getRootNodes(FALSE);
 			$cache_key .= '-'.implode('-', $root_nodes);
 		}
 
@@ -950,101 +951,96 @@ class Listing_Engine extends Page
 	*/
 	function filterAssetStatuses(&$todo)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$todo_keys = array_keys($todo);
-		for (reset($todo_keys); NULL !== ($key = key($todo_keys)); next($todo_keys)) {
-			$todo_keys[$key] = $db->quoteSmart((string) $todo_keys[$key]);
-		}
+		if (empty($todo)) return;
 
-		$wanted_statuses = $this->attr('statuses');
-		$wanted_assets = Array();
-
-		// push all the shadow assets into the respective array
-		// change the todo_keys array so that instead of shadow assets the query checks on the parent asset's status
-		$shadow_assets = Array();
-		$dummy_to_do = array_keys($todo);
-		foreach ($todo as $key => $value) {
-			if (strpos($key, ':') !== FALSE) {
-				$shadow_assets[$key] = $value;
-				foreach ($dummy_to_do as $index => $key_new) {
-					if ($key_new == $key) {
-						$key_new = $db->quoteSmart(substr($key, 0, strpos($key, ':')));
-						$todo_keys[$index] = $key_new;
-					}
-				}
+		// Sort the real assets from the shadows and bridges
+		// We'll do status and permission checks on the bridges and apply
+		// those results to their shadow assets.
+		$real_assetids = Array();
+		$bridge_assetids = Array();
+		foreach ($todo as $assetid => $details) {
+			if (FALSE !== strpos($assetid, ':')) {
+				$bridge_assetids[] = strtok($assetid, ':');
+			} else {
+				$real_assetids[] = $assetid;
 			}
 		}
 
-		// chunk the array up into chunks of 1000 so that we don't violate the limit imposed on IN clauses.
-		$in_clauses = Array();
-		foreach (array_chunk($todo_keys, 999) as $chunk) {
-			$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
-		}
+		$wanted_statuses = $this->attr('statuses');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		if (!empty($wanted_statuses) && !empty($todo_keys)) {
+		if (!empty($wanted_statuses) && (array_sum($wanted_statuses) != SQ_SC_STATUS_ALL)) {
+			// find which of the assets have the right statuses
+			foreach (array_unique(array_merge($real_assetids, $bridge_assetids)) as $assetid) {
+				$query_assetids[] = $db->quoteSmart($assetid);
+			}
+			$in_clauses = Array();
+			foreach (array_chunk($query_assetids, 999) as $chunk) {
+				$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
+			}
 			$sql = 'SELECT
-						assetid, type_code
+						assetid
 					FROM
 						sq_ast
 					WHERE
 							('.implode(' OR ', $in_clauses).')
 						AND status IN ('.implode(', ', $wanted_statuses).')';
 
-			$wanted_assets = $db->getAssoc($sql);
-			assert_valid_db_result($wanted_assets);
+			$status_matches = $db->getCol($sql);
+			assert_valid_db_result($status_matches);
+		} else {
+			// We want all statuses
+			$status_matches = array_unique(array_merge($real_assetids, $bridge_assetids));
+		}
 
-			// now checking if the parent is existing in the wanted assets array
-			// if yes then the shadow assets are added to the wanted assets array as well
-			foreach ($wanted_assets as $wanted => $type_code) {
-				foreach ($shadow_assets as $key => $value) {
-					$shadow_array = split(':', $key);
-					if ($shadow_array[0] == $wanted) {
-						$wanted_assets[$key] = $type_code;
+		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+			// Remove any sub-live assets unless we have effective read access to them
+			$may_have_sublives = FALSE;
+			foreach ($wanted_statuses as $status) {
+				if ($status < SQ_STATUS_LIVE) {
+					$may_have_sublives = TRUE;
+					break;
+				}
+			}
+			if ($may_have_sublives) {
+				$sub_live_assets = Array();
+				foreach ($status_matches as $assetid) {
+					$query_assetids[] = $db->quoteSmart($assetid);
+				}
+				$in_clauses = Array();
+				foreach (array_chunk($query_assetids, 999) as $chunk) {
+					$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
+				}
+				$sql = 'SELECT
+							assetid, type_code
+						FROM
+							sq_ast
+						WHERE
+								('.implode(' OR ', $in_clauses).')
+							AND status < '.$db->quote(SQ_STATUS_LIVE);
+				$sub_live_assets = $db->getAssoc($sql);
+				assert_valid_db_result($sub_live_assets);
+				foreach ($status_matches as $i => $v) {
+					if (isset($sub_live_assets[$v])) {
+						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($v, $sub_live_assets[$v]);
+						if (!$asset->readAccess()) unset($status_matches[$i]);
 					}
 				}
 			}
+		}//end if not root or sysadmin
 
-			foreach ($todo as $assetid => $v) {
-				if (!isset($wanted_assets[$assetid])) {
-					unset($todo[$assetid]);
+		// Now that we know who the valid candidates are, weed the rest
+		// out of the todo list, treating shadows according to their bridge's status
+		foreach (array_keys($todo) as $i) {
+			if (FALSE !== strpos($i, ':')) {
+				$bridgeid = strtok($i, ':');
+				if (!in_array($bridgeid, $status_matches)) {
+					unset($todo[$i]);
 				}
+			} else {
+				if (!in_array($i, $status_matches)) unset($todo[$i]);
 			}
 		}
-
-		// check to see if this is a special user without restrictions
-		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (!$user_restrictions) return;
-
-		if (empty($wanted_statuses) && !empty($todo_keys)) {
-			// get a list of assets that are not live
-			$sql = 'SELECT
-						assetid, type_code
-					FROM
-						sq_ast
-					WHERE
-							('.implode(' OR ', $in_clauses).')
-						AND status < '.$db->quote(SQ_STATUS_LIVE);
-
-			$wanted_assets = $db->getAssoc($sql);
-			assert_valid_db_result($wanted_assets);
-			foreach ($wanted_assets as $wanted) {
-				foreach ($shadow_assets as $key => $value) {
-					if (strpos($key, $wanted) !== FALSE) {
-						$wanted_assets[] = $key;
-					}
-				}
-			}
-		}
-
-		foreach ($todo as $assetid => $v) {
-			if (isset($wanted_assets[$assetid])) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $wanted_assets[$assetid]);
-				if (!$asset->readAccess()) unset($todo[$assetid]);
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-				unset($asset);
-			}
-		}
-
 
 
 	}//end filterAssetStatuses()
@@ -1550,16 +1546,17 @@ class Listing_Engine extends Page
 		$this->_tmp['formats']        = Array();
 		$this->_tmp['default_format'] = '';
 		$this->_tmp['is_default']     = Array();
-		$this->_tmp['needs_asset']    = Array();
 		if (empty($this->_tmp['assets_info'])) {
 			// first check that at least the first key is numeric
 			reset($todo);
 			if (0 != (int)key($todo)) {
 				$this->_tmp['assets_info'] = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
 			}
+			$this->_tmp['asset_urls'] = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($todo));
 		}
 
 		$type_folder =& $this->getFolder('type_formats');
+
 		$this->_tmp['type_folder_id'] = $type_folder->id;
 
 		$this->_tmp['position_formats'] = Array();
@@ -1886,7 +1883,6 @@ class Listing_Engine extends Page
 				$type_key = array_search($this->_tmp['type_formats'][$type_code], $customised);
 				$type_code = $this->_tmp['type_formats'][$type_code];
 			} else {
-
 				$parent = NULL;
 				$parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
 
@@ -1902,39 +1898,44 @@ class Listing_Engine extends Page
 				}
 			}
 			if (isset($type_key) && $type_key !== FALSE) {
-				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', TRUE, $type_code);
-				if ($link) {
-					$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
-				} else {
-					$this->_tmp['is_default'][] = $type_code;
-				}
+				$bodycopy =& $this->_getTypeFormatBodycopy($type_code);
 			}
 
 		}
 
 		// if no bodycopy found, try the default format
 		if (is_null($bodycopy)) {
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'default_format');
-			if ($link) {
-				$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
-			} else {
-				// TODO: localise
-				trigger_error('Cannot Find the Default Bodycopy');
-				return;
-			}//end if using default format
+			if (!isset($this->_tmp['default_format_bc'])) {
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'default_format');
+				if ($link) {
+					$this->_tmp['default_format_bc'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+				} else {
+					// TODO: localise
+					trigger_error('Cannot Find the Default Bodycopy');
+					return;
+				}
+			}
+			$bodycopy =& $this->_tmp['default_format_bc'];
 		}
 
 
 		// by the time we reach this point we already have a bodycopy for this asset
-		$this_needs_asset = FALSE;
 		$bc_keywords = $bodycopy->getKeywords();
 		$keywords = Array();
 		// if the asset is a shadow asset  then get the keywords separately
 		if ($is_shadow) {
 			$keywords = $this->_getShadowAssetKeywordReplacements($assetid, $bc_keywords);
 		} else {
+			$this_needs_asset = FALSE;
 			foreach ($bc_keywords as $keyword) {
-				if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!isset($asset_info_fields[substr($keyword, 6)])))) {
+				if (in_array($keyword, Array('asset_url', 'asset_name_linked', 'asset_short_name_linked')) && !SQ_ROLLBACK_VIEW) {
+					continue;
+				}
+				if (strpos($keyword, 'asset_') !== 0) {
+					$this_needs_asset = TRUE;
+					break;
+				}
+				if ((strpos($keyword, 'asset_metadata_') !== 0) && (!isset($asset_info_fields[substr($keyword, 6)]))) {
 					$this_needs_asset = TRUE;
 					break;
 				}
@@ -1970,133 +1971,12 @@ class Listing_Engine extends Page
 				}
 
 				// stuff carried over results body replacements
-				$keywords['asset_name_linked'] = '<a href="'.$asset->getUrl().'">'.htmlspecialchars($asset->name).'</a>';
-				$keywords['asset_short_name_linked'] = '<a href="'.$asset->getUrl().'">'.htmlspecialchars($asset->short_name).'</a>';
+				$keywords['asset_url'] = array_get_index($this->_tmp['asset_urls'], $assetid, './?a='.$assetid);
+				$keywords['asset_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.htmlspecialchars($asset->name).'</a>';
+				$keywords['asset_short_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.htmlspecialchars($asset->short_name).'</a>';
 
 				if (in_array('asset_lineage', $bc_keywords) || in_array('asset_lineage_linked', $bc_keywords)) {
-					// there is a lineage keyword in the bodycopy
-					$lineage = '';
-					$linked_lineage = '';
-					$first = TRUE;
-					$found_root = FALSE;
-
-					// prepare the url for getLineageFromUrl
-					$urls = $asset->getURLs();
-
-					// no URL, have to use get Parents
-					if (empty($urls)) {
-
-						$parent_asset_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id));
-
-						// searching for the root asset
-						$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, 'root');
-						$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
-						foreach ($parent_asset_ids as $parent_asset_id) {
-							if ($parent_asset_id == $root_assetid) {
-								$found_root = TRUE;
-							}
-							if (!$found_root) continue;
-							if (!$first) {
-								$lineage .= htmlspecialchars($this->attr('lineage_seperator'));
-								$linked_lineage .= htmlspecialchars($this->attr('lineage_seperator'));
-							}
-							$first = FALSE;
-							$ancestor_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_asset_id);
-							$linked_lineage .= '<a href="'.$ancestor_asset->getUrl().'">'.htmlspecialchars($ancestor_asset->name).'</a>';
-							$lineage .= $ancestor_asset->short_name;
-							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ancestor_asset);
-						}
-					} else {
-						// searching for the root asset
-						$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
-						$show_root = $this->attr('root_in_lineage');
-						$show_self = $this->attr('self_in_lineage');
-
-						// multiple urls, let's work out which one to use
-						// none includes root node. pick the first one
-						$index = 0;
-						$one_lineage_inc_root = FALSE;
-						$multiple_lineage_inc_root = FALSE;
-
-						foreach ($urls as $idx => $data) {
-							$lineage_array						= $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(NULL, $data['url']);
-							$found_root							= FALSE;
-							$first								= TRUE;
-							$first_full							= TRUE;
-							$urls[$idx]['lineage']				= '';
-							$urls[$idx]['linked_lineage']		= '';
-							$urls[$idx]['lineage_full']			= '';
-							$urls[$idx]['linked_lineage_full']	= '';
-
-							if (!$show_self) array_pop($lineage_array);
-
-							foreach ($lineage_array as $lineage_item) {
-
-								foreach ($root_links as $root_link) {
-									if ($lineage_item['assetid'] == $root_link['minorid']) {
-										$found_root = TRUE;
-									}
-								}
-
-								if ($first_full) $first_full = FALSE;
-
-								// Full lineage without concerning root
-								if (!$first_full && $urls[$idx]['lineage_full'] != '') {
-									$urls[$idx]['lineage_full'] .= $this->attr('lineage_seperator');
-									$urls[$idx]['linked_lineage_full'] .= $this->attr('lineage_seperator');
-								}
-								$urls[$idx]['lineage_full'] .= $lineage_item['short_name'];
-								$urls[$idx]['linked_lineage_full'] .= '<a href="'.$lineage_item['protocol'].'://'.$lineage_item['url'].'">'.htmlspecialchars($lineage_item['short_name']).'</a>';
-
-								if ($found_root) {
-
-									// Record the index
-									$index = $idx;
-
-									if (!$one_lineage_inc_root) {
-										$one_lineage_inc_root = TRUE;
-									} else {
-										$multiple_lineage_inc_root = TRUE;
-									}
-
-									if ($first && !$show_root) {
-										$first = FALSE;
-										continue;
-									}
-
-									if (!$first && $urls[$idx]['lineage'] != '') {
-										$urls[$idx]['lineage'] .= $this->attr('lineage_seperator');
-										$urls[$idx]['linked_lineage'] .= $this->attr('lineage_seperator');
-									}
-									$urls[$idx]['lineage'] .= $lineage_item['short_name'];
-									$urls[$idx]['linked_lineage'] .= '<a href="'.$lineage_item['protocol'].'://'.$lineage_item['url'].'">'.htmlspecialchars($lineage_item['short_name']).'</a>';
-									$first = FALSE;
-								}
-								$first_full = FALSE;
-							}//end foreach
-
-							// We already found one lineage including root node
-							// do not go further
-							if ($multiple_lineage_inc_root) break;
-						}//end foreach
-
-						if (!empty($urls)) {
-							if ($found_root) {
-								$lineage = htmlspecialchars($urls[$index]['lineage']);
-								$linked_lineage = $urls[$index]['linked_lineage'];
-							} else {
-								$url = array_pop($urls);
-								$lineage = htmlspecialchars($url['lineage_full']);
-								$linked_lineage = $url['linked_lineage_full'];
-							}
-						}
-
-					}//end else
-					$keywords['asset_lineage'] = $lineage;
-					$keywords['asset_lineage_linked'] = $linked_lineage;
-				} else {
-					$keywords['asset_lineage'] = '';
-					$keywords['asset_lineage_linked'] = '';
+					$keywords = $this->_getLineageKeywordReplacements($asset) + $keywords;
 				}// end if lineage keyword present
 
 				// end results body stuff
@@ -2108,6 +1988,9 @@ class Listing_Engine extends Page
 				foreach ($this->_tmp['assets_info'][$assetid] as $field => $value) {
 					$keywords['asset_'.$field] = $value;
 				}
+				$keywords['asset_url'] = array_get_index($this->_tmp['asset_urls'], $assetid, './?a='.$assetid);
+				$keywords['asset_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.htmlspecialchars($keywords['asset_name']).'</a>';
+				$keywords['asset_short_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.htmlspecialchars($keywords['asset_short_name']).'</a>';
 
 			}//end if needs asset
 		}//end else
@@ -2281,7 +2164,7 @@ class Listing_Engine extends Page
 
 		// kept for backwards compatibility
 		$keywords['result_no']  =& $keywords['asset_position'];
-		$keywords['root_nodes'] = implode(',', $this->getRootNodes());
+		$keywords['root_nodes'] = implode(',', $this->getRootNodes(FALSE));
 
 		$keywords += $this->getExtendedAssetKeywordReplacements();
 
@@ -2289,6 +2172,163 @@ class Listing_Engine extends Page
 		$bodycopy->printBody();
 
 	}//end _printAsset()
+
+
+	/**
+	* Get the replacements for the asset_lineage and asset_lineage_linked keywords
+	*
+	* @param object	&$asset	The asset for which we are getting the lineage
+	*
+	* @return array
+	* @access private
+	*/
+	function _getLineageKeywordReplacements(&$asset)
+	{
+		$lineage = '';
+		$linked_lineage = '';
+		$first = TRUE;
+		$found_root = FALSE;
+		$root_assetids = $this->getRootNodes(FALSE);
+
+		// prepare the url for getLineageFromUrl
+		$urls = $asset->getURLs();
+
+		// no URL, have to use get Parents
+		if (empty($urls)) {
+
+			$parent_asset_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id));
+
+			// searching for the root asset
+				foreach ($parent_asset_ids as $parent_asset_id) {
+				if (in_array($parent_asset_id, $root_assetids)) {
+					$found_root = TRUE;
+				}
+				if (!$found_root) continue;
+				if (!$first) {
+					$lineage .= htmlspecialchars($this->attr('lineage_seperator'));
+					$linked_lineage .= htmlspecialchars($this->attr('lineage_seperator'));
+				}
+				$first = FALSE;
+				$ancestor_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_asset_id);
+				$linked_lineage .= '<a href="'.$ancestor_asset->getUrl().'">'.htmlspecialchars($ancestor_asset->name).'</a>';
+				$lineage .= $ancestor_asset->short_name;
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ancestor_asset);
+			}
+		} else {
+			// searching for the root asset
+
+			$show_root = $this->attr('root_in_lineage');
+			$show_self = $this->attr('self_in_lineage');
+
+			// multiple urls, let's work out which one to use
+			// none includes root node. pick the first one
+			$index = 0;
+			$one_lineage_inc_root = FALSE;
+			$multiple_lineage_inc_root = FALSE;
+
+			foreach ($urls as $idx => $data) {
+				$lineage_array						= $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(NULL, $data['url']);
+				$found_root							= FALSE;
+				$first								= TRUE;
+				$first_full							= TRUE;
+				$urls[$idx]['lineage']				= '';
+				$urls[$idx]['linked_lineage']		= '';
+				$urls[$idx]['lineage_full']			= '';
+				$urls[$idx]['linked_lineage_full']	= '';
+
+				if (!$show_self) array_pop($lineage_array);
+
+				foreach ($lineage_array as $lineage_item) {
+
+					if (in_array($lineage_item['assetid'], $root_assetids)) {
+						$found_root = TRUE;
+					}
+
+					if ($first_full) $first_full = FALSE;
+
+					// Full lineage without concerning root
+					if (!$first_full && $urls[$idx]['lineage_full'] != '') {
+						$urls[$idx]['lineage_full'] .= $this->attr('lineage_seperator');
+						$urls[$idx]['linked_lineage_full'] .= $this->attr('lineage_seperator');
+					}
+					$urls[$idx]['lineage_full'] .= $lineage_item['short_name'];
+					$urls[$idx]['linked_lineage_full'] .= '<a href="'.$lineage_item['protocol'].'://'.$lineage_item['url'].'">'.htmlspecialchars($lineage_item['short_name']).'</a>';
+
+					if ($found_root) {
+
+						// Record the index
+						$index = $idx;
+
+						if (!$one_lineage_inc_root) {
+							$one_lineage_inc_root = TRUE;
+						} else {
+							$multiple_lineage_inc_root = TRUE;
+						}
+
+						if ($first && !$show_root) {
+							$first = FALSE;
+							continue;
+						}
+
+						if (!$first && $urls[$idx]['lineage'] != '') {
+							$urls[$idx]['lineage'] .= $this->attr('lineage_seperator');
+							$urls[$idx]['linked_lineage'] .= $this->attr('lineage_seperator');
+						}
+						$urls[$idx]['lineage'] .= $lineage_item['short_name'];
+						$urls[$idx]['linked_lineage'] .= '<a href="'.$lineage_item['protocol'].'://'.$lineage_item['url'].'">'.htmlspecialchars($lineage_item['short_name']).'</a>';
+						$first = FALSE;
+					}
+					$first_full = FALSE;
+				}//end foreach
+
+				// We already found one lineage including root node
+				// do not go further
+				if ($multiple_lineage_inc_root) break;
+			}//end foreach
+
+			if (!empty($urls)) {
+				if ($found_root) {
+					$lineage = htmlspecialchars($urls[$index]['lineage']);
+					$linked_lineage = $urls[$index]['linked_lineage'];
+				} else {
+					$url = array_pop($urls);
+					$lineage = htmlspecialchars($url['lineage_full']);
+					$linked_lineage = $url['linked_lineage_full'];
+				}
+			}
+
+		}//end else
+
+		return Array(
+				'asset_lineage'			=> $lineage,
+				'asset_lineage_linked'	=> $linked_lineage,
+			   );
+
+	}//end _getLineageKeywordReplacements()
+
+
+	/**
+	* Get the appropriate type format bodycopy for the specified type code
+	*
+	* @param string	$type_code	The type code for which we want the type format
+	*
+	* @return object
+	* @access private
+	*/
+	function &_getTypeFormatBodycopy($type_code)
+	{
+		if (!isset($this->_tmp['type_format_bcs'][$type_code])) {
+			$this->_tmp['type_format_bcs'][$type_code] = NULL;
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', TRUE, $type_code);
+			if ($link) {
+				$this->_tmp['type_format_bcs'][$type_code] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+			} else {
+				$this->_tmp['is_default'][] = $type_code;
+			}
+		}
+		return $this->_tmp['type_format_bcs'][$type_code];
+
+	}//end _getTypeFormatBodycopy()
 
 
 	/**
@@ -2322,66 +2362,73 @@ class Listing_Engine extends Page
 	/**
 	* Gets the list of current root nodes
 	*
+	* This function has optional caching.  The assumption is that it will
+	* be called with $reload=TRUE (the default) any time the root nodes change
+	*
+	* @param string	$reload	whether to refresh the root node cache
+	*
 	* @return array
 	* @access public
 	*/
-	function getRootNodes()
+	function getRootNodes($reload=TRUE)
 	{
-		// We can't cache this out right now - what if we need to print this
-		// asset more than once on the same page??
-		$root_asset_ids = Array();
-		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
-		foreach ($root_links as $root_link) {
-			if (strstr($root_link['minorid'], ':') !== FALSE) {
-				$root_asset_ids[] = $root_link['minorid'];
-			} else {
-				$root_asset_ids[] = (int)$root_link['minorid'];
-			}
-		}
-
-		$parameter_map =& $this->getAttribute('parameter_map');
-		$raw_dynamic_root_nodes = $parameter_map->getParameterValue('root_node');
-
-		// check if we have a dynamic parameter -- if so, let's do some security checks
-		if (!empty($raw_dynamic_root_nodes)) {
-
-			$dynamic_root_nodes = Array();
-			// note that dynamic roots can be supplied as an array of asset ids or
-			// as a comma delimited string of asset ids
-			if (!is_array($raw_dynamic_root_nodes)) {
-				$raw_dynamic_root_nodes = explode(',', $raw_dynamic_root_nodes);
-			}
-
-			foreach ($raw_dynamic_root_nodes as $dynamic_root) {
-				if (!strlen($dynamic_root)) continue;
-
-				$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
-
-				// first, check to see if the dynamic parameter specified is already one of the root nodes
-				// if so, just use that single root node
-				if (in_array($dynamic_root, $root_asset_ids)) {
-					$dynamic_root_nodes[] = $dynamic_root;
+		if ($reload || !isset($this->_tmp['root_nodes'])) {
+			$root_asset_ids = Array();
+			$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
+			foreach ($root_links as $root_link) {
+				if (strstr($root_link['minorid'], ':') !== FALSE) {
+					$root_asset_ids[] = $root_link['minorid'];
 				} else {
-					// otherwise, check to see if the dynamic parameter specified is a child of one of the root
-					// nodes. If so, use the dynamic parameter as the root node; otherwise return an error.
-					$matching_root_ids = array_intersect(array_keys($dynamic_parents), $root_asset_ids);
-					if (empty($matching_root_ids)) {
-						trigger_localised_error('CMS0020', E_USER_WARNING, $dynamic_root);
-					} else {
-						$dynamic_root_nodes[] = $dynamic_root;
-					}
+					$root_asset_ids[] = (int)$root_link['minorid'];
 				}
 			}
 
-			if (!empty($dynamic_root_nodes)) {
-				$root_asset_ids = $dynamic_root_nodes;
+			$parameter_map =& $this->getAttribute('parameter_map');
+			$raw_dynamic_root_nodes = $parameter_map->getParameterValue('root_node');
+
+			// check if we have a dynamic parameter -- if so, let's do some security checks
+			if (!empty($raw_dynamic_root_nodes)) {
+
+				$dynamic_root_nodes = Array();
+				// note that dynamic roots can be supplied as an array of asset ids or
+				// as a comma delimited string of asset ids
+				if (!is_array($raw_dynamic_root_nodes)) {
+					$raw_dynamic_root_nodes = explode(',', $raw_dynamic_root_nodes);
+				}
+
+				foreach ($raw_dynamic_root_nodes as $dynamic_root) {
+					if (!strlen($dynamic_root)) continue;
+
+					$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
+
+					// first, check to see if the dynamic parameter specified is already one of the root nodes
+					// if so, just use that single root node
+					if (in_array($dynamic_root, $root_asset_ids)) {
+						$dynamic_root_nodes[] = $dynamic_root;
+					} else {
+						// otherwise, check to see if the dynamic parameter specified is a child of one of the root
+						// nodes. If so, use the dynamic parameter as the root node; otherwise return an error.
+						$matching_root_ids = array_intersect(array_keys($dynamic_parents), $root_asset_ids);
+						if (empty($matching_root_ids)) {
+							trigger_localised_error('CMS0020', E_USER_WARNING, $dynamic_root);
+						} else {
+							$dynamic_root_nodes[] = $dynamic_root;
+						}
+					}
+				}
+
+				if (!empty($dynamic_root_nodes)) {
+					$root_asset_ids = $dynamic_root_nodes;
+				}
+			}//end if
+
+			if (empty($root_asset_ids)) {
+				$root_asset_ids = Array($this->id);
 			}
+			$this->_tmp['root_nodes'] = $root_asset_ids;
 		}//end if
 
-		if (empty($root_asset_ids)) {
-			$root_asset_ids = Array($this->id);
-		}
-		return $root_asset_ids;
+		return $this->_tmp['root_nodes'];
 
 	}//end getRootNodes()
 
@@ -2547,7 +2594,7 @@ class Listing_Engine extends Page
 		$max_depth = $this->attr('max_depth');
 		if ($max_depth == '') $max_depth = NULL;
 
-		$root_nodes = $this->getRootNodes();
+		$root_nodes = $this->getRootNodes(FALSE);
 
 		// we need assets and groups, so if none given, let's bail
 		if (empty($assetids) || empty($group_levels)) {
@@ -2699,6 +2746,8 @@ class Listing_Engine extends Page
 
 		$this->limitAssetsRecursively($results, $limit_array);
 
+		unset($this->_tmp['root_node_treeids']); // just in case we are nested in a different context later
+
 	}//end groupAssetsRecursively()
 
 
@@ -2752,7 +2801,7 @@ class Listing_Engine extends Page
 	*/
 	function getGroupableParentAssetids($child_assetid, $restrict_types=Array(), $direct_parent_only=FALSE)
 	{
-		$root_nodes = $this->getRootNodes();
+		$root_nodes = $this->getRootNodes(FALSE);
 
 		if (empty($root_nodes) || ($this->attr('direction') == 'up')) {
 			$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($child_assetid, $this->attr('link_types'), '', TRUE, 'minor');
@@ -2783,66 +2832,62 @@ class Listing_Engine extends Page
 	function _getGroupableParentAssetids($child_assetid, $restrict_types=Array(), $root_nodes=Array(), $direct_parent_only=FALSE)
 	{
 		// get single treeid for each root node, children of root node should be the same on all trees
-		$root_nodes_treeid = Array();
 		$groupable_parents = Array();
-		foreach ($root_nodes as $root_nodeid) {
-
-			if (!isset($this->_tmp['root_node_treeids'][$root_nodeid])) {
-				$this->_tmp['root_node_treeids'][$root_nodeid] = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($root_nodeid);
+		if (!isset($this->_tmp['root_node_treeids'])) {
+			foreach ($GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($root_nodes) as $aid => $treeids) {
+				$this->_tmp['root_node_treeids'][$aid] = reset($treeids);
 			}
-			$treeids = $this->_tmp['root_node_treeids'][$root_nodeid];
-			$treeid = array_shift($treeids);
-			$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($child_assetid, 0, $treeid, 'type_code');
+		}
+		$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($child_assetid, 0, $this->_tmp['root_node_treeids'], 'type_code');
 
-			foreach ($lineages as $lineage_info) {
+		foreach ($lineages as $lineage_info) {
 
-				// only get direct parent, if it is set in the group by option
-				if ($direct_parent_only && !empty($lineage_info['lineage'])) {
-					$all_assetids = array_keys($lineage_info['lineage']);
-					$direct_parent_assetid = array_pop($all_assetids);
-					$direct_parent_type = array_pop($lineage_info['lineage']);
-					// in the form of (assetid => type_code)
-					$lineage_info['lineage'] = Array($direct_parent_assetid => $direct_parent_type);
-				}
+			// only get direct parent, if it is set in the group by option
+			if ($direct_parent_only && !empty($lineage_info['lineage'])) {
+				$all_assetids = array_keys($lineage_info['lineage']);
+				$direct_parent_assetid = array_pop($all_assetids);
+				$direct_parent_type = array_pop($lineage_info['lineage']);
+				// in the form of (assetid => type_code)
+				$lineage_info['lineage'] = Array($direct_parent_assetid => $direct_parent_type);
+			}
 
-				// if not one of the selected link types continue
-				if (!($lineage_info['link_type'] & $this->attr('link_types'))) {
-					continue;
-				}
+			// if not one of the selected link types continue
+			if (!($lineage_info['link_type'] & $this->attr('link_types'))) {
+				continue;
+			}
 
-				// if no types selected then group by root nodes
-				if (!isset($restrict_types['type_code']) || empty($restrict_types['type_code'])) {
-					$groupable_parents[] = array_shift(array_keys($lineage_info['lineage']));
-					continue;
-				}
-				// start from the end of the current lineage
-				$lineage = array_reverse($lineage_info['lineage'], TRUE);
-				$add = FALSE;
+			// if no types selected then group by root nodes
+			if (!isset($restrict_types['type_code']) || empty($restrict_types['type_code'])) {
+				$groupable_parents[] = array_shift(array_keys($lineage_info['lineage']));
+				continue;
+			}
+			// start from the end of the current lineage
+			$lineage = array_reverse($lineage_info['lineage'], TRUE);
+			$add = FALSE;
 
-				foreach ($lineage as $parentid => $type_code) {
-					if (in_array($type_code, $restrict_types['type_code'])) {
-						$add = TRUE;
-					} else {
-						$inherit_vals = $restrict_types['inherit'];
-						foreach ($restrict_types['type_code'] as $type) {
-							$inherit = array_shift($inherit_vals);
-							if (!isset($this->_tmp['type_decendants'][$type])) {
-								$this->_tmp['type_decendants'][$type] = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type, TRUE);
-							}
-							if ($inherit && in_array($type_code, $this->_tmp['type_decendants'][$type])) {
-								$add = TRUE;
-								break;
-							}
+			foreach ($lineage as $parentid => $type_code) {
+				if (in_array($type_code, $restrict_types['type_code'])) {
+					$add = TRUE;
+				} else {
+					$inherit_vals = $restrict_types['inherit'];
+					foreach ($restrict_types['type_code'] as $type) {
+						$inherit = array_shift($inherit_vals);
+						if (!isset($this->_tmp['type_decendants'][$type])) {
+							$this->_tmp['type_decendants'][$type] = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type, TRUE);
+						}
+						if ($inherit && in_array($type_code, $this->_tmp['type_decendants'][$type])) {
+							$add = TRUE;
+							break;
 						}
 					}
-
-					if ($add) {
-						// we have found the parent for this lineage
-						$groupable_parents[] = $parentid;
-						break;
-					}
 				}
-			}//end foreach
+
+				if ($add) {
+					// we have found the parent for this lineage
+					$groupable_parents[] = $parentid;
+					break;
+				}
+			}
 		}//end foreach
 
 		return array_unique($groupable_parents);
@@ -3578,7 +3623,7 @@ class Listing_Engine extends Page
 	*/
 	function getRootNodesKeywordReplacement()
 	{
-		$root_nodes = $this->getRootNodes();
+		$root_nodes = $this->getRootNodes(FALSE);
 		return implode(',', $root_nodes);
 
 	}//end getRootNodesKeywordReplacement()
