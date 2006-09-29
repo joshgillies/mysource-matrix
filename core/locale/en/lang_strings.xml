@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.166 2006/09/24 23:36:11 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.167 2006/09/29 01:02:02 emcdonald Exp $
 *
 */
 
@@ -803,7 +803,7 @@
 	<string source="core_value_name">Value Name</string>
 	<string source="core_cannot_create_value_component">You do not have permission to create a new value component</string>
 	<string source="core_metadata_keyword_replacements_explanation">&lt;b&gt;You can use keyword replacements in place of values for this metadata field.&lt;br /&gt;These values can be used in the main &lt;i&gt;Default&lt;/i&gt; value of the field as well as in the values of any &lt;i&gt;Value Components&lt;/i&gt; the field has defined.&lt;br /&gt;For a complete list of available keyword replacements %1$s%2$s&lt;/a&gt;&lt;/b&gt;</string>
-	<string source="core_error_bodycopy_link_cannot_delete">You cant delete the link between the bodycopy and the standard page</string>
+	<string source="core_error_bodycopy_link_cannot_delete">You can't delete the link between the bodycopy and the standard page</string>
 	<string source="core_report_not_generated">Report not generated because no assets were found matching your criteria</string>
 	<string source="core_get_readable_asset_descriptions">Getting readable asset type descriptions ...</string>
 	<string source="core_obtaining_asset_list">Obtaining and preparing the list of assets ...</string>
@@ -902,7 +902,7 @@
 	<string source="trash_purge_warning">This will purge the selected assets from the trash and make them unavailable for restoring or editing.</string>
 	<string source="trash_is_empty">The trash is currently empty</string>
 	<string source="purge_root_node">Purge Root Node</string>
-	<string source="purge_root_note">Only this asset and it's children will be purged</string>
+	<string source="purge_root_note">Only this asset and it's children will be purged. If no purge root is selected, all assets will be purged.</string>
 	<string source="purge_trash">Purge Trash?</string>
 	<string source="minor_not_asset">Minor is not an asset</string>
 
@@ -919,8 +919,8 @@
 	<string source="asset_type_not_specified">Asset type not specified</string>
 	<string source="can_only_create_assets_explanation">You can create assets with no required attributes or assets for which the required attributes' values are entered here</string>
 
-	<string source="cannot_delete_inbox-user_link">You cant delete the link between a user and their inbox</string>
-	<string source="cannot_delete_workspace-user_link">You cant delete the link between a user and their workspace</string>
+	<string source="cannot_delete_inbox-user_link">You can't delete the link between a user and their inbox</string>
+	<string source="cannot_delete_workspace-user_link">You can't delete the link between a user and their workspace</string>
 	<string source="no_user_groups_selected">No User Group has been selected for this condition</string>
 	<string source="user_group_unrestricted_access_granted">Unrestricted access has been granted. No security restrictions apply on this user group.</string>
 	<string source="user_group_unrestricted_access_denied">Unrestricted access has not been granted. Security restrictions do apply on this user group.</string>
