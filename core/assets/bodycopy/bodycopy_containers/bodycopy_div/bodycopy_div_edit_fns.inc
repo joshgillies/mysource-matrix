@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.29 2006/04/05 04:11:56 sdanis Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.30 2006/09/29 04:33:53 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -220,17 +220,11 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			echo "\n<".strtolower($div_attributes['layout_type']).$attribute_list.">\n";
 		}
 
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'content_type', FALSE, 'div_contents', 'major', TRUE);
+		$content_type =& $asset->getContentType();
 
-		if (!empty($link)) {
-			$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (is_null($content_type)) {
-				echo translate('content_type_not_found', $link['minorid']);
-			} else {
-				$content_edit =& $content_type->getEditFns();
-				$content_prefix = $asset->getPrefix().'_'.get_class($content_type).'_'.$link['linkid'];
-				$content_edit->paint($content_type, $content_prefix, $editing, $generating);
-			}
+		if (!is_null($content_type)) {
+			$content_edit =& $content_type->getEditFns();
+			$content_edit->paint($content_type, $editing, $generating);
 		}
 
 		// print end DIV or SPAN tag if we are not printing raw HTML

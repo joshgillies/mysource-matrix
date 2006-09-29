@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.16 2006/03/17 03:44:05 rong Exp $
+* $Id: bodycopy_table_cell.inc,v 1.17 2006/09/29 04:33:54 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -236,7 +236,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 				$content_edit->paintBackend($content_type, $content_prefix);
 			} else {
 				ob_start();
-					$content_edit->paint($content_type, $content_prefix, $editing, $generating);
+					$content_edit->paint($content_type, $editing, $generating);
 					$cell_content = ob_get_contents();
 				ob_end_clean();
 
