@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.35 2006/08/24 01:25:49 rhoward Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.36 2006/09/29 04:34:47 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -327,14 +327,13 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	* Paints raw HTML
 	*
 	* @param object		&$asset		the WYSIWYG Content Type object
-	* @param string		$prefix		prefix for form elements
 	* @param boolean	$editing	are we printing an editing interface
 	* @param boolean	$generating	are we genenerating the cache file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paint(&$asset, $prefix, $editing=FALSE, $generating=FALSE)
+	function paint(&$asset, $editing=FALSE, $generating=FALSE)
 	{
 		$html = $asset->attr('html');
 		$html = preg_replace('|(<htmlarea_special[^>]*?>)(.*?)(</htmlarea_special>)|si', '$2', $html);

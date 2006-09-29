@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_edit_fns.inc,v 1.11 2006/08/24 01:25:49 rhoward Exp $
+* $Id: content_type_edit_fns.inc,v 1.12 2006/09/29 04:34:41 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,14 +63,13 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	* Paints raw HTML to be printed on the frontend
 	*
 	* @param object		&$asset		the content type we are painting
-	* @param string		$prefix		prefix for form elements
 	* @param boolean	$editing	are we printing an editing interface
 	* @param boolean	$generating	are we genenerating the cache file
 	*
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset, $prefix, $editing=FALSE, $generating=FALSE)
+	function paint(&$asset, $editing=FALSE, $generating=FALSE)
 	{
 		$output =  $asset->attr('html');
 		if ($generating) {

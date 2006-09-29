@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code_edit_fns.inc,v 1.7 2006/08/24 01:25:53 rhoward Exp $
+* $Id: content_type_code_edit_fns.inc,v 1.8 2006/09/29 04:34:57 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -179,14 +179,13 @@ class Content_Type_Code_Edit_Fns extends Content_Type_Edit_Fns
 	* Paints raw HTML to be printed on the frontend
 	*
 	* @param object		&$asset		the content type we are painting
-	* @param string		$prefix		prefix for form elements
 	* @param boolean	$editing	are we printing an editing interface
 	* @param boolean	$generating	are we genenerating the cache file
 	*
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset, $prefix, $editing=FALSE, $generating=FALSE)
+	function paint(&$asset, $editing=FALSE, $generating=FALSE)
 	{
 		// This may be changed to use the styles of the design, to show
 		// what it will look like. If $editing == TRUE, then we do this

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.40 2006/08/29 06:18:27 skim Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.41 2006/09/29 04:34:58 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -99,14 +99,13 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	* just calls printBody on the nested asset and lets it take care of things
 	*
 	* @param object		&$asset		the nest content content type object
-	* @param string		$prefix		prefix for form elements
 	* @param boolean	$editing	are we printing an editing interface
 	* @param boolean	$generating	are we genenerating the cache file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paint(&$asset, $prefix, $editing=FALSE, $generating=FALSE)
+	function paint(&$asset, $editing=FALSE, $generating=FALSE)
 	{
 		// get the asset - we cant pass the type in because it could be anything
 		// we also mute errors because we check later on
