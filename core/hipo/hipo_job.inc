@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.82.2.1 2006/09/27 23:53:00 gsherwood Exp $
+* $Id: hipo_job.inc,v 1.82.2.2 2006/09/29 03:52:25 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.82.2.1 $
+* @version $Revision: 1.82.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -704,7 +704,7 @@ class HIPO_Job extends MySource_Object
 	*/
 	function save($ignore_running_mode=FALSE)
 	{
-		if ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+		if ((!$GLOBALS['SQ_SYSTEM']->userRoot()) && (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) && ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId())) {
 			trigger_localised_error('HIPO0039', E_USER_WARNING, $this->code_name);
 			return FALSE;
 		}
@@ -1056,7 +1056,7 @@ class HIPO_Job extends MySource_Object
 	*/
 	function process()
 	{
-		if ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+		if ((!$GLOBALS['SQ_SYSTEM']->userRoot()) && (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) && ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId())) {
 			trigger_localised_error('HIPO0036', E_USER_WARNING);
 			return FALSE;
 		}

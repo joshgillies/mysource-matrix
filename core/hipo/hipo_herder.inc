@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.78.2.2 2006/09/27 23:53:00 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.78.2.3 2006/09/29 03:52:25 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.78.2.2 $
+* @version $Revision: 1.78.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -891,12 +891,12 @@ class HIPO_Herder extends MySource_Object
 					if (!empty($lock)) {
 						// this asset is currently locked
 						// so display message to the user
-						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+						$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 
 						$now = time();
 
 						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-						$expires_in = easy_time_total(($lock['expires'] - $now), true);
+						$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
 						if (!$expires_in) $expires_in = '1 second';
 						$expires_in = translate('due_to_expire', $expires_in);
 						echo translate('release_lock', translate('release_lock_button'), translate('user_preferences'));
@@ -976,6 +976,7 @@ class HIPO_Herder extends MySource_Object
 					</tr>
 				<?php
 				$now = time();
+				$current_user_id = $GLOBALS['SQ_SYSTEM']->currentUserId();
 				foreach ($source_jobs[''] as $source_code_name => $source_job_type) {
 					$source_job =& $this->getJob($source_code_name);
 					if (is_null($source_job)) continue;
@@ -985,7 +986,12 @@ class HIPO_Herder extends MySource_Object
 							if ($have_lock) {
 							?>
 							<td class="sq-backend-table-cell" style="text-align: center;">
-								<a href="./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>&return_to_herder=1" style="text-decoration: none;"><img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume.png" title="<?php echo translate('hipo_herder_continue'); ?>" alt="Resume <?php echo $source_code_name; ?>" /></a>
+								<?php
+									// if the current user is the owner of the hipo job or the current user is a sysadmin or a root
+									// then display the resume button
+									if (($source_job->userid === $current_user_id) || $GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) { ?>
+										<a href="./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>&return_to_herder=1" style="text-decoration: none;"><img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume.png" title="<?php echo translate('hipo_herder_continue'); ?>" alt="Resume <?php echo $source_code_name; ?>" /></a>
+								<?php } ?>
 							</td>
 							<?php
 							}
@@ -1057,7 +1063,7 @@ class HIPO_Herder extends MySource_Object
 
 		$o->closeSection();
 
-		//.get jobs that have a non-existant source job
+		// get jobs that have a non-existant source job
 		$o->openSection(translate('orphaned_hipo_jobs'));
 			$o->openField('', 'new_line');
 
@@ -1129,7 +1135,7 @@ class HIPO_Herder extends MySource_Object
 						</tr>
 						<?php
 					}
-				}
+				}//end else
 
 			$o->closeField();
 		$o->closeSection();
