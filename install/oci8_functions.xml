@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: oci8_functions.xml,v 1.13 2006/05/30 06:18:48 mmcintyre Exp $
+* $Id: oci8_functions.xml,v 1.13.2.1 2006/10/03 04:50:29 lwright Exp $
 *
 */
 -->
@@ -136,7 +136,7 @@
 				END IF;
 
 				sql_str := 'SELECT treeid FROM ' || table_prefix || 'ast_lnk l INNER JOIN ' || table_prefix || 'ast_lnk_tree t ON l.linkid = t.linkid
-						WHERE l.minorid = ' || minorid;
+						WHERE l.minorid = "' || minorid || '"';
 
 				IF rb_date IS NOT NULL THEN
 					sql_str := sql_str || ' AND l.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'
@@ -144,9 +144,9 @@
 
 					sql_str := sql_str || ' AND t.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'
 						|| ' AND (t.sq_eff_to IS NULL OR t.sq_eff_to > TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")' || ')';
-
-					sql_str := replace(sql_str, '"', '''' );
 				END IF;
+
+				sql_str := replace(sql_str, '"', '''' );
 
 				cursor_ptr := DBMS_SQL.open_cursor;
 				DBMS_SQL.PARSE(cursor_ptr, sql_str, DBMS_SQL.V7);
@@ -196,7 +196,7 @@
 				END IF;
 
 				sql_str := 'SELECT treeid FROM ' || table_prefix || 'ast_lnk l INNER JOIN ' || table_prefix || 'ast_lnk_tree t ON l.linkid = t.linkid
-						    WHERE l.minorid IN (SELECT l.majorid FROM ' || table_prefix || 'ast_lnk l WHERE l.minorid = ' || minorid;
+						    WHERE l.minorid IN (SELECT l.majorid FROM ' || table_prefix || 'ast_lnk l WHERE l.minorid = "' || minorid || '"';
 
 				IF rb_date IS NOT NULL THEN
                     -- note the extra bracket on the end of this first statement is to end the I clause above
@@ -209,12 +209,12 @@
 
 					sql_str := sql_str || ' AND t.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'
 						|| ' AND (t.sq_eff_to IS NULL OR t.sq_eff_to > TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")' || ')';
-
-					sql_str := replace(sql_str, '"', '''' );
                 ELSE
                     -- close the bracket of the IN clause
                     sql_str := sql_str || ')';
 				END IF;
+
+				sql_str := replace(sql_str, '"', '''' );
 
 				cursor_ptr := DBMS_SQL.open_cursor;
 				DBMS_SQL.PARSE(cursor_ptr, sql_str, DBMS_SQL.V7);
