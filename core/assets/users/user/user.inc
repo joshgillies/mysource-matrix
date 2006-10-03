@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.106 2006/09/29 04:44:34 tbarrett Exp $
+* $Id: user.inc,v 1.107 2006/10/03 01:56:35 skim Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -529,7 +529,7 @@ class User extends Asset
 	{
 		if (!isset($this->_tmp['effective_groups'])) {
 			$this->_tmp['effective_groups'] = Array();
-			foreach ($this->getGroups() as $groupid) {
+			foreach ($this->getGroups() as $groupid => $type_code) {
 				// if we pass the conditions, let us belong to this group
 				if ($this->_belongsToGroup($groupid)) {
 					$this->_tmp['effective_groups'][] = $groupid;
