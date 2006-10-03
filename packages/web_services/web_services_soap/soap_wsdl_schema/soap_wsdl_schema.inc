@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_schema.inc,v 1.11 2006/07/27 00:46:40 bcaldwell Exp $
+* $Id: soap_wsdl_schema.inc,v 1.12 2006/10/03 23:39:32 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once 'SOAP/Client.php';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -245,7 +245,7 @@ class SOAP_WSDL_Schema extends Asset
 	*/
 	function getLinkByAsset($assetid, $other_assetid, $link_types=NULL, $value=NULL, $side_of_link='major', $force_array=FALSE, $dependant=NULL, $exclusive=NULL)
 	{
-
+		return Array();
 	}//end getLinkByAsset()
 
 
@@ -262,6 +262,7 @@ class SOAP_WSDL_Schema extends Asset
 	*/
 	function getLinkById($linkid, $assetid=0, $side_of_link='major')
 	{
+		return Array();
 
 	}//end getLinkById()
 
@@ -351,7 +352,7 @@ class SOAP_WSDL_Schema extends Asset
 		// use pear soap to parse the wsdl file
 		$wsdl =& new SOAP_WSDL($value);
 		if (isset($wsdl->fault)) {
-			// todo: trigger error
+			trigger_error($wsdl->fault->message, E_USER_NOTICE);
 			return FALSE;
 		}
 		return $this->setAttrValue('wsdl_cache', $wsdl) && parent::setAttrValue($name, $value);

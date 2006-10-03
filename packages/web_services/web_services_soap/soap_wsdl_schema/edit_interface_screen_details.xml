@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2006/07/18 06:41:56 bcaldwell Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2006/10/03 23:39:32 bcaldwell Exp $
 *
 */
 -->
@@ -27,6 +27,12 @@
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="wsdl_uri">
 			<text width="35" height="1" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintReparseFile"   />
+				<process_function name="processReparseFile" />
+			</function_call>
 		</field>
 	</section>
 </contents>

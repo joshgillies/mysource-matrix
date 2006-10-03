@@ -18,12 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_schema_edit_fns.inc,v 1.1 2006/07/18 06:41:56 bcaldwell Exp $
+* $Id: soap_wsdl_schema_edit_fns.inc,v 1.2 2006/10/03 23:39:32 bcaldwell Exp $
 *
 */
 
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+
 
 /**
 * SOAP_WSDL_Schema_Edit_Fns
@@ -32,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -49,6 +50,55 @@ class SOAP_WSDL_Schema_Edit_Fns extends Asset_Edit_Fns
 		$this->Asset_Edit_Fns();
 
 	}//end constructor
+
+
+	/**
+	* Provide an interface enabling the WSDL cache to be refreshed.
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintReparseFile(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$wsdl = $asset->attr('wsdl_cache');
+
+		$reparse_flag = $prefix.'_reparse';
+		if ($wa && !is_null($wsdl)) {
+			check_box($reparse_flag);
+			label(' Refresh WSDL Cache', $reparse_flag);
+		}
+		return $wa;
+
+	}//end paintReparseFile()
+
+
+	/**
+	* Forces the WSDL cache to be rebuilt from the source file.
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processReparseFile(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		if (!$wa) return FALSE;
+
+		$reparse_flag = $prefix.'_reparse';
+		if (isset($_POST[$reparse_flag])) {
+			$asset->setAttrValue('wsdl_uri', $asset->attr('wsdl_uri'));
+		}
+		return TRUE;
+
+	}//end processReparseFile()
 
 
 }//end class
