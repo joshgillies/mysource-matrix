@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_service.inc,v 1.4 2006/10/04 00:33:49 bcaldwell Exp $
+* $Id: soap_wsdl_service.inc,v 1.5 2006/10/04 02:28:35 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_compone
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -42,29 +42,23 @@ class SOAP_WSDL_Service extends SOAP_WSDL_Component
 
 
 	/**
-	* Attempts to load all the information for this asset
+	* Load some other information for this asset
 	*
 	* @param string	$assetid	The id of this asset
 	*
 	* @access private
 	* @return boolean
 	*/
-	function loadComponent($assetid)
+	function _loadComponent($assetid)
 	{
-		if (!parent::loadComponent($assetid)) return FALSE;
+		if (is_null($this->schema)) return FALSE;
 
-		$schema =& $this->getWsdlSchema();
-		if (is_null($schema)) return FALSE;
-
-		$service_name = $schema->getElementName($this->id);
+		$service_name = $this->schema->getElementName($this->id);
 		$this->setAttrValue('service', $service_name);
-
-		$this->name = $this->_getName();
-		$this->short_name = $this->_getName(TRUE);
 
 		return TRUE;
 
-	}//end loadComponent()
+	}//end _loadComponent()
 
 
 	/**
@@ -75,11 +69,10 @@ class SOAP_WSDL_Service extends SOAP_WSDL_Component
 	*/
 	function getAssetMapLinks()
 	{
-		$schema =& $this->getWsdlSchema();
-		if (is_null($schema)) return Array();
+		if (is_null($this->schema)) return Array();
 
-		$binding_links = $schema->getBindingLinks($this->id);
-		return $schema->_getAssetMapLinks($binding_links);
+		$binding_links = $this->schema->getBindingLinks($this->id);
+		return $this->schema->_getAssetMapLinks($binding_links);
 
 	}//end getAssetMapLinks()
 

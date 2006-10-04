@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_operation.inc,v 1.22 2006/10/04 00:33:48 bcaldwell Exp $
+* $Id: soap_wsdl_operation.inc,v 1.23 2006/10/04 02:28:34 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_compone
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -42,29 +42,23 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Component
 
 
 	/**
-	* Attempts to load all the information for this asset
+	* Load some other information for this asset
 	*
 	* @param string	$assetid	The id of this asset
 	*
 	* @access private
 	* @return boolean
 	*/
-	function loadComponent($assetid)
+	function _loadComponent($assetid)
 	{
-		if (!parent::loadComponent($assetid)) return FALSE;
+		if (is_null($this->schema)) return FALSE;
 
-		$schema =& $this->getWsdlSchema();
-		if (is_null($schema)) return FALSE;
-
-		$operation_name = $schema->getElementName($this->id);
+		$operation_name = $this->schema->getElementName($this->id);
 		$this->setAttrValue('operation', $operation_name);
-
-		$this->name = $this->_getName();
-		$this->short_name = $this->_getName(TRUE);
 
 		return TRUE;
 
-	}//end loadComponent()
+	}//end _loadComponent()
 
 
 	/**
@@ -75,11 +69,10 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Component
 	*/
 	function getAssetMapLinks()
 	{
-		$schema =& $this->getWsdlSchema();
-		if (is_null($schema)) return Array();
+		if (is_null($this->schema)) return Array();
 
-		$message_links = $schema->getMessageLinks($this->id);
-		return $schema->_getAssetMapLinks($message_links);
+		$message_links = $this->schema->getMessageLinks($this->id);
+		return $this->schema->_getAssetMapLinks($message_links);
 
 	}//end getAssetMapLinks()
 
@@ -153,11 +146,10 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Component
 	*/
 	function _getMessageIdByType($type)
 	{
-		$schema =& $this->getWsdlSchema();
-		if (is_null($schema)) return;
+		if (is_null($this->schema)) return;
 
 		// extract this information from the operation definition
-		$operation_wsdl = $schema->getElementWsdl($this->id);
+		$operation_wsdl = $this->schema->getElementWsdl($this->id);
 
 		// details of the particular message
 		$message_wsdl = array_get_index($operation_wsdl, $type);
@@ -173,17 +165,16 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Component
 	*/
 	function getMessageTypeById($assetid)
 	{
-		$schema =& $this->getWsdlSchema();
-		if (is_null($schema)) return;
+		if (is_null($this->schema)) return;
 
 		$type_map = Array();
 
-		$operation_wsdl = $schema->getElementWsdl($this->id);
+		$operation_wsdl = $this->schema->getElementWsdl($this->id);
 		foreach ($operation_wsdl as $message_type => $message_wsdl) {
 			if (!is_array($message_wsdl)) continue;
 			$type_map[array_get_index($message_wsdl, 'message')] = $message_type;
 		}
-		$message_name = $schema->getElementName($assetid, 'message');
+		$message_name = $this->schema->getElementName($assetid, 'message');
 
 		return array_get_index($type_map, $message_name);
 
@@ -223,18 +214,16 @@ class SOAP_WSDL_Operation extends SOAP_WSDL_Component
 	*/
 	function process($input_message, &$output_message)
 	{
+		if (is_null($this->schema)) return NULL;
 		if (is_null($input_message)) return FALSE;
 
-		$schema =& $this->getWsdlSchema();
-		if (is_null($schema)) return NULL;
-
 		// multi-port support
-		$port_name = $schema->getElementName($this->id, 'port');
+		$port_name = $this->schema->getElementName($this->id, 'port');
 
 		$operation_name = $this->attr('operation');
 		$parameters = $input_message->getArgValues();
 
-		$result = $schema->callOperation($port_name, $operation_name, $parameters);
+		$result = $this->schema->callOperation($port_name, $operation_name, $parameters);
 		if (get_class($result) == 'soap_fault') {
 			// a fault has occured
 			$output_message = $this->getFaultMessageAsset();

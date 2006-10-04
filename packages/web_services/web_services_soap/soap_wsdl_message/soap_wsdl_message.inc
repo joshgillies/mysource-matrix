@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_message.inc,v 1.8 2006/10/04 00:33:48 bcaldwell Exp $
+* $Id: soap_wsdl_message.inc,v 1.9 2006/10/04 02:28:34 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_compone
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -69,33 +69,27 @@ class SOAP_WSDL_Message extends SOAP_WSDL_Component
 
 
 	/**
-	* Attempts to load all the information for this asset
+	* Load some other information for this asset
 	*
 	* @param string	$assetid	The id of this asset
 	*
 	* @access private
 	* @return boolean
 	*/
-	function loadComponent($assetid)
+	function _loadComponent($assetid)
 	{
-		if (!parent::loadComponent($assetid)) return FALSE;
+		if (is_null($this->schema)) return FALSE;
 
-		$schema =& $this->getWsdlSchema();
-		if (is_null($schema)) return FALSE;
-
-		$message_name = $schema->getElementName($this->id);
+		$message_name = $this->schema->getElementName($this->id);
 		$this->setAttrValue('message', $message_name);
 
-		$this->name = $this->_getName();
-		$this->short_name = $this->_getName(TRUE);
-
 		// it's the operation that can work out what kind of message this is
-		$operation =& $schema->getElementAsset($this->id, 'operation');
+		$operation =& $this->schema->getElementAsset($this->id, 'operation');
 		$this->message_type = $operation->getMessageTypeById($this->id);
 
 		return $this->_loadArgs();
 
-	}//end loadComponent()
+	}//end _loadComponent()
 
 
 	/**
@@ -111,11 +105,10 @@ class SOAP_WSDL_Message extends SOAP_WSDL_Component
 	*/
 	function _loadArgs()
 	{
-		$schema =& $this->getWsdlSchema();
-		if (is_null($schema)) return FALSE;
+		if (is_null($this->schema)) return FALSE;
 
 		// the wsdl defined structure of this message
-		$message_wsdl = $schema->getElementWsdl($this->id);
+		$message_wsdl = $this->schema->getElementWsdl($this->id);
 		if (empty($message_wsdl)) return FALSE;
 
 		// populate this object with the info we have
@@ -219,10 +212,8 @@ class SOAP_WSDL_Message extends SOAP_WSDL_Component
 	*/
 	function getElementWsdl()
 	{
-		$schema =& $this->getWsdlSchema();
-		if (is_null($schema)) return Array();
-
-		return $schema->getElementWsdl($this->id);
+		if (is_null($this->schema)) return Array();
+		return $this->schema->getElementWsdl($this->id);
 
 	}//end getElementWsdl()
 

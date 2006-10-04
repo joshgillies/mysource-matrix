@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_component.inc,v 1.1 2006/10/04 00:33:48 bcaldwell Exp $
+* $Id: soap_wsdl_component.inc,v 1.2 2006/10/04 02:28:34 bcaldwell Exp $
 *
 */
 
@@ -34,21 +34,12 @@ require_once 'SOAP/Client.php';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
 class SOAP_WSDL_Component extends Asset
 {
-
-
-	/**
-	* The asset id of the WSDL Schema (bridge) for this asset
-	*
-	* @var string
-	* @access private
-	*/
-	var $schema_assetid = 0;
 
 
 	/**
@@ -58,7 +49,16 @@ class SOAP_WSDL_Component extends Asset
 	* @access private
 	* @see &getWsdlSchema()
 	*/
-	var $schema_asset = NULL;
+	var $schema = NULL;
+
+
+	/**
+	* The asset id of the WSDL Schema (bridge) for this asset
+	*
+	* @var string
+	* @access private
+	*/
+	var $_schema_assetid = 0;
 
 
 	/**
@@ -71,71 +71,74 @@ class SOAP_WSDL_Component extends Asset
 	*/
 	function SOAP_WSDL_Component($assetid=0)
 	{
-		if (!empty($assetid)) {
-			$this->loadComponent($assetid);
+		if (empty($assetid)) return;
+
+		if (!$this->_initComponent($assetid)) {
+			trigger_error('Error loading asset #'.$assetid, E_USER_ERROR);
 		}
 
 	}//end constructor
 
 
 	/**
-	* Attempts to load all the information for this asset
+	* Load the basic information for this asset
+	*
+	* @param string	$assetid	the id of this asset
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _initComponent($assetid)
+	{
+		// require a valid assetid
+		if (empty($assetid)) return FALSE;
+
+		$assetids = explode(':', $assetid);
+
+		$schema_assetid = array_get_index($assetids, 0);
+		$shadow_assetid = array_get_index($assetids, 1);
+
+		// this must be a shadow asset
+		if (is_null($shadow_assetid)) return FALSE;
+		$this->id = $assetid;
+
+		// load attributes
+		$this->_loadVars();
+
+		// set up the bridge
+		$this->schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schema_assetid);
+		if (is_null($this->schema)) {
+			return FALSE;
+		}
+		$this->_schema_assetid = $schema_assetid;
+
+		// call our load function
+		if (!$this->_loadComponent($assetid)) return FALSE;
+
+		// other asset things
+		$this->status = $this->schema->status;
+
+		$this->name = $this->_getName();
+		$this->short_name = $this->_getName(TRUE);
+
+		return TRUE;
+
+	}//end initComponent()
+
+
+	/**
+	* Load some other information for this asset
 	*
 	* @param string	$assetid	The id of this asset
 	*
 	* @access private
 	* @return boolean
 	*/
-	function loadComponent($assetid)
+	function _loadComponent($assetid)
 	{
-		// need a valid assetid
-		if (empty($assetid)) return FALSE;
-
-		$id_parts = explode(':', $assetid);
-		if (!isset($id_parts[1])) {
-			return FALSE;
-		}
-		$this->_loadVars();
-
-		// important parts of the assetid
-		$schema_assetid = reset($id_parts);
-		$element_assetid = end($id_parts);
-
-		// set up the bridge
-		if (!$this->setWsdlSchema($schema_assetid)) {
-			return FALSE;
-		}
-		$schema =& $this->getWsdlSchema();
-
-		// set up this asset
-		$this->id = $assetid;
-		$this->status = $schema->status;
-
 		return TRUE;
 
-	}//end loadComponent()
-
-
-	/**
-	* Set the id of the WSDL Schema (bridge)
-	*
-	* @param string	$assetid	the id of the wsdl schema asset
-	*
-	* @access private
-	* @return boolean
-	*/
-	function setWsdlSchema($assetid)
-	{
-		if (empty($assetid)) return FALSE;
-
-		// check bridge assetid
-		$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		if (is_null($schema)) return FALSE;
-
-		$this->schema_assetid = $schema->id;
-		return TRUE;
-
-	}//end setBridgeAssetid()
+	}//end _loadComponent()
 
 
 	/**
@@ -146,18 +149,7 @@ class SOAP_WSDL_Component extends Asset
 	*/
 	function &getWsdlSchema()
 	{
-		if (empty($this->schema_assetid)) return $null = NULL;
-
-		if (is_null($this->schema_asset)) {
-			// use the schema asset id to load the asset if need be
-			$assetid = $this->schema_assetid;
-
-			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			if (is_null($schema)) return $null = NULL;
-
-			$this->schema_asset =& $schema;
-		}
-		return $this->schema_asset;
+		return $this->schema;
 
 	}//end getBridge()
 
