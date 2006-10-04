@@ -18,13 +18,15 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_create.xml,v 1.1 2006/07/19 00:29:02 bcaldwell Exp $
+* $Id: edit_interface_screen_details.xml,v 1.1 2006/10/04 00:33:48 bcaldwell Exp $
 *
 */
 -->
 
-<contents screen="details">
-	<section name="Details">
-		<field attribute="operation" />
+<contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="operation">
+			<text width="35" height="1" />
+		</field>
 	</section>
 </contents>

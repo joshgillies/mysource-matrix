@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_message.inc,v 1.7 2006/07/28 01:39:43 arailean Exp $
+* $Id: soap_wsdl_message.inc,v 1.8 2006/10/04 00:33:48 bcaldwell Exp $
 *
 */
 
 
-require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element/soap_wsdl_element.inc';
+require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_component/soap_wsdl_component.inc';
 
 
 /**
@@ -33,11 +33,11 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
-class SOAP_WSDL_Message extends SOAP_WSDL_Element
+class SOAP_WSDL_Message extends SOAP_WSDL_Component
 {
 
 
@@ -76,9 +76,9 @@ class SOAP_WSDL_Message extends SOAP_WSDL_Element
 	* @access private
 	* @return boolean
 	*/
-	function loadElement($assetid)
+	function loadComponent($assetid)
 	{
-		if (!parent::loadElement($assetid)) return FALSE;
+		if (!parent::loadComponent($assetid)) return FALSE;
 
 		$schema =& $this->getWsdlSchema();
 		if (is_null($schema)) return FALSE;
@@ -95,7 +95,7 @@ class SOAP_WSDL_Message extends SOAP_WSDL_Element
 
 		return $this->_loadArgs();
 
-	}//end loadElement()
+	}//end loadComponent()
 
 
 	/**

@@ -18,12 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_binding_management.inc,v 1.2 2006/07/21 04:56:55 bcaldwell Exp $
+* $Id: soap_wsdl_binding_management.inc,v 1.3 2006/10/04 00:33:48 bcaldwell Exp $
 *
 */
 
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
+
 
 /**
 * SOAP_WSDL_Binding_Management
@@ -32,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */

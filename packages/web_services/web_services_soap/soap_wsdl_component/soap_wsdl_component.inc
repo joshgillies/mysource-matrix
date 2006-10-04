@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_element.inc,v 1.3 2006/07/20 04:57:31 bcaldwell Exp $
+* $Id: soap_wsdl_component.inc,v 1.1 2006/10/04 00:33:48 bcaldwell Exp $
 *
 */
 
@@ -28,17 +28,17 @@ require_once 'SOAP/Client.php';
 
 
 /**
-* SOAP_WSDL_Element
+* SOAP_WSDL_Component
 *
 * Purpose
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
-class SOAP_WSDL_Element extends Asset
+class SOAP_WSDL_Component extends Asset
 {
 
 
@@ -69,10 +69,10 @@ class SOAP_WSDL_Element extends Asset
 	* @access public
 	* @return void
 	*/
-	function SOAP_WSDL_Element($assetid=0)
+	function SOAP_WSDL_Component($assetid=0)
 	{
 		if (!empty($assetid)) {
-			$this->loadElement($assetid);
+			$this->loadComponent($assetid);
 		}
 
 	}//end constructor
@@ -86,7 +86,7 @@ class SOAP_WSDL_Element extends Asset
 	* @access private
 	* @return boolean
 	*/
-	function loadElement($assetid)
+	function loadComponent($assetid)
 	{
 		// need a valid assetid
 		if (empty($assetid)) return FALSE;
@@ -113,7 +113,7 @@ class SOAP_WSDL_Element extends Asset
 
 		return TRUE;
 
-	}//end loadElement()
+	}//end loadComponent()
 
 
 	/**

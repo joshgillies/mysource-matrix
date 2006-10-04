@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.2 2006/07/20 04:57:31 bcaldwell Exp $
+* $Id: asset.xml,v 1.3 2006/10/04 00:33:48 bcaldwell Exp $
 *
 */
 -->
@@ -34,7 +34,7 @@
 	<description>WSDL Binding, represents a single binding as defined in a WSDL</description>
 	<instantiable>no</instantiable>
 	<allowed_access>backend_user</allowed_access>
-	<parent_type>soap_wsdl_element</parent_type>
+	<parent_type>soap_wsdl_component</parent_type>
 	<requirements>
 		<requirement type="system">
 			<code>System</code>

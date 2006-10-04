@@ -21,17 +21,17 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2006/07/19 00:29:02 bcaldwell Exp $
+* $Id: asset.xml,v 1.1 2006/10/04 00:33:48 bcaldwell Exp $
 *
 */
 -->
 
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>web_services</package>
-	<type_code>soap_wsdl_element</type_code>
+	<type_code>soap_wsdl_component</type_code>
 	<version>0.1</version>
-	<name>WSDL Element</name>
-	<description>WSDL Element, basic structure as defined in a WSDL file</description>
+	<name>WSDL Component</name>
+	<description>WSDL Component, basic structure as defined in a WSDL file</description>
 	<instantiable>no</instantiable>
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>asset</parent_type>

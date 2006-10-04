@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_element_edit_fns.inc,v 1.1 2006/07/19 00:29:02 bcaldwell Exp $
+* $Id: soap_wsdl_component_edit_fns.inc,v 1.1 2006/10/04 00:33:48 bcaldwell Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 
 /**
-* SOAP_WSDL_Element_Edit_Fns
+* SOAP_WSDL_Component_Edit_Fns
 *
 * Purpose
 *
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
-class SOAP_WSDL_Element_Edit_Fns extends Asset_Edit_Fns
+class SOAP_WSDL_Component_Edit_Fns extends Asset_Edit_Fns
 {
 
 
@@ -44,7 +44,7 @@ class SOAP_WSDL_Element_Edit_Fns extends Asset_Edit_Fns
 	* Constructor
 	*
 	*/
-	function SOAP_WSDL_Element_Edit_Fns()
+	function SOAP_WSDL_Component_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
 

@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_port_type.inc,v 1.3 2006/07/21 04:56:55 bcaldwell Exp $
+* $Id: soap_wsdl_port_type.inc,v 1.4 2006/10/04 00:33:48 bcaldwell Exp $
 *
 */
 
 
-require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element/soap_wsdl_element.inc';
+require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_component/soap_wsdl_component.inc';
 
 
 /**
@@ -33,11 +33,11 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_element
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
-class SOAP_WSDL_Port_Type extends SOAP_WSDL_Element
+class SOAP_WSDL_Port_Type extends SOAP_WSDL_Component
 {
 
 
@@ -49,9 +49,9 @@ class SOAP_WSDL_Port_Type extends SOAP_WSDL_Element
 	* @access private
 	* @return boolean
 	*/
-	function loadElement($assetid)
+	function loadComponent($assetid)
 	{
-		if (!parent::loadElement($assetid)) return FALSE;
+		if (!parent::loadComponent($assetid)) return FALSE;
 
 		$schema =& $this->getWsdlSchema();
 		if (is_null($schema)) return FALSE;
@@ -61,7 +61,7 @@ class SOAP_WSDL_Port_Type extends SOAP_WSDL_Element
 
 		return TRUE;
 
-	}//end loadElement()
+	}//end loadComponent()
 
 
 	/**
