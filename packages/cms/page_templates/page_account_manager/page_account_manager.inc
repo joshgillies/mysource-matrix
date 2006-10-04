@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.48 2006/09/14 00:27:52 tbarrett Exp $
+* $Id: page_account_manager.inc,v 1.49 2006/10/04 23:51:01 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -72,9 +72,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$val['from'] = SQ_CONF_SYSTEM_NAME.' <'.SQ_CONF_DEFAULT_EMAIL.'>';
 		$this->setAttrVAlue('validation_email_format', $val);
 
-
-
-
 		return parent::create($link);
 
 	}//end create()
@@ -92,6 +89,27 @@ class Page_Account_Manager extends Page_Asset_Builder
 	*/
 	function saveAttributes($dont_run_updated=FALSE)
 	{
+		if (isset($this->_tmp['vars_set']['use_email_validation'])) {
+			if ($this->attr('use_email_validation')) {
+				$new_names = Array(
+								'create_no_login'	=> translate('cms_account_manager_awaiting_validation'),
+								'create_login'		=>translate('cms_account_manager_validated'),
+							 );
+			} else {
+				$new_names = Array(
+								'create_no_login'	=> translate('cms_account_manager_created_not_live'),
+								'create_login'		=> translate('cms_account_manager_created_live'),
+							 );
+			}
+			foreach (Array('create_login', 'create_no_login') as $value) {
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, NULL, 'bodycopy', TRUE, $value);
+				if (empty($link)) trigger_error('BC NOT FOUND', E_USER_ERROR);
+				$bc =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+				$bc->setAttrValue('name', $new_names[$value]);
+				$bc->saveAttributes();
+			}
+		}
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
