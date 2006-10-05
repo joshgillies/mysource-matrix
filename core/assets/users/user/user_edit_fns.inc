@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.29 2006/05/14 23:50:07 lwright Exp $
+* $Id: user_edit_fns.inc,v 1.30 2006/10/05 06:36:24 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,7 +65,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _getLinkedGroups(&$asset)
 	{
-		$group_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, 1,'user_group', TRUE, 'minor');
+		$group_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, 1,'user_group', FALSE, 'minor');
 
 		$group_assetids = Array();
 		foreach ($group_links as $group_link) {
