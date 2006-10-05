@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_asset_sorter.inc,v 1.1 2006/09/18 07:30:09 tbarrett Exp $
+* $Id: tool_asset_sorter.inc,v 1.2 2006/10/05 00:54:57 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Provides a tool for making multiple clones of an asset
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -58,14 +58,20 @@ class Tool_Asset_Sorter extends Tool
 	*/
 	function paintTool(&$o, $type_code)
 	{
-		$o->openSection('Sort Options');
-			$o->openField('Parent');
+		$o->openSection(translate('tool_asset_sorter_sort_options'));
+			$o->openField(translate('parent'));
 				asset_finder($type_code.'_parent');
 			$o->closeField();
-			$o->openField('Sort Field');
-				combo_box($type_code.'_field', $GLOBALS['SQ_SYSTEM']->am->getAssetInfoFields());
+			$o->openField(translate('tool_asset_sorter_sort_field'));
+				$options = $GLOBALS['SQ_SYSTEM']->am->getAssetInfoFields();
+				// unset some things by which we can't or don't want to sort properly
+				unset($options['force_secure']);
+				unset($options['version']);
+				unset($options['charset']);
+				unset($options['languages']);
+				combo_box($type_code.'_field', $options);
 			$o->closeField();
-			$o->openFIeld('Sort Direction');
+			$o->openField(translate('tool_asset_sorter_sort_direction'));
 				combo_box($type_code.'_direction', Array('ASC' => 'Ascending', 'DESC' => 'Descending'));
 			$o->closeField();
 		$o->closeSection();
