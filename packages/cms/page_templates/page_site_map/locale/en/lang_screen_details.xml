@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2006/03/24 04:35:40 sdanis Exp $
+* $Id: lang_screen_details.xml,v 1.8 2006/10/05 01:43:24 rhoward Exp $
 *
 */
 -->
@@ -63,6 +63,10 @@
 		<field attribute="show_type_2">
 			<display_name>Show TYPE_2 Links</display_name>
 			<note />
+		</field>
+		<field attribute="include_dependants">
+			<display_name>Show Dependant Assets</display_name>
+			<note>Dependant assets generally include type formats, or page bodycopies.</note>
 		</field>
 		<field>
 			<display_name>Exclude Asset List</display_name>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.509 2006/09/29 04:41:35 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.510 2006/10/05 01:43:18 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.509 $
+* @version $Revision: 1.510 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3253,11 +3253,11 @@ class Asset_Manager extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getAssetTree($majorids, $levels=NULL, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV, $include_type_list=Array())
+	function getAssetTree($majorids, $levels=NULL, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV, $include_type_list=Array(), $include_dependants=TRUE)
 	{
 		$tree_data = Array();
 		if (!is_array($majorids)) $majorids = Array($majorids);
-		$this->_getAssetTree($majorids, $tree_data, $levels, $exclude_list, $link_type, $include_type_list);
+		$this->_getAssetTree($majorids, $tree_data, $levels, $exclude_list, $link_type, $include_type_list, $include_dependants);
 		return $tree_data;
 
 	}//end getAssetTree()
@@ -3286,7 +3286,7 @@ class Asset_Manager extends MySource_Object
 	* @return boolean
 	* @access private
 	*/
-	function _getAssetTree($majorids, &$tree_data, $levels, $exclude_list, $link_type, $include_type_list)
+	function _getAssetTree($majorids, &$tree_data, $levels, $exclude_list, $link_type, $include_type_list, $include_dependants)
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
@@ -3381,6 +3381,10 @@ class Asset_Manager extends MySource_Object
 			$where .= ' AND a.type_code IN ('.$include_types_str.')';
 		}
 
+		if (!$include_dependants) {
+			$where .= ' AND l.is_dependant = 0';
+		}
+
 		$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		if (!empty($USERIDS_COND)) {
@@ -3422,7 +3426,7 @@ class Asset_Manager extends MySource_Object
 
 		if (!empty($assetids) && ($levels > 1 || is_null($levels))) {
 			$levels--;
-			$this->_getAssetTree($assetids, $tree_data, $levels, $exclude_list_before_quote, $link_type, $include_type_list);
+			$this->_getAssetTree($assetids, $tree_data, $levels, $exclude_list_before_quote, $link_type, $include_type_list, $include_dependants);
 		}
 		return TRUE;
 

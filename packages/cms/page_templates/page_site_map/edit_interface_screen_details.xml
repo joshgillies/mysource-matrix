@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.17 2006/03/24 04:35:40 sdanis Exp $
+* $Id: edit_interface_screen_details.xml,v 1.18 2006/10/05 01:43:23 rhoward Exp $
 *
 */
 -->
@@ -51,6 +51,9 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="show_type_2">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="include_dependants">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field>

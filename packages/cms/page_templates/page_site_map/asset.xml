@@ -14,7 +14,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.7 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: asset.xml,v 1.8 2006/10/05 01:43:23 rhoward Exp $
 *
 */
 -->
@@ -22,7 +22,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>page_site_map</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Site Map</name>
 	<description>Site Map, Shows a tree stucture of the pages in the current site.</description>
 	<instantiable>yes</instantiable>
