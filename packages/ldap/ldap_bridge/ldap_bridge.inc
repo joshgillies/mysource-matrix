@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.48 2006/06/22 01:13:33 sdanis Exp $
+* $Id: ldap_bridge.inc,v 1.48.2.1 2006/10/05 06:29:20 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.48.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -152,7 +152,7 @@ class LDAP_Bridge extends Asset
 	/**
 	* Returns a reference to the asset represented by the passed assetid
 	*
-	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
+	* @param int		$assetid		the entire asset id of the asset to be loaded
 	* @param string		$type_code		if this exists then this object is used to
 	*									load the asset, if not then the DB is queried
 	*									to find out the asset type
@@ -163,10 +163,10 @@ class LDAP_Bridge extends Asset
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
+	function &getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
 		$asset = NULL;
-		$id_parts = explode(':', $shadowid);
+		$id_parts = explode(':', $assetid);
 
 		if (isset($id_parts[1])) {
 			$shadowid = $id_parts[1];
@@ -336,11 +336,11 @@ class LDAP_Bridge extends Asset
 
 					if (!empty($type_code)) {
 						if ($asset->type() == 'ldap_user_group') {
-							if (!in_array('user_group', $type_code) && !in_array('ldap_user_group', $type_code)) {
+							if (!((in_array('ldap_user_group', $type_code)) || (!$strict_type_code && in_array('user_group', $type_code)))) {
 								return Array();
 							}
 						} else {
-							if (!in_array('user', $type_code) && !in_array('ldap_user', $type_code)) {
+							if (!((in_array('ldap_user', $type_code)) || (!$strict_type_code && in_array('user', $type_code)))) {
 								return Array();
 							}
 						}
