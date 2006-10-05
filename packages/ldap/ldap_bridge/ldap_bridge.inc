@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.49 2006/10/05 01:45:47 rhoward Exp $
+* $Id: ldap_bridge.inc,v 1.50 2006/10/05 06:28:20 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -336,11 +336,11 @@ class LDAP_Bridge extends Asset
 
 					if (!empty($type_code)) {
 						if ($asset->type() == 'ldap_user_group') {
-							if (!in_array('user_group', $type_code) && !in_array('ldap_user_group', $type_code)) {
+							if (!((in_array('ldap_user_group', $type_code)) || (!$strict_type_code && in_array('user_group', $type_code)))) {
 								return Array();
 							}
 						} else {
-							if (!in_array('user', $type_code) && !in_array('ldap_user', $type_code)) {
+							if (!((in_array('ldap_user', $type_code)) || (!$strict_type_code && in_array('user', $type_code)))) {
 								return Array();
 							}
 						}
