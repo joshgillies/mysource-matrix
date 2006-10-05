@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.103.2.1 2006/09/27 23:52:59 gsherwood Exp $
+* $Id: user.inc,v 1.103.2.2 2006/10/05 06:28:36 colivar Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.103.2.1 $
+* @version $Revision: 1.103.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -445,12 +445,14 @@ class User extends Asset
 
 		// we dont want our inbox or workspace deleted
 		$inbox_link = $this->getInboxLink();
-		if ($inbox_link['linkid'] == $linkid) {
+		// some users might not have a inbox (e.g.: Ldap user)
+		if ((!empty($inbox_link)) && ($inbox_link['linkid'] == $linkid)) {
 			return translate('cannot_delete_inbox-user_link');
 		}
 
 		$workspace_link = $this->getWorkspaceLink();
-		if ($workspace_link['linkid'] == $linkid) {
+		// some users might not have a workspace (e.g.: Ldap user)
+		if ((!empty($workspace_link)) && ($workspace_link['linkid'] == $linkid)) {
 			return translate('cannot_delete_workspace-user_link');
 		}
 
