@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.1.1.1 2006/10/05 05:37:23 bcaldwell Exp $
+* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.2 2006/10/05 06:28:44 bcaldwell Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -193,7 +193,6 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 				$hostname = trim($hostname);
 				$output = Array();
 				$system_log_command = "$path -h $hostname $port $options -m PURGE $protocol://$url";
-				mail('bcaldwell@squiz.net', 'cmd', $system_log_command);
 				exec($system_log_command, $output, $status);
 
 				// re-request the page to recache it
