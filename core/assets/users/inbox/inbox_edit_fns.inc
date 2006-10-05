@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.54 2006/01/26 22:34:07 lwright Exp $
+* $Id: inbox_edit_fns.inc,v 1.54.2.1 2006/10/05 00:19:40 rhoward Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.54.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -579,11 +579,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			if ($write_access) {
 ?>
 					<td class="sq-backend-table-header">
-						<?php check_box($prefix.'_select_all_recover', '1', FALSE, 'check_all(document.main_form, "{'.$prefix.'}_recover", this.checked);'); ?>
+						<?php check_box($prefix.'_select_all_recover', '1', FALSE, 'check_all(document.main_form, "'.$prefix.'_recover", this.checked);'); ?>
 						<?php echo strtoupper(translate('recover')); ?>
 					</td>
 					<td class="sq-backend-table-header">
-						<?php check_box($prefix.'_select_all_purge', '1', FALSE, 'check_all(document.main_form, "{'.$prefix.'}_purge", this.checked);'); ?>
+						<?php check_box($prefix.'_select_all_purge', '1', FALSE, 'check_all(document.main_form, "'.$prefix.'_purge", this.checked);'); ?>
 						<?php echo strtoupper(translate('purge')); ?>
 					</td>
 					<?php
