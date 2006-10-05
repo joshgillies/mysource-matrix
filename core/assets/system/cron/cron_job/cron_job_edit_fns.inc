@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.34 2006/05/15 02:16:46 tbarrett Exp $
+* $Id: cron_job_edit_fns.inc,v 1.34.2.1 2006/10/05 23:56:30 bcaldwell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.34.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -325,6 +325,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 			$has_duration = isset($_POST[$prefix.'_duration']) && ($_POST[$prefix.'_duration'] != '-');
 			$valid = (($has_day && $has_month && $has_year && $has_hour && $has_minute) || $has_duration);
 			foreach (Array('year', 'month', 'day', 'hour', 'minute', 'period', 'duration') as $field) {
+				if (!isset($_POST[$prefix.'_'.$field])) continue;
 				$fields[$field] = $_POST[$prefix.'_'.$field];
 			}
 
