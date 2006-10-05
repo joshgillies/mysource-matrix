@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.512 2006/10/05 04:50:51 colivar Exp $
+* $Id: asset_manager.inc,v 1.513 2006/10/05 06:32:44 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.512 $
+* @version $Revision: 1.513 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2607,6 +2607,18 @@ class Asset_Manager extends MySource_Object
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a on l.majorid = a.assetid';
 
 					$where = 'minorid = '.$db->quoteSmart($assetid);
+					if ($type_code) {
+						if ($strict_type_code) {
+							$where .= ' AND a.type_code = '.$db->quoteSmart($type_code);
+						} else {
+							$type_ancestors = $this->getTypeDescendants($type_code);
+							foreach ($type_ancestors as $i => $v) {
+								$type_ancestors[$i] = $db->quoteSmart($v);
+							}
+							$type_ancestors[] = $db->quoteSmart($type_code);
+							$where .= ' AND a.type_code IN ('.implode(', ', $type_ancestors).')';
+						}
+					}
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
@@ -2628,7 +2640,7 @@ class Asset_Manager extends MySource_Object
 										);
 
 					}
-					$links[$assetid] += $shdw_links;
+					$links[$assetid] = array_merge($links[$assetid], $shdw_links);
 				}//end if side_of_link is major
 
 				continue;
