@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.6 2006/05/17 23:52:16 tbarrett Exp $
+* $Id: trigger_action_send_email.inc,v 1.7 2006/10/05 02:21:02 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/email_format/email_format.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,13 +73,50 @@ class Trigger_Action_Send_Email extends Trigger_Action
 			$email_format_value = serialize($unserialised);
 		}
 
+		if ($settings['groups']) {
+			// add group members
+			$group_members = Array();
+			foreach ($settings['groups'] as $group) {
+				$group_result = $GLOBALS['SQ_SYSTEM']->am->getChildren($group);
+				while (!empty($group_result)) {
+					$member_id = reset(array_keys($group_result));
+					$member_type = reset($group_result);
+
+					// check shadow assets
+					if (stristr($member_id, ':') && (empty($member_type) || $GLOBALS['SQ_SYSTEM']->am->isTypeAncestor('user', $member_type) == FALSE)) {
+						$group_result = array_merge($group_result, $GLOBALS['SQ_SYSTEM']->am->getChildren($member_id));
+					}
+
+					// this is a user we can send to
+					if (!empty($member_type) && ($member_type == 'user' || $GLOBALS['SQ_SYSTEM']->am->isTypeAncestor('user', $member_type) == TRUE)) {
+						$group_members[$member_id] = $member_type;
+					}
+					unset($group_result[$member_id]);
+				}
+			}
+
+			// strip out non-live users
+			if (!empty($group_members)) {
+				$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($group_members), Array(), TRUE, 'status');
+				foreach ($asset_info as $member_id => $member_status) {
+					if ($member_status < SQ_STATUS_LIVE) {
+						unset($group_members[$member_id]);
+					}
+				}
+			}
+
+			$unserialised = unserialize($email_format_value);
+			$unserialised['to_assetids'] = array_merge($unserialised['to_assetids'],array_keys($group_members));
+			$email_format_value = serialize($unserialised);
+		}
+
 		if ($settings['roles']) {
 			// add role members
 			$role_members = Array();
 			foreach ($settings['roles'] as $role) {
-				$result = $GLOBALS['SQ_SYSTEM']->am->getRole($state['assetid'], $role, NULL, FALSE, TRUE);
-				if (!empty($result)) {
-					foreach ($result[$role] as $role_member) {
+				$role_result = $GLOBALS['SQ_SYSTEM']->am->getRole($state['assetid'], $role, NULL, FALSE, TRUE);
+				if (!empty($role_result)) {
+					foreach ($role_result[$role] as $role_member) {
 						$role_members[] = $role_member;
 					}
 				}
@@ -123,7 +160,9 @@ class Trigger_Action_Send_Email extends Trigger_Action
 	{
 		ob_start();
 		$to_owner = array_get_index($settings, 'to_owner', 0);
+
 		$current_roles = array_get_index($settings, 'roles', Array());
+		$current_groups = array_get_index($settings, 'groups', Array());
 
 		$new_prefix = ereg_replace('\[','_',ereg_replace('\]','_',$prefix));
 		$email_format_value = array_get_index($settings, 'email_format_value', Array());
@@ -145,6 +184,25 @@ class Trigger_Action_Send_Email extends Trigger_Action
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($to_owner ? 'tick' : 'cross'); ?>.gif" width="15" height="15" />
 						<?php
 						echo translate('trigger_send_to_active_user');
+					}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<th><?php echo translate('trigger_group_recipients');; ?></th>
+				<td>
+					<?php
+					if ($write_access) {
+						multiple_asset_finder($prefix.'[groups]', $current_groups, Array('user_group' => 'I'));
+						echo '<div class="sq-backend-note">'.translate('trigger_send_to_groups_note').'</div>';
+					} else {
+						if (empty($current_groups)) {
+							echo translate('none');
+						} else {
+							foreach ($current_groups as $group) {
+								echo get_asset_tag_line($group).'<br />';
+							}
+						}
 					}
 					?>
 				</td>
@@ -199,6 +257,17 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		// save other settings
 		$settings['to_owner'] = array_get_index($request_data, 'to_owner', FALSE);
 
+		// group recipients
+		$groups = array_get_index($request_data, 'groups', Array());
+		$group_ids = Array();
+		foreach ($groups as $group) {
+			if (!empty($group['assetid'])) {
+				$group_ids[] = $group['assetid'];
+			}
+		}
+		$settings['groups'] = $group_ids;
+
+		// role recipients
 		$roles = array_get_index($request_data, 'roles', Array());
 		$role_ids = Array();
 		foreach ($roles as $role) {
@@ -206,7 +275,6 @@ class Trigger_Action_Send_Email extends Trigger_Action
 				$role_ids[] =  $role['assetid'];
 			}
 		}
-
 		$settings['roles'] = $role_ids;
 
 		// create a wysiwyg compatable prefix
