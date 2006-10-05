@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.6.2.1 2006/10/05 04:13:48 bcaldwell Exp $
+* $Id: trigger_action_send_email.inc,v 1.6.2.2 2006/10/05 04:37:27 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/email_format/email_format.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.6.2.1 $
+* @version $Revision: 1.6.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,25 +77,25 @@ class Trigger_Action_Send_Email extends Trigger_Action
 			// add group members
 			$group_members = Array();
 			foreach ($settings['groups'] as $group) {
-				$group_result = $GLOBALS['SQ_SYSTEM']->am->getChildren($group);
+				$group_result = $GLOBALS['SQ_SYSTEM']->am->getChildren($group, 'user', FALSE);
 				while (!empty($group_result)) {
 					$member_id = reset(array_keys($group_result));
 					$member_type = reset($group_result);
 
 					// check shadow assets
-					if (stristr($member_id, ':') && (empty($member_type) || $GLOBALS['SQ_SYSTEM']->am->isTypeAncestor('user', $member_type) == FALSE)) {
-						$group_result = array_merge($group_result, $GLOBALS['SQ_SYSTEM']->am->getChildren($member_id));
+					if (stristr($member_id, ':') && empty($member_type)) {
+						$group_result = array_merge($group_result, $GLOBALS['SQ_SYSTEM']->am->getChildren($member_id, 'user', FALSE));
 					}
 
 					// this is a user we can send to
-					if (!empty($member_type) && ($member_type == 'user' || $GLOBALS['SQ_SYSTEM']->am->isTypeAncestor('user', $member_type) == TRUE)) {
+					if (!empty($member_type)) {
 						$group_members[$member_id] = $member_type;
 					}
 					unset($group_result[$member_id]);
 				}
 			}
 
-			// strip out non-live users
+			// strip out non-live users and add to the email attribute value
 			if (!empty($group_members)) {
 				$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($group_members), Array(), TRUE, 'status');
 				foreach ($asset_info as $member_id => $member_status) {
@@ -103,11 +103,10 @@ class Trigger_Action_Send_Email extends Trigger_Action
 						unset($group_members[$member_id]);
 					}
 				}
+				$unserialised = unserialize($email_format_value);
+				$unserialised['to_assetids'] = array_merge($unserialised['to_assetids'],array_keys($group_members));
+				$email_format_value = serialize($unserialised);
 			}
-
-			$unserialised = unserialize($email_format_value);
-			$unserialised['to_assetids'] = array_merge($unserialised['to_assetids'],array_keys($group_members));
-			$email_format_value = serialize($unserialised);
 		}
 
 		if ($settings['roles']) {
