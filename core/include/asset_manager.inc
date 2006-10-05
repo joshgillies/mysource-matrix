@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.511 2006/10/05 02:05:38 colivar Exp $
+* $Id: asset_manager.inc,v 1.512 2006/10/05 04:50:51 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.511 $
+* @version $Revision: 1.512 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -589,7 +589,7 @@ class Asset_Manager extends MySource_Object
 	* @param string		$type_code		the code name for the asset that you want to check
 	* @param boolean	$include_asset	when TRUE adds the "Asset" type to the parent list,
 	*									even though it's an uninstantiable object
-	* @param boolean	$query_db	whether to ask the DB instead of using the cache file
+	* @param boolean	$query_db		whether to ask the DB instead of using the cache file
 	*
 	* @return array
 	* @access public
@@ -618,9 +618,7 @@ class Asset_Manager extends MySource_Object
 
 		} else {
 			$res = $this->_asset_types[$type_code]['ancestor_types'];
-			if ($include_asset) {
-				$res[] = 'asset';
-			}
+			if ($include_asset) $res[] = 'asset';
 			return $res;
 
 		}
@@ -3046,6 +3044,7 @@ class Asset_Manager extends MySource_Object
 	* The query generated to get the children is actually contructed in the Asset Manager's
 	* generateGetChildrenQuery function.
 	* It returns Array(int => string)	returns an array of assetids and their type code
+	* The function might return a list of users without their type code (i.e.: when shadow assets are returned)
 	*
 	* @param int|string		$assetid				the id of the asset to get its children for
 	* @param string|array	$type_code				the type of asset that is linked
@@ -3111,17 +3110,15 @@ class Asset_Manager extends MySource_Object
 		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
 		assert_valid_db_result($result);
 
-		// the query might bring a list of users without their type code. we are now fixing it
-		$fixed_result = $this->getAssetInfo(array_keys($result), Array(), TRUE, 'type_code');
 
 		if (!is_null($sort_by)) {
 			$children = Array();
-			foreach ($fixed_result as $assetid => $asset_info) {
+			foreach ($result as $assetid => $asset_info) {
 				$children[$assetid] = $asset_info['type_code'];
 			}
 			return $children;
 		} else {
-			return $fixed_result;
+			return $result;
 		}
 
 	}//end getChildren()
@@ -3249,6 +3246,7 @@ class Asset_Manager extends MySource_Object
 	*															1	=> FALSE,
 	*														   ),
 	*										)
+	* @param boolean 	$include_dependants	a boolean
 	*
 	* @return array
 	* @access public
