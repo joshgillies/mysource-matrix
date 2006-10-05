@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.97.2.15 2006/08/28 06:03:08 skim Exp $
+* $Id: search_manager.inc,v 1.97.2.16 2006/10/05 23:32:42 tbarrett Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97.2.15 $
+* @version $Revision: 1.97.2.16 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2017,7 +2017,7 @@ class Search_Manager extends Asset
 			$field_details['words'] = $this->_getRawNumberInText($field_details['words']);
 
 			foreach ($this->generateWordList($field_details['words']) as $word) {
-				if ($this->isWordIndexable($word)) $words[] = $word;
+				if ($this->isWordIndexable($word)) $words[] = strtolower($word);
 			}
 			$field_details['words'] = $words;
 		}
