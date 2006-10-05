@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_static_screen_roles.xml,v 1.1 2006/02/02 02:29:33 ndvries Exp $
+* $Id: edit_interface_static_screen_roles.xml,v 1.2 2006/10/05 03:28:55 tbarrett Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Roles">
+	<section name="Users and groups assigned to roles for this asset">
 		<field code="roles_current" />
 		<field code="roles_add" read_access="write:roles" write_access="write:roles"/>
 	</section>

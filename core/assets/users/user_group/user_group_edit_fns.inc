@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.34 2006/08/07 03:58:22 rhoward Exp $
+* $Id: user_group_edit_fns.inc,v 1.35 2006/10/05 03:28:55 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -500,7 +500,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					}
 				?>
 				<th class="sq-backend-table-header"><?php echo translate('role'); ?></td>
-				<th class="sq-backend-table-header"><?php echo translate('asset'); ?></td>
+				<th class="sq-backend-table-header">Asset for which the role is to be performed</td>
 				<?php
 					if ($write_access) {
 						?><th class="sq-backend-table-header"><?php echo translate('role_reassign'); ?></td><?php
@@ -623,26 +623,25 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	function paintRoles(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->adminAccess('roles');
+		$string_code_suffix = is_a($asset, 'user_group') ? 'group' : 'user';
 
-		$o->openField('');
+		$o->openSection(translate('role_directly_assigned_section_'.$string_code_suffix));
+			$o->openRaw();
 			$roles = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, NULL, $asset->id, TRUE, FALSE, FALSE, FALSE);
-
-			if (!empty($roles)) {
+			if (empty($roles)) {
+				echo translate('no_roles_set');
+			} else {
 				$this->_printRoleTable($prefix, 'direct', $roles, $write_access);
-
 				if ($write_access) {
-					echo '<strong>'.translate('role_new_user').': </strong>';
+					echo translate('role_new_user').': ';
 					echo asset_finder($prefix.'_reassignee', 0, Array('user' => 'D', 'user_group' => 'D'));
 				}
-
-			} else {
-				echo translate('no_roles_set');
 			}
-		$o->closeField();
+			$o->closeRaw();
+		$o->closeSection();
 
 		$group_descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user_group', TRUE);
 		$group_descendants = array_diff($group_descendants, Array('role'));
-		$o->closeSection();
 
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($asset->id);
 
@@ -672,10 +671,10 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		if (!empty($roles)) {
-			$o->openSection(translate('role_indirectly_assigned_section'));
-				$o->openField('');
+			$o->openSection(translate('role_indirectly_assigned_section_'.$string_code_suffix));
+				$o->openRaw();
 					$this->_printRoleTable($prefix, 'indirect', $roles, FALSE, TRUE);
-				$o->closeField();
+				$o->closeRaw();
 			$o->closeSection();
 		}
 

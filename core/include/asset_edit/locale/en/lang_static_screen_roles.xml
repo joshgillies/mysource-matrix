@@ -18,16 +18,16 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_static_screen_roles.xml,v 1.1 2006/02/02 02:29:33 ndvries Exp $
+* $Id: lang_static_screen_roles.xml,v 1.2 2006/10/05 03:28:55 tbarrett Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Roles">
+	<section name="Users and groups assigned to roles for this asset">
 		<field code="roles_current">
 			<display_name>Current</display_name>
-			<note>This table describes which roles are applied to this asset, and which users have been selected to do those roles. Any role marked as "Global" may be performed by any user linked underneath the role.</note>
+			<note>This table shows the roles that are applicable for this asset, and which users can perform those roles. Any role marked as "Global" may be performed on this asset by any user linked underneath the role.</note>
 		</field>
 		<field code="roles_add">
 			<display_name>Add New</display_name>
