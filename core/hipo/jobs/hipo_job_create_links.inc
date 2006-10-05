@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.38 2006/06/30 03:46:04 skim Exp $
+* $Id: hipo_job_create_links.inc,v 1.38.2.1 2006/10/05 06:34:16 colivar Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -606,7 +606,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				// delete links in which the minor is being deleted
 				$affected_links = array_get_index(array_get_index($this->_running_vars,'affected_links',Array()),$assetid,Array());
 				foreach ($affected_links as $link) {
-					$success = $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+					// we do not delete the link included in the $value array
+					// because it will be deleted later on
+					if ($link['linkid'] !== $value['linkid']) {
+						$success = $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+					}
 				}
 			}
 
