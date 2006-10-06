@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.49 2006/09/06 06:12:40 emcdonald Exp $
+* $Id: hipo_job_edit_status.inc,v 1.50 2006/10/06 06:25:06 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -389,7 +389,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			// if its same there is nothing to be done. otherwise processStatusChange on the asset
 			// one exception is that current asset is in a workflow, the status will always be pending approval
 			$current_status = array_get_index($this->_running_vars['current_asset_statuses'], $assetid, 0);
-			if (($current_status != $new_status) || ($current_status == SQ_STATUS_PENDING_APPROVAL)) {
+			if (($current_status != $new_status) || ($current_status & SQ_SC_STATUS_PENDING)) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (!is_null($asset)) {
 					// if an asset has dependants, we don't want to run _updated() on it until
