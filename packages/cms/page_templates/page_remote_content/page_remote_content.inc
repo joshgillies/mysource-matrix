@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.43 2006/09/25 05:07:36 arailean Exp $
+* $Id: page_remote_content.inc,v 1.44 2006/10/06 04:05:07 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -149,6 +149,10 @@ class Page_Remote_Content extends Page
 				}
 			// media content is otput as binary if tunneling
 			} else if ((strpos($type,'application/')!==FALSE) && $this->attr('tunnel_media')) {
+				$this->_outputBinaryContent();
+				return;
+
+			} else if (!is_null($this->_tmp['attachment'])) {
 				$this->_outputBinaryContent();
 				return;
 
@@ -460,11 +464,16 @@ class Page_Remote_Content extends Page
 
 		// prepare temporary variables for output
 		$this->_tmp['type'] = $response['headers']['content-type'];
+		$disposition = array_get_index($response['headers'], 'content-disposition');
+		if (!is_null($disposition) && strpos($disposition,'attachment') !== FALSE) {
+			$this->_tmp['attachment'] = TRUE;
+		}
+
 		$this->_tmp['headers'] = $response['headers'];
 		$this->_tmp['content'] = $response['body'];
 
 		// if content is not binary, it needs further processing
-		if (strpos($this->_tmp['type'],'text/') !== FALSE) {
+		if (strpos($this->_tmp['type'],'text/') !== FALSE && !isset($this->_tmp['attachment'])) {
 			$this->_tmp['content'] = $this->processHtml();
 		} else {
 			$this->_tmp['binary'] = TRUE;
