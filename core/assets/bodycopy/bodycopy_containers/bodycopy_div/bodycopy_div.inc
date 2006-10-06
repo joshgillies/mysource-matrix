@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div.inc,v 1.15 2006/09/29 04:33:53 tbarrett Exp $
+* $Id: bodycopy_div.inc,v 1.16 2006/10/06 03:31:10 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -152,14 +152,17 @@ class Bodycopy_Div extends Bodycopy_Container
 	*/
 	function &getContentType()
 	{
-		if (!SQ_IN_BACKEND || !SQ_IN_LIMBO || !isset($this->_tmp['content_type'])) {
-			$this->_tmp['content_type'] = NULL;
+		if (SQ_IN_BACKEND || SQ_IN_LIMBO || !isset($this->_tmp['content_type'])) {
+			unset($this->_tmp['content_type']);
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'content_type', FALSE, 'div_contents', 'major', TRUE);
 			if (!empty($link)) {
 				$this->_tmp['content_type'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($this->_tmp['content_type'])) {
 					echo translate('content_type_not_found', $link['minorid']);
 				}
+			} else {
+				$null = NULL;
+				$this->_tmp['content_type'] =& $null;
 			}
 		}
 		return $this->_tmp['content_type'];
