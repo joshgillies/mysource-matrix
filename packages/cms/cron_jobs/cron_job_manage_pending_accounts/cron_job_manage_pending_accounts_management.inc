@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts_management.inc,v 1.2 2006/06/26 06:50:18 rong Exp $
+* $Id: cron_job_manage_pending_accounts_management.inc,v 1.3 2006/10/09 00:55:20 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,6 +69,7 @@ class Cron_Job_Manage_Pending_Accounts_Management extends Asset_Management
 	*/
 	function _upgrade($current_version)
 	{
+		parent::_upgrade($current_version);
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// fill in name, (due to compile locale error)
