@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_edit_fns.inc,v 1.10 2006/03/29 05:49:37 pgannavarapu Exp $
+* $Id: page_remote_content_edit_fns.inc,v 1.11 2006/10/09 02:57:21 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -46,7 +46,7 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Paint URL white list interface
+	* Paint the interface for controlling URL rewriting restrictions
 	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class
@@ -55,53 +55,173 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintWhiteList(&$asset, &$o, $prefix)
+	function paintRewritingRestrictions(&$asset, &$o, $prefix)
 	{
-		$write_access = $asset->writeAccess('attributes');
-		$urls = $asset->attr('url_white_list');
-
-		$urls = (is_array($urls)) ? implode("\n", $urls) : '';
-
-		if ($write_access) {
-			text_area($prefix.'_url_white_list', $urls, 60, 10);
-		} else {
-			echo nl2br($urls);
-		}
-		return $write_access;
-
-	}//end paintWhiteList()
-
-
-	/**
-	* Process URL white list interface
-	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processWhiteList(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('attributes')) return FALSE;
-
-		$urls = array_get_index($_REQUEST, $prefix.'_url_white_list');
-
-		$matches	= Array();
-		$new_urls	= Array();
-
-		if (preg_match_all('/\S+/i', $urls, $matches, PREG_SET_ORDER)) {
-			foreach ($matches as $match) {
-				$url = array_pop($match);
-				$new_urls[$url] = $url;
+		$options = $asset->attr('url_rewriting_options');
+		$overall = 'none';
+		foreach ($options as $i => $v) {
+			if ($v) {
+				if ($i == 'all') {
+					$overall = 'all';
+				} else {
+					$overall = 'some';
+				}
+				break;
 			}
 		}
 
-		$asset->setAttrValue('url_white_list', $new_urls);
-		return TRUE;
+		if ($asset->writeAccess('attributes')) {
 
-	}//end processWhiteList()
+			radio_button($prefix.'_rewrite_type', 'none', ($overall == 'none'), '', 'id="'.$prefix.'_rewrite_type_none"');
+			label(translate('cms_remote_content_tunneling_rule_none'), $prefix.'_rewrite_type_none');
+			echo '<br />';
+
+			radio_button($prefix.'_rewrite_type', 'all', ($overall == 'all'), '', 'id="'.$prefix.'_rewrite_type_all"');
+			label(translate('cms_remote_content_tunneling_rule_all'), $prefix.'_rewrite_type_all');
+			echo '<br />';
+
+			radio_button($prefix.'_rewrite_type', 'some', ($overall == 'some'), '', 'id="'.$prefix.'_rewrite_type_some"');
+			label(translate('cms_remote_content_tunneling_rule_some'), $prefix.'_rewrite_type_some');
+			echo '<br />';
+
+			$pf = $prefix.'_rewrite_some_options';
+			?>
+
+			<div style="margin-left: 5ex" id="<?php echo $prefix; ?>_rewrite_type_some_options">
+				<input type="checkbox" name="<?php echo $pf; ?>[]" value="remote_url" id="<?php echo $pf; ?>_remote_url" <?php if ($options['remote_url']) echo 'checked="checked"'; ?> <?php if ($overall != 'some') echo 'disabled="disabled"'; ?> />
+				<label for="<?php echo $pf; ?>_remote_url"><?php echo translate('cms_remote_content_tunneling_option_remote_url'); ?></label>
+				<br />
+
+				<input type="checkbox" name="<?php echo $pf; ?>[]" value="remote_domain" id="<?php echo $pf; ?>_remote_domain" <?php echo $options['remote_domain'] ? 'checked="checked"' : ''; ?> <?php if ($overall != 'some') echo 'disabled="disabled"'; ?> />
+				<label for="<?php echo $pf; ?>_remote_domain"><?php echo translate('cms_remote_content_tunneling_option_remote_domain'); ?></label>
+				<br />
+
+				<input type="checkbox" name="<?php echo $pf; ?>[]" value="white_list" id="<?php echo $pf; ?>_white_list" <?php if ($options['white_list']) echo 'checked="checked"'; ?> <?php if ($overall != 'some') echo 'disabled="disabled"'; ?> />
+				<label for="<?php echo $pf; ?>_white_list"><?php echo translate('cms_remote_content_tunneling_option_white_list'); ?></label>
+				<br />
+				<textarea name="<?php echo $prefix.'_white_list'; ?>" onfocus="document.getElementById('<?php echo $pf; ?>_white_list').checked = true" <?php if ($overall != 'some') echo 'disabled="disabled"'; ?>><?php
+					$urls = $asset->attr('url_white_list');
+					echo (is_array($urls)) ? implode("\n", $urls) : '';
+				?></textarea>
+				<br /><em>(Enter one URL per line)</em>
+			</div>
+
+			<script type="text/javascript"><!--//<![CDATA[
+				var onclickfn = new Function("toggleOptionDisplay(this);");
+				var inputs = document.getElementsByName('<?php echo $prefix; ?>_rewrite_type');
+				for (var i=0; i < inputs.length; i++) {
+					inputs[i].onclick = onclickfn;
+				}
+				function toggleOptionDisplay(checkbox)
+				{
+					var siblings = document.getElementsByName(checkbox.name);
+					for (var j=0; j < siblings.length; j++) {
+						var container = document.getElementById(siblings[j].id+'_options');
+						if (container == null) continue;
+						var tags = ['INPUT', 'SELECT', 'TEXTAREA'];
+						for (t in tags) {
+							var inputs = container.getElementsByTagName(tags[t]);
+							for (var i=0; i < inputs.length; i++) {
+								inputs[i].disabled = (siblings[j] != checkbox);
+							}
+						}
+					}
+				}
+			//]]> -->
+			</script>
+			<?php
+			return TRUE;
+
+		} else {
+
+			// read only
+			echo translate('cms_remote_content_tunneling_rule_'.$overall);
+			if ($overall == 'some') {
+				echo '<ul style="margin-top: 3px">';
+				foreach (Array('remote_url', 'remote_domain', 'white_list') as $type) {
+					if ($options[$type]) {
+						echo '<li>'.translate('cms_remote_content_tunneling_option_'.$type);
+						if ($type == 'white_list') {
+							echo '<br />'.implode('<br />', $asset->attr('url_white_list'));
+						}
+						echo '</li>';
+					}
+				}
+			}
+				/*
+
+				case 'all':
+					echo translate('page_remote_content_tunneling_rule_all'); // 'All URLs may be tunneled';
+				break;
+				case 'none':
+					echo translate('page_remote_content_tunneling_rule_'.$overall);'No URLs may be tunneled';
+				break;
+				case 'some':
+					echo 'Only the following URLs may be tunneled:';
+				break;
+				*/
+			return FALSE;
+		}
+
+
+	}//end paintRewritingRestrictions()
+
+
+	/**
+	* Process the interface for controlling URL rewriting restrictions
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRewritingRestrictions(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess()) {
+			$options = $asset->attr('url_rewriting_options');
+			if (isset($_POST[$prefix.'_white_list'])) {
+				$white_list = explode("\n", trim($_POST[$prefix.'_white_list']));
+				// strip off protocols if necessary
+				foreach ($white_list as $i => $v) {
+					if (empty($v)) unset($white_list[$i]);
+					if (FALSE !== ($x = strpos(substr($v, 0, 7), '://'))) {
+						$white_list[$i] = substr($v, $x+3);
+					}
+				}
+				$asset->setAttrValue('url_white_list', $white_list);
+			}
+			switch ($_POST[$prefix.'_rewrite_type']) {
+				case 'all':
+					foreach ($options as $i => $v) {
+						$options[$i] = FALSE;
+					}
+					$options['all'] = TRUE;
+				break;
+				case 'none':
+					foreach ($options as $i => $v) {
+						$options[$i] = FALSE;
+					}
+				break;
+				case 'some':
+					$posted_options = array_get_index($_POST, $prefix.'_rewrite_some_options', Array());
+					foreach ($options as $i => $v) {
+						$options[$i] = in_array($i, $posted_options);
+					}
+					if (empty($white_list)) {
+						$options['white_list'] = FALSE;
+					}
+				break;
+			}
+			$asset->setAttrValue('url_rewriting_options', $options);
+			return TRUE;
+
+		}//end if write access
+
+		return FALSE;
+
+	}//end processRewritingRestrictions()
 
 
 	/**

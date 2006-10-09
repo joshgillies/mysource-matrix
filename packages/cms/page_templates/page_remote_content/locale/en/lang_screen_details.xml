@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2006/05/16 05:56:49 bcaldwell Exp $
+* $Id: lang_screen_details.xml,v 1.7 2006/10/09 02:57:25 tbarrett Exp $
 *
 */
 -->
@@ -31,23 +31,7 @@
 	<section name="Location">
 		<field attribute="remote_url">
 			<display_name>Remote URL</display_name>
-			<note>This is the URL to grab the contents from. This only works for a webpage. Please supply the a complete URL, together with protocol, i.e. http://www.this.com</note>
-		</field>
-		<field attribute="load_links">
-			<display_name>Replace Links</display_name>
-			<note>Select this option if you want links in the target page to open within the remote page.</note>
-		</field>
-		<field attribute="only_local_links">
-			<display_name>Only Replace Local Links</display_name>
-			<note>If Replace Links is selected, this option will make sure that only the links to the Remote URL domain name specified above get replaced. Links to remote sites will be left intact.</note>
-		</field>
-		<field>
-			<display_name>Allowed Base URLs</display_name>
-			<function_call>
-				<paint_function   name="paintWhiteList" />
-				<process_function name="processWhiteList" />
-			</function_call>
-			<note>Only those urls which are based on the listed domains are allowed to pass through this system. URLs based on "Remote URL" are implied to be in this list. DO NOT include the protocol, i.e. (http://), example entry: www.squiz.net or www.squiz.net/services. NOTE: When this list is empty and 'Only Replace Local Links' option is set to 'No' all URLs are allowed.</note>
+			<note>This is the URL to grab the contents from. Please supply the a complete URL, together with protocol, i.e. http://www.this.com</note>
 		</field>
 	</section>
 	<section name="Content Filtering">
@@ -90,20 +74,31 @@
 		</field>
 		<note>When filtering content based on Start/End tags, please be aware that complex nested content might not be properly identified, i.e. if there is a table inside a table and you want to capture the top level table, the captured region might start at the right spot, but end when the included table ends, without reaching the end of the top level one.</note>
 	</section>
-	<section name="Content Tunneling">
-		<note>By default, there is no content tunneling. All the elements of the remote page like images, flash movies, external scripts are requested by the browser from their original location. Enabling tunneling for a particular type of content means that it will be accessed not via it's original location directly, but by asking the remote content to retrieve it. This is done by re-writing the URLs of those elements to point back to the remote content asset. This feature might be beneficial if you are setting up a system with HTTP Authentication or if the target content is configured to only allow access to this matrix server. Beware that enabling these options may significantly increase the load time of the target page as well as increase the traffic of the matrix server.</note>
+	<section name="Tunneling">
+		<field>
+			<display_name>Overall Tunneling Rules</display_name>
+			<function_call>
+				<paint_function name="paintRewritingRestrictions" />
+				<process_function name="processRewritingRestrictions" />
+			</function_call>
+		</field>
+		<field attribute="load_links">
+			<display_name>Tunnel Linked Pages?</display_name>
+			<note>If this option is enabled, hyperlinks and form-action URLs in the remote page will be rewritten so that the linked-to pages will be requested through this asset just as the original remote page was.</note>
+		</field>
 		<field attribute="tunnel_images">
-			<display_name>Images?</display_name>
-			<note>By enabling this option, all the images will be tunneled through this remote content asset.</note>
+			<display_name>Tunnel Embedded Images?</display_name>
+			<note>If this option is enabled, URLs in IMAGE and SUBMIT tags, and image URLs referenced in CSS or HTML 'background' declarations, will be rewritten so that the relevant image files will be tunneled through this asset.</note>
 		</field>
 		<field attribute="tunnel_media">
-			<display_name>Media?</display_name>
-			<note>Everything else that is not an image - Flash, Movies and other objects.</note>
+			<display_name>Tunnel Other Embedded Media?</display_name>
+			<note>If this option is enabled, URLs in EMBED and PARAM tags will be rewritten so that the relevant media files (flash, movies etc) will be tunneled through this asset</note>
 		</field>
 		<field attribute="tunnel_scripts">
-			<display_name>Scripts?</display_name>
-			<note>CSS, JavaScript</note>
+			<display_name>Tunnel Scripts and Style Sheets?</display_name>
+			<note>If this option is enabled, URLs in SCRIPT and LINK tags, or next to 'import' directives within STYLE blocks, will be rewritten so that the relevant CSS or Javascript files will be tunneled through this asset.</note>
 		</field>
+		<note>If no types of tunneling are enabled, all elements of the remote page are requested directly from the remote server by the browser.  Tunneling can be useful if you are using this page to perform HTTP Authentication on the remote server, or if the target server is configured to only allow access from this matrix server. However, enabling these options may significantly increase the load time of the target page and may increase the traffic on the matrix server.</note>	
 	</section>
 	<section name="Connection Settings">
 		<field attribute="timeout">

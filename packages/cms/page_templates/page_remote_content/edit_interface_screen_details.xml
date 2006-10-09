@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.16 2006/05/16 05:56:49 bcaldwell Exp $
+* $Id: edit_interface_screen_details.xml,v 1.17 2006/10/09 02:57:21 tbarrett Exp $
 *
 */
 -->
@@ -28,18 +28,6 @@
 	<section name="Location" write_access="write:attributes">
 		<field attribute="remote_url">
 			<text width="80" height="1" />
-		</field>
-		<field attribute="load_links">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="only_local_links">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintWhiteList" />
-				<process_function name="processWhiteList" />
-			</function_call>
 		</field>
 	</section>
 	<section name="Content Filtering" write_access="write:attributes">
@@ -68,7 +56,16 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Content Tunneling" write_access="write:attributes">
+	<section name="Tunneling" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function name="paintRewritingRestrictions" />
+				<process_function name="processRewritingRestrictions" />
+			</function_call>
+		</field>
+		<field attribute="load_links">
+			<boolean true_text="yes" false_text="no" />
+		</field>
 		<field attribute="tunnel_images">
 			<boolean true_text="yes" false_text="no" />
 		</field>
