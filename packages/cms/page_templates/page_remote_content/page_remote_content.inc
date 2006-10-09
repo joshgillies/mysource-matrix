@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.47 2006/10/09 07:26:41 arailean Exp $
+* $Id: page_remote_content.inc,v 1.48 2006/10/09 07:29:19 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -186,7 +186,7 @@ class Page_Remote_Content extends Page
 
 		$raw_post = '';
 		if ($is_post) {
-			$content_type = array_get_index($_SERVER, "CONTENT_TYPE");
+			$content_type = array_get_index($_SERVER, 'CONTENT_TYPE');
 			if (!is_null($content_type) && strpos(strtolower($content_type), 'multipart/form-data') !== FALSE) {
 				$raw_post = make_raw_post_data($_POST);
 			} else {
