@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.169 2006/10/05 02:21:19 bcaldwell Exp $
+* $Id: lang_strings.xml,v 1.170 2006/10/09 02:25:15 skim Exp $
 *
 */
 
@@ -1023,6 +1023,8 @@
 	<string source="trigger_set_status">Set the Asset's status to: %1$s&lt;br /&gt;%2$s Set status of dependent parents instead (eg. set the status of a bodycopy DIV's Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the status set normally).</string>
 	<string source="trigger_increment_version">Increment this component of the Asset's version number: %s</string>
 
+	<string source="trigger_set_permission_dependants_only">Update the Asset's dependant children only : If this option is set, only the permission of the dependant childrens are updated.</string>
+	<string source="trigger_set_permission_dependant_parents">Set permission of dependent parents instead (eg. set the permission of a bodycopy DIV's Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the permission set normally).</string>
 
 	<string source="trigger_asset_id">Asset ID is %s</string>
 	<string source="trigger_asset_type">Asset is of type %s</string>
