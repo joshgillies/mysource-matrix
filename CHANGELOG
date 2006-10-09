@@ -47,6 +47,7 @@ CMS
 * Fixed bug #1726: Structured Root Node selector and no results bodycopy on Asset Listing (Asset Listing Page)
 * Fixed bug #1705: Remote Content not handling cookies correctly (Remote Content Page)
 * Fixed bug #1707: Online Poll: Issues with "Allow Multiple Voting" set to No (Online Poll)
+* Fixed bug #1746: Asset Listing with Custom Grouping - No Results (Listing Engine)
 
 Search
 
