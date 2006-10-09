@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.8 2006/02/07 02:27:12 sdanis Exp $
+* $Id: trigger_action_set_permission.inc,v 1.8.2.1 2006/10/09 02:26:11 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,13 +66,46 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		if (empty($settings['userid'])) return FALSE;
 		if (empty($state['assetid'])) return FALSE;
 		$granted = array_get_index($settings, 'granted', TRUE);
+		$dependant_only = array_get_index($settings, 'dependant_only', FALSE);
+		$dependant_parents = array_get_index($settings, 'dependant_parents', FALSE);
 
-		// set the permission on the asset
-		// note that the asset manager already checks if the permission has been
-		// and returns true if it has
-		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($state['assetid'], $settings['userid'], $settings['permission'], $granted)) {
-			return FALSE;
+		// if dependant_parents is turned on, look for all our dependant parents
+		// and change their statuses, instead of our own
+		$target_assets = Array();
+		if ($dependant_parents) {
+			// get only the top level
+			$target_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($state['assetid'], '', TRUE, FALSE);
+			if (!empty($target_assets)) {
+				// returns Array(0 => Assetid), so flip the array
+				$target_assets = array_flip($target_assets);
+				foreach ($target_assets as $assetid => $null) {
+					$target_assets[$assetid] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				}
+			}
+		} else {
+			$target_assets[$state['assetid']] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 		}
+
+		// need to use a hipo job to set status (handles dependant children)
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		foreach ($target_assets as $assetid => $asset) {
+			$vars['assets'][$assetid] = Array(
+											'type_code'	=> $asset->type(),
+										);
+		}
+		$vars['permission_changes'] = Array(
+										$settings['permission']	=> Array(
+																	Array(
+																		'granted'			=> $granted,
+																		'userid'			=> $settings['userid'],
+																		'previous_access'	=> NULL,
+																	),
+																   ),
+									  );
+		$vars['dependants_only'] = $dependant_only;
+		$status_errors = $hh->freestyleHipo('hipo_job_edit_permissions', $vars);
+
+		if (!empty($status_errors)) return FALSE;
 
 		return Array(
 				'assetid'		=> $state['assetid'],
@@ -160,6 +193,26 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			}
 		}
 
+		// dependants_only
+		$dependants_only = array_get_index($settings, 'dependants_only', FALSE);
+		if ($write_access) {
+			echo '<br />';
+			check_box($prefix.'[dependants_only]', 1, array_get_index($settings, 'dependants_only', FALSE));
+			echo translate('trigger_set_permission_dependants_only');
+		} else {
+			echo '<br />Dependant Children Only : <b>'.($dependants_only ? 'True' : 'False').'</b>';
+		}
+
+		// dependant_parents
+		$dependant_parents = array_get_index($settings, 'dependant_parents', FALSE);
+		if ($write_access) {
+			echo '<br />';
+			check_box($prefix.'[dependant_parents]', 1, array_get_index($settings, 'dependant_parents', FALSE));
+			echo translate('trigger_set_permission_dependant_parents');
+		} else {
+			echo '<br />Dependant Parent : <b>'.($dependant_parents ? 'True' : 'False').'</b>';
+		}
+
 		return ob_get_clean();
 
 	}//end getInterface()
@@ -207,6 +260,14 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			return 'Specified user is not a valid asset';
 		}
 		$settings['userid'] = $userid;
+
+		// dependants_only
+		$dependants_only = array_get_index($request_data, 'dependants_only', FALSE);
+		$settings['dependants_only'] = ($dependants_only == '1') ? TRUE : FALSE;
+
+		// dependant_parents
+		$dependant_parents = array_get_index($request_data, 'dependant_parents', FALSE);
+		$settings['dependant_parents'] = ($dependant_parents == '1') ? TRUE : FALSE;
 
 		return FALSE;
 
