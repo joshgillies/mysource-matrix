@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.50.2.1 2006/07/14 00:48:30 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.50.2.2 2006/10/09 04:37:52 rhoward Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.50.2.1 $
+* @version $Revision: 1.50.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -469,16 +469,39 @@ class Page_Calendar_Management extends Asset_Management
 		if ($upgrade_already_run) return $res;
 		$upgrade_already_run = TRUE;
 
+		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
+
 		if ($current_version < 0.3) {
+			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.3');
 			// set values for our new attribute, the day column width, according to the old col width
 			// that was shared between day and week
 			$all_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_calendar', FALSE);
+			pre_echo('Upgrading '.count($all_assetids).' assets...');
 			foreach ($all_assetids as $assetid) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$asset->setAttrValue('day_column_width', $asset->attr('table_column_width'));
 				$asset->saveAttributes();
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($assetid);
 			}
+			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.3');
+		}
+
+		if ($current_version < 0.6) {
+			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.6');
+			// correct the enabled_views attribute
+			$all_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_calendar', FALSE);
+			pre_echo('Upgrading '.count($all_assetids).' assets...');
+			foreach ($all_assetids as $assetid) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$attr  =  $asset->attr('enabled_views');
+				if (array_get_index($attr, 'event') == 'single_event') {
+					$attr['event'] = 'single_event_view';
+				}
+				$asset->setAttrValue('enabled_views', $attr);
+				$asset->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($assetid);
+			}
+			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.6');
 		}
 
 		return $res;
