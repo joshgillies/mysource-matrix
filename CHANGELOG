@@ -1,5 +1,72 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.8.7
+
+Featured Changes
+-----------------------------------
+
+Role Assignments Screen for LDAP Users
+
+    The Role Assignments screen, previously available only for "real" User assets within MySource Matrix, has now been added for LDAP Users.
+
+
+Rolling Calendar Page Improvements
+
+    The time unit used for selecting the rolling period can now be selected in units of weeks or months, instead of just days. Events are grouped by the time unit specified. New time unit "Start Date" and "End Date"
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+* Fixed bug #1470: Workflow e-mail invalid for User asset
+* Fixed bug #1538: Asset Map count not updating
+* Fixed bug #1638: Wrong Percentage displayed by the HIPO when cloning assets
+* Fixed bug #1647: Workflow screen shows 2 interface when 2 workflow are applied
+* Fixed bug #1648: Commit button incorrectly labelled in workflow
+* Fixed bug #1659: Workflow doesn't cascade to dependant assets when Cascade is unticked
+* Fixed bug #1662: Backup script tar error
+* Fixed bug #1665: Simple edit: Metadata keyword breaks HTML code
+* Fixed bug #1666: Asset Map Expanding Node Indexing Problem
+* Fixed bug #1676: Backup script generates PHP notices at the start
+* Fixed bug #1690: can not link/move/clone div from one page to another page
+* Fixed bug #1691: Extras field on date-time form isn't displayed correctly
+* Fixed bug #1695: Web Paths screen missing for files
+* Fixed bug #1708: IMG tag code generated from WYSIWYG shows non-compliant border attribute
+* Fixed bug #1718: Asset finder: "The asset finder is currently in use" after commit
+* Fixed bug #1730: Problem with purging mail from trash
+* Fixed bug #1741: Searching on metadata select fields is case-sensitive
+* Fixed bug #1745: Cannot complete workflow steps when a live asset is up for review and the workflow process has more than one step
+
+CMS
+
+* Fixed bug #1631: Site map asset does not paint content when accessed by user or backend user (Site Map)
+* Fixed bug #1643: Inconsistencies between %question_id_*% and %question_field_*% (Custom Form)
+* Fixed bug #1644: Unable to edit details screen on redirect page in simple edit (Redirect Page)
+* Fixed bug #1667: PHP Warning displayed on an asset listing details screen (Asset Listing Page)
+* Fixed bug #1671: Linking sections in the custom form (Custom Form)
+* Fixed bug #1726: Structured Root Node selector and no results bodycopy on Asset Listing (Asset Listing Page)
+* Fixed bug #1705: Remote Content not handling cookies correctly (Remote Content Page)
+* Fixed bug #1707: Online Poll: Issues with "Allow Multiple Voting" set to No (Online Poll)
+
+Search
+
+* Fixed bug #1214: Searching doesn't work with words with different length (Search Manager)
+* Fixed bug #1700: asset_lineage inconsistent with more than one Search root_node (Search Page)
+* Fixed bug #1704: Search page pagination issue when query contains an "&" (Search Page)
+
+Calendar
+
+* Fixed bug #1646: Recurring events don't show correct instance dates in rolling calendar page (Rolling Calendar Page)
+* Fixed bug #1687: Calendar navigator design area causes JS errors if no linked calendar page selected (Javascript Calendar Navigator Design Area)
+* Fixed bug #1688: Options missing from calendar navigator design area details screen (Javascript Calendar Navigator)
+* Fixed bug #1698: Calendar pages (all types) looking for userid 0 in perms table and causing oracle errors (Calendar Page)
+
+Bulkmail
+
+* Fixed bug #1692: Problem with Details screen of Bulkmail Manager (Bulkmail Manager)
+
+
+
 VERSION 3.8.6
 
 Featured Changes
