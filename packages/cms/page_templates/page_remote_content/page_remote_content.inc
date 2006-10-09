@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.32.2.6 2006/10/09 05:05:21 tbarrett Exp $
+* $Id: page_remote_content.inc,v 1.32.2.7 2006/10/09 07:39:42 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.32.2.6 $
+* @version $Revision: 1.32.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -415,16 +415,18 @@ class Page_Remote_Content extends Page
 			foreach ($_FILES as $name => $details) {
 				if (is_array($details['tmp_name'])) {
 					foreach ($details['tmp_name'] as $i => $tn) {
-						$new_name = dirname($tn).'/'.basename($details['name'][$i]);
-						rename($tn, $new_name);
-						$files[] = Array($name.'['.$i.']', $new_name, $details['type'][$i]);
-						unlink($new_name);
+						if ($details['error'][$i] != UPLOAD_ERR_OK) continue;
+						$new_name = SQ_TEMP_PATH.'/'.basename($details['name'][$i]);
+						if (move_uploaded_file($tn, $new_name)) {
+							$files[] = Array($name.'['.$i.']', $new_name, $details['type'][$i]);
+						}
 					}
 				} else {
-					$new_name = dirname($details['tmp_name']).'/'.basename($details['name']);
-					rename($details['tmp_name'], $new_name);
-					$files[] = Array($name, $new_name, $details['type']);
-					unlink($new_name);
+					if ($details['error'] != UPLOAD_ERR_OK) continue;
+					$new_name = SQ_TEMP_PATH.'/'.basename($details['name']);
+					if (move_uploaded_file($details['tmp_name'], $new_name)) {
+						$files[] = Array($name, $new_name, $details['type']);
+					}
 				}
 			}
 			$result = $HTTP_Client->post($url, $raw_post, TRUE, $files);
