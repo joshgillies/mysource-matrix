@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.197 2006/09/29 05:11:07 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.198 2006/10/09 04:32:14 mbrydon Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.197 $
+* @version $Revision: 1.198 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -456,6 +456,49 @@ class Listing_Engine extends Page
 
 
 	/**
+	* Prints the "No Results found" bodycopy (if available)
+	*
+	* @param array	&$keywords	a set of keyword replacements to use in the bodycopy
+	*
+	* @return boolean
+	* @access public
+	*/
+	function printNoResultsBodycopy(&$keywords)
+	{
+		$no_results_bodycopy_printed = FALSE;
+		$no_results_bodycopy = $this->getNoResultsBodycopy();
+
+		// initialise keywords
+		$replacements = Array();
+		$replacements['asset_count']			= 0;
+		$replacements['asset_listing']			= '';
+		$replacements['page_list']				= '';
+		$replacements['page_number']			= 0;
+		$replacements['page_asset_count']		= 0;
+		$replacements['total_pages']			= 0;
+		$replacements['first_asset_position']	= 0;
+		$replacements['last_asset_position']	= 0;
+		$replacements['previous_page']			= '';
+		$replacements['previous_page_href']		= '';
+		$replacements['next_page']				= '';
+		$replacements['next_page_href']			= '';
+
+		// print the "No Results" bodycopy if available
+		if (!is_null($no_results_bodycopy)) {
+			foreach ($keywords as $word) {
+				$replacements[$word] = $this->getKeywordReplacement($word);
+			}
+			$no_results_bodycopy->setKeywordReplacements($replacements);
+			$no_results_bodycopy->printBody();
+			$no_results_bodycopy_printed = TRUE;
+		}
+
+		return $no_results_bodycopy_printed;
+
+	}//end printNoResultsBodycopy()
+
+
+	/**
 	* Called by the design to print the body of this asset
 	*
 	* @return void
@@ -480,28 +523,9 @@ class Listing_Engine extends Page
 		// if there are no children available, just print the page bodycopy -
 		// or the NO RESULTS bodycopy if it exists
 		if (empty($children)) {
-			$no_results_bodycopy = $this->getNoResultsBodycopy();
+			$no_results_bodycopy_printed = $this->printNoResultsBodycopy($keywords);
 
-			$replacements['asset_count']			= 0;
-			$replacements['asset_listing']			= '';
-			$replacements['page_list']				= '';
-			$replacements['page_number']			= 0;
-			$replacements['page_asset_count']		= 0;
-			$replacements['total_pages']			= 0;
-			$replacements['first_asset_position']	= 0;
-			$replacements['last_asset_position']	= 0;
-			$replacements['previous_page']			= '';
-			$replacements['previous_page_href']		= '';
-			$replacements['next_page']				= '';
-			$replacements['next_page_href']			= '';
-
-			if (!is_null($no_results_bodycopy)) {
-				foreach ($keywords as $word) {
-					$replacements[$word] = $this->getKeywordReplacement($word);
-				}
-				$no_results_bodycopy->setKeywordReplacements($replacements);
-				$no_results_bodycopy->printBody();
-			} else {
+			if (!$no_results_bodycopy_printed) {
 				$selections = $this->attr('asset_selections');
 				foreach ($selections as $selection_name => $settings) {
 					$replacements[$selection_name.'_check_all'] = '';
@@ -512,7 +536,7 @@ class Listing_Engine extends Page
 				$format_bodycopy->printBody();
 			}
 			return;
-		}//end if
+		}
 
 		if (!in_array('asset_listing', $keywords)) {
 			// there is no asset listing keyword in the contents, so we dont
@@ -567,10 +591,26 @@ class Listing_Engine extends Page
 		// get any extra keyword replacements from this asset or asset_listing
 		$replacements = $this->getContentsKeywordReplacements($keywords) + $replacements;
 		$num_assets_showing = count($todo);
-		ob_start();
-			$this->printAssetList($todo);
-			$global_contents = ob_get_contents();
-		ob_end_clean();
+		if ($num_assets_showing > 0) {
+			ob_start();
+				$this->printAssetList($todo);
+				$global_contents = ob_get_contents();
+			ob_end_clean();
+		} else {
+			$no_results_bodycopy_printed = $this->printNoResultsBodycopy($keywords);
+
+			if (!$no_results_bodycopy_printed) {
+				$selections = $this->attr('asset_selections');
+				foreach ($selections as $selection_name => $settings) {
+					$replacements[$selection_name.'_check_all'] = '';
+					$replacements[$selection_name.'_check_all_in_group'] = '';
+				}
+
+				$format_bodycopy->setKeywordReplacements($replacements);
+				$format_bodycopy->printBody();
+			}
+			return;
+		}
 
 		// the global replacement to print the asset listing
 		$replacements['asset_listing'] = $global_contents;
