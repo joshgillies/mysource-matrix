@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.140 2006/09/14 04:33:13 skim Exp $
+* $Id: form.inc,v 1.141 2006/10/10 03:56:22 emcdonald Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.140 $
+* @version $Revision: 1.141 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -541,7 +541,9 @@ class Form extends Asset
 	*/
 	function canCreateLink(&$minor, $link_type, $exclusive)
 	{
-		if (is_a($minor, 'form_submission') || is_a($minor, 'form_section')) return TRUE;
+		if (is_a($minor, 'form_submission') || is_a($minor, 'form_section')) {
+			return TRUE;
+		}
 
 		return parent::canCreateLink($minor, $link_type, $exclusive);
 
@@ -1090,6 +1092,7 @@ class Form extends Asset
 				$replacements['question_field_'.$this->id.'_q'.$q_id] = $q_asset->getHtmlField();
 				$replacements['question_id_'.$question->id.'_q'.$q_id] = 'q'.$this->id.'_q'.$q_id;
 				$replacements['question_note_'.$this->id.'_q'.$q_id] = $q_asset->attr('note');
+				$replacements['question_label_'.$this->id.'_q'.$q_id] = $q_asset->getHtmlLabel();
 			}
 
 			foreach ($sections as $section) {
@@ -1101,6 +1104,7 @@ class Form extends Asset
 					$replacements['question_field_'.$section->id.'_q'.$q_id] = $q_asset->getHtmlField();
 					$replacements['question_id_'.$section->id.'_q'.$q_id] = 'q'.$section->id.'_q'.$q_id;
 					$replacements['question_note_'.$section->id.'_q'.$q_id] = $q_asset->attr('note');
+					$replacements['question_label_'.$section->id.'_q'.$q_id] = $q_asset->getHtmlLabel();
 				}
 			}
 
@@ -1756,6 +1760,7 @@ class Form extends Asset
 					$keywords['question_field_'.$this->id.'_q'.$q_id] = translate('cms_form_question_field', ellipsisize($q_name,30));
 					$keywords['question_id_'.$this->id.'_q'.$q_id] = translate('cms_form_question_id', ellipsisize($q_name,30));
 					$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_question_note', ellipsisize($q_name,30));
+					$keywords['question_label_'.$this->id.'_q'.$q_id] = 'Question label for '.ellipsisize($q_name,30);
 				}
 
 				foreach ($sections as $section) {
@@ -1767,6 +1772,7 @@ class Form extends Asset
 						$keywords['question_field_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_field', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
 						$keywords['question_id_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_id', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
 						$keywords['question_note_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_note', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
+						$keywords['question_label_'.$section->id.'_q'.$q_id] = 'Question label for '.ellipsisize($q_name,30);
 					}
 				}
 

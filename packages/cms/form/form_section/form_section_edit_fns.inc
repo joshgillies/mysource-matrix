@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.45 2006/09/18 00:50:20 rong Exp $
+* $Id: form_section_edit_fns.inc,v 1.46 2006/10/10 03:56:22 emcdonald Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -381,10 +381,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateContentFile(&$asset)
 	{
-		if (!isset($bodycopy)) {
-			$output = $this->generateGenericSection($asset);
-
-		} //end if
+		$output = $this->generateGenericSection($asset);
 
 		// if there are any tags left that haven't been replaced,
 		// we want to strip them out
@@ -421,7 +418,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			$output .= '<tr>';
 			$output .= '<td valign="top"';
 			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
-			$output .= $q->getVal('title');
+			$output .= $q->getHtmlLabel();
 			if ($q->getVal('note')) {
 				$output .= '<br /><span style="font-size: <'.'?php echo $form_asset->attr("note_size") ?'.'>">'.$q->getVal('note').'</span>';
 			}
