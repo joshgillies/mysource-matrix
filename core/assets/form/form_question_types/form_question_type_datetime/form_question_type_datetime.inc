@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.8 2006/09/19 02:21:58 rong Exp $
+* $Id: form_question_type_datetime.inc,v 1.9 2006/10/10 05:42:50 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,6 +82,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		$html = '';
 		$value = $this->getValue();
 
+
 		$elements = Array('day' => 'd', 'month' => 'm', 'year' => 'y', 'hour' => 'h', 'min' => 'i', 'sec' => 's');
 
 		$parameters = Array();
@@ -97,6 +98,13 @@ class Form_Question_Type_Datetime extends Form_Question
 			$parameters['max'] = '2099-12-31 23:59:59';
 		}
 		$parameters['extras'] = $this->attr('extras');
+
+		if ($this->attr('tabindex')) {
+			$tabindex = ' tabindex="'.$this->attr('tabindex').'"';
+			foreach ($parameters['extras'] as $key => $extra) {
+				$parameters['extras'][$key] .= $tabindex;
+			}
+		}
 
 		$show_params = $this->attr('show');
 		$text_params = $this->attr('text');
@@ -180,14 +188,12 @@ class Form_Question_Type_Datetime extends Form_Question
 	* @param boolean	$mute_errors	If TRUE, do not add to the "Failed
 	*									Rules" log, but simply return FALSE
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
-		if (is_null($answer)) {
-			$answer = $this->getValue();
-		}
+		if (is_null($answer)) $answer = $this->getValue();
 
 		$required_fields = $this->attr('null');
 		$show_params = $this->attr('show');
@@ -292,7 +298,7 @@ class Form_Question_Type_Datetime extends Form_Question
 				$year_str = ($match[0] == 'Y') ? $val['y'] : substr($val['y'], -2);
 				if ($pos == 0) {
 					$new_format = $year_str.substr($new_format, 1);
-				} else if (($pos > 0) && (substr($new_format, ($pos - 1), 1) != "\\")) {
+				} else if (($pos > 0) && (substr($new_format, ($pos - 1), 1) != '\\')) {
 					$new_format = substr($new_format, 0, $pos).$year_str.substr($new_format, $pos + 1);
 				}
 			}

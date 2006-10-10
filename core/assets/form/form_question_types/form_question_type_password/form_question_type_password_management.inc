@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password_management.inc,v 1.1 2005/07/20 00:02:45 lwright Exp $
+* $Id: form_question_type_password_management.inc,v 1.2 2006/10/10 05:41:21 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,9 +62,9 @@ class Form_Question_Type_Password_Management extends Asset_Management
 						'verify'	=> Array(
 										'added'			=> '0.0.1',
 										'type'			=> 'boolean',
-										'default'		=> true,
+										'default'		=> TRUE,
 										'parameters'	=> Array(
-															'allow_empty'	=> false,
+															'allow_empty'	=> FALSE,
 														   ),
 									   ),
 						'max'		=> Array(
@@ -83,6 +83,7 @@ class Form_Question_Type_Password_Management extends Asset_Management
 										'default'	=> '',
 									   ),
 					  );
+
 	}//end constructor
 
 

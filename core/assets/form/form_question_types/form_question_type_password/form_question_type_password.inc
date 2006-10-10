@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.6 2006/09/07 03:50:10 bcaldwell Exp $
+* $Id: form_question_type_password.inc,v 1.7 2006/10/10 05:41:21 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,8 +58,9 @@ class Form_Question_Type_Password extends Form_Question
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -71,8 +72,8 @@ class Form_Question_Type_Password extends Form_Question
 	/**
 	* generates the html for this question to display it in the frontend
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getHtmlField()
 	{
@@ -85,6 +86,11 @@ class Form_Question_Type_Password extends Form_Question
 		// prepare a valid value for the field id
 		$extras_a = $extras.' id="'.str_replace(':', '_', $name_a).'"';
 		$extras_b = $extras.' id="'.str_replace(':', '_', $name_b).'"';
+
+		if ($this->attr('tabindex')) {
+			$extras_a .= ' tabindex="'.$this->attr('tabindex').'"';
+			$extras_b .= ' tabindex="'.$this->attr('tabindex').'"';
+		}
 
 		$value = $this->attr('default');
 
@@ -117,14 +123,12 @@ class Form_Question_Type_Password extends Form_Question
 	* @param boolean	$mute_errors	If TRUE, do not add to the "Failed
 	*									Rules" log, but simply return FALSE
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
-		if (is_null($answer)) {
-			$answer = $this->getValue();
-		}
+		if (is_null($answer)) $answer = $this->getValue();
 
 		if ($this->attr('verify') && ($val != $this->_tmp['verify_value'])) {
 			$this->failed_rules[] = translate('core_form_password_entered_differently', $this->attr('name'));
@@ -159,7 +163,7 @@ class Form_Question_Type_Password extends Form_Question
 				$this->_tmp['verify_value'] = $_POST[$name.'_2'];
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end populate()
 
@@ -169,8 +173,8 @@ class Form_Question_Type_Password extends Form_Question
 	*
 	* @param mixed	$answer	the answer for the question
 	*
+	* @return string
 	* @access public
-	* @return string the summary XML
 	*/
 	function getXML($answer)
 	{
@@ -192,8 +196,8 @@ class Form_Question_Type_Password extends Form_Question
 	/**
 	* returns the answer for this question for the summary, generally overidden by children
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getSummary()
 	{
@@ -205,8 +209,10 @@ class Form_Question_Type_Password extends Form_Question
 	/**
 	* Set the value of this question
 	*
-	* @access public
+	* @param string	$value	the new value
+	*
 	* @return void
+	* @access public
 	*/
 	function setValue($value)
 	{
@@ -221,14 +227,27 @@ class Form_Question_Type_Password extends Form_Question
 	/**
 	* Returns whether questions of this type can be edited once the form has been initially submitted
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function isEditable()
 	{
-		return false;
+		return FALSE;
 
 	}//end isEditable()
+
+
+	/**
+	* Get the HTML label for this form question
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getHtmlLabel()
+	{
+		return $this->attr('name');
+
+	}//end getHtmlLabel()
 
 
 }//end class

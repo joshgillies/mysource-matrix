@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime_edit_fns.inc,v 1.3 2006/09/19 02:21:58 rong Exp $
+* $Id: form_question_type_datetime_edit_fns.inc,v 1.4 2006/10/10 05:42:50 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,12 +54,12 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 	/**
 	* paint the interface for the datetime options
 	*
-	* @param object Question 			&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function paintInterface(&$asset, &$o, $prefix)
 	{
@@ -69,8 +69,8 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 		$text_params = $asset->attr('text');
 		$null_params = $asset->attr('null');
 
-		$edit = false;				// editing flag
-		if ($asset->writeAccess('attributes')) $edit = true;
+		$edit = FALSE;				// editing flag
+		if ($asset->writeAccess('attributes')) $edit = TRUE;
 
 		?>
 			<table class="sq-backend-table">
@@ -247,20 +247,20 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 				?></td>
 			</tr>
 			</table>
-
 		<?php
+
 	}//end paintInterface()
 
 
 	/**
 	* paint the interface for the datetime options
 	*
-	* @param object Question 			&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processInterface(&$asset, &$o, $prefix)
 	{
@@ -297,18 +297,18 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 		}
 
 		if (!$asset->setAttrValue('show', $show_params)) {
-			return false;
+			return FALSE;
 		}
 		if (!$asset->setAttrValue('text', $text_params)) {
-			return false;
+			return FALSE;
 		}
 		if (!$asset->setAttrValue('null', $null_params)) {
-			return false;
+			return FALSE;
 		}
 
 
 
-		return true;
+		return TRUE;
 
 	}//end processInterface()
 
@@ -320,8 +320,8 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 	* @param object	&$o		the outputter class
 	* @param string	$prefix	prefix for the form elements
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function paintExtras(&$asset, &$o, $prefix)
 	{
@@ -415,8 +415,8 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 	* @param object	&$o		the outputter class
 	* @param string	$prefix	prefix for the form elements
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processExtras(&$asset, &$o, $prefix)
 	{

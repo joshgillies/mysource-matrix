@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_country.inc,v 1.1 2005/07/20 00:02:44 lwright Exp $
+* $Id: form_question_type_country.inc,v 1.2 2006/10/10 05:42:07 emcdonald Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/standards_lists/countries.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,8 +60,8 @@ class Form_Question_Type_Country extends Form_Question_Type_Select
 	/**
 	* returns the options currently in the dropdown list
 	*
+	* @return array
 	* @access public
-	* @return Array()
 	*/
 	function getOptions()
 	{
@@ -84,8 +84,8 @@ class Form_Question_Type_Country extends Form_Question_Type_Select
 	/**
 	* returns the complete set of countries
 	*
+	* @return array
 	* @access public
-	* @return Array(string)
 	*/
 	function getCompleteOptions()
 	{

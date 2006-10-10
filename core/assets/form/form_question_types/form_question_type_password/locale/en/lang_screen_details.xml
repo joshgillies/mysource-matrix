@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/07/20 00:02:45 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2006/10/10 05:41:21 emcdonald Exp $
 */
 -->
 
@@ -61,6 +61,10 @@
 		<field attribute="verify">
 			<display_name>Requires Verification</display_name>
 			<note>If this is set to Yes, two fields will appear on the form, which have to be entered correctly for the form to be submitted</note>
+		</field>
+		<field attribute="tabindex">
+			<display_name>Tab Index</display_name>
+			<note>If a tab index is supplied it will be added to the input tag</note>
 		</field>
 		<field attribute="extra">
 			<display_name>Extras</display_name>
