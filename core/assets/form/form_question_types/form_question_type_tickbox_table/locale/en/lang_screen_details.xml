@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2006/06/19 01:03:45 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.3 2006/10/10 05:09:30 emcdonald Exp $
 */
 -->
 
@@ -39,6 +39,14 @@
 				<paint_function   name="paintQuestionInterface"   />
 				<process_function name="processQuestionInterface" />
 			</function_call>
+		</field>
+		<field attribute="tabindex">
+			<display_name>Tab Index</display_name>
+			<note>If a tab index is supplied it will be added to the input tag</note>
+		</field>
+		<field attribute="extra">
+			<display_name>Extras</display_name>
+			<note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes, eg class="yourCssClass"</note>
 		</field>
 		<field attribute="sticky">
 			<display_name>Sticky?</display_name>

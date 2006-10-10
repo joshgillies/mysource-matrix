@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.5 2006/08/14 05:01:01 rhoward Exp $
+* $Id: form_question_type_tickbox_table.inc,v 1.6 2006/10/10 05:09:30 emcdonald Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,8 +59,8 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	/**
 	* generates the html for this question to display it in the frontend
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getHtmlField()
 	{
@@ -72,8 +72,8 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	/**
 	* returns a summary for this question
 	*
+	* @return string
 	* @access public
-	* @return mixed
 	*/
 	function getSummary()
 	{
@@ -85,10 +85,10 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	/**
 	* Processes the question and returns its "view" depending on type
 	*
-	* @param string $type view type - defined in xml2html.xsl
+	* @param string	$type	view type - defined in xml2html.xsl
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function _getOutput($type='plaintext')
 	{
@@ -102,8 +102,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 
 		$to_output = '';
 
-		switch ($type)
-		{
+		switch ($type) {
 			// plaintext part for e-mail sending and submission confirmation
 			case 'plaintext':
 				if (empty($question_contents )) return '';
@@ -166,6 +165,12 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 					}
 					$to_output .= '</div>';
 				} else {
+					$extras = $this->attr('extra');
+
+					if ($this->attr('tabindex')) {
+						$extras .= ' tabindex="'.$this->attr('tabindex').'"';
+					}
+
 					$header = array_shift($question_contents);
 					$to_output .= array_shift($header).'</td>';
 					foreach ($header as $key=>$title) {
@@ -186,10 +191,14 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 								$to_output .= '&mdash;';
 							} else if ($type != 'passive') {
 								ob_start();
-									check_box($prefix.'['.$question_id.']['.$option_id.']', '1', $submission && isset($submission[$question_id][$option_id]));
+									check_box($prefix.'['.$question_id.']['.$option_id.']', '1', $submission && isset($submission[$question_id][$option_id]), NULL, $extras);
 									$to_output .= ob_get_contents();
 								ob_end_clean();
-								$to_output .= ' <span onclick="this.previousSibling.previousSibling.checked = !this.previousSibling.previousSibling.checked">'.$option.'</span>';
+								ob_start();
+									label($option, $prefix.'['.$question_id.']['.$option_id.']');
+									$label = ob_get_contents();
+								ob_end_clean();
+								$to_output .= ' <span onclick="this.previousSibling.previousSibling.checked = !this.previousSibling.previousSibling.checked">'.$label.'</span>';
 							} else {
 								$to_output .= $option;
 							}
@@ -197,10 +206,10 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 						}
 						$to_output .= '</tr>';
 					}
-				}
+				}//end else
 				$to_output .= '</table>';
 
-		}
+		}//end switch
 		return $to_output;
 
 	}//end _getOutput()
@@ -218,14 +227,12 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	* @param boolean	$mute_errors	If TRUE, do not add to the "Failed
 	*									Rules" log, but simply return FALSE
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
-		if (is_null($answer)) {
-			$answer = $this->getValue();
-		}
+		if (is_null($answer)) $answer = $this->getValue();
 
 		if ($this->attr('is_required')) {
 			$req_rule = Array('rule_code' => 'select_limit', 'operator' => '>=', 'value' => '1');
@@ -246,8 +253,8 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	/**
 	* Assemble an XML representation of the question
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getXMLstring()
 	{
@@ -255,7 +262,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 
 		$question_contents = $this->attr('question_contents');
 		$datapath = sq_web_path('data').'/asset_types/form_question_type_tickbox_table/files';
-		$submission = array_get_index($this->_tmp,'submission',false);
+		$submission = array_get_index($this->_tmp,'submission', FALSE);
 		$to_output = '<question>';
 		$to_output .= '<prefix><![CDATA['.$prefix.']]></prefix>';
 		$to_output .= '<datapath><![CDATA['.$datapath.']]></datapath>';
@@ -299,8 +306,8 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	/**
 	* Create HTML and Javascript safe prefix
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getSafePrefix()
 	{
@@ -312,12 +319,12 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	/**
 	* Specifies if this question is of type Selection
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function isSelection()
 	{
-		return true;
+		return TRUE;
 
 	}//end isSelection()
 
@@ -325,15 +332,15 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	/**
 	* returns TRUE if this particuar tickbox is selected
 	*
-	* @param int $value the value to check
+	* @param int	$option_code	the value to check
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function isSelected($option_code)
 	{
 		$value = $this->getValue();
-		if (empty($value)) return false;
+		if (empty($value)) return FALSE;
 
 		// decipher the option id
 		list($line,$option) = explode('_', $option_code);
@@ -350,10 +357,10 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	* Get the name for one particular option, specified by option code.
 	* Assumes option id is valid
 	*
-	* @param string $option_code    unique option id for this question
+	* @param string	$option_code	unique option id for this question
 	*
+	* @return array
 	* @access public
-	* @return Array
 	*/
 	function getOptionName($option_code)
 	{
@@ -363,7 +370,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 		list($line_id,$option_id) = explode('_', $option_code);
 
 		$header = array_shift($question_contents);
-		//first column of first row is of no importance
+		// first column of first row is of no importance
 		array_shift($header);
 
 		$line   = $question_contents[$line_id];
@@ -381,8 +388,8 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	/**
 	* Get Option Array
 	*
+	* @return array
 	* @access public
-	* @return Array()
 	*/
 	function getOptions()
 	{
@@ -405,11 +412,17 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	}//end getOptions()
 
 
+	/**
+	* Populates
+	*
+	* @return boolean
+	* @access public
+	*/
 	function populate()
 	{
 		$prefix = $this->getSafePrefix();
 		$this->setValue(array_get_index($_POST, $prefix, Array()));
-		return true;
+		return TRUE;
 
 	}//end populate()
 

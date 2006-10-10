@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table_management.inc,v 1.1 2005/07/20 00:02:45 lwright Exp $
+* $Id: form_question_type_tickbox_table_management.inc,v 1.2 2006/10/10 05:09:30 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,16 +57,21 @@ class Form_Question_Type_Tickbox_Table_Management extends Asset_Management
 						'required'			=> Array(
 												'added'			=> '0.0.1',
 												'type'			=> 'boolean',
-												'default'		=> false,
+												'default'		=> FALSE,
 												'parameters'	=> Array(
-																	'allow_empty'	=> false,
+																	'allow_empty'	=> FALSE,
 																   ),
 												'description'	=> 'DEPRECATED AS OF v0.3',
 											   ),
 						'default'			=> Array(
-												'added'		=> '1.3',
+												'added'		=> '0.3',
 												'type'		=> 'serialise',
 												'default'	=> Array(),
+											   ),
+						'extra'				=> Array(
+												'added'		=> '0.4',
+												'type'		=> 'text',
+												'default'	=> '',
 											   ),
 					  );
 
@@ -76,8 +81,8 @@ class Form_Question_Type_Tickbox_Table_Management extends Asset_Management
 	/**
 	* Gets a list of all files
 	*
+	* @return array
 	* @access private
-	* @return array(string)
 	*/
 	function _getFileList()
 	{
