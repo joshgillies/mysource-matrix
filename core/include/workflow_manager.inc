@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.93 2006/10/05 02:05:38 colivar Exp $
+* $Id: workflow_manager.inc,v 1.94 2006/10/10 05:25:32 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -562,7 +562,9 @@ class Workflow_Manager extends MySource_Object
 			if (empty($schema_workflows[$schemaid])) continue;
 
 			// check to see if the step exists
-			if (empty($current_workflow_steps[$schemaid])) continue;
+			if (empty($current_workflow_steps[$schemaid])) {
+				continue;
+			}
 
 			// get the current step for this schema
 			$current_step =& $schema_workflows[$schemaid]['steps'][$current_workflow_steps[$schemaid]];
@@ -959,7 +961,7 @@ class Workflow_Manager extends MySource_Object
 		for (reset($schema_workflows); NULL !== ($schemaid = key($schema_workflows)); next($schema_workflows)) {
 			if (!in_array($schemaid, $running_schemas)) continue;
 			$workflow =& $schema_workflows[$schemaid];
-			if ($workflow['complete']) return TRUE;
+			if ($workflow['complete']) continue;
 			if (!$this->_recordPublish($workflow, $publisher, $assetid)) {
 				return FALSE;
 			}
