@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.15 2006/09/04 03:29:19 skim Exp $
+* $Id: form_question.inc,v 1.16 2006/10/10 03:49:16 emcdonald Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -659,9 +659,7 @@ class Form_Question extends Asset
 	*/
 	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
-		if (is_null($answer)) {
-			$answer = $this->getValue();
-		}
+		if (is_null($answer)) $answer = $this->getValue();
 
 		// if the question is optional and answer is empty then dont check this rule
 		if (empty($answer) && !$this->attr('is_required')) {
@@ -741,7 +739,7 @@ class Form_Question extends Asset
 				$keywords = retrieve_keywords_replacements($default_value);
 				$replacements = Array();
 
-				foreach($keywords as $keyword) {
+				foreach ($keywords as $keyword) {
 					if (preg_match('|^current_user_|', $keyword)) {
 						$user_keyword = preg_replace('|^current_user_|', 'asset_', $keyword);
 						$user =& $GLOBALS['SQ_SYSTEM']->user;
@@ -766,7 +764,7 @@ class Form_Question extends Asset
 			}
 
 			return $default_value;
-		}
+		}//end if (is_null($this->value))
 
 		if (is_array($this->value)) return $this->value;
 
@@ -991,7 +989,7 @@ class Form_Question extends Asset
 	/**
 	* Gets a sticky value if any, or NULL if there is none (or if it's not valid)
 	*
-	* @return mixed
+	* @return mixed int|string|array|object|NULL
 	* @access public
 	*/
 	function getStickyValue()
@@ -1035,7 +1033,7 @@ class Form_Question extends Asset
 	* Ignore the status changes since the bridge handles it.
 	*
 	* @param int		$new_status		the new status to set for this asset
-	* @param boolean	$update_parents	Specify if we want to update the parent as well
+	* @param boolean	$update_parent	Specify if we want to update the parent as well
 	*
 	* @return boolean
 	* @access public
@@ -1045,6 +1043,23 @@ class Form_Question extends Asset
 		return TRUE;
 
 	}//end processStatusChange()
+
+
+	/**
+	* Get the HTML label for this form question
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getHtmlLabel()
+	{
+		ob_start();
+		label($this->attr('name'), 'q'.$this->id);
+		$label = ob_get_contents();
+		ob_end_clean();
+		return $label;
+
+	}//end getHtmlLabel()
 
 
 }//end class
