@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.84.2.7 2006/08/07 05:54:41 skim Exp $
+* $Id: workflow_manager.inc,v 1.84.2.8 2006/10/10 05:25:08 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84.2.7 $
+* @version $Revision: 1.84.2.8 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -958,7 +958,7 @@ class Workflow_Manager extends MySource_Object
 		for (reset($schema_workflows); NULL !== ($schemaid = key($schema_workflows)); next($schema_workflows)) {
 			if (!in_array($schemaid, $running_schemas)) continue;
 			$workflow =& $schema_workflows[$schemaid];
-			if ($workflow['complete']) return TRUE;
+			if ($workflow['complete']) continue;
 			if (!$this->_recordPublish($workflow, $publisher, $assetid)) {
 				return FALSE;
 			}
@@ -993,22 +993,22 @@ class Workflow_Manager extends MySource_Object
 			$workflow_updated = TRUE;
 		}
 
-        for (reset($workflow['steps']); NULL !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
-            if (!isset($workflow['current_step'])) {
-                $workflow['current_step'] = 1;
-            }
-            if ($stepid != $workflow['current_step']) continue;
-            $step_data =& $workflow['steps'][$stepid];
+		for (reset($workflow['steps']); NULL !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
+			if (!isset($workflow['current_step'])) {
+				$workflow['current_step'] = 1;
+			}
+			if ($stepid != $workflow['current_step']) continue;
+			$step_data =& $workflow['steps'][$stepid];
 
-            for (reset($step_data['conditions']);
-                    NULL !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
+			for (reset($step_data['conditions']);
+					NULL !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
 
-                $cond_data =& $step_data['conditions'][$pub];
-                // work out who can publish this condition
-                $can_publish = Array();
-                $publisher =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
-                if ($publisher->id) {
-                    $asset_class = get_class($publisher);
+				$cond_data =& $step_data['conditions'][$pub];
+				// work out who can publish this condition
+				$can_publish = Array();
+				$publisher =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+				if ($publisher->id) {
+					$asset_class = get_class($publisher);
 
 					// Note that the order of IF statements is important, because roles are
 					// a descendent of groups but should be treated differently
@@ -1025,20 +1025,20 @@ class Workflow_Manager extends MySource_Object
 					} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
 						$can_publish = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($publisher->id, Array('user'), FALSE));
 					}
-                }
+				}
 
-                if (in_array($publisherid, $can_publish)) {
-                    if (!isset($cond_data['published_by'])) {
-                        $cond_data['published_by'] = Array();
-                    }
-                    // if the publisherid has not already published
-                    if (!isset($cond_data['published_by'][$publisherid])) {
-                        $cond_data['published_by'][$publisherid] = time();
-                        $workflow_updated = TRUE;
-                    }
-                }
-            }//end for
-        }//end for
+				if (in_array($publisherid, $can_publish)) {
+					if (!isset($cond_data['published_by'])) {
+						$cond_data['published_by'] = Array();
+					}
+					// if the publisherid has not already published
+					if (!isset($cond_data['published_by'][$publisherid])) {
+						$cond_data['published_by'][$publisherid] = time();
+						$workflow_updated = TRUE;
+					}
+				}
+			}//end for
+		}//end for
 
 		if ($workflow_updated) {
 			// load the current step into the workflow
