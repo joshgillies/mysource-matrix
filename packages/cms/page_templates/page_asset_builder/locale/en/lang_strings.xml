@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.7 2006/09/10 23:47:22 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.8 2006/10/10 23:31:53 mbrydon Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -59,4 +59,11 @@
 <string source="cms_asset_builder_keyword_logout_form">Logout Form</string>
 <string source="cms_asset_builder_do_not_change_status">Do not change status</string>
 <string source="cms_asset_builder_default_created_message">Asset created&lt;br /&gt;See it &lt;a href="%%created_asset_url%%"&gt;here&lt;/a&gt;</string>
+
+
+<!-- strings for javascript --> 
+
+<string source="cms_asset_builder_delete_dynamic_locations" js="1">Are you sure you want to delete this set of dynamic create locations?</string>
+<string source="cms_asset_builder_delete_selectable_locations" js="1">Are you sure you want to delete this set of selectable create locations?</string>
+
 </strings>
