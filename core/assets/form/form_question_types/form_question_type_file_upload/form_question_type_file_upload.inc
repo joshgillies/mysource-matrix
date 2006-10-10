@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.14 2006/09/07 04:20:23 emcdonald Exp $
+* $Id: form_question_type_file_upload.inc,v 1.15 2006/10/10 05:49:14 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,10 +78,15 @@ class Form_Question_Type_File_Upload extends Form_Question
 	function getHtmlField()
 	{
 		$extras = $this->attr('extra');
+
 		$name   = 'q'.$this->id;
 
 		// prepare a valid value for the field id
 		$extras = $extras.' id="'.str_replace(':', '_', $name).'"';
+
+		if ($this->attr('tabindex')) {
+			$extras .= ' tabindex="'.$this->attr('tabindex').'"';
+		}
 
 		ob_start();
 		file_upload($name, $extras);

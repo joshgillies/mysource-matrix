@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2006/03/06 00:33:08 sdanis Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2006/10/10 05:49:14 emcdonald Exp $
 */
 -->
 
@@ -40,6 +40,9 @@
 		</field>
 		<field attribute="create_location">
 			<assetid />
+		</field>
+		<field attribute="tabindex">
+			<int width="5" />
 		</field>
 		<field attribute="extra">
 			<text width="40" height="1" />

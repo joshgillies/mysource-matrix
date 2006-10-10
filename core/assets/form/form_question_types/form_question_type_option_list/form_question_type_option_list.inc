@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list.inc,v 1.3 2005/12/08 00:47:52 sdanis Exp $
+* $Id: form_question_type_option_list.inc,v 1.4 2006/10/10 05:53:09 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../form_question_type_tickbox_list/form_questio
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,15 +58,20 @@ class Form_Question_Type_Option_List extends Form_Question_Type_Tickbox_List
 	/**
 	* generates the html for this question to display it in the frontend
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getHtmlField()
 	{
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
 
-		$html = $this->listBox($this->getOptions(), false, $this->attr('extra'));
+		$extras = $this->attr('extra');
+		if ($this->attr('tabindex')) {
+			$extras .= ' tabindex="'.$this->attr('tabindex').'"';
+		}
+
+		$html = $this->listBox($this->getOptions(), FALSE, $extras);
 		return $html;
 
 	}//end getHtmlField()
@@ -77,8 +82,8 @@ class Form_Question_Type_Option_List extends Form_Question_Type_Tickbox_List
 	*
 	* Returned array is 'short name' => 'full name'
 	*
+	* @return array
 	* @access public
-	* @return Array(string => string)
 	*/
 	function getAllowedRules()
 	{

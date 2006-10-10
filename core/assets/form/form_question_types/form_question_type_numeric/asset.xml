@@ -21,14 +21,14 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2005/07/20 00:02:44 lwright Exp $
+* $Id: asset.xml,v 1.2 2006/10/10 05:49:41 emcdonald Exp $
 */
 -->
 
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>__core__</package>
 	<type_code>form_question_type_numeric</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Form Question - Numeric Field</name>
 	<description>E-mail address question for Form</description>
 	<instantiable>yes</instantiable>
@@ -37,7 +37,7 @@
 	<requirements>
 		<requirement type="asset">
 			<code>form_question</code>
-			<version>0.1</version>
+			<version>0.8</version>
 		</requirement>
 	</requirements>
 	<flash_menu_path/>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list_edit_fns.inc,v 1.3 2005/12/15 22:32:09 lwright Exp $
+* $Id: form_question_type_option_list_edit_fns.inc,v 1.4 2006/10/10 05:53:09 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../form_question_type_tickbox_list/form_questio
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,7 +64,7 @@ class Form_Question_Type_Option_List_Edit_Fns extends Form_Question_Type_Tickbox
 	*/
 	function paintDefault(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		// default entry to have no default value
 		$none = Array('none');
@@ -82,9 +82,9 @@ class Form_Question_Type_Option_List_Edit_Fns extends Form_Question_Type_Tickbox
 				$name = $prefix.'default[]';
 
 				if ($option == 'none') {
-					$checked = (empty($defaults)) ? true : false;
+					$checked = (empty($defaults)) ? TRUE : FALSE;
 				} else {
-					$checked = (in_array($ref - 1, $defaults)) ? true : false;
+					$checked = (in_array($ref - 1, $defaults)) ? TRUE : FALSE;
 				}
 
 				if ($ref == 0) {
@@ -100,7 +100,7 @@ class Form_Question_Type_Option_List_Edit_Fns extends Form_Question_Type_Tickbox
 		}//end if
 		echo '</table>';
 
-		return true;
+		return TRUE;
 
 	}//end paintDefault()
 

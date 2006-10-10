@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.5 2006/08/14 05:01:00 rhoward Exp $
+* $Id: form_question_type_email_address.inc,v 1.6 2006/10/10 05:47:59 emcdonald Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,16 +83,16 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	* @param boolean	$mute_errors	If TRUE, do not add to the "Failed
 	*									Rules" log, but simply return FALSE
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
-		if (is_null($answer)) {
-			$answer = $this->getValue();
-		}
+		if (is_null($answer)) $answer = $this->getValue();
 
-		if (empty($answer)) return parent::hasValidValue($answer, $mute_errors);
+		if (empty($answer)) {
+			return parent::hasValidValue($answer, $mute_errors);
+		}
 
 		// Since we know the answer is not empty, borrow a 'valid email address' rule
 		$req_rule = Array('rule_code' => 'email', 'operator' => '1');

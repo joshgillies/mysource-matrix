@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_numeric.inc,v 1.3 2006/08/14 05:01:01 rhoward Exp $
+* $Id: form_question_type_numeric.inc,v 1.4 2006/10/10 05:49:41 emcdonald Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,8 +61,8 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 	*
 	* Returned array is 'short name' => 'full name'
 	*
+	* @return array
 	* @access public
-	* @return Array(string => string)
 	*/
 	function getAllowedRules()
 	{
@@ -83,14 +83,12 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 	* @param boolean	$mute_errors	If TRUE, do not add to the "Failed
 	*									Rules" log, but simply return FALSE
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
-		if (is_null($answer)) {
-			$answer = $this->getValue();
-		}
+		if (is_null($answer)) $answer = $this->getValue();
 
 		if (!empty($answer)) {
 			$req_rule = Array('rule_code' => 'numeric', 'operator' => 1);
@@ -121,10 +119,11 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 	* writes JavaScript code for client side validation
 	*
 	* This function assumes the skeleton of a JS validation function has been created around this code
-	* with a form variable named 'form' passed (this is done when generating the content file).
+	* with a form variable named 'form' passed (this is done when generating the content file). It
+	* returns the javascript code used for client-side validation
 	*
+	* @return string
 	* @access public
-	* @return string the javascript code used for client-side validation
 	*/
 	function generateJSCode()
 	{

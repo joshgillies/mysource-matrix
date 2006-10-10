@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2006/06/19 01:03:45 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.5 2006/10/10 05:49:42 emcdonald Exp $
 */
 -->
 
@@ -57,6 +57,10 @@
 		<field attribute="max">
 			<display_name>Maximum Length</display_name>
 			<note>Maximum length of answer (characters)</note>
+		</field>
+		<field attribute="tabindex">
+			<display_name>Tab Index</display_name>
+			<note>If a tab index is supplied it will be added to the input tag</note>
 		</field>
 		<field attribute="extra">
 			<display_name>Extras</display_name>

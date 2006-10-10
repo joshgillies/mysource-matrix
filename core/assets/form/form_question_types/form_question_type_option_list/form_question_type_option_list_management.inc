@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list_management.inc,v 1.2 2005/12/08 00:47:52 sdanis Exp $
+* $Id: form_question_type_option_list_management.inc,v 1.3 2006/10/10 05:53:09 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,31 +49,32 @@ class Form_Question_Type_Option_List_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-						'options'		=> Array(
-											'added'		=> '0.0.1',
-											'type'		=> 'option_list',
-											'default'	=> '',
-										   ),
-						'default'		=> Array(
-											'added'		=> '0.0.1',
-											'type'		=> 'serialise',
-											'default'	=> Array(),
-										   ),
-						'extra'			=> Array(
-											'added'		=> '0.0.1',
-											'type'		=> 'text',
-											'default'	=> '',
-										   ),
-						'required'		=> Array(
-											'added'			=> '0.0.1',
-											'type'			=> 'boolean',
-											'default'		=> false,
-											'parameters'	=> Array(
-																'allow_empty'	=> false,
-															   ),
-											'description'	=> 'DEPRECATED AS OF v0.3',
-										   ),
+						'options'	=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'option_list',
+										'default'	=> '',
+									   ),
+						'default'	=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'serialise',
+										'default'	=> Array(),
+									   ),
+						'extra'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '',
+									   ),
+						'required'	=> Array(
+										'added'			=> '0.0.1',
+										'type'			=> 'boolean',
+										'default'		=> FALSE,
+										'parameters'	=> Array(
+															'allow_empty'	=> FALSE,
+														   ),
+										'description'	=> 'DEPRECATED AS OF v0.3',
+									   ),
 					  );
+
 	}//end constructor
 
 
