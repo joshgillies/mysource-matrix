@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2006/09/22 02:09:09 rong Exp $
+* $Id: lang_screen_details.xml,v 1.5 2006/10/10 05:30:04 emcdonald Exp $
 */
 -->
 
@@ -69,6 +69,10 @@
 		<field attribute="empty_text">
 			<display_name>Empty Text</display_name>
 			<note>If 'Allow Empty Option' is enabled, this text will be added as the empty option</note>
+		</field>
+		<field attribute="tabindex">
+			<display_name>Tab Index</display_name>
+			<note>If a tab index is supplied it will be added to the input tag</note>
 		</field>
 		<field attribute="extra">
 			<display_name>Extras</display_name>

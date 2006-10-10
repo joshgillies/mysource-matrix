@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.8 2006/09/07 04:26:21 bcaldwell Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.9 2006/10/10 05:22:57 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,8 +58,9 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -71,12 +72,17 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	/**
 	* generates the html for this question to display it in the frontend
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getHtmlField()
 	{
-		return $this->listBox($this->getOptions(), true, $this->attr('extra'));
+		$extras = $this->attr('extra');
+
+		if ($this->attr('tabindex')) {
+			$extras .= ' tabindex="'.$this->attr('tabindex').'"';
+		}
+		return $this->listBox($this->getOptions(), TRUE, $extras);
 
 	}//end getHtmlField()
 
@@ -84,14 +90,14 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	/**
 	* creates the list box for the frontend
 	*
-	* @param Array(mixed)	$options	the options in the list
-	* @param boolean		$multiple	if TRUE checkboxes, otherwise RADIO buttons will be used
-	* @param sting			$extra		extras in the input tag eg. className
+	* @param array		$options	the options in the list
+	* @param boolean	$multiple	if TRUE checkboxes, otherwise RADIO buttons will be used
+	* @param string		$extras		extras in the input tag eg. className
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
-	function listBox($options, $multiple=false, $extras='')
+	function listBox($options, $multiple=FALSE, $extras='')
 	{
 		$type  = ($multiple) ? 'checkbox' : 'radio';
 		if (!stristr($extras, 'class=')) {
@@ -130,8 +136,8 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	/**
 	* returns an array of the options set in the backend
 	*
+	* @return array
 	* @access public
-	* @return Array
 	*/
 	function getOptions()
 	{
@@ -158,14 +164,12 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	* @param boolean	$mute_errors	If TRUE, do not add to the "Failed
 	*									Rules" log, but simply return FALSE
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
-		if (is_null($answer)) {
-			$answer = $this->getValue();
-		}
+		if (is_null($answer)) $answer = $this->getValue();
 
 		if (is_array($answer)) {
 			$value = implode(', ', $this->getAnswerByOffset($answer));
@@ -194,9 +198,10 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
+	* returns the javascript code used for client-side validation
 	*
+	* @return string
 	* @access public
-	* @return string the javascript code used for client-side validation
 	*/
 	function generateJSCode()
 	{
@@ -221,8 +226,8 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*
 	* Returned array is 'short name' => 'full name'
 	*
+	* @return array
 	* @access public
-	* @return Array(string => string)
 	*/
 	function getAllowedRules()
 	{
@@ -236,10 +241,10 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*
 	* @param string	$answer	The answer the print the summary for (optional)
 	*
+	* @return mixed array|string
 	* @access public
-	* @return mixed
 	*/
-	function getSummary($answer=null)
+	function getSummary($answer=NULL)
 	{
 		if (is_null($answer)) $answer = $this->getValue();
 
@@ -258,10 +263,10 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	/**
 	* returns TRUE if this particuar tickbox is selected
 	*
-	* @param int $value the value to check
+	* @param int	$value	the value to check
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function isSelected($value)
 	{
@@ -286,10 +291,10 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	* Get the name for one particular option, specified by option code.
 	* Assumes option id is valid
 	*
-	* @param string $option_code    unique option id for this question
+	* @param string	$option_code	unique option id for this question
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getOptionName($option_code)
 	{
@@ -303,8 +308,8 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*
 	* @param mixed	$answer	the answer for the question
 	*
+	* @return string
 	* @access public
-	* @return string the summary XML
 	*/
 	function getXML($answer)
 	{
@@ -324,6 +329,19 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		return $contents;
 
 	}//end getXML()
+
+
+	/**
+	* Get the HTML label for this form question
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getHtmlLabel()
+	{
+		return $this->attr('name');
+
+	}//end getHtmlLabel()
 
 
 }//end class

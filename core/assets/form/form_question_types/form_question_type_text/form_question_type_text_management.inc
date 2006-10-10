@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text_management.inc,v 1.1 2005/07/20 00:02:45 lwright Exp $
+* $Id: form_question_type_text_management.inc,v 1.2 2006/10/10 05:26:48 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,9 +77,9 @@ class Form_Question_Type_Text_Management extends Asset_Management
 						'required'	=> Array(
 										'added'			=> '0.0.1',
 										'type'			=> 'boolean',
-										'default'		=> false,
+										'default'		=> FALSE,
 										'parameters'	=> Array(
-															'allow_empty'	=> false,
+															'allow_empty'	=> FALSE,
 														   ),
 										'description'	=> 'DEPRECATED AS OF v0.3',
 									   ),

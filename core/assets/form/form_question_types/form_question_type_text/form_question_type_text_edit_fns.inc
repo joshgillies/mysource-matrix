@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text_edit_fns.inc,v 1.1 2005/07/20 00:02:45 lwright Exp $
+* $Id: form_question_type_text_edit_fns.inc,v 1.2 2006/10/10 05:26:48 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,6 +48,7 @@ class Form_Question_Type_Text_Edit_Fns extends Form_Question_Edit_Fns
 	function Form_Question_Type_Text_Edit_Fns()
 	{
 		$this->Form_Question_Edit_Fns();
+
 	}//end constructor
 
 

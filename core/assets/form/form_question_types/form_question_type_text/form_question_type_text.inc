@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.5 2006/09/07 02:07:40 bcaldwell Exp $
+* $Id: form_question_type_text.inc,v 1.6 2006/10/10 05:26:48 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,8 +58,9 @@ class Form_Question_Type_Text extends Form_Question
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -71,8 +72,8 @@ class Form_Question_Type_Text extends Form_Question
 	/**
 	* generates the html for this question to display it in the frontend
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function getHtmlField()
 	{
@@ -85,12 +86,16 @@ class Form_Question_Type_Text extends Form_Question
 		// prepare a valid value for the field id
 		$extras = $extras.' id="'.str_replace(':', '_', $name).'"';
 
+		if ($this->attr('tabindex')) {
+			$extras .= ' tabindex="'.$this->attr('tabindex').'"';
+		}
+
 		$value = $this->getValue();
 		$value = htmlspecialchars($value);
 
 		ob_start();
 		if ($height == 1) {
-			text_box($name, $value, $width, $max, false, $extras);
+			text_box($name, $value, $width, $max, FALSE, $extras);
 		} else {
 			text_area($name, $value, $width, $height, $max, $extras);
 		}
@@ -117,14 +122,12 @@ class Form_Question_Type_Text extends Form_Question
 	* @param boolean	$mute_errors	If TRUE, do not add to the "Failed
 	*									Rules" log, but simply return FALSE
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
-		if (is_null($answer)) {
-			$answer = $this->getValue();
-		}
+		if (is_null($answer)) $answer = $this->getValue();
 
 		if ($this->attr('is_required')) {
 			$req_rule = Array('rule_code' => 'comparison', 'operator' => '!=', 'value' => '');
@@ -147,9 +150,10 @@ class Form_Question_Type_Text extends Form_Question
 	*
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
+	* returns the javascript code used for client-side validation
 	*
+	* @return string
 	* @access public
-	* @return string the javascript code used for client-side validation
 	*/
 	function generateJSCode()
 	{
@@ -174,8 +178,8 @@ class Form_Question_Type_Text extends Form_Question
 	*
 	* Returned array is 'short name' => 'full name'
 	*
+	* @return array
 	* @access public
-	* @return Array(string => string)
 	*/
 	function getAllowedRules()
 	{
@@ -189,8 +193,8 @@ class Form_Question_Type_Text extends Form_Question
 	*
 	* @param mixed	$answer	the answer for the question
 	*
+	* @return string
 	* @access public
-	* @return string the summary XML
 	*/
 	function getXML($answer)
 	{

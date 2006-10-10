@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2006/09/22 02:09:09 rong Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2006/10/10 05:30:04 emcdonald Exp $
 */
 -->
 
@@ -58,6 +58,9 @@
 		</field>
 		<field attribute="empty_text">
 			<text width="20" height="1" />
+		</field>
+		<field attribute="tabindex">
+			<int width="5" />
 		</field>
 		<field attribute="extra">
 			<text width="20" height="1" />
