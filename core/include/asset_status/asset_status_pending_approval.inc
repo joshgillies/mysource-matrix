@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_pending_approval.inc,v 1.35 2006/02/07 23:58:54 lwright Exp $
+* $Id: asset_status_pending_approval.inc,v 1.35.2.1 2006/10/10 05:25:19 colivar Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Status_Pending_Approval extends Asset_Status
@@ -83,13 +83,14 @@ class Asset_Status_Pending_Approval extends Asset_Status
 	*/
 	function getAvailableStatii()
 	{
+
 		$statii = Array();
 
 		// cant do anything without write access
 		if (!$this->owner->readAccess()) return $statii;
 
-		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-		$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
+		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$running_schemas = $wfm->getSchemas($this->owner->id, TRUE, TRUE);
 
 		if (!empty($running_schemas)) {
 			$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -105,7 +106,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 				$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
 
 				// we also need to check what if all the required metadata fields are completed
-				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				if ($mm->allowsMetadata($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 
@@ -121,8 +122,6 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					$statii[SQ_STATUS_PENDING_APPROVAL] = translate('status_change_approve_changes');
 				}
 
-				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('status_change_reject_changes');
-			} else if ($admin_access) {
 				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = translate('status_change_reject_changes');
 			}
 		} else {
@@ -140,32 +139,32 @@ class Asset_Status_Pending_Approval extends Asset_Status
 	* Processes the changes required when a new status is set
 	* Does not change the status of the owner asset or this object
 	*
-	* @param int         $new_status        the new status to set for this asset
-	* @param boolean     $update_parent     Specify if we want to update the parent as well
+	* @param int		$new_status		the new status to set for this asset
+	* @param boolean	$update_parent	Specify if we want to update the parent as well
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processStatusChange($new_status, $update_parent=true)
+	function processStatusChange($new_status, $update_parent=TRUE)
 	{
 		if (!parent::processStatusChange($new_status, $update_parent)) {
-			return false;
+			return FALSE;
 		}
 
-		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 		if ($new_status & SQ_SC_STATUS_CAN_APPROVE) {
 			// someone has rejected the changes, so we need to cancel the workflow
 			if (!$wfm->cancelWorkflow($this->owner->id)) {
 				trigger_localised_error('SYS0260', E_USER_WARNING);
-				return false;
+				return FALSE;
 			} else {
 				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 				// log an internal message
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 				if (!$wfm->silentWorkflowParty($this->owner->id)) {
 					$log = $ms->newMessage();
 					$msg_reps = Array(
@@ -185,26 +184,26 @@ class Asset_Status_Pending_Approval extends Asset_Status
 
 		} else {
 
-			$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
+			$running_schemas = $wfm->getSchemas($this->owner->id, TRUE, TRUE);
 			if (!empty($running_schemas)) {
 
 				// if we are trying to approve this asset, we might not actually be a person
 				// in the workflow process - sounds weird (I know) but this could be a plain old
 				// admin that is trying to approve because metadata is now complete.
 				// the result is that this workflow process may already be complete
-				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				$m_complete = !$mm->allowsMetadata($this->owner->id) || $mm->requiredFieldsComplete($this->owner->id);
 
 				if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_SC_STATUS_ALL_APPROVED)) {
 					if (!$wfm->completeWorkflow($this->owner->id)) {
 						trigger_localised_error('SYS0261', E_USER_WARNING);
-						return false;
+						return FALSE;
 					}
 				} else {
 					// we are doing a workflow and someone has just approved the asset, so record this
 					if (!$wfm->recordPublish($this->owner->id, $current_userid)) {
 						trigger_localised_error('SYS0077', E_USER_WARNING, $current_userid,$this->owner->name);
-						return false;
+						return FALSE;
 					}
 
 					// if the workflow process is now complete, we can go ahead and clear out the schemas
@@ -212,15 +211,15 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_SC_STATUS_ALL_APPROVED)) {
 						if (!$wfm->completeWorkflow($this->owner->id)) {
 							trigger_localised_error('SYS0261', E_USER_WARNING);
-							return false;
+							return FALSE;
 						}
 					}
 				}
 
 				if ($new_status == SQ_STATUS_APPROVED) {
 
-					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+					$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 					if (!$wfm->silentWorkflowParty($this->owner->id)) {
 						$log = $ms->newMessage();
 						$log->subject = 'Workflow Completed';
@@ -250,7 +249,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 
 		}//end else
 
-		return true;
+		return TRUE;
 
 	}//end processStatusChange()
 
