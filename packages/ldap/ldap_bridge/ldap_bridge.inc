@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.50 2006/10/05 06:28:20 tbarrett Exp $
+* $Id: ldap_bridge.inc,v 1.51 2006/10/11 05:45:50 emcdonald Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -186,8 +186,13 @@ class LDAP_Bridge extends Asset
 			if (is_null($ldap->ptr)) return $asset;
 
 			$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
-			if (!$result) return $asset;
-
+			if (!$result){
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user');
+				$data['objectclass'] = Array();
+				$data['dn'] = $shadowid;
+				$asset =& new LDAP_User($this->id, $data);
+				return $asset; // this should return a dummy
+			}
 			$data = $ldap->getEntries($result);
 			if (!$data['count']) return $asset;
 

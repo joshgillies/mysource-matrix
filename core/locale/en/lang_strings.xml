@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.170 2006/10/09 02:25:15 skim Exp $
+* $Id: lang_strings.xml,v 1.171 2006/10/11 05:45:47 emcdonald Exp $
 *
 */
 
@@ -1812,6 +1812,8 @@ Are you sure you want to proceed?</string>
 	<string source="valid_page" js="1">Valid URL</string>
 	<string source="unknown_state" js="1">Unknown State</string>
 	<string source="testing" js="1">Testing...</string>
+
+	<string source="asset_not_found">Asset %s not found</string>
 
 	<string source="default_content_type">Default Content Type</string>
 	<string source="default_content_type_note">When new bodycopy containers are created they will use this content type</string>
