@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.19 2006/08/21 05:24:13 skim Exp $
+* $Id: report_links_edit_fns.inc,v 1.20 2006/10/11 05:29:01 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -272,6 +272,12 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		// ignore bookmarks
 		if (substr($url, 0, 1) == '#') return FALSE;
 
+		// ignore potential simple edit query string element
+		// e.g. ./?asset_ei_screen=metadata or ./?SQ_ACTION=logout
+		if (strcmp(substr($url, 0, 3), './?') == 0) {
+				return Array('valid' => 1, 'description' => '');
+		}
+
 		$url_parts = @parse_url($url);
 		if (empty($url_parts['scheme'])) {
 			$description = translate('cms_report_links_missing_protocol');
@@ -302,6 +308,11 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				$description = translate('cms_report_links_invalid_url');
 				$valid = '1';
 			} else {
+				if (!SQ_PA_ENABLED) {
+					// if proxy authentication is not enabled, do the old trick
+					$socket = @fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, 15);
+					fwrite ($socket, 'HEAD '.$url_path." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
+				}
 				stream_set_timeout($socket, 5);
 				$response = fread($socket, 128);
 				$headers = fread($socket, 2000);
