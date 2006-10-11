@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.191 2006/09/27 23:14:50 gsherwood Exp $
+* $Id: mysource.inc,v 1.192 2006/10/11 23:47:42 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.191 $
+* @version $Revision: 1.192 $
 * @package MySource_Matrix
 */
 class MySource
@@ -485,12 +485,13 @@ class MySource
 	*/
 	function _sendHTTPHeaders(&$asset)
 	{
-		header('Cache-Control: public');
 		header('Pragma: cache');
 
 		// save/load the cache information of this asset
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$cache_info = $cm->loadFromCache($asset->id, $asset->type(), 'cache_info');
+		$cache_expiry = $cm->getExpiry($asset->type());
+		header('Cache-Control: max-age='.$cache_expiry.', public');
 
 		ob_start();
 			$loaded_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
@@ -505,7 +506,6 @@ class MySource
 			// work out the correct last updated time of this asset
 			$assetids = array_diff($all_assetids, $loaded_assetids);
 			$last_updated = $asset->getEffectiveLastUpdatedTime($assetids);
-			$cache_expiry = $cm->getExpiry($asset->type());
 
 			$info = Array(
 						'last_modified'	=> $last_updated,
@@ -532,6 +532,7 @@ class MySource
 			}
 
 			header('Expires: '.gmdate('D, d M Y H:i:s', $info['expires']).' GMT');
+
 			if (SQ_CONF_SEND_LAST_MODIFIED_HEADER) {
 				header('Last-Modified: '.$last_modified);
 			}
