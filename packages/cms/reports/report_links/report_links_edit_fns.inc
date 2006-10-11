@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.16.2.4 2006/10/11 05:33:40 rong Exp $
+* $Id: report_links_edit_fns.inc,v 1.16.2.5 2006/10/11 06:02:33 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16.2.4 $
+* @version $Revision: 1.16.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -273,8 +273,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		if (substr($url, 0, 1) == '#') return FALSE;
 
 		// ignore potential simple edit query string element
-		// e.g. ./?asset_ei_screen=metadata or ./?SQ_ACTION=logout
-		if (strcmp(substr($url, 0, 3), './?') == 0) {
+		// e.g. ./?SQ_ACTION=logout or ?asset_ei_screen=metadata
+		if (strcmp(substr($url, 0, 3), './?') == 0 || substr($url, 0, 1) == '?') {
 			return Array('valid' => 1, 'description' => '');
 		}
 
