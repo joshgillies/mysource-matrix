@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.146.2.8 2006/10/09 02:28:18 skim Exp $
+* $Id: lang_strings.xml,v 1.146.2.9 2006/10/11 06:16:50 emcdonald Exp $
 *
 */
 
@@ -1803,6 +1803,8 @@ Items to delete: %s</string>
 	<string source="valid_page" js="1">Valid URL</string>
 	<string source="unknown_state" js="1">Unknown State</string>
 	<string source="testing" js="1">Testing...</string>
+
+	<string source="asset_not_found">Asset %s not found</string>
 
 	<string source="default_content_type">Default Content Type</string>
 	<string source="default_content_type_note">When new bodycopy containers are created they will use this content type</string>
