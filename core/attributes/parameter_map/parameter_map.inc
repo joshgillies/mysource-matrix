@@ -18,12 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.14 2006/09/13 00:17:14 colivar Exp $
+* $Id: parameter_map.inc,v 1.15 2006/10/11 13:42:53 gnoel Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 require_once dirname(dirname(__FILE__)).'/serialise/serialise.inc';
+
+define('SQ_PARAM_MAP_ATTR_OPTION_KEYWORD', 'keyword');
+define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 
 /**
 * Parameter_Map asset attribute
@@ -34,9 +37,22 @@ require_once dirname(dirname(__FILE__)).'/serialise/serialise.inc';
 *   you need to pass a parameter called 'parameters', which is a
 *   code => full_name array of the parameters you want to make mappable.
 *   When requesting the runtime value for a parameter you give its code.
+* 
+* 	Depending on the Source Type the format of the rule array is:
+* 
+* 		*GET, POST, STATIC, ASSET_QUESTION:
+* 			Array(
+* 			 'index' 		=> source value
+* 			)
+* 
+* 		*ASSET, CURRENT_SITE, USER:
+* 			Array(
+* 			 'attribute'	=> assetid|SQ_PARAM_MAP_ATTR_OPTION_KEYWORD
+* 			 'keyword'		=> the asset keyword // only relevant if 'attribute' = SQ_PARAM_MAP_ATTR_OPTION_KEYWORD  
+* 			)
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -187,14 +203,21 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 			case 'CURRENT_SITE':
 			case 'USER':
 				$attribute = array_get_index($data, 'attribute');
+				$keyword = array_get_index($data, 'keyword');
 				if ($read_only) {
 					if (is_null($attribute)) {
 						echo translate('not_configured');
 					} else {
 						echo $attribute;
+						if ($attribute == SQ_PARAM_MAP_ATTR_OPTION_KEYWORD) {
+							echo ' - '.(empty($keyword) ? translate('not_configured') : $keyword);
+						}
 					}
 				} else {
-					combo_box($prefix.'[attribute]', $this->_getAssetAttributeOptions(), FALSE, Array($attribute));
+					combo_box($prefix.'[attribute]', $this->_getAssetAttributeOptions($source_type), FALSE, Array($attribute));
+					if ($attribute == SQ_PARAM_MAP_ATTR_OPTION_KEYWORD) {
+						text_box($prefix.'[keyword]', $keyword);
+					}
 				}
 			break;
 
@@ -260,8 +283,16 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				if ($index == 'new') continue;
 				$value[$index] = $details;
 				foreach ($details as $j => $fields) {
-					if ($fields['source'] == 'ASSET' || $fields['source'] == 'USER' || $fields['source'] == 'CURRENT_SITE') {
+					if (in_array($fields['source'], Array('ASSET', 'USER', 'CURRENT_SITE'))) {
 						unset($value[$index][$j]['index']);
+
+						// clean the keyword and set default value
+						if (array_get_index($value[$index][$j], 'attribute', '') == SQ_PARAM_MAP_ATTR_OPTION_KEYWORD) {
+							$value[$index][$j]['keyword'] = preg_replace('/(^%|%$)/', '', trim(array_get_index($value[$index][$j], 'keyword', '')));
+							if (empty($value[$index][$j]['keyword'])) {
+								$value[$index][$j]['keyword'] = SQ_PARAM_MAP_DEFAULT_KEYWORD;
+							}
+						}
 					} else if ($fields['source'] == 'ASSET_QUESTION') {
 						unset($value[$index][$j]['attribute']);
 						$value[$index][$j]['index'] = $fields['asset_finder']['assetid'];
@@ -270,13 +301,17 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 						unset($value[$index][$j]['attribute']);
 					}
 
+					if ($fields['source'] !== 'ASSET') {
+						unset($value[$index][$j]['keyword']);
+					}
+
 					if (isset($fields['delete'])) {
 						unset($value[$index][$j]);
 						if (empty($value[$index])) unset($value[$index]);
 					}
 
 				}
-			}
+			}//end foreach ($_POST[$prefix])
 
 			foreach ($_POST[$prefix]['new'] as $new_mapping) {
 				if (empty($new_mapping['parameter'])) continue;
@@ -331,12 +366,22 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 						break;
 						case 'name':
 						case 'short_name':
+						case 'keyword':
 							if (SQ_IN_LIMBO) {
 								$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['limbo_assetid']);
-								return $asset->attr($rule['attribute']);
 							} else {
-								return $GLOBALS['SQ_SYSTEM']->frontend_asset->attr($rule['attribute']);
+								$asset =& $GLOBALS['SQ_SYSTEM']->frontend_asset;
 							}
+							$value = '';
+							if (!empty($asset)) {
+								if ($rule['attribute'] == SQ_PARAM_MAP_ATTR_OPTION_KEYWORD) {
+									// default to the assetid if no keyword is defined
+									$value = $asset->getKeywordReplacement(array_get_index($rule, 'keyword', SQ_PARAM_MAP_DEFAULT_KEYWORD));
+								} else {
+									$value = $asset->attr($rule['attribute']);
+								}
+							}
+							return $value;
 						break;
 					}
 				break;
@@ -440,14 +485,20 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	/**
 	* Return the list of options available under the ASSET source type
 	*
+	* @param string	$source_type	The source type (see _getSourceTypes())
+	*
 	* @return array
 	* @access private
 	*/
-	function _getAssetAttributeOptions()
+	function _getAssetAttributeOptions($source_type='')
 	{
 		$options = Array(
 					'assetid'	=> translate('asset_id'),
 				   );
+
+		if ($source_type == 'ASSET') {
+			$options[SQ_PARAM_MAP_ATTR_OPTION_KEYWORD] = translate('keyword');
+		}
 
 		return $options;
 
