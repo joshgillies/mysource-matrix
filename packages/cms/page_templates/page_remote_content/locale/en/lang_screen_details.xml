@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2006/10/09 02:57:25 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.8 2006/10/11 02:09:31 arailean Exp $
 *
 */
 -->
@@ -33,6 +33,32 @@
 			<display_name>Remote URL</display_name>
 			<note>This is the URL to grab the contents from. Please supply the a complete URL, together with protocol, i.e. http://www.this.com</note>
 		</field>
+	</section>
+	<section name="Tunneling">
+		<field>
+			<display_name>Overall Tunneling Rules</display_name>
+			<function_call>
+				<paint_function name="paintRewritingRestrictions" />
+				<process_function name="processRewritingRestrictions" />
+			</function_call>
+		</field>
+		<field attribute="load_links">
+			<display_name>Tunnel Linked Pages?</display_name>
+			<note>If this option is enabled, hyperlinks and form-action URLs in the remote page will be rewritten so that the linked-to pages will be requested through this asset just as the original remote page was.</note>
+		</field>
+		<field attribute="tunnel_images">
+			<display_name>Tunnel Embedded Images?</display_name>
+			<note>If this option is enabled, URLs in IMAGE and SUBMIT tags, and image URLs referenced in CSS or HTML 'background' declarations, will be rewritten so that the relevant image files will be tunneled through this asset.</note>
+		</field>
+		<field attribute="tunnel_media">
+			<display_name>Tunnel Other Embedded Media?</display_name>
+			<note>If this option is enabled, URLs in EMBED and PARAM tags will be rewritten so that the relevant media files (flash, movies etc) will be tunneled through this asset</note>
+		</field>
+		<field attribute="tunnel_scripts">
+			<display_name>Tunnel Scripts and Style Sheets?</display_name>
+			<note>If this option is enabled, URLs in SCRIPT and LINK tags, or next to 'import' directives within STYLE blocks, will be rewritten so that the relevant CSS or Javascript files will be tunneled through this asset.</note>
+		</field>
+		<note>If no types of tunneling are enabled, all elements of the remote page are requested directly from the remote server by the browser.  Tunneling can be useful if you are using this page to perform HTTP Authentication on the remote server, or if the target server is configured to only allow access from this matrix server. However, enabling these options may significantly increase the load time of the target page and may increase the traffic on the matrix server.</note>	
 	</section>
 	<section name="Content Filtering">
 		<field attribute="start_tag">
@@ -73,32 +99,6 @@
 			</function_call>
 		</field>
 		<note>When filtering content based on Start/End tags, please be aware that complex nested content might not be properly identified, i.e. if there is a table inside a table and you want to capture the top level table, the captured region might start at the right spot, but end when the included table ends, without reaching the end of the top level one.</note>
-	</section>
-	<section name="Tunneling">
-		<field>
-			<display_name>Overall Tunneling Rules</display_name>
-			<function_call>
-				<paint_function name="paintRewritingRestrictions" />
-				<process_function name="processRewritingRestrictions" />
-			</function_call>
-		</field>
-		<field attribute="load_links">
-			<display_name>Tunnel Linked Pages?</display_name>
-			<note>If this option is enabled, hyperlinks and form-action URLs in the remote page will be rewritten so that the linked-to pages will be requested through this asset just as the original remote page was.</note>
-		</field>
-		<field attribute="tunnel_images">
-			<display_name>Tunnel Embedded Images?</display_name>
-			<note>If this option is enabled, URLs in IMAGE and SUBMIT tags, and image URLs referenced in CSS or HTML 'background' declarations, will be rewritten so that the relevant image files will be tunneled through this asset.</note>
-		</field>
-		<field attribute="tunnel_media">
-			<display_name>Tunnel Other Embedded Media?</display_name>
-			<note>If this option is enabled, URLs in EMBED and PARAM tags will be rewritten so that the relevant media files (flash, movies etc) will be tunneled through this asset</note>
-		</field>
-		<field attribute="tunnel_scripts">
-			<display_name>Tunnel Scripts and Style Sheets?</display_name>
-			<note>If this option is enabled, URLs in SCRIPT and LINK tags, or next to 'import' directives within STYLE blocks, will be rewritten so that the relevant CSS or Javascript files will be tunneled through this asset.</note>
-		</field>
-		<note>If no types of tunneling are enabled, all elements of the remote page are requested directly from the remote server by the browser.  Tunneling can be useful if you are using this page to perform HTTP Authentication on the remote server, or if the target server is configured to only allow access from this matrix server. However, enabling these options may significantly increase the load time of the target page and may increase the traffic on the matrix server.</note>	
 	</section>
 	<section name="Connection Settings">
 		<field attribute="timeout">

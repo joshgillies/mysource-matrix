@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.17 2006/10/09 02:57:21 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.18 2006/10/11 02:09:31 arailean Exp $
 *
 */
 -->
@@ -28,6 +28,26 @@
 	<section name="Location" write_access="write:attributes">
 		<field attribute="remote_url">
 			<text width="80" height="1" />
+		</field>
+	</section>
+	<section name="Tunneling" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function name="paintRewritingRestrictions" />
+				<process_function name="processRewritingRestrictions" />
+			</function_call>
+		</field>
+		<field attribute="load_links">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="tunnel_images">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="tunnel_media">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="tunnel_scripts">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Content Filtering" write_access="write:attributes">
@@ -54,26 +74,6 @@
 				<paint_function   name="paintReplaceTagList" />
 				<process_function name="processReplaceTagList" />
 			</function_call>
-		</field>
-	</section>
-	<section name="Tunneling" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function name="paintRewritingRestrictions" />
-				<process_function name="processRewritingRestrictions" />
-			</function_call>
-		</field>
-		<field attribute="load_links">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="tunnel_images">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="tunnel_media">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="tunnel_scripts">
-			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Connection Settings" write_access="write:attributes">
