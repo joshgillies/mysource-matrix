@@ -11,13 +11,14 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.38.2.3 2006/09/25 05:41:14 arailean Exp $
+* $Id: page_remote_content.inc,v 1.38.2.4 2006/10/11 06:59:28 arailean Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
+require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 require_once 'HTTP/Client.php';
 require_once 'persistent_cookie_manager.inc';
 
@@ -33,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.38.2.3 $
+* @version $Revision: 1.38.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -76,7 +77,7 @@ class Page_Remote_Content extends Page
 		$allow_binary = array_get_index($this->_tmp, 'allow_binary', FALSE);
 
 		if (!array_get_index($this->_tmp, 'processed', FALSE)) {
-			$this->_process();
+			$this->_tmp['success'] = $this->_process();
 		}
 
 		// if processing failed, display error
@@ -182,7 +183,7 @@ class Page_Remote_Content extends Page
 	*/
 	function printFrontend()
 	{
-		$this->_process();
+		$this->_tmp['success'] = $this->_process();
 
 		if (array_get_index($this->_tmp, 'binary', FALSE)) {
 			$this->_tmp['allow_binary'] = TRUE;
@@ -327,17 +328,15 @@ class Page_Remote_Content extends Page
 			$url = $this->_decodeURL($remote_source);
 		}
 
-		if (!$url) {
-			$this->_tmp['success'] = FALSE;
-			$this->_tmp['processed'] = TRUE;
-			return FALSE;
-		}
+		// here we mark that we've attempted processing of this request and that it failed
+		// requires explicit override on success
+		$this->_tmp['processed'] = TRUE;
+
+		if (!$url) return FALSE;
 
 
 		if (!$this->isUrlAllowed($url)) {
-			trigger_localised_error('CMS0057', E_USER_WARNING, $fetch_url);
-			$this->_tmp['success'] = FALSE;
-			$this->_tmp['processed'] = TRUE;
+			trigger_localised_error('CMS0057', E_USER_WARNING, $url);
 			return FALSE;
 		}
 
@@ -360,8 +359,21 @@ class Page_Remote_Content extends Page
 
 		$raw_post = '';
 		if ($is_post) {
-			$raw_post = file_get_contents('php://input');
-			$raw_post = trim(str_replace(SQ_REMOTE_SOURCE.'='.urlencode($remote_source), '', $raw_post));
+			$content_type = array_get_index($_SERVER, 'CONTENT_TYPE');
+			if (!is_null($content_type) && strpos(strtolower($content_type), 'multipart/form-data') !== FALSE) {
+				// NOTE that this is not fully compatible with those systems
+				// where post data is allowed to look like a=1&a=2&a=3
+				// PHP will only see a=3 in POST vars, so we lose a=1,a=2, so we cannot pass it along
+				// that's why when content-type is NOT form-data we use the php://input
+				unset($_POST[SQ_REMOTE_SOURCE]);
+				log_dump($_POST);
+				$raw_post = make_raw_post_data($_POST);
+			} else {
+				// the reason we don't always use php://input is because when content type is multipart/form-data it is empty
+				$raw_post = file_get_contents('php://input');
+				$raw_post = trim(str_replace(SQ_REMOTE_SOURCE.'='.urlencode($remote_source), '', $raw_post));
+			}
+
 		}
 
 		// support custom post variables if they've been set
@@ -403,7 +415,6 @@ class Page_Remote_Content extends Page
 			$default_headers['User-Agent'] = SQ_SYSTEM_LONG_NAME;
 
 			// Add the Proxy authentication details if enabled
-			require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
 			addProxyInfo($request_parameters, $default_headers);
 
 			// we need a persistent cookie manager for this
@@ -420,7 +431,33 @@ class Page_Remote_Content extends Page
 
 
 		if ($is_post) {
-			$result = $HTTP_Client->post($url, $raw_post, TRUE);
+			// Pass on uploaded files if necessary
+			$files = Array();
+			foreach ($_FILES as $name => $details) {
+				if (is_array($details['tmp_name'])) {
+					foreach ($details['tmp_name'] as $i => $tn) {
+						if ($details['error'][$i] != UPLOAD_ERR_OK) continue;
+						$new_name = SQ_TEMP_PATH.'/'.basename($details['name'][$i]);
+						if (move_uploaded_file($tn, $new_name)) {
+							$files[] = Array($name.'['.$i.']', $new_name, $details['type'][$i]);
+						}
+					}
+				} else {
+					if ($details['error'] != UPLOAD_ERR_OK) continue;
+					$new_name = SQ_TEMP_PATH.'/'.basename($details['name']);
+					if (move_uploaded_file($details['tmp_name'], $new_name)) {
+						$files[] = Array($name, $new_name, $details['type']);
+					}
+				}
+			}
+
+			// a workaround for HTTP_Client's inability to handle empty post data
+			if (empty($raw_post) && empty($files)) {
+				$random = md5(rand());
+				$raw_post = $random.'='.$random;
+			}
+
+			$result = $HTTP_Client->post($url, $raw_post, TRUE, $files);
 		} else {
 			$result = $HTTP_Client->get($url);
 		}
@@ -428,8 +465,6 @@ class Page_Remote_Content extends Page
 
 		// exit on error
 		if (PEAR::isError($result) || preg_match('/^[45].*?/', $result)) {
-			$this->_tmp['success']		= FALSE;
-			$this->_tmp['processed']	= TRUE;
 			unset($HTTP_Client);
 			return FALSE;
 		}
@@ -442,8 +477,6 @@ class Page_Remote_Content extends Page
 		if ($this->_tmp['url'] != $url) {
 			if (!$this->isUrlAllowed($this->_tmp['url'])) {
 				trigger_localised_error('CMS0058', E_USER_WARNING, $this->_tmp['url'], $fetch_url);
-				$this->_tmp['success']		= FALSE;
-				$this->_tmp['processed']	= TRUE;
 				return FALSE;
 			}
 		}
@@ -461,8 +494,6 @@ class Page_Remote_Content extends Page
 			$this->_tmp['binary'] = TRUE;
 		}
 
-		$this->_tmp['processed']	= TRUE;
-		$this->_tmp['success']		= TRUE;
 
 		// get new cookies and save cookie manager
 		$HTTP_Client->_responses = NULL;
@@ -1042,5 +1073,6 @@ class Page_Remote_Content extends Page
 
 
 }//end class
+
 
 ?>
