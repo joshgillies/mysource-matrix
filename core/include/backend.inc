@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.147 2006/09/29 06:07:26 rong Exp $
+* $Id: backend.inc,v 1.148 2006/10/11 01:58:31 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.147 $
+* @version $Revision: 1.148 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -141,6 +141,15 @@ class Backend extends MySource_Object
 			// ignore_frames check, only print main
 			$_REQUEST['SQ_BACKEND_PAGE'] = 'main';
 		}
+
+		if (isset($_REQUEST['asset_ei_screen'])) {
+			// if we are in limbo, and ei screen is defined
+			// we need to set backend page to 'main', so that _printMain can work correctly
+			// and user can add '<a href="?asset_ei_screen=metadata">Metadata Screen</a>'
+			// in their limbo layout content (e.g. for tabbed screen menu)
+			$_REQUEST['SQ_BACKEND_PAGE'] = 'main';
+		}
+
 
 		if (empty($_REQUEST['SQ_BACKEND_PAGE']) || $_REQUEST['SQ_BACKEND_PAGE'] == 'frames') {
 			$this->_printFrames();
