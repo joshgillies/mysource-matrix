@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.514 2006/10/11 05:45:47 emcdonald Exp $
+* $Id: asset_manager.inc,v 1.515 2006/10/11 06:02:10 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.514 $
+* @version $Revision: 1.515 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -898,7 +898,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
-		log_dump($assetid);
 		assert_valid_assetid($assetid);
 		$asset =& $this->_asset_cache->get($assetid);
 		if (!empty($asset) && !empty($type_code)) {
@@ -911,7 +910,6 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 		if (empty($asset)) {
-			log_dump($assetid);
 			// check if we are getting a shadow asset, and palm the request off to the
 			// handler of the shadow asset if we are
 			$id_parts = explode(':', $assetid);
@@ -2352,7 +2350,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLinkById($linkid, $assetid=0, $side_of_link='major')
 	{
-		log_dump($linkid);
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
@@ -2386,10 +2383,10 @@ class Asset_Manager extends MySource_Object
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
-		log_dump($sql.$where);
+
 		$result = $db->getRow($sql.$where);
 		assert_valid_db_result($result);
-		log_dump($result);
+
 		return $result;
 
 	}//end getLinkById()
@@ -3125,7 +3122,6 @@ class Asset_Manager extends MySource_Object
 		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
 		assert_valid_db_result($result);
 
-		log_dump($result);
 		if (!is_null($sort_by)) {
 			$children = Array();
 			foreach ($result as $assetid => $asset_info) {
@@ -4973,12 +4969,10 @@ class Asset_Manager extends MySource_Object
 	*/
 	function deleteAssetLink($linkid)
 	{
-		log_dump();
 		if ($linkid == 0) return FALSE;
 		// before anything else is done, check if this is a shadow link, i.e. a link that is managed by a bridge
 		$id_parts = explode(':', $linkid);
 		if (isset($id_parts[1])) {
-			log_dump($linkid);
 			$bridge =& $this->getAsset($id_parts[0]);
 			$result = $bridge->deleteAssetLink($linkid);
 			$this->forgetAsset($bridge);
