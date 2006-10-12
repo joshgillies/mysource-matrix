@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.515 2006/10/11 06:02:10 emcdonald Exp $
+* $Id: asset_manager.inc,v 1.516 2006/10/12 02:58:03 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.515 $
+* @version $Revision: 1.516 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4444,7 +4444,7 @@ class Asset_Manager extends MySource_Object
 
 			if ($current_majorid) {
 				$current_major =& $this->getAsset($current_majorid);
-				return translate($minor->name, $minor->id, $major->name, $major->id, $current_major->name, $current_majorid);
+				return translate('cannot_create_link_exclusive_link', $minor->name, $minor->id, $major->name, $major->id, $current_major->name, $current_majorid);
 			}
 
 		}//end if
