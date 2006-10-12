@@ -11,7 +11,7 @@
 * | Please refer to http:// www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page.inc,v 1.19 2006/09/15 01:10:37 rong Exp $
+* $Id: page_multiple_page.inc,v 1.20 2006/10/12 03:07:51 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -62,6 +62,40 @@ class Page_Multiple_Page extends Page
 		return $page_links;
 
 	}//end _getAllowedLinks()
+
+
+	/**
+	* Prepares for linking by checking that the link values are valid for this link
+	*
+	* This function will be called if this asset is the major or minor party in the link, so the side_of_link flag
+	* should be checked to work out what side of the link this asset is on. The return value should indicate
+	* if any of the link fields were changed.
+	*
+	* @param object	&$asset			the major or minor asset that we are linking to
+	* @param string	$side_of_link	the side of the link we are on (major or minor)
+	* @param string	&$link_type		the type of link we are creating
+	* @param string	&$value			the value that is to be associated with the link
+	* @param string	&$sort_order	the position in the links list that this link should take,
+	* @param string	&$dependant		'0' / '1' on whether the this asset is dependant on the
+	*								asset that will be linked by the new link
+	* @param string	&$exclusive		'0' / '1' on whether the this asset is linked exclusivly
+	*								to the asset that will be linked by the new link
+	*
+	* @return boolean
+	* @access public
+	*/
+	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
+	{
+		if (($side_of_link == 'major') && (is_a($asset, 'page_multiple_page_page'))) {
+			if (($link_type != SQ_LINK_TYPE_2) || ($exclusive != TRUE)) {
+				$link_type = SQ_LINK_TYPE_2;
+				$exclusive = TRUE;
+				return TRUE;
+			}
+		}
+		return FALSE;
+
+	}//end prepareLink()
 
 
 	/**
