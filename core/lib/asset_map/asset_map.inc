@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.210.2.15 2006/09/18 06:01:56 colivar Exp $
+* $Id: asset_map.inc,v 1.210.2.16 2006/10/12 23:45:23 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.210.2.15 $
+* @version $Revision: 1.210.2.16 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1498,13 +1498,10 @@ class Asset_Map
 			$sort_order = $input->root->attributes['to_parent_pos'];
 			$asset->prepareLink($new_parent, 'minor', $link_type, $value, $sort_order, $dependant, $exclusive);
 			$new_parent->prepareLink($asset, 'major', $link_type, $value, $sort_order, $dependant, $exclusive);
-			$can_create = $new_parent->canCreateLink($asset, $link_type, $exclusive);
+
+			$can_create = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($new_parent, $asset->type(), $link_type, $dependant, $exclusive);
 			if ($can_create !== TRUE) {
-				if ($can_create === FALSE) {
-					$this->_error('HIPO0030', $new_parent->id);
-				} else {
-					$this->_error('AMAP0044', $can_create);
-				}
+				$this->_error('AMAP0044', $can_create);
 				return;
 			}
 		}
