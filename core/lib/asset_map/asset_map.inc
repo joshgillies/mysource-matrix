@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.236 2006/10/12 03:02:16 tbarrett Exp $
+* $Id: asset_map.inc,v 1.237 2006/10/12 03:42:33 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.236 $
+* @version $Revision: 1.237 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -844,7 +844,7 @@ class Asset_Map
 
 		// replace 'name' with the configured display name
 		$attrs['name'] = urlencode($this->_convertCharset($this->_getAssetDisplayName($attrs)));
-		if (isset($attr['short_name'])) $attr['short_name'] = urlencode($attrs['short_name']);
+		if (isset($attrs['short_name'])) $attrs['short_name'] = urlencode($attrs['short_name']);
 
 		return $attrs;
 
