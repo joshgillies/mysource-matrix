@@ -11,13 +11,14 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.49 2006/10/09 07:39:07 tbarrett Exp $
+* $Id: page_remote_content.inc,v 1.50 2006/10/12 06:54:39 arailean Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
+require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 require_once 'HTTP/Client.php';
 require_once 'persistent_cookie_manager.inc';
 
@@ -33,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -66,9 +67,13 @@ class Page_Remote_Content extends Page
 	*/
 	function printFrontend()
 	{
-		$this->_process();
+		$this->_tmp['success'] = $this->_process();
+		$rewrite = array_get_index($this->_tmp, 'rewrite_content', FALSE);
 
-		if (array_get_index($this->_tmp, 'pass_straight_through', FALSE) && $this->_tmp['success']) {
+		if ($this->_tmp['success'] && array_get_index($this->_tmp, 'pass_straight_through', FALSE)) {
+			if ($rewrite) {
+				$this->_tmp['content'] = $this->_processHtml($this->_tmp['content']);
+			}
 			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
 			$headers = $this->_tmp['headers'];
 			foreach ($headers as $name => $value) {
@@ -100,7 +105,7 @@ class Page_Remote_Content extends Page
 		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
 
 		if (!array_get_index($this->_tmp, 'processed', FALSE)) {
-			$this->_process();
+			$this->_tmp['success'] = $this->_process();
 		}
 
 		if (!$this->_tmp['success']) {
@@ -111,7 +116,7 @@ class Page_Remote_Content extends Page
 		} else {
 			$type = array_get_index($this->_tmp['headers'], 'content-type');
 			if (!empty($type) && (0 !== strpos($type, 'text/'))) {
-				// if we are have got to this point and are trying to tunnel
+				// if we have got to this point and are trying to tunnel
 				// binary data, we must be nested and so we'll have to show
 				// a message instead of the content
 				$replacements['remote_url'] = $this->_tmp['url'];
@@ -138,6 +143,7 @@ class Page_Remote_Content extends Page
 	{
 		$remote_url		= trim($this->attr('remote_url'));
 		$remote_source	= array_get_index($_REQUEST, SQ_REMOTE_SOURCE);
+		$this->_tmp['rewrite_content']	= isset($_REQUEST['sq_rewrite']);
 
 		$initial_request = FALSE;
 		$pass_straight_through = FALSE;
@@ -152,18 +158,18 @@ class Page_Remote_Content extends Page
 			list($url, $pass_straight_through) = $this->_decodeURL($remote_source);
 		}
 
+		// here we mark that we've attempted processing of this request and that it failed
+		// requires explicit override on success
+		$this->_tmp['processed'] = TRUE;
+
 		if (!$url) {
 			trigger_localised_error('CMS0062', E_USER_WARNING);
-			$this->_tmp['success'] = FALSE;
-			$this->_tmp['processed'] = TRUE;
 			return FALSE;
 		}
 
 
 		if (!$this->isUrlAllowed($url)) {
 			trigger_localised_error('CMS0057', E_USER_WARNING, $url);
-			$this->_tmp['success'] = FALSE;
-			$this->_tmp['processed'] = TRUE;
 			return FALSE;
 		}
 
@@ -188,8 +194,13 @@ class Page_Remote_Content extends Page
 		if ($is_post) {
 			$content_type = array_get_index($_SERVER, 'CONTENT_TYPE');
 			if (!is_null($content_type) && strpos(strtolower($content_type), 'multipart/form-data') !== FALSE) {
+				// NOTE that this is not fully compatible with those systems
+				// where post data is allowed to look like a=1&a=2&a=3
+				// PHP will only see a=3 in POST vars, so we lose a=1,a=2, so we cannot pass it along
+				// that's why when content-type is NOT form-data we use the php://input
 				$raw_post = make_raw_post_data($_POST);
 			} else {
+				// the reason we don't always use php://input is because when content type is multipart/form-data it is empty
 				$raw_post = file_get_contents('php://input');
 				$raw_post = trim(str_replace(SQ_REMOTE_SOURCE.'='.urlencode($remote_source), '', $raw_post));
 			}
@@ -235,7 +246,6 @@ class Page_Remote_Content extends Page
 			$default_headers['User-Agent'] = SQ_SYSTEM_LONG_NAME;
 
 			// Add the Proxy authentication details if enabled
-			require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
 			addProxyInfo($request_parameters, $default_headers);
 
 			// we need a persistent cookie manager for this
@@ -285,15 +295,11 @@ class Page_Remote_Content extends Page
 		// exit on error
 		if (PEAR::isError($result)) {
 			trigger_localised_error('CMS0063', E_USER_WARNING, $url, $result->getMessage());
-			$this->_tmp['success']		= FALSE;
-			$this->_tmp['processed']	= TRUE;
 			unset($HTTP_Client);
 			return FALSE;
 		}
 		if (preg_match('/^[45].*?/', $result)) {
 			trigger_localised_error('CMS0064', E_USER_WARNING, $result, $url);
-			$this->_tmp['success']		= FALSE;
-			$this->_tmp['processed']	= TRUE;
 			unset($HTTP_Client);
 			return FALSE;
 		}
@@ -306,12 +312,9 @@ class Page_Remote_Content extends Page
 		if ($this->_tmp['url'] != $url) {
 			if (!$this->isUrlAllowed($this->_tmp['url'])) {
 				trigger_localised_error('CMS0058', E_USER_WARNING, $this->_tmp['url'], $url);
-				$this->_tmp['success']		= FALSE;
-				$this->_tmp['processed']	= TRUE;
 				return FALSE;
 			}
 		}
-
 
 		// prepare temporary variables for output
 		$this->_tmp['headers'] = $response['headers'];
@@ -320,15 +323,10 @@ class Page_Remote_Content extends Page
 		// if content is not binary, it needs further processing
 		$this->_tmp['pass_straight_through'] = $pass_straight_through || $this->_shouldPassStraightThrough($this->_tmp['headers']);
 
-		$this->_tmp['processed']	= TRUE;
-		$this->_tmp['success']		= TRUE;
+		$this->_tmp['success']	= TRUE;
 
-		// get new cookies and save cookie manager
+		// wipe the response because we won't use it again and it could be too big to just ignore
 		$HTTP_Client->_responses = NULL;
-
-		if (!is_array(array_get_index($_SESSION, 'SQ_REMOTE_HTTP_CLIENT'))) {
-			$_SESSION['SQ_REMOTE_HTTP_CLIENT'] = Array();
-		}
 
 		$_SESSION['SQ_REMOTE_HTTP_CLIENT'][$this->id] = serialize($HTTP_Client);
 
@@ -353,10 +351,9 @@ class Page_Remote_Content extends Page
 			return TRUE;
 		}
 		$content_type = array_get_index($headers, 'content-type');
-		if (!empty($content_type) && (0 !== strpos($content_type, 'text/'))) {
+		if (!empty($content_type) && (strpos($content_type, 'text/') === FALSE)) {
 			return TRUE;
 		}
-
 		return FALSE;
 
 	}//end _shouldPassStraightThrough()
@@ -515,7 +512,7 @@ class Page_Remote_Content extends Page
 			// if scripts need to be tunneled, prepare a new source url
 			if ($this->attr('tunnel_scripts') && $this->isUrlAllowed($url)) {
 				$encoded_url = $this->_encodeURL($url, TRUE);
-				$url = $replacement_url.$encoded_url;
+				$url = $replacement_url.$encoded_url.'&sq_rewrite=1';
 			}
 
 			$subjects[]     = $subject;
