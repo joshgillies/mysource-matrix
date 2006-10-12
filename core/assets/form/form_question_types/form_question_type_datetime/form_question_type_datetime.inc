@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.6.2.1 2006/09/19 02:31:52 rong Exp $
+* $Id: form_question_type_datetime.inc,v 1.6.2.2 2006/10/12 04:02:31 mbrydon Exp $
 *
 */
 
@@ -33,7 +33,8 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6.2.1 $
+* @author  Mark Brydon <mbrydon@squiz.net>
+* @version $Revision: 1.6.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -170,14 +171,16 @@ class Form_Question_Type_Datetime extends Form_Question
 	/**
 	* Look at user-specified and internal rules to see if this question currently has a valid value
 	*
+	* @param mixed	$answer	Custom value to compare with - if left
+	*						NULL (or unspecified), use the current
+	*						value of the question
+	*
 	* @return boolean
 	* @access public
 	*/
 	function hasValidValue($answer=NULL)
 	{
-		if (is_null($answer)) {
-			$answer = $this->getValue();
-		}
+		if (is_null($answer)) $answer = $this->getValue();
 
 		$required_fields = $this->attr('null');
 		$show_params = $this->attr('show');
@@ -189,6 +192,9 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		$this->failed_rules[] = $custom_error;
 
+		if (!is_iso8601($answer)) return FALSE;
+
+		// Ensure that required fields are filled in
 		foreach ($required_fields as $field => $required) {
 			if ($required != '1' && $show_params[$field] == '1') {
 				if ($field == 'y' && (substr($answer, 0, 2) == '--')) {
@@ -213,7 +219,26 @@ class Form_Question_Type_Datetime extends Form_Question
 			}
 		}
 
-		if (!is_iso8601($answer)) return FALSE;
+		// At this stage the date is in ISO 8601 format, however we still need to check value limits (eg; to avoid 30th Feb)
+		$date = Array();
+		list($date['y'], $date['m'], $date['d']) = sscanf($answer, '%04s-%02s-%02s');
+
+		// For checking purposes, set year, month, and day defaults for each value if they were not mandatory and were not specified. Feb 29th will be allowed if the year is not specified
+		foreach ($required_fields as $field => $required) {
+			if ($required != '1') {
+				if ((($field == 'y') || ($field == 'm') || ($field == 'd')) && (substr($date[$field], 0, 2) == '--')) {
+					if ($field == 'y') {
+						$date['y'] = 2000;
+					} else {
+						$date[$field] = 1;
+					}
+				}
+			}
+		}
+		$is_valid_date = checkdate($date['m'], $date['d'], $date['y']);
+
+		if (!$is_valid_date) return FALSE;
+
 		return parent::hasValidValue($answer);
 
 	}//end hasValidValue()
@@ -282,7 +307,7 @@ class Form_Question_Type_Datetime extends Form_Question
 				$year_str = ($match[0] == 'Y') ? $val['y'] : substr($val['y'], -2);
 				if ($pos == 0) {
 					$new_format = $year_str.substr($new_format, 1);
-				} else if (($pos > 0) && (substr($new_format, ($pos - 1), 1) != "\\")) {
+				} else if (($pos > 0) && (substr($new_format, ($pos - 1), 1) != '\\')) {
 					$new_format = substr($new_format, 0, $pos).$year_str.substr($new_format, $pos + 1);
 				}
 			}
