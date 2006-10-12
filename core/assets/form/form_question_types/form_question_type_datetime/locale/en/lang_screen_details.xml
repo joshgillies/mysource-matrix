@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2006/10/10 05:42:50 emcdonald Exp $
+* $Id: lang_screen_details.xml,v 1.7 2006/10/12 06:22:56 emcdonald Exp $
 */
 -->
 
@@ -44,8 +44,7 @@
 		</field>
 		<field>
 			<display_name>Options</display_name>
-			<note>If &quot;Show as text box&quot; is not checked, fields will be displayed as a drop-down list</note>
-			<function_call>
+			<note>If &quot;Display as Text Box ?&quot; is not checked, fields will be displayed as a drop-down list</note>			<function_call>
 				<paint_function   name="paintInterface"   />
 				<process_function name="processInterface" />
 			</function_call>
