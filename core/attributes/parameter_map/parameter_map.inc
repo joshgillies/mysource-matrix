@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.16 2006/10/12 02:33:06 tbarrett Exp $
+* $Id: parameter_map.inc,v 1.17 2006/10/12 18:02:02 gnoel Exp $
 *
 */
 
@@ -53,7 +53,7 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 * 			)
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -364,6 +364,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				case 'USER':
 				case 'CURRENT_SITE':
 					$assetid = $this->_getRelevantAssetid($rule['source']);
+					if (empty($assetid)) return NULL;
 					switch (array_get_index($rule, 'attribute')) {
 						case SQ_PARAM_MAP_ATTR_OPTION_KEYWORD:
 							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
