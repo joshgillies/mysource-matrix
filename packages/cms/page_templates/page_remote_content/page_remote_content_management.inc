@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_management.inc,v 1.17 2006/10/09 02:57:21 tbarrett Exp $
+* $Id: page_remote_content_management.inc,v 1.18 2006/10/12 06:37:09 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -164,8 +164,8 @@ class Page_Remote_Content_Management extends Asset_Management
 													'added'		=> '1.7',
 													'type'		=> 'serialise',
 													'default'	=> Array(
-																	'all'			=> FALSE,
-																	'remote_url'	=> TRUE,
+																	'all'			=> TRUE,
+																	'remote_url'	=> FALSE,
 																	'remote_domain'	=> FALSE,
 																	'white_list'	=> FALSE,
 																   ),
@@ -185,6 +185,8 @@ class Page_Remote_Content_Management extends Asset_Management
 	*/
 	function _upgrade($current_version)
 	{
+		if (!parent::_upgrade($current_version)) return FALSE;
+
 		if (version_compare($current_version, '1.7','<')) {
 			pre_echo('UPGRADING REMOTE CONTENT FROM v'.$current_version.' to v1.7');
 			$ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_remote_content');
@@ -220,7 +222,7 @@ class Page_Remote_Content_Management extends Asset_Management
 			pre_echo('UPGRADE COMPLETE - '.count($ids).' REMOTE CONTENT PAGES UPGRADED');
 		}//end if version matches
 
-		return parent::_upgrade($current_version);
+		return TRUE;
 
 	}//end _upgrade()
 
