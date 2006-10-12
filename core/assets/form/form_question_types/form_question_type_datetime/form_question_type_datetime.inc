@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.9 2006/10/10 05:42:50 emcdonald Exp $
+* $Id: form_question_type_datetime.inc,v 1.10 2006/10/12 04:02:07 mbrydon Exp $
 *
 */
 
@@ -33,7 +33,8 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @author  Mark Brydon <mbrydon@squiz.net>
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,7 +82,6 @@ class Form_Question_Type_Datetime extends Form_Question
 		$name   = 'q'.$this->id;
 		$html = '';
 		$value = $this->getValue();
-
 
 		$elements = Array('day' => 'd', 'month' => 'm', 'year' => 'y', 'hour' => 'h', 'min' => 'i', 'sec' => 's');
 
@@ -205,6 +205,9 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		$this->failed_rules[] = $custom_error;
 
+		if (!is_iso8601($answer)) return FALSE;
+
+		// Ensure that required fields are filled in
 		foreach ($required_fields as $field => $required) {
 			if ($required != '1' && $show_params[$field] == '1') {
 				if ($field == 'y' && (substr($answer, 0, 2) == '--')) {
@@ -229,7 +232,26 @@ class Form_Question_Type_Datetime extends Form_Question
 			}
 		}
 
-		if (!is_iso8601($answer)) return FALSE;
+		// At this stage the date is in ISO 8601 format, however we still need to check value limits (eg; to avoid 30th Feb)
+		$date = Array();
+		list($date['y'], $date['m'], $date['d']) = sscanf($answer, '%04s-%02s-%02s');
+
+		// For checking purposes, set year, month, and day defaults for each value if they were not mandatory and were not specified. Feb 29th will be allowed if the year is not specified
+		foreach ($required_fields as $field => $required) {
+			if ($required != '1') {
+				if ((($field == 'y') || ($field == 'm') || ($field == 'd')) && (substr($date[$field], 0, 2) == '--')) {
+					if ($field == 'y') {
+						$date['y'] = 2000;
+					} else {
+						$date[$field] = 1;
+					}
+				}
+			}
+		}
+		$is_valid_date = checkdate($date['m'], $date['d'], $date['y']);
+
+		if (!$is_valid_date) return FALSE;
+
 		return parent::hasValidValue($answer, $mute_errors);
 
 	}//end hasValidValue()
