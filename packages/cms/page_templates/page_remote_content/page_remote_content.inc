@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.32.2.7 2006/10/09 07:39:42 tbarrett Exp $
+* $Id: page_remote_content.inc,v 1.32.2.8 2006/10/13 05:13:39 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.32.2.7 $
+* @version $Revision: 1.32.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -730,6 +730,7 @@ class Page_Remote_Content extends Page
 		$patterns[] = '/(background\s*=\s*[\'"]?)\s*([^\'"<> ]+)([\'" ]?[^<]*>)/i';
 
 		$patterns[] = '/((?:background.*?)url\s*\([\'"]?\s*)([^\'"; ]+)([\'"]?\s*\))/i';
+		$patterns[] = '/((?:list-style-image.*?)url\s*\([\'"]?\s*)([^\'"; ]+)([\'"]?\s*\))/i';
 
 		$patterns[] = '/(<(?:input)\s+.*?(?:src)\s*=\s*[\'"]+)\s*([^\'" >]+)([\'"> ]?[^<>]*\>)/i';
 
