@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.50 2006/10/12 06:54:39 arailean Exp $
+* $Id: page_remote_content.inc,v 1.51 2006/10/13 05:11:12 tbarrett Exp $
 *
 */
 
@@ -34,12 +34,21 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Remote_Content extends Page
 {
+
+	var $_transformation_options = Array(
+									'use_design',
+									'rewrite_urls',
+									'trim_content',
+									'do_tag_replacements',
+									'replace_matrix_keywords',
+									'strip_images',
+								   );
 
 
 	/**
@@ -68,20 +77,20 @@ class Page_Remote_Content extends Page
 	function printFrontend()
 	{
 		$this->_tmp['success'] = $this->_process();
-		$rewrite = array_get_index($this->_tmp, 'rewrite_content', FALSE);
 
-		if ($this->_tmp['success'] && array_get_index($this->_tmp, 'pass_straight_through', FALSE)) {
-			if ($rewrite) {
-				$this->_tmp['content'] = $this->_processHtml($this->_tmp['content']);
-			}
+		if (!$this->_tmp['transform_settings']['replace_matrix_keywords']) {
 			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
-			$headers = $this->_tmp['headers'];
+		}
+
+		if ($this->_tmp['transform_settings']['use_design']) {
+			return parent::printFrontend();
+		} else {
+			// do not use design
+			$headers = array_get_index($this->_tmp, 'headers', Array());
 			foreach ($headers as $name => $value) {
 				header("$name: $value");
 			}
-			echo $this->_tmp['content'];
-		} else {
-			return parent::printFrontend();
+			echo array_get_index($this->_tmp, 'content', '');
 		}
 
 	}//end printFrontend()
@@ -122,15 +131,14 @@ class Page_Remote_Content extends Page
 				$replacements['remote_url'] = $this->_tmp['url'];
 				echo replace_keywords($this->attr('binary_message'), $replacements);
 			} else {
-				echo $this->_processHtml($this->_tmp['content']);
+				// everything is good. get the page body.
+				echo $this->_tmp['content'];
+
 			}
 		}
 		return TRUE;
 
 	}//end printBody()
-
-
-//--        PROCESSING FUNCTIONS CALLED BEFORE PRINTBODY        --//
 
 
 	/**
@@ -143,10 +151,8 @@ class Page_Remote_Content extends Page
 	{
 		$remote_url		= trim($this->attr('remote_url'));
 		$remote_source	= array_get_index($_REQUEST, SQ_REMOTE_SOURCE);
-		$this->_tmp['rewrite_content']	= isset($_REQUEST['sq_rewrite']);
 
 		$initial_request = FALSE;
-		$pass_straight_through = FALSE;
 
 		$is_post = ($_SERVER['REQUEST_METHOD'] == 'POST');
 		$url = NULL;
@@ -154,8 +160,14 @@ class Page_Remote_Content extends Page
 		if (is_null($remote_source)) {
 			$initial_request = TRUE;
 			$url = $remote_url;
+			// enable all transformation by default
+			foreach ($this->_transformation_options as $v) {
+				$this->_tmp['transform_settings'][$v] = TRUE;
+			}
 		} else {
-			list($url, $pass_straight_through) = $this->_decodeURL($remote_source);
+			$this->_tmp['transform_settings'] = $this->_decodeHash($remote_source);
+			$url = $this->_tmp['transform_settings']['url'];
+			unset($this->_tmp['transform_settings']['url']);
 		}
 
 		// here we mark that we've attempted processing of this request and that it failed
@@ -320,20 +332,64 @@ class Page_Remote_Content extends Page
 		$this->_tmp['headers'] = $response['headers'];
 		$this->_tmp['content'] = $response['body'];
 
-		// if content is not binary, it needs further processing
-		$this->_tmp['pass_straight_through'] = $pass_straight_through || $this->_shouldPassStraightThrough($this->_tmp['headers']);
-
-		$this->_tmp['success']	= TRUE;
-
 		// wipe the response because we won't use it again and it could be too big to just ignore
 		$HTTP_Client->_responses = NULL;
-
 		$_SESSION['SQ_REMOTE_HTTP_CLIENT'][$this->id] = serialize($HTTP_Client);
-
 		unset($HTTP_Client);
+
+		if ($this->_shouldPassStraightThrough($this->_tmp['headers'])) {
+			foreach ($this->_tmp['transform_settings'] as $i => $v) {
+				$this->_tmp['transform_settings'][$i] = FALSE;
+			}
+		} else {
+			$this->_transformContent($this->_tmp['content']);
+		}
+
 		return TRUE;
 
 	}//end _process()
+
+
+	/**
+	* Perform all the transformation of content according to the current settings
+	*
+	* @param string	&$content	The content to transform
+	*
+	* @return void
+	* @access private
+	*/
+	function _transformContent(&$content)
+	{
+		// Get the content between the selected start and end tags if necessary
+		if ($this->_tmp['transform_settings']['trim_content']) {
+			$this->_trimContent($content);
+		}
+
+		// Replace tags
+		if ($this->_tmp['transform_settings']['do_tag_replacements']) {
+			$this->_doTagReplacements($content);
+		}
+
+		// Strip the images if necessary
+		if ($this->attr('strip_images') && $this->_tmp['transform_settings']['strip_images']) {
+			$this->_stripAllImages($content);
+		}//end if
+
+		// Rewrite URLs
+		if ($this->_tmp['transform_settings']['rewrite_urls']) {
+			$this->_rewriteURLs($content);
+		}
+
+		// Replace keywords
+		if ($this->_tmp['transform_settings']['replace_matrix_keywords']) {
+			preg_match_all('/%(\w+)%/i', $content, $matches);
+			foreach ($matches[1] as $key => $keyword) {
+				$rep = $this->getKeywordReplacement($keyword);
+				$content = str_replace($matches[0][$key], $rep, $content);
+			}
+		}
+
+	}//end _transformContent()
 
 
 	/**
@@ -346,38 +402,37 @@ class Page_Remote_Content extends Page
 	*/
 	function _shouldPassStraightThrough($headers)
 	{
+		// we shouldn't interfere with attachments
 		$disposition = array_get_index($headers, 'content-disposition');
 		if (!is_null($disposition) && strpos($disposition, 'attachment') !== FALSE) {
 			return TRUE;
 		}
+
+		// we shouldn't interfere with non-text content
+		// (this actually includes javascript in some cases, but that's OK)
 		$content_type = array_get_index($headers, 'content-type');
 		if (!empty($content_type) && (strpos($content_type, 'text/') === FALSE)) {
 			return TRUE;
 		}
+
 		return FALSE;
 
 	}//end _shouldPassStraightThrough()
 
 
-	/**
-	* Process HTML and Text content
-	*
-	* Takes HTML content (text in general),
-	* tries to find the sections identified by start and stop tags,
-	* requests for urls to be conditionally replaced
-	*.
-	* Assumptions:
-	*   processing has already taken place AND
-	*   no error checking of input is necessary
-	*
-	* @return string
-	* @access public
-	*/
-	function _processHtml()
-	{
-		// everything is good. get the page body.
-		$response_body	= $this->_tmp['content'];
+//--        CONTENT TRANSFORMATION FNS & THEIR HELPERS        --//
 
+
+	/**
+	* Trim the content to that within the selected start and end tags
+	*
+	* @param string	&$response_body	The content to modify
+	*
+	* @return void
+	* @access private
+	*/
+	function _trimContent(&$response_body)
+	{
 		// prepare the tags
 		$start_tag = preg_quote($this->attr('start_tag'), '/');
 		$end_tag   = preg_quote($this->attr('end_tag'), '/');
@@ -411,68 +466,22 @@ class Page_Remote_Content extends Page
 			$matches = NULL;
 		}
 
-		// prepare the url that will be used to replace the links that have to be tunnelled through remote content
-		$replacement_url = $this->getURL().'?'.SQ_REMOTE_SOURCE.'=';
-
-		// convert the URLs on the remote page into the correct format
-		$page_content = $this->_transformContent($response_body, $this->_tmp['url'], $replacement_url);
-
-		return $page_content;
-
-	}//end _processHtml()
-
-
-	/**
-	* Transform contents of the HTML by replacing tags and converting URLs
-	*
-	* @param string	$content			the input
-	* @param string	$fetch_url			the url of the page being transformed
-	* @param string	$replacement_url	the replacement url that points back to our system
-	*
-	* @return string
-	* @access private
-	*/
-	function _transformContent($content, $fetch_url, $replacement_url)
-	{
-		if (!$content || !$fetch_url || !$replacement_url) {
-			return FALSE;
-		}
-
-		// Replace tags
-		$this->_doTagReplacements($content);
-
-		// Strip the images if necessary
-		if ($this->attr('strip_images')) {
-			$this->_stripAllImages($content);
-		}//end if
-
-		// Rewrite URLs
-		$this->_rewriteURLs($content, $fetch_url, $replacement_url);
-
-		// Replace keywords
-		preg_match_all('/%(\w+)%/i', $content, $matches);
-		foreach ($matches[1] as $key => $keyword) {
-			$rep = $this->getKeywordReplacement($keyword);
-			$content = str_replace($matches[0][$key], $rep, $content);
-		}
-
-		return $content;
-
-	}//end _transformContent()
+	}//end _trimContent()
 
 
 	/**
 	* Rewrite URLs in the content
 	*
-	* @param string	&$content			the content to rewrite URLs in
-	* @param string	$fetch_url			the url of the page being transformed
-	* @param string	$replacement_url	the replacement url that points back to our system
+	* @param string	&$content	the content to rewrite URLs in
 	*
 	* @return void
 	* @access public
 	*/
-	function _rewriteURLs(&$content, $fetch_url, $replacement_url)
+	function _rewriteURLs(&$content)
 	{
+		$replacement_url = $this->getURL().'?'.SQ_REMOTE_SOURCE.'=';
+		$fetch_url = $this->_tmp['url'];
+
 		// get all info about the remote URL
 		$parsed_fetch_url = parse_url($fetch_url);
 		$subjects     = Array();
@@ -511,8 +520,8 @@ class Page_Remote_Content extends Page
 
 			// if scripts need to be tunneled, prepare a new source url
 			if ($this->attr('tunnel_scripts') && $this->isUrlAllowed($url)) {
-				$encoded_url = $this->_encodeURL($url, TRUE);
-				$url = $replacement_url.$encoded_url.'&sq_rewrite=1';
+				$encoded_url = $this->_encodeHash($url, Array('rewrite_urls'));
+				$url = $replacement_url.$encoded_url;
 			}
 
 			$subjects[]     = $subject;
@@ -524,7 +533,6 @@ class Page_Remote_Content extends Page
 
 		//// BEGIN OBJECTS
 		$matches      = Array();
-
 		// objects
 		$pattern = '/(<(?:embed)\s+.*?(?:src)\s*=\s*[\'"]*)\s*([^\'" >]+)([\'"> ]?[^<]*>)/i';
 
@@ -545,7 +553,7 @@ class Page_Remote_Content extends Page
 
 			// if media need to be tunneled, prepare a new source url
 			if ($this->attr('tunnel_media') && $this->isUrlAllowed($url)) {
-				$encoded_url = $this->_encodeURL($url, TRUE);
+				$encoded_url = $this->_encodeHash($url);
 				$url = $replacement_url.$encoded_url;
 			}
 
@@ -585,7 +593,7 @@ class Page_Remote_Content extends Page
 
 			// if media need to be tunneled, prepare a new source url
 			if ($this->attr('tunnel_media') && $this->isUrlAllowed($url)) {
-				$encoded_url = $this->_encodeURL($url, TRUE);
+				$encoded_url = $this->_encodeHash($url);
 				$url = $replacement_url.$encoded_url;
 			}
 
@@ -608,6 +616,7 @@ class Page_Remote_Content extends Page
 		$patterns[] = '/(background\s*=\s*[\'"]?)\s*([^\'"<> ]+)([\'" ]?[^<]*>)/i';
 
 		$patterns[] = '/((?:background.*?)url\s*\([\'"]?\s*)([^\'"; ]+)([\'"]?\s*\))/i';
+		$patterns[] = '/((?:list-style-image.*?)url\s*\([\'"]?\s*)([^\'"; ]+)([\'"]?\s*\))/i';
 
 		$patterns[] = '/(<(?:input)\s+.*?(?:src)\s*=\s*[\'"]+)\s*([^\'" >]+)([\'"> ]?[^<>]*\>)/i';
 
@@ -632,7 +641,7 @@ class Page_Remote_Content extends Page
 
 			// if images need to be tunneled, prepare a new source url
 			if ($this->attr('tunnel_images') && $this->isUrlAllowed($url)) {
-				$encoded_url = $this->_encodeURL($url);
+				$encoded_url = $this->_encodeHash($url);
 				$url = $replacement_url.$encoded_url;
 			}
 
@@ -666,7 +675,6 @@ class Page_Remote_Content extends Page
 
 		// local cleanup
 		$matches_local = NULL;
-
 		$load_links = $this->attr('load_links');
 
 		foreach ($matches as $data) {
@@ -682,7 +690,7 @@ class Page_Remote_Content extends Page
 
 			// if urls need to point back to us, prepare a new url
 			if ($load_links && $this->isUrlAllowed($url)) {
-				$encoded_url = $this->_encodeURL($url);
+				$encoded_url = $this->_encodeHash($url, Array('all'));
 				$url = $replacement_url.$encoded_url;
 			}
 
@@ -723,9 +731,9 @@ class Page_Remote_Content extends Page
 			// if urls need to point back to us, prepare a new url
 			if ($load_links && $this->isUrlAllowed($url)) {
 				// forms require the parameters to be set to the hidden fields for proper functioning
-				$postfix .= '<input type="hidden" name="sq_content_src" value="'.$this->_encodeURL($url).'" />';
+				$postfix .= '<input type="hidden" name="<?php echo SQ_REMOTE_SOURCE; ?>" value="'.$this->_encodeHash($url, Array('all')).'" />';
 
-				$encoded_url = $this->_encodeURL($url);
+				$encoded_url = $this->_encodeHash($url, Array('all'));
 				$url = $replacement_url.$encoded_url;
 			}
 
@@ -882,7 +890,7 @@ class Page_Remote_Content extends Page
 	*/
 	function _makeFullURL($parsed_fetch_url, &$url)
 	{
-		// ignore invalid urls
+		// reject invalid urls
 		if (!isset($url) || (substr($url, -3) == '://' )) {
 			return FALSE;
 		}
@@ -891,7 +899,7 @@ class Page_Remote_Content extends Page
 			$url = $parsed_fetch_url['scheme'].':'.$url;
 		}
 
-		// ignore absolute urls
+		// do nothing for absolute urls
 		if (preg_match('/^[a-z0-9]+:\/\//i', $url)) {
 			return TRUE;
 		}
@@ -977,55 +985,61 @@ class Page_Remote_Content extends Page
 	}//end _makeProperPath()
 
 
+//--        GENERAL HELPERS        --//
+
+
 	/**
-	* Encode URL
+	* Create a hash representing the URL and treatment flags supplied
 	*
-	* Prepares URL to be used as a source in page body
+	* @param array	$url				URL to encode
+	* @param array	$transformations	Transformations to perform when tunneling
+	*									See $_transformation_options for valid values
+	*									May also specify 'all' for all transformations
 	*
-	* @param string		$url					URL to encode
-	* @param boolean	$pass_straight_through	Whether to mark this as a passthru link or not
+	* @return string
+	* @access private
+	*/
+	function _encodeHash($url, $transformations=Array())
+	{
+		if (empty($url)) {
+			trigger_localised_error('CMS0065', E_USER_WARNING);
+			return '';
+		}
+		$components = Array('url' => $url);
+		foreach ($transformations as $arg) {
+			$components[$arg] = 1;
+		}
+		return urlencode('+'.base64_encode(make_raw_post_data($components)));
+
+	}//end _encodeHash()
+
+
+	/**
+	* Decode a URL hash to a URL and treatment options
+	*
+	* @param string	$hash	The hash value to decode
 	*
 	* @return void
 	* @access public
 	*/
-	function _encodeURL($url, $pass_straight_through=FALSE)
-	{
-		// the prefix is needed for detection of PHP auto-decoding of urls. See _decodeURL
-		$prefix = $pass_straight_through ? '-' : '+';
-		$encoded_url = urlencode($prefix.base64_encode($url));
-		return $encoded_url;
-
-	}//end _encodeURL()
-
-
-	/**
-	* Decode URL
-	*
-	* Decodes URL encoded by _encodeURL
-	*
-	* @param string	$url	URL to encode
-	*
-	* @return array
-	* @access public
-	* @see _encodeURL
-	*/
-	function _decodeURL($url)
+	function _decodeHash($hash)
 	{
 		// this is a micro hack to detect if PHP has prematurely decoded the url
-		if (($url{0} != '+') && ($url{0} != '-')) {
-			$url = urldecode($url);
+		if ($hash{0} != '+') $hash = urldecode($hash);
+
+		$hash = base64_decode(substr($hash, 1));
+		$components = Array();
+		parse_str(html_entity_decode($hash), $components);
+		if (empty($components['url'])) {
+			trigger_localised_error('CMS0065', E_USER_WARNING);
 		}
+		// insert any missing options (presumed false) and expand the 'all' option
+		foreach ($this->_transformation_options as $i => $v) {
+			$components[$v] = !empty($components[$v]) || !empty($components['all']);
+		}
+		return $components;
 
-		// remove the prefix
-		$pass_straight_through = ($url{0} == '-');
-		$url = substr($url, 1);
-
-		$decoded_url = base64_decode($url);
-		$decoded_url = html_entity_decode($decoded_url);
-
-		return Array($decoded_url, $pass_straight_through);
-
-	}//end _decodeURL()
+	}//end _decodeHash()
 
 
 	/**
