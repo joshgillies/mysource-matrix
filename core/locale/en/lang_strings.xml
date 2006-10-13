@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.146.2.9 2006/10/11 06:16:50 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.146.2.10 2006/10/13 06:41:23 rong Exp $
 *
 */
 
@@ -792,7 +792,7 @@
 	<string source="core_generate_report">Generate the latest version of this report</string>
 	<string source="core_report_last_generated">&lt;b&gt;This report has been generated&lt;/b&gt; &lt;br /&gt;Date: %1$s&lt;br /&gt;User: %2$s</string>
 	<string source="core_no_visual_report">This report does not contain a visual component</string>
-	<string source="core_no_selectes_root_node">No root node has been selected</string>
+	<string source="core_no_selected_root_node">No root node has been selected</string>
 	<string source="core_default_layout_name">Default Layout Name</string>
 	<string source="core_value_name">Value Name</string>
 	<string source="core_cannot_create_value_component">You do not have permission to create a new value component</string>
