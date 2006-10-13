@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_generate_report.inc,v 1.10 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_job_generate_report.inc,v 1.11 2006/10/13 06:48:44 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -51,6 +51,74 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 		$this->HIPO_Job($code_name);
 
 	}//end constructor
+
+
+	/**
+	* Paints backend of this job
+	*
+	* @param object	&$o		reference to the backend outputter
+	* @param string	$class	calling class name
+	*
+	* @return void
+	* @access private
+	*/
+	function paintConfig(&$o, $class)
+	{
+		$write_access = $this->writeAccess();
+
+		// metadata regeneration threshhold HIPO config entry
+		$o->openField(translate('report_regeneration_threshold'));
+
+		if ($write_access) {
+			text_box($class.'[SQ_HIPO_REGENERATE_REPORT_THRESHOLD]', SQ_HIPO_REGENERATE_REPORT_THRESHOLD, 5);
+		} else {
+			echo SQ_HIPO_REGENERATE_REPORT_THRESHOLD;
+		}
+		echo ' '.translate('assets');
+
+		$o->closeField();
+
+	}//end paintConfig()
+
+
+	/**
+	* Sets some info about thresholds that this hipo requires.
+	*
+	* @return array
+	* @access public
+	*/
+	function getConfigVars()
+	{
+		return Array(
+				'SQ_HIPO_REGENERATE_REPORT_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),
+			   );
+
+	}//end getConfigVars()
+
+
+	/**
+	* Returns the current Threshold.
+	*
+	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
+	*
+	* @return float
+	* @access public
+	*/
+	function getThresholdPercentageRequired()
+	{
+		log_dump($this->_running_vars['todo']);
+		if (SQ_HIPO_REGENERATE_REPORT_THRESHOLD == 0) return 0;
+		if (!isset($this->_running_vars['todo'])) {
+			return 0;
+		}
+		if (!is_array($this->_running_vars['todo'])) {
+			return 0;
+		}
+		log_dump($this->_running_vars['todo']);
+		return 0;
+		return (((count($this->_running_vars['todo']) + 1) / SQ_HIPO_REGENERATE_REPORT_THRESHOLD) * 100);
+
+	}//end getThresholdPercentageRequired()
 
 
 	/**
