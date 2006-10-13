@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.36 2006/09/29 04:34:47 tbarrett Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.37 2006/10/13 02:42:34 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,9 +68,9 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		// ignore allowed plugins (shortened to $iap for easier use);
 		$iap = in_array('all', $ap);
 
-		if (empty($this->_tmp['wysiwg_object'])) {
+		$html = $asset->attr('html');
 
-			$html = $asset->attr('html');
+		if (empty($this->_tmp['wysiwg_object'])) {
 
 			$wysiwyg =& new WYSIWYG($prefix, sq_web_path('fudge').'/wysiwyg/');
 
@@ -233,13 +233,12 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 				}
 			$wysiwyg->close_group();
 
-			// contents must be set AFTER all plugins are loaded
-			$wysiwyg->set_contents($html);
-
-
 			$this->_tmp['wysiwg_object'] = $wysiwyg;
 
 		}//end if WYSIWYG object doesn't already exist
+
+		// contents must be set AFTER all plugins are loaded
+		$this->_tmp['wysiwg_object']->set_contents($html);
 
 		return $this->_tmp['wysiwg_object'];
 
