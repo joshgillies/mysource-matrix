@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_generate_report.inc,v 1.11 2006/10/13 06:48:44 rong Exp $
+* $Id: hipo_job_generate_report.inc,v 1.12 2006/10/13 06:51:51 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -106,16 +106,9 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 	*/
 	function getThresholdPercentageRequired()
 	{
-		log_dump($this->_running_vars['todo']);
 		if (SQ_HIPO_REGENERATE_REPORT_THRESHOLD == 0) return 0;
-		if (!isset($this->_running_vars['todo'])) {
-			return 0;
-		}
-		if (!is_array($this->_running_vars['todo'])) {
-			return 0;
-		}
-		log_dump($this->_running_vars['todo']);
-		return 0;
+		if (!isset($this->_running_vars['todo'])) return 0;
+		if (!is_array($this->_running_vars['todo'])) return 0;
 		return (((count($this->_running_vars['todo']) + 1) / SQ_HIPO_REGENERATE_REPORT_THRESHOLD) * 100);
 
 	}//end getThresholdPercentageRequired()
@@ -168,10 +161,10 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 										'process_function'	=> 'processReport',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> true,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 			   );
@@ -189,10 +182,10 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 	{
 		while (empty($this->_running_vars['complete']) && !empty($this->_running_vars['assetid'])) {
 			if (!$this->processReport($this->_steps[0], get_class($this))) {
-				return false;
+				return FALSE;
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end freestyle()
 
@@ -207,12 +200,12 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 	{
 		if (empty($this->_running_vars['assetid'])) {
 			trigger_localised_error('HIPO0008', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 		$this->_running_vars['type_code'] = $asset->type();
-		$this->_running_vars['complete']  = false;
+		$this->_running_vars['complete']  = FALSE;
 		return parent::prepare();
 
 	}//end prepare()
@@ -231,7 +224,7 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 	*/
 	function processReport(&$step_data, $prefix)
 	{
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid'], $this->_running_vars['type_code']);
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid'], $this->_running_vars['type_code']);
 		$edit_fns = $asset->getEditFns();
 
 		return $edit_fns->generateReport($this, $step_data, $prefix);
