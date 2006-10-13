@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.172 2006/10/13 06:37:40 rong Exp $
+* $Id: lang_strings.xml,v 1.173 2006/10/13 06:57:42 rong Exp $
 *
 */
 
@@ -1371,6 +1371,7 @@
 	<string source="select_report">Select Report</string>
 	<string source="date">Date</string>
 	<string source="report_generated">This report has been generated</string>
+	<string source="report_regeneration_threshold">Report Regeneration Threshold</string>
 	<string source="linking_to">Linking To</string>
 	<string source="comments">Comments</string>
 	<string source="unknown_asset_id">Unknown asset #%s</string>
