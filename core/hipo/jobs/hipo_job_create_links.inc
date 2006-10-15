@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.29.2.2 2006/06/30 03:48:06 skim Exp $
+* $Id: hipo_job_create_links.inc,v 1.29.2.3 2006/10/15 23:07:35 mbrydon Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.29.2.2 $
+* @version $Revision: 1.29.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -475,6 +475,41 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	*/
 	function processConfirmation(&$step_data, $prefix)
 	{
+		// if we are moving to the trash and they want to remap the URL's of the asset that
+		// is being trashed to another asset, go through and do all this for them
+
+		if (isset($_POST['form_submitted'])) {
+			$assets_to_remap = $this->_running_vars['assets'];
+			foreach ($assets_to_remap as $source_assetid => $remap_info) {
+				$dest_assetid = $_POST[$prefix.'_remap_new_url']['assetid'];
+				if ($dest_assetid) {
+					$dest_url = $_POST[$prefix.'_remap_new_url']['url'];
+
+					if ($dest_assetid == $source_assetid) {
+						$source_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
+						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_links_to_self', $source_asset->name).'</span>';
+						return TRUE;
+					}
+
+					if (empty($dest_url)) {
+						$source_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
+						$remap_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($dest_assetid);
+						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_links_without_destination_url', $source_asset->name, $remap_asset->name).'</span>';
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
+						return TRUE;
+					}
+
+					$rm =&$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+					if (!$rm->remapAllURLs($source_assetid, $dest_url)) {
+						$source_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
+						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_urls', $source_asset->name, $dest_url).'</span>';
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
+						return TRUE;
+					}
+				}
+			}
+		}//end if HIPO form submitted
+
 		if ($step_data['percent_done'] == 0) {
 			$step_data['percent_done'] = 50;
 		} else {
@@ -787,7 +822,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			}
 			$step_data['percent_done'] = 100;
 			$step_data['complete'] = TRUE;
-		}
+		}//end if HIPO form submitted
 
 		return TRUE;
 
