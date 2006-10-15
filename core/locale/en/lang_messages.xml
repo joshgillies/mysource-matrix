@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.14 2006/09/06 23:34:35 bcaldwell Exp $
+* $Id: lang_messages.xml,v 1.15 2006/10/15 23:38:31 rong Exp $
 *
 * Core Internal Messages File
 */
@@ -408,5 +408,12 @@ You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_
 	<message type="inbox.sent">
 		<subject>%subject%</subject>
 		<body>%body%</body>
+	</message>
+	<message type="asset.report.broken.link">
+		<subject>Broken Link(s) found in "%link_report_name%" (Id# %link_report_id%)</subject>
+		<body>A broken %type% link was found in asset #%assetid%
+Link URL: <![CDATA[%link% ]]>
+Comment: <![CDATA[%description%]]>
+</body>
 	</message>
 </messages>
