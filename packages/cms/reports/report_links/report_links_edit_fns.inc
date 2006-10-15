@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.21 2006/10/11 06:05:28 rong Exp $
+* $Id: report_links_edit_fns.inc,v 1.22 2006/10/15 23:34:57 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -167,7 +167,14 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 		if (empty($job->_running_vars['todo'])) {
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = TRUE;
+			$step_data['complete'] = TRUE;
+			$job->_running_vars['complete'] = TRUE;
+
+			// reset to empty string, so that the 'notify admin' button can be printed/enabled
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+				$owner->setAttrValue('report_info', '');
+				$owner->saveAttributes();
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 			// move the temp file to become the real report XML file
 			fwrite($temp_file, '</links>');
@@ -178,6 +185,12 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			if (!unlink($owner->data_path.'/report.tmp')) {
 				trigger_localised_error('RPRT0002', E_USER_WARNING);
 			}
+
+			// send broken link notification, if enabled
+			if ($owner->attr('report_broken_links')) {
+				$owner->reportBrokenLink();
+			}
+
 		} else {
 			$total = count($job->_running_vars['todo']) + count($job->_running_vars['done']);
 			$step_data['percent_done'] = (count($job->_running_vars['done']) / $total) * 100;
@@ -303,10 +316,11 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$url_parts['query'] = $url_path;
 
 			require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
+
 			$socket = openSocketConnection($url_parts, $errno, $errstr);
 			if (!$socket) {
 				$description = translate('cms_report_links_invalid_url');
-				$valid = '1';
+				$valid = '0';
 			} else {
 				if (!SQ_PA_ENABLED) {
 					// if proxy authentication is not enabled, do the old trick
@@ -359,6 +373,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				}
 				fclose($socket);
 			}//end else
+
 		}//end else
 
 		return Array('valid' => $valid, 'description' => $description);
@@ -402,102 +417,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	*/
 	function paintReport(&$asset, &$o, $prefix)
 	{
-		require_once 'XML/Tree.php';
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		require_once SQ_FUDGE_PATH.'/general/general.inc';
-
-		$report_path = $asset->data_path.'/report.xml';
-		if (!is_file($report_path)) {
-			echo translate('report_not_generated');
-			return;
-		}
-
-		$input =& new XML_Tree($report_path);
-		$root  =& $input->getTreeFromFile();
-		if (PEAR::isError($root)) {
-			trigger_localised_error('CMS0009', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
-			return;
-		}
-
-		$reported_links = Array(
-							'internal'	=> Array(),
-							'external'	=> Array(),
-							'mailto'	=> Array(),
-						  );
-
+		$reported_links = $asset->parseReport();
 		$display_options = $asset->attr('display_options');
-
-		foreach ($root->children as $asset_element) {
-			if ($asset_element->name != 'asset') continue;
-			foreach ($asset_element->children as $link) {
-				if ($link->name != 'link') continue;
-				assert_isset_array_index($reported_links, $link->attributes['type'], 'Unknown link type "'.$link->attributes['type'].'"');
-
-				$new_link = Array();
-				foreach ($link->children as $link_child) {
-					switch ($link_child->name) {
-						case 'html' :
-							$new_link['html'] = $link_child->content;
-
-							// get the assetid from the html link
-							if ($link->attributes['type'] == 'internal') {
-								$to_assetid = preg_replace('|\./\?a=([0-9]+).*|', '\\1', $link_child->content);
-								$new_link['data'] = $to_assetid;
-							} else {
-								$new_link['data'] = $link_child->content;
-							}
-						break;
-						case 'description' :
-							$new_link['description'] = $link_child->content;
-						break;
-					}
-				}//end foreach
-
-				$new_link['valid'] = $link->attributes['valid'];
-
-				$display_link = TRUE;
-				switch ($link->attributes['type']) {
-					case 'internal':
-						if ($link->attributes['valid']) {
-							if (!$display_options['internal_working']) {
-								$display_link = FALSE;
-							}
-						} else {
-							if (!$display_options['internal_broken']) {
-								$display_link = FALSE;
-							}
-						}
-					break;
-					case 'external':
-						if ($link->attributes['valid']) {
-							if (!$display_options['external_working']) {
-								$display_link = FALSE;
-							}
-						} else {
-							if (!$display_options['external_broken']) {
-								$display_link = FALSE;
-							}
-						}
-					break;
-					case 'mailto':
-						if ($link->attributes['valid']) {
-							if (!$display_options['email_working']) {
-								$display_link = FALSE;
-							}
-						} else {
-							if (!$display_options['email_broken']) {
-								$display_link = FALSE;
-							}
-						}
-					break;
-					default:
-					break;
-				}//end switch
-				if ($display_link) {
-					$reported_links[$link->attributes['type']][$asset_element->attributes['assetid']][] = $new_link;
-				}
-			}//end foreach
-		}//end foreach
 
 		// TODO: this translation has a 'note' prefix that is supposed to look like
 		//      a field header... could this be set up as a field?
@@ -1183,6 +1104,67 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 	}//end processExport()
 
+
+	/**
+	* Paints the report broken links option
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintReportBrokenLink(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return FALSE;
+		echo hidden_field($prefix.'_report_broken', '0');
+
+		$enabled = FALSE;
+		$report_path = $asset->data_path.'/report.xml';
+		$report_info = $asset->attr('report_info');
+		// if report not generated, or already sent notification, then disable this button
+		if (file_exists($report_path) && empty($report_info)) {
+			$enabled = TRUE;
+		}
+		$extras = '';
+
+		if (!$enabled) {
+			$extras = 'disabled="disabled"';
+		}
+		echo normal_button($prefix.'_report_broken_button', translate('cms_report_links_broken_button'), 'this.form.'.$prefix.'_report_broken.value = 1; this.form.submit();', $extras);
+		if (!$report_info) {
+			$o->note(translate('cms_report_links_broken_note'));
+		} else {
+			$o->note($asset->attr('report_info'));
+		}
+
+		return TRUE;
+
+	}//end paintReportBrokenLink()
+
+
+	/**
+	* Processes the report broken links option
+	*
+	* This will send emails to asset admins, reporting broken links found
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processReportBrokenLink(&$asset, &$o, $prefix)
+	{
+		if (!$_POST[$prefix.'_report_broken']) {
+			return TRUE;
+		}
+
+		return $asset->reportBrokenLink();
+
+	}//end processReportBrokenLink()
 
 }//end class
 

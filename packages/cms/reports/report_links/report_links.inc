@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links.inc,v 1.5 2006/03/15 02:56:23 dmckee Exp $
+* $Id: report_links.inc,v 1.6 2006/10/15 23:34:57 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -243,6 +243,177 @@ class Report_Links extends Report
 		return Array();
 
 	}//end getLineageFromURL()
+
+
+	/**
+	* Parse report.xml and return an array of link info
+	*
+	* to be used by paintReport and reportBrokenLinks
+	*
+	* @param boolean	$show_all	to overwrite the display options
+	*
+	* @return array
+	* @access public
+	*/
+	function parseReport($show_all=FALSE)
+	{
+		require_once 'XML/Tree.php';
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		require_once SQ_FUDGE_PATH.'/general/general.inc';
+
+		$report_path = $this->data_path.'/report.xml';
+		if (!is_file($report_path)) {
+			echo translate('report_not_generated');
+			return Array();
+		}
+
+		$input =& new XML_Tree($report_path);
+		$root  =& $input->getTreeFromFile();
+		if (PEAR::isError($root)) {
+			trigger_localised_error('CMS0009', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
+			return Array();
+		}
+
+		$reported_links = Array(
+							'internal'	=> Array(),
+							'external'	=> Array(),
+							'mailto'	=> Array(),
+						  );
+
+		$display_options = $this->attr('display_options');
+
+		foreach ($root->children as $asset_element) {
+			if ($asset_element->name != 'asset') continue;
+			foreach ($asset_element->children as $link) {
+				if ($link->name != 'link') continue;
+				assert_isset_array_index($reported_links, $link->attributes['type'], 'Unknown link type "'.$link->attributes['type'].'"');
+
+				$new_link = Array();
+				foreach ($link->children as $link_child) {
+					switch ($link_child->name) {
+						case 'html' :
+							$new_link['html'] = $link_child->content;
+
+							// get the assetid from the html link
+							if ($link->attributes['type'] == 'internal') {
+								$to_assetid = preg_replace('|\./\?a=([0-9]+).*|', '\\1', $link_child->content);
+								$new_link['data'] = $to_assetid;
+							} else {
+								$new_link['data'] = $link_child->content;
+							}
+						break;
+						case 'description' :
+							$new_link['description'] = $link_child->content;
+						break;
+					}
+				}//end foreach
+
+				$new_link['valid'] = $link->attributes['valid'];
+
+				$display_link = TRUE;
+				switch ($link->attributes['type']) {
+					case 'internal':
+						if ($link->attributes['valid']) {
+							if (!$display_options['internal_working']) {
+								$display_link = FALSE;
+							}
+						} else {
+							if (!$display_options['internal_broken']) {
+								$display_link = FALSE;
+							}
+						}
+					break;
+					case 'external':
+						if ($link->attributes['valid']) {
+							if (!$display_options['external_working']) {
+								$display_link = FALSE;
+							}
+						} else {
+							if (!$display_options['external_broken']) {
+								$display_link = FALSE;
+							}
+						}
+					break;
+					case 'mailto':
+						if ($link->attributes['valid']) {
+							if (!$display_options['email_working']) {
+								$display_link = FALSE;
+							}
+						} else {
+							if (!$display_options['email_broken']) {
+								$display_link = FALSE;
+							}
+						}
+					break;
+					default:
+					break;
+				}//end switch
+				if ($display_link || $show_all) {
+					$reported_links[$link->attributes['type']][$asset_element->attributes['assetid']][] = $new_link;
+				}
+			}//end foreach
+		}//end foreach
+
+		return $reported_links;
+
+	}//end parseReport()
+
+
+	/**
+	* Create an email notification to asset admins if a broken link is found
+	*
+	* @return boolean
+	* @access public
+	*/
+	function reportBrokenLink()
+	{
+		$reported_links =$this->parseReport(TRUE);
+		if (empty($reported_links)) return FALSE;
+
+		$asset_admins = Array();
+		$msg_reps = Array(
+						'link_report_name'	=> $this->name,
+						'link_report_id'	=> $this->id,
+					);
+
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms->openQueue();
+		foreach ($reported_links as $link_type => $info) {
+			$msg_reps['type'] = $link_type;
+
+			foreach ($info as $assetid => $link_info) {
+				$msg_reps['assetid'] = $assetid;
+
+				foreach ($link_info as $link_details) {
+					if (!$link_details['valid']) {
+						if (!isset($asset_admins[$assetid])) {
+							$asset_admins =  $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, SQ_PERMISSION_ADMIN, TRUE, FALSE, TRUE, FALSE, TRUE);
+						}
+						$msg_reps['link'] = $link_details['html'];
+						$msg_reps['description'] = $link_details['description'];
+						if (!empty($asset_admins)) {
+							$msg = $ms->newMessage();
+							$msg->to           = $asset_admins;
+							$msg->from         = 0;
+							$msg->type         = 'asset.report.broken.link';
+							$msg->replacements = $msg_reps;
+							$ms->enqueueMessage($msg);
+						}
+					}
+				}
+
+			}
+		}
+		$ms->closeQueue();
+
+		// update the report info, so that the user cannot send multiple notification to asset admin
+		// disable the 'Report Broken Links Now' button if already sent
+		$this->setAttrValue('report_info', translate('cms_report_links_broken_info', $this->attr('generated_date')));
+		$this->saveAttributes();
+
+		return TRUE;
+
+	}//end reportBrokenLink()
 
 
 }//end class

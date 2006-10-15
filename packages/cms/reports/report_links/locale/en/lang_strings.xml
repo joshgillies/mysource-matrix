@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.6 2006/08/15 04:26:11 rong Exp $
+* $Id: lang_strings.xml,v 1.7 2006/10/15 23:34:57 rong Exp $
 *
 *
 * CMS Package: Report Links Asset Localised Strings File
@@ -47,4 +47,8 @@
 <string source="cms_report_links_display_broken">Display Broken Links</string>
 <string source="cms_report_links_display_working">Display Working Links</string>
 <string source="cms_report_links_server_timeout">Communication with server timed out</string>
+
+<string source="cms_report_links_broken_button">Report Broken Links Now</string>
+<string source="cms_report_links_broken_note">Send notification mail to asset administrators if a broken link is found in the generated report</string>
+<string source="cms_report_links_broken_info">Broken link notification has already been sent for this version of the report (Date: %s)</string>
 </strings>

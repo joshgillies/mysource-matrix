@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_management.inc,v 1.3 2006/03/15 02:56:23 dmckee Exp $
+* $Id: report_links_management.inc,v 1.4 2006/10/15 23:34:57 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -53,7 +53,19 @@ class Report_Links_Management extends Asset_Management
 															'email_working'		=> TRUE,
 														   ),
 										 );
-
+		$this->vars['report_broken_links'] = Array(
+											'added'			=> '0.2',
+											'type'			=> 'boolean',
+											'default'		=> FALSE,
+											'parameters'	=> Array(
+																'allow_empty'	=> FALSE,
+															   ),
+										  );
+		$this->vars['report_info'] = Array(
+										'added'		=> '0.2',
+										'type'		=> 'text',
+										'default'	=> '',
+									 );
 		$this->Asset_Management($pm);
 
 	}//end constructor
