@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.65 2006/04/27 01:48:40 lwright Exp $
+* $Id: cron_manager.inc,v 1.66 2006/10/16 05:13:36 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -464,6 +464,11 @@ class Cron_Manager extends Asset
 			return;
 		}
 
+		// holds the assetids for potential long jobs
+		// running flag for cron manager is set to false while running these jobs
+		// we use the running flag in the cron job to control the logic
+		$long_jobs = Array();
+
 		// if we are currently running then we should just leave this alone
 		if ($this->attr('running')) {
 			// if we have been stopped too many times without the while loop below
@@ -561,17 +566,32 @@ class Cron_Manager extends Asset
 						$cron_job =& $am->getAsset($job_info['assetid'], $job_info['type_code']);
 						if (is_null($cron_job)) continue;
 
-						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-						$this->setAttrValue('current_job', $cron_job->id);
-						$this->saveAttributes();
-						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						if ($cron_job->attr('long')) {
+							// ignore potential long jobs, and run them later
+							// with cron manager running flag as false
+							// with cron job running flag as true
+							if (!$cron_job->attr('running')) {
+								// only include the long job if it is not already running
+								$long_jobs[] = $job_info;
+							}
+							$ignore_jobs[] = $cron_job->id;
+							$am->forgetAsset($cron_job);
+							continue;
 
-						$result = $cron_job->run();
+						} else {
 
-						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-						$this->setAttrValue('current_job', NULL);
-						$this->saveAttributes();
-						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+							$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+							$this->setAttrValue('current_job', $cron_job->id);
+							$this->saveAttributes();
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+							$result = $cron_job->run();
+
+							$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+							$this->setAttrValue('current_job', NULL);
+							$this->saveAttributes();
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						}
 
 						require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
@@ -670,7 +690,6 @@ class Cron_Manager extends Asset
 					}
 
 					$jobs = $this->getJobsToRun($last_run, $this_run, $ignore_jobs);
-
 				}//end while
 
 				// now update this last run time, so that we know for next time
@@ -682,6 +701,20 @@ class Cron_Manager extends Asset
 					}
 				} else {
 					trigger_localised_error('CRON0016', E_USER_WARNING, $this->name);
+				}
+
+				// process the potential long running jobs
+				foreach ($long_jobs as $job_info) {
+					$cron_job =& $am->getAsset($job_info['assetid'], $job_info['type_code']);
+					if ($cron_job->attr('long') && !$cron_job->attr('running')) {
+						$result = $cron_job->run();
+						if ($result & SQ_CRON_JOB_REMOVE) {
+							$this->deleteLink($job_info['linkid']);
+						} else if ($result & SQ_CRON_JOB_ERROR) {
+							trigger_localised_error('CRON0049', E_USER_WARNING, $cron_job->id);
+						}
+					}
+					$am->forgetAsset($cron_job);
 				}
 
 			} else {
@@ -922,6 +955,7 @@ class Cron_Manager extends Asset
 
 		$GLOBALS['CRON_MANAGER_GET_JOBS_TO_RUN_START_TS'] = $start_ts;
 		unset($GLOBALS['CRON_MANAGER_GET_JOBS_TO_RUN_START_TS']);
+
 		return $result;
 
 	}//end getJobsToRun()

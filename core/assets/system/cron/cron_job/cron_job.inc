@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.47 2006/09/14 03:56:21 tbarrett Exp $
+* $Id: cron_job.inc,v 1.48 2006/10/16 05:13:36 rong Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -283,7 +283,7 @@ class Cron_Job extends Asset
 
 				// the next run time is stored in the encoded when str, for a repeating time interval cron job (TI)
 				$when_ts = mktime($when['hour'], $when['minute'], 0, $when['month'], $when['day'], $when['year']);
-				if ($this->attr('type') != 'repeating' && substr($value, 0, 2) == 'TI') {
+				if ($this->attr('type') == 'repeating' && substr($value, 0, 2) == 'TI') {
 					$when_ts = $when['duration'];
 				}
 
@@ -991,6 +991,40 @@ class Cron_Job extends Asset
 				$interval = $val[1];
 				$interval_unit = $val[2];
 				$next_run = $old_run + ($interval * $interval_unit);
+
+				while ($next_run < time()) {
+					// if this is a long running job, and we cannot start because it is still running
+					// then we have to skip a few turns to make sure next run time is in the future
+
+					$next_run = $old_run + ($interval * $interval_unit);
+					$old_run = $next_run;
+
+
+					if ($next_run < time()) {
+						// send a system email to inform admins about this,
+						// so that they can increase the time interval between each run
+						$root_user  =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+						$sys_admins =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+
+						$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+						$ms->openQueue();
+						$msg = $ms->newMessage();
+						$msg_reps = Array(
+										'cron_type_code'	=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'),
+										'asset_name'		=> $this->name,
+										'assetid'			=> $this->id,
+										'run_time'			=> easy_datetime($next_run),
+									);
+						$msg->to           = Array($root_user->id, $sys_admins->id);
+						$msg->from         = 0; // a system message
+						$msg->type         = 'cron.job.startfail';
+						$msg->replacements = $msg_reps;
+
+						$ms->enqueueMessage($msg);
+						$ms->closeQueue();
+					}
+				}
+
 				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED + SQ_SECURITY_LINK_INTEGRITY);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links')) {
@@ -1000,8 +1034,8 @@ class Cron_Job extends Asset
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'links');
 					}
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-			}
-		}
+			}//end if
+		}//end if
 
 	}//end setNextRun()
 
