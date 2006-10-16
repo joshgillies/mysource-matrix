@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.552.2.8 2006/10/16 22:59:51 bcaldwell Exp $
+* $Id: asset.inc,v 1.552.2.9 2006/10/16 23:04:10 bcaldwell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.552.2.8 $
+* @version $Revision: 1.552.2.9 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2345,7 +2345,7 @@ class Asset extends MySource_Object
 	function canForceablyAcquireLock($lock_type)
 	{
 		$current_locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, TRUE, FALSE);
-		
+
 		// lock type not known
 		if (empty($current_locks)) return FALSE;
 
@@ -4267,9 +4267,8 @@ class Asset extends MySource_Object
 
 		// make sure these paths are compliant
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		log_dump($paths);
+
 		$save_paths = make_valid_web_paths($paths);
-		log_dump($save_paths);
 
 		// do not run hipo if any of the paths start with __ or is reserved by Matrix
 		foreach ($paths as $orig_path) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.140.2.5 2006/10/16 22:59:52 bcaldwell Exp $
+* $Id: backend.inc,v 1.140.2.6 2006/10/16 23:04:40 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140.2.5 $
+* @version $Revision: 1.140.2.6 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -246,8 +246,6 @@ class Backend extends MySource_Object
 		} else {
 			$page_title = translate('page_title_admin_interface', SQ_SYSTEM_LONG_NAME);
 		}
-
-		header('Content-Type: text/html; encoding='.SQ_CONF_DEFAULT_CHARACTER_SET);
 
 		?>
 		<html>
