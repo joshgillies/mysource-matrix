@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.41 2006/09/29 04:34:58 tbarrett Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.42 2006/10/16 02:14:57 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -107,7 +107,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function paint(&$asset, $editing=FALSE, $generating=FALSE)
 	{
-		// get the asset - we cant pass the type in because it could be anything
+		// get the asset - we can't pass the type in because it could be anything
 		// we also mute errors because we check later on
 		$nested_asset =& $this->_getNestedAsset($asset);
 		if (is_null($nested_asset)) return FALSE;
@@ -117,48 +117,46 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			return TRUE;
 		}
 
-		// keep track of what we have printed
-
-		// Bug Fix #1601
-		// If the nested asset has _getCacheKey(), then it gets the key from it instead of assetid
-		if (method_exists($nested_asset, '_getCacheKey')) {
-			$asset_cache_key = $nested_asset->_getCacheKey();
-		} else {
-			$asset_cache_key = (string) $nested_asset->id;
-		}
-
-		// if we have already printed this asset, dont print again or we will end up in an endless loop
-		if (isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id])) {
-			unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id]);
-			echo '<span class="sq-backend-warning"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br/>'.translate('cms_ct_nest_content_recursion_body').'</b></span>';
-			return TRUE;
-		}
-
-		// record that we have printed this asset
-		// OKAY! so we havn't actually printed it yet, but we need to record that
-		// we have or we will just fall endlessly into printBody functions and
-		// never get back here again
-		$GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id] = 1;
-
-		// if it's being shown in an edit interface, print a link
 		if ($editing) {
-			// get the first url off the list, use it as the list
+			// We are in the edit interface, so just print a link
 			$asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
 			if (empty($asset_link)) {
 				$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
 			}
 			$asset_contents = '<strong>'.translate('cms_ct_nest_content_nested_content', $nested_asset->name, $nested_asset->id).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('cms_ct_nest_content_click_to_preview').'</a>.';
 		} else {
-			// otherwise just get the asset to print itself for us
+			// This is the real deal, so we want to actually print the asset
+
+			// Check for recursion
+			// We use the cache key where available to distinguish differently-behaving
+			// copies of the same asset (Bug Fix #1601)
+			if (method_exists($nested_asset, '_getCacheKey')) {
+				$asset_cache_key = $nested_asset->_getCacheKey();
+			} else {
+				$asset_cache_key = (string) $nested_asset->id;
+			}
+			if (isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key])) {
+				unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key]);
+				echo '<span class="sq-backend-warning"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br/>'.translate('cms_ct_nest_content_recursion_body').'</b></span>';
+				return TRUE;
+			}
+
+			// Record that we have printed this asset
+			// OKAY! so we havn't actually printed it yet, but we need to record that
+			// we have or we might just fall endlessly into printBody functions and
+			// never get back here again
+			$GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key] = 1;
+
+			// Ask the asset to do its thing
 			ob_start();
 				$nested_asset->printBody();
 				$asset_contents = ob_get_contents();
 			ob_end_clean();
+
+			unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key]);
 		}
 
 		echo $asset_contents;
-
-		unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id]);
 
 		return TRUE;
 
@@ -178,6 +176,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		echo '<'.'?php'."\n";
 		?>
+
 		$nested_assetid = '<?php echo $nested_asset->id; ?>';
 		$nested_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid);
 		if (method_exists($nested_asset, '_getCacheKey')) {
@@ -189,13 +188,13 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		if (!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'])) $GLOBALS['SQ_NEST_CONTENT_PAINTED'] = Array();
 		if (!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key])) {
 			$GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key] = 1;
-			$nested_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid, '', true);
+			$nested_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid, '', TRUE);
 			if ($nested_asset->id && $nested_asset->readAccess()) $nested_asset->printBody();
+			unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key]);
 		} else {
-			echo '<font color="red"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br/>'.translate('cms_ct_nest_content_recursion_body').'</b></font>';
+			echo '<font color="red"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br />'.translate('cms_ct_nest_content_recursion_body').'</b></font>';
 		}
 
-		unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key]);
 		<?php
 		echo '?'.'>'."\n";
 
