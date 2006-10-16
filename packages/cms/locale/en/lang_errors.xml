@@ -12,7 +12,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.12 2006/09/11 05:18:45 rhoward Exp $
+* $Id: lang_errors.xml,v 1.13 2006/10/16 04:23:18 tbarrett Exp $
 *
 */
 -->
@@ -193,5 +193,7 @@
 	<error code="CMS0062">Could not decode URL</error>
 	<error code="CMS0063">Cannot connect to server while attempting to access "%1$s" - %2$s</error>
 	<error code="CMS0064">Error response %1$s from server while attempting to access "%2$s"</error>
+	<error code="CMS0065">Cannot encode URL hash - no URL supplied</error>
+	<error code="CMS0066">Error decoding URL hash - no URL found</error>
 
 </errors>
