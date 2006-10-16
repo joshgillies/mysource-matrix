@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.63 2006/09/29 04:42:10 tbarrett Exp $
+* $Id: install.inc,v 1.64 2006/10/16 04:44:56 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -80,8 +80,8 @@ function regenerate_configs()
 
 	// Re-generate the Password Rules Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
-	$ms_cfg =& new Password_Rules_Config();
-	if (!$ms_cfg->save(Array(), FALSE)) return FALSE;
+	$pwd_cfg =& new Password_Rules_Config();
+	if (!$pwd_cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the Proxy Authentication Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/proxy_authentication_config.inc';
