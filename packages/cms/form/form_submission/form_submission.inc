@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.27 2006/10/16 06:15:45 gsherwood Exp $
+* $Id: form_submission.inc,v 1.28 2006/10/16 23:55:52 emcdonald Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -346,6 +346,15 @@ class Form_Submission extends Asset
 	function getKeywordReplacement($keyword)
 	{
 		$matches = Array();
+		if (preg_match('/question\_name\_q([0-9]+)/', $keyword, $matches)) {
+			$attrs = $this->attr('attributes');
+			foreach ($attrs['summary'] as $name => $value) {
+				if (substr($name, -3) == ':q'.$matches[1]) {
+					return $value['name'];
+				}
+			}
+			return '';
+		}
 		if (preg_match('/question\_name\_(([0-9]+)\_q([0-9]+))/', $keyword, $matches)) {
 			$attrs = $this->attr('attributes');
 			$elt = array_get_index($attrs['summary'], $matches[2].':q'.$matches[3], Array('name' => ''));
