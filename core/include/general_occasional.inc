@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.68 2006/06/05 04:37:16 rong Exp $
+* $Id: general_occasional.inc,v 1.69 2006/10/16 04:16:00 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix
 */
 
@@ -348,25 +348,13 @@ function make_valid_web_paths($paths)
 		// no parentheses
 		$path = preg_replace('/[\(\)\[\]]/', '', $path);
 
-		// Replaces non-ASCII chars, so that they are still represented in the web path
-		// See Feature Request #1133
-		$replacements = Array(
-							'Å'	=> 'A',
-							'å'	=> 'a',
-							'ä'	=> 'a',
-							'ö'	=> 'o',
-							'ü'	=> 'u',
-							'Ä'	=> 'A',
-							'Ö'	=> 'O',
-							'Ü'	=> 'U',
-							'ë'	=> 'e',
-							'ï'	=> 'i',
-							'ÿ'	=> 'y',
-							'Ë'	=> 'E',
-							'Ï'	=> 'I',
-						);
-
-		$path = str_replace(array_keys($replacements), array_values($replacements), $path);
+		// replace accents, handle utf-8 input
+		if (function_exists('mb_convert_encoding') && function_exists('mb_detect_encoding')) {
+			$path = mb_convert_encoding($path, 'HTML-ENTITIES', mb_detect_encoding($path));
+		} else {
+			$path = htmlentities($path);
+		}
+		$path = html_entity_decode(preg_replace('/&([a-zA-Z])(uml|acute|grave|circ|tilde);/', '$1', $path));
 
 		// taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
 		$path = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $path);
