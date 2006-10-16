@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.38.2.2 2006/10/15 23:07:59 mbrydon Exp $
+* $Id: hipo_job_create_links.inc,v 1.38.2.3 2006/10/16 06:10:38 mbrydon Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.38.2.2 $
+* @version $Revision: 1.38.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -503,7 +503,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		// if we are moving to the trash and they want to remap the URL's of the asset that
 		// is being trashed to another asset, go through and do all this for them
 
-		if (isset($_POST['form_submitted'])) {
+		if (isset($_POST['form_submitted']) && isset($_POST[$prefix.'_remap_new_url']['assetid'])) {
 			$assets_to_remap = $this->_running_vars['assets'];
 			foreach ($assets_to_remap as $source_assetid => $remap_info) {
 				$dest_assetid = $_POST[$prefix.'_remap_new_url']['assetid'];
