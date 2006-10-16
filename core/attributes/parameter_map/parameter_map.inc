@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.17 2006/10/12 18:02:02 gnoel Exp $
+* $Id: parameter_map.inc,v 1.18 2006/10/16 02:02:11 tbarrett Exp $
 *
 */
 
@@ -53,7 +53,7 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 * 			)
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -349,13 +349,13 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 		foreach ($value[$parameter] as $rule) {
 			switch ($rule['source']) {
 				case 'GET':
-					if (isset($_GET[$rule['index']])) {
+					if (!empty($rule['index']) && isset($_GET[$rule['index']])) {
 						return $_GET[$rule['index']];
 					}
 				break;
 
 				case 'POST':
-					if (isset($_POST[$rule['index']])) {
+					if (!empty($rule['index']) && isset($_POST[$rule['index']])) {
 						return $_POST[$rule['index']];
 					}
 				break;
