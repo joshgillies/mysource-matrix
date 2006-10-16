@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.69 2006/10/16 04:16:00 bcaldwell Exp $
+* $Id: general_occasional.inc,v 1.70 2006/10/16 05:41:38 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix
 */
 
@@ -349,8 +349,8 @@ function make_valid_web_paths($paths)
 		$path = preg_replace('/[\(\)\[\]]/', '', $path);
 
 		// replace accents, handle utf-8 input
-		if (function_exists('mb_convert_encoding') && function_exists('mb_detect_encoding')) {
-			$path = mb_convert_encoding($path, 'HTML-ENTITIES', mb_detect_encoding($path));
+		if (function_exists('mb_convert_encoding')) {
+			$path = mb_convert_encoding($path, 'HTML-ENTITIES', SQ_CONF_DEFAULT_CHARACTER_SET);
 		} else {
 			$path = htmlentities($path);
 		}
