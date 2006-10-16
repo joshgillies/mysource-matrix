@@ -18,12 +18,18 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2006/10/15 23:34:57 rong Exp $
+* $Id: lang_screen_details.xml,v 1.5 2006/10/16 05:16:22 rong Exp $
 *
 */
 -->
 
 <contents>
+	<section name="Future Report Regeneration">
+		<function_call>
+			<paint_function   name="paintFutureRegenerate"  />
+			<process_function name="processFutureRegenerate" />
+		</function_call>
+	</section>
 	<section name="Details">
 		<field attribute="name">
 			<display_name>Report Name</display_name>

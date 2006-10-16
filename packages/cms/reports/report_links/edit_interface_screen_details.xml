@@ -18,12 +18,18 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2006/10/15 23:34:57 rong Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2006/10/16 05:16:22 rong Exp $
 *
 */
 -->
 
 <contents>
+	<section name="Future Report Regeneration" write_access="write:attributes" limbo_access="1">
+		<function_call>
+			<paint_function   name="paintFutureRegenerate"  />
+			<process_function name="processFutureRegenerate" />
+		</function_call>
+	</section>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
 			<text width="35" height="1" />

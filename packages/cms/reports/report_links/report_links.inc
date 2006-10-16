@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links.inc,v 1.6 2006/10/15 23:34:57 rong Exp $
+* $Id: report_links.inc,v 1.7 2006/10/16 05:16:22 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -387,15 +387,17 @@ class Report_Links extends Report
 				foreach ($link_info as $link_details) {
 					if (!$link_details['valid']) {
 						if (!isset($asset_admins[$assetid])) {
-							$asset_admins =  $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, SQ_PERMISSION_ADMIN, TRUE, FALSE, TRUE, FALSE, TRUE);
+							// index admins id in array, so that we do not do that same work more than once
+							$asset_admins[$assetid] =  $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, SQ_PERMISSION_ADMIN, TRUE, FALSE, TRUE, FALSE, TRUE);
 						}
 						$msg_reps['link'] = $link_details['html'];
 						$msg_reps['description'] = $link_details['description'];
-						if (!empty($asset_admins)) {
+
+						if (!empty($asset_admins[$assetid])) {
 							$msg = $ms->newMessage();
-							$msg->to           = $asset_admins;
+							$msg->to           = $asset_admins[$assetid];
 							$msg->from         = 0;
-							$msg->type         = 'asset.report.broken.link';
+							$msg->type         = 'asset.report.brokenlink';
 							$msg->replacements = $msg_reps;
 							$ms->enqueueMessage($msg);
 						}

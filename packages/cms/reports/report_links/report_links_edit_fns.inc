@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.22 2006/10/15 23:34:57 rong Exp $
+* $Id: report_links_edit_fns.inc,v 1.23 2006/10/16 05:16:22 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -170,8 +170,12 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$step_data['complete'] = TRUE;
 			$job->_running_vars['complete'] = TRUE;
 
-			// reset to empty string, so that the 'notify admin' button can be printed/enabled
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['userid']);
+				// update the who/when attribute
+				$owner->setAttrValue('generated_date', $job->_running_vars['generated_date']);
+				$owner->setAttrValue('generated_user', $user->name.' (#'.$user->id.')');
+				// reset to empty string, so that the 'Report Broken Link Now' button can be printed/enabled
 				$owner->setAttrValue('report_info', '');
 				$owner->saveAttributes();
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -991,15 +995,12 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 		$enabled = FALSE;
 		$report_path = $asset->data_path.'/report.xml';
-		if (file_exists($report_path)) {
-			$enabled = TRUE;
-		}
+		if (file_exists($report_path)) $enabled = TRUE;
 		$extras = '';
 
 		// we're going to disable the button if no report is available
-		if (!$enabled) {
-			$extras = 'disabled="disabled"';
-		}
+		if (!$enabled) $extras = 'disabled="disabled"';
+
 		echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;', $extras);
 
 		return TRUE;
@@ -1086,7 +1087,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				$logs[] = $row;
 				$empty_headers = FALSE;
 			}
-		}
+		}//end foreach
 
 		foreach ($headers as $id => $value) {
 			$headers[$id] = ucwords(str_replace('_', ' ', $value));
@@ -1103,6 +1104,176 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		return TRUE;
 
 	}//end processExport()
+
+
+	/**
+	* Paints the future regeneration cron job section
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintFutureRegenerate(&$asset, &$o, $prefix)
+	{
+		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_regenerate_report');
+		$rl_jobs = $cron_mgr->getJobs('cron_job_regenerate_report');
+		for ($k = 0; $k < count($rl_jobs); $k++) {
+			// only include jobs for this link report asset
+			if ($rl_jobs[$k]->attr('asset') != $asset->id) {
+				unset($rl_jobs[$k]);
+			}
+		}
+		if (!empty($rl_jobs)) {
+
+			$o->openField(translate('cms_report_links_future_regen_section'), 'new_line');
+
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header"><?php echo translate('when'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('status'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('run_as'); ?></td>
+					<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php
+					if ($asset->writeAccess('attributes')) {
+						echo translate('delete_question');
+					}
+					?></td>
+				</tr>
+				<?php
+				foreach ($rl_jobs as $rl_job) {
+					?>
+					<tr>
+						<td class="sq-backend-table-cell">
+							<?php echo translate('cms_report_links_future_regen_cron_info', $rl_job->id, $rl_job->readableWhen()); ?>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php
+							if ($rl_job->attr('long') && $rl_job->attr('running')) {
+								echo translate('cms_report_links_future_regen_running');
+							}
+							?>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php
+								$user =& $rl_job->getRunningUser();
+								echo get_asset_tag_line($user->id);
+								unset($user);
+							?>
+						</td>
+						<td align="center" class="sq-backend-table-cell">
+						<?php
+							if ($rl_job->canDelete() && $asset->writeAccess('attributes')) {
+								check_box($prefix.'_remove_rl[]', $rl_job->id);
+							} else {
+								echo '&nbsp;';
+							}
+						?>
+						</td>
+					</tr>
+					<?php
+				}//end foreach
+			?>
+			</table>
+			<?php
+
+		}//end if
+
+		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+		$cron_job =& new Cron_Job_Regenerate_Report();
+		$edit_fns = $cron_job->getEditFns();
+
+
+		$o->openField(translate('cms_report_links_future_regen_field'), 'new_line');
+			if ($asset->writeAccess('attributes')) {
+				$edit_fns->paintInLineBackend($cron_job, $o, $prefix.'_new_rl');
+				$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+			} else {
+				echo translate('cms_report_links_future_regen_lock');
+			}
+		$o->closeField();
+
+		return TRUE;
+
+	}//end paintFutureRegenerate()
+
+
+	/**
+	* Processes the future regeneration cron job section
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processFutureRegenerate(&$asset, &$o, $prefix)
+	{
+		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_regenerate_report');
+
+		if (!is_null($cron_mgr)) {
+			$rl_jobs = $cron_mgr->getJobs('cron_job_regenerate_report');
+			for ($k = 0; $k < count($rl_jobs); $k++) {
+				// only include jobs for this link report asset
+				if ($rl_jobs[$k]->attr('asset') != $asset->id) {
+					unset($rl_jobs[$k]);
+				}
+			}
+			if (!empty($_POST[$prefix.'_remove_rl'])) {
+				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'links')) {
+					for ($i = 0; $i < count($rl_jobs); $i++) {
+						if (in_array($rl_jobs[$i]->id, $_POST[$prefix.'_remove_rl'])) {
+							if ($cron_mgr->removeJob($rl_jobs[$i])) {
+								$is_updated = TRUE;
+							}
+						}// end if
+					}// end for
+
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
+
+				} else {
+					trigger_localised_error('SYS0232', E_USER_NOTICE);
+				}// end if
+			}// end if
+		}
+
+		if ($asset->writeAccess('')) {
+
+			$rl =& new Cron_Job_Regenerate_Report();
+			$edit_fns = $rl->getEditFns();
+
+			$new_rl = $prefix.'_new_rl';
+			if (isset($new_rl)) {
+				if ($edit_fns->processInLineBackend($rl, $o, $new_rl)) {
+					$rl->setAttrValue('long', TRUE);
+					$rl->setAttrValue('asset', $asset->id);
+					$rl->saveAttributes();
+				} else {
+					return FALSE;
+				}
+			} else {
+				return FALSE;
+			}
+
+
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			if ($cron_mgr->addJob($rl, $GLOBALS['SQ_SYSTEM']->user)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$is_updated = TRUE;
+			} else {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			}
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		}// end if
+
+	}//end processFutureRegenerate()
 
 
 	/**
@@ -1129,9 +1300,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		}
 		$extras = '';
 
-		if (!$enabled) {
-			$extras = 'disabled="disabled"';
-		}
+		if (!$enabled) $extras = 'disabled="disabled"';
+
 		echo normal_button($prefix.'_report_broken_button', translate('cms_report_links_broken_button'), 'this.form.'.$prefix.'_report_broken.value = 1; this.form.submit();', $extras);
 		if (!$report_info) {
 			$o->note(translate('cms_report_links_broken_note'));
@@ -1158,13 +1328,12 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	*/
 	function processReportBrokenLink(&$asset, &$o, $prefix)
 	{
-		if (!$_POST[$prefix.'_report_broken']) {
-			return TRUE;
-		}
+		if (!$_POST[$prefix.'_report_broken']) return TRUE;
 
 		return $asset->reportBrokenLink();
 
 	}//end processReportBrokenLink()
+
 
 }//end class
 

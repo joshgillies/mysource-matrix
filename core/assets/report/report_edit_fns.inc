@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_edit_fns.inc,v 1.14 2006/04/04 01:51:39 tbarrett Exp $
+* $Id: report_edit_fns.inc,v 1.15 2006/10/16 05:16:21 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *	Base Edit Interface for all reports
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -96,13 +96,17 @@ class Report_Edit_Fns extends Page_Edit_Fns
 			return FALSE;
 		}
 
+		$user = $GLOBALS['SQ_SYSTEM']->user;
 		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assetid' => $asset->id);
+		$vars = Array(
+					'assetid'			=> $asset->id,
+					'userid'			=> $user->id,
+					'generated_date'	=> date('F j, Y, g:i a'),
+				);
 		$hh->queueHipo('hipo_job_generate_report', $vars);
 
 		if (!$asset->writeAccess('links')) return FALSE;
 
-		$user = $GLOBALS['SQ_SYSTEM']->user;
 		$asset->setAttrValue('generated_date', date('F j, Y, g:i a'));
 		$asset->setAttrValue('generated_user', $user->name.' (#'.$user->id.')');
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.7 2006/10/15 23:34:57 rong Exp $
+* $Id: lang_strings.xml,v 1.8 2006/10/16 05:16:22 rong Exp $
 *
 *
 * CMS Package: Report Links Asset Localised Strings File
@@ -51,4 +51,11 @@
 <string source="cms_report_links_broken_button">Report Broken Links Now</string>
 <string source="cms_report_links_broken_note">Send notification mail to asset administrators if a broken link is found in the generated report</string>
 <string source="cms_report_links_broken_info">Broken link notification has already been sent for this version of the report (Date: %s)</string>
+
+<string source="cms_report_links_future_regen_section">Scheduled Future Regeneration</string>
+<string source="cms_report_links_future_regen_field">Schedule a Future Report Regeneration</string>
+<string source="cms_report_links_future_regen_lock">You must acquire lock to schedule a Future Report Regeneration Cron Job</string>
+<string source="cms_report_links_future_regen_running">Running</string>
+<string source="cms_report_links_future_regen_cron_info">(#%1$s) %2$s</string>
+
 </strings>
