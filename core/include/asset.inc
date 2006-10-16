@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.563 2006/09/29 04:41:06 tbarrett Exp $
+* $Id: asset.inc,v 1.564 2006/10/16 23:28:27 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.563 $
+* @version $Revision: 1.564 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3290,7 +3290,9 @@ class Asset extends MySource_Object
 					$attr_name = substr($attr_name, 0, (strlen($attr_name) - strlen($matches[1])));
 					$format = $matches[2];
 					$attr =& $this->getAttribute($attr_name);
-					$replacement = $attr->getKeywordValue($format);
+					if (!is_null($attr)) {
+						$replacement = $attr->getKeywordValue($format);
+					}
 				}
 			}
 		} else if (substr($keyword, 0, 15) == 'asset_metadata_') {
