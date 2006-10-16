@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.37.4.1 2006/05/09 04:02:04 rong Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.37.4.2 2006/10/16 01:16:15 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37.4.1 $
+* @version $Revision: 1.37.4.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -56,8 +56,8 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	/**
 	* Paints backend of this job
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
-	* @param string						$class		calling class name
+	* @param object	&$o		reference to the backend outputter
+	* @param string	$class	calling class name
 	*
 	* @return void
 	* @access private
@@ -84,7 +84,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	/**
 	* Sets some info about thresholds that this hipo requires.
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getConfigVars()
@@ -143,10 +143,10 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 										'process_function'	=> 'processLookups',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> true,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 			   );
@@ -183,10 +183,10 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	{
 		while (!empty($this->_running_vars['todo_assetids'])) {
 			if (!$this->processLookups($this->_steps[0], get_class($this))) {
-				return false;
+				return FALSE;
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end freestyle()
 
@@ -202,21 +202,27 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 		// to start updating lookups, we need to have an asset id to start updating lookups at
 		if (empty($this->_running_vars['assetids'])) {
 			trigger_localised_error('HIPO0001', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
-
-		$todo_assets = $this->_running_vars['assetids'];
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+	
+		$todo_normal = Array();
+		$todo_shadows = Array();
 
 		foreach ($this->_running_vars['assetids'] as $assetid) {
 			// check if we are updating lookups for a shadow asset, or a bridge
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
-				$todo_assets = array_merge($todo_assets, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($assetid)));
+				$todo_shadows = array_merge($todo_shadows, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($assetid)));
 			} else {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$todo_normal[] = $assetid;
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_a($asset, 'bridge')) {
-					$todo_assets = array_merge($todo_assets, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($assetid)));
+					if (!method_exists($asset, 'getChildren')) {
+						trigger_localised_error('SYS0204', E_USER_WARNING, $asset->name);
+					} else {
+						$todo_shadows = array_merge($todo_shadows, array_keys($asset->getChildren()));
+					}
 				}
 
 				$where = 'l.minorid = '.$db->quote($assetid);
@@ -243,12 +249,31 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 				$new_assets = $db->getCol($sql.$where);
 				assert_valid_db_result($new_assets);
 
-				$todo_assets = array_merge($todo_assets, $new_assets);
+				$todo_normal = array_merge($todo_normal, $new_assets);
+			}//end else
+
+		}//end foreach
+
+		// Make sure lower assets are done after higher ones
+		foreach (array_chunk(array_unique($todo_normal), 9999) as $chunk) {
+			$quoted = Array();
+			foreach ($chunk as $id) {
+				$quoted[] = $db->quoteSmart($id);
 			}
+			$wheres[] = '(l.minorid IN ('.implode(', ', $quoted).'))';
+		}
+		$sql = 'SELECT l.minorid, MAX(LENGTH(t.treeid)) as length
+				FROM sq_ast_lnk l JOIN sq_ast_lnk_tree t on l.linkid = t.linkid';
+		$where = '('.implode(' OR ', $wheres).')
+					GROUP BY l.minorid
+					ORDER BY length ASC';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
-		}// end foreach
+		$todo_normal = $db->getCol($sql.$where);
+		assert_valid_db_result($todo_normal);
 
-		$this->_running_vars['todo_assetids'] = array_unique($todo_assets);
+		$this->_running_vars['todo_assetids'] = array_unique(array_merge($todo_normal, $todo_shadows));
 		$this->_running_vars['done_assetids'] = Array();
 
 		return parent::prepare();
@@ -259,8 +284,8 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	/**
 	* Update lookups for a single asset in the to-do list
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -269,10 +294,10 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
 			$assetid = array_shift($this->_running_vars['todo_assetids']);
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			if (!is_null($asset)) {
-				if (!$asset->updateLookups()) return false;
+				if (!$asset->updateLookups()) return FALSE;
 				$step_data['message'] = translate('hipo_updating_lookups_for', $asset->name);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
@@ -287,14 +312,14 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 
 		if (empty($this->_running_vars['todo_assetids'])) {
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 		} else {
 			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processLookups()
 
