@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.174 2006/10/15 23:07:27 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.175 2006/10/16 04:27:27 tbarrett Exp $
 *
 */
 
@@ -1317,29 +1317,29 @@
 	<string source="specific_permission">Specific Permission</string>
 	<string source="public_permission">Public Permission</string>
 
-	<string source="cascade_roles">Cascade Role Changes?</string>
-	<string source="cascade_roles_option">Yes, cascade role changes</string>
-	<string source="cascade_roles_note">If you choose to cascade the changes to roles you make on "%1$s", the changes will also be made on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.</string>
-	<string source="manually_cascade_roles">Manually Cascade Role Changes?</string>
-	<string source="manually_cascade_roles_option">Yes, manually cascade role changes</string>
-	<string source="manually_cascade_roles_note">Manually cascading roles will try to set the current roles of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;i&gt;Any additional roles set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any roles set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any role changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.&lt;/b&gt;</string>
+	<string source="cascade_roles">Cascade Changes to Role Assignments?</string>
+	<string source="cascade_roles_option">Yes, cascade role assignment changes</string>
+	<string source="cascade_roles_note">If you choose to cascade the role assignment changes you make for "%1$s", the changes will also be made on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.</string>
+	<string source="manually_cascade_roles">Manually Cascade Changes to Role Assignments?</string>
+	<string source="manually_cascade_roles_option">Yes, manually cascade role assignment changes</string>
+	<string source="manually_cascade_roles_note">Manually cascading role assignments will try to set the current roles of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;i&gt;Any additional roles set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any roles set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any role changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.&lt;/b&gt;</string>
 	<string source="no_roles_set">No roles have been assigned</string>
-	<string source="select_a_role">Select a role to apply to this asset:</string>
-	<string source="select_users_for_role">Select the users who will perform the role:</string>
+	<string source="select_a_role">Select a role</string>
+	<string source="select_users_for_role">Select the users who will perform the role on this asset:</string>
 	<string source="roles">Roles</string>
 	<string source="role">Role</string>
 	<string source="users">Users</string>
 	<string source="role_assigned_to">User/Group</string>
 	<string source="role_reassign">Reassign?</string>
 	<string source="role_dependent_child_warning">Please note that dependent assets are not included in this list, but they will be affected if roles are re-assigned.</string>
-	<string source="role_indirectly_assigned">These roles are applied to a parent asset and indirectly affect this asset.</string>
-	<string source="role_new_assignee">The user you would like the selected roles re-assigned to.</string>
 	<string source="global_role_assignment">Globally assigned</string>
 	<string source="allow_global_assignment">Allow globally assigned users to perform this role?</string>
 	<string source="global">Global?</string>
-	<string source="role_directly_assigned_section">Directly Assigned</string>
-	<string source="role_indirectly_assigned_section">Indirectly Assigned</string>
-	<string source="role_new_user">User to assign</string>
+	<string source="role_directly_assigned_section_user">Assigned directly to this user</string>
+	<string source="role_indirectly_assigned_section_user">Assigned via groups of which this user is a member</string>
+	<string source="role_directly_assigned_section_group">Assigned directly to this group</string>
+	<string source="role_indirectly_assigned_section_group">Assigned via other groups of which this group is a member</string>
+	<string source="role_new_user">Reassign selected role assignments to</string>
 
 	<string source="item">item</string>
 	<string source="items">items</string>
