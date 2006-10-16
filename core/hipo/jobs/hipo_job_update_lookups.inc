@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.39 2006/05/09 03:51:30 rong Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.39.2.1 2006/10/16 01:14:35 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.39.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -204,19 +204,25 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			trigger_localised_error('HIPO0001', E_USER_WARNING);
 			return FALSE;
 		}
-
-		$todo_assets = $this->_running_vars['assetids'];
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
+	
+		$todo_normal = Array();
+		$todo_shadows = Array();
 
 		foreach ($this->_running_vars['assetids'] as $assetid) {
 			// check if we are updating lookups for a shadow asset, or a bridge
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
-				$todo_assets = array_merge($todo_assets, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($assetid)));
+				$todo_shadows = array_merge($todo_shadows, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($assetid)));
 			} else {
+				$todo_normal[] = $assetid;
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_a($asset, 'bridge')) {
-					$todo_assets = array_merge($todo_assets, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($assetid)));
+					if (!method_exists($asset, 'getChildren')) {
+						trigger_localised_error('SYS0204', E_USER_WARNING, $asset->name);
+					} else {
+						$todo_shadows = array_merge($todo_shadows, array_keys($asset->getChildren()));
+					}
 				}
 
 				$where = 'l.minorid = '.$db->quote($assetid);
@@ -243,12 +249,31 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 				$new_assets = $db->getCol($sql.$where);
 				assert_valid_db_result($new_assets);
 
-				$todo_assets = array_merge($todo_assets, $new_assets);
+				$todo_normal = array_merge($todo_normal, $new_assets);
 			}//end else
 
 		}//end foreach
 
-		$this->_running_vars['todo_assetids'] = array_unique($todo_assets);
+		// Make sure lower assets are done after higher ones
+		foreach (array_chunk(array_unique($todo_normal), 9999) as $chunk) {
+			$quoted = Array();
+			foreach ($chunk as $id) {
+				$quoted[] = $db->quoteSmart($id);
+			}
+			$wheres[] = '(l.minorid IN ('.implode(', ', $quoted).'))';
+		}
+		$sql = 'SELECT l.minorid, MAX(LENGTH(t.treeid)) as length
+				FROM sq_ast_lnk l JOIN sq_ast_lnk_tree t on l.linkid = t.linkid';
+		$where = '('.implode(' OR ', $wheres).')
+					GROUP BY l.minorid
+					ORDER BY length ASC';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+
+		$todo_normal = $db->getCol($sql.$where);
+		assert_valid_db_result($todo_normal);
+
+		$this->_running_vars['todo_assetids'] = array_unique(array_merge($todo_normal, $todo_shadows));
 		$this->_running_vars['done_assetids'] = Array();
 
 		return parent::prepare();
