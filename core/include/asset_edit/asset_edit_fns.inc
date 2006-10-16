@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.57.2.2 2006/07/23 22:54:06 rong Exp $
+* $Id: asset_edit_fns.inc,v 1.57.2.3 2006/10/16 22:59:52 bcaldwell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.57.2.2 $
+* @version $Revision: 1.57.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -176,9 +176,10 @@ class Asset_Edit_Fns extends MySource_Object
 			return FALSE;
 		}
 
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		//log_dump($_POST);
+		/*$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetids' => Array($asset->id));
-		$hh->queueHipo('hipo_job_update_lookups', $vars);
+		$hh->queueHipo('hipo_job_update_lookups', $vars);*/
 
 		return TRUE;
 

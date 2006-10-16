@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.68.2.2 2006/10/16 05:42:28 bcaldwell Exp $
+* $Id: general_occasional.inc,v 1.68.2.3 2006/10/16 22:59:52 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.68.2.2 $
+* @version $Revision: 1.68.2.3 $
 * @package MySource_Matrix
 */
 
@@ -355,7 +355,7 @@ function make_valid_web_paths($paths)
 		} else {
 			$path = htmlentities($path);
 		}
-		$path = html_entity_decode(preg_replace('/&([a-zA-Z])(uml|acute|grave|circ|tilde);/', '$1', $path));
+		$path = html_entity_decode(preg_replace('/&([a-zA-Z])(ring|uml|acute|grave|circ|tilde);/', '$1', $path));
 
 		// taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
 		$path = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $path);
