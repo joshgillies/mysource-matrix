@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.49 2006/01/26 22:35:20 lwright Exp $
+* $Id: form_section.inc,v 1.49.4.1 2006/10/16 00:12:25 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.49.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -132,6 +132,118 @@ class Form_Section extends Asset
 		return $asset;
 
 	}//end getAsset()
+
+
+	/**
+	* Get details of the link with specified linkid
+	*
+	* @param int	$linkid			id of the link were returning
+	* @param int	$assetid		id of the the $side_of_link asset
+	*								if zero no check is made and both major and minor information is returned
+	* @param string	$side_of_link	Which side of the link the asset represented by $assetid is on ('major' or 'minor')
+	*
+	* @return array
+	* @access public
+	*/
+	function getLinkById($linkid, $assetid=0, $side_of_link='major')
+	{
+		if (!is_numeric($assetid)) {
+			if ($side_of_link == 'minor') {
+				return Array(
+						'linkid'			=> 0,
+						'majorid'			=> $this->id,
+						'minorid'			=> $this->id.':'.$assetid,
+						'major_type_code'	=> $this->type(),
+						'value'				=> '',
+						'link_type'			=> SQ_LINK_TYPE_2,
+						'is_dependant'		=> TRUE,
+						'is_exclusive'		=> FALSE,
+						'sort_order'		=> 0,
+					   );
+			}
+			return Array();
+		}
+
+		$id_parts = explode(':', $linkid);
+		if (isset($id_parts[1]) && isset($id_parts[2])) {
+			$looking_for = $id_parts[1].':'.$id_parts[2];
+			$tmp_question_nb = str_replace('q', '', $id_parts[2]);
+			$questions = $this->attr('questions');
+			if (isset($questions[$tmp_question_nb])) {
+				return Array(
+						'linkid'			=> $linkid,
+						'majorid'			=> $this->id,
+						'minorid'			=> $this->id.':q'.$tmp_question_nb,
+						'minor_type_code'	=> $questions[$tmp_question_nb]['question_type_code'],
+						'value'				=> '',
+						'link_type'			=> SQ_LINK_TYPE_2,
+						'is_dependant'		=> TRUE,
+						'is_exclusive'		=> FALSE,
+						'sort_order'		=> 0,
+					   );
+			}
+		}
+
+		return Array();
+
+	}//end getLinkById()
+
+
+	/**
+	* Return the number of links in the system that involve the specified asset
+	*
+	* Can be restricted by either link type afnd/or asset type code
+	*
+	* @param int		$assetid			id of the the $side_of_link asset
+	* @param string		$side_of_link		Which side of the link this (the current) asset
+	*										is on ('major' or 'minor')
+	* @param int		$link_types			integer that can be the product of bitwise operations
+	*										on the SQ_LINK_* constants
+	* @param mixed		$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param int		$ignore_linkid		ignore the link represented by this link
+	*										id when returning the count
+	*
+	* @return int
+	* @access public
+	*/
+	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
+	{
+		$tmp_questions = $this->attr('questions');
+		if (isset($tmp_questions)) {
+			return count($tmp_questions);
+		}
+		return 0;
+
+	}//end countLinks()
+
+
+	/**
+	* Remove a link by id
+	*
+	* @param int		$linkid	the link id of the link to remove
+	* @param boolean	$moving	TRUE if this delete is part of a move operation
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteAssetLink($linkid, $moving=FALSE)
+	{
+		$id_parts = explode(':', $linkid);
+		if (isset($id_parts[1]) && isset($id_parts[2])) {
+			$question_to_delete = $id_parts[1].':'.$id_parts[2];
+			$asset_to_delete =& $this->getAsset($question_to_delete);
+			if ($asset_to_delete != NULL) {
+				return $this->deleteQuestion($asset_to_delete);
+			}
+		}
+
+		return FALSE;
+
+	}//end deleteAssetLink()
 
 
 	/**
