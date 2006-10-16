@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.59 2006/09/24 23:36:11 emcdonald Exp $
+* $Id: lang_errors.xml,v 1.60 2006/10/16 05:15:58 rong Exp $
 *
 */
 
@@ -384,6 +384,12 @@
 	<error code="CRON0046">To add a future status you must specify the date and time at which the status should be changed</error>
 
 	<error code="CRON0047">The Cron Manager run() aborted due to blackout period.</error>
+
+		<error code="CRON0048">Unable to schedule a repeating %1$s to be run before the next job run is scheduled (which is at %2$s)</error>
+
+	<error code="CRON0049">A long running cron job (%s) has returned an error status.</error>
+
+	<error code="CRON0050">Start time for %s is not defined.</error>
 
 	<!-- MAPS - MYSOURCE AUTOMATED PATCHING SYSTEM -->
 

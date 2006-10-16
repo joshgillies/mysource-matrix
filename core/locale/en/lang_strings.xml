@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.175 2006/10/16 04:27:27 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.176 2006/10/16 05:15:58 rong Exp $
 *
 */
 
@@ -371,6 +371,8 @@
 	<string source="cron_excluded_time_days"> on %s</string>
 	<string source="cron_excluded_time_every_day"> on every day</string>
 	<string source="cron_excluded_not_specified">There are no blackout periods</string>
+	<string source="cron_job_regenerate_report_at">Regenerate this report at </string>
+	<string source="cron_job_regenerate_report_repeat"> and repeat this process every </string>
 
 	<string source="scheduled_future_status_change">Scheduled Future Status Changes</string>
 	<string source="locking_editing">Locking / Editing</string>

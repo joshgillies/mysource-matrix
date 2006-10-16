@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.15 2006/10/15 23:38:31 rong Exp $
+* $Id: lang_messages.xml,v 1.16 2006/10/16 05:15:58 rong Exp $
 *
 * Core Internal Messages File
 */
@@ -242,6 +242,12 @@ Error Messages :
 Error Messages :
 %errors%</body><!-- cron-job-type / name, assetid, (errors) -->
 	</message>
+	<message type="cron.job.startfail">
+		<subject>Another instance of %cron_type_code% is still running</subject>
+		<body>The job "%asset_name%" (#%assetid%) is still running while another instance tries to start at %run_time%. Please increase the
+time interval between each run.
+		</body>
+	</message>
 	<message type="trigger.success">
 		<subject>Trigger Execution Success</subject>
 		<body>SUCCESS
@@ -409,7 +415,7 @@ You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_
 		<subject>%subject%</subject>
 		<body>%body%</body>
 	</message>
-	<message type="asset.report.broken.link">
+	<message type="asset.report.brokenlink">
 		<subject>Broken Link(s) found in "%link_report_name%" (Id# %link_report_id%)</subject>
 		<body>A broken %type% link was found in asset #%assetid%
 Link URL: <![CDATA[%link% ]]>
