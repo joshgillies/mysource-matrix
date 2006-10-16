@@ -18,13 +18,12 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.14 2006/09/18 01:44:19 tbarrett Exp $
+* $Id: edit_interface_screens.xml,v 1.15 2006/10/16 06:43:52 tbarrett Exp $
 *
 */
 -->
 
 <screens>
-	<screen code_name="parse_file"      display_name="Edit Parse File" icon="create" force_unlock="0" lock_type="parsing" />
 	<screen code_name="customisations"  display_name="Customisations"  icon="page"   lock_type="all" />
 	<screen code_name="usage"           display_name="Usage"                         lock_type="none" />
 </screens>
