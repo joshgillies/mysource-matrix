@@ -11,12 +11,11 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.16 2006/10/17 00:25:44 lwright Exp $
+* $Id: search_manager_edit_fns.inc,v 1.17 2006/10/17 03:51:40 lwright Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
-require_once SQ_SYSTEM_ROOT.'/core/attributes/duration/duration.inc';
 
 /**
 * Search_Manager_Edit_Fns
@@ -26,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/duration/duration.inc';
 * @see Asset_Edit_Fns
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $ - 1.0
+* @version $Revision: 1.17 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -844,7 +843,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 					}
 
 					$o->openField(translate('sch_indexing_enabled'));
-
+					
 						if (isset($weights['indexed'])) {
 							$indexed = $weights['indexed'];
 						} else {
@@ -1316,81 +1315,6 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		return TRUE;
 
 	}//end processWhiteWords()
-
-
-	function paintResyncOptions(&$asset, &$o, $prefix)
-	{
-		$write_access = ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) && $asset->writeAccess('attributes');
-
-		$sql = 'SELECT sq_sch_get_resync_period() as resync_period, sq_sch_get_resync_next_run() as next_run FROM DUAL';
-		$info = $GLOBALS['SQ_SYSTEM']->db->getRow($sql);
-		assert_valid_db_result($info);
-
-		$period_text = $info['resync_period'];
-		$next_run = strtotime($info['next_run']);
-
-		// Due to limitations in what we can safely do in SQL, this will return
-		// a fraction of days like '600/86400'. We need to change this into a
-		// number of seconds
-		if (strpos($period_text, '/') === FALSE) {
-			$period = (int)$period_text * 86400;
-		} else {
-			list($num, $denom) = explode('/', $period_text);
-			$period = (86400 / $denom) * $num;
-		}
-
-		echo 'Index will update every ';
-
-		$attr = new Asset_Attribute_Duration();
-		$attr->setEditParam('biggest_units', 86400);
-		$attr->setEditParam('smallest_units', 1);
-		$attr->setValue($period);
-
-		$attr->paint($prefix.'_resync_period', !$write_access);
-
-		echo '<br/>';
-		echo 'Update will next run at <strong>'.date('d M Y g:ia', $next_run).'</strong>';
-		return $write_access;
-
-	}//end paintResyncOptions()
-
-
-	function processResyncOptions(&$asset, &$o, $prefix)
-	{
-		if (!(($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) && $asset->writeAccess('attributes'))) {
-			return FALSE;
-		}
-
-		// let the duration field work it out
-		$attr = new Asset_Attribute_Duration();
-		$attr->process($prefix.'_resync_period');
-		$period = $attr->value;
-
-		$sql = 'CALL sq_sch_set_resync_period ('.$period.')';
-		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
-		assert_valid_db_result($result);
-
-		return TRUE;
-
-	}//end processResyncOptions()
-
-
-	/**
-	* Can we access index resync options?
-	*
-	* Further, we can only access it as a system admin.
-	*
-	* @return boolean
-	* @access public
-	*/
-	function isOracle()
-	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		return ($db->phptype == 'oci8');
-
-	}//end canAccessResyncOptions()
-
-
 
 
 }//end class

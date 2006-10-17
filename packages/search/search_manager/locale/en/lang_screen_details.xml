@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2006/10/17 00:25:44 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.7 2006/10/17 03:51:40 lwright Exp $
 *
 */
 -->
@@ -64,20 +64,10 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Search Options">
+	<section name="Search Options" write_access="write:attributes">
 		<field attribute="enable_begins_with">
 			<display_name>Enable Contains Search</display_name>
-			<note>If set to "Yes", searches will look within any part of an indexed word. If set to "No", performance may be improved, however searching will be reduced to "Begins With" queries, (eg. searching for "room" keyword will not find "bedroom", but it will find "roommate").</note>
+			<note>Disabling this option will lower the search time. However, searching for "room" keyword will not find "bedroom", but it will find "roommate".</note>
 		</field>
-	</section>
-	<section name="Search Index Update Options" write_access="write:attributes">
-		<field>
-			<display_name>Update Period</display_name>
-			<function_call>
-				<paint_function		name="paintResyncOptions" />
-				<process_function	name="processResyncOptions" />
-			</function_call>
-		</field>
-		<note>On an Oracle system, the index used for searching does not automatically update. Instead, a job is scheduled within the database to update the index after a specified period. This option allows you to change the update interval. Upon install, this will be set to run every 30 minutes. Setting this to run more often will make content available for searching more quickly, but may degrade overall performance.</note>
 	</section>
 </contents>

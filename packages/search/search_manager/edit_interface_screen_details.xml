@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2006/10/17 00:25:44 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2006/10/17 03:51:40 lwright Exp $
 *
 */
 -->
@@ -49,14 +49,6 @@
 	<section name="Search Options" write_access="write:attributes">
 		<field attribute="enable_begins_with">
 			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
-	<section name="Search Index Update Options" write_access="write:attributes" show_if="isOracle">
-		<field>
-			<function_call>
-				<paint_function		name="paintResyncOptions" />
-				<process_function	name="processResyncOptions" />
-			</function_call>
 		</field>
 	</section>
 </contents>
