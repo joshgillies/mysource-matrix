@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.6 2005/11/24 05:07:02 arailean Exp $
+* $Id: tables.xml,v 1.7 2006/10/17 00:14:49 lwright Exp $
 *
 */
 -->
@@ -22,7 +22,9 @@
 			<columns>
 				<column name="value" allow_null="0">
 					<type>VARCHAR(255)</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default />
 					<description>Value of the keydata.</description>
 				</column>
@@ -58,15 +60,15 @@
 			</columns>
 			<keys>
 				<primary_key>
-					<column name="value" />
 					<column name="assetid" />
 					<column name="component" />
-					<column name="type" />
-					<column name="score" />
 				</primary_key>
 			</keys>
 			<indexes>
-				<index>
+				<index db="pgsql">
+					<column name="value" />
+				</index>
+				<index db="oci8" type="CTXSYS.CONTEXT parameters('STOPLIST ctxsys.default_stoplist')">
 					<column name="value" />
 				</index>
 				<index>
