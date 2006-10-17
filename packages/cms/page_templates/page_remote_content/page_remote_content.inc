@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.38.2.5 2006/10/13 05:13:27 tbarrett Exp $
+* $Id: page_remote_content.inc,v 1.38.2.6 2006/10/17 23:47:53 dofford Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.38.2.5 $
+* @version $Revision: 1.38.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -366,7 +366,6 @@ class Page_Remote_Content extends Page
 				// PHP will only see a=3 in POST vars, so we lose a=1,a=2, so we cannot pass it along
 				// that's why when content-type is NOT form-data we use the php://input
 				unset($_POST[SQ_REMOTE_SOURCE]);
-				log_dump($_POST);
 				$raw_post = make_raw_post_data($_POST);
 			} else {
 				// the reason we don't always use php://input is because when content type is multipart/form-data it is empty
