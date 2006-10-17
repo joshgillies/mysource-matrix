@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: oci8_functions.xml,v 1.1 2006/10/17 00:22:35 lwright Exp $
+*
+*/
+-->
+<sql>
+	<sql_element display_name="Add Resync Search Index Resync Job">
+	<![CDATA[
+	DECLARE
+		JobID NUMBER;
+		NumRows NUMBER;
+	BEGIN
+		SELECT count(*) INTO NumRows FROM user_jobs WHERE what = 'ctx_ddl.sync_index(''sq_sch_idx_value'');';
+
+		-- If there is no job with that parameter, then we add one
+		IF NumRows = 0 THEN
+			SYS.DBMS_JOB.SUBMIT
+			(
+				job			=> JobID,
+				what		=> 'ctx_ddl.sync_index(''sq_sch_idx_value'');',
+				next_date	=> SYSDATE+5/86400,
+				interval	=> 'SYSDATE+30/1440',
+				no_parse	=> TRUE
+			);
+		END IF;
+	END;
+	]]>
+	</sql_element>
+	<sql_element display_name="sq_sch_set_resync_period Procedure">
+	<![CDATA[
+	CREATE OR REPLACE PROCEDURE sq_sch_set_resync_period (seconds IN NUMBER) IS
+		NumRows NUMBER;
+		JobID user_jobs.job%TYPE;
+	BEGIN
+		SELECT count(*) INTO NumRows FROM user_jobs WHERE what = 'ctx_ddl.sync_index(''sq_sch_idx_value'');';
+
+		-- If there is a job, then find it and change it
+		-- And schedule an update shortly after this query runs
+		IF NumRows <> 0 THEN
+			SELECT job INTO JobID FROM user_jobs WHERE what = 'ctx_ddl.sync_index(''sq_sch_idx_value'');';
+
+			SYS.DBMS_JOB.CHANGE
+			(
+				job			=> JobID,
+				what		=> NULL,
+				next_date	=>  SYSDATE+5/86400,
+				interval	=> 'SYSDATE+' || to_char(seconds) || '/86400'
+			);
+		END IF;
+
+		COMMIT;
+	END sq_sch_set_resync_period;
+	]]>
+	</sql_element>
+	<sql_element display_name="sq_sch_get_resync_period Function">
+	<![CDATA[
+	CREATE OR REPLACE FUNCTION sq_sch_get_resync_period RETURN VARCHAR2 IS
+		NumRows NUMBER;
+		JobInterval VARCHAR2(255);
+	BEGIN
+		SELECT count(*) INTO NumRows FROM user_jobs WHERE what = 'ctx_ddl.sync_index(''sq_sch_idx_value'');';
+
+		-- If there is a job, then find it and change it
+		IF NumRows <> 0 THEN
+			SELECT replace(interval, 'SYSDATE+', '') INTO JobInterval FROM user_jobs WHERE what = 'ctx_ddl.sync_index(''sq_sch_idx_value'');';
+			RETURN JobInterval;
+		ELSE
+			RETURN NULL;
+		END IF;
+	END sq_sch_get_resync_period;
+	]]>
+	</sql_element>
+	<sql_element display_name="sq_sch_get_resync_next_run Function">
+	<![CDATA[
+	CREATE OR REPLACE FUNCTION sq_sch_get_resync_next_run RETURN VARCHAR2 IS
+		NumRows NUMBER;
+		JobNextRun DATE;
+	BEGIN
+		SELECT count(*) INTO NumRows FROM user_jobs WHERE what = 'ctx_ddl.sync_index(''sq_sch_idx_value'');';
+
+		-- If there is a job, then find it and change it
+		IF NumRows <> 0 THEN
+			SELECT next_date INTO JobNextRun FROM user_jobs WHERE what = 'ctx_ddl.sync_index(''sq_sch_idx_value'');';
+			RETURN to_char(JobNextRun, 'YYYY-MM-DD HH24:MI:SS');
+		ELSE
+			RETURN NULL;
+		END IF;
+	END sq_sch_get_resync_next_run;
+	]]>
+	</sql_element>
+</sql>
