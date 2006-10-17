@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.516 2006/10/12 02:58:03 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.517 2006/10/17 04:47:57 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.516 $
+* @version $Revision: 1.517 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3053,7 +3053,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
-	* The query generated to get the children is actually contructed in the Asset Manager's
+	* The query generated to get the children is actually constructed in the Asset Manager's
 	* generateGetChildrenQuery function.
 	* It returns Array(int => string)	returns an array of assetids and their type code
 	* The function might return a list of users without their type code (i.e.: when shadow assets are returned)
