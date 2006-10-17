@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.65 2006/06/28 05:03:35 rhoward Exp $
+* $Id: step_02.php,v 1.66 2006/10/17 00:08:25 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -119,6 +119,7 @@ foreach ($packages as $package) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error('TABLE INSTALL FAILURE', E_USER_ERROR);
 		}
+		install_stored_relations('functions', $package);
 	}
 }
 
