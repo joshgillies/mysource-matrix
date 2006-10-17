@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.124 2006/10/05 23:30:38 tbarrett Exp $
+* $Id: search_manager.inc,v 1.125 2006/10/17 00:31:57 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.124 $
+* @version $Revision: 1.125 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -31,6 +31,15 @@ class Search_Manager extends Asset
 {
 	var $standard_date_fields = NULL;
 	var $standard_text_fields = NULL;
+
+
+	/**
+	* Database plugin to handle abstraction of queries to various database types
+	* (to better handle different query formats for Oracle and PostgreSQL)
+	* @var object
+	* @see _getDBPlugin()
+	*/
+	var $_db_plugin = NULL;
 
 
 	/**
@@ -409,7 +418,7 @@ class Search_Manager extends Asset
 
 
 	/**
-	* Returns the indexable content for the specified asset
+	* Returns the indexable standard field content for the specified asset
 	*
 	* @param object	&$asset			the asset to obtain the indexable content for
 	* @param array	$changed_vars	the asset vars that have changed
@@ -421,10 +430,11 @@ class Search_Manager extends Asset
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 
-		$weightings    = $this->getWeightings($asset->id);
-		$type_code     = $asset->type();
-		$index_content = Array();
-		$reindex_all   = in_array('all', $changed_vars);
+		$plugin        =& $this->_getDBPlugin();
+		$weightings    =  $this->getWeightings($asset->id);
+		$type_code     =  $asset->type();
+		$index_content =  Array();
+		$reindex_all   =  in_array('all', $changed_vars);
 		$indexed_components = $this->getIndexedComponents($asset->id);
 
 		// index the name and the short name
@@ -439,15 +449,7 @@ class Search_Manager extends Asset
 			if (!isset($weightings[$name_index])) continue;
 
 			$name = ($name_type == 'name') ? strtolower($asset->name) : strtolower($asset->short_name);
-			foreach (get_word_counts($name) as $word => $count) {
-				$index_content[] = Array(
-									'value'		=> $word,
-									'type_code'	=> $type_code,
-									'type'		=> 'text',
-									'component'	=> $name_index,
-									'score'		=> $count * $weightings[$name_index],
-								   );
-			}
+			$index_content = array_merge($index_content, $plugin->splitIndexableContent($name, $type_code, 'text', $name_index, $weightings[$name_index]));
 		}
 
 		$dates = Array(
@@ -509,10 +511,11 @@ class Search_Manager extends Asset
 	*/
 	function getIndexableAttributeContent(&$asset, $changed_vars)
 	{
-		$weightings    = $this->getWeightings($asset->id);
-		$index_content = Array();
-		$type_code     = $asset->type();
-		$reindex_all   = in_array('all', $changed_vars);
+		$plugin        =& $this->_getDBPlugin();
+		$weightings    =  $this->getWeightings($asset->id);
+		$index_content =  Array();
+		$type_code     =  $asset->type();
+		$reindex_all   =  in_array('all', $changed_vars);
 
 		foreach ($asset->vars as $var_name => $var_data) {
 
@@ -548,19 +551,17 @@ class Search_Manager extends Asset
 			}
 
 			if ($var_data['type'] == 'datetime') {
-				$words = Array($value => 1);
-			} else {
-				$words = get_word_counts($value);
-			}
-
-			foreach ($words as $word => $count) {
+				// At least there's something we can agree on - datetimes should
+				// never be split apart
 				$index_content[] = Array(
-									'value'		=> $word,
+									'value'		=> $value,
 									'type_code'	=> $type_code,
 									'type'		=> $var_data['type'],
 									'component'	=> $comp_name,
-									'score'		=> $count * $weightings[$var_name],
+									'score'		=> $weightings[$var_name],
 								   );
+			} else {
+				$index_content = array_merge($index_content, $plugin->splitIndexableContent($value, $type_code, $var_data['type'], $comp_name, $weightings[$var_name]));
 			}
 		}//end foreach
 
@@ -579,9 +580,10 @@ class Search_Manager extends Asset
 	*/
 	function getIndexableContent(&$asset)
 	{
-		$index_content = Array();
-		$weightings    = $this->getWeightings($asset->id);
-		$type_code     = $asset->type();
+		$plugin        =& $this->_getDBPlugin();
+		$index_content =  Array();
+		$weightings    =  $this->getWeightings($asset->id);
+		$type_code     =  $asset->type();
 
 		// only index this if there is a weighting set
 		if (isset($weightings['__contents__'])) {
@@ -599,15 +601,7 @@ class Search_Manager extends Asset
 			$contents = str_replace('&nbsp;', ' ', $contents);
 
 			if (trim($contents) != '') {
-				foreach (get_word_counts($contents) as $word => $count) {
-					$index_content[] = Array(
-										'value'		=> $word,
-										'type_code'	=> $type_code,
-										'type'		=> 'text',
-										'component'	=> '__contents__',
-										'score'		=> $count * $weightings['__contents__'],
-									   );
-				}
+				$index_content = $plugin->splitIndexableContent($contents, $type_code, 'text', '__contents__', $weightings['__contents__']);
 			}
 		}
 
@@ -1124,6 +1118,11 @@ class Search_Manager extends Asset
 
 				switch ($field_type) {
 					case 'metadata_field_select':
+						if ($field->attr('multiple')) {
+							$plugin =& $this->_getDBPlugin();
+							$value = $plugin->handleMultipleMetadataSelect($value);
+						}
+
 						$key_type = 'selection';
 					break;
 
@@ -1642,31 +1641,8 @@ class Search_Manager extends Asset
 	*/
 	function extractKeywords(&$asset, $include_metadata=FALSE, $include_scores=FALSE)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = 'SELECT
-					LOWER(value), SUM(score)
-				FROM
-					sq_sch_idx
-				WHERE
-					assetid = '.$db->quoteSmart($asset->id).
-				  ($include_metadata ? '' : ' AND component NOT LIKE '.$db->quoteSmart('metadata:%')).'
-				GROUP BY
-					LOWER(value)
-				ORDER BY
-					SUM(score) DESC';
-
-		$result = $db->getAssoc($sql);
-		assert_valid_db_result($result);
-
-		// force lowercase keys (= keywords) - CASE_LOWER is default for this function
-		$result = array_change_key_case($result);
-
-		if ($include_scores) {
-			return $result;				// return result with scores
-		} else {
-			return array_keys($result);	// just return the keywords
-		}
+		$plugin =& $this->_getDBPlugin();
+		return $plugin->extractKeywords($asset, $include_metadata, $include_scores);
 
 	}//end extractKeywords()
 
@@ -1684,22 +1660,8 @@ class Search_Manager extends Asset
 	*/
 	function generateWordList($words)
 	{
-		if (!is_array($words)) {
-			$words = split("([ \n\r])+", strtolower($words));
-			foreach (array_keys($words) as $i) {
-				// convert wildcard symbols to corresponding SQL wildcards
-				$words[$i] = strtr($words[$i], '*?', '%_');
-
-				// if this is an email, skip the following check...
-				$at_pos  = strpos($words[$i], '@');
-				$dot_pos = strpos($words[$i], '.');
-				if ($at_pos === FALSE && $dot_pos === FALSE) {
-					$words[$i] = addslashes($words[$i]);
-				}
-			}
-		}
-
-		return $words;
+		$plugin =& $this->_getDBPlugin();
+		return $plugin->generateWordList($words);
 
 	}//end generateWordList()
 
@@ -1856,6 +1818,7 @@ class Search_Manager extends Asset
 					$data_source_results = $this->_processDateSearch($field_details['words'], $data_source, $base_query);
 				} else {
 					$data_source_results = NULL;
+
 					foreach ($field_details['words'] as $search_term) {
 						$term_results = $this->_processWordSearch($search_term, $data_source, $base_query);
 						$term_totals[$search_term] = array_get_index($term_totals, $search_term, 0) + count($term_results);
@@ -2065,63 +2028,8 @@ class Search_Manager extends Asset
 
 		$result = $this->_tmp['cm']->loadFromCache($this->id, $this->type(), $cache_key);
 		if (empty($result)) {
-			switch ($data_source['type']) {
-
-				case 'include_all':
-					$base_query['where'][] = 'ai.value LIKE '.$db->quote(($this->attr('enable_begins_with') ? '%' : '').$search_term.'%');
-				break;
-
-				case 'asset_attrib':
-					$attrid = $data_source['params']['attrid'];
-					$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($attrid));
-					$attr_info = $attr_info[$attrid];
-
-					$attr_type = $attr_info['type'];
-					$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attr_info['name']);
-
-					// work out what attribute type it is and perform a cast if
-					// it's a numeric search
-					if ($attr_type == 'int') {
-						$base_query['where'][] = 'CAST (ai.value AS int) = '.$db->quoteSmart((int)$search_term);
-					} else if ($attr_type == 'float') {
-						$base_query['where'][] = 'CAST(ai.value AS double precision) = '.$db->quoteSmart((float)$search_term);
-					} else {
-						$base_query['where'][] = 'ai.value LIKE '.$db->quote(($this->attr('enable_begins_with') ? '%' : '').$search_term.'%');
-					}
-				break;
-
-				case 'metadata':
-					$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
-					$key_types = Array(
-									'metadata_field_select'		=> 'selection',
-									'metadata_field_thesaurus'	=> 'thesaurus',
-								 );
-					$key_type = array_get_index($key_types, get_class($metadata_field), 'text');
-					$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
-					$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$data_source['params']['assetid']);
-					$base_query['where'][] = 'ai.value LIKE '.$db->quote(($this->attr('enable_begins_with') ? '%' : '').$search_term.'%');
-				break;
-
-				case 'standard':
-					$field = $data_source['params']['field'];
-					if (isset($this->standard_text_fields[$field])) {
-						$base_query['where'][] = 'ai.component = '.$db->quote('__'.$field.'__');
-						$base_query['where'][] = 'ai.value LIKE '.$db->quote(($this->attr('enable_begins_with') ? '%' : '').$search_term.'%');
-					} else {
-						trigger_error('Invalid standard search field '.$field, E_USER_WARNING);
-					}
-				break;
-
-			}//end switch
-
-			$sql = implode_sql($base_query);
-			if (count($base_query['select']) > 2) {
-				$result = $db->getAll($sql);
-			} else {
-				$result = $db->getAssoc($sql);
-			}
-
-			assert_valid_db_result($result);
+			$plugin =& $this->_getDBPlugin();
+			$result = $plugin->processWordSearch($this, $search_term, $data_source, $base_query);
 			$r = $this->_tmp['cm']->saveToCache($this->id, $this->type(), $cache_key, serialize($result));
 		} else {
 			$result = unserialize($result);
@@ -2163,53 +2071,8 @@ class Search_Manager extends Asset
 
 		$result = $this->_tmp['cm']->loadFromCache($this->id, $this->type(), $cache_key);
 		if (empty($result)) {
-			switch ($data_source['type']) {
-
-				case 'asset_attrib':
-					// TODO: restrict by asset type here?
-					$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
-					$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attribute->name);
-				break;
-
-				case 'metadata':
-					$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($attr_info['params']['assetid']);
-					$key_types = Array(
-									'metadata_field_select'		=> 'selection',
-									'metadata_field_thesaurus'	=> 'thesaurus',
-								 );
-					$key_type = array_get_index($key_types, get_class($metadata_field), 'text');
-					$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
-					$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['assetid']);
-				break;
-
-				case 'standard':
-					$field = $data_source['params']['field'];
-					if (isset($this->standard_date_fields[$field])) {
-						$base_query['where'][] = 'ai.component = '.$db->quote('__'.$field.'__');
-					} else {
-						trigger_error('Invalid standard date search field '.$field, E_USER_WARNING);
-					}
-				break;
-
-			}
-
-			// when one field is left blank, we are searching for anything before or after that date
-			// else we look between the given dates
-			if ($date_range['from'] == '---------- --:--:--' && $date_range['to'] != '---------- --:--:--') {
-				$base_query['where'][] = 'ai.value <= '.$db->quoteSmart($date_range['to']);
-			} else if ($date_range['to'] == '---------- --:--:--' && $date_range['from'] != '---------- --:--:--') {
-				$base_query['where'][] = 'ai.value >= '.$db->quoteSmart($date_range['from']);
-			} else {
-				$base_query['where'][] = 'ai.value BETWEEN '.$db->quote($date_range['from']).' AND '.$db->quote($date_range['to']);
-			}
-
-			$sql = implode_sql($base_query);
-			if (count($base_query['select']) > 2) {
-				$result = $db->getAll($sql);
-			} else {
-				$result = $db->getAssoc($sql);
-			}
-			assert_valid_db_result($result);
+			$plugin =& $this->_getDBPlugin();
+			$result = $plugin->processDateSearch($this, $date_range, $data_source, $base_query);
 			$r = $this->_tmp['cm']->saveToCache($this->id, $this->type(), $cache_key, serialize($result));
 		} else {
 			$result = unserialize($result);
@@ -2251,56 +2114,8 @@ class Search_Manager extends Asset
 
 		$result = $this->_tmp['cm']->loadFromCache($this->id, $this->type(), $cache_key);
 		if (empty($result)) {
-			switch ($data_source['type']) {
-
-				case 'asset_attrib':
-					$attrid = $data_source['params']['attrid'];
-					$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($attrid));
-					$attr_info = $attr_info[$attrid];
-
-					$attr_type = $attr_info['type'];
-					$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attr_info['name']);
-
-					if ($numeric_range['upper'] == $numeric_range['lower']) {
-						$search_compare = '= '.$db->quoteSmart($numeric_range['upper']);
-					} else if (is_null($numeric_range['upper'])) {
-						$search_compare = '>= '.$db->quoteSmart($numeric_range['lower']);
-					} else if (is_null($numeric_range['lower'])) {
-						$search_compare = '<= '.$db->quoteSmart($numeric_range['upper']);
-					} else if ($numeric_range['upper'] > $numeric_range['lower']) {
-						// upper > lower as expected
-						$search_compare = 'BETWEEN '.$db->quoteSmart($numeric_range['lower']).' AND '.$db->quoteSmart($numeric_range['upper']);
-					} else {
-						// accept lower > upper but we need to switch values because
-						// some DB engines won't accept BETWEEN upper AND lower
-						$search_compare = 'BETWEEN '.$db->quoteSmart($numeric_range['upper']).' AND '.$db->quoteSmart($numeric_range['lower']);
-					}
-
-					if ($attr_type == 'int') {
-						$base_query['where'][] = 'CAST (ai.value AS int) '.$search_compare;
-					} else {
-						$base_query['where'][] = 'CAST(ai.value AS double precision) '.$search_compare;
-					}
-				break;
-
-				case 'metadata':
-					// not implemented yet
-				break;
-
-				case 'standard':
-					// not implemented yet
-				break;
-
-			}//end switch $data_source['type']
-			$sql = implode_sql($base_query);
-
-			if (count($base_query['select']) > 2) {
-				$result = $db->getAll($sql);
-			} else {
-				$result = $db->getAssoc($sql);
-			}
-
-			assert_valid_db_result($result);
+			$plugin =& $this->_getDBPlugin();
+			$result = $plugin->processDateSearch($this, $numeric_range, $data_source, $base_query);
 			$r = $this->_tmp['cm']->saveToCache($this->id, $this->type(), $cache_key, serialize($result));
 		} else {
 			$result = unserialize($result);
@@ -2815,6 +2630,31 @@ class Search_Manager extends Asset
 
 	}//end getMinWordLength()
 
+
+	/**
+	* Gets the appropriate plugin for the database engine
+	*
+	* Database plugins live in the plugins/[db-type] sub-folder of the Search
+	* Manager and have a class name of Search_Manager_Plugin_[db-type]
+	*
+	* @return object
+	* @access private
+	*/
+	function &_getDBPlugin()
+	{
+		if (is_null($this->_db_plugin)) {
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db_type = $db->phptype;
+
+			$dir = dirname(__FILE__).'/plugins/'.strtolower($db_type);
+			$class_name = 'search_manager_plugin_'.$db_type;
+			require_once $dir.'/'.$class_name.'.inc';
+			$this->_db_plugin =& new $class_name();
+		}
+
+		return $this->_db_plugin;
+
+	}//end _getDBPlugin()
 
 }//end class
 
