@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.565 2006/10/17 01:19:44 gsherwood Exp $
+* $Id: asset.inc,v 1.566 2006/10/17 01:54:57 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.565 $
+* @version $Revision: 1.566 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3000,10 +3000,6 @@ class Asset extends MySource_Object
 				require_once SQ_ATTRIBUTES_PATH.'/'.$this->vars[$name]['type'].'/'.$this->vars[$name]['type'].'.inc';
 				$attr_class = 'Asset_Attribute_'.$this->vars[$name]['type'];
 				$this->_tmp['attributes'][$name] =& new $attr_class($this->vars[$name]['attrid'], $this->vars[$name]['value']);
-				// make sure of the asset is correct
-				if (empty($this->_tmp['attributes'][$name]->id)) {
-					$this->_tmp['attributes'][$name] = NULL;
-				}
 
 			}//end if
 
