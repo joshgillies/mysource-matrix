@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.26 2006/06/26 11:01:47 trodger Exp $
+* $Id: www.inc,v 1.26.2.1 2006/10/17 23:40:55 dofford Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package Fudge
 * @subpackage General
 */
@@ -172,7 +172,7 @@ function make_raw_post_data($data)
 	}
 
 	if (!empty($val_array)) {
-		$result = htmlentities(implode('&', $val_array));
+		$result = implode('&', $val_array);
 	} else {
 		$result = '';
 	}
