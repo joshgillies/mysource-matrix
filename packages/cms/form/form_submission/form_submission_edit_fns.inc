@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.15.2.1 2006/07/18 01:24:16 skim Exp $
+* $Id: form_submission_edit_fns.inc,v 1.15.2.2 2006/10/17 07:35:17 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15.2.1 $
+* @version $Revision: 1.15.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -124,7 +124,12 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 				}
 				$note = $q->isEditable() ? $q->getVal('note') : '<i>'.translate('cms_form_submission_cannot_edit_question_type').'</i>';
 				$o->openField($q->getVal('title'), '', $note);
-				echo ($q->isEditable() && $wa) ? $q->getHtmlField() : $q->getSummary().'&nbsp;';
+				if ($q->isEditable() && $wa) {
+					echo $q->getHtmlField();
+					$is_editable_q = TRUE;
+				} else {
+					echo $q->getSummary().'&nbsp;';
+				}
 				$section_questions[$section_id][$q_id]['printed'] = TRUE;
 				$o->closeField();
 			}
