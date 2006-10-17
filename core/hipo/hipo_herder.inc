@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.81 2006/09/29 03:50:32 colivar Exp $
+* $Id: hipo_herder.inc,v 1.82 2006/10/17 04:52:10 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -401,6 +401,13 @@ class HIPO_Herder extends MySource_Object
 				}// end if
 
 				if (count($buttons_to_print)) {
+
+					// work out if we should print the 'Next >>' button
+					$print_next = TRUE;
+					if (isset($source_job->_hipo_vars['no_next']) && $source_job->_hipo_vars['no_next']) {
+						$print_next = FALSE;
+					}
+
 					?>
 					<p>
 					<table border="0" width="100%" cellspacing="2" cellpadding="1">
@@ -410,8 +417,11 @@ class HIPO_Herder extends MySource_Object
 							foreach ($buttons_to_print as $btn_code => $btn_data) {
 								?><td valign="top" align="center"><?php
 								// access key 'n' for next button
-								if ($btn_data['value'] == 'Next >>') {
-									normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-hipo-button-enabled", accesskey="n""');
+								if ($btn_code == 'next') {
+									// if we should no proceed any further, then do not print the next button
+									if ($print_next) {
+										normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-hipo-button-enabled", accesskey="n""');
+									}
 								} else {
 									normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-hipo-button-enabled"');
 								}
@@ -1080,6 +1090,7 @@ class HIPO_Herder extends MySource_Object
 				}
 
 				$orphaned_jobs = $db->getAssoc($sql);
+				assert_valid_db_result($orphaned_jobs);
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 				// no orphaned jobs, yay
