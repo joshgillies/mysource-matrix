@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.564 2006/10/16 23:28:27 gsherwood Exp $
+* $Id: asset.inc,v 1.565 2006/10/17 01:19:44 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.564 $
+* @version $Revision: 1.565 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3281,7 +3281,7 @@ class Asset extends MySource_Object
 			$attr_name = substr($keyword, strlen('asset_attribute_'));
 			if (array_key_exists($attr_name, $this->vars)) {
 				$attr =& $this->getAttribute($attr_name);
-				if (!$attr->is_admin) {
+				if (!is_null($attr) && !$attr->is_admin) {
 					$replacement = $attr->getKeywordValue();
 				}
 			} else {
