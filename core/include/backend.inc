@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.148 2006/10/11 01:58:31 rong Exp $
+* $Id: backend.inc,v 1.149 2006/10/17 01:49:17 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.148 $
+* @version $Revision: 1.149 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -621,12 +621,8 @@ class Backend extends MySource_Object
 						<tr>
 							<td nowrap valign="middle">
 							<?php
-								if (!SQ_IN_LIMBO) {
-									echo '<span class="sq-backend-header-item">'.translate('quick_search').'</span>';
-									text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 20, 0, empty($_POST['asset_search']), 'class="sq-backend-header-search-box"');
-								} else {
-									echo '&nbsp;';
-								}
+								echo '<span class="sq-backend-header-item">'.translate('quick_search').'</span>';
+								text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 20, 0, empty($_POST['asset_search']), 'class="sq-backend-header-search-box"');
 							?>
 							</td>
 							<td nowrap>
