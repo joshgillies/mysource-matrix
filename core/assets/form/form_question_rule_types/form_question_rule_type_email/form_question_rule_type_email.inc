@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.6 2006/10/12 23:29:01 tbarrett Exp $
+* $Id: form_question_rule_type_email.inc,v 1.7 2006/10/17 04:36:46 emcdonald Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,9 +58,11 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	/**
 	* Returns a list of operators for this rule type
 	*
+	* returns an array of descriptions indexed by operator id
+	* (which can be anything, generally string or (int)0|1 for a boolean value)
+	*
+	* @return array
 	* @access public
-	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
-	*                                 anything, generally string or (int)0|1 for a boolean value)
 	*/
 	function getOperators()
 	{
@@ -90,14 +92,14 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 		ob_start();			// buffer this please
 
 			$operator = array_get_index($rule_data, 'operator', 1);
-
+			$function_id = preg_replace('/[^a-zA-Z0-9]/', '_', $q_asset->id);
 			if (!$printed_fn) {
 				$local = '\da-zA-Z-_+'; // allowed in the first char
 				$local_middle = $local.'.\w'; // allowed in the rest of the username
 				$regex_code = '/^(['.$local.']['.$local_middle.'\']*['.$local.']@[\da-zA-Z][\'-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})$/';
 
 				?>
-				function sq_form_validate_email(answer)
+				function sq_form_validate_email_<?php echo $function_id; ?>(answer)
 				{
 					<?php
 						if (!$q_asset->attr('is_required')) {
@@ -118,7 +120,7 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 			}
 
 			?>
-			if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_email(form.elements["q<?php echo $q_asset->id; ?>"].value)) {
+			if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_email_<?php echo $function_id; ?>(form.elements["q<?php echo $q_asset->id; ?>"].value)) {
 				submission_errors[submission_errors.length] = "<?php
 					if (empty($rule_data['custom_text'])) {
 						echo addslashes($this->defaultError($q_asset, $rule_data));
