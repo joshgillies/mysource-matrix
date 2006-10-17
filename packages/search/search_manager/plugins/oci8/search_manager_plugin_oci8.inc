@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.1 2006/10/17 00:31:57 lwright Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.2 2006/10/17 01:10:12 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -486,48 +486,6 @@ class Search_Manager_Plugin_OCI8
 		return Array($words);
 
 	}//end generateWordList()
-
-
-	/**
-	* Returns the content for the specfied asset
-	*
-	* In Oracle-based systems, for Oracle Text's OR searching to work properly,
-	* content is indexed as a whole, rather than being broken up into separate
-	* words.
-	*
-	* @param object	&$sm	reference to the parent search manager
-	* @param object	&$asset	the asset to obtain the indexable content for
-	*
-	* @return array
-	* @access public
-	*/
-	function getIndexableContent(&$sm, &$asset)
-	{
-		$index_content = Array();
-		$weightings    = $sm->getWeightings($asset->id);
-		$type_code     = $asset->type();
-
-		// only index this if there is a weighting set
-		if (isset($weightings['__contents__'])) {
-
-			// ask the asset for its content, and store it under a contents component
-			// we don't want to index any tags so strip them
-			$contents = strtolower(strip_tags(html_entity_decode($asset->getContent())));
-
-			if (trim($contents) != '') {
-				$index_content[] = Array(
-									'value'		=> $contents,
-									'type_code'	=> $type_code,
-									'type'		=> 'text',
-									'component'	=> '__contents__',
-									'score'		=> $weightings['__contents__'],
-								   );
-			}
-		}
-
-		return $index_content;
-
-	}//end getIndexableContent()
 
 
 	/**
