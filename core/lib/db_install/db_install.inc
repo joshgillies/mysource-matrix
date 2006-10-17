@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.36 2006/07/12 23:14:08 rong Exp $
+* $Id: db_install.inc,v 1.37 2006/10/17 00:00:14 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -626,14 +626,19 @@ function grant_secondary_user_perms($verbose=true)
 * @return void
 * @access public
 */
-function install_stored_relations($relations, $verbose=true)
+function install_stored_relations($relations, $package=NULL, $verbose=TRUE)
 {
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
-	$fns_file = SQ_SYSTEM_ROOT.'/install/'.$db->phptype.'_'.$relations.'.xml';
+	if (is_null($package)) {
+		$subdir = 'install';
+	} else {
+		$subdir = 'packages/'.$package;
+	}
+	$fns_file = SQ_SYSTEM_ROOT.'/'.$subdir.'/'.$db->phptype.'_'.$relations.'.xml';
 
 	// if the file does not exist, check to see if there is a common file
 	// for all database types
-	if (!file_exists($fns_file)) $fns_file = SQ_SYSTEM_ROOT.'/install/common_'.$relations.'.xml';
+	if (!file_exists($fns_file)) $fns_file = SQ_SYSTEM_ROOT.'/'.$subdir.'/common_'.$relations.'.xml';
 
 	if (file_exists($fns_file)) {
 
@@ -663,7 +668,11 @@ function install_stored_relations($relations, $verbose=true)
 		}
 
 		if ($verbose) {
-			pre_echo(strtoupper($db->phptype).' STORED '.strtoupper($relations).' CREATED'."\n".implode("\n", $element_names));
+			if (is_null($package)) {
+				pre_echo(strtoupper($db->phptype).' STORED '.strtoupper($relations).' CREATED'."\n".implode("\n", $element_names));
+			} else {
+				pre_echo(strtoupper($db->phptype).' STORED '.strtoupper($relations).' FOR PACKAGE '.$package.' CREATED'."\n".implode("\n", $element_names));
+			}
 		}
 	}
 
