@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.152 2006/10/18 00:23:06 bcaldwell Exp $
+* $Id: general.inc,v 1.153 2006/10/18 05:05:29 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.152 $
+* @version $Revision: 1.153 $
 * @package MySource_Matrix
 */
 
@@ -1175,13 +1175,6 @@ function sq_get_icon($path, $width, $height, $alt='', $title=NULL, $extras='')
 */
 function get_asset_tag_line($assetid, $screen='')
 {
-	static $tag_line_count = 0;
-
-	if (!$tag_line_count) {
-		?><script type="text/javascript" src="<?php echo sq_web_path('lib') ?>/js/tooltip.js"></script><?php
-	}
-	$tag_line_count++;
-
 	// If it's a shadow asset, there is nothing in the database so we cannot use
 	// the shortcut - we have to get the info from the asset instead
 	if (strpos($assetid, ':') !== FALSE) {
@@ -1228,7 +1221,7 @@ function get_asset_tag_line($assetid, $screen='')
 
 	ob_start();
 	?>
-	<div id="asset-tag-line-<?php echo $tag_line_count ?>-more-details" style="display:none">
+	<div id="asset-tag-line-<?php echo $assetid ?>-more-details" style="display:none">
 		<table cellspacing="0">
 		<tr>
 			<td class="sq-backend-table-cell" style="background-color: #<?php echo get_status_colour($asset_info['status']) ?>"><strong>Current Status:</strong></td>
@@ -1283,7 +1276,7 @@ function get_asset_tag_line($assetid, $screen='')
 		// start an inner buffer for the lineages popup
 		ob_start();
 		?>
-		<div id="asset-tag-line-<?php echo $tag_line_count ?>-lineages" style="display:none">
+		<div id="asset-tag-line-<?php echo $assetid ?>-lineages" style="display:none">
 		<table style="sq-backend-table"><?php
 		foreach ($lineages as $lineage_key => $lineage) {
 			if ($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
@@ -1315,10 +1308,10 @@ function get_asset_tag_line($assetid, $screen='')
 		// discard it and the icon becomes a direct selection
 		if (count($lineages) > 1) {
 			echo $lineages_div;
-			?><div id="asset-tag-line-<?php echo $tag_line_count ?>-cancel-icon" style="display:none"><?php
+			?><div id="asset-tag-line-<?php echo $assetid ?>-cancel-icon" style="display:none"><?php
 				sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, translate('cancel'), translate('cancel'), ' style="border:none"');
 			?></div><?php
-			$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-lineages\').innerHTML, \''.translate('lineages').'\', document.getElementById(\'asset-tag-line-'.$tag_line_count.'-cancel-icon\').innerHTML)';
+			$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.$assetid.'-lineages\').innerHTML, \''.translate('lineages').'\', document.getElementById(\'asset-tag-line-'.$assetid.'-cancel-icon\').innerHTML)';
 			$lineages_name = translate('show_lineages');
 		} else if (count($lineages) == 1) {
 			sort($lineages);
@@ -1328,7 +1321,7 @@ function get_asset_tag_line($assetid, $screen='')
 			$lineages_name = translate('show_in_asset_map');
 		}
 
-		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', 16, 16, '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$tag_line_count.'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
+		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', 16, 16, '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$assetid.'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
 
 		if (count($lineages) > 0) {
 			echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' align="absmiddle"  onclick="'.$lineages_onclick.'"');
