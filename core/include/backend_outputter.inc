@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.128 2006/09/28 04:32:29 colivar Exp $
+* $Id: backend_outputter.inc,v 1.129 2006/10/18 05:04:12 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -971,6 +971,7 @@ class Backend_Outputter
 			$this->addJsInclude(sq_web_path('lib').'/js/general.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
+			$this->addJsInclude(sq_web_path('lib').'/js/tooltip.js');
 
 			// and paint them all out
 			foreach ($this->_js_includes as $file) {
