@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.6 2006/07/17 04:16:16 lwright Exp $
+* $Id: user_prefs.inc,v 1.7 2006/10/18 07:07:06 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/duration/duration.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
@@ -44,6 +44,12 @@ class User_Prefs extends Prefs
 														'name'			=> 'Asset Map Root Asset',
 														'description'	=> 'This preference allows you to change the root node that is displated in the Asset Map',
 														'default'		=> '',
+														'protected'		=> FALSE,
+													   ),
+						'SQ_USER_SAFE_TYPE3_TRASH'	=> Array(
+														'name'			=> 'Safe Trash',
+														'description'	=> 'This preference allows you to prohibit the deletion of an asset until all notice links are removed',
+														'default'		=> FALSE,
 														'protected'		=> FALSE,
 													   ),
 					 );
@@ -203,6 +209,29 @@ class User_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}//end if
 
+		if (is_null($pref) || $pref == 'SQ_USER_SAFE_TYPE3_TRASH') {
+			if (is_null($pref)) {
+				$o->openField('Safe Trash');
+			}
+			?>
+			<div class="sq-backend-table sq-backend-table-cell">
+			<?php
+				$safe_trash = $this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['default'];
+				if ($have_lock && $is_admin) {
+					check_box('prefs[SQ_USER_SAFE_TYPE3_TRASH]', 1, ($safe_trash), '', 'id="prefs_SQ_USER_SAFE_TYPE3_TRASH"');
+					label('Check this box if you want to prohibit the deletion of an asset until all notice links are removed', 'prefs_SQ_USER_SAFE_TYPE3_TRASH');
+				} else {
+					echo '<img src="'.sq_web_path('lib').'/web/images/'.($safe_trash ? 'tick' : 'cross').'.gif" />';
+					echo('Check this box if you want the system to prohibit the deletion of an asset until all notice links are removed');
+				}
+			?>
+			<br />
+			</div>
+			<?php
+
+			if (is_null($pref)) $o->closeField();
+		}//end if
+
 
 
 		return TRUE;
@@ -261,6 +290,15 @@ class User_Prefs extends Prefs
 			$system_conf->acquireLock();
 			$system_conf->save(Array('SQ_CONF_SESSION_GC_MAXLIFETIME' => $gc_min + 86400), FALSE, FALSE);
 			$system_conf->releaseLock();
+		}
+
+		if (is_null($pref) || $pref == 'SQ_USER_SAFE_TYPE3_TRASH') {
+			// update lineage pref
+			if (isset($_POST['prefs']['SQ_USER_SAFE_TYPE3_TRASH'])) {
+				$this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['default'] = $_POST['prefs']['SQ_USER_SAFE_TYPE3_TRASH'];
+			} else {
+				$this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['default'] = FALSE;
+			}
 		}
 
 
@@ -326,6 +364,16 @@ class User_Prefs extends Prefs
 			if (!empty($asset_map_settings2)) {
 				$res['SQ_USER_ASSET_MAP_LINEAGE']['default'] .= ','.$asset_map_settings2;
 			}
+
+		}
+
+		if (isset($prefs1['SQ_USER_SAFE_TYPE3_TRASH']['default']) && isset($prefs2['SQ_USER_SAFE_TYPE3_TRASH'])) {
+
+			// for safe trash option, if user belongs to multiple user groupS, option Yes > No
+			// note that param 2 is value only
+			$safe_trash1 = $prefs1['SQ_USER_SAFE_TYPE3_TRASH']['default'];
+			$safe_trash2 = $prefs2['SQ_USER_SAFE_TYPE3_TRASH']['default'];
+			$res['SQ_USER_SAFE_TYPE3_TRASH']['default'] = ($safe_trash1 || $safe_trash2) ? TRUE : FALSE;
 
 		}
 

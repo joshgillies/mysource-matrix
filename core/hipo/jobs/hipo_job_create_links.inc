@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.41 2006/10/16 06:09:05 mbrydon Exp $
+* $Id: hipo_job_create_links.inc,v 1.42 2006/10/18 07:07:06 rong Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -261,6 +261,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			return '';
 		}
 
+		// an array of assetids that are not supposed to be trashed when safe trash = Yes
+		$this->_running_vars['do_not_trash'] = Array();
+
 		// get a list of links that will be affected by this change
 		if ($this->_running_vars['link_action'] == 'move') {
 			$new_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
@@ -268,6 +271,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 			// Check if the assets have been moved to the trash. If there are any, warn about which links will be affected
 			if ($new_parent->id == $trash_folder->id) {
+				// if we are moving to the trash folder, we need to check if the safe trash pref has been enabled
+				$safe_trash = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_SAFE_TYPE3_TRASH');
+
 				// when checking for the number of links left in the system, make sure we disregard
 				// any link to the trash folder because even if this asset is already in the trash,
 				// we should warn about deleting it
@@ -286,14 +292,57 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						$affected_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE, '', TRUE, 'minor');
 						if (!empty($affected_links)) {
 							$this->_running_vars['affected_links'][$assetid] = $affected_links;
+
+							// if type3 or notice linked to other asset, it is not safe to be trashed
+							if ($safe_trash) {
+								$this->_running_vars['do_not_trash'][$assetid]['link'] = $affected_links;
+								$this->_running_vars['do_not_trash'][$assetid]['name'] = $asset->name;
+							}
 						}
+
 					}//end if !$num_other_links
+
+					// if the status is not under construction and not archived, it is not safe to be trashed
+					if ($safe_trash && $asset->status >= SQ_STATUS_LIVE) {
+						$this->_running_vars['do_not_trash'][$assetid]['status'] = $asset->status;
+						$this->_running_vars['do_not_trash'][$assetid]['name'] = $asset->name;
+					}
+
+					// check the same thing for all children
+					// generate the get children query
+					$children = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($asset, '', TRUE, FALSE);
+					if (!empty($children)) {
+						// modify the selection so that we only get 1 column
+						$children['select'] = '(SELECT DISTINCT l.minorid';
+						if (isset($children['union_select'])) {
+							$children['union_select'] = 'UNION ALL SELECT sl.minorid';
+						}
+						$db =& $GLOBALS['SQ_SYSTEM']->db;
+						$sql = 'SELECT
+									majorid, minorid, name, linkid, status, link_type
+								FROM
+									'.SQ_TABLE_RUNNING_PREFIX.'ast_lnk lnk
+									INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast ast ON (ast.assetid = lnk.minorid)
+								WHERE
+									(
+										(link_type = '.$db->quoteSmart(SQ_LINK_TYPE_3).' OR link_type = '.$db->quoteSmart(SQ_LINK_NOTICE).') OR
+										(status >= '.$db->quoteSmart(SQ_STATUS_LIVE).')
+									) AND
+									assetid IN ('.implode(' ', $children).')';
+						$result = $db->getAll($sql);
+						assert_valid_db_result($result);
+						if (!empty($result)) {
+							$this->_running_vars['do_not_trash'][$assetid]['children'] = $result;
+							$this->_running_vars['do_not_trash'][$assetid]['name'] = $asset->name;
+						}
+					}
+
 				}//end for
+
 			}//end if the assets have been moved to the trash
 		}
 
 		$this->_running_vars['can_skip_cascade'] = TRUE;
-
 		$this->_running_vars['assets_children'] = Array();
 
 		return parent::initialise($source_code_name);
@@ -372,9 +421,36 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					$o->closeField();
 				}
 
+				// if we are moving to the trash folder, we need to check if the safe trash pref has been enabled
+				$safe_trash = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_SAFE_TYPE3_TRASH');
+
+				// work out how many assets do we really have to trash
+				$nothing_to_trash = FALSE;
+				$not_to_trash = 0;
+				if ($safe_trash) {
+					$to_trash = count($assets);
+					$not_to_trash = count($this->_running_vars['do_not_trash']);
+					$nothing_to_trash = ($not_to_trash == $to_trash);
+					// if there is nothing to trash, pass this hipo var so herder will not print next button
+					$this->_hipo_vars['no_next'] = $nothing_to_trash ? TRUE: FALSE;
+				}
+
 				$o->openField('&nbsp;');
 					if ($new_parent->id == $trash_folder->id) {
-						?><p><?php echo translate('hipo_confirm_move_trash', count($assets));?></p><?php
+
+						// confirm that they are trashing x assets
+						if (count($assets) - $not_to_trash > 0) {
+							?><p><?php echo translate('hipo_confirm_move_trash', count($assets) - $not_to_trash);?></p><?php
+						}
+
+						if ($safe_trash && $not_to_trash > 0) {
+							if (count($assets)== $not_to_trash) {
+								?><p><strong class="sq-backend-warning"><?php echo translate('hipo_warning_safe_trash_all');?></strong></p><?php
+							} else {
+								?><p><strong class="sq-backend-warning"><?php echo translate('hipo_warning_safe_trash_few', count($assets), $not_to_trash);?></strong></p><?php
+							}
+						}
+
 						$shadow_assets = Array();
 						foreach ($assets as $one_id => $one_info) {
 							if (strpos($one_id,':')) $shadow_assets[] = $one_id;
@@ -388,6 +464,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 							}
 							echo '</ul></p>';
 						}
+
 					} else {
 						echo '<p>'.translate('hipo_confirm_move_under', $new_parent->name).'</p>';
 						echo '<ul>';
@@ -399,11 +476,20 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						}
 					}
 					echo '</ul>';
-					echo '<p>'.translate('hipo_confirm_abort').'</p>';
+
+					if (isset($this->_hipo_vars['no_next']) && $this->_hipo_vars['no_next']) {
+						// if no next button printed, modify the confirm message a little
+							echo '<p>'.translate('hipo_abort').'</p>';
+					} else {
+						echo '<p>'.translate('hipo_confirm_abort').'</p>';
+					}
 
 					if ($new_parent->id == $trash_folder->id) {
-						?><p><?php echo translate('hipo_trash_warn_break_urls'); ?></p><?php
-						asset_finder($prefix.'_remap_new_url', NULL, Array(), 'sq_sidenav', TRUE);
+						if (!$safe_trash || ($safe_trash && !$nothing_to_trash)) {
+							// do not paint this section if we have nothing to trash
+							?><p><?php echo translate('hipo_trash_warn_break_urls'); ?></p><?php
+							asset_finder($prefix.'_remap_new_url', NULL, Array(), 'sq_sidenav', TRUE);
+						}
 					}
 				$o->closeField();
 
@@ -427,11 +513,15 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						if (!$trash_section_painted) {
 							$o->openSection(translate('warning_-_moving_to_trash'));
 								$o->openField('&nbsp;');
-									?><p><?php echo translate('hipo_warning_trashing_affects_other_assets'); ?></p><?php
+									if ($safe_trash) {
+										?><p><strong class="sq-backend-warning"><?php echo translate('hipo_warning_safe_trash_notice_link') ?></strong></p><?php
+									} else {
+										?><p><?php echo translate('hipo_warning_trashing_affects_other_assets'); ?></p><?php
+									}
 									$trash_section_painted = TRUE;
 						}
 
-						echo $asset->name;
+						echo $asset->name." (Id: #$asset->id)";
 
 						$link_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id);
 
@@ -474,6 +564,61 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						?></table><?php
 
 					}//end foreach
+
+					// paint the not safe status
+					if ($safe_trash && !empty($this->_running_vars['do_not_trash'])) {
+						$warning_painted = FALSE;
+						foreach($this->_running_vars['do_not_trash'] as $id => $data) {
+							if (isset($data['status'])) {
+								if (!$trash_section_painted) {
+									$o->openSection(translate('warning_-_moving_to_trash'));
+										$o->openField('&nbsp;');
+										$trash_section_painted = TRUE;
+								}
+								if (!$warning_painted) {
+									?><p><strong class="sq-backend-warning"><?php echo translate('hipo_warning_safe_trash_status') ?></strong></p><?php
+									$warning_painted = TRUE;
+								}
+								echo "$data[name] (Id: #$id), Current Status: ".get_asset_status_icon($data['status']).get_status_description($data['status']).'<br>';
+							}
+						}
+						echo '</p>';
+					}
+
+					// paint the not safe children section
+					if ($safe_trash && !empty($this->_running_vars['do_not_trash'])) {
+						$warning_painted = FALSE;
+						foreach($this->_running_vars['do_not_trash'] as $id => $data) {
+							if (isset($data['children'])) {
+								if (!$trash_section_painted) {
+									$o->openSection(translate('warning_-_moving_to_trash'));
+										$o->openField('&nbsp;');
+										$trash_section_painted = TRUE;
+								}
+								if (!$warning_painted) {
+									?><p><strong class="sq-backend-warning"><?php echo translate('hipo_warning_safe_trash_children') ?></strong></p><?php
+									echo '<ul>';
+									$warning_painted = TRUE;
+								}
+								echo '<li>'.$data['name']." (Id: #$id)";
+								echo '<ul>';
+								foreach ($data['children'] as $child_info) {
+									echo '<li>'.$child_info['name'].' (Id: #'.$child_info['minorid'].')';
+									if ($child_info['link_type'] == SQ_LINK_TYPE_3 || $child_info['link_type'] == SQ_LINK_NOTICE) {
+										echo '<br> &nbsp; '.translate('hipo_warning_safe_trash_link');
+									} else if ($child_info['status'] >= SQ_STATUS_LIVE) {
+										echo '<br> &nbsp; Current Status: '.get_asset_status_icon($child_info['status']).get_status_description($child_info['status']);
+
+									}
+									echo '</li>';
+								}
+								echo '</ul>';
+								echo '</li>';
+							}
+						}
+						if ($warning_painted) echo '</ul>';
+						echo '</p>';
+					}
 
 					if ($trash_section_painted) {
 						$o->closeField();
@@ -568,6 +713,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		$assets = $this->_running_vars['process_create_links'];
 		$assetid = key($assets);
 		$value = reset($assets);
+
 		unset($this->_running_vars['process_create_links'][$assetid]);
 
 		if ($this->_running_vars['link_action'] == 'create') {
@@ -618,6 +764,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			// if we are moving to the trash, we want to skip all the steps that ask us if we want
 			// to cascade permissions, metadata, and workflow. We also need to get all the children
 			// so the lookups can be updated later
+			$safe_trash = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_SAFE_TYPE3_TRASH');
 			$moving_to_trash = FALSE;
 			$bridge_id = NULL;
 
@@ -632,6 +779,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 				$moving_to_trash = TRUE;
 
+
 				$id_parts = explode(':', $assetid);
 				if (isset($id_parts[1])) $bridge_id = $id_parts[0];
 
@@ -643,7 +791,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				foreach ($affected_links as $link) {
 					// we do not delete the link included in the $value array
 					// because it will be deleted later on
-					if ($link['linkid'] !== $value['linkid']) {
+					if ($link['linkid'] !== $value['linkid'] && !$safe_trash) {
 						$success = $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
 					}
 				}
@@ -660,55 +808,71 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				// if the major of this link contains no colon, and is not a bridge, then it's a real asset
 				// with a shadow asset linked underneath, so get the asset manager to handle this delete
 				if (!empty($link) && (FALSE === strpos($link['majorid'], ':')) && !implements_interface($asset, 'bridge')) {
-					if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($value['linkid'], FALSE)) {
-						trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-						return FALSE;
+					// if safe trash is enabled, make sure we can delete this link
+					if (!$safe_trash || ($safe_trash && !in_array($assetid, array_keys($this->_running_vars['do_not_trash'])))) {
+
+						if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($value['linkid'], FALSE)) {
+							trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							return FALSE;
+						}
 					}
 
 				} else {
 					// its a shadow asset linked to a bridge or to another shadow,
 					// so get the bridge to handle the delete
 					$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bridge_id);
-					if (!$bridge->deleteAssetLink($value['linkid'])) {
+					if (!$safe_trash || ($safe_trash && !in_array($assetid, array_keys($this->_running_vars['do_not_trash'])))) {
+
+						if (!$bridge->deleteAssetLink($value['linkid'])) {
+							trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							return FALSE;
+						}
+					}
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bridge);
+				}
+			} else {
+
+				$not_to_trash = !$moving_to_trash;
+				$safe_to_trash = $moving_to_trash && (!$safe_trash || ($safe_trash && !in_array($assetid, array_keys($this->_running_vars['do_not_trash']))));
+
+				// if we are not moving to trash, or this asset is safe to trash, proceed
+				if ($not_to_trash || $safe_to_trash) {
+					// if parent and current asset settings are the same then skip the cascades screen
+					if ($this->_running_vars['can_skip_cascade']) {
+						if (!$this->_canSkipCascadeSteps($assetid, $this->_running_vars['to_parent_assetid'])) {
+							$this->_running_vars['can_skip_cascade'] = FALSE;
+						}
+					}
+
+					$link   = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $value['parentid']);
+					$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($value['linkid'], $this->_running_vars['to_parent_assetid'], $link['link_type'], $this->_running_vars['to_parent_pos']);
+					if (!$linkid) {
+						trigger_localised_error('HIPO0020', E_USER_WARNING, $assetid, $this->_running_vars['to_parent_assetid']);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						return FALSE;
+					}
+
+					$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+					$asset    =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_link['minorid'], $new_link['minor_type_code']);
+
+					if (is_null($asset)) {
 						trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bridge);
-				}
-			} else {
-				// if parent and current asset settings are the same then skip the cascades screen
-				if ($this->_running_vars['can_skip_cascade']) {
-					if (!$this->_canSkipCascadeSteps($assetid, $this->_running_vars['to_parent_assetid'])) {
-						$this->_running_vars['can_skip_cascade'] = FALSE;
-					}
-				}
+					$new_parent_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->_running_vars['to_parent_assetid']));
+					$step_data['message'] = translate('hipo_move', $asset->name, $new_parent_info[$this->_running_vars['to_parent_assetid']]['name']);
 
-				$link   = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $value['parentid']);
-				$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($value['linkid'], $this->_running_vars['to_parent_assetid'], $link['link_type'], $this->_running_vars['to_parent_pos']);
-				if (!$linkid) {
-					trigger_localised_error('HIPO0020', E_USER_WARNING, $assetid, $this->_running_vars['to_parent_assetid']);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return FALSE;
+					$this->_running_vars['to_parent_pos']++;
+				} else {
+					$step_data['message'] = translate('hipo_skipping_asset', $asset->id);
 				}
-
-				$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
-				$asset    =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_link['minorid'], $new_link['minor_type_code']);
-
-				if (is_null($asset)) {
-					trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return FALSE;
-				}
-				$new_parent_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->_running_vars['to_parent_assetid']));
-				$step_data['message'] = translate('hipo_move', $asset->name, $new_parent_info[$this->_running_vars['to_parent_assetid']]['name']);
-
-				$this->_running_vars['to_parent_pos']++;
 
 			}//end else moving to trash
 

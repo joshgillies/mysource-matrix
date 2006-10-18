@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.60 2006/10/16 05:15:58 rong Exp $
+* $Id: lang_errors.xml,v 1.61 2006/10/18 07:07:06 rong Exp $
 *
 */
 
@@ -390,6 +390,8 @@
 	<error code="CRON0049">A long running cron job (%s) has returned an error status.</error>
 
 	<error code="CRON0050">Start time for %s is not defined.</error>
+
+	<error code="CRON0051">Unable to set future lineage, asset %s is not safe to be trashed.</error>
 
 	<!-- MAPS - MYSOURCE AUTOMATED PATCHING SYSTEM -->
 

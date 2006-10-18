@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.176 2006/10/16 05:15:58 rong Exp $
+* $Id: lang_strings.xml,v 1.177 2006/10/18 07:07:06 rong Exp $
 *
 */
 
@@ -644,6 +644,13 @@
 	<string source="hipo_cloning_confirm">Please confirm that you are cloning the following asset(s) to under "%s":</string>
 	<string source="hipo_asset_cloning_successful">The following asset(s) have been successfully Cloned under "%s":</string>
 	<string source="hipo_confirm_abort">Press the &lt;b&gt;Next&lt;/b&gt; button below to confirm or the &lt;b&gt;Cancel&lt;/b&gt; button to abort.</string>
+	<string source="hipo_abort">Press the &lt;b&gt;Cancel&lt;/b&gt; button to abort.</string>
+	<string source="hipo_warning_safe_trash_few">You have selected to trash %1$s asset(s) but %2$s asset(s) cannot be moved to the trash. Please see the warning section for more information.</string>
+	<string source="hipo_warning_safe_trash_all">None of the selected assets can be moved to the trash. Please see the warning section for more information.</string>
+	<string source="hipo_warning_safe_trash_notice_link">The following asset(s) will not be trashed until all related notice links are removed.</string>
+	<string source="hipo_warning_safe_trash_link">Asset has notice links to other assets</string>
+	<string source="hipo_warning_safe_trash_status">The following asset(s) will not be trashed until their statuses are set to Under Construction or Archived.</string>
+	<string source="hipo_warning_safe_trash_children">The following asset(s) will not be trashed because one or more of the children either have statuses that are not safe to be trashed, or have notice links to other assets.</string>
 	<string source="hipo_move_confirmation">Move Confirmation</string>
 	<string source="hipo_confirm_new_links">Please confirm that you are creating new link(s) for the following asset(s) under "%s":</string>
 	<string source="hipo_from_under">"%1$s" from under "%2$s"</string>
