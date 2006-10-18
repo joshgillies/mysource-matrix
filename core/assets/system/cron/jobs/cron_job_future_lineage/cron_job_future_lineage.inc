@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.22 2006/06/27 01:33:56 lwright Exp $
+* $Id: cron_job_future_lineage.inc,v 1.23 2006/10/18 07:07:58 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -312,25 +312,81 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			return $failed_ret_val;
 		}
 
+		// if we are moving to the trash folder, we need to check if the safe trash pref has been enabled
+		$can_safe_trash = TRUE;
+		$safe_trash = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_SAFE_TYPE3_TRASH');
+		if ($safe_trash) {
+			// safe trash is enabled, and asset is LIVE
+			if ($minor->status >= SQ_STATUS_LIVE ) {
+				$can_safe_trash = FALSE;
+			}
+			// safe trash is enabled, and there are notice link(s) to other assets
+			$affected_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE, '', TRUE, 'minor');
+			foreach ($affected_links as $info) {
+				// make sure that we are not treating notice link to this future cron job as problematic link
+				if ($info['major_type_code'] != $this->type()) {
+					$can_safe_trash = FALSE;
+					break;
+				}
+			}
+
+			// check the same thing for all children
+			$children = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($minor, '', TRUE, FALSE);
+			if (!empty($children)) {
+				// modify the selection so that we only get 1 column
+				$children['select'] = '(SELECT DISTINCT l.minorid';
+				if (isset($children['union_select'])) {
+					$children['union_select'] = 'UNION ALL SELECT sl.minorid';
+				}
+				$db =& $GLOBALS['SQ_SYSTEM']->db;
+				$sql = 'SELECT
+							majorid, minorid, name, linkid, status, link_type
+						FROM
+							'.SQ_TABLE_RUNNING_PREFIX.'ast_lnk lnk
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast ast ON (ast.assetid = lnk.minorid)
+						WHERE
+							(
+								(link_type = '.$db->quoteSmart(SQ_LINK_TYPE_3).' OR link_type = '.$db->quoteSmart(SQ_LINK_NOTICE).') OR
+								(status >= '.$db->quoteSmart(SQ_STATUS_LIVE).')
+							) AND
+							assetid IN ('.implode(' ', $children).')';
+				$result = $db->getAll($sql);
+				assert_valid_db_result($result);
+				if (!empty($result)) {
+					$can_safe_trash = FALSE;
+				}
+			}
+		}
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$delete_link_success = TRUE;
-		if ($this->attr('delete_link_all') == TRUE) {
+		if ($this->attr('delete_link_all') == TRUE && $can_safe_trash) {
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'minor');
 			foreach ($links as $link) {
 				if (!$delete_link_success = $this->_execDeleteLink($link['linkid'])) {
 					break;
 				}//end if
 			}
-		} else if ($this->attr('delete_linkid') > 0) {
+		} else if ($this->attr('delete_linkid') > 0 && $can_safe_trash) {
 			$delete_link_success = $this->_execDeleteLink($this->attr('delete_linkid'));
 		}//end if
 
 		if (!$delete_link_success) return $failed_ret_val;
 
 		$new_major =& $this->getAssetInLink('major');
+
 		if (!is_null($new_major)) {
+
+			// if moving to the trash, and it is not safe to do so, throw an error
+			$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+			if ($new_major->id == $trash_folder->id && !$can_safe_trash) {
+				trigger_localised_error('CRON0051', E_USER_WARNING, $minor->id);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				return $failed_ret_val;
+			}
 
 			$link_info = $this->attr('link_info');
 			if (!isset($link_info['value'])) {
