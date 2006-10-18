@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses.inc,v 1.3 2006/01/09 03:41:04 emcdonald Exp $
+* $Id: report_asset_statuses.inc,v 1.4 2006/10/18 02:25:24 emcdonald Exp $
 *
 */
 
@@ -55,55 +55,7 @@ class Report_Asset_Statuses extends Report
 	*/
 	function getAssetMapLinks()
 	{
-		if (!isset($this->_tmp['getAssetMapLinks'])) {
-
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
-
-			require_once 'XML/Tree.php';
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-
-			$report_path = $this->data_path.'/report.xml';
-
-			if (!is_file($report_path)) return Array();
-
-			$input =& new XML_Tree($report_path);
-			$root  =& $input->getTreeFromFile();
-			if (PEAR::isError($root)) return Array();
-
-			$links = Array();
-			$sort_order = 0;
-			$cmp_func = create_function('$a, $b', 'return $a->attributes[\'type_code\'] < $b->attributes[\'type_code\'];');
-			usort($root->children, $cmp_func);
-			foreach ($root->children as $asset_node) {
-				$assetid = $asset_node->attributes['assetid'];
-				if ($assetid == $this->id) continue;
-				$name = $asset_node->attributes['name'];
-				$type_code = $asset_node->attributes['type_code'];
-				$status = $asset_node->children[0]->attributes['value'];
-
-				$links[] = Array(
-							'assetid'		=> $assetid,
-							'short_name'	=> $name,
-							'name'			=> $name,
-							'accessible'	=> 1,
-							'type_code'		=> $type_code,
-							'status'		=> $status,
-							'linkid'		=> '0',
-							'link_type'		=> SQ_LINK_TYPE_1,
-							'num_kids'		=> 0,
-							'sort_order'	=> $sort_order,
-							'url'			=> '',
-							'path'			=> '',
-						   );
-
-				$sort_order++;
-			}
-
-			$this->_tmp['getAssetMapLinks'] = $links;
-
-		}//end if not cached
-
-		return $this->_tmp['getAssetMapLinks'];
+		return Array();
 
 	}//end getAssetMapLinks()
 
@@ -131,51 +83,7 @@ class Report_Asset_Statuses extends Report
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
 	{
-		assert_equals($assetid, $this->id, 'The Asset Statuses Report can only get its own links');
-
-		if (!isset($this->_tmp['getLinks'])) {
-
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
-
-			require_once 'XML/Tree.php';
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-
-			$report_path = $this->data_path.'/report.xml';
-
-			if (!is_file($report_path)) return Array();
-
-			$input =& new XML_Tree($report_path);
-			$root  =& $input->getTreeFromFile();
-			if (PEAR::isError($root)) return Array();
-
-			$links = Array();
-			$sort_order = 0;
-			$cmp_func = create_function('$a, $b', 'return $a->attributes[\'type_code\'] < $b->attributes[\'type_code\'];');
-			usort($root->children, $cmp_func);
-			foreach ($root->children as $asset_node) {
-				$assetid = $asset_node->attributes['assetid'];
-				if ($assetid == $this->id) continue;
-				$type_code = $asset_node->attributes['type_code'];
-
-				$links[] = Array(
-							'linkid'			=> 0,
-							'minorid'			=> $assetid,
-							'value'				=> '',
-							'link_type'			=> SQ_LINK_TYPE_1,
-							'minor_type_code'	=> $type_code,
-							'sort_order'		=> $sort_order,
-							'is_dependant'		=> '0',
-							'is_exclusive'		=> '0',
-						   );
-
-				$sort_order++;
-			}
-
-			$this->_tmp['getLinks'] = $links;
-
-		}//end if not cached
-
-		return $this->_tmp['getLinks'];
+		return Array();
 
 	}//end getLinks()
 
