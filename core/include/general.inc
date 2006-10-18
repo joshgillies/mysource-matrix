@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.151 2006/09/21 23:36:15 rong Exp $
+* $Id: general.inc,v 1.152 2006/10/18 00:23:06 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.151 $
+* @version $Revision: 1.152 $
 * @package MySource_Matrix
 */
 
@@ -1478,6 +1478,36 @@ function replace_global_keywords(&$text)
 					$user_replacement = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($user_keyword);
 					if ($user_replacement != "%$user_keyword%") {
 						$replacements[$keyword] =  $user_replacement;
+					}
+				}
+				if (0 === strpos($keyword, 'globals_site_')) {
+					// We must find the site before we can replace these keywords
+					$asset_url = current_url(FALSE, TRUE);
+					$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url);
+
+					$site_assetid = 0;
+					foreach($asset_lineage as $asset_link) {
+						$asset_type = $asset_link['type_code'];
+						if ($asset_type == 'site' || $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'site')) {
+							$site_assetid = $asset_link['assetid'];
+							break;
+						}
+					}
+					if (!empty($site_assetid)) {
+						$site =& $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
+
+						$site_keyword = 'asset_'.substr($keyword, 13);
+						$site_replacement = $site->getKeywordReplacement($site_keyword);
+						if ($site_replacement != "%$site_keyword%") {
+							$replacements[$keyword] = $site_replacement;
+						}
+					}
+				}
+				if (0 === strpos($keyword, 'globals_asset_')) {
+					$asset_keyword = 'asset_'.substr($keyword, 14);
+					$asset_replacement = $GLOBALS['SQ_SYSTEM']->frontend_asset->getKeywordReplacement($asset_keyword);
+					if ($asset_replacement != "%$user_keyword%") {
+						$replacements[$keyword] = $asset_replacement;
 					}
 				}
 			}

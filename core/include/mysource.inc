@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.192 2006/10/11 23:47:42 tbarrett Exp $
+* $Id: mysource.inc,v 1.193 2006/10/18 00:23:06 bcaldwell Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.192 $
+* @version $Revision: 1.193 $
 * @package MySource_Matrix
 */
 class MySource
@@ -441,9 +441,7 @@ class MySource
 				$content = ob_get_contents();
 			ob_end_clean();
 
-			if ($this->getGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', TRUE)) {
-				$this->_replaceKeyword($content);
-			}
+			$this->_replaceKeyword($content);
 			echo $content;
 
 		}//end else backend/limbo
@@ -561,19 +559,25 @@ class MySource
 	*/
 	function _replaceKeyword(&$content, $additional_replacements=Array())
 	{
-		$keywords = retrieve_keywords_replacements($content);
-		foreach ($keywords as $word) {
-			if (!isset($additional_replacements[$word])) {
-				$replacement = $this->frontend_asset->getKeywordReplacement($word);
-				// still cannot replace it, blank it out
-				if ($replacement == "%$word%") {
-					$additional_replacements[$word] = '';
-				} else {
-					$additional_replacements[$word] = $replacement;
+		// Replace any global keywords first
+		replace_global_keywords($content);
+
+		if ($this->getGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', TRUE)) {
+			// Perform any additional replacements
+			$keywords = retrieve_keywords_replacements($content);
+			foreach ($keywords as $word) {
+				if (!isset($additional_replacements[$word])) {
+					$replacement = $this->frontend_asset->getKeywordReplacement($word);
+					// still cannot replace it, blank it out
+					if ($replacement == "%$word%") {
+						$additional_replacements[$word] = '';
+					} else {
+						$additional_replacements[$word] = $replacement;
+					}
 				}
 			}
+			replace_keywords($content, $additional_replacements);
 		}
-		replace_keywords($content, $additional_replacements);
 
 	}//end _replaceKeyword()
 

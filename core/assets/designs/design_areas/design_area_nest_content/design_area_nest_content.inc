@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content.inc,v 1.23 2006/06/29 01:55:16 tbarrett Exp $
+* $Id: design_area_nest_content.inc,v 1.24 2006/10/18 00:23:21 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -181,11 +181,6 @@ class Design_Area_Nest_Content extends Design_Area
 				ob_start();
 					$nest_content_'.$this->attr('id_name').'_asset->printBody();
 				$body = ob_get_clean();
-
-				// global keyword replacements
-				if (!empty($body)) {
-					replace_global_keywords($body);
-				}
 
 				echo $body;
 			}
