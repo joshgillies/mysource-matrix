@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.php,v 1.10 2006/03/02 22:51:10 rong Exp $
+* $Id: html_tidy.php,v 1.11 2006/10/18 05:35:21 rhoward Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
@@ -197,6 +197,7 @@ if (!isset($_GET['name']))		  $_GET['name'] = '';
 										<input type="checkbox" name="rep_type2" id="rep_type2" checked="checked"/><label for="rep_type2"> Remove double spaces</label><br/>
 										<input type="checkbox" name="rep_type3" id="rep_type3" checked="checked"/><label for="rep_type3"> Remove <b>non-HTML</b> tags</label><br/>
 										<input type="checkbox" name="rep_type4" id="rep_type4" checked="checked"/><label for="rep_type4"> Change Microsoft Word<sup>&#174;</sup>'s bullets</label><br/>
+										<input type="checkbox" name="rep_type5" id="rep_type5" checked="checked"/><label for="rep_type5"> Remove soft hyphens (&amp;shy;)</label><br/>
 									</td>
 								</tr>
 								<tr>
@@ -211,12 +212,12 @@ if (!isset($_GET['name']))		  $_GET['name'] = '';
 							<table style="width:100%">
 								<tr>
 									<td>
-										<input type="checkbox" name="rep_type5" id="rep_type5" /><label for="rep_type5"> Remove <b>style</b> attribute</label><br/>
-										<input type="checkbox" name="rep_type6" id="rep_type6" /><label for="rep_type6"> Remove <b>class</b> attribute</label><br/>
-										<input type="checkbox" name="rep_type7" id="rep_type7" /><label for="rep_type7"> Remove <b>&lt;table&gt;</b> tags</label><br/>
-										<input type="checkbox" name="rep_type8" id="rep_type8" /><label for="rep_type8"> Remove <b>&lt;span&gt;</b> tags</label><br/>
-										<input type="checkbox" name="rep_type9" id="rep_type9" /><label for="rep_type9"> Remove all empty tags</label><br/>
-										<input type="checkbox" name="rep_type10" id="rep_type10" /><label for="rep_type10"> Remove all tags' attributes</label><br/>
+										<input type="checkbox" name="rep_type6" id="rep_type6" /><label for="rep_type6"> Remove <b>style</b> attribute</label><br/>
+										<input type="checkbox" name="rep_type7" id="rep_type7" /><label for="rep_type7"> Remove <b>class</b> attribute</label><br/>
+										<input type="checkbox" name="rep_type8" id="rep_type8" /><label for="rep_type8"> Remove <b>&lt;table&gt;</b> tags</label><br/>
+										<input type="checkbox" name="rep_type9" id="rep_type9" /><label for="rep_type9"> Remove <b>&lt;span&gt;</b> tags</label><br/>
+										<input type="checkbox" name="rep_type10" id="rep_type10" /><label for="rep_type10"> Remove all empty tags</label><br/>
+										<input type="checkbox" name="rep_type11" id="rep_type11" /><label for="rep_type11"> Remove all tags' attributes</label><br/>
 									</td>
 								</tr>
 							</table>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.40 2006/09/27 23:14:53 gsherwood Exp $
+* $Id: html_tidy.inc,v 1.41 2006/10/18 05:35:21 rhoward Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -209,6 +209,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 					}
 					var HTMLtags = "!--|a|abbr|above|acronym|address|applet|array|area|b|base|basefont|bdo|bgsound|big|blink|blockquote|body|box|br|blink|button|caption|center|cite|code|col|colgroup|comment|dd|del|dfn|dir|div|dl|dt|em|embed|fieldset|fig|font|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|hr|html|i|id|iframe|ilayer|img|input|ins|isindex|kbd|label|layer|legend|li|link|listing|map|marquee|menu|meta|multicol|nextid|nobr|noframes|nolayer|note|noscript|object|ol|option|keygen|optgroup|p|param|pre|q|quote|range|root|s|samp|script|select|small|sound|spacer|span|sqrt|strike|strong|style|sub|sup|table|tbody|td|text|textarea|tfoot|th|thead|title|tr|tt|u|ul|var|wbr|xmp";
 					var bullet = unescape("%B7");
+					var shy    = unescape("%AD");
 					for (var i=1;i<types.length;i++)
 						if (types[i])
 							{
@@ -234,16 +235,21 @@ class HTML_Tidy extends Wysiwyg_Plugin
 									break;
 								}
 								case 5	: {
-									reg = new RegExp(" style=\"?[^\">]*\"?", "gi");
+									reg = new RegExp("(&shy;?|"+shy+")", "gi");
 									rep = "";
 									break;
 								}
 								case 6	: {
-									reg = new RegExp(" class=\"?[^\"> ]*[\"]?", "gi");
+									reg = new RegExp(" style=\"?[^\">]*\"?", "gi");
 									rep = "";
 									break;
 								}
 								case 7	: {
+									reg = new RegExp(" class=\"?[^\"> ]*[\"]?", "gi");
+									rep = "";
+									break;
+								}
+								case 8	: {
 									reg = new RegExp("<(table|/table|tr|tbody|/tbody|td|th) ?[^>]*>", "gi");
 									rep = "";
 									curHTML = curHTML.replace(reg, rep);
@@ -251,17 +257,17 @@ class HTML_Tidy extends Wysiwyg_Plugin
 									rep = "<br />";
 									break;
 								}
-								case 8	: {
+								case 9	: {
 									reg = new RegExp("<\/?span( [^>]*>|>)", "gi");
 									rep = "";
 									break;
 								}
-								case 9	: {
+								case 10	: {
 									reg = new RegExp("<([A-Z][A-Z0-9]*)( [^>]*)?>(&nbsp;| |\n|\t)*<\/\\1>", "gi");
 									rep = "";
 									break;
 								}
-								case 10	: {
+								case 11	: {
 									reg = new RegExp('<([^\/ >]+)([^>]*?( (src|href)="?[^>"]*"?)*)*>', "gi");
 									rep = "<$1$3>";
 									break;
@@ -269,7 +275,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 								default	: return false;
 							}
 							// BUG#928 - special condition to allow empty anchor tag
-							if (i == 9) {
+							if (i == 10) {
 									reg2 = new RegExp("(<A NAME[^>]*?>)(&nbsp;| |\n|\t)*(</A>)", "gi");
 									rep2 = "$1matrix_anchor_tmp$3"
 									curHTML = curHTML.replace(reg2, rep2);
@@ -278,7 +284,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 									curHTML = curHTML.replace(reg2, rep2);
 							}
 							curHTML = curHTML.replace(reg, rep);
-							if (i == 9) {
+							if (i == 10) {
 									reg3 = new RegExp("(<A NAME[^>]*?>)matrix_anchor_tmp(</A>)", "gi");
 									rep3 = "$1$2"
 									curHTML = curHTML.replace(reg3, rep3);
