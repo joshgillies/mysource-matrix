@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.66 2006/10/16 05:13:36 rong Exp $
+* $Id: cron_manager.inc,v 1.67 2006/10/19 23:41:54 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -597,7 +597,7 @@ class Cron_Manager extends Asset
 
 						// we have been asked to remove this cron job
 						if ($result & SQ_CRON_JOB_REMOVE) {
-							$remove_jobs[] = $job_info['linkid'];
+							$remove_jobs[] = $job_info;
 							$ignore_jobs[] = $cron_job->id;
 
 						} else if ($result & SQ_CRON_JOB_RETRY) {
@@ -614,7 +614,7 @@ class Cron_Manager extends Asset
 
 								// if they have had their fair share, get rid of them
 								if ($failed_runs[$cron_job->id] >= (int) $this->attr('num_failed_attempts')) {
-									$remove_jobs[] = $job_info['linkid'];
+									$remove_jobs[] = $job_info;
 									$ignore_jobs[] = $cron_job->id;
 
 									$user       =& $cron_job->getRunningUser();
@@ -669,8 +669,10 @@ class Cron_Manager extends Asset
 
 						$this->setAttrValue('run_check', 0);
 						if (!empty($remove_jobs)) {
-							foreach ($remove_jobs as $linkid) {
-								$this->deleteLink($linkid);
+							foreach ($remove_jobs as $job_info) {
+								$cron_job =& $am->getAsset($job_info['assetid'], $job_info['type_code']);
+								$this->removeJob($cron_job);
+								$am->forgetAsset($cron_job);
 							}
 						}
 
@@ -709,7 +711,7 @@ class Cron_Manager extends Asset
 					if ($cron_job->attr('long') && !$cron_job->attr('running')) {
 						$result = $cron_job->run();
 						if ($result & SQ_CRON_JOB_REMOVE) {
-							$this->deleteLink($job_info['linkid']);
+							$this->removeJob($cron_job);
 						} else if ($result & SQ_CRON_JOB_ERROR) {
 							trigger_localised_error('CRON0049', E_USER_WARNING, $cron_job->id);
 						}
