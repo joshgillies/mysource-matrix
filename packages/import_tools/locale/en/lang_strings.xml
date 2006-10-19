@@ -11,13 +11,14 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2006/04/26 05:47:50 skim Exp $
+* $Id: lang_strings.xml,v 1.6 2006/10/19 02:23:47 skim Exp $
 *
 *
 * CMS Package Localised Strings File
 */
 -->
 <strings>
+<!-- Structured File Import Tool -->
 <string source="import_tools_not_ready">Import Tool is not ready to use</string>
 <string source="import_tools_not_ready_msg">Please set the import directory in Import Tool Manager under System Management.</string>
 <string source="import_tools_new_doc">New Document Import</string>
@@ -51,4 +52,18 @@
 <string source="import_tools_tidy_note">Selecting this option will generate well-formed HTML, but may affect the formatting of the document. It can also slow down the importing process.</string>
 <string source="import_tools_footnotes">Fix Anchor Tags and Footnotes</string>
 <string source="import_tools_javascript_warning">You cannot import a file while deleting a file</string>
+
+<!-- File Import Tool -->
+<string source="file_import_tools_warning">Warning</string>
+<string source="file_import_tools_select_file">Select a directory to import into the system</string>
+<string source="file_import_tools_not_ready">File Import Tool is not ready</string>
+<string source="file_import_tools_not_ready_msg">Please set the file import directory in Import Tool Manager under System Management</string>
+<string source="file_import_tools_allow_unrestricted_note">Set to Yes to allow this file to be be served by the web server if it is Live and publically readable.</string>
+<string source="file_import_tools_file_link_type_msg">Default link type when it is created under its parent asset.</string>
+<string source="file_import_tools_file_chunk">These files locate under %s and they will be import at once.</string>
+<string source="file_import_tools_hipo_job_name">Hipo Job File Import</string>
+<string source="file_import_tools_hipo_threshold">File Import Threshold</string>
+<string source="file_import_tools_hipo_can_not_create_file">File Import failed to create "%s" asset under Assetid : %d</string>
+
+
 </strings>

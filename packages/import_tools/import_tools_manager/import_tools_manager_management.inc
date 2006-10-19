@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tools_manager_management.inc,v 1.1.1.1 2006/02/20 22:36:45 dmckee Exp $
+* $Id: import_tools_manager_management.inc,v 1.2 2006/10/19 02:23:40 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 0.1
+* @version $Revision: 1.2 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -81,6 +81,11 @@ class Import_Tools_Manager_Management extends Asset_Management
 													'parameters'	=> Array(
 																		'allow_empty'	=> FALSE,
 																	   ),
+												   ),
+						'file_import_dir'		=> Array(
+													'added'		=> '0.1',
+													'type'		=> 'text',
+													'default'	=> '',
 												   ),
 					  );
 
