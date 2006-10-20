@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.15 2006/01/30 04:54:02 dmckee Exp $
+* $Id: ldap_user.inc,v 1.16 2006/10/20 01:14:13 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -112,7 +112,7 @@ class Ldap_User extends Backend_User
 			$this->vars['email']['value'] = '';
 		}
 
-		$this->vars['email']['type'] = 'text';
+		$this->vars['email']['type'] = 'email';
 
 		if (isset($attrs['fn']) && isset($data[$attrs['fn']])) {
 			$this->vars['first_name']['value'] = $data[$attrs['fn']][0];
