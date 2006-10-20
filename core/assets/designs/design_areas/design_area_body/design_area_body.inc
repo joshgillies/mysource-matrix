@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.29 2006/10/18 00:23:21 bcaldwell Exp $
+* $Id: design_area_body.inc,v 1.30 2006/10/20 06:01:45 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,57 +54,113 @@ class Design_Area_Body extends Design_Area
 		$format = $this->attr('format');
 
 		echo '
-		<','?php
-		$body = \'\';
+		<','?php';
+		// NB we are leaving PHP mode here so that
+		// the following code is echoed rather than executed
+		?>
+
+		$body = '';
 		if (SQ_IN_LIMBO) {
+
+			// Print the Simple Edit Interface
+			$ASSET->printLimbo();
+
+		} else if ((array_get_index($_GET, 'SQ_ACTION') == 'diff') && ($ASSET->status & SQ_SC_STATUS_SAFE_EDITING) && $ASSET->writeAccess('')) {
+
+			// Show the diff between system version and edited version
+
+			// Keep track of used assets for later...
+			$num_previous_gets = count($GLOBALS['SQ_SYSTEM']->am->_get_asset_history);
+
+			// Get the live contents of the asset being displayed
 			ob_start();
-				$ASSET->printLimbo();
-				$body = ob_get_contents();
+				$ASSET->printBody();
+				$edited_contents = ob_get_contents();
 			ob_end_clean();
+
+			// Set the force-system-version flag
+			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('force_system_version', TRUE);
+
+				// Reload all assets that were used during the previous printbody,
+				// so they know they have to use the system version
+				$used_asset_ids = array_unique(array_slice($GLOBALS['SQ_SYSTEM']->am->_get_asset_history, $num_previous_gets));
+				foreach ($used_asset_ids as $used_asset_id) {
+					$used_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($used_asset_id);
+					$used_asset->reload();
+				}
+				$ASSET->reload();
+
+				// Keep track for next time...
+				$num_previous_gets = count($GLOBALS['SQ_SYSTEM']->am->_get_asset_history);
+
+				// Get the safe edit contents of the asset being displayed
+				ob_start();
+					$ASSET->printBody();
+					$system_version_contents = ob_get_contents();
+				ob_end_clean();
+
+			// Unset the force-system-version flag
+			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('force_system_version', FALSE);
+
+			// Reload all assets that were used during the printbody,
+			// so they no longer think they have to use the system version
+			$used_asset_ids = array_unique(array_slice($GLOBALS['SQ_SYSTEM']->am->_get_asset_history, $num_previous_gets));
+			foreach ($used_asset_ids as $used_asset_id) {
+				$used_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($used_asset_id);
+				$used_asset->reload();
+			}
+			$ASSET->reload();
+
+			// Show the differences
+			require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/design_area_body/matrix_diff_highlighter.inc';
+			$highlighter =& new Matrix_Diff_Highlighter();
+			echo $highlighter->process($system_version_contents, $edited_contents);
+
 		} else {
+
+			// Print the body as normal
 			if ($ASSET->_is_cacheable) {
-				$cm = &$GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
+				$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 				$body = $cm->loadFromCache($ASSET->id, $ASSET->type());
 			}
 			if (empty($body)) {
-
 				ob_start();
-
-				$ASSET->printBodyWithPaintLayout();
-
-				$body = ob_get_clean();
+					$ASSET->printBodyWithPaintLayout();
+					$body = ob_get_contents();
+				ob_end_clean();
 			}
-		';
 
-		switch ($format) {
-			case 'text':
-			case 'low_bandwidth':
-				// text only design - strip images, embeds and objects
-				echo '
-					$body = preg_replace(\'|\<img([^\>]*)\>|Ui\',\'\',$body);
-					$body = preg_replace(\'|\\<embed(.*)\>(.*)</embed>|i\',\'\',$body);
-					$body = preg_replace(\'|\\<object(.*)\>(.*)</object>|i\',\'\',$body);
-					';
-				if ($format == 'low_bandwidth') {
-					// low bandwidth design - strip images, embeds, objects, and additional whitespace
+			<?php
+			switch ($format) {
+				case 'text':
+				case 'low_bandwidth':
+					// text only design - strip images, embeds and objects
 					echo '
-						$body = preg_replace(\'|\s+|\', \' \', $body);
-						$body = str_replace(\'<br />\', \'<br/>\', $body);
-						$body = str_replace(\'<br/>\', "\n", $body);
-						$body = preg_replace(\'|\n\s+|\', "\n", $body);
-						$body = preg_replace(\'|[\n]+|\', "\n", $body);
-						$body = str_replace("\n", \'<br/>\', $body);
+						$body = preg_replace(\'|\<img([^\>]*)\>|Ui\',\'\',$body);
+						$body = preg_replace(\'|\\<embed(.*)\>(.*)</embed>|i\',\'\',$body);
+						$body = preg_replace(\'|\\<object(.*)\>(.*)</object>|i\',\'\',$body);
 						';
-				}
-			break;
-		}
+					if ($format == 'low_bandwidth') {
+						// low bandwidth design - strip images, embeds, objects, and additional whitespace
+						echo '
+							$body = preg_replace(\'|\s+|\', \' \', $body);
+							$body = str_replace(\'<br />\', \'<br/>\', $body);
+							$body = str_replace(\'<br/>\', "\n", $body);
+							$body = preg_replace(\'|\n\s+|\', "\n", $body);
+							$body = preg_replace(\'|[\n]+|\', "\n", $body);
+							$body = str_replace("\n", \'<br/>\', $body);
+							';
+					}
+				break;
+			}
+			?>
+			echo $body;
 
-		echo '
-		}
-		echo $body;
-		';
+		}//end else print normally
+		<?php
 		echo '
 		?','>';
+
 		return TRUE;
 
 	}//end _printPaintingCode()

@@ -1,0 +1,40 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1 2006/10/20 06:01:45 tbarrett Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="General">
+		<field attribute="format">
+			<display_name>Format</display_name>
+		</field>
+		<field attribute="print">
+			<display_name>Print</display_name>
+			<note>Select whether this design area should be printed or hidden in this design customisation</note>
+		</field>
+		<field attribute="cache">
+			<display_name>Cache?</display_name>
+			<note>Select whether this design area should be cached in this design customisation.  Caching improves performance but can reduce the currency of frontend output.</note>
+		</field>
+	</section>
+</contents>

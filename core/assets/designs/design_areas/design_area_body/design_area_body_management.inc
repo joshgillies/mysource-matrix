@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body_management.inc,v 1.9 2006/02/07 01:06:57 dmckee Exp $
+* $Id: design_area_body_management.inc,v 1.10 2006/10/20 06:01:45 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,9 +50,17 @@ class Design_Area_Body_Management extends Asset_Management
 		$this->vars = Array(
 						'format'	=> Array(
 										'added'			=> '0.1',
-										'type'			=> 'text',
+										'type'			=> 'selection',
 										'default'		=> 'html',
 										'description'	=> 'Format that the body tag is printed as (text, HTML, etc)',
+										'parameters'	=> Array(
+															'options'		=> Array(
+																				'html'			=> translate('full_html'),
+																				'text'			=> translate('text_only'),
+																				'low_bandwidth'	=> translate('low_bandwidth'),
+																			   ),
+															'allow_empty'	=> FALSE,
+														   ),
 									   ),
 					  );
 
