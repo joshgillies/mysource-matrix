@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.51 2006/08/08 07:00:07 rong Exp $
+* $Id: cache_manager.inc,v 1.52 2006/10/20 05:57:37 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -566,6 +566,9 @@ class Cache_Manager extends Asset
 		// First check some obvious things
 		if (SQ_ROLLBACK_VIEW) return FALSE;
 		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_NOCACHE_SUFFIX) {
+			return FALSE;
+		}
+		if (array_get_index($_GET, 'SQ_ACTION') == 'diff') {
 			return FALSE;
 		}
 
