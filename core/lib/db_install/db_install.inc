@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.32.2.4 2006/07/13 00:13:33 rong Exp $
+* $Id: db_install.inc,v 1.32.2.5 2006/10/20 00:29:23 mbrydon Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32.2.4 $
+* @version $Revision: 1.32.2.5 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -47,17 +47,17 @@
 */
 function parse_tables_xml($xml_file)
 {
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	$input =& new XML_Tree($xml_file);
-	$root = &$input->getTreeFromFile();
+	$root =& $input->getTreeFromFile();
 
 	if (PEAR::isError($root)) {
 		trigger_error($root->getMessage().'<br/>'.$root->getUserInfo(), E_USER_WARNING);
-		return false;
+		return FALSE;
 	}
 	if ($root->name != 'schema' || $root->children[0]->name != 'tables' || $root->children[1]->name != 'sequences') {
 		trigger_localised_error('SYS0012', E_USER_WARNING);
-		return false;
+		return FALSE;
 	}
 
 	$info = Array();
@@ -67,31 +67,31 @@ function parse_tables_xml($xml_file)
 	//--        TABLES        --//
 
 	for ($i = 0; $i < count($root->children[0]->children); $i++) {
-		$table      = &$root->children[0]->children[$i];
+		$table      =& $root->children[0]->children[$i];
 		$table_name = $table->attributes['name'];
 
 		$info['tables'][$table_name] = Array();
-		$info['tables'][$table_name]['rollback'] = (($table->attributes['require_rollback'] == 1) ? true : false);
-		$table_cols = &$table->children[0]->children;
+		$info['tables'][$table_name]['rollback'] = (($table->attributes['require_rollback'] == 1) ? TRUE : FALSE);
+		$table_cols =& $table->children[0]->children;
 
 		//--        TABLE COLUMNS        --//
 
 		$info['tables'][$table_name]['columns'] = Array();
 
 		for ($j = 0; $j < count($table_cols); $j++) {
-			$table_column = &$table_cols[$j];
+			$table_column =& $table_cols[$j];
 			$column_name  = $table_column->attributes['name'];
 
 			$info['tables'][$table_name]['columns'][$column_name] = Array();
-			$info['tables'][$table_name]['columns'][$column_name]['allow_null'] = (($table_column->attributes['allow_null'] == 1) ? true : false);
+			$info['tables'][$table_name]['columns'][$column_name]['allow_null'] = (($table_column->attributes['allow_null'] == 1) ? TRUE : FALSE);
 
 			//--        TABLE COLUMN VARS        --//
 
-			$type    = null;
-			$default = null;
+			$type    = NULL;
+			$default = NULL;
 
 			for ($k = 0; $k < count($table_column->children); $k++) {
-				$column_var = &$table_column->children[$k];
+				$column_var =& $table_column->children[$k];
 
 				switch (strtolower($column_var->name)) {
 					case 'type' :
@@ -102,7 +102,7 @@ function parse_tables_xml($xml_file)
 					case 'type_variations' :
 						// check for varitions of the column type for his database
 						for ($l = 0; $l < count($column_var->children); $l++) {
-							$variation = &$column_var->children[$l];
+							$variation =& $column_var->children[$l];
 							if ($variation->name == $db->phptype) {
 								$type = $variation->content;
 								break;
@@ -127,9 +127,9 @@ function parse_tables_xml($xml_file)
 			$info['tables'][$table_name]['primary_key'] = Array();
 			$info['tables'][$table_name]['unique_key'] = Array();
 
-			$table_keys = &$table->children[1]->children;
+			$table_keys =& $table->children[1]->children;
 			for ($jj = 0; $jj < count($table_keys); $jj++) {
-				$table_key = &$table_keys[$jj];
+				$table_key =& $table_keys[$jj];
 
 				// work out the columns in this key
 				$key_columns = Array();
@@ -150,9 +150,9 @@ function parse_tables_xml($xml_file)
 			//--        INDEXES        --//
 
 			// check for any indexes that need creating
-			$table_indexes = &$table->children[2]->children;
+			$table_indexes =& $table->children[2]->children;
 			for ($kk = 0; $kk < count($table_indexes); $kk++) {
-				$table_index = &$table_indexes[$kk];
+				$table_index =& $table_indexes[$kk];
 
 				// work out the columns in this index
 				for ($k = 0; $k < count($table_index->children); $k++) {
@@ -161,8 +161,8 @@ function parse_tables_xml($xml_file)
 
 				// work out the name of the index
 				$index_name    = array_get_index($table_index->attributes, 'name', $index_col_name);
-				$index_type    = array_get_index($table_index->attributes, 'type', null);
-				$index_db_type = array_get_index($table_index->attributes, 'db', null);
+				$index_type    = array_get_index($table_index->attributes, 'type', NULL);
+				$index_db_type = array_get_index($table_index->attributes, 'db', NULL);
 
 				$index_info = Array(
 								'name'		=> $index_name,
@@ -171,11 +171,11 @@ function parse_tables_xml($xml_file)
 							  );
 				$info['tables'][$table_name]['indexes'][$index_col_name] = $index_info;
 			}//end for
-		}
-	}
+		}//end for
+	}//end for
 
 	for ($i = 0; $i < count($root->children[1]->children); $i++) {
-		$sequence = &$root->children[1]->children[$i];
+		$sequence =& $root->children[1]->children[$i];
 		$sequence_name = $sequence->attributes['name'];
 		$info['sequences'][] = $sequence_name;
 	}
@@ -196,9 +196,9 @@ function parse_tables_xml($xml_file)
 * @return void
 * @access public
 */
-function create_index($tablename, $column, $index_name=null, $index_type=null)
+function create_index($tablename, $column, $index_name=NULL, $index_type=NULL)
 {
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	if (is_null($index_name)) $index_name = $column;
 
 	$sql = 'CREATE INDEX sq_'.$tablename.'_'.$index_name.' ON sq_'.$tablename;
@@ -231,7 +231,7 @@ function create_index($tablename, $column, $index_name=null, $index_type=null)
 */
 function create_table($tablename, $table_info)
 {
-	$db  = &$GLOBALS['SQ_SYSTEM']->db;
+	$db  =& $GLOBALS['SQ_SYSTEM']->db;
 	$sql = 'CREATE TABLE sq_'.$tablename.'(';
 
 	$i = 0;
@@ -271,14 +271,14 @@ function create_table($tablename, $table_info)
 *
 * @param string		$tablename			the tablename that contains the wanted indexes
 *										without the sq_ prefix
-* @param boolean	$include_rolback	if TRUE the indexes on the rollback will also be returned
+* @param boolean	$include_rollback	if TRUE the indexes on the rollback will also be returned
 *
 * @return array
 * @access public
 */
-function get_database_indexes($tablename, $include_rollback=true)
+function get_database_indexes($tablename, $include_rollback=TRUE)
 {
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 	if ($db->phptype == 'pgsql') {
 		$sql = 'SELECT
@@ -305,7 +305,7 @@ function get_database_indexes($tablename, $include_rollback=true)
 	$indexes_in_db = $db->getCol($sql);
 	assert_valid_db_result($indexes_in_db);
 
-	for (reset($indexes_in_db); null !== ($key = key($indexes_in_db)); next($indexes_in_db)) {
+	for (reset($indexes_in_db); NULL !== ($key = key($indexes_in_db)); next($indexes_in_db)) {
 		$indexes_in_db[$key] = strtolower($indexes_in_db[$key]);
 	}
 
@@ -322,7 +322,7 @@ function get_database_indexes($tablename, $include_rollback=true)
 */
 function get_database_sequences()
 {
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 	if ($db->phptype == 'pgsql') {
 		$sql = 'SELECT c.relname
@@ -341,7 +341,7 @@ function get_database_sequences()
 
 	$sequences_in_db = $db->getCol($sql);
 	assert_valid_db_result($sequences_in_db);
-	for (reset($sequences_in_db); null !== ($key = key($sequences_in_db)); next($sequences_in_db)) {
+	for (reset($sequences_in_db); NULL !== ($key = key($sequences_in_db)); next($sequences_in_db)) {
 		$sequences_in_db[$key] = strtolower($sequences_in_db[$key]);
 	}
 
@@ -358,11 +358,13 @@ function get_database_sequences()
 */
 function get_database_tables()
 {
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
-	$tables_in_db = $db->getCol($db->getSpecialQuery('tables'));
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	$query = $db->getSpecialQuery('tables');
+	assert_valid_db_result($query);
+	$tables_in_db = $db->getCol($query);
 	assert_valid_db_result($tables_in_db);
 
-	for (reset($tables_in_db); null !== ($key = key($tables_in_db)); next($tables_in_db)) {
+	for (reset($tables_in_db); NULL !== ($key = key($tables_in_db)); next($tables_in_db)) {
 		$tables_in_db[$key] = strtolower($tables_in_db[$key]);
 	}
 	return $tables_in_db;
@@ -380,9 +382,9 @@ function get_database_tables()
 * @return boolean
 * @access public
 */
-function db_install($xml_file, $verbose=true)
+function db_install($xml_file, $verbose=TRUE)
 {
-	$db           = &$GLOBALS['SQ_SYSTEM']->db;
+	$db           =& $GLOBALS['SQ_SYSTEM']->db;
 	$info         = parse_tables_xml($xml_file);
 	$tables_in_db = get_database_tables();
 
@@ -431,13 +433,13 @@ function db_install($xml_file, $verbose=true)
 				$rb_table_info = $table_info;
 				$rb_col['sq_eff_from'] = Array(
 											'type'			=> $date_type,
-											'default'		=> null,
-											'allow_null'	=> false,
+											'default'		=> NULL,
+											'allow_null'	=> FALSE,
 										 );
 				$rb_col['sq_eff_to'] = Array(
 										'type'			=> $date_type,
-										'default'		=> null,
-										'allow_null'	=> true,
+										'default'		=> NULL,
+										'allow_null'	=> TRUE,
 									   );
 
 				// append these elements to the front of the column array so they appear
@@ -451,15 +453,27 @@ function db_install($xml_file, $verbose=true)
 					array_unshift($rb_table_info['unique_key'], 'sq_eff_from');
 				}
 
+				// prepare indexes for the "sq_eff_from" and "sq_eff_to" columns
+				$table_info['rb_indexes']['sq_eff_from'] = Array(
+															'name'		=> 'sq_eff_from',
+															'type'		=> NULL,
+															'db_type'	=> NULL,
+														   );
+				$table_info['rb_indexes']['sq_eff_to'] = Array(
+															'name'		=> 'sq_eff_to',
+															'type'		=> NULL,
+															'db_type'	=> NULL,
+														 );
+
 				create_table('rb_'.$tablename, $rb_table_info);
 				$created_tables[] = 'sq_rb_'.$tablename;
-			}
+			}//end if
 		}//end if rollback
 
 		//--        INDEXES        --//
 
 		// create the database indexes for this table if they don't allready exist
-		$indexes_in_db = get_database_indexes($tablename, true);
+		$indexes_in_db = get_database_indexes($tablename, TRUE);
 
 		if (!empty($table_info['indexes'])) {
 			foreach ($table_info['indexes'] as $index_col => $index_info) {
@@ -478,6 +492,16 @@ function db_install($xml_file, $verbose=true)
 			}// end foreach
 		}//end if
 
+		// create indexes (prepared earlier) which are specific to rollback and not required to be replicated for "non-rollback" tables
+		if (($table_info['rollback']) && (!empty($table_info['rb_indexes']))) {
+			foreach ($table_info['rb_indexes'] as $index_col => $index_info) {
+				if (!in_array('sq_rb_'.$tablename.'_'.$index_info['name'], $indexes_in_db)) {
+					create_index('rb_'.$tablename, $index_col, $index_info['name'], $index_info['type']);
+					$created_indexes[] = 'sq_rb_'.$tablename.'_'.$index_info['name'];
+				}
+			}// end foreach
+		}// end if
+
 		if ($tablename == 'cache') {
 			// restore the db connection
 			$tables_in_db = $old_tables_in_db;
@@ -489,10 +513,10 @@ function db_install($xml_file, $verbose=true)
 	}//end foreach tables
 
 	if ($verbose) {
-		$table_names = empty($created_tables) ? 'No new tables added': 'New Tables:'."\n".implode($created_tables, "\n");
+		$table_names = empty($created_tables) ? 'No new tables added' : 'New Tables:'."\n".implode($created_tables, "\n");
 		pre_echo("TABLE CREATION COMPLETE\n".$table_names);
 
-		$index_names = empty($created_indexes) ? 'No Indexes added': 'New Indexes:'."\n".implode($created_indexes, "\n");
+		$index_names = empty($created_indexes) ? 'No Indexes added' : 'New Indexes:'."\n".implode($created_indexes, "\n");
 		pre_echo("INDEX CREATION COMPLETE\n".$index_names);
 	}
 
@@ -511,11 +535,11 @@ function db_install($xml_file, $verbose=true)
 
 	//--        CACHED FILES        --//
 
-	$cached_sequences_string = '<'.'?php $sequences = '.var_export($info['sequences'], true).'; ?'.'>';
+	$cached_sequences_string = '<'.'?php $sequences = '.var_export($info['sequences'], TRUE).'; ?'.'>';
 	if (!string_to_file($cached_sequences_string, SQ_DATA_PATH.'/private/db/sequences.inc')) {
 		trigger_localised_error('SYS0010', E_USER_WARNING);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		return false;
+		return FALSE;
 	}
 
 	// we don't need the detailed column information, so just
@@ -526,11 +550,11 @@ function db_install($xml_file, $verbose=true)
 	}
 	$cached_table_info = array_merge($current_cached_tables, $cached_table_info);
 
-	$cached_tables_string = '<'.'?php $tables = '.var_export($cached_table_info, true).'; ?'.'>';
+	$cached_tables_string = '<'.'?php $tables = '.var_export($cached_table_info, TRUE).'; ?'.'>';
 	if (!string_to_file($cached_tables_string, SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 		trigger_localised_error('SYS0011', E_USER_WARNING);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		return false;
+		return FALSE;
 	}
 
 	// if rollback is enabled, install the rollback triggers, otherwise remove them
@@ -542,7 +566,7 @@ function db_install($xml_file, $verbose=true)
 
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-	return true;
+	return TRUE;
 
 }//end db_install()
 
@@ -557,9 +581,9 @@ function db_install($xml_file, $verbose=true)
 * @return void
 * @access public
 */
-function grant_secondary_user_perms($verbose=true)
+function grant_secondary_user_perms($verbose=TRUE)
 {
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	if ($db->phptype == 'pgsql') {
 		$primary_dsn   = DB::parseDSN(SQ_CONF_DB_DSN);
 		$secondary_dsn = DB::parseDSN(SQ_CONF_DB2_DSN);
@@ -610,7 +634,7 @@ function grant_secondary_user_perms($verbose=true)
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}
-	}
+	}//end if
 
 }//end grant_secondary_user_perms()
 
@@ -624,30 +648,32 @@ function grant_secondary_user_perms($verbose=true)
 * @return void
 * @access public
 */
-function install_stored_relations($relations, $verbose=true)
+function install_stored_relations($relations, $verbose=TRUE)
 {
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	$fns_file = SQ_SYSTEM_ROOT.'/install/'.$db->phptype.'_'.$relations.'.xml';
 
 	// if the file does not exist, check to see if there is a common file
 	// for all database types
-	if (!file_exists($fns_file)) $fns_file = SQ_SYSTEM_ROOT.'/install/common_'.$relations.'.xml';
+	if (!file_exists($fns_file)) {
+		$fns_file = SQ_SYSTEM_ROOT.'/install/common_'.$relations.'.xml';
+	}
 
 	if (file_exists($fns_file)) {
 
 		$input =& new XML_Tree($fns_file);
-		$root  = &$input->getTreeFromFile();
+		$root  =& $input->getTreeFromFile();
 
 		if (PEAR::isError($root)) {
 			trigger_error($root->getMessage().'<br/>'.$root->getUserInfo(), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		if ($root->name != 'sql') {
 			trigger_localised_error('SYS0012', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return FALSE;
 		}
 
 		$element_names = Array();
@@ -698,7 +724,7 @@ function xml_entity_decode($string)
 */
 function get_installed_rollback_triggers()
 {
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	$trigger_like_sql = $db->quote('sq_%_rb_trg');
 
 	if ($db->phptype == 'oci8') {
@@ -730,9 +756,9 @@ function get_installed_rollback_triggers()
 * @return void
 * @access public
 */
-function install_rollback_triggers($table_columns, $verbose=true, $override=false)
+function install_rollback_triggers($table_columns, $verbose=TRUE, $override=FALSE)
 {
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	$curr_triggers      = Array();
 	$installed_triggers = Array();
 
@@ -742,7 +768,7 @@ function install_rollback_triggers($table_columns, $verbose=true, $override=fals
 
 	$curr_triggers = get_installed_rollback_triggers();
 
-	for (reset($curr_triggers); null !== ($key = key($curr_triggers)); next($curr_triggers)) {
+	for (reset($curr_triggers); NULL !== ($key = key($curr_triggers)); next($curr_triggers)) {
 		$curr_triggers[$key] = strtolower($curr_triggers[$key]);
 	}
 
@@ -923,7 +949,9 @@ function install_rollback_triggers($table_columns, $verbose=true, $override=fals
 			// if there is no update string, it means that every
 			// column is either a primary or unique key. Therefore
 			// you cannot update anything on this table - only insert and delete
-			if ($db->phptype == 'pgsql') $sql .= $if_updating.'RETURN NEW;END IF;';
+			if ($db->phptype == 'pgsql') {
+				$sql .= $if_updating.'RETURN NEW;END IF;';
+			}
 		}
 
 		// if we are deleting then we just close off
@@ -968,7 +996,7 @@ function uninstall_rollback_triggers()
 {
 	$triggers = get_installed_rollback_triggers();
 	if (!empty($triggers)) {
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		foreach ($triggers as $trigger_name) {
 			// we need to cascade the dropping of the trigger
 			// so that the postgres trigger functions are also dropped
@@ -982,6 +1010,7 @@ function uninstall_rollback_triggers()
 			assert_valid_db_result($result);
 		}
 	}
+
 }//end uninstall_rollback_triggers()
 
 
