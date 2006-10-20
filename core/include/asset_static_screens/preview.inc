@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.21 2006/03/22 05:11:11 sdanis Exp $
+* $Id: preview.inc,v 1.22 2006/10/20 05:56:36 tbarrett Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 
@@ -151,32 +151,48 @@ function paintPreview(&$owner, &$o, &$ei)
 		$o->openRaw();
 			?>
 			<script type="text/javascript">
-				function set_preview_url()
+
+				var preview_url = '<?php echo str_replace("'", "\'", $primary_url); ?>';
+
+				function update_preview_url()
 				{
-					var previewURL = document.getElementById('preview_url').value;
-					if (document.getElementById('use_cache').checked == false) {
-						previewURL += '<?php echo ($add_nocache) ? '/'.SQ_CONF_NOCACHE_SUFFIX : ''; ?>';
-					}
-					if (document.getElementById('preview_design').value != '') {
-						previewURL += '?SQ_DESIGN_NAME=' + document.getElementById('preview_design').value;
-					}
-					document.getElementById('sq_preview_frame').src = previewURL;
-					document.getElementById('sq_preview_new_window').href = previewURL;
+					var url = document.getElementById('preview_url').value;
+					var query_args = [];
 
-				}//end set_preview_url()
+					var uc = document.getElementById('use_cache');
+					if (uc != null) {
+						if (!uc.checked) {
+							url += '<?php echo ($add_nocache) ? '/'.SQ_CONF_NOCACHE_SUFFIX : ''; ?>';
+						}
+					}
 
-				//Change the new window url depending on cache options
-				function set_new_window_href(elt)
+					var sd = document.getElementById('show_diff');
+					if (sd != null) {
+						if (sd.checked) {
+							query_args.push('SQ_ACTION=diff');
+						}
+					}
+
+					var pd = document.getElementById('preview_design');
+					if ((pd != null) && (pd.value != '')) {
+						query_args.push('SQ_DESIGN_NAME='+pd.value);
+					}
+
+					if (query_args.length != 0) {
+						var query_str = '';
+						for (var i=0; i < query_args.length; i++) {
+							query_str += '&'+query_args[i];
+						}
+						url += '?'+query_str.substr(1);
+					}
+
+					document.getElementById('sq_preview_new_window').href = url;
+					preview_url = url;
+				}
+
+				function do_preview()
 				{
-					var href = document.getElementById('sq_preview_new_window').href;
-					var nocache_suffix = '<?php echo ($add_nocache) ? '/'.SQ_CONF_NOCACHE_SUFFIX : ''; ?>';
-
-					if (elt.checked == true) {
-						href = href.replace(nocache_suffix, '');
-					} else {
-						href = href + nocache_suffix;
-					}
-					document.getElementById('sq_preview_new_window').href = href;
+					document.getElementById('sq_preview_frame').src = preview_url;
 				}
 
 			</script>
@@ -186,7 +202,7 @@ function paintPreview(&$owner, &$o, &$ei)
 		$o->openSection(translate('preview_options'));
 			$o->openField(translate('url'));
 				if (count($preview_urls) > 1) {
-					combo_box('preview_url', $preview_urls, FALSE, $primary_url);
+					combo_box('preview_url', $preview_urls, FALSE, $primary_url, 1, 'onchange="update_preview_url()"');
 				} else {
 					echo $primary_url;
 					hidden_field('preview_url', $primary_url);
@@ -194,16 +210,21 @@ function paintPreview(&$owner, &$o, &$ei)
 			$o->closeField();
 			$o->openField(translate('design'));
 				if (count($preview_designs) > 1) {
-					combo_box('preview_design', $preview_designs, FALSE, '');
+					combo_box('preview_design', $preview_designs, FALSE, '', 1, 'onchange="update_preview_url()"');
 				} else {
 					echo ($has_default_design) ? 'Default Frontend Design' : 'None';
-					hidden_field('preview_design', '');
 				}
 			$o->closeField();
 			$o->openField(translate('use_cache'));
-				check_box('use_cache', '1', FALSE, 'set_new_window_href(this);');
+				check_box('use_cache', '1', FALSE, 'if (this.checked) { document.getElementById(\'show_diff\').checked = false; } update_preview_url()');
 				label(translate('show_cached_asset'), 'use_cache');
 			$o->closeField();
+			if ($owner->status & SQ_SC_STATUS_SAFE_EDITING) {
+				$o->openField(translate('show_diff'));
+					check_box('show_diff', '1', FALSE, 'if (this.checked) 				{ document.getElementById(\'use_cache\').checked = false; } update_preview_url()');
+					label(translate('show_safe_edit_difference'), 'show_diff');
+				$o->closeField();
+			}
 			$o->openRaw();
 				?>
 				<i><?php echo translate('preview_change_options'); ?></i>
@@ -215,7 +236,7 @@ function paintPreview(&$owner, &$o, &$ei)
 			$o->openRaw();
 				?>
 				<p style="text-align: right;">
-					<?php normal_button('preview_button', translate('preview'), 'set_preview_url()'); ?>
+					<?php normal_button('preview_button', translate('preview'), 'do_preview()'); ?>
 				</p>
 				<?php
 			$o->closeRaw();
@@ -223,15 +244,18 @@ function paintPreview(&$owner, &$o, &$ei)
 
 		$o->openSection(translate('preview'));
 			$o->openRaw('');
+				if ($add_nocache) {
+					$primary_url .= '/'.SQ_CONF_NOCACHE_SUFFIX;
+				}
 				ob_start();
 					?><a href="<?php echo $primary_url; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('show_in_new_window'); ?></a><?php
 					$replacements_link = ob_get_contents();
-				ob_get_clean();
+				ob_end_clean();
 				?>
 				<p class="sq-backend-field">
 					<?php echo translate('currently_previewing', $owner->name, $replacements_link); ?>
 				</p>
-				<iframe id="sq_preview_frame" src="<?php echo $primary_url; ?><?php echo ($add_nocache) ? '/'.SQ_CONF_NOCACHE_SUFFIX : ''; ?>" style="width: 100%; height: 400px; border: 1px solid #C3C3C3;"></iframe>
+				<iframe name="sq_preview_frame" id="sq_preview_frame" src="<?php echo $primary_url; ?>" style="width: 100%; height: 400px; border: 1px solid #C3C3C3;"></iframe>
 				<?php
 			$o->closeRaw();
 		$o->closeSection();
