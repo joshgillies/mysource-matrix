@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.38 2006/10/19 23:39:57 mbrydon Exp $
+* $Id: db_install.inc,v 1.39 2006/10/20 05:23:26 mbrydon Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -455,12 +455,12 @@ function db_install($xml_file, $verbose=TRUE)
 
 				// prepare indexes for the "sq_eff_from" and "sq_eff_to" columns
 				$table_info['rb_indexes']['sq_eff_from'] = Array(
-															'name'		=> 'sq_eff_from',
+															'name'		=> 'effrm',
 															'type'		=> NULL,
 															'db_type'	=> NULL,
 														   );
 				$table_info['rb_indexes']['sq_eff_to'] = Array(
-															'name'		=> 'sq_eff_to',
+															'name'		=> 'efto',
 															'type'		=> NULL,
 															'db_type'	=> NULL,
 														 );
