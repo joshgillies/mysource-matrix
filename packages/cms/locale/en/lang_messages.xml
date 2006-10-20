@@ -1,0 +1,27 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_messages.xml,v 1.1 2006/10/20 04:57:50 rong Exp $
+*
+* CMS Package Internal Messages File
+*/
+-->
+<messages>
+	<message type="asset.report.brokenlink">
+		<subject>Broken Link(s) found in "%link_report_name%" (Id# %link_report_id%)</subject>
+		<body>A broken %type% link was found in asset #%assetid%
+Link URL: <![CDATA[%link% ]]>
+Comment: <![CDATA[%description%]]>
+</body>
+	</message>
+</messages>
