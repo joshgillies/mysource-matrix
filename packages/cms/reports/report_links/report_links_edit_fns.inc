@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.16.2.6 2006/10/19 23:33:01 rong Exp $
+* $Id: report_links_edit_fns.inc,v 1.16.2.7 2006/10/20 05:02:12 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16.2.6 $
+* @version $Revision: 1.16.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -305,9 +305,11 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
 			$socket = openSocketConnection($url_parts, $errno, $errstr);
 			if (!SQ_PA_ENABLED || !$socket) {
-				// if proxy authentication is not enabled, do the old trick
+				// if proxy authentication is not enabled, or fopen fails, do the old trick
 				$socket = @fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, 15);
-				fwrite ($socket, 'HEAD '.$url_path." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
+				if ($socket) {
+					fwrite ($socket, 'HEAD '.$url_path." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
+				}
 			}
 
 			if (!$socket) {
