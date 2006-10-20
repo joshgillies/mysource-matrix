@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.107 2006/10/03 01:56:35 skim Exp $
+* $Id: user.inc,v 1.108 2006/10/20 05:57:14 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -146,6 +146,20 @@ class User extends Asset
 		return TRUE;
 
 	}//end _createAdditional()
+
+
+	/**
+	* Reload this asset from the DB, clearing all its local caches
+	*
+	* @return void
+	* @access public
+	*/
+	function reload()
+	{
+		parent::reload();
+		unset($_SESSION['sq_user_groups'][$this->id]);
+
+	}//end reload()
 
 
 	/**
