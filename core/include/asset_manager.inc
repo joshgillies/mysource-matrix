@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.517 2006/10/17 04:47:57 rong Exp $
+* $Id: asset_manager.inc,v 1.518 2006/10/20 05:55:36 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.517 $
+* @version $Revision: 1.518 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -73,6 +73,13 @@ class Asset_Manager extends MySource_Object
 	* @var Array(Asset_attribute)
 	*/
 	var $_attributes = Array();
+
+	/**
+	* This array keeps track of what assets have been requested through getAsset calls
+	*
+	* @var Array(int)
+	*/
+	var $_get_asset_history = Array();
 
 
 	/**
@@ -898,6 +905,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
+		$this->_get_asset_history[] = $assetid;
 		assert_valid_assetid($assetid);
 		$asset =& $this->_asset_cache->get($assetid);
 		if (!empty($asset) && !empty($type_code)) {
