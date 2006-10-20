@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.177 2006/10/18 07:07:06 rong Exp $
+* $Id: lang_strings.xml,v 1.178 2006/10/20 06:02:34 tbarrett Exp $
 *
 */
 
@@ -240,8 +240,10 @@
 	<string source="search_and_replace_confirmation">Search and Replace Confirmation</string>
 	<string source="security_key_incorrect">Security Key Incorrect</string>
 	<string source="severity">Severity</string>
+	<string source="show_diff">Show Diff</string>
 	<string source="show_in_asset_map">Show in Asset Map</string>
 	<string source="show_lineages">Show Lineages</string>
+	<string source="show_safe_edit_difference">Show the differences between the system version and the edited version</string>
 	<string source="spaces">Spaces</string>
 	<string source="specify_min_length_passwd">Specify a minimum password length</string>
 	<string source="standard_asset_field">Standard Asset Field</string>
@@ -443,7 +445,7 @@
 
 	<string source="most_recent">Most Recent</string>
 	<string source="history_viewed_row">The highlighted row in the version history is the current version of "%s" being viewed in rollback mode</string>
-	<string source="show_cached_asset">show the cached version of this asset</string>
+	<string source="show_cached_asset">Show the cached version of this asset</string>
 	<string source="preview_change_options">Press the Preview button after changing preview options.</string>
 	<string source="different_domain_login">You may be presented with a Login screen if you choose a URL from a domain different to &lt;b&gt;%s&lt;/b&gt;.&lt;br /&gt;Just enter your Username and Password to login as normal.</string>
 	<string source="asset_cannot_preview">This asset cannot be previewed or does not have a URL assigned to it.</string>
@@ -2030,5 +2032,10 @@ Are you sure you want to proceed?</string>
 	<string source="tool_asset_sorter_must_select_parent">You must select a parent asset whose children you want to sort</string>
 	<string source="tool_asset_sorter_complete_heading">Asset sorting complete</string>
 	<string source="tool_asset_sorter_complete_msg">The children of %1$s have been sorted by %2$s</string>
+
+	<!-- body design area formats -->
+	<string source="low_bandwidth">Low Bandwidth</string>
+	<string source="full_html">Full HTML</string>
+	<string source="text_only">Text Only</string>
 
 </strings>
