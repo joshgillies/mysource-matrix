@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.10 2006/02/07 02:27:12 sdanis Exp $
+* $Id: trigger_action_set_design.inc,v 1.11 2006/10/20 03:46:26 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -121,8 +121,10 @@ class Trigger_Action_Set_Design extends Trigger_Action
 			}
 		}
 
-		// take the link and insert the relevant entries into the lookup tables
-		$state['asset']->updateLookups();
+		// Do it by HIPO so that the children assets are also affected.
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array('assetids' => Array($state['asset']->id));
+		$hh->freestyleHipo('hipo_job_update_lookups', $vars);
 
 		return Array(
 				'assetid'	=> $state['asset']->id,
