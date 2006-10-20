@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.566 2006/10/17 01:54:57 gsherwood Exp $
+* $Id: asset.inc,v 1.567 2006/10/20 05:54:54 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.566 $
+* @version $Revision: 1.567 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -779,6 +779,20 @@ class Asset extends MySource_Object
 
 
 	/**
+	* Reload this asset from the DB, clearing all its local caches
+	*
+	* @return void
+	* @access public
+	*/
+	function reload()
+	{
+		$this->_tmp = Array();
+		$this->load($this->id);
+
+	}//end reload()
+
+
+	/**
 	* Determine whether this asset can have its last significant link removed
 	*
 	* This function is most commonly called when moving the asset to the trash.
@@ -961,15 +975,23 @@ class Asset extends MySource_Object
 	function useSystemVersion()
 	{
 		if (!isset($this->_tmp['use_system_version'])) {
-			$usv = (($this->status & SQ_SC_STATUS_SAFE_EDITING) && !$this->writeAccess(''));
-			if ($usv && !$GLOBALS['SQ_SYSTEM']->userPublic()) {
-				$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-				$publishers = $wfm->whoCanPublish($this->id);
-				if (!empty($publishers) && in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) {
-					$usv = FALSE;
+			if (!($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
+				$this->_tmp['use_system_version'] = FALSE;
+			} else {
+				if ($GLOBALS['SQ_SYSTEM']->getGlobalDefine('force_system_version')) {
+					$this->_tmp['use_system_version'] = TRUE;
+				} else {
+					$usv = (!$this->writeAccess(''));
+					if ($usv && !$GLOBALS['SQ_SYSTEM']->userPublic()) {
+						$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+						$publishers = $wfm->whoCanPublish($this->id);
+						if (!empty($publishers) && in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) {
+							$usv = FALSE;
+						}
+					}
+					$this->_tmp['use_system_version'] = $usv;
 				}
 			}
-			$this->_tmp['use_system_version'] = $usv;
 		}
 		return $this->_tmp['use_system_version'];
 
