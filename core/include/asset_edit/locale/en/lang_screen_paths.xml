@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_paths.xml,v 1.3 2005/05/20 00:36:01 lwright Exp $
+* $Id: lang_screen_paths.xml,v 1.4 2006/10/21 03:18:17 amiller Exp $
 *
 */
 -->
@@ -38,6 +38,22 @@
 			<note />
 			<function_call>
 				<paint_function   name="paintURLs"   />
+			</function_call>
+		</field>
+	</section>
+	<section name="Remaps">
+		<field>
+			<display_name>Remaps</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintEditRemapURLs" />
+				<process_function name="processEditRemapURLs" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function		name="paintAddRemapURLs" />
+				<process_function	name="processAddRemapURLs" />
 			</function_call>
 		</field>
 	</section>

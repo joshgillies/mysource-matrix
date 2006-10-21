@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.178 2006/10/20 06:02:34 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.179 2006/10/21 03:18:17 amiller Exp $
 *
 */
 
@@ -528,6 +528,7 @@
 	<string source="force_secure_set_on_asset">Force Secure (see Settings screen) is set on this asset, so if you think that there should other URLs registered you may need to check that the site(s) that this asset is has allowed the https protocol</string>
 	<string source="not_included_in_searching">Not included in searching.</string>
 	<string source="no_associated_urls">There are no URLs associated with this Asset</string>
+	<string source="no_associated_remaps">There are no remaps associated with this Asset</string>
 	<string source="metadata_keyword_replacements_usage">You can use keyword replacements in place of values for metadata fields on this page.&lt;br /&gt;For a complete list of available keyword replacements %s</string>
 	<string source="metadata_indexed_keywords">If indexing is enabled in the Search Manager, you can generate a list of keywords from the index using %s</string>
 	<string source="metadata_explain_use_default">When <![CDATA[<b>Use Default</b>]]> is selected, any changes made to the value set will not take effect. You need to uncheck it to use the user-entered value. Conversely, if <![CDATA[<b>Use Default</b>]]> is off, you can check it to revert that field to the default.</string>

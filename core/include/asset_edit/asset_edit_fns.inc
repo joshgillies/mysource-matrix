@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.59 2006/07/21 06:25:31 rong Exp $
+* $Id: asset_edit_fns.inc,v 1.60 2006/10/21 03:18:17 amiller Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -159,6 +159,153 @@ class Asset_Edit_Fns extends MySource_Object
 	}//end paintPaths()
 
 
+
+	/**
+	* Paint the interface for the asset remaps
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintEditRemapURLs(&$asset, &$o, $prefix)
+	{
+
+		$wa = $asset->writeAccess('lookups');
+		
+		$remap_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+		$remap_urls = $remap_manager->getRemapURLs($asset);
+		
+		if (empty($remap_urls)) {
+			echo translate('no_associated_remaps');
+			return FALSE;
+		}
+		
+		$link_offset = array_get_index($_POST, $prefix.'_link_offset', 0);
+
+		$num_per_page = 100;
+		$total_assets = count($remap_urls);
+		$remap_urls = array_slice($remap_urls, $link_offset, $num_per_page);
+		$num_pages = ceil($total_assets / $num_per_page);
+
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header-header" colspan="4"><b><?php
+					hidden_field($prefix.'_link_offset', $link_offset);
+					if ($link_offset > 0) {
+						?><a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onclick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+					}
+					?>
+					&lt;&lt;
+					<?php
+					if ($link_offset > 0) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?> &nbsp; &nbsp; <?php
+					if ($link_offset > 0) {
+						?><a title="<?php echo translate('pagination_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onclick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+					}
+					?>
+					&lt;
+					<?php
+					if ($link_offset > 0) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?>
+					&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
+					<?php
+					if (($link_offset + $num_per_page) < $total_assets) {
+						?><a title="<?php echo translate('pagination_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onclick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+					}
+					?>
+					&gt;
+					<?php
+					if (($link_offset + $num_per_page) < $total_assets) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?> &nbsp; &nbsp; <?php
+					if (($link_offset + $num_per_page) < $total_assets) {
+						?><a title="<?php echo translate('pagination_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onclick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+					}
+					?>
+					&gt;&gt;
+					<?php
+					if (($link_offset + $num_per_page) < $total_assets) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?></b>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('expires'); ?></td>
+				<?php
+					if ($wa) {
+						?>
+						<td class="sq-backend-table-header">
+							<?php
+							check_box($prefix.'_select_all', '1', FALSE, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);");
+							label(translate('delete_question'), $prefix.'_select_all');
+							?>
+						</td>
+						<?php
+					}
+				?>
+			</tr>
+			<?php
+				foreach ($remap_urls as $url_info) {
+					if (empty($url_info['expires'])) {
+						$expires = translate('never');
+					} else {
+						$expires = $GLOBALS['SQ_SYSTEM']->datetime(iso8601_ts($url_info['expires']));
+					}
+				?>
+				<tr>
+					<td class="sq-backend-table-cell"><?php echo $url_info['url']; ?></td>
+					<td class="sq-backend-table-cell"><?php echo $expires; ?></td>
+					<?php
+						if ($wa) {
+							?>
+							<td class="sq-backend-table-cell">
+								<?php
+								check_box($prefix.'_delete_remap['.$url_info['url'].']');
+								?>
+							</td>
+							<?php
+						}
+					?>
+				</tr>
+				<?php
+				}//end foreach
+			?>
+		</table>
+		
+		<?php 
+
+		return $wa;
+
+	}//end paintRemaps()
+
+
 	/**
 	* Processes the Paths posted from the paintPaths fn above
 	*
@@ -183,6 +330,52 @@ class Asset_Edit_Fns extends MySource_Object
 		return TRUE;
 
 	}//end processPaths()
+
+
+
+/**
+	* Accepts requests to add a type_code to define layouts for
+	*
+	* @param object	&$asset	the remap manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processEditRemapURLs(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('lookups')) return FALSE;
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+
+		if (isset($_POST[$prefix.'_delete_remap'])) {
+			$deletes = Array();
+			foreach ($_POST[$prefix.'_delete_remap'] as $url => $on) {
+				$deletes[] = $db->quoteSmart($url);
+			}
+
+			$sql = 'DELETE FROM
+						sq_ast_lookup_remap
+					WHERE
+						url IN
+							(
+								'.implode(',', $deletes).'
+							)';
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return TRUE;
+
+	}//end processRemaps()
 
 
 	/**
@@ -218,6 +411,92 @@ class Asset_Edit_Fns extends MySource_Object
 		}
 
 	}//end paintURLs()
+
+
+
+/**
+	* Paints the interface to add new type_codes to define layouts for
+	*
+	* @param object	&$asset	the remap manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAddRemapURLs(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('lookups')) return FALSE;
+	
+		$urls = $asset->getURLs();
+		foreach ($urls as $url) {
+			if ($url['http'] == 1) {
+				$contents['http://'.$url['url']] = 'http://'.$url['url'];
+			}
+			if ($url['https'] == 1) {
+				$contents['https://'.$url['url']] = 'https://'.$url['url'];
+			}
+		}
+	
+		$o->openField(translate('old_url'));
+			text_box($prefix.'_add_remap_old_url', '', 50);
+		$o->closeField();
+		
+		$o->openField(translate('new_url'));
+			combo_box($prefix.'_add_remap_new_url', $contents);
+		$o->note(translate('url_remap_explanation'));
+		$o->closeField();
+
+		$o->openField(translate('expires'));
+			text_box($prefix.'_add_remap_expires_days', '', 5);
+			label(translate('days'), $prefix.'_add_remap_expires_days');
+		$o->closeField();
+
+
+
+	}//end paintAddRemapURLs()
+
+
+
+/**
+	* Accepts requests to add a type_code to define layouts for
+	*
+	* @param object	&$asset	the remap manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAddRemapURLs(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('lookups')) return FALSE;
+
+		// now add a manually set remap if we have on to set
+		if (!isset($_POST[$prefix.'_add_remap_old_url']) || !isset($_POST[$prefix.'_add_remap_new_url'])) {
+			return FALSE;
+		}
+		$old_url = trim($_POST[$prefix.'_add_remap_old_url']);
+		$new_url = trim($_POST[$prefix.'_add_remap_new_url']);
+		$expires = NULL;
+
+		if (empty($old_url)) {
+			return FALSE;
+		}
+
+		if (isset($_POST[$prefix.'_add_remap_expires_days'])) {
+			$expires_days = (int)$_POST[$prefix.'_add_remap_expires_days'];
+			if ($expires_days > 0) {
+				$expires = strtotime('+ '.$expires_days.' days');
+			}
+		}
+
+		$remap_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+		$remap_manager->addRemapURL($old_url, $new_url, $expires);
+
+		return TRUE;
+
+	}//end processAddRemapURLs()
 
 
 	/**
