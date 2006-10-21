@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.27 2006/10/21 03:18:17 amiller Exp $
+* $Id: remap_manager.inc,v 1.28 2006/10/21 03:29:40 amiller Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -253,7 +253,6 @@ class Remap_Manager extends Asset
 	}//end addRemapURL()
 
 
-
 	/**
 	* Get all remap URLs for an asset's current URLs
 	*
@@ -266,18 +265,18 @@ class Remap_Manager extends Asset
 	{
 		$null = NULL;
 		if (is_null($asset)) return $null;
-		
+
 		$urls = $asset->getURLs();
 		$remaps = Array();
-		
+
 		if (!empty($urls)) {
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
-			
+
 			$sql = 'SELECT url, expires
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
 			$where = 'remap_url IN (';
-			
+
 			foreach ($urls as $url) {
 				if ($url['http'] == 1) {
 					$where .= $db->quote('http://'.$url['url']).', ';
@@ -285,23 +284,23 @@ class Remap_Manager extends Asset
 				if ($url['https'] == 1) {
 					$where .= $db->quote('https://'.$url['url']).', ';
 				}
-				
+
 			}//end for
 
 			$where = substr($where, 0, strlen($where) - 2);
 			$where .= ')';
-			
+
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			
+
 			$remaps = $db->getAll($sql.$where);
 			assert_valid_db_result($remaps);
-		
+
 		}//end if
-		
+
 		return $remaps;
-		
-	
-	}//end getRemapURLs
+
+
+	}//end getRemapURLs()
 
 
 	/**

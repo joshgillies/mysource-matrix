@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.60 2006/10/21 03:18:17 amiller Exp $
+* $Id: asset_edit_fns.inc,v 1.61 2006/10/21 03:29:40 amiller Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -159,7 +159,6 @@ class Asset_Edit_Fns extends MySource_Object
 	}//end paintPaths()
 
 
-
 	/**
 	* Paint the interface for the asset remaps
 	*
@@ -174,15 +173,15 @@ class Asset_Edit_Fns extends MySource_Object
 	{
 
 		$wa = $asset->writeAccess('lookups');
-		
+
 		$remap_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 		$remap_urls = $remap_manager->getRemapURLs($asset);
-		
+
 		if (empty($remap_urls)) {
 			echo translate('no_associated_remaps');
 			return FALSE;
 		}
-		
+
 		$link_offset = array_get_index($_POST, $prefix.'_link_offset', 0);
 
 		$num_per_page = 100;
@@ -303,7 +302,7 @@ class Asset_Edit_Fns extends MySource_Object
 
 		return $wa;
 
-	}//end paintRemaps()
+	}//end paintEditRemapURLs()
 
 
 	/**
@@ -332,8 +331,7 @@ class Asset_Edit_Fns extends MySource_Object
 	}//end processPaths()
 
 
-
-/**
+	/**
 	* Accepts requests to add a type_code to define layouts for
 	*
 	* @param object	&$asset	the remap manager
@@ -375,7 +373,7 @@ class Asset_Edit_Fns extends MySource_Object
 
 		return TRUE;
 
-	}//end processRemaps()
+	}//end processEditRemapURLs()
 
 
 	/**
@@ -413,8 +411,7 @@ class Asset_Edit_Fns extends MySource_Object
 	}//end paintURLs()
 
 
-
-/**
+	/**
 	* Paints the interface to add new type_codes to define layouts for
 	*
 	* @param object	&$asset	the remap manager
@@ -427,7 +424,7 @@ class Asset_Edit_Fns extends MySource_Object
 	function paintAddRemapURLs(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('lookups')) return FALSE;
-	
+
 		$urls = $asset->getURLs();
 		foreach ($urls as $url) {
 			if ($url['http'] == 1) {
@@ -437,11 +434,11 @@ class Asset_Edit_Fns extends MySource_Object
 				$contents['https://'.$url['url']] = 'https://'.$url['url'];
 			}
 		}
-	
+
 		$o->openField(translate('old_url'));
 			text_box($prefix.'_add_remap_old_url', '', 50);
 		$o->closeField();
-		
+
 		$o->openField(translate('new_url'));
 			combo_box($prefix.'_add_remap_new_url', $contents);
 		$o->note(translate('url_remap_explanation'));
@@ -457,8 +454,7 @@ class Asset_Edit_Fns extends MySource_Object
 	}//end paintAddRemapURLs()
 
 
-
-/**
+	/**
 	* Accepts requests to add a type_code to define layouts for
 	*
 	* @param object	&$asset	the remap manager
@@ -480,9 +476,7 @@ class Asset_Edit_Fns extends MySource_Object
 		$new_url = trim($_POST[$prefix.'_add_remap_new_url']);
 		$expires = NULL;
 
-		if (empty($old_url)) {
-			return FALSE;
-		}
+		if (empty($old_url)) return FALSE;
 
 		if (isset($_POST[$prefix.'_add_remap_expires_days'])) {
 			$expires_days = (int)$_POST[$prefix.'_add_remap_expires_days'];
