@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.61 2006/10/21 03:29:40 amiller Exp $
+* $Id: asset_edit_fns.inc,v 1.62 2006/10/22 22:45:26 amiller Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -172,7 +172,7 @@ class Asset_Edit_Fns extends MySource_Object
 	function paintEditRemapURLs(&$asset, &$o, $prefix)
 	{
 
-		$wa = $asset->writeAccess('lookups');
+		$admin_access = $asset->adminAccess('lookups');
 
 		$remap_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 		$remap_urls = $remap_manager->getRemapURLs($asset);
@@ -258,7 +258,7 @@ class Asset_Edit_Fns extends MySource_Object
 				<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
 				<td class="sq-backend-table-header"><?php echo translate('expires'); ?></td>
 				<?php
-					if ($wa) {
+					if ($admin_access) {
 						?>
 						<td class="sq-backend-table-header">
 							<?php
@@ -282,7 +282,7 @@ class Asset_Edit_Fns extends MySource_Object
 					<td class="sq-backend-table-cell"><?php echo $url_info['url']; ?></td>
 					<td class="sq-backend-table-cell"><?php echo $expires; ?></td>
 					<?php
-						if ($wa) {
+						if ($admin_access) {
 							?>
 							<td class="sq-backend-table-cell">
 								<?php
@@ -300,7 +300,7 @@ class Asset_Edit_Fns extends MySource_Object
 		
 		<?php 
 
-		return $wa;
+		return $admin_access;
 
 	}//end paintEditRemapURLs()
 
@@ -343,7 +343,7 @@ class Asset_Edit_Fns extends MySource_Object
 	*/
 	function processEditRemapURLs(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('lookups')) return FALSE;
+		if (!$asset->adminAccess('lookups')) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -423,7 +423,7 @@ class Asset_Edit_Fns extends MySource_Object
 	*/
 	function paintAddRemapURLs(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('lookups')) return FALSE;
+		if (!$asset->adminAccess('lookups')) return FALSE;
 
 		$urls = $asset->getURLs();
 		foreach ($urls as $url) {
@@ -466,7 +466,7 @@ class Asset_Edit_Fns extends MySource_Object
 	*/
 	function processAddRemapURLs(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('lookups')) return FALSE;
+		if (!$asset->adminAccess('lookups')) return FALSE;
 
 		// now add a manually set remap if we have on to set
 		if (!isset($_POST[$prefix.'_add_remap_old_url']) || !isset($_POST[$prefix.'_add_remap_new_url'])) {
