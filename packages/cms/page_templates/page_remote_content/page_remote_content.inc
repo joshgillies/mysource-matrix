@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.38.2.6 2006/10/17 23:47:53 dofford Exp $
+* $Id: page_remote_content.inc,v 1.38.2.7 2006/10/23 00:03:19 tbarrett Exp $
 *
 */
 
@@ -34,12 +34,21 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.38.2.6 $
+* @version $Revision: 1.38.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Remote_Content extends Page
 {
+
+	var $_transformation_options = Array(
+									'use_design',
+									'rewrite_urls',
+									'trim_content',
+									'do_tag_replacements',
+									'replace_matrix_keywords',
+									'strip_images',
+								   );
 
 
 	/**
@@ -57,122 +66,6 @@ class Page_Remote_Content extends Page
 
 
 	/**
-	* Output the content
-	*
-	* NOTE: If called directly, this function does not allow the output of binary
-	* data because usually the output has been started before the function is called.
-	* If binary output is required, printFrontend function should be used, or _tmp variable set.
-	**
-	* NOTE: No Output should be done after the call to _outputContent (in this function)
-	*
-	* @return void
-	* @access public
-	*/
-	function printBody()
-	{
-		// Encoded URLs look like they've got keywords in them. Disable blanking out of unknown keywords
-		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
-
-		// do not allow binary content, unless that decision has already been made elsewhere
-		$allow_binary = array_get_index($this->_tmp, 'allow_binary', FALSE);
-
-		if (!array_get_index($this->_tmp, 'processed', FALSE)) {
-			$this->_tmp['success'] = $this->_process();
-		}
-
-		// if processing failed, display error
-		if (!$this->_tmp['success']) {
-			if ($this->attr('display_error')) {
-				echo $this->attr('error_message');
-			}
-
-		} else {
-			$this->_outputContent($allow_binary);
-		}
-
-		return TRUE;
-
-	}//end printBody()
-
-
-	/**
-	* Output Binary Content directly, avoiding matrix output wrappers
-	*
-	* @return boolean
-	* @access public
-	*/
-	function _outputBinaryContent()
-	{
-
-		// first print the headers
-		$headers = $this->_tmp['headers'];
-		foreach ($headers as $name => $value) {
-			header("$name: $value");
-		}
-
-		// then print the content itself
-		echo $this->_tmp['content'];
-
-		return TRUE;
-
-	}//end _outputBinaryContent()
-
-
-	/**
-	* Content outputter
-	*
-	* Assumes the processing has been performed and all the necessary
-	* variables have been set in the _tmp
-	* Prints to screen or outputs binary content
-	*
-	* @param boolean	$allow_binary	determines whether binary output is allowed
-	*
-	* @return void
-	* @access public
-	*/
-	function _outputContent($allow_binary=TRUE)
-	{
-
-		$result = '';
-
-		$binary = array_get_index($this->_tmp, 'binary', FALSE);
-		if ($binary && $allow_binary) {
-			// binary types need special treatment
-			$type = $this->_tmp['type'];
-
-			// if content is an image and we are tunneling images, otput it as binary
-			if ((strpos($type,'image/')!==FALSE) && $this->attr('tunnel_images')) {
-				if ($this->attr('strip_images')) {
-					$result = '[Image]';
-				} else {
-					$this->_outputBinaryContent();
-					return;
-				}
-			// media content is otput as binary if tunneling
-			} else if ((strpos($type,'application/')!==FALSE) && $this->attr('tunnel_media')) {
-				$this->_outputBinaryContent();
-				return;
-
-			} else {
-				// otherwise display a message relating to binary content
-				$replacements['remote_url'] = $this->_tmp['url'];
-				$result = replace_keywords($this->attr('binary_message'), $replacements);
-			}
-
-		} else if ($binary && !$allow_binary) {
-			$result = '['.translate('cms_remote_content_binary_data').']';
-
-		} else {
-			// textual content is ready for output
-			$result = $this->_tmp['content'];
-		}
-
-		echo $result;
-
-	}//end _outputContent()
-
-
-	/**
 	* Output this Asset to the Front end.
 	*
 	* Assumes that no output is being done before it is allowed to output, so
@@ -185,125 +78,64 @@ class Page_Remote_Content extends Page
 	{
 		$this->_tmp['success'] = $this->_process();
 
-		if (array_get_index($this->_tmp, 'binary', FALSE)) {
-			$this->_tmp['allow_binary'] = TRUE;
-			return $this->printBody();
-		} else {
+		if (!$this->_tmp['transform_settings']['replace_matrix_keywords']) {
+			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
+		}
+
+		if ($this->_tmp['transform_settings']['use_design']) {
 			return parent::printFrontend();
+		} else {
+			// do not use design
+			$headers = array_get_index($this->_tmp, 'headers', Array());
+			foreach ($headers as $name => $value) {
+				header("$name: $value");
+			}
+			echo array_get_index($this->_tmp, 'content', '');
 		}
 
 	}//end printFrontend()
 
 
 	/**
-	* Process HTML and Text content
+	* Output the content
 	*
-	* Takes HTML content (text in general),
-	* tries to find the sections identified by start and stop tags,
-	* requests for urls to be conditionally replaced
-	*.
-	* Assumptions:
-	*   processing has already taken place AND
-	*   no error checking of input is necessary
+	* NOTE: If called directly, this function cannot output binary data because
+	* usually the output has been started before the function is called.
 	*
-	* @return string
+	* @return void
 	* @access public
 	*/
-	function processHtml()
+	function printBody()
 	{
-		// everything is good. get the page body.
-		$response_body	= $this->_tmp['content'];
+		// Encoded URLs look like they've got keywords in them. Disable blanking out of unknown keywords
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
 
-		// prepare the tags
-		$start_tag = preg_quote($this->attr('start_tag'), '/');
-		$end_tag   = preg_quote($this->attr('end_tag'), '/');
-		$multiple = $this->attr('multi_occurence');
-		// strip anything outside of the special tags
-		// if the start or stop tags are specified, we scan the page for the necessary content
-		// otherwise the page is good as it is, no scanning necessary
-		if (!empty($start_tag) || !empty($end_tag)) {
-			if ($this->attr('include_tags')) {
-				$pattern = "/($start_tag.*$end_tag)/s";
+		if (!array_get_index($this->_tmp, 'processed', FALSE)) {
+			$this->_tmp['success'] = $this->_process();
+		}
+
+		if (!$this->_tmp['success']) {
+			// processing failed
+			if ($this->attr('display_error')) {
+				echo $this->attr('error_message');
+			}
+		} else {
+			$type = array_get_index($this->_tmp['headers'], 'content-type');
+			if (!empty($type) && (0 !== strpos($type, 'text/'))) {
+				// if we have got to this point and are trying to tunnel
+				// binary data, we must be nested and so we'll have to show
+				// a message instead of the content
+				$replacements['remote_url'] = $this->_tmp['url'];
+				echo replace_keywords($this->attr('binary_message'), $replacements);
 			} else {
-				$pattern = "/$start_tag(.*)$end_tag/s";
-			}
+				// everything is good. get the page body.
+				echo $this->_tmp['content'];
 
-			// note that we can find more than one section identified by the tags
-			// all the sections joined together
-			preg_match_all($pattern, $response_body, $matches);
-			if (count($matches[1])) {
-				$response_body = '';
-				if ($multiple) {
-					foreach ($matches[1] as $match) {
-						$response_body .= $match;
-					}
-				} else {
-					$response_body .= $matches[1][0];
-				}
-			} else if ($this->attr('no_tag_clear')) {
-				// we might be configured to clear the contents if we don't find a match
-				$response_body = '';
-			}
-			$matches = NULL;
-		}
-
-		// prepare the url that will be used to replace the links that have to be tunnelled through remote content
-		$replacement_url = $this->getURL().'?'.SQ_REMOTE_SOURCE.'=';
-
-		// convert the URLs on the remote page into the correct format
-		$page_content = $this->_transformContent($response_body, $this->_tmp['url'], $replacement_url);
-
-		return $page_content;
-
-	}//end processHtml()
-
-
-	/**
-	* Checks whether url is allowed by security settings
-	*
-	* @param string	$url	URL to check
-	*
-	* @return boolean
-	* @access public
-	*/
-	function isUrlAllowed($url)
-	{
-		if (!isset($this->_tmp['_white_list_'])) {
-			$this->_tmp['_white_list_'] = Array();
-			$Net_URL =& new Net_URL($this->attr('remote_url'));
-			if ($this->attr('only_local_links')) {
-				// this is to support legacy functionality where 'Only Local Links' meant all the links in the local domain
-				$this->_tmp['_white_list_'][] = strtolower($Net_URL->host);
-			} else {
-				$this->_tmp['_white_list_'] = $this->attr('url_white_list');
-				if (!empty($this->_tmp['_white_list_'])) {
-					$this->_tmp['_white_list_'][] = strtolower($Net_URL->host.$Net_URL->path);
-				}
 			}
 		}
+		return TRUE;
 
-		if (empty($this->_tmp['_white_list_'])) return TRUE;
-
-
-		$Net_URL =& new Net_URL($url);
-		$url = $Net_URL->host;
-		if (!empty($Net_URL->path)) {
-			$url = $url.$Net_URL->path;
-		}
-		$url = strtolower($url);
-
-		foreach ($this->_tmp['_white_list_'] as $white_url) {
-			$white_url_len = strlen($white_url);
-			if ($white_url_len > strlen($url)) {
-				continue;
-			} else if (strtolower($white_url) == substr($url, 0, $white_url_len)) {
-				return TRUE;
-			}
-		}
-
-		return FALSE;
-
-	}//end isUrlAllowed()
+	}//end printBody()
 
 
 	/**
@@ -318,28 +150,36 @@ class Page_Remote_Content extends Page
 		$remote_source	= array_get_index($_REQUEST, SQ_REMOTE_SOURCE);
 
 		$initial_request = FALSE;
+
 		$is_post = ($_SERVER['REQUEST_METHOD'] == 'POST');
 		$url = NULL;
 
 		if (is_null($remote_source)) {
 			$initial_request = TRUE;
 			$url = $remote_url;
+			// enable all transformation by default
+			foreach ($this->_transformation_options as $v) {
+				$this->_tmp['transform_settings'][$v] = TRUE;
+			}
 		} else {
-			$url = $this->_decodeURL($remote_source);
+			$this->_tmp['transform_settings'] = $this->_decodeHash($remote_source);
+			$url = $this->_tmp['transform_settings']['url'];
+			unset($this->_tmp['transform_settings']['url']);
 		}
 
 		// here we mark that we've attempted processing of this request and that it failed
 		// requires explicit override on success
 		$this->_tmp['processed'] = TRUE;
 
-		if (!$url) return FALSE;
-
+		if (!$url) {
+			trigger_localised_error('CMS0062', E_USER_WARNING);
+			return FALSE;
+		}
 
 		if (!$this->isUrlAllowed($url)) {
 			trigger_localised_error('CMS0057', E_USER_WARNING, $url);
 			return FALSE;
 		}
-
 
 		$query_string = array_get_index($_SERVER, 'QUERY_STRING');
 		if (!empty($query_string) && !is_null($remote_source)) {
@@ -449,7 +289,6 @@ class Page_Remote_Content extends Page
 					}
 				}
 			}
-
 			// a workaround for HTTP_Client's inability to handle empty post data
 			if (empty($raw_post) && empty($files)) {
 				$random = md5(rand());
@@ -461,9 +300,14 @@ class Page_Remote_Content extends Page
 			$result = $HTTP_Client->get($url);
 		}
 
-
 		// exit on error
-		if (PEAR::isError($result) || preg_match('/^[45].*?/', $result)) {
+		if (PEAR::isError($result)) {
+			trigger_localised_error('CMS0063', E_USER_WARNING, $url, $result->getMessage());
+			unset($HTTP_Client);
+			return FALSE;
+		}
+		if (preg_match('/^[45].*?/', $result)) {
+			trigger_localised_error('CMS0064', E_USER_WARNING, $result, $url);
 			unset($HTTP_Client);
 			return FALSE;
 		}
@@ -475,37 +319,502 @@ class Page_Remote_Content extends Page
 		// check if we were redirected to the bad destination
 		if ($this->_tmp['url'] != $url) {
 			if (!$this->isUrlAllowed($this->_tmp['url'])) {
-				trigger_localised_error('CMS0058', E_USER_WARNING, $this->_tmp['url'], $fetch_url);
+				trigger_localised_error('CMS0058', E_USER_WARNING, $this->_tmp['url'], $url);
 				return FALSE;
 			}
 		}
 
-
 		// prepare temporary variables for output
-		$this->_tmp['type'] = $response['headers']['content-type'];
 		$this->_tmp['headers'] = $response['headers'];
 		$this->_tmp['content'] = $response['body'];
 
-		// if content is not binary, it needs further processing
-		if (strpos($this->_tmp['type'],'text/') !== FALSE) {
-			$this->_tmp['content'] = $this->processHtml();
-		} else {
-			$this->_tmp['binary'] = TRUE;
-		}
-
-
-		// get new cookies and save cookie manager
+		// wipe the response because we won't use it again and it could be too big to just ignore
 		$HTTP_Client->_responses = NULL;
-
-		if (!is_array(array_get_index($_SESSION, 'SQ_REMOTE_HTTP_CLIENT'))) {
-			$_SESSION['SQ_REMOTE_HTTP_CLIENT'] = Array();
-		}
 		$_SESSION['SQ_REMOTE_HTTP_CLIENT'][$this->id] = serialize($HTTP_Client);
-
 		unset($HTTP_Client);
+
+		if ($this->_shouldPassStraightThrough($this->_tmp['headers'])) {
+			foreach ($this->_tmp['transform_settings'] as $i => $v) {
+				$this->_tmp['transform_settings'][$i] = FALSE;
+			}
+		} else {
+			$this->_transformContent($this->_tmp['content']);
+		}
+
 		return TRUE;
 
 	}//end _process()
+
+
+	/**
+	* Perform all the transformation of content according to the current settings
+	*
+	* @param string	&$content	The content to transform
+	*
+	* @return void
+	* @access private
+	*/
+	function _transformContent(&$content)
+	{
+		// Get the content between the selected start and end tags if necessary
+		if ($this->_tmp['transform_settings']['trim_content']) {
+			$this->_trimContent($content);
+		}
+
+		// Replace tags
+		if ($this->_tmp['transform_settings']['do_tag_replacements']) {
+			$this->_doTagReplacements($content);
+		}
+
+		// Strip the images if necessary
+		if ($this->attr('strip_images') && $this->_tmp['transform_settings']['strip_images']) {
+			$this->_stripAllImages($content);
+		}//end if
+
+		// Rewrite URLs
+		if ($this->_tmp['transform_settings']['rewrite_urls']) {
+			$this->_rewriteURLs($content);
+		}
+
+		// Replace keywords
+		if ($this->_tmp['transform_settings']['replace_matrix_keywords']) {
+			preg_match_all('/%(\w+)%/i', $content, $matches);
+			foreach ($matches[1] as $key => $keyword) {
+				$rep = $this->getKeywordReplacement($keyword);
+				$content = str_replace($matches[0][$key], $rep, $content);
+			}
+		}
+
+	}//end _transformContent()
+
+
+	/**
+	* Returns whether the content should be treated as binary, given the headers supplied
+	*
+	* @param array	$headers	The headers returned in the HTTP response by the remote server
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _shouldPassStraightThrough($headers)
+	{
+		// we shouldn't interfere with attachments
+		$disposition = array_get_index($headers, 'content-disposition');
+		if (!is_null($disposition) && strpos($disposition, 'attachment') !== FALSE) {
+			return TRUE;
+		}
+
+		// we shouldn't interfere with non-text content
+		// (this actually includes javascript in some cases, but that's OK)
+		$content_type = array_get_index($headers, 'content-type');
+		if (!empty($content_type) && (strpos($content_type, 'text/') === FALSE)) {
+			return TRUE;
+		}
+
+		return FALSE;
+
+	}//end _shouldPassStraightThrough()
+
+
+//--        CONTENT TRANSFORMATION FNS & THEIR HELPERS        --//
+
+
+	/**
+	* Trim the content to that within the selected start and end tags
+	*
+	* @param string	&$response_body	The content to modify
+	*
+	* @return void
+	* @access private
+	*/
+	function _trimContent(&$response_body)
+	{
+		// prepare the tags
+		$start_tag = preg_quote($this->attr('start_tag'), '/');
+		$end_tag   = preg_quote($this->attr('end_tag'), '/');
+		$multiple = $this->attr('multi_occurence');
+		// strip anything outside of the special tags
+		// if the start or stop tags are specified, we scan the page for the necessary content
+		// otherwise the page is good as it is, no scanning necessary
+		if (!empty($start_tag) || !empty($end_tag)) {
+			if ($this->attr('include_tags')) {
+				$pattern = "/($start_tag.*$end_tag)/s";
+			} else {
+				$pattern = "/$start_tag(.*)$end_tag/s";
+			}
+
+			// note that we can find more than one section identified by the tags
+			// all the sections joined together
+			preg_match_all($pattern, $response_body, $matches);
+			if (count($matches[1])) {
+				$response_body = '';
+				if ($multiple) {
+					foreach ($matches[1] as $match) {
+						$response_body .= $match;
+					}
+				} else {
+					$response_body .= $matches[1][0];
+				}
+			} else if ($this->attr('no_tag_clear')) {
+				// we might be configured to clear the contents if we don't find a match
+				$response_body = '';
+			}
+			$matches = NULL;
+		}
+
+	}//end _trimContent()
+
+
+	/**
+	* Rewrite URLs in the content
+	*
+	* @param string	&$content	the content to rewrite URLs in
+	*
+	* @return void
+	* @access public
+	*/
+	function _rewriteURLs(&$content)
+	{
+		$replacement_url = $this->getURL().'?'.SQ_REMOTE_SOURCE.'=';
+		$fetch_url = $this->_tmp['url'];
+
+		// get all info about the remote URL
+		$parsed_fetch_url = parse_url($fetch_url);
+		$subjects     = Array();
+		$replacements = Array();
+
+		//// BEGIN SCRIPTS
+		$matches = Array();
+		$patterns = Array();
+
+		// scripts and linked CSS or JavaScript
+		$patterns[] = '/(<(?:script|link)\s+.*?(?:src|href)\s*=\s*[\'"]*)\s*([^\'" \>]+)([\'"> ]?[^<]*\>)/i';
+
+		// CSS url definitions for scripts
+		$patterns[] = '/(@import\s+url\s*\([\'"]?\s*)([^\'" ]+)([\'"]?\s*\))/i';
+		$patterns[] = '/(@import\s+[\'"]\s*)([^\'" ]+)([\'"])/i';
+
+		// find whatever matches the above patterns
+		foreach ($patterns as $pattern) {
+			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
+			$matches = array_merge($matches, $matches_local);
+		}
+		// local cleanup
+		$matches_local = NULL;
+
+		// fix these matches up
+		foreach ($matches as $data) {
+			$subject = $data[0];
+			$prefix  = $data[1];
+			$url     = $data[2];
+			$postfix = $data[3];
+
+			// if conversion is unnecessary, ignore this url
+			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
+				continue;
+			}
+
+			// if scripts need to be tunneled, prepare a new source url
+			if ($this->attr('tunnel_scripts') && $this->isUrlAllowed($url)) {
+				$encoded_url = $this->_encodeHash($url, Array('rewrite_urls'));
+				$url = $replacement_url.$encoded_url;
+			}
+
+			$subjects[]     = $subject;
+			$replacements[] = $prefix.$url.$postfix;
+
+		}
+		//// END SCRIPTS
+
+
+		//// BEGIN OBJECTS
+		$matches      = Array();
+		// objects
+		$pattern = '/(<(?:embed)\s+.*?(?:src)\s*=\s*[\'"]*)\s*([^\'" >]+)([\'"> ]?[^<]*>)/i';
+
+		// find whatever matches the above patterns
+		preg_match_all($pattern, $content, $matches, PREG_SET_ORDER);
+
+		// fix these matches up
+		foreach ($matches as $data) {
+			$subject	= $data[0];
+			$prefix		= $data[1];
+			$url		= $data[2];
+			$postfix	= $data[3];
+
+			// make full url, ignore invalid urls
+			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
+				continue;
+			}
+
+			// if media need to be tunneled, prepare a new source url
+			if ($this->attr('tunnel_media') && $this->isUrlAllowed($url)) {
+				$encoded_url = $this->_encodeHash($url);
+				$url = $replacement_url.$encoded_url;
+			}
+
+			$subjects[]     = $subject;
+			$replacements[] = $prefix.$url.$postfix;
+		}
+
+
+		// FLASH MOVIE
+		$matches      = Array();
+
+		// object parameters (flash)
+		$pattern = '/(<(?:param)\s+.*?(?:value)\s*=\s*[\'"]*)\s*([^\'" >]+)([\'"> ]?[^<]*>)/i';
+
+		preg_match_all($pattern, $content, $matches, PREG_SET_ORDER);
+
+		// fix these matches up
+		foreach ($matches as $data) {
+			$subject	= $data[0];
+			$prefix		= $data[1];
+			$url		= $data[2];
+			$postfix	= $data[3];
+
+			// find the name of the subject
+			$pattern = '/name\s*=\s*[\'"]*\s*([^\'" >]+)[\'"> ]+/i';
+
+			preg_match($pattern, $subject, $name_matches);
+			$param_name = $name_matches['1'];
+
+			// only look at parameter whose name is movie (for flash)
+			if ($param_name != 'movie') continue;
+
+			// make full url, ignore invalid urls
+			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
+				continue;
+			}
+
+			// if media need to be tunneled, prepare a new source url
+			if ($this->attr('tunnel_media') && $this->isUrlAllowed($url)) {
+				$encoded_url = $this->_encodeHash($url);
+				$url = $replacement_url.$encoded_url;
+			}
+
+			$subjects[]		= $subject;
+			$replacements[]	= $prefix.$url.$postfix;
+		}
+		// local cleanup
+		$name_matches = NULL;
+
+		//// END OBJECTS
+
+
+		//// BEGIN IMAGES
+		$matches = Array();
+		$patterns = Array();
+
+		// prepare the image patterns
+		$patterns[] = '/(<(?:img)\s+.*?(?:src)\s*=\s*[\'"]*)\s*([^\'" <>]+)([\'"> ]?[^<>]*\>)/i';
+
+		$patterns[] = '/(background\s*=\s*[\'"]?)\s*([^\'"<> ]+)([\'" ]?[^<]*>)/i';
+
+		$patterns[] = '/((?:background.*?)url\s*\([\'"]?\s*)([^\'"; ]+)([\'"]?\s*\))/i';
+		$patterns[] = '/((?:list-style-image.*?)url\s*\([\'"]?\s*)([^\'"; ]+)([\'"]?\s*\))/i';
+
+		$patterns[] = '/(<(?:input)\s+.*?(?:src)\s*=\s*[\'"]+)\s*([^\'" >]+)([\'"> ]?[^<>]*\>)/i';
+
+		// find whatever matches the above patterns
+		foreach ($patterns as $pattern) {
+			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
+			$matches = array_merge($matches, $matches_local);
+		}
+		// local cleanup
+		$matches_local = NULL;
+
+		foreach ($matches as $data) {
+			$subject	= $data[0];
+			$prefix		= $data[1];
+			$url		= $data[2];
+			$postfix	= $data[3];
+
+			// make full url, ignore invalid urls
+			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
+				continue;
+			}
+
+			// if images need to be tunneled, prepare a new source url
+			if ($this->attr('tunnel_images') && $this->isUrlAllowed($url)) {
+				$encoded_url = $this->_encodeHash($url);
+				$url = $replacement_url.$encoded_url;
+			}
+
+			$subjects[]		= $subject;
+			$replacements[]	= $prefix.$url.$postfix;
+
+		}
+		//// END IMAGES
+
+
+		//// BEGIN LINKS
+		// prepare for the next round of url replacements
+		$matches	= Array();
+		$patterns	= Array();
+
+		// PATTERNS for urls that might need to be rewritten to point back to remote content
+		// links and frames except mailto and javascript
+		$patterns[] = '/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*[\'"]?)\s*((?:(?![\#]|mailto|javascript))[^\'"> ]+)([\'"> ]?[^<]*>)/i';
+
+		// this pattern is a special case. we don't generally look at JavaScript
+		// because that is a whole new territory
+		// this one was added for compatibility with MySource v2 ecom module
+		$patterns[] = '/(<input[^>]*?onclick\s*=\s*[\'"]location=\')\s*([^\'"> ]+)([\'"> ]?[^<]*>)/i';
+
+		// find whatever matches the above patterns
+		foreach ($patterns as $pattern) {
+			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
+			$matches = array_merge($matches, $matches_local);
+		}
+
+
+		// local cleanup
+		$matches_local = NULL;
+		$load_links = $this->attr('load_links');
+
+		foreach ($matches as $data) {
+			$subject	= $data[0];
+			$prefix		= $data[1];
+			$url		= $data[2];
+			$postfix	= $data[3];
+
+			// make full url, ignore invalid urls
+			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
+				continue;
+			}
+
+			// if urls need to point back to us, prepare a new url
+			if ($load_links && $this->isUrlAllowed($url)) {
+				$encoded_url = $this->_encodeHash($url, Array('all'));
+				$url = $replacement_url.$encoded_url;
+			}
+
+			$subjects[]		= $subject;
+			$replacements[]	= $prefix.$url.$postfix;
+
+		}
+		//// END LINKS
+
+
+		//// BEGIN FORMS
+		// prepare for the next round of url replacements
+		$matches  = Array();
+		$patterns = Array();
+
+		// forms. NOTE: this captures even those actions that are empty
+		$patterns[] = '/(<(?:form[^>]*?action)\s*=\s*[\'\"]?)\s*([^\'\"> ]*)([\'\"\> ]?[^<]*\>)/i';
+
+		// find whatever matches the above patterns
+		foreach ($patterns as $pattern) {
+			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
+			$matches = array_merge($matches, $matches_local);
+		}
+		// local cleanup
+		$matches_local = NULL;
+
+		foreach ($matches as $data) {
+			$subject = $data[0];
+			$prefix  = $data[1];
+			$url     = $data[2];
+			$postfix = $data[3];
+
+			// make full url, ignore invalid urls
+			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
+				continue;
+			}
+
+			// if urls need to point back to us, prepare a new url
+			if ($load_links && $this->isUrlAllowed($url)) {
+				// forms require the parameters to be set to the hidden fields for proper functioning
+				$postfix .= '<input type="hidden" name="<?php echo SQ_REMOTE_SOURCE; ?>" value="'.$this->_encodeHash($url, Array('all')).'" />';
+
+				$encoded_url = $this->_encodeHash($url, Array('all'));
+				$url = $replacement_url.$encoded_url;
+			}
+
+			$subjects[]		= $subject;
+			$replacements[]	= $prefix.$url.$postfix;
+
+		}
+		//// END FORMS
+
+		// finally, we replace all the urls with the re-written ones.
+		$content = str_replace($subjects, $replacements, $content);
+
+	}//end _rewriteURLs()
+
+
+	/**
+	* Strip all image tags from the supplied content
+	*
+	* @param string	&$content	The content to strip image tags from
+	*
+	* @return void
+	* @access private
+	*/
+	function _stripAllImages(&$content)
+	{
+			// replace HTML images with their ALT tags
+			$pattern = '/(<(?:img)[^>]*?>)/i';
+
+			$content = preg_replace_callback(
+				$pattern,
+				create_function(
+					'$matches',
+					'return Page_Remote_Content::_imageStrip($matches[0]);'
+				),
+				$content
+			);
+
+			// remove HTML background images
+			$pattern = '/(background\s*=\s*[\'\"]?\s*[^\'\" <>]+[\'\"]?)/i';
+			$content = preg_replace($pattern, '', $content);
+
+			// strip CSS backgrounds
+			$pattern = '/(background.*?)(url\(.*?\))/i';
+			$content = preg_replace($pattern, '\$1', $content);
+
+			// change Form Image buttons with regular buttons
+			$pattern = '/(<(?:input)[^>]*type=["\' ]image["\' ][^>]*?>)/i';
+
+			$content = preg_replace_callback(
+				$pattern,
+				create_function(
+					'$matches',
+					'return Page_Remote_Content::_imageButtonReplace($matches[0]);'
+				),
+				$content
+			);
+
+	}//end _stripAllImages()
+
+
+	/**
+	* Replace tags as specified by the user
+	*
+	* @param string	&$content	The content to do the tag replacements in
+	*
+	* @return void
+	* @access private
+	*/
+	function _doTagReplacements(&$content)
+	{
+		$tag_replacements = $this->attr('tag_replacements');
+		if (!empty($tag_replacements)) {
+			foreach ($tag_replacements as $tag => $replace_info) {
+				if ($replace_info['remove_content']) {
+					$pattern = '/(<(?:'.$tag.')[^>]*?>[^<]*)/i';
+				} else {
+					$pattern = '/(<(?:'.$tag.')[^>]*?>)/i';
+				}
+				$content = preg_replace($pattern, $replace_info['start_tag'], $content);
+				$pattern = '/(<(?:\/'.$tag.')[^>]*?>)/i';
+				$content = preg_replace($pattern, $replace_info['end_tag'], $content);
+			}
+		}
+
+	}//end _doTagReplacements()
 
 
 	/**
@@ -564,358 +873,6 @@ class Page_Remote_Content extends Page
 
 
 	/**
-	* Convert all the URLs of the target
-	*
-	* Apart from converting actions and images to full URLs, this also converts
-	* href's into full URLs.
-	*
-	* @param string	$content			the input
-	* @param string	$fetch_url			the url of the page being transformed
-	* @param string	$replacement_url	the replacement url that points back to our system
-	*
-	* @return string
-	* @access private
-	*/
-	function _transformContent($content, $fetch_url, $replacement_url)
-	{
-		if (!$content || !$fetch_url || !$replacement_url) {
-			return FALSE;
-		}
-
-		// get all info about the remote URL
-		$parsed_fetch_url = parse_url($fetch_url);
-
-		// replace tags
-		$tag_replacements = $this->attr('tag_replacements');
-		if (!empty($tag_replacements)) {
-			foreach ($tag_replacements as $tag => $replace_info) {
-				if ($replace_info['remove_content']) {
-					$pattern = '/(<(?:'.$tag.')[^>]*?>[^<]*)/i';
-				} else {
-					$pattern = '/(<(?:'.$tag.')[^>]*?>)/i';
-				}
-				$content = preg_replace($pattern, $replace_info['start_tag'], $content);
-				$pattern = '/(<(?:\/'.$tag.')[^>]*?>)/i';
-				$content = preg_replace($pattern, $replace_info['end_tag'], $content);
-			}
-		}
-
-
-
-		// strip the images if necessary
-		if ($this->attr('strip_images')) {
-
-			// replace HTML images with their ALT tags
-			$pattern = '/(<(?:img)[^>]*?>)/i';
-
-			$content = preg_replace_callback(
-				$pattern,
-				create_function(
-					'$matches',
-					'return Page_Remote_Content::_imageStrip($matches[0]);'
-				),
-				$content
-			);
-
-			// remove HTML background images
-			$pattern = '/(background\s*=\s*[\'\"]?\s*[^\'\" <>]+[\'\"]?)/i';
-			$content = preg_replace($pattern, '', $content);
-
-			// strip CSS backgrounds
-			$pattern = '/(background.*?)(url\(.*?\))/i';
-			$content = preg_replace($pattern, '\$1', $content);
-
-			// change Form Image buttons with regular buttons
-			$pattern = '/(<(?:input)[^>]*type=["\' ]image["\' ][^>]*?>)/i';
-
-			$content = preg_replace_callback(
-				$pattern,
-				create_function(
-					'$matches',
-					'return Page_Remote_Content::_imageButtonReplace($matches[0]);'
-				),
-				$content
-			);
-
-		}//end if
-
-		$subjects     = Array();
-		$replacements = Array();
-
-		//// BEGIN SCRIPTS
-		$matches = Array();
-		$patterns = Array();
-
-		// scripts and linked CSS or JavaScript
-		$patterns[] = '/(<(?:script|link)\s+.*?(?:src|href)\s*=\s*[\'"]*)\s*([^\'" \>]+)([\'"> ]?[^<]*\>)/i';
-
-		// CSS url definitions for scripts
-		$patterns[] = '/(@import\s+url\s*\([\'"]?\s*)([^\'" ]+)([\'"]?\s*\))/i';
-		$patterns[] = '/(@import\s+[\'"]\s*)([^\'" ]+)([\'"])/i';
-
-		// find whatever matches the above patterns
-		foreach ($patterns as $pattern) {
-			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
-			$matches = array_merge($matches, $matches_local);
-		}
-		// local cleanup
-		$matches_local = NULL;
-
-		// fix these matches up
-		foreach ($matches as $data) {
-			$subject = $data[0];
-			$prefix  = $data[1];
-			$url     = $data[2];
-			$postfix = $data[3];
-
-			// if conversion is unnecessary, ignore this url
-			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
-				continue;
-			}
-
-			// if images need to be tunneled, prepare a new source url
-			if ($this->attr('tunnel_scripts') && $this->isUrlAllowed($url)) {
-				$encoded_url = $this->_encodeURL($url);
-				$url = $replacement_url.$encoded_url;
-			}
-
-			$subjects[]     = $subject;
-			$replacements[] = $prefix.$url.$postfix;
-
-		}
-		//// END SCRIPTS
-
-
-		//// BEGIN OBJECTS
-		$matches      = Array();
-
-		// objects
-		$pattern = '/(<(?:embed)\s+.*?(?:src)\s*=\s*[\'"]*)\s*([^\'" >]+)([\'"> ]?[^<]*>)/i';
-
-		// find whatever matches the above patterns
-		preg_match_all($pattern, $content, $matches, PREG_SET_ORDER);
-
-		// fix these matches up
-		foreach ($matches as $data) {
-			$subject	= $data[0];
-			$prefix		= $data[1];
-			$url		= $data[2];
-			$postfix	= $data[3];
-
-			// make full url, ignore invalid urls
-			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
-				continue;
-			}
-
-			// if images need to be tunneled, prepare a new source url
-			if ($this->attr('tunnel_media') && $this->isUrlAllowed($url)) {
-				$encoded_url = $this->_encodeURL($url);
-				$url = $replacement_url.$encoded_url;
-			}
-
-			$subjects[]     = $subject;
-			$replacements[] = $prefix.$url.$postfix;
-		}
-
-
-		// FLASH MOVIE
-		$matches      = Array();
-
-		// object parameters (flash)
-		$pattern = '/(<(?:param)\s+.*?(?:value)\s*=\s*[\'"]*)\s*([^\'" >]+)([\'"> ]?[^<]*>)/i';
-
-		preg_match_all($pattern, $content, $matches, PREG_SET_ORDER);
-
-		// fix these matches up
-		foreach ($matches as $data) {
-			$subject	= $data[0];
-			$prefix		= $data[1];
-			$url		= $data[2];
-			$postfix	= $data[3];
-
-			// find the name of the subject
-			$pattern = '/name\s*=\s*[\'"]*\s*([^\'" >]+)[\'"> ]+/i';
-
-			preg_match($pattern, $subject, $name_matches);
-			$param_name = $name_matches['1'];
-
-			// only look at parameter whose name is movie (for flash)
-			if ($param_name != 'movie') continue;
-
-			// make full url, ignore invalid urls
-			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
-				continue;
-			}
-
-			// if images need to be tunneled, prepare a new source url
-			if ($this->attr('tunnel_media') && $this->isUrlAllowed($url)) {
-				$encoded_url = $this->_encodeURL($url);
-				$url = $replacement_url.$encoded_url;
-			}
-
-			$subjects[]		= $subject;
-			$replacements[]	= $prefix.$url.$postfix;
-		}
-		// local cleanup
-		$name_matches = NULL;
-
-		//// END OBJECTS
-
-
-		//// BEGIN IMAGES
-		$matches = Array();
-		$patterns = Array();
-
-		// prepare the image patterns
-		$patterns[] = '/(<(?:img)\s+.*?(?:src)\s*=\s*[\'"]*)\s*([^\'" <>]+)([\'"> ]?[^<>]*\>)/i';
-
-		$patterns[] = '/(background\s*=\s*[\'"]?)\s*([^\'"<> ]+)([\'" ]?[^<]*>)/i';
-
-		$patterns[] = '/((?:background.*?)url\s*\([\'"]?\s*)([^\'"; ]+)([\'"]?\s*\))/i';
-		$patterns[] = '/((?:list-style-image.*?)url\s*\([\'"]?\s*)([^\'"; ]+)([\'"]?\s*\))/i';
-
-		$patterns[] = '/(<(?:input)\s+.*?(?:src)\s*=\s*[\'"]+)\s*([^\'" >]+)([\'"> ]?[^<>]*\>)/i';
-
-		// find whatever matches the above patterns
-		foreach ($patterns as $pattern) {
-			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
-			$matches = array_merge($matches, $matches_local);
-		}
-		// local cleanup
-		$matches_local = NULL;
-
-		foreach ($matches as $data) {
-			$subject	= $data[0];
-			$prefix		= $data[1];
-			$url		= $data[2];
-			$postfix	= $data[3];
-
-			// make full url, ignore invalid urls
-			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
-				continue;
-			}
-
-			// if images need to be tunneled, prepare a new source url
-			if ($this->attr('tunnel_images') && $this->isUrlAllowed($url)) {
-				$encoded_url = $this->_encodeURL($url);
-				$url = $replacement_url.$encoded_url;
-			}
-
-			$subjects[]		= $subject;
-			$replacements[]	= $prefix.$url.$postfix;
-
-		}
-		//// END IMAGES
-
-
-		//// BEGIN LINKS
-		// prepare for the next round of url replacements
-		$matches	= Array();
-		$patterns	= Array();
-
-		// PATTERNS for urls that might need to be rewritten to point back to remote content
-		// links and frames except mailto and javascript
-		$patterns[] = '/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*[\'"]?)\s*((?:(?![\#]|mailto|javascript))[^\'"> ]+)([\'"> ]?[^<]*>)/i';
-
-		// this pattern is a special case. we don't generally look at JavaScript
-		// because that is a whole new territory
-		// this one was added for compatibility with MySource v2 ecom module
-		$patterns[] = '/(<input[^>]*?onclick\s*=\s*[\'"]location=\')\s*([^\'"> ]+)([\'"> ]?[^<]*>)/i';
-
-		// find whatever matches the above patterns
-		foreach ($patterns as $pattern) {
-			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
-			$matches = array_merge($matches, $matches_local);
-		}
-
-
-		// local cleanup
-		$matches_local = NULL;
-
-		$load_links = $this->attr('load_links');
-
-		foreach ($matches as $data) {
-			$subject	= $data[0];
-			$prefix		= $data[1];
-			$url		= $data[2];
-			$postfix	= $data[3];
-
-			// make full url, ignore invalid urls
-			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
-				continue;
-			}
-
-			// if urls need to point back to us, prepare a new url
-			if ($load_links && $this->isUrlAllowed($url)) {
-				$encoded_url = $this->_encodeURL($url);
-				$url = $replacement_url.$encoded_url;
-			}
-
-			$subjects[]		= $subject;
-			$replacements[]	= $prefix.$url.$postfix;
-
-		}
-		//// END LINKS
-
-
-		//// BEGIN FORMS
-		// prepare for the next round of url replacements
-		$matches  = Array();
-		$patterns = Array();
-
-		// forms. NOTE: this captures even those actions that are empty
-		$patterns[] = '/(<(?:form[^>]*?action)\s*=\s*[\'\"]?)\s*([^\'\"> ]*)([\'\"\> ]?[^<]*\>)/i';
-
-		// find whatever matches the above patterns
-		foreach ($patterns as $pattern) {
-			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
-			$matches = array_merge($matches, $matches_local);
-		}
-		// local cleanup
-		$matches_local = NULL;
-
-		foreach ($matches as $data) {
-			$subject = $data[0];
-			$prefix  = $data[1];
-			$url     = $data[2];
-			$postfix = $data[3];
-
-			// make full url, ignore invalid urls
-			if (!$this->_makeFullURL($parsed_fetch_url, $url)) {
-				continue;
-			}
-
-			// if urls need to point back to us, prepare a new url
-			if ($load_links && $this->isUrlAllowed($url)) {
-				// forms require the parameters to be set to the hidden fields for proper functioning
-				$postfix .= '<input type="hidden" name="sq_content_src" value="'.$this->_encodeURL($url).'" />';
-
-				$encoded_url = $this->_encodeURL($url);
-				$url = $replacement_url.$encoded_url;
-			}
-
-			$subjects[]		= $subject;
-			$replacements[]	= $prefix.$url.$postfix;
-
-		}
-		//// END FORMS
-
-		// finally, we replace all the urls with the re-written ones.
-		$content = str_replace($subjects, $replacements, $content);
-		// replace keywords
-		preg_match_all('/%(\w+)%/i', $content, $matches);
-
-		foreach ($matches[1] as $key => $keyword) {
-			$rep = $this->getKeywordReplacement($keyword);
-			$content = str_replace($matches[0][$key], $rep, $content);
-		}
-
-		return $content;
-
-	}//end _transformContent()
-
-
-	/**
 	* Turn a url into a full url, together with the host and protocol
 	*
 	* The required missing information is taken from the parsed_fetch_url,
@@ -929,7 +886,7 @@ class Page_Remote_Content extends Page
 	*/
 	function _makeFullURL($parsed_fetch_url, &$url)
 	{
-		// ignore invalid urls
+		// reject invalid urls
 		if (!isset($url) || (substr($url, -3) == '://' )) {
 			return FALSE;
 		}
@@ -938,7 +895,7 @@ class Page_Remote_Content extends Page
 			$url = $parsed_fetch_url['scheme'].':'.$url;
 		}
 
-		// ignore absolute urls
+		// do nothing for absolute urls
 		if (preg_match('/^[a-z0-9]+:\/\//i', $url)) {
 			return TRUE;
 		}
@@ -1024,55 +981,111 @@ class Page_Remote_Content extends Page
 	}//end _makeProperPath()
 
 
+//--        GENERAL HELPERS        --//
+
+
 	/**
-	* Encode URL
+	* Create a hash representing the URL and treatment flags supplied
 	*
-	* Prepares URL to be used as a source in page body
+	* @param array	$url				URL to encode
+	* @param array	$transformations	Transformations to perform when tunneling
+	*									See $_transformation_options for valid values
+	*									May also specify 'all' for all transformations
 	*
-	* @param string	$url	URL to encode
+	* @return string
+	* @access private
+	*/
+	function _encodeHash($url, $transformations=Array())
+	{
+		if (empty($url)) {
+			trigger_localised_error('CMS0065', E_USER_WARNING);
+			return '';
+		}
+		$components = Array('url' => $url);
+		foreach ($transformations as $arg) {
+			$components[$arg] = 1;
+		}
+		return urlencode('+'.base64_encode(make_raw_post_data($components)));
+
+	}//end _encodeHash()
+
+
+	/**
+	* Decode a URL hash to a URL and treatment options
+	*
+	* @param string	$hash	The hash value to decode
 	*
 	* @return void
 	* @access public
 	*/
-	function _encodeURL($url)
+	function _decodeHash($hash)
 	{
-		// the + is needed for detection of PHP auto-decoding of urls. See _decodeURL
-		$encoded_url = urlencode('+'.base64_encode($url));
-
-		return $encoded_url;
-
-	}//end _encodeURL()
-
-
-	/**
-	* Decode URL
-	*
-	* Decodes URL encoded by _encodeURL
-	*
-	* @param string	$url	URL to encode
-	*
-	* @return void
-	* @access public
-	* @see _encodeURL
-	*/
-	function _decodeURL($url)
-	{
-
 		// this is a micro hack to detect if PHP has prematurely decoded the url
-		if ($url{0} != '+') $url = urldecode($url);
+		if ($hash{0} != '+') $hash = urldecode($hash);
 
-		// remove the plus, it was in URL for verification purposes only
-		$url = substr($url, 1);
+		$hash = base64_decode(substr($hash, 1));
+		$components = Array();
+		parse_str(html_entity_decode($hash), $components);
+		if (empty($components['url'])) {
+			trigger_localised_error('CMS0065', E_USER_WARNING);
+		}
+		// insert any missing options (presumed false) and expand the 'all' option
+		foreach ($this->_transformation_options as $i => $v) {
+			$components[$v] = !empty($components[$v]) || !empty($components['all']);
+		}
+		return $components;
 
-		$decoded_url = base64_decode($url);
-		$decoded_url = html_entity_decode($decoded_url);
+	}//end _decodeHash()
 
-		return $decoded_url;
 
-	}//end _decodeURL()
+	/**
+	* Checks whether url is allowed by security settings
+	*
+	* @param string	$url	URL to check
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isUrlAllowed($url)
+	{
+		if (!isset($this->_tmp['_white_list_'])) {
+			$this->_tmp['_white_list_'] = Array();
+			$Net_URL =& new Net_URL($this->attr('remote_url'));
+			if ($this->attr('only_local_links')) {
+				// this is to support legacy functionality where 'Only Local Links' meant all the links in the local domain
+				$this->_tmp['_white_list_'][] = strtolower($Net_URL->host);
+			} else {
+				$this->_tmp['_white_list_'] = $this->attr('url_white_list');
+				if (!empty($this->_tmp['_white_list_'])) {
+					$this->_tmp['_white_list_'][] = strtolower($Net_URL->host.$Net_URL->path);
+				}
+			}
+		}
+
+		if (empty($this->_tmp['_white_list_'])) return TRUE;
+
+
+		$Net_URL =& new Net_URL($url);
+		$url = $Net_URL->host;
+		if (!empty($Net_URL->path)) {
+			$url = $url.$Net_URL->path;
+		}
+		$url = strtolower($url);
+
+		foreach ($this->_tmp['_white_list_'] as $white_url) {
+			$white_url_len = strlen($white_url);
+			if ($white_url_len > strlen($url)) {
+				continue;
+			} else if (strtolower($white_url) == substr($url, 0, $white_url_len)) {
+				return TRUE;
+			}
+		}
+
+		return FALSE;
+
+	}//end isUrlAllowed()
 
 
 }//end class
-
 
 ?>
