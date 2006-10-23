@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.110.2.5 2006/10/23 00:28:13 rhoward Exp $
+* $Id: metadata_manager.inc,v 1.110.2.6 2006/10/23 03:41:00 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.110.2.5 $
+* @version $Revision: 1.110.2.6 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1010,7 +1010,7 @@ class Metadata_Manager extends MySource_Object
 					case 'asset_updated_by_first_name' :
 					case 'asset_updated_by_last_name'  :
 					case 'asset_updated_by_email'      :
-						echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user)) {
+						echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user) && !empty($metadata_asset->'.substr($keyword,6,7).'_userid)) {
 						$metadata_'.substr($keyword,6,7).'_by_user =& $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid,\'\', TRUE);'."\n}\n";
 						echo 'if (!empty($metadata_'.substr($keyword,6,7).'_by_user)) { ';
 						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.substr($keyword,6,7).'_by_user->attr(\''.substr($keyword,17).'\');'."\n";
