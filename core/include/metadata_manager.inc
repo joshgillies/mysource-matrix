@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.110.2.4 2006/08/24 01:26:25 rhoward Exp $
+* $Id: metadata_manager.inc,v 1.110.2.5 2006/10/23 00:28:13 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.110.2.4 $
+* @version $Revision: 1.110.2.5 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1448,7 +1448,7 @@ class Metadata_Manager extends MySource_Object
 		$result = '';
 		for($i = 0; $i < strlen($value); ++$i) {
 			$ord = ord($value[$i]);
-			if($ord >= 126) {
+			if($ord > 126) {
 				$result .= "&#".$ord.";";
 			} else {
 				$result .= $value[$i];
