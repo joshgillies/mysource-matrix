@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.120 2006/09/27 23:53:30 gsherwood Exp $
+* $Id: design.inc,v 1.121 2006/10/23 02:00:41 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.120 $
+* @version $Revision: 1.121 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -721,15 +721,23 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 				echo '<', '?php echo htmlentities(', $this->_escapeVar('$ASSET->'.$link_fn.'()', $args), ");\n", $additional, ' ?', '>';
 			break;
 
+			case 'current_asset' :
 			case 'current_user' :
+				if ($var == 'current_user') {
+					echo '<'.'?php
+					if (!$GLOBALS["SQ_SYSTEM"]->userPublic()) {
+					?', '>';
+					$base = '$GLOBALS["SQ_SYSTEM"]->user';
+				} else {
+					$base = '$ASSET';
+				}
+
 				if (!empty($args['keyword'])) {
 					$args['keyword'] = trim($args['keyword'], '% ');
 					echo '<'.'?php
-					if (!$GLOBALS["SQ_SYSTEM"]->userPublic()) {
-						$user_keyword_val = $GLOBALS["SQ_SYSTEM"]->user->getKeywordReplacement('.$this->_safeStringLiteral($args['keyword']).');
-						if ($user_keyword_val != '.$this->_safeStringLiteral('%'.$args['keyword'].'%').') {
-							echo $user_keyword_val;
-						}
+					$keyword_val = '.$base.'->getKeywordReplacement('.$this->_safeStringLiteral($args['keyword']).');
+					if ($keyword_val != '.$this->_safeStringLiteral('%'.$args['keyword'].'%').') {
+						echo $keyword_val;
 					}
 					?', '>';
 				} else {
@@ -738,9 +746,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 						case 'name'   :
 						case 'id' :
 							echo '<'.'?php
-							if (!$GLOBALS["SQ_SYSTEM"]->userPublic()) {
-								echo $GLOBALS["SQ_SYSTEM"]->user->'.$args['attr'].';
-							}
+							echo '.$base.'->'.$args['attr'].';
 							?', '>';
 						break;
 						case 'password':
@@ -749,23 +755,27 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 						default :
 							$attr_name = $this->_safeStringLiteral($args['attr']);
 							echo '<'.'?php
-							if (!$GLOBALS["SQ_SYSTEM"]->userPublic()) {
-								echo @$GLOBALS["SQ_SYSTEM"]->user->attr('.$attr_name.');
-							}
+							echo @'.$base.'->attr('.$attr_name.');
 							?', '>';
 						break;
 
 					}// end switch
+				}
 
+				if ($var == 'current_user') {
 					if (!empty($args['default'])) {
 						$default = $this->_safeStringLiteral($args['default']);
 						echo '<'.'?php
-						if ($GLOBALS["SQ_SYSTEM"]->userPublic()) {
+						} else {
 							echo '.$default.';
-						}
 						?', '>';
 					}
-				}//end else
+
+					echo '<'.'?php
+					}//end if not public user
+					?', '>';
+				}
+
 			break;
 
 			case 'file_path' :
