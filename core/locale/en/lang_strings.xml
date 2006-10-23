@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.179 2006/10/21 03:18:17 amiller Exp $
+* $Id: lang_strings.xml,v 1.180 2006/10/23 07:01:36 tbarrett Exp $
 *
 */
 
@@ -40,6 +40,10 @@
 	<string source="allow_user_ip_to_fluctuate">Allow the IP of a user to fluctuate?</string>
 	<string source="process_php_credentials">Process PHP Credentials</string>
 	<string source="process_php_credentials_note">If this is enabled and a username and password are supplied in PHP_AUTH_USR and PHP_AUTH_PW, the system will try to authenticate a user with those credentials</string>
+
+	<string source="enable_external_auth_systems">Enable External Authentication Systems</string>
+	<string source="enable_external_auth_systems_note">Set this to 'No' to only allow users with accounts in the default matrix user system, rather than LDAP, IPB etc.</string>
+
 	<string source="allow_single_sign_in">Accept HTTP Authentication</string>
 	<string source="allow_single_sign_in_note">If this is enabled and a username is supplied in REMOTE_USER, the system will try to automatically log in a user with that username.  (It will assume that the user has already been authenticated by some external mechanism.)</string>
 	<string source="applies_to">Applies To</string>
