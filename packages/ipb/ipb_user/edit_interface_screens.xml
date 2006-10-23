@@ -11,9 +11,11 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.1.1.1 2005/12/15 03:02:07 skim Exp $
+* $Id: edit_interface_screens.xml,v 1.2 2006/10/23 06:00:59 tbarrett Exp $
 *
 */
 -->
 
-<screens />
+<screens>
+	<screen code_name="role_assignments" display_name="Role Assignments" icon="edit" lock_type="roles" force_unlock="0" />
+</screens>
