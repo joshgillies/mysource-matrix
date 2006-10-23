@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_folder.inc,v 1.10 2006/10/23 07:01:36 tbarrett Exp $
+* $Id: authentication_folder.inc,v 1.11 2006/10/23 23:20:32 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -257,7 +257,7 @@ class Authentication_Folder extends Folder
 	*/
 	function getAuthSystems()
 	{
-		$type_code (SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS) ? 'authentication' : 'authentication_default';
+		$type_code = (SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS) ? 'authentication' : 'authentication_default';
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_1, $type_code, !SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS);
 		$installed_auth_types = Array();
 		foreach ($links as $link_data) {
