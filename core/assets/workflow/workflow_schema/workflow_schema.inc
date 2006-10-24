@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema.inc,v 1.12 2006/01/18 22:33:14 lwright Exp $
+* $Id: workflow_schema.inc,v 1.13 2006/10/24 06:47:26 emcdonald Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -122,6 +122,21 @@ class Workflow_Schema extends Folder
 		return FALSE;
 
 	}//end prepareLink()
+
+
+	/**
+	* Attempts to override all current paths for this asset with those passed in the array
+	*
+	* @param array	$paths	array of paths to give this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveWebPaths($paths)
+	{
+		return TRUE;
+
+	}//end saveWebPaths()
 
 
 }//end class
