@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.173.2.9 2006/10/17 23:13:07 mbrydon Exp $
+* $Id: search_page.inc,v 1.173.2.10 2006/10/24 00:32:01 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.173.2.9 $
+* @version $Revision: 1.173.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2655,8 +2655,9 @@ class Search_Page extends Listing_Engine
 			$bodycopy_links[] = $search_bodycopy_link;
 		}
 
-		$bodycopies = Array();
+		$bodycopies   = Array();
 		$type_formats = Array();
+		$keywords     = Array();
 
 		foreach ($bodycopy_links as $link_info) {
 			if (isset($parents[$link_info['minorid']])) {
@@ -2691,6 +2692,14 @@ class Search_Page extends Listing_Engine
 				foreach ($this->attr('categories') as $cat_name => $cat_details) {
 					$keywords[$cat_name.'_category_chooser'] = 'Dropdown box for category set '.$cat_name;
 				}
+			}
+
+			// add in the buttons for the customisation bodycopies
+			if ($bodycopy == 'search_form') {
+				$keywords['submit_button'] = translate('cms_listing_keyword_submit_button');
+			}
+			if ($bodycopy == 'sis_form') {
+				$keywords['search_in_search_button'] = translate('sch_page_keyword_sis_button');
 			}
 
 			if ($bodycopy != 'sis_form' && $bodycopy != 'search_form') {
