@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.7 2006/09/05 03:24:47 skim Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.8 2006/10/24 05:54:40 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,11 +85,9 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		$metadata = $mm->getMetadata($asset->id);
 
 		// get the field name
-		$field_name = $metadata[$settings['fieldid']]['name'];
-
-		// if the field name is provided in $settings, then verify it.
-		if (isset($settings['field_name']) && $settings['field_name'] != $field_name) {
-			return FALSE;
+		$field_name = '';
+		if (isset($metadata[$settings['fieldid']])) {
+			$field_name = $metadata[$settings['fieldid']]['name'];
 		}
 
 		$value = '';
@@ -101,6 +99,11 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 											'value'	=> $settings['value'],
 										  );
 		$success = $mm->setMetadata($asset->id, $metadata);
+
+		// Regenerate Metadata File
+		if ($success) {
+			$mm->regenerateMetadata($asset->id);
+		}
 
 		// all done very smoothly like an ice cream
 		if ($success) {
