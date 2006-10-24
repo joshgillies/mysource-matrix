@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.56.2.2 2006/10/05 02:00:06 skim Exp $
+* $Id: wysiwyg.inc,v 1.56.2.3 2006/10/24 05:08:15 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.56.2.2 $
+* @version $Revision: 1.56.2.3 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -638,7 +638,7 @@ class wysiwyg
 
 					// retrieve the HTML
 					html = this.make_relative_hrefs(html);
-					this._textArea.value = encodeURIComponent(html);
+					this._textArea.value = html;
 				};
 			</script>
 
