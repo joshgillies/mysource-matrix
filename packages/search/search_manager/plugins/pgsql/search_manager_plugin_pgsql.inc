@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.1 2006/10/17 00:31:57 lwright Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.2 2006/10/24 01:34:29 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -277,9 +277,24 @@ class Search_Manager_Plugin_PgSQL
 	* @return array
 	* @access public
 	*/
-	function processAllSourceWordSearch(&$sm, $search_term, $base_query)
+	function processExcludeQuery(&$sm, $search_term, $base_query)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$words = Array();
+		foreach ($search_term as $exclude_value) {
+			$words = array_merge($words, $this->generateWordList($exclude_value));
+		}
+		$words = array_unique($words);
+		$new_base = $base_query;
+		$new_base['where'][] = 'ai.value LIKE \''.($sm->attr('enable_begins_with') ? '%' : '').implode("%' OR ai.value LIKE '".($sm->attr('enable_begins_with') ? '%' : ''), $words).'%\'';
+		$new_base['select'] = Array('a.assetid');
+		$new_base['group_by'] = Array('a.assetid');
+		$sql = implode_sql($new_base);
+		$result = $db->getCol($sql);
+		assert_valid_db_result($result);
+
+		return $result;
 
 	}//end processExcludeSearch()
 

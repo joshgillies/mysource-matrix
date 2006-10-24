@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.125 2006/10/17 00:31:57 lwright Exp $
+* $Id: search_manager.inc,v 1.126 2006/10/24 01:34:29 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.125 $
+* @version $Revision: 1.126 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1835,18 +1835,8 @@ class Search_Manager extends Asset
 		 //  PROCESS EXCLUDED TERMS  //
 		//////////////////////////////
 		if (!empty($search_info['exclude'])) {
-			$words = Array();
-			foreach ($search_info['exclude'] as $exclude_value) {
-				$words = array_merge($words, $this->generateWordList($exclude_value));
-			}
-			$words = array_unique($words);
-			$new_base = $base_query;
-			$new_base['where'][] = 'ai.value LIKE \''.($this->attr('enable_begins_with') ? '%' : '').implode("%' OR ai.value LIKE '".($this->attr('enable_begins_with') ? '%' : ''), $words).'%\'';
-			$new_base['select'] = Array('a.assetid');
-			$new_base['group_by'] = Array('a.assetid');
-			$sql = implode_sql($new_base);
-			$result = $db->getCol($sql);
-			assert_valid_db_result($result);
+			$plugin =& $this->_getDBPlugin();
+			$result = $plugin->processExcludeQuery($this, $search_info['exclude'], $base_query);
 
 			foreach ($result as $exclude_assetid) {
 				if (isset($final_results[$exclude_assetid])) {
@@ -2655,6 +2645,113 @@ class Search_Manager extends Asset
 		return $this->_db_plugin;
 
 	}//end _getDBPlugin()
+
+
+	/**
+	* Provide generic format of search results data
+	*
+	* Results array is in the format returned by search manager
+	* when a detailed searched is made
+	*
+	* @param array	$results		Search Results
+	* @param string	$search_string	String searched for
+	*
+	* @return array
+	* @access public
+	*/
+	function getFormattedResults($results, $search_string)
+	{
+		$search_string = preg_replace('/([\.\\\!\+\*\?\[\]\^\$\(\)\=\!\<\>\|\:]+)/i', '\\\${1}',$search_string);
+
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+
+		$formatted_results = Array();
+
+		// transform the array into a better working format
+		foreach ($results as $result) {
+			$searched_results[$result['assetid']][] = $result['source'];
+		}
+
+		// populate the results array as required
+		// note we dont include fields that dont have matches
+		foreach ($searched_results as $assetid => $content) {
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+			foreach ($content as $content_type) {
+				switch ($content_type['source']) {
+
+					// asset contents containing search string
+					case preg_match('/contents/', $content_type) > 0:
+						$asset_contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
+
+						foreach ($asset_contents as $contents_id => $contents_value) {
+							if (preg_match("/".htmlentities($search_string)."/i", $contents_value) || preg_match("/".($search_string)."/i", $contents_value)) {
+								$formatted_results[$assetid]['contents'][$contents_id] = $contents_value;
+							}
+						}
+					break;
+
+					// attributes containing search string
+					// attributes come in 2 formats, __attribute__ and attr:attrname$
+					case preg_match('/__(.+)__/', $content_type, $matches) > 0:
+					case preg_match('/attr:(.+)$/', $content_type, $matches) > 0:
+						if (isset($asset->vars[$matches[1]])) {
+							$attribute = $asset->attr($matches[1]);
+
+							if (preg_match("/$search_string/i", $attribute)) {
+								$formatted_results[$assetid]['attributes'][$matches[1]] = $attribute;
+							}
+						}
+					break;
+
+					// metadata containing search string
+					case preg_match('/metadata/', $content_type) > 0:
+						// we've already set metadata for this asset
+						if (isset($formatted_results[$assetid]['metadata'])) {
+							break;
+						}
+
+						$metadata = $mm->getMetadata($assetid);
+
+						foreach ($metadata as $fieldid => $data) {
+							if (preg_match("/$search_string/i", $data['value'])) {
+								$formatted_results[$assetid]['metadata'][$fieldid] = $data;
+							}
+						}
+
+						// if no metadata was set, then we were looking for the schema
+						if (!isset($formatted_results[$assetid]['metadata'])) {
+							$schemas = $mm->getSchemas($assetid, TRUE);
+
+							foreach ($schemas as  $schemaid) {
+								$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+								$schema_data = $mm->getSchemaDefaultValues($schema->id);
+
+								foreach ($schema_data as $fieldid => $data) {
+									if (preg_match("/$search_string/i", $data['value'])) {
+										$formatted_results[$schema->id]['schema'][$fieldid] = $data;
+									}
+								}
+
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($schema);
+							}
+						}
+					break;
+
+					default:
+					break;
+
+				}//end switch content type
+			}//end foreach $assetid
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+
+		}//end foreach $results
+
+		return $formatted_results;
+
+	}//end getFormattedResults()
+
 
 }//end class
 
