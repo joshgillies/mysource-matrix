@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema.inc,v 1.21 2006/02/22 04:56:59 lwright Exp $
+* $Id: metadata_schema.inc,v 1.22 2006/10/24 06:52:59 emcdonald Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -152,6 +152,21 @@ class Metadata_Schema extends Folder
 		return FALSE;
 
 	}//end delete()
+
+
+	/**
+	* Attempts to override all current paths for this asset with those passed in the array
+	*
+	* @param array	$paths	array of paths to give this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveWebPaths($paths)
+	{
+		return TRUE;
+
+	}//end saveWebPaths()
 
 
 }//end class
