@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.4.2.2 2006/09/05 03:27:49 skim Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.4.2.3 2006/10/24 06:15:32 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4.2.2 $
+* @version $Revision: 1.4.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,7 +46,6 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 	* <PRE>
 	* Array(
 	*       'fieldid'		=> int    // metadata_field id
-	*		'field_name'	=> string // name of the field
 	*       'value'			=> string // the value to set
 	*       );
 	* </PRE>
@@ -62,9 +61,8 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		// check required settings
-		if (empty($settings['fieldid'])) return false;
-		if (empty($settings['value'])) return false;
-		//if (empty($settings['field_name'])) return false;
+		if (empty($settings['fieldid'])) return FALSE;
+		if (empty($settings['value'])) return FALSE;
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
@@ -77,15 +75,18 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 
 		// verify the fieldid
 		$success = $mm->isMetadataFieldAssetid($settings['fieldid']);
-		if (!$success) return false;
+		if (!$success) return FALSE;
 
 		// get the asset
 		$asset =& $state['asset'];
 
 		// get the current metadata values
 		$metadata = $mm->getMetadata($asset->id);
-echo print_r($metadata);
-		if (!isset($settings['field_name'])) {
+
+		// get the field name
+		$field_name = '';
+		if (isset($metadata[$settings['fieldid']])) {
+			$field_name = $metadata[$settings['fieldid']]['name'];
 		}
 
 		$value = '';
@@ -93,20 +94,23 @@ echo print_r($metadata);
 
 		// set the new value
 		$metadata[$settings['fieldid']] = Array(
-											'name'	=> $settings['field_name'],
+											'name'	=> $field_name,
 											'value'	=> $settings['value'],
 										  );
 		$success = $mm->setMetadata($asset->id, $metadata);
+
+		// Regenerate Metadata File
+		if ($success) $mm->regenerateMetadata($asset->id);
 
 		// all done very smoothly like an ice cream
 		if ($success) {
 			return Array(
 					'fieldid'		=> $settings['fieldid'],
-					'field_name'	=> $settings['field_name'],
+					'field_name'	=> $field_name,
 					'value'			=> $settings['value'],
 				   );
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end execute()
@@ -122,7 +126,7 @@ echo print_r($metadata);
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=false)
+	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$output					= '';
 		$metadata_fieldid		= array_get_index($settings, 'fieldid', 0);
@@ -147,8 +151,8 @@ echo print_r($metadata);
 				// set the field name
 				$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_fieldid);
 				$edit_fns = $metadata_field->getEditFns();
-				$null = null;
-				$edit_fns->paintValueInterface($metadata_field, $null, $metadata_field_value, true);
+				$null = NULL;
+				$edit_fns->paintValueInterface($metadata_field, $null, $metadata_field_value, TRUE);
 				hidden_field($prefix.'[form_printed]', 1);
 			}
 			$output_part2 = ob_get_contents();
