@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.32.2.9 2006/10/23 00:48:03 tbarrett Exp $
+* $Id: page_remote_content.inc,v 1.32.2.10 2006/10/25 23:42:35 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.32.2.9 $
+* @version $Revision: 1.32.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -75,6 +75,11 @@ class Page_Remote_Content extends Page
 	*/
 	function printFrontend()
 	{
+		if (!$this->readAccess()) {
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+			return;
+		}
+
 		$this->_tmp['success'] = $this->_process();
 
 		if ($this->_tmp['transform_settings']['use_design']) {
@@ -155,7 +160,9 @@ class Page_Remote_Content extends Page
 			}
 		} else {
 			$this->_tmp['transform_settings'] = $this->_decodeHash($remote_source);
-			if (empty($this->_tmp['transform_settings'])) return FALSE;
+			if (empty($this->_tmp['transform_settings'])) {
+				return FALSE;
+			}
 			$url = $this->_tmp['transform_settings']['url'];
 			unset($this->_tmp['transform_settings']['url']);
 		}
@@ -938,7 +945,6 @@ class Page_Remote_Content extends Page
 	*/
 	function _encodeHash($url, $transformations=Array())
 	{
-		error_log("Encoding $url");
 		if (empty($url)) {
 			trigger_localised_error('CMS0065', E_USER_WARNING);
 			return '';
@@ -947,7 +953,6 @@ class Page_Remote_Content extends Page
 		foreach ($transformations as $arg) {
 			$components[$arg] = 1;
 		}
-		error_log("Returning ".urlencode('+'.base64_encode(make_raw_post_data($components))));
 		return urlencode('+'.base64_encode(make_raw_post_data($components)));
 
 	}//end _encodeHash()
