@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_management.inc,v 1.11.2.1 2006/08/24 23:54:48 rhoward Exp $
+* $Id: metadata_schema_management.inc,v 1.11.2.3 2006/10/25 00:03:22 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11.2.1 $
+* @version $Revision: 1.11.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,42 +72,6 @@ class Metadata_Schema_Management extends Asset_Management
 					  );
 
 	}//end constructor
-
-
-	/**
-	* Upgrade
-	*
-	* @param string	$current_version	the version of the asset that is currently installed
-	*
-	* @return boolean
-	* @access public
-	*/
-	function _upgrade($current_version)
-	{
-		if (!parent::_upgrade($current_version)) return FALSE;
-
-		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
-
-		if (version_compare($current_version, '0.2', '<')) {
-			// version 0.1 -> 0.2
-			// metadata schema names, sections, fields, etc. are now escaped
-			// for safety's sake, regenerate all the schemas in the system
-			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.2');
-			// get all 'metadata_schema' assets (or their descendants)
-			$schemas = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetIds($this->getAssetType(), FALSE);
-			pre_echo('Upgrading '.count($schemas).' assets...');
-
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$vars = Array('schemaids' => $schemas);
-			$hh->freestyleHipo('hipo_job_regenerate_metadata', $vars);
-
-			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.2');
-
-		}//end version 0.2 upgrade
-
-		return TRUE;
-
-	}//end _upgrade()
 
 
 }//end class
