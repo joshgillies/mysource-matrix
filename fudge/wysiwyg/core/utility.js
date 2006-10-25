@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: utility.js,v 1.22 2006/09/27 23:14:53 gsherwood Exp $
+* $Id: utility.js,v 1.23 2006/10/25 06:46:21 lwright Exp $
 *
 */
 
@@ -502,12 +502,11 @@ HTMLArea.processStyle = function(params, element) {
 // receives an URL to the popup dialog and a function that receives one value;
 // this function will get called after the dialog is closed, with the return
 // value of the dialog.
+// [LWr 2006.10.25] we've had to omit the modal dialogue option (in IE) because
+// we need them non-modal for back-end searching (it never worked in FF anyway).
+// Dialog.js now makes sure only one is opened at one time
 HTMLArea.prototype._popupDialog = function(code, url, width, height, modal, action, args) {
-	if (modal == true) {
-		openModalDialog(code, this.pluginURL(url), width, height, action, args)
-	} else {
-		openDialog(code, this.pluginURL(url), width, height, action, args);
-	}
+	openDialog(code, this.pluginURL(url), width, height, action, args);
 };
 
 

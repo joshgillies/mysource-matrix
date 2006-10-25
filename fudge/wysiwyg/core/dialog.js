@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dialog.js,v 1.11 2005/01/20 13:32:41 brobertson Exp $
+* $Id: dialog.js,v 1.12 2006/10/25 06:46:21 lwright Exp $
 *
 */
 
@@ -35,6 +35,9 @@ var dialogWins = new Array();
 
 // Global for brower version branching.
 var Nav4 = ((navigator.appName == "Netscape") && (parseInt(navigator.appVersion) == 4))
+
+// The currently opened WYSIWYG dialogue box
+var sq_wysiwyg_dialog = null;
 
 // Generate a modal dialog.
 // Parameters:
@@ -57,6 +60,13 @@ function openDialog(code, url, width, height, returnFunc, args) {
 		dialogWins[code].height = height
 		// Keep name unique so Navigator doesn't overwrite an existing dialog.
 		dialogWins[code].name = (new Date()).getSeconds().toString()
+
+		// If a dialogue is already opened, close it so the next one doesn't
+		// open with the same dimensions
+		if (sq_wysiwyg_dialog) {
+			sq_wysiwyg_dialog.close();
+		}
+
 		// Assemble window attributes and try to center the dialog.
 		if (Nav4) {
 			// Center on the main window.
@@ -82,6 +92,8 @@ function openDialog(code, url, width, height, returnFunc, args) {
 	} else {
 		dialogWins[code].win.focus()
 	}
+
+	sq_wysiwyg_dialog = dialogWins[code].win;
 }
 
 // Event handler to inhibit Navigator form element
