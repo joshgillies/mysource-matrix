@@ -21,6 +21,7 @@ public class MatrixTreeBus {
 	private static MatrixTree lastExpandedTree;
 	private static MatrixTree lastCollapsedTree;
 	private static MatrixTree activeTree;
+	private static FinderTree finderTree;
 	private static TreeExpansionHandler teHandler = new TreeExpansionHandler();
 	private static MatrixTreeCellRenderer cellRenderer = new MatrixTreeCellRenderer();
 	private static MatrixTreeComm comm = new MatrixTreeComm();
@@ -88,12 +89,21 @@ public class MatrixTreeBus {
 
 	public static void startAssetLocator(String[] assetIds, String[] sort_orders) {
 		MatrixTree tree = getActiveTree();
-
 		if (tree == null) {
 			if (trees.size() <= 0) {
 				return;
 			}
 			tree = (MatrixTree)trees.get(0);
+		}
+		tree.loadChildAssets(assetIds, sort_orders, true, false);
+	}
+
+	public static void startSimpleAssetLocator(String[] assetIds, String[] sort_orders) {
+		// when we are in limbo/wysiwyg (simple asset map)
+		MatrixTree tree = (MatrixTree) finderTree;
+		if (tree == null) {
+			// if finder tree is not set, use the old behaviour
+			startAssetLocator(assetIds, sort_orders);
 		}
 		tree.loadChildAssets(assetIds, sort_orders, true, false);
 	}
@@ -137,6 +147,9 @@ public class MatrixTreeBus {
 		//disable move, right click menu and delete key
 		tree.setMoveEnabled(false);
 		tree.removeKeyStroke("DELETE");
+
+		// remember this finder tree for simple asset map
+		finderTree = tree;
 
 		return tree;
 	}

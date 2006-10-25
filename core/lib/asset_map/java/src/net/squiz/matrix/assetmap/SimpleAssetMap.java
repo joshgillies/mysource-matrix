@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: SimpleAssetMap.java,v 1.1 2005/05/13 06:38:19 mmcintyre Exp $
+* $Id: SimpleAssetMap.java,v 1.2 2006/10/25 00:55:55 rong Exp $
 *
 */
 
@@ -25,6 +25,7 @@ package net.squiz.matrix.assetmap;
 
 import net.squiz.matrix.ui.*;
 import net.squiz.matrix.core.*;
+import net.squiz.matrix.matrixtree.*;
 import javax.swing.*;
 
 /**
@@ -34,7 +35,7 @@ import javax.swing.*;
 public class SimpleAssetMap extends AssetMap {
 
 	private javax.swing.Timer timer;
-	
+
 	public void start() {
 		initAssetMap();
 	}
@@ -43,6 +44,16 @@ public class SimpleAssetMap extends AssetMap {
 
 	protected JComponent createApplet() {
 		return new FinderView();
+	}
+
+	public void processAssetLocator(String params) {
+		// we need to create 2 arrays
+		String[] info = params.split("~");
+		String[] assetIds = info[0].split("\\|");
+		String[] sort_orders = info[1].split("\\|");
+
+		// use the simple version for simple asset map
+		MatrixTreeBus.startSimpleAssetLocator(assetIds, sort_orders);
 	}
 
 }
