@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.51 2006/10/13 05:11:12 tbarrett Exp $
+* $Id: page_remote_content.inc,v 1.52 2006/10/25 23:23:44 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -76,6 +76,11 @@ class Page_Remote_Content extends Page
 	*/
 	function printFrontend()
 	{
+		if (!$this->readAccess()) {
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+			return;
+		}
+
 		$this->_tmp['success'] = $this->_process();
 
 		if (!$this->_tmp['transform_settings']['replace_matrix_keywords']) {
