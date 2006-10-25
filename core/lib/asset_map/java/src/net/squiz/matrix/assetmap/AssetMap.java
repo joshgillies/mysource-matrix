@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.23 2006/04/24 00:21:17 sdanis Exp $
+* $Id: AssetMap.java,v 1.24 2006/10/25 00:55:22 rong Exp $
 *
 */
 
@@ -392,7 +392,6 @@ public class AssetMap extends JApplet implements InitialisationListener, KeyList
 
 	public void processAssetLocator(String params) {
 		// we need to create 2 arrays
-		System.out.println(params);
 		String[] info = params.split("~");
 		String[] assetIds = info[0].split("\\|");
 		String[] sort_orders = info[1].split("\\|");
