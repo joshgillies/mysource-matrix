@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.60 2006/10/24 05:53:26 bcaldwell Exp $
+* $Id: wysiwyg.inc,v 1.61 2006/10/25 01:14:58 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1059,50 +1059,226 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 				HTMLArea.prototype.replace_entities = function(html_code) {
 
 					var entities_array = {
-						160 : '&nbsp;', 161 : '&iexcl;', 162 : '&cent;', 163 : '&pound;', 164 : '&curren;',
-						165 : '&yen;', 166 : '&brvbar;', 167 : '&sect;', 168 : '&uml;', 169 : '&copy;',
-						170 : '&ordf;', 171 : '&laquo;', 172 : '&not;', 173 : '&shy;', 174 : '&reg;',
-						175 : '&macr;', 176 : '&deg;', 177 : '&plusmn;', 178 : '&sup2;', 179 : '&sup3;',
-						180 : '&acute;', 181 : '&micro;', 182 : '&para;', 183 : '&middot;', 184 : '&cedil;',
-						185 : '&sup1;', 186 : '&ordm;', 187 : '&raquo;', 188 : '&frac14;', 189 : '&frac12;',
-						190 : '&frac34;', 191 : '&iquest;', 192 : '&Agrave;', 193 : '&Aacute;', 194 : '&Acirc;',
-						195 : '&Atilde;', 196 : '&Auml;', 197 : '&Aring;', 198 : '&AElig;', 199 : '&Ccedil;',
-						200 : '&Egrave;', 201 : '&Eacute;', 202 : '&Ecirc;', 203 : '&Euml;', 204 : '&Igrave;',
-						205 : '&Iacute;', 206 : '&Icirc;', 207 : '&Iuml;', 208 : '&ETH;', 209 : '&Ntilde;',
-						210 : '&Ograve;', 211 : '&Oacute;', 212 : '&Ocirc;', 213 : '&Otilde;', 214 : '&Ouml;',
-						215 : '&times;', 216 : '&Oslash;', 217 : '&Ugrave;', 218 : '&Uacute;', 219 : '&Ucirc;',
-						220 : '&Uuml;', 221 : '&Yacute;', 222 : '&THORN;', 223 : '&szlig;', 224 : '&agrave;',
-						225 : '&aacute;', 226 : '&acirc;', 227 : '&atilde;', 228 : '&auml;', 229 : '&aring;',
-						230 : '&aelig;', 231 : '&ccedil;', 232 : '&egrave;', 233 : '&eacute;', 234 : '&ecirc;',
-						235 : '&euml;', 236 : '&igrave;', 237 : '&iacute;', 238 : '&icirc;', 239 : '&iuml;',
-						240 : '&eth;', 241 : '&ntilde;', 242 : '&ograve;', 243 : '&oacute;', 244 : '&ocirc;',
-						245 : '&otilde;', 246 : '&ouml;', 247 : '&divide;', 248 : '&oslash;', 249 : '&ugrave;',
-						250 : '&uacute;', 251 : '&ucirc;', 252 : '&uuml;', 253 : '&yacute;', 254 : '&thorn;',
-						255 : '&yuml;', 402 : '&fnof;', 913 : '&Alpha;', 914 : '&Beta;', 915 : '&Gamma;',
-						916 : '&Delta;', 917 : '&Epsilon;', 918 : '&Zeta;', 919 : '&Eta;', 920 : '&Theta;',
-						921 : '&Iota;', 922 : '&Kappa;', 923 : '&Lambda;', 924 : '&Mu;', 925 : '&Nu;',
-						926 : '&Xi;', 927 : '&Omicron;', 928 : '&Pi;', 929 : '&Rho;', 931 : '&Sigma;',
-						932 : '&Tau;', 933 : '&Upsilon;', 934 : '&Phi;', 935 : '&Chi;', 936 : '&Psi;',
-						937 : '&Omega;', 945 : '&alpha;', 946 : '&beta;', 947 : '&gamma;', 948 : '&delta;',
-						949 : '&epsilon;', 950 : '&zeta;', 951 : '&eta;', 952 : '&theta;', 953 : '&iota;',
-						954 : '&kappa;', 955 : '&lambda;', 956 : '&mu;', 957 : '&nu;', 958 : '&xi;',
-						959 : '&omicron;', 960 : '&pi;', 961 : '&rho;', 962 : '&sigmaf;', 963 : '&sigma;',
-						964 : '&tau;', 965 : '&upsilon;', 966 : '&phi;', 967 : '&chi;', 968 : '&psi;',
-						969 : '&omega;', 977 : '&thetasym;', 978 : '&upsih;', 982 : '&piv;', 8226 : '&bull;',
-						8230 : '&hellip;', 8242 : '&prime;', 8243 : '&Prime;', 8254 : '&oline;', 8260 : '&frasl;',
-						8472 : '&weierp;', 8465 : '&image;', 8476 : '&real;', 8482 : '&trade;', 8501 : '&alefsym;',
-						8592 : '&larr;', 8593 : '&uarr;', 8594 : '&rarr;', 8595 : '&darr;', 8596 : '&harr;',
-						8629 : '&crarr;', 8656 : '&lArr;', 8657 : '&uArr;', 8658 : '&rArr;', 8659 : '&dArr;',
-						8660 : '&hArr;', 8704 : '&forall;', 8706 : '&part;', 8707 : '&exist;', 8709 : '&empty;',
-						8711 : '&nabla;', 8712 : '&isin;', 8713 : '&notin;', 8715 : '&ni;', 8719 : '&prod;',
-						8721 : '&sum;', 8722 : '&minus;', 8727 : '&lowast;', 8730 : '&radic;', 8733 : '&prop;',
-						8734 : '&infin;', 8736 : '&ang;', 8743 : '&and;', 8744 : '&or;', 8745 : '&cap;',
-						8746 : '&cup;', 8747 : '&int;', 8756 : '&there4;', 8764 : '&sim;', 8773 : '&cong;',
-						8776 : '&asymp;', 8800 : '&ne;', 8801 : '&equiv;', 8804 : '&le;', 8805 : '&ge;',
-						8834 : '&sub;', 8835 : '&sup;', 8836 : '&nsub;', 8838 : '&sube;', 8839 : '&supe;',
-						8853 : '&oplus;', 8855 : '&otimes;', 8869 : '&perp;', 8901 : '&sdot;', 8968 : '&lceil;',
-						8969 : '&rceil;', 8970 : '&lfloor;', 8971 : '&rfloor;', 9001 : '&lang;', 9002 : '&rang;',
-						9674 : '&loz;', 9824 : '&spades;', 9827 : '&clubs;', 9829 : '&hearts;', 9830 : '&diams;'
+						160 : '&nbsp;',		// non-breaking space
+						161 : '&iexcl;',	// inverted exclamation mark
+						162 : '&cent;',		// cent sign
+						163 : '&pound;',	// pound sterling sign
+						164 : '&curren;',	// general currency sign
+						165 : '&yen;',		// yen sign
+						166 : '&brvbar;',	// broken vertical bar
+						167 : '&sect;',		// section sign
+						168 : '&uml;',		// spacing dieresis or umlaut
+						169 : '&copy;',		// copyright sign
+						170 : '&ordf;',		// feminine ordinal indicator
+						171 : '&laquo;',	// left (double) angle quote (guillemet)
+						172 : '&not;',		// logical not sign
+						173 : '&shy;',		// soft hyphen
+						174 : '&reg;',		// registered trademark sign
+						175 : '&macr;',		// spacing macron (long) accent
+						176 : '&deg;',		// degree sign
+						177 : '&plusmn;',	// plus-or-minus sign
+						178 : '&sup2;',		// superscript 2
+						179 : '&sup3;',		// superscript 3
+						180 : '&acute;',	// spacing acute accent
+						181 : '&micro;',	// micro sign
+						182 : '&para;',		// paragraph sigh, pilcrown sign
+						183 : '&middot;',	// middle dot, centred dot
+						184 : '&cedil;',	// spacing cedilla
+						185 : '&sup1;',		// superscript 1
+						186 : '&ordm;',		// masculine ordinal indicator
+						187 : '&raquo;',	// right (double) angle quote (guillemet)
+						188 : '&frac14;',	// fraction 1/4
+						189 : '&frac12;',	// fraction 1/2
+						190 : '&frac34;',	// fraction 3/4
+						191 : '&iquest;',	// inverted question mark
+						//192 : '&Agrave;',	// capital A grave
+						//193 : '&Aacute;',	// capital A acute
+						//194 : '&Acirc;',	// capital A circumflex
+						//195 : '&Atilde;',	// capital A tilde
+						//196 : '&Auml;',	// capital A dieresis or umlaut
+						//197 : '&Aring;',	// capital A ring
+						198 : '&AElig;',	// capital AE ligature
+						//199 : '&Ccedil;',	// capital C cedilla
+						//200 : '&Egrave;',	// capital E grave
+						//201 : '&Eacute;',	// capital E acute
+						//202 : '&Ecirc;',	// capital E circumflex
+						//203 : '&Euml;',	// capital E dieresis or umlaut
+						//204 : '&Igrave;',	// capital I grave
+						//205 : '&Iacute;',	// capital I acute
+						//206 : '&Icirc;',	// capital I circumflex
+						//207 : '&Iuml;',	// capital I dieresis or umlaut
+						208 : '&ETH;',		// capital ETH
+						//209 : '&Ntilde;',	// capital N tilde
+						//210 : '&Ograve;',	// capital O grave
+						//211 : '&Oacute;',	// capital O acute
+						//212 : '&Ocirc;',	// capital O circumflex
+						//213 : '&Otilde;',	// capital O tilde
+						//214 : '&Ouml;',	// capital O dieresis or umlaut
+						//215 : '&times;',	// multiplication sign
+						//216 : '&Oslash;',	// capital O slash
+						//217 : '&Ugrave;',	// capital U grave
+						//218 : '&Uacute;',	// capital U acute
+						//219 : '&Ucirc;',	// capital U circumflex
+						//220 : '&Uuml;',	// capital U dieresis or umlaut
+						//221 : '&Yacute;',	// capital Y acute
+						222 : '&THORN;',	// capital THORN
+						223 : '&szlig;',	// small sharp s, sz ligature
+						//224 : '&agrave;',	// small a grave
+						//225 : '&aacute;',	// small a acute
+						//226 : '&acirc;',	// small a circumflex
+						//227 : '&atilde;',	// small a tilde
+						//228 : '&auml;',	// small a dieresis or umlaut
+						//229 : '&aring;',	// small a ring
+						230 : '&aelig;',	// small ae ligature
+						//231 : '&ccedil;',	// small c cedilla
+						//232 : '&egrave;',	// small e grave
+						//233 : '&eacute;',	// small e acute
+						//234 : '&ecirc;',	// small e circumflex
+						//235 : '&euml;',	// small e dieresis or umlaut
+						//236 : '&igrave;',	// small i grave
+						//237 : '&iacute;',	// small i acute
+						//238 : '&icirc;',	// small i circumflex
+						//239 : '&iuml;',	// small i dieresis or umlaut
+						240 : '&eth;',		// small eth
+						//241 : '&ntilde;',	// small n tilde
+						//242 : '&ograve;',	// small o grave
+						//243 : '&oacute;',	// small o acute
+						//244 : '&ocirc;',	// small o circumflex
+						//245 : '&otilde;',	// small o tilde
+						//246 : '&ouml;',	// small o dieresis or umlaut
+						247 : '&divide;',	// division sign
+						//248 : '&oslash;',	// small o slash
+						//249 : '&ugrave;',	// small u grave
+						//250 : '&uacute;',	// small u acute
+						//251 : '&ucirc;',	// small u circumflex
+						//252 : '&uuml;',	// small u dieresis or umlaut
+						//253 : '&yacute;',	// small y acute
+						254 : '&thorn;',	// small thorn
+						//255 : '&yuml;',	// small y dieresis or umlaut
+						402 : '&fnof;',		// small italic f, function of, florin
+						913 : '&Alpha;',	// capital Alhpa
+						914 : '&Beta;',		// capital Beta
+						915 : '&Gamma;',	// capital Gamma
+						916 : '&Delta;',	// capital Delta
+						917 : '&Epsilon;',	// capital Epsilon
+						918 : '&Zeta;',		// capital Zeta
+						919 : '&Eta;',		// capital Eta
+						920 : '&Theta;',	// capital Theta
+						921 : '&Iota;',		// capital Iota
+						922 : '&Kappa;',	// capital Kappa
+						923 : '&Lambda;',	// capital Lambda
+						924 : '&Mu;',		// capital Mu
+						925 : '&Nu;',		// capital Nu
+						926 : '&Xi;',		// capital Xi
+						927 : '&Omicron;',	// capital Omicron
+						928 : '&Pi;',		// capital Pi
+						929 : '&Rho;',		// capital Rho
+						931 : '&Sigma;',	// capital Sigma
+						932 : '&Tau;',		// capital Tau
+						933 : '&Upsilon;',	// capital Upsilon
+						934 : '&Phi;',		// capital Phi
+						935 : '&Chi;',		// capital Chi
+						936 : '&Psi;',		// capital Psi
+						937 : '&Omega;',	// capital Omega
+						945 : '&alpha;',	// small alpha
+						946 : '&beta;',		// small beta
+						947 : '&gamma;',	// small gamma
+						948 : '&delta;',	// small delta
+						949 : '&epsilon;',	// small epsilon
+						950 : '&zeta;',		// small zeta
+						951 : '&eta;',		// small eta
+						952 : '&theta;',	// small theta
+						953 : '&iota;',		// small iota
+						954 : '&kappa;',	// small kappa
+						955 : '&lambda;',	// small lambda
+						956 : '&mu;',		// small mu
+						957 : '&nu;',		// small nu
+						958 : '&xi;',		// small xi
+						959 : '&omicron;',	// small omicron
+						960 : '&pi;',		// small pi
+						961 : '&rho;',		// small rho
+						962 : '&sigmaf;',	// small sigma final
+						963 : '&sigma;',	// small sigma
+						964 : '&tau;',		// small tau
+						965 : '&upsilon;',	// small upsilon
+						966 : '&phi;',		// small phi
+						967 : '&chi;',		// small chi
+						968 : '&psi;',		// small psi
+						969 : '&omega;',	// small omega
+						977 : '&thetasym;',	// small theta symbol
+						978 : '&upsih;',	// small upsilon symbol
+						982 : '&piv;',		// small pi symbol
+						8226 : '&bull;',	// bullet
+						8230 : '&hellip;',	// horizontal ellipsis
+						8242 : '&prime;',	// prime, minute mark
+						8243 : '&Prime;',	// double prime, second mark
+						8254 : '&oline;',	// overline
+						8260 : '&frasl;',	// fraction slash
+						8472 : '&weierp;',	// weierstrassian function p
+						8465 : '&image;',	// imaginary part of
+						8476 : '&real;',	// real part of
+						8482 : '&trade;',	// trademark sign
+						8501 : '&alefsym;',	// first transfinite cardinal
+						8592 : '&larr;',	// left arrow
+						8593 : '&uarr;',	// up arrow
+						8594 : '&rarr;',	// right arrow
+						8595 : '&darr;',	// down arrow
+						8596 : '&harr;',	// left-right arrow
+						8629 : '&crarr;',	// carriage return arrow
+						8656 : '&lArr;',	// left double arrow
+						8657 : '&uArr;',	// up double arrow
+						8658 : '&rArr;',	// right double arrow
+						8659 : '&dArr;',	// down double arrow
+						8660 : '&hArr;',	// left-right double arrow
+						8704 : '&forall;',	// for all
+						8706 : '&part;',	// partial differential
+						8707 : '&exist;',	// there exists
+						8709 : '&empty;',	// empty set, diameter
+						8711 : '&nabla;',	// backward difference
+						8712 : '&isin;',	// element of
+						8713 : '&notin;',	// not an element of
+						8715 : '&ni;',		// contains as member
+						8719 : '&prod;',	// product sign
+						8721 : '&sum;',		// n-ary sumation
+						8722 : '&minus;',	// minus sign
+						8727 : '&lowast;',	// asterisk operator
+						8730 : '&radic;',	// radical sign
+						8733 : '&prop;',	// proportional to
+						8734 : '&infin;',	// infinity
+						8736 : '&ang;',		// angle
+						8743 : '&and;',		// logical and, wedge
+						8744 : '&or;',		// logical or, vee
+						8745 : '&cap;',		// intersection, cap
+						8746 : '&cup;',		// union, cup
+						8747 : '&int;',		// integral
+						8756 : '&there4;',	// therefore
+						8764 : '&sim;',		// tilde operator, similar to
+						8773 : '&cong;',	// approximatley equal to
+						8776 : '&asymp;',	// asymptotic to
+						8800 : '&ne;',		// not equal to
+						8801 : '&equiv;',	// identical to
+						8804 : '&le;',		// less-than or equal to
+						8805 : '&ge;',		// greater-than or equal to
+						8834 : '&sub;',		// subset of
+						8835 : '&sup;',		// superset of
+						8836 : '&nsub;',	// not a subset of
+						8838 : '&sube;',	// subset of or equal to
+						8839 : '&supe;',	// superset of or qual to
+						8853 : '&oplus;',	// direct sum
+						8855 : '&otimes;',	// vector product
+						8869 : '&perp;',	// perpendicular
+						8901 : '&sdot;',	// dot operator
+						8968 : '&lceil;',	// apl upstile
+						8969 : '&rceil;',	// right ceiling
+						8970 : '&lfloor;',	// apl downstile
+						8971 : '&rfloor;',	// right floor
+						9001 : '&lang;',	// left-pointing angle bracket, bra
+						9002 : '&rang;',	// right-pointing angle bracket, ket
+						9674 : '&loz;',		// lozenge
+						9824 : '&spades;',	// black spade suit
+						9827 : '&clubs;',	// black club suit, shamrock
+						9829 : '&hearts;',	// black heart suit, valentine
+						9830 : '&diams;'	// black diamond suit
 					};
 
 					var html_length = html_code.length;
