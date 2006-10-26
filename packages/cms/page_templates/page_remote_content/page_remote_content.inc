@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.52 2006/10/25 23:23:44 arailean Exp $
+* $Id: page_remote_content.inc,v 1.53 2006/10/26 06:25:26 arailean Exp $
 *
 */
 
@@ -22,6 +22,8 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 require_once 'HTTP/Client.php';
 require_once 'persistent_cookie_manager.inc';
 
+
+// Consider making these constants into attributes of this asset
 define ('SQ_REMOTE_MAX_REDIRECTS', 10);
 define ('SQ_REMOTE_SOURCE', 'sq_content_src');
 define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
@@ -34,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
