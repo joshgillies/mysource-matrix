@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.28 2006/01/20 02:48:38 sdanis Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.28.2.1 2006/10/26 06:46:33 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -82,9 +82,10 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 			}
 
 			combo_box($prefix.'_link_types', $link_types, TRUE, $selected);
+			hidden_field($prefix.'_link_types_submitted', '1');
 		} else {
-			if ($current == 0) {
-				echo translate('cms_listing_no_link_types_selected');
+			if (($current == 0) && ($asset->attr('subs_only'))){
+				echo '<p class="sq-backend-warning">'.translate('cms_listing_no_link_types_selected').'</p>';
 			} else {
 				echo '<ul>';
 				foreach ($link_types as $link_type => $link_type_name) {
@@ -115,6 +116,7 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return FALSE;
+		if (empty($_POST[$prefix.'_link_types_submitted'])) return FALSE;
 
 		$link_types = 0;
 		if (isset($_POST[$prefix.'_link_types'])) {
