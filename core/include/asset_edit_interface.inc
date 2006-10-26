@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.304 2006/09/27 23:37:16 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.305 2006/10/26 23:37:33 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.304 $
+* @version $Revision: 1.305 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -246,7 +246,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$force_unlock_on_commit = TRUE;
 
 		// if we are in LIMBO and release locks button was clicked then return to normal page
-		if (SQ_IN_LIMBO && isset($_REQUEST['sq_lock_release_manual'])) {
+		if (SQ_IN_LIMBO && !empty($_REQUEST['sq_lock_release_manual'])) {
 			?>
 			<script>top.location='<?php echo current_url(TRUE, TRUE);  ?>';</script>
 			<?php
@@ -420,6 +420,7 @@ class Asset_Edit_Interface extends MySource_Object
 						}
 
 						if (!$have_all_locks) {
+							hidden_field('sq_lock_acquire', '0');
 							if ($need_force_locks) {
 								if ($can_force_locks) {
 									// they aren't going to do this without a fight though
@@ -427,19 +428,19 @@ class Asset_Edit_Interface extends MySource_Object
 									$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&ignore_frames=1&am_section=forceably_acquire_lock&assetid='.$owner->id.'&sq_lock_type='.$screen_lock_type;
 
 									hidden_field('sq_lock_acquire_by_force', '0');
-									hidden_field('sq_lock_acquire', '0');
 									normal_button('sq_forceably_acquire_lock', translate('acquire_lock_button'), "window.open('$popup_url', 'sq_forceably_acquire_lock_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');");
 									echo '&nbsp;';
 								}
 							} else if ($full_write_access && $acquire_lock_access) {
 								hidden_field('sq_lock_acquire_by_force', '0');
-								submit_button('sq_lock_acquire', translate('acquire_lock_button'), '', 'accesskey="a"');
+								normal_button('', translate('acquire_lock_button'), "document.getElementById('sq_lock_acquire').value = 1; submit_form(this.form)", 'accesskey="a"');
 								echo '&nbsp;';
 							}//end if
 						}
 
 						if ($have_any_locks) {
-							submit_button('sq_lock_release_manual', translate('release_lock_button'), '', 'accesskey="r"');
+							hidden_field('sq_lock_release_manual', 0);
+							normal_button('', translate('release_lock_button'), "document.getElementById('sq_lock_release_manual').value = 1; submit_form(this.form)", 'accesskey="r"');
 							echo '&nbsp;';
 						}
 
