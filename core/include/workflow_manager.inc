@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.94 2006/10/10 05:25:32 colivar Exp $
+* $Id: workflow_manager.inc,v 1.95 2006/10/26 00:01:52 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -994,6 +994,7 @@ class Workflow_Manager extends MySource_Object
 		// safety code for blank workflows
 		if (empty($workflow['steps'])) {
 			$workflow_updated = TRUE;
+			$workflow['steps'] = Array();
 		}
 
 		for (reset($workflow['steps']); NULL !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
