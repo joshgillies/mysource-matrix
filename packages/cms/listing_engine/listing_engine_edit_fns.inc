@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.60.2.4 2006/08/24 00:22:56 rong Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.60.2.5 2006/10/26 06:49:27 tbarrett Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.60.2.4 $
+* @version $Revision: 1.60.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2936,7 +2936,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function paintStatus(&$asset, &$o, $prefix)
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$write_access = $asset->writeAccess('links');
+		$write_access = $asset->writeAccess('attributes');
 
 		$current = $asset->attr('statuses');
 
