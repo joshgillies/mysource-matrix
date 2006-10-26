@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.28.4.1 2006/08/21 00:08:13 tbarrett Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.28.4.2 2006/10/26 06:44:46 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28.4.1 $
+* @version $Revision: 1.28.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -82,6 +82,7 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 			}
 
 			combo_box($prefix.'_link_types', $link_types, TRUE, $selected);
+			hidden_field($prefix.'_link_types_submitted', '1');
 		} else {
 			if (($current == 0) && ($asset->attr('subs_only'))){
 				echo '<p class="sq-backend-warning">'.translate('cms_listing_no_link_types_selected').'</p>';
@@ -115,6 +116,7 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return FALSE;
+		if (empty($_POST[$prefix.'_link_types_submitted'])) return FALSE;
 
 		$link_types = 0;
 		if (isset($_POST[$prefix.'_link_types'])) {
