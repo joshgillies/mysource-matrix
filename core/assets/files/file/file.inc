@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.137 2006/08/27 23:55:07 bcaldwell Exp $
+* $Id: file.inc,v 1.138 2006/10/27 06:28:34 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.137 $
+* @version $Revision: 1.138 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1024,9 +1024,12 @@ class File extends Asset
 			// send cacheable headers if file asset meets the credentials
 			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user')
 				&& $this->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER) {
-				header('Cache-Control: public');
+				$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+				$cache_expiry = $cm->getExpiry($this->type());
+				$last_updated = $this->getEffectiveLastUpdatedTime(Array());
+				header('Expires: '.gmdate('D, d M Y H:i:s', time() + $cache_expiry).' GMT');
+				header('Cache-Control: max-age='.$cache_expiry.', public');
 				header('Pragma: cache');
-				header('Expires: '.gmdate('D, d M Y H:i:s', (time()+86400)).' GMT');
 				header('Last-Modified: '.gmdate('D, d M Y H:i:s',$existing['modified']).' GMT');
 			} else if (!$ssl_connection) {
 				header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
