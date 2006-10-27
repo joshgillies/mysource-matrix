@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.40 2006/10/16 01:13:49 tbarrett Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.41 2006/10/27 04:47:16 mbrydon Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -205,7 +205,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			return FALSE;
 		}
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-	
+
 		$todo_normal = Array();
 		$todo_shadows = Array();
 
@@ -255,23 +255,25 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 		}//end foreach
 
 		// Make sure lower assets are done after higher ones
-		foreach (array_chunk(array_unique($todo_normal), 9999) as $chunk) {
-			$quoted = Array();
-			foreach ($chunk as $id) {
-				$quoted[] = $db->quoteSmart($id);
+		if (!empty($todo_normal)) {
+			foreach (array_chunk(array_unique($todo_normal), 9999) as $chunk) {
+				$quoted = Array();
+				foreach ($chunk as $id) {
+					$quoted[] = $db->quoteSmart($id);
+				}
+				$wheres[] = '(l.minorid IN ('.implode(', ', $quoted).'))';
 			}
-			$wheres[] = '(l.minorid IN ('.implode(', ', $quoted).'))';
-		}
-		$sql = 'SELECT l.minorid, MAX(LENGTH(t.treeid)) as length
-				FROM sq_ast_lnk l JOIN sq_ast_lnk_tree t on l.linkid = t.linkid';
-		$where = '('.implode(' OR ', $wheres).')
-					GROUP BY l.minorid
-					ORDER BY length ASC';
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$sql = 'SELECT l.minorid, MAX(LENGTH(t.treeid)) as length
+					FROM sq_ast_lnk l JOIN sq_ast_lnk_tree t on l.linkid = t.linkid';
+			$where = '('.implode(' OR ', $wheres).')
+						GROUP BY l.minorid
+						ORDER BY length ASC';
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
-		$todo_normal = $db->getCol($sql.$where);
-		assert_valid_db_result($todo_normal);
+			$todo_normal = $db->getCol($sql.$where);
+			assert_valid_db_result($todo_normal);
+		}
 
 		$this->_running_vars['todo_assetids'] = array_unique(array_merge($todo_normal, $todo_shadows));
 		$this->_running_vars['done_assetids'] = Array();
