@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.51.2.7 2006/10/24 05:54:07 bcaldwell Exp $
+* $Id: wysiwyg.inc,v 1.51.2.8 2006/10/27 06:00:41 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51.2.7 $
+* @version $Revision: 1.51.2.8 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -638,7 +638,7 @@ class wysiwyg
 
 					// retrieve the HTML
 					html = this.make_relative_hrefs(html);
-					this._textArea.value = html;
+					this._textArea.value = encodeURI(html);
 				};
 			</script>
 
@@ -1110,7 +1110,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 
 			<?php $this->print_config()?>
 
-			<textarea id="<?php echo $this->name?>" name="<?php echo $this->name?>" <?php echo $this->textarea_extras?>><?php echo $this->contents; ?></textarea>
+			<textarea id="<?php echo $this->name?>" name="<?php echo $this->name?>" <?php echo $this->textarea_extras?>><?php echo rawurlencode($this->contents); ?></textarea>
 
 			<script type="text/javascript">
 				editor_<?php echo $this->name?> = new HTMLArea("<?php echo $this->name?>");
