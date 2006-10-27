@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image.inc,v 1.12 2005/10/11 02:05:33 tbarrett Exp $
+* $Id: design_area_custom_image.inc,v 1.12.2.1 2006/10/27 04:26:37 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,14 +46,14 @@ class Design_Area_Custom_Image extends Design_Area
 	var $allowed_extensions = Array('gif', 'jpg', 'jpeg', 'png');
 
 
-	/*
+	/**
 	* Print code that actually results in HTML output to the browser for this design area
 	*
 	* This function is called at the AREA tag if print != no, and at the point of any PRINT
 	* tags that reference this area.
 	*
-	* @access protected
 	* @return void
+	* @access protected
 	*/
 	function _printPaintingCode()
 	{
@@ -61,7 +61,7 @@ class Design_Area_Custom_Image extends Design_Area
 		// return true because it just means that they haven't uploaded the file yet
 		if (!file_exists($image_path)) return;
 
-		$image = '<'.'?php echo $DATA_PATH; ?'.'>/assets/'.$this->type().'/'.$this->id.'/'.$this->attr('image');
+		$image = '<'.'?php echo $DATA_PATH; ?'.'>/'.$this->data_path_suffix.'/'.$this->attr('image');
 		// if they only want us to echo out the filename
 		if ($this->attr('filename_only')) {
 			echo  $image;
@@ -69,8 +69,12 @@ class Design_Area_Custom_Image extends Design_Area
 		// else print out a full tag
 		} else {
 			$image_size = @getimagesize($image_path);
-			if ($alt = $this->attr('alt')) $alt = htmlspecialchars($alt);
-			echo '<img src="', $image, '" ', $this->attr('extra'), ' alt="', $alt, '"', (($image_size) ? $image_size[3] : ''), '/>';
+			if ($alt = $this->attr('alt')) {
+				$alt = htmlspecialchars($alt);
+			}
+			echo '<img src="', $image, '" ', $this->attr('extra');
+			if ($alt) echo ' alt="', $alt, '"';
+			echo (($image_size) ? ' '.$image_size[3] : ''), ' />';
 		}
 
 	}//end _printPaintingCode()
