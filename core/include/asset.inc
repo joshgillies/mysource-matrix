@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.567 2006/10/20 05:54:54 tbarrett Exp $
+* $Id: asset.inc,v 1.568 2006/10/27 06:08:24 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.567 $
+* @version $Revision: 1.568 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3433,15 +3433,12 @@ class Asset extends MySource_Object
 
 		// get all updated time from DB
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT assetid, updated
+		$sql = 'SELECT MAX(updated)
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast
-				WHERE '.$where.'
-				ORDER BY updated DESC';
-		$result =& $db->getAssoc($sql);
-		assert_valid_db_result($result);
+				WHERE '.$where;
+		$most_recent =& $db->getOne($sql);
+		assert_valid_db_result($most_recent);
 
-		// get the effective (most recent) updated time
-		$most_recent = array_shift($result);
 		return (!is_null($most_recent)) ? strtotime($most_recent) : 0;
 
 	}//end getEffectiveLastUpdatedTime()
