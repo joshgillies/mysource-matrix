@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.115.2.5 2006/10/05 23:31:26 tbarrett Exp $
+* $Id: search_manager.inc,v 1.115.2.6 2006/10/27 01:41:29 rhoward Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.115.2.5 $
+* @version $Revision: 1.115.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -174,6 +174,7 @@ class Search_Manager extends Asset
 	{
 		if (!$this->attr('indexing')) return FALSE;
 		$this->reindexAsset($broadcaster, $vars);
+		$this->reindexAttributes($broadcaster, $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($broadcaster->type(), Array('name')));
 
 		return TRUE;
 
