@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image.inc,v 1.13 2006/02/07 01:06:57 dmckee Exp $
+* $Id: design_area_custom_image.inc,v 1.13.2.1 2006/10/27 04:26:24 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,7 @@ class Design_Area_Custom_Image extends Design_Area
 		// return true because it just means that they haven't uploaded the file yet
 		if (!file_exists($image_path)) return;
 
-		$image = '<'.'?php echo $DATA_PATH; ?'.'>/assets/'.$this->type().'/'.$this->id.'/'.$this->attr('image');
+		$image = '<'.'?php echo $DATA_PATH; ?'.'>/'.$this->data_path_suffix.'/'.$this->attr('image');
 		// if they only want us to echo out the filename
 		if ($this->attr('filename_only')) {
 			echo  $image;
@@ -72,7 +72,9 @@ class Design_Area_Custom_Image extends Design_Area
 			if ($alt = $this->attr('alt')) {
 				$alt = htmlspecialchars($alt);
 			}
-			echo '<img src="', $image, '" ', $this->attr('extra'), ' alt="', $alt, '"', (($image_size) ? $image_size[3] : ''), '/>';
+			echo '<img src="', $image, '" ', $this->attr('extra');
+			if ($alt) echo ' alt="', $alt, '"';
+			echo (($image_size) ? ' '.$image_size[3] : ''), ' />';
 		}
 
 	}//end _printPaintingCode()
