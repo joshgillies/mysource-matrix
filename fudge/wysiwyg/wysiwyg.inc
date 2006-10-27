@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.61 2006/10/25 01:14:58 bcaldwell Exp $
+* $Id: wysiwyg.inc,v 1.62 2006/10/27 05:54:21 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -638,7 +638,7 @@ class wysiwyg
 
 					// retrieve the HTML
 					html = this.make_relative_hrefs(html);
-					this._textArea.value = html;
+					this._textArea.value = encodeURI(html);
 				};
 			</script>
 
@@ -1057,7 +1057,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 				// We want to replace actual entities in the html(like ©) with
 				// Their correct &bla; representations
 				HTMLArea.prototype.replace_entities = function(html_code) {
-
+//alert(html_code);
 					var entities_array = {
 						160 : '&nbsp;',		// non-breaking space
 						161 : '&iexcl;',	// inverted exclamation mark
@@ -1315,7 +1315,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 
 			<?php $this->print_config()?>
 
-			<textarea id="<?php echo $this->name?>" name="<?php echo $this->name?>" <?php echo $this->textarea_extras?>><?php echo $this->contents; ?></textarea>
+			<textarea id="<?php echo $this->name?>" name="<?php echo $this->name?>" <?php echo $this->textarea_extras?>><?php echo rawurlencode($this->contents); ?></textarea>
 
 			<script type="text/javascript">
 				editor_<?php echo $this->name?> = new HTMLArea("<?php echo $this->name?>");
