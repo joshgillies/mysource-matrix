@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.10 2006/07/13 03:59:03 skim Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.11 2006/10/29 23:52:29 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -682,7 +682,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		if (empty($page_data)) return TRUE;
 
 		// Get the top page
-		if (is_NULL($parent_asset)) {
+		if (is_null($parent_asset)) {
 			$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['root_assetid']);
 		}
 
