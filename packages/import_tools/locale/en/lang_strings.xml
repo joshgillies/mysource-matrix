@@ -11,13 +11,21 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.6 2006/10/19 02:23:47 skim Exp $
+* $Id: lang_strings.xml,v 1.7 2006/10/29 23:51:42 skim Exp $
 *
 *
 * CMS Package Localised Strings File
 */
 -->
 <strings>
+<!-- Import Tool Manager -->
+<!--string source="import_tools_manager_"></string-->
+<string source="import_tools_manager_allowed_import_type">Allowed Import Type</string>
+<string source="import_tools_manager_server_import_dir">Server Import Directory</string>
+<string source="import_tools_manager_server_import_dir_msg">Directory on the Server to import uploaded files from.</string>
+<string source="import_tools_manager_local_file_max_size">Local Max File Size</string>
+<string source="import_tools_manager_local_file_max_size_msg">Maximum File Size of local file upload (In bytes, 0 = no limit)</string>
+
 <!-- Structured File Import Tool -->
 <string source="import_tools_not_ready">Import Tool is not ready to use</string>
 <string source="import_tools_not_ready_msg">Please set the import directory in Import Tool Manager under System Management.</string>
@@ -61,9 +69,22 @@
 <string source="file_import_tools_allow_unrestricted_note">Set to Yes to allow this file to be be served by the web server if it is Live and publically readable.</string>
 <string source="file_import_tools_file_link_type_msg">Default link type when it is created under its parent asset.</string>
 <string source="file_import_tools_file_chunk">These files locate under %s and they will be import at once.</string>
-<string source="file_import_tools_hipo_job_name">Hipo Job File Import</string>
-<string source="file_import_tools_hipo_threshold">File Import Threshold</string>
-<string source="file_import_tools_hipo_can_not_create_file">File Import failed to create "%s" asset under Assetid : %d</string>
+<string source="file_import_tools_global_options">Global Options</string>
+<string source="file_import_tools_allow_unrestricted">Allow Unrestricted</string>
+<string source="file_import_tools_file_dir_selection">Choose File or Directory</string>
+<string source="file_import_tools_server_import">Server File Import</string>
+<string source="file_import_tools_local_import">Local File Import</string>
+<string source="file_import_tools_root_asset">Root Asset</string>
+<string source="file_import_tools_local_import_permission_warning">Local File Import can not be used since the Web Server does not have write permission on %s. Please contact the server administrator first.</string>
+<string source="file_import_tools_cannot_create_temp_dir">Can not create a temp upload directory.</string>
+<string source="file_import_tools_local_file_import_root">Local File Import Root</string>
+<string source="file_import_tools_local_file_upload_error">Error occurred during the file upload, %s.</string>
+<string source="file_import_tools_local_file_cannot_upload">Can not upload %s.</string>
+<string source="file_import_tools_local_file_cannot_delete_tempdir">Can not delete the temporary upload directory, %s.</string>
+<string source="file_import_tools_local_file_no_root_asset">Root asset for local fime import is not selected.</string>
 
+<!-- File Import Tool Hipo -->
+<string source="file_import_tools_hipo_job_name">Hipo Job File Import</string>
+<string source="file_import_tools_hipo_can_not_create_file">File Import failed to create "%s" asset under Assetid : %d</string>
 
 </strings>

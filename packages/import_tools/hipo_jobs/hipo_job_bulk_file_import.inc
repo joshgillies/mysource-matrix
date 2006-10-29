@@ -1,17 +1,24 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Commercial Module Licence                                |
+* | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
-* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
-* | This source file is not open source or freely usable and may be    |
-* | used subject to, and only in accordance with, the Squiz Commercial |
-* | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_bulk_file_import.inc,v 1.1 2006/10/19 02:23:39 skim Exp $
+* $Id: hipo_job_bulk_file_import.inc,v 1.2 2006/10/29 23:51:38 skim Exp $
 *
 */
 
@@ -22,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * HIPO for importing files into Matrix assets
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -56,13 +63,10 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 	{
 		$write_access = $this->writeAccess();
 
-		// file import threshhold HIPO config entry
-		$o->openField(translate('file_import_tools_hipo_threshold'));
-
+		$o->openField('File Import Threshold');
 		if ($write_access) {
 			text_box($class.'[SQ_HIPO_BULK_FILE_IMPORT_THRESHOLD]', SQ_HIPO_BULK_FILE_IMPORT_THRESHOLD, 5);
 			echo ' '.translate('assets');
-			$o->note(translate('hipo_value_divided_by_permission'));
 		} else {
 			echo SQ_HIPO_BULK_FILE_IMPORT_THRESHOLD;
 			echo ' '.translate('assets');
@@ -96,9 +100,19 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 	*/
 	function getCodeName()
 	{
-		$dirs_array = array_keys($this->_running_vars['dirs_list']);
-		$suffix = str_replace(' ', '_', implode('_', $dirs_array));
-		return 'HIPO_Job_File_Import-'.$suffix;
+		$dir_names = '';
+		if (!empty($this->_running_vars['server_file_import'])) {
+			$dir_names = implode('_', array_keys($this->_running_vars['server_file_import']));
+		}
+
+		$file_names = '';
+		if (!empty($this->_running_vars['local_file_import'])) {
+			foreach ($this->_running_vars['local_file_import']['files'] as $data) {
+				$file_names .= $data['name'];
+			}
+		}
+
+		return 'HIPO_Job_File_Import-'.md5($dir_names.$file_names);
 
 	}//end getCodeName()
 
@@ -129,7 +143,19 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 				Array(
 					'name'			=> 'Import Files',
 					'function_call'	=> Array(
-										'process_function'	=> 'importFiles',
+										'process_function'	=> 'importServerFiles',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
+					'percent_done'	=> 0,
+					'complete'		=> FALSE,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> 'Import Files',
+					'function_call'	=> Array(
+										'process_function'	=> 'importLocalFiles',
 									   ),
 					'running_mode'	=> 'server',
 					'auto_step'		=> TRUE,
@@ -151,31 +177,55 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 	*/
 	function prepare()
 	{
-		if (empty($this->_running_vars['total_count'])) {
+		// Nothing to import, return
+		if (empty($this->_running_vars['server_file_import']) && empty($this->_running_vars['local_file_import'])) {
 			return FALSE;
 		}
 
-		if (empty($this->_running_vars['dirs_list'])) {
-			return FALSE;
+		$this->_running_vars['server_todo_counts'] = Array();
+		$this->_running_vars['local_todo_counts'] = Array();
+
+		// Add server files if there are any
+		if (!empty($this->_running_vars['server_file_import'])) {
+			foreach ($this->_running_vars['server_file_import'] as $key => $data) {
+				foreach ($data['file_list'] as $file_name) {
+					$this->_running_vars['server_todo_counts'][] = Array(
+																	'file_name'	=> $file_name,
+																	'full_path'	=> $key.'/'.$file_name,
+																	'root_id'	=> $data['root_id'],
+																   );
+				}
+			}
+			$this->_running_vars['server_done_counts'] = Array();
 		}
 
-		foreach ($this->_running_vars['dirs_list'] as $key => $data) {
-			foreach ($data['file_list'] as $file_name) {
-				$this->_running_vars['todo_counts'][] = Array(
-															'file_name'	=> $file_name,
-															'full_path'	=> $key.'/'.$file_name,
-															'root_id'	=> $data['root_id'],
-														);
+		// Add local files if there are any
+		if (!empty($this->_running_vars['local_file_import'])) {
+			foreach ($this->_running_vars['local_file_import']['files'] as $data) {
+				$file_info = Array(
+								'file_name'	=> $data['name'],
+								'full_path'	=> $this->_running_vars['local_file_import']['location'].'/'.$data['name'],
+								'root_id'	=> $this->_running_vars['local_file_import']['rootid'],
+								'type'		=> $data['file_type'],
+								'title'		=> $data['title'],
+							 );
+				if ($file_info['type'] == 'image') {
+					$file_info['alt']		= $data['alt'];
+					$file_info['caption']	= $data['caption'];
+				}
+				$this->_running_vars['local_todo_counts'][] = $file_info;
 			}
-			if (!isset($this->_running_vars['allow_unrestricted'])) {
-				$this->_running_vars['allow_unrestricted'] = TRUE;
-			}
-			if (!isset($this->_running_vars['link_type'])) {
-				$this->_running_vars['link_type'] = SQ_LINK_TYPE_1;
-			}
+			$this->_running_vars['local_done_counts'] = Array();
 		}
 
-		$this->_running_vars['done_counts'] = Array();
+		// Global Options
+		if (!isset($this->_running_vars['allow_unrestricted'])) {
+			$this->_running_vars['allow_unrestricted'] = TRUE;
+		}
+		if (!isset($this->_running_vars['link_type'])) {
+			$this->_running_vars['link_type'] = SQ_LINK_TYPE_1;
+		}
+
 		return parent::prepare();
 
 	}//end prepare()
@@ -192,10 +242,12 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 	function getThresholdPercentageRequired()
 	{
 		if (SQ_HIPO_BULK_FILE_IMPORT_THRESHOLD == 0) return 0;
-		if (!isset($this->_running_vars['todo_counts'])) {
-			return 0;
-		}
-		return (count($this->_running_vars['todo_counts']) / SQ_HIPO_BULK_FILE_IMPORT_THRESHOLD) * 100;
+		$server_files = count($this->_running_vars['server_todo_counts']);
+		$local_files = count($this->_running_vars['local_todo_counts']);
+		$total = $server_files + $local_files;
+		if ($total == 0) return 0;
+
+		return ($total / SQ_HIPO_BULK_FILE_IMPORT_THRESHOLD) * 100;
 
 	}//end getThresholdPercentageRequired()
 
@@ -208,8 +260,14 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 	*/
 	function freestyle()
 	{
-		while (!empty($this->_running_vars['todo_counts'])) {
-			if (!$this->importFiles($this->_steps[1], get_class($this))) {
+		while (!empty($this->_running_vars['server_todo_counts'])) {
+			if (!$this->importServerFiles($this->_steps[1], get_class($this))) {
+				return FALSE;
+			}
+		}
+
+		while (!empty($this->_running_vars['local_todo_counts'])) {
+			if (!$this->importLocalFiles($this->_steps[1], get_class($this))) {
 				return FALSE;
 			}
 		}
@@ -227,11 +285,11 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 	* @return boolean
 	* @access public
 	*/
-	function importFiles(&$step_data, $prefix)
+	function importServerFiles(&$step_data, $prefix)
 	{
-		if (!empty($this->_running_vars['todo_counts'])) {
+		if (!empty($this->_running_vars['server_todo_counts'])) {
 
-			$todo = array_shift($this->_running_vars['todo_counts']);
+			$todo = array_shift($this->_running_vars['server_todo_counts']);
 			$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($todo['root_id']);
 			$import_link = Array('asset' => &$parent_asset, 'link_type' => $this->_running_vars['link_type']);
 			switch (get_file_type($todo['file_name'])) {
@@ -267,23 +325,96 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 			if (!$new_file->create($import_link, $temp_info)) {
 				$this->_addError(translate('file_import_tools_hipo_can_not_create_file', $todo['file_name'], $parent->id), TRUE);
 			}
-			$this->_running_vars['done_counts'][] = $todo;
+			$this->_running_vars['server_done_counts'][] = $todo;
 
 		}//end if
 
-		if (empty($this->_running_vars['todo_counts'])) {
+		if (empty($this->_running_vars['server_todo_counts'])) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;
-			unset($this->_running_vars['done_counts']);
+			unset($this->_running_vars['server_done_counts']);
 		} else {
-			$total = count($this->_running_vars['todo_counts']) + count($this->_running_vars['done_counts']);
-			$step_data['percent_done'] = (count($this->_running_vars['done_counts']) / $total) * 100;
+			$total = count($this->_running_vars['server_todo_counts']) + count($this->_running_vars['server_done_counts']);
+			$step_data['percent_done'] = (count($this->_running_vars['server_done_counts']) / $total) * 100;
 			$step_data['complete']     = FALSE;
 		}
 
 		return TRUE;
 
-	}//end importFiles()
+	}//end importServerFiles()
+
+
+	/**
+	* Edit permissions for a single asset in the to-do list
+	*
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	function importLocalFiles(&$step_data, $prefix)
+	{
+		if (!empty($this->_running_vars['local_todo_counts'])) {
+
+			$todo = array_shift($this->_running_vars['local_todo_counts']);
+			$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($todo['root_id']);
+			$import_link = Array('asset' => &$parent_asset, 'link_type' => $this->_running_vars['link_type']);
+			switch ($todo['type']) {
+				case 'word' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('word_doc');
+					$new_asset_type = 'word_doc';
+				break;
+				case 'pdf' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('pdf_file');
+					$new_asset_type = 'pdf_file';
+				break;
+				case 'image' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('image');
+					$new_asset_type = 'image';
+				break;
+				default :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
+					$new_asset_type = 'file';
+				break;
+			}
+
+			// create an asset under the new parent of the correct type
+			$temp_info = Array('name' => $todo['file_name'], 'tmp_name' => $todo['full_path'], 'non_uploaded_file' => TRUE);
+			$new_file =& new $new_asset_type();
+			$new_file->_tmp['uploading_file'] = TRUE;
+			$new_file->setAttrValue('name', $todo['file_name']);
+			$new_file->setAttrValue('title', $todo['title']);
+			$new_file->setAttrValue('allow_unrestricted', $this->_running_vars['allow_unrestricted']);
+
+			// Extra attributes for particular asset type
+			switch ($todo['type']) {
+				case 'image' :
+					$new_file->setAttrValue('alt', $todo['alt']);
+					$new_file->setAttrValue('caption', $todo['caption']);
+				break;
+			}
+
+			if (!$new_file->create($import_link, $temp_info)) {
+				$this->_addError(translate('file_import_tools_hipo_can_not_create_file', $todo['file_name'], $parent->id), TRUE);
+			}
+			$this->_running_vars['local_done_counts'][] = $todo;
+
+		}//end if
+
+		if (empty($this->_running_vars['local_todo_counts'])) {
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = TRUE;
+			unset($this->_running_vars['local_todo_counts']);
+		} else {
+			$total = count($this->_running_vars['local_todo_counts']) + count($this->_running_vars['local_done_counts']);
+			$step_data['percent_done'] = (count($this->_running_vars['local_done_counts']) / $total) * 100;
+			$step_data['complete']     = FALSE;
+		}
+
+		return TRUE;
+
+	}//end importLocalFiles()
 
 
 }//end class

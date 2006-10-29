@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tools_manager_edit_fns.inc,v 1.1.1.1 2006/02/20 22:36:45 dmckee Exp $
+* $Id: import_tools_manager_edit_fns.inc,v 1.2 2006/10/29 23:51:40 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -168,6 +168,75 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 
 	}//end processHtmlUpload()
+
+
+	/**
+	* Paint the interface for Bulk File Import Tool Settings
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintBulkFileImport(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$allowed_import_type = $asset->attr('allowed_import_type');
+		$server_import_dir = $asset->attr('bulk_file_import_dir');
+		$local_file_max_size = $asset->attr('bulk_file_import_max_file_size');
+
+		if ($write_access) {
+			$o->openField(translate('import_tools_manager_allowed_import_type'));
+				combo_box($prefix.'_allowed_import_type', Array('Both' => 'Server and Local', 'Server Only' => 'Server Only', 'Local Only' => 'Local Only'), FALSE, $allowed_import_type, 0);
+			$o->closeField();
+
+			$o->openField(translate('import_tools_manager_server_import_dir'));
+				text_box($prefix.'_server_import_directory', $server_import_dir, '50', '', FALSE);
+				$o->note(translate('import_tools_manager_server_import_dir_msg'));
+			$o->closeField();
+
+		} else {
+			$o->openField(translate('import_tools_manager_allowed_import_type'));
+				echo $allowed_import_type;
+			$o->closeField();
+
+			$o->openField(translate('import_tools_manager_server_import_dir'));
+				echo $server_import_dir;
+				$o->note(translate('import_tools_manager_server_import_dir_msg'));
+			$o->closeField();
+		}
+
+		return $write_access;
+
+	}//end paintBulkFileImport()
+
+
+	/**
+	* Process the interface for Bulk File Import Tool Settings
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processBulkFileImport(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		if ($write_access) {
+			$allowed_import_type = array_get_index($_POST, $prefix.'_allowed_import_type', '');
+			$server_import_dir = array_get_index($_POST, $prefix.'_server_import_directory', '');
+
+			$asset->setAttrValue('allowed_import_type', $allowed_import_type);
+			$asset->setAttrValue('bulk_file_import_dir', $server_import_dir);
+		}
+
+		return $write_access;
+
+	}//end processBulkFileImport()
 
 
 }//end class
