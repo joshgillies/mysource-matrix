@@ -18,7 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.521 2006/10/30 03:49:45 lwright Exp $
+<<<<<<< asset_manager.inc
+* $Id: asset_manager.inc,v 1.522 2006/10/30 04:48:02 lwright Exp $
+=======
+* $Id: asset_manager.inc,v 1.522 2006/10/30 04:48:02 lwright Exp $
+>>>>>>> 1.518
 *
 */
 
@@ -30,7 +34,11 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.521 $
+<<<<<<< asset_manager.inc
+* @version $Revision: 1.522 $
+=======
+* @version $Revision: 1.522 $
+>>>>>>> 1.518
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -73,6 +81,13 @@ class Asset_Manager extends MySource_Object
 	* @var Array(Asset_attribute)
 	*/
 	var $_attributes = Array();
+
+	/**
+	* This array keeps track of what assets have been requested through getAsset calls
+	*
+	* @var Array(int)
+	*/
+	var $_get_asset_history = Array();
 
 
 	/**
@@ -588,30 +603,40 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param string		$type_code		the code name for the asset that you want to check
 	* @param boolean	$include_asset	when TRUE adds the "Asset" type to the parent list,
-	*									even though it's an unistantiable object
+	*									even though it's an uninstantiable object
+	* @param boolean	$query_db		whether to ask the DB instead of using the cache file
 	*
 	* @return array
 	* @access public
 	*/
-	function getTypeAncestors($type_code, $include_asset=TRUE)
+	function getTypeAncestors($type_code, $include_asset=TRUE, $query_db=FALSE)
 	{
 		if ($type_code == 'asset') return Array();
 		assert_isset_array_index($this->_asset_types, $type_code, 'Asset Type "'.$type_code.'" is not installed on the system');
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT
-					inhd_type_code
-				FROM
-					sq_ast_typ_inhd
-				WHERE
-					type_code = '.$db->quote($type_code).'
-				AND	inhd_type_code <> type_code
-					'.(($include_asset) ? '' : ' AND inhd_type_code <> '.$db->quote('asset')).'
-				ORDER BY inhd_type_code_lvl DESC';
+		if ($query_db || !isset($this->_asset_types[$type_code]['ancestor_types'])) {
 
-		$result = $db->getCol($sql);
-		assert_valid_db_result($result);
-		return $result;
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'SELECT
+						inhd_type_code
+					FROM
+						sq_ast_typ_inhd
+					WHERE
+						type_code = '.$db->quote($type_code).'
+					AND	inhd_type_code <> type_code
+						'.(($include_asset) ? '' : ' AND inhd_type_code <> '.$db->quote('asset')).'
+					ORDER BY inhd_type_code_lvl DESC';
+
+			$result = $db->getCol($sql);
+			assert_valid_db_result($result);
+			return $result;
+
+		} else {
+			$res = $this->_asset_types[$type_code]['ancestor_types'];
+			if ($include_asset) $res[] = 'asset';
+			return $res;
+
+		}
 
 	}//end getTypeAncestors()
 
@@ -888,6 +913,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
+		$this->_get_asset_history[] = $assetid;
 		assert_valid_assetid($assetid);
 		$asset =& $this->_asset_cache->get($assetid);
 		if (!empty($asset) && !empty($type_code)) {
@@ -900,8 +926,7 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 		if (empty($asset)) {
-
-			// check if we are getting links for a shadow asset, and palm the request off to the
+			// check if we are getting a shadow asset, and palm the request off to the
 			// handler of the shadow asset if we are
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
@@ -1415,7 +1440,10 @@ class Asset_Manager extends MySource_Object
 	{
 		if (!isset($this->_tmp['asset_info_fields'])) {
 			require SQ_DATA_PATH.'/private/db/table_columns.inc';
-			$this->_tmp['asset_info_fields'] = array_diff($tables['ast']['columns'], Array('assetid'));
+			$this->_tmp['asset_info_fields'] = Array();
+			foreach ($tables['ast']['columns'] as $col) {
+				$this->_tmp['asset_info_fields'][$col] = translate('asset_field_'.$col);
+			}
 			unset($tables);
 		}
 		return $this->_tmp['asset_info_fields'];
@@ -2016,7 +2044,7 @@ class Asset_Manager extends MySource_Object
 		foreach ($current_locks as $lock_type => $lock) {
 			if (empty($lock)) continue;
 
-			// is this asset already locked by someone else and we can't forceably acquire it, piss off
+			// is this asset already locked by someone else and we can't forceably acquire it, error
 			if ((int) $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserid() && !$can_force) {
 				$user =& $this->getAsset($lock['userid']);
 				trigger_localised_error('SYS0264', E_USER_WARNING, $lock_type, $asset->name, $user->name);
@@ -2643,6 +2671,18 @@ class Asset_Manager extends MySource_Object
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a on l.majorid = a.assetid';
 
 					$where = 'minorid = '.$db->quoteSmart($assetid);
+					if ($type_code) {
+						if ($strict_type_code) {
+							$where .= ' AND a.type_code = '.$db->quoteSmart($type_code);
+						} else {
+							$type_ancestors = $this->getTypeDescendants($type_code);
+							foreach ($type_ancestors as $i => $v) {
+								$type_ancestors[$i] = $db->quoteSmart($v);
+							}
+							$type_ancestors[] = $db->quoteSmart($type_code);
+							$where .= ' AND a.type_code IN ('.implode(', ', $type_ancestors).')';
+						}
+					}
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
@@ -2664,7 +2704,7 @@ class Asset_Manager extends MySource_Object
 										);
 
 					}
-					$links[$assetid] += $shdw_links;
+					$links[$assetid] = array_merge($links[$assetid], $shdw_links);
 				}//end if side_of_link is major
 
 				continue;
@@ -2796,10 +2836,10 @@ class Asset_Manager extends MySource_Object
 	* Also returns basic information about the last link (linkid and link type)
 	* linkid => Array ('linkid' => linkid, 'link_type' => link_type, 'lineage' => Array(...))
 	*
-	* @param object					$assetid		the asset whose links lineages we are getting
-	* @param int					$result_limit	limits the number of results returned
-	* @param string					$from_treeid	Uses this treeid as the starting (root) node
-	* @param mixed string|array		$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
+	* @param string				$assetid		ID of the asset whose linages we want
+	* @param int				$result_limit	limits the number of results returned
+	* @param string|array		$from_treeid	Uses this/these treeid(s) as the root node
+	* @param string|array		$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
 	*
 	* @return array
 	* @access public
@@ -2886,7 +2926,15 @@ class Asset_Manager extends MySource_Object
 				  AND pt.treeid <= ct.treeid';
 
 		if (!is_null($from_treeid)) {
-			$where .= ' AND pt.treeid LIKE '.$db->quoteSmart((string) $from_treeid.'%');
+			if (is_array($from_treeid)) {
+				$treeid_bits = Array();
+				foreach ($from_treeid as $ftid) {
+					$treeid_bits[] = '(pt.treeid LIKE '.$db->quoteSmart((string)$ftid.'%').')';
+				}
+				$where .= ' AND ('.implode(' OR ', $treeid_bits).')';
+			} else {
+				$where .= ' AND pt.treeid LIKE '.$db->quoteSmart((string) $from_treeid.'%');
+			}
 		}
 
 		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_lineage_treeids('.$db->quoteSmart((string) $assetid).', '.
@@ -3022,13 +3070,16 @@ class Asset_Manager extends MySource_Object
 			if (!empty($type_code)) {
 				$sql .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
 						 ON sl.majorid = a.assetid ';
-				if (is_array($type_code)) {
-					for (reset($type_code); NULL !== ($key = key($type_code)); next($type_code)) {
-						$type_code[$key] = $db->quoteSmart($type_code[$key]);
+				// we are cloning $type_code and using the clone instead
+				// this will prevent double quoting $type_code in the future
+				$type_code_clone = $type_code;
+				if (is_array($type_code_clone)) {
+					for (reset($type_code_clone); NULL !== ($key = key($type_code_clone)); next($type_code_clone)) {
+						$type_code_clone[$key] = $db->quoteSmart($type_code_clone[$key]);
 					}
-					$where .= ' AND a.type_code IN ('.implode(',', $type_code).')';
+					$where .= ' AND a.type_code IN ('.implode(',', $type_code_clone).')';
 				} else {
-					$where .= ' AND a.type_code = '.$db->quoteSmart($type_code);
+					$where .= ' AND a.type_code = '.$db->quoteSmart($type_code_clone);
 				}
 			}
 
@@ -3046,13 +3097,11 @@ class Asset_Manager extends MySource_Object
 
 			$parents = $parents + $shdw_parents + $real_parents;
 			$this->forgetAsset($asset);
-
 			return $parents;
 		}//end if shadow asset
 
 		$query = $this->generateGetParentsQuery($assetid, $type_code, $strict_type_code, $sort_by, $access, $min_height, $max_height);
 		if (empty($query)) return Array();
-
 		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
 		assert_valid_db_result($result);
 
@@ -3068,39 +3117,40 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
-	* The query generated to get the children is actually contructed in the Asset Manager's
+	* The query generated to get the children is actually constructed in the Asset Manager's
 	* generateGetChildrenQuery function.
 	* It returns Array(int => string)	returns an array of assetids and their type code
+	* The function might return a list of users without their type code (i.e.: when shadow assets are returned)
 	*
-	* @param int|string		$assetid			the id of the asset to get its children for
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	* @param boolean		$dependant			if TRUE, results will be filtered to assets that are dependants.
-	*											If FALSE, results will all not be dependants.
-	*											If NULL, results will not be filtered
-	* @param string			$sort_by			a field in the asset table you would like the results
-	*											sorted by (eg. name, short_name etc)
-	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
-	*											Specify that links should be returned for assets the user has read,
-	*											write, or admin access for. Leave NULL to ignore permissions.
-	* @param int			$min_depth			Optional parameter that specifies minimum number of levels below
-	*											the specified asset for a child to qualify (immediate child is 1)
-	* @param int			$max_depth			Optional parameter that specifies maximum number of levels below
-	*											the specified asset for a child to qualify to be returned
+	* @param int|string		$assetid				the id of the asset to get its children for
+	* @param string|array	$type_code				the type of asset that is linked
+	*												(eg 'Page', 'File', etc)
+	*												if an array returns link if matches any
+	*												of the array values
+	* @param boolean		$strict_type_code		whether we are finding assets that are just a $type_code
+	*												or $type_code and any of it's sub-classes
+	* @param boolean		$dependant				if TRUE, results will be filtered to assets that are dependants.
+	*												If FALSE, results will all not be dependants.
+	*												If NULL, results will not be filtered
+	* @param string			$sort_by				a field in the asset table you would like the results
+	*												sorted by (eg. name, short_name etc)
+	* @param int			$access					SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	*												Specify that links should be returned for assets the user has read,
+	*												write, or admin access for. Leave NULL to ignore permissions.
+	* @param int			$min_depth				Optional parameter that specifies minimum number of levels below
+	*												the specified asset for a child to qualify (immediate child is 1)
+	* @param int			$max_depth				Optional parameter that specifies maximum number of levels below
+	*												the specified asset for a child to qualify to be returned
+	* @param boolean		$direct_shadows_only	If TRUE, ONLY direct shadow asset children will be returned
+	*												If FALSE, ALL the shadow asset children will be returned
 	*
 	* @return array
 	* @access public
 	* @see generateGetChildrenQuery()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $min_depth=NULL, $max_depth=NULL)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE)
 	{
-
 		assert_valid_assetid($assetid);
-
 		// check if we are getting children for a shadow asset, and palm the request off to the
 		// handler of the shadow asset if we are
 		$id_parts = explode(':', $assetid);
@@ -3120,7 +3170,6 @@ class Asset_Manager extends MySource_Object
 			}
 			return $children;
 		}
-
 		// we are not getting children for a shadow asset, so if we are getting children of
 		// an asset that handles shadow assets, palm the request off to it
 		$asset =& $this->getAsset($assetid);
@@ -3130,14 +3179,11 @@ class Asset_Manager extends MySource_Object
 			$this->forgetAsset($asset);
 			return $children;
 		}
-
-		$query = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by, $access, TRUE, $min_depth, $max_depth);
+		$query = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by, $access, TRUE, $min_depth, $max_depth, $direct_shadows_only);
 		$this->forgetAsset($asset);
 		unset($asset);
 		if (empty($query)) return Array();
-
 		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
-
 		assert_valid_db_result($result);
 
 		if (!is_null($sort_by)) {
@@ -3275,15 +3321,16 @@ class Asset_Manager extends MySource_Object
 	*															1	=> FALSE,
 	*														   ),
 	*										)
+	* @param boolean 	$include_dependants	a boolean
 	*
 	* @return array
 	* @access public
 	*/
-	function getAssetTree($majorids, $levels=NULL, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV, $include_type_list=Array())
+	function getAssetTree($majorids, $levels=NULL, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV, $include_type_list=Array(), $include_dependants=TRUE)
 	{
 		$tree_data = Array();
 		if (!is_array($majorids)) $majorids = Array($majorids);
-		$this->_getAssetTree($majorids, $tree_data, $levels, $exclude_list, $link_type, $include_type_list);
+		$this->_getAssetTree($majorids, $tree_data, $levels, $exclude_list, $link_type, $include_type_list, $include_dependants);
 		return $tree_data;
 
 	}//end getAssetTree()
@@ -3308,11 +3355,11 @@ class Asset_Manager extends MySource_Object
 	*															1	=> FALSE,
 	*														   ),
 	*										)
-cd
+	*
 	* @return boolean
 	* @access private
 	*/
-	function _getAssetTree($majorids, &$tree_data, $levels, $exclude_list, $link_type, $include_type_list)
+	function _getAssetTree($majorids, &$tree_data, $levels, $exclude_list, $link_type, $include_type_list, $include_dependants)
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
@@ -3407,6 +3454,10 @@ cd
 			$where .= ' AND a.type_code IN ('.$include_types_str.')';
 		}
 
+		if (!$include_dependants) {
+			$where .= ' AND l.is_dependant = 0';
+		}
+
 		$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		if (!empty($USERIDS_COND)) {
@@ -3448,7 +3499,7 @@ cd
 
 		if (!empty($assetids) && ($levels > 1 || is_null($levels))) {
 			$levels--;
-			$this->_getAssetTree($assetids, $tree_data, $levels, $exclude_list_before_quote, $link_type, $include_type_list);
+			$this->_getAssetTree($assetids, $tree_data, $levels, $exclude_list_before_quote, $link_type, $include_type_list, $include_dependants);
 		}
 		return TRUE;
 
@@ -3512,6 +3563,43 @@ cd
 		return $result;
 
 	}//end getAssetTreeids()
+
+
+	/**
+	* Returns the treeids for linkids passed in.
+	*
+	* Accepts a single treeid int or an array of treeids for which to get link ids
+	*
+	* @param int|array	$linkid	the id of the link passed, or array of linkids
+	*
+	* @return array
+	* @access public
+	*/
+	function getLinkTreeid($linkid)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		if (is_array($linkid)) {
+			$sql = 'SELECT linkid, treeid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ';
+			$where = 'WHERE linkid IN ('.implode(', ', $linkid).')';
+		} else {
+			$sql = 'SELECT treeid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ';
+			$where = 'WHERE linkid  = '.$db->quoteSmart($linkid);
+		}
+
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+		if (is_array($linkid)) {
+			$result = $db->getAssoc($sql.$where, FALSE, Array(), DB_FETCHMODE_ASSOC);
+		} else {
+			$result = $db->getCol($sql.$where);
+		}
+		assert_valid_db_result($result);
+
+		return $result;
+
+	}//end getLinkTreeid()
 
 
 	/**
@@ -4373,12 +4461,12 @@ cd
 		// if you dont have write access to this asset you cant create any links
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
 			if (!$major->writeAccess('')) {
-				return 'Cannot create link from '.$major->name.' (# '.$major->id.') to '.$minor->name.' (# '.$minor->id.'), permission denied (no write access to "'.$major->name.'")';
+				return translate('cannot_create_link_permission_denied', $major->name, $major->id, $minor->name, $minor->id);
 			}
 		}
 
 		if (!is_a($minor, 'Asset')) {
-			return 'Minor is not an asset';
+			return translate('minor_is_not_asset');
 		}
 
 		// check if we are allowed to link to these type of assets
@@ -4394,7 +4482,7 @@ cd
 			$paths = $minor->getWebPaths();
 			$bad_paths = $this->webPathsInUse($major, $paths, $minor->id);
 			if (!empty($bad_paths)) {
-				return 'Cannot create link from '.$major->name.' (# '.$major->id.') to '.$minor->name.' (# '.$minor->id.'), path(s) "'.implode('", "', $bad_paths).'" already in use by one of the children of "'.$major->name.'"';
+				return translate('cannot_create_link_paths_in_use', $major->name, $major->id, $minor->name, $minor->id, '"'.implode('", "', $bad_paths).'"');
 			}
 		}
 
@@ -4415,12 +4503,12 @@ cd
 
 			$current_majorid = $db->getOne($sql);
 			if (!assert_valid_db_result($current_majorid, '', TRUE, FALSE)) {
-				return 'Database Error';
+				return translate('database_error');
 			}
 
 			if ($current_majorid) {
 				$current_major =& $this->getAsset($current_majorid);
-				return 'Asset "'.$minor->name.'" (Asset #'.$minor->id.') cannot be linked to "'.$major->name.'" (Asset #'.$major->id.') it is exclusively linked to Asset #'.$current_majorid.' ("'.$current_major->name.'")';
+				return translate('cannot_create_link_exclusive_link', $minor->name, $minor->id, $major->name, $major->id, $current_major->name, $current_majorid);
 			}
 
 		}//end if
@@ -4450,15 +4538,15 @@ cd
 	{
 		// type checking
 		if (!is_a($major, 'asset')) {
-			return 'Variable passed in major asset parameter is not an asset object';
+			return translate('major_is_not_asset');
 		}
 
 		if (!is_string($type_code)) {
-			return 'Variable passed in type code parameter is not a string';
+			return translate('type_code_is_not_string');
 		}
 
 		if (!is_numeric($link_type)) {
-			return 'Variable passed in link type parameter is not numeric';
+			return translate('link_type_is_not_integer');
 		}
 
 		// get the minor assets parents and add it's type to the front of the indexed array
@@ -4480,16 +4568,16 @@ cd
 
 		if (empty($allowed_links[$link_type][$type])) {
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			return 'Assets of Type "'.$type_code.'" cannot be "'.link_type_name($link_type).'" linked to a "'.$major->type().'"';
+			return translate('asset_type_cannot_be_linktype_linked_to_type', $type_code, link_type_name($link_type), $major->type());
 		}
 
 		if (!($link_type & SQ_SC_LINK_SIGNIFICANT) && $exclusive) {
-			return 'In order for a link to be exclusive it must also be a significant link';
+			return translate('exclusive_links_must_be_significant');
 		}
 
 		if (!$exclusive && !empty($allowed_links[$link_type][$type]['exclusive'])) {
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			return 'Assets of Type "'.$type_code.'" must be "'.link_type_name($link_type).'" exclusivly linked to a "'.$major->type().'"';
+			return translate('asset_type_must_be_linktype_exclusively_linked_to_type', $type_code, link_type_name($link_type), $major->type());
 		}
 
 		//// Now we need to check that the cardinality is kept valid ////
@@ -4497,10 +4585,10 @@ cd
 		// if we are only allowed up to a certain number of these links
 		if ($allowed_links[$link_type][$type]['card'] != 'M' && $major->id) {
 			$num_curr_links = $this->countLinks($major->id, 'major', $link_type, $type, TRUE, $ignore_linkid);
-			//  and we already have our quota of links, bugger off
+			//  and we already have our quota of links
 			if ($num_curr_links >= (int) $allowed_links[$link_type][$type]['card']) {
 				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-				return '"'.$this->getTypeInfo($major->type(), 'name').'" Assets can only have '.((int) $allowed_links[$link_type][$type]['card']).' "'.link_type_name($link_type).'" link(s) to a "'.$type.'"';
+				return translate('asset_type_can_have_only_linktypes_links_to_type', $this->getTypeInfo($major->type(), 'name'), ((int) $allowed_links[$link_type][$type]['card']), link_type_name($link_type), $type);
 			}
 		}
 
@@ -4703,7 +4791,7 @@ cd
 			// We need to make sure that we aren't going to have to be stuffing
 			// about with tree to get the update working
 			// so because the tree only contains significant links if the
-			// significant state has changed... barf
+			// significant state has changed... error
 			$current_is_sig = (bool) ((int) $link['link_type'] & SQ_SC_LINK_SIGNIFICANT);
 			$new_is_sig     = (bool) ($link_type & SQ_SC_LINK_SIGNIFICANT);
 			if ($current_is_sig !== $new_is_sig) {
@@ -4946,7 +5034,6 @@ cd
 	function deleteAssetLink($linkid)
 	{
 		if ($linkid == 0) return FALSE;
-
 		// before anything else is done, check if this is a shadow link, i.e. a link that is managed by a bridge
 		$id_parts = explode(':', $linkid);
 		if (isset($id_parts[1])) {
@@ -6400,24 +6487,36 @@ cd
 	/**
 	* Get assetids that match the given lookup name and value
 	*
-	* @param string	$lookup_name_exp	The name of the lookup value, or a SQL expression to match it
-	* @param string	$lookup_value_exp	The value of the lookup value, or a SQL expression to match it
+	* @param string		$lookup_name_exp	The name of the lookup value, or a SQL expression to match it
+	* @param string		$lookup_value_exp	The value of the lookup value, or a SQL expression to match it
+	* @param boolean	$include_treeids	If true, the result will be an array indexed by assetid where the values are arrays of treeids for that assetid.  Otherwise it will be a simple array of treeids.
 	*
 	* @return array
 	* @access public
 	*/
-	function getAssetidsByLookupValue($lookup_name_exp, $lookup_value_exp)
+	function getAssetidsByLookupValue($lookup_name_exp, $lookup_value_exp, $include_treeids)
 	{
 		$use_like_for_name = ((FALSE !== strpos($lookup_name_exp, '?')) || (FALSE !== strpos($lookup_name_exp, '%')));
 		$name_operator = $use_like_for_name ? 'LIKE' : '=';
 		$use_like_for_value = ((FALSE !== strpos($lookup_value_exp, '?')) || (FALSE !== strpos($lookup_value_exp, '%')));
 		$value_operator = $use_like_for_value ? 'LIKE' : '=';
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT l.assetid
-				FROM sq_ast_lookup l JOIN sq_ast_lookup_value lv ON l.url = lv.url
+		$sql = 'SELECT l.assetid'.($include_treeids ? ', lt.treeid' : '').'
+				FROM sq_ast_lookup l
+					JOIN sq_ast_lookup_value lv ON l.url = lv.url';
+		if ($include_treeids) {
+			$sql .= '
+					JOIN sq_ast_lnk al ON l.assetid = al.minorid
+					JOIN sq_ast_lnk_tree lt ON lt.linkid = al.linkid';
+		}
+		$sql .= '
 				WHERE lv.name '.$name_operator.' '.$db->quoteSmart($lookup_name_exp).'
 					AND lv.value '.$value_operator.' '.$db->quoteSmart($lookup_value_exp);
-		$res = $db->getCol($sql);
+		if ($include_treeids) {
+			$res = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
+		} else {
+			$res = $db->getCol($sql);
+		}
 		assert_valid_db_result($res);
 		return $res;
 
@@ -6961,32 +7060,34 @@ cd
 	* (which may be blank if we are not sorting). The return array is structed so you can implode
 	* it using ' ' as glue to form the full query.
 	*
-	* @param object			&$asset				the asset to get its children for
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	* @param boolean		$dependant			if TRUE, results will be filtered to assets that are dependants.
-	*											If FALSE, results will all not be dependants.
-	*											If NULL, results will not be filtered
-	* @param string			$sort_by			a field in the asset table you would like the results
-	*											sorted by (eg. name, short_name etc)
-	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
-	*											Specify that links should be returned for assets the user has read,
-	*											write, or admin access for. Leave NULL to ignore permissions.
-	* @param boolean		$inc_type_code		whether to include the type code in the SELECT or not
-	* @param int			$min_depth			Optional parameter that specifies minimum number of levels below
-	*											the specified asset for a child to qualify (immediate child is 1)
-	* @param int			$max_depth			Optional parameter that specifies maximum number of levels below
-	*											the specified asset for a child to qualify to be returned
+	* @param object			&$asset					the asset to get its children for
+	* @param string|array	$type_code				the type of asset that is linked
+	*												(eg 'Page', 'File', etc)
+	*												if an array returns link if matches any
+	*												of the array values
+	* @param boolean		$strict_type_code		whether we are finding assets that are just a $type_code
+	*												or $type_code and any of it's sub-classes
+	* @param boolean		$dependant				if TRUE, results will be filtered to assets that are dependants.
+	*												If FALSE, results will all not be dependants.
+	*												If NULL, results will not be filtered
+	* @param string			$sort_by				a field in the asset table you would like the results
+	*												sorted by (eg. name, short_name etc)
+	* @param int			$access					SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	*												Specify that links should be returned for assets the user has read,
+	*												write, or admin access for. Leave NULL to ignore permissions.
+	* @param boolean		$inc_type_code			whether to include the type code in the SELECT or not
+	* @param int			$min_depth				Optional parameter that specifies minimum number of levels below
+	*												the specified asset for a child to qualify (immediate child is 1)
+	* @param int			$max_depth				Optional parameter that specifies maximum number of levels below
+	*												the specified asset for a child to qualify to be returned
+	* @param boolean		$direct_shadows_only	If TRUE, ONLY direct shadow asset children will be returned
+	*												If FALSE, ALL the shadow asset children will be returned
 	*
 	* @return array
 	* @access public
 	* @see getChildren()
 	*/
-	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $inc_type_code=TRUE, $min_depth=NULL, $max_depth=NULL)
+	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $inc_type_code=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -6995,10 +7096,6 @@ cd
 			$select = 'SELECT a.assetid'.(($inc_type_code) ? ', a.type_code' : '');
 			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a';
 			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
-			if (!empty($where) && (!empty($type_code) || !is_null($access) || !is_null($dependant))) {
-				$where .= ' AND ';
-			}
-
 		} else {
 			// OK, normal asset, let's find a reference to them in the tree and go from there
 			$where = 'l.minorid = '.$db->quote($asset->id);
@@ -7039,12 +7136,28 @@ cd
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-
-			if (!empty($type_code) || !is_null($access) || !is_null($dependant)) {
-				$where .= ' AND ';
-			}
-
 		}//end else
+
+		// if direct shadow asset children should be returned
+		$union_select = ' UNION ALL SELECT sl.minorid';
+		if ($inc_type_code) {
+			$union_select .= ', null AS type_code';
+		}
+		if (!is_null($sort_by)) {
+			$union_select .= ', null AS sort_value';
+		}
+		$union_from = ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
+		// if all shadow asset children should be returned
+		if ($direct_shadows_only) {
+			$union_where = 'sl.majorid = '.$db->quoteSmart($asset->id);
+		} else {
+			$union_where = "sl.majorid IN (SELECT DISTINCT l.minorid $from $where)";
+		}
+		$union_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
+
+		if (!empty($where) && (!empty($type_code) || !is_null($access) || !is_null($dependant))) {
+			$where .= ' AND ';
+		}
 
 		if (!is_null($dependant)) {
 			$where .= ' l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
@@ -7090,7 +7203,6 @@ cd
 			}
 		}//end if access is not null
 
-
 		if (!empty($type_code)) {
 
 			if (empty($where)) $where = ' WHERE ';
@@ -7122,19 +7234,6 @@ cd
 			$order_by = 'ORDER BY sort_value';
 			$select .= ', a.'.$sort_by.' AS sort_value';
 		}
-
-		$union_select = ' UNION ALL SELECT sl.minorid';
-
-		if ($inc_type_code) {
-			$union_select .= ', null AS type_code';
-		}
-		if (!is_null($sort_by)) {
-			$union_select .= ', null AS sort_value';
-		}
-
-		$union_from		= ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
-		$union_where	= 'sl.majorid = '.$db->quoteSmart($asset->id);
-		$union_where	= $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
 
 		return Array(
 				'select'		=> '('.$select,
@@ -7265,15 +7364,18 @@ cd
 
 		if (!empty($type_code)) {
 			$type_code_cond = '';
-			if (is_array($type_code)) {
-				for (reset($type_code); NULL !== ($i = key($type_code)); next($type_code)) {
-					$type_code[$i] = $db->quote($type_code[$i]);
-				}
-				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
-			} else {
-				$type_code_cond = '= '.$db->quote($type_code);
-			}
 
+			// we are cloning $type_code and using the clone instead
+			// this will prevent the error of double quoting $type_code in the future
+			$type_code_clone = $type_code;
+			if (is_array($type_code_clone)) {
+				for (reset($type_code_clone); NULL !== ($i = key($type_code_clone)); next($type_code_clone)) {
+					$type_code_clone[$i] = $db->quote($type_code_clone[$i]);
+				}
+				$type_code_cond = 'IN ('.implode(', ', $type_code_clone).')';
+			} else {
+				$type_code_cond = '= '.$db->quote($type_code_clone);
+			}
 			if ($strict_type_code) {
 				$where .= ' AND a.type_code '.$type_code_cond;
 			} else {
