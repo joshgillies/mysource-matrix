@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.37.4.2 2006/10/16 01:16:15 tbarrett Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.37.4.3 2006/10/30 04:51:55 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37.4.2 $
+* @version $Revision: 1.37.4.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -255,7 +255,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 		}//end foreach
 
 		// Make sure lower assets are done after higher ones
-		foreach (array_chunk(array_unique($todo_normal), 9999) as $chunk) {
+		foreach (array_chunk(array_unique($todo_normal), 999) as $chunk) {
 			$quoted = Array();
 			foreach ($chunk as $id) {
 				$quoted[] = $db->quoteSmart($id);
