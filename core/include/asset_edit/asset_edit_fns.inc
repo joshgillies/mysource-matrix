@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.63 2006/10/30 05:13:57 mbrydon Exp $
+* $Id: asset_edit_fns.inc,v 1.64 2006/10/30 05:16:00 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -430,7 +430,7 @@ class Asset_Edit_Fns extends MySource_Object
 			$o->openField(translate('url_remappings'));
 				label(translate('url_remap_no_associated_asset_urls'));
 			$o->closeField();
-			
+
 			return FALSE;
 		}
 
