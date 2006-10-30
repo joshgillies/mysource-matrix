@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.67 2006/10/19 23:41:54 emcdonald Exp $
+* $Id: cron_manager.inc,v 1.68 2006/10/30 23:43:14 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -306,7 +306,7 @@ class Cron_Manager extends Asset
 			return FALSE;
 		}
 
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->id, $job->id);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->id, $job->id, SQ_LINK_TYPE_3);
 		if (empty($link)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
