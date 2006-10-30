@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tools_manager_edit_fns.inc,v 1.2 2006/10/29 23:51:40 skim Exp $
+* $Id: import_tools_manager_edit_fns.inc,v 1.3 2006/10/30 01:14:18 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -189,7 +189,7 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		if ($write_access) {
 			$o->openField(translate('import_tools_manager_allowed_import_type'));
-				combo_box($prefix.'_allowed_import_type', Array('Both' => 'Server and Local', 'Server Only' => 'Server Only', 'Local Only' => 'Local Only'), FALSE, $allowed_import_type, 0);
+				combo_box($prefix.'_allowed_import_type', Array('Server and Local' => 'Server and Local', 'Server Only' => 'Server Only', 'Local Only' => 'Local Only'), FALSE, $allowed_import_type, 0);
 			$o->closeField();
 
 			$o->openField(translate('import_tools_manager_server_import_dir'));
