@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.29 2006/10/27 05:54:21 bcaldwell Exp $
+* $Id: core.js,v 1.30 2006/10/30 22:50:10 bcaldwell Exp $
 *
 */
 
@@ -183,7 +183,7 @@ HTMLArea.prototype.generate = function () {
 		}
 
 
-		editor._doc.innerHTML = encodeURI(editor._textArea.value);
+		editor._doc.innerHTML = decodeURI(editor._textArea.value);
 		if (HTMLArea.is_ie) { editor._doc.contentEditable = true; }
 		// intercept some events; for updating the toolbar & keyboard handlers
 		HTMLArea._addEvents
