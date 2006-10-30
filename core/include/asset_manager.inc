@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.519 2006/10/30 03:06:01 lwright Exp $
+* $Id: asset_manager.inc,v 1.520 2006/10/30 03:48:39 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.519 $
+* @version $Revision: 1.520 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2461,7 +2461,7 @@ class Asset_Manager extends MySource_Object
 
 			// Loop through each of these and get each possible combination of
 			// minor/major asset ID. (This isn't as bad as it sounds because
-			// one of these WILL be a single asset ID as per above)
+			// one of these WILL be a single asset ID)
 			foreach ($majorids as $majorid) {
 				$major_shadow_parts = FALSE;
 				$id_parts           = explode(':', $majorid);
@@ -2508,7 +2508,7 @@ class Asset_Manager extends MySource_Object
 
 		// If there are no more assets to run through, return what shadow links
 		// we have only
-		if (!empty($other_assetids)) {
+		if (!empty($other_assetid)) {
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
