@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.63 2006/10/30 23:41:14 bcaldwell Exp $
+* $Id: wysiwyg.inc,v 1.64 2006/10/30 23:43:11 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1314,7 +1314,6 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 			<?php $this->print_plugin_functions()?>
 
 			<?php $this->print_config()?>
-			<?php echo $this->contents; ?>
 			<textarea id="<?php echo $this->name?>" name="<?php echo $this->name?>" <?php echo $this->textarea_extras?>><?php echo rawurlencode($this->contents); ?></textarea>
 
 			<script type="text/javascript">
