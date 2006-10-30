@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.180 2006/10/23 07:01:36 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.181 2006/10/30 05:13:57 mbrydon Exp $
 *
 */
 
@@ -288,6 +288,7 @@
 	<string source="trigger_list">Trigger List</string>
 	<string source="up">Up</string>
 	<string source="url">URL</string>
+	<string source="url_remappings">URL Remappings</string>
 	<string source="uninstall_options">Uninstall Options</string>
 	<string source="unlimited">Unlimited</string>
 	<string source="upload_patch_file">Upload Patch File</string>
@@ -558,6 +559,7 @@
 	<string source="metadata_edit_fields">Edit Metadata Field</string>
 	<string source="metadata_use_editing_interface">The editing interface for this metadata section has already been shown above. The current metadata values are displayed below but cannot be edited. To edit these metadata values, please use the editing interface displayed above.</string>
 	<string source="url_remap_explanation">The "Old URL" is the URL that you want remapped. The "New URL" is the URL that a user will be redirected to when they visit the "Old URL".</string>
+	<string source="url_remap_no_associated_asset_urls">URL Remappings could not be displayed as there are no URLs associated with this asset.</string>
 	<string source="tagging_suggest_indexed">If indexing is enabled in the Search Manager, you can generate a list of tags from the index using %s</string>
 	<string source="tagging_cascade_changes_note">Apply all the tag changes made to this asset to all its children</string>
 	<string source="tagging_manual_cascade_note">Applies all of this asset's tags to all of its children</string>

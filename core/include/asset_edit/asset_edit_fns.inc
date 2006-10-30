@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.62 2006/10/22 22:45:26 amiller Exp $
+* $Id: asset_edit_fns.inc,v 1.63 2006/10/30 05:13:57 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -426,6 +426,14 @@ class Asset_Edit_Fns extends MySource_Object
 		if (!$asset->adminAccess('lookups')) return FALSE;
 
 		$urls = $asset->getURLs();
+		if (empty($urls)) {
+			$o->openField(translate('url_remappings'));
+				label(translate('url_remap_no_associated_asset_urls'));
+			$o->closeField();
+			
+			return FALSE;
+		}
+
 		foreach ($urls as $url) {
 			if ($url['http'] == 1) {
 				$contents['http://'.$url['url']] = 'http://'.$url['url'];
@@ -448,7 +456,6 @@ class Asset_Edit_Fns extends MySource_Object
 			text_box($prefix.'_add_remap_expires_days', '', 5);
 			label(translate('days'), $prefix.'_add_remap_expires_days');
 		$o->closeField();
-
 
 
 	}//end paintAddRemapURLs()
