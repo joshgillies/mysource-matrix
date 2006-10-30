@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.520 2006/10/30 03:48:39 lwright Exp $
+* $Id: asset_manager.inc,v 1.521 2006/10/30 03:49:45 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.520 $
+* @version $Revision: 1.521 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2434,7 +2434,7 @@ class Asset_Manager extends MySource_Object
 
 		if ($assetid_is_shadow) {
 			$other_shadow_assetids = $other_assetid;
-			$other_assetids = Array();
+			$other_assetid = Array();
 		} else {
 			foreach ($other_assetid as $key => $other_assetid_value) {
 				$shadow_parts = explode(':', $other_assetid_value);
