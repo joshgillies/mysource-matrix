@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.41 2006/09/13 04:46:16 colivar Exp $
+* $Id: asset_manager.inc,v 1.431.2.42 2006/10/30 22:31:11 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.41 $
+* @version $Revision: 1.431.2.42 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2397,100 +2397,147 @@ class Asset_Manager extends MySource_Object
 			return Array();
 		}
 
-
-		// handle shadow assets
-		if ($side_of_link == 'major') {
-			$majorid = $assetid;
-			$minorid = $other_assetid;
-		} else {
-			$majorid = $other_assetid;
-			$minorid = $assetid;
-		}
-
-		$major_shadow_parts = FALSE;
-		$id_parts           = explode(':', $majorid);
-		if (isset($id_parts[1])) {
-			$major_shadow_parts = Array(
-									'bridgeid'	=> $id_parts[0],
-									'shadowid'	=> $id_parts[1],
-								   );
-		}
-
-		$minor_shadow_parts = FALSE;
-		$id_parts           = explode(':', $minorid);
-		if (isset($id_parts[1])) {
-			$minor_shadow_parts = Array(
-									'bridgeid'	=> $id_parts[0],
-									'shadowid'	=> $id_parts[1],
-								   );
-		}
-
-		if (!empty($major_shadow_parts)) {
-			// major is shadow asset, use bridge
-			$link = Array();
-			$asset =& $this->getAsset($major_shadow_parts['bridgeid']);
-			if (!is_null($asset)) {
-				$link = $asset->getLinkByAsset($assetid, $other_assetid, $link_types, $value, $side_of_link, $force_array, $dependant, $exclusive);
-				$this->forgetAsset($asset);
-			}
-			return $link;
-		} else {
-			if (!empty($minor_shadow_parts)) {
-				// minor is shadow asset, look at the shadow link table
-				// instead of the regular link table
-				$link = $this->getShadowLinkByAsset($assetid, $other_assetid, $link_types, $value, $side_of_link, $force_array, $dependant, $exclusive);
-				return $link;
-			}
-		}
-
-
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-
 		if (!is_array($other_assetid)) {
 			$other_assetid = Array($other_assetid);
 		}
 
-		$prepared_otherids = Array();
-		foreach ($other_assetid as $id) {
-			$prepared_otherids[] = $db->quote($id);
-		}
+		// handle shadow assets
+		$other_shadow_assetids = Array();
+		$shadow_links = Array();
 
-		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
+		// If the main asset ID is a shadow asset, then we need to run through
+		// ALL of the assets with it, as all combinations will have a shadow
+		// component. If it's not a shadow asset, then we need to find which
+		// other asset IDs are shadow, extract them, and then run the rest
+		// through the sq_ast_lnk table as normal.
+		$assetid_shadow_parts = explode(':', $assetid);
+		$assetid_is_shadow = (count($assetid_shadow_parts) > 1);
 
-		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-					   l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
+		if ($assetid_is_shadow) {
+			$other_shadow_assetids = $other_assetid;
+			$other_assetid = Array();
+		} else {
+			foreach ($other_assetid as $key => $other_assetid_value) {
+				$shadow_parts = explode(':', $other_assetid_value);
 
-		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid).'
-				  AND l.'.$other_side.'id  IN ( '.implode(',', $prepared_otherids).')';
-
-		if (!is_null($link_types)) {
-		  $where .= ' AND '.db_extras_bitand($db, 'l.link_type', $link_types).' > 0 ';
-		}
-
-		if (!is_null($value)) {
-			if (empty($value)) {
-				$where .= ' AND (l.value = '.$db->quote($value).' OR l.value IS NULL)';
-			} else {
-				$where .= ' AND l.value = '.$db->quote($value);
+				if (count($shadow_parts) > 1) {
+					$other_shadow_assetids[] = $other_assetid_value;
+					unset($other_assetid[$key]);
+				}
 			}
 		}
-		if (!is_null($dependant)) {
-			$where .= ' AND l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
+
+		// If there are no shadow assets then don't bother looking at this
+		if (!empty($other_shadow_assetids)) {
+
+			// Assign major and minor asset IDs according to side of link -
+			// making the main asset ID a single-element array
+			if ($side_of_link == 'major') {
+				$majorids = Array($assetid);
+				$minorids = $other_shadow_assetids;
+			} else {
+				$majorids = $other_shadow_assetids;
+				$minorids = Array($assetid);
+			}
+
+			// Loop through each of these and get each possible combination of
+			// minor/major asset ID. (This isn't as bad as it sounds because
+			// one of these WILL be a single asset ID)
+			foreach ($majorids as $majorid) {
+				$major_shadow_parts = FALSE;
+				$id_parts           = explode(':', $majorid);
+				if (isset($id_parts[1])) {
+					$major_shadow_parts = Array(
+											'bridgeid'	=> $id_parts[0],
+											'shadowid'	=> $id_parts[1],
+										  );
+				}
+
+				foreach ($minorids as $minorid) {
+					$minor_shadow_parts = FALSE;
+					$id_parts           = explode(':', $minorid);
+					if (isset($id_parts[1])) {
+						$minor_shadow_parts = Array(
+												'bridgeid'	=> $id_parts[0],
+												'shadowid'	=> $id_parts[1],
+											  );
+					}
+
+					if (!empty($major_shadow_parts)) {
+						// major is shadow asset, use bridge
+						$link = Array();
+						$asset =& $this->getAsset($major_shadow_parts['bridgeid']);
+						if (!is_null($asset)) {
+							$link = $asset->getLinkByAsset($majorid, $minorid, $link_types, $value, $side_of_link, $force_array, $dependant, $exclusive);
+							$this->forgetAsset($asset);
+						}
+						$shadow_links[] = $link;
+					} else {
+						if (!empty($minor_shadow_parts)) {
+							// minor is shadow asset, look at the shadow link table
+							// instead of the regular link table
+							$link = $this->getShadowLinkByAsset($majorid, $minorid, $link_types, $value, $side_of_link, $force_array, $dependant, $exclusive);
+							$shadow_links[] = $link;
+						}
+					}
+
+				}//end foreach minor asset ID
+
+			}//end foreach major asset ID
+
+		}//end if there are shadow assets
+
+		// If there are no more assets to run through, return what shadow links
+		// we have only
+		if (!empty($other_assetid)) {
+
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+			$prepared_otherids = Array();
+			foreach ($other_assetid as $id) {
+				$prepared_otherids[] = $db->quote($id);
+			}
+
+			$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
+
+			$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type,
+						   l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
+
+			$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid).'
+					  AND l.'.$other_side.'id  IN ( '.implode(',', $prepared_otherids).')';
+
+			if (!is_null($link_types)) {
+			  $where .= ' AND '.db_extras_bitand($db, 'l.link_type', $link_types).' > 0 ';
+			}
+			if (!is_null($value)) {
+				if (empty($value)) {
+					$where .= ' AND (l.value = '.$db->quote($value).' OR l.value IS NULL)';
+				} else {
+					$where .= ' AND l.value = '.$db->quote($value);
+				}
+			}
+			if (!is_null($dependant)) {
+				$where .= ' AND l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
+			}
+			if (!is_null($exclusive)) {
+				$where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
+			}
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
+
+			$sql .= $where.'
+					ORDER BY l.sort_order';
+
+			$result = $db->getAll($sql);
+			assert_valid_db_result($result);
+		} else {
+			$result = Array();
 		}
-		if (!is_null($exclusive)) {
-			$where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
-		}
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
-
-		$sql .= $where.'
-				ORDER BY l.sort_order';
-
-		$result = $db->getAll($sql);
-		assert_valid_db_result($result);
+		// Add shadow links from above to the result
+		$result += $shadow_links;
 
 		if (!$force_array && count($result) == 1) {
 			return $result[0];
