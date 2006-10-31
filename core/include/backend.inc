@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.137.2.3 2006/08/09 06:55:12 skim Exp $
+* $Id: backend.inc,v 1.137.2.4 2006/10/31 04:25:10 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.137.2.3 $
+* @version $Revision: 1.137.2.4 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -80,6 +80,8 @@ class Backend extends MySource_Object
 	*/
 	function paint()
 	{
+		header('Content-Type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
+
 		if (SQ_IN_LIMBO) {
 
 			if (!isset($_REQUEST['limbo_assetid'])) {
