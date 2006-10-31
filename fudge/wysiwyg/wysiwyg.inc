@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.51.2.8 2006/10/27 06:00:41 bcaldwell Exp $
+* $Id: wysiwyg.inc,v 1.51.2.9 2006/10/31 04:21:00 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51.2.8 $
+* @version $Revision: 1.51.2.9 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -638,7 +638,7 @@ class wysiwyg
 
 					// retrieve the HTML
 					html = this.make_relative_hrefs(html);
-					this._textArea.value = encodeURI(html);
+					this._textArea.value = html;
 				};
 			</script>
 
@@ -1110,7 +1110,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 
 			<?php $this->print_config()?>
 
-			<textarea id="<?php echo $this->name?>" name="<?php echo $this->name?>" <?php echo $this->textarea_extras?>><?php echo rawurlencode($this->contents); ?></textarea>
+			<textarea id="<?php echo $this->name?>" name="<?php echo $this->name?>" <?php echo $this->textarea_extras?>><?php echo $this->contents; ?></textarea>
 
 			<script type="text/javascript">
 				editor_<?php echo $this->name?> = new HTMLArea("<?php echo $this->name?>");
@@ -1145,11 +1145,6 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 	{
 		if (!isset($_REQUEST[$this->name])) return FALSE;
 		$html = $_REQUEST[$this->name];
-
-		$html = rawurldecode($html);
-
-		// replace out special form tags back with real form tags
-		$html = preg_replace('|<HTMLAREA_FORM ([^>]*?)>(.*?)</HTMLAREA_FORM>|is', '<FORM \\1>\\2</FORM>', $html);
 
 		for (reset($this->_loaded_plugins); null !== ($k = key($this->_loaded_plugins)); next($this->_loaded_plugins)) {
 			$plugin =& $this->_loaded_plugins[$k];

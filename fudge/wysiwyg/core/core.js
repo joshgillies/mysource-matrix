@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.25.2.4 2006/10/27 06:00:41 bcaldwell Exp $
+* $Id: core.js,v 1.25.2.5 2006/10/31 04:21:00 bcaldwell Exp $
 *
 */
 
@@ -141,7 +141,7 @@ HTMLArea.prototype.generate = function () {
 		html += "</style>\n";
 		html += "</head>\n";
 		html += "<body>\n";
-		html += decodeURI(editor._textArea.value);
+		html += editor._textArea.value;
 		html += "</body>\n";
 		html += "</html>";
 		doc.write(html);
@@ -181,7 +181,7 @@ HTMLArea.prototype.generate = function () {
 			editor._doc.style.height = editor.config.height;
 		}
 
-		editor._doc.innerHTML = encodeURI(editor._textArea.value);
+		editor._doc.innerHTML = editor._textArea.value;
 		if (HTMLArea.is_ie) { editor._doc.contentEditable = true; }
 		// intercept some events; for updating the toolbar & keyboard handlers
 		HTMLArea._addEvents
