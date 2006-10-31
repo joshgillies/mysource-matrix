@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.56.2.6 2006/10/27 05:58:36 bcaldwell Exp $
+* $Id: wysiwyg.inc,v 1.56.2.7 2006/10/31 00:43:48 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.56.2.6 $
+* @version $Revision: 1.56.2.7 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -638,7 +638,7 @@ class wysiwyg
 
 					// retrieve the HTML
 					html = this.make_relative_hrefs(html);
-					this._textArea.value = encodeURI(html);
+					this._textArea.value = escape(html);
 				};
 			</script>
 
@@ -1351,6 +1351,10 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 		$html = $_REQUEST[$this->name];
 
 		$html = rawurldecode($html);
+
+		// Because the ecape() and unescape() javascript functions are used
+		// a weird character is appended to the string, this will remove it
+		$html = trim($html);
 
 		// replace out special form tags back with real form tags
 		$html = preg_replace('|<HTMLAREA_FORM ([^>]*?)>(.*?)</HTMLAREA_FORM>|is', '<FORM \\1>\\2</FORM>', $html);
