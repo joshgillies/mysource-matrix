@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.181 2006/10/30 05:13:57 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.182 2006/10/31 22:33:22 rong Exp $
 *
 */
 
@@ -335,6 +335,7 @@
 
 	<!-- Cron translations -->
 	<string source="cron_manager_not_configured">The Cron Manager has not been configured. No future statuses can be set for this asset</string>
+	<string source="cron_manager_not_configured_regen">The Cron Manager has not been configured. No future regeneration can be set for this asset</string>
 	<string source="cron_manager_next_run">The Cron Manager runs every &lt;b&gt;%1$s&lt;/b&gt;. It will next run on the &lt;b&gt;%2$s&lt;/b&gt;</string>
 	<string source="asset_currently_in_workflow">&lt;i&gt;This asset is currently in workflow. Approval or rejection of the changes must be done on the &lt;a href="%s"&gt;asset workflow screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="workflow_not_running">Workflow is not currently running for this asset</string>

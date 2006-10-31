@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.25 2006/10/20 04:55:51 rong Exp $
+* $Id: report_links_edit_fns.inc,v 1.26 2006/10/31 22:33:23 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1193,8 +1193,14 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 		$o->openField(translate('cms_report_links_future_regen_field'), 'new_line');
 			if ($asset->writeAccess('attributes')) {
-				$edit_fns->paintInLineBackend($cron_job, $o, $prefix.'_new_rl');
-				$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+				$cron_epoc = (int)$cron_mgr->attr('epoch');
+				$cron_refresh = (int)$cron_mgr->attr('refresh_time');
+				if ($cron_epoc > 0 && $cron_refresh > 0) {
+					$edit_fns->paintInLineBackend($cron_job, $o, $prefix.'_new_rl');
+					$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+				} else{
+					echo translate('cron_manager_not_configured_regen');
+				}
 			} else {
 				echo translate('cms_report_links_future_regen_lock');
 			}
