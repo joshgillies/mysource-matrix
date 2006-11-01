@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.157.2.11 2006/10/17 23:12:52 mbrydon Exp $
+* $Id: search_page.inc,v 1.157.2.12 2006/11/01 04:36:55 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.157.2.11 $
+* @version $Revision: 1.157.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1202,7 +1202,7 @@ class Search_Page extends Listing_Engine
 								break;
 								case 'metadata_field_text' :
 								case 'metadata_field_thesaurus' :
-									echo $query;
+									echo htmlspecialchars($query);
 								break;
 								case 'metadata_field_select' :
 									$selection = $asset->getSelectionAttribute();
@@ -1250,7 +1250,7 @@ class Search_Page extends Listing_Engine
 							$this->_printDateRangeDescription($query);
 						} else {
 							// just a standard text field
-							echo $query;
+							echo htmlspecialchars($query);
 						}
 					break;
 
