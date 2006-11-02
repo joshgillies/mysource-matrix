@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.121 2006/10/23 03:47:19 rhoward Exp $
+* $Id: metadata_manager.inc,v 1.122 2006/11/02 22:14:53 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.121 $
+* @version $Revision: 1.122 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1344,7 +1344,7 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function getMetadataValueByAssetid($assetid, $field_assetid, $mute_errors=FALSE)
 	{
-		$value = getMetadataInterfaceValueByAssetid($assetid, $field_assetid, $mute_errors);
+		$value = $this->getMetadataInterfaceValueByAssetid($assetid, $field_assetid, $mute_errors);
 
 		if (is_null($value)) {
 			// not set - need the default value
