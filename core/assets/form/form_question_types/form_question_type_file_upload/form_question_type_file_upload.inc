@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.15 2006/10/10 05:49:14 emcdonald Exp $
+* $Id: form_question_type_file_upload.inc,v 1.16 2006/11/02 03:10:34 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -381,7 +381,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				return FALSE;
 			}
-
+			// update the summary
+			$this->_tmp['summary'] = $this->_tmp['file_info']['name'].', type '.$this->_tmp['file_info']['type'].', '.easy_filesize($this->_tmp['file_info']['size']);
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 		}//end else $existing_file
