@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.12 2006/03/06 23:54:33 sdanis Exp $
+* $Id: authentication_ldap.inc,v 1.13 2006/11/02 23:56:51 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -120,12 +120,17 @@ class Authentication_LDAP extends Authentication
 
 
 	/**
-	* If this authentication has a user matching the username in $_SERVER['REMOTE_USER'], return that user
+	* Given a username supplied by HTTP, attempts to locate and return a user object
+	*
+	* This function is used when processing a pre-authenticated username supplied
+	* via HTTP headers or server vars.
+	*
+	* @param string	$username	The username to search for
 	*
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &authenticateHttpUser()
+	function &authenticateHttpUser($username)
 	{
 		$user = NULL;
 		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ldap_bridge', TRUE);
@@ -139,7 +144,7 @@ class Authentication_LDAP extends Authentication
 			// Search for users matching the HTTP username
 			$ldap = $bridge->connectToLdap();
 			$attrs = $bridge->attr('attributes');
-			$result = $ldap->search($bridge->attr('root_dn'),'('.$attrs['uid'].'='.$_SERVER['REMOTE_USER'].')');
+			$result = $ldap->search($bridge->attr('root_dn'),'('.$attrs['uid'].'='.$username.')');
 			if (!$result) continue;
 
 			$entry = $ldap->getEntries($result);

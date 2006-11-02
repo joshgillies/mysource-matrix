@@ -18,16 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.193 2006/10/18 00:23:06 bcaldwell Exp $
+* $Id: mysource.inc,v 1.194 2006/11/02 23:56:08 tbarrett Exp $
 *
 */
-
 
 require_once 'DB.php';
 require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
 require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
-
 
 /**
 * MySource
@@ -36,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.193 $
+* @version $Revision: 1.194 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1120,7 +1118,8 @@ class MySource
 	function _loginHttpAuthenticatedUser()
 	{
 		if (array_get_index($_REQUEST, 'SQ_ACTION')) return;
-		if (!array_get_index($_SERVER, 'REMOTE_USER')) return;
+		$http_username = array_get_index($_SERVER, SQ_CONF_HTTP_LOGIN_VAR);
+		if (is_null($http_username) || ($http_username === '')) return;
 
 		// get a list of all the installed authentication systems
 		$auth_folder =& $this->am->getSystemAsset('authentication_folder');
@@ -1135,7 +1134,7 @@ class MySource
 		foreach ($auth_systems as $systemid) {
 			$system =& $this->am->getAsset($systemid);
 			if (is_null($system)) continue;
-			$user =& $system->authenticateHttpUser();
+			$user =& $system->authenticateHttpUser($http_username);
 			if (!is_null($user)) return $this->loginUser($user);
 		}
 

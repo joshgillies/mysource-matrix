@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ipb.inc,v 1.4 2006/03/07 00:02:35 sdanis Exp $
+* $Id: authentication_ipb.inc,v 1.5 2006/11/02 23:56:41 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -103,12 +103,17 @@ class Authentication_IPB extends Authentication
 
 
 	/**
-	* If this authentication has a user matching the username in $_SERVER['REMOTE_USER'], return that user
+	* Given a username supplied by HTTP, attempts to locate and return a user object
 	*
-	* @return mixed object|null
+	* This function is used when processing a pre-authenticated username supplied
+	* via HTTP headers or server vars.
+	*
+	* @param string	$username	The username to search for
+	*
+	* @return mixed object|NULL
 	* @access public
 	*/
-	function &authenticateHttpUser()
+	function &authenticateHttpUser($username)
 	{
 		$user = NULL;
 		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ipb_bridge', TRUE);
@@ -120,7 +125,7 @@ class Authentication_IPB extends Authentication
 			if ($bridge->status != SQ_STATUS_LIVE) continue;
 
 			$ipb =& $bridge->getIpbConn();
-			$data = $ipb->getMemberByName($_SERVER['REMOTE_USER']);
+			$data = $ipb->getMemberByName($username);
 			if (empty($data)) continue;
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('ipb_user');

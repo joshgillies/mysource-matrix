@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.13 2006/01/26 22:34:05 lwright Exp $
+* $Id: authentication_default.inc,v 1.14 2006/11/02 23:56:08 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -208,15 +208,18 @@ class Authentication_Default extends Authentication
 
 
 	/**
-	* If this authentication has a user matching the username in $_SERVER['REMOTE_USER'], return that user
+	* Given a username supplied by HTTP, attempts to locate and return a user object
 	*
-	* @return object
+	* This function is used when processing a pre-authenticated username supplied
+	* via HTTP headers or server vars.
+	*
+	* @param string	$username	The username to search for
+	*
+	* @return mixed object|NULL
 	* @access public
 	*/
-	function &authenticateHttpUser()
+	function &authenticateHttpUser($username)
 	{
-		if (!isset($_SERVER['REMOTE_USER'])) return;
-
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql   = 'SELECT a.assetid, a.type_code
 				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a, sq_ast_attr at, '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_uniq_val auv';
@@ -228,7 +231,7 @@ class Authentication_Default extends Authentication
 				  AND at.name           = '.$db->quote('username').'
 				  AND auv.assetid       = a.assetid
 				  AND at.attrid         = auv.owning_attrid
-				  AND auv.custom_val    = '.$db->quote($_SERVER['REMOTE_USER']);
+				  AND auv.custom_val    = '.$db->quote($username);
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');

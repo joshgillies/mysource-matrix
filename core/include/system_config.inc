@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.85 2006/10/23 07:01:36 tbarrett Exp $
+* $Id: system_config.inc,v 1.86 2006/11/02 23:56:08 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -83,6 +83,7 @@ class System_Config extends Config
 						'SQ_CONF_ALLOW_IP_CHANGE'				=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_ALLOW_HTTP_LOGIN'				=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS'	=> Array('editable' => 1, 'default' => TRUE),
+						'SQ_CONF_HTTP_LOGIN_VAR'				=> Array('editable' => 1, 'default' => 'REMOTE_USER'),
 						'SQ_CONF_ACCEPT_HTTP_CREDS'				=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_COMMIT_BUTTON_TEXT'			=> Array('editable' => 1, 'default' => 'Commit'),
 						'SQ_CONF_LOG_EXTENSION'					=> Array('editable' => 0, 'default' => '.log'),
@@ -512,6 +513,13 @@ class System_Config extends Config
 				echo (SQ_CONF_ALLOW_HTTP_LOGIN) ? translate('yes') : translate('no');
 			}
 			$o->note(translate('allow_single_sign_in_note'));
+
+			$o->openField(translate('http_login_var'));
+			if ($write_access && $is_root) {
+				text_box($class.'[SQ_CONF_HTTP_LOGIN_VAR]', SQ_CONF_HTTP_LOGIN_VAR, 40);
+			} else {
+				echo SQ_CONF_HTTP_LOGIN_VAR;
+			}
 
 			$o->openField(translate('enable_external_auth_systems'));
 			if ($write_access && $is_root) {

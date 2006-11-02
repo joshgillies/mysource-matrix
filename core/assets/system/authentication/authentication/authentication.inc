@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication.inc,v 1.9 2006/01/26 22:34:05 lwright Exp $
+* $Id: authentication.inc,v 1.10 2006/11/02 23:56:08 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -151,12 +151,17 @@ class Authentication extends Asset
 
 
 	/**
-	* If this authentication has a user matching the username in $_SERVER['REMOTE_USER'], return that user
+	* Given a username supplied by HTTP, attempts to locate and return a user object
+	*
+	* This function is used when processing a pre-authenticated username supplied
+	* via HTTP headers or server vars.
+	*
+	* @param string	$username	The username to search for
 	*
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &authenticateHttpUser()
+	function &authenticateHttpUser($username)
 	{
 		$null = NULL;
 		return $null;

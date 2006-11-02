@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.182 2006/10/31 22:33:22 rong Exp $
+* $Id: lang_strings.xml,v 1.183 2006/11/02 23:56:08 tbarrett Exp $
 *
 */
 
@@ -45,7 +45,8 @@
 	<string source="enable_external_auth_systems_note">Set this to 'No' to only allow users with accounts in the default matrix user system, rather than LDAP, IPB etc.</string>
 
 	<string source="allow_single_sign_in">Accept HTTP Authentication</string>
-	<string source="allow_single_sign_in_note">If this is enabled and a username is supplied in REMOTE_USER, the system will try to automatically log in a user with that username.  (It will assume that the user has already been authenticated by some external mechanism.)</string>
+	<string source="allow_single_sign_in_note">If this option is enabled and a username is found in the server variable specified below, the system will try to automatically log in a user with that username.  (It will assume that the user has already been authenticated by some external mechanism.)</string>
+	<string source="http_login_var">HTTP Authentication Variable</string> 
 	<string source="applies_to">Applies To</string>
 	<string source="asset_date_search_fields">Asset Date Search Fields</string>
 	<string source="assetid">Assetid</string>
