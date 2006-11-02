@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_binding.inc,v 1.5 2006/10/04 02:28:34 bcaldwell Exp $
+* $Id: soap_wsdl_binding.inc,v 1.6 2006/11/02 00:31:21 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_compone
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -53,7 +53,7 @@ class SOAP_WSDL_Binding extends SOAP_WSDL_Component
 	{
 		if (is_null($this->schema)) return FALSE;
 
-		$binding_name = $this->schema->getElementName($this->id);
+		$binding_name = $this->schema->getComponentName($this->id);
 		$this->setAttrValue('binding', $binding_name);
 
 		return TRUE;

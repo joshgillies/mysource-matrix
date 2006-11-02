@@ -18,26 +18,25 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_port_type.inc,v 1.6 2006/11/02 00:31:21 bcaldwell Exp $
+* $Id: soap_wsdl_type.inc,v 1.1 2006/11/02 00:33:25 bcaldwell Exp $
 *
 */
 
-
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_component/soap_wsdl_component.inc';
 
-
 /**
-* SOAP_WSDL_Port_Type
+* SOAP_WSDL_Type
 *
 * Purpose
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
-class SOAP_WSDL_Port_Type extends SOAP_WSDL_Component
+class SOAP_WSDL_Type extends SOAP_WSDL_Component
 {
 
 
@@ -52,45 +51,34 @@ class SOAP_WSDL_Port_Type extends SOAP_WSDL_Component
 	function _loadComponent($assetid)
 	{
 		if (is_null($this->schema)) return FALSE;
-
-		$port_name = $this->schema->getComponentName($assetid);
-		$this->setAttrValue('port_type', $port_name);
-
 		return TRUE;
 
 	}//end _loadComponent()
 
 
 	/**
-	* Used by asset map to return a asset map-style link array
-	*
-	* @return array
-	* @access public
 	*/
-	function getAssetMapLinks()
+	function paintBackendInterface($prefix)
 	{
-		if (is_null($this->schema)) return Array();
+		$wsdl = $this->schema->getComponentWsdl($this->id);
+		if (empty($wsdl)) {
+			$type = $this->schema->getComponentName($this->id, SQ_SOAP_WSDL_TYPE);
+		} else {
+			$type = array_get_index($wsdl, 'type');
+		}
 
-		$operation_links = $this->schema->getOperationLinks($this->id);
-		return $this->schema->_getAssetMapLinks($operation_links);
+		$name = $this->schema->getComponentName($this->id, SQ_SOAP_WSDL_NAME);
 
-	}//end getAssetMapLinks()
+		?>
+		<tr>
+			<td><?php echo $name; ?></td>
+			<td><?php text_box($prefix.'['.$name.']', $prefix.'['.$name.']', 200); ?></td>
+		</tr>
+		<?php
 
+		return TRUE;
 
-	/**
-	* Returns name of the asset
-	*
-	* @param boolean	$short_name	whether or not we are after the short name or the full name
-	*
-	* @return string
-	* @access private
-	* @see Asset::_getName()
-	*/
-	function _getName($short_name=FALSE)
-	{
-		return $this->attr('port_type');
-
-	}//end _getName()
+	}//end paintBackendInterface()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_message.inc,v 1.9 2006/10/04 02:28:34 bcaldwell Exp $
+* $Id: soap_wsdl_message.inc,v 1.10 2006/11/02 00:31:21 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_compone
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -42,30 +42,12 @@ class SOAP_WSDL_Message extends SOAP_WSDL_Component
 
 
 	/**
-	* The arguments that make up this message
-	*
-	* @var array
-	* @access private
-	*/
-	var $arg_structure = Array();
-
-
-	/**
-	* A placeholder for the values of the above arguments
-	*
-	* @var array
-	* @access private
-	*/
-	var $arg_values = Array();
-
-
-	/**
-	* The type of this message (input, output, fault)
+	* The type of message (from WSDL) this asset represetnts
 	*
 	* @var string
 	* @access public
 	*/
-	var $message_type = '';
+	var $message_type = NULL;
 
 
 	/**
@@ -80,142 +62,28 @@ class SOAP_WSDL_Message extends SOAP_WSDL_Component
 	{
 		if (is_null($this->schema)) return FALSE;
 
-		$message_name = $this->schema->getElementName($this->id);
+		$message_name = $this->schema->getComponentName($this->id);
 		$this->setAttrValue('message', $message_name);
 
-		// it's the operation that can work out what kind of message this is
-		$operation =& $this->schema->getElementAsset($this->id, 'operation');
-		$this->message_type = $operation->getMessageTypeById($this->id);
-
-		return $this->_loadArgs();
+		return TRUE;
 
 	}//end _loadComponent()
 
 
 	/**
-	* Loads the arguments for this message
+	* Returns the WSDL for this component
 	*
-	* The arguments aren't really arguments, a little more like parameters or
-	* maybe components. Regardless, they are what makes up the message, as only
-	* arguments contain data. A message can contain one or more argument, and
-	* are defined in the wsdl.
+	* This function provides easy access to the getComponentWsdl() function
+	* of the bridge.
 	*
-	* @access private
-	* @return boolean
-	*/
-	function _loadArgs()
-	{
-		if (is_null($this->schema)) return FALSE;
-
-		// the wsdl defined structure of this message
-		$message_wsdl = $this->schema->getElementWsdl($this->id);
-		if (empty($message_wsdl)) return FALSE;
-
-		// populate this object with the info we have
-		foreach ($message_wsdl as $arg_name => $arg_wsdl) {
-			$this->arg_structure[$arg_name] = $arg_wsdl;
-			$this->arg_values[$arg_name] = NULL;
-		}
-		return TRUE;
-
-	}//end _loadArgs()
-
-
-	/**
-	* Attempts to set the specified argument to the specified value
-	*
-	* @param string	$arg	the name of the argument
-	* @param mixed	$value	the vaue to set the argument to
-	*
-	* @access public
-	* @return boolean
-	*/
-	function setArgValue($arg, $value)
-	{
-		if (!in_array($arg, array_keys($this->arg_values))) return FALSE;
-
-		$this->arg_values[$arg] = $value;
-		return TRUE;
-
-	}//end setArgValue()
-
-
-	/**
-	*/
-	function setArgValues($args)
-	{
-		if (empty($args)) return FALSE;
-
-		foreach ($args as $arg => $value) {
-			$this->setArgValue($arg, $value);
-		}
-		return TRUE;
-
-	}//end setArgValues()
-
-
-	/**
-	* Returns the value for the specified argument
-	*
-	* @param string	$arg	the name of the argument
-	*
-	* @access public
-	* @return mixed
-	*/
-	function getArgValue($arg)
-	{
-		return array_get_index($this->arg_values, $arg);
-
-	}//end getArgValue()
-
-
-	/**
-	*/
-	function getArgValues()
-	{
-		return $this->arg_values;
-
-	}//end getArgValues()
-
-
-	/**
-	* Returns the argument structure of this message
-	*
-	* @access public
 	* @return array
-	*/
-	function getArgs()
-	{
-		return $this->arg_structure;
-
-	}//end getMessageArgs()
-
-
-	/**
-	* Returns the structure of this message
-	*
 	* @access public
-	* @return array
 	*/
-	function getStructure()
+	function getComponentWsdl()
 	{
-		return $this->getElementWsdl();
+		return $this->schema->getComponentWsdl($this->id);
 
-	}//end getStructure()
-
-
-	/**
-	* Returns the structure of this message
-	*
-	* @access public
-	* @return array
-	*/
-	function getElementWsdl()
-	{
-		if (is_null($this->schema)) return Array();
-		return $this->schema->getElementWsdl($this->id);
-
-	}//end getElementWsdl()
+	}//end getComponentWsdl()
 
 
 	/**
@@ -232,12 +100,6 @@ class SOAP_WSDL_Message extends SOAP_WSDL_Component
 		return $this->attr('message');
 
 	}//end _getName()
-
-
-	function isFault()
-	{
-		return ($this->message_type == 'fault');
-	}
 
 
 }//end class

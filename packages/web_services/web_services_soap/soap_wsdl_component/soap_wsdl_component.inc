@@ -18,14 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_component.inc,v 1.2 2006/10/04 02:28:34 bcaldwell Exp $
+* $Id: soap_wsdl_component.inc,v 1.3 2006/11/02 00:31:21 bcaldwell Exp $
 *
 */
 
-
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once 'SOAP/Client.php';
-
 
 /**
 * SOAP_WSDL_Component
@@ -34,7 +32,7 @@ require_once 'SOAP/Client.php';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -139,6 +137,15 @@ class SOAP_WSDL_Component extends Asset
 		return TRUE;
 
 	}//end _loadComponent()
+
+
+	/**
+	*/
+	function saveAttributes()
+	{
+		return TRUE;
+
+	}//end saveAttributes()
 
 
 	/**

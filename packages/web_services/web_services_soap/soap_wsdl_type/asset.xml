@@ -1,3 +1,6 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../asset.xsl" type="text/xsl"?>
+
 <!--
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
@@ -18,23 +21,25 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2006/11/02 00:31:21 bcaldwell Exp $
+* $Id: asset.xml,v 1.1 2006/11/02 00:33:25 bcaldwell Exp $
 *
 */
 -->
 
-<contents>
-	<section name="Details" write_access="write:attributes" limbo_access="1">
-		<field attribute="message">
-			<text width="35" height="1" />
-		</field>
-	</section>
-	<section name="Structure" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function   name="paintMessageStructure"   />
-				<process_function name="processMessageStructure" />
-			</function_call>
-		</field>
-	</section>
-</contents>
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
+	<package>web_services</package>
+	<type_code>soap_wsdl_type</type_code>
+	<version>0.1</version>
+	<name>WSDL Type</name>
+	<description>WSDL Type, an data type as defined in a WSDL file</description>
+	<instantiable>no</instantiable>
+	<allowed_access>backend_user</allowed_access>
+	<parent_type>soap_wsdl_component</parent_type>
+	<requirements>
+		<requirement type="system">
+			<code>System</code>
+			<version>3.0.4</version>
+		</requirement>
+	</requirements>
+	<flash_menu_path />
+</asset_info>

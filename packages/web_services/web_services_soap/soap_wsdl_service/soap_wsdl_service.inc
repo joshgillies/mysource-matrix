@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_service.inc,v 1.5 2006/10/04 02:28:35 bcaldwell Exp $
+* $Id: soap_wsdl_service.inc,v 1.6 2006/11/02 00:31:22 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_compone
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -53,7 +53,7 @@ class SOAP_WSDL_Service extends SOAP_WSDL_Component
 	{
 		if (is_null($this->schema)) return FALSE;
 
-		$service_name = $this->schema->getElementName($this->id);
+		$service_name = $this->schema->getComponentName($this->id);
 		$this->setAttrValue('service', $service_name);
 
 		return TRUE;
