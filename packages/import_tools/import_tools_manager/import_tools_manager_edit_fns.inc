@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tools_manager_edit_fns.inc,v 1.3 2006/10/30 01:14:18 skim Exp $
+* $Id: import_tools_manager_edit_fns.inc,v 1.4 2006/11/03 04:40:56 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -185,7 +185,6 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$allowed_import_type = $asset->attr('allowed_import_type');
 		$server_import_dir = $asset->attr('bulk_file_import_dir');
-		$local_file_max_size = $asset->attr('bulk_file_import_max_file_size');
 
 		if ($write_access) {
 			$o->openField(translate('import_tools_manager_allowed_import_type'));
