@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.8 2006/03/20 05:31:53 rong Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.9 2006/11/03 03:18:35 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,6 +83,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 			switch (get_class($attr)) {
 				case 'asset_attribute_serialise' :
 				case 'asset_attribute_parameter_map' :
+				case 'asset_attribute_email_format' :
 					// set $value to be the contents of the array
 					eval('$value = '.$value);
 				break;
