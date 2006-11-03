@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.523 2006/10/30 04:48:52 lwright Exp $
+* $Id: asset_manager.inc,v 1.524 2006/11/03 05:04:44 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.523 $
+* @version $Revision: 1.524 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4450,13 +4450,6 @@ class Asset_Manager extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		if (!$major->id) return FALSE;
 
-		// if you dont have write access to this asset you cant create any links
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
-			if (!$major->writeAccess('')) {
-				return translate('cannot_create_link_permission_denied', $major->name, $major->id, $minor->name, $minor->id);
-			}
-		}
-
 		if (!is_a($minor, 'Asset')) {
 			return translate('minor_is_not_asset');
 		}
@@ -4464,6 +4457,29 @@ class Asset_Manager extends MySource_Object
 		// check if we are allowed to link to these type of assets
 		if (($err_msg = $this->canLinkToType($major, $minor->type(), $link_type, 0, $exclusive)) !== TRUE) {
 			return $err_msg;
+		}
+
+		// Check write access as appropriate
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+			if ($link_type == SQ_LINK_NOTICE) {
+				// To create a notice link you need effective write access
+				// to the major, but you don't need any access to the minor
+				if (($major->status == SQ_STATUS_ARCHIVED) || (!$major->writeAccess(''))) {
+					return translate('cannot_create_notice_link_permission_denied', $major->name, $major->id, $minor->name, $minor->id);
+				}
+			} else {
+				// To create a significant link you need write permissions
+				// (but not effective write access) to both assets
+				$majwa = $major->writeAccess('');
+				$minwa = $minor->writeAccess('');
+				if (!($majwa || $minwa)) {
+					return translate('cannot_create_sig_link_no_perm_either', $major->name, $major->id, $minor->name, $minor->id);
+				} else if (!$majwa) {
+					return translate('cannot_create_sig_link_no_perm_major', $major->name, $major->id, $minor->name, $minor->id);
+				} else if (!$minwa) {
+					return translate('cannot_create_sig_link_no_perm_minor', $major->name, $major->id, $minor->name, $minor->id);
+				}
+			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
@@ -5069,11 +5085,25 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
+		// Check permissions if necessary
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
-			// Check if we are allowed to delete this link
-			if (($err_msg = $minor->canDeleteLink($linkid)) !== TRUE) {
-				trigger_localised_error('SYS0302', E_USER_WARNING, $err_msg);
-				return FALSE;
+			if ($link['link_type'] == SQ_LINK_NOTICE) {
+				// to delete a notice link we need effective write access to the major asset
+				if (!$major->writeAccess('links')) {
+					trigger_error('Cannot delete notice link - no write access to major');
+					return FALSE;
+				}
+			} else {
+				// to delete a significant link we need write permission (but not
+				// necessarily effective write access) to both assets
+				if (($err_msg = $minor->canDeleteLink($linkid)) !== TRUE) {
+					trigger_localised_error('SYS0318', E_USER_WARNING, $linkid, $minor->id, $minor->name, $err_msg);
+					return FALSE;
+				}
+				if (($err_msg = $major->canDeleteLink($linkid)) !== TRUE) {
+					trigger_localised_error('SYS0302', E_USER_WARNING, $linkid, $major->id, $major->name, $err_msg);
+					return FALSE;
+				}
 			}
 		}
 

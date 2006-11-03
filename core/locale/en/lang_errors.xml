@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.61 2006/10/18 07:07:06 rong Exp $
+* $Id: lang_errors.xml,v 1.62 2006/11/03 05:04:44 tbarrett Exp $
 *
 */
 
@@ -1338,7 +1338,9 @@ Full Node Contents %3$s</error>
 
 	<error code="SYS0301">Unable to Create link: %s</error>
 
-	<error code="SYS0302">Unable to Delete link: %s</error>
+	<error code="SYS0302">Deletion of link #%1$s was blocked by the major asset ("%3$s" #%2$s): %2$s</error>
+
+	<error code="SYS0318">Deletion of link #%1$s was blocked by the minor asset ("%3$s" #%2$s): %2$s</error>
 
 	<error code="SYS0303">Unable to link: %s</error>
 

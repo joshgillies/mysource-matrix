@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.183 2006/11/02 23:56:08 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.184 2006/11/03 05:04:44 tbarrett Exp $
 *
 */
 
@@ -1276,6 +1276,7 @@
 	<string source="max_idle_time">Max Idle Time</string>
 	<string source="content_type">Content Type</string>
 	<string source="under_construction">Under Construction</string>
+	<string source="permission_denied">Permission Denied</string>
 
 
 	<!-- keyword descriptions -->
@@ -2002,7 +2003,10 @@ Are you sure you want to proceed?</string>
 	<string source="current_site">Current Site</string>
 
 	<!-- Linking errors -->
-	<string source="cannot_create_link_permission_denied">Cannot create link from "%1$s" (# %2$s) to "%3$s" (# %4$s), permission denied (no write access to "%1$s")</string>
+	<string source="cannot_create_notice_link_permission_denied">Cannot create notice link from "%1$s" (# %2$s) to "%3$s" (# %4$s) - No write access to "%1$s")</string>
+	<string source="cannot_create_sig_link_no_perm_either">Cannot create link from "%1$s" (# %2$s) to "%3$s" (# %4$s) - no write permission for either asset</string>
+	<string source="cannot_create_sig_link_no_perm_major">Cannot create link from "%1$s" (# %2$s) to "%3$s" (# %4$s) - no write permission for "%1$s"</string>
+	<string source="cannot_create_sig_link_no_perm_minor">Cannot create link from "%1$s" (# %2$s) to "%3$s" (# %4$s) - no write permission for "%3$s"</string>
 	<string source="cannot_create_link_paths_in_use">Cannot create link from "%1$s" (# %2$s) to "%3$s" (# %4$s), path(s) %5$s already in use by one of the children of "%1$s"</string>
 	<string source="cannot_create_link_exclusive_link">Asset "%1$s" (# %2$s) cannot be linked to "%3$s" (# %4$s), it is exclusively linked to "%5$s" (# %6$s)</string>
 	<string source="database_error">Database Error</string>
@@ -2014,6 +2018,7 @@ Are you sure you want to proceed?</string>
 	<string source="exclusive_links_must_be_significant">In order for a link to be exclusive it must also be a significant link</string>
 	<string source="asset_type_must_be_linktype_exclusively_linked_to_type">Assets of Type "%1$s" must be "%2$s" exclusively linked to a "%3$s"</string>
 	<string source="asset_type_can_have_only_linktypes_links_to_type">"%1$s" Assets can only have %2$s "%3$s" link(s) to a "%4$s"</string>
+	<string source="asset_not_created">Asset not created</string>
 
 	<string source="asset_field_assetid">Asset ID</string>
 	<string source="asset_field_version">Version</string>

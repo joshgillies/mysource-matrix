@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.570 2006/11/01 22:57:20 rong Exp $
+* $Id: asset.inc,v 1.571 2006/11/03 05:04:44 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.570 $
+* @version $Revision: 1.571 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2494,7 +2494,7 @@ class Asset extends MySource_Object
 	*/
 	function canCreateLink(&$minor, $link_type, $exclusive)
 	{
-		if (!$this->id) return 'Asset Not Created';
+		if (!$this->id) return translate('asset_not_created');
 		return $GLOBALS['SQ_SYSTEM']->am->canCreateLink($this, $minor, $link_type, $exclusive);
 
 	}//end canCreateLink()
@@ -2567,12 +2567,12 @@ class Asset extends MySource_Object
 	*/
 	function canDeleteLink($linkid)
 	{
-		if (!$this->id) return 'Asset Not Created';
+		if (!$this->id) return translate('asset_not_created');
 		if (($err_msg = $this->isDeletableLink($linkid)) !== TRUE) {
 			return $err_msg;
 		}
 		if (!$this->writeAccess('links')) {
-			return 'Cannot delete link, permission denied';
+			return translate('permission_denied');
 		}
 		return TRUE;
 
@@ -2591,12 +2591,12 @@ class Asset extends MySource_Object
 	*/
 	function couldDeleteLink($linkid)
 	{
-		if (!$this->id) return 'Asset Not Created';
+		if (!$this->id) return translate('asset_not_created');
 		if (($err_msg = $this->isDeletableLink($linkid)) !== TRUE) {
 			return $err_msg;
 		}
 		if (!$this->writeAccess()) {
-			return 'Cannot delete link, permission denied';
+			return translate('permission_denied');
 		}
 		return TRUE;
 
