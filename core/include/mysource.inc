@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.194 2006/11/02 23:56:08 tbarrett Exp $
+* $Id: mysource.inc,v 1.195 2006/11/03 00:04:48 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.194 $
+* @version $Revision: 1.195 $
 * @package MySource_Matrix
 */
 class MySource
@@ -384,9 +384,9 @@ class MySource
 							<html>
 								<head>
 									<title><?php echo translate('redirecting_you_to', $url); ?></title>
-									<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib');?>/js/general.js"></script>
+									<script type="text/javascript" src="<?php echo sq_web_path('lib');?>/js/general.js"></script>
 								</head>
-								<body onLoad="Javascript: sq_redirect('<?php echo $url; ?>');"></body>
+								<body onload="sq_redirect('<?php echo $url; ?>');"></body>
 							</html>
 							<?php
 							exit(1);
@@ -400,7 +400,7 @@ class MySource
 					// if we can get a site from the url,
 					// try to delegate the 404 to its not found page
 					if (!empty($root_url)) {
-						$site =& $this->am->getAsset($root_url['assetid'], 'site');
+						$site =& $this->am->getAsset($root_url['assetid']);
 						if (!is_null($site)) {
 							$page =& $site->getSpecialPage('not_found');
 							if (!is_null($page)) {
