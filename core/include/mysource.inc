@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.164.2.9 2006/07/17 04:55:02 lwright Exp $
+* $Id: mysource.inc,v 1.164.2.10 2006/11/03 00:09:05 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.164.2.9 $
+* @version $Revision: 1.164.2.10 $
 * @package MySource_Matrix
 */
 class MySource
@@ -375,14 +375,12 @@ class MySource
 
 					// okay, the remap manager could not remap this url, so
 					// check to see if we can find a 404 page from a site matching this url
-
 					$root_url = $this->am->getRootURL($url);
 
 					// if we can get a site from the url,
 					// try to delegate the 404 to its not found page
-
 					if (!empty($root_url)) {
-						$site =& $this->am->getAsset($root_url['assetid'], 'site');
+						$site =& $this->am->getAsset($root_url['assetid']);
 						if (!is_null($site)) {
 							$page =& $site->getSpecialPage('not_found');
 							if (!is_null($page)) {
