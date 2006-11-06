@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.150 2006/10/31 03:39:29 bcaldwell Exp $
+* $Id: backend.inc,v 1.151 2006/11/06 05:19:42 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.150 $
+* @version $Revision: 1.151 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -81,7 +81,6 @@ class Backend extends MySource_Object
 	function paint()
 	{
 		header('Content-Type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
-
 		if (SQ_IN_LIMBO) {
 
 			if (!isset($_REQUEST['limbo_assetid'])) {
@@ -225,6 +224,10 @@ class Backend extends MySource_Object
 				$main_extras = '&assetid='.$url_asset->id.'&sq_from_frontend=1';
 			}
 		}
+		if (isset($_REQUEST['limbo_assetid'])) {
+			$main_extras = '&limbo_assetid='.$_REQUEST['limbo_assetid'].'&sq_from_frontend=1';
+		}
+
 
 		// the URL for the main frame is either a normal load or a redirection from
 		// a non-frameset URL to this frameset
@@ -1060,10 +1063,11 @@ class Backend extends MySource_Object
 		// add an onLoad event that checks if the current window is in the frameset
 		// and redirects the user to the frameset version if they are not
 		if (empty($_REQUEST['ignore_frames'])) {
-			// if hide_frames is set, pass the parameter
+			// if hide_frames and limbo_assetid are set, pass the parameter
 			$hide_frames = (isset($_REQUEST['hide_frames']) && $_REQUEST['hide_frames']) ? 'hide_frames=1&': '';
-
-			$redirect_url = strip_url(current_url()).'/?'.$hide_frames.'sq_redirect_url='.urlencode($_SERVER['REQUEST_URI']);
+			$limbo_assetid = (isset($_REQUEST['limbo_assetid'])) ? 'limbo_assetid='.$_REQUEST['limbo_assetid'].'&': '';
+			$extra = $hide_frames.$limbo_assetid;
+			$redirect_url = strip_url(current_url()).'/?'.$extra.'sq_redirect_url='.urlencode($_SERVER['REQUEST_URI']);
 			$this->out->addOnLoad('if (!parent.frames["sq_header"]) { sq_redirect("'.$redirect_url.'"); }');
 		}
 
