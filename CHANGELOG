@@ -1,5 +1,53 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.8.8
+
+Featured Changes
+-----------------------------------
+
+Role Assignments Screen for LDAP and IPB Users
+
+	The Role Assignments screen, previously only available for normal users, is now available for LDAP and IPB users.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
+* Fixed bug #1749: workflow error can occur when two workflow schemas are applied and the publishers have admin access
+* Fixed bug #1753: Design Area - Specialise Screen
+* Fixed bug #1758: Large tables cause the WYSIWYG editor to hang/freeze
+* Fixed bug #1789: Remapping URLs does not work when moving to trash
+* Fixed bug #1790: Web paths sometimes not updated when moving assets
+* Fixed bug #1795: Backend user can't approve workflow
+* Fixed bug #1802: sq_eff_from and sq_eff_to need indexes on rollback tables
+* Fixed bug #1815: default 'selection' value of an asset attribute is not indexed
+* Fixed bug #1821: alt tag generated automatically when using design for Custom Image
+* Fixed bug #1825: Roles: cloning an asset incorrect cascades permissions
+* Fixed bug #1829: Oracle errors when updating lookups for more than 1000 assets
+* Fixed bug #1844: Problem with read permission denied for public user
+* Fixed bug #1847: errors when requesting an unknown URL under the media, designs or users folders
+
+CMS
+
+* Fixed bug #1739: Content-Type header incorrect on tunnelled Remote Content (Remote Content Page)
+* Fixed bug #1746: Asset Listing with Custom Grouping - No Results (Listing Engine)
+* Fixed bug #1760: Error when cloning under a multiple page (Multiple Page)
+* Fixed bug #1761: Javascript warning: Asset Builder - Delete Dynamic Create Location Set (Asset Builder Page)
+* Fixed bug #1766: Custom form invalid datetime (Custom Form Page)
+* Fixed bug #1784: Javascript email address validation in custom form returning false negatives (Custom Form Page)
+* Fixed bug #1786: cannot delete questions from custom form sections from the asset map (Form Section)
+* Fixed bug #1787: Remote content won't rewrite image urls in list-style-image CSS declarations (Remote Content Page)
+* Fixed bug #1813: Asset Listing Page loses TYPE_1 & TYPE_2 links with safe edit (Asset Listing Page)
+* Fixed bug #1841: File names in custom form submission log (Custom Form Page)
+
+Search
+
+* Fixed bug #1797: Date fields not showing for a search in search form (Search Page)
+
+
+
 VERSION 3.8.7
 
 Featured Changes
