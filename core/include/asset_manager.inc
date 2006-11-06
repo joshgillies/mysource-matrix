@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.491.2.14 2006/10/30 22:23:02 lwright Exp $
+* $Id: asset_manager.inc,v 1.491.2.15 2006/11/06 02:30:05 mbrydon Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.491.2.14 $
+* @version $Revision: 1.491.2.15 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2808,10 +2808,10 @@ class Asset_Manager extends MySource_Object
 	* Also returns basic information about the last link (linkid and link type)
 	* linkid => Array ('linkid' => linkid, 'link_type' => link_type, 'lineage' => Array(...))
 	*
-	* @param object					$assetid		the asset whose links lineages we are getting
-	* @param int					$result_limit	limits the number of results returned
-	* @param string					$from_treeid	Uses this treeid as the starting (root) node
-	* @param mixed string|array		$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
+	* @param object	$assetid		the asset whose links lineages we are getting
+	* @param int	$result_limit	limits the number of results returned
+	* @param string	$from_treeid	Uses this treeid as the starting (root) node
+	* @param mixed	$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
 	*
 	* @return array
 	* @access public
@@ -6282,8 +6282,11 @@ class Asset_Manager extends MySource_Object
 		// for name and short_name attribute
 		foreach ($result as $key => $entry) {
 			$asset =& $this->getAsset($entry['assetid']);
+
 			if ($asset->useSystemVersion()) {
 				$asset->_loadDataPaths();
+				$original_asset = $asset;
+
 				if (!$asset->loadSystemVersion()) {
 					trigger_localised_error('SYS0088', E_USER_WARNING, $asset->id);
 					$this->forgetAsset($asset);
@@ -6292,6 +6295,9 @@ class Asset_Manager extends MySource_Object
 
 				$result[$key]['name']			= $asset->name;
 				$result[$key]['short_name']	= $asset->short_name;
+
+				// Restore the original state of the asset - it should be left untouched as we were only after keywords
+				$asset = $original_asset;
 			}
 			$this->forgetAsset($asset);
 		}
