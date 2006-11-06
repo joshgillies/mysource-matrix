@@ -100,6 +100,11 @@ Send Email Trigger Action Updated
     The Send Email Trigger Action now allows you to select user groups to send emails to, in addition to roles.
 
 
+Orphaned HIPO Jobs Interface
+
+    This addition to the HIPO Herder allows the deletion of HIPO jobs that have been orphaned from a parent job.
+
+
 Additional Changes and Bug Fixes
 -----------------------------------
 
