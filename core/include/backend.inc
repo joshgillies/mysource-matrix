@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.140.2.7 2006/10/31 03:52:19 bcaldwell Exp $
+* $Id: backend.inc,v 1.140.2.8 2006/11/06 05:19:04 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140.2.7 $
+* @version $Revision: 1.140.2.8 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -223,6 +223,9 @@ class Backend extends MySource_Object
 			if (!is_null($url_asset)) {
 				$main_extras = '&assetid='.$url_asset->id.'&sq_from_frontend=1';
 			}
+		}
+		if (isset($_REQUEST['limbo_assetid'])) {
+			$main_extras = '&limbo_assetid='.$_REQUEST['limbo_assetid'].'&sq_from_frontend=1';
 		}
 
 		// the URL for the main frame is either a normal load or a redirection from
@@ -1050,7 +1053,9 @@ class Backend extends MySource_Object
 		// add an onLoad event that checks if the current window is in the frameset
 		// and redirects the user to the frameset version if they are not
 		if (empty($_REQUEST['ignore_frames'])) {
-			$redirect_url = strip_url(current_url()).'/?sq_redirect_url='.urlencode($_SERVER['REQUEST_URI']);
+			// if limbo_assetid is set, pass the parameter
+			$limbo_assetid = (isset($_REQUEST['limbo_assetid'])) ? 'limbo_assetid='.$_REQUEST['limbo_assetid'].'&': '';
+			$redirect_url = strip_url(current_url()).'/?'.$limbo_assetid.'sq_redirect_url='.urlencode($_SERVER['REQUEST_URI']);
 			$this->out->addOnLoad('if (!parent.frames["sq_header"]) { sq_redirect("'.$redirect_url.'"); }');
 		}
 
