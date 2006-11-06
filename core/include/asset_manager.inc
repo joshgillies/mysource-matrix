@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.524 2006/11/03 05:04:44 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.525 2006/11/06 02:42:38 mbrydon Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.524 $
+* @version $Revision: 1.525 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2828,10 +2828,10 @@ class Asset_Manager extends MySource_Object
 	* Also returns basic information about the last link (linkid and link type)
 	* linkid => Array ('linkid' => linkid, 'link_type' => link_type, 'lineage' => Array(...))
 	*
-	* @param string				$assetid		ID of the asset whose linages we want
-	* @param int				$result_limit	limits the number of results returned
-	* @param string|array		$from_treeid	Uses this/these treeid(s) as the root node
-	* @param string|array		$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
+	* @param string			$assetid		ID of the asset whose linages we want
+	* @param int			$result_limit	limits the number of results returned
+	* @param string|array	$from_treeid	Uses this/these treeid(s) as the root node
+	* @param string|array	$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
 	*
 	* @return array
 	* @access public
@@ -3313,7 +3313,7 @@ class Asset_Manager extends MySource_Object
 	*															1	=> FALSE,
 	*														   ),
 	*										)
-	* @param boolean 	$include_dependants	a boolean
+	* @param boolean	$include_dependants	a boolean
 	*
 	* @return array
 	* @access public
@@ -6385,6 +6385,7 @@ class Asset_Manager extends MySource_Object
 			$asset =& $this->getAsset($entry['assetid']);
 			if ($asset->useSystemVersion()) {
 				$asset->_loadDataPaths();
+				$original_asset = $asset;
 				if (!$asset->loadSystemVersion()) {
 					trigger_localised_error('SYS0088', E_USER_WARNING, $asset->id);
 					$this->forgetAsset($asset);
@@ -6393,6 +6394,9 @@ class Asset_Manager extends MySource_Object
 
 				$result[$key]['name']			= $asset->name;
 				$result[$key]['short_name']	= $asset->short_name;
+
+				// Restore the original state of the asset - it should be left untouched as we were only after keywords
+				$asset = $original_asset;
 			}
 			$this->forgetAsset($asset);
 		}
