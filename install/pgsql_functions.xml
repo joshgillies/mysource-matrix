@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.10.2.4 2006/05/31 03:35:52 mmcintyre Exp $
+* $Id: pgsql_functions.xml,v 1.10.2.5 2006/11/06 00:43:02 lwright Exp $
 *
 */
 -->
@@ -171,7 +171,7 @@
                 END IF;
 
                 sql := ''SELECT treeid FROM '' || table_prefix || ''ast_lnk l INNER JOIN '' || table_prefix || ''ast_lnk_tree t ON l.linkid = t.linkid
-                    WHERE l.minorid = '' || minorid;
+                    WHERE l.minorid = '''''' || minorid || '''''''';
 
                 IF rb_date IS NOT NULL THEN
                     sql := sql || '' AND l.sq_eff_from <= '''''' || rb_date ||
