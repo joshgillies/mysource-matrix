@@ -63,6 +63,11 @@ Rolling Calendar Page Improvements
     The time unit used for selecting the rolling period can now be selected in units of weeks or months, instead of just days. Events are grouped by the time unit specified. New time unit "Start Date" and "End Date"
 
 
+Orphaned HIPO Jobs Interface
+
+    This addition to the HIPO Herder allows the deletion of HIPO jobs that have been orphaned from a parent job.
+
+
 Additional Changes and Bug Fixes
 -----------------------------------
 
