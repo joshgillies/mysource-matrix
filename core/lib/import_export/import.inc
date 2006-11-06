@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.4 2005/11/07 04:54:13 skim Exp $
+* $Id: import.inc,v 1.4.2.1 2006/11/06 02:58:06 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -215,6 +215,9 @@ function get_import_action_input_value($action, $attribute, $outputs=Array())
 	} else {
 		$value = $action[$attribute][0];
 	}
+
+	// if the value is an array, just return it
+	if (is_array($value)) return $value;
 
 	$matches = Array();
 	preg_match_all('|\[\[output://([^\]]+)\]\]|', $value, $matches);
