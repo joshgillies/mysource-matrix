@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.571 2006/11/03 05:04:44 tbarrett Exp $
+* $Id: asset.inc,v 1.572 2006/11/08 22:15:12 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.571 $
+* @version $Revision: 1.572 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2556,9 +2556,9 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Determine if we can delete the passed link right now
+	* Determine if we can delete the passed link 
 	*
-	* This function returns TRUE or error message
+	* This function ignores locks, and returns TRUE or error message
 	*
 	* @param int	$linkid	the link id of the link to remove
 	*
@@ -2571,36 +2571,13 @@ class Asset extends MySource_Object
 		if (($err_msg = $this->isDeletableLink($linkid)) !== TRUE) {
 			return $err_msg;
 		}
-		if (!$this->writeAccess('links')) {
-			return translate('permission_denied');
-		}
-		return TRUE;
-
-	}//end canDeleteLink()
-
-
-	/**
-	* Determine if we COULD delete the passed link IF we acquired the lock on this asset
-	*
-	* This function return TRUE or error message
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return mixed boolean|string
-	* @access public
-	*/
-	function couldDeleteLink($linkid)
-	{
-		if (!$this->id) return translate('asset_not_created');
-		if (($err_msg = $this->isDeletableLink($linkid)) !== TRUE) {
-			return $err_msg;
-		}
+		// we only need permissions, not effective access, to delete a significant link
 		if (!$this->writeAccess()) {
 			return translate('permission_denied');
 		}
 		return TRUE;
 
-	}//end couldDeleteLink()
+	}//end canDeleteLink()
 
 
 	/**
@@ -3672,17 +3649,10 @@ class Asset extends MySource_Object
 			// If we are purging trash, don't bother about statuses
 			// Links are not part of workflow either, so don't bother checking
 			// on statuses if we are checking links access
-			if (!($GLOBALS['SQ_PURGING_TRASH'] || ($lock_type == 'links'))) {
-				// if we are in a state of total approval no editing allowed
-				if ($this->status & SQ_SC_STATUS_ALL_APPROVED) {
-					return FALSE;
-				}
-
-				// if the asset is archived no editing allowed
-				if ($this->status & SQ_STATUS_ARCHIVED) {
-					return FALSE;
-				}
+			if (!($GLOBALS['SQ_PURGING_TRASH'] || $lock_type == 'links')) {
+				if (!$this->accessEffective()) return FALSE;
 			}
+
 
 			// otherwise they can edit if they have permission access
 			return $this->_checkPermissionAccess($perm, Array(), $only_workflow);
@@ -3690,6 +3660,32 @@ class Asset extends MySource_Object
 		}//end else
 
 	}//end checkAccess()
+
+
+	/**
+	* Returns true if permissions on this asset equal effective access
+	*
+	* NB this function doesn't actually check permissions, but indicates
+	* whether having write or admin permissions actually allows you to edit
+	* the asset (which it doesn't if the status is all-approved or archived)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function accessEffective()
+	{
+		// if we are in a state of total approval no editing allowed
+		if ($this->status & SQ_SC_STATUS_ALL_APPROVED) {
+			return FALSE;
+		}
+
+		// if the asset is archived no editing allowed
+		if ($this->status & SQ_STATUS_ARCHIVED) {
+			return FALSE;
+		}
+		return TRUE;
+
+	}//end accessEffective()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.525 2006/11/06 02:42:38 mbrydon Exp $
+* $Id: asset_manager.inc,v 1.526 2006/11/08 22:15:12 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.525 $
+* @version $Revision: 1.526 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5089,8 +5089,8 @@ class Asset_Manager extends MySource_Object
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 			if ($link['link_type'] == SQ_LINK_NOTICE) {
 				// to delete a notice link we need effective write access to the major asset
-				if (!$major->writeAccess('links')) {
-					trigger_error('Cannot delete notice link - no write access to major');
+				if (!($major->writeAccess() && $major->accessEffective())) {
+					trigger_localised_error('SYS0319', E_USER_WARNING, $linkid, $major->id, $major->name);
 					return FALSE;
 				}
 			} else {
@@ -5381,7 +5381,7 @@ class Asset_Manager extends MySource_Object
 		$parent_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 		foreach ($parent_links as $id => $link_details) {
 			$asset =& $this->getAsset($link_details['majorid']);
-			if (TRUE !== ($msg = $asset->couldDeleteLink($link_details['linkid']))) {
+			if (TRUE !== ($msg = $asset->canDeleteLink($link_details['linkid']))) {
 				$msgs[$link_details['linkid']] = $msg;
 			}
 		}
