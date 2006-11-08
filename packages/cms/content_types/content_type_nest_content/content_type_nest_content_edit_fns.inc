@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.38.2.3 2006/10/16 02:19:35 tbarrett Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.38.2.4 2006/11/08 23:29:04 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38.2.3 $
+* @version $Revision: 1.38.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -105,7 +105,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paint(&$asset, $editing=FALSE, $generating=FALSE)
+	function paint(&$asset, $prefix, $editing=FALSE, $generating=FALSE)
 	{
 		// get the asset - we can't pass the type in because it could be anything
 		// we also mute errors because we check later on
