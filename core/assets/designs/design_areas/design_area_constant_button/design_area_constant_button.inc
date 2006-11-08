@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button.inc,v 1.22 2006/02/07 01:06:57 dmckee Exp $
+* $Id: design_area_constant_button.inc,v 1.23 2006/11/08 03:27:23 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,7 @@ class Design_Area_Constant_Button extends Design_Area
 		// if there is an assetid then do some prep work before printing the area
 		if (!empty($assetid)) {
 			echo '<', '?php
-			$constant_btn_'.$this->attr('id_name').'_url = $am->getAssetURL('.$assetid.').((SQ_LIMBO_EDITING) ? \'/\'.SQ_CONF_LIMBO_SUFFIX : \'\');
+			$constant_btn_'.$this->attr('id_name').'_url = $am->getAssetURL('.$assetid.').((SQ_LIMBO_EDITING) ? \'/\'.SQ_CONF_LIMBO_SUFFIX.\'?SQ_BACKEND_PAGE=main\' : \'\');
 			?', '>';
 		}// end if
 

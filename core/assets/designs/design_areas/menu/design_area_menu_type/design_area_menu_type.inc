@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.88 2006/09/26 05:00:11 amiller Exp $
+* $Id: design_area_menu_type.inc,v 1.89 2006/11/08 03:27:23 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -565,7 +565,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 				case 'asset_link' :
 					if ($id_name) {
-						echo '<', '?php echo $'.$id_name.'_urls[$'.$id_name.'_row[\'assetid\']].((SQ_LIMBO_EDITING) ? \'/\'.SQ_CONF_LIMBO_SUFFIX : \'\'); ?', '>';
+						echo '<', '?php echo $'.$id_name.'_urls[$'.$id_name.'_row[\'assetid\']].((SQ_LIMBO_EDITING) ? \'/\'.SQ_CONF_LIMBO_SUFFIX.\'?SQ_BACKEND_PAGE=main\' : \'\'); ?', '>';
 					}
 				break;
 
