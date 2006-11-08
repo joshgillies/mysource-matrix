@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.39 2006/05/15 04:51:26 sdanis Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.40 2006/11/08 02:38:29 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -120,6 +120,8 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 				</td>
 			</tr>
 		</table>
+
+		<input type="hidden" name="<?php echo $prefix ?>_start_end_chooser_printed" id="<?php echo $prefix ?>_start_end_chooser_printed" />
 		<?php
 		return TRUE;
 
@@ -195,11 +197,16 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processStartEndChooser(&$asset, &$o, $prefix)
 	{
-		$values = $this->getStartEndChooserResult($prefix);
-		if (FALSE === $values) return FALSE;
-		$res = TRUE;
-		$res &= $asset->setAttrValue('start_date', $values['start']);
-		$res &= $asset->setAttrValue('end_date', $values['end']);
+		if (isset($_REQUEST[$prefix.'_start_end_chooser_printed'])) {
+			$values = $this->getStartEndChooserResult($prefix);
+			if (FALSE === $values) return FALSE;
+			$res = TRUE;
+			$res &= $asset->setAttrValue('start_date', $values['start']);
+			$res &= $asset->setAttrValue('end_date', $values['end']);
+		} else {
+			$res = FALSE;
+		}
+
 		return $res;
 
 	}//end processStartEndChooser()
