@@ -7,7 +7,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 
@@ -53,7 +53,7 @@ foreach ($import_actions['actions'][0]['action'] as $action) {
 	printActionId($action['action_id'][0]);
 	if (!execute_import_action($action, $import_action_outputs)) {
 		printStatus('--');
-		//trigger_error('Action ID, "'.$action_id.'" could not be executed', E_USER_ERROR);
+		trigger_error('Action ID, "'.$action_id.'" could not be executed', E_USER_WARNING);
 	} else {
 		printStatus('OK');
 	}
@@ -62,7 +62,6 @@ foreach ($import_actions['actions'][0]['action'] as $action) {
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
 
 
 /**
