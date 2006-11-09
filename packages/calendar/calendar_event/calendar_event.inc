@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.70 2006/09/14 05:07:50 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.71 2006/11/09 01:38:33 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -637,15 +637,15 @@ class Calendar_Event extends Asset
 						return '';
 					}
 				}
-				if (!isset($_REQUEST['SQ_CALENDAR_DATE'])) {
+				if (!isset($_REQUEST['SQ_CALENDAR_NEW_DATE'])) {
 					trigger_localised_error('CAL0019', E_USER_WARNING);
 					return '';
 				}
 				$duration = $this->getDuration();
-				if (!isset($_REQUEST['SQ_CALENDAR_TIME']) || empty($_REQUEST['SQ_CALENDAR_TIME'])) {
-					$_REQUEST['SQ_CALENDAR_TIME'] = '--:--';
+				if (!isset($_REQUEST['SQ_CALENDAR_NEW_TIME']) || empty($_REQUEST['SQ_CALENDAR_NEW_TIME'])) {
+					$_REQUEST['SQ_CALENDAR_NEW_TIME'] = '--:--';
 				}
-				$this->setAttrValue('start_date', $_REQUEST['SQ_CALENDAR_DATE'].' '.$_REQUEST['SQ_CALENDAR_TIME'].':--');
+				$this->setAttrValue('start_date', $_REQUEST['SQ_CALENDAR_NEW_DATE'].' '.$_REQUEST['SQ_CALENDAR_NEW_TIME'].':--');
 				$current_end_date = $this->getEndDate();
 				if ($current_end_date) {
 					$new_end_date_ts = iso8601_ts($this->attr('start_date')) + $duration;
