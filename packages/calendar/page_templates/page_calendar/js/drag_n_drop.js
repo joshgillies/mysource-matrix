@@ -133,7 +133,14 @@ function moveElt(e)
 	if (mouseOffset == null) {
 		// we are just starting to drag, so figure out the offset
 		eltPos = getEltPosition(movingElt);
-		mouseOffset = {x:(mousePosition.x - eltPos.x + parseInt(movingElt.style.marginLeft)), y:(mousePosition.y - eltPos.y + parseInt(movingElt.style.marginTop))};
+		mouseOffset = {
+						x:(parseInt(mousePosition.x) - parseInt(eltPos.x)), 
+						y:(parseInt(mousePosition.y) - parseInt(eltPos.y))
+					  };
+		var ml = parseInt(movingElt.style.marginLeft)
+		if (!isNaN(ml)) mouseOffset.x += ml;
+		var mt = parseInt(movingElt.style.marginTop)
+		if (!isNaN(mt)) mouseOffset.y += mt;
 	} else {
 		movingElt.style.left = (mousePosition.x - mouseOffset.x) + "px";
 		movingElt.style.top = (mousePosition.y - mouseOffset.y) + "px";
@@ -256,12 +263,12 @@ function confirmDrag(movingElt, newCell)
 {
 	var source_comps = originalParent.id.split('_');
 	var target_comps = newCell.id.split('_');
-	old_date = source_comps[0];
-	old_time = source_comps[1];
-	new_date = target_comps[0];
-	new_time = target_comps[1];
-	old_loc = (source_comps.length == 3) ?  source_comps[2] : '';
-	new_loc = (target_comps.length == 3) ?  target_comps[2] : '';
+	old_date = source_comps[1];
+	old_time = source_comps[2];
+	new_date = target_comps[1];
+	new_time = target_comps[2];
+	old_loc = (source_comps.length == 4) ?  source_comps[3] : '';
+	new_loc = (target_comps.length == 4) ?  target_comps[3] : '';
 
 	// can't drag in or out of the 'other' column
 	if (Boolean(old_time == 'allday') != Boolean(new_time == 'allday')) {
@@ -303,15 +310,15 @@ function onDragFinish(movingElt, newCell)
 {
 	var source_comps = originalParent.id.split('_');
 	var target_comps = newCell.id.split('_');
-	if ((target_comps.length > 2) && (source_comps[2] != target_comps[2])) {
-		document.getElementById('SQ_CALENDAR_OLD_LOC').value = source_comps[2];
-		document.getElementById('SQ_CALENDAR_NEW_LOC').value = target_comps[2];
+	if ((target_comps.length > 3) && (source_comps[3] != target_comps[3])) {
+		document.getElementById('SQ_CALENDAR_OLD_LOC').value = source_comps[3];
+		document.getElementById('SQ_CALENDAR_NEW_LOC').value = target_comps[3];
 	}
-	document.getElementById('SQ_CALENDAR_DATE').value = target_comps[0];
-	if (target_comps[1] != 'allday') {
-		document.getElementById('SQ_CALENDAR_TIME').value = target_comps[1];
+	document.getElementById('SQ_CALENDAR_NEW_DATE').value = target_comps[1];
+	if (target_comps[2] != 'allday') {
+		document.getElementById('SQ_CALENDAR_NEW_TIME').value = target_comps[2];
 	}
-	document.getElementById('SQ_CALENDAR_EVENT_ID').value = movingElt.id;
+	document.getElementById('SQ_CALENDAR_EVENT_ID').value = movingElt.id.split('_')[1];
 	document.getElementById('dragForm').submit();
 	formSubmitted = true;
 

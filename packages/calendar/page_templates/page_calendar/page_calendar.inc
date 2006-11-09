@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.188 2006/09/18 07:34:51 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.189 2006/11/09 01:36:33 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.188 $
+* @version $Revision: 1.189 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -193,13 +193,62 @@ class Page_Calendar extends Page
 
 
 	/**
+	* Print this asset on the frontend
+	*
+	* @return void
+	* @access public
+	*/
+	function printFrontend()
+	{
+		$this->_tmp['valid_request'] = $this->_validateRequest();
+		return parent::printFrontend();
+
+	}//end printFrontend()
+
+
+	/**
 	* Called by the design to print the head of this asset
 	*
 	* @return boolean
 	* @access public
 	*/
 	function printHead()
-	{
+	{	
+		$view = $_REQUEST['SQ_CALENDAR_VIEW'];
+		$format = array_get_index($this->attr('enabled_views'), $view, '');
+		if (in_array($view, Array('day', 'week')) &&  ($format == 'calendar_format')) {
+			$partition_time = intval($this->attr('day_partition_time'));
+			$partition_height = $this->attr('day_partition_height');
+			$root_nodes = $this->attr('root_nodes');
+			$width = ($view == 'day') ? $this->attr('day_column_width') : $this->attr('table_column_width');
+			$click_to_add_ab = $this->attr('asset_builder_page');
+			?>
+			<style type="text/css">
+				table#day tr td.sq-time-cell, table#week tr td.sq-time-cell {
+					width: <?php echo $width; ?>px;
+					height: <?php echo $partition_height; ?>px;
+					padding: 0px 1px;
+					border-width: 1px;
+				}
+				/* CSS Hack to cope with the unusual situation of strict-mode IE being better
+				   than strict-mode Firefox.  The following rule will be picked up only by firefox
+				   and compensates for its td-height bug. */
+				html>body table#day tr td.sq-time-cell, html>body table#week tr td.sq-time-cell {
+					height: <?php echo $partition_height+1; ?>px;
+				}
+				<?php
+				if ($click_to_add_ab) {
+					?>
+					table#day tr td.sq-time-cell, table#week tr td.sq-time-cell, td.sq-allday-cell {
+						cursor: pointer;
+						cursor: hand;
+					}
+					<?php
+				}
+				?>
+			</style>
+			<?php
+		}
 		?>
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('data'); ?>/asset_types/page_calendar/css/calendar_default.css" />
 		<?php
@@ -225,7 +274,8 @@ class Page_Calendar extends Page
 			echo $res;
 		}
 		if (!$res) {
-			if (!$this->_validateRequest()) return FALSE;
+
+			if (!$this->_tmp['valid_request']) return;
 
 			// Try to get from cache
 			$cache_key = $this->_getCacheKey();
@@ -333,7 +383,7 @@ class Page_Calendar extends Page
 		$event_id = FALSE;
 		if (($cal_view == 'event') || ($cal_view == 'edit')) {
 			if (!isset($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
-				trigger_localised_error('CAL0023', E_USER_WARNING, ucfirst($_cal_view));
+				trigger_localised_error('CAL0023', E_USER_WARNING, ucfirst($cal_view));
 				return FALSE;
 			}
 			if (!assert_valid_assetid($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
@@ -401,8 +451,8 @@ class Page_Calendar extends Page
 		$prev_date = date($date_format, strtotime('-1 '.$cal_view, strtotime(date($date_format, strtotime($cal_date)))));
 		$next_date = date($date_format, strtotime('+1 '.$cal_view, strtotime(date($date_format, strtotime($cal_date)))));
 
-		$replacements['prev_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$prev_date.'">'.htmlentities(str_replace('%v%', ucfirst($cal_view), $this->attr('prev_link_text'))).'</a>';
-		$replacements['next_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$next_date.'">'.htmlentities(str_replace('%v%', ucfirst($cal_view), $this->attr('next_link_text'))).'</a>';
+		$replacements['prev_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$prev_date.'">'.(str_replace('%v%', ucfirst($cal_view), htmlentities($this->attr('prev_link_text')))).'</a>';
+		$replacements['next_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$next_date.'">'.(str_replace('%v%', ucfirst($cal_view), htmlentities($this->attr('next_link_text')))).'</a>';
 		$enabled_views = $this->attr('enabled_views');
 		$replacements['today_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink calendarTodayLink" href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'">'.htmlentities($this->attr('today_link_text')).'</a>';
 
@@ -1265,30 +1315,7 @@ class Page_Calendar extends Page
 		$mousedown_code = $dragging_enabled ? 'onmousedown="'.($popups_enabled ? 'stopTrailingPopup(); ' : '').'startDragging(this)"' : '';
 		$mouseup_code = $dragging_enabled ? 'onmouseup="stopDragging(); formSubmitted=true; setTimeout(\'formSubmitted=false\', 100)"' : '';
 		?>
-		<style>
-			table#day tr td.sq-time-cell, table#week tr td.sq-time-cell {
-				width: <?php echo $width; ?>px;
-				height: <?php echo $partition_height; ?>px;
-				padding: 0px 1px;
-				border-width: 1px;
-			}
-			/* CSS Hack to cope with the unusual situation of strict-mode IE being better
-			   than strict-mode Firefox.  The following rule will be picked up only by firefox
-			   and compensates for its td-height bug. */
-			html>body table#day tr td.sq-time-cell, html>body table#week tr td.sq-time-cell {
-				height: <?php echo $partition_height+1; ?>px;
-			}
-			<?php
-			if ($click_to_add_ab) {
-				?>
-				table#day tr td.sq-time-cell, table#week tr td.sq-time-cell, td.sq-allday-cell {
-					cursor: pointer;
-					cursor: hand;
-				}
-				<?php
-			}
-			?>
-		</style>
+
 		<table id="<?php echo $view; ?>" border="0" cellspacing="0" cellpadding="0" summary="<?php echo translate('cal_page_events_in_this_'.$view); ?>" style="width: <?php echo ($width * count($events)) + 65; ?>px">
 		<?php
 
@@ -1334,15 +1361,15 @@ class Page_Calendar extends Page
 			}
 			$cell_id = $event_link_date.'_allday_'.($columns_are_assets ? $id : '');
 			?>
-			<td class="sq-allday-cell<?php echo $today_class; ?>" id="<?php echo $cell_id; ?>"<?php echo $click_to_add_code; ?>>
+			<td class="sq-allday-cell<?php echo $today_class; ?>" id="cell_<?php echo $cell_id; ?>"<?php echo $click_to_add_code; ?>>
 				<?php
 				if (empty($col_events['all_day'])) echo '&nbsp;';
 				foreach ($col_events['all_day'] as $assetid => $event) {
 					$assetid = strtok($assetid,':');
-					$event_href = $this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'&amp;SQ_CALENDAR_DATE='.$event_link_date;
+					$event_href = $this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID='.$assetid.'&SQ_CALENDAR_DATE='.$event_link_date;
 					$event_classes = $this->_getClasses($event['treeid']);
 					$event_classes[] = 'event';
-					$onclick_code = $event_href ? ' onclick="sq_cal_redirect(\''.$event_href.'\')"' : '';
+					$onclick_code = $event_href ? ' onclick="sq_cal_redirect(this)"' : '';
 					$cursor_code = $event_href ? ' cursor: pointer; cursor: hand' : '';
 					$current_mouse_up_down_code = $mousedown_code.' '.$mouseup_code;
 					if (!empty($mousedown_code) && (($event['type_code'] == 'calendar_event_recurring') || (isset($event['expanded'])))) {
@@ -1357,16 +1384,20 @@ class Page_Calendar extends Page
 						}
 						$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$popup_div_id.'_description\')" onmouseout="stopTrailingPopup()"';
 					}
-					echo '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' style="width: '.($width-2).'px;'.$cursor_code.'" class="'.implode(' ', $event_classes).'"'.$onclick_code.'>';
+					echo '<div id="event_'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' style="width: '.($width-2).'px;'.$cursor_code.'" class="'.implode(' ', $event_classes).'"'.$onclick_code.'>';
 
 					// if drag-n-drop is enabled, click-through-to-event-view is supported
 					// via javascript only, because otherwise the link elements cause trouble
 					// with the dragging
 					$label = $this->_getEventLabel($view, $event);
 					if ($event_href && empty($mousedown_code)) {
-						$label = '<a class="'.implode(' ', $event_classes).'" href="'.$event_href.'">'.$label.'</a>';
+						$label = '<a class="'.implode(' ', $event_classes).'" href="'.htmlentities($event_href).'">'.$label.'</a>';
 					} else {
+						// print a hidden link so we can store the HREF
+						// in the right attr and have the browser
+						// interpret the entities
 						$label = '<span class="'.implode(' ', $event_classes).'">'.$label.'</span>';
+						$label .= '<a style="display:none" href="'.htmlentities($event_href).'"></a>';
 					}
 					echo $label;
 					echo '</div>';
@@ -1398,7 +1429,7 @@ class Page_Calendar extends Page
 				}
 				$cell_id = $event_link_date.'_'.$time_key.'_'.($columns_are_assets ? $id : '');
 				?>
-				<td id="<?php echo $cell_id; ?>" class="sq-time-cell<?php echo $today_class; ?>" <?php echo $click_to_add_code; ?>>
+				<td id="cell_<?php echo $cell_id; ?>" class="sq-time-cell<?php echo $today_class; ?>" <?php echo $click_to_add_code; ?>>
 					<?php
 					$denominator = max($col_events['_overlap_'], $this->attr('column_capacity'));
 					echo $this->_getTimedTableCellContents($view, $col_events[$time_key], $event_link_date, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width / $denominator, $layout_maps[$id], $mousedown_code, $mouseup_code);
@@ -1495,7 +1526,7 @@ class Page_Calendar extends Page
 			$event_classes[] = 'event';
 
 			// mouse action handlers
-			$onclick_code = $event_href ? 'onclick="sq_cal_redirect(\''.$event_href.'\')"' : '';
+			$onclick_code = $event_href ? 'onclick="sq_cal_redirect(this)"' : '';
 			$current_mouse_up_down_code = $mousedown_code.' '.$mouseup_code;
 			if (!empty($mousedown_code) && (($details['type_code'] == 'calendar_event_recurring') || (isset($details['expanded'])))) {
 				$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('cal_page_recurring_cannot_drag').'\')" onmouseup="statusBarMsg(\'\');"';
@@ -1515,7 +1546,7 @@ class Page_Calendar extends Page
 			$cursor_code = $event_href ? 'cursor: pointer; cursor: hand;' : '';
 
 			// showtime!
-			$res .= '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' class="'.implode(' ', $event_classes).' event" style="float: left; position: absolute; width: '.($event_width-3).'px; margin-left: '.$event_left_margin.'px; margin-top: '.$event_top_margin.'px; height: '.$event_height.'px; border-width: 1px; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'>';
+			$res .= '<div id="event_'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' class="'.implode(' ', $event_classes).' event" style="float: left; position: absolute; width: '.($event_width-3).'px; margin-left: '.$event_left_margin.'px; margin-top: '.$event_top_margin.'px; height: '.$event_height.'px; border-width: 1px; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'>';
 			$res .= '<div class="eventText" style="z-index: 30; position: absolute; width: '.($event_width-4).'px; border: none;  background-color: transparent">';
 
 			// if drag-n-drop is enabled, click-through-to-event-view is supported
@@ -1523,9 +1554,12 @@ class Page_Calendar extends Page
 			// with the dragging
 			$label = $this->_getEventLabel($view, $details);
 			if ($event_href && empty($mousedown_code)) {
-				$label = '<a class="'.implode(' ', $event_classes).'" href="'.$event_href.'">'.$label.'</a>';
+				$label = '<a class="'.implode(' ', $event_classes).'" href="'.htmlentities($event_href).'">'.$label.'</a>';
 			} else {
 				$label = '<span class="'.implode(' ', $event_classes).'">'.$label.'</span>';
+				// add a hidden link to store the HREF so that the browser
+				// decodes the entities within it
+				$label .= '<a style="display:none" href="'.htmlentities($event_href).'"></a>';
 			}
 			$res .= $label;
 
@@ -1609,10 +1643,13 @@ class Page_Calendar extends Page
 				 formSubmitted = true;
 				 linkChildren = elt.getElementsByTagName("A");
 				 if (linkChildren.length > 0) {
-					 document.location = linkChildren.item(0).href;
+					linkChildren.item(0).click();
 				 }
 			}
 			function sq_cal_redirect(url) {
+				if (url.getElementsByTagName) {
+					url = url.getElementsByTagName("A")[0].href;
+				}
 				if ((typeof moved == "undefined") || !moved) {
 					document.location.href = url;
 					formSubmitted = true;
@@ -1694,12 +1731,13 @@ class Page_Calendar extends Page
 					document.onselectstart=new Function ("return false")
 			//]]> -->
 			</script>
-			<form method="GET" id="dragForm" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+			<form method="get" id="dragForm" action="<?php echo $_SERVER['PHP_SELF']; ?>">
 				<input type="hidden" name="SQ_CALENDAR_NEW_LOC" id="SQ_CALENDAR_NEW_LOC" />
 				<input type="hidden" name="SQ_CALENDAR_OLD_LOC" id="SQ_CALENDAR_OLD_LOC" />
 				<input type="hidden" name="SQ_CALENDAR_EVENT_ID" id="SQ_CALENDAR_EVENT_ID" />
-				<input type="hidden" name="SQ_CALENDAR_DATE" id="SQ_CALENDAR_DATE" />
-				<input type="hidden" name="SQ_CALENDAR_TIME" id="SQ_CALENDAR_TIME" />
+				<input type="hidden" name="SQ_CALENDAR_DATE" value="<?php echo $_REQUEST['SQ_CALENDAR_DATE']; ?>" />
+				<input type="hidden" name="SQ_CALENDAR_NEW_DATE" id="SQ_CALENDAR_NEW_DATE" />
+				<input type="hidden" name="SQ_CALENDAR_NEW_TIME" id="SQ_CALENDAR_NEW_TIME" />
 				<input type="hidden" name="SQ_CALENDAR_VIEW" value="<?php echo array_get_index($_REQUEST, 'SQ_CALENDAR_VIEW', ''); ?>" />
 				<input type="hidden" name="SQ_CALENDAR_EVENT_ACTION" id="SQ_CALENDAR_EVENT_ACTION" value="move" />
 			</form>
@@ -1926,6 +1964,7 @@ class Page_Calendar extends Page
 
 		// loop each event
 		foreach ($events as $assetid => $event) {
+			$event['assetid'] = $assetid;
 			$type_code = $event['type_code'];
 			$assetid = strtok($assetid, ':');
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2006/06/16 06:02:35 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.6 2006/11/09 01:36:33 tbarrett Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -46,9 +46,9 @@
 	<string source="cal_page_update_event">Update Event</string>
 	<string source="cal_page_events_in_this_week">Events this week</string>
 	<string source="cal_page_events_in_this_day">Events today</string>
-	<string source="cal_page_recurring_cannot_drag">Recurring, multi-day and trimmed events cannot be dragged</string>
-	<string source="cal_page_all_day_cannot_drag">Events cannot be dragged in or out of the "all day" row</string>
-	<string source="cal_page_other_cannot_drag">Events cannot be dragged in or out of the "other" column</string>
+	<string source="cal_page_recurring_cannot_drag" js="1">Recurring, multi-day and trimmed events cannot be dragged</string>
+	<string source="cal_page_all_day_cannot_drag" js="1">Events cannot be dragged in or out of the "all day" row</string>
+	<string source="cal_page_other_cannot_drag" js="1">Events cannot be dragged in or out of the "other" column</string>
 	<string source="cal_calendar_contents">Calendar Contents</string>
 	<string source="cal_calendar_title">Calendar Title</string>
 	<string source="cal_list_without_headings">List Without Headings</string>
