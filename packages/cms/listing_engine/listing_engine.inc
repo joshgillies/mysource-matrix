@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.150.2.25 2006/10/11 22:49:37 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.150.2.26 2006/11/09 23:51:22 mbrydon Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.150.2.25 $
+* @version $Revision: 1.150.2.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1775,16 +1775,16 @@ class Listing_Engine extends Page
 	*
 	* @param string	$assetid		the ID of the asset we are printing
 	* @param int	$list_position	the position of this asset in the list
+	* @param array	$keywords		keywords and their replacements to be substituted
 	*
 	* @return void
 	* @access private
-	* @see printAssetList()
+	* @see printAsset()
 	*/
-	function _printAsset($assetid, $list_position)
+	function _printAsset($assetid, $list_position, $keywords=Array())
 	{
 		$mm         = NULL;
 		$contents   = '';
-		$keywords   = Array();
 		$customised = $this->getFormats('type_formats');
 
 		$asset_info_fields = $this->getSortableAssetInfo();
@@ -1859,10 +1859,9 @@ class Listing_Engine extends Page
 		// by the time we reach this point we already have a bodycopy for this asset
 		$this_needs_asset = FALSE;
 		$bc_keywords = $bodycopy->getKeywords();
-		$keywords = Array();
 		// if the asset is a shadow asset  then get the keywords separately
 		if ($is_shadow) {
-			$keywords = $this->_getShadowAssetKeywordReplacements($assetid, $bc_keywords);
+			$keywords += $this->_getShadowAssetKeywordReplacements($assetid, $bc_keywords);
 		} else {
 			foreach ($bc_keywords as $keyword) {
 				if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
@@ -1874,9 +1873,14 @@ class Listing_Engine extends Page
 			if ($this_needs_asset) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) return;
+
+				// retrieve bodycopy keywords and append them to keywords if they
+				// have not been previously defined
+				$bc_keywords_values = Array();
 				foreach ($bc_keywords as $keyword) {
-					$keywords[$keyword] = $asset->getKeywordReplacement($keyword);
+					$bc_keywords_values[$keyword] = $asset->getKeywordReplacement($keyword);
 				}
+				$keywords += $bc_keywords_values;
 
 				// Body with paint layout applied, if any (inherited from the
 				// listing engine asset, usually)
@@ -2035,7 +2039,6 @@ class Listing_Engine extends Page
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
-				$keywords = Array();
 				foreach ($this->_tmp['assets_info'][$assetid] as $field => $value) {
 					$keywords['asset_'.$field] = $value;
 				}

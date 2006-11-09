@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.157.2.12 2006/11/01 04:36:55 lwright Exp $
+* $Id: search_page.inc,v 1.157.2.13 2006/11/09 23:51:24 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.157.2.12 $
+* @version $Revision: 1.157.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1983,8 +1983,8 @@ class Search_Page extends Listing_Engine
 		// We are only replacing them with their own replacement so they can be
 		// cached out like this, then score and result number can be added later
 		return Array(
-				'result_number'	=> '%result_number%',
-				'score'			=> '%score%',
+				'result_number'	=> '|result_number|',
+				'score'			=> '|score|',
 			   );
 
 	}//end getExtendedAssetKeywordReplacements()
@@ -2463,8 +2463,8 @@ class Search_Page extends Listing_Engine
 			// generate them after we have cached them.
 
 			$keywords = Array(
-							'score'			=> '%score%',
-							'result_number'	=> '%result_number%',
+							'result_number'	=> '|result_number|',
+							'score'			=> '|score|',
 						);
 
 			ob_start();
@@ -2480,11 +2480,13 @@ class Search_Page extends Listing_Engine
 		$score = (isset($score['type_code'])) ? $score['type_code'] : $score;
 
 		$element_replacements = Array(
-									'score'			=> $score[$assetid],
-									'result_number'	=> $this->_tmp['start_element'] + $list_position,
+									'|score|'			=> $score[$assetid],
+									'|result_number|'	=> $this->_tmp['start_element'] + $list_position,
 								);
 
-		$element_contents = replace_keywords($element_contents, $element_replacements);
+		foreach ($element_replacements as $keyword => $replacement) {
+			$element_contents = str_replace($keyword, $replacement, $element_contents);
+		}
 
 		echo $element_contents;
 
