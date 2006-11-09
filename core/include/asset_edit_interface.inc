@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.305 2006/10/26 23:37:33 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.306 2006/11/09 23:57:33 bcaldwell Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.305 $
+* @version $Revision: 1.306 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1155,7 +1155,7 @@ class Asset_Edit_Interface extends MySource_Object
 		foreach ($locks as $lock_name) {
 			$lock_info = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id, $lock_name, TRUE);
 			foreach ($lock_info as $lock_type => $lock_data) {
-				if ($lock_data['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+				if (isset($lock_data['userid']) && $lock_data['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
 					$have_all_locks = FALSE;
 				}
 			}
