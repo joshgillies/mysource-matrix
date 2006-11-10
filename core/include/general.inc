@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.153 2006/10/18 05:05:29 lwright Exp $
+* $Id: general.inc,v 1.154 2006/11/10 05:51:04 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.153 $
+* @version $Revision: 1.154 $
 * @package MySource_Matrix
 */
 
@@ -252,9 +252,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
 			$db_type = 'N/A';
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
-			if (!is_null($db)) {
-				$db_type = $db->phptype;
-			}
+			if (!is_null($db)) $db_type = $db->phptype;
 
 			$matrix_version = 'N/A';
 			if (defined('SQ_SYSTEM_VERSION')) {
@@ -485,6 +483,7 @@ function sq_web_path($path='base')
 * @param boolean	$inc_protocol	whether to include protocol info in the result
 *
 * @return string
+* @access public
 */
 function sq_root_url($url, $inc_protocol=TRUE)
 {
@@ -853,7 +852,7 @@ function get_date_formats()
 					);
 	return $date_formats;
 
-}//end get_date_format_names()
+}//end get_date_formats()
 
 
 /**
@@ -866,7 +865,7 @@ function get_date_formats()
 * @param string	$index		index at which the desired value resides
 * @param mixed	$default	default value if supplied
 *
-* @return mixed
+* @return mixed int|float|string|boolean|array|object|void|NULL
 * @access public
 */
 function array_get_index($array, $index, $default=NULL)
@@ -1095,6 +1094,7 @@ function trigger_localised_error($code, $error_level)
 	return $GLOBALS['SQ_SYSTEM']->lm->raiseError($code, $error_level, $args);
 
 }//end trigger_localised_error()
+
 
 /**
 * Print an icon with variable transparency in a manner that works cross-browser
@@ -1479,7 +1479,7 @@ function replace_global_keywords(&$text)
 					$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url);
 
 					$site_assetid = 0;
-					foreach($asset_lineage as $asset_link) {
+					foreach ($asset_lineage as $asset_link) {
 						$asset_type = $asset_link['type_code'];
 						if ($asset_type == 'site' || $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'site')) {
 							$site_assetid = $asset_link['assetid'];
@@ -1503,10 +1503,10 @@ function replace_global_keywords(&$text)
 						$replacements[$keyword] = $asset_replacement;
 					}
 				}
-			}
-		}
+			}//end if is global keyword
+		}//end foreach keyword
 		replace_keywords($text, $replacements);
-	}
+	}//end if
 	return $text;
 
 }//end replace_global_keywords()
@@ -1544,6 +1544,57 @@ function quick_hipo($callback_assetid, $callback_function, $items, $settings, $f
 	return $hh->queueHipo('hipo_job_quick_hipo', $vars);
 
 }//end quick_hipo()
+
+
+/**
+* Redirect the user's browser by the most appropriate method
+*
+* @param string	$url		URL to redirect to - MUST INCLUDE PROTOCOL
+* @param string	$message	Message to show in the interim
+* @param int	$timeout	Number of seconds to wait before redirecting
+*
+* @return void
+* @access public
+*/
+function do_redirect($url, $message=NULL, $timeout=0)
+{
+	error_log("Redirecing to $url as requested by ".get_calling_func());
+	if ($timeout || $message || headers_sent()) {
+		// Javascript Redirect
+		if (is_null($message)) {
+			$message = translate('redirecting_you_to');
+		}
+		?>
+		<html>
+			<head />
+			<body>
+				<p><?php echo $message; ?></p>
+				<script type="text/javascript"><!--
+					//<![CDATA[
+					<?php
+					if ($timeout) {
+						?>
+						setTimeout("self.location = '<?php echo str_replace("'", "\'", $url); ?>'", <?php echo $timeout * 1000; ?>);
+						<?php
+					} else {
+						?>
+						self.location = '<?php echo str_replace("'", "\'", $url); ?>';
+						<?php
+					}
+					?>
+					//]]> -->
+				</script>
+				<br />
+			</body>
+		</html>
+		<?php
+	} else {
+		// Header Redirect
+		header('Location: '.$url);
+	}
+	exit(1);
+
+}//end do_redirect()
 
 
 ?>
