@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.173.2.11 2006/11/01 04:36:42 lwright Exp $
+* $Id: search_page.inc,v 1.173.2.12 2006/11/10 00:00:49 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.173.2.11 $
+* @version $Revision: 1.173.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2554,19 +2554,11 @@ class Search_Page extends Listing_Engine
 		$element_contents = $cm->loadFromCache($this->id, $this->type(), $assetid);
 
 		if (empty($element_contents)) {
-			// we need to do this because if we don't supply these keywords,
-			// the bodycopy will replace them with php which checks to see if they exist
-			// in a keyword array. If they done it will override these with nothing.
-			// So we replace them back to their original keywords so that we can dynamically
-			// generate them after we have cached them.
-
-			$keywords = Array(
-							'score'			=> '%score%',
-							'result_number'	=> '%result_number%',
-						);
+			// keyword replacements for %result_number% and %score% are now handled
+			// by the "extended asset" keywords replacements defined in getExtendedAssetKeywordReplacements()
 
 			ob_start();
-			parent::_printAsset($assetid, $list_position, $keywords);
+			parent::_printAsset($assetid, $list_position);
 
 			$element_contents = ob_get_contents();
 			ob_end_clean();
