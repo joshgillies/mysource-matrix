@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.184 2006/11/03 05:04:44 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.185 2006/11/10 06:01:44 tbarrett Exp $
 *
 */
 
@@ -2051,5 +2051,9 @@ Are you sure you want to proceed?</string>
 	<string source="low_bandwidth">Low Bandwidth</string>
 	<string source="full_html">Full HTML</string>
 	<string source="text_only">Text Only</string>
+
+	<string source="force_secure_login_urls">Root URLs Requiring Secure Login</string>
+	<string source="force_secure_login_urls_note">Any time login box is to printed at a URL based on a root URL selected above, secure HTTP protocol will be used, regardless of any other protocol settings</string>
+	<string source="require_secure_login">Require Secure Login</string>
 
 </strings>

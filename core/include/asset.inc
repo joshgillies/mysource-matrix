@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.572 2006/11/08 22:15:12 tbarrett Exp $
+* $Id: asset.inc,v 1.573 2006/11/10 06:01:43 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.572 $
+* @version $Revision: 1.573 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2556,7 +2556,7 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Determine if we can delete the passed link 
+	* Determine if we can delete the passed link
 	*
 	* This function ignores locks, and returns TRUE or error message
 	*
@@ -3809,16 +3809,27 @@ class Asset extends MySource_Object
 	*/
 	function printFrontendAsset(&$asset, $design=NULL)
 	{
-		if (!headers_sent()) {
-			if (!$asset->readAccess()) {
-				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $asset->name));
-				return;
-			}
+		if (!$asset->readAccess()) {
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $asset->name));
+			return;
+		}
 
+		$current_protocol = current_protocol();
+		$valid_protocols = $this->getValidProtocols();
+		if (!empty($valid_protocols) && !in_array($current_protocol, $valid_protocols)) {
+			$new_url = (($current_protocol == 'http') ? 'https' : 'http').'://'.current_url(FALSE);
+			do_redirect($new_url); // exits
+		}
+
+		if (!headers_sent()) {
 			if ($asset->charset) {
 				header('Content-type: text/html; charset='.$asset->charset);
 			} else {
 				header('Content-type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
+			}
+
+			if ($asset->languages) {
+				header('Content-language: '.$asset->languages);
 			}
 		}
 
@@ -3826,10 +3837,6 @@ class Asset extends MySource_Object
 		if ($asset->id != $GLOBALS['SQ_SYSTEM']->frontend_asset->id) {
 			$original_asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
 			$GLOBALS['SQ_SYSTEM']->frontend_asset =& $asset;
-		}
-
-		if ($asset->languages) {
-			header('Content-language: '.$asset->languages);
 		}
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -3874,6 +3881,36 @@ class Asset extends MySource_Object
 		}
 
 	}//end printFrontendAsset()
+
+
+	/**
+	* Get the valid protocols for this asset for the current URL
+	*
+	* @return boolean
+	* @access private
+	*/
+	function getValidProtocols()
+	{
+		if (!isset($this->_tmp['valid_protocols'])) {
+			$protocol = current_protocol();
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'SELECT http, https
+					FROM sq_ast_lookup
+					WHERE assetid = '.$db->quoteSmart($this->id).'
+						AND url = '.$db->quoteSmart(strip_url(current_url(FALSE)));
+			$res = $db->getRow($sql);
+			assert_valid_db_result($res);
+			$this->_tmp['valid_protocols'] = Array();
+			if (is_array($res)) {
+				foreach ($res as $protocol => $valid) {
+					if ($this->force_secure && ($protocol == 'http')) continue;
+					if ($valid) $this->_tmp['valid_protocols'][] = $protocol;
+				}
+			}
+		}
+		return $this->_tmp['valid_protocols'];
+
+	}//end _needProtocolChange()
 
 
 	/**
@@ -4639,8 +4676,8 @@ class Asset extends MySource_Object
 						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
 						if (isset($done_urls[$new_url])) continue;
 
-						$http  = ($this->force_secure) ? '0' : $parent_urls[$j]['http'];
 						$https = $parent_urls[$j]['https'];
+						$http  = ($this->force_secure) ? '0' : $parent_urls[$j]['http'];
 						// if we have no protocol then we can just ignore this URL
 						if (!$http && !$https) {
 							continue;

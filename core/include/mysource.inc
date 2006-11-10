@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.195 2006/11/03 00:04:48 tbarrett Exp $
+* $Id: mysource.inc,v 1.196 2006/11/10 06:01:44 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.195 $
+* @version $Revision: 1.196 $
 * @package MySource_Matrix
 */
 class MySource
@@ -358,7 +358,16 @@ class MySource
 					$asset =& $this->am->getAsset($_REQUEST['a'], '', TRUE);
 				}
 			} else {
-				$asset =& $this->am->getAssetFromURL(current_protocol(), NULL, TRUE, TRUE);
+				$asset =& $this->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
+				if ($asset != NULL) {
+					$valid_protocols = $asset->getValidProtocols();
+					if (empty($valid_protocols)) {
+						// if current protocol not valid and no other protocol exists for this URL, it's as if 
+						// this asset has not been found at all.  This would happen if it only had
+						// an HTTP URL but force-secure = true for the asset.
+						$asset = NULL;
+					}
+				}
 			}
 
 			if (!is_null($asset) && !$asset->effectiveUnrestricted() && $require_password_change) {
@@ -367,6 +376,8 @@ class MySource
 				exit();
 			}
 
+
+			
 			if (is_null($asset)) {
 
 				$protocol = current_protocol();
@@ -374,24 +385,6 @@ class MySource
 
 				$rm =& $this->am->getSystemAsset('remap_manager');
 				if (!$rm->loadRemapFromURL($protocol, $url)) {
-
-					// redirect the user to the https version if available
-					if ($protocol == 'http') {
-						$asset =& $this->am->getAssetFromURL('https', NULL, TRUE, TRUE);
-						if (!is_null($asset)) {
-							$url = 'https://'.$url;
-							?>
-							<html>
-								<head>
-									<title><?php echo translate('redirecting_you_to', $url); ?></title>
-									<script type="text/javascript" src="<?php echo sq_web_path('lib');?>/js/general.js"></script>
-								</head>
-								<body onload="sq_redirect('<?php echo $url; ?>');"></body>
-							</html>
-							<?php
-							exit(1);
-						}
-					}
 
 					// okay, the remap manager could not remap this url, so
 					// check to see if we can find a 404 page from a site matching this url
@@ -417,13 +410,14 @@ class MySource
 					if (!$rm->paintPageNotFoundRemap()) {
 						header('HTTP/1.0 404 Not Found');
 						// last resort, display little green error
-						trigger_localised_error('SYS0218', E_USER_NOTICE, $url);
+						trigger_localised_error('SYS0218', E_USER_NOTICE, $protocol.'://'.$url);
 					}
 
 				}//end if !load remap
-
 				exit(1);
+
 			}//end if is_null(asset)
+
 			$this->frontend_asset = &$asset;
 			$this->broadcastTriggerEvent('trigger_event_asset_accessed', $asset);
 
@@ -534,7 +528,7 @@ class MySource
 			}
 			if (SQ_CONF_SEND_NOT_MODIFIED_HEADER && $not_modified) {
 				header('HTTP/1.1 304 Not Modified');
-				exit();
+				exit(1);
 			} else {
 				// not sending 304 header, print the cached content
 				echo $content;
@@ -675,6 +669,26 @@ class MySource
 			<?php
 			return;
 		}
+
+		if (current_protocol() == 'http') {
+			// check if we require secure login for this root URL
+			$current_url = current_url(FALSE, TRUE);
+			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+			$current_root_url = '';
+			foreach ($root_urls as $url) {
+				if (0 === strpos($current_url, $url)) {
+					if (strlen($url) > strlen($current_root_url)) {
+						$current_root_url = $url;
+					}
+				}
+			}
+			log_dump(explode("\n", SQ_CONF_FORCE_SECURE_LOGIN_URLS));
+			if (in_array($current_root_url, explode("\n", SQ_CONF_FORCE_SECURE_LOGIN_URLS))) {
+				// Redirect to HTTPS
+				$_SESSION['SQ_RETURN_TO_HTTP'] = 1;
+				do_redirect('https://'.current_url(FALSE)); // exits
+			}
+		}//end if http
 
 		$GLOBALS['SQ_LOGIN_FORM'] = Array('paint' => 'login', 'heading' => $heading, 'msg' => $msg);
 
@@ -1026,7 +1040,7 @@ class MySource
 				}
 
 				security_key_image($vars['key'], $vars['width'], $vars['height'], $vars['bg_colour'], $vars['text_colour'], $vars['border_colour'], $vars['zoom']);
-				exit();
+				exit(1);
 			break;
 
 			case 'rollback_view_start' :
@@ -1062,7 +1076,7 @@ class MySource
 			case 'hipo' :
 				$hh =& $this->getHipoHerder();
 				if ($hh->processWeb()) $hh->paintWeb();
-				exit();
+				exit(1);
 			break;
 
 			case 'set_design_name' :
@@ -1080,7 +1094,7 @@ class MySource
 				require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 				$asset_map =& new Asset_Map();
 				$asset_map->process($this->backend);
-				exit();
+				exit(1);
 			break;
 
 		}//end switch
@@ -1119,7 +1133,9 @@ class MySource
 	{
 		if (array_get_index($_REQUEST, 'SQ_ACTION')) return;
 		$http_username = array_get_index($_SERVER, SQ_CONF_HTTP_LOGIN_VAR);
-		if (is_null($http_username) || ($http_username === '')) return;
+		if (is_null($http_username) || ($http_username === '')) {
+			return;
+		}
 
 		// get a list of all the installed authentication systems
 		$auth_folder =& $this->am->getSystemAsset('authentication_folder');
@@ -1214,6 +1230,11 @@ class MySource
 		// Do pass any event data since we can get it from $_SESSION
 		$event_data = Array('password' => array_get_index($_POST, 'SQ_LOGIN_PASSWORD'));
 		$this->broadcastTriggerEvent('trigger_event_user_login', $user, $event_data);
+
+		if (!$_SESSION['user_is_public'] && array_get_index($_SESSION, 'SQ_RETURN_TO_HTTP')) {
+			unset($_SESSION['SQ_RETURN_TO_HTTP']);
+			do_redirect('http://'.current_url(FALSE)); // exits
+		}
 
 		return TRUE;
 
@@ -1381,9 +1402,6 @@ class MySource
 		if (!empty($time_to_live)) {
 			$header .= 'expires='.substr(date('r', time()+$time_to_live-((int)substr(date('O'), 0, 3)*60*60)), 0, -6).' GMT; ';
 		}
-		if (!empty($session_params['path'])) {
-			$header .= "path=$session_params[path]; ";
-		}
 		if (!empty($session_params['domain'])) {
 			$domain = $session_params['domain'];
 			if (defined('SQ_CONF_SYSTEM_PARENT_DOMAINS')) {
@@ -1395,12 +1413,16 @@ class MySource
 							// our current domain is a subdomain of this parent domain, so we will
 							// actually set the cookie for the parent domain and its children
 							$domain = '.'.$parent_domain;
+							$session_params['path'] = '/';
 							break;
 						}
 					}
 				}
 			}
-			$header .= "domain=$domain";
+			$header .= "domain=$domain; ";
+		}
+		if (!empty($session_params['path'])) {
+			$header .= "path=$session_params[path]; ";
 		}
 		header($header);
 
@@ -1416,6 +1438,7 @@ class MySource
 	function _clearSession()
 	{
 		foreach (array_keys($_SESSION) as $key) {
+			if ($key == 'SQ_RETURN_TO_HTTP') continue;
 			// do not reset the unsuccessful attempt, unset in &authenticateUser
 			if ($key != 'user_login_attempts') {
 				unset($_SESSION[$key]);
@@ -2090,7 +2113,7 @@ class MySource
 				<td bgcolor="#FFE5E8">
 					<table border="0" cellspacing="2" cellpadding="2" width="100%">
 						<tr>
-							<td class="sq-rollback-warning" align="right"><?php echo translate('exit_rollback_view'); ?><?php sq_print_icon(sq_web_path('lib').'/web/images/icons/delete.png', '16', '16', translate('exit_rollback_view'), NULL, 'onClick="Javascript: window.top.location=\''.$exit_url.'\'; return false;" style="cursor: pointer;"'); ?>
+							<td class="sq-rollback-warning" align="right"><?php echo translate('exit_rollback_view'); ?><?php sq_print_icon(sq_web_path('lib').'/web/images/icons/delete.png', '16', '16', translate('exit_rollback_view'), NULL, 'onclick="window.top.location=\''.$exit_url.'\'; return false;" style="cursor: pointer;"'); ?>
 							</td>
 						</tr>
 						<tr>
@@ -2495,15 +2518,14 @@ class MySource
 	}//end broadcastTriggerEvent()
 
 
-
 	/**
 	* Replacement function that allows request headers to be taken from CGI
 	*
 	* @return array
 	* @access private
 	*/
-	function _getHeaders() {
-
+	function _getHeaders() 
+	{
 		if (function_exists('apache_request_headers')) {
 			// If the apache_request_headers function exists, we are
 			// in an Apache module

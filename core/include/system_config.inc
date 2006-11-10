@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.86 2006/11/02 23:56:08 tbarrett Exp $
+* $Id: system_config.inc,v 1.87 2006/11/10 06:01:44 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -93,6 +93,7 @@ class System_Config extends Config
 						'SQ_CONF_SESSION_GC_MAXLIFETIME'		=> Array('editable' => 1, 'default'	=> 604800),
 						'SQ_CONF_EDITING_TIME'					=> Array('editable' => 0, 'default' => 3600),
 						'SQ_CONF_NUM_DATA_DIRS'					=> Array('editable' => 0, 'default' => 20),
+						'SQ_CONF_FORCE_SECURE_LOGIN_URLS'		=> Array('editable' => 1, 'default' => ''),
 					   );
 
 	/**
@@ -100,7 +101,7 @@ class System_Config extends Config
 	* The keys are the bit elements and the values are the descriptions
 	* @var array
 	*/
-	//TODO: TRANSLATE: these need to be either moved somewhere else, or implement some sort of global code
+	// TODO: TRANSLATE: these need to be either moved somewhere else, or implement some sort of global code
 	var $debug_options = Array(
 							1	=> 'Show File and Line number in error messages',
 							2	=> 'Show Stack Trace in error messages',
@@ -166,6 +167,10 @@ class System_Config extends Config
 				// now do some validation
 				if (isset($vars['SQ_CONF_SYSTEM_ROOT_URLS'])) {
 					$vars['SQ_CONF_SYSTEM_ROOT_URLS'] = str_replace("\r", '', $vars['SQ_CONF_SYSTEM_ROOT_URLS']);
+				}
+
+				if (isset($vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS'])) {
+					$vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS'] = implode("\n", $vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS']);
 				}
 				if (isset($vars['SQ_CONF_STATIC_ROOT_URL']) && substr($vars['SQ_CONF_STATIC_ROOT_URL'], -1) == '/') {
 					$vars['SQ_CONF_STATIC_ROOT_URL'] = substr($vars['SQ_CONF_STATIC_ROOT_URL'], 0, strlen($vars['SQ_CONF_STATIC_ROOT_URL']) -1);
@@ -482,6 +487,42 @@ class System_Config extends Config
 
 		$o->openSection(translate('login/session_settings'));
 
+			$o->openField(translate('force_secure_login_urls'));
+				$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+				$force_secure_urls = explode("\n", SQ_CONF_FORCE_SECURE_LOGIN_URLS);
+				?>
+				<table class="sq-backend-table" style="width: auto">
+					<thead>
+						<tr>
+							<th><?php echo translate('url'); ?></th>
+							<th><?php echo translate('require_secure_login'); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php
+					foreach ($root_urls as $i => $url) {
+						?>
+						<tr>
+							<td><?php echo $url; ?></td>
+							<td>
+								<?php
+								if ($write_access) {
+									check_box($class.'[SQ_CONF_FORCE_SECURE_LOGIN_URLS][]', $url, in_array($url, $force_secure_urls));
+								} else {
+									$filename = in_array($url, $force_secure_urls) ? 'tick' : 'cross';
+									echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" />';
+								}
+								?>
+							</td>
+						</tr>
+						<?php
+					}
+					?>
+					</tbody>
+				</table>
+				<?php
+			$o->note(translate('force_secure_login_urls_note'));
+					
 			$o->openField(translate('max_login_attempts'));
 			if ($write_access && $is_root) {
 				text_box($class.'[SQ_CONF_MAX_LOGIN_ATTEMPTS]', SQ_CONF_MAX_LOGIN_ATTEMPTS, 5, 5);
@@ -703,7 +744,6 @@ class System_Config extends Config
 				$o->note(translate('http_header_not_modified_field_note'));
 				$o->note(translate('http_header_conditional_note'));
 			$o->closeField();
-
 		$o->closeSection();
 
 		if ($write_access) $o->commitButton('', TRUE);
