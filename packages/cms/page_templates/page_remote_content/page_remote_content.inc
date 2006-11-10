@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.38.2.8 2006/10/25 23:31:13 arailean Exp $
+* $Id: page_remote_content.inc,v 1.38.2.9 2006/11/10 00:59:08 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.38.2.8 $
+* @version $Revision: 1.38.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -732,7 +732,7 @@ class Page_Remote_Content extends Page
 			// if urls need to point back to us, prepare a new url
 			if ($load_links && $this->isUrlAllowed($url)) {
 				// forms require the parameters to be set to the hidden fields for proper functioning
-				$postfix .= '<input type="hidden" name="<?php echo SQ_REMOTE_SOURCE; ?>" value="'.$this->_encodeHash($url, Array('all')).'" />';
+				$postfix .= '<input type="hidden" name="'.SQ_REMOTE_SOURCE.'" value="'.$this->_encodeHash($url, Array('all')).'" />';
 
 				$encoded_url = $this->_encodeHash($url, Array('all'));
 				$url = $replacement_url.$encoded_url;
