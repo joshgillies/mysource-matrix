@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.91 2006/06/13 06:45:09 sdanis Exp $
+* $Id: site.inc,v 1.92 2006/11/10 05:50:46 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -629,7 +629,9 @@ class Site extends Folder
 		}
 
 		global $ASSET_LINEAGE;
-		$ASSET_LINEAGE = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(NULL, $asset_url);
+		if (!empty($asset_url)) {
+			$ASSET_LINEAGE = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(NULL, $asset_url);
+		}
 
 		if ($result) {
 			// we have found the design to use

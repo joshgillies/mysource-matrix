@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.526 2006/11/08 22:15:12 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.527 2006/11/10 05:51:44 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.526 $
+* @version $Revision: 1.527 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6195,7 +6195,7 @@ class Asset_Manager extends MySource_Object
 			$found = FALSE;
 			$non_standard_url = TRUE;
 			// We want to check if this is an asset (file) with a publicly served url
-			$fancy_asset =& $this->getAssetFromURL($protocol, $url);
+			$fancy_asset =& $this->getAssetFromURL($protocol, $url, TRUE, TRUE);
 			if (empty($fancy_asset)) {
 				$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
 				trigger_localised_error('SYS0247', E_USER_WARNING, $fancy_url);
