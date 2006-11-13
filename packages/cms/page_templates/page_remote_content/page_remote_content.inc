@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.54 2006/11/10 00:58:52 tbarrett Exp $
+* $Id: page_remote_content.inc,v 1.55 2006/11/13 00:55:40 skim Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -246,11 +246,22 @@ class Page_Remote_Content extends Page
 		$HTTP_Client = array_get_index(array_get_index($_SESSION, 'SQ_REMOTE_HTTP_CLIENT'), $this->id);
 		if (!empty($HTTP_Client)) {
 			$HTTP_Client = unserialize($HTTP_Client);
-			if (!array_get_index($_COOKIE, SQ_REMOTE_SESSION_COOKIE_NAME)) {
-				$HTTP_Client->_cookieManager->deleteSessionCookies();
-				setcookie(SQ_REMOTE_SESSION_COOKIE_NAME, 1);
+
+			if (!method_exists($HTTP_Client->_cookieManager, 'deleteSessionCookies')) {
+				// Reset the session. The client must have old HTTP_Client object before
+				// Persistent_Cookie_Manager was introduced. Potentially big problem since
+				// it ends up PHP Fatal Error!!!
+				$HTTP_Client = NULL;
+				$_SESSION['SQ_REMOTE_HTTP_CLIENT'] = NULL;
+			} else {
+				if (!array_get_index($_COOKIE, SQ_REMOTE_SESSION_COOKIE_NAME)) {
+					$HTTP_Client->_cookieManager->deleteSessionCookies();
+					setcookie(SQ_REMOTE_SESSION_COOKIE_NAME, 1);
+				}
 			}
-		} else {
+		}
+
+		if (is_null($HTTP_Client)) {
 			// parameters for HTTP_Request. See Package for description.
 			$request_parameters['timeout'] = $this->attr('timeout');
 			$request_parameters['useBrackets'] = FALSE;
