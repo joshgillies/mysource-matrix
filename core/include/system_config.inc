@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.73.2.6 2006/07/13 00:13:33 rong Exp $
+* $Id: system_config.inc,v 1.73.2.7 2006/11/14 05:06:40 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.73.2.6 $
+* @version $Revision: 1.73.2.7 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -158,10 +158,6 @@ class System_Config extends Config
 					unset($vars['SQ_CONF_ROLLBACK_ENABLED']);
 				}
 
-				// now do some validation
-				if (isset($vars['SQ_CONF_SYSTEM_ROOT_URLS'])) {
-					$vars['SQ_CONF_SYSTEM_ROOT_URLS'] = str_replace("\r", '', $vars['SQ_CONF_SYSTEM_ROOT_URLS']);
-				}
 				if (isset($vars['SQ_CONF_STATIC_ROOT_URL']) && substr($vars['SQ_CONF_STATIC_ROOT_URL'], -1) == '/') {
 					$vars['SQ_CONF_STATIC_ROOT_URL'] = substr($vars['SQ_CONF_STATIC_ROOT_URL'], 0, strlen($vars['SQ_CONF_STATIC_ROOT_URL']) -1);
 				}
@@ -258,14 +254,6 @@ class System_Config extends Config
 
 
 			case 'SQ_CONF_SYSTEM_ROOT_URLS' :
-				$lines = explode("\n", $value);
-				$value = '';
-				foreach ($lines as $line) {
-					if (trim($line) != '') $value .= trim($line)."\n";
-				}
-				return parent::_paintConfigVar($var_name, trim($value), $var_export);
-			break;
-
 			case 'SQ_CONF_STATIC_ROOT_URL' :
 				return parent::_paintConfigVar($var_name, trim($value), $var_export);
 			break;
@@ -386,9 +374,15 @@ class System_Config extends Config
 
 		$o->openSection(translate('system_urls'));
 
+			require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
+
+			$option_list =& new Asset_Attribute_Option_List(0, NULL, SQ_OPTION_LIST_DELIMITER_UNIX);
+			$option_list->setEditParam('width', 60);
+
 			$o->openField(translate('system_root_urls'));
 			if ($write_access) {
-				text_area($class.'[SQ_CONF_SYSTEM_ROOT_URLS]', SQ_CONF_SYSTEM_ROOT_URLS, 80, 4);
+					$option_list->value = SQ_CONF_SYSTEM_ROOT_URLS;
+					$option_list->paint('SQ_CONF_SYSTEM_ROOT_URLS');
 			} else {
 				echo nl2br(SQ_CONF_SYSTEM_ROOT_URLS);
 			}
@@ -665,6 +659,37 @@ class System_Config extends Config
 
 	}//end paintBackend()
 
+
+	/**
+	* Saves the config settings that were submitted
+	*
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	*
+	* @return boolean
+	* @access public
+	* @see paintBackend()
+	*/
+	function processBackend(&$o)
+	{
+		$write_access = $this->writeAccess();
+		if (!$write_access) return parent::processBackend($o);
+
+		$class = get_class($this);
+
+		require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
+		$option_list =& new Asset_Attribute_Option_List(0, NULL, SQ_OPTION_LIST_DELIMITER_UNIX);
+
+		$list_settings = Array(
+							'SQ_CONF_SYSTEM_ROOT_URLS',
+						 );
+
+		foreach ($list_settings as $list_setting) {
+			$option_list->process($list_setting);
+			$_POST[$class][$list_setting] = $option_list->value;
+		}
+		return parent::processBackend($o);
+
+	}//end processBackend()
 
 }//end class
 
