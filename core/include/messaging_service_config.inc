@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service_config.inc,v 1.23.2.1 2006/08/15 05:02:05 bcaldwell Exp $
+* $Id: messaging_service_config.inc,v 1.23.2.2 2006/11/14 04:19:28 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23.2.1 $
+* @version $Revision: 1.23.2.2 $
 * @package MySource_Matrix
 */
 class Messaging_Service_Config extends Config
@@ -85,10 +85,16 @@ class Messaging_Service_Config extends Config
 		$write_access = $this->writeAccess();
 		$class = get_class($this);
 
+		require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
+
+		$option_list =& new Asset_Attribute_Option_List(0, NULL, SQ_OPTION_LIST_DELIMITER_UNIX);
+		$option_list->setEditParam('width', 60);
+
 		$o->openSection(translate('messaging_service_configuration'));
 			$o->openField(translate('messaging_service_file_white_list'));
 				if ($write_access) {
-					text_area($class.'[SQ_MS_LOG_TO_FILE_WHITE_LIST]', SQ_MS_LOG_TO_FILE_WHITE_LIST, 60, 10);
+					$option_list->value = SQ_MS_LOG_TO_FILE_WHITE_LIST;
+					$option_list->paint('SQ_MS_LOG_TO_FILE_WHITE_LIST');
 				} else {
 					echo nl2br(SQ_MS_LOG_TO_FILE_WHITE_LIST);
 				}
@@ -96,7 +102,8 @@ class Messaging_Service_Config extends Config
 			$o->closeField();
 			$o->openField(translate('messaging_service_file_black_list'));
 				if ($write_access) {
-					text_area($class.'[SQ_MS_LOG_TO_FILE_BLACK_LIST]', SQ_MS_LOG_TO_FILE_BLACK_LIST, 60, 10);
+					$option_list->value = SQ_MS_LOG_TO_FILE_BLACK_LIST;
+					$option_list->paint('SQ_MS_LOG_TO_FILE_BLACK_LIST');
 				} else {
 					echo nl2br(SQ_MS_LOG_TO_FILE_BLACK_LIST);
 				}
@@ -104,7 +111,8 @@ class Messaging_Service_Config extends Config
 			$o->closeField();
 			$o->openField(translate('messaging_service_db_white_list'));
 				if ($write_access) {
-					text_area($class.'[SQ_MS_LOG_TO_DB_WHITE_LIST]', SQ_MS_LOG_TO_DB_WHITE_LIST, 60, 10);
+					$option_list->value = SQ_MS_LOG_TO_DB_WHITE_LIST;
+					$option_list->paint('SQ_MS_LOG_TO_DB_WHITE_LIST');
 				} else {
 					echo nl2br(SQ_MS_LOG_TO_DB_WHITE_LIST);
 				}
@@ -112,7 +120,8 @@ class Messaging_Service_Config extends Config
 			$o->closeField();
 			$o->openField(translate('messaging_service_db_black_list'));
 				if ($write_access) {
-					text_area($class.'[SQ_MS_LOG_TO_DB_BLACK_LIST]', SQ_MS_LOG_TO_DB_BLACK_LIST, 60, 10);
+					$option_list->value = SQ_MS_LOG_TO_DB_BLACK_LIST;
+					$option_list->paint('SQ_MS_LOG_TO_DB_BLACK_LIST');
 				} else {
 					echo nl2br(SQ_MS_LOG_TO_DB_BLACK_LIST);
 				}
@@ -120,7 +129,8 @@ class Messaging_Service_Config extends Config
 			$o->closeField();
 			$o->openField(translate('messaging_service_mail_white_list'));
 				if ($write_access) {
-					text_area($class.'[SQ_MS_SEND_MAIL_WHITE_LIST]', SQ_MS_SEND_MAIL_WHITE_LIST, 60, 10);
+					$option_list->value = SQ_MS_SEND_MAIL_WHITE_LIST;
+					$option_list->paint('SQ_MS_SEND_MAIL_WHITE_LIST');
 				} else {
 					echo nl2br(SQ_MS_SEND_MAIL_WHITE_LIST);
 				}
@@ -128,7 +138,8 @@ class Messaging_Service_Config extends Config
 			$o->closeField();
 			$o->openField(translate('messaging_service_mail_black_list'));
 				if ($write_access) {
-					text_area($class.'[SQ_MS_SEND_MAIL_BLACK_LIST]', SQ_MS_SEND_MAIL_BLACK_LIST, 60, 10);
+					$option_list->value = SQ_MS_SEND_MAIL_BLACK_LIST;
+					$option_list->paint('SQ_MS_SEND_MAIL_BLACK_LIST');
 				} else {
 					echo nl2br(SQ_MS_SEND_MAIL_BLACK_LIST);
 				}
@@ -140,6 +151,49 @@ class Messaging_Service_Config extends Config
 		if ($write_access) $o->commitButton('', TRUE);
 
 	}//end paintBackend()
+
+
+	/**
+	* Saves the config settings that were submitted
+	*
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	*
+	* @return boolean
+	* @access public
+	* @see paintBackend()
+	*/
+	function processBackend(&$o)
+	{
+		$write_access = $this->writeAccess();
+		if (!$write_access) return parent::processBackend($o);
+
+		$class = get_class($this);
+
+		require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
+		$option_list =& new Asset_Attribute_Option_List(0, NULL, SQ_OPTION_LIST_DELIMITER_UNIX);
+
+		// We assume namining of these constants, and that they always have white/black lists.
+		$message_types = Array(
+							'LOG_TO_FILE',
+							'LOG_TO_DB',
+							'SEND_MAIL',
+						 );
+
+		foreach ($message_types as $message_type) {
+			// Names for both white and black list for this message type.
+			$w = 'SQ_MS_'.$message_type.'_WHITE_LIST';
+			$b = 'SQ_MS_'.$message_type.'_BLACK_LIST';
+
+			// Process attribute. Value is string seperated by newlines (\n).
+			$option_list->process($w);
+			$_POST[$class][$w] = $option_list->value;
+
+			$option_list->process($b);
+			$_POST[$class][$b] = $option_list->value;
+		}
+		return parent::processBackend($o);
+
+	}//end processBackend()
 
 
 }//end class
