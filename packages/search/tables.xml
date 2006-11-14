@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.8 2006/11/14 22:45:37 lwright Exp $
+* $Id: tables.xml,v 1.9 2006/11/14 23:06:34 lwright Exp $
 *
 */
 -->
@@ -59,8 +59,12 @@
 				</column>
 			</columns>
 			<keys>
-				<primary_key>
+				<primary_key db="pgsql">
 					<column name="value" />
+					<column name="assetid" />
+					<column name="component" />
+				</primary_key>
+				<primary_key db="oci8">
 					<column name="assetid" />
 					<column name="component" />
 				</primary_key>
