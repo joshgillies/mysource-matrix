@@ -18,12 +18,16 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.30.2.1 2006/08/17 05:30:12 bcaldwell Exp $
+* $Id: option_list.inc,v 1.30.2.2 2006/11/14 04:10:56 bcaldwell Exp $
 *
 */
 
 
 require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
+
+define('SQ_OPTION_LIST_DELIMITER_UNIX', "\n");
+define('SQ_OPTION_LIST_DELIMITER_WINDOWS', "\r\n");
+define('SQ_OPTION_LIST_DELIMITER_MAC', "\n");
 
 /**
 * Option List Asset Attribute
@@ -35,12 +39,21 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30.2.1 $
+* @version $Revision: 1.30.2.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
 class Asset_Attribute_Option_List extends Asset_Attribute
 {
+
+
+	/**
+	* Defines how each option is delimited
+	*
+	* @var string
+	* @access private
+	*/
+	var $delimiter = SQ_OPTION_LIST_DELIMITER_WINDOWS;
 
 
 	/**
@@ -50,8 +63,10 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Option_List($attributeid=0, $value=NULL)
+	function Asset_Attribute_Option_List($attributeid=0, $value=NULL, $delimiter=SQ_OPTION_LIST_DELIMITER_WINDOWS)
 	{
+		$this->delimiter = $delimiter;
+
 		$this->Asset_Attribute($attributeid, $value);
 		$this->_edit_params['width'] = '';
 
@@ -70,7 +85,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	function paint($prefix, $read_only=FALSE)
 	{
 		$prefix = str_replace(':','_',$prefix); // handle shadow assets
-		$value = explode("\r\n", $this->value);
+		$value = explode($this->delimiter, $this->value);
 		if (!$read_only) {
 			?>
 			<div id="option-list-<?php echo $prefix; ?>">
@@ -180,7 +195,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 		foreach ($value as $i => $v) {
 			if ($v == '') unset($value[$i]);
 		}
-		$this->processed = $this->setValue(implode("\r\n",$value));
+		$this->processed = $this->setValue(implode($this->delimiter,$value));
 
 	}//end process()
 
@@ -194,7 +209,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	function exportContentsToXML()
 	{
 
-		$option_array = explode("\r\n", $this->value);
+		$option_array = explode($this->delimiter, $this->value);
 		$option_xml = '';
 		foreach ($option_array as $option) {
 			$option_xml .= '<option><![CDATA['.$option.']]></option>';
