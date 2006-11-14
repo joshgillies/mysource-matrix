@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.39 2006/10/20 05:23:26 mbrydon Exp $
+* $Id: db_install.inc,v 1.40 2006/11/14 23:07:03 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -130,6 +130,11 @@ function parse_tables_xml($xml_file)
 			$table_keys =& $table->children[1]->children;
 			for ($jj = 0; $jj < count($table_keys); $jj++) {
 				$table_key =& $table_keys[$jj];
+
+				$index_db_type = array_get_index($table_key->attributes, 'db', NULL);
+				if (!is_null($index_db_type) && ($index_db_type != $db->phptype)) {
+					continue;
+				}
 
 				// work out the columns in this key
 				$key_columns = Array();
