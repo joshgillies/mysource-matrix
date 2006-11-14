@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.15 2006/09/18 01:15:10 tbarrett Exp $
+* $Id: page_calendar_rolling.inc,v 1.16 2006/11/14 23:21:46 bcaldwell Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -595,7 +595,7 @@ class Page_Calendar_Rolling extends Page
 		$start_date_stamp = floor(strtotime($start_date.' 12:00:00 GMT') / 86400);
 		$end_date_stamp = $start_date_stamp + $length;
 		$date_sql = '(cd.start_date_ds BETWEEN '.$db->quote($start_date_stamp).' AND '.$db->quote($end_date_stamp).') OR (cd.start_date_ds < '.$db->quote($start_date_stamp).' AND cd.end_date_ds >= '.$db->quote($start_date_stamp).')';
-		$sql = Calendar_Common::getSingleEventQueryBase(array_keys($root_nodes)).' AND ('.$date_sql.')';
+		$sql = Calendar_Common::getSingleEventQueryBase(array_keys($root_nodes)).' AND ('.$date_sql.') ORDER BY cd.start_date_ts';
 		$single_result = $db->getAll($sql);
 		assert_valid_db_result($single_result);
 		$single_result = Calendar_Common::condenseResultTreeids($single_result);
