@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.7 2006/10/17 00:14:49 lwright Exp $
+* $Id: tables.xml,v 1.8 2006/11/14 22:45:37 lwright Exp $
 *
 */
 -->
@@ -60,6 +60,7 @@
 			</columns>
 			<keys>
 				<primary_key>
+					<column name="value" />
 					<column name="assetid" />
 					<column name="component" />
 				</primary_key>
