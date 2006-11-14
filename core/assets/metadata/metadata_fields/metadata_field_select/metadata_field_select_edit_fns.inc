@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.28.2.2 2006/04/27 23:29:13 tbarrett Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.28.2.3 2006/11/14 01:12:12 mbrydon Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.28.2.2 $
+* @version $Revision: 1.28.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -128,9 +128,9 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			$non_default_vals = Array();
 			foreach ($select_options as $key => $select_option) {
 				if (in_array($key, $default_keys)) {
-					$default_vals[] = "'$key'";
+					$default_vals[] = "'".addslashes($key)."'";
 				} else {
-					$non_default_vals[] = "'$key'";
+					$non_default_vals[] = "'".addslashes($key)."'";
 				}
 			}
 			$default_vals_expr = '['.implode(', ', $default_vals).']';
