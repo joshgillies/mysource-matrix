@@ -18,12 +18,16 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.22 2005/12/23 01:58:50 tbarrett Exp $
+* $Id: option_list.inc,v 1.22.2.1 2006/11/14 05:06:28 bcaldwell Exp $
 *
 */
 
 
 require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
+
+define('SQ_OPTION_LIST_DELIMITER_UNIX', "\n");
+define('SQ_OPTION_LIST_DELIMITER_WINDOWS', "\r\n");
+define('SQ_OPTION_LIST_DELIMITER_MAC', "\n");
 
 /**
 * Option List Asset Attribute
@@ -35,12 +39,21 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.22.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
 class Asset_Attribute_Option_List extends Asset_Attribute
 {
+
+
+	/**
+	* Defines how each option is delimited
+	*
+	* @var string
+	* @access private
+	*/
+	var $delimiter = SQ_OPTION_LIST_DELIMITER_WINDOWS;
 
 
 	/**
@@ -50,9 +63,12 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Option_List($attributeid=0, $value=null)
+	function Asset_Attribute_Option_List($attributeid=0, $value=NULL, $delimiter=SQ_OPTION_LIST_DELIMITER_WINDOWS)
 	{
+		$this->delimiter = $delimiter;
+
 		$this->Asset_Attribute($attributeid, $value);
+		$this->_edit_params['width'] = '';
 
 	}//end constructor
 
@@ -68,7 +84,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	function paint($prefix, $read_only=false)
 	{
 		$prefix = str_replace(':','_',$prefix); // handle shadow assets
-		$value = explode("\r\n", $this->value);
+		$value = explode($this->delimiter, $this->value);
 		if (!$read_only) {
 			?>
 			<div id="option-list-<?php echo $prefix; ?>">
@@ -76,12 +92,12 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				foreach ($value as $v) {
 					$v = htmlentities($v);
 					?>
-					<input type="text"  name="<?php echo $prefix; ?>_options[]" value="<?php echo $v; ?>" /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button><br />
+					<input type="text"  name="<?php echo $prefix; ?>_options[]" value="<?php echo $v; ?>" <?php if ($this->_edit_params['width']) echo 'size="'.$this->_edit_params['width'].'"'; ?> /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button><br />
 					<?php
 				}
 				for ($i =0; $i < 2; $i++) {
 					?>
-					<input type="text" name="<?php echo $prefix; ?>_options[]" /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button><br />
+					<input type="text" name="<?php echo $prefix; ?>_options[]" <?php if ($this->_edit_params['width']) echo 'size="'.$this->_edit_params['width'].'"'; ?> /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button><br />
 					<?php
 				}
 				?>
@@ -122,7 +138,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 		foreach ($value as $i => $v) {
 			if ($v == '') unset($value[$i]);
 		}
-		$this->processed = $this->setValue(implode("\r\n",$value));
+		$this->processed = $this->setValue(implode($this->delimiter,$value));
 
 	}//end process()
 
