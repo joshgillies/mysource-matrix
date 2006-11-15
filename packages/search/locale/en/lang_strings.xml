@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2005/08/29 01:25:54 ndvries Exp $
+* $Id: lang_strings.xml,v 1.6 2006/11/15 04:09:32 lwright Exp $
 *
 *
 * Search Package Localised Strings File
@@ -28,6 +28,9 @@
 	<string source="sch_no_asset_types_selected">No asset types are selected</string>
 	<string source="sch_select_asset_type">Select Asset Type</string>
 	<string source="sch_add_new_type">Add New Type</string>
+
+	<string source="sch_pref_backend_page_size">Backend Search Page Size</string>
+	<string source="sch_pref_backend_page_size_note">Sets how many assets will be shown per page when a keyword search is peformed through the Quick Search box</string>
 
 	<string source="sch_search_terms">Search Terms</string>
 	<string source="sch_search_string">Search String</string>
