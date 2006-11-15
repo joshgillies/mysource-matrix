@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.130 2006/10/26 23:37:33 tbarrett Exp $
+* $Id: backend_outputter.inc,v 1.131 2006/11/15 04:13:24 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.131 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -969,6 +969,7 @@ class Backend_Outputter
 			// now other general stuff
 			$this->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/general.js');
+			$this->addJsInclude(sq_web_path('lib').'/js/backend_search.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/tooltip.js');
@@ -1008,8 +1009,12 @@ class Backend_Outputter
 					foreach ($this->_on_load_calls as $call) {
 						echo "\n".$call;
 					}
+
 					?>
 
+					if (window.self.name == 'sq_main') {
+						tooltip.print();
+					}
 
 					// let everyone know the document is loaded
 					SQ_DOCUMENT_LOADED = true;
@@ -1023,7 +1028,7 @@ class Backend_Outputter
 						parent.frames['sq_sidenav'].asset_finder_onunload();
 					}
 
-				}//end page_on_load()
+				}//end page_on_unload()
 
 
 				var SQ_FORM_SUBMITTED = false;
