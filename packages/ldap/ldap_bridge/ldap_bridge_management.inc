@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_management.inc,v 1.10 2006/02/21 23:38:10 bcaldwell Exp $
+* $Id: ldap_bridge_management.inc,v 1.11 2006/11/15 23:50:01 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -98,6 +98,19 @@ class LDAP_Bridge_Management extends Asset_Management
 												'added'		=> '0.1',
 												'type'		=> 'serialise',
 												'default'	=> Array(),
+											   ),
+						'user_type'			=> Array(
+												'added'			=> '0.4',
+												'type'			=> 'selection',
+												'default'		=> 'ldap_backend_user',
+												'parameters'	=> Array(
+																	'options'		=> Array(
+																						'ldap_backend_user'	=> 'Backend User',
+																						'ldap_user'			=> 'User',
+																					   ),
+																	'multiple'		=> FALSE,
+																	'allow_empty'	=> FALSE,
+																   ),
 											   ),
 					  );
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2006/02/21 23:38:10 bcaldwell Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2006/11/15 23:50:01 rong Exp $
 *
 */
 -->
@@ -20,6 +20,9 @@
 	<section name="Identification" write_access="write:attributes">
 		<field attribute="name">
 			<text width="30" height="1" />
+		</field>
+		<field attribute="user_type">
+			<selection style="list"  height="1" />
 		</field>
 	</section>
 	<section name="Connection Details" write_access="admin:attributes">

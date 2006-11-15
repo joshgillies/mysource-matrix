@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.51 2006/10/11 05:45:50 emcdonald Exp $
+* $Id: ldap_bridge.inc,v 1.52 2006/11/15 23:50:01 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -186,11 +186,13 @@ class LDAP_Bridge extends Asset
 			if (is_null($ldap->ptr)) return $asset;
 
 			$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
-			if (!$result){
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user');
+			if (!$result) {
+				// return 'unknown ldap user' when we cannot find a match
 				$data['objectclass'] = Array();
 				$data['dn'] = $shadowid;
-				$asset =& new LDAP_User($this->id, $data);
+				$user_type = $this->attr('user_type');
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
+				$asset =& new $user_type($this->id, $data);
 				return $asset; // this should return a dummy
 			}
 			$data = $ldap->getEntries($result);
@@ -204,16 +206,24 @@ class LDAP_Bridge extends Asset
 		}
 
 		unset($data['objectclass']['count']);
+
 		foreach ($data['objectclass'] as $class) {
 			$class = strtolower($class);
 			if (isset($this->_group_types[$class])) {
 				// an LDAP user group
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user_group');
 				$asset =& new Ldap_User_Group($this->id, $data);
+				break;
+
 			} else if (isset($this->_user_types[$class])) {
-				// an LDAP user
+				// include both assets, in case the type changes
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_backend_user');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user');
-				$asset =& new LDAP_User($this->id, $data);
+				// LDAP user or LDAP backend user,
+				// depending on the bridge setting
+				$user_type = $this->attr('user_type');
+				$asset =& new $user_type($this->id, $data);
+				break;
 			}
 		}
 
@@ -291,13 +301,11 @@ class LDAP_Bridge extends Asset
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL, $dependant=NULL, $exclusive=NULL)
 	{
-
 		// if the wanted link type is not the type of links
 		// that this bridge allows, lets return now
 		if (!($this->ldap_shdw_link_type & $link_types)) {
 			return Array();
 		}
-
 		if ($dependant || $exclusive) {
 			return Array();
 		}
@@ -336,6 +344,7 @@ class LDAP_Bridge extends Asset
 								'is_exclusive'		=> FALSE,
 								'sort_order'		=> 0,
 							   );
+
 				} else {
 					$asset =& $this->getAsset($this->id.':'.$minorid);
 
@@ -344,7 +353,11 @@ class LDAP_Bridge extends Asset
 							if (!((in_array('ldap_user_group', $type_code)) || (!$strict_type_code && in_array('user_group', $type_code)))) {
 								return Array();
 							}
-						} else {
+						} else if ($asset->type() == 'ldap_backend_user') {
+							if (!((in_array('ldap_backend_user', $type_code)) || (!$strict_type_code && in_array('user', $type_code)) || (!$strict_type_code && in_array('backend_user', $type_code)))) {
+								return Array();
+							}
+						} else if ($asset->type() == 'ldap_user') {
 							if (!((in_array('ldap_user', $type_code)) || (!$strict_type_code && in_array('user', $type_code)))) {
 								return Array();
 							}
@@ -456,7 +469,7 @@ class LDAP_Bridge extends Asset
 							}
 						}
 
-						// if this container is not a group, check to $resultsee if it is a user
+						// if this container is not a group, check the $result to see if it is a user
 						if (empty($type)) {
 							foreach ($this->_user_types as $key => $value) {
 								if ($class == $key) {
@@ -469,7 +482,7 @@ class LDAP_Bridge extends Asset
 									} else {
 										$name = $data[$attrs[$value]][0];
 									}
-									$type = 'ldap_user';
+									$type = $this->attr('user_type');
 								}
 							}
 						}
@@ -478,15 +491,30 @@ class LDAP_Bridge extends Asset
 
 					if (empty($type)) continue;
 					if (!empty($type_code)) {
+
 						if ($type == 'ldap_user_group') {
 							if (!in_array('user_group', $type_code) && !in_array('ldap_user_group', $type_code)) {
 								continue;
 							}
 						} else {
-							if (!in_array('user', $type_code) && !in_array('ldap_user', $type_code)) {
-								continue;
+							// work out the type code we want to list
+							if ($this->attr('user_type') == 'ldap_backend_user') {
+								$all_types = Array(
+												'user',
+												'backend_user',
+												'ldap_backend_user',
+											 );
+							} else {
+								// ldap_user
+								$all_types = Array(
+												'user',
+												'ldap_user',
+											 );
 							}
+							$found = array_intersect($all_types, $type_code);
+							if (empty($found)) continue;
 						}
+
 					}
 
 					// find the DN for the asset
@@ -735,6 +763,22 @@ class LDAP_Bridge extends Asset
 		// we can go through and construct our children array
 		$children = Array();
 
+		// work out the type code we want to list
+		if ($this->attr('user_type') == 'ldap_backend_user') {
+			$all_types = Array(
+							'user',
+							'backend_user',
+							'ldap_backend_user',
+						 );
+		} else {
+			// ldap_user
+			$all_types = Array(
+							'user',
+							'ldap_user',
+						 );
+		}
+		$found = array_intersect($all_types, $type_code);
+
 		foreach ($entries as $data) {
 			if ($data['dn'] == $assetid) continue;
 			unset($data['objectclass']['count']);
@@ -746,10 +790,10 @@ class LDAP_Bridge extends Asset
 					}
 					$children[$this->id.':'.$data['dn']] = 'ldap_user_group';
 				} else if (isset($this->_user_types[$class])) {
-					if (!empty($type_code) && !in_array('user', $type_code)) {
+					if (!empty($type_code) && empty($found)) {
 						continue(2);
 					}
-					$children[$this->id.':'.$data['dn']] = 'ldap_user';
+					$children[$this->id.':'.$data['dn']] = $this->attr('user_type');
 				}
 			}
 		}
@@ -987,7 +1031,7 @@ class LDAP_Bridge extends Asset
 				return $links = Array(
 									'linkid'			=> 0,
 									'majorid'			=> $id_parts[0].':'.$id_parts[1],
-									'major_type_code'	=> 'ldap_user',
+									'major_type_code'	=> $this->attr('user_type'),
 									'minorid'			=> $assetid,
 									'value'				=> '',
 									'link_type'			=> $this->ldap_shdw_link_type,
@@ -1169,6 +1213,159 @@ class LDAP_Bridge extends Asset
 		return 0;
 
 	}//end createAssetLink()
+
+
+	/**
+	* Paints the user info based on the setting in the bridge
+	*
+	* @param array	$info	the attributes of the ldap_user or ldap_backend_user asset
+	* @param object	&$o		the outputter class for the ldap_user or ldap_backend_user
+	*						pass in a null obj to print details for frontend
+	*
+	* @return void
+	* @access public
+	*/
+	function paintUserDetails($info, &$o)
+	{
+		$show = $this->attr('user_attributes');
+		if (!isset($show['show'])) {
+			$show = Array();
+		} else {
+			$show = $show['show'];
+		}
+
+		if (is_null($o)) {
+			?><table border="0" cellspacing="2" cellpadding="2"><?php
+		}
+
+		// loop through each field to be shown
+		foreach ($show as $field_name) {
+			if (!isset($info[$field_name])) {
+				// field not defined
+				continue;
+			} else {
+				$value = $info[$field_name]['value'];
+				$count = 0;
+				$multi = '';
+				if (is_array($value)) {
+					$count = count($value);
+					$value = implode('<br />', $value);
+				}
+				if ($count > 1) $multi = ' ('.$count.' values)';
+
+				if (!is_null($o)) {
+					$o->openField($field_name.$multi);
+				} else {
+					?><tr><td valign="top"><b><?php echo $field_name.$multi; ?></b></td><td valign="top"><?php
+				}
+				echo $value;
+				if (!is_null($o)) {
+					echo '<br />';
+					// only print extra info if we are on the backend
+					// TODO: Leaving this in by request, until we are sure all implementations work
+					if (isset($info[$field_name]['attrid'])) {
+						echo '<span style="color:#666">(attrid = '.$info[$field_name]['attrid'].')</span> ';
+					}
+					echo '<span style="color:#666">(type = '.$info[$field_name]['type'].')</span>';
+					$o->closeField();
+				} else {
+					?></td></tr><?php
+				}
+			}
+		}//end foreach
+
+		if (is_null($o)) {
+			?></table><?php
+		}
+
+	}//end paintUserDetails()
+
+
+	/**
+	* Paints the user info based on the setting in the bridge
+	*
+	* @param object	&$user	the LDAP user asset that we are going to initialise
+	* @param array	$data	the LDAP entry for this user (contains all user data)d
+	*
+	* @return void
+	* @access public
+	*/
+	function initUser(&$user, $data)
+	{
+
+		// the attribute mappings to the LDAP schemas
+		$attrs = $this->attr('attributes');
+		$user->_ldapid = $this->id;
+
+		// set general object properties
+		$user->id = $this->id.':'.$data['dn'];
+		foreach ($data['objectclass'] as $class) {
+			$class = strtolower($class);
+			foreach ($this->_user_types as $key => $value) {
+				if ($class == $key && isset($attrs[$value])) {
+					$user->name = $data[$attrs[$value]][0];
+				}
+			}
+		}
+		if (empty($user->name)) {
+			$user->name = translate('ldap_unknown_user');
+		}
+
+		$user->short_name = $user->name;
+		$user->status = $this->status;
+		$user->version = '0.1';
+
+		// error_log('initUser: '.$user->name."($this->id, ".$this->attr('user_type').")");
+
+		foreach ($data as $key => $value) {
+			if (!is_array($value)) continue;
+			if (isset($value['count'])) unset($value['count']);
+			$user->vars[$key] = Array(
+									'value'	=> $value,
+									'type'	=> is_array($value) ? 'serialise' : 'text',
+								);
+		}
+
+		// set the data paths
+		$user->_loadDataPaths();
+
+		// set variable values
+		$user->vars['dn']['value'] = $data['dn'];
+		$user->vars['dn']['type'] = 'text';
+
+		if (isset($attrs['uid']) && isset($data[$attrs['uid']])) {
+			$user->vars['username']['value'] = $data[$attrs['uid']][0];
+		} else {
+			$user->vars['username']['value'] = $data['dn'];
+		}
+
+		$user->vars['username']['type'] = 'text';
+
+		if (isset($attrs['email']) && isset($data[$attrs['email']])) {
+			$user->vars['email']['value'] = $data[$attrs['email']][0];
+		} else {
+			$user->vars['email']['value'] = '';
+		}
+
+		$user->vars['email']['type'] = 'email';
+
+		if (isset($attrs['fn']) && isset($data[$attrs['fn']])) {
+			$user->vars['first_name']['value'] = $data[$attrs['fn']][0];
+		} else {
+			$user->vars['first_name']['value'] = '';
+		}
+
+		$user->vars['first_name']['type'] = 'text';
+
+		if (isset($attrs['sn']) && isset($data[$attrs['sn']])) {
+			$user->vars['last_name']['value'] = $data[$attrs['sn']][0];
+		} else {
+			$user->vars['last_name']['value'] = '';
+		}
+
+		$user->vars['last_name']['type'] = 'text';
+
+	}//end initUser()
 
 
 }//end class
