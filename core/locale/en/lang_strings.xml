@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.185 2006/11/10 06:01:44 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.186 2006/11/15 04:05:23 lwright Exp $
 *
 */
 
@@ -38,6 +38,7 @@
 	<string source="add_new_trigger">Add New Trigger</string>
 	<string source="allow_ip_change">Allow IP Change</string>
 	<string source="allow_user_ip_to_fluctuate">Allow the IP of a user to fluctuate?</string>
+	<string source="asset(s)">asset(s)</string>
 	<string source="process_php_credentials">Process PHP Credentials</string>
 	<string source="process_php_credentials_note">If this is enabled and a username and password are supplied in PHP_AUTH_USR and PHP_AUTH_PW, the system will try to authenticate a user with those credentials</string>
 
@@ -46,7 +47,7 @@
 
 	<string source="allow_single_sign_in">Accept HTTP Authentication</string>
 	<string source="allow_single_sign_in_note">If this option is enabled and a username is found in the server variable specified below, the system will try to automatically log in a user with that username.  (It will assume that the user has already been authenticated by some external mechanism.)</string>
-	<string source="http_login_var">HTTP Authentication Variable</string> 
+	<string source="http_login_var">HTTP Authentication Variable</string>
 	<string source="applies_to">Applies To</string>
 	<string source="asset_date_search_fields">Asset Date Search Fields</string>
 	<string source="assetid">Assetid</string>
@@ -407,6 +408,7 @@
 	<string source="popups_blocked">Popups are Blocked</string>
 	<string source="logged_in_as">Logged in as: &lt;b&gt;%1$s - %2$s&lt;/b&gt;</string>
 	<string source="logged_in">Logged in</string>
+	<string source="asset_search_default_keyword">Enter keywords, asset ID or URL</string>
 	<string source="asset_search_default">Enter asset ID or URL</string>
 	<string source="quick_search">Quick Search</string>
 	<string source="cascade_status_change">Cascade Status Change</string>
@@ -1425,6 +1427,7 @@
 	<string source="schema_name">Schema Name</string>
 	<string source="possible_values">Possible Values</string>
 	<string source="search_failed">Search Failed</string>
+	<string source="search_results">Search Results</string>
 	<string source="delete_rule">Delete Rule</string>
 	<string source="display_name">Display Name</string>
 	<string source="display_question">Display ?</string>
