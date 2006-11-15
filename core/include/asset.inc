@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.573 2006/11/10 06:01:43 tbarrett Exp $
+* $Id: asset.inc,v 1.574 2006/11/15 06:08:49 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.573 $
+* @version $Revision: 1.574 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1237,12 +1237,11 @@ class Asset extends MySource_Object
 			$fields = Array(
 						'name',
 						'short_name',
-						'updated',
 						'updated_userid',
 					  );
 
-			$changed_data = Array();
-
+			// We know that 'updated' field ALWAYS changes, no need to check the value changes
+			$changed_data = Array('updated');
 			foreach ($fields as $field) {
 				if ($this->$field != $$field) {
 					$changed_data[] = $field;
