@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.153 2006/11/15 04:20:36 lwright Exp $
+* $Id: backend.inc,v 1.154 2006/11/15 04:26:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.153 $
+* @version $Revision: 1.154 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -663,7 +663,7 @@ class Backend extends MySource_Object
 				// This function now moves the div between 1 and 10 pixels
 				// depending on how far away the DIV is from stopping
 				function moveIt() {
-					to_move = Math.max(Math.min(Math.abs(divTop) * 0.05, 10), 1);
+					to_move = Math.max(Math.min(Math.abs(divTop) * 0.08, 10), 2);
 					divTop += to_move;
 					msgDiv.style.top = (divTop + parent.frames["sq_main"].document.body.scrollTop) + "px";
 					if (divTop >= -0.1 && myTimer != null) {
