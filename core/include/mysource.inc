@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.196 2006/11/10 06:01:44 tbarrett Exp $
+* $Id: mysource.inc,v 1.197 2006/11/15 05:20:04 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.196 $
+* @version $Revision: 1.197 $
 * @package MySource_Matrix
 */
 class MySource
@@ -362,7 +362,7 @@ class MySource
 				if ($asset != NULL) {
 					$valid_protocols = $asset->getValidProtocols();
 					if (empty($valid_protocols)) {
-						// if current protocol not valid and no other protocol exists for this URL, it's as if 
+						// if current protocol not valid and no other protocol exists for this URL, it's as if
 						// this asset has not been found at all.  This would happen if it only had
 						// an HTTP URL but force-secure = true for the asset.
 						$asset = NULL;
@@ -377,7 +377,7 @@ class MySource
 			}
 
 
-			
+
 			if (is_null($asset)) {
 
 				$protocol = current_protocol();
@@ -682,7 +682,7 @@ class MySource
 					}
 				}
 			}
-			log_dump(explode("\n", SQ_CONF_FORCE_SECURE_LOGIN_URLS));
+
 			if (in_array($current_root_url, explode("\n", SQ_CONF_FORCE_SECURE_LOGIN_URLS))) {
 				// Redirect to HTTPS
 				$_SESSION['SQ_RETURN_TO_HTTP'] = 1;
@@ -1205,6 +1205,14 @@ class MySource
 		if (is_null($user)) return FALSE;
 
 		if (!$this->setCurrentUser($user)) return FALSE;
+
+
+		$old_session_id = session_id();
+		// regenerate the session id to protect against session fixation attacks
+		session_regenerate_id();
+		// when logging in we wipe the previous session file
+		$sess_filename = session_save_path().'/sess_'.$old_session_id;
+		@unlink($sess_filename);
 
 		$_SESSION['userid'] = $user->id;
 		$_SESSION['user_type_code'] = $user->type();
@@ -2524,7 +2532,7 @@ class MySource
 	* @return array
 	* @access private
 	*/
-	function _getHeaders() 
+	function _getHeaders()
 	{
 		if (function_exists('apache_request_headers')) {
 			// If the apache_request_headers function exists, we are
