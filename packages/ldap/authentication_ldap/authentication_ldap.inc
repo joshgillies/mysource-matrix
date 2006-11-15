@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.13 2006/11/02 23:56:51 tbarrett Exp $
+* $Id: authentication_ldap.inc,v 1.14 2006/11/15 23:43:55 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -51,7 +51,7 @@ class Authentication_LDAP extends Authentication
 	/**
 	* Attempts to find a user that matches the passed username and password
 	*
-	* If the wrong password is supllied, the user account will be locked after
+	* If the wrong password is supplied, the user account will be locked after
 	* a system defined number of incorrect login attempts
 	*
 	* @param string	$username	the user name to search for
@@ -94,8 +94,9 @@ class Authentication_LDAP extends Authentication
 				$entry = $entry[0];
 
 				// create our user
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user');
-				$user =& new LDAP_User($bridge->id, $entry);
+				$user_type = $bridge->attr('user_type');
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
+				$user =& new $user_type($bridge->id, $entry);
 
 				// verify password
 				$success = @$ldap->connectAsUser($user->attr('dn'), $password);
@@ -153,8 +154,9 @@ class Authentication_LDAP extends Authentication
 			}
 			if (isset($entry[0])) {
 				$entry = $entry[0];
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user');
-				$user =& new LDAP_User($bridge->id, $entry);
+				$user_type = $bridge->attr('user_type');
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
+				$user =& new $user_type($bridge->id, $entry);
 				break;
 			}
 		}
