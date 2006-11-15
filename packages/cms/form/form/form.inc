@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.141 2006/10/10 03:56:22 emcdonald Exp $
+* $Id: form.inc,v 1.142 2006/11/15 04:53:00 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.141 $
+* @version $Revision: 1.142 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1616,6 +1616,11 @@ class Form extends Asset
 			$info[$asset['type_code'].'_id']   = $asset['assetid'];
 		}
 		$info['url'] = current_url(TRUE, TRUE);
+
+		if (!is_null($this->submission_asset)) {
+			$info['submission_id'] = $this->submission_asset->id;
+		}
+
 		return $info;
 
 	}//end getFormInfo()
