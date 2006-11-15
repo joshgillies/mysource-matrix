@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.152 2006/11/08 03:33:55 rong Exp $
+* $Id: backend.inc,v 1.153 2006/11/15 04:20:36 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.152 $
+* @version $Revision: 1.153 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -308,19 +308,65 @@ class Backend extends MySource_Object
 		$popups_blocked = (!isset($_SESSION['sq_popups_blocked']) || $_SESSION['sq_popups_blocked']);
 		$dhtml_messages = Array();
 
-		$asset_search_default = translate('asset_search_default');
+		if ($GLOBALS['SQ_SYSTEM']->am->installed('search_manager')) {
+			$asset_search_default = translate('asset_search_default_keyword');
+		} else {
+			$asset_search_default = translate('asset_search_default');
+		}
 
 		$this->out->openRaw();
 		?>
+		<script language="JavaScript" type="text/javascript" src="<?php echo sq_web_path('lib') ?>/js/general.js"></script>
 		<script language="JavaScript" type="text/javascript">
 			// number of seconds before refreshing frame
 			var REFRESH_UPDATE = <?php echo max(10, (int) SQ_CONF_REFRESH_INTERVAL); ?>;
+			var MAX_UPDATE = <?php echo max(10, (int) SQ_CONF_LOCK_LENGTH - 60); ?>;
 
 			var popups_blocked = '<?php echo (int) $popups_blocked; ?>';
 
-			function reloadHeader() {
+			// Do we want to delay the header (which we will until all messages
+			// have been run through
+			var delay_header = false;
+
+			// Has the header been delayed?
+			var header_delayed = 0;
+
+			/**
+			* Reloads the header window
+			*
+			* @param boolean	force	if true, we MUST reload the header, otherwise
+			*							it will be delayed until all messages are closed
+			*
+			* @return void
+			*/
+			function reloadHeader(force) {
+				if (arguments.length == 0) force = false;
+
 				var current_assetid = '';
 				var lock_type = '';
+
+				// get the current message div
+				msgDiv = parent.frames["sq_main"].document.getElementById("new_message_popup");
+
+				// If we are being forced to reload, due to hitting the lock
+				// length limit, close the current div and stop any delay
+				if (force) {
+					cancelMsgDiv();
+					delay_header = false;
+				}
+
+				if (!msgDiv || msgDiv.style.display == "none") {
+					delay_header = false;
+				}
+
+				if (delay_header) {
+					header_delayed = true;
+					// Check every 10 seconds so that if we've clicked off the
+					// page, we can at still update this
+					setTimeout("reloadHeader()", 10 * 1000);
+					return;
+				}
+
 				if (parent.frames["sq_main"] && parent.frames["sq_main"].get_form_element_value && parent.frames["sq_main"].SQ_DOCUMENT_LOADED) {
 					current_assetid = parent.frames["sq_main"].get_form_element_value('backend_assetid');
 					lock_type       = parent.frames["sq_main"].get_form_element_value('sq_lock_type');
@@ -334,6 +380,7 @@ class Backend extends MySource_Object
 		</script>
 		<?php
 		$this->out->addOnLoad('setTimeout("reloadHeader()", REFRESH_UPDATE * 1000);');
+		$this->out->addOnLoad('setTimeout("reloadHeader(true)", MAX_UPDATE * 1000);');
 
 		if (!SQ_IN_LIMBO && isset($_SESSION['backend_header_last_refresh'])) {
 			// check for updates to the asset tree
@@ -372,43 +419,179 @@ class Backend extends MySource_Object
 		//////////////////////////////
 		if (!empty($_POST['asset_search']) && $_POST['asset_search'] != $asset_search_default) {
 			$_POST['asset_search'] = trim($_POST['asset_search']);
+
+			$assetid_match = FALSE;
+			$url_match = FALSE;
+
 			// check for a url first
 			$searched_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL('', strip_url($_POST['asset_search'], TRUE), TRUE, TRUE);
 			if (is_null($searched_asset) && assert_valid_assetid($_POST['asset_search'], '', TRUE, FALSE)) {
 				// check for assetid second
 				$searched_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST['asset_search'], '', TRUE);
+				if (!is_null($searched_asset)) $assetid_match = TRUE;
+			} else {
+				$url_match = TRUE;
 			}
 
-			if (is_null($searched_asset)) {
-				// if we are in the backend use dhtml otherwise use js alert
-				if (!SQ_IN_LIMBO) {
+			$search_terms = $_POST['asset_search'];
+			$results = $this->doBackendSearch($search_terms);
 
-					$html = '
-						<table class="sq-backend-search-failed-table">
-							<tr>
-								<td rowspan="2" valign="middle" class="sq-backend-search-failed-cell"><img src="'.$this->out->filesPath('/images/icons/info.png').'" width="16" height="16" alt="" border="0" /></td>
-								<td class="sq-backend-search-failed-heading" nowrap="nowrap">'.translate('search_failed').'</td>
-								<td class="sq-backend-search-failed-body" align="right">[<a class="sq-backend-search-failed-body" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;">x</a>]</td>
-							</tr>
-							<tr>
-								<td class="sq-backend-search-failed-body" colspan="2">'.translate('failed_searching_for', addslashes($_POST['asset_search'])).'</td>
-							</tr>
-						</table>
-						';
-					$dhtml_messages['search_failed'] = Array('html' => str_replace("\n", '', $html), 'width' => '300');
+			$js_code = '';
 
-				} else {
-					$this->out->addOnLoad('
-						alert(js_translate("search_found_nothing","'.addslashes($_POST['asset_search']).'"));
-					');
-				}//end if
-
+			if (is_null($searched_asset) && empty($results)) {
+				$html = $this->_getDHTMLMessage(translate('search_failed'), translate('failed_searching_for', addslashes($_POST['asset_search'])), 'search-failed', 'info');
+				$dhtml_messages['search_failed'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
 			} else {
-				$this->out->addOnLoad('
-					if (parent.frames["sq_main"]) {
-						parent.frames["sq_main"].location = "'.$_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.urlencode($searched_asset->id).'";
+				$detail_lines = Array();
+
+				if (!is_null($searched_asset)) {
+					if ($assetid_match) {
+						$detail_lines[] = '<strong>'.'Matched on Asset ID:'.'</strong>';
 					}
-				');
+
+					if ($url_match) {
+						$detail_lines[] = '<strong>'.'Matched on URL:'.'</strong>';
+					}
+
+					$detail_lines[] = get_asset_tag_line($searched_asset->id, 'details');
+
+					if (empty($results)) {
+						$this->out->addOnLoad('
+							if (parent.frames["sq_main"]) {
+								parent.frames["sq_main"].location = "'.$_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.urlencode($searched_asset->id).'";
+							}
+						');
+					}
+				}
+
+
+				if (!empty($results)) {
+					$result_list = Array();
+
+					$detail_lines[] = '<strong>'.'Matched on Keyword ('.count($results).' asset'.(count($results) == 1 ? '' : 's').'):'.'</strong>';
+					$i = 0;
+
+					foreach ($results as $result_assetid => $result_detail) {
+						$this_detail = Array();
+
+						foreach ($result_detail as $result_component_name => $result_component) {
+							foreach ($result_component as $name => $value) {
+
+								$name_detail = '';
+								switch ($result_component_name) {
+									case 'contents':
+										$name_detail = 'Asset Contents';
+									break;
+
+									case 'metadata':
+									case 'schema':
+										$name_detail = ($result_component_name == 'schema' ? 'Default ' : '').'Metadata: ';
+
+										// Find a friendly name for the metadata field, if there
+										// is none then use the standard name of the field itself
+										$attr_values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('friendly_name', 'metadata_field', Array($name));
+										if (empty($attr_values)) {
+											$name_detail .= $value['name'];
+										} else {
+											$name_detail .= $attr_values[$name];
+										}
+
+										$value = $value['value'];
+									break;
+
+									case 'attributes':
+										$name_detail = 'Attribute: '.ucwords(str_replace('_', ' ', $name));
+									break;
+								}
+
+								$words = explode(' ', $search_terms);
+								$value = strip_tags($value);
+
+								preg_match_all('/('.addslashes(implode('|', $words)).')/i', $value, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+
+								// We go backwards, because that way we don't invalidate
+								// our offsets. This section ellipsisises the bits between
+								// matches so that there's 15 characters either side of
+								// matches.
+
+								// Last match position
+								if ($matches[count($matches) - 1][0][1] < strlen($value) - 15) {
+									$value = substr_replace($value, '...', $matches[count($matches) - 1][0][1] + 15);
+								}
+
+								for ($i = count($matches) - 1; $i > 0; $i--) {
+									$previous_match = $matches[$i - 1][0];
+									$this_match = $matches[$i][0];
+
+									$prev_pos = $previous_match[1] + strlen($previous_match[0]);
+									$next_pos = $this_match[1];
+
+									if (($next_pos - $prev_pos) > 30) {
+										$value = substr_replace($value, '...', $prev_pos + 15, ($next_pos - $prev_pos) - 30);
+									}
+								}
+
+								// First match position
+								if ($matches[0][0][1] > 15) {
+									$value = substr_replace($value, '...', 0, $matches[0][0][1] - 15);
+								}
+
+								// Cut it down to a certain number of characters anyway
+								$value = ellipsisize($value, 120);
+
+								$value = preg_replace('/('.addslashes(implode('|', $words)).')/i', '<span class="sq-backend-search-results-highlight">$1</span>', $value);
+
+								// remove
+								$this_detail[] = $name_detail.'<br/><em>'.str_replace("\r", '', str_replace("\n", '<br/>', $value)).'</em>';
+							}
+						}
+
+						$result_list[] = Array(
+											'tag_line' => get_asset_tag_line($result_assetid, 'details'),
+											'detail'   => implode($this_detail, '<br/>'),
+										 );
+					}
+				}
+
+				$keyword_match_line = Array();
+
+				if (!empty($result_list))
+				{
+					$results_per_page = min(count($result_list), $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE'));
+
+					if (count($result_list) > $results_per_page) {
+						$keyword_match_line[] = '<div align="center">
+						<a href="" onclick="jumpToSearchResults(current = 0); return false;" title="Go back to first page">&lt;&lt;</a> &nbsp;
+						<a href="" onclick="jumpToSearchResults(current = Math.max(current - '.$results_per_page.', 0)); return false;" title="Go back one page">&lt;</a> &nbsp;
+						<strong>( <span id="sq-search-results-page-start">1</span> - <span id="sq-search-results-page-end">'.min(count($result_list), $results_per_page).'</span> )</strong> &nbsp;
+						<a href="" onclick="jumpToSearchResults(current = Math.min(current + '.$results_per_page.', Math.floor((parent.frames['."'sq_main'".'].keyword_search_results.length - 1) / '.$results_per_page.') * '.$results_per_page.')); return false;" title="Go forward one page">&gt;</a> &nbsp;
+						<a href="" onclick="jumpToSearchResults(current = Math.floor((parent.frames['."'sq_main'".'].keyword_search_results.length - 1) / '.$results_per_page.') * '.$results_per_page.'); return false;" title="Go forward to last page">&gt;&gt;</a></a></div>';
+					}
+
+					$i = 0;
+					$js_code .= 'with (parent.frames["sq_main"]) { current = 0; results_per_page = '.$results_per_page.'; keyword_search_results = [];';
+
+					foreach($result_list as $result) {
+						$i++;
+						if ($i <= $results_per_page) {
+							$this_line  = '<div><div id="sq-search-results-expand-'.$i.'" class="sq-search-results-expand-div"><a href="#" id="sq-search-results-expand-link-'.$i.'" class="sq-search-results-expand-link" onclick="if (this.innerHTML == \'+\') {document.getElementById(\'sq-search-results-detail-'.$i.'\').style.display = \'block\'; this.innerHTML = \'-\';} else {document.getElementById(\'sq-search-results-detail-'.$i.'\').style.display = \'none\'; this.innerHTML = \'+\';} return false;">+</a></div>';
+							$this_line .= '<div id="sq-search-results-entry-'.$i.'"  style="margin-top: 5px">';
+							$this_line .= $result['tag_line'].'<br/><div id="sq-search-results-detail-'.$i.'" style="display:none">'.$result['detail'].'</div></div></div>';
+							$keyword_match_line[] = $this_line;
+						}
+
+						$js_code .= "\n".'keyword_search_results['.($i-1).'] = "'.addslashes(trim($result['tag_line'].'<br/><div id=\'sq-search-results-detail-'.((($i-1) % $results_per_page) + 1).'\' style=\'display:none\'>'.$result['detail'])).'</div>";';
+
+					}
+				}
+
+				$detail_lines[] = implode('', $keyword_match_line);
+
+				$js_code .= '}';
+
+				$html = $this->_getDHTMLMessage(translate('search_results'), $detail_lines, 'search-results');
+				$dhtml_messages['search_results'] = Array('html' => str_replace("\n", '', preg_replace('|<script.*</script>|U', '', $html)), 'width' => '400', 'timeout' => 0);
+
 			}//end if
 		}//end if
 
@@ -421,19 +604,8 @@ class Backend extends MySource_Object
 			//////////////////////////////
 
 			if ($popups_blocked) {
-				$html = '
-					<table class="sq-backend-popups-blocked-table">
-						<tr>
-							<td rowspan="2" valign="middle" class="sq-backend-popups-blocked-cell"><img src="'.$this->out->filesPath('/images/icons/stop.png').'" width="31" height="33" border="0" alt="" /></td>
-							<td class="sq-backend-popups-blocked-heading" nowrap="nowrap">'.translate('popups_blocked').'</td>
-							<td class="sq-backend-popups-blocked-body" align="right">[<a class="sq-backend-popups-blocked-body" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;">x</a>]</td>
-						</tr>
-						<tr>
-							<td class="sq-backend-popups-blocked-body" colspan="2">'.translate('disable_popup_blocking').'</td>
-						</tr>
-					</table>
-					';
-				$dhtml_messages['popups_blocked'] = Array('html' => str_replace("\n", '', $html), 'width' => '400');
+				$html = $this->_getDHTMLMessage(translate('popups_blocked'), translate('disable_popup_blocking'), 'popups-blocked', 'stop', 32, 32);
+				$dhtml_messages['popups_blocked'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
 			}
 
 
@@ -448,160 +620,175 @@ class Backend extends MySource_Object
 			$read_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, NULL, Array(SQ_MSG_READ), Array(), $from);
 			$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, NULL, Array(SQ_MSG_UNREAD), Array());
 
-
-
 			if (!empty($messages)) {
-				$html = '
-				<table class="sq-backend-new-message-table">
-					<tr>
-						<td rowspan="2" valign="middle" class="sq-backend-new-message-cell"><img src="'.$this->out->filesPath('/images/icons/mail.png').'" width="31" height="33" border="0" alt="" /></td>
-						<td class="sq-backend-new-message-heading" nowrap="nowrap">'.translate('new_messages').'</td>
-						<td class="sq-backend-new-message-heading" align="right">[<a class="sq-backend-new-message-body" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;">x</a>]</td>
-					</tr>
-					<tr>
-						<td class="sq-backend-new-message-body" colspan="2" nowrap="nowrap">'.translate('new_messages_count', $GLOBALS['SQ_SYSTEM']->user->name, count($messages)).'</td>
-					</tr>
-				</table>
-				';
-				$dhtml_messages['new_messages'] = Array('html' => str_replace("\n", '', $html), 'width' => '220');
+				$html = $this->_getDHTMLMessage(translate('new_messages'), translate('new_messages_count', $GLOBALS['SQ_SYSTEM']->user->name, count($messages)), 'new-message', 'mail', 31, 37);
+				$dhtml_messages['new_messages'] = Array('html' => str_replace("\n", '', $html), 'width' => '220', 'timeout' => 6.0);
 			}
 
+		}//end if not in LIMBO
 
-			if (!empty($dhtml_messages)) {
+		if (!empty($dhtml_messages)) {
+			?>
+			<script language="Javascript" type="text/javascript">
+
+				<?php
+				if (!SQ_IN_LIMBO) {
 				?>
-				<script language="Javascript" type="text/javascript">
+				// update inbox message
+				if (parent.frames["sq_sidenav"] != null && parent.frames["sq_sidenav"].document.getElementById('sq_messages_text') != null) {
+					parent.frames["sq_sidenav"].document.getElementById('sq_messages_text').innerHTML="<?php echo translate('inbox_new_messages', count($messages), (count($read_messages)+count($messages))); ?>";
+				}
+				<?php
+				}
+				?>
 
-					// update inbox message
-					if (parent.frames["sq_sidenav"] != null && parent.frames["sq_sidenav"].document.getElementById('sq_messages_text') != null) {
-						parent.frames["sq_sidenav"].document.getElementById('sq_messages_text').innerHTML="<?php echo translate('inbox_new_messages', count($messages), (count($read_messages)+count($messages))); ?>";
-					}
+				var msgDiv = null;
+				var screenMenu = null;
+				var screenMenuFiller = null;
 
-					var msgDiv = null;
-					var screenMenu = null;
-					var screenMenuFiller = null;
+				var delay = 30;     // milliseconds between movements
+				var myTimer = null;
+				var counter = null; // number of times to move the div
+				var messageIndex = 0;
 
-					var delay = 30;     // milliseconds between movements
-					var myTimer = null;
-					var counter = null; // number of times to move the div
-					var messageIndex = 0;
+				var divTop = 0;
+				var divLeft = 0;
+				var smTop = 0;
+				var smLeft = 0;
 
-					var divTop = 0;
-					var divLeft = 0;
-					var smTop = 0;
-					var smLeft = 0;
+				// Time-out of current popup in milliseconds - if zero, the
+				// popup can only be dismissed by the user
+				var currentTimeout = 0;
 
-					function moveIt(x) {
-						divTop += x;
-						msgDiv.style.top = divTop + "px";
-						if (--counter < 0 && myTimer != null) {
-							clearInterval(myTimer);
-							setTimeout("cancelMsgDiv()", 6000);
-						}
-					}
-
-					function showMsgDiv() {
-						if (screenMenu) {
-							if (window.navigator.userAgent.indexOf('MSIE') > 0) {
-								screenMenuFiller.style.width = screenMenu.offsetWidth;
-								screenMenuFiller.style.height = screenMenu.offsetHeight;
-								screenMenuFiller.style.display = "block";
-								screenMenu.style.display = "none";
-							}
-							screenMenu.style.MozOpacity = "0";
-						}
-						msgDiv.style.display = "block";
-						counter = msgDiv.offsetHeight;
-
-						divTop = (counter * -1) + parent.frames["sq_main"].document.body.scrollTop;
-						msgDiv.style.top = divTop + "px";
-
-						myTimer = setInterval("moveIt(1)", delay);
-					}
-
-					function cancelMsgDiv() {
+				// This function now moves the div between 1 and 10 pixels
+				// depending on how far away the DIV is from stopping
+				function moveIt() {
+					to_move = Math.max(Math.min(Math.abs(divTop) * 0.05, 10), 1);
+					divTop += to_move;
+					msgDiv.style.top = (divTop + parent.frames["sq_main"].document.body.scrollTop) + "px";
+					if (divTop >= -0.1 && myTimer != null) {
 						clearInterval(myTimer);
-						msgDiv.style.display = "none";
-						if (screenMenu) {
-							if (window.navigator.userAgent.indexOf('MSIE') > 0) {
-								screenMenu.style.display = "block";
-								screenMenuFiller.width = "0px";
-								screenMenuFiller.height = "0px";
-								screenMenuFiller.style.display = "none";
-							}
-							screenMenu.style.MozOpacity = "1";
+
+						if (currentTimeout != 0) {
+							setTimeout("cancelMsgDiv()", currentTimeout);
 						}
-						showNextMessage();
+					}
+				}
+
+				function showMsgDiv() {
+					if (screenMenu) {
+						if (window.navigator.userAgent.indexOf('MSIE') > 0) {
+							screenMenuFiller.style.width = screenMenu.offsetWidth;
+							screenMenuFiller.style.height = screenMenu.offsetHeight;
+							screenMenuFiller.style.display = "block";
+							screenMenu.style.display = "none";
+						}
+						screenMenu.style.MozOpacity = "0";
+					}
+					msgDiv.style.display = "block";
+					counter = msgDiv.offsetHeight;
+
+					divTop = (counter * -1);
+					msgDiv.style.top = divTop + "px";
+
+					myTimer = setInterval("moveIt()", delay);
+				}
+
+				function cancelMsgDiv() {
+					clearInterval(myTimer);
+					msgDiv.style.display = "none";
+					if (screenMenu) {
+						if (window.navigator.userAgent.indexOf('MSIE') > 0) {
+							screenMenu.style.display = "block";
+							screenMenuFiller.width = "0px";
+							screenMenuFiller.height = "0px";
+							screenMenuFiller.style.display = "none";
+						}
+						screenMenu.style.MozOpacity = "1";
+					}
+					showNextMessage();
+				}
+
+				function showNextMessage() {
+					if (!popupContents[messageIndex]) {
+						delay_header = false;
+						if (header_delayed) reloadHeader();
+						return;
 					}
 
-					function showNextMessage() {
-						if (!popupContents[messageIndex]) return;
-						msgDiv.innerHTML = popupContents[messageIndex]['html'];
-						msgDiv.style.right = "10px";
+					delay_header = true;
 
-						setTimeout("showMsgDiv()", 500);
-						messageIndex++;
-					}
+					msgDiv.innerHTML = popupContents[messageIndex]['html'];
+					currentTimeout = popupContents[messageIndex]['timeout'];
+					msgDiv.style.right = "10px";
 
-					var popupContents = new Array();
+					setTimeout("showMsgDiv()", 500);
+					messageIndex++;
+				}
+
+				var popupContents = new Array();
+				<?php
+				$i = 0;
+				foreach ($dhtml_messages as $code => $message) {
+					if ($code == 'popups_blocked') continue;
+					?>
+					popupContents[<?php echo $i; ?>] = Array();
+					popupContents[<?php echo $i; ?>]['html'] = '<?php echo addslashes($message['html']); ?>';
+					popupContents[<?php echo $i; ?>]['width'] = '<?php echo addslashes($message['width']); ?>';
+					popupContents[<?php echo $i; ?>]['timeout'] = '<?php echo addslashes(array_get_index($message, 'timeout', 0) * 1000); ?>';
 					<?php
-					$i = 0;
-					foreach ($dhtml_messages as $code => $message) {
-						if ($code == 'popups_blocked') continue;
+					$i++;
+				}
+				?>
+
+				if (parent.frames["sq_main"].document.body && parent.frames["sq_main"].SQ_DOCUMENT_LOADED) {
+
+					msgDiv = parent.frames["sq_main"].document.getElementById("new_message_popup");
+					screenMenu = parent.frames["sq_main"].document.getElementById("sq_screen_menu");
+					screenMenuFiller = parent.frames["sq_main"].document.getElementById("sq_screen_menu_filler");
+					if (msgDiv == null) {
+						msgDiv = parent.frames["sq_main"].document.createElement("div");
+						msgDiv.id = "new_message_popup";
+						msgDiv.style.position = "absolute";
+						msgDiv.style.display = "block";
+						msgDiv.style.top = "-1000px";
+						msgDiv.style.right = "-1000px";
+						msgDiv.style.zIndex = "10";
+						parent.frames["sq_main"].document.body.appendChild(msgDiv);
+					}
+
+					messageIndex = 0;
+					<?php
+					if (!empty($js_code)) {
+						echo str_replace("\n", '  ', $js_code);
+					}
+
+					if (isset($dhtml_messages['popups_blocked'])) {
 						?>
-						popupContents[<?php echo $i; ?>] = Array();
-						popupContents[<?php echo $i; ?>]['html'] = '<?php echo addslashes($message['html']); ?>';
-						popupContents[<?php echo $i; ?>]['width'] = '<?php echo addslashes($message['width']); ?>';
+						var popup = window.open('', 'sq_popup_test', 'width=1px,height=1px,top=0,left=0');
+						if (!popup) {
+							msgDiv.innerHTML = '<?php echo addslashes($dhtml_messages['popups_blocked']['html']); ?>';
+							setTimeout("showMsgDiv()", 500);
+							divLeft = parent.frames["sq_main"].document.body.offsetWidth + parent.frames["sq_main"].document.body.scrollLeft - <?php echo $dhtml_messages['popups_blocked']['width']; ?> - 20;
+							msgDiv.style.left = divLeft + "px";
+							REFRESH_UPDATE = 20;
+						} else {
+							popup.close();
+							popups_blocked = '0';
+							showNextMessage();
+						}
 						<?php
-						$i++;
+					} else {
+						?>
+						// show the first message
+						showNextMessage();
+						<?php
 					}
 					?>
-
-					if (parent.frames["sq_main"].document.body && parent.frames["sq_main"].SQ_DOCUMENT_LOADED) {
-
-						msgDiv = parent.frames["sq_main"].document.getElementById("new_message_popup");
-						screenMenu = parent.frames["sq_main"].document.getElementById("sq_screen_menu");
-						screenMenuFiller = parent.frames["sq_main"].document.getElementById("sq_screen_menu_filler");
-						if (msgDiv == null) {
-							msgDiv = parent.frames["sq_main"].document.createElement("div");
-							msgDiv.id = "new_message_popup";
-							msgDiv.style.position = "absolute";
-							msgDiv.style.display = "block";
-							msgDiv.style.top = "-1000px";
-							msgDiv.style.right = "-1000px";
-							msgDiv.style.zIndex = "10";
-							parent.frames["sq_main"].document.body.appendChild(msgDiv);
-						}
-
-						messageIndex = 0;
-						<?php
-						if (isset($dhtml_messages['popups_blocked'])) {
-							?>
-							var popup = window.open('', 'sq_popup_test', 'width=1px,height=1px,top=0,left=0');
-							if (!popup) {
-								msgDiv.innerHTML = '<?php echo addslashes($dhtml_messages['popups_blocked']['html']); ?>';
-								setTimeout("showMsgDiv()", 500);
-								divLeft = parent.frames["sq_main"].document.body.offsetWidth + parent.frames["sq_main"].document.body.scrollLeft - <?php echo $dhtml_messages['popups_blocked']['width']; ?> - 20;
-								msgDiv.style.left = divLeft + "px";
-								REFRESH_UPDATE = 20;
-							} else {
-								popup.close();
-								popups_blocked = '0';
-								showNextMessage();
-							}
-							<?php
-						} else {
-							?>
-							// show the first message
-							showNextMessage();
-							<?php
-						}
-						?>
-					}
-				</script>
-				<?php
-			}//end if empty msgs
-
-		}//end if not in LIMBO
+				}
+			</script>
+			<?php
+		}//end if empty msgs
 
 		if (SQ_ROLLBACK_VIEW) {
 			$now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
@@ -626,7 +813,7 @@ class Backend extends MySource_Object
 							<td nowrap valign="middle">
 							<?php
 								echo '<span class="sq-backend-header-item">'.translate('quick_search').'</span>';
-								text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 20, 0, empty($_POST['asset_search']), 'class="sq-backend-header-search-box"');
+								text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 30, 0, empty($_POST['asset_search']), 'class="sq-backend-header-search-box"');
 							?>
 							</td>
 							<td nowrap>
@@ -1106,6 +1293,85 @@ class Backend extends MySource_Object
 		}//end switch
 
 	}//end _printMain()
+
+
+	/**
+	* Return a standard message popup
+	*
+	* The style selected will require styles of the following format:
+	* sq-backend-[style name]-[component] where component is
+	* [table|heading|cell|body].
+	*
+	* @param string	$title	title of the popup
+	* @param mixed	$detail	(string|array) the detail part of the pop-up - if an
+	*						array then the popup will contain multiple rows
+	* @param string	$style	style of the popup
+	* @param string	$icon	icon to be displayed, inside Matrix's icon library
+	*
+	* @return string
+	* @access private
+	*/
+	function _getDHTMLMessage($title, $detail, $style='new-message', $icon='', $icon_width=16, $icon_height=16)
+	{
+		if (!is_array($detail)) $detail = Array($detail);
+
+		$html = '
+			<table class="sq-backend-'.$style.'-table">
+			<tr>
+			';
+		if (!empty($icon)) {
+			$html .= '		<td rowspan="'.(1 + count($detail)).'" width="'.$icon_width.'" valign="middle" class="sq-backend-'.$style.'-heading">'.sq_get_icon(sq_web_path('lib').'/web/images/icons/'.$icon.'.png', $icon_width, $icon_height, '', '', 'align="absmiddle"').'</td>';
+		}
+		$html .= '
+					<td class="sq-backend-'.$style.'-heading" nowrap="nowrap">'.$title.'</td>
+					<td class="sq-backend-'.$style.'-heading" align="right">[<a class="sq-backend-'.$style.'-heading" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;">x</a>]</td>
+				</tr>
+			';
+
+		foreach($detail as $detail_line) {
+			$html .= '
+					<tr>
+						<td class="sq-backend-'.$style.'-body" colspan="2">'.$detail_line.'</td>
+					</tr>';
+		}
+		$html .= '</table>';
+		return $html;
+
+	}//end _getDHTMLMessage()
+
+
+	function doBackendSearch($words)
+	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+		// Ugh, I don't like this, but if we are to have enhanced backend
+		// searching, we have to do it this way...
+		if ($GLOBALS['SQ_SYSTEM']->am->installed('search_manager')) {
+			$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+
+			$search_info = Array(
+							'fields'	=> Array(
+											'backend'	=> Array(
+															'words'			=> $words,
+															'word_logic'	=> 'AND',
+															'data_sources'	=> Array(
+																				0 => Array('type' => 'include_all'),
+																			   ),
+														   ),
+										   ),
+							'statuses'	=> get_constant_values('SQ_STATUS_'),
+						   );
+			$results = $sm->processSearch($search_info, TRUE);
+			if (!empty($results)) {
+				$results = $sm->getFormattedResults($results, $words);
+			}
+
+		} else {
+			$results = Array();
+		}
+
+		return $results;
+	}
 
 
 }//end class
