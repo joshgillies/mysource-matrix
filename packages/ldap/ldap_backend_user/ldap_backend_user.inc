@@ -11,25 +11,25 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.17 2006/11/15 23:53:58 rong Exp $
+* $Id: ldap_backend_user.inc,v 1.1 2006/11/15 23:53:06 rong Exp $
 *
 */
 
 
-require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 
 /**
-* Ldap_User
+* Ldap_Backend_User
 *
 * Purpose
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
-class Ldap_User extends User
+class Ldap_Backend_User extends Backend_User
 {
 
 	/**
@@ -47,7 +47,7 @@ class Ldap_User extends User
 	* @param array	$data	the LDAP entry for this user (contains all user data)
 	*
 	*/
-	function Ldap_User($ldapid=0, $data=Array())
+	function Ldap_Backend_User($ldapid=0, $data=Array())
 	{
 		$this->_ser_attrs = TRUE;
 		$this->_loadVars();
@@ -60,7 +60,6 @@ class Ldap_User extends User
 		if (is_null($ldap_bridge)) return;
 
 		$ldap_bridge->initUser($this, $data);
-
 
 	}//end constructor
 
@@ -90,7 +89,7 @@ class Ldap_User extends User
 	*/
 	function _getName($short_name=FALSE)
 	{
-		return 'LDAP User';
+		return 'LDAP Backend User';
 
 	}//end _getName()
 
