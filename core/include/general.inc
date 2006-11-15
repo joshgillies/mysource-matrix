@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.154 2006/11/10 05:51:04 tbarrett Exp $
+* $Id: general.inc,v 1.155 2006/11/15 04:08:17 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.154 $
+* @version $Revision: 1.155 $
 * @package MySource_Matrix
 */
 
@@ -1221,7 +1221,7 @@ function get_asset_tag_line($assetid, $screen='')
 
 	ob_start();
 	?>
-	<div id="asset-tag-line-<?php echo $assetid ?>-more-details" style="display:none">
+	<div id="asset-tag-line-<?php echo $assetid ?>-more-details" style="display:none;">
 		<table cellspacing="0">
 		<tr>
 			<td class="sq-backend-table-cell" style="background-color: #<?php echo get_status_colour($asset_info['status']) ?>"><strong>Current Status:</strong></td>
@@ -1293,7 +1293,7 @@ function get_asset_tag_line($assetid, $screen='')
 				}
 				$lineage_names[$assetid] = $asset_info['name'];
 				?><tr>
-					<td class="sq-backend-table-cell" ><a href="#" onclick="<?php echo asset_locator_js($lineage_assetids) ?> tooltip.hide(); return false;"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
+				<td class="sq-backend-table-cell" ><a href="#" onclick="if ((window['sq_wysiwyg_dialog'] != undefined) && !window['sq_wysiwyg_dialog'].closed) { am = sq_wysiwyg_dialog; am.focus(); } else { am = parent.top.frames['sq_sidenav']; } am.asset_locator_start('<?php echo get_asset_lineage_sort_order($lineage_assetids) ?>'); tooltip.hide(); return false;"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
 				</tr><?php
 			} else {
 				unset($lineages[$lineage_key]);
@@ -1317,7 +1317,7 @@ function get_asset_tag_line($assetid, $screen='')
 			sort($lineages);
 			$lineage_names = $lineages[0]['lineage'];
 			$lineage_names[$assetid] = $asset_info['name'];
-			$lineages_onclick = asset_locator_js(array_keys($lineage_names)).' return false;';
+			$lineages_onclick = 'if ((window[\'sq_wysiwyg_dialog\'] != undefined) && !window[\'sq_wysiwyg_dialog\'].closed) { am = sq_wysiwyg_dialog; am.focus(); } else { am = parent.top.frames[\'sq_sidenav\']; } am.asset_locator_start(\''.get_asset_lineage_sort_order($lineage_assetids).'\'); return false;';
 			$lineages_name = translate('show_in_asset_map');
 		}
 
@@ -1332,7 +1332,6 @@ function get_asset_tag_line($assetid, $screen='')
 		if ($screen_url) echo '</a>';
 
 		echo ' (Id: #'.$assetid.') ';
-		?><script type="text/javascript">window.onload = function() { page_on_load(); tooltip.print(); }</script><?php
 
 	$contents = ob_get_clean();
 
@@ -1397,12 +1396,13 @@ function asset_locator_js($asset_lineage=Array(),$map_frame='sq_sidenav', $new_w
 {
 	$finder_frame = ($new_window || empty($map_frame)) ? 'parent.top' : 'parent.frames["sq_main"]';
 	if (!empty($map_frame)) {
-		$map_frame = trim('parent.frames[\''.$map_frame.'\']', '.');
+		$map_frame = trim('parent.top.frames[\''.$map_frame.'\']', '.');
 	} else {
 		$map_frame = 'top';
 	}
 
-	return $map_frame.'.asset_locator_start(\''.get_asset_lineage_sort_order($asset_lineage).'\');';
+	$js_code = $map_frame.'.asset_locator_start(\''.get_asset_lineage_sort_order($asset_lineage).'\');';
+	return $js_code;
 
 }//end asset_locator_js()
 
