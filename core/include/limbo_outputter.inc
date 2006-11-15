@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.29 2006/09/22 06:09:30 colivar Exp $
+* $Id: limbo_outputter.inc,v 1.30 2006/11/15 04:05:53 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -145,6 +145,7 @@ class Limbo_Outputter extends Backend_Outputter
 		$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
 		$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
 		$this->addJsInclude(sq_web_path('lib').'/js/translation.js');
+		$this->addJsInclude(sq_web_path('lib').'/js/tooltip.js');
 
 		list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
 
