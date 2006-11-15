@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.63 2006/09/21 23:58:40 rong Exp $
+* $Id: edit.css,v 1.64 2006/11/15 04:04:25 lwright Exp $
 *
 */
 
@@ -463,6 +463,43 @@ td.sq-backend-lock-table-cell-alt {
 }
 
 
+
+/* SEARCH RESULTS POPUP STYLES */
+
+.sq-backend-search-results-table {
+	border:				2px solid #594165;
+	border-collapse:	collapse;
+	background-color:	#ECECEC;
+	width:				220px;
+	z-index: 1;
+}
+
+.sq-backend-search-results-cell, .sq-backend-search-results-heading, .sq-backend-search-results-body {
+	color:				#342939;
+	background-color:	#FFFFFF;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			10px;
+	vertical-align:		top;
+	padding:			4px;
+	text-decoration:	none;
+	font-weight:		bold;
+}
+
+.sq-backend-search-results-heading {
+	background-color:	#F0F0E6;
+}
+
+.sq-backend-search-results-highlight {
+	background-color:	yellow;
+}
+
+.sq-backend-search-results-body {
+	color:				#342939;
+	font-weight:		normal;
+}
+
+
+
 /* POPUP BLOCKING MESSGAE */
 
 .sq-backend-popups-blocked-table {
@@ -559,4 +596,25 @@ td.email-format-version {
 	white-space:		nowrap;
 	vertical-align:		middle;
 	width:				50ex;
+}
+
+a.sq-search-results-expand-link {
+	text-decoration:	none;
+	position:			relative;
+	top:				0px;
+	left:				0px;
+	height:				10px;
+	font-size:			14px;
+	margin-top:			5px;
+	font-weight: 		bold;
+	text-decoration:	none;
+	color:				#33B9E6;
+}
+
+.sq-search-results-expand-div {
+	float:				left;
+	width:				22px;
+	font-weight: 		bold;
+	background-color:	white;
+	white-space:		nowrap;
 }
