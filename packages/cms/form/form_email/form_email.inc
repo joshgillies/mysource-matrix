@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.52 2006/06/06 03:59:27 lwright Exp $
+* $Id: form_email.inc,v 1.53 2006/11/15 04:53:45 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -282,6 +282,10 @@ class Form_Email extends Form
 					'form_info_text'	=> $info_text,
 				);
 
+		if (!is_null($this->submission_asset)) {
+			$reps['form_submission_id'] = $this->submission_asset->id;
+		}
+
 		// replacements of question responses
 		$questions = $this->getQuestions();
 		$sections =& $this->getSections();
@@ -368,6 +372,10 @@ class Form_Email extends Form
 					'form_info_html'	=> $info,
 					'form_info_text'	=> $info_text,
 				);
+
+		if (!is_null($this->submission_asset)) {
+			$reps['form_submission_id'] = $this->submission_asset->id;
+		}
 
 		// replacements of question responses
 		$questions = $this->getQuestions();
@@ -479,6 +487,10 @@ class Form_Email extends Form
 					'form_info_text'	=> $info_text,
 					'referral_url'		=> $referer,
 				);
+
+		if (!is_null($this->submission_asset)) {
+			$reps['form_submission_id'] = $this->submission_asset->id;
+		}
 
 		// replacements of question responses
 		$questions = $this->getQuestions();
@@ -642,6 +654,10 @@ class Form_Email extends Form
 					'form_info_html'	=> $info,
 					'form_info_text'	=> $info_text,
 				);
+
+		if (!is_null($this->submission_asset)) {
+			$reps['form_submission_id'] = $this->submission_asset->id;
+		}
 
 		// replacements of question responses
 		$questions = $this->getQuestions();
