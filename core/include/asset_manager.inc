@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.527 2006/11/10 05:51:44 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.528 2006/11/15 03:32:50 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.527 $
+* @version $Revision: 1.528 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2855,7 +2855,8 @@ class Asset_Manager extends MySource_Object
 		if (isset($id_parts[1])) {
 			// if this asset is a shadow asset the we want the get the lineages of the
 			// bridge, and also the lineages of and real assets that this asset is linked under
-			$bridge_info   = $this->getAssetInfo(Array($id_parts[0]), '', TRUE, 'name');
+			$asset_field = is_array($fields) ? 'name' : $fields;
+			$bridge_info   = $this->getAssetInfo(Array($id_parts[0]), '', TRUE, $asset_field);
 			$link_lineages = $this->getLinkLineages($id_parts[0]);
 
 			// add the lineage of the actual bridge to the bridge's lineages
