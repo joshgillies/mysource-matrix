@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.21 2006/02/21 23:38:10 bcaldwell Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.22 2006/11/16 00:14:29 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -50,11 +50,6 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 														'name'			=> 'Permissions',
 														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'permissions',
-													   ),
-									'dependants'	=> Array(
-														'name'			=> 'Directory Tree',
-														'force_unlock'	=> TRUE,
-														'lock_type'		=> 'none',
 													   ),
 									'linking'		=> Array(
 														'name'			=> 'Linking',
