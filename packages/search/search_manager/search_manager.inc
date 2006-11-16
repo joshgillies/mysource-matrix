@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.127 2006/10/27 01:52:35 rhoward Exp $
+* $Id: search_manager.inc,v 1.128 2006/11/16 00:27:57 bcaldwell Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.127 $
+* @version $Revision: 1.128 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1812,6 +1812,9 @@ class Search_Manager extends Asset
 				$search_type = 'word';
 			}
 
+			$all_source_results = Array();
+			$all_source_assetids = Array();
+
 			foreach ($field_details['data_sources'] as $data_source) {
 				if ($search_type == 'numeric') {
 					$data_source_results = $this->_processNumericSearch($field_details['words'], $data_source, $base_query);
@@ -1822,13 +1825,28 @@ class Search_Manager extends Asset
 
 					foreach ($field_details['words'] as $search_term) {
 						$term_results = $this->_processWordSearch($search_term, $data_source, $base_query);
+
+						if (!isset($all_source_results[$search_term])) {
+							$all_source_results[$search_term] = Array();
+						}
+						$all_source_results[$search_term] = $all_source_results[$search_term] + $term_results;
+
+						// Records all the assets in which we find the term.
+						$all_source_assetids = $all_source_assetids + $term_results;
+
 						$term_totals[$search_term] = array_get_index($term_totals, $search_term, 0) + count($term_results);
 						$data_source_results = $this->_combineResults($data_source_results, $term_results, $word_logic);
 					}
 				}
-
 				$field_results = $this->_combineResults($field_results, $data_source_results, $data_source_logic);
 			}
+
+			$cross_source_results = $all_source_assetids;
+			foreach ($all_source_results as $term => $results) {
+				$cross_source_results = array_intersect_assoc($cross_source_results, $results);
+			}
+			$field_results = $field_results + $cross_source_results;
+
 			$final_results = $this->_combineResults($final_results, $field_results, $field_logic);
 		}//end foreach $search_info['fields']
 
