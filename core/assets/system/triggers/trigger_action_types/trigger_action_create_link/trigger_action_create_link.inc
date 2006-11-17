@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.13.2.1 2006/09/15 01:32:25 rhoward Exp $
+* $Id: trigger_action_create_link.inc,v 1.13.2.2 2006/11/17 02:46:30 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.13.2.1 $
+* @version $Revision: 1.13.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -105,17 +105,24 @@ class Trigger_Action_Create_Link extends Trigger_Action
 			$minor = $state['asset'];
 		}
 
-
 		$side_of_link = ($settings['is_major']) ? 'major' : 'minor';
 		$link_info = $am->getLinkByAsset($state['assetid'], $settings['assetid'], $settings['link_type'], NULL, $side_of_link, TRUE);
+		$create_link = FALSE;
 		if (empty($link_info)) {
-			// create a link
-			$linkid = $am->createAssetLink($major, $minor, $settings['link_type'], $value, NULL, $is_dependant, $is_exclusive);
-			if (!$linkid) return FALSE;
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+			$create_link = TRUE;
 		} else {
 			// the link is already there, so count as success
 			$link = array_shift($link_info);
+			if (empty($link)) {
+				$create_link = TRUE;
+			}
+		}
+
+		// create a link
+		if ($create_link) {
+			$linkid = $am->createAssetLink($major, $minor, $settings['link_type'], $value, NULL, $is_dependant, $is_exclusive);
+			if (!$linkid) return FALSE;
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		}
 
 		if ($remove_other_links) {
