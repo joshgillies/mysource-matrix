@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.3 2006/10/24 01:34:29 lwright Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.4 2006/11/17 04:29:04 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -460,19 +460,20 @@ class Search_Manager_Plugin_OCI8
 	*/
 	function extractKeywords(&$asset, $include_metadata=FALSE, $include_scores=FALSE)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		// The SUBSTR stuff is to turn the CLOB field of value into a VARCHAR
 		// that can be handled by the LOWER() function
 		$sql = 'SELECT
-					LOWER(DBMS_LOB.SUBSTR(value, DBMS_LOB.GETLENGTH(value), 1)) as keyword, SUM(score) as total_score
+					LOWER(DBMS_LOB.SUBSTR(value, DBMS_LOB.GETLENGTH(value), 1)) as keyword, type, SUM(score) as total_score
 				FROM
 					sq_sch_idx
 				WHERE
 					assetid = '.$db->quoteSmart($asset->id).
 				  ($include_metadata ? '' : ' AND component NOT LIKE '.$db->quoteSmart('metadata:%')).'
 				GROUP BY
-					 LOWER((DBMS_LOB.SUBSTR(value, DBMS_LOB.GETLENGTH(value), 1)))
+					 LOWER((DBMS_LOB.SUBSTR(value, DBMS_LOB.GETLENGTH(value), 1))), type
 				ORDER BY
 					total_score DESC';
 
@@ -482,10 +483,31 @@ class Search_Manager_Plugin_OCI8
 		// force lowercase keys (= keywords) - CASE_LOWER is default for this function
 		$result = array_change_key_case($result);
 
+		// TODO: change it so the words are split up
+		$word_scores = Array();
+
+		foreach($result as $word_string => $result_item) {
+			if ($result_item['type'] == 'text') {
+				$words = preg_split('|\s+|', $word_string);
+			} else {
+				$words = Array($word_string);
+			}
+			$words = array_count_values($words);
+			foreach($words as $word => $score) {
+				$word = trim($word);
+				if ($sm->isWordIndexable($word)) {
+					if (!isset($word_scores[$word])) $word_scores[$word] = 0;
+					$word_scores[$word] += $score * $result_item['total_score'];
+				}
+			}
+		}
+
+		arsort($word_scores);
+
 		if ($include_scores) {
-			return $result;				// return result with scores
+			return $word_scores;				// return result with scores
 		} else {
-			return array_keys($result);	// just return the keywords
+			return array_keys($word_scores);	// just return the keywords
 		}
 
 	}//end extractKeywords()
