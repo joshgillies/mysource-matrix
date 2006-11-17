@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keyword_extraction.php,v 1.4 2006/01/26 22:34:04 lwright Exp $
+* $Id: keyword_extraction.php,v 1.5 2006/11/17 04:28:22 lwright Exp $
 *
 */
-
-	require_once dirname(__FILE__).'/../../../../../core/include/init.inc';
-	require_once dirname(__FILE__).'/../../../../../core/lib/html_form/html_form.inc';
+	define('SQ_SYSTEM_ROOT', dirname(dirname(dirname(dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME'])))))));
+	require_once SQ_SYSTEM_ROOT.'/core/include/init.inc';
+	require_once SQ_SYSTEM_ROOT.'/core/lib/html_form/html_form.inc';
 	if (!isset($_GET['assetid'])) return FALSE;
 
 	assert_valid_assetid($_GET['assetid']);
