@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.187 2006/11/20 05:08:26 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.188 2006/11/20 05:29:53 emcdonald Exp $
 *
 */
 
@@ -492,6 +492,7 @@
 	<string source="view_all_workflow_logs">View all workflow logs</string>
 
 	<string source="not_completed">Not Completed</string>
+	<string source="escalated">Escalated</string>
 	<string source="complete_question">Complete ?</string>
 	<string source="running_workflow">Running Workflow</string>
 	<string source="group_logic">Group Logic</string>

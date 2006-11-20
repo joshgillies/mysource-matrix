@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.40 2006/11/20 05:20:53 emcdonald Exp $
+* $Id: workflow.inc,v 1.41 2006/11/20 05:29:53 emcdonald Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 */
 
@@ -386,7 +386,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 									$section_title = "Step $stepid - ".$step_data['step_name'];
 
 									if ($step_data['expired']) {
-										$section_title .= ' <span style="color:#FFD700">[Escalated]</span>';
+										$section_title .= ' <span style="color:#FFD700">['.translate('escalated').']</span>';
 									} else {
 										if ($step_data['completed']) {
 											$section_title .= ' <span style="color:#008800">['.translate('completed').']</span>';
@@ -946,7 +946,7 @@ function _paintWorkflowStep(&$owner, &$o, &$ei, &$workflow, $step_address)
 	$section_title = 'Step '.implode('.',$step_address).' - '.$step_data['step_name'];
 
 	if ($step_data['expired']) {
-		$section_title .= ' <span style="color:#FFD700">[Escalated]</span>';
+		$section_title .= ' <span style="color:#FFD700">['.translate('escalated').']</span>';
 	} else {
 		if ($step_data['completed']) {
 			$section_title .= ' <span style="color:#008800">['.translate('completed').']</span>';
