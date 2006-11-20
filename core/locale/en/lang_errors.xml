@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.63 2006/11/08 22:15:13 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.64 2006/11/20 05:08:26 emcdonald Exp $
 *
 */
 
@@ -392,6 +392,8 @@
 	<error code="CRON0050">Start time for %s is not defined.</error>
 
 	<error code="CRON0051">Unable to set future lineage, asset %s is not safe to be trashed.</error>
+
+	<error code="CRON0052">Failed to escalate schema %1$s for asset %2$s.</error>
 
 	<!-- MAPS - MYSOURCE AUTOMATED PATCHING SYSTEM -->
 

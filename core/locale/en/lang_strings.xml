@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.186 2006/11/15 04:05:23 lwright Exp $
+* $Id: lang_strings.xml,v 1.187 2006/11/20 05:08:26 emcdonald Exp $
 *
 */
 
@@ -330,6 +330,7 @@
 	<string source="cms_ct_raw_html_pref_editor_size">Raw HTML Editor Size</string>
 	<string source="back_to">Back to</string>
 	<string source="edit_tag_threshold">Edit Tag Threshold</string>
+	<string source="automatically_escalate">Automatically Escalate</string>
 
 	<!-- Page Title translations -->
 	<string source="page_title_simple_edit_interface">%s Simple Edit Interface</string>
