@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.64 2006/11/15 04:04:25 lwright Exp $
+* $Id: edit.css,v 1.65 2006/11/20 03:20:58 lwright Exp $
 *
 */
 
@@ -443,7 +443,7 @@ td.sq-backend-lock-table-cell-alt {
 	border:				2px solid #594165;
 	border-collapse:	collapse;
 	background-color:	#ECECEC;
-	width:				220px;
+	width:				100%;
 }
 
 .sq-backend-new-message-cell, .sq-backend-new-message-heading, .sq-backend-new-message-body {
@@ -470,7 +470,7 @@ td.sq-backend-lock-table-cell-alt {
 	border:				2px solid #594165;
 	border-collapse:	collapse;
 	background-color:	#ECECEC;
-	width:				220px;
+	width:				100%;
 	z-index: 1;
 }
 
@@ -506,7 +506,7 @@ td.sq-backend-lock-table-cell-alt {
 	border:				2px solid #790E09;
 	border-collapse:	collapse;
 	background-color:	#FFFFFF;
-	width:				400px;
+	width:				100%;
 }
 
 .sq-backend-popups-blocked-cell, .sq-backend-popups-blocked-heading, .sq-backend-popups-blocked-body {
