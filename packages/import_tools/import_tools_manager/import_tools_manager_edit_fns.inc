@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tools_manager_edit_fns.inc,v 1.1.1.1 2006/02/20 22:36:45 dmckee Exp $
+* $Id: import_tools_manager_edit_fns.inc,v 1.1.1.1.4.1 2006/11/20 05:09:38 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 1.0
+* @version $Revision: 1.1.1.1.4.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -152,7 +152,7 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 	function processHtmlUpload(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		if (!$write_access) {
+		if ($write_access) {
 			$html_upload = get_file_upload_info('structured_file_import_html_upload');
 			$max_size = $asset->attr('max_file_size');
 			if ($html_upload === FALSE) {

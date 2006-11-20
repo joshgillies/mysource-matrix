@@ -11,20 +11,18 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2006/02/20 22:36:45 dmckee Exp $
+* $Id: edit_interface_screen_details.xml,v 1.1.1.1.4.1 2006/11/20 05:09:38 skim Exp $
 *
 */
 -->
 <contents>
-	<section name="Import Directories" write_access="write:attributes">
+	<section name="Structured File Import Tool Settings" write_access="write:attributes">
 		<field attribute="import_dir">
 			<text width="30" height="1" />
 		</field>
 		<field attribute="max_file_size">
 			<int width="30" height="1" />
 		</field>
-	</section>
-	<section name="Import Configuration" write_access="write:attributes">
 		<field>
 			<function_call>
 				<paint_function   name="paintHeadings"   />
@@ -34,8 +32,6 @@
 		<field attribute="create_css_file" write_access="write:attributes">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-	</section>
-	<section name="Upload" write_access="write:attributes">
 		<field>
 			<function_call>
 				<paint_function   name="paintHtmlUpload"   />
