@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_management.inc,v 1.8 2006/11/20 05:20:52 emcdonald Exp $
+* $Id: workflow_schema_management.inc,v 1.9 2006/11/20 22:01:58 emcdonald Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,7 +72,7 @@ class Workflow_Schema_Management extends Asset_Management
 		$res = parent::_upgrade($current_version);
 
 		if (version_compare($current_version, '0.2', '<')) {
-			echo('UPGRADING FORM QUESTION FROM v < 0.2');
+			echo('UPGRADING WORKFLOW SCHEMA FROM v < 0.2');
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT assetid, schemaid, wflow
