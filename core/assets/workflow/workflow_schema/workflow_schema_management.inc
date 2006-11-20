@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_management.inc,v 1.7 2005/09/13 07:39:53 rhoward Exp $
+* $Id: workflow_schema_management.inc,v 1.8 2006/11/20 05:20:52 emcdonald Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,6 +56,88 @@ class Workflow_Schema_Management extends Asset_Management
 					  );
 
 	}//end constructor
+
+
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		// first do things as normal
+		$res = parent::_upgrade($current_version);
+
+		if (version_compare($current_version, '0.2', '<')) {
+			echo('UPGRADING FORM QUESTION FROM v < 0.2');
+
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'SELECT assetid, schemaid, wflow
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow
+					WHERE wflow IS NOT NULL
+					';
+			$rows = $db->getAll($sql);
+			assert_valid_db_result($rows);
+
+			$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+			$sql = 'UPDATE
+						sq_ast_wflow
+					SET
+						wflow	= ?
+					WHERE
+							assetid		= ?
+						AND	schemaid	= ?';
+
+			foreach ($rows as $row) {
+
+				$workflow = unserialize($row['wflow']);
+				$schemaid = $row['schemaid'];
+				$assetid = $row['assetid'];
+
+				if (!is_array($workflow['current_step'])) {
+					$workflow['current_step'] = Array($workflow['current_step']);
+				}
+
+				foreach ($workflow['steps'] as $stepid => $step) {
+					$step_data =& $workflow['steps'][$stepid];
+					$step_data['escalation_steps']	= Array();
+					$step_data['escalate']			= FALSE;
+					$step_data['expired']			= FALSE;
+
+				}
+
+				$prepared = $db->prepare($sql);
+				assert_valid_db_result($prepared);
+				$new_workflow = serialize($workflow);
+
+				$values = Array(
+							$new_workflow,
+							$assetid,
+							$schemaid,
+						  );
+
+
+				$result = $db->execute($prepared, $values);
+
+				assert_valid_db_result($result);
+
+			}//end foreach
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+			unset($rows);
+
+		}//end if
+		return TRUE;
+
+	}//end _upgrade()
 
 
 }//end class

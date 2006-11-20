@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_management.inc,v 1.11 2006/01/18 22:33:15 lwright Exp $
+* $Id: workflow_step_management.inc,v 1.12 2006/11/20 05:20:52 emcdonald Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,6 +65,14 @@ class Workflow_Step_Management extends Asset_Management
 																	'added'		=> '0.1',
 																	'type'		=> 'duration',
 																	'default'	=> '0',
+																   ),
+						'escalate'								=> Array(
+																	'added'			=> '0.3',
+																	'type'			=> 'boolean',
+																	'default'		=> 'false',
+																	'parameters'	=> Array(
+																						'allow_empty'	=> FALSE,
+																					   ),
 																   ),
 						'require_comment_from_unlisted_users'	=> Array(
 																	'added'			=> '0.2',

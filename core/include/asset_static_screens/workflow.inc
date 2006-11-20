@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.39 2006/09/12 06:57:15 skim Exp $
+* $Id: workflow.inc,v 1.40 2006/11/20 05:20:53 emcdonald Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 
@@ -358,6 +358,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 
 						$schema_workflows = $wfm->getSchemaWorkflows($owner->id);
 						foreach ($schema_workflows as $schemaid => $workflow) {
+
 							if (!in_array($schemaid, $running_schemas)) continue;
 
 							$schema_title = translate('running_workflow').' - '.$workflow['schema_name'];
@@ -370,6 +371,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 							$o->openSection($schema_title);
 
 								$o->openSection(translate('workflow_summary'));
+
 								$o->openField(translate('workflow_started'));
 									echo $GLOBALS['SQ_SYSTEM']->datetime($workflow['started']);
 								$o->closeField();
@@ -382,12 +384,16 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 
 								foreach ($workflow['steps'] as $stepid => $step_data) {
 									$section_title = "Step $stepid - ".$step_data['step_name'];
-									if (!$workflow['current_step'] || $workflow['current_step'] > $stepid) {
-										$section_title .= ' <span style="color:#008800">['.translate('completed').']</span>';
-									} else {
-										$section_title .= ' <span style="color:#880000">['.translate('not_completed').']</span>';
-									}
 
+									if ($step_data['expired']) {
+										$section_title .= ' <span style="color:#FFD700">[Escalated]</span>';
+									} else {
+										if ($step_data['completed']) {
+											$section_title .= ' <span style="color:#008800">['.translate('completed').']</span>';
+										} else {
+											$section_title .= ' <span style="color:#880000">['.translate('not_completed').']</span>';
+										}
+									}
 									$o->openSection($section_title);
 
 										if ($step_data['started']) {
@@ -408,8 +414,19 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 												}
 												echo '</i>)';
 											$o->closeField();
+											if ($step_data['expiry_time'] > 0) {
+												$o->openField(translate('expiry_time'));
+													$expiry_time = $step_data['started'] + $step_data['expiry_time'];
+													echo $GLOBALS['SQ_SYSTEM']->datetime($expiry_time);
+													echo ' (<i> ';
+													echo easy_time_total($expiry_time - time(), TRUE);
+													echo ' </i>)';
+												$o->closeField();
+											}
+											$o->openField(translate('automatically_escalate'));
+												echo $step_data['escalate'];
+											$o->closeField();
 										}
-
 										$o->openField(translate('step_logic'));
 											if (isset($wfm->_valid_cond_logic[$step_data['logic']])) {
 												// a special type of logic statement
@@ -518,12 +535,21 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 
 										$o->closeField();
 
+										// escalation steps
+										if ($step_data['expired']) {
+											$o->openField('Escalation Steps');
+											$esc_address = Array();
+											foreach ($step_data['escalation_steps'] as $esc_stepid => $esc_step_data) {
+												$esc_step_address = Array($stepid);
+												$esc_step_address[] = $esc_stepid;
+
+												_paintWorkflowStep($owner, $o, $ei, $workflow, $esc_step_address);
+											}
+											$o->closeField();
+										} //end if expiry automatic
 									$o->closeSection();
-
-								}//end foreach
-
+								}//end foreach step
 							$o->closeSection();
-
 						}//end foreach
 
 						// if there is a keyword replacement for this, add it to the replacements
@@ -884,19 +910,207 @@ function processWorkflow(&$owner, &$o, &$ei)
 					'assets'			=> Array(
 											$owner->id	=> Array(
 															'type_code'	=> $owner->type(),
-														  ),
+														   ),
 										   ),
 					'schema_changes'	=> $schema_vars,
 				);
 		// We are not cascading but the asset has dependant children,
 		// then update the workflow of the only dependant children
-		if (!$cascade_changes && $has_dependants) $vars['dependants_only'] = 1;
+		if (!$cascade_changes && $has_dependants) {
+			$vars['dependants_only'] = 1;
+		}
 		$hh->queueHipo('hipo_job_edit_workflow_schemas', $vars);
 	}
 
 	return TRUE;
 
 }//end processWorkflow()
+
+
+/**
+* Called to paint escalation steps recursively
+*
+* @param object	&$owner			the asset whose interface we are painting
+* @param object	&$o				the outputter class
+* @param object	&$ei			the edit interface
+* @param array	&$workflow		the workflow status array
+* @param array	$step_address	the address of the current step within the workflow array
+*
+* @return boolean
+* @access public
+*/
+function _paintWorkflowStep(&$owner, &$o, &$ei, &$workflow, $step_address)
+{
+	$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+	$step_data = $wfm->getCurrentStep($workflow, $step_address);
+	$section_title = 'Step '.implode('.',$step_address).' - '.$step_data['step_name'];
+
+	if ($step_data['expired']) {
+		$section_title .= ' <span style="color:#FFD700">[Escalated]</span>';
+	} else {
+		if ($step_data['completed']) {
+			$section_title .= ' <span style="color:#008800">['.translate('completed').']</span>';
+		} else {
+			$section_title .= ' <span style="color:#880000">['.translate('not_completed').']</span>';
+		}
+	}
+
+	$o->openSection($section_title);
+		if ($step_data['started']) {
+			$o->openField(translate('step_duration'));
+				echo $GLOBALS['SQ_SYSTEM']->datetime($step_data['started']);
+				echo ' - ';
+				if ($step_data['completed']) {
+					echo $GLOBALS['SQ_SYSTEM']->datetime($step_data['completed']);
+				} else {
+					echo '??';
+				}
+				echo ' (<i>';
+				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+				if ($step_data['completed']) {
+					echo easy_time_total($step_data['completed'] - $step_data['started'], TRUE);
+				} else {
+					echo easy_time_total(time() - $step_data['started'], TRUE);
+				}
+				echo '</i>)';
+			$o->closeField();
+			if ($step_data['expiry_time'] > 0) {
+				$o->openField(translate('expiry_time'));
+					$expiry_time = $step_data['started'] + $step_data['expiry_time'];
+					echo $GLOBALS['SQ_SYSTEM']->datetime($expiry_time);
+					echo ' (<i> ';
+					echo easy_time_total($expiry_time - time(), TRUE);
+					echo ' </i>)';
+
+				$o->closeField();
+				$o->openField(translate('automatically_escalate'));
+					echo $step_data['escalate'];
+				$o->closeField();
+			}
+		}//end if started
+
+
+		$o->openField(translate('step_logic'));
+			if (isset($wfm->_valid_cond_logic[$step_data['logic']])) {
+				// a special type of logic statement
+				$step_logic = $step_data['logic'];
+				$step_logic_num = '';
+			} else {
+				if ($step_data['logic'] != 'all') {
+					list($step_logic, $step_logic_num) = explode(' ', $step_data['logic']);
+				} else {
+					$step_logic = 'all';
+					$step_logic_num = '';
+				}
+			}
+
+			echo '<i>'.$wfm->_valid_step_logic[$step_logic];
+			if ($step_logic_num) {
+				echo " $step_logic_num condition".(($step_logic_num > 1) ? 's' : '').' must be met</i>';
+			}
+		$o->closeField();
+
+		$o->openField(translate('conditions'));
+
+			$has_conds = FALSE;
+			ob_start();
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header">&nbsp;</td>
+					<td class="sq-backend-table-header" width="270"><b><?php echo translate('group_logic'); ?></b></td>
+					<td align="center" width="100" class="sq-backend-table-header"><b><?php echo translate('complete_question'); ?></b></td>
+				</tr>
+			<?php
+			foreach ($step_data['conditions'] as $pub => $cond_data) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+				if (!$asset->id) continue;
+				?>
+				<tr>
+					<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($pub); ?></td>
+					<td class="sq-backend-table-cell">
+				<?php
+				if (isset($wfm->_valid_cond_logic[$cond_data['logic']])) {
+					// a special type of logic statement
+					$cond_logic = $cond_data['logic'];
+					$cond_logic_num = '';
+				} else {
+					if ($cond_data['logic'] != 'all') {
+						list($cond_logic, $cond_logic_num) = explode(' ', $cond_data['logic']);
+					} else {
+						$cond_logic = 'all';
+						$cond_logic_num = '';
+					}
+				}
+
+				if (is_a($asset, 'user')) {
+					echo '&nbsp;';
+				} else {
+					echo '<i>'.$wfm->_valid_cond_logic[$cond_logic];
+					if ($cond_logic_num) {
+						echo " $cond_logic_num group member".(($cond_logic_num > 1) ? 's' : '').' must approve</i>';
+					}
+				}
+
+				?></td>
+
+					<td align="center" class="sq-backend-table-cell">
+					<?php
+						if (isset($cond_data['complete']) && $cond_data['complete']) {
+							echo '<span style="color:#008800"><b>'.translate('yes').'</b></span>';
+						} else {
+							// do some extra checking
+							if (is_a($asset, 'user')) {
+								echo ((isset($cond_data['published_by'][$asset->id])) ? '<span style="color:#008800"><b>'.translate('yes').'</b></span>' : '&nbsp;');
+							} else {
+								if ($cond_logic_num) {
+									$user_count = $cond_logic_num;
+								} else {
+									$user_count = count($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE));
+								}
+
+								echo '<span style="color:#';
+								if (count($cond_data['published_by']) >= $user_count) {
+									echo '008800';
+								} else {
+									echo '880000';
+								}
+								echo '"><b>';
+								echo count($cond_data['published_by']).' of '.$user_count;
+								echo '</b></span>';
+							}
+						}
+					?>
+					</td>
+				</tr>
+
+				<?php
+				$has_conds = TRUE;
+			}//end foreach
+
+			if (!$has_conds) {
+				ob_end_clean();
+				echo translate('none');
+			} else {
+				ob_end_flush();
+				?></table><?php
+			}
+
+		$o->closeField();
+
+		// escalation steps
+		if ($step_data['expired']) {
+			$o->openField('Escalation Steps');
+			foreach ($step_data['escalation_steps'] as $esc_stepid => $esc_step) {
+				$esc_step_address = $step_address;
+				$esc_step_address[] = $esc_stepid;
+				_paintWorkflowStep($owner, $o, $ei, $workflow, $esc_step_address);
+			}
+			$o->closeField();
+		}
+	$o->closeSection();
+
+}//end _paintWorkflowStep()
 
 
 ?>

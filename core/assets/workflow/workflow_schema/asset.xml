@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.8 2005/01/20 13:07:40 brobertson Exp $
+* $Id: asset.xml,v 1.9 2006/11/20 05:20:52 emcdonald Exp $
 *
 */
 -->
@@ -29,7 +29,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>__core__</package>
 	<type_code>workflow_schema</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Workflow Schema</name>
 	<description>Workflow Schema, define a schema for workflow to be attached to assets in the system</description>
 	<instantiable>yes</instantiable>

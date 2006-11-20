@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.17 2006/10/20 04:58:01 rong Exp $
+* $Id: lang_messages.xml,v 1.18 2006/11/20 05:20:53 emcdonald Exp $
 *
 * Core Internal Messages File
 */
@@ -274,7 +274,7 @@ You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_
 	</message>
 	<message type="asset.workflow.invitation.progress">
 		<subject>Workflow Approval Required</subject>
-		<body>%type_code% "%asset_name%" is currently in workflow and has progressed from step %old_step% to step %new_step%.
+		<body>%type_code% "%asset_name%" is currently in workflow and has progressed from step %previous_step_id% "%previous_step_name%" to step %current_step_id% "%current_step_name%".
 You are now required to approve or reject the changes made to "%asset_name%" so the workflow process can continue.
 
 A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.
@@ -373,7 +373,19 @@ You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_
 	</message>
 	<message type="asset.workflow.stale">
 		<subject>Stale Workflow Step</subject>
-		<body>Asset "%asset_name%" [#%assetid%] has been in step "%step%" of workflow schema "%schema%" since %started_time%, and has exceeded the %expiry_time% timeframe within which this step is meant to be completed.  You may want to consider intervening to progress this workflow by visiting the asset's <![CDATA[<SQ_MSG_LINK href="%workflow_url%">workflow screen</SQ_MSG_LINK>]]>.</body>
+		<body>Asset "%asset_name%" [#%assetid%] has been in step %step_id% "%step_name%" of workflow schema "%schema%" since %started_time%, and has exceeded the %expiry_time% timeframe within which this step is meant to be completed.  You may want to consider intervening to progress this workflow by visiting the asset's <![CDATA[<SQ_MSG_LINK href="%workflow_url%">workflow screen</SQ_MSG_LINK>]]>.</body>
+	</message>
+	<message type="asset.workflow.announce.escalated">
+		<subject>Workflow Escalated</subject>
+		<body>Asset "%asset_name%" [#%assetid%] was in step %previous_step_id% "%previous_step_name%" of workflow schema "%schema%" since %started_time%, and has exceeded the %expiry_time% timeframe within which this step is meant to be completed.  Workflow has been escalated to step %current_step_id% "%current_step_name%".
+
+A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.</body><!-- asset-type, asset-name, asset-name*, asset-name**, workflow-screen-url, (preview-screen-url) -->
+	</message>
+	<message type="asset.workflow.log.escalated">
+			<subject>Workflow Escalated</subject>
+		<body>Asset "%asset_name%" [#%assetid%] was in step %previous_step_id% "%previous_step_name%" of workflow schema "%schema%" since %started_time%, and has exceeded the %expiry_time% timeframe within which this step is meant to be completed.  Workflow has been escalated to step %current_step_id% "%current_step_name%".
+
+A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.</body><!-- asset-type, asset-name, asset-name*, asset-name**, workflow-screen-url, (preview-screen-url) -->
 	</message>
 	<message type="config.system_config">
 		<subject>System Config Updated</subject>

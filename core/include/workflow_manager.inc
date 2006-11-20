@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.95 2006/10/26 00:01:52 emcdonald Exp $
+* $Id: workflow_manager.inc,v 1.96 2006/11/20 05:20:53 emcdonald Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -567,8 +567,7 @@ class Workflow_Manager extends MySource_Object
 			}
 
 			// get the current step for this schema
-			$current_step =& $schema_workflows[$schemaid]['steps'][$current_workflow_steps[$schemaid]];
-
+			$current_step =& $this->getCurrentStep($schema_workflows[$schemaid]);
 			// is the user listed in the conditions?
 			$listed_user = FALSE;
 
@@ -625,75 +624,73 @@ class Workflow_Manager extends MySource_Object
 		$workflow = $this->getSchemaWorkflows($assetid, $schemaid);
 		if (!isset($workflow['steps'])) return Array();
 
-		for (reset($workflow['steps']); NULL !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
-			$step_data =& $workflow['steps'][$stepid];
-			if ($stepid != $workflow['current_step']) continue;
+		$step_data =& $this->getCurrentStep($workflow);
 
-			for (reset($step_data['conditions']);
-					NULL !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
-				$cond_data =& $step_data['conditions'][$pub];
+		for (reset($step_data['conditions']);
+				NULL !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
+			$cond_data =& $step_data['conditions'][$pub];
 
-				// safety code
-				if (!isset($cond_data['complete'])) {
-					$cond_data['complete'] = FALSE;
-				}
-				if (!isset($cond_data['published_by'])) {
-					$cond_data['published_by'] = Array();
-				}
+			// safety code
+			if (!isset($cond_data['complete'])) {
+				$cond_data['complete'] = FALSE;
+			}
+			if (!isset($cond_data['published_by'])) {
+				$cond_data['published_by'] = Array();
+			}
 
-				if ($cond_data['complete']) {
-					$complete = TRUE;
-				} else {
-					$complete = FALSE;
-					$can_publish_cond = Array();
+			if ($cond_data['complete']) {
+				$complete = TRUE;
+			} else {
+				$complete = FALSE;
+				$can_publish_cond = Array();
 
-					// work out who can publish right now
-					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
-					if ($asset->id) {
-						$asset_class = get_class($asset);
-						// Note that the order of IF statements is important, because roles are
-						// a descendent of groups but should be treated differently
-						if ($am->isTypeDecendant($asset_class, 'user')) {
-							$can_publish_cond[] = $asset->id;
-						} else if ($am->isTypeDecendant($asset_class, 'role')) {
-							$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $asset->id);
-							foreach ($roles as $roleid => $userids) {
-								foreach ($userids as $userid) {
-									if ($userid == '0') continue;
-									$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
-									if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
-										$can_publish_cond = array_merge($can_publish_cond, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE)));
-									} else {
-										$can_publish_cond[] = $userid;
-									}
+				// work out who can publish right now
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+				if ($asset->id) {
+					$asset_class = get_class($asset);
+					// Note that the order of IF statements is important, because roles are
+					// a descendent of groups but should be treated differently
+					if ($am->isTypeDecendant($asset_class, 'user')) {
+						$can_publish_cond[] = $asset->id;
+					} else if ($am->isTypeDecendant($asset_class, 'role')) {
+						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $asset->id);
+						foreach ($roles as $roleid => $userids) {
+							foreach ($userids as $userid) {
+								if ($userid == '0') continue;
+								$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
+								if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
+									$can_publish_cond = array_merge($can_publish_cond, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE)));
+								} else {
+									$can_publish_cond[] = $userid;
 								}
 							}
-						} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
-							// getChildren with all the shadow asset children
-							$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE, NULL, NULL, NULL, NULL, NULL, FALSE));
 						}
+					} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
+						// getChildren with all the shadow asset children
+						$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE, NULL, NULL, NULL, NULL, NULL, FALSE));
 					}
-
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-
-					if ($cond_data['logic'] == 'all') {
-						$cond_string = 'if ('.count($cond_data['published_by']).
-									   ' >= '.count($can_publish_cond).') { $complete = true; }';
-					} else {
-						$cond_string = 'if ('.count($cond_data['published_by']).
-									   ' '.$cond_data['logic'].') { $complete = true; }';
-					}
-					eval($cond_string);
-
-				}//end else
-
-				if (!$complete) {
-					$can_publish = array_merge($can_publish, array_diff($can_publish_cond, array_keys($cond_data['published_by'])));
 				}
-			}//end for
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+
+				if ($cond_data['logic'] == 'all') {
+					$cond_string = 'if ('.count($cond_data['published_by']).
+								   ' >= '.count($can_publish_cond).') { $complete = true; }';
+				} else {
+					$cond_string = 'if ('.count($cond_data['published_by']).
+								   ' '.$cond_data['logic'].') { $complete = true; }';
+				}
+				eval($cond_string);
+
+			}//end else
+
+			if (!$complete) {
+				$can_publish = array_merge($can_publish, array_diff($can_publish_cond, array_keys($cond_data['published_by'])));
+			}
 		}//end for
 
 		return array_unique($can_publish);
+
 
 	}//end _whoCanPublishWorkflow()
 
@@ -709,91 +706,150 @@ class Workflow_Manager extends MySource_Object
 	function _loadCurrentStep(&$workflow)
 	{
 		// run through and work out what step we are up to
-		$workflow['current_step'] = 0;
-		$continue = FALSE;
-		for (reset($workflow['steps']); NULL !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
-			$step_data =& $workflow['steps'][$stepid];
+		$workflow['current_step'] = Array();
 
-			$workflow['current_step'] = $stepid;
-			$continue = FALSE;
-			$completed_conds = 0;
+		$current_step_found = FALSE;
+		$step_array =& $workflow['steps'];
 
-			for (reset($step_data['conditions']);
-					NULL !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
-				$continue = FALSE;
-				$cond_data =& $step_data['conditions'][$pub];
+		while (!$current_step_found) {
+			$current_step_found = TRUE;
+			for (reset($step_array); NULL !== ($stepid = key($step_array)); next($step_array)) {
+				$step_data =& $step_array[$stepid];
 
-				// safety code
-				if (!isset($cond_data['complete'])) {
-					$cond_data['complete'] = FALSE;
-				}
-				if (!isset($cond_data['published_by'])) {
-					$cond_data['published_by'] = Array();
-				}
+				// 'load' the current step
 
-				if (empty($cond_data['published_by'])) {
-					// nobody has approved this, so it cant be finished
-					if ($step_data['logic'] == 'all') {
-						$continue = FALSE;
-						break(2);
-					} else {
+				$last_key = end(array_keys($workflow['current_step']));
+				$workflow['current_step'][$last_key] = $stepid;
+
+				if ($step_data['expired']) {
+					if ($step_data['completed']) {
+
+						// expired and complete means that it expired, but was completed by virtue of its escalation workflow being completed
+						$current_step_found = FALSE;
 						continue;
+					} else {
+						// we need to move to this asset's substeps if there are any, otherwise to the sibling.
+						$step_array =& $step_data['escalation_steps'];
+
+						// add an element to the current step array cos we're going deeper.
+						$workflow['current_step'][] = $stepid;
+						$current_step_found = FALSE;
+
+						// make the new asset the step array and keep running
+						continue(2);
 					}
 				}
 
-				if ($cond_data['complete']) {
-					$complete = TRUE;
-				} else {
-					$complete = FALSE;
-					if ($cond_data['logic'] == 'all') {
-						// lets work out what number 'ALL' represents
-						$can_publish_cond = Array();
-						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
-						if ($asset->id) {
-							if (is_a($asset, 'user')) {
-								$can_publish_cond[] = $asset->id;
-							} else if (is_a($asset, 'user_group')) {
-								$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE));
-							}
+				$current_step_found = TRUE;
+				$completed_conds = 0;
+
+				for (reset($step_data['conditions']);
+						NULL !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
+					$current_step_found = TRUE;
+					$cond_data =& $step_data['conditions'][$pub];
+
+					// safety code
+					if (!isset($cond_data['complete'])) {
+						$cond_data['complete'] = FALSE;
+					}
+					if (!isset($cond_data['published_by'])) {
+						$cond_data['published_by'] = Array();
+					}
+
+					if (empty($cond_data['published_by'])) {
+						// nobody has approved this, so it cant be finished
+						if ($step_data['logic'] == 'all') {
+							$current_step_found = TRUE;
+							break(2);
+						} else {
+							continue;
 						}
-						$cond_string = 'if ('.count($cond_data['published_by']).
-									   ' >= '.count($can_publish_cond).') { $complete = true; }';
-					} else {
-						$cond_string = 'if ('.count($cond_data['published_by']).
-									   ' '.$cond_data['logic'].') { $complete = true; }';
 					}
-					eval($cond_string);
-				}
+					$complete = FALSE;
 
-				if ($complete) {
-					// this condition has been completed
-					$cond_data['complete'] = TRUE;
-					$continue = TRUE;
-					$completed_conds++;
-					if ($step_data['logic'] == 'all') continue;
-
-					$completed = FALSE;
-					$logic_string = 'if ('.$completed_conds.' '.$step_data['logic'].' ) { $completed = true; }';
-					eval($logic_string);
-
-					if ($completed) {
-						// this step is completed so move to the next one
-						break;
+					if ($cond_data['complete']) {
+						$current_step_found = FALSE;
+						$complete = TRUE;
 					} else {
-						// step is not finished yet so move to the next condition
-						$continue = FALSE;
-						continue;
+
+						$current_step_found = TRUE;
+						if ($cond_data['logic'] == 'all') {
+							// lets work out what number 'ALL' represents
+							$can_publish_cond = Array();
+							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+							if ($asset->id) {
+								if (is_a($asset, 'user')) {
+									$can_publish_cond[] = $asset->id;
+								} else if (is_a($asset, 'user_group')) {
+									$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE));
+								}
+							}
+							$cond_string = 'if ('.count($cond_data['published_by']).
+										   ' >= '.count($can_publish_cond).') { $complete = true; }';
+						} else {
+							$cond_string = 'if ('.count($cond_data['published_by']).
+										   ' '.$cond_data['logic'].') { $complete = true; }';
+						}
+						eval($cond_string);
 					}
+
+					if ($complete) {
+						// this condition has been completed
+						$cond_data['complete'] = TRUE;
+						$current_step_found = FALSE;
+						$completed_conds++;
+						if ($step_data['logic'] == 'all') continue;
+
+						$step_completed = FALSE;
+						$logic_string = 'if ('.$completed_conds.' '.$step_data['logic'].' ) { $step_completed = true; }';
+						eval($logic_string);
+
+						if ($step_completed) {
+							// this step is completed so move to the next one
+							break;
+						} else {
+							// step is not finished yet so move to the next condition
+							$current_step_found = TRUE;
+							continue;
+						}
+					}
+				}//end for
+
+				// is the current step complete? If not, we are up to this step and can return
+
+				if ($step_data['logic'] == 'all' && $completed_conds < count($step_data['conditions'])) {
+					$current_step_found = TRUE;
 				}
+				if ($current_step_found) break;
 			}//end for
 
-			if ($step_data['logic'] == 'all' && $completed_conds < count($step_data['conditions'])) {
-				$continue = FALSE;
-			}
-			if (!$continue) break;
-		}//end for
 
-		if ($continue) $workflow['current_step'] = 0;
+			// we've been through all the siblings at the current level, and they're all complete.
+			$last_key = end(array_keys($workflow['current_step']));
+			if ($workflow['current_step'][$last_key] == count($step_array) && $current_step_found == FALSE) {
+
+				// if we're at the top level of workflow, we can't unescalate, we're cooked
+				if (count($workflow['current_step']) == 1) {
+					$workflow['current_step'] = Array();
+					$current_step_found = TRUE;
+					continue;
+				}
+
+				// get the index of the current step at this level. We should be at the bottom level, so take the last token from current_step.
+
+				$completed_step_id = array_pop($workflow['current_step']);
+
+				$step_array[$completed_step_id]['completed'] = time();
+
+
+				// ideally we don't want to set complete and start times for steps in here, but we
+				// need to indicate somehow that we've just checked out the escalation workflow and it's all done
+				$step_array =& $this->getCurrentStepArray($workflow);
+				$current_step_id = end($workflow['current_step']);
+				$step_array[$current_step_id]['completed'] = time();
+
+			}
+		}//end while !current step found
 
 	}//end _loadCurrentStep()
 
@@ -898,18 +954,26 @@ class Workflow_Manager extends MySource_Object
 		if (!$this->silentWorkflowParty($asset->id)) {
 			$steps_after = $this->getWorkflowCurrentSteps($asset->id);
 			foreach ($steps_after as $schemaid => $step) {
-				if ($step > $steps_before[$schemaid]) {
+				if (!$step == $steps_before[$schemaid]) {
 					$publishers = $this->whoCanPublish($asset->id, $schemaid);
 					// send internal messages to everyone in the next step who can now publish the asset
 					$msg = $ms->newMessage($publishers);
 
+					$workflow =& $schema_workflows[$schemaid];
+					$previous_step =& $this->getCurrentStep($workflow, $steps_before[$schemaid]);
+					$previous_step_name =& $previous_step['step_name'];
+					$current_step =& $this->getCurrentStep($workflow, $step);
+					$current_step_name =& $current_step['step_name'];
+
 					$msg_reps = Array(
-									'user_name'		=> $user->name,
-									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
-									'asset_name'	=> $asset->name,
-									'old_step'		=> (int)$steps_before[$schemaid],
-									'new_step'		=> (int)$step,
-									'workflow_url'	=> current_url().$asset->getBackendHref('workflow'),
+									'user_name'				=> $user->name,
+									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
+									'asset_name'			=> $asset->name,
+									'previous_step_id'		=> $steps_before[$schemaid],
+									'previous_step_name'	=> $previous_step_name,
+									'current_step_id'		=> $step,
+									'current_step_name'		=> $current_step_name,
+									'workflow_url'			=> current_url().$asset->getBackendHref('workflow'),
 								);
 
 					$asset_edt_fns = $asset->getEditFns();
@@ -923,9 +987,9 @@ class Workflow_Manager extends MySource_Object
 					$msg->parameters['assetid'] = $asset->id;
 					$msg->replacements = $msg_reps;
 					$ms->enqueueMessage($msg);
-				}
-			}
-		}
+				}//end if step has advanced
+			}//end foreach $steps_after
+		}//end if not silent workflow party
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -977,7 +1041,8 @@ class Workflow_Manager extends MySource_Object
 	* Changes the passed workflow to indicate that a user has approved the asset
 	*
 	* Returns TRUE if the publisher was able to publish and thus that the passed workflow
-	* has actually changed - FALSE otherwise.
+	* has actually changed - FALSE otherwise. This code is abstracted from RecordPublish so
+	* it can be used by testPublish
 	*
 	* @param array	&$workflow		the workflow add approval to
 	* @param int	$publisherid	the ID of the user who has approved
@@ -997,71 +1062,75 @@ class Workflow_Manager extends MySource_Object
 			$workflow['steps'] = Array();
 		}
 
-		for (reset($workflow['steps']); NULL !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
-			if (!isset($workflow['current_step'])) {
-				$workflow['current_step'] = 1;
-			}
-			if ($stepid != $workflow['current_step']) continue;
-			$step_data =& $workflow['steps'][$stepid];
+		$step_data =& $this->getCurrentStep($workflow);
 
-			for (reset($step_data['conditions']);
-					NULL !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
+		for (reset($step_data['conditions']);
+				NULL !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
 
-				$cond_data =& $step_data['conditions'][$pub];
-				// work out who can publish this condition
-				$can_publish = Array();
-				$publisher =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
-				if ($publisher->id) {
-					$asset_class = get_class($publisher);
+			$cond_data =& $step_data['conditions'][$pub];
+			// work out who can publish this condition
+			$can_publish = Array();
+			$publisher =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+			if ($publisher->id) {
+				$asset_class = get_class($publisher);
 
-					// Note that the order of IF statements is important, because roles are
-					// a descendent of groups but should be treated differently
-					if ($am->isTypeDecendant($asset_class, 'user')) {
-						$can_publish[] = $publisher->id;
-					} else if ($am->isTypeDecendant($asset_class, 'role')) {
-						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, FALSE, TRUE);
-						foreach ($roles as $roleid => $userids) {
-							foreach ($userids as $userid) {
-								if ($userid == '0') continue;
-								$can_publish[] = $userid;
-							}
+				// Note that the order of IF statements is important, because roles are
+				// a descendent of groups but should be treated differently
+				if ($am->isTypeDecendant($asset_class, 'user')) {
+					$can_publish[] = $publisher->id;
+				} else if ($am->isTypeDecendant($asset_class, 'role')) {
+					$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, FALSE, TRUE);
+					foreach ($roles as $roleid => $userids) {
+						foreach ($userids as $userid) {
+							if ($userid == '0') continue;
+							$can_publish[] = $userid;
 						}
-					} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
-						$can_publish = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($publisher->id, Array('user'), FALSE, NULL, NULL, NULL, NULL, NULL, FALSE));
 					}
+				} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
+					$can_publish = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($publisher->id, Array('user'), FALSE, NULL, NULL, NULL, NULL, NULL, FALSE));
 				}
+			}
 
-				if (in_array($publisherid, $can_publish)) {
-					if (!isset($cond_data['published_by'])) {
-						$cond_data['published_by'] = Array();
-					}
-					// if the publisherid has not already published
-					if (!isset($cond_data['published_by'][$publisherid])) {
-						$cond_data['published_by'][$publisherid] = time();
-						$workflow_updated = TRUE;
-					}
+			if (in_array($publisherid, $can_publish)) {
+				if (!isset($cond_data['published_by'])) {
+					$cond_data['published_by'] = Array();
 				}
-			}//end for
+				// if the publisherid has not already published
+				if (!isset($cond_data['published_by'][$publisherid])) {
+					$cond_data['published_by'][$publisherid] = time();
+					$workflow_updated = TRUE;
+				}
+			}
 		}//end for
 
 		if ($workflow_updated) {
 			// load the current step into the workflow
 			$this->_loadCurrentStep($workflow);
-			if ($workflow['current_step'] === 0) {
+
+			// if the current step returns nothing, workflow is complete
+			if ($workflow['current_step'] === Array()) {
 				$workflow['complete'] = TRUE;
+				// mark the last step as completed
 				$num_steps = count($workflow['steps']);
 				if ($num_steps > 0) {
 					$workflow['steps'][$num_steps]['completed'] = time();
 				}
 			} else {
-				if (!$workflow['steps'][$workflow['current_step']]['started']) {
-					$workflow['steps'][$workflow['current_step']]['started'] = time();
+				$current_step =& $this->getCurrentStep($workflow);
+				if (!$current_step['started']) {
+					$current_step['started'] = time();
 				}
-				if ($workflow['current_step'] > 1 && !$workflow['steps'][$workflow['current_step'] -1]['completed']) {
-					$workflow['steps'][$workflow['current_step'] -1]['completed'] = time();
+				// if this is not the first step in this workflow,
+				$last_key = end(array_keys($workflow['current_step']));
+				if ($workflow['current_step'][$last_key] > 1) {
+					$previous_step_address = $workflow['current_step'];
+					$previous_step_address[$last_key]--;
+					$previous_step =& $this->getCurrentStep($workflow, $previous_step_address);
+					if (!$previous_step['completed']) {
+						$previous_step['completed'] = time();
+					}
 				}
 			}
-			$updated = TRUE;
 		}
 
 		return $workflow_updated;
@@ -1162,7 +1231,6 @@ class Workflow_Manager extends MySource_Object
 						$assetid,
 						$schemaid,
 					  );
-
 			$result = $db->execute($prepared, $values);
 			assert_valid_db_result($result);
 		}
@@ -1269,6 +1337,7 @@ class Workflow_Manager extends MySource_Object
 			if (!in_array($schemaid, $running_schemas)) continue;
 			if (empty($workflow['steps'])) continue;
 			$steps[$schemaid] = $workflow['current_step'];
+
 		}
 
 		return $steps;
@@ -1452,6 +1521,243 @@ class Workflow_Manager extends MySource_Object
 		return !isset($edit_fns->static_screens['workflow']);
 
 	}//end silentWorkflowParty()
+
+
+	/**
+	* Escalates workflow
+	*
+	* If there are escalation steps, move to them. If not, move to sibling.
+	*
+	* @param int	$assetid	the ID of the asset who's workflow is being escalated
+	* @param int	$schemaid	The ID of the schema being escalated
+	*
+	* @return boolean
+	* @access public
+	*/
+	function escalateWorkflow($assetid, $schemaid)
+	{
+		$assetid = (int) $assetid;
+		$asset   =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) {
+			trigger_localised_error('SYS0160', E_USER_WARNING, $assetid);
+			return FALSE;
+		}
+
+		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$schema_workflows = $this->getSchemaWorkflows($assetid);
+		$workflow =& $schema_workflows[$schemaid];
+
+
+		// mark the current step as escalated
+		$current_step =& $this->getCurrentStep($workflow);
+
+		// we'll need these for later to check if any workflow has changed steps
+		$step_before = $current_step;
+		$step_before_id = $workflow['current_step'];
+		$publishers_before = $this->whoCanPublish($assetid);
+
+
+		$current_step['expired'] = TRUE;
+
+		// if there are no escalation steps for the current step, we can't escalate to substeps, so defer to the next step
+		if (empty($current_step['escalation_steps'])) {
+			$current_step['completed'] = TRUE;
+		}
+
+		// load the current step into the workflow
+		$this->_loadCurrentStep($workflow);
+
+
+
+		if ($workflow['current_step'] == Array()) {
+			// We can't complete workflow by escalating
+			$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'workflow'));
+			$href = str_replace('./', '', current($hrefs));
+			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+			$url = 'http://'.current($root_urls).'/'.$href;
+			$type = 'asset.workflow.stale';
+			$admins = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, SQ_PERMISSION_ADMIN, TRUE, FALSE, TRUE);
+
+			$msg_reps = Array(
+							'asset_name'	=> $asset->attr('name'),
+							'assetid'		=> $assetid,
+							'step_id'		=> implode('.', $step_before_id),
+							'step_name'		=> $current_step['step_name'],
+							'schema'		=> $workflow['schema_name'],
+							'started_time'	=> easy_datetime($current_step['started']),
+							'expiry_time'	=> easy_time_total($current_step['expiry_time']),
+							'workflow_url'	=> $url,
+						);
+			$msg = $ms->newMessage($admins, $type, $msg_reps);
+			$msg->send();
+
+			return TRUE;
+		}
+
+		// we may have gone deeper in workflow. If so, mark the current step as started.,
+
+		$current_step =& $this->getCurrentStep($workflow);
+		if (!$current_step['started']) {
+			$current_step['started'] = time();
+		}
+
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$sql = 'UPDATE
+					sq_ast_wflow
+				SET
+					wflow	= ?
+				WHERE
+						assetid		= ?
+					AND	schemaid	= ?';
+
+		$prepared = $db->prepare($sql);
+		assert_valid_db_result($prepared);
+		$new_workflow = serialize($workflow);
+
+		$values = Array(
+					$new_workflow,
+					$assetid,
+					$schemaid,
+				  );
+
+		$result = $db->execute($prepared, $values);
+
+		assert_valid_db_result($result);
+		$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflow;
+		if (isset($this->_tmp['schema_workflows'][$assetid]['all'][$schemaid])) {
+			$this->_tmp['schema_workflows'][$assetid]['all'][$schemaid] = $workflow;
+		}
+
+
+		// send an internal message to let people know workflow has been escalated
+		$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
+		$user       =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+
+
+		$log = $ms->newMessage();
+
+		$msg_reps = Array(
+						'user_name'				=> $user->name,
+						'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
+						'asset_name'			=> $asset->name,
+						'workflow_url'			=> current_url().$asset->getBackendHref('workflow'),
+						'assetid'				=> $assetid,
+						'previous_step_id'		=> implode('.', $step_before_id),
+						'previous_step_name'	=> $step_before['step_name'],
+						'current_step_id'		=> implode('.', $workflow['current_step']),
+						'current_step_name'		=> $current_step['step_name'],
+						'schema'				=> $workflow['schema_name'],
+						'started_time'			=> easy_datetime($step_before['started']),
+						'expiry_time'			=> easy_time_total($step_before['expiry_time']),
+					);
+
+		$log->replacements = $msg_reps;
+		$log->type = 'asset.workflow.log.escalated';
+
+		$log->parameters['assetid'] = $asset->id;
+		$log->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
+		$ms->enqueueMessage($log);
+
+
+		// send internal messages to everyone who could approve before to let them know they have lost their chance
+
+		if (!$this->silentWorkflowParty($asset->id)) {
+
+			$msg = $ms->newMessage($publishers_before);
+			$msg->type    = 'asset.workflow.announce.escalated';
+			$msg->parameters['assetid'] = $asset->id;
+			$msg->replacements = $msg_reps;
+			$ms->enqueueMessage($msg);
+
+			// send messages to the new approvers if they have
+
+			$publishers = $this->whoCanPublish($asset->id, $schemaid);
+			// send internal messages to everyone in the next step who can now publish the asset
+			$msg = $ms->newMessage($publishers);
+
+			$msg_reps = Array(
+							'user_name'				=> $user->name,
+							'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
+							'asset_name'			=> $asset->name,
+							'previous_step_id'		=> implode('.',$step_before_id),
+							'previous_step_name'	=> $step_before['step_name'],
+							'current_step_id'		=> implode('.',$workflow['current_step']),
+							'current_step_name'		=> $current_step['step_name'],
+							'workflow_url'			=> current_url().$asset->getBackendHref('workflow'),
+						);
+
+			$asset_edt_fns = $asset->getEditFns();
+			if (isset($asset_edt_fns->static_screens['preview'])) {
+				$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview');
+			} else {
+				$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details');
+			}
+
+			$msg->type    = 'asset.workflow.invitation.progress';
+			$msg->parameters['assetid'] = $asset->id;
+			$msg->replacements = $msg_reps;
+			$ms->enqueueMessage($msg);
+		}//end if
+
+		$ms->sendQueuedEmails();
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+	return TRUE;
+
+	}//end escalateWorkflow()
+
+
+	/**
+	* Returns an array of workflow steps containing the current or specified step and it's siblings
+	*
+	* @param array	&$workflow		the workflow we are searching in
+	* @param array	$current_step	the address of the desired step
+	*
+	* @return array
+	* @access public
+	*/
+	function &getCurrentStepArray(&$workflow, $current_step=NULL)
+	{
+		// go through workflow and return the current and sibling steps based on the current step
+		if ($current_step == NULL) {
+			$current_step = $workflow['current_step'];
+		}
+
+		array_pop($current_step);
+		$steps =& $workflow['steps'];
+		foreach ($current_step as $step_id) {
+			$steps =& $steps[$step_id]['escalation_steps'];
+		}
+		return $steps;
+
+	}//end getCurrentStepArray()
+
+
+	/**
+	* Returns a reference to the current or specified step
+	*
+	* @param array	&$workflow		the workflow we are searching in
+	* @param array	$current_step	the address of the desired step
+	*
+	* @return array
+	* @access public
+	*/
+	function &getCurrentStep(&$workflow, $current_step=NULL)
+	{
+		if ($current_step == NULL) {
+			$current_step = $workflow['current_step'];
+		}
+		$steps =& $this->getCurrentStepArray($workflow, $current_step);
+
+		return $steps[end($current_step)];
+
+	}//end getCurrentStep()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.29 2006/01/26 22:34:08 lwright Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.30 2006/11/20 05:20:52 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -140,6 +140,63 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$comparator_attr->paint($prefix.'_expiry_time', !$write_access);
 			$o->note(translate('step_not_completed_in_time_explanation'));
 		$o->closeField();
+		$o->openField('Escalate?');
+			$comparator_attr =& $asset->getAttribute('escalate');
+			$comparator_attr->paint($prefix.'_escalate', !$write_access);
+			$o->note('Escalation will move to the first escalation step upon expiry, or to the next workflow step if no escalation steps are available');
+			if ($asset->attr('escalate') == TRUE) {
+				$o->openSection('Escalation Steps');
+					// look for all the children of this step and list a bunch of links with delete buttons
+					$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step', TRUE, 'major', NULL, TRUE, FALSE);
+					if (!empty($current_links)) {
+						$assetids = Array();
+
+						foreach ($current_links as $link) {
+							$assetids[$link['minorid']] = 'details';
+						}
+						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assetids));
+						$asset_href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($assetids);
+
+						$o->openField('Escalation Steps');
+							?>
+							<table class="sq-backend-table">
+								<tr>
+									<td class="sq-backend-table-header"><b><?php echo 'step name'; ?></b></td>
+									<td align="center" width="150" class="sq-backend-table-header"><b><?php echo 'edit steps'; ?></b></td>
+									<?php
+									if ($write_access) {
+										?><td align="center" width="70" class="sq-backend-table-header"><b><?php echo'delete_step'; ?></b></td><?php
+									}
+									?>
+								</tr>
+							<?php
+							foreach ($current_links as $link_data) {
+								$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+								if (is_null($field)) continue;
+								?>
+								<tr>
+									<td align="left" class="sq-backend-table-cell"><?php echo get_asset_tag_line($field->id);?></td>
+									<td align="center" class="sq-backend-table-cell">[ <a href="<?php echo $asset_href[$field->id];?>"><?php echo 'edit step' ?></a> ]</td>
+								<?php
+								if ($write_access) {
+									?><td align="center" class="sq-backend-table-cell"><?php
+									check_box($prefix.'_delete_steps['.$link_data['linkid'].']')
+									?></td><?php
+								}
+								echo '</tr>';
+							}
+							?></table><?php
+						$o->closeField();
+					}//end if
+
+					if ($write_access) {
+						$o->openField('Create New Escalation Step');
+							text_box($prefix.'_new_escalation_step', '', 20);
+						$o->closeField();
+					}
+				$o->closeSection();
+			}//end if escalate
+		$o->closeField();
 
 		return $write_access;
 
@@ -210,10 +267,36 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$updated = TRUE;
 		}
 
+		// update escalation
+		$escalate_attr =& $asset->getAttribute('escalate');
+		$escalate_attr->process($prefix.'_escalate');
+		if ($escalate_attr->processed) {
+			$asset->setAttrValue('escalate', $escalate_attr->value);
+			$updated = TRUE;
+		}
+
 		if (!$asset->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
+		}
+
+		// delete any steps that need deleting
+		if (isset($_POST[$prefix.'_delete_steps'])) {
+			$delete_steps = $_POST[$prefix.'_delete_steps'];
+			foreach ($delete_steps as $linkid => $on) {
+				if ($asset->deleteLink($linkid)) $updated = TRUE;
+			}
+		}
+
+		if (isset($_POST[$prefix.'_new_escalation_step']) && trim($_POST[$prefix.'_new_escalation_step'])) {
+			$new_step_name = trim($_POST[$prefix.'_new_escalation_step']);
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('workflow_step');
+			$new_step =& new Workflow_Step();
+			$schema_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1);
+			$new_step->setAttrValue('name', $new_step_name);
+
+			if ($new_step->create($schema_link)) $updated = TRUE;
 		}
 
 		// process all our current conditions
@@ -269,12 +352,15 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	function generateWorkflowArray($asset, &$workflow_array)
 	{
 		$workflow_array = Array();
-		$workflow_array['conditions']                          = Array();
-		$workflow_array['step_name']                           = $asset->name;
-		$workflow_array['started']                             = 0;
-		$workflow_array['expiry_time']                         = $asset->attr('expiry_time');
-		$workflow_array['completed']                           = 0;
-		$workflow_array['require_comment_from_unlisted_users'] = $asset->attr('require_comment_from_unlisted_users');
+		$workflow_array['conditions']							= Array();
+		$workflow_array['escalation_steps']						= Array();
+		$workflow_array['step_name']							= $asset->name;
+		$workflow_array['started']								= 0;
+		$workflow_array['expiry_time']							= $asset->attr('expiry_time');
+		$workflow_array['escalate']						= $asset->attr('escalate');
+		$workflow_array['completed']							= 0;
+		$workflow_array['expired']								= 0;
+		$workflow_array['require_comment_from_unlisted_users']	= $asset->attr('require_comment_from_unlisted_users');
 
 		// work out the logic expression
 		$logic = $asset->attr('logic');
@@ -282,13 +368,26 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		$logic = $logic.(($logic_num) ? " $logic_num" : '');
 		$workflow_array['logic'] = $logic;
 
-		$i = 1;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step_condition', TRUE, 'major', NULL, TRUE, TRUE);
 		foreach ($current_links as $link_data) {
 			$condition =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($condition)) continue;
 			$edit_fns = $condition->getEditFns();
 			if (!$edit_fns->generateWorkflowArray($condition, $workflow_array['conditions'])) {
+				return FALSE;
+			}
+
+		}
+
+		// work out the escalation steps
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step', TRUE, 'major', NULL, TRUE, FALSE);
+		$i = 1;
+		foreach ($current_links as $link_data) {
+			$step =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+			if (is_null($step)) continue;
+			$workflow_array['escalation_steps'][$i] = Array();
+			$edit_fns = $step->getEditFns();
+			if (!$edit_fns->generateWorkflowArray($step, $workflow_array['escalation_steps'][$i])) {
 				return FALSE;
 			}
 			$i++;

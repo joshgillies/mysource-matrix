@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.23 2006/01/18 22:33:14 lwright Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.24 2006/11/20 05:20:52 emcdonald Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -198,7 +198,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 	function generateWorkflowArray($asset)
 	{
 		$workflow_array['steps']        = Array();
-		$workflow_array['current_step'] = 1;
+		$workflow_array['current_step'] = Array('1');
 		$workflow_array['complete']     = FALSE;
 		$workflow_array['schema_name']  = $asset->name;
 		$workflow_array['started']      = time();
