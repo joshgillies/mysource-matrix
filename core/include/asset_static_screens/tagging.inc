@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.10.2.2 2006/07/23 23:30:14 rong Exp $
+* $Id: tagging.inc,v 1.10.2.3 2006/11/20 03:13:39 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.10.2.2 $
+* @version $Revision: 1.10.2.3 $
 * @package MySource_Matrix
 */
 
@@ -278,11 +278,6 @@ function paintInlineTagging(&$owner, &$o, &$ei)
 */
 function processTagging(&$owner, &$o, $ei)
 {
-	// if we dont have admin access, go away
-	if ($owner->id && !$owner->adminAccess('')) {
-		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
-		exit();
-	}
 	// if we dont have write access, dont process anything
 	if (!$owner->writeAccess('menu')) return FALSE;
 	$prefix = $owner->getPrefix();
