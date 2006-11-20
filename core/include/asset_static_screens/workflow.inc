@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.41 2006/11/20 05:29:53 emcdonald Exp $
+* $Id: workflow.inc,v 1.42 2006/11/20 22:41:33 emcdonald Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 */
 
@@ -424,9 +424,13 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 												$o->closeField();
 											}
 											$o->openField(translate('automatically_escalate'));
-												echo $step_data['escalate'];
+												if ($step_data['escalate']) {
+													echo translate('yes');
+												} else {
+													echo translate('no');
+												}
 											$o->closeField();
-										}
+										}//end if
 										$o->openField(translate('step_logic'));
 											if (isset($wfm->_valid_cond_logic[$step_data['logic']])) {
 												// a special type of logic statement
@@ -984,7 +988,11 @@ function _paintWorkflowStep(&$owner, &$o, &$ei, &$workflow, $step_address)
 
 				$o->closeField();
 				$o->openField(translate('automatically_escalate'));
-					echo $step_data['escalate'];
+					if ($step_data['escalate']) {
+						echo translate('yes');
+					} else {
+						echo translate('no');
+					}
 				$o->closeField();
 			}
 		}//end if started
