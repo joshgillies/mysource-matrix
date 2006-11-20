@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tooltip.js,v 1.9 2006/11/20 03:19:50 lwright Exp $
+* $Id: tooltip.js,v 1.10 2006/11/20 03:43:25 lwright Exp $
 *
 */
 
@@ -29,23 +29,23 @@
 */
 function ToolTip()
 {
-	this.normal_font  = "10px Tahoma,Arial";
-	this.title_font   = "bold 12px Tahoma,Arial";
-	this.title_align  = "left";
-	this.normal_bg    = "#F4F4EB";
-	this.title_bg     = "#594165";
-	this.border       = "solid 1px #000000";
-	this.normal_color = "#000000";
-	this.title_color  = "#FFFFFF";
-	this.showing      = false;
+	this.normal_font	= "10px Tahoma,Arial";
+	this.title_font		= "bold 12px Tahoma,Arial";
+	this.title_align	= "left";
+	this.normal_bg		= "#F4F4EB";
+	this.title_bg		= "#594165";
+	this.border			= "solid 1px #000000";
+	this.normal_color	= "#000000";
+	this.title_color	= "#FFFFFF";
+	this.showing		= false;
 
-	this.print = tt_print;
-	this.show = tt_show;
-	this.hide = tt_hide;
-	this.paint = tt_paint;
+	this.print	= tt_print;
+	this.show	= tt_show;
+	this.hide	= tt_hide;
+	this.paint	= tt_paint;
 
-	this.set = tt_set;
-	this.get = tt_get;
+	this.set	= tt_set;
+	this.get	= tt_get;
 
 }//end ToolTip()
 
@@ -244,8 +244,8 @@ function tt_paint(top, left, text, title, close_button)
 
 		if ((tool_box.offsetWidth + left) > win_width) left -= (tool_box.offsetWidth + left) - win_width;
 
-		tool_box.style.top 		= top + "px";
-		tool_box.style.left		= left + "px";
+		tool_box.style.top 	= top + "px";
+		tool_box.style.left	= left + "px";
 
 		if (window.event)
 		{
@@ -258,10 +258,10 @@ function tt_paint(top, left, text, title, close_button)
 		}
 	}
 
-	tool_box.bgColor 		= this.background;
+	tool_box.bgColor 			= this.background;
 	tool_box.style.font 		= this.normal_font;
 	tool_box.style.color 		= this.color;
-	tool_box.style.border 	= this.border;
+	tool_box.style.border 		= this.border;
 	tool_box.style.background 	= this.normal_bg;
 	tool_box.style.visibility 	= "visible";
 
