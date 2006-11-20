@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.154 2006/11/15 04:26:24 lwright Exp $
+* $Id: backend.inc,v 1.155 2006/11/20 03:21:47 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.154 $
+* @version $Revision: 1.155 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -575,8 +575,8 @@ class Backend extends MySource_Object
 						$i++;
 						if ($i <= $results_per_page) {
 							$this_line  = '<div><div id="sq-search-results-expand-'.$i.'" class="sq-search-results-expand-div"><a href="#" id="sq-search-results-expand-link-'.$i.'" class="sq-search-results-expand-link" onclick="if (this.innerHTML == \'+\') {document.getElementById(\'sq-search-results-detail-'.$i.'\').style.display = \'block\'; this.innerHTML = \'-\';} else {document.getElementById(\'sq-search-results-detail-'.$i.'\').style.display = \'none\'; this.innerHTML = \'+\';} return false;">+</a></div>';
-							$this_line .= '<div id="sq-search-results-entry-'.$i.'"  style="margin-top: 5px">';
-							$this_line .= $result['tag_line'].'<br/><div id="sq-search-results-detail-'.$i.'" style="display:none">'.$result['detail'].'</div></div></div>';
+							$this_line .= '<div id="sq-search-results-entry-'.$i.'"  style="margin-top: 5px; text-indent: -38px; padding-left: 50px">';
+							$this_line .= $result['tag_line'].'<br/><div id="sq-search-results-detail-'.$i.'" style="display:none; text-indent: 0px">'.$result['detail'].'</div></div></div>';
 							$keyword_match_line[] = $this_line;
 						}
 
@@ -590,7 +590,7 @@ class Backend extends MySource_Object
 				$js_code .= '}';
 
 				$html = $this->_getDHTMLMessage(translate('search_results'), $detail_lines, 'search-results');
-				$dhtml_messages['search_results'] = Array('html' => str_replace("\n", '', preg_replace('|<script.*</script>|U', '', $html)), 'width' => '400', 'timeout' => 0);
+				$dhtml_messages['search_results'] = Array('html' => str_replace("\n", '', preg_replace('|<script.*</script>|U', '', $html)), 'width' => '300', 'timeout' => 0);
 
 			}//end if
 		}//end if
@@ -720,6 +720,7 @@ class Backend extends MySource_Object
 
 					msgDiv.innerHTML = popupContents[messageIndex]['html'];
 					currentTimeout = popupContents[messageIndex]['timeout'];
+					msgDiv.style.width = popupContents[messageIndex]['width'] + "px";
 					msgDiv.style.right = "10px";
 
 					setTimeout("showMsgDiv()", 500);
