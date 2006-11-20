@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.30 2006/11/20 05:20:52 emcdonald Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.31 2006/11/20 23:21:45 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,7 +143,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		$o->openField('Escalate?');
 			$comparator_attr =& $asset->getAttribute('escalate');
 			$comparator_attr->paint($prefix.'_escalate', !$write_access);
-			$o->note('Escalation will move to the first escalation step upon expiry, or to the next workflow step if no escalation steps are available');
+			$o->note(translate('escalate_note'));
 			if ($asset->attr('escalate') == TRUE) {
 				$o->openSection('Escalation Steps');
 					// look for all the children of this step and list a bunch of links with delete buttons

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.188 2006/11/20 05:29:53 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.189 2006/11/20 23:21:46 emcdonald Exp $
 *
 */
 
@@ -968,6 +968,7 @@
 	<string source="members_must_approve">%s member(s) must approve</string>
 	<string source="security_key_question">Can't read the security key? %s</string>
 	<string source="security_key_link">Click here to get a new key</string>
+	<string source="escalate_note">Escalation will move to the first escalation step upon expiry, or to the next workflow step if no escalation steps are available. This option has no effect if an expiry period is not configured.</string>
 
 
 
