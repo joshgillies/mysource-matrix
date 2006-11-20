@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_search.js,v 1.1 2006/11/15 04:12:07 lwright Exp $
+* $Id: backend_search.js,v 1.2 2006/11/20 04:23:45 lwright Exp $
 *
 * backend_search.js
 *
@@ -25,7 +25,7 @@
 * This should only be included into the "main" frame.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -72,6 +72,11 @@ function jumpToSearchResults(start)
 			document.getElementById("sq-search-results-expand-link-" + i).innerHTML = '+';
 			document.getElementById("sq-search-results-entry-" + i).style.display = 'block';
 			document.getElementById("sq-search-results-expand-" + i).style.display = 'block';
+
+			// For some reason the class name needs to be reinforced, otherwise
+			// the text indent override provided by this class does not work
+			// properly
+			document.getElementById("sq-search-results-detail-" + i).className = 'sq-search-results-detail';
 			document.getElementById("sq-search-results-detail-" + i).style.display = 'none';
 
 		}
