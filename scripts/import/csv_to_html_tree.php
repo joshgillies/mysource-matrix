@@ -1,37 +1,36 @@
 <?php
 
-/*
- * CSV site structure to HTML tree script
- * Command-line only
- *
- * @author  Mark Brydon <mbrydon@squiz.net>
- * 21 Nov 2006
- *
- *
- * Purpose:
- * 		Conversion of a CSV file into a tree structure where each level is represented
- * 		by an HTML heading (eg; <h1>First level</h1><h2>Second level</h2>)
- *
- * 		eg; CSV file input:
- *				Fred,John
- *				Fred,John,Mary
- *				Fred,Jack
- *				Fred,Jack,Peter,Jill
- *				Arnie
- *				Arnie,Connor
- *
- *      	Output from this script:
- *      		<h1>Fred</h1>
- *        			<h2>John</h2>
- *          			<h3>Mary</h3>
- *      			<h2>Jack</h2>
- *						<h3>Peter</h3>
- *							<h4>Jill</h4>
- *				<h1>Arnie</h1>
- *					<h2>Connor</h2>
- *
- */
-
+/**
+* CSV site structure to HTML tree script
+* Command-line only
+*
+* @author  Mark Brydon <mbrydon@squiz.net>
+* 21 Nov 2006
+*
+*
+* Purpose:
+* 		Conversion of a CSV file into a tree structure where each level is represented
+* 		by an HTML heading (eg; <h1>First level</h1><h2>Second level</h2>)
+*
+* 		eg; CSV file input:
+*				Fred,John
+*				Fred,John,Mary
+*				Fred,Jack
+*				Fred,Jack,Peter,Jill
+*				Arnie
+*				Arnie,Connor
+*
+*      	Output from this script:
+*	      		<h1>Fred</h1>
+*        			<h2>John</h2>
+*          			<h3>Mary</h3>
+*      			<h2>Jack</h2>
+*						<h3>Peter</h3>
+*							<h4>Jill</h4>
+*				<h1>Arnie</h1>
+*					<h2>Connor</h2>
+*
+*/
 
 
 /**
@@ -40,17 +39,20 @@
 * @return void
 * @access public
 */
-function printUsage() {
+function printUsage()
+{
 	echo "CSV to HTML structure tree converter\n\n";
 	echo "Usage: csv_to_html_tree [csv file]\n";
 	echo "csv file: A comma separated values file that represents the site structure\n\n";
-}// end printUsage()
 
+}//end printUsage()
 
 
 /************************** MAIN PROGRAM ****************************/
 
-if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+if ((php_sapi_name() != 'cli')) {
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+}
 
 // Has a filename been supplied?
 $csv_filename	= $argv[1];
@@ -78,22 +80,19 @@ while (($data = fgetcsv($fd, 1024, ',')) !== FALSE) {
 
 	// Grab a line and throw it into an HTML array
 	$html_tree = Array();
-	foreach($data as $key => $val) {
+	foreach ($data as $key => $val) {
 		$current_level++;
 		$html_tree[$current_level] = $val;
 	}
 
 	// Cycle through the line, omitting any levels we have already covered
-	foreach($html_tree as $level => $page) {
+	foreach ($html_tree as $level => $page) {
 		$current_page = $html_tree[$level];
 
 		if (!empty($page)) {
 			if ($page != $last_html_tree[$level]) {
-				// Tab it out, nicely nicely :-)
-				for($n=0; $n<($level-1); $n++) echo "\t";
-
 				// Write out the heading tag
-				echo '<h' . $level . '>' . $page . '</h' . $level . ">\n";
+				echo '<h'.$level.'>'.$page.'</h'.$level.">\n";
 			}
 		}
 
