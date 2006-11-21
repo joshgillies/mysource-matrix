@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.50 2006/11/21 23:01:44 lwright Exp $
+* $Id: search_page_management.inc,v 1.51 2006/11/21 23:42:50 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -497,7 +497,7 @@ class Search_Page_Management extends Asset_Management
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
 			pre_echo('FINISHED SEARCH PAGE UPGRADE TO VERSION 0.18');
-		}
+		}//end if
 
 		return TRUE;
 
