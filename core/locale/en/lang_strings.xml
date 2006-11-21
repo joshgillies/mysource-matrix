@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.189 2006/11/20 23:21:46 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.190 2006/11/21 18:47:29 gnoel Exp $
 *
 */
 
@@ -156,6 +156,7 @@
 	<string source="internationalisation_settings">Internationalisation Settings</string>
 	<string source="intervals">Intervals</string>
 	<string source="keyword">Keyword</string>
+	<string source="custom_keyword">Custom Keyword</string>
 	<string source="keyword_extraction_tools">Keyword Extraction Tools</string>
 	<string source="keyword_name">Keyword Name</string>
 	<string source="layout_code">Layout Code</string>
