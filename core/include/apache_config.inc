@@ -18,11 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: apache_config.inc,v 1.2 2006/04/24 04:41:44 bcaldwell Exp $
+* $Id: apache_config.inc,v 1.3 2006/11/21 18:46:20 gnoel Exp $
 *
 */
 
 require_once SQ_LIB_PATH.'/config/config.inc';
+
+define('SQ_APACHE_CONF_CUSTOM_KEYWORD_KEY', 'sq_custom_keyword_key');
 
 /**
 * Apache_Config
@@ -32,7 +34,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Manage any Apache related configuration
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Apache_Config extends Config
@@ -132,9 +134,9 @@ class Apache_Config extends Config
 	*/
 	function writeAccess()
 	{
-		if (!parent::writeAccess()) return false;
+		if (!parent::writeAccess()) return FALSE;
 		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
-			return true;
+			return TRUE;
 		}
 
 		// need to be root or a sys admin
@@ -203,7 +205,7 @@ class Apache_Config extends Config
 					?></table><?php
 
 				$o->closeField();
-			}
+			}//end if no request notes
 
 			if ($write_access) {
 				$o->openField(translate('new_question'));
@@ -243,25 +245,37 @@ class Apache_Config extends Config
 								document.getElementById(typeSelector.value).parentNode.parentNode.style.display = 'none';
 								document.getElementById('sq_request_note_new').parentNode.parentNode.style.display = 'none';
 							}
+
+							sqKeywordValueSelectUpdate(document.getElementById(typeSelector.value));
+						}
+
+						function sqKeywordValueSelectUpdate(keywordSelector)
+						{
+							/* display or hide the custom keyword input box*/
+							document.getElementById('sq_custom_keyword').parentNode.parentNode.style.display = (keywordSelector.value == 'sq_custom_keyword_key') ? '' : 'none';
+
 						}
 					</script>
 					<?php
 
-					// standard asset keywords
-					ob_start();
-						$asset =& new Asset();
-						combo_box('sq_keyword_select_asset', $asset->getAvailableKeywords(), FALSE, '', 0, 'id="sq_keyword_select_asset"');
-					$elements[] = ob_get_clean();
-
-					// user asset keywords
-					ob_start();
-						$asset =& new User();
-						combo_box('sq_keyword_select_user', $asset->getAvailableKeywords(), FALSE, '', 0, 'id="sq_keyword_select_user"');
-					$elements[] = ob_get_clean();
+					// standard and user asset keywords
+					foreach (Array('asset', 'user') as $asset_type) {
+						ob_start();
+							$asset =& new $asset_type();
+							$options = $asset->getAvailableKeywords();
+							$options[SQ_APACHE_CONF_CUSTOM_KEYWORD_KEY] = translate('custom_keyword');
+							combo_box('sq_keyword_select_'.$asset_type, $options, FALSE, '', 0, 'id="sq_keyword_select_'.$asset_type.'"  onchange="sqKeywordValueSelectUpdate(this)"');
+						$elements[] = ob_get_clean();
+					}
 
 					ob_start();
 						hidden_field('sq_keyword_select_none', '');
 					$elements[] = ob_get_clean();
+
+					// input box for the custom keyword
+					ob_start();
+						text_box('sq_custom_keyword', '', '', '', FALSE, 'id="sq_custom_keyword"');
+					$custom_keyword_input = ob_get_clean();
 
 					// input box for new request notes
 					ob_start();
@@ -279,6 +293,10 @@ class Apache_Config extends Config
 							<td><?php echo implode(' ', $elements); ?></td>
 						</tr>
 						<tr>
+							<th><?php echo translate('keyword_name'); ?></th>
+							<td><?php echo $custom_keyword_input; ?></td>
+						</tr>
+						<tr>
 							<th><?php echo translate('apache_note_name'); ?></th>
 							<td><?php echo $note_name_input; ?></td>
 						</tr>
@@ -289,13 +307,13 @@ class Apache_Config extends Config
 					<?php
 
 				$o->closeField();
-			}
+			}//end if write access
 			$o->sectionNote(translate('apache_note_example'));
 
 		$o->closeSection();
-		if ($write_access) $o->commitButton('', true);
+		if ($write_access) $o->commitButton('', TRUE);
 
-	}//end paintBackend();
+	}//end paintBackend()
 
 
 	/**
@@ -340,8 +358,9 @@ class Apache_Config extends Config
 	* @param boolean	$var_export	whether to run the value through var_export or not
 	*
 	* @return boolean	whether the value is valid or not
+	* @access private
 	*/
-	function _paintConfigVar($var_name, $value, $var_export=true)
+	function _paintConfigVar($var_name, $value, $var_export=TRUE)
 	{
 		// we're not going to save this as a constant, since it's an array
 		if ($var_name == 'APACHE_REQUEST_NOTES') {
@@ -365,8 +384,12 @@ class Apache_Config extends Config
 	function _getNewRequestNote($data)
 	{
 		// make sure we're really going to get a new request note
-		if (!isset($data['sq_keyword_type_option'])) return FALSE;
-		if ($data['sq_keyword_type_option'] == 'sq_keyword_select_none') return FALSE;
+		if (!isset($data['sq_keyword_type_option'])) {
+			return FALSE;
+		}
+		if ($data['sq_keyword_type_option'] == 'sq_keyword_select_none') {
+			return FALSE;
+		}
 
 		$new_req_note = Array();
 
@@ -374,12 +397,18 @@ class Apache_Config extends Config
 		$req_note_name = $data['sq_request_note_new'];
 		$new_req_note['type'] = $data['sq_keyword_type_option'];
 		$new_req_note['keyword'] = $data[$new_req_note['type']];
+		if ($new_req_note['keyword'] == SQ_APACHE_CONF_CUSTOM_KEYWORD_KEY) {
+			$new_req_note['keyword'] = trim(strtolower($data['sq_custom_keyword']));
+		}
 
 		// make our type an asset type rather
 		$new_req_note['type'] = str_replace('sq_keyword_select_', '', $new_req_note['type']);
 
 		// need to have a name to create a new request note
 		if (empty($req_note_name)) return FALSE;
+
+		// need to have a name to create a new request note
+		if (empty($new_req_note['keyword'])) return FALSE;
 
 		// double check name
 		if (in_array($req_note_name, array_keys($this->request_notes))) {
