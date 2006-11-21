@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.49 2006/01/30 05:54:48 sdanis Exp $
+* $Id: search_page_management.inc,v 1.50 2006/11/21 23:01:44 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -470,6 +470,34 @@ class Search_Page_Management extends Asset_Management
 			}
 			pre_echo('FINISHED SEARCH PAGE UPGRADE FROM VERSION 0.15');
 		}//end if
+
+		if (version_compare($current_version, '0.18', '<')) {
+			pre_echo('STARTING SEARCH PAGE UPGRADE - FROM VERSION '.$current_version.' TO 0.18');
+			// 0.18 - Replace v3.6 Relevance fields with v3.8+ (?) versions
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
+			pre_echo('Updating '.count($children).' Search Page(s)...');
+			foreach ($children as $assetid) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$sort_by = $asset->attr('sort_by');
+
+				foreach ($sort_by as $key => $value) {
+					if ($value['type'] == 'field') {
+						$field_name = $value['params']['field'];
+
+						// If this is Relevance, change old v3.6 field name to
+						// v3.8+ one (which uses 'score')
+						if ($field_name == '__relevance__') {
+							$sort_by[$key]['params']['field'] = 'score';
+						}
+					}
+				}
+
+				$asset->setAttrValue('sort_by', $sort_by);
+				$asset->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+			pre_echo('FINISHED SEARCH PAGE UPGRADE TO VERSION 0.18');
+		}
 
 		return TRUE;
 
