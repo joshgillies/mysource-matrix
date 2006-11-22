@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.51 2006/09/21 06:58:52 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.52 2006/11/22 03:45:06 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1090,7 +1090,7 @@ class Calendar_Common
 
 						if (!is_null($event['end_date_hours'])) {
 							list($result_list[$assetid.':'.$i]['end_date_hours'], $result_list[$assetid.':'.$i]['end_date_minutes']) = explode(':', $day_end_time);
-							$result_list[$assetid.':'.$i]['end_date_ts'] = iso8601_ts($start_date.' '.$day_end_time.':00');
+							$result_list[$assetid.':'.$i]['end_date_ts'] = iso8601_ts($start_date.' '.$day_end_time.':00 Z');
 						}
 						$i++;
 
@@ -1116,11 +1116,11 @@ class Calendar_Common
 
 							if (!is_null($event['start_date_hours'])) {
 								list($result_list[$assetid.':'.$i]['start_date_hours'], $result_list[$assetid.':'.$i]['start_date_minutes']) = explode(':', $day_start_time);
-								$result_list[$assetid.':'.$i]['start_date_ts'] = iso8601_ts($inter_date.' '.$day_start_time.':00');
+								$result_list[$assetid.':'.$i]['start_date_ts'] = iso8601_ts($inter_date.' '.$day_start_time.':00 Z');
 							}
 							if (!is_null($event['end_date_hours'])) {
 								list($result_list[$assetid.':'.$i]['end_date_hours'], $result_list[$assetid.':'.$i]['end_date_minutes']) = explode(':', $day_end_time);
-								$result_list[$assetid.':'.$i]['end_date_ts'] = iso8601_ts($inter_date.' '.$day_end_time.':00');
+								$result_list[$assetid.':'.$i]['end_date_ts'] = iso8601_ts($inter_date.' '.$day_end_time.':00 Z');
 							}
 							$i++;
 						}
@@ -1143,7 +1143,7 @@ class Calendar_Common
 
 						if (!is_null($event['start_date_hours'])) {
 							list($result_list[$assetid.':'.$i]['start_date_hours'], $result_list[$assetid.':'.$i]['start_date_minutes']) = explode(':', $day_start_time);
-							$result_list[$assetid.':'.$i]['start_date_ts'] = iso8601_ts($end_date.' '.$day_start_time.':00');
+							$result_list[$assetid.':'.$i]['start_date_ts'] = iso8601_ts($end_date.' '.$day_start_time.':00 Z');
 						}
 
 						$i++;
@@ -1174,11 +1174,12 @@ class Calendar_Common
 						$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
 
 						if (!is_null($event['start_date_hours'])) {
-							$result_list[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date.' '.$event['start_date_hours'].':'.$event['start_date_minutes'].':00');
-							$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' '.$event['end_date_hours'].':'.$event['end_date_minutes'].':00');
+							$result_list[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date.' '.$event['start_date_hours'].':'.$event['start_date_minutes'].':00 Z');
+							$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' '.$event['end_date_hours'].':'.$event['end_date_minutes'].':00 Z');
+							bam($result_list[$assetid.':'.$i]['start_date_ts']);
 						} else {
-							$event[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date);
-							$event[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date);
+							$result_list[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date.' Z');
+							$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' Z');
 						}
 						$i++;
 					}
@@ -1203,11 +1204,11 @@ class Calendar_Common
 					$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
 
 					if (!is_null($event['start_date_hours'])) {
-						$result_list[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date.' '.$event['start_date_hours'].':'.$event['start_date_minutes'].':00');
-						$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' '.$event['end_date_hours'].':'.$event['end_date_minutes'].':00');
+						$result_list[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date.' '.$event['start_date_hours'].':'.$event['start_date_minutes'].':00 Z');
+						$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' '.$event['end_date_hours'].':'.$event['end_date_minutes'].':00 Z');
 					} else {
-						$event[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date);
-						$event[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date);
+						$result_list[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date.' Z');
+						$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' Z');
 					}
 
 					$i++;
