@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.64 2006/10/16 04:44:56 rong Exp $
+* $Id: install.inc,v 1.65 2006/11/22 11:18:59 gnoel Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -58,13 +58,6 @@ function regenerate_configs()
 	require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_config.inc';
 	$squiz_server_cfg =& new Squiz_Server_Config();
 	if (!$squiz_server_cfg->save(Array(), FALSE)) {
-		return FALSE;
-	}
-
-	// Re-generate the Apache Config to make sure that we get any new defines that may have been issued
-	require_once SQ_INCLUDE_PATH.'/apache_config.inc';
-	$apache_cfg =& new Apache_Config();
-	if (!$apache_cfg->save(Array(), FALSE)) {
 		return FALSE;
 	}
 
