@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.16 2006/11/14 23:21:46 bcaldwell Exp $
+* $Id: page_calendar_rolling.inc,v 1.17 2006/11/22 03:43:20 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -628,6 +628,7 @@ class Page_Calendar_Rolling extends Page
 			if (!in_array(date('D', strtotime($day)), $day_filter)) {
 				unset($res[$day]);
 			}
+			uasort($res[$day], Array('Calendar_Common', 'compareStartDates'));
 		}
 
 		return $res;
