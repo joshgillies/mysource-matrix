@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.46.2.4 2006/08/08 07:05:20 rong Exp $
+* $Id: cache_manager.inc,v 1.46.2.5 2006/11/22 23:40:37 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.46.2.4 $
+* @version $Revision: 1.46.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -414,7 +414,15 @@ class Cache_Manager extends Asset
 		if (is_null($current_user) || is_a($current_user, 'public_user')) {
 			// if your not logged in and public level caching is on - you get the public copy
 			if ($this->attr('public_caching')) {
-				$perm_key = 'public';
+				if (is_null($current_user)) {
+					$perm_key = 'public';
+				} else {
+					// get the group that this public user is in
+					// for which satisfies the security restrictions
+					$groups = array_values($current_user->getUserGroups());
+					sort($groups);
+					$perm_key = 'public'.implode('|',$groups);
+				}
 			}
 		} else {
 			if (empty($cache_key)) {
@@ -453,8 +461,9 @@ class Cache_Manager extends Asset
 				}
 			} else {
 				// if group level caching is on - check the groups the user is in if they are logged in
+				// and if user satisfies the group security restrictions
 				if ($this->attr('group_caching')) {
-					$groups = array_keys($current_user->getGroups());
+					$groups = array_values($current_user->getUserGroups());
 					sort($groups);
 					$perm_key = implode('|', $groups);
 				}
