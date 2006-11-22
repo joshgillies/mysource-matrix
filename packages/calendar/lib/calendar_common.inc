@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.52 2006/11/22 03:45:06 lwright Exp $
+* $Id: calendar_common.inc,v 1.53 2006/11/22 03:47:30 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1176,7 +1176,6 @@ class Calendar_Common
 						if (!is_null($event['start_date_hours'])) {
 							$result_list[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date.' '.$event['start_date_hours'].':'.$event['start_date_minutes'].':00 Z');
 							$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' '.$event['end_date_hours'].':'.$event['end_date_minutes'].':00 Z');
-							bam($result_list[$assetid.':'.$i]['start_date_ts']);
 						} else {
 							$result_list[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date.' Z');
 							$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' Z');
