@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.7 2006/10/10 05:30:04 emcdonald Exp $
+* $Id: form_question_type_select.inc,v 1.8 2006/11/23 04:03:26 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,7 +106,7 @@ class Form_Question_Type_Select extends Form_Question
 		$html = ob_get_contents();
 		ob_end_clean();
 
-		return html_entity_decode($html);
+		return $html;
 
 	}//end getHtmlField()
 
@@ -130,6 +130,7 @@ class Form_Question_Type_Select extends Form_Question
 			$empty = Array(htmlspecialchars($this->attr('empty_text')));
 			$options = array_merge($empty, $options);
 		}
+
 		return $options;
 
 	}//end getOptions()
