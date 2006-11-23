@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.php,v 1.7 2006/01/08 22:42:21 emcdonald Exp $
+* $Id: html_tidy.php,v 1.7.2.1 2006/11/23 01:04:25 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert HTML Tidy for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix
 */
 
@@ -177,7 +177,7 @@ if (!isset($_GET['name']))		  $_GET['name'] = '';
 										<input type="checkbox" name="rep_type5" id="rep_type5" /> Remove <b>non-HTML</b> tags<br/>
 										<input type="checkbox" name="rep_type6" id="rep_type6" /> Remove double spaces<br/>
 										<input type="checkbox" name="rep_type7" id="rep_type7" /> Remove all empty tags<br/>
-										<input type="checkbox" name="rep_type8" id="rep_type8" /> Remove all tags' attributes<br/>
+										<input type="checkbox" name="rep_type8" id="rep_type8" /> Remove all tags' attributes (except HREF and SRC)<br/>
 										<input type="checkbox" name="rep_type9" id="rep_type9" /> Change Microsoft Word<sup>&#174;</sup>'s bullets<br/>
 									</td>
 								</tr>
