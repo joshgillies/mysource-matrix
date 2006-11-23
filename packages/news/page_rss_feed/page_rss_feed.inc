@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.7.2.5 2006/11/23 02:57:07 skim Exp $
+* $Id: page_rss_feed.inc,v 1.7.2.6 2006/11/23 04:43:18 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.7.2.5 $
+* @version $Revision: 1.7.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -191,6 +191,12 @@ class Page_RSS_Feed extends Page
 		$rss = $cm->loadFromCache($this->id, $this->type(), '', FALSE);
 		$rss = unserialize($rss);
 
+		if ($this->charset) {
+			$charset = $this->charset;
+		} else {
+			$charset = SQ_CONF_DEFAULT_CHARACTER_SET;
+		}
+
 		// if cache returns nothing then build the feed
 		if (empty($rss)) {
 			// get the assets to be listed in the feed
@@ -320,17 +326,13 @@ class Page_RSS_Feed extends Page
 				$no_errors = $this->validateItems($new_items);
 				if (!$no_errors) return;
 				$writer->addItems($new_items);
-				$rss = $writer->getRSSString();
+				$rss = $writer->getRSSString(FALSE, $charset);
 				$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 				$r = $cm->saveToCache($this->id, $this->type(), '', serialize($rss), FALSE);
 			}
 		}
 
-		if ($this->charset) {
-			header('Content-type: text/xml; charset='.$this->charset);
-		} else {
-			header('Content-type: text/xml; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
-		}
+		header('Content-type: text/xml; charset='.$charset);
 
 		echo $rss;
 
