@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.48.2.2 2006/07/27 05:34:14 tbarrett Exp $
+* $Id: design_area.inc,v 1.48.2.3 2006/11/23 00:19:25 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.48.2.2 $
+* @version $Revision: 1.48.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -444,6 +444,7 @@ class Design_Area extends Asset
 	function _printPaintingCode()
 	{
 		$contents = $this->attr('contents');
+		$current_element = NULL;
 
 		// remove any leading or trailing whitespace elements from the contents
 		// first, the leaders
