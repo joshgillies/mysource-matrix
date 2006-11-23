@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.5.2.2 2006/09/15 02:40:15 colivar Exp $
+#* $Id: backup.sh,v 1.5.2.3 2006/11/23 03:06:39 lwright Exp $
 #*
 #*/
 #
@@ -142,6 +142,10 @@ case "${DB_PHPTYPE}" in
 		else
 			args="$args file=${remotefile}"
 		fi
+
+		# consistent=y makes sure all tables are correct to the same date
+		args="$args consistent=y"
+
 		if [[ -z $remote ]];then
 			exp ${args}
 		else
