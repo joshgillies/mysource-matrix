@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_writer.inc,v 1.9 2006/04/11 05:24:35 rong Exp $
+* $Id: rss_feed_writer.inc,v 1.9.2.1 2006/11/23 04:42:51 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * Creates an XML document with all the data that is provided
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -220,7 +220,7 @@ class RSS_Feed_Writer
 	* @return string
 	* @access public
 	*/
-	function getRSSString($header=TRUE)
+	function getRSSString($header=TRUE, $encoding='iso-8859-1')
 	{
 		$channel = $this->channel;
 		$image = $this->image;
@@ -242,7 +242,7 @@ class RSS_Feed_Writer
 		$name = 'item';
 		ob_start();
 		if ($header) header('Content-type: text/xml');
-		echo '<?xml version="1.0" encoding="UTF-8"?>';
+		echo '<?xml version="1.0" encoding="'.$encoding.'"?>';
 
 		// open tag for atom is feed
 		// for rss 1.0 it is rdf:RDF
