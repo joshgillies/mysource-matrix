@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.11 2006/05/05 00:50:48 sdanis Exp $
+* $Id: page_rss_feed.inc,v 1.12 2006/11/23 02:56:14 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -326,10 +326,14 @@ class Page_RSS_Feed extends Page
 				$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 				$r = $cm->saveToCache($this->id, $this->type(), '', serialize($rss), FALSE);
 			}
-		} else {
-			// we need to send headers as we got the feed from cache
-			header('Content-type: text/xml');
 		}
+
+		if ($this->charset) {
+			header('Content-type: text/xml; charset='.$this->charset);
+		} else {
+			header('Content-type: text/xml; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
+		}
+
 		echo $rss;
 
 	}//end printFrontend()
