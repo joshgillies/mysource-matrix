@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.php,v 1.10 2006/03/02 22:51:10 rong Exp $
+* $Id: html_tidy.php,v 1.10.2.1 2006/11/23 01:04:02 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix
 */
 
@@ -216,7 +216,7 @@ if (!isset($_GET['name']))		  $_GET['name'] = '';
 										<input type="checkbox" name="rep_type7" id="rep_type7" /><label for="rep_type7"> Remove <b>&lt;table&gt;</b> tags</label><br/>
 										<input type="checkbox" name="rep_type8" id="rep_type8" /><label for="rep_type8"> Remove <b>&lt;span&gt;</b> tags</label><br/>
 										<input type="checkbox" name="rep_type9" id="rep_type9" /><label for="rep_type9"> Remove all empty tags</label><br/>
-										<input type="checkbox" name="rep_type10" id="rep_type10" /><label for="rep_type10"> Remove all tags' attributes</label><br/>
+										<input type="checkbox" name="rep_type10" id="rep_type10" /><label for="rep_type10"> Remove all tags' attributes (except HREF and SRC)</label><br/>
 									</td>
 								</tr>
 							</table>
