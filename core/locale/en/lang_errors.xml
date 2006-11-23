@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.54.2.4 2006/09/21 23:15:32 skim Exp $
+* $Id: lang_errors.xml,v 1.54.2.5 2006/11/23 00:32:43 rong Exp $
 *
 */
 
@@ -1629,9 +1629,9 @@ Full Node Contents :
 	<error code="CORE0247">Password cannot be blank</error>
 
 	<!-- User IP Condition -->
-	<error code="CORE0248">The IP/subnet combination "%1$s/$2$s" does not represent a valid network IP - ignoring</error>
+	<error code="CORE0248">The IP/subnet combination "%1$s/%2$s" does not represent a valid network IP - ignoring</error>
 	<error code="CORE0249">Ignoring uploaded IP ranges file as it appears to be invalid</error>
-	<error code="CORE0250">The IP/subnet combination "%1$s/$2$s" is in the file once for both grant and deny - using the first line found and ignoring the rest</error>
+	<error code="CORE0250">The IP/subnet combination "%1$s/%2$s" is in the file once for both grant and deny - using the first line found and ignoring the rest</error>
 
 	<!-- Email Options -->
 	<error code="CORE0251">"From" field is not set for %s.</error>
