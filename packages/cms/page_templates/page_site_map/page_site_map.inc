@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.33 2006/10/05 01:43:23 rhoward Exp $
+* $Id: page_site_map.inc,v 1.34 2006/11/24 04:24:27 emcdonald Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -302,7 +302,7 @@ class Page_Site_Map extends Page
 				$image1 = (($level == 1 && !$top_level) || !$stalks) ? 'blank.gif' : 'tree/stalk.gif';
 				$image2 = (($level == 1 && !$top_level) || !$stalks) ? 'blank.gif' : 'tree/branch.gif';
 
-				$bg = ($end) ? '' : 'background="'.sq_web_path('lib').'/web/images/'.$image1.'"';
+				$bg = ($end) ? '' : 'style="background-image:'.sq_web_path('lib').'/web/images/'.$image1.'"';
 
 				$url = ($generating) ? '<'.'?php echo $SQ_SITE_MAP_ASSET_URLS[$data[\'assetid\']] ?'.'>' : $SQ_SITE_MAP_ASSET_URLS[$data['assetid']];
 				?>
