@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.191 2006/11/22 02:28:16 skim Exp $
+* $Id: lang_strings.xml,v 1.192 2006/11/24 01:10:17 emcdonald Exp $
 *
 */
 
@@ -1283,6 +1283,7 @@
 	<string source="content_type">Content Type</string>
 	<string source="under_construction">Under Construction</string>
 	<string source="permission_denied">Permission Denied</string>
+	<string source="max_rows">Max Rows</string>
 
 
 	<!-- keyword descriptions -->

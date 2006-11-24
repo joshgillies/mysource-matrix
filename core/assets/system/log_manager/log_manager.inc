@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.21 2006/03/31 04:35:37 sdanis Exp $
+* $Id: log_manager.inc,v 1.22 2006/11/24 01:10:17 emcdonald Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -610,6 +610,7 @@ class Log_Manager extends Asset
 		$value   = array_get_index($_REQUEST, $prefix.'_value');
 		$logname = array_get_index($_REQUEST, $prefix.'_log');
 		$offset  = array_get_index($_REQUEST, $prefix.'_offset');
+		$numlines= array_get_index($_REQUEST, $prefix.'_num_lines');
 
 		$content = '';
 
@@ -618,7 +619,7 @@ class Log_Manager extends Asset
 			return TRUE;
 
 		} else if ($action == 'monitor' && !empty($logname)) {
-			$num_lines = empty($value) ? $this->min_tail_lines : (int)$value;
+			$num_lines = empty($value) ? (int)$numlines : (int)$value;
 			$filename = SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION;
 
 			if (!is_readable($filename)) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager_edit_fns.inc,v 1.9 2006/01/26 22:34:06 lwright Exp $
+* $Id: log_manager_edit_fns.inc,v 1.10 2006/11/24 01:10:17 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,9 +90,11 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 			var action_value     = prefix + "_value";
 			var logname_index    = prefix + "_log";
 			var offset_index     = prefix + "_offset";
+			var num_lines_index  = prefix + "_num_lines";
 
 			var refresh_interval = 30000; //seconds
 			var last_offset = null;
+			var num_lines = 50;
 
 			var log_refresh = true;
 			var refresher   = null;
@@ -116,6 +118,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 				document.getElementById('sq-log-monitor-initial-message').style.display = 'none';
 				document.getElementById('sq-log-monitor-containter').style.display = 'block';
 				setIdValue('sq-log-name', logname);
+				document.getElementById('sq-log-num-lines').defaultValue = num_lines;
 
 				// initial setting
 				if (log_refresh && null === refresher) {
@@ -149,7 +152,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 			*/
 			function loadLog()
 			{
-				request_url = communicator_url+'&'+action_prefix+'=monitor&'+logname_index+'='+current_log+'&rand='+ Math.random();
+				request_url = communicator_url+'&'+action_prefix+'=monitor&'+logname_index+'='+current_log+'&rand='+ Math.random()+'&'+num_lines_index+'='+num_lines;
 				if (null !== last_offset) {
 					request_url = request_url+'&'+offset_index+'='+last_offset;
 				}
@@ -174,6 +177,18 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			}//end setRefreshInterval()
 
+
+			/**
+			* Set the number of lines to display
+			*/
+			function setNumLines(new_num_lines)
+			{
+				var value = parseInt(new_num_lines);
+				if (!isNaN(value)) {
+					num_lines = value;
+				}
+				forceRefresh();
+			}//end setRefreshInterval()
 
 			/**
 			* Sets the parameters of the last refresh
@@ -294,7 +309,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$last_modified = date('G:i:s - M d', filemtime($filepath));
 
-			$last_rotated = array_get_index($rotation, 'last_timestamp');
+			$last_rotated = array_get_index(array_get_index($rotation,'rotation'), 'last_timestamp');
 			if (empty($last_rotated)) {
 				$last_rotated = translate('never');
 			} else {
@@ -338,6 +353,15 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 
 							</td>
 							<td style="text-align: right">
+								<?php echo translate('max_rows'); ?>:
+								<select id="sq-log-num-lines" onchange="setNumLines(this.value)">
+									<option value="10">10</option>
+									<option value="50" selected="selected">50</option>
+									<option value="100">100</option>
+									<option value="500">500</option>
+									<option value="1000">1000</option>
+
+								</select>
 								<?php echo translate('auto-refresh'); ?>: <strong id="sq-log-refresh-status">&nbsp;</strong>
 								<input type="button" onclick="toggleLogRefreshStatus();" id="sq-log-refresh-enabler" value="" />
 								&nbsp;&nbsp;&nbsp;
