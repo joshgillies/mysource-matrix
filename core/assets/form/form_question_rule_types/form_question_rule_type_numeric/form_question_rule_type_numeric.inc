@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_numeric.inc,v 1.4 2006/08/14 07:19:19 rhoward Exp $
+* $Id: form_question_rule_type_numeric.inc,v 1.5 2006/11/26 23:34:23 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -107,12 +107,6 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 					<?php
 
 			}
-
-			$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
-			?>
-			form = document.getElementById("<?php echo $form->getPrefix(); ?>");
-			<?php
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($form);
 
 			?>
 				if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_numeric(form.elements["q<?php echo $q_asset->id; ?>"].value)) {
