@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.31 2006/05/01 04:14:59 sdanis Exp $
+* $Id: details.inc,v 1.32 2006/11/26 22:17:50 emcdonald Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 
@@ -169,10 +169,13 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 						break;
 					}
 
-					$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-					$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
-					$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
-					if (!empty($fs_jobs)) {
+					// this makes assumptions about how to get the future status jobs for a particular asset, which is the domain of the cron manager.
+					// The problem is that when we ask the future status job to get a list of jobs it, in turn, asks the cron manager to get a list of
+					// jobs, which is turn asks the asset manager to get a list of links under the cron manager that are future status jobs.
+					// In a system with a large number of future status jobs, the details screen will become very slow to load.
+					$fs_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_NOTICE, 'cron_job_future_status', TRUE, 'minor');
+
+					if (!empty($fs_links)) {
 						$o->openField(translate('scheduled_future_status_change'), 'new_line');
 
 						if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
@@ -187,18 +190,19 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 								<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
 							</tr>
 							<?php
-							for ($k = 0; $k < count($fs_jobs); $k++) {
+							for ($k = 0; $k < count($fs_links); $k++) {
+								$fs_job =& $GLOBALS['SQ_SYSTEM']->am->getAsset($fs_links[$k]['majorid'], 'cron_job_future_status');
 								?>
 								<tr>
 									<td class="sq-backend-table-cell">
-										<?php echo $fs_jobs[$k]->statusName(); ?>
+										<?php echo $fs_job->statusName(); ?>
 									</td>
 									<td class="sq-backend-table-cell">
-										<?php echo $fs_jobs[$k]->readableWhen(); ?>
+										<?php echo $fs_job->readableWhen(); ?>
 									</td>
 									<td align="center" class="sq-backend-table-cell">
 									<?php
-										if ($fs_jobs[$k]->attr('dependants_only')) {
+										if ($fs_job->attr('dependants_only')) {
 											echo translate('no');
 										} else {
 											echo translate('yes');
@@ -207,8 +211,8 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 									</td>
 									<td align="center" class="sq-backend-table-cell">
 									<?php
-										if ($fs_jobs[$k]->canDelete()) {
-											check_box($prefix.'_remove_fs[]', $fs_jobs[$k]->id);
+										if ($fs_job->canDelete()) {
+											check_box($prefix.'_remove_fs[]', $fs_job->id);
 										} else {
 											echo '&nbsp;';
 										}
