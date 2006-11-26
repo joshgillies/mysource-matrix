@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: page_multiple_page_edit_fns.inc,v 1.3 2006/01/13 00:26:18 dmckee Exp $
+* $Id: page_multiple_page_edit_fns.inc,v 1.4 2006/11/26 23:58:03 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -121,7 +121,7 @@ class Page_Multiple_Page_Edit_Fns extends Page_Edit_Fns
 					<?php echo translate('create_new_page'); ?>
 				</td>
 				<td>
-					<?php text_box($prefix.'_new_page', '', '50', '50'); ?>
+					<?php text_box($prefix.'_new_page', '', '50'); ?>
 				</td>
 				</tr>
 			</table>
