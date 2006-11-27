@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.132 2006/11/16 04:20:09 lwright Exp $
+* $Id: backend_outputter.inc,v 1.133 2006/11/27 05:56:32 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.132 $
+* @version $Revision: 1.133 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1012,10 +1012,6 @@ class Backend_Outputter
 
 					?>
 
-					if (window.self.name == 'sq_main') {
-						tooltip.print();
-					}
-
 					// let everyone know the document is loaded
 					SQ_DOCUMENT_LOADED = true;
 
@@ -1075,9 +1071,11 @@ class Backend_Outputter
 		</head>
 		<body onload="page_on_load();" onUnLoad="page_on_unload();">
 		<script type="text/javascript">
+		//<![CDATA[
 		if (window.self.name == 'sq_main') {
 			tooltip.print();
 		}
+		//]]> -->
 		</script>
 		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onsubmit="return form_on_submit();">
 		<?php
