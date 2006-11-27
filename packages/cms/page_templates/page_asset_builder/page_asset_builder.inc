@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.98 2006/09/14 00:28:58 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.99 2006/11/27 00:18:59 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -978,7 +978,7 @@ class Page_Asset_Builder extends Page
 								'name'		=> translate('not_logged_in'),
 								'content'	=> '%login_error%
 												%login_invite%
-												%login_form',
+												%login_form%',
 							   );
 		$res['logged_in']= Array(
 								'name'		=> translate('logged_in'),
