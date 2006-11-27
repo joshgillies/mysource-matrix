@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.198 2006/11/27 11:09:30 gnoel Exp $
+* $Id: mysource.inc,v 1.199 2006/11/27 11:14:18 gnoel Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.198 $
+* @version $Revision: 1.199 $
 * @package MySource_Matrix
 */
 class MySource
@@ -472,7 +472,7 @@ class MySource
 					}
 				break;
 			}
-			if (!empty($note_value) && ($note_value !== '%'.$note_info['keyword'].'%')) {
+			if ((trim($note_value) !== '') && ($note_value !== '%'.$note_info['keyword'].'%')) {
 				apache_note($note_name, $note_value);
 			}
 		}//end foreach
