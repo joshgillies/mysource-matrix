@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.15.2.7 2006/07/20 02:27:19 rhoward Exp $
+* $Id: thesaurus.inc,v 1.15.2.8 2006/11/27 00:03:45 emcdonald Exp $
 *
 */
 
@@ -36,7 +36,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.15.2.7 $
+* @version $Revision: 1.15.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -2827,7 +2827,7 @@ class Thesaurus extends Asset
 
 		$term_linkid = $linkid_parts[1];
 		$link_info = $this->getTermLinkById($term_linkid);
-		if (empty($term)) return FALSE;
+		if (empty($link_info)) return FALSE;
 
 		$current_sort_order = $link_info['sort_order'];
 		$parentid = $link_info['major'];
