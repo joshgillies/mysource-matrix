@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.9 2006/10/10 05:22:57 emcdonald Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.10 2006/11/27 01:02:40 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -171,11 +171,10 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	{
 		if (is_null($answer)) $answer = $this->getValue();
 
-		if (is_array($answer)) {
-			$value = implode(', ', $this->getAnswerByOffset($answer));
-		} else {
-			$value = $this->getAnswerByOffset($answer);
+		if (!is_array($answer)) {
+			$answer = Array($answer);
 		}
+		$value = $this->getAnswerByOffset($answer);
 
 		if ($this->attr('is_required')) {
 			$req_rule = Array('rule_code' => 'select_limit', 'operator' => '>=', 'value' => '1');
