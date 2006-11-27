@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.32 2006/11/26 22:17:50 emcdonald Exp $
+* $Id: details.inc,v 1.33 2006/11/27 03:36:30 emcdonald Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 
@@ -234,6 +234,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 
 					if ($owner->writeAccess()) {
 						$o->openField(translate('add_new_future_status'), 'new_line');
+							$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 							$cron_epoc = (int)$cron_mgr->attr('epoch');
 							$cron_refresh = (int)$cron_mgr->attr('refresh_time');
 							if ($cron_epoc > 0 && $cron_refresh > 0) {
@@ -263,9 +264,8 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 								echo translate('cron_manager_not_configured');
 							}
 						$o->closeField();
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 					}//end if
-
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 
 				break;
 
