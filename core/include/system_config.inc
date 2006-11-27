@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.89 2006/11/27 01:04:19 bcaldwell Exp $
+* $Id: system_config.inc,v 1.90 2006/11/27 23:02:55 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -274,14 +274,6 @@ class System_Config extends Config
 					return FALSE;
 				}
 				echo "ini_set('session.gc_maxlifetime', $value);\n";
-				return TRUE;
-			break;
-
-			case 'SQ_CONF_PHP_MEMORY_LIMIT':
-				if (!parent::_paintConfigVar($var_name, $value, $var_export)) {
-					return FALSE;
-				}
-				echo "ini_set('memory_limit', SQ_CONF_PHP_MEMORY_LIMIT.'M');\n";
 				return TRUE;
 			break;
 
