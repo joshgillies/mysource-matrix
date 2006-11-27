@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.4.4.1 2006/11/27 01:01:57 rhoward Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.4.4.2 2006/11/27 01:08:34 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4.4.1 $
+* @version $Revision: 1.4.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -197,9 +197,6 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	{
 		$operator = array_get_index($rule_data, 'operator', '==');
 		$value = array_get_index($rule_data, 'value', '');
-
-		bam('return \''.count($answer).'\''.$operator.'\''.$value.'\';');
-		bam($answer);
 
 		$valid = eval('return \''.count($answer).'\''.$operator.'\''.$value.'\';');
 		return $valid;
