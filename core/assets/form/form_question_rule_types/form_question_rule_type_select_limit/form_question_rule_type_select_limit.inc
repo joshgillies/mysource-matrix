@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.4 2005/10/13 03:53:12 sdanis Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.4.4.1 2006/11/27 01:01:57 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,16 +97,20 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', '==');
 		$value = array_get_index($rule_data, 'value', '');
 
+		$q_name = 'q'.$q_asset->id;
+
 		if (is_a($q_asset, 'form_question_type_select')) {
 			// selection list or derivative - check multiple attribute
-			$q_id = $q_asset->id.($q_asset->attr('multiple') ? '[]' : '');
+			$q_id = $q_name.($q_asset->attr('multiple') ? '[]' : '');
 		} else if (is_a($q_asset, 'form_question_type_option_list')) {
 			// option list - always single (*sniff* :`-( )
-			$q_id = $q_asset->id;
+			$q_id = $q_name;
 		} else {
 			// tickbox list - always multiple
-			$q_id = $q_asset->id.'[]';
+			$q_id = $q_name.'[]';
 		}
+
+		$q_safe_name = str_replace(':', '_', $q_name);
 
 		// since this is going to be a generic rule type applicable to both select lists and tickbox
 		// lists, we need different types of magic for each possible question type.
@@ -119,18 +123,19 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 
 			<?php
 			if (is_a($q_asset, 'form_question_type_select')) {
-				?>var select = form.elements["q<?php echo $q_id ?>"];
+				?>var select = form.elements["<?php echo $q_id ?>"];
 				for(i=0; i<select.options.length; i++) {
 					if (select.options[i].selected) selectCount++;
 				}<?php
 			} else {			// tickbox (or option) list needs something else
 				foreach ($q_asset->getOptions() as $key => $option) {
-					?>if (form.elements["q<?php echo $q_asset->id.'_'.$key ?>"].checked) selectCount++;
+					?>if (document.getElementById("<?php echo $q_safe_name.'_'.$key ?>").checked) selectCount++;
 					<?php
 				}
 			}
 
 			?>
+
 			if (!(selectCount <?php echo $operator ?> <?php echo $value ?>)) {
 				submission_errors[submission_errors.length] = "<?php
 					if (empty($rule_data['custom_text'])) {
@@ -192,6 +197,9 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	{
 		$operator = array_get_index($rule_data, 'operator', '==');
 		$value = array_get_index($rule_data, 'value', '');
+
+		bam('return \''.count($answer).'\''.$operator.'\''.$value.'\';');
+		bam($answer);
 
 		$valid = eval('return \''.count($answer).'\''.$operator.'\''.$value.'\';');
 		return $valid;
