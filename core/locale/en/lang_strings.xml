@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.192 2006/11/24 01:10:17 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.193 2006/11/27 01:04:45 bcaldwell Exp $
 *
 */
 
@@ -44,6 +44,10 @@
 
 	<string source="enable_external_auth_systems">Enable External Authentication Systems</string>
 	<string source="enable_external_auth_systems_note">Set this to 'No' to only allow users with accounts in the default matrix user system, rather than LDAP, IPB etc.</string>
+
+	<string source="php_config_settings">PHP Configuration</string>
+	<string source="php_config_memory_limit">Memory Limit</string>
+	<string source="php_config_memory_limit_note">The maximum amount of system memory allocated to each instance of MySource Matrix (minimum 16MB).</string>
 
 	<string source="allow_single_sign_in">Accept HTTP Authentication</string>
 	<string source="allow_single_sign_in_note">If this option is enabled and a username is found in the server variable specified below, the system will try to automatically log in a user with that username.  (It will assume that the user has already been authenticated by some external mechanism.)</string>

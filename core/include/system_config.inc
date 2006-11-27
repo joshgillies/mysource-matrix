@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.88 2006/11/14 04:02:22 bcaldwell Exp $
+* $Id: system_config.inc,v 1.89 2006/11/27 01:04:19 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -94,6 +94,7 @@ class System_Config extends Config
 						'SQ_CONF_EDITING_TIME'					=> Array('editable' => 0, 'default' => 3600),
 						'SQ_CONF_NUM_DATA_DIRS'					=> Array('editable' => 0, 'default' => 20),
 						'SQ_CONF_FORCE_SECURE_LOGIN_URLS'		=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_PHP_MEMORY_LIMIT'				=> Array('editable' => 1, 'default' => 16),
 					   );
 
 	/**
@@ -162,6 +163,7 @@ class System_Config extends Config
 					unset($vars['SQ_CONF_BACKEND_SUFFIX']);
 					unset($vars['SQ_CONF_LIMBO_SUFFIX']);
 					unset($vars['SQ_CONF_ROLLBACK_ENABLED']);
+					unset($vars['SQ_CONF_PHP_MEMORY_LIMIT']);
 				}
 
 				if (isset($vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS'])) {
@@ -272,6 +274,14 @@ class System_Config extends Config
 					return FALSE;
 				}
 				echo "ini_set('session.gc_maxlifetime', $value);\n";
+				return TRUE;
+			break;
+
+			case 'SQ_CONF_PHP_MEMORY_LIMIT':
+				if (!parent::_paintConfigVar($var_name, $value, $var_export)) {
+					return FALSE;
+				}
+				echo "ini_set('memory_limit', SQ_CONF_PHP_MEMORY_LIMIT.'M');\n";
 				return TRUE;
 			break;
 
@@ -566,7 +576,6 @@ class System_Config extends Config
 
 		$o->closeSection();
 
-
 		$o->openSection(translate('intervals'));
 
 			$o->openField(translate('refresh_interval'));
@@ -587,6 +596,19 @@ class System_Config extends Config
 
 		$o->closeSection();
 
+		$o->openSection(translate('php_config_settings'));
+
+			$o->openField(translate('php_config_memory_limit'));
+			if ($write_access && $is_root) {
+				int_text_box($class.'[SQ_CONF_PHP_MEMORY_LIMIT]', SQ_CONF_PHP_MEMORY_LIMIT, FALSE, 5, NULL, NULL, 3);
+				echo ' MB';
+			} else {
+				echo SQ_CONF_PHP_MEMORY_LIMIT.'MB';
+			}
+			$o->note(translate('php_config_memory_limit_note'));
+			$o->closeField();
+
+		$o->closeSection();
 
 		$o->openSection(translate('error/debug_settings'));
 
