@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.197 2006/11/15 05:20:04 arailean Exp $
+* $Id: mysource.inc,v 1.198 2006/11/27 11:09:30 gnoel Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.197 $
+* @version $Revision: 1.198 $
 * @package MySource_Matrix
 */
 class MySource
@@ -443,6 +443,21 @@ class MySource
 			log_write($this->am->getForgottenItemsReport(), 'asset_cache', E_USER_NOTICE, FALSE);
 		}
 
+		$this->_setApacheNotes();
+
+		$this->db->disconnect();
+
+	}//end start()
+
+
+	/**
+	* Sets the Apache Request Notes with the set information filled on the the Apache Configuration Screen
+	*
+	* @return void
+	* @access private
+	*/
+	function _setApacheNotes()
+	{
 		include SQ_DATA_PATH.'/private/conf/apache.inc';
 		foreach ($request_notes as $note_name => $note_info) {
 			// record request note for each type
@@ -457,12 +472,12 @@ class MySource
 					}
 				break;
 			}
-			if ($note_value) apache_note($note_name, $note_value);
+			if (!empty($note_value) && ($note_value !== '%'.$note_info['keyword'].'%')) {
+				apache_note($note_name, $note_value);
+			}
 		}//end foreach
 
-		$this->db->disconnect();
-
-	}//end start()
+	}//end _setApacheNotes()
 
 
 	/**
