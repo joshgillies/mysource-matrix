@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.189 2006/11/09 01:36:33 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.190 2006/11/27 02:36:13 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.189 $
+* @version $Revision: 1.190 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -213,7 +213,7 @@ class Page_Calendar extends Page
 	* @access public
 	*/
 	function printHead()
-	{	
+	{
 		$view = $_REQUEST['SQ_CALENDAR_VIEW'];
 		$format = array_get_index($this->attr('enabled_views'), $view, '');
 		if (in_array($view, Array('day', 'week')) &&  ($format == 'calendar_format')) {
@@ -1483,10 +1483,12 @@ class Page_Calendar extends Page
 	function _getTimedTableCellContents($view, &$events, $event_link_date, &$root_nodes, $cell_ts, $partition_time, $cell_height, $event_width, &$layout_map, $mousedown_code, $mouseup_code)
 	{
 		if (empty($events)) return '';
+		uasort($events, Array('Calendar_Common', 'compareStartDates'));
+
 		$time_label = sprintf('%02d:%02d', (int)($cell_ts / 60), $cell_ts % 60);
 
 		// get events in order
-		uasort($events, Array('Calendar_Common', 'compareEventLengths'));
+		//uasort($events, Array('Calendar_Common', 'compareEventLengths'));
 		$res = '';
 		foreach ($events as $assetid => $details) {
 
@@ -1584,6 +1586,8 @@ class Page_Calendar extends Page
 	function _getMonthCellContents(&$events, $event_link_date, $width)
 	{
 		$res = '';
+		uasort($events, Array('Calendar_Common', 'compareStartDates'));
+
 		foreach ($events as $assetid => $details) {
 			$popup_div_id = str_replace(':', '_', $assetid);
 			$assetid = strtok($assetid, ':');
