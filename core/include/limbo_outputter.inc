@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.30 2006/11/15 04:05:53 lwright Exp $
+* $Id: limbo_outputter.inc,v 1.31 2006/11/28 04:23:18 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -269,6 +269,13 @@ class Limbo_Outputter extends Backend_Outputter
 				SQ_DOCUMENT_LOADED = true;
 
 			}// end page_on_load()
+
+			function print_tooltip()
+			{
+				if (window.self.name == 'sq_main') {
+					tooltip.print();
+				}
+			}
 
 			var SQ_FORM_SUBMITTED = false;
 
@@ -556,11 +563,15 @@ class Limbo_Outputter extends Backend_Outputter
 			if ($this->_redirect) {
 				echo $this->_redirect_target.'.location = "'.addslashes($this->_redirect).'";';
 			} else {
-				echo 'page_on_load()';
+				echo '
+					  current_onload = (window.onload) ? window.onload : new Function;
+					  window.onload = new Function ("page_on_load(); current_onload(); print_tooltip();)';
 			}
 		?>
+
 		//]]> -->
 		</script>
+
 
 		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onsubmit="return form_on_submit();">
 
