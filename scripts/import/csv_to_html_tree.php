@@ -86,13 +86,13 @@ while (($data = fgetcsv($fd, 1024, ',')) !== FALSE) {
 	}
 
 	// Cycle through the line, omitting any levels we have already covered
-	foreach ($html_tree as $level => $page) {
+	foreach ($html_tree as $level => $page_name) {
 		$current_page = $html_tree[$level];
 
-		if (!empty($page)) {
-			if ($page != $last_html_tree[$level]) {
-				// Write out the heading tag
-				echo '<h'.$level.'>'.$page.'</h'.$level.">\n";
+		if (!empty($page_name)) {
+			if ($page_name != $last_html_tree[$level]) {
+				// Write out the heading tag, trimming any spaces surrounding the page name
+				echo '<h'.$level.'>'.trim($page_name).'</h'.$level.">\n";
 			}
 		}
 
