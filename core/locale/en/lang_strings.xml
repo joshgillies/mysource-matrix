@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.193 2006/11/27 01:04:45 bcaldwell Exp $
+* $Id: lang_strings.xml,v 1.194 2006/11/28 01:00:48 bcaldwell Exp $
 *
 */
 
@@ -133,6 +133,7 @@
 	<string source="email_settings">Email Settings</string>
 	<string source="enable_antiword">Enable Antiword</string>
 	<string source="enable_html_tidy">Enable HTML Tidy</string>
+	<string source="tidy_unsupported_char_set_warning">Your current System Default Character Set is not supported by HTML Tidy.</string>
 	<string source="enable_pdftohtml">Enable pdftohtml</string>
 	<string source="error/debug_settings">Error/Debug Settings</string>
 	<string source="events">Events</string>

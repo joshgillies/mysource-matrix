@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.16 2005/05/11 06:05:10 lwright Exp $
+* $Id: external_tools_config.inc,v 1.17 2006/11/28 01:00:48 bcaldwell Exp $
 *
 */
 
@@ -34,11 +34,12 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
 {
+
 
 	/**
 	* Holds all the vars for this that config vars for this config
@@ -160,6 +161,13 @@ class External_Tools_Config extends Config
 				combo_box($class.'[SQ_TOOL_HTML_TIDY_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_TOOL_HTML_TIDY_ENABLED);
 			} else {
 				echo (SQ_TOOL_HTML_TIDY_ENABLED) ? translate('yes') : translate('no');
+			}
+
+			require_once SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
+			$tidy_char_set = array_get_index($standards_lists_tidy_char_sets, SQ_CONF_DEFAULT_CHARACTER_SET);
+
+			if (empty($tidy_char_set)) {
+				$o->note('<span style="color: red;">'.translate('tidy_unsupported_char_set_warning').'</span>');
 			}
 
 			$o->openField(translate('enable_pdftohtml'), '', '');
