@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.6.2.3 2006/08/22 05:27:27 rong Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.6.2.4 2006/11/28 22:31:11 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.6.2.3 $
+* @version $Revision: 1.6.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -91,6 +91,12 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 													'exclusive'	=> FALSE,
 												   ),
 									'folder'	=> Array(
+													'card'		=> 'M',
+													'exclusive'	=> FALSE,
+												   ),
+								   ),
+				SQ_LINK_NOTICE	=> Array(
+									'design'	=> Array(
 													'card'		=> 'M',
 													'exclusive'	=> FALSE,
 												   ),
