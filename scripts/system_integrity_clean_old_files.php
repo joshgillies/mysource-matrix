@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_clean_old_files.php,v 1.1 2006/11/28 04:56:20 skim Exp $
+* $Id: system_integrity_clean_old_files.php,v 1.2 2006/11/28 05:15:39 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Deletes the old checked-out files from the data directory for file type of assets
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -41,7 +41,7 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 
 require_once 'Console/Getopt.php';
 $shortopt = '';
-$longopt = Array('delete-orphants');
+$longopt = Array('delete-orphans');
 
 $args = Console_Getopt::readPHPArgv();
 array_shift($args);
@@ -50,7 +50,7 @@ $options = Console_Getopt::getopt($args, $shortopt, $longopt);
 $DELETE = FALSE;
 foreach ($options[0] as $option) {
 	switch ($option[0]) {
-		case '--delete-orphants':
+		case '--delete-orphans':
 			$DELETE = TRUE;
 		break;
 	}
@@ -77,9 +77,9 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 $fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 $children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('file', FALSE);
 $count = 0;
-$orphants = Array();
+$orphans = Array();
 
-// scan the file type of assets and find any orphant files in the data directories
+// scan the file type of assets and find any orphan files in the data directories
 echo "[Total ".count($children)." assets will be checked.]\n\n";
 foreach ($children as $assetid) {
 
@@ -102,14 +102,14 @@ foreach ($children as $assetid) {
 		} else {
 			$ophs = array_diff($diff, Array($file_name));
 			foreach ($ophs as $file) {
-				$orphants[$assetid][] = $data_path.'/'.$file;
+				$orphans[$assetid][] = $data_path.'/'.$file;
 				$count++;
 			}
 		}
 	}
 
 	printAssetid($assetid);
-	if (isset($orphants[$assetid])) {
+	if (isset($orphans[$assetid])) {
 		printStatus('FOUND');
 	} else {
 		printStatus('OK');
@@ -120,15 +120,15 @@ foreach ($children as $assetid) {
 }//end foreach $children
 
 
-// if there is any orphant files, print them
-if (!empty($orphants)) {
-	echo "\n[Total $count orphant files found]\n\n";
-	foreach ($orphants as $assetid => $files) {
+// if there is any orphan files, print them
+if (!empty($orphans)) {
+	echo "\n[Total $count orphan files found]\n\n";
+	foreach ($orphans as $assetid => $files) {
 		echo "[ #$assetid ]\n";
 		echo implode("\n", $files)."\n\n";
 	}
 } else {
-	echo "No orphant files found\nBye\n";
+	echo "No orphan files found\nBye\n";
 	exit();
 }
 
@@ -145,7 +145,7 @@ if ($DELETE) {
 		}
 	} while (TRUE);
 
-	foreach ($orphants as $assetid => $files) {
+	foreach ($orphans as $assetid => $files) {
 		echo "[Processing $assetid]\n";
 		foreach ($files as $file) {
 			if (unlink($file)) {
@@ -166,9 +166,9 @@ if ($DELETE) {
 */
 function usage()
 {
-	echo "USAGE: system_integrity_data_files.php <system_root> [--delete-orphants]\n\n";
-	echo "--delete-orphants : If this option is given, the script deletes the found orphants file\n";
-	echo "\nNOTE: Please make sure that you run the script without --delete-orphants option first.\n";
+	echo "USAGE: system_integrity_data_files.php <system_root> [--delete-orphans]\n\n";
+	echo "--delete-orphans : If this option is given, the script deletes the found orphans file\n";
+	echo "\nNOTE: Please make sure that you run the script without --delete-orphans option first.\n";
 	exit();
 
 }//end usage()
