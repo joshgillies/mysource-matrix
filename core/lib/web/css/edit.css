@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.65 2006/11/20 03:20:58 lwright Exp $
+* $Id: edit.css,v 1.66 2006/11/28 04:25:01 lwright Exp $
 *
 */
 
@@ -617,4 +617,15 @@ a.sq-search-results-expand-link {
 	font-weight: 		bold;
 	background-color:	white;
 	white-space:		nowrap;
+}
+
+.sq-search-results-entry {
+	margin-top:		5px;
+	text-indent:	-38px;
+	padding-left:	50px;
+}
+
+.sq-search-results-detail {
+	display:		none;
+	text-indent:	0px;
 }
