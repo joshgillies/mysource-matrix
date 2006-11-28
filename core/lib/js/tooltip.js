@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tooltip.js,v 1.10 2006/11/20 03:43:25 lwright Exp $
+* $Id: tooltip.js,v 1.11 2006/11/28 04:25:35 lwright Exp $
 *
 */
 
@@ -66,8 +66,11 @@ function tt_print()
 				 ';color:' + this.normal_color +
 				 ';background:' + this.normal_bg +
 				 ';position:absolute;top:0px;left:0px;z-index: 1000;visibility:hidden;filter:progid:DXImageTransform.Microsoft.Fade(duration=0.5)"><tr><td id="ToolBoxTitle" style="padding:0px"></td></tr><tr><td id="ToolBoxContent" style="padding:2px"></td></tr></table>';
-		if (document.body.insertAdjacentHTML) document.body.insertAdjacentHTML('beforeEnd', output);
-		else document.body.innerHTML += output;
+		if (document.body.insertAdjacentHTML) {
+			document.body.insertAdjacentHTML('afterBegin', output);
+		} else {
+			document.body.innerHTML = output + document.body.innerHTML;
+		}
 	}
 
 }//end tt_print()
