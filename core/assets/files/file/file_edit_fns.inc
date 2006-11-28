@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.76 2006/08/24 02:14:58 arailean Exp $
+* $Id: file_edit_fns.inc,v 1.77 2006/11/28 04:56:55 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,6 +56,57 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		unset($this->static_screens['lookupValues']);
 
 	}//end constructor
+
+
+	/**
+	* Prints the interface for editing filename
+	*
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintFilename(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		if ($wa) {
+			text_box($prefix.'_filename', $asset->attr('name'), 25);
+		} else {
+			echo $asset->attr('name');
+		}
+		return $wa;
+
+	}//end paintFilename()
+
+
+	/**
+	* Processes the interface for editing filename
+	*
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processFilename(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		if ($wa) {
+			$info = get_file_upload_info($prefix);
+
+			// if the user is uploading the file, do not process the name
+			if ($info !== FALSE && !empty($info)) {
+				return FALSE;
+			}
+			$asset->setAttrValue('name', $_REQUEST[$prefix.'_filename']);
+		}
+
+		return $wa;
+
+	}//end processFilename()
 
 
 	/**
@@ -191,7 +242,6 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		$existing = $asset->getExistingFile();
-
 		if ($asset->name != $name && !empty($existing)) {
 			// a new file with a new name means we need to remove the old
 			// one from the repository (NOTE that this doesnt actually 'remove' the
