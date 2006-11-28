@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.52 2006/11/15 23:50:01 rong Exp $
+* $Id: ldap_bridge.inc,v 1.53 2006/11/28 22:33:42 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -1237,9 +1237,9 @@ class LDAP_Bridge extends Asset
 		if (is_null($o)) {
 			?><table border="0" cellspacing="2" cellpadding="2"><?php
 		}
-
+		
 		// loop through each field to be shown
-		foreach ($show as $field_name) {
+		foreach ($show as $field_name => $friendly_name) {
 			if (!isset($info[$field_name])) {
 				// field not defined
 				continue;
@@ -1254,9 +1254,9 @@ class LDAP_Bridge extends Asset
 				if ($count > 1) $multi = ' ('.$count.' values)';
 
 				if (!is_null($o)) {
-					$o->openField($field_name.$multi);
+					$o->openField($friendly_name.$multi);
 				} else {
-					?><tr><td valign="top"><b><?php echo $field_name.$multi; ?></b></td><td valign="top"><?php
+					?><tr><td valign="top"><b><?php echo $friendly_name.$multi; ?></b></td><td valign="top"><?php
 				}
 				echo $value;
 				if (!is_null($o)) {
