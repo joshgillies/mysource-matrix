@@ -18,20 +18,24 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2005/05/26 04:35:08 ndvries Exp $
+* $Id: lang_screen_details.xml,v 1.2.4.1 2006/11/28 05:01:50 skim Exp $
 *
 */
 -->
 
 <contents>
 	<section name="Details">
-		<field attribute="name">
-			<display_name>File Name</display_name>
-			<note />
-		</field>
 		<field attribute="title">
 			<display_name>Title</display_name>
 			<note>%description%</note>
+		</field>
+		<field>
+			<display_name>File Name</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintFilename"   />
+				<process_function name="processFilename" />
+			</function_call>
 		</field>
 		<field attribute="allow_unrestricted">
 			<display_name>Allow Unrestricted Access</display_name>

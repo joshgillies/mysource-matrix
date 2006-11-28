@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2005/05/26 04:35:09 ndvries Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3.4.1 2006/11/28 05:01:52 skim Exp $
 *
 */
 -->
@@ -28,8 +28,11 @@
 		<field attribute="title">
 			<text width="25" height="1" />
 		</field>
-		<field attribute="name">
-			<text width="25" height="1" />
+		<field>
+			<function_call>
+				<paint_function   name="paintFilename"   />
+				<process_function name="processFilename" />
+			</function_call>
 		</field>
 		<field>
 			<function_call>
