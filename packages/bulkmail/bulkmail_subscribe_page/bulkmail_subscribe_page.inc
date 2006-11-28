@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.10 2006/08/22 05:25:39 rong Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.11 2006/11/28 22:28:46 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -91,6 +91,12 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 													'exclusive'	=> FALSE,
 												   ),
 									'folder'	=> Array(
+													'card'		=> 'M',
+													'exclusive'	=> FALSE,
+												   ),
+								   ),
+				SQ_LINK_NOTICE	=> Array(
+									'design'	=> Array(
 													'card'		=> 'M',
 													'exclusive'	=> FALSE,
 												   ),
@@ -234,7 +240,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			$available_locations[] = $child_link['assetid'];
 		}
 
-		//if the root node is a user group and has the correct status, include it
+		// if the root node is a user group and has the correct status, include it
 		$root_node =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('root_node'));
 		if (is_a($root_node, 'user_group') && in_array($root_node->status, $statuses)) {
 			$available_locations[] = $root_node->id;
