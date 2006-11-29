@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.9.2.2 2006/08/21 05:25:14 skim Exp $
+* $Id: report_links_edit_fns.inc,v 1.9.2.3 2006/11/29 04:24:50 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9.2.2 $
+* @version $Revision: 1.9.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -431,7 +431,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 							}
 						break;
 						case 'description' :
-							$new_link['description'] = $link_child->content;
+							$new_link['description'] = htmlentities($link_child->content);
 						break;
 					}
 				}//end foreach
