@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.43 2006/11/28 00:34:18 bcaldwell Exp $
+* $Id: html_tidy.inc,v 1.44 2006/11/29 02:31:10 bcaldwell Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -158,7 +158,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 				if (function_exists('is_executable')) {
 					if (is_executable($path_to_tidy)) {
 
-						require_once SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
+						require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
 						$tidy_char_set = array_get_index($standards_lists_tidy_char_sets, SQ_CONF_DEFAULT_CHARACTER_SET);
 
 						$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --quote-marks 1 --word-2000 1 --force-output 1 --char-encoding ".$tidy_char_set;
