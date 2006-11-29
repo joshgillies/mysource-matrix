@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links.inc,v 1.7 2006/10/16 05:16:22 rong Exp $
+* $Id: report_links.inc,v 1.8 2006/11/29 04:23:07 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -303,7 +303,7 @@ class Report_Links extends Report
 							}
 						break;
 						case 'description' :
-							$new_link['description'] = $link_child->content;
+							$new_link['description'] = htmlentities($link_child->content);
 						break;
 					}
 				}//end foreach
