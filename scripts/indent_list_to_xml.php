@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: indent_list_to_xml.php,v 1.1 2005/11/23 00:53:35 arailean Exp $
+* $Id: indent_list_to_xml.php,v 1.1.4.1 2006/11/29 05:54:20 arailean Exp $
 *
 * Script to form valid thesaurus XML from a tab-indented text file like this:
 *
@@ -35,7 +35,7 @@
 *		400MHz Pentiun 2
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.4.1 $
 * @package MySource_Matrix
 * @subpackage __core__
 */
@@ -111,7 +111,7 @@ function print_array_xml_r($res, $indent='')
 		echo '(empty)';
 	} else {
 		foreach ($res as $item => $kids) {
-			echo $indent.'<entity name="'.trim($item).'">';
+			echo $indent.'<term name="'.trim($item).'">';
 			if (!empty($kids)) {
 				echo "\n";
 				echo $indent."\t".'<relation name="Category">'."\n";
@@ -119,7 +119,7 @@ function print_array_xml_r($res, $indent='')
 				echo $indent."\t".'</relation>'."\n";
 				echo $indent;
 			}
-			echo '</entity>'."\n";
+			echo '</term>'."\n";
 		}
 	}
 
@@ -133,15 +133,10 @@ if ($argc != 2) {
 }
 ?>
 <thesaurus>
-	<relations>
-		<relation name="Category"/>
-	</relations>
-	<entities>
 <?php
 	$lines = file($argv[1]);
 	reset($lines);
 	$res = indent_list_to_array($lines, $res);
 	print_array_xml_r($res, "\t\t");
 ?>
-	</entities>
 </thesaurus>
