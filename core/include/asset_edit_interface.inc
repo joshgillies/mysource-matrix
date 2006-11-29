@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.307 2006/11/22 01:11:08 emcdonald Exp $
+* $Id: asset_edit_interface.inc,v 1.308 2006/11/29 23:22:56 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.307 $
+* @version $Revision: 1.308 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -171,7 +171,7 @@ class Asset_Edit_Interface extends MySource_Object
 			exit();
 		}
 
-		if ($creating) $o->addOnLoad('focusFirstTextInput()');
+		if ($creating) $o->addOnLoad('focusFirstTextInput();');
 		// if there are no screens or static screens
 		assert_false(!count($this->_screens) && empty($this->_edit_fns->static_screens));
 
