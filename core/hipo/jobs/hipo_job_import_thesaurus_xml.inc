@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.5.2.2 2006/09/21 23:08:47 skim Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.5.2.3 2006/11/29 23:13:49 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.5.2.2 $
+* @version $Revision: 1.5.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -119,7 +119,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 										'paint_function'	=> 'paintEraseContents',
 										'process_function'	=> 'processEraseContents',
 									   ),
-					'running_mode'	=> 'server',
+					'running_mode'	=> 'web',
 					'auto_step'		=> false,
 					'allow_cancel'	=> true,
 					'percent_done'	=> 0,
