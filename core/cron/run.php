@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: run.php,v 1.16 2006/07/03 01:49:19 tbarrett Exp $
+* $Id: run.php,v 1.16.2.1 2006/11/29 23:35:22 bcaldwell Exp $
 *
 */
 
@@ -28,26 +28,12 @@
 * The one file through which everything runs
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix
 */
 
-// We need to work out where we have come from, such as whether it's a symbolically
-// linked file (PHP's functions give the resolved link). If the path given to
-// PHP is absolute, use that, otherwise tack on the working directory (PWD) to it.
-// TODO: this doesn't work if there are any '..' in the passed path
-// (On Windows, you probably wouldn't have PWD so you can't use this - but then
-// you probably don't have symbolic links either!)
-if (!empty($_SERVER['PWD'])) {
-	$run_dir = $_SERVER['PWD'];
-	$script_path = $_SERVER['argv'][0];
-	if ($script_path{0} == '/') {
-		// absolute path
-		define('SQ_SYSTEM_ROOT', dirname(dirname(dirname(make_proper_path($script_path)))));
-	} else {
-		// relative path - append the run dir to the script path
-		define('SQ_SYSTEM_ROOT', dirname(dirname(dirname(make_proper_path($run_dir.'/'.$script_path)))));
-	}
+if (isset($_SERVER['argv'][1])) {
+	define('SQ_SYSTEM_ROOT', $_SERVER['argv'][1]);
 }
 
 ini_set('memory_limit', '16M');
