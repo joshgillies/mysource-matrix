@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.574 2006/11/15 06:08:49 skim Exp $
+* $Id: asset.inc,v 1.575 2006/11/29 23:27:50 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.574 $
+* @version $Revision: 1.575 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3744,8 +3744,9 @@ class Asset extends MySource_Object
 			}
 		}
 
-		$grants  = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, TRUE, TRUE, TRUE, FALSE, FALSE);
-		$revokes = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, FALSE, FALSE, TRUE, FALSE, FALSE);
+		$grants  = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, TRUE, TRUE, FALSE, FALSE, FALSE);
+		$revokes = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, FALSE, FALSE, FALSE, FALSE, FALSE);
+
 		// has their access been revoked at all?
 		if (!empty($revokes)) {
 			$revoked = array_intersect($assetids, $revokes);
