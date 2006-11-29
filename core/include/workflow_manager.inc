@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.96 2006/11/20 05:20:53 emcdonald Exp $
+* $Id: workflow_manager.inc,v 1.97 2006/11/29 04:10:10 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -954,6 +954,9 @@ class Workflow_Manager extends MySource_Object
 		if (!$this->silentWorkflowParty($asset->id)) {
 			$steps_after = $this->getWorkflowCurrentSteps($asset->id);
 			foreach ($steps_after as $schemaid => $step) {
+				// Are there actually no steps left?
+				if (empty($step)) continue;
+
 				if (!$step == $steps_before[$schemaid]) {
 					$publishers = $this->whoCanPublish($asset->id, $schemaid);
 					// send internal messages to everyone in the next step who can now publish the asset
