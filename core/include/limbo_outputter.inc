@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.31 2006/11/28 04:23:18 lwright Exp $
+* $Id: limbo_outputter.inc,v 1.32 2006/11/29 23:56:23 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -565,7 +565,7 @@ class Limbo_Outputter extends Backend_Outputter
 			} else {
 				echo '
 					  current_onload = (window.onload) ? window.onload : new Function;
-					  window.onload = new Function ("page_on_load(); current_onload(); print_tooltip();)';
+					  window.onload = new Function ("page_on_load(); current_onload(); print_tooltip();")';
 			}
 		?>
 
