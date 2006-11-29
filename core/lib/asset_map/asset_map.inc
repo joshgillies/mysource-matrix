@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.225.2.7 2006/10/12 03:08:46 tbarrett Exp $
+* $Id: asset_map.inc,v 1.225.2.8 2006/11/29 00:12:44 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.225.2.7 $
+* @version $Revision: 1.225.2.8 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -217,12 +217,30 @@ class Asset_Map
 
 			}//end for
 
+			$assetid_lineage = Array();
+			foreach ($asset_lineage as $lineage) {
+				$assetid_lineage[] = $lineage['assetid'];
+			}
+
+			// The last asset id here is the current asset. It won't be in the link lineage.
+			array_pop($assetid_lineage);
+
+			$cur_lineage_num = 0;
+			foreach ($asset_link_lineage as $lineage_num => $lineage_info) {
+				// Use the first link lineage that completly encapsulates the URL lineage.
+				$diff = array_diff($assetid_lineage, array_keys($lineage_info['lineage']));
+				if (empty($diff)) {
+					$cur_lineage_num = $lineage_num;
+					break;
+				}
+			}
+
 			// Do we have any other assets between the root and the site?
 			$num_site_parents = 0;
 			$tmp_assetids = '';
 			$site_found = FALSE;
-			if ($num_assets > 0 && !empty($asset_link_lineage[0]['lineage'])) {
-				foreach ($asset_link_lineage[0]['lineage'] as $assetid => $asset_name) {
+			if ($num_assets > 0 && !empty($asset_link_lineage[$cur_lineage_num]['lineage'])) {
+				foreach ($asset_link_lineage[$cur_lineage_num]['lineage'] as $assetid => $asset_name) {
 					if ((int) $assetid != 1 && $asset_lineage[0]['assetid'] != $assetid) {
 						$tmp_assetids .= $assetid.'|';
 						$num_site_parents++;
@@ -237,7 +255,7 @@ class Asset_Map
 			if (!$site_found) {
 				if ($num_assets == 1) {
 					$site_found = TRUE;
-					$asset_link_lineage[0]['lineage'][$asset_lineage[0]['assetid']] = $asset_lineage[0]['name'];
+					$asset_link_lineage[$cur_lineage_num]['lineage'][$asset_lineage[0]['assetid']] = $asset_lineage[0]['name'];
 				}
 			}
 
@@ -248,7 +266,7 @@ class Asset_Map
 
 				// Add sort order but do not join with lookup table
 				$i = 0;
-				foreach ($asset_link_lineage[0]['lineage'] as $assetid => $asset_name) {
+				foreach ($asset_link_lineage[$cur_lineage_num]['lineage'] as $assetid => $asset_name) {
 
 					if ($i == $num_site_parents + 1) break;
 					if ($i == 0) {
