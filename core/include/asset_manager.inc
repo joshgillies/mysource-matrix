@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.431.2.42 2006/10/30 22:31:11 lwright Exp $
+* $Id: asset_manager.inc,v 1.431.2.43 2006/11/29 05:19:39 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431.2.42 $
+* @version $Revision: 1.431.2.43 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5445,9 +5445,9 @@ class Asset_Manager extends MySource_Object
 					if (!is_null($user)) {
 						if (is_a($user, 'user_group')) {
 							$ret_val = array_merge($ret_val, array_keys($this->getChildren($user->id, Array('user'), FALSE)));
-						} else {
-							$ret_val[] = $user->id;
 						}
+						// always include the current user/group id, even if it is a user group
+						$ret_val[] = $user->id;
 					}
 				} else {
 					$ret_val[] = $data['userid'];
