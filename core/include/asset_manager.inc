@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.529 2006/11/29 05:15:39 rong Exp $
+* $Id: asset_manager.inc,v 1.530 2006/11/29 23:06:12 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.529 $
+* @version $Revision: 1.530 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6628,32 +6628,40 @@ class Asset_Manager extends MySource_Object
 			for (reset($assetid_cond_array); NULL !== ($k = key($assetid_cond_array)); next($assetid_cond_array)) {
 				$assetid_cond_array[$k] = $db->quote($assetid_cond_array[$k]);
 			}
-			$assetid_cond = 'IN ('.implode(', ', $assetid_cond_array).')';
 
-			$url_bits = explode('/', preg_replace('/\\/+$/', '', $base_url));
+			// IN query needs to be chunked to be Oracle-safe (is also slow
+			// in big doses on PostgreSQL). 200 at a time should be fine
+			$result = Array();
+			foreach (array_chunk($assetid_cond_array, 200) as $chunk) {
+				$assetid_cond = 'IN ('.implode(', ', $chunk).')';
 
-			$where = 'l.assetid '.$assetid_cond;
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$sql = 'SELECT l.assetid, l.url,
-				CASE WHEN l.'.$protocol.' = '.$db->quote(1).' THEN '.$db->quote($protocol).' ELSE '.$db->quote(($protocol == 'https') ? 'http' : 'https').' END as protocol,
-			(
-				(CASE WHEN l.'.$protocol.' = '.$db->quote(1).' THEN 1 ELSE 0 END)';
+				$url_bits = explode('/', preg_replace('/\\/+$/', '', $base_url));
 
-			$str = '';
-			foreach (array_values($url_bits) as $bit) {
-				$str .= $bit.'/';
-				$sql .= ' +
-				(CASE WHEN SUBSTR(l.url || '.$db->quote('/').', 1, '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
+				$where = 'l.assetid '.$assetid_cond;
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+				$sql = 'SELECT l.assetid, l.url,
+					CASE WHEN l.'.$protocol.' = '.$db->quote(1).' THEN '.$db->quote($protocol).' ELSE '.$db->quote(($protocol == 'https') ? 'http' : 'https').' END as protocol,
+				(
+					(CASE WHEN l.'.$protocol.' = '.$db->quote(1).' THEN 1 ELSE 0 END)';
+
+				$str = '';
+				foreach (array_values($url_bits) as $bit) {
+					$str .= $bit.'/';
+					$sql .= ' +
+					(CASE WHEN SUBSTR(l.url || '.$db->quote('/').', 1, '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
+				}
+
+				$sql .= '
+				) as weighting
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
+				'.$where.'
+				ORDER BY weighting DESC, LENGTH(l.url) ASC';
+
+				$partial_result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
+				assert_valid_db_result($partial_result);
+				$result += $partial_result;
+				unset($partial_result);
 			}
-
-			$sql .= '
-			) as weighting
-			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-			'.$where.'
-			ORDER BY weighting DESC, LENGTH(l.url) ASC';
-
-			$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
-			assert_valid_db_result($result);
 
 			foreach ($the_rest as $assetid) {
 				if (!isset($result[$assetid])) {
