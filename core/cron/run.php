@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: run.php,v 1.18 2006/11/30 03:19:51 bcaldwell Exp $
+* $Id: run.php,v 1.19 2006/11/30 03:53:58 rong Exp $
 *
 */
 
@@ -28,12 +28,14 @@
 * The one file through which everything runs
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 
 if (isset($_SERVER['argv'][1])) {
 	define('SQ_SYSTEM_ROOT', $_SERVER['argv'][1]);
+} else {
+	define('SQ_SYSTEM_ROOT', dirname(dirname(dirname(__FILE))));
 }
 
 require_once SQ_SYSTEM_ROOT.'/core/include/init.inc';
