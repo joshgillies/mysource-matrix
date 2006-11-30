@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.4 2006/06/19 01:03:45 lwright Exp $
+* $Id: form_question_type_tickbox_table.inc,v 1.4.2.1 2006/11/30 05:22:40 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -212,7 +212,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	* @access public
 	* @return boolean
 	*/
-	function hasValidValue($answer)
+	function hasValidValue($answer=NULL)
 	{
 		if (is_null($answer)) {
 			$answer = $this->getValue();
