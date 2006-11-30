@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.56 2006/11/13 03:52:17 skim Exp $
+* $Id: page_remote_content.inc,v 1.57 2006/11/30 23:31:13 skim Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1023,7 +1023,14 @@ class Page_Remote_Content extends Page
 			trigger_localised_error('CMS0065', E_USER_WARNING);
 			return '';
 		}
-		$components = Array('url' => $url);
+
+		// Very conservative fix for '&amp;'. decode HTML entity only if '&amp;' is found.
+		if (strpos($url, '&amp;') !== FALSE) {
+			$components = Array('url' => html_entity_decode($url));
+		} else {
+			$components = Array('url' => $url);
+		}
+
 		foreach ($transformations as $arg) {
 			$components[$arg] = 1;
 		}
