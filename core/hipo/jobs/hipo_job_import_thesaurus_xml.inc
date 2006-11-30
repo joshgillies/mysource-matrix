@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.8 2006/11/29 23:13:17 skim Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.9 2006/11/30 01:20:27 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -227,9 +227,8 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	{
 		$o->openSection(translate('thesaurus_hipo_erasing_thesaurus'));
 		$o->openField('');
-
-		echo translate('thesaurus_hipo_confirm_erase');
-
+			echo translate('thesaurus_hipo_confirm_erase');
+			$o->addHiddenField('form_submitted', 1);
 		$o->closeField();
 		$o->closeSection();
 
@@ -249,16 +248,17 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	*/
 	function processEraseContents(&$step_data, $prefix)
 	{
+		if (isset($_REQUEST['form_submitted'])) {
+			$th_asset =& $this->getThesaurusRef();
 
-		$th_asset =& $this->getThesaurusRef();
+			if (!$th_asset->erase()) {
+				trigger_localised_error('HIPO0063', E_USER_WARNING);
+				return FALSE;
+			}
 
-		if (!$th_asset->erase()) {
-			trigger_localised_error('HIPO0063', E_USER_WARNING);
-			return FALSE;
+			$step_data['percent_done'] = 100;
+			$step_data['complete'] = TRUE;
 		}
-
-		$step_data['percent_done'] = 100;
-		$step_data['complete'] = TRUE;
 
 		return TRUE;
 
