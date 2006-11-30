@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.138.2.1 2006/09/14 04:27:36 skim Exp $
+* $Id: form.inc,v 1.138.2.2 2006/11/30 22:12:27 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.138.2.1 $
+* @version $Revision: 1.138.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -613,17 +613,29 @@ class Form extends Asset
 	* get the assetids of ALL of this form's questions, including those
 	* inside sections
 	*
+	* Returns an array of (full assetid => question detail)
+	*
 	* @return array
 	* @access public
 	*/
 	function &getAllQuestions()
 	{
-		$all_questions = $this->getQuestions();
+		// getQuestions() returns an array of (q_id => detail) - this is
+		// ambiguous to return if sections are present, so we need to convert
+		// to an asset ID
+
+		$all_questions = Array();
+		$questions = $this->getQuestions();
+		foreach ($questions as $q_id => $question_detail) {
+			$all_questions[$this->id.':q'.$q_id] = $question_detail;
+		}
 
 		$sections =& $this->getSections();
 		foreach ($sections as $section) {
 			$questions = $section->getQuestions();
-			$all_questions = array_merge($all_questions, $questions);
+			foreach ($questions as $q_id => $question_detail) {
+				$all_questions[$section->id.':q'.$q_id] = $question_detail;
+			}
 		}
 
 		return $all_questions;
