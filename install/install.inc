@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.65 2006/11/22 11:18:59 gnoel Exp $
+* $Id: install.inc,v 1.66 2006/11/30 00:40:59 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -60,6 +60,11 @@ function regenerate_configs()
 	if (!$squiz_server_cfg->save(Array(), FALSE)) {
 		return FALSE;
 	}
+
+	// Re-generate the Apache Config to make sure that we get any new vars that may have been issued
+	require_once SQ_INCLUDE_PATH.'/apache_config.inc';
+	$apache_cfg =& new Apache_Config();
+	if (!$apache_cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the HIPO Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_config.inc';
