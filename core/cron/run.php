@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: run.php,v 1.16.2.1 2006/11/29 23:35:22 bcaldwell Exp $
+* $Id: run.php,v 1.16.2.2 2006/11/30 04:08:03 bcaldwell Exp $
 *
 */
 
@@ -28,12 +28,14 @@
 * The one file through which everything runs
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16.2.1 $
+* @version $Revision: 1.16.2.2 $
 * @package MySource_Matrix
 */
 
 if (isset($_SERVER['argv'][1])) {
 	define('SQ_SYSTEM_ROOT', $_SERVER['argv'][1]);
+} else {
+	define('SQ_SYSTEM_ROOT', dirname(dirname(dirname(__FILE))));
 }
 
 ini_set('memory_limit', '16M');
