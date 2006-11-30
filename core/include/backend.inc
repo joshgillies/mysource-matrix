@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.156 2006/11/28 04:24:35 lwright Exp $
+* $Id: backend.inc,v 1.157 2006/11/30 00:07:50 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.156 $
+* @version $Revision: 1.157 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -234,6 +234,13 @@ class Backend extends MySource_Object
 		if (isset($_GET['asset_ei_screen'])) {
 			$main_extras .= '&asset_ei_screen='.$_GET['asset_ei_screen'];
 		}
+
+		if (isset($_SERVER['QUERY_STRING'])) {
+			// append additional user defined query string
+			// (e.g. for trigger condition 'url matches')
+			$main_extras .= '&'.$_SERVER['QUERY_STRING'];
+		}
+
 		$main_url = $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main'.$main_extras;
 
 		$frame_urls = Array(
@@ -1254,7 +1261,10 @@ class Backend extends MySource_Object
 			$hide_frames = (isset($_REQUEST['hide_frames']) && $_REQUEST['hide_frames']) ? 'hide_frames=1&': '';
 			$limbo_assetid = (isset($_GET['limbo_assetid'])) ? 'limbo_assetid='.$_GET['limbo_assetid'].'&': '';
 			// if the user enter the ei screen manually, we need to print the frames as well
-			$asset_ei_screen = (isset($_GET['asset_ei_screen'])) ? 'asset_ei_screen='.$_GET['asset_ei_screen'].'&SQ_BACKEND_PAGE=frames': '';
+			$asset_ei_screen = (isset($_GET['asset_ei_screen'])) ? 'asset_ei_screen='.$_GET['asset_ei_screen'] : '';
+			if (SQ_IN_LIMBO) {
+				$asset_ei_screen .= '&SQ_BACKEND_PAGE=frames';
+			}
 			$extra = '/?'.$hide_frames.$limbo_assetid.$asset_ei_screen;
 			$redirect_url = strip_url(current_url()).$extra;
 			$this->out->addOnLoad('if (!parent.frames["sq_header"]) { sq_redirect("'.$redirect_url.'"); }');
