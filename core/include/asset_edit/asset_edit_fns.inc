@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.65 2006/11/30 00:37:48 tbarrett Exp $
+* $Id: asset_edit_fns.inc,v 1.66 2006/11/30 04:57:00 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -543,7 +543,6 @@ class Asset_Edit_Fns extends MySource_Object
 		}
 
 		if (!$asset->writeAccess('links')) {
-			echo '<i>';
 			if (empty($links)) {
 				echo '<i>'.translate('none').'</i>';
 			} else {
