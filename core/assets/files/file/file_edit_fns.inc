@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.73.2.3 2006/11/28 04:59:37 skim Exp $
+* $Id: file_edit_fns.inc,v 1.73.2.4 2006/11/30 05:19:42 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73.2.3 $
+* @version $Revision: 1.73.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -92,7 +92,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* @access public
 	*/
 	function processFilename(&$asset, &$o, $prefix)
-	{minibam(debug_backtrace());
+	{
 		$wa = $asset->writeAccess('attributes');
 		if ($wa) {
 			$info = get_file_upload_info($prefix);
