@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term_edit_fns.inc,v 1.5 2006/03/20 03:23:22 emcdonald Exp $
+* $Id: thesaurus_term_edit_fns.inc,v 1.6 2006/11/30 04:06:28 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *	Container of a thesaurus term
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,7 +113,7 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 				</tr>
 			<?php
 			foreach ($parents as $parent) {
-				if (is_null($parent['termid'])) continue;
+				if (empty($parent['termid'])) continue;
 				echo '<tr>';
 					echo '<td>';
 						echo get_asset_tag_line($thesaurus->id.':'.$parent['termid']);
