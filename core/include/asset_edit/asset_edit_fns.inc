@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.64 2006/10/30 05:16:00 mbrydon Exp $
+* $Id: asset_edit_fns.inc,v 1.65 2006/11/30 00:37:48 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -297,8 +297,8 @@ class Asset_Edit_Fns extends MySource_Object
 				}//end foreach
 			?>
 		</table>
-		
-		<?php 
+
+		<?php
 
 		return $admin_access;
 
@@ -520,18 +520,23 @@ class Asset_Edit_Fns extends MySource_Object
 	*
 	* Returns true if editable interface printed
 	*
-	* @param object	&$asset		the asset whose interface we are painting
-	* @param array	$link_value	the current link
-	* @param array	$type_codes	type_codes to pass to asset_finder()
-	* @param string	$field_name	field_name to pass to asset_finder()
+	* @param object		&$asset		the asset whose interface we are painting
+	* @param array		$link_value	the current link
+	* @param array		$type_codes	type_codes to pass to asset_finder()
+	* @param string		$field_name	field_name to pass to asset_finder()
+	* @param boolean	$multiple	Whether to allow multiple selections
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintNoticeLinkedAsset(&$asset, $link_value, $type_codes=Array(), $field_name='')
+	function paintNoticeLinkedAsset(&$asset, $link_value, $type_codes=Array(), $field_name='', $multiple=FALSE)
 	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, $link_value);
-		$selected = (empty($link)) ? 0 : $link['minorid'];
+		if ($multiple) {
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', $link_value);
+		} else {
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, $link_value);
+			$links = empty($link) ? Array() : Array($link);
+		}
 
 		if (empty($field_name)) {
 			$field_name = $asset->getPrefix().'_'.str_replace(' ', '_', strtolower($link_value));
@@ -539,19 +544,27 @@ class Asset_Edit_Fns extends MySource_Object
 
 		if (!$asset->writeAccess('links')) {
 			echo '<i>';
-			if (!$selected) {
-				echo 'None';
+			if (empty($links)) {
+				echo '<i>'.translate('none').'</i>';
 			} else {
-				echo get_asset_tag_line($selected);
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($linked_asset);
+				foreach ($links as $link) {
+					echo get_asset_tag_line($link['minorid']);
+				}
 			}
-			echo '</i>';
 			return FALSE;
+		} else {
+			if ($multiple) {
+				$current = Array();
+				foreach ($links as $link) {
+					$current[] = $link['minorid'];
+				}
+				multiple_asset_finder($field_name, $current, $type_codes);
+			} else {
+				$current = empty($links) ? 0 : $links[0]['minorid'];
+				asset_finder($field_name, $current, $type_codes);
+			}
+			return TRUE;
 		}
-
-		asset_finder($field_name, $selected, $type_codes);
-
-		return TRUE;
 
 	}//end paintNoticeLinkedAsset()
 
@@ -559,45 +572,98 @@ class Asset_Edit_Fns extends MySource_Object
 	/**
 	* Process a generic interface for editing assets that are notice linked to this asset
 	*
-	* @param object	&$asset		the asset whose interface we are painting
-	* @param string	$link_value	the value to put on the link
-	* @param string	$field_name	the name used for the asset finder
+	* @param object		&$asset		the asset whose interface we are painting
+	* @param string		$link_value	the value to put on the link
+	* @param string		$field_name	the name used for the asset finder
+	* @param boolean	$multiple	Whether to allow multiple selections
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processNoticeLinkedAsset(&$asset, $link_value, $field_name='')
+	function processNoticeLinkedAsset(&$asset, $link_value, $field_name='', $multiple=FALSE)
 	{
 		if (empty($field_name)) {
 			$field_name = $asset->getPrefix().'_'.str_replace(' ', '_', strtolower($link_value));
 		}
 		if (!isset($_POST[$field_name])) return FALSE;
 
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, $link_value);
+		if ($multiple) {
 
-		// if there has been no change, then there is nothing to do
-		if (!empty($link) && $link['minorid'] == $_POST[$field_name]['assetid']) {
-			return FALSE;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$success = TRUE;
-
-		// if there is a current link, we need to delete it
-		if (!empty($link)) {
-			$success = (bool) $asset->deleteLink($link['linkid']);
-		}
-
-		if ($success && !empty($_POST[$field_name]['assetid'])) {
-			$selected_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$field_name]['assetid']);
-			if (!is_null($selected_asset)) {
-				$success = (bool) $asset->createLink($selected_asset, SQ_LINK_NOTICE, $link_value);
+			$submitted_minorids = Array();
+			foreach ($_POST[$field_name] as $elt) {
+				if (!empty($elt['assetid'])) {
+					$submitted_minorids[] = $elt['assetid'];
+				}
 			}
-		}
+			$submitted_minorids = array_unique($submitted_minorids);
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction($success ? 'COMMIT' : 'ROLLBACK');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			$existing_minorids = Array();
+			$to_delete = Array();
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', $link_value);
+			foreach ($links as $link) {
+				if (in_array($link['minorid'], $submitted_minorids)) {
+					$existing_minorids[] = $link['minorid'];
+				} else {
+					$to_delete[] = $link['linkid'];
+				}
+			}
+			$to_add = array_diff($submitted_minorids, $existing_minorids);
+			$to_delete = array_unique($to_delete);
+
+			if (empty($to_add) && empty($to_delete)) {
+				return FALSE;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$success = TRUE;
+
+			foreach ($to_add as $schemaid) {
+				$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+				if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $schema, SQ_LINK_NOTICE, 'schema_to_apply')) {
+					$success = FALSE;
+					break;
+				}
+			}
+
+			foreach ($to_delete as $linkid) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid)) {
+					$success = FALSE;
+					break;
+				}
+			}
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction($success ? 'COMMIT' : 'ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		} else {
+
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, $link_value);
+
+			// if there has been no change, then there is nothing to do
+			if (!empty($link) && $link['minorid'] == $_POST[$field_name]['assetid']) {
+				return FALSE;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$success = TRUE;
+
+			// if there is a current link, we need to delete it
+			if (!empty($link)) {
+				$success = (bool) $asset->deleteLink($link['linkid']);
+			}
+
+			if ($success && !empty($_POST[$field_name]['assetid'])) {
+				$selected_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$field_name]['assetid']);
+				if (!is_null($selected_asset)) {
+					$success = (bool) $asset->createLink($selected_asset, SQ_LINK_NOTICE, $link_value);
+				}
+			}
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction($success ? 'COMMIT' : 'ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		}
 		return $success;
 
 	}//end processNoticeLinkedAsset()
@@ -620,5 +686,4 @@ class Asset_Edit_Fns extends MySource_Object
 
 
 }//end class
-
 ?>
