@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.18 2006/08/14 05:17:00 bcaldwell Exp $
+* $Id: simple_form.inc,v 1.19 2006/11/30 22:10:43 rhoward Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -701,6 +701,55 @@ class Simple_Form extends Asset
 
 	}//end getErrors()
 
+
+	/**
+	* Return a list of full question information
+	*
+	* Returned array is in the following format:
+	* <pre>
+	* Array(
+	* 	assetid	=> Array(
+	* 				'name'			=> string,		// name of question
+	* 				'type_code'		=> string,		// type code of question
+	*				'sort_order'	=> int			// sort order (for asset map)
+	* 			   ),
+	* )
+	* </pre>
+	*
+	* @param boolean	$include_nested	if TRUE, return all the questions underneath this form (including those belonging to nested forms); otherwise, only return questions attached to this form
+	*
+	* @return array
+	* @access public
+	*/
+	function getQuestions($include_nested=FALSE)
+	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$questions = Array();
+		
+		$questions_raw = $this->attr('questions');
+		foreach ($questions_raw as $q_id => $question) {
+			$new_id = $this->id.':q'.$q_id;
+			$questions[$new_id] = $question;
+			
+			// clear out unnecessary info from the question info
+			unset($questions[$new_id]['attributes']);
+		}
+
+		if ($include_nested) {
+			$nested_forms = $am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, 'simple_form', FALSE);
+			foreach ($nested_forms as $link) {
+				$form =& $am->getAsset($link['minorid']);
+				if (!is_null($form)) {
+					$questions = array_merge($questions, $form->getQuestions($include_nested));
+					$am->forgetAsset($form);
+				}
+			}
+		}
+
+		return $questions;
+
+	}//end getQuestions()
+	
 
 	/**
 	* Return a list of full answer information recorded from processed questions
