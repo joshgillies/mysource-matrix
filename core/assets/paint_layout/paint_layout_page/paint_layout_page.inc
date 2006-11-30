@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page.inc,v 1.11 2006/09/14 06:36:41 tbarrett Exp $
+* $Id: paint_layout_page.inc,v 1.12 2006/11/30 22:11:31 rhoward Exp $
 *
 */
 
@@ -41,7 +41,7 @@ define('SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME', 'default_format');
 * Those bodycopies also support conditions.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -448,3 +448,4 @@ class Paint_Layout_Page extends Page_Standard
 
 }//end class
 
+?>
