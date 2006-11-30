@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.53 2006/11/15 04:53:45 lwright Exp $
+* $Id: form_email.inc,v 1.54 2006/11/30 22:11:56 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -430,9 +430,9 @@ class Form_Email extends Form
 		$questions = $this->getAllQuestions();
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$file_assets = Array();
-		foreach ($questions as $q_id => $question) {
+		foreach ($questions as $q_assetid => $question) {
 			if ($question['question_type_code'] == 'form_question_type_file_upload') {
-				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_assetid);
 				if (!is_null($q_asset) && $q_asset->attr('attach_to_mail')) {
 					$file_asset_id = $q_asset->getUploadedFileId();
 					if (!is_null($file_asset_id)) {
