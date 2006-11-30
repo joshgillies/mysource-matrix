@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: run.php,v 1.17 2006/11/29 23:34:00 bcaldwell Exp $
+* $Id: run.php,v 1.18 2006/11/30 03:19:51 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The one file through which everything runs
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 
@@ -36,8 +36,8 @@ if (isset($_SERVER['argv'][1])) {
 	define('SQ_SYSTEM_ROOT', $_SERVER['argv'][1]);
 }
 
-ini_set('memory_limit', '16M');
 require_once SQ_SYSTEM_ROOT.'/core/include/init.inc';
+ini_set('memory_limit', SQ_CONF_CRON_MEMORY_LIMIT.'M');
 
 $root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (is_null($root_user)) {
