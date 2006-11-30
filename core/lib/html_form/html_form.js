@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.46 2006/06/26 01:26:02 skim Exp $
+* $Id: html_form.js,v 1.46.2.1 2006/11/30 22:53:24 rong Exp $
 *
 */
 
@@ -633,8 +633,8 @@ function addNewAssetFinder(moreButton, nameBase, safeNameBase, typeCodesString, 
 	var next_index = 0;
 	while (document.getElementById(safeNameBase+'_'+next_index+'__label') != null) next_index++;
 	parentElt = moreButton.parentNode;
-	name = nameBase + '[' + next_index + ']';
-	safeName = safeNameBase + '_' + next_index + '_';
+	var name = nameBase + '[' + next_index + ']';
+	var safeName = safeNameBase + '_' + next_index + '_';
 	parentElt.insertBefore(document.createElement('BR'), moreButton);
 	parentElt.insertBefore(createHiddenField(name+'[assetid]', 0), moreButton);
 	parentElt.insertBefore(createHiddenField(name+'[url]', 0), moreButton);
