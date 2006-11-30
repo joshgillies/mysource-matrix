@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: apache_config.inc,v 1.3 2006/11/21 18:46:20 gnoel Exp $
+* $Id: apache_config.inc,v 1.4 2006/11/30 00:36:41 emcdonald Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_APACHE_CONF_CUSTOM_KEYWORD_KEY', 'sq_custom_keyword_key');
 *    Manage any Apache related configuration
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Apache_Config extends Config
@@ -49,7 +49,7 @@ class Apache_Config extends Config
 	* @access private
 	*/
 	var $config_vars = Array(
-						'APACHE_REQUEST_NOTES'	=> Array('editable' => 1, 'default' => Array()),
+						'request_notes'	=> Array('editable' => 1, 'default' => Array()),
 					   );
 
 
@@ -85,12 +85,12 @@ class Apache_Config extends Config
 	/**
 	* Rewrites the conf file with current variables
 	*
-	* @param Array		$vars				the array with any new values (that are allowed to be edited)
+	* @param array		$vars				the array with any new values (that are allowed to be edited)
 	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
-	* @param boolean 	$send_message		whether to send a message using the messaging system
+	* @param boolean	$send_message		whether to send a message using the messaging system
 	*
-	* @return boolean	indicates whether the file was written
+	* @return boolean
 	* @access public
 	*/
 	function save($vars, $backup_existing=FALSE, $send_message=TRUE)
@@ -105,8 +105,88 @@ class Apache_Config extends Config
 				return FALSE;
 			}
 		}
+		if (!$this->writeAccess()) {
+				trigger_localised_error('SYS0026', E_USER_WARNING, $this->name);
+				return FALSE;
+			}
+			// attempt to load the config file to make sure we get any current settings
+			if (file_exists($this->config_file)) {
+				require $this->config_file;
+			}
 
-		return parent::save($vars, $backup_existing, $send_message);
+			$changed_vars = Array();
+			ob_start();
+			foreach ($this->config_vars as $var_name => $data) {
+
+				$current_value = (isset($$var_name)) ? $$var_name : $data['default'];
+				if ($data['editable'] && isset($vars[$var_name]) && $current_value !== $vars[$var_name]) {
+
+					$value = $vars[$var_name];
+
+					$changed_vars[$var_name] = Array('old' => $current_value, 'new' => $value);
+				} else {
+					$value = $current_value;
+				}
+
+				if (!$this->_paintConfigVar($var_name, $value)) {
+					ob_end_clean();
+					return FALSE;
+				}
+
+			}//end foreach
+
+			$str = '<'."?php\n".ob_get_contents().'?'.">\n";
+
+			ob_end_clean();
+			if ($backup_existing && file_exists($this->config_file)) {
+
+				$i = 0;
+				do {
+					$i++;
+					$old_version = $this->config_file.'.'.$i;
+				} while (file_exists($old_version));
+
+				if (!copy($this->config_file, $old_version)) {
+					return FALSE;
+				}
+
+			}// endif
+
+			if (SQ_PHP_CLI) {
+				echo "----------------------------------\n".($str)."----------------------------------\n";
+			}
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+			// make sure the directory exists
+			if (!create_directory(dirname($this->config_file))) {
+				return FALSE;
+			}
+
+			// and save the file
+			if (!string_to_file($str, $this->config_file)) {
+				return FALSE;
+			}
+
+			// Check if a message should be sent.
+			if ($changed_vars && $send_message) {
+				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms->openQueue();
+				foreach ($changed_vars as $var_name => $values) {
+					$message_body = $var_name.' changed from '.var_export($values['old'], TRUE).' to '.var_export($values['new'], TRUE)."\n";
+					$config_name = ucwords(str_replace('_', ' ', get_class($this)));
+					$msg_reps = Array(
+									'setting'	=> $var_name,
+									'old_value'	=> var_export($values['old'], TRUE),
+									'new_value'	=> var_export($values['new'], TRUE),
+								);
+					$message = $ms->newMessage(Array(), 'config.'.get_class($this), $msg_reps);
+					$ms->enqueueMessage($message);
+				}
+				$ms->closeQueue();
+
+			}// end if
+
+		return TRUE;
+
 
 	}//end save()
 
@@ -151,7 +231,7 @@ class Apache_Config extends Config
 	* If you (as a sub-class) put your config vars so that when they are submitted appear in
 	* $_POST[get_class($this)] then you probably won't need to override processBackend()
 	*
-	* @param object Backend_Outputter	&$o		reference to the backend outputter
+	* @param object	&$o	reference to the backend outputter
 	*
 	* @return void
 	* @access public
@@ -319,7 +399,7 @@ class Apache_Config extends Config
 	/**
 	* Saves the config settings that were submitted
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	* @param object	&$o	reference to the backend outputter
 	*
 	* @return boolean
 	* @access public
@@ -341,7 +421,7 @@ class Apache_Config extends Config
 		if ($new_request_note = $this->_getNewRequestNote($_POST)) {
 			$this->request_notes = array_merge($new_request_note, $this->request_notes);
 		}
-		$_POST[$class]['APACHE_REQUEST_NOTES'] = $this->request_notes;
+		$_POST[$class]['request_notes'] = $this->request_notes;
 
 		return parent::processBackend($o);
 
@@ -353,17 +433,17 @@ class Apache_Config extends Config
 	*
 	* This allows extra things to be added for special cases, and extra checks to be made if necessary on the value
 	*
-	* @param string		$name		the config var name
+	* @param string		$var_name	the config var name
 	* @param mixed		$value		the value that the config var has
 	* @param boolean	$var_export	whether to run the value through var_export or not
 	*
-	* @return boolean	whether the value is valid or not
+	* @return boolean
 	* @access private
 	*/
 	function _paintConfigVar($var_name, $value, $var_export=TRUE)
 	{
 		// we're not going to save this as a constant, since it's an array
-		if ($var_name == 'APACHE_REQUEST_NOTES') {
+		if ($var_name == 'request_notes') {
 			echo '$request_notes = '.var_export($value, 1).';'."\n";
 		} else {
 			parent::_paintConfigVar($var_name, $value, $var_export);
@@ -378,7 +458,7 @@ class Apache_Config extends Config
 	*
 	* @param array	$data	Array to pull request note data from, probably post
 	*
-	* @return bool|array
+	* @return mixed boolean|array
 	* @access private
 	*/
 	function _getNewRequestNote($data)
