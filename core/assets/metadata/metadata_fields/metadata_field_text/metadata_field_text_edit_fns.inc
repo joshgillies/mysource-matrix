@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.20 2006/12/01 00:31:54 tbarrett Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.21 2006/12/01 02:47:24 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,10 +85,11 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		if (!$field_name) $field_name = $asset->name;
 		if ($asset->attr('editable')) {
 			if ($write_access) {
+				$extras = ($is_default && $enable_default) ? 'disabled="disabled"' : '';
 				if ($asset->attr('multi_line')) {
-					text_area($prefix.'_value', $value, 45, 7, 0, ($is_default ? 'disabled="disabled" ' : '').'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
+					text_area($prefix.'_value', $value, 45, 7, 0, $extras);
 				} else {
-					text_box($prefix.'_value', $value, 30, '', FALSE, ($is_default ? 'disabled="disabled" ' : '').'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
+					text_box($prefix.'_value', $value, 30, '', FALSE, $extras);
 				}
 				if ($enable_default) {
 					echo ' &nbsp; &nbsp; &nbsp; ';
