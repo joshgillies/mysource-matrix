@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.33 2006/11/27 03:36:30 emcdonald Exp $
+* $Id: details.inc,v 1.34 2006/12/01 00:22:57 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 
@@ -47,6 +47,9 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 {
+	// no static details screen fields relevant to an uncreated asset
+	if (empty($owner->id)) return; 
+
 	$root =& $ei->findScreen('static_screen_details');
 	if (is_null($root)) return FALSE;
 
