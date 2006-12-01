@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.70.2.3 2006/11/28 05:01:49 skim Exp $
+* $Id: file_edit_fns.inc,v 1.70.2.4 2006/12/01 00:35:55 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.70.2.3 $
+* @version $Revision: 1.70.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -94,7 +94,10 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	function processFilename(&$asset, &$o, $prefix)
 	{
 		$wa = $asset->writeAccess('attributes');
-		if ($wa) {
+		$submitted = isset($_REQUEST[$prefix.'_filename']) && !empty($_REQUEST[$prefix.'_filename']);
+		$process = $wa && $submitted;
+
+		if ($process) {
 			$info = get_file_upload_info($prefix);
 
 			// if the user is uploading the file, do not process the name
@@ -104,7 +107,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			$asset->setAttrValue('name', $_REQUEST[$prefix.'_filename']);
 		}
 
-		return $wa;
+		return $process;
 
 	}//end processFilename()
 
