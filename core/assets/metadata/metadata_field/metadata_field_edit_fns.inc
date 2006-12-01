@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.41 2006/08/24 01:25:49 rhoward Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.42 2006/12/01 00:15:56 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -283,11 +283,12 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*									NULL means that there is no current value set
 	* @param boolean	$write_access	does the current user have write access to the asset
 	*									that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param boolean	$enable_default	Whether to show the 'use default' checkbox
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintValueInterface(&$asset, &$o, $value_str, $write_access)
+	function paintValueInterface(&$asset, &$o, $value_str, $write_access, $enable_default=TRUE)
 	{
 		return FALSE;
 

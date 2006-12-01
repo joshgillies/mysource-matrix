@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_management.inc,v 1.11 2006/04/21 04:58:37 tbarrett Exp $
+* $Id: metadata_field_select_management.inc,v 1.12 2006/12/01 00:15:57 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -93,7 +93,7 @@ class Metadata_Field_Select_Management extends Asset_Management
 	/**
 	* Returns all files this asset wants installed/updated into the data directory
 	*
-	* @return array(string)
+	* @return array
 	* @access private
 	*/
 	function _getFileList()

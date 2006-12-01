@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.34 2006/08/24 01:25:49 rhoward Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.35 2006/12/01 00:15:57 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -204,7 +204,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	{
 		$o->openSection($asset->name);
 		if ($write_access) {
-			if (isset($asset->_tmp['painted_inline_value_interface'])) {
+			if (isset($GLOBALS['painted_inline_value_interface'][$asset->id])) {
 				// this is the second time we have painted this interface
 				$o->openField(translate('please_note'));
 					echo '<span class="sq-backend-warning"><b>'.translate('metadata_use_editing_interface').'</b></span>';
@@ -212,7 +212,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 				$write_access = FALSE;
 			} else {
 				// make sure we dont try and paint the same interface twice
-				$asset->_tmp['painted_inline_value_interface'] = TRUE;
+				$GLOBALS['painted_inline_value_interface'][$asset->id] = TRUE;
 			}
 		}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_management.inc,v 1.8 2005/09/08 00:39:12 rong Exp $
+* $Id: metadata_field_date_management.inc,v 1.9 2006/12/01 00:15:56 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,6 +78,7 @@ class Metadata_Field_Date_Management extends Asset_Management
 	{
 		return Array(
 				'popups/keywords.html',
+				'js/metadata_field_date.js',
 			   );
 
 	}//end _getFileList()

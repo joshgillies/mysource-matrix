@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.30 2006/01/26 22:34:04 lwright Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.31 2006/12/01 00:15:56 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,7 +47,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		$this->Metadata_Field_Edit_Fns();
 
-	}//end constructor
+	}//end Metadata_Field_Date_Edit_Fns()
 
 
 	/**
@@ -322,18 +322,20 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	*									NULL means that there is no current value set
 	* @param boolean	$write_access	does the current user have write access to the asset
 	*									that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param boolean	$enable_default	Whether to show the 'use default' checkbox
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintValueInterface(&$asset, &$o, $value_str, $write_access)
+	function paintValueInterface(&$asset, &$o, $value_str, $write_access, $enable_default=TRUE)
 	{
 		$prefix = $asset->getPrefix();
 
 		$is_default = FALSE;
+		$default_val = $asset->attr('default');
 
 		if (is_null($value_str)) {
-			$value_str = $asset->getDefaultValue();
+			$value_str = $default_val;
 			$is_default = TRUE;
 		}
 
@@ -348,87 +350,71 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 							'%asset_published%'	=> translate('last_published_date'),
 						  );
 
+		// checking if the value is a keyword replacement
+		$uses_keyword = (substr($value, 0, 1) == '%');
+		if (empty($value)) $value = NULL;
+		$field = $asset->_getDateTimeField($prefix, $value);
+		$field->parameters['extras'] = Array(
+										'd'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+										'm'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+										'y'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+										'h'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+										'm'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+										's'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+										'i'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+									   );
+		if ($write_access && $asset->attr('editable')) {
 
-			?>
-				<script type="text/javascript">
-					//Function to handle change in a dare box. Use onchange event,
-					//passing the prefix of the current attribute, and it will uncheck
-					//the default checkbox on change.
-					function dateSelectionChanged(prefix) {
-						document.getElementById(prefix + '_default').checked = false;
-						return false;
+			$field->printField();
+			echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
+			combo_box($prefix.'_repkeys', $select_options, FALSE, $value, 0, '');
+
+			if ($enable_default) {
+				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
+				if (substr($default_val, 0, 1) == '%') {
+					$default_date_exp = 'null';
+					$default_kw_exp = "'$default_val'";
+				} else {
+					list($dy, $dm, $dd, $dh, $di, $ds) = sscanf($default_val, '%d-%d-%d %d:%d:%d');
+					$default_date_exp = "{y:$dy, m:$dm, d:$dd, h:$dh, i:$di, s:$ds}";
+					$default_kw_exp = 'null';
+				}
+
+				check_box($prefix.'_default', '1', $is_default, 'handleMetadataDatetimeDefaultClick(this, \''.$prefix.'\', '.$default_date_exp.', '.$default_kw_exp.')');
+				label(translate('use_default'), $prefix.'_default');
+				?>
+				<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/metadata_field_date/js/metadata_field_date.js"></script>
+				<script type="text/javascript"><!--
+				handleMetadataDatetimeDefaultClick(document.getElementById('<?php echo $prefix; ?>_default'), '<?php echo $prefix; ?>', <?php echo $default_date_exp; ?>, <?php echo $default_kw_exp; ?>);
+				//<![CDATA[
+				/*
+					if (typeof to_change == 'undefined') to_change = [];
+					to_change["<?php echo $prefix ?>"] = {'d': -1, 'm': -1, 'y': -1, 'h': -1, 'i': -1, 's': -1, 'repkeys': -1};
+					for (x in to_change["<?php echo $prefix ?>"]) {
+						if (x != 'repkeys') {
+							expanded_x = 'datetimevalue[' + x + ']';
+						} else {
+							expanded_x = x;
+						}
+						to_change["<?php echo $prefix ?>"][x] = eval('document.getElementById("<?php echo $prefix ?>_' + expanded_x + '").selectedIndex');
 					}
-
-				</script>
-			<?php
-			// checking if the value is a keyword replacement
-			$uses_keyword = (substr($value, 0, 1) == '%');
-			if (empty($value)) $value = NULL;
-			$field = $asset->_getDateTimeField($prefix, $value);
-			$field->parameters['extras'] = Array(
-											'd'	=> 'onchange="dateSelectionChanged(\''.$prefix.'\')"',
-											'm'	=> 'onchange="dateSelectionChanged(\''.$prefix.'\')"',
-											'y'	=> 'onchange="dateSelectionChanged(\''.$prefix.'\')"',
-											'h'	=> 'onchange="dateSelectionChanged(\''.$prefix.'\')"',
-											'm'	=> 'onchange="dateSelectionChanged(\''.$prefix.'\')"',
-											's'	=> 'onchange="dateSelectionChanged(\''.$prefix.'\')"',
-											'i'	=> 'onchange="dateSelectionChanged(\''.$prefix.'\')"',
-										   );
-
-			if ($write_access && $asset->attr('editable')) {
-				$field->printField();
-
-				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
-				combo_box($prefix.'_repkeys', $select_options, FALSE, $value, 0, 'onchange="dateSelectionChanged(\''.$prefix.'\')"'); // replacement keys
-
-				?><script type="text/javascript"><!--
-				//<![CDATA[
-				if (typeof to_change == 'undefined') to_change = [];
-				  to_change["<?php echo $prefix ?>"] = {'d': -1, 'm': -1, 'y': -1, 'h': -1, 'i': -1, 's': -1, 'repkeys': -1};
-				  for (x in to_change["<?php echo $prefix ?>"]) {
-					  if (x != 'repkeys') {
-						  expanded_x = 'datetimevalue[' + x + ']';
-					  } else {
-						  expanded_x = x;
-					  }
-					to_change["<?php echo $prefix ?>"][x] = eval('document.getElementById("<?php echo $prefix ?>_' + expanded_x + '").selectedIndex');
-				  }
-
-				  function disable_metadata_date_field(form, prefix, disabled) {
-					  for (x in to_change[prefix]) {
-						  if (x != 'repkeys') {
-							  expanded_x = 'datetimevalue[' + x + ']';
-						  } else {
-							  expanded_x = x;
-						  }
-						  eval('form.elements["' + prefix + '_' + expanded_x + '"].disabled = ' + disabled);
-						  if (disabled) {
-						    eval('form.elements["' + prefix + '_' + expanded_x + '"].selectedIndex = ' + to_change[prefix][x]);
-						  }
-					  }
-				  }
-				// ]]> -->
-				</script><?php
-
-				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
-				check_box($prefix.'_default', '1', $is_default, 'disable_metadata_date_field(this.form, "'.addslashes($prefix).'", this.checked)');
-				echo ' '.translate('use_default');
-				?><script type="text/javascript"><!--
-				//<![CDATA[
 					disable_metadata_date_field(document.getElementById("<?php echo addslashes($prefix) ?>_default").form, "<?php echo addslashes($prefix) ?>", document.getElementById("<?php echo addslashes($prefix) ?>_default").checked);
+					*/
 				// ]]> -->
-				</script><?php
-			} else if ($uses_keyword && isset($select_options[$value])) {
-				echo '<i>'.translate('keyword_replacement').': </i>', $select_options[$value];
-				if ($is_default) {
-					echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
-				}
-			} else {
-				echo $field->format();
-				if ($is_default) {
-					echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
-				}
+				</script>
+				<?php
 			}
+		} else if ($uses_keyword && isset($select_options[$value])) {
+			echo '<i>'.translate('keyword_replacement').': </i>', $select_options[$value];
+			if ($is_default && $enable_default) {
+				echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
+			}
+		} else {
+			echo $field->format();
+			if ($is_default && $enable_default) {
+				echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
+			}
+		}//end if
 
 		return TRUE;
 
@@ -561,5 +547,4 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 
 }//end class
-
 ?>

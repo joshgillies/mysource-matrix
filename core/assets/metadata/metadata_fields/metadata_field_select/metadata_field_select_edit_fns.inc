@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.30 2006/11/14 01:11:41 mbrydon Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.31 2006/12/01 00:15:57 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,21 +60,15 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	*									NULL means that there is no current value set
 	* @param boolean	$write_access	does the current user have write access to the asset
 	*									that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param boolean	$enable_default	Whether to show the 'use default' checkbox
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintValueInterface(&$asset, &$o, $value_str, $write_access)
+	function paintValueInterface(&$asset, &$o, $value_str, $write_access, $enable_default=TRUE)
 	{
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-
-		$is_default = FALSE;
-
-		if (is_null($value_str)) {
-			$value_str = $asset->getDefaultValue();
-			$is_default = TRUE;
-		}
 
 		$value = '';
 		$value_components = $asset->attr('value_components');
@@ -82,7 +76,14 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 
 		$select_options = $asset->attr('select_options');
-		$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_select/js/metadata_field_select.js');
+		if ($enable_default) {
+			$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_select/js/metadata_field_select.js');
+			$is_default = FALSE;
+			if (is_null($value_str)) {
+				$value_str = $asset->getDefaultValue();
+				$is_default = TRUE;
+			}
+		}
 		if ($asset->attr('multiple')) {
 			// if there is no value we need a blank array...not an array with one element (a blank string)
 			if ($value == '') {
@@ -95,13 +96,15 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		if ($write_access && $asset->attr('editable')) {
 			$selection = $asset->getSelectionAttribute();
 			$selection->value = $value;
-			$selection->_edit_params['extras'] = 'onclick="document.getElementById(\''.$prefix.'_default\').checked = false;"';
-			if ($is_default) {
-				$selection->_edit_params['extras'] .= ' disabled="disabled"';
+			if ($enable_default) {
+				$selection->_edit_params['extras'] = 'onclick="document.getElementById(\''.$prefix.'_default\').checked = false;"';
+				if ($is_default) {
+					$selection->_edit_params['extras'] .= ' disabled="disabled"';
+				}
+				echo '<span id="'.$prefix.'_field">';
 			}
-			echo '<div id="'.$prefix.'_field">';
 			$selection->paint($prefix, !$write_access);
-			echo '</div>';
+			if ($enable_default) echo '</span>';
 		} else {
 			if ((is_array($value) && empty($value)) || (is_string($value) && $value == '')) {
 				echo '&nbsp;';
@@ -117,30 +120,32 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 		}
 
-		if ($write_access) {
-			echo ' &nbsp; &nbsp; &nbsp; ';
+		if ($enable_default) {
+			if ($write_access) {
+				echo ' &nbsp; &nbsp; &nbsp; ';
 
-			// Work out which options we have to set if we have to
-			$i = 0;
-			$default_keys = explode('; ', $asset->attr('default'));
-			$default_selected = Array();
+				// Work out which options we have to set if we have to
+				$i = 0;
+				$default_keys = explode('; ', $asset->attr('default'));
+				$default_selected = Array();
 
-			$default_vals = Array();
-			$non_default_vals = Array();
-			foreach ($select_options as $key => $select_option) {
-				if (in_array($key, $default_keys)) {
-					$default_vals[] = "'".addslashes($key)."'";
-				} else {
-					$non_default_vals[] = "'".addslashes($key)."'";
+				$default_vals = Array();
+				$non_default_vals = Array();
+				foreach ($select_options as $key => $select_option) {
+					if (in_array($key, $default_keys)) {
+						$default_vals[] = "'".addslashes($key)."'";
+					} else {
+						$non_default_vals[] = "'".addslashes($key)."'";
+					}
 				}
-			}
-			$default_vals_expr = '['.implode(', ', $default_vals).']';
-			$non_default_vals_expr = '['.implode(', ', $non_default_vals).']';
-			check_box($prefix.'_default', '1', $is_default, "handleDefaultClick(this, '$prefix', $default_vals_expr, $non_default_vals_expr); ");
-			label(translate('use_default'), $prefix.'_default');
-		} else {
-			if ($is_default) {
-				echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
+				$default_vals_expr = '['.implode(', ', $default_vals).']';
+				$non_default_vals_expr = '['.implode(', ', $non_default_vals).']';
+				check_box($prefix.'_default', '1', $is_default, "handleDefaultClick(this, '$prefix', $default_vals_expr, $non_default_vals_expr); ");
+				label(translate('use_default'), $prefix.'_default');
+			} else {
+				if ($is_default) {
+					echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
+				}
 			}
 		}
 
