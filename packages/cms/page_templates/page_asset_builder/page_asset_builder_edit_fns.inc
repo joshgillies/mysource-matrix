@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.42 2006/10/10 23:31:53 mbrydon Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.43 2006/12/01 03:41:49 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -162,6 +162,118 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		return $asset->setAttrValue('create_status', $create_status);
 
 	}//end processCreateStatus()
+
+
+	/**
+	* Paints the interface for choosing metadata schemas to apply to new assets
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSchemasToApply(&$asset, &$o, $prefix)
+	{
+		return $this->paintNoticeLinkedAsset($asset, 'schema_to_apply', Array('metadata_schema' => 'D'), $prefix.'schemas_to_apply', TRUE);
+
+	}//end paintSchemasToApply()
+
+
+	/**
+	* Processes the interface for choosing metadata schemas to apply to new assets
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSchemasToApply(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('links')) {
+			$this->processNoticeLinkedAsset($asset, 'schema_to_apply', $prefix.'schemas_to_apply', TRUE);
+		}
+		return FALSE; // no need to save attrs, it's only links
+
+	}//end processSchemasToApply()
+
+
+	/**
+	* Paints the interface for choosing create types whose form should be customised
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCreateFormCustomisation(&$asset, &$o, $prefix)
+	{
+		$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($asset->attr('create_type')), 'name');
+		$customised_types = $asset->attr('create_form_customisations');
+		$wa = $asset->writeAccess('attributes');
+		if ($wa) {
+			hidden_field($prefix.'_customise_form_submitted', 1);
+		}
+		?>
+		<table class="sq-backend-table">
+			<thead>
+				<tr>
+					<th>Asset Type</th>
+					<th>Customise Create Form?</th>
+				</tr>
+			</thead>
+			<tbody>
+			<?php
+			foreach ($type_names as $code => $name) {
+				?>
+				<tr>
+					<td><?php echo $type_names[$code]; ?></td>
+					<td>
+						<?php 
+						if ($wa) {
+							echo check_box($prefix.'_customise_form[]', $code, in_array($code, $customised_types));
+						} else {
+							$fn = in_array($code, $customised_types) ? 'tick' : 'cross';
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.gif" />';
+						}
+						?>
+					</td>
+				</tr>
+				<?php
+			}
+			?>
+			</tbody>
+		</table>
+		<?php
+
+	}//end paintCreateFormCustomisation()
+
+
+	/**
+	* Processes the interface for choosing create types whose form should be customised
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCreateFormCustomisation(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes') && isset($_POST[$prefix.'_customise_form_submitted'])) {
+			$customised_types = array_get_index($_POST, $prefix.'_customise_form', Array());
+			$customised_types = array_intersect($customised_types, array_keys($asset->attr('create_type')));
+			return $asset->setAttrValue('create_form_customisations', $customised_types);
+		}
+		return FALSE;
+
+	}//end processCreateFormCustomisation()
 
 
 //--        CREATE LOCATIONS SCREEN         --//
@@ -1146,7 +1258,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processDynamicCreateLocations(&$asset, &$o, $prefix)
 	{
-		/** Settings structure:
+		/*
+		* Settings structure:
 		* $sets = Array(
 		*			'set_name' => Array(
 		*							'root'			=> location_id, 	// from asset_finder

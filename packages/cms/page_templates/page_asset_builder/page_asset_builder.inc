@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.99 2006/11/27 00:18:59 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.100 2006/12/01 03:41:49 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -100,11 +100,64 @@ class Page_Asset_Builder extends Page
 			$bodycopy->setAttrValue('name', $details['name']);
 			$copy_link['value'] = $value;
 			unset($details['name']);
-			if (!$bodycopy->create($copy_link, $details)) return FALSE;
+			if (!$bodycopy->create($copy_link, $details)) {
+				return FALSE;
+			}
 		}
 		return TRUE;
 
 	}//end _createAdditional()
+
+
+	/**
+	* Save attributes set with setAttrValue to the database
+	*
+	* @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
+	*
+	* @return boolean
+	* @access public
+	* @see setAttrValue()
+	*/
+	function saveAttributes($dont_run_updated=FALSE)
+	{
+		if (!parent::saveAttributes($dont_run_updated)) {
+			return FALSE;
+		}
+
+		// Create / remove layouts
+		if ($this->id) {
+			$custom_types = $this->attr('create_form_customisations');
+			$current_layout_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'layout', TRUE);
+			$current_layouts = Array();
+			foreach ($current_layout_links as $link) {
+				if (in_array($link['value'], $custom_types)) {
+					$current_layouts[] = $link['value'];
+				} else {
+					$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+				}
+			}
+			$types_needing_layouts = array_diff($custom_types, $current_layouts);
+			if (!empty($types_needing_layouts)) {
+				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfO($types_needing_layouts, 'name');
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('layout');
+				foreach ($types_needing_layouts as $type_code) {
+					$layout =& new Layout();
+					$layout->setAttrValue('name', translate('cms_asset_builder_create_form_layout_for_type', $type_names[$type_code]));
+					$link = Array(
+								'asset'		=> &$this,
+								'link_type'	=> SQ_LINK_TYPE_2,
+								'dependant'	=> TRUE,
+								'exclusive'	=> FALSE,
+								'value'		=> $type_code,
+							);
+					$layout->create($link);
+				}
+			}
+		}
+		return TRUE;
+
+	}//end saveAttributes()
 
 
 	/**
@@ -173,6 +226,7 @@ class Page_Asset_Builder extends Page
 	{
 		$page_links = parent::_getAllowedLinks();
 		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => count($this->_getBodycopies()), 'exclusive' => TRUE);
+		$page_links[SQ_LINK_NOTICE]['metadata_schema'] = Array('card' => 'M', 'exclusive' => FALSE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -390,7 +444,7 @@ class Page_Asset_Builder extends Page
 						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 					}
 
-					if (!$new_asset->processBackend($o, $link)) {
+					if (!($new_asset->processBackend($o, $link) && $new_asset->create($link))) {
 						$this->_tmp['new_asset_created_'.$create_type] =& $new_asset;
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -403,6 +457,21 @@ class Page_Asset_Builder extends Page
 							}
 						}
 						$new_asset->saveAttributes();
+
+						// Process metadata
+						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$metadata_values = Array();
+						foreach ($this->_getMetadataSchemasToApply() as $schemaid) {
+							$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+							$mm->setSchema($new_asset->id, $schema->id, TRUE);
+							if (!is_null($schema)) {
+								$edit_fns =& $schema->getEditFns();
+								$edit_fns->processInlineValueInterface($schema, $metadata_values);
+							}
+						}
+						$mm->setMetadata($new_asset->id, $metadata_values);
+						$mm->regenerateMetadata($new_asset->id);
+
 
 						// if we have multiple locations to create this asset under, create
 						// the new links to all the other parents
@@ -528,6 +597,25 @@ class Page_Asset_Builder extends Page
 		return $res;
 
 	}//end getAllSelectableCreateLocations()
+
+
+	/**
+	* Get the IDs of the metadata schemas that should be applied to newly-created assets
+	*
+	* @return array
+	* @access protected
+	*/
+	function _getMetadataSchemasToApply()
+	{
+		if (empty($this->id)) return Array();
+		$schema_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'metadata_schema', FALSE, 'major', 'schema_to_apply');
+		$res = Array();
+		foreach ($schema_links as $link) {
+			$res[] = $link['minorid'];
+		}
+		return $res;
+
+	}//end _getMetadataSchemasToApply()
 
 
 	/**
@@ -727,7 +815,7 @@ class Page_Asset_Builder extends Page
 	/**
 	* Sanitises the passed create location set name
 	*
-	* @arg string	$set_name	the name to sanitise
+	* @param string	$set_name	the name to sanitise
 	*
 	* @return string
 	* @access private
@@ -737,6 +825,7 @@ class Page_Asset_Builder extends Page
 		return str_replace(Array(' ','\''), '_', strtolower($set_name));
 
 	}//end _sanitiseLocationSetName()
+
 
 	/**
 	* Takes the default link that was created and allows for adjustments if necessary
@@ -981,15 +1070,15 @@ class Page_Asset_Builder extends Page
 												%login_form%',
 							   );
 		$res['logged_in']= Array(
-								'name'		=> translate('logged_in'),
-								'content'	=> '%create_error%
-												%create_invite%
-												%create_form%',
-							   );
+							'name'		=> translate('logged_in'),
+							'content'	=> '%create_error%
+											%create_invite%
+											%create_form%',
+						   );
 		$res['created']= Array(
-								'name'		=> translate('created'),
-								'content'	=> translate('cms_asset_builder_default_created_message'),
-							   );
+							'name'		=> translate('created'),
+							'content'	=> translate('cms_asset_builder_default_created_message'),
+						 );
 		return $res;
 
 	}//end _getBodycopies()
@@ -1015,6 +1104,7 @@ class Page_Asset_Builder extends Page
 		// which type-code?
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
 		$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy');
+		$bodycopy_type = '';
 		foreach ($type_links as $link_info) {
 			if (isset($parents[$link_info['minorid']])) {
 				$bodycopy_type = $link_info['value'];
@@ -1325,8 +1415,11 @@ class Page_Asset_Builder extends Page
 
 		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 		$o =& new Limbo_Outputter();
-		$o->addHiddenField('asset_action', 'create');
 		$o->addHiddenField('ASSET_BUILDER_CREATE_TYPE', key($create_types)); // first asset type is selected initially
+
+		// Get the Metadata schemas ready
+		$metadata_schemas = $this->_getMetadataSchemasToApply();
+		$metadata_edit_fns = NULL;
 
 		// get each asset type's form fields for the create form
 		ob_start();
@@ -1342,10 +1435,25 @@ class Page_Asset_Builder extends Page
 					$asset =& new $create_type();
 				}
 
-
-				$asset->paintBackend($o);
+				if ($layout =& $this->_getCreateFormLayout($create_type)) {
+					$ei =& $asset->getEI();
+					$ei->paintLayout($asset, $o, $layout);
+					$o->addHiddenField('asset_action', 'create_custom');
+				} else {
+					unset($GLOBALS['painted_inline_value_interface']);
+					foreach ($metadata_schemas as $schemaid) {
+						$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+						if (is_null($metadata_edit_fns)) {
+							$metadata_edit_fns =& $schema->getEditFns();
+						}
+						$metadata_edit_fns->paintInlineValueInterface($schema, $o, Array(), TRUE);
+					}
+					$asset->paintBackend($o);
+					$o->addHiddenField('asset_action', 'create');
+				}
 				$o->paintSections();
 				$o->_contents = Array();
+
 				echo '</div>';
 
 				// If this form was commited before but AB failed to create the asset due to errors
@@ -1430,6 +1538,26 @@ class Page_Asset_Builder extends Page
 		return $create_form;
 
 	}//end getCreateFormKeywordReplacement()
+
+
+	/**
+	* Get the create form layout, if available, for a certain create type
+	*
+	* @param string	$type_code	The type code to get the layout for
+	*
+	* @return object
+	* @access private
+	*/
+	function &_getCreateFormLayout($type_code)
+	{
+		$res = NULL;
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'layout', TRUE, $type_code);
+		if (!empty($link)) {
+			$res =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'layout');
+		}
+		return $res;
+
+	}//end _getCreateFormLayout()
 
 
 }//end class

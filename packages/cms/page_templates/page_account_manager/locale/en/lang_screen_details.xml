@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2006/04/27 03:19:36 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.8 2006/12/01 03:41:49 tbarrett Exp $
 *
 */
 -->
@@ -42,6 +42,14 @@
 			<function_call>
 				<paint_function   name="paintCreateStatus"   />
 				<process_function name="processCreateStatus" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Metadata Schemas to Apply</display_name>
+			<note>These metadata schemas will be applied to created user assets.  Values for these schemas' fields may be supplied by the user when creating the asset.  By default, the complete interface for these schemas, exactly as it would appear in the administration interface, will be printed above the default create form for the selected user asset type.  It is recommended that the create form be customised (see below) to lay out the metadata fields more appropriately within the form.</note>
+			<function_call>
+				<paint_function   name="paintSchemasToApply" />
+				<process_function name="processSchemasToApply" />
 			</function_call>
 		</field>
 	</section>
@@ -87,6 +95,14 @@
 		<field attribute="submit_to_page_url">
 			<display_name>Form Submission URL</display_name>
 			<note>If this page will be nested (in another page, or in a design), its form will be visible at a URL different to this page's URL.  Use this setting to control whether the form should submit to the same URL it's displayed at, or to this page's own URL.</note>
+		</field>
+		<field>
+			<display_name>Create Form Customisation</display_name>
+			<note>If create form customisation is enabled, a layout asset will be created under this page and will be used when showing the %create_form% keyword in the 'not logged in' bodycopy.  Fields from the user's details or metadata screens may be included in the layout.  Note that the %edit_details_form% keyword in the 'logged in' bodycopy is not affected by this; its presentation is controlled by the layout selected in the layout manager for the user's asset type.</note>
+			<function_call>
+				<paint_function   name="paintCreateFormCustomisation" />
+				<process_function name="processCreateFormCustomisation" />
+			</function_call>
 		</field>
 	</section>
 </contents>

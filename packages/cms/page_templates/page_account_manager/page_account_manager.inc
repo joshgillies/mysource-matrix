@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.49 2006/10/04 23:51:01 tbarrett Exp $
+* $Id: page_account_manager.inc,v 1.50 2006/12/01 03:41:42 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -93,7 +93,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			if ($this->attr('use_email_validation')) {
 				$new_names = Array(
 								'create_no_login'	=> translate('cms_account_manager_awaiting_validation'),
-								'create_login'		=>translate('cms_account_manager_validated'),
+								'create_login'		=> translate ('cms_account_manager_validated'),
 							 );
 			} else {
 				$new_names = Array(
@@ -103,7 +103,9 @@ class Page_Account_Manager extends Page_Asset_Builder
 			}
 			foreach (Array('create_login', 'create_no_login') as $value) {
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, NULL, 'bodycopy', TRUE, $value);
-				if (empty($link)) trigger_error('BC NOT FOUND', E_USER_ERROR);
+				if (empty($link)) {
+					trigger_error('BC NOT FOUND', E_USER_ERROR);
+				}
 				$bc =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 				$bc->setAttrValue('name', $new_names[$value]);
 				$bc->saveAttributes();
@@ -1043,6 +1045,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		// get type-code
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
 		$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy');
+		$bodycopy_type = '';
 		foreach ($type_links as $link_info) {
 			if (isset($parents[$link_info['minorid']])) {
 				$bodycopy_type = $link_info['value'];

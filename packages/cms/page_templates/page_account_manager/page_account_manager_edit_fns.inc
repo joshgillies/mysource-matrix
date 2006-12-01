@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.22 2006/08/30 02:58:25 rong Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.23 2006/12/01 03:41:42 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -332,6 +332,56 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		return $write_access;
 
 	}//end processValidateAccounts()
+
+
+	/**
+	* Paints the interface for choosing create types whose form should be customised
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCreateFormCustomisation(&$asset, &$o, $prefix)
+	{
+		$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($asset->attr('create_type')), 'name');
+		$customised_types = $asset->attr('create_form_customisations');
+		$wa = $asset->writeAccess('attributes');
+		if ($wa) {
+			hidden_field($prefix.'_customise_form_submitted', 1);
+			echo check_box($prefix.'_customise_form', 1, !empty($customised_types));
+			label(translate('cms_account_manager_customise_create_form'), $prefix.'_customise_form');
+		} else {
+			$fn = !empty($customised_types) ? 'tick' : 'cross';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.gif" />';
+			echo translate('cms_account_manager_customise_create_form');
+		}
+
+	}//end paintCreateFormCustomisation()
+
+
+	/**
+	* Processes the interface for choosing create types whose form should be customised
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCreateFormCustomisation(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes') && isset($_POST[$prefix.'_customise_form_submitted'])) {
+			$customise = array_get_index($_POST, $prefix.'_customise_form');
+			$customised_types = $customise ? array_keys($asset->attr('create_type')) : Array();
+			return $asset->setAttrValue('create_form_customisations', $customised_types);
+		}
+		return FALSE;
+
+	}//end processCreateFormCustomisation()
 
 
 }//end class

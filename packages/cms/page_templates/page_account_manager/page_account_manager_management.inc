@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_management.inc,v 1.22 2006/04/27 03:19:36 lwright Exp $
+* $Id: page_account_manager_management.inc,v 1.23 2006/12/01 03:41:42 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -120,6 +120,7 @@ class Page_Account_Manager_Management extends Asset_Management
 													'type'		=> 'duration',
 													'default'	=> 0,
 												  );
+
 	}//end constructor
 
 

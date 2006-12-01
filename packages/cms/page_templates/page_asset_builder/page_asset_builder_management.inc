@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.29 2006/03/01 05:57:10 tbarrett Exp $
+* $Id: page_asset_builder_management.inc,v 1.30 2006/12/01 03:41:49 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,6 +48,12 @@ class Page_Asset_Builder_Management extends Asset_Management
 										'type'		=> 'serialise',
 										'default'	=> Array(),
 									 );
+
+		$this->vars['create_form_customisations'] = Array(
+														'added'		=> '0.8',
+														'type'		=> 'serialise',
+														'default'	=> Array(),
+													);
 
 		$this->vars['create_status'] = Array(
 										'added'		=> '0.1',
@@ -219,7 +225,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 																	'allow_empty'	=> FALSE,
 																   ),
 											);
-		
+
 	}//end constructor
 
 
