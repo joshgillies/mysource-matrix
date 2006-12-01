@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.31 2006/12/01 00:15:56 tbarrett Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.32 2006/12/01 00:32:08 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -385,21 +385,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 				?>
 				<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/metadata_field_date/js/metadata_field_date.js"></script>
 				<script type="text/javascript"><!--
-				handleMetadataDatetimeDefaultClick(document.getElementById('<?php echo $prefix; ?>_default'), '<?php echo $prefix; ?>', <?php echo $default_date_exp; ?>, <?php echo $default_kw_exp; ?>);
 				//<![CDATA[
-				/*
-					if (typeof to_change == 'undefined') to_change = [];
-					to_change["<?php echo $prefix ?>"] = {'d': -1, 'm': -1, 'y': -1, 'h': -1, 'i': -1, 's': -1, 'repkeys': -1};
-					for (x in to_change["<?php echo $prefix ?>"]) {
-						if (x != 'repkeys') {
-							expanded_x = 'datetimevalue[' + x + ']';
-						} else {
-							expanded_x = x;
-						}
-						to_change["<?php echo $prefix ?>"][x] = eval('document.getElementById("<?php echo $prefix ?>_' + expanded_x + '").selectedIndex');
-					}
-					disable_metadata_date_field(document.getElementById("<?php echo addslashes($prefix) ?>_default").form, "<?php echo addslashes($prefix) ?>", document.getElementById("<?php echo addslashes($prefix) ?>_default").checked);
-					*/
+				handleMetadataDatetimeDefaultClick(document.getElementById('<?php echo $prefix; ?>_default'), '<?php echo $prefix; ?>', <?php echo $default_date_exp; ?>, <?php echo $default_kw_exp; ?>);
 				// ]]> -->
 				</script>
 				<?php
