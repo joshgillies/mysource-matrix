@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.13 2006/09/11 04:48:44 tbarrett Exp $
+* $Id: page_user_group_manager.inc,v 1.14 2006/12/01 04:29:52 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -56,7 +56,9 @@ class Page_User_Group_Manager extends Page
 											'user_email',
 											'commit_button',
 										   ),
-						'not_logged_in'	=> Array(),
+						'not_logged_in'	=> Array(
+											'login_form',
+							),
 					);
 
 	var $errors;
@@ -195,18 +197,19 @@ class Page_User_Group_Manager extends Page
 		if (isset($_REQUEST['submitted'])) {
 			if (isset($_REQUEST[$this->getPrefix().'_location_selection'])) {
 				$user_groups = $_REQUEST[$this->getPrefix().'_location_selection'];
-			}
-			if ($this->attr('allow_multiple') == FALSE) {
-				// Change the single entry into an array
-				$user_groups = Array($user_groups);
-			}
 
-			$this->_tmp['selected'] = $user_groups;
-			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+				if ($this->attr('allow_multiple') == FALSE) {
+					// Change the single entry into an array
+					$user_groups = !empty($user_groups) ? Array($user_groups) : Array();
+				}
+
+				$this->_tmp['selected'] = $user_groups;
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 				$done = $this->processMinorLinks($GLOBALS['SQ_SYSTEM']->currentUserId(), $current_groups, $user_groups, $link_type);
-			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-			$this->generateMessages($done);
+				$this->generateMessages($done);
+			}
 		}
 
 		return TRUE;
@@ -252,7 +255,7 @@ class Page_User_Group_Manager extends Page
 			$curr_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($majorid, $minor_id, $link_type);
 			if (!empty($curr_link)) {
 				$link_id = $curr_link['linkid'];
-	
+
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link_id)) {
 					$done['delete_fail'][] = $majorid;
 				} else {
@@ -627,6 +630,45 @@ class Page_User_Group_Manager extends Page
 		return $string;
 
 	}//end _generateMessageList()
+
+
+	/**
+	* Get login_form keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getLoginFormKeywordReplacement()
+	{
+		ob_start();
+			?>
+			<input type="hidden" name="SQ_LOGIN_KEY"      value="<?php echo $GLOBALS['SQ_SYSTEM']->generateLoginKey(); ?>">
+			<input type="hidden" name="SQ_LOGIN_REFERER"  value="">
+
+			<table border="0">
+				<tr>
+					<td valign="top"><?php echo translate('username'); ?></td>
+					<td valign="top"><?php echo text_box('SQ_LOGIN_USERNAME', (isset($_POST['SQ_LOGIN_USERNAME'])) ? $_POST['SQ_LOGIN_USERNAME'] : 'Enter your username here', 25, 0, (isset($_POST['SQ_LOGIN_USERNAME'])) ? FALSE : TRUE, 'title="Username"'); ?></td>
+				</tr>
+				<tr>
+					<td valign="top"><?php echo translate('password'); ?></td>
+					<td valign="top"><?php echo password_box('SQ_LOGIN_PASSWORD', '', 25, 0, 'title="Password"'); ?></td>
+				</tr>
+				<tr>
+					<td valign="top">&nbsp;</td>
+					<td valign="top">
+						<input type="hidden" name="SQ_ACTION" value="" id="SQ_ACTION" />
+						<?php echo submit_button('', 'Login', 'document.getElementById(\'SQ_ACTION\').value = \'login\'; document.getElementById(\'ASSET_BUILDER_ACTION\').value = \'login\';'); ?>
+					</td>
+				</tr>
+			</table>
+
+			<?php
+			$login_form = ob_get_contents();
+		ob_end_clean();
+		return $login_form;
+
+	}//end getLoginFormKeywordReplacement()
 
 
 }//end class
