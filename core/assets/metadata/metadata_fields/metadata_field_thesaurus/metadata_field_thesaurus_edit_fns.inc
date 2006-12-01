@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.6 2006/04/04 07:06:40 tbarrett Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.7 2006/12/01 00:47:07 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -96,12 +96,15 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @param object		&$o				the outputter class
 	* @param string		$value_str		the current value for this field in the asset (NOT $asset) NULL means that there is no current value set
 	* @param boolean	$write_access	does the current user have write access to the asset that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param boolean	$enable_default	Whether to show the 'use default' checkbox
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintValueInterface(&$asset, &$o, $value_str, $write_access)
+	function paintValueInterface(&$asset, &$o, $value_str, $write_access, $enable_default=TRUE)
 	{
+		if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) return;
+
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
@@ -146,43 +149,52 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		$editable = $asset->attr('editable');
 
 		if ($write_access && $editable) {
-			?>
-			<script type="text/javascript">
-				//<![CDATA[
-				function toggleManualInterface(div_1, div_2)
-				{
-					if (document.getElementById(div_1).style.display == 'block') {
-						document.getElementById(div_1).style.display = 'none';
-						document.getElementById(div_2).style.display = 'block';
-					} else {
-						document.getElementById(div_2).style.display = 'none';
-						document.getElementById(div_1).style.display = 'block';
+
+			if ($enable_default) {
+
+				?>
+				<script type="text/javascript">
+					//<![CDATA[
+					function toggleManualInterface(div_1, div_2)
+					{
+						if (document.getElementById(div_1).style.display == 'block') {
+							document.getElementById(div_1).style.display = 'none';
+							document.getElementById(div_2).style.display = 'block';
+						} else {
+							document.getElementById(div_2).style.display = 'none';
+							document.getElementById(div_1).style.display = 'block';
+						}
 					}
+					//]]>
+				</script>
+				<?php
+
+				// use-default-or-not chooser
+				check_box($prefix.'_default', '1', $is_default, 'toggleManualInterface(\''.$prefix.'_interface\',\''.$prefix.'_defaults\')');
+				label(translate('thesaurus_use_default_value'), $prefix.'_default');
+				if ($is_default) {
+					echo ' '.translate('thesaurus_default_values_note');
 				}
-				//]]>
-			</script>
-			<?php
+				echo '<br />';
 
-			// use-default-or-not chooser
-			check_box($prefix.'_default', '1', $is_default, 'toggleManualInterface(\''.$prefix.'_interface\',\''.$prefix.'_defaults\')');
-			label(translate('thesaurus_use_default_value'), $prefix.'_default');
-			if ($is_default) {
-				echo ' '.translate('thesaurus_default_values_note');
+				// non-default-value chooser
+				echo '<div id="'.$prefix.'_interface" style="padding: 5px 0px; display:'.($is_default ? 'none' : 'block').'">';
+				multiple_asset_finder($prefix.'_thes_term', $term_assetids, Array('thesaurus_term'=>'D'));
+				echo '<div style="margin-top: 3px">';
+				echo translate('thesaurus_meta_thesaurus_note', get_asset_tag_line($thesaurus->id, 'details'));
+				echo '</div>';
+				echo '</div>';
+
+				// default value display
+				echo '<div id="'.$prefix.'_defaults" style="display:'.($is_default ? 'block' : 'none').'">';
+				echo $default;
+				echo '</div>';
+
+			} else {
+
+				multiple_asset_finder($prefix.'_thes_term', $term_assetids, Array('thesaurus_term'=>'D'));
+
 			}
-			echo '<br />';
-
-			// non-default-value chooser
-			echo '<div id="'.$prefix.'_interface" style="padding: 5px 0px; display:'.($is_default ? 'none' : 'block').'">';
-			multiple_asset_finder($prefix.'_thes_term', $term_assetids, Array('thesaurus_term'=>'D'));
-			echo '<div style="margin-top: 3px">';
-			echo translate('thesaurus_meta_thesaurus_note', get_asset_tag_line($thesaurus->id, 'details'));
-			echo '</div>';
-			echo '</div>';
-
-			// default value display
-			echo '<div id="'.$prefix.'_defaults" style="display:'.($is_default ? 'block' : 'none').'">';
-			echo $default;
-			echo '</div>';
 
 		} else {
 			if (empty($values)) {
