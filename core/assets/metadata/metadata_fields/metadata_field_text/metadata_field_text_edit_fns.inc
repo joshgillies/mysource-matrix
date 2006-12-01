@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.19 2006/12/01 00:15:57 tbarrett Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.20 2006/12/01 00:31:54 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -92,7 +92,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				}
 				if ($enable_default) {
 					echo ' &nbsp; &nbsp; &nbsp; ';
-					check_box($prefix.'_default', '1', $is_default, 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.str_replace("'", "\'", $asset->getDefaultValue()).'\'; } }');
+					check_box($prefix.'_default', '1', $is_default, 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.str_replace("'", "\'", $asset->attr('default')).'\'; } }');
 					label(translate('use_default'), $prefix.'_default');
 				}
 			} else {
