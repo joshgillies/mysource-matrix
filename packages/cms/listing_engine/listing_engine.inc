@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.150.2.26 2006/11/09 23:51:22 mbrydon Exp $
+* $Id: listing_engine.inc,v 1.150.2.27 2006/12/01 03:54:31 bcaldwell Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.150.2.26 $
+* @version $Revision: 1.150.2.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1864,7 +1864,10 @@ class Listing_Engine extends Page
 			$keywords += $this->_getShadowAssetKeywordReplacements($assetid, $bc_keywords);
 		} else {
 			foreach ($bc_keywords as $keyword) {
-				if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
+				if (in_array($keyword, Array('asset_url', 'asset_name_linked', 'asset_short_name_linked')) && !SQ_ROLLBACK_VIEW) {
+					continue;
+				}
+				if (!isset($this->_tmp['assets_info'][$assetid][substr($keyword, 6)])) {
 					$this_needs_asset = TRUE;
 					break;
 				}
