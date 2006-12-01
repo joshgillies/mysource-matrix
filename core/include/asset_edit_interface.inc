@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.308 2006/11/29 23:22:56 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.309 2006/12/01 02:51:50 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.308 $
+* @version $Revision: 1.309 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -158,7 +158,7 @@ class Asset_Edit_Interface extends MySource_Object
 	*
 	* @param object		&$owner		the asset whose interface we are painting
 	* @param object		&$o			the outputter class
-	* @param boolean	$creating	whether we are creating or editing
+	* @param boolean	$creating	whether we are painting the default create interface or something else
 	*
 	* @return NULL
 	* @access public
@@ -754,7 +754,7 @@ class Asset_Edit_Interface extends MySource_Object
 	*
 	* @param object		&$owner			the asset whose interface we are painting
 	* @param object		&$o				the outputter class
-	* @param boolean	$creating		whether we are creating or editing
+	* @param boolean	$creating		whether we are processing the default create screen
 	* @param string		$active_screen	if we are not creating, use this screen
 	*
 	* @return boolean
