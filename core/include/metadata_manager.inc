@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.122 2006/11/02 22:14:53 rong Exp $
+* $Id: metadata_manager.inc,v 1.123 2006/12/01 00:23:57 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.123 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1286,6 +1286,8 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function getMetadataInterfaceValueByAssetid($assetid, $field_assetid, $mute_errors=FALSE)
 	{
+		if (empty($assetid)) return NULL;
+
 		// is this actually a metadata field or what?!
 		if (!$this->isMetadataFieldAssetid($field_assetid)) {
 			if (!$mute_errors) {
