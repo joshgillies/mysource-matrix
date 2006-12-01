@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_suggestion.php,v 1.3 2006/04/20 06:04:56 emcdonald Exp $
+* $Id: tag_suggestion.php,v 1.4 2006/12/01 04:26:29 lwright Exp $
 *
 */
-
-	require_once dirname(__FILE__).'/../../include/init.inc';
-	require_once dirname(__FILE__).'/../html_form/html_form.inc';
+	define('SQ_SYSTEM_ROOT', dirname(dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME'])))));
+	require_once SQ_SYSTEM_ROOT.'/core/include/init.inc';
+	require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 	if (!isset($_GET['assetid'])) return FALSE;
 	if (!isset($_GET['prefix'])) return FALSE;
 
