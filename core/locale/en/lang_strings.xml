@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.195 2006/11/30 03:19:10 bcaldwell Exp $
+* $Id: lang_strings.xml,v 1.196 2006/12/03 23:21:43 tbarrett Exp $
 *
 */
 
@@ -66,6 +66,7 @@
 	<string source="asset_status">Asset Status</string>
 	<string source="asset_current_status_change_from_parent">Current status for this asset can only be set from parent asset's &lt;a href="%s"&gt;details screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="asset_future_status_change_from_parent">Future status for this asset can only be set from parent asset's &lt;a href="%s"&gt;details screen&lt;/a&gt;&lt;/i&gt;</string>
+	<string source="cannot_make_live_metadata_incomplete">This asset cannot be made live because some mandatory %s fields are empty</string>
 	<string source="asset_type_counts">Asset Type Counts</string>
 	<string source="asset_types">Asset Types</string>
 	<string source="asset_type">Asset Type</string>
