@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.123 2006/12/01 00:23:57 tbarrett Exp $
+* $Id: metadata_manager.inc,v 1.124 2006/12/03 23:18:05 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.123 $
+* @version $Revision: 1.124 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1531,6 +1531,59 @@ class Metadata_Manager extends MySource_Object
 	}//end escapeMetadata()
 
 
-}//end class
+	/**
+	* Return true if the given asset has values for all the 'required' fields in the schemas applied to it
+	*
+	* @param object	&$asset	Asset to check the metadata of
+	*
+	* @return boolean
+	* @access public
+	*/
+	function assetMetadataComplete(&$asset)
+	{
+		$schemas = $this->getSchemas($asset->id);
+		$fields = Array();
+		foreach ($schemas as $schemaid) {
+			$fields += $GLOBALS['SQ_SYSTEM']->am->getChildren($schemaid, 'metadata_field', FALSE);
+		}
+		if (empty($fields)) return TRUE;
 
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$required = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('required', 'metadata_field', array_keys($fields));
+
+		$fieldids_set = Array();
+		foreach ($fields as $fieldid => $type) {
+			if ($required[$fieldid]) {
+				$fieldids_set[] = $db->quote($fieldid);
+			}
+		}
+		$fieldids_set_exp = implode(',', $fieldids_set);
+
+		$sql = 'SELECT assetid as fieldid, default_val
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_dflt_val
+				WHERE assetid IN ('.$fieldids_set_exp.')';
+		$defaults = $db->getAssoc($sql);
+		assert_valid_db_result($defaults);
+
+		$sql = 'SELECT fieldid, value
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val
+				WHERE fieldid IN ('.$fieldids_set_exp.')
+				AND assetid = '.$db->quote($asset->id);
+		$custom_vals = $db->getAssoc($sql);
+		assert_valid_db_result($custom_vals);
+
+		$all_vals = $custom_vals + $defaults; // values for existing keys are not overwritten when combining this way
+
+		foreach ($all_vals as $fieldid => $val) {
+			if (($val === '') || is_null($val)) {
+				return FALSE;
+			}
+		}
+		return TRUE;
+
+	}//end assetMetadataComplete()
+
+
+}//end class
 ?>
