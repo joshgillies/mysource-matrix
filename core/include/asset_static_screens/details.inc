@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.34 2006/12/01 00:22:57 tbarrett Exp $
+* $Id: details.inc,v 1.35 2006/12/03 23:21:29 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 
@@ -150,9 +150,12 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 						if (!empty($running_schemas)) {
 							$o->note(translate('asset_currently_in_workflow', $owner->getBackendHref('workflow')));
 						} else {
-							$available_statii = _paintStatusChange($owner, $o, $prefix);
-							if (!empty($available_statii)) {
-								$print_commit_button = TRUE;
+							_paintStatusChange($owner, $o, $prefix, $statii);
+							$print_commit_button = TRUE;
+							$status = $owner->getStatus();
+							$note = $status->getStatusChangeMessage();
+							if ($note) {
+								$o->note($note);
 							}
 						}
 						if (!is_null($keywords) && isset($keywords['fields']['status_change'])) {
@@ -364,10 +367,8 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 * @return array
 * @access public
 */
-function _paintStatusChange(&$owner, &$o, $prefix)
+function _paintStatusChange(&$owner, &$o, $prefix, $statii)
 {
-	$statii = $owner->getAvailableStatii();
-
 	if (!empty($statii)) {
 		$statii = array_reverse($statii, TRUE);
 		$statii[0] = '';
@@ -377,8 +378,6 @@ function _paintStatusChange(&$owner, &$o, $prefix)
 		check_box($prefix.'_change_status_all_children');
 		label(translate('cascade_status_change'), $prefix.'_change_status_all_children');
 	}
-
-	return $statii;
 
 }//end _paintStatusChange()
 

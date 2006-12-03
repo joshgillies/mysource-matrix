@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status.inc,v 1.19 2006/02/06 04:35:21 lwright Exp $
+* $Id: asset_status.inc,v 1.20 2006/12/03 23:21:29 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Provide a generic framework for status objects
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 class Asset_Status extends MySource_Object
@@ -88,6 +88,19 @@ class Asset_Status extends MySource_Object
 		return Array();
 
 	}//end getAvailableStatii()
+
+
+	/**
+	* Get a message about status change options
+	*
+	* @return string
+	* @access public
+	*/
+	function getStatusChangeMessage()
+	{
+		return NULL;
+
+	}//end getStatusChangeMessage()
 
 
 	/**

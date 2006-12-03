@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.38 2006/08/21 06:41:16 rong Exp $
+* $Id: asset_status_under_construction.inc,v 1.39 2006/12/03 23:21:29 tbarrett Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -103,7 +103,13 @@ class Asset_Status_Under_Construction extends Asset_Status
 			if (empty($schemas)) {
 				// no workflow defined, so any admin can make this live
 				if ($this->owner->adminAccess('')) {
-					$statii[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
+					if (!isset($this->_tmp['metadata_complete'])) {
+						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$this->_tmp['metadata_complete'] = $mm->assetMetadataComplete($this->owner);
+					}
+					if ($this->_tmp['metadata_complete']) {
+						$statii[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
+					}
 				}
 			} else {
 				// so we have workflows, but none of them are running so lets see what will happen
@@ -133,6 +139,26 @@ class Asset_Status_Under_Construction extends Asset_Status
 		return $statii;
 
 	}//end getAvailableStatii()
+
+
+	/**
+	* Get a message about status change options
+	*
+	* @return string
+	* @access public
+	*/
+	function getStatusChangeMessage()
+	{
+		if (!isset($this->_tmp['metadata_complete'])) {
+			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$this->_tmp['metadata_complete'] = $mm->assetMetadataComplete($this->owner);
+		}
+		if (!$this->_tmp['metadata_complete']) {
+			return translate('cannot_make_live_metadata_incomplete', '<a href="'.replace_query_string_vars(Array('asset_ei_screen' => 'metadata')).'">'.strtolower(translate('metadata')).'</a>');
+		}
+		return '';
+
+	}//end getStatusChangeMessage()
 
 
 	/**
