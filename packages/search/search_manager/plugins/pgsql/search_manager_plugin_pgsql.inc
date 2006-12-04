@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.2 2006/10/24 01:34:29 lwright Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.3 2006/12/04 04:01:19 emcdonald Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -38,6 +38,7 @@ class Search_Manager_Plugin_PgSQL
 	* base query ($base_query). Typically this will be (keyword => score) but
 	* this can obviously be changed.
 	*
+	* @param object	&$sm			The search manager
 	* @param string	$search_term	Word to search for
 	* @param array	$data_source	Details of the data source to search in
 	* @param array	$base_query		The base of the sql query to use
@@ -119,10 +120,10 @@ class Search_Manager_Plugin_PgSQL
 	* 'upper' keys. If both are filled, then it is handled as a 'BETWEEN' query.
 	* If one is NULL, then it is handled as a 'greater than' or 'less than'
 	* query, depending on which one is NULL.
-	*
 	* If both are NULL, then no condition is imposed, and it degenerates into
 	* the base query.
 	*
+	* @param object	&$sm			The search manager
 	* @param array	$numeric_range	Range of numbers to search for
 	* @param array	$data_source	Details of the data source to search in
 	* @param array	$base_query		The base of the sql query to use
@@ -197,10 +198,10 @@ class Search_Manager_Plugin_PgSQL
 	* keys. Specifying both will make it a "between" query. Specifying one and
 	* leaving the other as NULL will make it a greater/less than (or equal to)
 	* query.
-	*
 	* If both 'from' and 'to' are NULL, then no condition is imposed, and it
 	* degenerates into the base query.
 	*
+	* @param object	&$sm			The search manager
 	* @param array	$date_range		Range of dates to search for
 	* @param array	$data_source	Details of the data source to search in
 	* @param array	$base_query		The base of the sql query to use
@@ -271,6 +272,7 @@ class Search_Manager_Plugin_PgSQL
 	* This can be used for an include all or exclude search - Search Manager
 	* will likely use it for the latter.
 	*
+	* @param object	&$sm			The search manager
 	* @param string	$search_term	Word to search for
 	* @param array	$base_query		The base of the sql query to use
 	*
@@ -296,7 +298,7 @@ class Search_Manager_Plugin_PgSQL
 
 		return $result;
 
-	}//end processExcludeSearch()
+	}//end processExcludeQuery()
 
 
 	/**
@@ -393,7 +395,7 @@ class Search_Manager_Plugin_PgSQL
 						)';
 			$query['having'][] = 'MIN(p.granted) <> 0';
 			$query['group_by'][] = 'a.assetid';
-		}
+		}//end if
 
 		// STATUS RESTRICTIONS
 		if (!empty($search_info['statuses'])) {
@@ -520,9 +522,13 @@ class Search_Manager_Plugin_PgSQL
 	/**
 	* Returns the indexable content for the specified asset's attributes
 	*
-	* @param string	$contents
+	* @param string	$contents	The contents
+	* @param string	$type_code	The type code
+	* @param string	$data_type	The data type
+	* @param string	$component	The component
+	* @param string	$weighting	The weighting
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function splitIndexableContent($contents, $type_code, $data_type, $component, $weighting)
@@ -562,6 +568,52 @@ class Search_Manager_Plugin_PgSQL
 		return $value;
 
 	}//end handleMultipleMetadataSelect()
+
+
+	/**
+	* Get ids of assets having same words as the supplied asset
+	*
+	* @param string	$source_id	ID of the asset
+	* @param string	$type		type of the asset to restrict the search by
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetidsByWordIntersection($source_id, $type=NULL)
+	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$sql_components['select'][]	= 'DISTINCT target.assetid';
+		$sql_components['from'][] 	= 'sq_sch_idx source INNER JOIN sq_sch_idx target ON target.value = source.value';
+		$sql_components['where'][] 	= 'source.assetid = '.$db->quoteSmart($source_id);
+		$sql_components['where'][] 	= 'target.assetid <> '.$db->quoteSmart($source_id);
+
+		if (!empty($type)) {
+			$sql_components['where'][] = 'target.type_code = '.$db->quoteSmart($type);
+		}
+
+		$sql = implode_sql($sql_components);
+		$result = $db->getCol($sql);
+		assert_valid_db_result($result);
+
+		return $result;
+
+	}//end getAssetidsByWordIntersection()
+
+
+	/**
+	* Get the maximum size of a search index field
+	*
+	* @return int
+	* @access public
+	*/
+	function getMaxWordLength()
+	{
+		return 255;
+
+	}//end getMaxWordLength()
 
 
 }//end class
