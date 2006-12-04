@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_suggestion.php,v 1.4 2006/12/01 04:26:29 lwright Exp $
+* $Id: tag_suggestion.php,v 1.5 2006/12/04 04:16:06 emcdonald Exp $
 *
 */
 	define('SQ_SYSTEM_ROOT', dirname(dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME'])))));
@@ -52,17 +52,13 @@ if (empty($sm)) {
 	$keyword_names = Array();
 	$current_tag_ids = Array();
 	$quoted_keyword_ids = Array();
-	$keywords = $sm->getAssetidsByWordIntersection($asset->id, 'thesaurus_term');
+	$keyword_ids = $sm->getAssetidsByWordIntersection($asset->id, 'thesaurus_term');
 
 	$tm = $GLOBALS['SQ_SYSTEM']->getTagManager();
 	$current_tag_links = $tm->getTagLinks($asset->id);
 
 	foreach ($current_tag_links as $key => $current_tag_link) {
 		$current_tag_ids[] = $current_tag_link['minorid'];
-	}
-
-	foreach ($keywords as $keyword) {
-		$keyword_ids[] = $keyword['assetid'];
 	}
 
 	$keyword_ids = array_values(array_diff($keyword_ids, $current_tag_ids));
