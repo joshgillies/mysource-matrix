@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.php,v 1.12 2006/11/23 01:03:41 lwright Exp $
+* $Id: html_tidy.php,v 1.13 2006/12/04 05:40:32 bcaldwell Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 
@@ -174,7 +174,7 @@ if (!isset($_GET['name']))		  $_GET['name'] = '';
 									<td>Selected text only?
 										<select id="rep_type0" name="rep_type0">
 											<option value="1">Yes</option>
-											<option value="0">No</option>
+											<option value="0" selected="selected">No</option>
 										</select>
 								</tr>
 								<tr>
