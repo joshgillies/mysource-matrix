@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: indent_list_to_xml.php,v 1.1.4.1 2006/11/29 05:54:20 arailean Exp $
+* $Id: indent_list_to_xml.php,v 1.1.4.2 2006/12/04 03:52:46 bcaldwell Exp $
 *
 * Script to form valid thesaurus XML from a tab-indented text file like this:
 *
@@ -35,7 +35,7 @@
 *		400MHz Pentiun 2
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1.4.1 $
+* @version $Revision: 1.1.4.2 $
 * @package MySource_Matrix
 * @subpackage __core__
 */
@@ -111,7 +111,7 @@ function print_array_xml_r($res, $indent='')
 		echo '(empty)';
 	} else {
 		foreach ($res as $item => $kids) {
-			echo $indent.'<term name="'.trim($item).'">';
+			echo $indent.'<term name="'.htmlspecialchars(trim($item)).'">';
 			if (!empty($kids)) {
 				echo "\n";
 				echo $indent."\t".'<relation name="Category">'."\n";
