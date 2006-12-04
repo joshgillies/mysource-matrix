@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.34 2006/12/04 03:00:33 tbarrett Exp $
+* $Id: asset_status_editing.inc,v 1.35 2006/12/04 03:24:54 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -134,6 +134,23 @@ class Asset_Status_Editing extends Asset_Status
 		return $statii;
 
 	}//end getAvailableStatii()
+
+
+	/**
+	* Get a message about status change options
+	*
+	* @return string
+	* @access public
+	*/
+	function getStatusChangeMessage()
+	{
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		if ($mm->allowsMetadata($this->owner->id) && !$mm->requiredFieldsComplete($this->owner->id)) {
+			return translate('cannot_approve_metadata_incomplete', '<a href="'.replace_query_string_vars(Array('asset_ei_screen' => 'metadata')).'">'.strtolower(translate('metadata')).'</a>');
+		}
+		return '';
+
+	}//end getStatusChangeMessage()
 
 
 	/**
