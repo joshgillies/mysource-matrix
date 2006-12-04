@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.97 2006/11/29 04:10:10 lwright Exp $
+* $Id: workflow_manager.inc,v 1.98 2006/12/04 03:42:36 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -625,6 +625,7 @@ class Workflow_Manager extends MySource_Object
 		if (!isset($workflow['steps'])) return Array();
 
 		$step_data =& $this->getCurrentStep($workflow);
+		if (empty($step_data)) return Array();
 
 		for (reset($step_data['conditions']);
 				NULL !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
