@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.44 2006/12/04 00:23:39 tbarrett Exp $
+* $Id: workflow.inc,v 1.45 2006/12/04 03:25:08 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 */
 
@@ -593,7 +593,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 						if ($mm->allowsMetadata($owner->id)) {
 							$m_complete = $mm->requiredFieldsComplete($owner->id);
 							if (!$m_complete) {
-								$o->openField('<span class="sq-backend-warning"><b>'.strtolower(translate('warning')).'</b></span>');
+								$o->openField('<span class="sq-backend-warning"><b>'.ucfirst(strtolower(translate('warning'))).'</b></span>');
 									if (!is_null($keywords) && isset($keywords['fields']['workflow_metadata_warning'])) {
 										ob_start();
 									}
