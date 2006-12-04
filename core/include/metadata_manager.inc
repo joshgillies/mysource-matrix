@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.125 2006/12/04 00:19:41 tbarrett Exp $
+* $Id: metadata_manager.inc,v 1.126 2006/12/04 01:37:54 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.125 $
+* @version $Revision: 1.126 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -85,7 +85,7 @@ class Metadata_Manager extends MySource_Object
 
 
 	/**
-	* Check if all required fields have been completed for an asset
+	* Check if metadata can be set on an asset
 	*
 	* @param string	$assetid	the ID of the asset to check
 	*
