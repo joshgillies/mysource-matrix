@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.30 2006/09/27 23:14:50 gsherwood Exp $
+* $Id: system_config_edit_interface.inc,v 1.31 2006/12/04 00:37:17 bcaldwell Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -93,15 +93,15 @@ class System_Config_Edit_Interface extends MySource_Object
 		$current_location = $o->getCurrentLocation();
 		list($current_loc_base, $current_loc_query) = explode('?', $current_location);
 		$config_screens = Array(
-							'system_config'				=> translate('system_configuration'),
-							'squiz_server_config'		=> translate('squiz_server_configuration'),
-							'apache_config'				=> 'Apache Configuration',
-							'hipo_config'				=> translate('hipo_configuration'),
-							'external_tools_config'		=> translate('external_tools_configuration'),
-							'user_prefs'				=> translate('global_preferences'),
-							'password_rules_config'		=> translate('password_rules_configuration'),
-							'messaging_service_config'	=> translate('messaging_service_configuration'),
-							'proxy_authentication_config'	=> 'Proxy Authentication Configuration',
+							'system_config'					=> translate('system_configuration'),
+							'squiz_server_config'			=> translate('squiz_server_configuration'),
+							'apache_config'					=> translate('apache_configuration'),
+							'hipo_config'					=> translate('hipo_configuration'),
+							'external_tools_config'			=> translate('external_tools_configuration'),
+							'user_prefs'					=> translate('global_preferences'),
+							'password_rules_config'			=> translate('password_rules_configuration'),
+							'messaging_service_config'		=> translate('messaging_service_configuration'),
+							'proxy_authentication_config'	=> translate('proxy_configuration'),
 						  );
 
 		foreach ($config_screens as $screen_code => $screen_name) {
@@ -227,9 +227,9 @@ class System_Config_Edit_Interface extends MySource_Object
 						$expires_in = easy_time_total(($lock['expires'] - $now), true);
 						if (!$expires_in) $expires_in = '1 second';
 						$expires_in = translate('due_to_expire', $expires_in);
-						echo translate('release_lock', translate('release_lock_button'), translate('user_preferences')); 
+						echo translate('release_lock', translate('release_lock_button'), translate('user_preferences'));
 						echo '<br />';
-						echo $expires_in; 
+						echo $expires_in;
 
 					} else {
 						echo translate('acquire_lock', translate('acquire_lock_button'), translate('user_preferences'));

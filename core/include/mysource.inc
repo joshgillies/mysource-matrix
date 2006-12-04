@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.199 2006/11/27 11:14:18 gnoel Exp $
+* $Id: mysource.inc,v 1.200 2006/12/04 00:37:17 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.199 $
+* @version $Revision: 1.200 $
 * @package MySource_Matrix
 */
 class MySource
@@ -223,6 +223,19 @@ class MySource
 		if (!SQ_PHP_CLI && $GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
 			// we are accessing from the web, and the security subsystem is enabled in this run level,
 			// so we use cookies for security
+
+			$proxy_conf_file = SQ_DATA_PATH.'/private/conf/proxy_authentication.inc';
+			if (file_exists($proxy_conf_file)) {
+				// proxy configuration exists, let's see if we need to do anything
+				require_once($proxy_conf_file);
+
+				$url_parts = parse_url($_SERVER['HTTP_HOST']);
+				if (SQ_PROXY_URL_PORT_STRIP && isset($url_parts['port'])) {
+					unset($url_parts['port']);
+				}
+				$_SERVER['HTTP_HOST'] = implode('', $url_parts);
+			}
+
 
 			$domain = strip_url(sq_web_path('root_url'), TRUE);
 			$pos = strpos($domain, '/');

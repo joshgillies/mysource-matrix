@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: proxy_authentication_config.inc,v 1.2 2006/04/18 04:58:11 emcdonald Exp $
+* $Id: proxy_authentication_config.inc,v 1.3 2006/12/04 00:37:17 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Proxy_Authentication_Config extends Config
@@ -45,11 +45,12 @@ class Proxy_Authentication_Config extends Config
 	* @var array
 	*/
 	var $config_vars = Array(
-						'SQ_PA_ENABLED'		=> Array('editable' => 1, 'default' => FALSE),
-						'SQ_PA_HOSTNAME'	=> Array('editable' => 1, 'default' => ''),
-						'SQ_PA_PORT'		=> Array('editable' => 1, 'default' => ''),
-						'SQ_PA_USERNAME'	=> Array('editable' => 1, 'default' => ''),
-						'SQ_PA_PASSWORD'	=> Array('editable' => 1, 'default' => ''),
+						'SQ_PA_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_PA_HOSTNAME'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_PA_PORT'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_PA_USERNAME'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_PA_PASSWORD'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_PROXY_URL_PORT_STRIP'	=> Array('editable' => 1, 'default' => FALSE),
 					   );
 
 
@@ -138,6 +139,19 @@ class Proxy_Authentication_Config extends Config
 					echo translate('password_not_shown');
 				}
 			}
+			$o->closeField();
+
+		$o->closeSection();
+
+		$o->openSection(translate('proxy_url_manipulation'));
+
+			$o->openField(translate('proxy_url_strip_port'));
+			if ($write_access) {
+				combo_box($class.'[SQ_PROXY_URL_PORT_STRIP]', Array(translate('no'), translate('yes')), FALSE, SQ_PROXY_URL_PORT_STRIP);
+			} else {
+				echo (SQ_PROXY_URL_PORT_STRIP ? translate('yes') : translate('no'));
+			}
+			$o->note(translate('proxy_url_strip_port_note'));
 			$o->closeField();
 
 		$o->closeSection();
