@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.5 2006/12/04 04:07:57 emcdonald Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.6 2006/12/04 04:40:00 emcdonald Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -38,6 +38,7 @@ class Search_Manager_Plugin_OCI8
 	* base query ($base_query). Typically this will be (keyword => score) but
 	* this can obviously be changed.
 	*
+	* @param string	&$sm			The search manager
 	* @param string	$search_term	Word to search for
 	* @param array	$data_source	Details of the data source to search in
 	* @param array	$base_query		The base of the sql query to use
@@ -59,7 +60,7 @@ class Search_Manager_Plugin_OCI8
 			break;
 
 			case 'asset_attrib':
-				$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
+				$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 				$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attribute->name);
 
 				$contains_str = $this->_buildContainsQuery('ai.value', $search_term);
@@ -68,7 +69,7 @@ class Search_Manager_Plugin_OCI8
 			break;
 
 			case 'metadata':
-				$metadata_field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
+				$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 				$key_types = Array(
 								'metadata_field_select'		=> 'selection',
 								'metadata_field_thesaurus'	=> 'thesaurus',
@@ -78,7 +79,7 @@ class Search_Manager_Plugin_OCI8
 				$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$data_source['params']['assetid']);
 
 				if (get_class($metadata_field) == 'metadata_field_select' && $metadata_field->attr('multiple')) {
-					if (strpos($search_term,' AND ') !== false) {
+					if (strpos($search_term,' AND ') !== FALSE) {
 						$split = ' AND ';
 						$split_type = '&';
 					} else {
@@ -115,7 +116,7 @@ class Search_Manager_Plugin_OCI8
 				}
 			break;
 
-		}
+		}//end switch
 		$sql = implode_sql($base_query);
 		if (count($base_query['select']) > 2) {
 			$result = $db->getAll($sql);
@@ -137,10 +138,10 @@ class Search_Manager_Plugin_OCI8
 	* 'upper' keys. If both are filled, then it is handled as a 'BETWEEN' query.
 	* If one is NULL, then it is handled as a 'greater than' or 'less than'
 	* query, depending on which one is NULL.
-	*
 	* If both are NULL, then no condition is imposed, and it degenerates into
 	* the base query.
 	*
+	* @param string	&$sm			The search manager
 	* @param array	$numeric_range	Range of numbers to search for
 	* @param array	$data_source	Details of the data source to search in
 	* @param array	$base_query		The base of the sql query to use
@@ -215,10 +216,10 @@ class Search_Manager_Plugin_OCI8
 	* keys. Specifying both will make it a "between" query. Specifying one and
 	* leaving the other as NULL will make it a greater/less than (or equal to)
 	* query.
-	*
 	* If both 'from' and 'to' are NULL, then no condition is imposed, and it
 	* degenerates into the base query.
 	*
+	* @param string	&$sm			The search manager
 	* @param array	$date_range		Range of dates to search for
 	* @param array	$data_source	Details of the data source to search in
 	* @param array	$base_query		The base of the sql query to use
@@ -234,12 +235,12 @@ class Search_Manager_Plugin_OCI8
 
 			case 'asset_attrib':
 				// TODO: restrict by asset type here?
-				$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
+				$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 				$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attribute->name);
 			break;
 
 			case 'metadata':
-				$metadata_field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($attr_info['params']['assetid']);
+				$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($attr_info['params']['assetid']);
 				$key_types = Array(
 								'metadata_field_select'		=> 'selection',
 								'metadata_field_thesaurus'	=> 'thesaurus',
@@ -285,6 +286,7 @@ class Search_Manager_Plugin_OCI8
 	* This can be used for an include all or exclude search - Search Manager
 	* will likely use it for the latter.
 	*
+	* @param string	&$sm			The search manager
 	* @param string	$search_term	Word to search for
 	* @param array	$base_query		The base of the sql query to use
 	*
@@ -317,7 +319,7 @@ class Search_Manager_Plugin_OCI8
 
 		return $result;
 
-	}//end processExcludeSearch()
+	}//end processExcludeQuery()
 
 
 	/**
@@ -383,14 +385,14 @@ class Search_Manager_Plugin_OCI8
 				$sql .= '('.implode(' OR ', $treeids_where).')';
 				$query['where'][] = $sql.')';
 			}
-		}
+		}//end if !empty($search_info['roots']
 
 		// ACCESS RESTRICTIONS
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if ($user_restrictions) {
 			$query['from'][] = 'sq_ast_perm ap';
 			$query['where'][] = 'a.assetid = ap.assetid';
-			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 			array_push($userids, $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'), $GLOBALS['SQ_SYSTEM']->user->id);
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 				$userids[$i] = $db->quote($userids[$i]);
@@ -451,9 +453,9 @@ class Search_Manager_Plugin_OCI8
 	* If it is FALSE, the array is of (keyword) without any particular key
 	*
 	* @param object		&$asset				The asset whose keywords are to be extracted
-	* @param boolean	$include_metadata	If false, metadata components are excluded
+	* @param boolean	$include_metadata	If FALSE, metadata components are excluded
 	* @param boolean	$include_scores		Determines whether scores are returned
-	*										(true) or just the keywords (false)
+	*										(TRUE) or just the keywords (FALSE)
 	*
 	* @return array
 	* @access public
@@ -479,7 +481,7 @@ class Search_Manager_Plugin_OCI8
 		// TODO: change it so the words are split up
 		$word_scores = Array();
 
-		foreach($result as $result_item) {
+		foreach ($result as $result_item) {
 			$word_string = strtolower($result_item['value']);
 			if ($result_item['type'] == 'text') {
 				$words = preg_split('|\s+|', $word_string);
@@ -487,10 +489,12 @@ class Search_Manager_Plugin_OCI8
 				$words = Array($word_string);
 			}
 			$words = array_count_values($words);
-			foreach($words as $word => $score) {
+			foreach ($words as $word => $score) {
 				$word = trim($word);
 				if ($sm->isWordIndexable($word)) {
-					if (!isset($word_scores[$word])) $word_scores[$word] = 0;
+					if (!isset($word_scores[$word])) {
+						$word_scores[$word] = 0;
+					}
 					$word_scores[$word] += $score * $result_item['score'];
 				}
 			}
@@ -533,9 +537,13 @@ class Search_Manager_Plugin_OCI8
 	* attribute content is indexed as a whole, rather than being broken up into
 	* separate words.
 	*
-	* @param string	$index_content
+	* @param string	$contents	The contents
+	* @param string	$type_code	The type code
+	* @param string	$data_type	The data type
+	* @param string	$component	The component
+	* @param string	$weighting	The weighting
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function splitIndexableContent($contents, $type_code, $data_type, $component, $weighting)
@@ -543,12 +551,12 @@ class Search_Manager_Plugin_OCI8
 		$index_content = Array();
 
 		$index_content[] = Array(
-								'value'		=> $contents,
-								'type_code'	=> $type_code,
-								'type'		=> $data_type,
-								'component'	=> $component,
-								'score'		=> $weighting,
-							   );
+							'value'		=> $contents,
+							'type_code'	=> $type_code,
+							'type'		=> $data_type,
+							'component'	=> $component,
+							'score'		=> $weighting,
+						   );
 
 		return $index_content;
 
@@ -578,6 +586,7 @@ class Search_Manager_Plugin_OCI8
 
 	}//end handleMultipleMetadataSelect()
 
+
 	//--        ORACLE TEXT EXTENSION FUNCTIONS        --//
 
 
@@ -585,15 +594,17 @@ class Search_Manager_Plugin_OCI8
 	* Parses the brackets found within the terms to ensure
 	* that all opening brackets have a closing bracket.
 	*
-	* @param &$string $terms the terms
+	* returns TRUE if a reparse is required
 	*
-	* @return boolean TRUE if a reparse is required
+	* @param string	&$terms	the terms
+	*
+	* @return boolean
 	* @access private
 	*/
 	function _parseBrackets(&$terms)
 	{
-		if ($terms == '') return false;
-		$reparse = false;
+		if ($terms == '') return FALSE;
+		$reparse = FALSE;
 		$prev_terms = $terms;
 
 		$open_brackets  = 0;
@@ -623,11 +634,11 @@ class Search_Manager_Plugin_OCI8
 		if ($close_brackets != $open_brackets) {
 			if ($close_brackets > 0) {
 				$terms = str_repeat('(', $close_brackets).$terms;
-				$reparse = true;
+				$reparse = TRUE;
 			}
 			if ($open_brackets > 0) {
 				$terms = $terms.str_repeat(')', $open_brackets);
-				$reparse = true;
+				$reparse = TRUE;
 			}
 		} else if ($close_brackets > 0) {
 			$terms = '('.$terms.')';
@@ -647,9 +658,11 @@ class Search_Manager_Plugin_OCI8
 	* Parses the operators to ensure they are in valid locations
 	* and applied on valid operands
 	*
-	* @param &string $terms the terms
+	* returns TRUE if a reparse is required
 	*
-	* @return boolean TRUE if a reparse is required
+	* @param string	&$terms	the terms
+	*
+	* @return boolean
 	* @access private
 	*/
 	function _parseOperators(&$terms)
@@ -663,14 +676,14 @@ class Search_Manager_Plugin_OCI8
 		// and the next foreach iteration may have passed the new set of operators
 		// next to eachother
 
-		$pattern_found = true;
+		$pattern_found = TRUE;
 		while ($pattern_found) {
-			$pattern_found = false;
+			$pattern_found = FALSE;
 			foreach ($operators as $op1) {
 				foreach ($operators as $op2) {
 					$prev_terms = $terms;
 					$terms = preg_replace('/(\\'.$op1.')(\\'.$op2.')/', '\\2', $terms);
-					if ($prev_terms != $terms) $pattern_found = true;
+					if ($prev_terms != $terms) $pattern_found = TRUE;
 				}
 			}
 		}
@@ -682,14 +695,14 @@ class Search_Manager_Plugin_OCI8
 							'/(\()%(.+)/',
 							'/(.+)%(\))/',
 							'/^%$/',
-						  );
+						   );
 
 		// strip out any operators that are in the wrong place
 		foreach ($operators as $op) {
 			foreach ($bad_op_patterns as $patt) {
 				$patt = str_replace('%', '\\'.$op, $patt);
 				$terms = preg_replace($patt, '\1\2\3', $terms);
-				if ($prev_terms != $terms) $pattern_found = true;
+				if ($prev_terms != $terms) $pattern_found = TRUE;
 			}
 		}
 
@@ -702,30 +715,32 @@ class Search_Manager_Plugin_OCI8
 	* Parses the terms to ensure the are in valid locations
 	* and have the valid operators between them
 	*
-	* @param &$string $terms the terms
+	* returns TRUE if a reparse is required
 	*
-	* @return boolean TRUE if a reparse is required
+	* @param string	&$terms	the terms
+	*
+	* @return boolean
 	* @access private
 	*/
 	function _parseTerms(&$terms)
 	{
 		$prev_terms = $terms;
 		// 1	replace all space seperated words and phrases so that they are 'and'ed together
-		//		so that oracle does not perform an exact phrase match on them
+		// 		so that oracle does not perform an exact phrase match on them
 		// 2	make sure that there are operators between brackets, if not add the & operator
 		// 3	all words next to brackets need an operator between them
 		// 4	all phrases next to brackets need an operator between them
 		// 5	all phrases and words need an operator between them
 		$replacements = Array(
-							'/(#)+(#)+/U'					=> '\1&\2',		// 1
-							'/(@)+(@)+/U'					=> '\1&\2',		// 1
-							'/(\)+)([^\&\|\~\@\#])*(\()/U'	=> '\1&\3',		// 2
-							'/(\))(#)/'						=> '\1&\2',		// 3
-							'/(#)(\()/'						=> '\1&\2',		// 3
-							'/(\))(@)/'						=> '\1&\2',		// 4
-							'/(@)(\()/'						=> '\1&\2',		// 4
-							'/(#)(@)/'						=> '\1&\2',		// 5
-							'/(@)(#)/'						=> '\1&\2',		// 5
+							'/(#)+(#)+/U'					=> '\1&\2',	// 1
+							'/(@)+(@)+/U'					=> '\1&\2',	// 1
+							'/(\)+)([^\&\|\~\@\#])*(\()/U'	=> '\1&\3',	// 2
+							'/(\))(#)/'						=> '\1&\2',	// 3
+							'/(#)(\()/'						=> '\1&\2',	// 3
+							'/(\))(@)/'						=> '\1&\2',	// 4
+							'/(@)(\()/'						=> '\1&\2',	// 4
+							'/(#)(@)/'						=> '\1&\2',	// 5
+							'/(@)(#)/'						=> '\1&\2',	// 5
 						);
 		$terms = preg_replace(array_keys($replacements), $replacements, $terms);
 
@@ -741,26 +756,26 @@ class Search_Manager_Plugin_OCI8
 	* @param string		$terms	the terms
 	* @param boolean	$clear	if TRUE the operators are replaced with space
 	*
-	* @return string the replaced terms
+	* @return string
 	* @access private
 	*/
-	function _replaceOperators($terms, $clear=false)
+	function _replaceOperators($terms, $clear=FALSE)
 	{
 		$ops = Array(
-			'and'	=> '&',
-			'not'	=> '~',
-			'or'	=> '|',
-		);
+				'and'	=> '&',
+				'not'	=> '~',
+				'or'	=> '|',
+			   );
 
 		$sym = ($clear) ? ' ' : '!';
 
 		$pats = Array(
-			'/(\W+)%(\W+)/'		=> '\1'.$sym.'\2',
-			'/(\W+)%(\W+)/U'	=> '\1'.$sym.'\2',
-			'/^%(\W+)/U'		=> $sym.'\1',
-			'/(\W+)%$/U'		=> '\1'.$sym.'\2',
-			'/^%$/'				=> $sym,
-		);
+					'/(\W+)%(\W+)/'		=> '\1'.$sym.'\2',
+					'/(\W+)%(\W+)/U'	=> '\1'.$sym.'\2',
+					'/^%(\W+)/U'		=> $sym.'\1',
+					'/(\W+)%$/U'		=> '\1'.$sym.'\2',
+					'/^%$/'				=> $sym,
+				);
 
 		foreach ($ops as $op => $sym) {
 			foreach ($pats as $pat => $rep) {
@@ -777,15 +792,16 @@ class Search_Manager_Plugin_OCI8
 	/**
 	* Returns the words contained within the terms string.
 	*
-	* @param &string	$terms				the terms string
+	* @param string		&$terms				the terms string
 	* @param boolean	$remove_stop_words	if TRUE stop words will be removed from the terms string
 	* @param boolean	$return_stop_words	if TRUE stop words will be returned in the list
 	* @param boolean	$replace			if TRUE the words will be replaced with a #
 	*										for building generalization strings
 	*
-	* @return Array() the words
+	* @return array
+	* @access private
 	*/
-	function _getWords(&$terms, $remove_stop_words=false, $return_stop_words=false, $replace=false)
+	function _getWords(&$terms, $remove_stop_words=FALSE, $return_stop_words=FALSE, $replace=FALSE)
 	{
 		// replace all words with #
 		if (preg_match_all('/(\w+)/', $terms, $words)) {
@@ -827,11 +843,12 @@ class Search_Manager_Plugin_OCI8
 	* limit) and will switch to LIKE instead. This is lot slower than the text
 	* package function but avoids the possible truncation.
 	*
-	* @param string		$column		the column with the ctx_context index
-	* @param string 	$terms		the terms from the text box (unquoted)
-	* @param string 	$score		the score to use in the score() function
+	* @param string	$column	the column with the ctx_context index
+	* @param string	$terms	the terms from the text box (unquoted)
+	* @param string	$score	the score to use in the score() function
+	* @param string	$exact	whether to require an exact match
 	*
-	* @return mixed the sql or false if there is nothing to search on
+	* @return mixed string|boolean
 	* @access private
 	*/
 	function _buildContainsQuery($column, $terms, $score=1, $exact=FALSE)
@@ -875,14 +892,14 @@ class Search_Manager_Plugin_OCI8
 
 		// get the words from the terms string and replace them
 		// with #, and remove non-indexable words
-		$words = $this->_getWords($terms, true, false, true);
+		$words = $this->_getWords($terms, TRUE, FALSE, TRUE);
 
 		// remove spaces
 		$terms = preg_replace('/\s+/', '', $terms);
 
-		$reparse = true;
+		$reparse = TRUE;
 		while ($reparse) {
-			$reparse = false;
+			$reparse = FALSE;
 			$reparse |= $this->_parseBrackets($terms);
 			$reparse |= $this->_parseOperators($terms);
 			$reparse |= $this->_parseTerms($terms);
@@ -906,7 +923,7 @@ class Search_Manager_Plugin_OCI8
 		// were broken apart and now have joined to create
 		// a valid operator, so remove them.
 		// eg an\d could become and after bad character removal
-		$terms = $this->_replaceOperators($terms, true);
+		$terms = $this->_replaceOperators($terms, TRUE);
 
 		// re-replace the phrase matching terms
 		foreach ($good_phrases as $phrase) {
@@ -914,15 +931,15 @@ class Search_Manager_Plugin_OCI8
 		}
 
 		// if there is nothing to search on
-		if (!preg_match('/\w+/', str_replace('_', '', $terms))) return false;
-		if (trim($terms) == '') return false;
-
-		$multiple = false;
-		if (strpos($terms, '|') !== false) {
-			$multiple = true;
+		if (!preg_match('/\w+/', str_replace('_', '', $terms))) {
+			return FALSE;
 		}
+		if (trim($terms) == '') return FALSE;
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$multiple = FALSE;
+		if (strpos($terms, '|') !== FALSE) 	$multiple = TRUE;
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		if ($use_contains) {
 			$sql = 'contains('.$column.', '.$db->quoteSmart(trim($terms)).', '.$score.') > 0';
@@ -946,7 +963,8 @@ class Search_Manager_Plugin_OCI8
 	* @param string	$date2		the right date operand
 	* @param string	$operator	the operator to perform the comparison with
 	*
-	* @return string the sql
+	* @return string
+	* @access private
 	*/
 	function _getDateCompareWithClobSql($date1, $date2, $operator='=')
 	{
