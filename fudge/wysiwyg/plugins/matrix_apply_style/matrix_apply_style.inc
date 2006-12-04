@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.15 2006/08/18 00:34:10 tbarrett Exp $
+* $Id: matrix_apply_style.inc,v 1.16 2006/12/04 05:35:12 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to apply a style from the effective design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -334,8 +334,6 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 
 				}//end if inside a single text node
 
-
-				// Gather some general info
 				var effectiveStartElt = range.startContainer;
 				if ((effectiveStartElt.nodeType == 3)) {
 					effectiveStartElt = effectiveStartElt.parentNode;
@@ -343,6 +341,13 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 				var effectiveEndElt = range.endContainer;
 				if ((effectiveEndElt.nodeType == 3)) {
 					effectiveEndElt = effectiveEndElt.parentNode;
+				}
+
+				if (range.startContainer == range.endContainer) {
+					if ((range.startOffset != 0) || (range.endOffset != range.childNodes.length)) {
+						effectiveStartElt = range.startContainer.childNodes.item(range.startOffset);
+						effectiveEndElt = range.startContainer.childNodes.item(range.endOffset);
+					}
 				}
 
 				var ancestor = range.commonAncestorContainer;
@@ -358,7 +363,7 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 					}
 				}
 
-				if ((effectiveStartElt == effectiveStartElt.parentNode.firstChild) && (effectiveEndElt == effectiveStartElt.parentNode.lastChild)) {
+				if ((effectiveStartElt == effectiveStartElt.parentNode.firstChild) && (effectiveEndElt == effectiveStartElt.parentNode.lastChild) && (range.startOffset == 0) && (range.endOffset == 0)) {
 					// the selection equals all of the parent container, so just apply there
 					effectiveStartElt.parentNode.className = value;
 					break;
@@ -385,17 +390,12 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 							range.startContainer.data = range.startContainer.data.substring(0, range.startOffset);
 						}
 					} else {
-						if (range.startOffset == 0) {
-							effectiveStartElt.className = value;
-						} else {
-							// treat child nodes individually
-							// CODE ME
-						}
+						effectiveStartElt.className = value;
 					}
 
 					// Do the in-between containers
 					var tempElt = effectiveStartElt.nextSibling;
-					while (tempElt != effectiveEndElt) {
+					while ((tempElt != null) && (tempElt != effectiveEndElt)) {
 						if (tempElt.nodeType == 3) {
 							// surround it with a span
 							var newSpan = document.createElement('SPAN');
@@ -422,12 +422,7 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 							range.endContainer.data = range.endContainer.data.substring(range.endOffset);
 						}
 					} else {
-						if (range.endOffset >= range.endContainer.childNodes.length-1) {
-							effectiveEndElt.className == value;
-						} else {
-							// treat the child nodes individually
-							// CODE ME
-						}
+						effectiveEndElt.className == value;
 					}
 					break;
 
