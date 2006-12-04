@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.128 2006/11/16 00:27:57 bcaldwell Exp $
+* $Id: search_manager.inc,v 1.129 2006/12/04 04:14:03 emcdonald Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -301,9 +301,7 @@ class Search_Manager extends Asset
 		}
 
 		// check that we want to index this asset first
-		if (!$this->isAssetIndexable($asset->id)) {
-			return;
-		}
+		if (!$this->isAssetIndexable($asset->id)) return;
 
 		$index_content = $this->getIndexableAssetContent($asset, $vars);
 		$this->addIndexableContent($asset->id, $index_content);
@@ -346,9 +344,7 @@ class Search_Manager extends Asset
 		}
 
 		// check that we want to index this asset first
-		if (!$this->isAssetIndexable($asset->id)) {
-			return;
-		}
+		if (!$this->isAssetIndexable($asset->id)) return;
 
 		$index_content = $this->getIndexableAttributeContent($asset, $vars);
 		$this->addIndexableContent($asset->id, $index_content);
@@ -535,7 +531,9 @@ class Search_Manager extends Asset
 			}
 
 			// don't index passwords or serialise attributes
-			if ($var_data['type'] == 'password' || $var_data['type'] == 'serialise') continue;
+			if ($var_data['type'] == 'password' || $var_data['type'] == 'serialise') {
+				continue;
+			}
 
 			$attribute =& $asset->getAttribute($var_name);
 			$value = strtolower($attribute->getContent());
@@ -784,24 +782,8 @@ class Search_Manager extends Asset
 	*/
 	function getAssetidsByWordIntersection($source_id, $type=NULL)
 	{
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-		$sql_components['select'][]	= 'DISTINCT target.assetid';
-		$sql_components['select'][]	= 'target.type_code';
-		$sql_components['from'][] 	= 'sq_sch_idx source INNER JOIN sq_sch_idx target ON target.value = source.value';
-		$sql_components['where'][] 	= 'source.assetid = '.$db->quoteSmart($source_id);
-		$sql_components['where'][] 	= 'target.assetid <> '.$db->quoteSmart($source_id);
-
-		if (!empty($type)) {
-			$sql_components['where'][] = 'target.type_code = '.$db->quoteSmart($type);
-		}
-
-		$sql = implode_sql($sql_components);
-
-		$result = $db->getAll($sql);
-		assert_valid_db_result($result);
+		$plugin =& $this->_getDBPlugin();
+		$result = $plugin->getAssetidsByWordIntersection($source_id, $type);
 
 		return $result;
 
@@ -931,9 +913,13 @@ class Search_Manager extends Asset
 	*/
 	function isWordIndexable($word)
 	{
+		$plugin =& $this->_getDBPlugin();
+
 		// Make sure db constraints aren't breached
-		$max_length = 255;
-		if (strlen($word) > $max_length) return FALSE;
+		$max_length = $plugin->getMaxWordLength();
+		if (($max_length > 0) && (strlen($word) > $max_length)) {
+			return FALSE;
+		}
 
 		$min_length = $this->attr('min_word_length');
 		return $this->isWhiteWord($word) || (strlen($word) >= $min_length && !$this->isNoiseWord($word));
@@ -1052,9 +1038,7 @@ class Search_Manager extends Asset
 			$this->flushIndexableContent($assetid, $flush_fieldids);
 		}
 
-		if (!$this->isAssetIndexable($assetid)) {
-			return;
-		}
+		if (!$this->isAssetIndexable($assetid)) return;
 
 		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
@@ -1147,7 +1131,7 @@ class Search_Manager extends Asset
 										'score'		=> $count * $weighting,
 									   );
 				}
-			}//end if metadata_date
+			}//end else
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($field);
 			unset($field);
@@ -1167,7 +1151,6 @@ class Search_Manager extends Asset
 	*
 	* The Following presedence rules are followed in order when finding the weightings for
 	* a particular asset:
-	*
 	* <ul>
 	*  <li> Any explicit weightings for the asset id are checked </li>
 	*  <li> Any weightings for a tree in which the asset resides are checked</li>
@@ -1237,7 +1220,6 @@ class Search_Manager extends Asset
 	*
 	* The following presedence rules are followed in order when finding the weightings for
 	* a particular asset:
-	*
 	* <ul>
 	*  <li> Any explicit weightings for the asset id are checked </li>
 	*  <li> Any weightings for a tree in which the asset resides are checked </li>
@@ -1684,7 +1666,7 @@ class Search_Manager extends Asset
 	* </PRE>
 	* This array will be in the 'data' section of the log entry (to be accessed via the log manager)
 	*
-	* @param array		$search_info	an array of search settings in the form
+	* @param array	$search_info	an array of search settings in the form
 	* <pre>
 	* 'requester'	=> ID of asset that requested the search
 	* 'asset_types'	=> Array of type code => whether to inherit
@@ -1995,7 +1977,9 @@ class Search_Manager extends Asset
 			$field_details['words'] = $this->_getRawNumberInText($field_details['words']);
 
 			foreach ($this->generateWordList($field_details['words']) as $word) {
-				if ($this->isWordIndexable($word)) $words[] = strtolower($word);
+				if ($this->isWordIndexable($word)) {
+					$words[] = strtolower($word);
+				}
 			}
 			$field_details['words'] = $words;
 		}
@@ -2431,7 +2415,7 @@ class Search_Manager extends Asset
 						)';
 			$query['having'][] = 'MIN(p.granted) <> 0';
 			$query['group_by'][] = 'a.assetid';
-		}
+		}//end if
 
 		// STATUS RESTRICTIONS
 		if (!empty($search_info['statuses'])) {
@@ -2704,7 +2688,7 @@ class Search_Manager extends Asset
 						$asset_contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
 
 						foreach ($asset_contents as $contents_id => $contents_value) {
-							if (preg_match("/".htmlentities($search_string)."/i", $contents_value) || preg_match("/".($search_string)."/i", $contents_value)) {
+							if (preg_match('/'.htmlentities($search_string).'/i', $contents_value) || preg_match('/'.($search_string).'/i', $contents_value)) {
 								$formatted_results[$assetid]['contents'][$contents_id] = $contents_value;
 							}
 						}
