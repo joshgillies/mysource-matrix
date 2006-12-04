@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.12.2.2 2006/03/28 04:29:18 lwright Exp $
+* $Id: rollback_management.php,v 1.12.2.3 2006/12/04 01:59:40 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.12.2.2 $
+* @version $Revision: 1.12.2.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -91,7 +91,7 @@ foreach ($options[0] as $option) {
 					$time_units = 'month';
 				break;
 				case 'y' :
-					$time_unit = 'year';
+					$time_units = 'year';
 				break;
 			}
 			if ($time_num > 1) $time_units .= 's';
@@ -122,7 +122,7 @@ foreach ($options[0] as $option) {
 					$time_units = 'month';
 				break;
 				case 'y' :
-					$time_unit = 'year';
+					$time_units = 'year';
 				break;
 			}
 			if ($time_num > 1) $time_units .= 's';
