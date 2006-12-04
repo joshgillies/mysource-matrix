@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.43 2006/11/20 23:18:54 emcdonald Exp $
+* $Id: workflow.inc,v 1.44 2006/12/04 00:23:39 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 */
 
@@ -185,10 +185,11 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 								ob_start();
 
 							}
-							$available_statii = _paintStatusChange($owner, $o, $prefix);
+							$available_statii = $owner->getAvailableStatii();
+							_paintStatusChange($owner, $o, $prefix, $available_statii);
 							?><span class="sq-backend-fineprint"><?php
 							if (!empty($available_statii)) {
-								echo '<br/>'.translate('change_to_approve_or_reject');
+								echo '<br />'.translate('change_to_approve_or_reject');
 							} else {
 								echo translate('cannot_approve_or_reject');
 							}
