@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.33 2006/03/23 03:56:13 sdanis Exp $
+* $Id: asset_status_editing.inc,v 1.34 2006/12/04 03:00:33 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -98,33 +98,36 @@ class Asset_Status_Editing extends Asset_Status
 			bam('FIXME: SOMETHING HAS GONE WRONG HERE');
 		} else {
 			// workflow is not currently running for this asset
-			$schemas = $wfm->getSchemas($this->owner->id, true);
-			if (empty($schemas)) {
-				// no workflow defined, so any admin can make this live
-				if ($this->owner->adminAccess('')) {
-					$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
-				}
-			} else {
-				// we also need to check what if all the required metadata fields are completed
-				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				if ($mm->allowsMetadata($this->owner->id)) {
-					// so we have workflows, but none of them are running so lets see what will happen
-					// if this user approves to determine if they can live edit
-					$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
+			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			if ($mm->allowsMetadata($this->owner->id)) {
 
-					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
-
-					if ($wf_complete && $m_complete) {
-						$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
+				if ($mm->requiredFieldsComplete($this->owner->id)) {
+					// metadata is complete
+					$schemas = $wfm->getSchemas($this->owner->id, true);
+					if (empty($schemas)) {
+						// no workflow schemas applied, so any admin can make this live
+						if ($this->owner->adminAccess('')) {
+							$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
+						}
 					} else {
-						$statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
+						// workflow applied but not running; 
+						// see whether the current user could publish if we started workflow
+						if ($wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId())) {
+							$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
+						} else {
+							$statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
+						}
 					}
 				} else {
-					// this asset needs to allow both statuses because it cant check metadata requirements
-					// due to it not allowing metadata
-					$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
+					// can't grant approval yet because metadata incomplete
 					$statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
 				}
+
+			} else {
+				// this asset needs to allow both statuses because it cant check metadata requirements
+				// due to it not allowing metadata
+				$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
+				$statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
 			}
 		}//end if workflow running
 
