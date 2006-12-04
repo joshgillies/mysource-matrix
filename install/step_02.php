@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.66 2006/10/17 00:08:25 lwright Exp $
+* $Id: step_02.php,v 1.67 2006/12/04 05:18:11 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -115,6 +115,7 @@ $packages = get_package_list();
 foreach ($packages as $package) {
 	$xml_file = SQ_PACKAGES_PATH.'/'.$package.'/tables.xml';
 	if (file_exists($xml_file)) {
+		echo "\n".'*** Package: '.$package."\n";
 		if (!db_install($xml_file)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error('TABLE INSTALL FAILURE', E_USER_ERROR);
