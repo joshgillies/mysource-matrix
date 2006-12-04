@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.4 2006/11/17 04:29:04 lwright Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.5 2006/12/04 04:07:57 emcdonald Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -466,27 +466,21 @@ class Search_Manager_Plugin_OCI8
 		// The SUBSTR stuff is to turn the CLOB field of value into a VARCHAR
 		// that can be handled by the LOWER() function
 		$sql = 'SELECT
-					LOWER(DBMS_LOB.SUBSTR(value, DBMS_LOB.GETLENGTH(value), 1)) as keyword, type, SUM(score) as total_score
+					value, type, score
 				FROM
 					sq_sch_idx
 				WHERE
 					assetid = '.$db->quoteSmart($asset->id).
-				  ($include_metadata ? '' : ' AND component NOT LIKE '.$db->quoteSmart('metadata:%')).'
-				GROUP BY
-					 LOWER((DBMS_LOB.SUBSTR(value, DBMS_LOB.GETLENGTH(value), 1))), type
-				ORDER BY
-					total_score DESC';
+				  ($include_metadata ? '' : ' AND component NOT LIKE '.$db->quoteSmart('metadata:%'));
 
-		$result = $db->getAssoc($sql);
+		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
-
-		// force lowercase keys (= keywords) - CASE_LOWER is default for this function
-		$result = array_change_key_case($result);
 
 		// TODO: change it so the words are split up
 		$word_scores = Array();
 
-		foreach($result as $word_string => $result_item) {
+		foreach($result as $result_item) {
+			$word_string = strtolower($result_item['value']);
 			if ($result_item['type'] == 'text') {
 				$words = preg_split('|\s+|', $word_string);
 			} else {
@@ -497,7 +491,7 @@ class Search_Manager_Plugin_OCI8
 				$word = trim($word);
 				if ($sm->isWordIndexable($word)) {
 					if (!isset($word_scores[$word])) $word_scores[$word] = 0;
-					$word_scores[$word] += $score * $result_item['total_score'];
+					$word_scores[$word] += $score * $result_item['score'];
 				}
 			}
 		}
@@ -894,10 +888,6 @@ class Search_Manager_Plugin_OCI8
 			$reparse |= $this->_parseTerms($terms);
 		}
 
-		$reserved_words = Array(
-							'nt',
-						  );
-
 		// re-replace the terms
 		foreach ($words as $word) {
 			if ($exact) {
@@ -963,6 +953,140 @@ class Search_Manager_Plugin_OCI8
 		return 'DBMS_LOB.COMPARE('.$date1.', '.$date2.') '.$operator.' 0';
 
 	}//end _getDateCompareWithClobSql()
+
+
+	/**
+	* Get ids of assets having same words as the supplied asset
+	*
+	* @param string	$source_id	ID of the asset
+	* @param string	$type		type of the asset to restrict the search by
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetidsByWordIntersection($source_id, $type=NULL)
+	{
+		// load the asset from source_id
+		// get all the keywords from this asset
+		// get all assets (of the supplied type) that contain any of the keywords in the source asset
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($source_id);
+		$keywords = $this->extractKeywords($asset);
+
+		$query_array['select'][] = 'ai.assetid';
+		$query_array['from'][] = 'sq_sch_idx ai';
+
+		$query_array['where_joiner'] = 'AND';
+		if ($type) {
+			$query_array['where'][] = 'ai.type_code = '.$db->quoteSmart($type);
+		}
+
+		$terms = implode(' or ', $keywords);
+
+		// get the words from the terms string and remove non-indexable words
+		$words = $this->_getWords($terms, TRUE, FALSE);
+
+		$words = array_unique($words);
+		$terms = implode('|', $words);
+
+		$terms_len = strlen($terms);
+
+		$found_ids = Array();
+
+		while ($words) {
+			$term_string_built = FALSE;
+			$terms ='';
+			while (!$term_string_built && !empty($words)) {
+				$recent_term =array_pop($words);
+				if (strlen($terms.$recent_term) < 200) {
+					$escaped_term = $this->_escapeContainReservedWords($recent_term);
+					$terms .= empty($terms) ? $escaped_term : '|'.$escaped_term;
+				} else {
+					array_push($words, $recent_term);
+					$term_string_built = TRUE;
+				}
+			}
+
+			$contains_str = 'contains(value, '.$db->quoteSmart(trim($terms)).', 1) > 0';
+
+			$paginated_query_array = $query_array;
+			$paginated_query_array['where'][] = $contains_str;
+			if (!empty($found_ids)) {
+				$pag_query_array['where'][] = 'ai.assetid not in (\''.implode($found_ids,'\', \'').'\')';
+			}
+
+			$sql = implode_sql($paginated_query_array);
+			$result = $db->getCol($sql);
+			assert_valid_db_result($result);
+			$found_ids = array_merge($found_ids, array_unique($result));
+		}
+
+		return $found_ids;
+
+	}//end getAssetidsByWordIntersection()
+
+
+	/**
+	* Get the maximum size of a search index field
+	*
+	* @return mixed int|NULL
+	* @access public
+	*/
+	function getMaxWordLength()
+	{
+		return NULL;
+
+	}//end getMaxWordLength()
+
+
+	/**
+	* Returns words that are reserved within contains queries escaped with {}'s
+	* Because all contains queries are currently done with all lower case strings
+	* this function assumes keywords will be in lowercase!
+	*
+	* @param string	$word	the word to be escaped
+	*
+	* @return string
+	* @access private
+	*/
+	function _escapeContainReservedWords($word)
+	{
+		$reserved_words = Array(
+							'about'		=> '',
+							'accum'		=> '',
+							'and'		=> '',
+							'bt'		=> '',
+							'btg'		=> '',
+							'bti'		=> '',
+							'btp'		=> '',
+							'fuzzy'		=> '',
+							'haspath'	=> '',
+							'inpath'	=> '',
+							'minus'		=> '',
+							'near'		=> '',
+							'not'		=> '',
+							'nt'		=> '',
+							'ntg'		=> '',
+							'nti'		=> '',
+							'ntp'		=> '',
+							'or'		=> '',
+							'pt'		=> '',
+							'rt'		=> '',
+							'sqe'		=> '',
+							'syn'		=> '',
+							'tr'		=> '',
+							'trsyn'		=> '',
+							'tt'		=> '',
+							'within'	=> '',
+						  );
+		if (isset($reserved_words[$word])) {
+			return '{'.$word.'}';
+		} else {
+			return $word;
+		}
+
+	}//end _escapeContainReservedWords()
 
 
 }//end class
