@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.40 2006/12/04 00:20:16 tbarrett Exp $
+* $Id: asset_status_under_construction.inc,v 1.41 2006/12/04 01:36:57 tbarrett Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -151,7 +151,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 	{
 		if (!isset($this->_tmp['metadata_complete'])) {
 			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			$this->_tmp['metadata_complete'] = $mm->assetMetadataComplete($this->owner);
+			$this->_tmp['metadata_complete'] = $mm->requiredFieldsComplete($this->owner->id);
 		}
 		if (!$this->_tmp['metadata_complete']) {
 			return translate('cannot_make_live_metadata_incomplete', '<a href="'.replace_query_string_vars(Array('asset_ei_screen' => 'metadata')).'">'.strtolower(translate('metadata')).'</a>');
