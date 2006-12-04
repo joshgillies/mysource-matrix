@@ -1,5 +1,69 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.10.4
+
+Complete Changelog
+-----------------------------------
+
+Core
+
+* Fixed bug #1848: Moving Thesaurus items
+* Fixed bug #1849: Simple edit on PDF does not work (/_edit?limbo_assetid=[assetid])
+* Fixed bug #1851: Simple Edit Interface Nesting
+* Fixed bug #1861: Metadata issues - maybe not escaping values properly and causing javascript errors
+* Fixed bug #1864: Altering Messaging Service Configuration Breaks Messages
+* Fixed bug #1871: Preview -> open in new window does not use _nocache
+* Fixed bug #1872: Create Link Trigger Action fails with shadow asset
+* Fixed bug #1875: Files not being deleted when new file is uploaded over it
+* Fixed bug #1883: Locks not acquired in simple edit
+* Fixed bug #1884: Caching for Public User not flexible enough
+* Fixed bug #1887: Undefined index errors on parsing an empty design area
+* Fixed bug #1891: If the "More" button is used on the tagging screen, new windows open in IE
+* Fixed bug #1899: Thesaurus import throws HIPO warning
+* Fixed bug #1900: Thesaurus XML import broken with Squiz Server
+* Fixed bug #1902: Cron doesn't work on Solaris
+* Fixed bug #1906: File Upload Form Questions contained inside a section won't attach to emails
+
+CMS
+
+* Fixed bug #1760: Error when cloning under a multiple page (Multiple Page)
+* Fixed bug #1761: Javascript warning: Asset Builder - Delete Dynamic Create Location Set (Asset Builder Page)
+* Fixed bug #1766: Custom form invalid datetime (Custom Form)
+* Fixed bug #1773: Link Report not validating external links correctly when Proxy Authentication is Off (Links Report)
+* Fixed bug #1784: Javascript email address validation in custom form returning false negatives (Custom Form)
+* Fixed bug #1786: cannot delete questions from custom form sections from the asset map (Custom Form)
+* Fixed bug #1787: Remote content won't rewrite image urls in list-style-image CSS declarations (Remote Content Page)
+* Fixed bug #1813: Asset Listing Page loses TYPE_1 & TYPE_2 links with safe edit (Asset Listing Page)
+* Fixed bug #1841: File names in custom form submission log (Custom Form)
+* Fixed bug #1862: Problems submitting forms to remote-contented page (Remote Content Page)
+* Fixed bug #1870: Redirect Asset URL parameter with % (percent signs) get garbled (Redirect Page)
+* Fixed bug #1890: Custom Form: Javascript Error when client side validation turned on for Tickbox List (Custom Form)
+* Fixed bug #1897: Malformed/invalid HTTP header response causes link report to break (Links Report)
+* Fixed bug #1905: Asset Listings: %asset_metadata_multi_word% keywords don't display on front end (Asset Listing Page)
+
+News
+
+* Fixed bug #1886: Character Encoding on RSS Feeds doesn't work (RSS Feed)
+
+Import Tools
+
+* Fixed bug #1873: HTML upload option on Import Manager broken? (Import Tools Manager)
+
+Search
+
+* Fixed bug #1858: Relevance weighting not sorting correctly (Search Page)
+
+Bulkmail
+
+* Fixed bug #1894: Cannot set design of bulkmail_subscribe_page (Bulkmail Subscribe Page)
+
+Calendar
+
+* Fixed bug #1855: XHTML 1.0 Transitional Validation (Calendar Page)
+* Fixed bug #1857: Cannot drag all-day events (Calendar Page)
+
+
+
 VERSION 3.10.3
 
 Featured Changes
