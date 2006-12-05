@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.191 2006/11/27 03:15:53 lwright Exp $
+* $Id: page_calendar.inc,v 1.192 2006/12/05 23:25:33 bcaldwell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.191 $
+* @version $Revision: 1.192 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2138,7 +2138,6 @@ class Page_Calendar extends Page
 				}
 			break;
 		}
-
 		return $res;
 
 	}//end _getEventLinkHref()
@@ -2195,8 +2194,11 @@ class Page_Calendar extends Page
 			}
 			if (0 === strpos($keyword, 'asset_')) {
 				$fieldname = substr($keyword, 6);
-				if (!isset($asset_info_fields[$fieldname])) {
+				if (isset($asset_info_fields[$fieldname])) {
 					$need_asset_info = TRUE;
+					continue;
+				} else {
+					$need_asset = TRUE;
 					continue;
 				}
 			}
@@ -2204,7 +2206,8 @@ class Page_Calendar extends Page
 		}
 
 		if ($need_asset_info) return 1;
-
+		if ($need_asset) return 2;
+		
 		return 0;
 
 
