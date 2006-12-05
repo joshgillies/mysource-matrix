@@ -1,24 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Open Source Licence                                      |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
-* | This source file may be used subject to, and only in accordance    |
-* | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
-* | Make sure you have read and accept the terms of that licence,      |
-* | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
-* | modify, adapt or enhance this software, you agree to assign your   |
-* | intellectual property rights in the modification, adaptation and   |
-* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.17 2006/11/28 01:00:48 bcaldwell Exp $
+* $Id: external_tools_config.inc,v 1.18 2006/12/05 05:36:14 bcaldwell Exp $
 *
 */
 
@@ -34,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config

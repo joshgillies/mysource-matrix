@@ -1,24 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Open Source Licence                                      |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
-* | This source file may be used subject to, and only in accordance    |
-* | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
-* | Make sure you have read and accept the terms of that licence,      |
-* | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
-* | modify, adapt or enhance this software, you agree to assign your   |
-* | intellectual property rights in the modification, adaptation and   |
-* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.55 2006/04/21 04:57:42 tbarrett Exp $
+* $Id: selection.inc,v 1.56 2006/12/05 05:40:44 bcaldwell Exp $
 *
 */
 
@@ -47,7 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix
 * @subpackage attributes
 */

@@ -1,24 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Open Source Licence                                      |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
-* | This source file may be used subject to, and only in accordance    |
-* | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
-* | Make sure you have read and accept the terms of that licence,      |
-* | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
-* | modify, adapt or enhance this software, you agree to assign your   |
-* | intellectual property rights in the modification, adaptation and   |
-* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.76 2006/09/27 23:14:50 gsherwood Exp $
+* $Id: asset_management.inc,v 1.77 2006/12/05 05:36:13 bcaldwell Exp $
 *
 */
 
@@ -35,7 +27,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
