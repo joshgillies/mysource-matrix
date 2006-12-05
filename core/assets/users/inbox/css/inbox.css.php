@@ -1,4 +1,19 @@
 <?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: inbox.css.php,v 1.6 2006/12/05 06:04:32 bcaldwell Exp $
+*
+*/
+
 include_once dirname(dirname(dirname(dirname(dirname(dirname(realpath(__FILE__))))))).'/core/include/init.inc';
 $finfo = stat(realpath(__FILE__));
 $mod_ts = $finfo['mtime'];
