@@ -18,9 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.3 2006/06/26 04:32:34 rhoward Exp $
+* $Id: tag_manager.inc,v 1.3.2.1 2006/12/05 22:51:43 lwright Exp $
 *
 */
+
+
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 
 /**
@@ -28,7 +31,7 @@
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends Asset
