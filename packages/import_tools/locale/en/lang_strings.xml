@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.8 2006/11/20 23:17:19 skim Exp $
+* $Id: lang_strings.xml,v 1.9 2006/12/05 03:23:55 emcdonald Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -43,7 +43,7 @@
 <string source="import_tools_new_site">New Site</string>
 <string source="import_tools_create_new_site">Create A New Site</string>
 <string source="import_tools_create_new_site_name">New Site Name</string>
-<string source="import_tools_create_new_site_note">If this option is selected, the above Asset Selection will be ignored</string>
+<string source="import_tools_create_new_site_note">If this option is selected, the new site will be created under the asset selected above. If no 'Asset to import Under' has been selected, the new site will be created under the root. </string>
 <string source="import_tools_heading_style">Heading Style</string>
 <string source="import_tools_use_for_structure">Use for structure?</string>
 <string source="import_tools_create_css">Create CSS</string>

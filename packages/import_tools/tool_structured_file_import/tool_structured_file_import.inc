@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_structured_file_import.inc,v 1.5 2006/05/07 23:09:13 skim Exp $
+* $Id: tool_structured_file_import.inc,v 1.6 2006/12/05 03:23:55 emcdonald Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    searching.
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -164,9 +164,6 @@ class Tool_Structured_File_Import extends Tool
 
 				$o->openField(translate('import_tools_asset_to_import'));
 					asset_finder($type_code.'_root_assetid', '');
-					?>
-						<span style="font-weight: bold;"><?php echo strtoupper(translate('or')); ?></span>
-					<?php
 				$o->closeField();
 				$o->openField(translate('import_tools_new_site'));
 					?>

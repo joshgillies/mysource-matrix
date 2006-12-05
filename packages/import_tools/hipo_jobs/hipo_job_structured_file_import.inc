@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.11 2006/10/29 23:52:29 skim Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.12 2006/12/05 03:23:55 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -289,7 +289,12 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		if ($this->_running_vars['create_new_site'] == TRUE) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('site');
 			$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
-			$root_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1);
+			if (!empty($this->_running_vars['root_assetid'])) {
+				$root_link_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['root_assetid']);
+			} else {
+				$root_link_parent =& $root_folder;
+			}
+			$root_link = Array('asset' => &$root_link_parent, 'link_type' => SQ_LINK_TYPE_1);
 
 			$new_site =& new Site();
 
@@ -312,7 +317,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 
 			$this->_running_vars['root_assetid'] = $new_site->id;
 			$this->_running_vars['create_new_site'] = FALSE;
-		}
+		}//end if
 
 		$this->_running_vars['processed_images'] = FALSE;
 		$this->_running_vars['image_folder_id'] = '0';
