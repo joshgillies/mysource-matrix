@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.138 2006/10/27 06:28:34 tbarrett Exp $
+* $Id: file.inc,v 1.139 2006/12/05 01:35:14 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.138 $
+* @version $Revision: 1.139 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -956,10 +956,20 @@ class File extends Asset
 		// check the file size to ensure we are not violating any restrictions
 		$size = filesize($info['path']);
 
-		$sq_file_max_size = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE');
-		if (empty($sq_file_max_size)) return TRUE;
+		$pre_uploaded = $info['non_uploaded_file'];
+		if ($pre_uploaded) {
+			// pre-uploaded file
+			$file_max_size = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_PREUPLOADED_FILE_MAX_SIZE');
+			$error_code = 'CORE0261';
+		} else {
+			// uploaded file
+			$file_max_size = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE');
+			$error_code = 'CORE0057';
+		}
 
-		$max_size = strtolower($sq_file_max_size);
+		if (empty($file_max_size)) return TRUE;
+
+		$max_size = strtolower($file_max_size);
 		if (!$max_size) return TRUE;
 
 		if (substr($max_size, -1) == 'k') {
@@ -969,9 +979,10 @@ class File extends Asset
 		}
 		if ($size > $max_size) {
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			trigger_localised_error('CORE0057', E_USER_WARNING, strtoupper(easy_filesize($max_size)), strtoupper(easy_filesize($size)));
+			trigger_localised_error($error_code, E_USER_WARNING, strtoupper(easy_filesize($max_size)), strtoupper(easy_filesize($size)));
 			return FALSE;
 		}
+
 		return TRUE;
 
 	}//end validFile()

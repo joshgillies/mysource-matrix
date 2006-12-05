@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_prefs.inc,v 1.11 2006/07/14 01:13:57 tbarrett Exp $
+* $Id: file_prefs.inc,v 1.12 2006/12/05 01:35:14 skim Exp $
 *
 */
 
@@ -33,19 +33,25 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 class File_Prefs extends Prefs
 {
 
 	var $pref_vars = Array(
-						'SQ_FILE_MAX_SIZE'	=> Array(
-												'name'			=> 'Max File Size',
-												'description'	=> 'This preference allows you to change the maximum size of files that can be uploaded',
-												'default'		=> 0,
-												'protected'		=> FALSE,
-											   ),
+						'SQ_FILE_MAX_SIZE'				=> Array(
+															'name'			=> 'Max File Size',
+															'description'	=> 'This preference allows you to change the maximum size of files that can be uploaded',
+															'default'		=> 0,
+															'protected'		=> FALSE,
+														   ),
+						'SQ_PREUPLOADED_FILE_MAX_SIZE'	=> Array(
+															'name'			=> 'Pre-uploaded Max File Size',
+															'description'	=> 'If Pre-uploaded Max File Size Restriction is on, ',
+															'default'		=> 0,
+															'protected'		=> FALSE,
+														   ),
 					 );
 
 
@@ -102,32 +108,55 @@ class File_Prefs extends Prefs
 			}
 			$php_max_file_size = min($ini_size, $post_size, $mem_limit_size);
 
+			// Max File Size Upload
 			if (is_null($pref)) {
 				$o->openField(translate('max_file_upload'));
+				if ($have_lock && $is_admin) {
+					text_box('prefs[SQ_FILE_MAX_SIZE]', $this->pref_vars['SQ_FILE_MAX_SIZE']['default'], 10);
+					echo $o->note(translate('warn_max_settable_file_size', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>'));
+				} else {
+					if (!$this->pref_vars['SQ_FILE_MAX_SIZE']['default']) {
+						echo translate('warn_set_max_file_size', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
+					} else {
+						$max_file_size = strtolower($this->pref_vars['SQ_FILE_MAX_SIZE']['default']);
+						if (substr($max_file_size, -1) == 'k') {
+							$max_file_size = $max_file_size * 1024;
+						} else if (substr($max_file_size, -1) == 'm') {
+							$max_file_size = $max_file_size * 1024 * 1024;
+						}
+
+						if ($max_file_size > $php_max_file_size) {
+							echo translate('file_size_above_limit', '<b>'.strtoupper(easy_filesize($max_file_size)).'</b>', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
+						} else {
+							echo strtoupper(easy_filesize($max_file_size));
+						}
+					}
+				}
+				if (is_null($pref)) $o->closeField();
 			}
 
-			if ($have_lock && $is_admin) {
-				text_box('prefs[SQ_FILE_MAX_SIZE]', $this->pref_vars['SQ_FILE_MAX_SIZE']['default'], 10);
-				echo $o->note(translate('warn_max_settable_file_size', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>'));
-			} else {
-				if (!$this->pref_vars['SQ_FILE_MAX_SIZE']['default']) {
-					echo translate('warn_set_max_file_size', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
+			// Max Pre-uploaded File Size
+			if (is_null($pref)) {
+				$o->openField(translate('preuploaded_max_file_upload'));
+				if ($have_lock && $is_admin) {
+					text_box('prefs[SQ_PREUPLOADED_FILE_MAX_SIZE]', $this->pref_vars['SQ_PREUPLOADED_FILE_MAX_SIZE']['default'], 10);
+					echo $o->note(translate('warn_preuploaded_max_settable_file_size', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>'));
 				} else {
-					$max_file_size = strtolower($this->pref_vars['SQ_FILE_MAX_SIZE']['default']);
-					if (substr($max_file_size, -1) == 'k') {
-						$max_file_size = $max_file_size * 1024;
-					} else if (substr($max_file_size, -1) == 'm') {
-						$max_file_size = $max_file_size * 1024 * 1024;
-					}
-
-					if ($max_file_size > $php_max_file_size) {
-						echo translate('file_size_above_limit', '<b>'.strtoupper(easy_filesize($max_file_size)).'</b>', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
+					if (!$this->pref_vars['SQ_PREUPLOADED_FILE_MAX_SIZE']['default']) {
+						echo translate('warn_preuploaded_max_settable_file_size', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
 					} else {
+						$max_file_size = strtolower($this->pref_vars['SQ_PREUPLOADED_FILE_MAX_SIZE']['default']);
+						if (substr($max_file_size, -1) == 'k') {
+							$max_file_size = $max_file_size * 1024;
+						} else if (substr($max_file_size, -1) == 'm') {
+							$max_file_size = $max_file_size * 1024 * 1024;
+						}
 						echo strtoupper(easy_filesize($max_file_size));
 					}
 				}
+				if (is_null($pref)) $o->closeField();
 			}
-			if (is_null($pref)) $o->closeField();
+
 
 		}//end if
 
@@ -152,6 +181,7 @@ class File_Prefs extends Prefs
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (!$is_admin) return FALSE;
 
+		// Max File Size Upload
 		if (is_null($pref) || $pref == 'SQ_FILE_MAX_SIZE') {
 			if (isset($_POST['prefs']['SQ_FILE_MAX_SIZE'])) {
 				$max_size = strtoupper(trim($_POST['prefs']['SQ_FILE_MAX_SIZE']));
@@ -161,6 +191,20 @@ class File_Prefs extends Prefs
 					trigger_localised_error('CORE0002', E_USER_WARNING, $max_size);
 				} else {
 					$this->pref_vars['SQ_FILE_MAX_SIZE']['default'] = $max_size;
+				}
+			}
+		}
+
+		// Max Pre-uploaded File Size
+		if (is_null($pref) || $pref == 'SQ_PREUPLOADED_FILE_MAX_SIZE') {
+			if (isset($_POST['prefs']['SQ_PREUPLOADED_FILE_MAX_SIZE'])) {
+				$max_size = strtoupper(trim($_POST['prefs']['SQ_PREUPLOADED_FILE_MAX_SIZE']));
+				if (empty($max_size)) $max_size = 0;
+
+				if (!empty($max_size) && !preg_match('|^[0-9]+[KM]$|', $max_size)) {
+					trigger_localised_error('CORE0002', E_USER_WARNING, $max_size);
+				} else {
+					$this->pref_vars['SQ_PREUPLOADED_FILE_MAX_SIZE']['default'] = $max_size;
 				}
 			}
 		}
