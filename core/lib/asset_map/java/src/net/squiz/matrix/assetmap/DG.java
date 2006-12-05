@@ -1,23 +1,15 @@
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Open Source Licence                                      |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
-* | This source file may be used subject to, and only in accordance    |
-* | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
-* | Make sure you have read and accept the terms of that licence,      |
-* | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
-* | modify, adapt or enhance this software, you agree to assign your   |
-* | intellectual property rights in the modification, adaptation and   |
-* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: DG.java,v 1.6 2005/01/20 13:10:35 brobertson Exp $
+* $Id: DG.java,v 1.7 2006/12/05 05:26:35 bcaldwell Exp $
 *
 */
 
@@ -41,7 +33,7 @@ public final class DG {
 	private static long time = 0;
 
 	/**
-	 * Prints an object. 
+	 * Prints an object.
 	 * Assumes that there is a toString() method in the object, otherwise the default toString method in <code>Object</code> will be used
 	 *
 	 * @param o the object to string
@@ -58,9 +50,9 @@ public final class DG {
 	public static final void bam(int i) {
 		System.out.print(i);
 	}
-	
+
 	/**
-	 * Prints a boolean 
+	 * Prints a boolean
 	 *
 	 * @param b the boolean to print
 	 */
@@ -85,7 +77,7 @@ public final class DG {
 	public static final void bam(double d) {
 		System.out.print(d);
 	}
-	
+
 	public static void visiBam(String text) {
 		JFrame f = new JFrame();
 		f.getContentPane().add(new JLabel(text));
@@ -96,7 +88,7 @@ public final class DG {
 
 	/**
 	 * Displays a new component in a new frame
-	 * 
+	 *
 	 * @param c the component to print
 	 */
 	public static final void bam(Icon c) {
@@ -115,7 +107,7 @@ public final class DG {
 
 	/**
 	 * Resets the timer for speed check
-	 * 
+	 *
 	 */
 	public static void resetSpeedCheck() {
 		time = 0;
@@ -129,12 +121,12 @@ public final class DG {
 		if (DG.time != 0) {
 			DG.bam((System.currentTimeMillis() - DG.time) / 1000.000000 + "\n");
 		}
-		DG.time = System.currentTimeMillis();	
+		DG.time = System.currentTimeMillis();
 	}
 
 	/**
 	 * Calculates the time taken since the last call to <code>DG.speed_check()</code>
-	 * 
+	 *
  	 * @param str the string to reference the speed check with
 	 */
 	public static final void speedCheck(String str) {

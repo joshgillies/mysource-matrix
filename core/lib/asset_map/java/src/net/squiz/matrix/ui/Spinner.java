@@ -1,25 +1,17 @@
 /**
- * +--------------------------------------------------------------------+
- * | Squiz.net Open Source Licence                                      |
- * +--------------------------------------------------------------------+
- * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
- * +--------------------------------------------------------------------+
- * | This source file may be used subject to, and only in accordance    |
- * | with, the Squiz Open Source Licence Agreement found at             |
- * | http://www.squiz.net/licence.                                      |
- * | Make sure you have read and accept the terms of that licence,      |
- * | including its limitations of liability and disclaimers, before     |
- * | using this software in any way. Your use of this software is       |
- * | deemed to constitute agreement to be bound by that licence. If you |
- * | modify, adapt or enhance this software, you agree to assign your   |
- * | intellectual property rights in the modification, adaptation and   |
- * | enhancement to Squiz Pty Ltd for use and distribution under that   |
- * | licence.                                                           |
- * +--------------------------------------------------------------------+
- *
- * $Id: Spinner.java,v 1.3 2005/07/27 10:45:22 brobertson Exp $
- *
- */
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: Spinner.java,v 1.4 2006/12/05 05:26:37 bcaldwell Exp $
+*
+*/
 
 package net.squiz.matrix.ui;
 
@@ -33,7 +25,7 @@ import java.awt.image.*;
 /**
  * A spinner primvides an animation to indicate that an operation in the system
  * is currently progress. When not spinner, the spinner is in a stopped state
- * and shows a stopped icon to indicate that no operation is in progress. 
+ * and shows a stopped icon to indicate that no operation is in progress.
  * The spinner image itself is a sequence of frames; the first being the stopped
  * image and those preceeding it being the animation steps of the spinner.
  * @author Marc McIntyre <mmcintyre@squiz.net>
@@ -48,13 +40,13 @@ public class Spinner extends JComponent implements Runnable {
 	public static final int IMG_OFFSET = 15;
 
 	private Dimension size = new Dimension(IMG_OFFSET, IMG_OFFSET);
-	
+
 	private boolean isStarted = false;
 	private int framePtr = 0;
 	private volatile Thread animator;
 	private Image[] frames;
 	private Image stopImage;
-	
+
 	/**
 	 * Constructs a spinner object.
 	 * @return the spinner object
@@ -62,7 +54,7 @@ public class Spinner extends JComponent implements Runnable {
 	public Spinner() {
 		ImageIcon spinner = (ImageIcon) GUIUtilities.getAssetMapIcon(SPINNER_ICON);
 		Image spinnerImg = spinner.getImage();
-		
+
 		BufferedImage spinnerSrc = new BufferedImage(
 			spinner.getIconWidth(),
 			spinner.getIconHeight(),
@@ -72,30 +64,30 @@ public class Spinner extends JComponent implements Runnable {
 		Graphics2D g2d = (Graphics2D) spinnerSrc.createGraphics();
 		g2d.drawImage(spinnerImg, 0, 0, null);
 		g2d.dispose();
-		
+
 		// the number of frames of animation is one less than the icon width
 		// as we need to remove the stop spinner state from the frames
 		int numFrames = (spinner.getIconWidth() / IMG_OFFSET) - 1;
 		int offset = IMG_OFFSET;
 		frames = new Image[numFrames];
-		
+
 		// the stop image is the first image square in the main spinner sequence
 		stopImage = spinnerSrc.getSubimage(0, 0, IMG_OFFSET, IMG_OFFSET);
-		
+
 		// all other images are IMG_OFFSET from the stop image
 		for (int i = 0; i < numFrames; i++) {
 			frames[i] = spinnerSrc.getSubimage(offset, 0, IMG_OFFSET, IMG_OFFSET);
 			offset += IMG_OFFSET;
 		}
 	}
-	
+
 	/**
 	 * The run method of this Thread.
 	 */
 	public void run() {
 		Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 		long tm = System.currentTimeMillis();
-		
+
 		while (Thread.currentThread() == animator) {
 			Graphics g = getGraphics();
 			if (g != null) {
@@ -106,7 +98,7 @@ public class Spinner extends JComponent implements Runnable {
 			} else {
 				framePtr++;
 			}
-			
+
 			try {
 				tm += delay;
 				Thread.sleep(Math.max(0, tm - System.currentTimeMillis()));
@@ -116,7 +108,7 @@ public class Spinner extends JComponent implements Runnable {
 			Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 		}
 	}
-	
+
 	/**
 	 * Paints the component.
 	 * there are no components to paint so we explicity paint the stopped
@@ -131,7 +123,7 @@ public class Spinner extends JComponent implements Runnable {
 			g.drawImage(stopImage, 0, 0, null);
 		}
 	}
-	
+
 	/**
 	 * Returns the maximum size of the spinner object
 	 * @return the maximum size
@@ -139,7 +131,7 @@ public class Spinner extends JComponent implements Runnable {
 	public Dimension getMaximumSize() {
 		return size;
 	}
-	
+
 	/**
 	 * Returns the maximum size of the spinner object
 	 * @return the minimum size
@@ -147,7 +139,7 @@ public class Spinner extends JComponent implements Runnable {
 	public Dimension getMinimumSize() {
 		return size;
 	}
-	
+
 	/**
 	 * Returns the preferred size of the spinner object
 	 * @return the preferred size
@@ -155,7 +147,7 @@ public class Spinner extends JComponent implements Runnable {
 	public Dimension getPreferredSize() {
 		return size;
 	}
-	
+
 	/**
 	 * Starts the animation of the spinner
 	 * @see stop()
@@ -168,7 +160,7 @@ public class Spinner extends JComponent implements Runnable {
 		animator = new Thread(this);
 		animator.start();
 	}
-	
+
 	/**
 	 * Stops the animation of the spinner
 	 * @see start()
@@ -182,7 +174,7 @@ public class Spinner extends JComponent implements Runnable {
 		if (g != null)
 			g.drawImage(stopImage, 0, 0, null);
 	}
-	
+
 	/**
 	 * Returns TRUE is the spinner is current animating
 	 * @return TRUE is the spinner is current animating

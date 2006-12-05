@@ -1,23 +1,15 @@
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Open Source Licence                                      |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
-* | This source file may be used subject to, and only in accordance    |
-* | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
-* | Make sure you have read and accept the terms of that licence,      |
-* | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
-* | modify, adapt or enhance this software, you agree to assign your   |
-* | intellectual property rights in the modification, adaptation and   |
-* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: XML.java,v 1.2 2005/07/27 10:45:22 brobertson Exp $
+* $Id: XML.java,v 1.3 2006/12/05 05:26:36 bcaldwell Exp $
 *
 */
 
@@ -31,7 +23,7 @@ import java.io.*;
 
 /**
  * Generic class for parsing and processing XML
- * Note that if this class is used in conjunction with an Applet, 
+ * Note that if this class is used in conjunction with an Applet,
  * A DocumentBuilderFactory needs to be supplied with the DocumentBuilderFactory
  *
  * @author Marc McIntyre <mmcintyre@squiz.net>
@@ -43,10 +35,10 @@ public class XML {
 
 	// cannot instantiate
 	private XML() {}
-	
+
 	/**
 	 * Retrieves the XML DOM parser for parsing xml
-	 * @return the parser, or <code>null</code> 
+	 * @return the parser, or <code>null</code>
 	 * if the parser factory is not configured correctly
 	 */
 	public static DocumentBuilder getParser() throws SAXException {
@@ -72,7 +64,7 @@ public class XML {
 	 */
 	public static synchronized Document getDocumentFromInputStream(InputStream is)
 		throws SAXException {
-		
+
 		Document doc = null;
 		DocumentBuilder db = getParser();
 
@@ -86,7 +78,7 @@ public class XML {
 				"Input Stream : " + se.getMessage());
 		}
 
-		if (doc.getDocumentElement().getTagName().equals("error")) 
+		if (doc.getDocumentElement().getTagName().equals("error"))
 			throw new SAXException("Could not create the document");
 
 		return doc;
@@ -99,12 +91,12 @@ public class XML {
 	 * @return The <code>Document</code> from the parsed XML string
 	 * @throws Exception is thrown if there is an error parsing the string
 	 */
-	public static synchronized Document getDocumentFromString(String xmlStr) 
+	public static synchronized Document getDocumentFromString(String xmlStr)
 		throws SAXException {
 
 		byte [] xmlArray = xmlStr.getBytes();
 		ByteArrayInputStream xmlStream = new ByteArrayInputStream(xmlArray);
-		
+
 		StreamSource ss = new StreamSource(xmlStream);
 		Document doc = null;
 
