@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.54 2006/11/30 22:11:56 lwright Exp $
+* $Id: form_email.inc,v 1.55 2006/12/05 00:36:19 bcaldwell Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -480,6 +480,15 @@ class Form_Email extends Form
 		$prefix = $this->getPrefix();
 		$referer = (isset($_POST[$prefix.'_referral_url'])) ? $_POST[$prefix.'_referral_url'] : '';
 
+		if (!empty($referer)) {
+			// use the url to work out the referring asset
+			$url_parts = parse_url($referer);
+			$protocol = array_get_index($url_parts, 'scheme');
+			$path = array_get_index($url_parts, 'host').array_get_index($url_parts, 'path');
+
+			$referer_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $path);
+		}
+
 		$reps = Array(
 					'form_summary_html'	=> $body,
 					'form_summary_text'	=> $body_text,
@@ -525,6 +534,25 @@ class Form_Email extends Form
 		$current_value['text_format'] = str_replace(
 			Array('%form_info%', '%form_summary%'),
 			Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
+
+		if (!is_null($referer_asset)) {
+			// work out repalcements for referer asset keywords
+			$keywords = array_merge(
+							retrieve_keywords_replacements($current_value['text_format']),
+							retrieve_keywords_replacements($current_value['html_format']),
+							retrieve_keywords_replacements($current_value['subject'])
+						);
+
+			foreach ($keywords as $keyword) {
+				if (0 === strpos($keyword, 'referral_asset_')) {
+					$referer_keyword = substr($keyword, 9);
+					$referer_replacement = $referer_asset->getKeywordReplacement($referer_keyword);
+					if ($referer_replacement != "%$referer_keyword%") {
+						$reps[$keyword] = $referer_replacement;
+					}
+				}
+			}
+		}
 
 		// add attachments to emails
 		$current_value['attachments'] = Array();
