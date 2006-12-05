@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.139 2006/12/05 01:35:14 skim Exp $
+* $Id: file.inc,v 1.140 2006/12/05 05:01:10 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.139 $
+* @version $Revision: 1.140 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -956,7 +956,10 @@ class File extends Asset
 		// check the file size to ensure we are not violating any restrictions
 		$size = filesize($info['path']);
 
-		$pre_uploaded = $info['non_uploaded_file'];
+		$pre_uploaded = FALSE;
+		if (isset($info['non_uploaded_file']) && $info['non_uploaded_file']) {
+			$pre_uploaded = TRUE;
+		}
 		if ($pre_uploaded) {
 			// pre-uploaded file
 			$file_max_size = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_PREUPLOADED_FILE_MAX_SIZE');
