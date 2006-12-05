@@ -10,9 +10,10 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_suggestion.php,v 1.6 2006/12/05 05:06:07 bcaldwell Exp $
+* $Id: tag_suggestion.php,v 1.7 2006/12/05 05:07:54 bcaldwell Exp $
 *
 */
+
 	define('SQ_SYSTEM_ROOT', dirname(dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME'])))));
 	require_once SQ_SYSTEM_ROOT.'/core/include/init.inc';
 	require_once SQ_LIB_PATH.'/html_form/html_form.inc';

@@ -1,24 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Open Source Licence                                      |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
-* | This source file may be used subject to, and only in accordance    |
-* | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
-* | Make sure you have read and accept the terms of that licence,      |
-* | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
-* | modify, adapt or enhance this software, you agree to assign your   |
-* | intellectual property rights in the modification, adaptation and   |
-* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.28 2006/06/30 05:58:16 tbarrett Exp $
+* $Id: config.inc,v 1.29 2006/12/05 05:11:51 bcaldwell Exp $
 *
 */
 
@@ -31,7 +23,7 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object
@@ -324,9 +316,9 @@ class Config extends MySource_Object
 							$expires_in = easy_time_total(($lock['expires'] - $now), true);
 							if (!$expires_in) $expires_in = '1 second';
 							$expires_in = translate('due_to_expire', $expires_in);
-							echo translate('release_lock', translate('release_lock_button'), translate('user_preferences')); 
+							echo translate('release_lock', translate('release_lock_button'), translate('user_preferences'));
 							echo '<br />';
-							echo $expires_in; 
+							echo $expires_in;
 
 						} else {
 							echo translate('acquire_lock', translate('acquire_lock_button'), translate('user_preferences'));

@@ -1,23 +1,15 @@
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Open Source Licence                                      |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
-* | This source file may be used subject to, and only in accordance    |
-* | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
-* | Make sure you have read and accept the terms of that licence,      |
-* | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
-* | modify, adapt or enhance this software, you agree to assign your   |
-* | intellectual property rights in the modification, adaptation and   |
-* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: debug.js,v 1.5 2005/01/20 13:10:35 brobertson Exp $
+* $Id: debug.js,v 1.6 2006/12/05 05:10:21 bcaldwell Exp $
 *
 */
 
@@ -101,28 +93,28 @@ function array_contents(arr, max_depth, depth, indent)
 	if (is_object(arr))
    	{
    		indent += "       ";
-   		
+
    		var str = "";
    		if (is_array(arr)) str += "array ";
    		else               str += "object";
    		str += " (\n";
-   		
+
    		depth++;
-   		
+
 		for (var key in arr)
    		{
    			// get this elements value
    			var val = arr[key];
-    		
+
    			var key_str = "";
-    			
+
 			// if its a string have quotes
    			if (typeof(key) == "string") key_str = "\"" + key + "\"";
    			else                         key_str = key;
-    			
+
     		key_str += " => ";
     		var val_str = "";
-    			
+
     		// if the value is an array and we haven't exceded the max depth
     		// then recursively call this function
     		if (is_object(val) && max_depth > depth)
@@ -144,22 +136,22 @@ function array_contents(arr, max_depth, depth, indent)
     			else if (typeof(val) == "string") val_str = "\"" + val + "\"";
 				else if (val == null)        val_str = "[ NULL ]";
     			else                         val_str = val;
-    				
+
     		}// endif
-    		
-    		
+
+
     		str += indent + key_str + val_str + ",\n";
-    			
+
 		}// end for
-    	
+
     	//remove ending indent and newline
     	//str = chop(str);
     	// remove last comma
     	//str = substr(str, 0, strlen - 1);
-    		
-    		
-    	str += "\n" + indent + ")";				
-    		
+
+
+    	str += "\n" + indent + ")";
+
     	return str;
 
 	}
@@ -171,7 +163,7 @@ function array_contents(arr, max_depth, depth, indent)
 
  }// end array_contents
 
- 
+
  ///////////////////////////////////////////////////////////////////////////////////
 // print a string containing the values of the passed array with document.write();
 function print_array_contents(arr, max_depth, depth)
@@ -206,7 +198,7 @@ function _print_array_contents(win_doc, arr, max_depth, depth, indent)
 		win_doc.write("[ NULL VALUE OBJECT ]");
 		return;
 	}
-   	
+
    	if (is_object(arr))
    	{
    		indent += "        ";
@@ -214,22 +206,22 @@ function _print_array_contents(win_doc, arr, max_depth, depth, indent)
    		else               win_doc.write("object");
    		win_doc.writeln(" (");
    		depth++;
-   		
+
 		for (var key in arr)
    		{
    			// get this elements value
    			var val = arr[key];
-   			
+
    			var key_str = "";
-    			
+
 			// if its a string have quotes
    			if (typeof(key) == "string") key_str = "\"" + key + "\"";
    			else                         key_str = key;
-    			
+
     		key_str += " => ";
-    		
+
     		win_doc.write(indent + key_str);
-    		
+
     		// if the value is an array and we haven't exceded the max depth
     		// then recursively call this function
     		if (is_object(val) && max_depth > depth && val != undefined)
@@ -251,20 +243,20 @@ function _print_array_contents(win_doc, arr, max_depth, depth, indent)
     			else if (typeof(val) == "string") win_doc.write("\"" + htmlspecialchars(val) + "\"");
 				else if (val == null)        win_doc.write("[ NULL ]");
     			else                         win_doc.write(val);
-    				
+
     		}// endif
-    		
-    		
+
+
     		win_doc.writeln(",");
-    			
+
 		}// end for
-    	
+
     	//remove ending indent and newline
     	//str = chop(str);
     	// remove last comma
     	//str = substr(str, 0, strlen - 1);
-    		
-    		
+
+
     	win_doc.write(indent + ")");
 
 	}
@@ -273,7 +265,7 @@ function _print_array_contents(win_doc, arr, max_depth, depth, indent)
     	win_doc.write(arr.toString());
 
     }// end if
-    
+
  }// end _print_array_contents()
 
  ///////////////////////////////////////////////////////////////////////////////////

@@ -1,9 +1,24 @@
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: slider_bar.js,v 1.3 2006/12/05 05:10:21 bcaldwell Exp $
+*
+*/
+
 		var BAR_WIDTH = 300;
 		var SLIDER_WIDTH = 10;
 		var currentSlider = null;
 		var currentSliderMin = null;
 		var currentSliderMax = null;
-		
+
 		function findPosX(obj)
 		{
 			var curleft = 0;
@@ -49,7 +64,7 @@
 			currentSlider.style.left = targetLeft + 'px';
 		}
 
-		var handleSliderMousedown = function(e) 
+		var handleSliderMousedown = function(e)
 		{
 			currentSlider = this.getElementsByTagName('DIV')[0].getElementsByTagName('DIV')[0];
 			var spans = this.parentNode.getElementsByTagName('SPAN');
@@ -128,7 +143,7 @@
 
 		if (typeof preSliderOnLoad != 'function') {
 			var preSliderOnLoad = window.onload;
-			window.onload = function() 
+			window.onload = function()
 			{
 				if (typeof preSliderOnLoad == 'function') preSliderOnLoad();
 				var allDivs = document.getElementsByTagName('DIV');

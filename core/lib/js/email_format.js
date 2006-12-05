@@ -1,3 +1,18 @@
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: email_format.js,v 1.2 2006/12/05 05:10:21 bcaldwell Exp $
+*
+*/
+
 function emailFormatSwitchReadingMode(editor_name, html_label, text_label) {
 	var textDiv = document.getElementById(editor_name + "_text_format");
 	var htmlDiv = document.getElementById(editor_name + "_html_format");
