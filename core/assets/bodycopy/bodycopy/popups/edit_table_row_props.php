@@ -9,7 +9,8 @@
 * | this file please contact Squiz (www.squiz.net) so we may provide   |
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
-* $Id: edit_table_row_props.php,v 1.7 2006/12/05 05:34:15 emcdonald Exp $
+*
+* $Id: edit_table_row_props.php,v 1.8 2006/12/05 05:39:48 emcdonald Exp $
 *
 */
 
@@ -19,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
