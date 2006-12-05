@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_user_group.inc,v 1.30 2006/01/27 03:46:39 lwright Exp $
+* $Id: system_user_group.inc,v 1.31 2006/12/05 04:41:24 bcaldwell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -197,9 +197,17 @@ class System_User_Group extends User_Group
 														'card'		=> 'M',
 														'exclusive'	=> FALSE,
 													   ),
+									'backend_user'	=> Array(
+														'card'		=> 'M',
+														'exclusive'	=> FALSE,
+													   ),
 								   ),
 				SQ_LINK_TYPE_2	=> Array(
 									'system_user'	=> Array(
+														'card'		=> 'M',
+														'exclusive'	=> FALSE,
+													   ),
+									'backend_user'	=> Array(
 														'card'		=> 'M',
 														'exclusive'	=> FALSE,
 													   ),

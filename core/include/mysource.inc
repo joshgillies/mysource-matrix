@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.200 2006/12/04 00:37:17 bcaldwell Exp $
+* $Id: mysource.inc,v 1.201 2006/12/05 04:41:24 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.200 $
+* @version $Revision: 1.201 $
 * @package MySource_Matrix
 */
 class MySource
@@ -235,7 +235,6 @@ class MySource
 				}
 				$_SERVER['HTTP_HOST'] = implode('', $url_parts);
 			}
-
 
 			$domain = strip_url(sq_web_path('root_url'), TRUE);
 			$pos = strpos($domain, '/');
@@ -1594,15 +1593,16 @@ class MySource
 	{
 		if (is_null($user)) return $this->_user_is_sys_admin;
 		if (!$user->id) return FALSE;
-		if (get_class($user) != 'system_user') return FALSE;
+
+		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('backend_user', TRUE);
+		if (!in_array(get_class($user), $types)) return FALSE;
 
 		// now make sure that the user is in the system administrators group
 		$sys_admin_group =& $this->am->getSystemAsset('system_user_group');
-		$sys_admins = $this->am->getLinks($sys_admin_group->id, SQ_LINK_TYPE_1, 'system_user');
+		$sys_admins = $this->am->getLinks($sys_admin_group->id, SQ_LINK_TYPE_1);
 		foreach ($sys_admins as $data) {
 			if ($data['minorid'] == $user->id) return TRUE;
 		}
-
 		return FALSE;
 
 	}//end userSystemAdmin()
