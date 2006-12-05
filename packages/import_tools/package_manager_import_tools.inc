@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_import_tools.inc,v 1.1.1.1 2006/02/20 22:36:45 dmckee Exp $
+* $Id: package_manager_import_tools.inc,v 1.2 2006/12/05 03:16:37 emcdonald Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    Manages the install and upgrade of the Import Tools system assets
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage Fedcourt
 */
@@ -73,7 +73,7 @@ class Package_Manager_Import_Tools extends Package_Manager
 		$import_tools_manager =& new Import_Tools_Manager();
 		$import_tools_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$import_tools_manager->create($import_tools_manager_link)) {
-			trigger_localised_error('SCH0007', E_USER_ERROR);
+			trigger_localised_error('IMP0001', E_USER_ERROR);
 		}
 		pre_echo('Import Tools Manager Asset Id : '.$import_tools_manager->id);
 
