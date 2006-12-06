@@ -1,17 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Commercial Module Licence                                |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
-* +--------------------------------------------------------------------+
-* | This source file is not open source or freely usable and may be    |
-* | used subject to, and only in accordance with, the Squiz Commercial |
-* | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_asset_sorter.inc,v 1.2 2006/10/05 00:54:57 tbarrett Exp $
+* $Id: tool_asset_sorter.inc,v 1.3 2006/12/06 00:13:03 bcaldwell Exp $
 *
 */
 
@@ -24,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Provides a tool for making multiple clones of an asset
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -77,11 +76,11 @@ class Tool_Asset_Sorter extends Tool
 		$o->closeSection();
 		$o->addOnSubmit('
 			if (document.getElementById("'.$type_code.'_parent[assetid]").value == 0) {
-				alert("'.str_replace('"', '\"', translate('tool_asset_sorter_must_select_parent')).'"); 
+				alert("'.str_replace('"', '\"', translate('tool_asset_sorter_must_select_parent')).'");
 				return false;
 			}
 		');
-			
+
 
 	}//end paintTool()
 
@@ -111,11 +110,11 @@ class Tool_Asset_Sorter extends Tool
 		$direction = (strtolower($direction) == 'asc') ? 'ASC' : 'DESC';
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT l.linkid
-				FROM sq_ast_lnk l 
+				FROM sq_ast_lnk l
 					JOIN sq_ast a ON l.minorid = a.assetid
 				WHERE majorid = '.$db->quote($parentid).'
 					AND link_type IN ('.$db->quote(SQ_LINK_TYPE_1).', '.$db->quote(SQ_LINK_TYPE_2).')
@@ -128,7 +127,7 @@ class Tool_Asset_Sorter extends Tool
 			foreach ($chunk as $i => $linkid) {
 				$cases .= 'WHEN (linkid = '.$linkid.') THEN '.$i.' ';
 			}
-			$sql = 'UPDATE sq_ast_lnk 
+			$sql = 'UPDATE sq_ast_lnk
 					SET sort_order = CASE '.$cases.' ELSE sort_order END
 					WHERE linkid IN ('.implode(', ', $linkids).')';
 			$res = $db->query($sql);

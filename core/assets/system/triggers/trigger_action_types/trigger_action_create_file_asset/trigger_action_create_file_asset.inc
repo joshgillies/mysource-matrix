@@ -1,24 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Open Source Licence                                      |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
-* | This source file may be used subject to, and only in accordance    |
-* | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
-* | Make sure you have read and accept the terms of that licence,      |
-* | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
-* | modify, adapt or enhance this software, you agree to assign your   |
-* | intellectual property rights in the modification, adaptation and   |
-* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_file_asset.inc,v 1.3 2006/09/15 01:32:13 rhoward Exp $
+* $Id: trigger_action_create_file_asset.inc,v 1.4 2006/12/06 00:07:40 bcaldwell Exp $
 *
 */
 
@@ -33,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -96,18 +88,18 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 					'is_dependant'	=> (bool) $is_dependant,
 					'is_exclusive'	=> (bool) $is_exclusive,
 				);
-				
+
 		$info = Array(
 					'name'			    => basename($settings['file_path']),
 					'tmp_name'		    => $settings['file_path'],
 					'non_uploaded_file' => TRUE,
 					);
-					
+
 		$type_code = $settings['type_code'];
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 		$new_asset =& new $type_code();
 		$new_asset->_tmp['uploading_file'] = true;
-		
+
 		// set the attributes for the newly created asset
 		if (!empty($attributes)) {
 			foreach ($attributes as $index => $val) {
@@ -117,13 +109,13 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 
 		$linkid = $new_asset->create($link, $info);
 		if (!$linkid) return FALSE;
-		
+
 		// If we're running at a low runlevel, we need to run the _createAdditional function here
 		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
 			if (!$new_asset->_createAdditional($linkid)) return FALSE;
-			
+
 		}
-		
+
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 
 		return Array(
