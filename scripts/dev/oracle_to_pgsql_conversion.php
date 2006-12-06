@@ -1,24 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Open Source Licence                                      |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
-* | This source file may be used subject to, and only in accordance    |
-* | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
-* | Make sure you have read and accept the terms of that licence,      |
-* | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
-* | modify, adapt or enhance this software, you agree to assign your   |
-* | intellectual property rights in the modification, adaptation and   |
-* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oracle_to_pgsql_conversion.php,v 1.1 2006/09/22 03:55:38 amiller Exp $
+* $Id: oracle_to_pgsql_conversion.php,v 1.2 2006/12/06 05:42:20 bcaldwell Exp $
 *
 */
 
@@ -28,7 +20,7 @@
 * Migrates an existing Oracle-based Matrix database into an PostgreSQL database
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -70,8 +62,8 @@ require_once $SYSTEM_ROOT.'/core/include/general.inc';
 $pg_db  = & DB::connect(PGSQL_DSN);
 $oci_db = & DB::connect(ORACLE_DSN);
 
-if (PEAR::isError($pg_db)) dbDie($pg_db); 
-if (PEAR::isError($oci_db)) dbDie($oci_db); 
+if (PEAR::isError($pg_db)) dbDie($pg_db);
+if (PEAR::isError($oci_db)) dbDie($oci_db);
 
 $pg_db->setFetchMode(DB_FETCHMODE_ASSOC);
 $oci_db->setFetchMode(DB_FETCHMODE_ASSOC);
@@ -87,7 +79,7 @@ bam('Dropping PostgreSQL sequences');
 	// $oci_seqs = $oci_db->getAll('SELECT sequence_name FROM user_sequences');
 	$pg_seqs = $pg_db->getAll('SELECT relname FROM pg_catalog.pg_statio_user_sequences');
 	bam(print_r($pg_seqs, true));
-	
+
 	foreach($pg_seqs as $key => $value) {
 		$del_seqs[] = strtolower(substr($value['relname'], 0, strlen($value['relname']) - 4));
 	}
@@ -96,12 +88,12 @@ bam('Dropping PostgreSQL sequences');
 		$sequence_values[$sequence] = $oci_db->nextId('sq_'.$sequence);
 	}
 	bam($sequence_values);
-	
+
 	if(isset($del_seqs)) {
 		foreach ($del_seqs as $sequence) {
 			printName('Dropping: '.strtolower($sequence));
 			$ok = $pg_db->dropSequence($sequence);
-			if (PEAR::isError($ok)) dbDie($ok); 
+			if (PEAR::isError($ok)) dbDie($ok);
 			printUpdateStatus('OK');
 		}
 	}
@@ -110,12 +102,12 @@ bam('Dropping PostgreSQL sequences');
 bam('Truncating PostgreSQL Tables');
 
 	foreach ($info['tables'] as $tablename => $table_info) {
-	
+
 		printName('Truncating: sq_'.$tablename);
 		$ok = $pg_db->query('TRUNCATE sq_'.$tablename);
 		if (PEAR::isError($ok)) dbDie($ok);
 		printUpdateStatus('OK');
-			
+
 	}//end foreach
 
 
@@ -125,18 +117,18 @@ foreach ($info['tables'] as $tablename => $table_info) {
 	if ($tablename == 'internal_msg') { continue; }
 
 	bam('Starting table: sq_'.$tablename);
-	
+
 	printName('Grabbing source data');
 
 		$source_data = $oci_db->getAll('select * from sq_'.$tablename);
 
 	printUpdateStatus('OK');
-		
+
 	printName('Inserting Data ('.count($source_data).' rows)');
-	
+
 		$i = 1;
 		foreach($source_data as $key => $data) {
-		
+
 			$sql = generateSQL($tablename, $data);
 			$ok = $pg_db->query($sql);
 			if (PEAR::isError($ok)) {
@@ -149,9 +141,9 @@ foreach ($info['tables'] as $tablename => $table_info) {
 			}
 		}
 
-	$pg_db->commit();	
+	$pg_db->commit();
 	printUpdateStatus('OK');
-	
+
 }//end foreach
 
 
@@ -161,7 +153,7 @@ bam('Rebuilding Sequences');
 foreach ($info['sequences'] as $sequence) {
 
 	$new_seq_start = $sequence_values[$sequence];
-	
+
 	printName('Creating sq_'.$sequence.'_seq ('.$new_seq_start.')');
 	$ok = $pg_db->query('CREATE SEQUENCE sq_'.$sequence.'_seq START WITH '.$new_seq_start);
 	if (PEAR::isError($ok)) dbDie($ok);
@@ -276,7 +268,7 @@ function parse_tables_xml($xml_file)
 					}
 				}
 			}
-			
+
 			//--        INDEXES        --//
 
 			// check for any indexes that need creating
@@ -301,18 +293,18 @@ function parse_tables_xml($xml_file)
 							 );
 				$info['tables'][$table_name]['indexes'][$index_col_name] = $index_info;
 			}//end for
-			
-			
+
+
 		}
-		
+
 	}
-	
+
 	for ($i = 0; $i < count($root->children[1]->children); $i++) {
 		$sequence = &$root->children[1]->children[$i];
 		$sequence_name = $sequence->attributes['name'];
 		$info['sequences'][] = $sequence_name;
 	}
-	
+
 	return $info;
 
 }//end parse_tables_xml()
@@ -321,17 +313,17 @@ function parse_tables_xml($xml_file)
 function generateSQL($tablename, $data)
 {
 	global $pg_db;
-	
+
 	$sql = 'INSERT INTO sq_'.$tablename.' (';
-		
+
 	foreach (array_keys($data) as $columnname) {
 		$sql .= strtoupper($columnname).', ';
 	}//end foreach
-	
+
 	$sql = substr($sql, 0, strlen($sql) - 2);
-	
+
 	$sql .= ') values (';
-	
+
 	foreach (array_values($data) as $value) {
 		$sql .= $pg_db->quoteSmart($value).', ';
 	}//end foreach
@@ -357,7 +349,7 @@ function create_index_sql($tablename, $column, $index_name=null, $index_type=nul
 	}
 
 	return $sql;
-	
+
 }//end create_index_sql()
 
 
@@ -377,7 +369,7 @@ function printUpdateStatus($status)
 
 }//end printUpdateStatus()
 
-function dbDie(&$db) 
+function dbDie(&$db)
 {
 	echo 'Standard Message: ' . $db->getMessage() . "\n";
     echo 'Standard Code: ' . $db->getMessage() . "\n";

@@ -1,24 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Open Source Licence                                      |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
-* | This source file may be used subject to, and only in accordance    |
-* | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
-* | Make sure you have read and accept the terms of that licence,      |
-* | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
-* | modify, adapt or enhance this software, you agree to assign your   |
-* | intellectual property rights in the modification, adaptation and   |
-* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: pgsql_to_oracle_conversion.php,v 1.1 2005/12/23 00:24:06 amiller Exp $
+* $Id: pgsql_to_oracle_conversion.php,v 1.2 2006/12/06 05:42:20 bcaldwell Exp $
 *
 */
 
@@ -28,7 +20,7 @@
 * Migrates an existing PostgreSQL-based Matrix database into an Oracle database
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -65,8 +57,8 @@ require_once $SYSTEM_ROOT.'/core/include/general.inc';
 $pg_db  = & DB::connect(PGSQL_DSN);
 $oci_db = & DB::connect(ORACLE_DSN);
 
-if (PEAR::isError($pg_db)) dbDie($pg_db); 
-if (PEAR::isError($oci_db)) dbDie($oci_db); 
+if (PEAR::isError($pg_db)) dbDie($pg_db);
+if (PEAR::isError($oci_db)) dbDie($oci_db);
 
 $pg_db->setFetchMode(DB_FETCHMODE_ASSOC);
 $oci_db->autoCommit(false);
@@ -86,12 +78,12 @@ bam('Dropping Oracle sequences');
 	foreach ($info['sequences'] as $sequence) {
 		$sequence_values[$sequence] = $pg_db->nextId('sq_'.$sequence);
 	}
-	
+
 	if(isset($del_seqs)) {
 		foreach ($del_seqs as $sequence) {
 			printName('Dropping: '.strtolower($sequence));
 			$ok = $oci_db->dropSequence($sequence);
-			if (PEAR::isError($ok)) dbDie($ok); 
+			if (PEAR::isError($ok)) dbDie($ok);
 			printUpdateStatus('OK');
 		}
 	}
@@ -103,13 +95,13 @@ bam('Dropping Oracle Indexes');
 	foreach($oci_idx as $key => $value) {
 		$del_idx[] = strtolower($value[0]);
 	}
-	
+
 	if (isset($del_idx)) {
 		foreach($del_idx as $index) {
 			if (substr($index, 0, 3) == 'sq_') {
 				printName('Dropping: '.$index);
 				$ok = $oci_db->query('DROP INDEX '.$index);
-				if (PEAR::isError($ok)) dbDie($ok); 
+				if (PEAR::isError($ok)) dbDie($ok);
 				printUpdateStatus('OK');
 			}//end if
 		}//end foreach
@@ -120,12 +112,12 @@ bam('Dropping Oracle Indexes');
 bam('Truncating Oracle Tables');
 
 	foreach ($info['tables'] as $tablename => $table_info) {
-	
+
 		printName('Truncating: sq_'.$tablename);
 		$ok = $oci_db->query('TRUNCATE TABLE sq_'.$tablename);
 		if (PEAR::isError($ok)) dbDie($ok);
 		printUpdateStatus('OK');
-			
+
 	}//end foreach
 
 
@@ -135,28 +127,28 @@ bam('Truncating Oracle Tables');
 foreach ($info['tables'] as $tablename => $table_info) {
 
 	bam('Starting table: sq_'.$tablename);
-	
+
 		$columns = array_keys($table_info['columns']);
 		asort($columns);
 		$sql = generateSQL($oci_db, $tablename, $columns);
 
 
 	printName('Preparing SQL INSERT Query');
-	
+
 		$prepared_sql = $oci_db->prepare($sql);
-	
+
 	printUpdateStatus('OK');
-	
+
 	printName('Grabbing source data');
 
 		$source_data = $pg_db->getAll('select * from sq_'.$tablename);
-		
+
 	printUpdateStatus('OK');
-	
+
 	printName('Inserting Data ('.count($source_data).' rows)');
-	
+
 		foreach($source_data as $key => $data) {
-		
+
 			ksort($data);
 			$ok = $oci_db->execute($prepared_sql, $data);
 			if (PEAR::isError($ok)) {
@@ -165,9 +157,9 @@ foreach ($info['tables'] as $tablename => $table_info) {
 			}
 		}
 
-	$oci_db->commit();	
+	$oci_db->commit();
 	printUpdateStatus('OK');
-	
+
 }//end foreach
 
 // Recreate the indexies in Oracle
@@ -205,7 +197,7 @@ bam('Rebuilding Sequences');
 foreach ($info['sequences'] as $sequence) {
 
 	$new_seq_start = $sequence_values[$sequence];
-	
+
 	printName('Creating sq_'.$sequence.'_seq ('.$new_seq_start.')');
 	$ok = $oci_db->query('CREATE SEQUENCE sq_'.$sequence.'_seq START WITH '.$new_seq_start);
 	if (PEAR::isError($ok)) dbDie($ok);
@@ -319,7 +311,7 @@ function parse_tables_xml($xml_file)
 					}
 				}
 			}
-			
+
 			//--        INDEXES        --//
 
 			// check for any indexes that need creating
@@ -344,18 +336,18 @@ function parse_tables_xml($xml_file)
 							 );
 				$info['tables'][$table_name]['indexes'][$index_col_name] = $index_info;
 			}//end for
-			
-			
+
+
 		}
-		
+
 	}
-	
+
 	for ($i = 0; $i < count($root->children[1]->children); $i++) {
 		$sequence = &$root->children[1]->children[$i];
 		$sequence_name = $sequence->attributes['name'];
 		$info['sequences'][] = $sequence_name;
 	}
-	
+
 	return $info;
 
 }//end parse_tables_xml()
@@ -363,21 +355,21 @@ function parse_tables_xml($xml_file)
 
 function generateSQL(&$oci_db, $tablename, $columns)
 {
-	
+
 	$sql = 'INSERT INTO sq_'.$tablename.' (';
-		
+
 	foreach ($columns as $columnname) {
 		$sql .= strtoupper($columnname).', ';
 	}//end foreach
-	
+
 	$sql = substr($sql, 0, strlen($sql) - 2);
-	
+
 	$sql .= ') values (';
 
 	for ($i = 0; $i < count($columns); $i++) {
 			$sql .= '?, ';
 	}//end for
-	
+
 	$sql = substr($sql, 0, strlen($sql) - 2);
 
 	$sql .= ')';
@@ -399,7 +391,7 @@ function create_index_sql($tablename, $column, $index_name=null, $index_type=nul
 	}
 
 	return $sql;
-	
+
 }//end create_index_sql()
 
 
@@ -419,7 +411,7 @@ function printUpdateStatus($status)
 
 }//end printUpdateStatus()
 
-function dbDie(&$db) 
+function dbDie(&$db)
 {
 	echo 'Standard Message: ' . $db->getMessage() . "\n";
     echo 'Standard Code: ' . $db->getMessage() . "\n";

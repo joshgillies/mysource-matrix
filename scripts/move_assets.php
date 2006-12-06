@@ -1,24 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Open Source Licence                                      |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
-* | This source file may be used subject to, and only in accordance    |
-* | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
-* | Make sure you have read and accept the terms of that licence,      |
-* | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
-* | modify, adapt or enhance this software, you agree to assign your   |
-* | intellectual property rights in the modification, adaptation and   |
-* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: move_assets.php,v 1.4 2005/11/24 02:22:09 mmcintyre Exp $
+* $Id: move_assets.php,v 1.5 2006/12/06 05:39:51 bcaldwell Exp $
 *
 */
 
@@ -65,7 +57,7 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 // ask for the root password for the system
 echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
-	
+
 // check that the correct root password was entered
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
@@ -84,7 +76,7 @@ $i = 0;
 foreach ($assets as $assetid => $type_code) {
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'all');
 	_getCurrentLinkId($assetid);
-	$GLOBALS['SQ_SYSTEM']->am->moveLink(_getCurrentLinkId($assetid), $TO_FOLDER, SQ_LINK_TYPE_1, 0);	
+	$GLOBALS['SQ_SYSTEM']->am->moveLink(_getCurrentLinkId($assetid), $TO_FOLDER, SQ_LINK_TYPE_1, 0);
 	//now change the assets own record of it's link
 	$my_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 	$my_asset->saveAttributes();

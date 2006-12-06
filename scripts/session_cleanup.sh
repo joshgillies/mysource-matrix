@@ -1,24 +1,16 @@
 #!/bin/sh
 #/**
 #* +--------------------------------------------------------------------+
-#* | Squiz.net Open Source Licence                                      |
+#* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+#* | ACN 084 670 600                                                    |
 #* +--------------------------------------------------------------------+
-#* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-#* +--------------------------------------------------------------------+
-#* | This source file may be used subject to, and only in accordance    |
-#* | with, the Squiz Open Source Licence Agreement found at             |
-#* | http://www.squiz.net/licence.                                      |
-#* | Make sure you have read and accept the terms of that licence,      |
-#* | including its limitations of liability and disclaimers, before     |
-#* | using this software in any way. Your use of this software is       |
-#* | deemed to constitute agreement to be bound by that licence. If you |
-#* | modify, adapt or enhance this software, you agree to assign your   |
-#* | intellectual property rights in the modification, adaptation and   |
-#* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-#* | licence.                                                           |
+#* | IMPORTANT: Your use of this Software is subject to the terms of    |
+#* | the Licence provided in the file licence.txt. If you cannot find   |
+#* | this file please contact Squiz (www.squiz.net) so we may provide   |
+#* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: session_cleanup.sh,v 1.2 2006/08/31 04:56:50 tbarrett Exp $
+#* $Id: session_cleanup.sh,v 1.3 2006/12/06 05:39:51 bcaldwell Exp $
 #*
 #*/
 
@@ -118,7 +110,7 @@ fi
 if [ $SESSION_LIFETIME -gt 0 ]; then
 
 	if [ -w $SESSION_LOCATION ]; then
-	
+
 		if [ -f $TMPFILE ]; then
 			echo "The file $TMPFILE exists. Check that this script isn't already running and remove the files if it's orphaned. Aborting."
 			exit 1;
