@@ -1,16 +1,24 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
-* | IMPORTANT: Your use of this Software is subject to the terms of    |
-* | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.55 2006/12/06 02:59:56 emcdonald Exp $
+* $Id: site_edit_fns.inc,v 1.56 2006/12/06 04:16:05 lwright Exp $
 *
 */
 
@@ -24,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -452,6 +460,273 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		return $this->processNoticeLinkedAsset($asset, 'not_found');
 
 	}//end processNotFoundPage()
+
+
+	/**
+	* Paint the interface for setting authentication redirects for the site
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAuthURLs(&$asset, &$o, $prefix)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$write_access = $asset->writeAccess('lookups');
+
+		$sql = 'SELECT
+					urlid, url, auth_urlid
+				FROM
+					sq_ast_url
+				WHERE
+					assetid = '.$db->quote($asset->id);
+
+		$urls = $db->getAssoc($sql);
+		assert_valid_db_result($urls);
+
+		foreach ($urls as $urlid => $url) {
+			$combo_box_urls[$urlid] = $url['url'];
+		}
+
+		$combo_box_from = $combo_box_urls;
+
+		// We will cache the body of the table, and only print the table out
+		// if we have a redirect worth painting
+		$paint_table = FALSE;
+
+		ob_start();
+
+			foreach ($urls as $urlid => $url) {
+				if (!empty($url['auth_urlid'])) {
+					$paint_table = TRUE;
+					unset($combo_box_from[$urlid]);
+					?>
+					<tr>
+					<td><?php echo $url['url'] ?></td>
+					<td><?php
+					if ($write_access) {
+						combo_box($prefix.'auth_url[change]['.$urlid.']', $combo_box_urls, FALSE, $url['auth_urlid']);
+					} else {
+						echo $urls[$url['auth_urlid']]['url'];
+					}
+					?></td>
+					<?php if ($write_access) {
+					?>
+					<td><?php echo check_box($prefix.'auth_url[delete]['.$urlid.']') ?></td>
+					<?php
+					}
+					?>
+					</tr>
+
+					<?php
+				}
+			}
+
+		$body = ob_get_clean();
+
+		$o->openSection(translate('core_site_current_redirects'));
+		$o->openField('');
+
+		if ($paint_table) {
+			?>
+			<table class="sq-backend-table">
+			<tr>
+				<th><?php echo translate('old_url') ?></th>
+				<th><?php echo translate('new_url') ?></th>
+				<?php if ($write_access) {
+					?><th>Delete?</th><?php
+				}
+				?>
+			</tr>
+			<?php
+			echo $body;
+			?>
+			</table>
+			<?php
+		} else {
+			?><em>No redirects currently exist</em><?php
+		}
+
+		$o->closeField();
+		$o->closeSection();
+
+		if ($write_access) {
+
+			// Now the "add" section
+			$combo_box_from = Array('' => '-- Select URL --') + $combo_box_from;
+			$combo_box_urls = Array('' => '-- Select URL --') + $combo_box_urls;
+
+			$o->openSection(translate('core_site_add_redirect'));
+
+				$o->openField(translate('from'));
+					combo_box($prefix.'auth_url[from]', $combo_box_from);
+				$o->closeField();
+
+				$o->openField(translate('to'));
+					combo_box($prefix.'auth_url[to]', $combo_box_urls);
+				$o->closeField();
+
+			$o->closeSection();
+
+		}
+
+		return $write_access;
+
+	}//end paintAuthURLs()
+
+
+	/**
+	* Process the interface for setting authentication redirects for the site
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend Outputter object
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAuthURLs(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('lookups')) return FALSE;
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT
+					urlid, auth_urlid
+				FROM
+					sq_ast_url
+				WHERE
+					assetid = '.$db->quote($asset->id).';';
+
+		$urls = $db->getAssoc($sql);
+		assert_valid_db_result($urls);
+		$changed_urlids = Array();
+
+		$auth_urls = $_REQUEST[$prefix.'auth_url'];
+
+		// All this includes security checks to make sure the passed request
+		// data are at least well-formed
+		if (!is_array($auth_urls)) return FALSE;
+
+		if (isset($auth_urls['change'])) {
+			if (!is_array($auth_urls['change'])) return FALSE;
+
+			foreach ($auth_urls['change'] as $from => $to) {
+				if (!is_numeric($to)) return FALSE;
+				$urls[$from] = (int)$to;
+				$changed_urlids[$from] = TRUE;
+			}
+		}
+
+		if (isset($auth_urls['delete'])) {
+			if (!is_array($auth_urls['delete'])) return FALSE;
+
+			foreach ($auth_urls['delete'] as $from => $value) {
+				$urls[$from] = NULL;
+				$changed_urlids[$from] = TRUE;
+			}
+		}
+
+		if (!empty($auth_urls['from']) && !empty($auth_urls['to'])) {
+			if (!is_numeric($auth_urls['from'])) return FALSE;
+			if (!is_numeric($auth_urls['to'])) return FALSE;
+
+			$urls[(int)$auth_urls['from']] = (int)$auth_urls['to'];
+			$changed_urlids[(int)$auth_urls['from']] = TRUE;
+		}
+
+		if ($this->_isCircularReference($urls)) {
+			// Cannot update private URLs, the submitted set-up would cause a
+			// redirect loop
+			trigger_localised_error('CORE0263', E_USER_WARNING);
+			return FALSE;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			// save them
+			foreach (array_keys($changed_urlids) as $urlid) {
+				$sql = 'UPDATE
+							sq_ast_url
+						SET
+							auth_urlid = '.$db->quote($urls[$urlid]).'
+						WHERE
+							urlid = '.$db->quote($urlid).';';
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
+			}
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return TRUE;
+		}
+
+	}//end processAuthURLs()
+
+
+	/**
+	* Checks the URL list to see if there is a circular reference that would
+	* cause a redirect loop
+	*
+	* Algorithm:
+	* - Start on each from URL ID, traverse to the to URL ID, and that becomes
+	*   the next "from".
+	* - If at any point we hit a "no redirect", then there is no loop with that
+	*   particular URL.
+	* - If at any point we hit a URL ID that we have seen before from a
+	*   particular, then we have looped, so return TRUE. (Obviously we start
+	*   afresh from each starting point.)
+	*
+	* Example:
+	*     Example URL setup              Circular?
+	*     ============================== =========
+	*     A => B, B => A                   YES
+	*     A => B, B => C, C => A           YES
+	*     A => B, B => C, C => NULL         NO
+	*
+	* @param array	$urls	array of URL IDs
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _isCircularReference($urls)
+	{
+		foreach (array_keys($urls) as $from) {
+			$current_from = $from;
+			$seen = Array();
+			$complete = FALSE;
+			$circular = FALSE;
+
+			while (!$complete && !$circular) {
+				$seen[] = $current_from;
+
+				// Get the next step in the list
+				$current_from = array_get_index($urls, $current_from, NULL);
+
+				if (is_null($current_from)) {
+					$complete = TRUE;
+				}
+
+				// Have we already seen this
+
+				if (array_search($current_from, $seen) !== FALSE) {
+					$circular = TRUE;
+				}
+
+			}//end while
+
+			// We found a circular reference
+			if ($circular) return TRUE;
+
+		}//end foreach
+
+		// No circular reference detected
+		return FALSE;
+
+	}//end _isCircularReference()
 
 
 }//end class

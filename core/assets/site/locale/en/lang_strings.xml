@@ -11,11 +11,12 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2006/12/06 02:59:56 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.4 2006/12/06 04:16:05 lwright Exp $
 *
 */
 -->
 
 <strings>
-	<string source="str_site_error_not_system_root">URL "%s" is not based upon an existing System Root URL</string>
+	<string source="core_site_add_redirect">Add Redirect</string>
+	<string source="core_site_current_redirects">Current Redirects</string>
 </strings>
