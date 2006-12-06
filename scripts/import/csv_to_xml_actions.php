@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv_to_xml_actions.php,v 1.2 2006/12/06 05:42:21 bcaldwell Exp $
+* $Id: csv_to_xml_actions.php,v 1.3 2006/12/06 22:21:22 mbrydon Exp $
 *
 */
 
@@ -555,6 +555,12 @@ while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 				}
 			}
 
+			// ...and give it a web path
+			$settings = Array(
+							'path'	=> $folder_name,
+						);
+			printCreateTriggerAction('set_folder_'.$folder_name.'_path', 'add_web_path', 'output://create_folder_'.$folder_name.'.assetid', $settings);
+
 			// Now create an asset of the specified type (under the relevant group by folder, if specified)
 			$asset_parent_id = $global_parent_id;
 			if ($folder_name != '') {
@@ -568,7 +574,7 @@ while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 
 				// Only process fields in which we are interested (ie; where "ignore" is not set)
 				if (!isset($metadata_mapping['metadata_ignore_fields'][$column_name])) {
-					// Any value set to dashes only OR blankety denotes an empty field, so don't bother with this one. Otherwise compact contiguous spaces
+					// Any value set to dashes only OR blank denotes an empty field, so don't bother with this one. Otherwise compact contiguous spaces
 					$value = trim(compactSpaces($data[$n]));
 
 					if ((compactCharacters($value, '-') == '-') || ($value == '')) {
@@ -587,6 +593,7 @@ while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 				}
 			}
 
+			// If we are after unique records only (ie; the '-unique' parameter was specified), then ensure that this record is not a duplicate of one already processed. If it is, then it will be ignored
 			if ($export_unique_records_only) {
 				$record_serialised = serialize($record_metadata);
 
@@ -612,6 +619,12 @@ while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 						);
 			printCreateTriggerAction('set_'.$action_id.'_name', 'set_attribute_value', 'output://'.$action_id.'.assetid', $settings);
 
+			// ...and give it a web path
+			$settings = Array(
+							'path'	=> $action_id,
+						);
+			printCreateTriggerAction('set_'.$action_id.'_path', 'add_web_path', 'output://'.$action_id.'.assetid', $settings);
+
 			// Set the appropriate metadata schema for this asset
 			$settings = Array(
 							'schemaid'	=> $metadata_mapping['metadata_schema_id'],
@@ -625,7 +638,7 @@ while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 								'fieldid'	=> $metadata_field_id,
 								'value'		=> $value,
 							);
-				printCreateTriggerAction('set_'.$action_id.'_metadata_value_'.$column_name, 'set_metadata_value', 'output://'.$action_id.'.assetid', $settings);
+				printCreateTriggerAction('set_'.$action_id.'_metadata_value_'.$metadata_field_id, 'set_metadata_value', 'output://'.$action_id.'.assetid', $settings);
 
 			}
 
