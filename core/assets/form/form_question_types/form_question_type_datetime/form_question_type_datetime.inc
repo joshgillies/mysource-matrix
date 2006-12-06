@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.11 2006/12/06 00:35:30 emcdonald Exp $
+* $Id: form_question_type_datetime.inc,v 1.12 2006/12/06 22:51:26 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -214,10 +214,10 @@ class Form_Question_Type_Datetime extends Form_Question
 				} else if ($field == 'h' && (substr($answer, 11, 2) == '--')) {
 					return FALSE;
 
-				} else if ($field == 's' && (substr($answer, 14, 2) == '--')) {
+				} else if ($field == 'i' && (substr($answer, 14, 2) == '--')) {
 					return FALSE;
 
-				} else if ($field == 'i' && (substr($answer, 17, 2) == '--')) {
+				} else if ($field == 's' && (substr($answer, 17, 2) == '--')) {
 					return FALSE;
 
 				}
