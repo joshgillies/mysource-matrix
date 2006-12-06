@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_thesaurus_db.php,v 1.3 2006/01/30 00:31:08 lwright Exp $
+* $Id: upgrade_thesaurus_db.php,v 1.4 2006/12/05 23:59:53 emcdonald Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrades thesaurus contents from 0.1 to 0.2
 *
 * @author  Elden McDonald
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -114,7 +114,7 @@ foreach ($thesaurii as $thesaurus_id) {
 		$term_asset = new Thesaurus_Term();
 		$term_asset->setAttrValue('name', $minor);
 		if(!$term_asset->create($create_link)) {
-			trigger_error('Move term to new thesaurus: "'.$minor.'" #'.$minor_id, E_USER_FAILURE);
+			trigger_error('Move term to new thesaurus: "'.$minor.'" #'.$minor_id, E_USER_ERROR);
 			return false;
 		}
 
@@ -194,7 +194,7 @@ foreach ($thesaurii as $thesaurus_id) {
 			$term_asset = new Thesaurus_Term();
 			$term_asset->setAttrValue('name', $minor);
 			if(!$term_asset->create($create_link)) {
-				trigger_error('Move term to new thesaurus: "'.$minor.'" #'.$minor_id, E_USER_FAILURE);
+				trigger_error('Move term to new thesaurus: "'.$minor.'" #'.$minor_id, E_USER_ERROR);
 				return false;
 			}
 
@@ -261,7 +261,7 @@ foreach ($thesaurii as $thesaurus_id) {
 			$term_asset = new Thesaurus_Term();
 			$term_asset->setAttrValue('name', $minor);
 			if(!$term_asset->create($create_link)) {
-				trigger_error('Move term to new thesaurus: "'.$minor.'" #'.$minor_id, E_USER_FAILURE);
+				trigger_error('Move term to new thesaurus: "'.$minor.'" #'.$minor_id, E_USER_ERROR);
 				return false;
 			}
 
@@ -333,7 +333,7 @@ foreach ($thesaurii as $thesaurus_id) {
 					$term_asset = new Thesaurus_Term();
 					$term_asset->setAttrValue('name', $minor);
 					if(!$term_asset->create($create_link)) {
-						trigger_error('Move term to new thesaurus: "'.$minor.'" #'.$minor_id, E_USER_FAILURE);
+						trigger_error('Move term to new thesaurus: "'.$minor.'" #'.$minor_id, E_USER_ERROR);
 						return false;
 					}
 
