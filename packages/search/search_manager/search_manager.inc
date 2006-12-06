@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.129 2006/12/04 04:14:03 emcdonald Exp $
+* $Id: search_manager.inc,v 1.130 2006/12/06 05:09:54 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.129 $
+* @version $Revision: 1.130 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1060,6 +1060,7 @@ class Search_Manager extends Asset
 	{
 		$index_content = Array();
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$plugin =& $this->_getDBPlugin();
 		$type_code = $asset->type();
 
 		if (is_null($asset)) return $index_content;
@@ -1120,17 +1121,7 @@ class Search_Manager extends Asset
 						$value = $this->_getRawNumberInText($value);
 				}
 
-				$word_counts = get_word_counts(strtolower($value));
-
-				foreach ($word_counts as $word => $count) {
-					$index_content[] = Array(
-										'value'		=> $word,
-										'type_code'	=> $type_code,
-										'type'		=> $key_type,
-										'component'	=> 'metadata:'.$field->id,
-										'score'		=> $count * $weighting,
-									   );
-				}
+				$index_content = array_merge($index_content, $plugin->splitIndexableContent($value, $type_code, $key_type, 'metadata:'.$field->id, $weighting));
 			}//end else
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($field);
