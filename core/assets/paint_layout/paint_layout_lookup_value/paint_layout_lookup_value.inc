@@ -1,24 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Open Source Licence                                      |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
-* | This source file may be used subject to, and only in accordance    |
-* | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
-* | Make sure you have read and accept the terms of that licence,      |
-* | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
-* | modify, adapt or enhance this software, you agree to assign your   |
-* | intellectual property rights in the modification, adaptation and   |
-* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_lookup_value.inc,v 1.6 2006/02/07 00:41:31 skim Exp $
+* $Id: paint_layout_lookup_value.inc,v 1.7 2006/12/06 02:53:10 emcdonald Exp $
 *
 */
 
@@ -31,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
