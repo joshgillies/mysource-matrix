@@ -1,17 +1,16 @@
 <!--
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | Squiz.net Commercial Module Licence                                |
+* | This MySource Matrix Module file is Copyright © Squiz Pty Ltd      |
+* | ACN 084 670 600                                                    |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
-* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | This source file is not open source or freely usable and may be    |
-* | used subject to, and only in accordance with, the Squiz Commercial |
-* | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2006/10/11 02:09:31 arailean Exp $
+* $Id: lang_screen_details.xml,v 1.9 2006/12/07 00:07:09 emcdonald Exp $
 *
 */
 -->
@@ -58,7 +57,7 @@
 			<display_name>Tunnel Scripts and Style Sheets?</display_name>
 			<note>If this option is enabled, URLs in SCRIPT and LINK tags, or next to 'import' directives within STYLE blocks, will be rewritten so that the relevant CSS or Javascript files will be tunneled through this asset.</note>
 		</field>
-		<note>If no types of tunneling are enabled, all elements of the remote page are requested directly from the remote server by the browser.  Tunneling can be useful if you are using this page to perform HTTP Authentication on the remote server, or if the target server is configured to only allow access from this matrix server. However, enabling these options may significantly increase the load time of the target page and may increase the traffic on the matrix server.</note>	
+		<note>If no types of tunneling are enabled, all elements of the remote page are requested directly from the remote server by the browser.  Tunneling can be useful if you are using this page to perform HTTP Authentication on the remote server, or if the target server is configured to only allow access from this matrix server. However, enabling these options may significantly increase the load time of the target page and may increase the traffic on the matrix server.</note>
 	</section>
 	<section name="Content Filtering">
 		<field attribute="start_tag">
