@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.70 2006/12/07 06:11:01 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.71 2006/12/07 22:04:25 lwright Exp $
 *
 */
 
@@ -1677,6 +1677,9 @@ Full Node Contents :
 
 	<!-- trying to create an already-existing asset -->
 	<error code="CORE0268">This %s asset has already been created - cannot create it again</error>
+
+	<!-- Site asset - Auth Redirect: Circular Reference -->
+	<error code="CORE0269">Could not update authentication redirects, the set-up submitted would cause a redirect loop</error>
 
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->
