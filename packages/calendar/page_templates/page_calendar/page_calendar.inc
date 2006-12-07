@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.193 2006/12/07 05:51:51 bcaldwell Exp $
+* $Id: page_calendar.inc,v 1.194 2006/12/07 06:18:12 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.193 $
+* @version $Revision: 1.194 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -199,7 +199,9 @@ class Page_Calendar extends Page
 	*/
 	function printFrontend()
 	{
-		$this->_tmp['valid_request'] = $this->_validateRequest();
+		if (!isset($this->_tmp['valid_request'])) {
+			$this->_tmp['valid_request'] = $this->_validateRequest();
+		}
 		return parent::printFrontend();
 
 	}//end printFrontend()
@@ -213,6 +215,11 @@ class Page_Calendar extends Page
 	*/
 	function printHead()
 	{
+		if (!isset($this->_tmp['valid_request'])) {
+			$this->_tmp['valid_request'] = $this->_validateRequest();
+		}
+		if (!$this->_tmp['valid_request']) return;
+
 		$view = $_REQUEST['SQ_CALENDAR_VIEW'];
 		$format = array_get_index($this->attr('enabled_views'), $view, '');
 		if (in_array($view, Array('day', 'week')) &&  ($format == 'calendar_format')) {
@@ -264,7 +271,6 @@ class Page_Calendar extends Page
 	function printBody()
 	{
 		$root_node_ids = array_keys($this->attr('root_nodes'));
-
 		$res = '';
 		$action = array_get_index($_REQUEST,'SQ_CALENDAR_EVENT_ACTION',FALSE);
 		if ($action) {
@@ -274,6 +280,9 @@ class Page_Calendar extends Page
 		}
 		if (!$res) {
 
+			if (!isset($this->_tmp['valid_request'])) {
+				$this->_tmp['valid_request'] = $this->_validateRequest();
+			}
 			if (!$this->_tmp['valid_request']) return;
 
 			// Try to get from cache
@@ -406,6 +415,10 @@ class Page_Calendar extends Page
 	*/
 	function _getCacheKey()
 	{
+		if (!isset($this->_tmp['valid_request'])) {
+			$this->_tmp['valid_request'] = $this->_validateRequest();
+		}
+
 		// Cache key will be a letter representing the view type (Y, M, W, D)
 		// followed by as precise an iso-date as necessary (2004, 2004-02, 2004-04-01)
 		list($year, $month, $day) = explode('-', $_REQUEST['SQ_CALENDAR_DATE']);
