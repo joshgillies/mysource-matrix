@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_prefs.inc,v 1.2 2006/12/07 02:48:04 bcaldwell Exp $
+* $Id: search_manager_prefs.inc,v 1.3 2006/12/07 04:18:20 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the Search Manager preferences
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Search_Manager_Prefs extends Prefs
@@ -99,6 +99,10 @@ class Search_Manager_Prefs extends Prefs
 	*/
 	function processBackend($o, $have_lock, $pref=NULL)
 	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		if (!$is_admin) return FALSE;
+
 		// Not set = just silently return that we haven't done anything
 		if (!isset($_POST['prefs']['SQ_SEARCH_BACKEND_PAGE_SIZE'])) {
 			return FALSE;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_structure_tree_prefs.inc,v 1.5 2006/12/07 00:04:17 emcdonald Exp $
+* $Id: content_type_structure_tree_prefs.inc,v 1.6 2006/12/07 04:16:54 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Structure Tree
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Content_Type_Structure_Tree_Prefs extends Prefs
@@ -229,6 +229,10 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 	*/
 	function processBackend(&$o, $have_lock, $pref=NULL)
 	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		if (!$is_admin) return FALSE;
+
 		if (is_null($pref) || $pref == 'SQ_STRUCTURE_TREE_FORMATTING') {
 			$this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default']['bold'] = isset($_POST['SQ_STRUCTURE_SHOW_BOLD']);
 			$this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default']['underline'] = isset($_POST['SQ_STRUCTURE_SHOW_UNDERLINE']);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_prefs.inc,v 1.11 2006/12/07 00:04:16 emcdonald Exp $
+* $Id: content_type_raw_html_prefs.inc,v 1.12 2006/12/07 04:16:49 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Raw HTML preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 class Content_Type_Raw_HTML_Prefs extends Prefs
@@ -124,6 +124,10 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 	*/
 	function processBackend($o, $have_lock, $pref=NULL)
 	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		if (!$is_admin) return FALSE;
+
 		if (isset($_POST['width']) && isset($_POST['height'])) {
 			$this->css_dimension_width->process('width');
 			$this->css_dimension_height->process('height');

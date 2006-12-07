@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_prefs.inc,v 1.4 2006/12/07 00:04:16 emcdonald Exp $
+* $Id: content_type_image_prefs.inc,v 1.5 2006/12/07 04:16:48 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Image Content Type Preferences
 *
 * @author  Darren McKee <dmckee@squiz.net
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Content_Type_Image_Prefs extends Prefs
@@ -335,6 +335,10 @@ class Content_Type_Image_Prefs extends Prefs
 	*/
 	function processBackend(&$o, $have_lock, $pref=NULL)
 	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		if (!$is_admin) return FALSE;
+
 		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_DEFAULTS') {
 			$posted_values = $_POST['SQ_CONTENT_TYPE_IMAGE_DEFAULTS'];
 			if (!isset($posted_values['use_caption_attr'])) {
