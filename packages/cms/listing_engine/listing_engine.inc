@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.201 2006/12/07 21:42:32 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.202 2006/12/07 21:48:05 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.201 $
+* @version $Revision: 1.202 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3371,6 +3371,7 @@ class Listing_Engine extends Page
 		if ($this->attr('group_by') == 'letter') {
 			$keywords['page_list_without_unused'] = translate('cms_listing_page_list_without_unused');
 		}
+		$keywords['page_list_X']			= translate('cms_listing_page_list_sliding');
 
 		$keywords['page_number']			= translate('cms_listing_page_number');
 		$keywords['asset_count']			= translate('cms_listing_asset_count');
