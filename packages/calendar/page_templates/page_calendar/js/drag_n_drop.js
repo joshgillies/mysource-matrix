@@ -1,3 +1,17 @@
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +--------------------------------------------------------------------+
+*
+* $Id: drag_n_drop.js,v 1.11 2006/12/07 05:51:52 bcaldwell Exp $
+*
+*/
 
   /******************************************************
   * This script supports the dragging of elements into  *
@@ -51,7 +65,7 @@ var flashing = '';
 * @param Object   elt   The element to drag
 * @return void
 */
-function startDragging(elt) 
+function startDragging(elt)
 {
 	moved = false;
 	if (movingElt !== null) return;
@@ -60,7 +74,7 @@ function startDragging(elt)
 	}
 	movingElt = elt;
 	originalParent = elt.parentNode;
-	mouseOffset = null;   
+	mouseOffset = null;
 	oldCursor = elt.style.cursor;
 	document.body.style.cursor='move';
 	elt.style.cursor='move';
@@ -78,7 +92,7 @@ function startDragging(elt)
 * @param  Object    elt   The element that's being dragged
 * @return string	  An error code representing what happened, or blank if the move completed OK
 */
-function stopDragging() 
+function stopDragging()
 {
 	var result = '';
 	if (movingElt == null) return 'not_dragging';
@@ -92,14 +106,14 @@ function stopDragging()
 	if (newCell == originalParent) {
 		result = 'no_move';
 		movingElt.style.left = '';
-		movingElt.style.top = '';	
+		movingElt.style.top = '';
 	} else if (newCell == null) {
 		result = 'left_table';
 		movingElt.style.left = '';
-		movingElt.style.top = '';	
+		movingElt.style.top = '';
 	} else {
 		movingElt.style.left = '';
-		movingElt.style.top = '';	
+		movingElt.style.top = '';
 		oldCell.removeChild(movingElt);
 		if (newCell.firstChild != null) newCell.insertBefore(movingElt, newCell.firstChild);
 		else newCell.appendChild(movingElt);
@@ -121,12 +135,12 @@ function stopDragging()
 
 
 /**
-* Adjust the position of the current movingElt as the mouse moves 
-* 
+* Adjust the position of the current movingElt as the mouse moves
+*
 * @param Object e The mouseEvent object (gecko only)
 * @return void
 */
-function moveElt(e) 
+function moveElt(e)
 {
 	moved = true;
 	var mousePosition = getMousePosition(e);
@@ -134,7 +148,7 @@ function moveElt(e)
 		// we are just starting to drag, so figure out the offset
 		eltPos = getEltPosition(movingElt);
 		mouseOffset = {
-						x:(parseInt(mousePosition.x) - parseInt(eltPos.x)), 
+						x:(parseInt(mousePosition.x) - parseInt(eltPos.x)),
 						y:(parseInt(mousePosition.y) - parseInt(eltPos.y))
 					  };
 		var ml = parseInt(movingElt.style.marginLeft)
@@ -155,7 +169,7 @@ function moveElt(e)
 * @param  Object    elt   The element being dragged
 * @return Object    The cell its top left corner is in
 */
-function getDestCell(elt) 
+function getDestCell(elt)
 {
 	var eltPos = getEltPosition(elt);
 	var destTable = document.getElementById(destinationTableId);
@@ -174,7 +188,7 @@ function getDestCell(elt)
 			}
 		}
 		row = row.nextSibling;
-	} 
+	}
 	if (row != null) {
 		var col = row.firstChild;
 		while (col != null) {
@@ -201,7 +215,7 @@ function getDestCell(elt)
 * @param Object   elt   The element to find the position of
 * @return Array   The co-ordinates (x=>123, y=>456)
 */
-function getEltPosition(elt) 
+function getEltPosition(elt)
 {
 	var posX = 0;
 	var posY = 0;
@@ -221,7 +235,7 @@ function getEltPosition(elt)
 * @param Object   e   The mousemove event (gecko only)
 * @return Array   The co-ordinates (x=>123, y=>456)
 */
-function getMousePosition(e) 
+function getMousePosition(e)
 {
 	if (typeof e != "undefined") {
 		// gecko
@@ -235,7 +249,7 @@ function getMousePosition(e)
 }//end getMousePosition()
 
 
-function toggleFlashing(id) 
+function toggleFlashing(id)
 {
 	elt = document.getElementById(id);
 	if (flashing == elt) {
@@ -249,7 +263,7 @@ function toggleFlashing(id)
 }//end toggleFlashing()
 
 
-function doFlash() 
+function doFlash()
 {
 	if (flashing != '') {
 		flashing.style.borderStyle = (flashing.style.borderStyle.indexOf('none') != -1) ? 'dotted' : 'none';

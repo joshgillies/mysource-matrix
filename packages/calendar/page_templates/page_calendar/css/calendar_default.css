@@ -1,25 +1,39 @@
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +--------------------------------------------------------------------+
+*
+* $Id: calendar_default.css,v 1.36 2006/12/07 05:51:52 bcaldwell Exp $
+*
+*/
 
 /**
  ***********************************************************************
  * CALENDAR CSS RULES
- * 
+ *
  * The following CSS rules govern the layout of the calendar displays.
  * Note that most of the height, width and position attributes are set
  * in-line by the calendar and should/can not be specified here.
- * 
+ *
  * Note also that these rules apply in the order they are specified.
  * When several rules apply to an element, the latest-specified rule
  * wins if there is a conflict.
  ***********************************************************************
 */
 
-/** 
+/**
  * GENERAL RULES
  */
 div#calendarTable { width: 100%; text-align: center; }
 div#calendarTable table td { text-align: left; font-size: 70%; }
 div#calendarTable table th { text-align: center; font-size: 70%;  }
-#calendarTable table { margin-left: auto; margin-right: auto; } 
+#calendarTable table { margin-left: auto; margin-right: auto; }
 #calendarTable div { margin: 0px }
 #calendarTable td div.eventText { margin: 0px 0px 0px 1px; text-align: center; padding: 0px; }
 .calendarNavLink, a.calendarNavLink:hover, a.calendarNavLink:visited { text-decoration: none; font-weight: bold; color: blue }
@@ -33,10 +47,10 @@ th.columnLabel a {
 
 /* popups over events */
 div.popup {
-    position:absolute; 
-    visibility:visible; 
-    left: 0px; 
-    top: 0px; 
+    position:absolute;
+    visibility:visible;
+    left: 0px;
+    top: 0px;
     display: none;
     width: 25ex;
     border: 1px solid black;
@@ -47,8 +61,8 @@ div.popup {
 
 /**
  * YEAR TABLE RULES
- * Cells in this table can be header cells or data cells.  
- * Data cells can be completely empty, or contain a date, 
+ * Cells in this table can be header cells or data cells.
+ * Data cells can be completely empty, or contain a date,
  * or contain a date and event(s). Several of the following
  * rules could apply to a given cell.
  */
@@ -81,14 +95,14 @@ table#year { border: 1px solid #173e57; background-color: #f8f8f8; border-collap
 
 /* Cells with events */
 #year td.eventDate { background-color: #d0ecf6; }
-#year td a, #year td a:visited, #year td a:hover { color: #3598b9; font-weight: bold; text-decoration: none; } 
+#year td a, #year td a:visited, #year td a:hover { color: #3598b9; font-weight: bold; text-decoration: none; }
 
 
 
 /**
  * MONTH TABLE RULES
- * Cells in this table can be header cells or data cells.  
- * Data cells can be completely empty, or contain a date, 
+ * Cells in this table can be header cells or data cells.
+ * Data cells can be completely empty, or contain a date,
  * or contain a date and event(s). Several of the following
  * rules could apply to a given cell.
  */
@@ -113,7 +127,7 @@ table#month { border: 1px solid #173e57; background-color: #f8f8f8; border-colla
 #month td.eventDate { background-color: #d0ecf6; }
 
 /* Linked dates at top left of cells */
-#month a.dateLink, #month a.dateLink:visited, #month a.dateLink:hover { color: black; font-weight: bold; text-decoration: none; } 
+#month a.dateLink, #month a.dateLink:visited, #month a.dateLink:hover { color: black; font-weight: bold; text-decoration: none; }
 
 /* Linked event names in cells (root-node-specific classes will also apply) */
 #month .event, #month a.event:visited, #month a.event:hover { font-weight: bold; text-decoration: none; padding: 0px 1px; text-align: center}
@@ -122,12 +136,12 @@ table#month { border: 1px solid #173e57; background-color: #f8f8f8; border-colla
 #month th.weekLink { vertical-align: middle; padding: 0px; cursor: pointer; cursor: hand; }
 
 /* Week view links text */
-#month th.weekLink a.dateLink, #month th.weekLink a.dateLink:visited, #month th.weekLink a.dateLink:hover { display: block;  color: white; font-weight: bold; text-decoration: none; font-size:1.2em; padding: 3px; } 
+#month th.weekLink a.dateLink, #month th.weekLink a.dateLink:visited, #month th.weekLink a.dateLink:hover { display: block;  color: white; font-weight: bold; text-decoration: none; font-size:1.2em; padding: 3px; }
 
 
 /**
  * WEEK TABLE RULES
- * Cells in this table can be header cells or data cells.  
+ * Cells in this table can be header cells or data cells.
  * Data cells can contain DIVs that represent events
  */
 
@@ -145,12 +159,12 @@ table#week { border: 1px solid #173e57; background-color: white; border-collapse
 #week td div.event { margin: 0px 0px 1px 0px; text-align: center; padding: 0px; border: 1px solid black; }
 
 /* Event Links (root-node-specific classes will also apply) */
-#week .event, #week a.event:visited, #week a.event:hover { text-decoration: none } 
+#week .event, #week a.event:visited, #week a.event:hover { text-decoration: none }
 
 
 /**
  * DAY TABLE RULES
- * Cells in this table can be header cells or data cells.  
+ * Cells in this table can be header cells or data cells.
  * Data cells can contain DIVs that represent events
 **/
 
@@ -169,7 +183,7 @@ table#day { border: 1px solid #173e57; background-color: white; border-collapse:
 #day td div.event { margin: 0px 0px 1px 0px; text-align: center; padding: 0px; border: 1px solid black; }
 
 /* Event Links (root-node-specific classes will also apply) */
-#day .event, #day a.event:visited, #day a.event:hover { text-decoration: none } 
+#day .event, #day a.event:visited, #day a.event:hover { text-decoration: none }
 
 
 

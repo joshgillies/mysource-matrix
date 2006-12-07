@@ -1,3 +1,18 @@
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +--------------------------------------------------------------------+
+*
+* $Id: frequency_chooser.js,v 1.4 2006/12/07 05:51:50 bcaldwell Exp $
+*
+*/
+
 var weekDays = Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
 
 var months = Array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
@@ -7,10 +22,10 @@ var monthLengths = Array(0,31,28,31,30,31,30,31,31,30,31,30,31);
 var suffixes = Array('th','st','nd','rd','th','th','th','th','th','th');
 
 
-function setSpanContents(eltId, text) 
+function setSpanContents(eltId, text)
 {
 	elt = document.getElementById(eltId);
-	elt.innerHTML = text;	
+	elt.innerHTML = text;
 
 }//end setSpanContents()
 
@@ -20,7 +35,7 @@ function ordinalSuffix(num) {
 		return num + 'th';
 	else
 		return num + suffixes[num % 10];
-	
+
 }//end ordinalSuffix()
 
 
@@ -32,7 +47,7 @@ function reverseOrdinalSuffix(num) {
 		return '';
 	else
 		return ordinalSuffix(num) + ' ';
-	
+
 }//end reverseOrdinalSuffix()
 
 
@@ -40,7 +55,7 @@ function daysInFebruary(year){
 	// February has 29 days in any year evenly divisible by four,
 	// EXCEPT for centennial years which are not also divisible by 400.
 	return (((year % 4 == 0) && ( (!(year % 100 == 0)) || (year % 400 == 0))) ? 29 : 28 );
-	
+
 }//end daysInFebruary()
 
 
@@ -49,7 +64,7 @@ function getMonthLength(month, year) {
 		return daysInFebruary(year);
 	else
 		return monthLengths[month];
-	
+
 }//end getMonthLength()
 
 
@@ -97,10 +112,10 @@ function updateValues(prefix) {
 		document.getElementById(prefix + '_reverse_month_week_warning').style.display = 'inline';
 
 }//end updateValues()
-			
+
 
 var freqs = Array('Daily', 'Weekly', 'Monthly');
-		
+
 function showFreqOptions(prefix, freqName) {
 	updateValues(prefix);
 	for (i=0; i<freqs.length; i++) {

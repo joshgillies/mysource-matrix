@@ -1,8 +1,23 @@
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +--------------------------------------------------------------------+
+*
+* $Id: date_chooser.js,v 1.15 2006/12/07 05:51:49 bcaldwell Exp $
+*
+*/
+
 var currentField = null;
 var oldField = null;
 
 
-function processEndDateBlur(elt, prefix) 
+function processEndDateBlur(elt, prefix)
 {
 	if (fieldGroupBlurred(elt)) {
 		updateDurationValues(prefix);
@@ -21,87 +36,87 @@ function processStartDateBlur(elt, prefix)
 }//end processStartDateBlur()
 
 
-function updateEndDate(name) 
+function updateEndDate(name)
 {
 	endD = getDateFromField(name+'_end');
 	startD = getDateFromField(name+'_start');
 	if (endD < startD) {
 		setDateField(name+'_end', startD);
 	}
-	
+
 }//end updateEndDate()
 
 
-function updateStartDate(name) 
+function updateStartDate(name)
 {
 	endD = getDateFromField(name+'_end');
 	startD = getDateFromField(name+'_start');
 	if (endD < startD) {
 	  setDateField(name+'_start', endD);
 	}
-	  
+
 }//end updateStartDate()
 
 
-function updateDurationValues(prefix) 
+function updateDurationValues(prefix)
 {
 	if (isChecked(prefix + '_start_time_enabled')) {
 		d = new Date(document.getElementById(prefix + '_start_year').value, document.getElementById(prefix + '_start_month').value-1, document.getElementById(prefix + '_start_day').value, ((parseInt(document.getElementById(prefix + '_start_hours').value)%12) + (12 * document.getElementById(prefix + '_start_is_pm').value)) % 24, document.getElementById(prefix + '_start_minutes').value, 0);
 	} else {
 		d = new Date(document.getElementById(prefix + '_start_year').value, document.getElementById(prefix + '_start_month').value-1, document.getElementById(prefix + '_start_day').value);
 	}
-	
-	if (isChecked(prefix + '_duration_enabled')) {		
-	
+
+	if (isChecked(prefix + '_duration_enabled')) {
+
 		var newDate = new Date();
 		var addSeconds = 0;
 		switch(document.getElementById(prefix + '_duration_units').value) {
 			case 'd':
 				addSeconds = document.getElementById(prefix + '_duration').value * 86400;
 			break;
-			
+
 			case 'h':
 				addSeconds = document.getElementById(prefix + '_duration').value * 3600;
 			break;
-			
+
 			case 'i':
 				addSeconds = document.getElementById(prefix + '_duration').value * 60;
 			break;
-			
+
 		}
-		
+
 		// if only days - make sure 3 days becomes, say, 7-9th
 		if (!isChecked(prefix + '_end_time_enabled')) {
 			addSeconds -= 86400;
 		}
-		
+
 		newDate.setTime(d.valueOf() + addSeconds * 1000);
-		
+
 		document.getElementById(prefix + '_end_year').value = newDate.getFullYear();
 		document.getElementById(prefix + '_end_month').value = newDate.getMonth() + 1;
 		document.getElementById(prefix + '_end_day').value = newDate.getDate();
-			
-		if (isChecked(prefix + '_start_time_enabled')) {	
+
+		if (isChecked(prefix + '_start_time_enabled')) {
 			document.getElementById(prefix + '_end_hours').value = ((newDate.getHours() % 12 == 0) ? 12 : newDate.getHours() % 12);
 			document.getElementById(prefix + '_end_is_pm').selectedIndex = (newDate.getHours() >= 12);
 			document.getElementById(prefix + '_end_minutes').value = make2digits(newDate.getMinutes());
 		}
 	} else {
 		var endDate = new Date();
-		
+
 		if (isChecked(prefix + '_end_time_enabled')) {
 			endDate = new Date(document.getElementById(prefix + '_end_year').value, document.getElementById(prefix + '_end_month').value-1, document.getElementById(prefix + '_end_day').value, ((parseInt(document.getElementById(prefix + '_end_hours').value)%12) + (12 * document.getElementById(prefix + '_end_is_pm').value)) % 24, document.getElementById(prefix + '_end_minutes').value, 0);
 		} else {
 			endDate = new Date(document.getElementById(prefix + '_end_year').value, document.getElementById(prefix + '_end_month').value-1, document.getElementById(prefix + '_end_day').value);
 		}
-		
+
 		// number of minutes between the two dates - valueOf() is returned in milli-sec's,
 		// hence the extra division by 1000
 		var dateDiff = (endDate.valueOf() - d.valueOf()) / (1000 * 60);
 		if (!isChecked(prefix + '_end_time_enabled')) {
 			dateDiff += 1440;
 		}
-		
+
 		if ((dateDiff % 1440 == 0) && (dateDiff > 0)) {
 			document.getElementById(prefix + '_duration_units').value = 'd';
 			document.getElementById(prefix + '_duration').value = dateDiff / 1440;
@@ -112,16 +127,16 @@ function updateDurationValues(prefix)
 			document.getElementById(prefix + '_duration_units').value = 'i';
 			document.getElementById(prefix + '_duration').value = dateDiff;
 		}
-		
+
 	}
 
 }//end updateDurationValues()
 
 
-function processEndClick(box, prefix) 
+function processEndClick(box, prefix)
 {
 	if (box.checked) {
-		enableDateField(prefix+'_end'); 
+		enableDateField(prefix+'_end');
 		enableField(prefix+'_duration_enabled');
 		enableField(prefix+'_end_date_enabled');
 		enableField(prefix+'_duration_units');
@@ -131,7 +146,7 @@ function processEndClick(box, prefix)
 			enableTimeField(prefix+'_end');
 		}
 	} else {
-		disableDateField(prefix+'_end'); 
+		disableDateField(prefix+'_end');
 		disableTimeField(prefix+'_end');
 		disableField(prefix+'_duration_enabled');
 		disableField(prefix+'_end_date_enabled');
@@ -143,82 +158,82 @@ function processEndClick(box, prefix)
 }//end processEndClick()
 
 
-function processEndEnabledClick(elt, name) 
+function processEndEnabledClick(elt, name)
 {
 	if (elt.value == 1) {
-		enableDateField(name+'_end'); 
+		enableDateField(name+'_end');
 		if (isChecked(name+'_start_time_enabled')) {
-			enableTimeField(name+'_end'); 
+			enableTimeField(name+'_end');
 		}
-	} else { 
-		disableDateField(name+'_end'); 
-		disableTimeField(name+'_end'); 
+	} else {
+		disableDateField(name+'_end');
+		disableTimeField(name+'_end');
 	}
-	
+
 }//end processEndEnabledClick()
 
 
-function processStartTimeEnabledClick(elt, name) 
+function processStartTimeEnabledClick(elt, name)
 {
 	if (elt.checked) {
 		enableTimeField(name+'_start');
 		if (isChecked(name+'_end_date_enabled')) {
-			enableTimeField(name+'_end'); 
+			enableTimeField(name+'_end');
 		}
 	} else {
 		disableTimeField(name+'_start'); disableTimeField(name+'_end');
 	}
-	
+
 }//end processStartTimeClick()
 
 
-function processEndTimeEnabledClick(elt, name) 
+function processEndTimeEnabledClick(elt, name)
 {
 	if (elt.checked) {
-		enableTimeField(name+'_end'); 
-		enableDateField(name+'_end'); 
-		checkBox(name+'_end_date_enabled'); 
-		enableTimeField(name+'_start'); 
-	} else { 
-		disableTimeField(name+'_end'); 
-		disableTimeField(name+'_start');  
+		enableTimeField(name+'_end');
+		enableDateField(name+'_end');
+		checkBox(name+'_end_date_enabled');
+		enableTimeField(name+'_start');
+	} else {
+		disableTimeField(name+'_end');
+		disableTimeField(name+'_start');
 	}
 
 }//end processEndTimeClick()
 
 
 
-function processKeyEvent(elt) 
+function processKeyEvent(elt)
 {
 	if (!window.event) return;
-	key = window.event.keyCode; 
+	key = window.event.keyCode;
 	if ((key==43) && (elt.value==Number(elt.value))) {
 		if (elt.name.indexOf('year') != -1)				max_value = 2030;
 		else if (elt.name.indexOf('day') != -1)			max_value = 31;
 		else if (elt.name.indexOf('hours') != -1)		max_value = 23;
 		else if (elt.name.indexOf('minutes') != -1)		max_value = 59;
-		
-		
+
+
 		if (elt.value < max_value) {
 			elt.value=make2digits((Number(elt.value))+1);
 		}
 	    window.event.keyCode=null;
 		elt.select();
-	} 
+	}
 	if ((key==45) && (elt.value==Number(elt.value))) {
 		if (elt.name.indexOf('year') != -1)				min_value = 1970;
 		else if (elt.name.indexOf('day') != -1)			min_value = 1;
 		else if (elt.name.indexOf('hours') != -1)		min_value = 0;
 		else if (elt.name.indexOf('minutes') != -1)		min_value = 0;
-		
+
 		if (elt.value > min_value) {
-			elt.value=make2digits((Number(elt.value))-1); 
+			elt.value=make2digits((Number(elt.value))-1);
 		}
 		window.event.keyCode=null;
 		elt.select();
   }
   return true;
-  
+
 }//end processKeyEvent()
 
 
@@ -230,7 +245,7 @@ function make2digits(num) {
 	} else {
 		return num;
 	}
-		
+
 }//end make2digits()
 
 
@@ -270,7 +285,7 @@ function enableDateField(name) {
 			elt.disabled = 0;
 		}
 	}
-	
+
 }//end enableDateField()
 
 
@@ -280,7 +295,7 @@ function disableDateField(name) {
 			elt.disabled = 1;
 		}
 	}
-	
+
 }//end disableDateField()
 
 
@@ -292,7 +307,7 @@ function enableTimeField(name) {
 	document.getElementById(name+'_minutes').disabled=0;
 	document.getElementById(name+'_is_pm').disabled=0;
 	checkBox(name+'_time_enabled');
-	
+
 }//end enableTimeField()
 
 
@@ -301,7 +316,7 @@ function disableTimeField(name) {
 	document.getElementById(name+'_minutes').disabled=1;
 	document.getElementById(name+'_is_pm').disabled=1;
 	uncheckBox(name+'_time_enabled');
-	
+
 }//end disableTimeField()
 
 
@@ -310,7 +325,7 @@ function checkBox(id) {
 		elt.checked=1;
 	} else {
 		alert("Javascript error:  could not find box " + id + " to check");
-	}		
+	}
 }//end checkBox()
 
 
@@ -329,7 +344,7 @@ function isChecked(id) {
 	} else {
 		alert("Javascript error:  could not find box " + id + " so can't look at its status");
 		return 0;
-	}	
+	}
 }//end isChecked()
 
 function getDateFromField(name) {
@@ -344,7 +359,7 @@ function getDateFromField(name) {
 	d.setHours(hoursVal);
 	d.setMinutes(document.getElementById(name+'_minutes').value);
 	return d;
-	
+
 }//end getDateFromField()
 
 
@@ -361,7 +376,7 @@ function setDateField(fieldName, dateVal) {
 		}
 		document.getElementById(fieldName+'_minutes').value = make2digits(dateVal.getMinutes());
 	}
-	
+
 }//end setDateField()
 
 
@@ -387,8 +402,8 @@ function validateDay(elt) {
 function yearOK(elt) {
 	yearVal = parseInt(elt.value);
 	return (yearVal !== null)  && (yearVal > 0) && ((yearVal < 100) || ((yearVal >= 1970) && (yearVal <= 2030)));
-	
-}//end yearOK()	
+
+}//end yearOK()
 
 
 function validateYear(elt) {
@@ -405,16 +420,16 @@ function validateYear(elt) {
 		}
 	}
 	return true;
-	
+
 }//end validateYear()
 
 
 function minutesOK(elt) {
 	minutesValue = parseInt(elt.value);
 	return !((minutesValue === null) || (minutesValue < 0) || (minutesValue > 59));
-	
+
 }//end minutesOK()
-	
+
 
 function validateMinutes(elt) {
 	if (!minutesOK(elt)) {
@@ -424,14 +439,14 @@ function validateMinutes(elt) {
 	} else {
 		return true;
 	}
-	
+
 }//end validateMinutes()
 
 
 function hoursOK(elt) {
 	hoursValue = parseInt(elt.value);
 	return (hoursValue >= 0) && (hoursValue <= 23);
-	
+
 }//end hoursOK()
 
 
@@ -446,11 +461,11 @@ function validateHours(elt) {
 		if ((pmElt = document.getElementById(elt.getAttribute('id').substring(0, elt.getAttribute('id').length-5)+'is_pm')) !== null) {
 			pmElt.selectedIndex=1;
 		} else {
-			alert("Couldn't find " + elt.getAttribute('id').substring(0, elt.getAttribute('id').length-5)+'is_pm'); 
+			alert("Couldn't find " + elt.getAttribute('id').substring(0, elt.getAttribute('id').length-5)+'is_pm');
 		}
 	}
 	return true;
-	
+
 }//end validateHours()
 
 

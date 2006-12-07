@@ -1,17 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Commercial Module Licence                                |
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
-* +--------------------------------------------------------------------+
-* | This source file is not open source or freely usable and may be    |
-* | used subject to, and only in accordance with, the Squiz Commercial |
-* | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.80 2006/09/14 05:07:50 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.81 2006/12/07 05:51:50 bcaldwell Exp $
 *
 */
 
@@ -28,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1272,7 +1271,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$our_keywords[] = 'event_duration'; // = 'Duration of the Event';
 		$our_keywords[] = 'event_start_datetime_XX'; // = dynamic keyword to print start date and time
 		$our_keywords[] = 'event_end_datetime_XX'; // = dynamic keyword to print end date and time
-		$our_keywords[] = 'event_frequency'; 
+		$our_keywords[] = 'event_frequency';
 		$our_keywords[] = 'instance_end_datetime';
 		$our_keywords[] = 'instance_start_datetime';
 		$our_keywords[] = 'instance_start_datetime_XX';
@@ -1280,7 +1279,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$our_keywords[] = 'event_stop_date_XX';
 		$our_keywords[] = 'event_ical_frequency';
 		$our_keywords[] = 'event_ical_exceptions';
-		
+
 		foreach ($our_keywords as $keyword) {
 			$res[$keyword] = translate('cal_evt_recur_keyword_'.$keyword);
 		}

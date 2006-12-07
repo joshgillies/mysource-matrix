@@ -1,17 +1,16 @@
 <!--
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | Squiz.net Commercial Module Licence                                |
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
-* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | This source file is not open source or freely usable and may be    |
-* | used subject to, and only in accordance with, the Squiz Commercial |
-* | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2006/06/19 02:39:12 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.7 2006/12/07 05:51:52 bcaldwell Exp $
 *
 */
 -->
@@ -66,7 +65,7 @@
 			</function_call>
 		</field>
 		<field attribute="week_starts_on">
-			<display_name>First Day in Week</display_name> 
+			<display_name>First Day in Week</display_name>
 			<note />
 		</field>
 		<field attribute="enable_description_popups">
@@ -143,7 +142,7 @@
 			<note>This setting applies only when week view is shown in calendar-table or simple-list format.  All keywords for an event asset can be used in this format value.</note>
 		</field>
 		<field>
-			<display_name>Days to include in week</display_name> 
+			<display_name>Days to include in week</display_name>
 			<note>Only days enabled here will be displayed in week view.  <br />The order in which the days are displayed is controlled by the 'First Day in Week' setting above.</note>
 			<function_call>
 				<paint_function	name="paintWeekDays" />
@@ -174,7 +173,7 @@
 			</function_call>
 		</field>
 		<field attribute="day_partition_time">
-			<display_name>Duration of Day Partitions</display_name> 
+			<display_name>Duration of Day Partitions</display_name>
 			<note />
 		</field>
 		<field attribute="day_partition_height">
@@ -209,7 +208,7 @@
 			<note>This setting applies only when day view is shown in calendar-table or simple-list format.  All keywords for an event asset can be used in this format value.</note>
 		</field>
 		<field>
-			<display_name>Columns</display_name> 
+			<display_name>Columns</display_name>
 			<note>Choose which of the event sources should have their own columns.  If an event is linked under several event sources it will appear in several columns.</note>
 			<function_call>
 				<paint_function name="paintColumnNodes" />
