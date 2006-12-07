@@ -18,25 +18,24 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_type.inc,v 1.2 2006/12/07 03:50:19 bcaldwell Exp $
+* $Id: soap_wsdl_element.inc,v 1.5 2006/12/07 03:51:44 bcaldwell Exp $
 *
 */
 
-require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_component/soap_wsdl_component.inc';
 
 /**
-* SOAP_WSDL_Type
+* SOAP_WSDL_Element
 *
 * Purpose
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
-class SOAP_WSDL_Type extends SOAP_WSDL_Component
+class SOAP_WSDL_Element extends SOAP_WSDL_Component
 {
 
 
@@ -51,50 +50,45 @@ class SOAP_WSDL_Type extends SOAP_WSDL_Component
 	function _loadComponent($assetid)
 	{
 		if (is_null($this->schema)) return FALSE;
+
+		$wsdl = $this->schema->getComponentWsdl($this->id);
+
+		// information about teh element
+		$element_type 	= array_get_index($wsdl, 'type');
+		$element_ns		= array_get_index($wsdl, 'namespace');
+
+		$id_parts = Array(
+						SQ_SOAP_WSDL_NAME		=> $this->schema->getComponentName($this->id, SQ_SOAP_WSDL_NAME),
+						SQ_SOAP_WSDL_TYPE		=> $element_type,
+						SQ_SOAP_WSDL_NAMESPACE	=> $element_ns,
+					);
+		$type_assetid = $this->schema->getComponentAssetId($id_parts, SQ_SOAP_WSDL_TYPE);
+		$type_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($type_assetid);
+
 		return TRUE;
 
 	}//end _loadComponent()
 
 
-	/**
-	*/
-	function paintBackendInterface(&$asset, &$o, $prefix, &$container)
+	function paintBackendInterface($prefix)
 	{
-		$name = $this->schema->getComponentName($this->id, SQ_SOAP_WSDL_NAME);
+		$wsdl = $this->schema->getComponentWsdl($this->id);
 
-		$value = array_get_index($container, $name);
+		// information about teh element
+		$element_type 	= array_get_index($wsdl, 'type');
+		$element_ns		= array_get_index($wsdl, 'namespace');
 
-		$o->openField($name);
-			text_box($prefix."[$name]", $value);
-		$o->closeField();
+		$id_parts = Array(
+						SQ_SOAP_WSDL_NAME		=> $this->schema->getComponentName($this->id, SQ_SOAP_WSDL_NAME),
+						SQ_SOAP_WSDL_TYPE		=> $element_type,
+						SQ_SOAP_WSDL_NAMESPACE	=> $element_ns,
+					);
+		$type_assetid = $this->schema->getComponentAssetId($id_parts, SQ_SOAP_WSDL_TYPE);
+		$type_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($type_assetid);
 
-		return TRUE;
+		return $type_asset->paintBackendInterface($prefix);
 
 	}//end paintBackendInterface()
-
-
-	/**
-	*/
-	function processBackendInterface(&$asset, &$o, &$data, &$container)
-	{
-		$name = $this->schema->getComponentName($this->id, SQ_SOAP_WSDL_NAME);
-
-		$value = array_get_index($data, $name);
-		if (is_null($value)) return FALSE;
-
-		$container[$name] = $value;
-		return TRUE;
-
-	}//end processBackendInterface()
-
-
-	/**
-	*/
-	function _getName($sort_name=FALSE)
-	{
-		return $this->schema->getComponentName($this->id, SQ_SOAP_WSDL_NAME);
-
-	}//end _getName()
 
 
 }//end class

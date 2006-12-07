@@ -18,24 +18,24 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_type_struct.inc,v 1.2 2006/12/07 03:50:19 bcaldwell Exp $
+* $Id: soap_wsdl_type_array.inc,v 1.1 2006/12/07 03:51:44 bcaldwell Exp $
 *
 */
 
 require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_type/soap_wsdl_type.inc';
 
 /**
-* SOAP_WSDL_Type_Struct
+* SOAP_WSDL_Type_Array
 *
 * Purpose
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
-class SOAP_WSDL_Type_Struct extends SOAP_WSDL_Type
+class SOAP_WSDL_Type_Array extends SOAP_WSDL_Type
 {
 
 
@@ -50,67 +50,40 @@ class SOAP_WSDL_Type_Struct extends SOAP_WSDL_Type
 	function _loadComponent($assetid)
 	{
 		if (is_null($this->schema)) return FALSE;
+
+		$wsdl = $this->schema->getComponentWsdl($this->id);
+		if (empty($wsdl)) return FALSE;
+
+		$array_type = array_get_index($wsdl, 'arrayType');
+		if (is_null($array_type)) return FALSE;
+
+		// remove square brackets
+		$array_type = strtr($array_type, array('[' => '', ']' => ''));
+
+		$this->array_type = $array_type;
 		return TRUE;
 
 	}//end _loadComponent()
 
 
 	/**
-	* Used by asset map to return a asset map-style link array
-	*
-	* @return array
-	* @access public
 	*/
-	function getAssetMapLinks()
+	/*function paintBackendInterface($prefix)
 	{
-		if (is_null($this->schema)) return Array();
+		$wsdl = $this->schema->getComponentWsdl($this->id);
 
-		$type_links = $this->schema->getTypeLinks($this->id);
-		return $this->schema->_getAssetMapLinks($type_links);
+		$type = array_get_index($wsdl, 'type');
+		if (is_null($type)) $type = $this->schema->getComponentName($this->id, SQ_SOAP_WSDL_TYPE);
 
-	}//end getAssetMapLinks()
-
-
-	/**
-	*/
-	function paintBackendInterface(&$asset, &$o, $prefix, &$container)
-	{
 		$name = $this->schema->getComponentName($this->id, SQ_SOAP_WSDL_NAME);
 
-		$o->openField($name);
+		?>
+		<tr>
+			<th><?php echo $name ?></th>
+			<th colspan="2"><?php echo $type; ?></th>
+		</tr><?php
 
-			$type_links = $this->schema->getTypeLinks($this->id);
-			foreach ($type_links as $type_link) {
-				// display element interfaces
-				$type_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($type_link['minorid']);
-				$type_asset->paintBackendInterface($asset, $o, $prefix."[$name]", $container[$name]);
-			}
-
-		$o->closeField();
-
-	}//end paintBackendInterface()
-
-
-	/**
-	*/
-	function processBackendInterface(&$asset, &$o, &$data, &$container)
-	{
-		$name = $this->schema->getComponentName($this->id, SQ_SOAP_WSDL_NAME);
-
-		$value = array_get_index($data, $name);
-		if (is_null($value)) return FALSE;
-
-		$type_links = $this->schema->getTypeLinks($this->id);
-		foreach ($type_links as $type_link) {
-			// display element interfaces
-			$type_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($type_link['minorid']);
-			if (!$type_asset->processBackendInterface($asset, $o, $value, $container[$name])) {
-				return FALSE;
-			}
-		}
-		return TRUE;
-
-	}//end processBackendInterface()
+	}//end paintBackendInterface()*/
 
 
 }//end class

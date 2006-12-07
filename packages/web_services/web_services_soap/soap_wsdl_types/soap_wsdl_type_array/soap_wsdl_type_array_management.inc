@@ -18,59 +18,36 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_message_edit_fns.inc,v 1.4 2006/12/07 03:50:19 bcaldwell Exp $
+* $Id: soap_wsdl_type_array_management.inc,v 1.1 2006/12/07 03:51:44 bcaldwell Exp $
 *
 */
 
-
-require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_component/soap_wsdl_component_edit_fns.inc';
-
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* SOAP_WSDL_Message_Edit_Fns
+* SOAP_WSDL_Type_Array_Management
 *
 * Purpose
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
-class SOAP_WSDL_Message_Edit_Fns extends SOAP_WSDL_Component_Edit_Fns
+class SOAP_WSDL_Type_Array_Management extends Asset_Management
 {
 
 
 	/**
+	* Constructor
+	*
 	*/
-	function paintMessageStructure(&$asset, &$o, $prefix)
+	function SOAP_WSDL_Type_Array_Management(&$pm)
 	{
-		$type_links = $asset->schema->getTypeLinks($asset->id);
-		foreach ($type_links as $type_link) {
-			// paint type interfaces
-			$type_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($type_link['minorid']);
+		$this->Asset_Management($pm);
 
-			$container = Array();
-			$type_asset->processBackendInterface($asset, $o, $_POST[$prefix], $container);
-			bam($container);
-
-			$type_asset->paintBackendInterface($asset, $o, $prefix, $container);
-		}
-
-	}//end paintMessageStructure()
-
-
-	/**
-	*/
-	function processMessageStructure(&$asset, &$o, $prefix)
-	{
-		/*$operation_name = $asset->schema->getComponentName($asset->id, SQ_SOAP_WSDL_OPERATION);
-		$message_name = $asset->schema->getComponentName($asset->id, SQ_SOAP_WSDL_MESSAGE);
-
-		$result = $asset->schema->callOperation('port', $operation_name, $_POST[$message_name]);
-		bam($result);*/
-
-	}//end processMessageStructure()
+	}//end constructor
 
 
 }//end class

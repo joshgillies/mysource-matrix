@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_message.inc,v 1.10 2006/11/02 00:31:21 bcaldwell Exp $
+* $Id: soap_wsdl_message.inc,v 1.11 2006/12/07 03:50:19 bcaldwell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_compone
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -68,6 +68,22 @@ class SOAP_WSDL_Message extends SOAP_WSDL_Component
 		return TRUE;
 
 	}//end _loadComponent()
+
+
+	/**
+	* Used by asset map to return a asset map-style link array
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetMapLinks()
+	{
+		if (is_null($this->schema)) return Array();
+
+		$type_links = $this->schema->getTypeLinks($this->id);
+		return $this->schema->_getAssetMapLinks($type_links);
+
+	}//end getAssetMapLinks()
 
 
 	/**

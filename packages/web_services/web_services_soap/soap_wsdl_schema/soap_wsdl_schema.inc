@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_schema.inc,v 1.13 2006/11/02 00:31:22 bcaldwell Exp $
+* $Id: soap_wsdl_schema.inc,v 1.14 2006/12/07 03:50:19 bcaldwell Exp $
 *
 */
 
@@ -48,7 +48,7 @@ define('SQ_SOAP_WSDL_COMPONENT_TYPE', 'asset');
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -406,6 +406,9 @@ class SOAP_WSDL_Schema extends Asset
 
 		$asset_map_links = Array();
 		foreach ($links as $link) {
+
+			$link_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+
 			$asset_map_links[] = Array(
 									'url'				=> '',
 									'path'				=> '',
@@ -419,13 +422,14 @@ class SOAP_WSDL_Schema extends Asset
 									'type_code'			=> $link['minor_type_code'],
 									'linkid'			=> $link['linkid'],
 
-									'name'				=> $this->getComponentName($link['minorid']),
-									'short_name'		=> $this->getComponentName($link['minorid']),
+									'name'				=> $link_asset->_getName(),
+									'short_name'		=> $link_asset->_getName(TRUE),
 
 									'status'			=> $this->status,
 									'sort_order'		=> $link['sort_order'],
 									'link_type'			=> $link['link_type'],
 								  );
+			error_log($link['minorid']);
 		}
 		return $asset_map_links;
 
@@ -1022,61 +1026,19 @@ class SOAP_WSDL_Schema extends Asset
 
 	/**
 	*/
-	function &_getElementAsset($assetid)
-	{
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('soap_wsdl_element');
-
-		$element =& new SOAP_WSDL_Element($assetid);
-		return $element;
-
-	}//end _getElementAsest()
-
-
-	/**
-	*/
-	function getElementLinks($assetid)
-	{
-
-	}//end getElementLinks()
-
-
-	/**
-	*/
-	function _getElementWsdl($assetid)
-	{
-		$wsdl = $this->attr('wsdl_cache');
-		if (empty($wsdl)) return Array();
-
-		$element_name	= $this->getComponentName($assetid, SQ_SOAP_WSDL_ELEMENT);
-		$element_ns		= $this->getComponentName($assetid, SQ_SOAP_WSDL_NAMESPACE);
-
-		$ns = array_get_index($wsdl->elements, $element_ns);
-		if (is_null($ns) || empty($ns)) return Array();
-
-		$element_wsdl = array_get_index($ns, $element_name);
-		if (is_null($element_wsdl)) return Array();
-
-		return $element_wsdl;
-
-	}//end _getElementWsdl()
-
-
-	/**
-	*/
 	function &_getTypeAsset($assetid)
 	{
-		$classname = 'SOAP_WSDL_Type';
+		$type_classname = 'SOAP_WSDL_Type';
 
 		$wsdl = $this->getComponentWsdl($assetid);
-		if (!empty($wsdl)) {
-			// a struct has a special type asset
-			if (strtolower(array_get_index($wsdl, 'type')) == 'struct') {
-				$classname = 'SOAP_WSDL_Type_Struct';
-			}
-		}
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset(strtolower($classname));
 
-		$type =& new $classname($assetid);
+		$type = array_get_index($wsdl, 'type');
+		if (!is_null($type) && $GLOBALS['SQ_SYSTEM']->am->installed(strtolower($type_classname.'_'.$type))) {
+			$type_classname = $type_classname.'_'.ucwords($type);
+		}
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset(strtolower($type_classname));
+
+		$type =& new $type_classname($assetid);
 		return $type;
 
 	}//end _getElementAsest()
@@ -1084,8 +1046,43 @@ class SOAP_WSDL_Schema extends Asset
 
 	/**
 	*/
-	function getTypeLinks($assetid)
+	function getTypeLinks($component_assetid)
 	{
+		$component_wsdl = $this->getComponentWsdl($component_assetid);
+
+		$component_elements = array_get_index($component_wsdl, 'elements');
+		if (!is_null($component_elements)) $component_wsdl = $component_elements;
+
+		$type_links = Array();
+		foreach ($component_wsdl as $param_name => $param_wsdl) {
+
+			$id_parts = Array(
+							SQ_SOAP_WSDL_NAME		=> array_get_index($param_wsdl, 'name'),
+							SQ_SOAP_WSDL_TYPE		=> array_get_index($param_wsdl, 'type'),
+							//SQ_SOAP_WSDL_ELEMENT	=> array_get_index($param_wsdl, 'element'),
+							SQ_SOAP_WSDL_NAMESPACE	=> array_get_index($param_wsdl, 'namespace'),
+						);
+
+			$type_assetid = $this->getComponentAssetId($id_parts, SQ_SOAP_WSDL_TYPE);
+
+			// the link
+			$type_link = Array(
+							'linkid'			=> $type_assetid,
+
+							'majorid'			=> $component_assetid,
+							'minorid'			=> $type_assetid,
+							'major_type_code'	=> 'soap_wsdl_message', // todo: not always a message
+							'minor_type_code'	=> 'soap_wsdl_type_struct',
+
+							'link_type'			=> SQ_LINK_TYPE_2,
+							'is_dependant'		=> TRUE,
+							'is_exclusive'		=> FALSE,
+
+							'sort_order'		=> $type_assetid,
+						 );
+			$type_links[] = $type_link;
+		}
+		return $type_links;
 
 	}//end getTypeLinks()
 
