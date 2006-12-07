@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.204 2006/12/07 22:02:51 lwright Exp $
+* $Id: mysource.inc,v 1.205 2006/12/07 22:53:10 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.204 $
+* @version $Revision: 1.205 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1591,9 +1591,7 @@ class MySource
 	{
 		if (is_null($user)) return $this->_user_is_sys_admin;
 		if (!$user->id) return FALSE;
-
-		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('backend_user', TRUE);
-		if (!in_array(get_class($user), $types)) return FALSE;
+		if (!is_a($user, 'backend_user')) return FALSE;
 
 		// now make sure that the user is in the system administrators group
 		$sys_admin_group =& $this->am->getSystemAsset('system_user_group');
