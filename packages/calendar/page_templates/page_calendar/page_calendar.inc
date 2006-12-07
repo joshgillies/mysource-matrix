@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.184.2.4 2006/11/09 03:34:41 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.184.2.5 2006/12/07 06:25:54 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.184.2.4 $
+* @version $Revision: 1.184.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -200,7 +200,9 @@ class Page_Calendar extends Page
 	*/
 	function printFrontend()
 	{
-		$this->_tmp['valid_request'] = $this->_validateRequest();
+		if (!isset($this->_tmp['valid_request'])) {
+			$this->_tmp['valid_request'] = $this->_validateRequest();
+		}
 		parent::printFrontend();
 
 	}//end printFrontend()
@@ -214,6 +216,11 @@ class Page_Calendar extends Page
 	*/
 	function printHead()
 	{
+		if (!isset($this->_tmp['valid_request'])) {
+			$this->_tmp['valid_request'] = $this->_validateRequest();
+		}
+		if (!$this->_tmp['valid_request']) return FALSE;
+
 		$view = $_REQUEST['SQ_CALENDAR_VIEW'];
 		$format = array_get_index($this->attr('enabled_views'), $view, '');
 		if (in_array($view, Array('day', 'week')) &&  ($format == 'calendar_format')) {
@@ -274,6 +281,9 @@ class Page_Calendar extends Page
 			echo $res;
 		}
 		if (!$res) {
+			if (!isset($this->_tmp['valid_request'])) {
+				$this->_tmp['valid_request'] = $this->_validateRequest();
+			}
 			if (!$this->_tmp['valid_request']) return FALSE;
 
 			// Try to get from cache
@@ -406,6 +416,10 @@ class Page_Calendar extends Page
 	*/
 	function _getCacheKey()
 	{
+		if (!isset($this->_tmp['valid_request'])) {
+			$this->_tmp['valid_request'] = $this->_validateRequest();
+		}
+		if (!$this->_tmp['valid_request']) return '';
 		// Cache key will be a letter representing the view type (Y, M, W, D)
 		// followed by as precise an iso-date as necessary (2004, 2004-02, 2004-04-01)
 		list($year, $month, $day) = explode('-', $_REQUEST['SQ_CALENDAR_DATE']);
