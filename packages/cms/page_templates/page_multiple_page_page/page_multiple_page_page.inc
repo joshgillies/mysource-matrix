@@ -1,17 +1,16 @@
 <?php
 /**
-* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | Squiz.net Commercial Module Licence                                |
-* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
-* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | This source file is not open source or freely usable and may be    |
-* | used subject to, and only in accordance with, the Squiz Commercial |
-* | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
-* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page_page.inc,v 1.12 2006/08/14 17:45:54 gnoel Exp $
+* $Id: page_multiple_page_page.inc,v 1.13 2006/12/07 00:04:21 emcdonald Exp $
 *
 */
 
@@ -26,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */

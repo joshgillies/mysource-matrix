@@ -1,16 +1,15 @@
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Commercial Module Licence                                |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
-* +--------------------------------------------------------------------+
-* | This source file is not open source or freely usable and may be    |
-* | used subject to, and only in accordance with, the Squiz Commercial |
-* | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: raw_html_insert_keyword.js,v 1.3 2005/11/28 01:53:15 tbarrett Exp $
+* $Id: raw_html_insert_keyword.js,v 1.4 2006/12/07 00:04:16 emcdonald Exp $
 *
 */
 
@@ -21,7 +20,7 @@
 *
 * @return void
 */
-function insertKeyword(prefix) 
+function insertKeyword(prefix)
 {
 	var keywordSelector = document.getElementById(prefix+'_keyword_inserter');
 	var replacement = keywordSelector.value;
