@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.175.2.5 2006/07/31 07:13:48 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.175.2.6 2006/12/07 06:28:39 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.175.2.5 $
+* @version $Revision: 1.175.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -223,7 +223,10 @@ class Page_Calendar extends Page
 			echo $res;
 		}
 		if (!$res) {
-			if (!$this->_validateRequest()) return FALSE;
+			if (!isset($this->_tmp['valid_request'])) {
+				$this->_tmp['valid_request'] = $this->_validateRequest();
+			}
+			if (!$this->_tmp['valid_request']) return '';
 
 			// Try to get from cache
 			$cache_key = $this->_getCacheKey();
@@ -354,6 +357,10 @@ class Page_Calendar extends Page
 	*/
 	function _getCacheKey()
 	{
+		if (!isset($this->_tmp['valid_request'])) {
+			$this->_tmp['valid_request'] = $this->_validateRequest();
+		}
+		if (!$this->_tmp['valid_request']) return '';
 		// Cache key will be a letter representing the view type (Y, M, W, D)
 		// followed by as precise an iso-date as necessary (2004, 2004-02, 2004-04-01)
 		list($year, $month, $day) = explode('-', $_REQUEST['SQ_CALENDAR_DATE']);
