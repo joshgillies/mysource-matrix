@@ -1,17 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Commercial Module Licence                                |
+* | This MySource Matrix Module file is Copyright © Squiz Pty Ltd      |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
-* +--------------------------------------------------------------------+
-* | This source file is not open source or freely usable and may be    |
-* | used subject to, and only in accordance with, the Squiz Commercial |
-* | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_change_dn.php,v 1.9 2006/04/20 04:34:00 gsherwood Exp $
+* $Id: ldap_change_dn.php,v 1.10 2006/12/07 00:57:27 bcaldwell Exp $
 *
 */
 
@@ -19,7 +18,7 @@
 * Alter the database to reflect that the DN of a user has changed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage ldap
 */
@@ -109,7 +108,7 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			WHERE updated_userid = '.$db->quote($old_dn);
 	$result = $db->query($sql);
 	assert_valid_db_result($result);
-	
+
 	$sql = 'UPDATE sq_ast
 	        SET published_userid = '.$db->quote($new_dn).'
 			WHERE published_userid = '.$db->quote($old_dn);
@@ -189,7 +188,7 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	$result = $db->query($sql);
 	assert_valid_db_result($result);
 	printActionStatus('OK');
-	
+
 	printActionName('Changing asset permissions');
 		$sql = 'UPDATE sq_ast_perm
 				SET userid = '.$db->quote($new_dn).'
