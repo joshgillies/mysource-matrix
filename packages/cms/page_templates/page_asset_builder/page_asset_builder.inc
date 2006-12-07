@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.101 2006/12/07 00:04:20 emcdonald Exp $
+* $Id: page_asset_builder.inc,v 1.102 2006/12/07 03:19:55 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -443,7 +443,14 @@ class Page_Asset_Builder extends Page
 						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 					}
 
-					if (!($new_asset->processBackend($o, $link) && $new_asset->create($link))) {
+				
+					$create_success = $new_asset->processBackend($o, $link);
+					if ($create_success && ($_REQUEST['asset_action'] != 'create')) {
+						$create_success = $create_success && $new_asset->create($link);
+					}
+
+
+					if (!$create_success) {
 						$this->_tmp['new_asset_created_'.$create_type] =& $new_asset;
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1429,7 +1436,7 @@ class Page_Asset_Builder extends Page
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
 				$asset =  NULL;
 				if (isset($this->_tmp['new_asset_created_'.$create_type])) {
-					$asset =&$this->_tmp['new_asset_created_'.$create_type];
+					$asset =& $this->_tmp['new_asset_created_'.$create_type];
 				} else {
 					$asset =& new $create_type();
 				}
