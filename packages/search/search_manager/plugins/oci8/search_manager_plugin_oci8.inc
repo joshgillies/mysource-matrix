@@ -1,17 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Commercial Module Licence                                |
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
-* +--------------------------------------------------------------------+
-* | This source file is not open source or freely usable and may be    |
-* | used subject to, and only in accordance with, the Squiz Commercial |
-* | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.6 2006/12/04 04:40:00 emcdonald Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.7 2006/12/07 02:48:05 bcaldwell Exp $
 *
 */
 
@@ -23,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */

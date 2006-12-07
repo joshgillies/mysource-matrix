@@ -1,17 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Commercial Module Licence                                |
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
-* +--------------------------------------------------------------------+
-* | This source file is not open source or freely usable and may be    |
-* | used subject to, and only in accordance with, the Squiz Commercial |
-* | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.24 2006/07/21 04:56:01 tbarrett Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.25 2006/12/07 02:46:11 bcaldwell Exp $
 *
 */
 
@@ -25,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */

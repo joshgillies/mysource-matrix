@@ -1,17 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Commercial Module Licence                                |
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
-* +--------------------------------------------------------------------+
-* | This source file is not open source or freely usable and may be    |
-* | used subject to, and only in accordance with, the Squiz Commercial |
-* | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.3 2006/12/04 04:01:19 emcdonald Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.4 2006/12/07 02:48:05 bcaldwell Exp $
 *
 */
 
@@ -23,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
