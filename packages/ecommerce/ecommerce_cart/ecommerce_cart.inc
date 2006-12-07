@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.27 2006/12/07 05:26:28 bcaldwell Exp $
+* $Id: ecommerce_cart.inc,v 1.28 2006/12/07 21:42:34 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -299,7 +299,7 @@ class Ecommerce_Cart extends Listing_Engine
 			</script>
 			<?php
 		} else {
-			$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
+			$todo =& $this->getChunk($children, $replacements, Array(), $result_page, $num_per_page);
 			$num_assets_showing = count($todo);
 
 			ob_start();

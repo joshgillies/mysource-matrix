@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.200 2006/12/07 00:04:19 emcdonald Exp $
+* $Id: listing_engine.inc,v 1.201 2006/12/07 21:42:32 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.200 $
+* @version $Revision: 1.201 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -567,7 +567,7 @@ class Listing_Engine extends Page
 		if ($result_page <= 0) $result_page = 1;
 
 		// get our page chunk here
-		$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
+		$todo =& $this->getChunk($children, $replacements, $keywords, $result_page, $num_per_page);
 
 		// If random grouping, we should now shove fixed positions in (it would
 		// normally be in filterAssetList). Note that in this case we must still
@@ -1248,6 +1248,7 @@ class Listing_Engine extends Page
 	*								printed
 	* @param array	&$replacements	the current replacements array, which will
 	*								be added to by this function
+	* @param array	$keywords		Keywords that need replacing
 	* @param array	$result_page	result page
 	* @param array	$num_per_page	number of assets per page
 	* @param array	$group_by		what to group by
@@ -1255,7 +1256,7 @@ class Listing_Engine extends Page
 	* @return array
 	* @access public
 	*/
-	function &getChunk(&$children, &$replacements, $result_page, $num_per_page, $group_by=NULL)
+	function &getChunk(&$children, &$replacements, $keywords, $result_page, $num_per_page, $group_by=NULL)
 	{
 		// grouping by number shows a certain number of results per page (eg. 10 assets per page)
 		// grouping by letter makes this template an A-Z listing of assets
@@ -1263,6 +1264,13 @@ class Listing_Engine extends Page
 		// grouping by custom groups means we will follow the user defined group structure
 		if (is_null($group_by)) {
 			$group_by = $this->attr('group_by');
+		}
+
+		$page_list_keywords = Array();
+		foreach ($keywords as $keyword) {
+			if (preg_match('/page_list_([0-9]+)/', $keyword, $matches)) {
+				$page_list_keywords[$matches[1]] = $keyword;
+			}
 		}
 
 		$this->_tmp['result_page'] = 1;
@@ -1306,17 +1314,13 @@ class Listing_Engine extends Page
 				$this->_tmp['result_page'] = (int)$result_page;
 				$replacements['total_pages'] = count($chunks);
 
-				// list of pages and links to them
-				$page_list = '';
-				for ($i = 1; $i <= count($chunks); $i++) {
-					if ($i == $result_page) {
-						$page_list .= " $i ";
-					} else {
-						$page_list .= ' <a href="'.replace_query_string_vars(Array($asset_result_page_var => $i)).'">'.$i.'</a> ';
-					}
-				}
+				$page_list =  $this->_getPageList(count($chunks), $result_page);
 				$replacements['page_list'] = $page_list;
 				$replacements['page_list_without_unused'] = $page_list;
+
+				foreach ($page_list_keywords as $window_size => $keyword) {
+					$replacements[$keyword] = $this->_getPageList(count($chunks), $result_page, $window_size);
+				}
 
 				unset($chunks);
 			break;
@@ -1494,16 +1498,12 @@ class Listing_Engine extends Page
 				$replacements['total_pages'] = $num_pages;
 
 				// list of pages and links to them
-				$page_list = '';
-				for ($i = 1; $i <= $num_pages; $i++) {
-					if ($i == $result_page) {
-						$page_list .= " $i ";
-					} else {
-						$page_list .= ' <a href="'.replace_query_string_vars(Array($asset_result_page_var => $i)).'">'.$i.'</a> ';
-					}
-				}
+				$page_list = $this->_getPageList($num_pages, $result_page);
 				$replacements['page_list'] = $page_list;
 				$replacements['page_list_without_unused'] = $page_list;
+				foreach ($page_list_keywords as $window_size => $keyword) {
+					$replacements[$keyword] = $this->_getPageList($num_pages, $result_page, $window_size);
+				}
 
 			break;
 
@@ -1518,6 +1518,39 @@ class Listing_Engine extends Page
 		return $todo;
 
 	}//end getChunk()
+
+
+	/**
+	* Get a page list with the supplied params
+	*
+	* @param int	$total_pages	The total number of pages in the listing
+	* @param int	$current_page	The current page number
+	* @param int	$window_size	The window size for the page list (optional; if absent, all pages shown)
+	*
+	* @return string
+	* @access protected
+	*/
+	function _getPageList($total_pages, $current_page, $window_size=NULL)
+	{
+		if (is_null($window_size)) {
+			$start_page = 1;
+			$end_page = $total_pages;
+		} else {
+			$start_page = max(1, min(($current_page - floor($window_size / 2)), $total_pages - $window_size + 1));
+			$end_page = min($total_pages, $start_page + $window_size - 1);
+		}
+		$asset_result_page_var = $this->id.'_result_page';
+		$page_list = '';
+		for ($i = $start_page; $i <= $end_page; $i++) {
+			if ($i == $current_page) {
+				$page_list .= " $i ";
+			} else {
+				$page_list .= ' <a href="'.replace_query_string_vars(Array($asset_result_page_var => $i)).'">'.$i.'</a> ';
+			}
+		}
+		return $page_list;
+
+	}//end _getPageList()
 
 
 	/**
