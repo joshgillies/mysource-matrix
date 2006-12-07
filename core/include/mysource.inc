@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.203 2006/12/05 06:00:48 bcaldwell Exp $
+* $Id: mysource.inc,v 1.204 2006/12/07 22:02:51 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.203 $
+* @version $Revision: 1.204 $
 * @package MySource_Matrix
 */
 class MySource
@@ -675,6 +675,12 @@ class MySource
 	*/
 	function paintLogin($heading, $msg)
 	{
+		// Attempt to perform an auth redirect. If there is one, then the script
+		// will terminate inside the do_redirect() function and redirect. If
+		// not, this function will return FALSE and we will fall through to the
+		// login box.
+		$this->authRedirect();
+
 		$db =& $this->db;
 		header('HTTP/1.0 403 Forbidden');
 
@@ -1586,7 +1592,8 @@ class MySource
 		if (is_null($user)) return $this->_user_is_sys_admin;
 		if (!$user->id) return FALSE;
 
-		if (!is_a($user, 'backend_user')) return FALSE;
+		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('backend_user', TRUE);
+		if (!in_array(get_class($user), $types)) return FALSE;
 
 		// now make sure that the user is in the system administrators group
 		$sys_admin_group =& $this->am->getSystemAsset('system_user_group');
@@ -2564,6 +2571,68 @@ class MySource
 		}
 
 	}//end _getHeaders()
+
+
+	/**
+	* Sees if an auth redirect is available, and then redirects if there is
+	*
+	* The redirect will be attempted on the same protocol (HTTP or HTTPS) that
+	* the original request was made on. If the URL being redirected to does not
+	* support the current protocol, it will use the protocol it can use instead.
+	*
+	* Returns boolean FALSE if no redirect exists, otherwise this function will
+	* NOT return (as a result of exit() being called in do_redirect()).
+	*
+	* @return boolean
+	* @access public
+	*/
+	function authRedirect()
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$current_url = current_url(FALSE, FALSE);
+		$current_protocol = current_protocol();
+		$root_url = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
+
+		$sql = 'SELECT
+					auth_urlid
+				FROM
+					sq_ast_url
+				WHERE
+					urlid = '.$db->quote($root_url['urlid']);
+		$auth_urlid = $db->getOne($sql);
+		assert_valid_db_result($auth_urlid);
+
+		// If there is no auth URL ID, return FALSE
+		if (empty($auth_urlid)) return FALSE;
+
+		$sql = 'SELECT
+					url, http, https
+				FROM
+					sq_ast_url
+				WHERE
+					urlid = '.$db->quote($auth_urlid);
+		$new_root_url = $db->getRow($sql);
+		assert_valid_db_result($new_root_url);
+
+		// If the protocol is valid, then use the same protocol, otherwise
+		// use the one that is available
+		if ($new_root_url[$current_protocol]) {
+			$protocol = $current_protocol;
+		} else {
+			// If current protocol not valid, then only one must be selected...
+			// and it's the wrong one
+			$protocol = $new_root_url['https' ] ? 'https' : 'http';
+		}
+
+		// build the new URL, and redirect - this exits the script
+		$url = $protocol.'://'.preg_replace('|^'.addslashes($root_url['url']).'|', $new_root_url['url'], $current_url);
+		do_redirect($url);
+
+		// Fall-through that should never be executed
+		return FALSE;
+
+	}//end authRedirect()
 
 
 }//end class
