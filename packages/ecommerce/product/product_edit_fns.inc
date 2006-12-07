@@ -1,17 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Commercial Module Licence                                |
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
-* +--------------------------------------------------------------------+
-* | This source file is not open source or freely usable and may be    |
-* | used subject to, and only in accordance with, the Squiz Commercial |
-* | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
  *
- * $Id: product_edit_fns.inc,v 1.6 2005/07/27 11:09:45 brobertson Exp $
+ * $Id: product_edit_fns.inc,v 1.7 2006/12/07 05:26:31 bcaldwell Exp $
  *
  */
 
@@ -26,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -40,10 +39,10 @@ class Product_Edit_Fns extends Page_Edit_Fns
 	function Product_Edit_Fns()
 	{
 		$this->Page_Edit_Fns();
-		
+
 	}//end constructor
 
-	
+
 	/**
 	* Paint the interface for editing the product price
 	*
