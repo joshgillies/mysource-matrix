@@ -1,16 +1,24 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
-* | IMPORTANT: Your use of this Software is subject to the terms of    |
-* | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.141 2006/12/05 23:14:13 emcdonald Exp $
+* $Id: file.inc,v 1.142 2006/12/07 04:17:52 skim Exp $
 *
 */
 
@@ -25,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.141 $
+* @version $Revision: 1.142 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -945,6 +953,31 @@ class File extends Asset
 	*/
 	function validFile($info)
 	{
+		$pre_uploaded = FALSE;
+		if (isset($info['non_uploaded_file']) && $info['non_uploaded_file']) {
+			$pre_uploaded = TRUE;
+		}
+
+		if ($this->_validFileSize($info, $pre_uploaded) && $this->_validFileExtension($info, $pre_uploaded)) {
+			return TRUE;
+		}
+
+		return FALSE;
+
+	}//end validFile()
+
+
+	/**
+	* Checks a file size which is valid according to Global and User group settings
+	*
+	* @param array		&$info			an array of information about the uploaded file
+	* @param boolean	$pre_uploaded	TRUE if the pre-uploaded file info is passed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _validFileSize(&$info, $pre_uploaded=FALSE)
+	{
 		// check the file size to ensure we are not violating any restrictions
 		$size = filesize($info['path']);
 
@@ -952,12 +985,11 @@ class File extends Asset
 		if (isset($info['non_uploaded_file']) && $info['non_uploaded_file']) {
 			$pre_uploaded = TRUE;
 		}
+
 		if ($pre_uploaded) {
-			// pre-uploaded file
-			$file_max_size = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_PREUPLOADED_FILE_MAX_SIZE');
-			$error_code = 'CORE0261';
+			$file_max_size = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_PREUPLOADED_MAX_SIZE');
+			$error_code = 'CORE0262';
 		} else {
-			// uploaded file
 			$file_max_size = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE');
 			$error_code = 'CORE0057';
 		}
@@ -980,7 +1012,79 @@ class File extends Asset
 
 		return TRUE;
 
-	}//end validFile()
+	}//end _validFileSize()
+
+
+	/**
+	* Checks a file type which is valid according to Global and User group settings
+	*
+	* @param array		&$info			an array of information about the uploaded file
+	* @param boolean	$pre_uploaded	TRUE if the pre-uploaded file info is passed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _validFileExtension(&$info, $pre_uploaded=FALSE)
+	{
+		// check the file size to ensure we are not violating any restrictions
+		$filename = $info['filename'];
+
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		$extension = get_file_type($filename);
+
+		// If the script is running from the command line, do not restrict file type
+		// e.g. installation scripts.
+		if (php_sapi_name() == 'cli') return TRUE;
+
+		// Root and System Administrators can over rule the restriction
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		if ($is_root || $is_admin) {
+			return TRUE;
+		}
+
+		// File with no extension
+		$extension = trim($extension);
+		if (empty($extension)) {
+			$allowed_no_extension = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_ALLOW_NO_EXTENSION');
+			if ($allowed_no_extension) return TRUE;
+			trigger_localised_error('CORE0267', E_USER_WARNING);
+			return FALSE;
+		}
+
+		if ($pre_uploaded) {
+			$allowed_extensions = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_ALLOWED_PREUPLOADED_TYPES');
+		} else {
+			$allowed_extensions = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_ALLOWED_TYPES');
+		}
+
+		if (empty($allowed_extensions)) return TRUE;
+		$allowed_extensions = explode(',', $allowed_extensions);
+
+		$in_global = in_array($extension, $allowed_extensions);
+		if (isset($this->allowed_extensions)) {
+			// File or its subclass includes its own allowed_extensions array
+			$in_asset = in_array($extension, $this->allowed_extensions);
+			if ($in_global && $in_asset) {
+				return TRUE;
+			}
+			if (!$in_global && $in_asset) {
+				trigger_localised_error('CORE0264', E_USER_WARNING, $filename, $this->type());
+			} else if ($in_global && !$in_asset) {
+				trigger_localised_error('CORE0265', E_USER_WARNING, $filename, $this->type());
+			} else {
+				trigger_localised_error('CORE0266', E_USER_WARNING, $filename);
+			}
+			return FALSE;
+		} else {
+			if ($in_global) return TRUE;
+			trigger_localised_error('CORE0266', E_USER_WARNING, $filename);
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end _validFileExtension()
 
 
 	/**

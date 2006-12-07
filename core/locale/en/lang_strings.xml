@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.200 2006/12/07 01:32:30 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.201 2006/12/07 04:17:54 skim Exp $
 *
 */
 
@@ -183,6 +183,12 @@
 	<string source="match_condition">Match Condition</string>
 	<string source="max_file_upload">Max File Upload</string>
 	<string source="preuploaded_max_file_upload">Pre-uploaded Max File Size</string>
+
+	<string source="allowed_file_extensions_to_upload">Allowed File Extensions to Upload</string>
+	<string source="allowed_file_extensions_note">Type the allowed file extensions with comma separated. For example: jpg,png,txt,mov</string>
+	<string source="allowed_file_extensions_not_specified">No file type restriction.</string>
+	<string source="allowed_file_extensions_list">Allowed extension%1$s</string>
+
 	<string source="metadata_regeneration_threshold">Metadata Regeneration Threshold</string>
 	<string source="metadata_schemas">Metadata Schemas</string>
 	<string source="metadata_schema">Metadata Schema</string>
