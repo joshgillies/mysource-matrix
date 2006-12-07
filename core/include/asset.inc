@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.577 2006/12/07 05:15:41 tbarrett Exp $
+* $Id: asset.inc,v 1.578 2006/12/07 06:11:00 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.577 $
+* @version $Revision: 1.578 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -223,7 +223,7 @@ class Asset extends MySource_Object
 	function create(&$link)
 	{
 		if ($this->id) {
-			trigger_localised_error('CORE0263', E_USER_WARNING, $this->type());
+			trigger_localised_error('CORE0268', E_USER_WARNING, $this->type());
 			return;
 		}
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');

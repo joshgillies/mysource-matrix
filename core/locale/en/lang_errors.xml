@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.69 2006/12/07 05:15:41 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.70 2006/12/07 06:11:01 tbarrett Exp $
 *
 */
 
@@ -1214,8 +1214,7 @@ The install order for these assets could not be established	%2$s</error><!-- cor
 	<error code="SYS0249">Unable to locate authentication system</error><!-- core/include/mysource.inc: -->
 
 	<error code="SYS0250">Unable to process the status change.
-"%1$s" is not a valid option for the "%2$s" %3$s asset (#%4$s) in it's current "%5$s" state.
-This may be due to permissions for the current user "%6$s" (#%7$s)</error><!-- core/include/asset_status/asset_status.inc: -->
+"%1$s" is not a valid option for the "%2$s" %3$s asset (#%4$s) in its current "%5$s" state.  This may be due to required metadata fields being empty, or permissions for the current user "%6$s" (#%7$s)</error><!-- core/include/asset_status/asset_status.inc: -->
 
 	<error code="SYS0251">Unable to set "%1$s" it is a unique attribute and another asset already uses "%2$s"</error><!-- core/include/asset.inc: -->
 
@@ -1677,7 +1676,7 @@ Full Node Contents :
 	<error code="CORE0267">File without extension is not allowed.</error>
 
 	<!-- trying to create an already-existing asset -->
-	<error code="CORE0263">This %s asset has already been created - cannot create it again</error>
+	<error code="CORE0268">This %s asset has already been created - cannot create it again</error>
 
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->
