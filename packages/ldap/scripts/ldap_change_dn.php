@@ -1,7 +1,7 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix Module file is Copyright © Squiz Pty Ltd      |
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
 * | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: This Module is not available under an open source       |
@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_change_dn.php,v 1.10 2006/12/07 00:57:27 bcaldwell Exp $
+* $Id: ldap_change_dn.php,v 1.11 2006/12/07 01:00:47 bcaldwell Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Alter the database to reflect that the DN of a user has changed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage ldap
 */

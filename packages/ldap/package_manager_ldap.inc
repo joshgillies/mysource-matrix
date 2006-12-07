@@ -1,7 +1,7 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix Module file is Copyright © Squiz Pty Ltd      |
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
 * | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: This Module is not available under an open source       |
@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_ldap.inc,v 1.8 2006/12/07 00:57:08 bcaldwell Exp $
+* $Id: package_manager_ldap.inc,v 1.9 2006/12/07 01:00:46 bcaldwell Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */

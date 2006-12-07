@@ -1,17 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Commercial Module Licence                                |
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
-* +--------------------------------------------------------------------+
-* | This source file is not open source or freely usable and may be    |
-* | used subject to, and only in accordance with, the Squiz Commercial |
-* | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_management.inc,v 1.11 2006/11/15 23:50:01 rong Exp $
+* $Id: ldap_bridge_management.inc,v 1.12 2006/12/07 01:03:19 bcaldwell Exp $
 *
 */
 
@@ -24,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */

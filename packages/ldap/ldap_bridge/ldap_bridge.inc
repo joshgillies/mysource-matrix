@@ -1,17 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Commercial Module Licence                                |
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
-* +--------------------------------------------------------------------+
-* | This source file is not open source or freely usable and may be    |
-* | used subject to, and only in accordance with, the Squiz Commercial |
-* | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.53 2006/11/28 22:33:42 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.54 2006/12/07 01:03:19 bcaldwell Exp $
 *
 */
 
@@ -25,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -1237,7 +1236,7 @@ class LDAP_Bridge extends Asset
 		if (is_null($o)) {
 			?><table border="0" cellspacing="2" cellpadding="2"><?php
 		}
-		
+
 		// loop through each field to be shown
 		foreach ($show as $field_name => $friendly_name) {
 			if (!isset($info[$field_name])) {
