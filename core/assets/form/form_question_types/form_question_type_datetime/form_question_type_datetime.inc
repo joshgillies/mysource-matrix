@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.3.2.4 2006/10/12 04:02:52 mbrydon Exp $
+* $Id: form_question_type_datetime.inc,v 1.3.2.5 2006/12/07 23:03:27 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3.2.4 $
+* @version $Revision: 1.3.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -178,10 +178,43 @@ class Form_Question_Type_Datetime extends Form_Question
 		$answer = $this->getValue();
 		if (!is_iso8601($answer)) return FALSE;
 
+		$required_fields = $this->attr('null');
+		$show_params = $this->attr('show');
+		$custom_error = $this->attr('cust_required_error');
+		if (empty($custom_error)) {
+			$custom_error = translate('core_form_datetime_invalid_date_time');
+		}
+
+		$this->failed_rules[] = $custom_error;
+
+		// Ensure that required fields are filled in
+		foreach ($required_fields as $field => $required) {
+			if ($required != '1' && $show_params[$field] == '1') {
+				if ($field == 'y' && (substr($answer, 0, 2) == '--')) {
+					return FALSE;
+
+				} else if ($field == 'm' && (substr($answer, 5, 2) == '--')) {
+					return FALSE;
+
+				} else if ($field == 'd' && (substr($answer, 8, 2) == '--')) {
+					return FALSE;
+
+				} else if ($field == 'h' && (substr($answer, 11, 2) == '--')) {
+					return FALSE;
+
+				} else if ($field == 'i' && (substr($answer, 14, 2) == '--')) {
+					return FALSE;
+
+				} else if ($field == 's' && (substr($answer, 17, 2) == '--')) {
+					return FALSE;
+
+				}
+			}
+		}
+
 		// At this stage the date is in ISO 8601 format, however we still need to check value limits (eg; to avoid 30th Feb)
 		$date = Array();
 		list($date['y'], $date['m'], $date['d']) = sscanf($answer, '%04s-%02s-%02s');
-
 		// For checking purposes, set year, month, and day defaults for each value if they were not specified. Feb 29th will be allowed if the year is not specified
 		$fields = Array('y', 'm', 'd');
 		foreach ($fields as $field) {
