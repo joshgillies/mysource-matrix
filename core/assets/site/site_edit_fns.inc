@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.57 2006/12/06 04:57:30 emcdonald Exp $
+* $Id: site_edit_fns.inc,v 1.58 2006/12/07 22:04:55 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -634,7 +634,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		if ($this->_isCircularReference($urls)) {
 			// Cannot update private URLs, the submitted set-up would cause a
 			// redirect loop
-			trigger_localised_error('CORE0263', E_USER_WARNING);
+			trigger_localised_error('CORE0269', E_USER_WARNING);
 			return FALSE;
 		} else {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
