@@ -1,3 +1,13 @@
+:: +--------------------------------------------------------------------+
+:: | This MySource Matrix Module file is Copyright © Squiz Pty Ltd      |
+:: | ACN 084 670 600                                                    |
+:: +--------------------------------------------------------------------+
+:: | IMPORTANT: This Module is not available under an open source       |
+:: | license and consequently distribution of this and any other files  |
+:: | that comprise this Module is prohibited. You may only use this     |
+:: | Module if you have the written consent of Squiz.                   |
+:: +--------------------------------------------------------------------+
+
 @IF "%1" == "" GOTO NO_FILE
 
 @IF "%1" == "." GOTO GRACEFUL
