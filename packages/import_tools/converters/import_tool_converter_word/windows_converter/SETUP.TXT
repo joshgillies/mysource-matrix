@@ -1,5 +1,5 @@
 +--------------------------------------------------------------------+
-| This MySource Matrix Module file is Copyright © Squiz Pty Ltd      |
+| This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
 | ACN 084 670 600                                                    |
 +--------------------------------------------------------------------+
 | IMPORTANT: This Module is not available under an open source       |
