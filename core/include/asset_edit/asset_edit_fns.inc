@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.67 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: asset_edit_fns.inc,v 1.68 2006/12/08 03:32:51 arailean Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -674,6 +674,36 @@ class Asset_Edit_Fns extends MySource_Object
 		return $GLOBALS['SQ_SYSTEM']->am->installed('search_manager');
 
 	}//end isSearchInstalled()
+
+
+	/**
+	* Return true if this asset is being created
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isBeingCreated(&$asset)
+	{
+		return ($asset->id == 0);
+
+	}//end isBeingCreated()
+
+
+	/**
+	* Return true if this asset is being created
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isNotBeingCreated(&$asset)
+	{
+		return !$this->isBeingCreated($asset);
+
+	}//end isNotBeingCreated()
 
 
 }//end class
