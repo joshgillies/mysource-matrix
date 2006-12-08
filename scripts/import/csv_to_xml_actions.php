@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv_to_xml_actions.php,v 1.3 2006/12/06 22:21:22 mbrydon Exp $
+* $Id: csv_to_xml_actions.php,v 1.4 2006/12/08 05:39:37 mbrydon Exp $
 *
 */
 
@@ -46,7 +46,7 @@
 *				 <?xml version="1.0" encoding="iso-8859-1" ?>
 *				 <!-- template only, usage given below -->
 *				 <schema id="[metadata schema asset ID]" name_field="[alias of name field]" (group_by_field_id="[group by field asset ID]")>
-*				   <field id="[field 1 asset ID]" alias="[corresponding column name from CSV]" (ignore="1" | required="1") />
+*				   <field id="[field 1 asset ID]" alias="[corresponding column name from CSV]" (ignore="1") />
 *				   <field id="[field n asset ID]" alias="[corresponding column name from CSV]" />
 *				 </schema>
 *
@@ -59,7 +59,7 @@
 *
 *				 <!-- OR -->
 *				 <schema id="1234" group_by_field="1236" name_field="first_name">
-*				   <field id="1235" alias="first_name" required="1" />
+*				   <field id="1235" alias="first_name" />
 *				   <field id="1236" alias="address" />
 *				   <field id="1237" alias="phone" />
 *				   <field id="1237" alias="colour" ignore="1" />
@@ -80,11 +80,6 @@
 *
 *			ignore:		Fields set with the "ignore" flag will not be included in the export. However, such fields can still be used for
 *						grouping in the <schema> tag
-*			required:	This field attribute specifies that this value has to be populated for the record to be exported.
-*						Field contents is considered "empty" if they meet one of the following circumstances:
-*							- The field contains no characters
-*							- The field is composed entirely of spaces
-*							- The field is composed entirely of dashes
 *
 */
 
@@ -98,12 +93,15 @@
 function printUsage()
 {
 	printStdErr("CSV and metadata mapping to XML converter\n");
-	printStdErr('Usage: csv_to_xml_actions [csv file] [mapping file] [parent id] [asset type] (-unique)');
-	printStdErr('csv file    : A comma separated values file that represents the site structure');
-	printStdErr('mapping file: An XML file containing column name to metadata mapping data');
-	printStdErr('parent id   : The parent asset ID');
-	printStdErr('asset type  : Asset type to create for each entry (eg; data_record)');
-	printStdErr("-unique     : The '-unique' option will instruct the exporter to exclude duplicate records\n");
+	printStdErr('Usage: csv_to_xml_actions [csv file] [mapping file] [parent id] [asset type] (-unique) (-ignore_blank)');
+	printStdErr('system root  : The Matrix System root directory');
+	printStdErr('csv file     : A comma separated values file that represents the site structure');
+	printStdErr('mapping file : An XML file containing column name to metadata mapping data');
+	printStdErr('parent id    : The parent asset ID');
+	printStdErr('asset type   : Asset type to create for each entry (eg; data_record)');
+	printStdErr('-unique      : The "-unique" option will instruct the exporter to exclude duplicate records');
+	printStdErr('-ignore_blank: The "-ignore_blank" option will not attempt to import fields which are blank*');
+	printStdErr("               (* = empty fields or those composed entirely of spaces or dashes)\n");
 
 }//end printUsage()
 
@@ -207,13 +205,14 @@ function compactCharacters($string, $char)
 */
 function getMetadataMapping($mapping_filename)
 {
-	include_once '../../fudge/general/xml_converter.inc';
+	include_once $GLOBALS['SYSTEM_ROOT'].'/fudge/general/xml_converter.inc';
 
 	$metadata_mapping = Array(
 							'metadata_schema_id'		=> 0,
 							'metadata_fields'			=> Array(),
 							'metadata_ignore_fields'	=> Array(),
 							'metadata_required_fields'	=> Array(),
+							'metadata_field_types'		=> Array(),
 						);
 
 	// Read metadata mapping info
@@ -226,29 +225,36 @@ function getMetadataMapping($mapping_filename)
 	// There should only be one schema defined in the mapping file
 	if ($num_schemata != 1) {
 		printStdErr("* A single metadata schema must be defined in the mapping file <schema id=\"[id]\" group_by_field=\"[field_id]\">...</schema>\n");
-		exit(-8);
+		exit(-11);
 	}
 
 	$schema = $xml_array['schema'];
 	if ($num_schemata != 1) {
 		printStdErr("* The mapping file must contain one root element named 'schema'\n");
-		exit(-9);
+		exit(-12);
 	}
 
 	$metadata_mapping['metadata_schema_id'] = (int)(trim($schema[0]['@id']));
 	if ($metadata_mapping['metadata_schema_id'] == 0) {
 		printStdErr("* A metadata schema asset id must be specified in the 'id' attribute of the <schema> tag\n");
-		exit(-10);
+		exit(-13);
 	}
 
-	$metadata_mapping['metadata_schema_group_field'] = (int)(trim($schema[0]['@group_by_field_id']));
-	$metadata_mapping['metadata_schema_name_field'] = trim($schema[0]['@name_field']);
+	$metadata_mapping['metadata_schema_group_field'] = 0;
+	if (isset($schema[0]['@group_by_field_id'])) {
+		$metadata_mapping['metadata_schema_group_field'] = (int)(trim($schema[0]['@group_by_field_id']));
+	}
+
+	$metadata_mapping['metadata_schema_name_field'] = 0;
+	if (isset($schema[0]['@name_field'])) {
+		$metadata_mapping['metadata_schema_name_field'] = trim($schema[0]['@name_field']);
+	}
 
 	// There should be one level here, with all lines in the form <field id="[id]" alias="[alias]" ... />
 	$num_levels = count($schema);
 	if ($num_levels != 1) {
 		printStdErr("* A single level of field definitions should be defined in the <schema> section in the form <field id=\"[id]\" alias=\"[alias]\" />...\n");
-		exit(-11);
+		exit(-14);
 	}
 
 	// Reduce the schema to one level only
@@ -262,7 +268,7 @@ function getMetadataMapping($mapping_filename)
 	// There is not much point continuing without the fields
 	if ($num_fields == 0) {
 		printStdErr("* Metadata fields must be defined in the <schema> section in the form <field id=\"[id]\" alias=\"[alias]\" />...\n");
-		exit(-12);
+		exit(-15);
 	}
 
 	$group_by_field_specified = ($metadata_mapping['metadata_schema_group_field'] > 0);
@@ -278,18 +284,11 @@ function getMetadataMapping($mapping_filename)
 
 		// All fields apart from the 'name' field which are present in the CSV file *must* be defined in the XML mapping, however fields
 		// can be "ignored" and therefore will not be used in the import. Ignored fields can still be used for sorting which is nice
-		$ignore_field = ((int)trim($field['@ignore']) == 1);
-		$required_field = ((int)trim($field['@required']) == 1);
-
-		// Silly error - we can't expect to ignore and require a field at the same time
-		if ($ignore_field && $required_field) {
-			printStdErr('* The '.$field_alias." field cannot be set to 'ignore' and 'required'\n");
-			exit(-20);
-		}
+		$ignore_field = ((isset($field['@ignore'])) ? ((int)trim($field['@ignore']) == 1) : 0);
 
 		if ($field_id == 0) {
 			printStdErr("* A field id must be specified in the 'id' attribute of the <field /> tag\n");
-			exit(-13);
+			exit(-16);
 		}
 
 		// Check to see if this field is the specified group by field
@@ -305,21 +304,18 @@ function getMetadataMapping($mapping_filename)
 			$metadata_mapping['metadata_ignore_fields'][$field_alias] = 1;
 		}
 
-		if ($required_field) {
-			$metadata_mapping['metadata_required_fields'][$field_alias] = 1;
-		}
 	}//end foreach
 
 	// Perform a check to verify that the specified group by field is defined in the mapping file
 	if ($group_by_field_specified && !$group_by_field_found) {
 		printStdErr("* The specified group_by_field ID was not defined as a <field> in the mapping file\n");
-		exit(-14);
+		exit(-17);
 	}
 
 	// Perform a check to verify that the specified group by field is defined in the mapping file
 	if (!$name_field_specified) {
 		printStdErr("* A name_field must be specified in the <schema> tag\n");
-		exit(-22);
+		exit(-18);
 	}
 
 	return $metadata_mapping;
@@ -342,14 +338,123 @@ function printStdErr($string)
 }//end printStdErr()
 
 
+/**
+* Ensures that the XML mapping contains a correct and complete definition of the target metadata schema
+*
+* @param array	&$metadata_mapping	The metadata mapping structure which is used to import the CSV data
+*
+* @return void
+* @access public
+*/
+function validateMetadataMapping(&$metadata_mapping)
+{
+	// Start Matrix
+	printStdErr('- Initialising Matrix...');
+
+	// Check the schema is available in the system
+	$schema_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_mapping['metadata_schema_id']);
+	if (!$schema_asset) {
+		printStdErr('* The supplied schema (ID: '.$metadata_mapping['metadata_schema_id'].") could not be found in the system\n");
+		exit(-21);
+	}
+	if ($schema_asset->type() != 'metadata_schema') {
+		printStdErr('* The supplied schema (ID: '.$metadata_mapping['metadata_schema_id'].") is not a valid Metadata Schema in the system\n");
+		exit(-22);
+	}
+
+	// Now we have the schema, find its fields and make sure that they were specified
+	$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+	$metadata_fields = $mm->getMetadataFields(Array($metadata_mapping['metadata_schema_id']));
+
+	// Fields specified in the system...
+	$metadata_system_field_ids = array_keys($metadata_fields);
+	$metadata_mapping_field_ids = array_values($metadata_mapping['metadata_fields']);
+
+	$metadata_differences = array_diff($metadata_system_field_ids, $metadata_mapping_field_ids);
+
+	if (count($metadata_differences) > 0) {
+		printStdErr('* One or more system metadata fields were not specified in the mapping file');
+		printStdErr('  The following metadata field IDs are required:');
+		foreach ($metadata_differences as $metadata_field_id) {
+			printStdErr('  '.$metadata_field_id);
+		}
+		exit(-23);
+	}
+
+	// All expected metadata fields were defined in the mapping file. Add the data types to our mapping.
+	// This will be used while importing to verify that the fields are correct
+	$metadata_mapping['metadata_field_types'] = $metadata_fields;
+
+	$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+	foreach ($metadata_fields as $metadata_field_id => $metadata_field_type) {
+		$field =& $am->getAsset($metadata_field_id, $metadata_field_type);
+		$metadata_mapping['metadata_field_objects'][$metadata_field_id] = $field;
+
+		if ($field->attr('required')) {
+			if (isset($metadata_mapping['metadata_ignored_fields'][$metadata_field_id])) {
+				printStdErr('* The metadata field (ID '.$metadata_field_id.') cannot be ignored upon import as it is mandatory');
+				exit(-24);
+			}
+
+			$metadata_mapping['metadata_required_fields'][$metadata_field_id] = 1;
+		}
+	}
+
+}//end validateMetadataMapping()
+
+
+/**
+* Ensures that the XML mapping contains a correct and complete definition of the target metadata schema
+*
+* @param object	&$metadata_field_object	A Matrix metadata field object to check for consistency
+* @param string	$value					The value destined for the metadata field
+*
+* @return void
+* @access public
+*/
+function validateMetadataField(&$metadata_field_object, $value)
+{
+	$valid_value = FALSE;
+
+	$metadata_field_type = get_class($metadata_field_object);
+	if ($metadata_field_type == 'metadata_field_text') {
+		$valid_value = TRUE;
+	} else if ($metadata_field_type == 'metadata_field_select') {
+		// Verify that the intended value is available as a selection for this field
+		$selection = $metadata_field_object->getSelectionAttribute();
+		$valid_value = $selection->validateValue($value);
+	} else if ($metadata_field_type == 'metadata_field_thesaurus') {
+		// Ensure that the supplied value is an asset ID of an existing Thesaurus asset
+		$asset_id = (int)($value);
+		if (($asset_id == $value) && ($asset_id > 0)) {
+			$thesaurus =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
+			$asset_id = $thesaurus->id;
+		}
+		$valid_value = ($asset_id > 0);
+	} else if ($metadata_field_type == 'metadata_field_date') {
+		include_once $GLOBALS['SYSTEM_ROOT'].'/fudge/general/datetime.inc';
+		$valid_value = is_iso8601($value);
+	}
+
+	return $valid_value;
+
+}//end validateMetadataField()
+
+
 /************************** MAIN PROGRAM ****************************/
 
 if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
 
+// Matrix system root directory
+$argv = $_SERVER['argv'];
+$GLOBALS['SYSTEM_ROOT'] = (isset($argv[1])) ? $argv[1] : '';
+require_once $GLOBALS['SYSTEM_ROOT'].'/core/include/init.inc';
+
 // Has a CSV filename been supplied?
-$csv_filename	= $argv[1];
+$csv_filename	= $argv[2];
 if (empty($csv_filename)) {
 	printUsage();
 	printStdErr("* A CSV filename must be specified as the first parameter\n");
@@ -357,7 +462,7 @@ if (empty($csv_filename)) {
 }
 
 // Has a mapping filename been supplied?
-$mapping_filename	= $argv[2];
+$mapping_filename	= $argv[3];
 if (empty($mapping_filename)) {
 	printUsage();
 	printStdErr("* A mapping filename must be specified as the second parameter\n");
@@ -365,7 +470,7 @@ if (empty($mapping_filename)) {
 }
 
 // Has a parent ID been supplied?
-$global_parent_id	= $argv[3];
+$global_parent_id	= $argv[4];
 if (empty($global_parent_id)) {
 	printUsage();
 	printStdErr("* A parent ID must be specified as the third parameter\n");
@@ -373,14 +478,25 @@ if (empty($global_parent_id)) {
 }
 
 // Has an asset type been supplied?
-$global_asset_type	= $argv[4];
+$global_asset_type	= $argv[5];
 if (empty($global_asset_type)) {
 	printUsage();
 	printStdErr("* An asset type must be specified as the fourth parameter\n");
 	exit(-4);
 }
 
-$export_unique_records_only = (strtolower($argv[5]) == '-unique');
+$export_unique_records_only = FALSE;
+$ignore_blank_fields = FALSE;
+
+if (isset($argv[6])) {
+	$export_unique_records_only = (strtolower($argv[6]) == '-unique');
+	$ignore_blank_fields = (strtolower($argv[6]) == '-ignore_blank');
+}
+
+if (isset($argv[7])) {
+	$export_unique_records_only = ($export_unique_records_only || (strtolower($argv[7]) == '-unique'));
+	$ignore_blank_fields = ($ignore_blank_fields || (strtolower($argv[7]) == '-ignore_blank'));
+}
 
 // Do the supplied files exist?
 $csv_fd = fopen($csv_filename, 'r');
@@ -401,7 +517,6 @@ fclose($mapping_fd);
 // Yippee, we have the appropriate files. Let's process them now
 $headers = Array();
 $metadata_mapping = getMetadataMapping($mapping_filename);
-$metadata_fields = $metadata_mapping[''];
 
 $group_by_field = $metadata_mapping['metadata_schema_group_field'];
 $name_field = $metadata_mapping['metadata_schema_name_field'];
@@ -411,7 +526,9 @@ $is_header_line = TRUE;
 // Store the action IDs so we don't clash with namespace
 $action_ids = Array();
 
-printStdErr('- Exporting XML...');
+validateMetadataMapping($metadata_mapping);
+
+printStdErr("- Exporting XML...\n");
 
 echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>\n";
 echo "<actions>\n";
@@ -435,6 +552,7 @@ if ($group_by_field > 0) {
 $num_folders_created = 0;
 $num_assets_created = 0;
 $num_fields_ignored = 0;
+$num_fields_blank = 0;
 $num_records_ignored = 0;
 
 $imported_records = Array();
@@ -475,7 +593,7 @@ while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 			// The name field must be defined in the mapping file
 			if ($name_field_column < 0) {
 				printStdErr('* The specified name field "'.$name_field."\" was not found in the CSV file\n");
-				exit(-23);
+				exit(-7);
 			}
 
 			$is_header_line = FALSE;
@@ -485,18 +603,29 @@ while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 			if (count($metadata_mapping['metadata_required_fields'])) {
 				$data_available = TRUE;
 
-				foreach ($metadata_mapping['metadata_required_fields'] as $required_field_name => $val) {
+				foreach ($metadata_mapping['metadata_required_fields'] as $required_field_id => $val) {
 					// Check that the data is populated for each required column
 					for ($n=0; $n<count($headers); $n++) {
-						if ($headers[$n] == $required_field_name) {
-							$value = trim(compactSpaces($data[$n]));
+						$column_name = $headers[$n];
+						if (!isset($metadata_mapping['metadata_ignore_fields'][$column_name])) {
+							$metadata_field_id = $metadata_mapping['metadata_fields'][$column_name];
 
-							if ($value == '') $data_available = FALSE;
+							if ($metadata_field_id == $required_field_id) {
+								$value = trim(compactSpaces($data[$n]));
+
+								if ($value == '') {
+									$data_available = FALSE;
+									break;
+								}
+							}
 						}
+
 					}
+					if (!$data_available) break;
+
 				}
 
-				// Skip ahead to the next record in the CSV file if the required fields are not filled
+				// Skip ahead to the next record in the CSV file if the required fields are not populated
 				if (!$data_available) {
 					$num_records_ignored++;
 					continue;
@@ -527,6 +656,8 @@ while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 
 			// Create a folder to house the assets if a group by field was specified and one does not already exist from this import
 			$group_by_folder_name = '';
+			$folder_name_orig = '';
+			$folder_name = '';
 			if ($group_by_field_column >= 0) {
 				$value = trim($data[$group_by_field_column]);
 				$value = compactSpaces($value);
@@ -577,8 +708,8 @@ while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 					// Any value set to dashes only OR blank denotes an empty field, so don't bother with this one. Otherwise compact contiguous spaces
 					$value = trim(compactSpaces($data[$n]));
 
-					if ((compactCharacters($value, '-') == '-') || ($value == '')) {
-						$num_fields_ignored++;
+					if ($ignore_blank_fields && ((compactCharacters($value, '-') == '-') || ($value == ''))) {
+						$num_fields_blank++;
 						continue;
 					}
 
@@ -586,7 +717,7 @@ while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 
 					if (!isset($metadata_field_id)) {
 						printStdErr('* Metadata schema mapping is missing for the "'.$column_name."\" field. Cannot continue\n");
-						exit(-7);
+						exit(-8);
 					}
 
 					$record_metadata[$metadata_field_id] = $value;
@@ -607,7 +738,7 @@ while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 				}
 			}
 
-			printStdErr('--- Creating asset '.$name.(($folder_name_orig != '') ? (' in folder "'.$folder_name_orig).'"' : ''));
+			printStdErr('-- Creating asset '.$name.(($folder_name_orig != '') ? (' in folder "'.$folder_name_orig).'"' : ''));
 			printCreateAssetAction($action_id, 'create_asset', $global_asset_type, '1', $asset_parent_id);
 
 			$num_assets_created++;
@@ -634,11 +765,34 @@ while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 
 			// Finally, assign the relevant metadata
 			foreach ($record_metadata as $metadata_field_id => $value) {
-				$settings = Array(
-								'fieldid'	=> $metadata_field_id,
-								'value'		=> $value,
-							);
-				printCreateTriggerAction('set_'.$action_id.'_metadata_value_'.$metadata_field_id, 'set_metadata_value', 'output://'.$action_id.'.assetid', $settings);
+				$metadata_value_valid = validateMetadataField($metadata_mapping['metadata_field_objects'][$metadata_field_id], $value);
+
+				if ($metadata_value_valid) {
+					$settings = Array(
+									'fieldid'	=> $metadata_field_id,
+									'value'		=> $value,
+								);
+					printCreateTriggerAction('set_'.$action_id.'_metadata_value_'.$metadata_field_id, 'set_metadata_value', 'output://'.$action_id.'.assetid', $settings);
+				} else {
+					printStdErr("\n* The value (".$value.') set for field '.$metadata_field_id.' is invalid for a '.get_class($metadata_mapping['metadata_field_objects'][$metadata_field_id])." field\n");
+					printStdErr('User Options ------------');
+					printStdErr('(I)gnore this field and continue exporting subsequent records');
+					printStdErr('(C)ancel export');
+
+					$valid_choice = FALSE;
+					while (!$valid_choice) {
+						$user_choice = rtrim(strtolower(fgets(STDIN, 3)));
+						$valid_choice = (($user_choice == 'i') || ($user_choice == 'c'));
+					}
+
+					if ($user_choice == 'c') {
+						printStdErr("\n- Export cancelled by user");
+						exit(-9);
+					}
+
+					$num_fields_ignored++;
+
+				}
 
 			}
 
@@ -655,7 +809,8 @@ printStdErr("\n- All done, stats below:");
 printStdErr('Folders created: '.$num_folders_created);
 printStdErr('Assets created : '.$num_assets_created);
 printStdErr('Records ignored: '.$num_records_ignored);
-printStdErr('Fields ignored : '.$num_fields_ignored."\n");
+printStdErr('Fields ignored (by user) : '.$num_fields_ignored);
+printStdErr('Fields ignored (blank)   : '.$num_fields_blank."\n");
 
 // That's all folks :-D
 
