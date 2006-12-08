@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_internal_message.php,v 1.2 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: remove_internal_message.php,v 1.3 2006/12/08 04:09:52 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Delete internal messages
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -29,7 +29,7 @@ if ((php_sapi_name() != 'cli')) {
 require_once 'Console/Getopt.php';
 
 $shortopt = 's:p:f:t:y:u:';
-$longopt = Array('quite', 'show-query-only');
+$longopt = Array('quiet', 'show-query-only');
 
 $args = Console_Getopt::readPHPArgv();
 array_shift($args);
@@ -107,7 +107,7 @@ foreach ($options[0] as $option) {
 			$MSG_STATUS = $option[1];
 		break;
 
-		case '--quite':
+		case '--quiet':
 			$QUIET = TRUE;
 		break;
 
@@ -268,14 +268,14 @@ function purge_internal_message($period, $user_from='', $user_to='', $msg_type='
 */
 function usage($rollback=FALSE)
 {
-	echo "\nUSAGE: remove_internal_message.php -s <system_root> -p <period> [-f userfrom] [-t userto] [-y msg type] [-u status] [--show-query-only] [--quite]\n\n".
+	echo "\nUSAGE: remove_internal_message.php -s <system_root> -p <period> [-f userfrom] [-t userto] [-y msg type] [-u status] [--show-query-only] [--quiet]\n\n".
 		"-p The period to remove internal messages before\n".
 		"-f The userid that the message is sent from, e.g. all or 7, 229*, 229*:323*:7\n".
 		"-t The userid that the message is sent to, e.g. all or 7, 229*, 229*:323*:7\n".
 		"-y The type of internal message to remove, e.g. asset.linking.create, cron.*\n".
 		"-u The status of internal message to remove, e.g. U(nread), R(ead), D(eleted) or multiple like U:R or R:D\n".
 		"--show-query-only The script only prints the query without running it.\n".
-		"--quite No output will be sent\n".
+		"--quiet No output will be sent\n".
 		"(For -p, the period is in the format nx where n is the number of units and x is one of:\n".
 		" h - hours\t\n d - days\t\n w - weeks\t\n m - months\t\n y - years)\n\n".
 		"(For -f and -t, the userid can take different formats which is one of:\n".
