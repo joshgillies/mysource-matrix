@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_thesaurus_db.php,v 1.6 2006/12/08 04:01:42 arailean Exp $
+* $Id: upgrade_thesaurus_db.php,v 1.7 2006/12/08 05:33:41 lwright Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Andrei Railean
 * @author  Elden McDonald
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -33,7 +33,8 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
 }
 
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
+define('SQ_SYSTEM_ROOT', $SYSTEM_ROOT);
+require_once SQ_SYSTEM_ROOT.'/core/include/init.inc';
 
 
 // ask for the root password for the system
@@ -64,24 +65,9 @@ $am =& $GLOBALS['SQ_SYSTEM']->am;
 $sql = '
 	ALTER TABLE
 		sq_thes_lnk
-	DROP
+	DROP COLUMN
 		sort_order
 ';
-$result = $db->query($sql);
-assert_valid_db_result($result);
-
-// add relid column
-$sql = '
-	ALTER TABLE
-		sq_thes_lnk
-	ADD
-		relid varchar(15)
-';
-$result = $db->query($sql);
-assert_valid_db_result($result);
-
-// create an index on the new relid column
-$sql = 'CREATE INDEX sq_thes_lnk_relid ON sq_thes_lnk(relid)';
 $result = $db->query($sql);
 assert_valid_db_result($result);
 
@@ -90,7 +76,7 @@ $sql = '
 	DELETE FROM
 		sq_thes_lnk
 	WHERE
-		major IS NULL;
+		major IS NULL
 ';
 $result = $db->query($sql);
 assert_valid_db_result($result);
@@ -105,7 +91,7 @@ foreach ($thesaurii as $thesaurus_id) {
 
 	$sql = '
 		SELECT DISTINCT
-			"relation"
+			relation
 		FROM
 			sq_thes_lnk
 		WHERE
@@ -175,9 +161,9 @@ foreach ($thesaurii as $thesaurus_id) {
 
 // now that relations have been moved to a different table, drop the column
 $sql = '
-	ALTER TABLE ONLY
+	ALTER TABLE
 		sq_thes_lnk
-	DROP
+	DROP COLUMN
 		relation
 ';
 $result = $db->query($sql);
