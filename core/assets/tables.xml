@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.45 2006/12/08 04:00:34 arailean Exp $
+* $Id: tables.xml,v 1.46 2006/12/08 05:19:07 lwright Exp $
 *
 */
 -->
@@ -1624,7 +1624,9 @@
 				</column>
 				<column name="value" allow_null="0">
 					<type>TEXT</type>
-					<type_variations />
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
 					<default />
 					<description>Note Value</description>
 				</column>
