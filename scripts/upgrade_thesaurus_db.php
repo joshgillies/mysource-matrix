@@ -10,15 +10,16 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_thesaurus_db.php,v 1.5 2006/12/06 05:39:52 bcaldwell Exp $
+* $Id: upgrade_thesaurus_db.php,v 1.6 2006/12/08 04:01:42 arailean Exp $
 *
 */
 
 /**
 * Upgrades thesaurus contents from 0.1 to 0.2
 *
+* @author  Andrei Railean
 * @author  Elden McDonald
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,7 +42,7 @@ $root_password = rtrim(fgets(STDIN, 4094));
 
 
 // check that the correct root password was entered
-$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
 	trigger_error("The root password entered was incorrect\n", E_USER_ERROR);
 }
@@ -51,351 +52,148 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
 }
 
-$GLOBALS['SQ_SYSTEM']->am->includeAsset('thesaurus_term');
+printUpdateStatus('Begin Thesaurus Upgrade');
 
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-$db = &$GLOBALS['SQ_SYSTEM']->db;
-$am = &$GLOBALS['SQ_SYSTEM']->am;
+$db =& $GLOBALS['SQ_SYSTEM']->db;
+$am =& $GLOBALS['SQ_SYSTEM']->am;
 
-
- //Add a column to the old table to mark a record as deleted.
-// Add another column that marks a record as seen
-
-$sql = 'ALTER TABLE ONLY sq_lex_thes_ent_rel
-		 ADD deleted boolean';
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
-$sql = 'ALTER TABLE ONLY sq_lex_thes_ent_rel
-		ADD depth integer';
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
-
-//Retrieve a list of the thesaurii
-$thesaurii = $am->getTypeAssetids('thesaurus');
-
-foreach ($thesaurii as $thesaurus_id) {
-	$thesaurus = &$am->getAsset($thesaurus_id);
-	$depth=1;
-	$num_children=0;
-
-	$term_id_map = Array();
-
-	//Select all the absolute parent terms for this thesaurus as a starting point
-	printName('Retrieving absolute parents for '.$thesaurus_id);
-	$sql = 'SELECT name, id
-			FROM sq_lex_thes_ent
-			WHERE id NOT in (SELECT cld_ent_id
-							FROM sq_lex_thes_ent_rel
-							WHERE thes_id='.$db->quoteSmart($thesaurus_id).')
-			AND thes_id = '.$db->quoteSmart($thesaurus_id);
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
-	printUpdateStatus('OK');
-	echo '... Processing '.$result->numRows().' links at level '.$depth."\n";
-	while (null !== ($row = $result->fetchRow())) {
-
-		// link each absolute parent to the null term in the new tables
-		$minor = $row['name'];
-		$minor_id = $row['id'];
-		//Use the thesaurus instance to add the term link from abs parent to null term
-
-		$create_link['asset'] = &$thesaurus;
-		$create_link['value'] = null;
-		$term_asset = new Thesaurus_Term();
-		$term_asset->setAttrValue('name', $minor);
-		if(!$term_asset->create($create_link)) {
-			trigger_error('Move term to new thesaurus: "'.$minor.'" #'.$minor_id, E_USER_ERROR);
-			return false;
-		}
-
-		$term_id_map[$minor_id] = $term_asset->id;
-
-		//Now mark each relation in which this entity is a parent as depth 1.
-		$sql ='
-			UPDATE sq_lex_thes_ent_rel
-			SET depth = '.$db->quoteSmart($depth).'
-			WHERE pnt_ent_id = '.$minor_id.'
-			AND thes_id = '.$db->quoteSmart($thesaurus_id);
-
-		$update_result   = $db->query($sql);
-		assert_valid_db_result($update_result);
-
-		$num_children++;
-		if (bcmod($num_children,1000)==0) {
-			echo ' Processed '.$num_children."\n";
-		}
-	}
-	echo ' Finished '.$num_children."\n";
-
-	while ($num_children>0) {
-		$num_children=0;
-		//Traverse the tree level by level until we have processed all the descendents of the absolute parent nodes
-		printName('Retrieving relations at depth '.($depth+1).' for thesaurus '.$thesaurus_id);
-
-		$sql = '
-			SELECT
-				e1.name as major,
-				e1.id as major_id,
-				e2.name as minor,
-				e2.id as minor_id,
-				r.id as rel_id,
-				r.name as relation,
-				er.thes_id as thesid
-
-			FROM
-				sq_lex_thes_ent_rel er
-				INNER JOIN sq_lex_thes_rel r ON er.rel_id = r.id
-				INNER JOIN sq_lex_thes_ent e1 ON er.pnt_ent_id = e1.id
-				INNER JOIN sq_lex_thes_ent e2 ON er.cld_ent_id = e2.id
-
-			WHERE
-				er.depth = '.$db->quoteSmart($depth).'
-				AND
-				er.thes_id = '.$db->quoteSmart($thesaurus_id).'
-				AND
-				(
-					er.deleted IS FALSE
-					OR
-					er.deleted IS NULL
-				)
-			ORDER BY major
-		';
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-		printUpdateStatus('OK');
-		$depth++;
-		echo '... Processing '.$result->numRows().' links at level '.($depth)."\n";
-		while (null !== ($row = $result->fetchRow())) {
-
-			$minor = $row['minor'];
-			$minor_id = $row['minor_id'];
-			$major = $row['major'];
-			$major_id = $row['major_id'];
-			$relation = $row['relation'];
-			$rel_id = $row['rel_id'];
-
-			$major_asset = &$am->getAsset($term_id_map[$major_id]);
-			//Use the thesaurus instance to add this term link
-
-			$create_link['asset'] =& $major_asset;
-			$create_link['value'] = $relation;
-
-			$term_asset = new Thesaurus_Term();
-			$term_asset->setAttrValue('name', $minor);
-			if(!$term_asset->create($create_link)) {
-				trigger_error('Move term to new thesaurus: "'.$minor.'" #'.$minor_id, E_USER_ERROR);
-				return false;
-			}
-
-			$term_id_map[$minor_id] = $term_asset->id;
-
-			//Mark each relation in which the minor is a parent as depth++.
-			$sql ='
-				UPDATE sq_lex_thes_ent_rel SET depth = '.$db->quoteSmart($depth).'
-				WHERE pnt_ent_id = '.$db->quoteSmart($minor_id).'
-				AND thes_id = '.$db->quoteSmart($thesaurus_id).'
-				AND depth IS NULL';
-			$update_result = $db->query($sql);
-			assert_valid_db_result($update_result);
-
-			//Delete this node to avoid loops
-			$sql ='
-				UPDATE sq_lex_thes_ent_rel
-				SET deleted = '.$db->quoteSmart('TRUE').'
-				WHERE cld_ent_id = '.$minor_id.'
-				AND rel_id = '.$db->quoteSmart($rel_id).'
-				AND thes_id = '.$db->quoteSmart($thesaurus_id);
-			$update_result   = $db->query($sql);
-			assert_valid_db_result($update_result);
-			$num_children++;
-
-			if (bcmod($num_children,1000)==0) {
-				echo ' Processed '.$num_children."\n";
-			}
-		}
-		echo ' Finished '.$num_children."\n";
-
-	}
-
-	// By this point, we have moved all the term links that are descended from an absolute parent node
-	// There may be orphan trees where all the parents are also children, creating a looped tree with no clear absolute parents
-	// If they exist, we take an arbitrary term and link it to the null term in the new table
-	// which allows us to traverse it like a normal tree
-
-	while (_termLinksRemaining($thesaurus_id)) {
-
-		printName('Retrieving orphan looped trees for thesaurus '.$thesaurus_id);
-		$depth = 1;
-		$sql = 'SELECT name, id
-					FROM sq_lex_thes_ent
-					WHERE id IN (SELECT distinct pnt_ent_id
-									FROM sq_lex_thes_ent_rel
-									WHERE thes_id='.$db->quoteSmart($thesaurus_id).'
-									AND(deleted IS FALSE
-										OR deleted IS NULL))
-					AND thes_id = '.$db->quoteSmart($thesaurus_id);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-		printUpdateStatus('OK');
-
-		if ($row = $result->fetchRow()) {
-			// Link the first node selected from the looped orphan trees
-			$minor = $row['name'];
-			$minor_id = $row['id'];
-			printStep('Linking '.$minor.' to the null term for thesaurus '.$thesaurus_id);
-
-			$create_link['asset'] = &$thesaurus;
-			$create_link['value'] = null;
-			$term_asset = new Thesaurus_Term();
-			$term_asset->setAttrValue('name', $minor);
-			if(!$term_asset->create($create_link)) {
-				trigger_error('Move term to new thesaurus: "'.$minor.'" #'.$minor_id, E_USER_ERROR);
-				return false;
-			}
-
-			$term_id_map[$minor_id] = $term_asset->id;
-
-			//Now mark each relation in which this entity is a parent as depth 1
-			$sql ='
-				UPDATE sq_lex_thes_ent_rel SET depth = '.$db->quoteSmart($depth).'
-				WHERE pnt_ent_id = '.$minor_id;
-
-			$update_result   = $db->query($sql);
-			assert_valid_db_result($update_result);
-			printUpdateStatus('OK');
-
-			$num_children++;
-			// Process the descendants of this term by depth until we reach a depth with no children in it
-			while ($num_children>0) {
-				$num_children=0;
-
-				printName('Retrieving relations at depth '.($depth+1).' for thesaurus '.$thesaurus_id);
-				$sql = '
-					SELECT
-						e1.name as major,
-						e1.id as major_id,
-						e2.name as minor,
-						e2.id as minor_id,
-						r.id as rel_id,
-						r.name as relation,
-						er.thes_id as thesid
-					FROM
-						sq_lex_thes_ent_rel er
-						INNER JOIN sq_lex_thes_rel r ON er.rel_id = r.id
-						INNER JOIN sq_lex_thes_ent e1 ON er.pnt_ent_id = e1.id
-						INNER JOIN sq_lex_thes_ent e2 ON er.cld_ent_id = e2.id
-					WHERE
-						er.depth = '.$db->quoteSmart($depth).'
-						AND
-						er.thes_id = '.$db->quoteSmart($thesaurus_id).'
-						AND
-						(
-							er.deleted IS FALSE
-							OR
-							er.deleted IS NULL
-						)
-					ORDER BY major
-				';
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
-				printUpdateStatus('OK');
-
-				$depth++;
-
-				echo '... Processing '.$result->numRows().' links at level '.($depth)."\n";
-				while (null !== ($row = $result->fetchRow())) {
-					$minor = $row['minor'];
-					$minor_id = $row['minor_id'];
-					$major = $row['major'];
-					$major_id = $row['major_id'];
-					$relation = $row['relation'];
-					$rel_id = $row['rel_id'];
-					//Use the thesaurus instance to add this term link
-
-					$major_asset = &$am->getAsset($term_id_map[$major_id]);
-					//Use the thesaurus instance to add this term link
-
-					$create_link['asset'] =& $major_asset;
-					$create_link['value'] = $relation;
-
-					$term_asset = new Thesaurus_Term();
-					$term_asset->setAttrValue('name', $minor);
-					if(!$term_asset->create($create_link)) {
-						trigger_error('Move term to new thesaurus: "'.$minor.'" #'.$minor_id, E_USER_ERROR);
-						return false;
-					}
-
-					$term_id_map[$minor_id] = $term_asset->id;
-
-					//Mark each relation in which the minor is a parent as depth++.
-					$sql ='
-						UPDATE sq_lex_thes_ent_rel SET depth = '.$db->quoteSmart($depth).'
-						WHERE pnt_ent_id = '.$db->quoteSmart($minor_id).'
-						AND thes_id = '.$db->quoteSmart($thesaurus_id).'
-						AND depth IS NULL';
-					$update_result = $db->query($sql);
-					assert_valid_db_result($update_result);
-
-					//Delete this node to avoid loops
-					$sql ='
-						UPDATE sq_lex_thes_ent_rel
-						SET deleted = '.$db->quoteSmart('TRUE').'
-						WHERE cld_ent_id = '.$minor_id.'
-						AND rel_id = '.$db->quoteSmart($rel_id).'
-						AND thes_id = '.$db->quoteSmart($thesaurus_id);
-					$update_result   = $db->query($sql);
-					assert_valid_db_result($update_result);
-					$num_children++;
-
-					if (bcmod($num_children,1000)==0) {
-						echo ' Processed '.$num_children."\n";
-					}
-				}
-				echo ' Finished '.$num_children."\n";
-			}
-		}
-	}
-	$thesaurus->markContentsChanged();
-}
-
-
-/**
-*
-* Check if there are term links that have not been migrated
-*
-* @param int	$thesaurus_id	id of thesaurus to check
-*
-* @return boolean
-* @access private
-*/
-function _termLinksRemaining($thesaurus_id)
-{
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
-	$sql = 'SELECT count(*)
-			FROM sq_lex_thes_ent_rel
-			WHERE thes_id = '.$db->quoteSmart($thesaurus_id).'
-			AND (deleted IS FALSE OR deleted IS NULL)';
-	$result = $db->getOne($sql);
-	assert_valid_db_result($result);
-	return($result);
-}//end _termLinksRemaining()
-
-
-$sql = 'DROP TABLE sq_lex_thes_ent, sq_lex_thes_rel, sq_lex_thes_ent_rel';
+// drop 'sort_order' column because it won't be used anymore
+$sql = '
+	ALTER TABLE
+		sq_thes_lnk
+	DROP
+		sort_order
+';
 $result = $db->query($sql);
 assert_valid_db_result($result);
 
-$sql = 'DROP SEQUENCE sq_lex_thes_ent_id_seq, sq_lex_thes_rel_id_seq';
+// add relid column
+$sql = '
+	ALTER TABLE
+		sq_thes_lnk
+	ADD
+		relid varchar(15)
+';
+$result = $db->query($sql);
+assert_valid_db_result($result);
+
+// create an index on the new relid column
+$sql = 'CREATE INDEX sq_thes_lnk_relid ON sq_thes_lnk(relid)';
+$result = $db->query($sql);
+assert_valid_db_result($result);
+
+// delete NULL terms - no more BS
+$sql = '
+	DELETE FROM
+		sq_thes_lnk
+	WHERE
+		major IS NULL;
+';
+$result = $db->query($sql);
+assert_valid_db_result($result);
+
+
+
+$thesaurii = $am->getTypeAssetids('thesaurus');
+
+foreach ($thesaurii as $thesaurus_id) {
+	printUpdateStatus('Upgrading Thesaurus #'.$thesaurus_id);
+	$thesaurus =& $am->getAsset($thesaurus_id);
+
+	$sql = '
+		SELECT DISTINCT
+			"relation"
+		FROM
+			sq_thes_lnk
+		WHERE
+			thesid = '.$db->quoteSmart($thesaurus_id)
+	;
+
+	$result = $db->getCol($sql);
+	assert_valid_db_result($result);
+
+	foreach ($result as $relation_name) {
+		// thesaurus will automatically convert '' into NULL
+		// when calling addRelation with '' and NULL you will get the same ID
+		$new_relid = $thesaurus->addRelation($relation_name);
+
+		$sql ='
+			UPDATE
+				sq_thes_lnk
+			SET
+				relid = '.$db->quoteSmart($new_relid).'
+			WHERE
+				relation = '.$db->quoteSmart($relation_name).'
+				AND
+				thesid = '.$db->quoteSmart($thesaurus_id);
+
+		$update_result   = $db->query($sql);
+		assert_valid_db_result($update_result);
+		echo '.';
+	}
+
+
+	if (!$am->acquireLock($thesaurus->id, 'attributes', $thesaurus->id, TRUE, NULL)) {
+		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		printUpdateStatus('Failed acquiring the attribute lock');
+		continue;
+	}
+
+	$abbreviation_attr =& $thesaurus->getAttribute('abbreviation_rel');
+	$abbr_rel_name = $abbreviation_attr->value;
+	if (empty($abbr_rel_name)) $abbr_rel_name = NULL;
+
+	$abbr_rel_id = $thesaurus->getRelationIdByName($abbr_rel_name);
+	$thesaurus->setAttrValue('abbreviation_rel', $abbr_rel_id);
+	echo '.';
+
+	$syn_attr =& $thesaurus->getAttribute('synonym_rel');
+	$syn_rel_name = $syn_attr->value;
+	if (empty($syn_rel_name)) $syn_rel_name = NULL;
+
+	$syn_rel_id = $thesaurus->getRelationIdByName($syn_rel_name);
+	$thesaurus->setAttrValue('synonym_rel', $syn_rel_id);
+	echo '.';
+
+	$thesaurus->markContentsChanged();
+
+	if (!$thesaurus->saveAttributes()) {
+		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		printUpdateStatus('Failed Saving attributes');
+		continue;
+	}
+
+	$am->releaseLock($thesaurus->id, 'attributes');
+
+	echo ' DONE';
+
+}//end foreach
+
+
+// now that relations have been moved to a different table, drop the column
+$sql = '
+	ALTER TABLE ONLY
+		sq_thes_lnk
+	DROP
+		relation
+';
+$result = $db->query($sql);
+assert_valid_db_result($result);
+
+
+// tree IDs are dropped. this step is the main reason for the upgrade.
+$sql = 'DROP TABLE sq_thes_lnk_tree';
 $result = $db->query($sql);
 assert_valid_db_result($result);
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
+printUpdateStatus('Complete');
+echo "\n\n";
 exit();
   ////////////////////////
  //  HELPER FUNCTIONS  //
@@ -428,6 +226,7 @@ function printName($name)
 function printStep($name)
 {
 	printf ('...  '.'%s%'.(80 - strlen($name)).'s', $name, '');
+
 }//end printStep()
 
 
@@ -441,7 +240,8 @@ function printStep($name)
 */
 function printUpdateStatus($status)
 {
-	echo "[ $status ]\n";
+	echo "\n[ $status ]";
+
 }//end printUpdateStatus()
 
 

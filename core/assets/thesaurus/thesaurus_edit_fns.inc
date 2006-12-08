@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.8 2006/12/05 23:40:15 bcaldwell Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.9 2006/12/08 04:01:32 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -247,32 +247,11 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 			return $write_access_allowed;
 		}
 
-		echo '<table>
-				<tr>
-					<td>';
-					label(translate('thesaurus_relation'),$prefix.'_relation_name');
-			echo '	</td>
-					<td>';
-					$relations = $asset->getActiveRelations();
-					$new_relations = Array();
-					foreach ($relations as $relation) {
-						if (!is_null($relation)) {
-							$new_relations[$relation] = $relation;
-						}
-					}
-
-					combo_box($prefix.'_relation', $new_relations, FALSE, array_get_index($relations,'0'));
-			echo '	</td>
-				</tr>
-				<tr>
-					<td>';
-					label(translate('thesaurus_new_relation'),$prefix.'_new_relation');
-			echo '	</td>
-				<td>';
-					text_box($prefix.'_new_relation', NULL, $size='30', $max='255');
-			echo '	</td>
-				</tr>
-			</table>';
+		$relations[NULL] = '-- SELECT Relation to Rename --';
+		$relations += $asset->getActiveRelations();
+		combo_box($prefix.'_relation', $relations, FALSE, NULL);
+		label(translate('thesaurus_new_relation'),$prefix.'_new_relation');
+		text_box($prefix.'_new_relation', NULL, $size='30', $max='255');
 
 		return $write_access_allowed;
 
@@ -300,7 +279,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		$relation		= array_get_index($_REQUEST, $prefix.'_relation');
 		$new_relation	= array_get_index($_REQUEST, $prefix.'_new_relation');
 
-		if (!empty($new_relation) ) {
+		if (!empty($relation)) {
 			$success = $asset->renameRelation($relation, $new_relation);
 		}
 
@@ -322,16 +301,32 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	function paintSynonymSupport(&$asset, &$o, $prefix)
 	{
 		$current_rel = $asset->attr('synonym_rel');
-		if (empty($current_rel)) $current_rel = NULL;
-		if (!$asset->writeAccess('attributes')) {
-			echo (is_null($current_rel) ? '<em>NULL</em>' : $current_rel);
-		} else {
-			$relations = $asset->getActiveRelations();
+		$relations = $asset->getActiveRelations();
 
-			if (!isset($relations[$current_rel]) && !is_null($current_rel)) {
-				$relations[$current_rel] = '-- '.$current_rel;
+		if (empty($current_rel)) $current_rel = NULL;
+
+		if (!$asset->writeAccess('attributes')) {
+			$rel = array_get_index($relations, $current_rel);
+			if (is_null($current_rel)) {
+				$rel = '<em>Nothing Selected</em>';
+			} else if (empty($rel)) {
+				$rel = '<em>NULL</em>';
+			} else if (is_null($rel)) {
+				$rel = '<em style="color:red">Invalid Relation ID ('.$current_rel.')</em>';
 			}
-			combo_box($prefix.'_synonym', $relations, FALSE, $current_rel);
+
+			echo $rel;
+
+
+		} else {
+			if (!isset($relations[$current_rel]) && !is_null($current_rel)) {
+				echo 'Invalid Relation selected';
+				echo '<br />';
+			}
+
+			$selectable_relations[NULL] = '-- Nothing Selected --';
+			$selectable_relations += $relations;
+			combo_box($prefix.'_synonym', $selectable_relations, FALSE, $current_rel);
 		}
 
 		return TRUE;
@@ -379,16 +374,31 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	function paintAbbreviationSupport(&$asset, &$o, $prefix)
 	{
 		$current_rel = $asset->attr('abbreviation_rel');
-		if (empty($current_rel)) $current_rel = NULL;
-		if (!$asset->writeAccess('attributes')) {
-			echo (is_null($current_rel) ? '<em>NULL</em>' : $current_rel);
-		} else {
-			$relations = $asset->getActiveRelations();
+		$relations = $asset->getActiveRelations();
 
-			if (!isset($relations[$current_rel]) && !is_null($current_rel)) {
-				$relations[$current_rel] = '-- '.$current_rel;
+		if (empty($current_rel)) $current_rel = NULL;
+
+		if (!$asset->writeAccess('attributes')) {
+			$rel = array_get_index($relations, $current_rel);
+			if (is_null($current_rel)) {
+				$rel = '<em>Nothing Selected</em>';
+			} else if (empty($rel)) {
+				$rel = '<em>NULL</em>';
+			} else if (is_null($rel)) {
+				$rel = '<em style="color:red">Invalid Relation ID ('.$current_rel.')</em>';
 			}
-			combo_box($prefix.'_abbrev', $relations, FALSE, $current_rel);
+
+			echo $rel;
+
+		} else {
+			if (!isset($relations[$current_rel]) && !is_null($current_rel)) {
+				echo 'Invalid Relation selected';
+				echo '<br />';
+			}
+
+			$selectable_relations[NULL] = '-- Nothing Selected --';
+			$selectable_relations += $relations;
+			combo_box($prefix.'_synonym', $selectable_relations, FALSE, $current_rel);
 		}
 
 		return TRUE;
@@ -419,6 +429,398 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		return TRUE;
 
 	}//end processAbbreviationSupport()
+
+
+	/**
+	* paint Default Relation for Drag-n-drop behaviour in the asset map
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDefaultRelation(&$asset, &$o, $prefix)
+	{
+		$current_rel = $asset->attr('default_rel');
+		$relations = $asset->getActiveRelations();
+
+		if (empty($current_rel)) $current_rel = NULL;
+
+		if (!$asset->writeAccess('attributes')) {
+			$rel = array_get_index($relations, $current_rel);
+			if (is_null($current_rel)) {
+				$rel = '<em>Nothing Selected</em>';
+			} else if (empty($rel)) {
+				$rel = '<em>NULL</em>';
+			} else if (is_null($rel)) {
+				$rel = '<em style="color:red">Invalid Relation ID ('.$current_rel.')</em>';
+			}
+
+			echo $rel;
+
+
+		} else {
+			if (!isset($relations[$current_rel]) && !is_null($current_rel)) {
+				echo 'Invalid Relation selected';
+				echo '<br />';
+			}
+
+			$selectable_relations[NULL] = '-- Nothing Selected --';
+			$selectable_relations += $relations;
+			combo_box($prefix.'_default', $selectable_relations, FALSE, $current_rel);
+		}
+
+		return TRUE;
+
+	}//end paintDefaultRelation()
+
+
+	/**
+	* process Default Relation for Drag-n-drop behaviour in the asset map
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processDefaultRelation(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			$selected_rel = array_get_index($_REQUEST, $prefix.'_default');
+			$selected_rel = trim($selected_rel);
+			if (empty($selected_rel)) $selected_rel = NULL;
+
+			$asset->setAttrValue('default_rel', $selected_rel);
+		}
+
+		return TRUE;
+
+	}//end processDefaultRelation()
+
+
+	/**
+	* paint interface for adding a new relation
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAddNewRelation(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			check_box($prefix.'_add_new_relation_check');
+			text_box($prefix.'_add_new_relation', NULL, $size='30', $max='255');
+		}
+
+		return TRUE;
+
+	}//end paintAddNewRelation()
+
+
+	/**
+	* process interface for adding a new relation
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAddNewRelation(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			$new_rel_check = array_get_index($_REQUEST, $prefix.'_add_new_relation_check');
+			if (is_null($new_rel_check)) return TRUE;
+
+			$new_relation = array_get_index($_REQUEST, $prefix.'_add_new_relation');
+
+			$new_relation = trim($new_relation);
+			$relation = $asset->getRelationIdByName($new_relation);
+
+			if (is_null($relation)) {
+				$asset->addRelation($new_relation);
+			}
+		}
+
+		return TRUE;
+
+	}//end processAddNewRelation()
+
+
+	/**
+	* Interface for deleting relations
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDeleteRelations(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			$relations = $asset->getActiveRelations();
+			foreach ($relations as $rel_id => $rel_name) {
+				check_box($prefix.'_delete_relations['.$rel_id.']');
+				if (empty($rel_name)) $rel_name = '<em>NULL</em>';
+				echo $rel_name;
+				echo '<br />';
+			}
+		}
+
+		return TRUE;
+
+	}//end paintDeleteRelations()
+
+
+	/**
+	* process Default Relation for Drag-n-drop behaviour in the asset map
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processDeleteRelations(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			$rel_to_delete = array_get_index($_REQUEST, $prefix.'_delete_relations');
+			if (empty($rel_to_delete)) return TRUE;
+
+			foreach ($rel_to_delete as $rel_id => $junk) {
+				$asset->deleteRelation($rel_id);
+			}
+		}
+
+		return TRUE;
+
+	}//end processDeleteRelations()
+
+
+	/**
+	* Interface for pairing up relations into reflexions
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintRelationRelflexionMap(&$asset, &$o, $prefix)
+	{
+		$all_relations = $asset->getActiveRelations();
+		$all_reflexions = $asset->getReflexions();
+		$available_relations = $all_relations;
+		echo '<table>';
+		foreach ($all_reflexions as $start => $end) {
+			if (!isset($available_relations[$start])) continue;
+
+			$colour = '#33F';
+
+			$start_name = array_get_index($all_relations, $start);
+			if ($start_name == '') $start_name = '<em>NULL</em>';
+
+			$end_name = array_get_index($all_relations, $end);
+			if ($end_name === '') {
+				$end_name = '<em>NULL</em>';
+			} else if (is_null($end_name)) {
+				$end_name = '<em style="color:red">Unknown Relation. Invalid Reflexion.</em>';
+				$colour = '#F00';
+			}
+
+			if ($start_name == $end_name) $colour = '#090';
+
+			echo '<tr>';
+			echo '<td align="right" style="color: '.$colour.'">';
+			echo $start_name;
+			echo '</td>';
+			echo '<td>';
+			echo ' / ';
+			echo '</td>';
+			echo '<td align="left" style="color: '.$colour.'">';
+			echo $end_name;
+			echo '</td>';
+			echo '<td>';
+			if ($asset->writeAccess('attributes')) {
+				check_box($prefix.'_delete_reflexion['.$start.']');
+				echo 'Delete';
+			}
+			echo '</td></tr>';
+			unset($available_relations[$start]);
+			unset($available_relations[$end]);
+
+		}//end foreach
+
+		echo '</table>';
+
+		if ($asset->writeAccess('attributes') && !empty($available_relations)) {
+			$relations[NULL] = '-- Select Relation --';
+			$relations += $available_relations;
+			combo_box($prefix.'_reflex_start', $relations, FALSE);
+			echo ' <- Reflects -> ';
+			combo_box($prefix.'_reflex_end', $relations, FALSE);
+			echo '<br />';
+		}
+
+		return TRUE;
+
+	}//end paintRelationRelflexionMap()
+
+
+	/**
+	* process Reflexion map
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRelationRelflexionMap(&$asset, &$o, $prefix)
+	{
+		$all_reflexions = $asset->getReflexions();
+		if ($asset->writeAccess('attributes')) {
+			$delete_reflexions = array_get_index($_REQUEST, $prefix.'_delete_reflexion', Array());
+			foreach ($delete_reflexions as $start_id => $flag) {
+				$asset->deleteReflexion($start_id);
+			}
+
+			$start_id = array_get_index($_REQUEST, $prefix.'_reflex_start');
+			$end_id = array_get_index($_REQUEST, $prefix.'_reflex_end');
+
+			if ($start_id !== '' && $end_id !== '') {
+				$asset->addReflexion($start_id, $end_id);
+			}
+		}
+
+		return TRUE;
+
+	}//end processRelationRelflexionMap()
+
+
+	/**
+	* paint Ansi check
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintReflexionAnsiCheck(&$asset, &$o, $prefix)
+	{
+		$relations = $asset->getActiveRelations();
+		$all_reflexions = $asset->getReflexions();
+
+		foreach ($all_reflexions as $rel_id => $reflex_id) {
+			unset ($relations[$rel_id]);
+		}
+
+		if (!empty($relations)) {
+			echo '<span style="color: red">This thesaurus is NOT ANSI/NISO Z39.19-2005 compliant, because not all relations are reflexive<br />';
+			echo 'Below is a list of relations which have not been paired up<br /></span>';
+
+			foreach ($relations as $rel_id => $relation_name) {
+				if (empty($relation_name)) {
+					$relation_name = '<em>NULL</em>';
+				}
+				echo $relation_name;
+				echo '<br />';
+			}
+
+		} else {
+			echo 'configuration is ANSI compliant';
+		}
+
+		return TRUE;
+
+	}//end paintReflexionAnsiCheck()
+
+
+	/**
+	* paint Default Relation for Drag-n-drop behaviour in the asset map
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintHierarchyRelation(&$asset, &$o, $prefix)
+	{
+
+		$current_rel = $asset->attr('hierarchy_rel');
+		$relations = $asset->getActiveRelations();
+
+		if (empty($current_rel)) $current_rel = NULL;
+
+		if (!$asset->writeAccess('attributes')) {
+			$rel = array_get_index($relations, $current_rel);
+			if (is_null($current_rel)) {
+				$rel = '<em>Nothing Selected</em>';
+			} else if (empty($rel)) {
+				$rel = '<em>NULL</em>';
+			} else if (is_null($rel)) {
+				$rel = '<em style="color:red">Invalid Relation ID ('.$current_rel.')</em>';
+			}
+
+			echo $rel;
+
+
+		} else {
+			if (!isset($relations[$current_rel]) && !is_null($current_rel)) {
+				echo 'Invalid Relation selected';
+				echo '<br />';
+			}
+
+			$selectable_relations[NULL] = '-- Nothing Selected --';
+			$selectable_relations += $relations;
+			combo_box($prefix.'_hierarchy_relation', $selectable_relations, FALSE, $current_rel);
+		}
+
+		return TRUE;
+
+	}//end paintHierarchyRelation()
+
+
+	/**
+	* process Default Relation for Drag-n-drop behaviour in the asset map
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processHierarchyRelation(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			$selected_rel = array_get_index($_REQUEST, $prefix.'_hierarchy_relation');
+			$selected_rel = trim($selected_rel);
+			if (empty($selected_rel)) $selected_rel = NULL;
+
+			$asset->setAttrValue('hierarchy_rel', $selected_rel);
+		}
+
+		return TRUE;
+
+	}//end processHierarchyRelation()
 
 
 }//end class

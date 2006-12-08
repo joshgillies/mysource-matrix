@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.10 2006/12/05 23:38:38 bcaldwell Exp $
+* $Id: thesaurus_term.inc,v 1.11 2006/12/08 04:01:42 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,7 +111,6 @@ class Thesaurus_Term extends Asset
 		$relation = isset($this->_tmp['relation']) ? $this->_tmp['relation'] : $link['value'];
 
 		$relation = trim($relation);
-		if ($relation == '') $relation = NULL;
 
 		$created = TRUE;
 
@@ -135,14 +134,22 @@ class Thesaurus_Term extends Asset
 		$this->id = $this->_thesaurus->id.':'.$termid;
 		$this->_termid = $termid;
 
+
+		// if we're adding a top level term it's a stray term - not linked to anything
+		if (is_null($majorid)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return TRUE;
+		}
+
 		$existing_link = $this->_thesaurus->getTermLinkByTermids($termid, $majorid, $relation);
 		if (!empty($existing_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return NULL;
+			return TRUE;
 		}
 
-		$linkid = $this->_thesaurus->_linkTerms($termid, $majorid, $relation, array_get_index($link,'sort_order'));
+		$linkid = $this->_thesaurus->linkTerms($termid, $majorid, $relation);
 		if (is_null($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -200,7 +207,12 @@ class Thesaurus_Term extends Asset
 	function _getAllowedLinks()
 	{
 		return Array(
-				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_1	=> Array(
+									'thesaurus_term'	=> Array(
+															'card'		=> 'M',
+															'exclusive'	=> FALSE,
+														   ),
+								   ),
 				SQ_LINK_TYPE_2	=> Array(
 									'thesaurus_term'	=> Array(
 															'card'		=> 'M',
@@ -225,7 +237,7 @@ class Thesaurus_Term extends Asset
 
 		$name = $this->attr('name');
 
-		$success = $this->_thesaurus->updateTerm($this->_termid, $name);
+		$success = $this->_thesaurus->updateTerm($this->_termid, $name);//, $notes);
 
 		if ($success) {
 			$this->_thesaurus->saveAttributes();
@@ -310,6 +322,47 @@ class Thesaurus_Term extends Asset
 
 	}//end canCreateLink()
 
+
+	/**
+	* Returns TRUE if the supplied minor can be linked in the specified way
+	*
+	* @param string	$name	note name
+	* @param string	$note	note
+	*
+	* @return boolean
+	* @access public
+	*/
+	function addTermNote($name, $note)
+	{
+		$this->_thesaurus->addTermNote($this->_termid, $name, $note);
+
+	}//end addTermNote()
+
+
+	/**
+	* Delete All Term Notes
+	*
+	* @return void
+	* @access public
+	*/
+	function deleteTermNotes()
+	{
+		$this->_thesaurus->deleteTermNotes($this->_termid);
+
+	}//end deleteTermNotes()
+
+
+	/**
+	* Get All Term Notes
+	*
+	* @return Array
+	* @access public
+	*/
+	function getTermNotes()
+	{
+		return $this->_thesaurus->getTermNotes($this->_termid);
+
+	}//end getTermNotes()
 
 }//end class
 ?>

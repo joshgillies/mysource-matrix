@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term_edit_fns.inc,v 1.7 2006/12/05 23:38:38 bcaldwell Exp $
+* $Id: thesaurus_term_edit_fns.inc,v 1.8 2006/12/08 04:01:42 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *	Container of a thesaurus term
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,7 +51,7 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* TODO: function comment: paintRelations
+	* interface for editing relations
 	*
 	* @param object	&$asset	asset to paint
 	* @param object	&$o		outputter object
@@ -81,9 +81,11 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 					<tr>
 						<td><?php echo get_asset_tag_line($parent_assetid); ?></td>
 						<td><?php
-							combo_box($prefix.'_new_relation[existing]', $relations, FALSE, NULL);
-							echo translate('thesaurus_or_create_new');
-							echo text_box($prefix.'_new_relation[new]', NULL, $size='30', $max='255');
+							if (empty($relations)) {
+								echo 'Because the thesaurus has no relations, this term will not be linked to the parent';
+							} else {
+								combo_box($prefix.'_new_relation[existing]', $relations, FALSE, $parent_asset->_thesaurus->attr('default_rel'));
+							}
 						?></td>
 					</tr>
 				</table>
@@ -104,24 +106,31 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 					<th class="sq-backend-table-header"><strong><?php echo translate('relation'); ?></strong></th>
 				</tr>
 			<?php
-			foreach ($parents as $parent) {
-				if (empty($parent['termid'])) continue;
-				echo '<tr>';
-					echo '<td>';
-						echo get_asset_tag_line($thesaurus->id.':'.$parent['termid']);
-					echo '</td>';
-					echo '<td>';
-					if ($writeable) {
-						combo_box($prefix.'_relations['.$parent['linkid'].'][existing]', $relations, FALSE, $parent['relation']);
-						echo translate('thesaurus_or_create_new');
-						text_box($prefix.'_relations['.$parent['linkid'].'][new]', NULL, $size='30', $max='255');
-					} else {
-						echo array_get_index($parent, 'relation');
-					}
-					echo '</td>';
-				echo '</tr>';
+			if (empty($relations)) {
+				echo '<tr><td colspan="2">There are no relations defined in this thesaurus, you cannot set or view the relations to parent terms.</td></tr>';
+			} else {
+
+				foreach ($parents as $parent) {
+					$parent_rel = array_get_index($parent, 'relid');
+
+					if (is_null($parent['termid'])) continue;
+					echo '<tr>';
+						echo '<td>';
+							echo get_asset_tag_line($thesaurus->id.':'.$parent['termid']);
+						echo '</td>';
+						echo '<td>';
+						if ($writeable) {
+							combo_box($prefix.'_relations['.$parent['linkid'].']', $relations, FALSE, $parent_rel);
+						} else {
+							echo array_get_index($relations, $parent_rel);
+						}
+						echo '</td>';
+					echo '</tr>';
+				}
 			}
+
 			echo '</table>';
+
 		}//end else
 
 		$o->closeRaw();
@@ -131,7 +140,7 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* TODO: function comment: processRelations
+	* Process interface for editing relations
 	*
 	* @param object	&$asset	asset to paint
 	* @param object	&$o		outputter object
@@ -156,23 +165,66 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 		} else {
 			$thesaurus =& $asset->_thesaurus;
 			$relations = array_get_index($_REQUEST, $prefix.'_relations', Array());
-			foreach ($relations as $rel_id => $rel_types) {
-
-				if (isset($rel_types['new'])) {
-					$relation = trim($rel_types['new']);
-				}
-
-				if (empty($relation)) {
-					$relation = array_get_index($rel_types, 'existing');
-				}
-
-				$thesaurus->renameLinkRelation($rel_id, $relation);
+			foreach ($relations as $link_id => $relid) {
+				$thesaurus->updateLinkRelation($link_id, $relid);
 			}
 		}
 
 		return TRUE;
 
 	}//end processRelations()
+
+
+	/**
+	* interface for editing relations
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintTermInfo(&$asset, &$o, $prefix)
+	{
+		// cannot display anything while creating a new asset
+		if ($asset->id == 0) {
+			return;
+		}
+
+		$o->openRaw();
+
+		echo '<table>';
+		$notes = $asset->getTermNotes();
+		foreach ($notes as $note_name => $note_array) {
+			echo '<tr><td valign="top" align="right">'.$note_name.':</td><td>';
+			foreach ($note_array as $note) {
+				echo $note.'<br />';
+			}
+			echo '</td></tr>';
+		}
+
+		$bridge_id = $asset->_thesaurus->id;
+		$child_rel = $asset->_thesaurus->getChildRelationsForTerm($asset->_termid);
+		foreach ($child_rel as $relid => $relname) {
+			echo '<tr><td valign="top" align="right">'.$relname.':</td><td>';
+			$rel_terms = $asset->_thesaurus->getChildTerms($asset->_termid, $relid);
+			foreach ($rel_terms as $term) {
+				$term_assetid = $bridge_id.':'.$term['termid'];
+				$href_array = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($term_assetid => 'details'));
+				$term_backendhref = $href_array[$term_assetid];
+				echo '<a href="'.$term_backendhref.'">'.$term['term'].'</a>';
+				echo '<br />';
+			}
+			echo '</td></tr>';
+		}
+
+		echo '</table>';
+
+		$o->closeRaw();
+		return TRUE;
+
+	}//end paintTermInfo()
 
 
 }//end class

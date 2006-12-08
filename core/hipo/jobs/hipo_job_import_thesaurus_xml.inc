@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.10 2006/12/05 05:39:10 bcaldwell Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.11 2006/12/08 04:01:42 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -149,7 +149,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			return FALSE;
 		}
 
-		$step_data['complete'] = false;
+		$step_data['complete'] = FALSE;
 		while (!$step_data['complete']) {
 			if (!$this->processParseXml($step_data, '')) {
 				return FALSE;
@@ -271,8 +271,12 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	{
 
 		$stack =& $this->_running_vars['stack'];
+		$tagstack =& $this->_running_vars['tagstack'];
+		$relations =& $this->_running_vars['relations'];
 
-		if ($tag != 'thesaurus' && $tag != 'term' && $tag != 'relation') {
+		$thesaurus =& $this->getThesaurusRef();
+
+		if ($tag != 'thesaurus' && $tag != 'term' && $tag != 'relation' && $tag != 'note') {
 			trigger_localised_error('HIPO0064', E_USER_WARNING, $tag);
 		}
 
@@ -281,55 +285,121 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			return FALSE;
 		}
 
+		$current_tag = array_get_index($this->_running_vars, 'current_tag');
 		switch ($tag) {
 			case 'thesaurus':
-				if (empty($stack)) {
-					array_unshift($stack, Array('term' => NULL, 'relation' => NULL));
-				} else {
+				if (!empty($stack)) {
 					trigger_localised_error('HIPO0067', E_USER_WARNING, $tag);
 					return FALSE;
 				}
+				array_unshift($stack, Array('term' => NULL));
+
 			break;
 
 			case 'relation':
-				if (!is_null($stack[0]['relation'])) {
+				if (isset($stack[0]['relation'])) {
 					trigger_localised_error('HIPO0065', E_USER_WARNING, $tag);
 					return FALSE;
-				} else {
-					$stack[0]['relation'] = array_get_index($attrs, 'name');
 				}
+
+				$rel_name = array_get_index($attrs, 'name');
+				$rel_id = array_get_index($relations, $rel_name);
+				if (is_null($rel_id)) {
+					// add relation to the thesaurus
+					$rel_id = $thesaurus->addRelation($rel_name);
+					$relations[$rel_name] = $rel_id;
+				}
+
+				$stack[0]['relation'] = $rel_id;
+
 			break;
 
 			case 'term':
 				if (empty($attrs['name'])) {
 					trigger_localised_error('HIPO0066', E_USER_WARNING);
 					return FALSE;
-
-				} else {
-					// add the term
-					if (is_null($stack[0]['term'])) {
-						$parent_asset =& $this->getThesaurusRef();
-					} else {
-						$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($stack[0]['term']);
-					}
-
-					$create_link['asset'] = &$parent_asset;
-					$create_link['value'] = $stack[0]['relation'];
-
-					$term_asset =& new Thesaurus_Term();
-					$term_asset->setAttrValue('name', $attrs['name']);
-					$term_asset->create($create_link);
-
-					// put it onto the stack
-					array_unshift($stack, Array('term' => $term_asset->id, 'relation' => NULL));
 				}
+
+				$rel_id = NULL;
+
+				// add the term
+				if (is_null($stack[0]['term'])) {
+					$parent_asset =& $thesaurus;
+				} else {
+					$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($stack[0]['term']);
+					$rel_id = array_get_index($stack[0], 'relation');
+					if (is_null($rel_id)) {
+						$NULL_rel_id = array_get_index($relations, NULL);
+						// null relation, which hasn't been added yet
+						if (is_null($NULL_rel_id)) {
+							$rel_id = $thesaurus->addRelation(NULL);
+							$relations[NULL] = $rel_id;
+						} else {
+							$rel_id = $NULL_rel_id;
+						}
+					}
+				}
+
+				$create_link['asset'] = &$parent_asset;
+				$create_link['value'] = $rel_id;
+
+				$term_asset =& new Thesaurus_Term();
+				$term_asset->setAttrValue('name', $attrs['name']);
+				$term_asset->create($create_link);
+
+				// put it onto the stack
+				array_unshift($stack, Array('term' => $term_asset->id));
+
+			break;
+
+			case 'note':
+				if ($tagstack[0] != 'term') {
+					trigger_error('NOTE tag can only be a child of TERM tag', E_USER_WARNING);
+					return FALSE;
+				}
+
+				if (empty($attrs['name'])) {
+					trigger_error('Note must have a Name', E_USER_WARNING);
+					return FALSE;
+				}
+
+				$this->_running_vars['current_note']['name'] = $attrs['name'];
+
 			break;
 
 			default:
 				trigger_localised_error('HIPO0067', E_USER_WARNING, $tag);
+				return FALSE;
+
 		}//end switch $tag
 
+		array_unshift($tagstack, $tag);
+
 	}//end startElement()
+
+
+	/**
+	* Handler of Character Data blocks
+	*
+	* Currently being used for notes only
+	*
+	* @param object	$parser	the calling xml parser
+	* @param string	$data	text
+	*
+	* @return boolean
+	* @access public
+	*/
+	function cDataHandler($parser, $data)
+	{
+		$stack =& $this->_running_vars['stack'];
+		$tagstack =& $this->_running_vars['tagstack'];
+
+		if ($tagstack[0] == 'note') {
+			$this->_running_vars['current_note']['text'] = $data;
+			// add note to the current Term
+		}
+
+	}//end cDataHandler()
 
 
 	/**
@@ -344,13 +414,20 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	function endElement($parser, $tag)
 	{
 		$stack =& $this->_running_vars['stack'];
+		$tagstack =& $this->_running_vars['tagstack'];
+		$relations =& $this->_running_vars['relations'];
 
-		if ($tag != 'thesaurus' && $tag != 'term' && $tag != 'relation') {
+		if ($tag != 'thesaurus' && $tag != 'term' && $tag != 'relation' && $tag != 'note') {
 			trigger_localised_error('HIPO0064', E_USER_WARNING, $tag);
 		}
 
 		if (empty($stack)) {
 			trigger_error('EMPTY STACK');
+			return FALSE;
+		}
+
+		if ($tagstack[0] != $tag) {
+			trigger_error('Malformed XML. Cannot close tag <'.$tag.'> while being in <'.$tagstack[0].'>');
 			return FALSE;
 		}
 
@@ -366,7 +443,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 
 			case 'relation':
 				if (!is_null($stack[0]['relation'])) {
-					$stack[0]['relation'] = NULL;
+					unset($stack[0]['relation']);
 				} else {
 					trigger_error('Malformed XML. Unexpected tag: <'.$tag.'>.');
 					return FALSE;
@@ -382,9 +459,21 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 				}
 			break;
 
+			case 'note':
+				$note_name = $this->_running_vars['current_note']['name'];
+				$note_value = $this->_running_vars['current_note']['text'];
+				$term =& $GLOBALS['SQ_SYSTEM']->am->getAsset($stack[0]['term']);
+				$term->addTermNote($note_name, $note_value);
+				unset($this->_running_vars['current_note']);
+
+			break;
+
 			default:
 				trigger_localised_error('HIPO0067', E_USER_WARNING, $tag);
-		}
+				return FALSE;
+		}//end switch
+
+		array_shift($tagstack);
 
 	}//end endElement()
 
@@ -418,6 +507,14 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			$this->_running_vars['stack'] = Array();
 		}
 
+		if (!isset($this->_running_vars['tagstack'])) {
+			$this->_running_vars['tagstack'] = Array();
+		}
+
+		if (!isset($this->_running_vars['relations'])) {
+			$this->_running_vars['relations'] = Array();
+		}
+
 
 		$xml_parser = xml_parser_create();
 		// stop the parser ucasing everything
@@ -446,12 +543,14 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			}
 		}
 
+		xml_set_element_handler($xml_parser, Array(&$this,'startElement'), Array(&$this,'endElement'));
+		xml_set_character_data_handler($xml_parser, Array(&$this,'cDataHandler'));
+
 		$blocks = 1;
 		while (!feof($fp) && $blocks <= $blocks_per_step) {
 
 			// parse blocks from the file
 			$data = fread($fp, $block_size);
-			xml_set_element_handler($xml_parser, Array(&$this,'startElement'), Array(&$this,'endElement'));
 			if (!xml_parse($xml_parser, $data, feof($fp))) {
 				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
 				return FALSE;

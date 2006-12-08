@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_management.inc,v 1.4 2006/12/05 23:40:15 bcaldwell Exp $
+* $Id: thesaurus_management.inc,v 1.5 2006/12/08 04:01:32 arailean Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,6 +59,18 @@ class Thesaurus_Management extends Asset_Management
 												'type'		=> 'boolean',
 												'default'	=> '0',
 											   ),
+						'hierarchy_mode'	=> Array(
+												'added'			=> '0.2',
+												'type'			=> 'boolean',
+												'default'		=> '1',
+												'parameters'	=> Array ('allow_empty'=>FALSE),
+											   ),
+						'readonly_mode'		=> Array(
+												'added'			=> '0.3',
+												'type'			=> 'boolean',
+												'default'		=> '0',
+												'parameters'	=> Array ('allow_empty'=>FALSE),
+											   ),
 						'synonym_rel'		=> Array(
 												'added'		=> '0.3',
 												'type'		=> 'text',
@@ -68,6 +80,34 @@ class Thesaurus_Management extends Asset_Management
 												'added'		=> '0.3',
 												'type'		=> 'text',
 												'default'	=> 'Abbreviation',
+											   ),
+						'default_rel'		=> Array(
+												'added'		=> '0.3',
+												'type'		=> 'text',
+												'default'	=> NULL,
+											   ),
+						'reflexions'		=> Array(
+												'added'			=> '0.0.1',
+												'type'			=> 'serialise',
+												'default'		=> Array(),
+												'description'	=> 'An array with reflexive pair index. Format is "relation_id" => "other_relation_id". The property of this array is that if "A"=>"B", "B"=>"A"',
+											   ),
+						'enforce_reflexion'	=> Array(
+												'added'			=> '0.3',
+												'type'			=> 'boolean',
+												'default'		=> FALSE,
+												'parameters'	=> Array ('allow_empty'=>FALSE),
+											   ),
+						'hierarchy_rel'		=> Array(
+												'added'		=> '0.4',
+												'type'		=> 'text',
+												'default'	=> NULL,
+											   ),
+						'hierarchy_w_stray'	=> Array(
+												'added'			=> '0.4',
+												'type'			=> 'boolean',
+												'default'		=> FALSE,
+												'parameters'	=> Array ('allow_empty'=>FALSE),
 											   ),
 					  );
 

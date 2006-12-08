@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2006/12/05 23:40:15 bcaldwell Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2006/12/08 04:01:32 arailean Exp $
 *
 */
 -->
@@ -45,13 +45,22 @@
 		</field>
 	</section>
 
-	<section name="Global Rename" write_access="write:attributes">
+	<section name="Hierarchy Mode" write_access="write:attributes" limbo_access="0">
+		<field attribute="hierarchy_mode">
+			<boolean true_text="enabled" false_text="disabled" />
+		</field>
+
 		<field>
 			<function_call>
-				<paint_function		name="paintRenameRelation" />
-				<process_function	name="processRenameRelation" />
+				<paint_function		name="paintHierarchyRelation" />
+				<process_function	name="processHierarchyRelation" />
 			</function_call>
 		</field>
+
+		<!--field attribute="hierarchy_w_stray">
+			<boolean true_text="enabled" false_text="disabled" />
+		</field-->
+
 	</section>
 
 	<section name="Built-in Relations" write_access="write:attributes">
@@ -71,5 +80,53 @@
 		</field>
 
 	</section>
+
+	<section name="Relations" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function		name="paintDefaultRelation" />
+				<process_function	name="processDefaultRelation" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function		name="paintAddNewRelation" />
+				<process_function	name="processAddNewRelation" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function		name="paintRenameRelation" />
+				<process_function	name="processRenameRelation" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function		name="paintDeleteRelations" />
+				<process_function	name="processDeleteRelations" />
+			</function_call>
+		</field>
+	</section>
+
+
+	<section name="Reflexions" write_access="write:attributes">
+		<field attribute="enforce_reflexion">
+			<boolean true_text="enabled" false_text="disabled" />
+		</field>
+
+		<field>
+			<function_call>
+				<paint_function		name="paintRelationRelflexionMap" />
+				<process_function	name="processRelationRelflexionMap" />
+			</function_call>
+		</field>
+
+		<field>
+			<function_call>
+				<paint_function		name="paintReflexionAnsiCheck" />
+			</function_call>
+		</field>
+	</section>
+
 
 </contents>
