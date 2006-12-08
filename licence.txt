@@ -1,0 +1,111 @@
+Licence.txt
+
+Copyright (c) Squiz Pty Ltd ACN 084 670 600
+
+Trade Marks Notice:
+-------------------
+Squiz.net, MySource and MySource Matrix, are registered trade marks of Squiz Pty
+Ltd and may not be used without the prior specific written consent of Squiz Pty
+Ltd. All other registered and unregistered trade marks in this document are the
+sole property of their respective owners.
+
+Licence:
+--------
+
+  1. The terms of this Licence constitute an agreement between you, either an
+     individual or a company or similar entity, as the purchaser and/or user of
+     the Software (hereafter "You") and Squiz Pty Ltd - ACN 084 670 600
+     (hereafter "Squiz"). This Licence applies to the Software, Documentation
+     and any updates which have been provided for the Software.
+
+     For the purpose of this Licence, the "Software" means MySource Matrix CMS
+     software developed and owned by Squiz Pty Ltd.
+
+  2. By DOWNLOADING, INSTALLING or USING the Software, You are agreeing to be
+     bound by the terms of this Licence. If You do not agree to all the of the
+     terms of this Licence then DO NOT DOWNLOAD, INSTALL or USE the Software.
+
+  3. Licence Grant:
+     --------------
+
+     Squiz grants you a perpetual, royalty free license to Use the Software.
+     "Use" means storing, loading, installing, executing or displaying the
+     Software. You must not copy, modify or distribute the Software other than
+     in accordance with this Licence.
+
+  4. Ownership:
+     ----------
+
+     All rights, including, but not limited to, copyrights, trademark and trade
+     secret rights, to the Software and accompanying Documentation, belong to
+     Squiz or its third party suppliers. Your use of the Software is subject to
+     the laws of New South Wales, and other applicable copyright and trademark
+     laws. This Licence confers no title or ownership in the Software and is not
+     a sale or transfer of any rights in the Software. Squiz and Squiz’s third
+     party suppliers may protect their rights in the event of any violation of
+     the terms of this Licence.
+
+  5. Copying, Modification and Distribution:
+     ---------------------------------------
+
+     (a) Subject to the following sub-clause 5(b), the Software may be copied,
+         modified and/or distributed under the terms of the GPL. A copy of the
+         GPL has been included in the file named GPL.txt for your convenience.
+
+         For the purpose of this Licence, "GPL" means version 2 of the GNU
+         General Public License as published by the Free Software Foundation in
+         June 1991.
+
+     (b) You are not permitted to copy, modify and/or distribute the Software in
+         accordance with the GPL, if you have installed the MySource Matrix
+         Modules and used them with the Software and/or have entered into a
+         Squiz Extended Licence agreement (SEL) for the use of the MySource
+         Matrix Modules with the Software.
+
+         For the avoidance of doubt, the SEL will apply to both the Software and
+         the MySource Matrix Modules and will replace the terms of this Licence.
+         The terms of the SEL can be found in the file SEL.txt.
+
+     (c) This Licence and any rights granted herein will immediately terminate
+         if you copy, modify or distribute the Software in any way other than in
+         accordance with what is permitted in this clause 5.
+
+     (d) For the purpose of this Licence, MySource Matrix Modules are marketed
+         and sold by Squiz to customers who wish to have additional features
+         added to the Software.
+
+     (e) You must include this Licence, in its entirety, in all copies,
+         modifications and distributions of the Software. Failure to include
+         this Licence would constitute a breach on your part and this Licence
+         and any rights granted herein will immediately terminate.
+
+  6. Warranty:
+     ---------
+
+     (a) This sub-clause 6(a) applies if You are permitted to copy, modify or
+         distribute the Software in accordance with the GPL.
+
+         The Software is provided AS IS and without any warranty, including any
+         implied warranty of merchantability or fitness for a particular
+         purpose. Please refer to the terms the GPL for more information.
+
+     (b) This clause sub-clause 6(b) applies if You are not permitted to copy,
+         modify or distribute the Software in accordance with the GPL.
+
+         Any warranty provided for the Software will be in accordance with the
+         separate licence agreement entered into between You and Squiz.
+
+  7. Termination:
+     ------------
+
+     (a) Squiz may terminate this Licence immediately if you are found to be in
+         breach of any term or condition stated herein.
+
+     (b) Upon termination, You must immediately destroy the Software, together
+         with all copies in any form, as well any accompanying Documentation.
+
+         "Documentation" means all user and technical information relating to
+         the Software.
+
+  8. You must not modify, remove or delete any or all copyright notices which
+     are contained in the Software, including any copy in any form.
