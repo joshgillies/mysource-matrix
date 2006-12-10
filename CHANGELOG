@@ -1,298 +1,292 @@
-MYSOURCE MATRIX CHANGELOG
+CSV to HTML Tree Script
 
-VERSION 3.10.0 RC1
+    This script converts a CSV list into a HTML tree with each level represented by header (H1, H2, etc) tags. Each CSV record is a comma-separated list of heading levels (eg. "H1,H2,H3").
 
-Featured Changes
------------------------------------
 
-Resume Stalled HIPO Jobs
+Apache Configuration: Custom Asset Keywords in Request Notes
 
-    You are now able to resume HIPO jobs that have stalled within the system, which can happen if a window containing a HIPO is closed, or if your connection timed out. A link now is available in the HIPO Herder to allow you to resume the job and run it to completion.
+    Request notes can now use custom keywords, instead of just keywords common to all assets. This allows keywords such as metadata values to be used for Request Notes.
 
 
-Parent Cookie Domains Configuration Variable
+Automatic Workflow Escalation
 
-    The new SQ_CONF_SYSTEM_PARENT_DOMAINS variable allows you to modify the domain on record for cookies saved by MySource Matrix. This can be used to allow a number of Sites that are set up as subdomains of a common parent domain (eg. two sites using URLs of site1.example.com and site2.example.com) to share session and cookie variables without requiring the use of Site Networks.
+    This new feature allows a workflow process to automatically advance to the next step, or branch to an alternative set of steps, once the expiry time for that workflow step has lapsed. Escalation is applied on a step level, and escalation levels can be nested.
 
 
-Proxy Configuration Screen
+New User Options for LDAP Bridge
 
-    This new System Configuration screen allows you to set the proxy settings that MySource Matrix uses to access external content, as is done by assets such as Remote Content and the Links Report. If the application server has a proxy in front of it, these settings are necessary for assets accessing external content to work correctly.
+    The LDAP Bridge now allows you to select whether the users generated should have backend access or not. In previous versions, all LDAP users behaved as Backend Users. A new LDAP Backend User asset has been introduced for this purpose. The current LDAP User asset has been changed to have the same access as the standard User asset (ie. no backend access).
 
 
-Apache Configuration Screen
+Submission Asset ID in Custom Form Emails
 
-    This new System Configuration screen allows MySource Matrix data to be made available to Apache and its modules as a "request note". This can be used, for example, to record user information in Apache's access logs. Keywords from the currently logged in user, or from the currently displayed asset (keywords common to all assets only) can be used.
+    The asset ID of a Custom Form submission, previously available only to the Thank You bodycopy, has now also been made available to emails sent out by the Custom Form. The keyword is %form_submission_id%, the same as used in the Thank You bodycopy.
 
 
-Messaging Service Configuration Screen
+Enhanced Backend Searching
 
-    This new System Configuration screen allows configuration of internal message logging settings, without having to edit the messaging_service.conf file directly.
+    If the Search Package is installed, the Quick Search box can, in addition to searching by asset ID or URL, perform a system-wide keyword search. Results appear in a drop-down message, and each result gives the option to provide more context to the results, get more information about the asset, or to find lineages in the asset map.
 
 
-Structured Asset Info Report Asset
+Require Secure Login Option
 
-    This new core asset allows you to generate a summary report displaying the contents of standard asset fields for a tree of assets underneath a certain root node. The short name and status of each asset, along with the fields selected, are displayed. The assets selected can also be limited by type code.
+    This System Configuration option allows administrators to require logins to certain root URLs to come from a secure (HTTPS) connection. If an attempt to access a login screen is made from a non-secure connection, it will redirect to HTTPS to present the login screen, then return the user to a non-secure connection to display the page.
 
 
-Triggers Now Displayed in Asset Map
+Bulk File Upload Tool
 
-    Triggers are now displayed as shadow assets underneath the Trigger Manager asset, avoiding the need to access the Triggers screen of that asset to edit a trigger. Triggers are listed in alphabetical order, with disabled triggers at the bottom of the list.
+    This new tool gives access to the functionality of the current bulk upload CLI script to the backend of MySource Matrix. This tool can, depending on configuration, add files that have been pre-uploaded to the server, and/or handle files uploaded from the browser window.
 
 
-Structured File Importer Tool
+Visual Difference
 
-    A new tool has been developed to import files into MySource Matrix and create a structured tree of standard pages. The tool first converts the file to HTML before creating a new page for each heading it finds (heading levels to break on are configurable). The contents of the section become the contents of the page and the heading levels define parent/child relationships (eg. a H3 heading is a child of a H2 heading). The tool initially supports the importing of HTML files and Word Documents but can later be extended to other formats that can be converted to HTML, such as PDF files.
+    When a page is placed into Safe Edit, a "Show Diff" option will be added to the Preview screen of that asset, which will show deletions and insertions within the page when checked.
 
 
-Mass Clone Tool
+Asset Remaps on Web Paths Screen
 
-    This new tool allows you to make multiple clones of a certain asset to be added underneath a specified parent asset. The type of link between the new parent and the clones can also be specified.
+    The Web Paths screen now displays any remaps that may be applying to that asset, thus providing a fuller view of the URLs that point to that asset, whether provided by web paths or remaps. Users with Administrator permissions to the asset can add or remove remaps to the asset.
 
 
-New LDAP Configuration Options
+Disable External Authentication Systems Switch
 
-    The ability to use LDAP version 3 is now available for all LDAP systems, instead of just for OpenLDAP. Bridges that currently have OpenLDAPv3 selected as the directory type will be reverted to the OpenLDAP option and have the new "use version 3" checkbox selected by default. Another new option has been added to disallow LDAP referrals. Some Active Directory installations may require this option to be set. If you have trouble connecting to a directory (eg. the system hangs when expanding the LDAP Bridge asset) you may need to select this option.
+    This switch in the main.inc configuration file (SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS) allows systems other than Default Authentication to be temporarily disabled in the case of the source (whether LDAP or IPB) compromised or other issues.
 
 
-User IP Condition Improved
+Future Report Regeneration Cron Job
 
-    This condition now allows you to configure multiple network IPs and subnet masks, rather than the previous "single IP with wildcards" approach. A "grant/deny" system is used so you can grant access to some IPs and deny access to others in the same condition. Additionally, you can import IP conditions from a CSV file to make the setup of similar conditions (or very large IP rules) much easier.
+    This new Cron Job, accessible from any Report asset, allows them to be regenerated a future time or a schedule. This Cron Job is considered to be 'long-running' - in other words, expected to take longer than the typical Cron interval - and will not cause the Cron Manager to deadlock if they are still running.
 
 
-Is Posted Condition
+Broken Link Notification on Links Report
 
-     This new condition asset will return TRUE if a form has been posted. The is useful if you want to stop something in the site design from interfering with a form submission.
+    The Links Report now has a "Report Broken Links?" attribute, which will send an internal message to users with Administrator permissions to an asset if broken links are found within it. A "Report Broken Links Now" button has also been added if the attribute is turned off, for manual checking. Checking for Broken Links can happen at most once for each report generation.
 
 
-WYSIWYG Insert Anchor Plugin Now Handles Anchor Editing
+Search Manager Improvements for Oracle
 
-    Previously, you could only insert new anchors into the WYSIWYG editor. You could not delete or edit them without manually editing the HTML. The Insert Anchor WYSIWYG plugin now provides an interface for editing and removing existing anchors.
+    The Search Manager now takes advantage of Oracle's Text package for searching, as a result of separating optimised queries for PostgreSQL and Oracle. These improvements also allows more advanced queries to be handled on Oracle-based MySource Matrix systems, such as bracketed queries and improved AND/OR handling.
 
 
-WYSIWYG Definition List Plugin
+New Global Keywords
 
-    A new plugin has been added to the WYSIWYG editor to allow for the creation of definition lists (tagged as "<dl>"). Definition lists consist of terms ("<dt>" tags), which are limited to inline content, and descriptions ("<dd>" tags) which can contain block content. After beginning a definition list (by clicking either the DT or DD buttons), the Control+D keystroke combination switches to the next term or definition. Clicking the currently selected tag type or pressing Control+D twice ends the list.
+    Two new sets of global keywords have been added: %globals_asset_*% which refers to the current asset, and %globals_site_*% for current site.
 
 
-WYSIWYG Visual Aid Plugin
+Safe Trash
 
-    This new plugin allows you to display visual indicators for hidden elements. It currently displays indicators for span tags with the lang attribute, anchors and table borders; paragraphs and line breaks; and the difference between a table header and a table cell.
+    This new feature adds an optional layer of protection to the trash, where assets or their children cannot be trashed if they are live, or have notice links to other assets.
 
 
-Long Description URL in WYSIWYG Insert Image Plugin
+Custom Form Accessibility Improvements
 
-    The Insert Image plugin now allows you to set a "longdesc" attribute for accessibility purposes. This attribute is a URL or anchor that points to a longer text description of an image. This can be set to either a MySource Matrix asset or an external URL.
+    A new %question_label_*% field prints the question title surrounded by a LABEL tag containing the appropriate ID for that question's response field. Also, an optional Tab Index attribute has been added to control the tab order of a custom form.
 
 
-WYSIWYG HTML Tidy Status Icon
+Selective Purge of Trash
 
-    A new icon now appears at the top of the DIV or table cell editing toolbar that indicates if HTML Tidy has been run on the content. A grey icon indicates that HTML Tidy is disabled and is not running on the piece of content. A yellow icon indicates that HTML Tidy has never been run on the content. A green icon indicates that HTML Tidy was able to clean the content last time the content was committed. A red icon indicates that HTML Tidy failed to clean the content (for whatever reason) last time the content was committed.
+    The trash now allows you to purge a certain sub-tree contained in the trash, instead of the whole trash itself. Note that an asset still will only be purged from the system if no links exist for that asset, including links elsewhere in the trash.
 
 
-Bodycopy Container Status Displayed in WYSIWYG
+Persistent Cookie Manager in Remote Content
 
-    The status of a Bodycopy Container (DIV or Table) is now displayed on the tooltip for the Edit Properties button. This allows for an editor to quickly see which pieces of content require approval while editing.
+    This new feature ensures that session cookies are only lost when the browser is closed when using Remote Content, rather than earlier.
 
 
-Asset Map in WYSIWYG Insert Dialogs Retains Last Position
+Asset Sorting Tool
 
-    When inserting images, links or movies in the WYSIWYG, the asset map that appears in the popup will now remember where it last was and will auto-expand to that location. Each of the different WYSIWYG popups remember their last position independently, so the image asset map will remain in the image library while the link asset map will remain in the site, for example. Logging out clears the asset map's memory.
+    This new system tool allows users to permanently re-order the immediate children of a specified parent asset by a standard asset field (eg. Asset ID, Last Updated Time, etc).
 
 
-Disable Caching for System Root URL
+"Leave Empty" Option in Select Form Question
 
-    The Cache Manager now has the ability to disable caching per system root URL. If a user is viewing a page via a non-cachable system root URL, the system will behave as if the no-cache suffix is being used.
+    This new attribute adds a new option to the Select form question that returns an empty string key value when the Custom Form is submitted. The text of the empty option is customisable.
 
 
-Listing Engine Group Count Keywords
+Delete All Option for Form Questions
 
-    Two new keywords have been added to the listing engine assets, allowing them to print the number of grouped assets below them. The keyword %group_immed_child_group_count% will print the number of assets directly in the group (which may themselves be groups of assets) and %group_total_child_asset_count% will print the total number of child assets in the current grouping level and all sub-groups.
+    Custom Form and Form Sections now have a "Delete All" check-box that allows all questions to be deleted from a form at once.
 
 
-Asset Map Auto-Teleport Preference
+"Root Node Logic" Option in Asset Listing
 
-    This new preference specifies an asset to auto-teleport users to when they log in. Both the administration and simple asset maps show this asset as the root of the asset tree, just as if the user had right-clicked the asset and selected "Teleport". The preference is configurable per user group. If a user exists in more than one group, a common parent asset is found for all the auto-teleport assets and the user is teleported there instead. Note that this may be the normal root node of the system if a common parent cannot be found. The "restore root" button in the asset map still allows the user to change the asset map view to the root folder. However, it will now return the user to their original auto-teleported root node if clicked while viewing the root folder.
+    This new option allows you to determine whether assets will be listed if they match at least one root node (as per previous behaviour), or if they match all of them.
 
 
-Auto-Expand in Asset Map
+Usage Screen in Design/Paint Layouts
 
-    When an asset is accessed using the Admininstration interface suffix (default "/_admin"), the asset map will now expand and select that asset so you can begin editing it and its neighbours and parents more easily.
+    Designs and Paint Layouts now have a Usage screen that shows the top-level assets where it has been applied (in the case of Paint Layouts, where it has been applied to at least one URL), and the number of children underneath each. Design Customisations also contain a Usage screen.
 
 
-Clean Query String Design Variable
+Default Bodycopy Content
 
-    The "asset_link" design print variable now has an "clean_query_string" option, allowing any MySource Matrix query string variables (those beginning with "SQ_") to be cleaned so that previous actions (such as logging in and out) are not inadvertently added to, or conflict with, printed asset links.
+    Most assets in the CMS package (such as Asset Listing Page, Search Page, Asset Builder Page, etc) now contain default content in their bodycopies and other attributes, thus reducing the time and effort required to configure these assets in a basic way.
 
 
-Release Locks Button in Simple Edit
+Asset Listing "Page List Without Unused Letters" Keyword
 
-    A new keyword (%release_locks_button%) can now be used in Simple Edit layouts to allow you to print a "Release Locks" button. When the Release Locks button is pressed, the locks on the asset are released and the user exits the Simple Edit interface.
+    This new keyword (%page_list_without_unused%) is the same as the current %page_list% keyword, except that letters that are unused are not displayed, instead of being displayed unlinked.
 
 
-Release All Locks You Hold
+Parent Multiple Page Asset ID Keyword
 
-    User assets now have a button on their Details screen that releases all locks that user holds. The current user's Details screen is available from the My Space tab, if it is not accessible by other means. Users require admin permission on a User asset in order to release that user's locks.
+    This new keyword (%multiple_page_assetid%), added to the Multiple Page Page asset, is replaced with the asset ID of the parent Multiple Page asset. This keyword has also been added to Multiple Page assets themselves, however this is functionally equivalent to the %asset_assetid% keyword.
 
 
-Auto-Redirect to Forced HTTPS URLs
+Orphaned HIPO Jobs Interface
 
-    If a HTTP protocol is used on a URL that requires the use of the HTTPS protocol, the system will now automatically redirect to the secure URL instead of returning a "page not found" error.
+    This new section of the HIPO Herder lists currently orphaned HIPO Jobs (defined as when its parent job is no longer in the system), and allows properly privileged users to remove them.
 
 
-Links Report Filtering Options
+Rolling Calendar Page Improvements
 
-	The Links Report asset now gives you the option of hiding any of the main linking sections (internal, external and mailto links) so you can customise the report for your requirements. You can also choose to show only broken or only working links inside each of those linking sections.
+    The Rolling Calendar Page now offers the ability to view a certain number of weeks or months into the past or future, instead of just a number of days. Events are grouped by the time unit specified (so if a number of weeks is specified, events are grouped by week). A new "Time Unit" bodycopy now allows customisation of the printing of each Time Unit.
 
 
-Enable "Contains" Search Option
+Dynamic Keywords for Dates
 
-    The Search Manager asset now has a global setting that determines whether searches within the system will match any part of a word. This option, enabled by default (as the previous behavour of searches), can be disabled to improve performance. However, with this option disabled, searches will be limited to "Begins With" searches.
+    Date keywords now allow custom formats to be specified, using the same format strings as used in PHP's date() function (eg. %event_start_datetime_d-M-Y% will return a date in the format "01-Sep-2006"). Note that this format cannot use spaces; multiple keywords can be used to replicate this behaviour, however.
 
 
-Type Formats in Site Map
+Metadata Field Keyword for Layouts
 
-    Individual formatting of assets based on type, similar to the Listing Engine's functionality, is now available in the Site Map asset.
+    Individual Metadata Field assets can now be printed for editing in a layout by using the keyword %metadata-F_XXXX%, where "XXXX" is the asset ID of the Metadata Field to print.
 
 
-Current User Global Design Variable
+Customisable Asset Names in Asset Map
 
-    Attributes and keywords relating to the current user can now be printed from a design by a MySource_PRINT tag. Using a "var" attribute of "current_user", attributes can be printed by specifying the "attr" attribute, while keywords can be printed by specifying the "keyword" attribute.
+    The System Configuration screen now allows modification of the format of the asset name in the Asset Map, using any keywords generally applicable to an asset.
 
 
-New Remote Content Filtering Options
+Current Asset in Search Result Lineages
 
-    A new "Get Content from All Occurrences" option in Remote Content allows you to control the matching of multiple occurrences of start and end tags in content filtering, so as whether to use all occurrences or stop after the first end tag. A "When Tag(s) Not Found" option has also been added, which can suppress the display of all content when start and end tags are used but not found.
+    The Details screen of the Search Page asset now contains an option which modifies each search result's lineage output to include the asset relating to that result.
 
 
-Re-send Account Manager Validation Email
+Upcoming Events List Page
 
-    This new feature allows users to re-request a validation email that was sent from an Account Manager asset. Three new keywords have also been added to the Not Logged In bodycopy to display a form where a user can enter their username and have the validation email resent to them; print validation resend errors; and a success message.
+    This new Calendar asset type displays a set number of events, up to a maximum time in the future (eg. next 5 events or 2 weeks, whichever comes first). This is similar to a Rolling Calendar Page except that the main filter is the number of events, rather than number of time units into the future.
 
 
-Manual Validation of Accounts in Account Manager
+User Assets in To: Email Field
 
-    The account manager page now lists all accounts that have not been validated and allows you to validate or reject each of them. This feature is useful if a user has lost their validation email and rings you for manual validation, or if you want to clean up accounts that have not been validated in a while.
+    The To: field in many email bodycopies now allow the selection of one or more user assets in addition to email addresses. This applies to email bodycopies in the following assets: Custom Form, Account Manager Page, and Password Reset Page.
 
 
-Automatic Re-send/Purge Options in Account Manager
+Errors Reported from Squiz Server
 
-    These new options allow you to set a time period after which validation emails are re-sent to users who are yet to activate their accounts, and after which unvalidated accounts are purged. The Cron Manager must be properly sent for these options to take effect.
+    HIPO jobs run on Squiz Server now check to see if the job has died on the Squiz Server, and reports any errors that were found.
 
 
-Next and Previous Page HREF Keywords for Listing Engine
+"Do Not Change Status" Option in Asset Builder Page
 
-    Listing Engine assets can now print the URL of the next and previous pages, instead of relying on the linked %previous_page% and %next_page% keywords. This allows further customisation of Next and Previous page links - for example, usage of images or buttons instead of a text link.
+    This new setting, found in the Create Status option, stops Asset Builder from attempting to change the status of the asset upon creation. This may be useful if you are using a trigger to conditionally set the status of an asset upon creation, as the trigger's change is usually wiped out by the Asset Builder's Create Status setting.
 
 
-File Upload Attachments for Form Submission Emails
+Default Blank Parse File for Designs
 
-    Uploaded files in a custom form can now be attached to form submission and receipt emails. To enable this feature, select the new "Attach to Emails" option on your form questions and then select "Allow attachments" for the email formats. This allows you specify which file upload questions should have their files attached to emails and which emails will actually have files attached to them.
+    Designs are now created with an empty parse file, thus avoiding the need to upload a parse file before being able to edit the design.
 
 
-Set Content Type on Bodycopy Container Creation
+Delete All System Cache Option
 
-    The Insert DIV/Insert Table screen in a Bodycopy now allows you to select the type of content to create, instead of simply defaulting to the Bodycopy Container "Default Content Type" preference setting (which becomes the default selection for this new feature).
+    This new Cache Manager option will clear the entire MySource Matrix cache, regardless of other assets on the Clear Cache screen. This may be useful in some instances, however this should be used sparingly, especially on large systems.
 
 
-Cron Blackout Periods
+Set Status Trigger Action Improvements
 
-    The Cron Manager asset now allows you to set a period (or periods) of time where Cron Jobs will not be run. Cron Jobs that are scheduled to run during a blackout period will instead be run the first time after the blackout period concludes.
+    This new setting affects assets that are controlled by a dependant parent. If this new setting is turned on, if the affected asset is a dependant child, the trigger action will set the status of the highest-level parent(s) the asset depends upon.
 
 
-Foreign Key System Integrity Script
+Session File Garbage Collection Script
 
-    This script reports on the integrity of foreign keys within a MySource Matrix database. It defines relations between certain key fields (for instance, the assetid field in the sq_ast table) and fields in other tables. If it finds a field in any table with the same name as one defined as related, it will report any values in that table that does not exist in the key table. The information gathered from this script could then be used by an administrator to write an SQL query to remove the invalid rows if desired.
+    This new script handles clearing of stale session files from the MySource Matrix cache directory. This script should be added to the crontab to handle garbage collection periodically - it should only need to be run once a day on most systems, but may need to be run more often on high-traffic systems.
 
 
-Rolling Calendar Page Improved
+Hide Frames in Simple Edit Mode
 
-    The rolling calendar page can now display an arbitrary period relative to the current date (eg. from 3 days in the future to 7 days in the future), as well as filter out unwanted weekdays (eg. only show weekends).
+    This new Simple Edit inferface option provides a middle ground between the full frames mode and "Ignore Frames" mode. This "Hide Frames" mode hides the top frame from view, and starts the asset map hidden (and will not be displayed until requested by an asset finder). However, both frames will still be printed, thus removing the pitfalls of "Ignore Frames" mode, where locks are not automatically refreshed while editing. This mode is triggered by the GET variable "hide_frames=1".
 
 
-Multiple Columns and Styling for Calendar Events
+Data Directory Restructure
 
-    Calendar Event assets linked under several event sources on a Calendar Page can now have several CSS classes applied to it and appear in several columns, rather than just that of the most direct parent.
+    Systems running on *nix systems and an Ext2/Ext3 filesystem normally cannot create more than 32,000 of a certain asset type, due to filesystem link count limitations. The data directory now uses a two-level hierarchy, where the first level is a hash of asset ID. The maximum number of directories, which defaults to 20 (thus providing a theoretical maximum of 640,000 assets), can be changed in the main.inc configuration file before the system is installed, or upgraded from previous versions.
 
 
-Dynamic Event Sources for Calendar Page
+Memory Limit Now Configurable in main.inc
 
-    The Calendar Page asset now supports dynamic event sources (similar to the Listing Engine's dynamic root nodes). These do not interfere with the customisation (CSS classing and columnisation) done according to the original root nodes.
+    The maximum memory allocation for MySource Matrix and its Cron script are now configurable in main.inc, avoiding the need to configure it in the driver files themselves.
 
 
-Calendar Page "Link to Today" Keyword
+Content Encoding Sent to HTML Tidy
 
-    A new %today_link% keyword is now available in Calendar Page views that paints a link to the time period containing today's date (depending on the current view). The text for this link is configurable in the Details screen.
+    The default backend content encoding is now sent to the HTML Tidy program as a command-line parameter, allowing the plugin to work properly on data encoded in formats other than the default ISO-8859-1 (Western European) format.
 
 
-Custom Form Submissions Now Listable
+Sliding Page List in Listing Engine Assets
 
-    Form submissions can now be listed by Listing Engine assets, with keyword replacements that allow you to list the name and value of each question, as well as the submission summary. They can also have URLs and be made available on the frontend using designs and paint layouts.
+    A new keyword, %page_list_X% where "X" is a number, displays a page list containing a total of X pages. For example, %page_list_7% will show a seven-page list, which will typically consist of the current page and three pages either side.
 
 
-Password Blacklist System
+Uploaded File Type Restrictions
 
-    System Administrators can now enter a list of banned passwords on the Password Rules Config screen. The blacklist can be set up to match banned passwords exactly, or to match any part of a user's password.
+    This new File asset preference allows you to further restrict the extensions of files users can upload.
 
 
-Keywords Now Usable in Form Question Default Values
+Maximum Pre-Uploaded File Size Option
 
-    Asset keywords are now able to be used in default values for Form Question assets. Keywords starting with "%asset_" relate to the Form Question being painted. Keywords relating to the currently logged in user can also be used (beginning with "%current_user_" instead of "%asset_").
+    This new System Configuration screen option allows you top specify a limit for files created in MySource Matrix using the "pre-uploaded file" method. The limit set for files uploaded through the browser no longer applies to pre-uploaded files.
 
 
-Sticky Submitted Values Option for Form Questions
+Structured File Import Tool Changes
 
-    An option now exists in Form Question assets to make a submitted value "sticky" until the end of the user's session. When a value is "stuck", other Form Questions using the same question title will use any "stuck" submitted values as their default value if their "sticky" attribute is also set.
+    The "Asset To Import Under" and "New Site" options in this tool are now independent. If both are selected, a new site will be created underneath the selected asset, rather than the root folder.
 
 
-"Today's Date" Style in Calendar Page
+Referral Asset in Send to a Friend Emails
 
-    Calendar cells that represent today's date (according to the server clock, not as represented by the SQ_CALENDAR_DATE variable) now have an additional "today" CSS class applied, so these cells can be styled differently if desired.
+    Keywords of the form %referral_asset_*% can now be used to refer to the referring asset in Custom Form's Send to a Friend emails, where "*" is the tail of any keyword that normally applies to the asset (eg. %referral_asset_name%).
 
 
-Calendar View Linking Now Configurable
+Metadata Schemas Applied to Built Assets
 
-    Links to Calendar Events on Calendar Pages can now point to either the Calendar Page's event view or the Calendar Event's own URL. This allows Calendar Events to be displayed independently of the Calendar Page, and allows the use of Paint Layouts on the events.
+    Assets created in the Asset Builder Page asset can now have one or more Metadata Schemas automatically applied to it.
 
 
-Calendar Event Label Now Configurable
+Create Form Type Customisation in Asset Builder
 
-    The event label of Calendar Events are now configurable in the Calendar Page asset, defaulting to the previous label of the asset name. Keywords that apply to Calendar Events can be included in the label.
+    There is now an option to customise the create form for an asset type, instead of using the default create form defined by the asset. Customising an asset type creates a Layout asset, where layout keywords, normally used for Simple Edit, can be used to customise the create form.
 
 
-Listing Engine "Random" Sort By Option
+Ignore Port Number in Proxy Config
 
-    All Listing Engine assets now have a new "Random" sort by option on the Asset Sorting screen. Unlike a Random list format, content printed with this option can still be cached by the Cache Manager.
+    When turned on, URLs generated by MySource Matrix will not include the port number used to access the system. This can be useful, for example, for a caching proxy that accesses the system using port other than port 80.
 
 
-Failed Login Attempts Now Logged
+Internal Message Purge Script
 
-    Failed login attempts are now logged in the MySource Matrix system log, along with the reason for the failed login.
+    This new script allows you to delete internal messages matching a certain criteria from the system. The scope of messages to be deleted can be controlled by way of time, from/to user, type of message, and whether the message has been read and/or deleted by the recipient.
 
 
-Site and Redirect Page Simple Edit Improvements
+Thesaurus Appearance in Asset Map Switcher
 
-    Redirect Pages are now editable from the Simple Edit interface, instead of redirecting to the asset being pointed to by the Redirect Page. Sites can also now be edited using the Simple Edit prefix and the "limbo_assetid" keyword set to the asset ID of the Site asset.
+    The Thesaurus can now be displayed in the asset map in two forms: a hierarchial format based on one or more relation types, or a "flat" format where all terms are displayed directly underneath the thesaurus in an "A-Z" order.
 
 
-"Disable Image Resizing" WYSIWYG Preference
+Notes on Thesaurus Terms
 
-    When this option is set, images provided by the MySource Matrix system (through Image or Image Variety assets) will be forced to their natural dimensions. Any attempt to alter their dimensions will result in the WYSIWYG resetting them.
+    Thesaurus Terms can now handle non-relation data. This allows, for example, data such as Scope Notes (SN), as defined by thesaurus creation standards such as ANSI/NISO Z39.19 and ISO 2788, to be handled by MySource Matrix's thesaurus.
 
 
-Access History Design Area Improvements
+Automatic Reflection in Thesaurus
 
-    An option has been added to stop pages from automatically being added to the access history list. Pages can then be manually added to, or deleted from, the access history by the user on the frontend. This allows the Access History design area to work, for example, as a user-customisable "my favourite links" area.
+    The Thesaurus asset can now handle reflection of relation types, so that a relation in one direction is reciprocated by an inverse relationship in the other direction. As a typical example, one can set up an automatic "narrower term/broader term" reflection.
 
 
-Multiple Thesaurus Support for Content Tagging
+Missing Metadata Now Blocks Asset Go-Live
 
-    A new option in the Tag Manager allows content tags to come from any thesaurus in the system, instead of the previous single thesaurus restriction.
+    MySource Matrix will now enforce the missing metadata rule whether or not a workflow is applied from an asset. If any required metadata is missing, then a message will appear underneath the "Change Status" drop-down informing you that the asset cannot be made live.
 
-
-Additional Level of Keyword Replacement
-
-    Keyword replacement is now possible after after printFrontend() is completed, using a new function in the MySource class. This is used by the Bulkmail system in email generation.
 
 
 Additional Changes and Bug Fixes
@@ -300,43 +294,40 @@ Additional Changes and Bug Fixes
 
 Core
 
-+ Percent signs in bodycopies with keywords disabled are now replaced with entity equivalent ("&#37;")
-+ If-Last-Modified cacheable header checks now look in CGI environment variables if Apache module is not present
-+ Metadata fields are no longer exclusively linked to metadata sections
-+ Linking screen of assets are now paginated, displaying 50 lineages to a page
-+ Remap Manager's listing of remapped URLs is now paginated, displaying 100 remaps to a page
-+ Metadata screen now warns of duplicate metadata field names applied to an asset
-+ Current status can now be cascaded by checking "Cascade Status Change" and leaving the drop-down blank
-+ Preview screen now defaults to URL closest to the URL currently being used
-+ Multiple URLs can now be added to Site asset at once
-+ WYSIWYG now correctly uses "<p>" tags for paragraphs in Internet Explorer
-+ New WYSIWYG Citation plugin that wraps text in "<cite>" tags
-+ New WYSIWYG Definition plugin that wraps text in "<dfn>" tags
-+ New WYSIWYG Blockquote plugin that wraps text in "<blockquote>" tags
-+ New WYSIWYG Language plugin that marks a piece of text with a "lang" HTML/XHTML attribute
-+ New Trigger Event that fires when a link is deleted
-+ New Trigger Event that fires before an asset is deleted
-+ New Trigger Event that fires when an attribute is changed
-+ New Trigger Action to send an email when an event occurs
-+ New Trigger Action to clear MySource Matrix's cache for the current asset or a group of assets
-+ New Trigger Action to automatically fail the trigger
++ Can now change the number of lines to display in Log Manager
++ Can now change HTTP Authentication variable name from Apache default of REMOTE_USER
++ Current asset attributes now printable in designs, similar to how current user attributes are
++ Strip Formatting feature of WYSIWYG can how handle soft hyphens
++ Parameter Map attribute can now accept custom keywords from asset-based sources instead of just asset ID
++ Parameter Map can now use Current Site as an asset-based source
++ New trigger events for user login and logout
++ New Import Thesaurus Terms trigger action
++ Remap Manager now uses "301 Moved Permanently" HTTP status to redirect assets
++ Trigger name is now mandatory
++ WYSIWYG attributes now expand internal links to their proper URLs when printed using keywords
++ Time of page generation now printed alongside date on Matrix comment added to front-end pages
++ Cron Manager View Jobs screen is now paginated, showing 20 jobs at a time
++ Add Bodycopy DIV interface now more consistent with the Edit DIV Properties pop-up
++ New Access Permission trigger condition
++ New Set Cache Expiry trigger action
++ New Release Lock trigger action
++ New URL Matches trigger condition
++ New Simple Edit Accessed trigger event
++ Cache table can now be placed in a different database (or connection) to the rest of the Matrix system
++ New script to clean up orphaned cache files from the cache directory
++ Clear Cache HIPO now has a freestyle threshold (defaults to 100 assets)
++ Attribute Changed trigger condition now allows selection of non-user-creatable asset types
 
 CMS
 
-+ Asset Builder can now submit to current URL, rather than just the its own URL (Asset Builder)
-+ Asset Builder no longer clears submitted values on error (Asset Builder)
-+ Listing Engine can now submit to current URL, rather than just the its own URL (Listing Engine)
-+ Linked Group Name keyword added for Listing Engine assets grouped by parent asset (Listing Engine)
-+ New keywords allow printing of parent asset's contents when grouping by parent asset (Listing Engine)
-+ Submission Asset ID keyword now available in Thank You bodycopy and submission emails (Custom Form)
-+ Links Report can now be exported to a CSV file (Links Report)
-+ User can now be selected via asset picker as additional recipient for form emails (Custom Form)
-+ Submission time added to %form_info% keyword (Custom Form)
-
-News
-
-+ Summary and body attributes added to News Item's create screen (News Item)
++ Listing type assets result page GET variable changed so multiple nested asset listings don't conflict
++ Remote Content Page now uses standard MySource Matrix warning messages
++ Site Map now allows suppression of dependant assets
 
 LDAP
 
-+ LDAP users now have an inbox, accessible from the My Space tab, so they can manage their own internal messages (LDAP User)
++ Role Assignments screen now available for LDAP users
+
+IPB Bridge
+
++ New trigger actions for logging into IPB systems based on Matrix logins
