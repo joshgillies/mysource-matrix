@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.php,v 1.14 2006/12/06 05:11:09 bcaldwell Exp $
+* $Id: html_tidy.php,v 1.15 2006/12/10 21:51:37 bcaldwell Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 
@@ -166,7 +166,7 @@ if (!isset($_GET['name']))		  $_GET['name'] = '';
 									<td>Selected text only?
 										<select id="rep_type0" name="rep_type0">
 											<option value="1">Yes</option>
-											<option value="0" selected="selected">No</option>
+											<option value="0">No</option>
 										</select>
 								</tr>
 								<tr>
