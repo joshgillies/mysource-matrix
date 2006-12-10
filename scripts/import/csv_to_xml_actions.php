@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv_to_xml_actions.php,v 1.4 2006/12/08 05:39:37 mbrydon Exp $
+* $Id: csv_to_xml_actions.php,v 1.5 2006/12/10 22:23:04 mbrydon Exp $
 *
 */
 
@@ -93,7 +93,7 @@
 function printUsage()
 {
 	printStdErr("CSV and metadata mapping to XML converter\n");
-	printStdErr('Usage: csv_to_xml_actions [csv file] [mapping file] [parent id] [asset type] (-unique) (-ignore_blank)');
+	printStdErr('Usage: csv_to_xml_actions [system root] [csv file] [mapping file] [parent id] [asset type] (-unique) (-ignore_blank)');
 	printStdErr('system root  : The Matrix System root directory');
 	printStdErr('csv file     : A comma separated values file that represents the site structure');
 	printStdErr('mapping file : An XML file containing column name to metadata mapping data');
