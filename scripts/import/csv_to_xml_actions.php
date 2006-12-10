@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv_to_xml_actions.php,v 1.5 2006/12/10 22:23:04 mbrydon Exp $
+* $Id: csv_to_xml_actions.php,v 1.6 2006/12/10 22:32:07 mbrydon Exp $
 *
 */
 
@@ -457,7 +457,7 @@ require_once $GLOBALS['SYSTEM_ROOT'].'/core/include/init.inc';
 $csv_filename	= $argv[2];
 if (empty($csv_filename)) {
 	printUsage();
-	printStdErr("* A CSV filename must be specified as the first parameter\n");
+	printStdErr("* A CSV filename must be specified as the second parameter\n");
 	exit(-1);
 }
 
@@ -465,7 +465,7 @@ if (empty($csv_filename)) {
 $mapping_filename	= $argv[3];
 if (empty($mapping_filename)) {
 	printUsage();
-	printStdErr("* A mapping filename must be specified as the second parameter\n");
+	printStdErr("* A mapping filename must be specified as the third parameter\n");
 	exit(-2);
 }
 
@@ -473,7 +473,7 @@ if (empty($mapping_filename)) {
 $global_parent_id	= $argv[4];
 if (empty($global_parent_id)) {
 	printUsage();
-	printStdErr("* A parent ID must be specified as the third parameter\n");
+	printStdErr("* A parent ID must be specified as the fourth parameter\n");
 	exit(-3);
 }
 
@@ -481,7 +481,7 @@ if (empty($global_parent_id)) {
 $global_asset_type	= $argv[5];
 if (empty($global_asset_type)) {
 	printUsage();
-	printStdErr("* An asset type must be specified as the fourth parameter\n");
+	printStdErr("* An asset type must be specified as the fifth parameter\n");
 	exit(-4);
 }
 
