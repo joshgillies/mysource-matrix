@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.24 2006/12/05 22:56:41 emcdonald Exp $
+* $Id: design_css.inc,v 1.25 2006/12/10 22:50:35 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -537,7 +537,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	function getCacheFileId()
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$cache_link = $am->getLink($this->id, SQ_LINK_TYPE_3, 'file', 'false', 'css_cache');
+		$cache_link = $am->getLink($this->id, SQ_LINK_TYPE_3, 'file', true, 'css_cache');
 		if (empty($cache_link)) return 0;
 		return $cache_link['minorid'];
 
