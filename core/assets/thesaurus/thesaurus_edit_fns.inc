@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.11 2006/12/11 00:37:09 arailean Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.12 2006/12/11 01:09:16 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -155,7 +155,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 			echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_process_export.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_export.value = 0; return true;');
 
 		} else {
-			if ($asset->countChildTerms(NULL)==0) {
+			if ($asset->countTerms()==0) {
 				echo translate('thesaurus_thesaurus_disabled');
 			} else if ($write_access_allowed) {
 				echo hidden_field($prefix.'_process_export', '0');
@@ -678,7 +678,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		}//end foreach
 		echo '</table>';
 
-		foreach($all_relations as $id => $name) {
+		foreach ($all_relations as $id => $name) {
 			if (!isset($available_relations[$id])) {
 				unset($all_relations[$id]);
 			}
@@ -695,7 +695,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 
 		return TRUE;
 
-	}//end paintRelationRelflexionMap()
+	}//end paintRelationRelflectionMap()
 
 
 	/**
@@ -727,7 +727,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 
 		return TRUE;
 
-	}//end processRelationRelflexionMap()
+	}//end processRelationRelflectionMap()
 
 
 	/**
