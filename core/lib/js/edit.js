@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.36 2006/12/05 05:10:21 bcaldwell Exp $
+* $Id: edit.js,v 1.37 2006/12/11 01:14:09 tbarrett Exp $
 *
 */
 
@@ -513,9 +513,11 @@ function focusFirstTextInput()
 {
 	var inputs = document.getElementsByTagName('INPUT');
 	for (var i=0; i < inputs.length; i++) {
-		if (inputs[i].type == 'text') {
-			inputs[i].focus();
-			return;
+		if ((inputs[i].type == 'text') && (!inputs[i].disabled)) {
+			try {
+				inputs[i].focus();
+				return;
+			} catch (e) {}
 		}
 	}
 }
