@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.58 2006/12/07 22:04:55 lwright Exp $
+* $Id: site_edit_fns.inc,v 1.59 2006/12/11 02:46:44 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -479,6 +479,8 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		$urls = $db->getAssoc($sql);
 		assert_valid_db_result($urls);
+
+		$combo_box_urls = Array();
 
 		foreach ($urls as $urlid => $url) {
 			$combo_box_urls[$urlid] = $url['url'];
