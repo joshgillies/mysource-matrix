@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.31 2006/12/08 04:01:32 arailean Exp $
+* $Id: thesaurus.inc,v 1.32 2006/12/11 00:14:34 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -631,8 +631,7 @@ class Thesaurus extends Asset
 				AND
 				thesid = '.$db->quoteSmart($this->id).'
 			ORDER BY
-				name,
-				value
+				name
 		';
 
 		$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ORDERED, TRUE);
@@ -698,8 +697,8 @@ class Thesaurus extends Asset
 			return NULL;
 		}
 
-		if ($this->attr('enforce_reflexion')) {
-			$ref_relid = $this->getReflexionForRelation($relid);
+		if ($this->attr('enforce_reflection')) {
+			$ref_relid = $this->getReflectionForRelation($relid);
 			if ($ref_relid) {
 				$this->_linkTerms($majorid, $minorid, $ref_relid);
 			}
@@ -1269,7 +1268,7 @@ class Thesaurus extends Asset
 		if (!$this->_deleteStoredContents()) return FALSE;
 
 		$this->setAttrValue('relations', Array());
-		$this->setAttrValue('reflexions', Array());
+		$this->setAttrValue('reflections', Array());
 
 		$this->markContentsChanged();
 
@@ -2131,7 +2130,7 @@ class Thesaurus extends Asset
 	{
 		if (empty($linkid)) return FALSE;
 
-		// reflexion support
+		// reflection support
 		$link_info = $this->getTermLinkById($linkid);
 		$major = $link_info['major'];
 		$minor = $link_info['minor'];
@@ -2139,12 +2138,12 @@ class Thesaurus extends Asset
 
 		$this->_deleteTermLink($linkid);
 
-		if ($this->attr('enforce_reflexion')) {
-			$ref_relid = $this->getReflexionForRelation($relid);
+		if ($this->attr('enforce_reflection')) {
+			$ref_relid = $this->getReflectionForRelation($relid);
 			if (!is_null($ref_relid)) {
-				$reflex_link = $this->getTermLinkByTermids($major, $minor, $ref_relid);
-				if (!empty($reflex_link)) {
-					$this->_deleteTermLink($reflex_link['linkid']);
+				$reflect_link = $this->getTermLinkByTermids($major, $minor, $ref_relid);
+				if (!empty($reflect_link)) {
+					$this->_deleteTermLink($reflect_link['linkid']);
 				}
 			}
 		}
@@ -2292,9 +2291,9 @@ class Thesaurus extends Asset
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		// cleanup the reflexions
-		// NOTE: In the future it might be necessary to wipe the reflexive relation as well - Reflexion Integrity
-		$this->deleteReflexion($relid);
+		// cleanup the reflections
+		// NOTE: In the future it might be necessary to wipe the reflective relation as well - Reflection Integrity
+		$this->deleteReflection($relid);
 
 		// make sure any settings we have do not use this relation id
 		$synonym_rel = $this->attr('synonym_rel');
@@ -2439,96 +2438,96 @@ class Thesaurus extends Asset
 
 
 	/**
-	* Get the reflexion array
+	* Get the reflection array
 	*
 	* @return void
 	* @access public
 	*/
-	function getReflexions()
+	function getReflections()
 	{
-		return $this->attr('reflexions');
+		return $this->attr('reflections');
 
-	}//end getReflexions()
+	}//end getReflections()
 
 
 	/**
-	* Get reflexion relation id given the other relation
+	* Get reflection relation id given the other relation
 	*
-	* @param string	$start	id of one relation in a reflexion
+	* @param string	$start	id of one relation in a reflection
 	*
 	* @return string
 	* @access public
 	*/
-	function getReflexionForRelation($start)
+	function getReflectionForRelation($start)
 	{
-		$reflexions = $this->getReflexions();
-		return array_get_index($reflexions, $start);
+		$reflections = $this->getReflections();
+		return array_get_index($reflections, $start);
 
-	}//end getReflexionForRelation()
+	}//end getReflectionForRelation()
 
 
 	/**
-	* Add a reflexion
+	* Add a reflection
 	*
-	* @param string	$start	id of one relation in a reflexion
-	* @param string	$end	id of another relation in a reflexion
+	* @param string	$start	id of one relation in a reflection
+	* @param string	$end	id of another relation in a reflection
 	*
 	* @return void
 	* @access public
 	*/
-	function addReflexion($start, $end)
+	function addReflection($start, $end)
 	{
-		$reflexions = $this->getReflexions();
+		$reflections = $this->getReflections();
 
-		if (isset($relfexions[$start]) || isset($reflexions[$end])) {
+		if (isset($relfections[$start]) || isset($reflections[$end])) {
 			return FALSE;
 		}
 
-		$reflexions[$start] = $end;
-		$reflexions[$end] = $start;
+		$reflections[$start] = $end;
+		$reflections[$end] = $start;
 
-		$this->setReflexions($reflexions);
+		$this->setReflections($reflections);
 
-	}//end addReflexion()
+	}//end addReflection()
 
 
 	/**
-	* Delete a reflexion
+	* Delete a reflection
 	*
-	* @param string	$start	id of one relation in a reflexion
+	* @param string	$start	id of one relation in a reflection
 	*
 	* @return void
 	* @access public
 	*/
-	function deleteReflexion($start)
+	function deleteReflection($start)
 	{
-		$reflexions = $this->getReflexions();
+		$reflections = $this->getReflections();
 
-		$end = array_get_index($reflexions, $start);
+		$end = array_get_index($reflections, $start);
 		if (is_null($end)) return FALSE;
 
-		unset($reflexions[$start]);
-		unset($reflexions[$end]);
+		unset($reflections[$start]);
+		unset($reflections[$end]);
 
-		$this->setReflexions($reflexions);
+		$this->setReflections($reflections);
 
-	}//end deleteReflexion()
+	}//end deleteReflection()
 
 
 	/**
-	* Set an array of reflexions
+	* Set an array of reflections
 	*
-	* @param array	$ref_array	array of reflexions in format 'a'=>'b', 'b'=>'a'
+	* @param array	$ref_array	array of reflections in format 'a'=>'b', 'b'=>'a'
 	*
 	* @return void
 	* @access public
 	*/
-	function setReflexions($ref_array)
+	function setReflections($ref_array)
 	{
-		$this->setAttrValue('reflexions', $ref_array);
+		$this->setAttrValue('reflections', $ref_array);
 		return TRUE;
 
-	}//end setReflexions()
+	}//end setReflections()
 
 
 }//end class

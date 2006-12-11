@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.9 2006/12/08 04:01:32 arailean Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.10 2006/12/11 00:14:34 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -609,7 +609,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Interface for pairing up relations into reflexions
+	* Interface for pairing up relations into reflections
 	*
 	* @param object	&$asset	asset to paint
 	* @param object	&$o		outputter object
@@ -618,30 +618,43 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintRelationRelflexionMap(&$asset, &$o, $prefix)
+	function paintRelationRelflectionMap(&$asset, &$o, $prefix)
 	{
 		$all_relations = $asset->getActiveRelations();
-		$all_reflexions = $asset->getReflexions();
-		$available_relations = $all_relations;
+		$all_reflections = $asset->getReflections();
+		$all_available_relations = array_flip(array_keys($all_relations));
+		$available_relations = $all_available_relations;
 		echo '<table>';
-		foreach ($all_reflexions as $start => $end) {
+		foreach ($all_reflections as $start => $end) {
 			if (!isset($available_relations[$start])) continue;
-
-			$colour = '#33F';
-
+			$error = FALSE;
 			$start_name = array_get_index($all_relations, $start);
-			if ($start_name == '') $start_name = '<em>NULL</em>';
-
-			$end_name = array_get_index($all_relations, $end);
-			if ($end_name === '') {
-				$end_name = '<em>NULL</em>';
-			} else if (is_null($end_name)) {
-				$end_name = '<em style="color:red">Unknown Relation. Invalid Reflexion.</em>';
-				$colour = '#F00';
+			if (is_null($start_name)) {
+				if (!isset($all_available_relations[$start])) {
+					$start_name = '<em style="color:red">Unknown Relation. Invalid Reflection.</em>';
+					$error = TRUE;
+				} else {
+					$start_name = '<em>No Name</em>';
+				}
 			}
 
-			if ($start_name == $end_name) $colour = '#090';
+			$end_name = array_get_index($all_relations, $end);
+			if (is_null($end_name)) {
+				if (!isset($all_available_relations[$end])) {
+					$end_name = '<em style="color:red">Unknown Relation. Invalid Reflection.</em>';
+					$error = TRUE;
+				} else {
+					$end_name = '<em>No Name</em>';
+				}
+			}
 
+			if ($error) {
+				$colour = '#F00';
+			} else if ($start_name == $end_name) {
+				$colour = '#090';
+			} else {
+				$colour = '#33F';
+			}
 			echo '<tr>';
 			echo '<td align="right" style="color: '.$colour.'">';
 			echo $start_name;
@@ -654,7 +667,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 			echo '</td>';
 			echo '<td>';
 			if ($asset->writeAccess('attributes')) {
-				check_box($prefix.'_delete_reflexion['.$start.']');
+				check_box($prefix.'_delete_reflection['.$start.']');
 				echo 'Delete';
 			}
 			echo '</td></tr>';
@@ -662,15 +675,20 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 			unset($available_relations[$end]);
 
 		}//end foreach
-
 		echo '</table>';
 
-		if ($asset->writeAccess('attributes') && !empty($available_relations)) {
+		foreach($all_relations as $id => $name) {
+			if (!isset($available_relations[$id])) {
+				unset($all_relations[$id]);
+			}
+		}
+
+		if ($asset->writeAccess('attributes') && !empty($all_relations)) {
 			$relations[NULL] = '-- Select Relation --';
-			$relations += $available_relations;
-			combo_box($prefix.'_reflex_start', $relations, FALSE);
+			$relations += $all_relations;
+			combo_box($prefix.'_reflect_start', $relations, FALSE);
 			echo ' <- Reflects -> ';
-			combo_box($prefix.'_reflex_end', $relations, FALSE);
+			combo_box($prefix.'_reflect_end', $relations, FALSE);
 			echo '<br />';
 		}
 
@@ -680,7 +698,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* process Reflexion map
+	* process Reflection map
 	*
 	* @param object	&$asset	asset to paint
 	* @param object	&$o		outputter object
@@ -689,20 +707,20 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processRelationRelflexionMap(&$asset, &$o, $prefix)
+	function processRelationRelflectionMap(&$asset, &$o, $prefix)
 	{
-		$all_reflexions = $asset->getReflexions();
+		$all_reflexions = $asset->getReflections();
 		if ($asset->writeAccess('attributes')) {
-			$delete_reflexions = array_get_index($_REQUEST, $prefix.'_delete_reflexion', Array());
-			foreach ($delete_reflexions as $start_id => $flag) {
-				$asset->deleteReflexion($start_id);
+			$delete_reflections = array_get_index($_REQUEST, $prefix.'_delete_reflection', Array());
+			foreach ($delete_reflections as $start_id => $flag) {
+				$asset->deleteReflection($start_id);
 			}
 
-			$start_id = array_get_index($_REQUEST, $prefix.'_reflex_start');
-			$end_id = array_get_index($_REQUEST, $prefix.'_reflex_end');
+			$start_id = array_get_index($_REQUEST, $prefix.'_reflect_start');
+			$end_id = array_get_index($_REQUEST, $prefix.'_reflect_end');
 
 			if ($start_id !== '' && $end_id !== '') {
-				$asset->addReflexion($start_id, $end_id);
+				$asset->addReflection($start_id, $end_id);
 			}
 		}
 
@@ -721,17 +739,17 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintReflexionAnsiCheck(&$asset, &$o, $prefix)
+	function paintReflectionAnsiCheck(&$asset, &$o, $prefix)
 	{
 		$relations = $asset->getActiveRelations();
-		$all_reflexions = $asset->getReflexions();
+		$all_reflections = $asset->getReflections();
 
-		foreach ($all_reflexions as $rel_id => $reflex_id) {
+		foreach ($all_reflections as $rel_id => $reflect_id) {
 			unset ($relations[$rel_id]);
 		}
 
 		if (!empty($relations)) {
-			echo '<span style="color: red">This thesaurus is NOT ANSI/NISO Z39.19-2005 compliant, because not all relations are reflexive<br />';
+			echo '<span style="color: red">Configuration of this thesaurus is NOT ANSI/NISO Z39.19-2005 compliant<br />';
 			echo 'Below is a list of relations which have not been paired up<br /></span>';
 
 			foreach ($relations as $rel_id => $relation_name) {
@@ -748,7 +766,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 
 		return TRUE;
 
-	}//end paintReflexionAnsiCheck()
+	}//end paintReflectionAnsiCheck()
 
 
 	/**
