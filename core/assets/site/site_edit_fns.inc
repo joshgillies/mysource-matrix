@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.61 2006/12/11 04:02:31 lwright Exp $
+* $Id: site_edit_fns.inc,v 1.62 2006/12/11 04:03:04 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -692,7 +692,6 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		foreach (array_keys($urls) as $from) {
 			$current_from = $from;
-bam('*'.$current_from.'*');
 			$seen = Array();
 			$complete = FALSE;
 			$circular = FALSE;
@@ -702,16 +701,12 @@ bam('*'.$current_from.'*');
 
 				// Get the next step in the list
 				$current_from = array_get_index($urls, $current_from, NULL);
-bam($current_from);
 
 				if (empty($current_from)) {
 					$complete = TRUE;
 				}
 
 				// Have we already seen this
-
-				bam($seen);
-
 				if (array_search($current_from, $seen) !== FALSE) {
 					$circular = TRUE;
 				}
@@ -719,7 +714,7 @@ bam($current_from);
 			}//end while
 
 			// We found a circular reference
-			if ($circular) { bam($urls); exit(); return TRUE; }
+			if ($circular) return TRUE;
 
 		}//end foreach
 
