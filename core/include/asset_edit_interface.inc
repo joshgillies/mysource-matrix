@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.299.2.4 2006/11/22 02:50:49 emcdonald Exp $
+* $Id: asset_edit_interface.inc,v 1.299.2.5 2006/12/11 01:16:34 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.299.2.4 $
+* @version $Revision: 1.299.2.5 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -170,7 +170,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
 			exit();
 		}
-		if ($creating) $o->addOnLoad('focusFirstTextInput()');
+		if ($creating && SQ_IN_BACKEND) $o->addOnLoad('focusFirstTextInput()');
 		// if there are no screens or static screens, go away
 		assert_false(!count($this->_screens) && empty($this->_edit_fns->static_screens));
 
