@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.8 2006/12/06 00:35:27 emcdonald Exp $
+* $Id: form_question_rule_type_email.inc,v 1.8.2.1 2006/12/11 05:33:15 emcdonald Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,41 +77,31 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	*/
 	function generateJSCode(&$q_asset, $rule_data)
 	{
-		// have we printed out the validation function yet?
-		// (since this is static across all class instances, this will work)
-		static $printed_fn = FALSE;
-
 		ob_start();			// buffer this please
 
 			$operator = array_get_index($rule_data, 'operator', 1);
 			$function_id = preg_replace('/[^a-zA-Z0-9]/', '_', $q_asset->id);
-			if (!$printed_fn) {
-				$local = '\da-zA-Z-_+'; // allowed in the first char
-				$local_middle = $local.'.\w'; // allowed in the rest of the username
-				$regex_code = '/^(['.$local.']['.$local_middle.'\']*['.$local.']@[\da-zA-Z][\'-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})$/';
 
-				?>
-				function sq_form_validate_email_<?php echo $function_id; ?>(answer)
-				{
-					<?php
-						if (!$q_asset->attr('is_required')) {
-							?>
-							if (answer.length == 0) {
-								return true;
-							}
-							<?php
-						}
-					?>
-					answer.replace(/,/, "");
-					return answer.match(<?php echo $regex_code ?>);
-
-				}//end sq_form_validate_email()
-				<?php
-
-				$printed_fn = TRUE;
-			}
-
+			$local = '\da-zA-Z-_+'; // allowed in the first char
+			$local_middle = $local.'.\w'; // allowed in the rest of the username
+			$regex_code = '/^(['.$local.']['.$local_middle.'\']*['.$local.']@[\da-zA-Z][\'-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})$/';
 			?>
+			function sq_form_validate_email_<?php echo $function_id; ?>(answer)
+			{
+				<?php
+					if (!$q_asset->attr('is_required')) {
+						?>
+						if (answer.length == 0) {
+							return true;
+						}
+						<?php
+					}
+				?>
+				answer.replace(/,/, "");
+				return answer.match(<?php echo $regex_code ?>);
+
+			}//end sq_form_validate_email()
+
 			if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_email_<?php echo $function_id; ?>(form.elements["q<?php echo $q_asset->id; ?>"].value)) {
 				submission_errors[submission_errors.length] = "<?php
 					if (empty($rule_data['custom_text'])) {
