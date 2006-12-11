@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.158 2006/12/05 05:36:13 bcaldwell Exp $
+* $Id: backend.inc,v 1.159 2006/12/11 00:41:16 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.158 $
+* @version $Revision: 1.159 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -770,7 +770,8 @@ class Backend extends MySource_Object
 							msgDiv.innerHTML = '<?php echo addslashes($dhtml_messages['popups_blocked']['html']); ?>';
 							setTimeout("showMsgDiv()", 500);
 							divLeft = parent.frames["sq_main"].document.body.offsetWidth + parent.frames["sq_main"].document.body.scrollLeft - <?php echo $dhtml_messages['popups_blocked']['width']; ?> - 20;
-							msgDiv.style.left = divLeft + "px";
+							msgDiv.style.width = "<?php echo addslashes($dhtml_messages['popups_blocked']['width']); ?>px";
+							msgDiv.style.right = "10px";
 							REFRESH_UPDATE = 20;
 						} else {
 							popup.close();
