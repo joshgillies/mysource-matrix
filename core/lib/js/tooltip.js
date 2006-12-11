@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tooltip.js,v 1.12 2006/12/05 05:10:21 bcaldwell Exp $
+* $Id: tooltip.js,v 1.13 2006/12/11 02:32:24 lwright Exp $
 *
 */
 
@@ -60,6 +60,10 @@ function tt_print()
 				 ';position:absolute;top:0px;left:0px;z-index: 1000;visibility:hidden;filter:progid:DXImageTransform.Microsoft.Fade(duration=0.5)"><tr><td id="ToolBoxTitle" style="padding:0px"></td></tr><tr><td id="ToolBoxContent" style="padding:2px"></td></tr></table>';
 		if (document.body.insertAdjacentHTML) {
 			document.body.insertAdjacentHTML('afterBegin', output);
+		} else if (document.documentElement) {
+			var div = document.createElement('div');
+			div.innerHTML = output;
+			document.documentElement.appendChild(div);
 		} else {
 			document.body.innerHTML = output + document.body.innerHTML;
 		}
