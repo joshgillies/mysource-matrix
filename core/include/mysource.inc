@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.205 2006/12/07 22:53:10 lwright Exp $
+* $Id: mysource.inc,v 1.205.2.1 2006/12/11 05:20:16 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.205 $
+* @version $Revision: 1.205.2.1 $
 * @package MySource_Matrix
 */
 class MySource
@@ -402,7 +402,14 @@ class MySource
 							$page =& $site->getSpecialPage('not_found');
 							if (!is_null($page)) {
 								header('HTTP/1.0 404 Not Found');
-								$site->paintAsset($page);
+
+								ob_start();
+									$site->paintAsset($page);
+								$content = ob_get_clean();
+
+								$this->_replaceKeyword($content);
+								echo $content;
+
 								exit(1);
 							}
 						}
