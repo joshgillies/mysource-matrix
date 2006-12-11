@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.310 2006/12/05 05:36:13 bcaldwell Exp $
+* $Id: asset_edit_interface.inc,v 1.311 2006/12/11 01:16:01 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.310 $
+* @version $Revision: 1.311 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -163,7 +163,7 @@ class Asset_Edit_Interface extends MySource_Object
 			exit();
 		}
 
-		if ($creating) $o->addOnLoad('focusFirstTextInput();');
+		if ($creating && SQ_IN_BACKEND) $o->addOnLoad('focusFirstTextInput();');
 		// if there are no screens or static screens
 		assert_false(!count($this->_screens) && empty($this->_edit_fns->static_screens));
 
