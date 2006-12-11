@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.34.2.1 2006/08/17 05:29:38 bcaldwell Exp $
+* $Id: edit.js,v 1.34.2.2 2006/12/11 01:39:38 tbarrett Exp $
 *
 */
 
@@ -521,9 +521,11 @@ function focusFirstTextInput()
 {
 	var inputs = document.getElementsByTagName('INPUT');
 	for (var i=0; i < inputs.length; i++) {
-		if (inputs[i].type == 'text') {
-			inputs[i].focus();
-			return;
+		if ((inputs[i].type == 'text') && (!inputs[i].disabled)) {
+			try {
+				inputs[i].focus();
+				return;
+			} catch (e) {}
 		}
 	}
 }
