@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.32 2006/12/11 00:14:34 arailean Exp $
+* $Id: thesaurus.inc,v 1.33 2006/12/11 01:10:12 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -173,9 +173,7 @@ class Thesaurus extends Asset
 	{
 
 		$limit_relation = TRUE;
-		if (is_null($relid)) {
-			$limit_relation = FALSE;
-		}
+		if (is_null($relid)) $limit_relation = FALSE;
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -245,6 +243,62 @@ class Thesaurus extends Asset
 		return $result;
 
 	}//end countChildTerms()
+
+
+	/**
+	* Count the links in a thesaurus
+	*
+	* @return array
+	* @access public
+	*/
+	function countTermLinks()
+	{
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = '
+			SELECT
+				count(linkid)
+			FROM
+				sq_thes_lnk
+			WHERE
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$result = $db->getOne($sql);
+		assert_valid_db_result($result);
+
+		return $result;
+
+	}//end countTermLinks()
+
+
+	/**
+	* Count terms a thesaurus
+	*
+	* @return array
+	* @access public
+	*/
+	function countTerms()
+	{
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = '
+			SELECT
+				count(termid)
+			FROM
+				sq_thes_term
+			WHERE
+				thesid = '.$db->quoteSmart($this->id).'
+		';
+
+		$result = $db->getOne($sql);
+		assert_valid_db_result($result);
+
+		return $result;
+
+	}//end countTerms()
 
 
 	/**
@@ -402,7 +456,8 @@ class Thesaurus extends Asset
 	*
 	* Return terms which are immediate parents of a given term
 	*
-	* @param int	$termid	Term
+	* @param int	$termid	Term ID
+	* @param int	$relid	Relation ID
 	*
 	* @return array
 	* @access public
@@ -411,9 +466,7 @@ class Thesaurus extends Asset
 	{
 
 		$limit_relation = TRUE;
-		if (is_null($relid)) {
-			$limit_relation = FALSE;
-		}
+		if (is_null($relid)) $limit_relation = FALSE;
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -461,9 +514,7 @@ class Thesaurus extends Asset
 	*/
 	function getRelatedTerms($relation_id='')
 	{
-		if (empty($relation_id)) {
-			return NULL;
-		}
+		if (empty($relation_id)) return NULL;
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -571,7 +622,7 @@ class Thesaurus extends Asset
 	* @param string	$note_name	Note Name
 	* @param string	$note_value	Note Value
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function addTermNote($termid, $note_name, $note_value)
@@ -613,7 +664,7 @@ class Thesaurus extends Asset
 	*
 	* @param string	$termid	Term ID
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getTermNotes($termid)
@@ -647,7 +698,7 @@ class Thesaurus extends Asset
 	*
 	* @param string	$termid	Term ID
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function deleteTermNotes($termid)
@@ -726,7 +777,9 @@ class Thesaurus extends Asset
 	*/
 	function _linkTerms($minorid, $majorid, $relation_id=NULL)
 	{
-		if (is_null($minorid) || is_null($majorid)) return NULL;
+		if (is_null($minorid) || is_null($majorid)) {
+			return NULL;
+		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -1341,16 +1394,15 @@ class Thesaurus extends Asset
 	/**
 	* Get a list of Terms that only act as parents in a relation
 	*
-	* @param integer $relation_id	relation Id
-	* @param integer $include_stray	relation Id
+	* @param int	$relation_id	relation Id
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
-	function getAbsoluteParentsInRelation($relation_id=null)
+	function getAbsoluteParentsInRelation($relation_id=NULL)
 	{
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		if (!isset($relation_id)) return Array();
 
@@ -1578,7 +1630,7 @@ class Thesaurus extends Asset
 
 		return $links;
 
-	}//end _getAllTermsAssetMapLinks()
+	}//end _getTopTermsAssetMapLinks()
 
 
 	/**
