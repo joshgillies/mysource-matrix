@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.7 2006/12/06 00:35:29 emcdonald Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.8 2006/12/11 03:48:07 emcdonald Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -129,7 +129,7 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 			?>
 			if (!(selectCount <?php echo $operator ?> <?php echo $value ?>)) {
 				submission_errors[submission_errors.length] = "<?php
-					if (empty($rule_data['custom_text'])) {
+					if (!strlen($q_asset->attr('cust_required_error'))) {
 						?>You have selected "+selectCount+" option"+(selectCount == 1 ? "" : "s")+" at question \"<?php echo addslashes($q_asset->attr('name')) ?>\" - <?php
 						switch ($operator) {
 							case '==':
@@ -158,7 +158,7 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 
 						}//end switch
 					} else {
-						echo addslashes($rule_data['custom_text']);
+						echo addslashes($q_asset->attr('cust_required_error'));
 					}
 				?>";
 			}
