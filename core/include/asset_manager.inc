@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.531 2006/12/05 05:36:13 bcaldwell Exp $
+* $Id: asset_manager.inc,v 1.532 2006/12/11 04:20:34 skim Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.531 $
+* @version $Revision: 1.532 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2469,6 +2469,9 @@ class Asset_Manager extends MySource_Object
 			} else {
 				$majorids = $other_shadow_assetids;
 				$minorids = Array($assetid);
+
+				// the site_of_link also should be swapped
+				$side_of_link = 'major';
 			}
 
 			// Loop through each of these and get each possible combination of
