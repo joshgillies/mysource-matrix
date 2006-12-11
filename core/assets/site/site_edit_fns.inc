@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.59 2006/12/11 02:46:44 lwright Exp $
+* $Id: site_edit_fns.inc,v 1.60 2006/12/11 03:20:47 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -594,7 +594,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 				FROM
 					sq_ast_url
 				WHERE
-					assetid = '.$db->quote($asset->id).';';
+					assetid = '.$db->quote($asset->id);
 
 		$urls = $db->getAssoc($sql);
 		assert_valid_db_result($urls);
