@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.205.2.1 2006/12/11 05:20:16 lwright Exp $
+* $Id: mysource.inc,v 1.205.2.2 2006/12/11 05:21:27 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.205.2.1 $
+* @version $Revision: 1.205.2.2 $
 * @package MySource_Matrix
 */
 class MySource
