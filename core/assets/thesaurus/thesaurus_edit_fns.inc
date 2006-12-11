@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.10 2006/12/11 00:14:34 arailean Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.11 2006/12/11 00:37:09 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -398,7 +398,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 
 			$selectable_relations[NULL] = '-- Nothing Selected --';
 			$selectable_relations += $relations;
-			combo_box($prefix.'_synonym', $selectable_relations, FALSE, $current_rel);
+			combo_box($prefix.'_abbrev', $selectable_relations, FALSE, $current_rel);
 		}
 
 		return TRUE;
@@ -655,6 +655,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 			} else {
 				$colour = '#33F';
 			}
+
 			echo '<tr>';
 			echo '<td align="right" style="color: '.$colour.'">';
 			echo $start_name;
