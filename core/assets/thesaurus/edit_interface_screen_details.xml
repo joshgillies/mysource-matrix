@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2006/12/08 04:01:32 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2006/12/11 00:13:40 arailean Exp $
 *
 */
 -->
@@ -109,21 +109,21 @@
 	</section>
 
 
-	<section name="Reflexions" write_access="write:attributes">
-		<field attribute="enforce_reflexion">
+	<section name="Reflections" write_access="write:attributes">
+		<field attribute="enforce_reflection">
 			<boolean true_text="enabled" false_text="disabled" />
 		</field>
 
 		<field>
 			<function_call>
-				<paint_function		name="paintRelationRelflexionMap" />
-				<process_function	name="processRelationRelflexionMap" />
+				<paint_function		name="paintRelationRelflectionMap" />
+				<process_function	name="processRelationRelflectionMap" />
 			</function_call>
 		</field>
 
 		<field>
 			<function_call>
-				<paint_function		name="paintReflexionAnsiCheck" />
+				<paint_function		name="paintReflectionAnsiCheck" />
 			</function_call>
 		</field>
 	</section>
