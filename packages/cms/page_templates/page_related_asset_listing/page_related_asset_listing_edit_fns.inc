@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_related_asset_listing_edit_fns.inc,v 1.4 2006/01/26 22:35:20 lwright Exp $
+* $Id: page_related_asset_listing_edit_fns.inc,v 1.4.4.1 2006/12/11 04:22:16 skim Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -114,7 +114,7 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		// lets delete the relator nodes that have been removed
 		foreach ($relator_asset_ids as $relator_asset_id) {
 			if (!in_array($relator_asset_id, $new_relator_node_ids)) {
-				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($relator_asset_id, $asset->id, SQ_LINK_NOTICE, 'relator', $side_of_link='minor');
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $relator_asset_id, SQ_LINK_NOTICE, 'relator', $side_of_link='major');
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
