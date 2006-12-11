@@ -1,17 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Commercial Module Licence                                |
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
-* +--------------------------------------------------------------------+
-* | This source file is not open source or freely usable and may be    |
-* | used subject to, and only in accordance with, the Squiz Commercial |
-* | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: flatfile.php,v 1.1 2005/11/30 04:45:37 rong Exp $
+* $Id: flatfile.php,v 1.2 2006/12/11 04:24:11 bcaldwell Exp $
 *
 */
 
@@ -24,7 +23,7 @@ require_once 'Mail/Queue/Container.php';
  *
  * @author   Nathan de Vries <ndvries@squiz.net>
  * @package  Mail_Queue
- * @version  $Revision: 1.1 $
+ * @version  $Revision: 1.2 $
  * @access   public
  */
 class Mail_Queue_Container_flatfile extends Mail_Queue_Container
