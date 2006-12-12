@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.102 2006/12/07 03:19:55 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.102.2.1 2006/12/12 22:42:23 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.102.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -443,7 +443,7 @@ class Page_Asset_Builder extends Page
 						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 					}
 
-				
+
 					$create_success = $new_asset->processBackend($o, $link);
 					if ($create_success && ($_REQUEST['asset_action'] != 'create')) {
 						$create_success = $create_success && $new_asset->create($link);
@@ -467,16 +467,19 @@ class Page_Asset_Builder extends Page
 						// Process metadata
 						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						$metadata_values = Array();
-						foreach ($this->_getMetadataSchemasToApply() as $schemaid) {
-							$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-							$mm->setSchema($new_asset->id, $schema->id, TRUE);
-							if (!is_null($schema)) {
-								$edit_fns =& $schema->getEditFns();
-								$edit_fns->processInlineValueInterface($schema, $metadata_values);
+						$schemaids = $this->_getMetadataSchemasToApply();
+						if (!empty($schemaids)) {
+							foreach ($schemaids as $schemaid) {
+								$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+								$mm->setSchema($new_asset->id, $schema->id, TRUE);
+								if (!is_null($schema)) {
+									$edit_fns =& $schema->getEditFns();
+									$edit_fns->processInlineValueInterface($schema, $metadata_values);
+								}
 							}
+							$mm->setMetadata($new_asset->id, $metadata_values);
+							$mm->regenerateMetadata($new_asset->id);
 						}
-						$mm->setMetadata($new_asset->id, $metadata_values);
-						$mm->regenerateMetadata($new_asset->id);
 
 
 						// if we have multiple locations to create this asset under, create
