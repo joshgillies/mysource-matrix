@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.578 2006/12/07 06:11:00 tbarrett Exp $
+* $Id: asset.inc,v 1.579 2006/12/12 22:05:36 rhoward Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.578 $
+* @version $Revision: 1.579 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3366,12 +3366,18 @@ class Asset extends MySource_Object
 	*/
 	function getEffectiveLastUpdatedTime($assetids)
 	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
 		$assetids[] = $this->id; // add self
 
 		// do not include shadow assets
 		foreach ($assetids as $key => $assetid) {
 			$id_parts = explode(':', $assetid);
-			if (isset($id_parts[1])) unset($assetids[$key]);
+			if (isset($id_parts[1])) {
+				unset($assetids[$key]);
+			} else {
+				$assetids[$key] = $db->quoteSmart((string) $assetid);
+			}
 		}
 
 		// if only shadow assets are loaded, ignore
@@ -3385,7 +3391,6 @@ class Asset extends MySource_Object
 		$where = '('.implode(' OR ', $in_clauses).')';
 
 		// get all updated time from DB
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT MAX(updated)
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast
 				WHERE '.$where;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.532 2006/12/11 04:20:34 skim Exp $
+* $Id: asset_manager.inc,v 1.533 2006/12/12 22:05:36 rhoward Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.532 $
+* @version $Revision: 1.533 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1039,7 +1039,7 @@ class Asset_Manager extends MySource_Object
 			$in = 'assetid IN (';
 
 			for ($i=0; $i<count($assetids); $i++) {
-				$in .= $db->quoteSmart($assetids[$i]).(($i == count($assetids) - 1) ? ')' : ',');
+				$in .= $db->quoteSmart( (string) $assetids[$i] ).(($i == count($assetids) - 1) ? ')' : ',');
 			}
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($in);
@@ -6621,7 +6621,7 @@ class Asset_Manager extends MySource_Object
 		if (!empty($the_rest)) {
 			$assetid_cond_array = $the_rest;
 			for (reset($assetid_cond_array); NULL !== ($k = key($assetid_cond_array)); next($assetid_cond_array)) {
-				$assetid_cond_array[$k] = $db->quote($assetid_cond_array[$k]);
+				$assetid_cond_array[$k] = $db->quoteSmart((string) $assetid_cond_array[$k]);
 			}
 
 			// IN query needs to be chunked to be Oracle-safe (is also slow
