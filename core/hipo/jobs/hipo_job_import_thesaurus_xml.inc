@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.11 2006/12/08 04:01:42 arailean Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.11.2.1 2006/12/12 23:54:49 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -395,7 +395,13 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		$tagstack =& $this->_running_vars['tagstack'];
 
 		if ($tagstack[0] == 'note') {
-			$this->_running_vars['current_note']['text'] = $data;
+			// we do this because for some reason if there are newlines in the character data block,
+			// it will be reported as multiple elements
+			if (isset($this->_running_vars['current_note']['text'])) {
+				$this->_running_vars['current_note']['text'] .= $data;
+			} else {
+				$this->_running_vars['current_note']['text'] = $data;
+			}
 			// add note to the current Term
 		}
 
