@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.5.4.1 2006/08/21 02:38:17 tbarrett Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.5.4.2 2006/12/12 03:35:43 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.5.4.1 $
+* @version $Revision: 1.5.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -348,7 +348,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	function _getSearchCounts()
 	{
 		$search_count = Array();
-		$search_string = $this->_running_vars['search_string'];
+		$search_string = preg_replace('/([\.\\\!\+\*\?\[\]\^\$\(\)\=\!\<\>\|\:\/]+)/i', '\\\${1}', $this->_running_vars['search_string']);
 		foreach ($this->_running_vars['search_data'] as $assetid => $contents) {
 			$search_count[$assetid] = 0;
 			if (isset($contents['attributes'])) {
