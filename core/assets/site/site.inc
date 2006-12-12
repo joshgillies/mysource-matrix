@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.86.2.2 2006/06/13 07:02:15 sdanis Exp $
+* $Id: site.inc,v 1.86.2.3 2006/12/12 04:07:51 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86.2.2 $
+* @version $Revision: 1.86.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -340,7 +340,8 @@ class Site extends Folder
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		return TRUE;
+		if ($updated) return 2;
+		return 1;
 
 	}//end saveWebURLs()
 
