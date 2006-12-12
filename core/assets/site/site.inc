@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.94 2006/12/12 02:48:25 emcdonald Exp $
+* $Id: site.inc,v 1.95 2006/12/12 02:51:53 emcdonald Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -250,7 +250,7 @@ class Site extends Folder
 				}
 			}
 
-			// We don't have it ? does anyone else
+			// We don't have it. Does anyone else?
 			if (!$found) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, $save_urls[$save_urlid]['url'], TRUE, TRUE);
 				if (!is_null($asset)) {
