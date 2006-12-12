@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.12 2006/12/11 01:09:16 arailean Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.13 2006/12/12 01:01:24 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -146,24 +146,26 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 
 		$write_access_allowed = $asset->writeAccess('attributes');
 
-		if (is_readable($asset->getXmlFilePath()) && (!$asset->attr('contents_changed'))) {
+		if (is_readable($asset->getXmlFilePath())) {
 			if (!empty($_REQUEST[$prefix.'_process_export'])) {
 				$this->outputXmlDirect($asset);
 			}
 			// download
 			echo hidden_field($prefix.'_process_export', '0');
 			echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_process_export.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_export.value = 0; return true;');
+			echo ' Generated on '.date ('r', filectime($asset->getXmlFilePath()));
+			echo '<br />';
+		}
 
-		} else {
-			if ($asset->countTerms()==0) {
-				echo translate('thesaurus_thesaurus_disabled');
-			} else if ($write_access_allowed) {
-				echo hidden_field($prefix.'_process_export', '0');
-				echo normal_button($prefix.'_export', translate('thesaurus_generate_file'), 'this.form.'.$prefix.'_process_export.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_export.value = 0; return true;');
-			} else {
-				// a new file needs to be generated and we don't have a lock
-				echo translate('thesaurus_thesaurus_not_generated');
-			}
+
+		if ($asset->countTerms()==0) {
+			echo translate('thesaurus_thesaurus_disabled');
+		} else if ($write_access_allowed) {
+			echo hidden_field($prefix.'_process_generate', '0');
+			echo normal_button($prefix.'_regenerate', translate('thesaurus_generate_file'), 'this.form.'.$prefix.'_process_generate.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_process_generate.value = 0; return true;');
+		} else if ($asset->attr('contents_changed')) {
+			// a new file needs to be generated and we don't have a lock
+			echo translate('thesaurus_thesaurus_not_generated');
 		}
 
 		return $write_access_allowed;
@@ -192,9 +194,9 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		//  already called outputXmlDirect for us. This is because we want outputXmlDirect to be available without acquiring lock.
 
 		// If the export form was submitted and the thesaurus contents have changed, so rebuild the export file
-		if (!empty($_REQUEST[$prefix.'_process_export']) && ($asset->attr('contents_changed') || !is_readable($asset->getXmlFilePath()) )) {
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$hh->queueHipo('hipo_job_export_thesaurus_xml', Array('thesaurus_id' => $asset->id));
+		if (!empty($_REQUEST[$prefix.'_process_generate'])) {
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh->queueHipo('hipo_job_export_thesaurus_xml', Array('thesaurus_id' => $asset->id));
 		}
 
 		return $write_access_allowed;
