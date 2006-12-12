@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.21 2006/12/07 01:12:10 bcaldwell Exp $
+* $Id: tool_search_replace.inc,v 1.21.2.1 2006/12/12 03:40:27 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -231,7 +231,7 @@ class Tool_Search_Replace extends Tool
 	*/
 	function getFormattedResults($results, $search_string)
 	{
-		$search_string = preg_replace('/([\.\\\!\+\*\?\[\]\^\$\(\)\=\!\<\>\|\:]+)/i', '\\\${1}',$search_string);
+		$search_string = preg_replace('/([\.\\\!\+\*\?\[\]\^\$\(\)\=\!\<\>\|\:\/]+)/i', '\\\${1}',$search_string);
 
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
