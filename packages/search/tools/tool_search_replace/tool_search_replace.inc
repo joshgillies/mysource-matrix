@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.17.2.1 2006/08/21 04:15:23 tbarrett Exp $
+* $Id: tool_search_replace.inc,v 1.17.2.2 2006/12/12 03:36:17 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.17.2.1 $
+* @version $Revision: 1.17.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -250,7 +250,7 @@ class Tool_Search_Replace extends Tool
 	*/
 	function getFormattedResults($results, $search_string)
 	{
-		$search_string = preg_replace('/([\.\\\!\+\*\?\[\]\^\$\(\)\=\!\<\>\|\:]+)/i', '\\\${1}',$search_string);
+		$search_string = preg_replace('/([\.\\\!\+\*\?\[\]\^\$\(\)\=\!\<\>\|\:\/]+)/i', '\\\${1}',$search_string);
 
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
