@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.62 2006/12/11 04:03:04 lwright Exp $
+* $Id: site_edit_fns.inc,v 1.62.2.1 2006/12/12 03:55:50 emcdonald Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.62.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -263,9 +263,17 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			}
 
 		}
-
+		$run_hipo = FALSE;
 		$old_urls = $asset->getSiteURLs();
-		if (!$asset->saveWebURLs($urls)) return FALSE;
+		switch ($asset->saveWebURLs($urls)) {
+			case 0:
+				return FALSE;
+			break;
+			case 2:
+				$run_hipo = TRUE;
+			break;
+		}
+
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -274,8 +282,11 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		foreach ($urls as $urlid => $url_data) {
 
 			// Skip the new URL
-			if (!isset($old_urls[$urlid])) continue;
+			if (!isset($old_urls[$urlid]) || $old_urls[$urlid]==$url_data) {
+				continue;
+			}
 
+			$run_hipo = TRUE;
 			// update the root url in the asset url table to the new url
 			$sql = 'UPDATE
 						sq_ast_url
