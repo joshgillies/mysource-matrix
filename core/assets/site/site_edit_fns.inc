@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.62.2.1 2006/12/12 03:55:50 emcdonald Exp $
+* $Id: site_edit_fns.inc,v 1.62.2.2 2006/12/12 03:59:01 emcdonald Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.62.2.1 $
+* @version $Revision: 1.62.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -336,7 +336,6 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		flush();
 
-		$run_hipo = TRUE;
 /*
 		// check the old URLs (if we've deleted one then we need to update the lookups)
 		foreach ($old_urls as $old_urlid => $old_url_data) {
