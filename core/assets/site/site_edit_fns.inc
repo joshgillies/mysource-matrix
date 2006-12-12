@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.63 2006/12/12 02:48:25 emcdonald Exp $
+* $Id: site_edit_fns.inc,v 1.64 2006/12/12 02:55:23 emcdonald Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -300,8 +300,9 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup') as $tablename) {
 
 				// Skip if the url was not changed
-				if ($urls[$urlid]['url'] == $old_urls[$urlid]['url']) continue;
-
+				if ($urls[$urlid]['url'] == $old_urls[$urlid]['url']) {
+					continue;
+				}
 				$sql = 'UPDATE
 							'.$tablename.'
 						SET
@@ -668,7 +669,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* - If at any point we hit a URL ID that we have seen before from a
 	*   particular, then we have looped, so return TRUE. (Obviously we start
 	*   afresh from each starting point.)
-	*
+	*-
 	* Example:
 	*     Example URL setup              Circular?
 	*     ============================== =========
@@ -696,9 +697,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 				// Get the next step in the list
 				$current_from = array_get_index($urls, $current_from, NULL);
 
-				if (empty($current_from)) {
-					$complete = TRUE;
-				}
+				if (empty($current_from)) $complete = TRUE;
 
 				// Have we already seen this
 				if (array_search($current_from, $seen) !== FALSE) {
