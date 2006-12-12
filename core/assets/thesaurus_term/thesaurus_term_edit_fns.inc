@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term_edit_fns.inc,v 1.8 2006/12/08 04:01:42 arailean Exp $
+* $Id: thesaurus_term_edit_fns.inc,v 1.9 2006/12/12 23:49:35 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *	Container of a thesaurus term
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -197,9 +197,9 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 		echo '<table>';
 		$notes = $asset->getTermNotes();
 		foreach ($notes as $note_name => $note_array) {
-			echo '<tr><td valign="top" align="right">'.$note_name.':</td><td>';
+			echo '<tr><td valign="top" align="right">'.$note_name.':</td><td valign="top">';
 			foreach ($note_array as $note) {
-				echo $note.'<br />';
+				echo nl2br($note).'<br />';
 			}
 			echo '</td></tr>';
 		}
@@ -207,7 +207,7 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 		$bridge_id = $asset->_thesaurus->id;
 		$child_rel = $asset->_thesaurus->getChildRelationsForTerm($asset->_termid);
 		foreach ($child_rel as $relid => $relname) {
-			echo '<tr><td valign="top" align="right">'.$relname.':</td><td>';
+			echo '<tr><td valign="top" align="right">'.$relname.':</td><td valign="top">';
 			$rel_terms = $asset->_thesaurus->getChildTerms($asset->_termid, $relid);
 			foreach ($rel_terms as $term) {
 				$term_assetid = $bridge_id.':'.$term['termid'];
