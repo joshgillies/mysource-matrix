@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.15 2006/03/01 00:47:56 mmcintyre Exp $
+* $Id: search_manager_edit_fns.inc,v 1.15.2.1 2006/12/12 23:54:29 emcdonald Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $ - 1.0
+* @version $Revision: 1.15.2.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -843,7 +843,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 					}
 
 					$o->openField(translate('sch_indexing_enabled'));
-					
+
 						if (isset($weights['indexed'])) {
 							$indexed = $weights['indexed'];
 						} else {
@@ -1315,6 +1315,23 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		return TRUE;
 
 	}//end processWhiteWords()
+
+
+	/**
+	* Returns true if search indexing is on.
+	*
+	* @param object	&$owner	the search manager
+	* @param string	$prefix	the prefix for this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function indexingOn(&$owner, $prefix)
+	{
+		log_dump($owner->attr('indexing'));
+		return $owner->attr('indexing');
+
+	}//end paintAssetWeights()
 
 
 }//end class
