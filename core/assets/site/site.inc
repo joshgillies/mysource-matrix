@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.93 2006/12/06 02:59:56 emcdonald Exp $
+* $Id: site.inc,v 1.94 2006/12/12 02:48:25 emcdonald Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -176,9 +176,11 @@ class Site extends Folder
 	/**
 	* Attempts to add a url to this site, site's don't have paths, only URLs
 	*
+	* Return 1 if we complete ok but do not update, 2 for updated and 0 for failure
+	*
 	* @param array	$save_urls	an Array($urlid => Array(url => '', http => boolean, https => boolean)
 	*
-	* @return boolean
+	* @return int
 	* @access public
 	*/
 	function saveWebURLs($save_urls)
@@ -262,6 +264,7 @@ class Site extends Folder
 
 			// are we an existing or an new one
 			if (isset($current_urls[$save_urlid])) {
+				// we are an existing one
 				if ($current_urls[$save_urlid]['url']   != $save_urls[$save_urlid]['url'] ||
 					$current_urls[$save_urlid]['http']  != $save_urls[$save_urlid]['http'] ||
 					$current_urls[$save_urlid]['https'] != $save_urls[$save_urlid]['https']) {
@@ -282,7 +285,7 @@ class Site extends Folder
 				}
 
 			} else {
-
+				// we are a new one
 				$curr_urlid = $db->nextId('sq_ast_url');
 				assert_valid_db_result($curr_urlid);
 
@@ -335,7 +338,8 @@ class Site extends Folder
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		return TRUE;
+		if ($updated) return 2;
+		return 1;
 
 	}//end saveWebURLs()
 
