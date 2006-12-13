@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation_edit_fns.inc,v 1.13 2006/02/02 03:38:32 sdanis Exp $
+* $Id: calendar_event_cancellation_edit_fns.inc,v 1.13.4.1 2006/12/13 22:59:04 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -62,6 +62,7 @@ class Calendar_Event_Cancellation_Edit_Fns extends Calendar_Event_Edit_Fns
 			$ts = iso8601_ts($asset->attr('start_date'));
 			if ($ts == -1) $ts = 0;
 			$this->printDateChooser($prefix.'_start', $ts);
+			hidden_field($prefix.'_start_end_chooser_printed', 1);
 			?>
 			<br /><?php translate('cal_event_cancel_must_be_date'); ?>
 			<?php

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.39.2.1 2006/11/20 23:03:22 lwright Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.39.2.2 2006/12/13 22:59:04 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.39.2.1 $
+* @version $Revision: 1.39.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -121,8 +121,8 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 			</tr>
 		</table>
 
-		<input type="hidden" name="<?php echo $prefix ?>_start_end_chooser_printed" id="<?php echo $prefix ?>_start_end_chooser_printed" />
 		<?php
+		hidden_field($prefix.'_start_end_chooser_printed', 1);
 		return TRUE;
 
 	}//end paintStartEndChooser()
