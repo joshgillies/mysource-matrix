@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.29 2006/12/07 05:55:58 bcaldwell Exp $
+* $Id: lang_strings.xml,v 1.30 2006/12/13 22:11:35 rong Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -21,7 +21,7 @@
 	<string source="bsp_bad_subscriptions">You have attempted to subscribe to lists that are unavailable to you - these lists will be skipped.</string>
 	<string source="bsp_bad_unsubscriptions">You have attempted to unsubscribe from lists that are unavailable to you - these lists will be skipped.</string>
 	<string source="bsp_no_valid_sub_unsub">None of the subscriptions/unsubscriptions specified are valid.</string>
-	<string source="bsp_verification_email_sent">A verification email has been sent to %s. When you recieve the email, please follow the instructions carefully.</string>
+	<string source="bsp_verification_email_sent">A verification email has been sent to %s. When you receive the email, please follow the instructions carefully.</string>
 	<string source="bsp_email_not_configured">You do not currently have an email address configured for your user.</string>
 	<string source="bsp_add_failed">Unable to subscribe you to the following mailing lists: </string>
 	<string source="bsp_add_successful">You have been subscribed to the following mailing lists: </string>
