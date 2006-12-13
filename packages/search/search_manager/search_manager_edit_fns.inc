@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.18 2006/12/07 02:48:04 bcaldwell Exp $
+* $Id: search_manager_edit_fns.inc,v 1.19 2006/12/13 00:15:18 emcdonald Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $ - 1.0
+* @version $Revision: 1.19 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1314,6 +1314,22 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		return TRUE;
 
 	}//end processWhiteWords()
+
+
+	/**
+	* Returns true if search indexing is on.
+	*
+	* @param object	&$owner	the search manager
+	* @param string	$prefix	the prefix for this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function indexingOn(&$owner, $prefix)
+	{
+		return $owner->attr('indexing');
+
+	}//end indexingOn()
 
 
 }//end class
