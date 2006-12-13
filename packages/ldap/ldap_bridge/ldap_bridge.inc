@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.54.2.1 2006/12/13 00:57:31 bcaldwell Exp $
+* $Id: ldap_bridge.inc,v 1.54.2.2 2006/12/13 01:07:15 bcaldwell Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54.2.1 $
+* @version $Revision: 1.54.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -1315,13 +1315,7 @@ class LDAP_Bridge extends Asset
 		$user->version = '0.1';
 
 		foreach ($data as $key => $value) {
-			if (!is_array($value)) {
-				$user->vars[$key] = Array(
-										'value'		=> $value,
-										'type'		=> 'text',
-										'attrid'	=> 0,
-									);
-			} else {
+			if (is_array($value)) {
 				if (isset($value['count'])) unset($value['count']);
 				if (count($value) > 1) {
 					$user->vars[$key] = Array(
