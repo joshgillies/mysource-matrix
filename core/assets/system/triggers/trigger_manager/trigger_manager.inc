@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.40 2006/12/05 23:44:44 bcaldwell Exp $
+* $Id: trigger_manager.inc,v 1.41 2006/12/13 04:37:49 rong Exp $
 *
 */
 
@@ -42,7 +42,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1049,6 +1049,9 @@ class Trigger_Manager extends Asset
 		// parent IDs
 		$parent_id_sql = 'parentid = '.$db->quoteSmart('-1');
 		if (!empty($parent_id_array)) {
+			for (reset($parent_id_array); NULL !== ($k = key($parent_id_array)); next($parent_id_array)) {
+				$parent_id_array[$k] = $db->quoteSmart((string) $parent_id_array[$k]);
+			}
 			$parent_id_sql .= ' OR parentid IN ('.implode(',', $parent_id_array).')';
 		}
 
