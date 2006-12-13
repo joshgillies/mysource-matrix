@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.30 2006/05/15 00:30:02 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.30.2.1 2006/12/13 22:50:02 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.30 $
+* @version $Revision: 1.30.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -51,7 +51,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paints the recipients which will recieve the bulkmail
+	* Paints the recipients which will receive the bulkmail
 	*
 	* @param object	&$asset	the asset to which we belong
 	* @param object	&$o		the outputter class
