@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.54 2006/12/07 01:03:19 bcaldwell Exp $
+* $Id: ldap_bridge.inc,v 1.55 2006/12/13 00:51:25 bcaldwell Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -1317,12 +1317,28 @@ class LDAP_Bridge extends Asset
 		// error_log('initUser: '.$user->name."($this->id, ".$this->attr('user_type').")");
 
 		foreach ($data as $key => $value) {
-			if (!is_array($value)) continue;
-			if (isset($value['count'])) unset($value['count']);
-			$user->vars[$key] = Array(
-									'value'	=> $value,
-									'type'	=> is_array($value) ? 'serialise' : 'text',
-								);
+			if (!is_array($value)) {
+				$user->vars[$key] = Array(
+										'value'		=> $value,
+										'type'		=> 'text',
+										'attrid'	=> 0,
+									);
+			} else {
+				if (isset($value['count'])) unset($value['count']);
+				if (count($value) > 1) {
+					$user->vars[$key] = Array(
+											'value'	=> $value,
+											'type'		=> 'serialise',
+											'attrid'	=> 0,
+										);
+				} else {
+					$user->vars[$key] = Array(
+											'value'		=> array_shift($value),
+											'type'		=> 'text',
+											'attrid'	=> 0,
+										);
+				}
+			}
 		}
 
 		// set the data paths
