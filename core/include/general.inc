@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.156.2.2 2006/12/14 03:34:34 tbarrett Exp $
+* $Id: general.inc,v 1.156.2.3 2006/12/14 03:42:18 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.156.2.2 $
+* @version $Revision: 1.156.2.3 $
 * @package MySource_Matrix
 */
 
@@ -1586,6 +1586,4 @@ function do_redirect($url, $message=NULL, $timeout=0)
 	exit(1);
 
 }//end do_redirect()
-
-
 ?>
