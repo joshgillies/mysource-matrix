@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.533 2006/12/12 22:05:36 rhoward Exp $
+* $Id: asset_manager.inc,v 1.534 2006/12/14 23:30:33 arailean Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.533 $
+* @version $Revision: 1.534 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3359,7 +3359,7 @@ class Asset_Manager extends MySource_Object
 
 		foreach ($majorids as $id) {
 			if (empty($tree_data[$id])) {
-				$majorids_str .= $db->quoteSmart($id).',';
+				$majorids_str .= $db->quoteSmart((string) $id).',';
 			} else {
 				foreach ($tree_data[$id] as $row) {
 					$assetids[] = (int) $row['assetid'];
