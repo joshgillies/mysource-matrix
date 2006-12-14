@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.158 2006/12/14 03:33:56 tbarrett Exp $
+* $Id: general.inc,v 1.159 2006/12/14 03:41:57 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.158 $
+* @version $Revision: 1.159 $
 * @package MySource_Matrix
 */
 
@@ -1156,7 +1156,6 @@ function sq_get_icon($path, $width, $height, $alt='', $title=NULL, $extras='')
 *
 * This doesn't paint things out, it just returns the interface - you must call
 * the function like: echo get_asset_tag_line($assetid);
-*
 * If an asset does not exist it will throw up an 'unknown asset' tag line.
 *
 * @param string	$assetid	the asset ID
@@ -1509,9 +1508,7 @@ function replace_global_keywords(&$text)
 *
 * When called, a HIPO job will be queued that will execute the passed function
 * for each element in $items
-*
 * Returns FALSE if there problems queuing the HIPO
-*
 * NOTE: Objects cannot be included in the $items array
 *
 * @param string		$callback_assetid	The assetid of the asset that $callback_function belongs to
