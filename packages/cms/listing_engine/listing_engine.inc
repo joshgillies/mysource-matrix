@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.202 2006/12/07 21:48:05 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.203 2006/12/14 22:54:01 rhoward Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.202 $
+* @version $Revision: 1.203 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -390,14 +390,8 @@ class Listing_Engine extends Page
 				if ($this->requires_form || !empty($used_fields)) {
 					// Make a clean URL to submit to
 					$form_method = strtolower($this->_getFormSubmitMethod());
-					$form_url = $this->attr('submit_to_page_url') ? $this->getURL() : current_url();
-					if ($form_method == 'get') {
-						// no point retaining query string vars for a GET form action because the browser
-						// won't submit them - instead we will preserve them as hidden fields below
-						$form_url = htmlspecialchars($form_url);
-					} else {
-						$form_url = htmlspecialchars(replace_query_string_vars(Array(), $form_url));
-					}
+					$form_url_components = $this->_getFormUrlComponents($used_fields);
+					$form_url            = htmlspecialchars($form_url_components['url']);
 					?>
 
 					<form id="<?php echo $this->getPrefix() ?>" method="<?php echo $form_method ?>" action="<?php echo $form_url; ?>">
@@ -445,6 +439,34 @@ class Listing_Engine extends Page
 		}//end if no cache
 
 	}//end printBody()
+
+
+	/**
+	* Returns the URL that the form will use for its target
+	*
+	* @return string
+	* @access private
+	*/
+	function _getFormUrlComponents()
+	{
+		$base_url = ($this->attr('submit_to_page_url') ? $this->getURL() : current_url());
+		$form_method = strtolower($this->_getFormSubmitMethod());
+
+		if ($form_method == 'get') {
+			// no point retaining query string vars for a GET form action because the browser
+			// won't submit them - instead we will preserve them as hidden fields later
+			$url = $base_url;
+		} else {
+			$url = replace_query_string_vars(Array(), $base_url);
+			$vars_to_preserve = Array();
+		}
+
+		return Array(
+				'url'		=> $url,
+				'url_base'	=> $base_url,
+			   );
+
+	}//end _getFormUrlComponents()
 
 
 	/**
@@ -1004,7 +1026,7 @@ class Listing_Engine extends Page
 		if (!empty($wanted_statuses) && (array_sum($wanted_statuses) != SQ_SC_STATUS_ALL)) {
 			// find which of the assets have the right statuses
 			foreach (array_unique(array_merge($real_assetids, $bridge_assetids)) as $assetid) {
-				$query_assetids[] = $db->quoteSmart($assetid);
+				$query_assetids[] = $db->quoteSmart((string) $assetid);
 			}
 			$in_clauses = Array();
 			foreach (array_chunk($query_assetids, 999) as $chunk) {
