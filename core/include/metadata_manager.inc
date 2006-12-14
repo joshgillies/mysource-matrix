@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.127 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: metadata_manager.inc,v 1.128 2006/12/14 05:38:57 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.127 $
+* @version $Revision: 1.128 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -597,7 +597,7 @@ class Metadata_Manager extends MySource_Object
 				unset($metadata[$fieldid]);
 				continue;
 			}
-			$quoted_fieldids[] = $db->quoteSmart($fieldid);
+			$quoted_fieldids[] = $db->quoteSmart((string)$fieldid);
 
 		}//end foreach
 
