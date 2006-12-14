@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.29 2006/12/14 06:28:45 tbarrett Exp $
+* $Id: metadata.inc,v 1.30 2006/12/14 22:00:09 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 
@@ -115,8 +115,6 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 				///// METADATA INSTRUCTIONS /////
 
 				case 'metadata_instructions' :
-
-					$instructions = Array();
 
 					$o->openField('&nbsp;');
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_instructions'])) {
