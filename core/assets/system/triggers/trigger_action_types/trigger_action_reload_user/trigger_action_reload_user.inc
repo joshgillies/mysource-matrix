@@ -1,0 +1,54 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: trigger_action_reload_user.inc,v 1.1.2.2 2006/12/14 05:11:34 tbarrett Exp $
+*
+*/
+
+require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
+
+/**
+* Trigger Action Reload User
+*
+* A trigger action that reloads the user from userid in session or
+* external vars
+*
+* @author  Tom Barrett <tbarrett@squiz.net>
+* @version $Revision: 1.1.2.2 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Trigger_Action_Reload_User extends Trigger_Action
+{
+
+
+	/**
+	* Execute this action
+	* Returns an array of data about what it did, or false on error
+	*
+	* @param array	$settings	the stored settings for this action
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
+	* @return mixed array|boolean
+	* @access public
+	*/
+	function execute($settings, &$state)
+	{
+		$GLOBALS['SQ_SYSTEM']->setupUser();
+		return Array();
+
+	}//end execute()
+
+
+}//end class
+?>
