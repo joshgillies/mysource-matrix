@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.43 2006/12/06 01:07:34 emcdonald Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.44 2006/12/14 06:28:45 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -254,12 +254,18 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		if (!$field_name) $field_name = $asset->name;
 
 		if ($asset->attr('required')) {
-			$field_name .= ' <span style="color: #FF0000">*</span>';
+			$field_name .= ' <span class="sq-backend-warning">*</span>';
+			if (($value_str === '') && $write_access) {
+				$field_name .= '<br /><span class="sq-backend-warning">'.translate('currently_empty').'</span>';
+			}
 		}
 
 		// use description as the note for this field
 		$o->openField($field_name, '', $asset->attr('description'));
 		$res = $this->paintValueInterface($asset, $o, $value_str, $write_access);
+		if (!$write_access && $asset->attr('required') && ($value_str === '')) {
+			echo '<b class="sq-backend-warning">['.strtoupper(translate('empty')).']</b>';
+		}
 		$o->closeField();
 		return $res;
 

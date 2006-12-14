@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.28 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: metadata.inc,v 1.29 2006/12/14 06:28:45 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 */
 
@@ -124,37 +124,23 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 
 						// construct example keywords link
-						ob_start();
-							?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data'); ?>/asset_types/metadata_field/popups/keywords.php?assetid=<?php echo $owner->id; ?>&all=0', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;"><?php echo translate('click_here'); ?></a><?php
-							$replacements_link = ob_get_contents();
-						ob_end_clean();
-
-						// $replacements_link = '<a href="#" onClick="Javascript: var win = window.open(\''.sq_web_path('data').'/asset_types/metadata_field/popups/keywords.html\', \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520\'); return false;">'.translate('click_here').'</a>';
-						$instructions[] = translate('metadata_keyword_replacements_usage', $replacements_link);
+						$replacements_link = '<a href="'.sq_web_path('data').'/asset_types/metadata_field/popups/keywords.php?assetid='.$owner->id.'&amp;all=0" onclick="var win = window.open(this.href, \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('click_here').'</a>';
+						echo '<p>'.translate('metadata_keyword_replacements_usage', $replacements_link).'</p>';
 
 						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', TRUE);
-						if (!empty($sm)) {
+						if (!empty($sm) && $sm->attr('indexing')) {
 						?>
 							<?php
-							ob_start();
-								?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data'); ?>/asset_types/metadata_field/popups/keyword_extraction.php?assetid=<?php echo $owner->id; ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320'); return false;"><?php echo translate('keyword_extraction'); ?></a><?php
-								$replacements_link = ob_get_contents();
-							ob_end_clean();
-							// $replacements_link = '<a href="#" onClick="Javascript: var win = window.open(\''.sq_web_path('data').'/asset_types/metadata_field/popups/keyword_extraction.php?assetid='.$owner->id.'\', \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('keyword_extraction').'</a>';
-							$instructions[] = translate('metadata_indexed_keywords', $replacements_link);
+							$replacements_link = '<a href="'.sq_web_path('data').'/asset_types/metadata_field/popups/keyword_extraction.php?assetid='.$owner->id.'" onclick="var win = window.open(this.href, \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('keyword_extraction').'</a>';
+							echo '<p>'.translate('metadata_indexed_keywords', $replacements_link).'</p>';
 
 						}
 
 						// paint the instructions for 'Use Default'
-						$instructions[] = translate('metadata_explain_use_default');
+						echo '<p>'.translate('metadata_explain_use_default').'</p>';
 
 						// paint required field
-						ob_start();
-						?><span style="color:#FF0000"> * </span><?php echo translate('denotes_required_field'); ?><?php
-						$instructions[] = ob_get_contents();
-						ob_end_clean();
-
-						echo implode('<br/><br/>', $instructions);
+						echo '<p> '.translate('denotes_required_field', '<span class="sq-backend-warning">*</span>').'</p>';
 
 						// if there is a keyword replacement for this, add it to the replacements
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_instructions'])) {

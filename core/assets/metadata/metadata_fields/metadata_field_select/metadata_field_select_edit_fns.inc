@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.32 2006/12/06 01:07:35 emcdonald Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.33 2006/12/14 06:28:45 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,9 +98,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			$selection->paint($prefix, !$write_access);
 			if ($enable_default) echo '</span>';
 		} else {
-			if ((is_array($value) && empty($value)) || (is_string($value) && $value == '')) {
-				echo '&nbsp;';
-			} else {
+			if (!((is_array($value) && empty($value)) || (is_string($value) && $value == ''))) {
 				if (!is_array($value)) $value = Array($value);
 				$value_output = '';
 				foreach ($value as $option) {

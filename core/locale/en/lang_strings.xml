@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.201 2006/12/07 04:17:54 skim Exp $
+* $Id: lang_strings.xml,v 1.202 2006/12/14 06:28:45 tbarrett Exp $
 *
 */
 
@@ -100,6 +100,7 @@
 	<string source="current_lock_status">Current Lock Status</string>
 	<string source="current_variety">Current Variety</string>
 	<string source="current">Current</string>
+	<string source="currently_empty">Currently Empty</string>
 	<string source="current_asset">Current Asset</string>
 	<string source="current_user">Current User</string>
 	<string source="custom_error_text">Custom Error Text</string>
@@ -529,7 +530,7 @@
 	<string source="painting_funtion_not_found">Function not found for painting</string>
 	<string source="no_details_screen_defined">Asset Edit Functions for '%s' do not define a 'details' tab</string>
 	<string source="no_metadata_schemas_applied">There are no metadata schemas applied to this asset.</string>
-	<string source="denotes_required_field">denotes a required field</string>
+	<string source="denotes_required_field">Required fields are marked with %s</string>
 	<string source="must_apply_one_or_more_schemas">You must apply one or more schemas before entering metadata values.</string>
 
 	<string source="user_cannot_be_restricted">This user is not a member of any user groups; it cannot be restricted</string>
@@ -556,9 +557,9 @@
 	<string source="not_included_in_searching">Not included in searching.</string>
 	<string source="no_associated_urls">There are no URLs associated with this Asset</string>
 	<string source="no_associated_remaps">There are no remaps associated with this Asset</string>
-	<string source="metadata_keyword_replacements_usage">You can use keyword replacements in place of values for metadata fields on this page.&lt;br /&gt;For a complete list of available keyword replacements %s</string>
-	<string source="metadata_indexed_keywords">If indexing is enabled in the Search Manager, you can generate a list of keywords from the index using %s</string>
-	<string source="metadata_explain_use_default">When <![CDATA[<b>Use Default</b>]]> is selected, any changes made to the value set will not take effect. You need to uncheck it to use the user-entered value. Conversely, if <![CDATA[<b>Use Default</b>]]> is off, you can check it to revert that field to the default.</string>
+	<string source="metadata_keyword_replacements_usage">You can use keyword replacements in place of values for metadata fields on this page. For a complete list of available keyword replacements %s</string>
+	<string source="metadata_indexed_keywords">Since search indexing is enabled, you can generate a list of keywords from the index using %s</string>
+	<string source="metadata_explain_use_default">Deselect the <![CDATA[<b>Use Default</b>]]> checkbox to enter a value for a field.  To revert the field to the default value, select the <![CDATA[<b>Use Default</b>]]> checkbox.</string>
 	<string source="metadata_date_object_keys">You can use the following set of Date object keys in order to define your own date format for this field.&lt;br /&gt;For a complete list of available keyword replacements %s</string>
 	<string source="creation_date">Creation date</string>
 	<string source="last_updated_date">Last updated date</string>
