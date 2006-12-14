@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.140.2.10 2006/12/14 03:53:51 skim Exp $
+* $Id: backend.inc,v 1.140.2.11 2006/12/14 04:07:48 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140.2.10 $
+* @version $Revision: 1.140.2.11 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -149,7 +149,7 @@ class Backend extends MySource_Object
 			// we need to set backend page to 'main', so that _printMain can work correctly
 			// and user can add '<a href="?asset_ei_screen=metadata">Metadata Screen</a>'
 			// in their limbo layout content (e.g. for tabbed screen menu)
-			if (SQ_IN_LIMBO && !isset($_REQUEST['SQ_BACKEND_PAGE'])) {
+			if (!isset($_REQUEST['SQ_BACKEND_PAGE'])) {
 				$_REQUEST['SQ_BACKEND_PAGE'] = 'main';
 				// note: SQ_BACKEND_PAGE can be frames, if the user enter the query string manually
 			}
@@ -227,24 +227,19 @@ class Backend extends MySource_Object
 				$main_extras = '&assetid='.$url_asset->id.'&sq_from_frontend=1';
 			}
 		}
-
-		parse_str($_SERVER['QUERY_STRING'], $query_vars=Array());
-		if (!empty($query_vars)) {
-			// At this point, SQ_BACKEND_PAGE shouldn't be overriden other than 'main' for
-			// main frame URL. We can possibly have endlessly nested backend frames if the
-			// value was set to be 'frames'
-			if (isset($query_vars['SQ_BACKEND_PAGE'])) {
-				unset($query_vars['SQ_BACKEND_PAGE']);
-			}
-
-			// append additional user defined query string
-			// (e.g. for trigger condition 'url matches')
-			foreach ($query_vars as $key => $value) {
-				$main_extras .= '&'.$key.'='.$value;
-			}
+		if (isset($_GET['limbo_assetid'])) {
+			$main_extras = '&limbo_assetid='.$_GET['limbo_assetid'];
 		}
-
-		$main_url = $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main'.$main_extras;
+		if (isset($_GET['asset_ei_screen'])) {
+			$main_extras .= '&asset_ei_screen='.$_GET['asset_ei_screen'];
+		}
+		// the URL for the main frame is either a normal load or a redirection from
+		// a non-frameset URL to this frameset
+		if (isset($_REQUEST['sq_redirect_url'])) {
+			$main_url = strip_url(urldecode($_REQUEST['sq_redirect_url']));
+		} else {
+			$main_url = $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main'.$main_extras;
+		}
 
 		$frame_urls = Array(
 						'header'	=> $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=header',
