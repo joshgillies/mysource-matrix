@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.14 2006/12/06 22:14:20 emcdonald Exp $
+* $Id: page_rss_feed.inc,v 1.15 2006/12/14 22:46:58 bcaldwell Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -172,9 +172,33 @@ class Page_RSS_Feed extends Page
 	*/
 	function printFrontend()
 	{
+		// check http auth if configured to do so
+		if ($this->attr('http_auth') && isset($_SERVER['PHP_AUTH_USER'])) {
+			// spoof normal login
+			$_REQUEST['SQ_ACTION'] = 'login';
+
+			$_POST['SQ_LOGIN_USERNAME'] = $_SERVER['PHP_AUTH_USER'];
+			$_POST['SQ_LOGIN_PASSWORD'] = $_SERVER['PHP_AUTH_PW'];
+
+			$_POST['SQ_LOGIN_KEY'] = $GLOBALS['SQ_SYSTEM']->loginKey();
+			$GLOBALS['SQ_SYSTEM']->_processGlobalActions();
+		}
+
+
 		// check if read access
-		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+		if (!parent::readAccess()) {
+
+			ob_start();
+				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+			$login = ob_get_clean();
+
+			// handle http authentication
+			if ($this->attr('http_auth')) {
+				header('WWW-Authenticate: Basic realm="'.$this->name.'"');
+				header('HTTP/1.0 401 Unauthorized');
+			}
+			echo $login;
+
 			return;
 		}
 		// try to get the feed from cache
@@ -592,6 +616,25 @@ class Page_RSS_Feed extends Page
 		return TRUE;
 
 	}//end validateImage()
+
+
+	/**
+	* Returns TRUE if at least one of the passed assetids has read access to this asset
+	*
+	* @param array	$assetids	An array of user_group and/or user ids to check for read access
+	*							If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
+	function readAccess($assetids=Array())
+	{
+		if (SQ_IN_LIMBO || SQ_IN_BACKEND) {
+			return parent::readAccess($assetids);
+		}
+		return TRUE;
+
+	}//end readAccess()
 
 
 }//end class

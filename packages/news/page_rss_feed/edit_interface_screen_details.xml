@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2006/12/06 22:14:20 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2006/12/14 22:46:58 bcaldwell Exp $
 *
 */
 -->
@@ -27,6 +27,9 @@
 	<section name="Choose RSS Formats And Version" write_access="write:attributes">
 		<field attribute="rss_types">
 			<selection style="list" />
+		</field>
+		<field attribute="http_auth">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Listing Engine Assets Selection" write_access="write:attributes">

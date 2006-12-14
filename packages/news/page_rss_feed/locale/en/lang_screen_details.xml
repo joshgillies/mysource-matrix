@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2006/12/06 22:14:21 emcdonald Exp $
+* $Id: lang_screen_details.xml,v 1.5 2006/12/14 22:46:58 bcaldwell Exp $
 *
 */
 -->
@@ -30,6 +30,9 @@
 		<field attribute="rss_types">
 			<display_name>RSS Formats</display_name>
 			<note />
+		</field>
+		<field attribute="http_auth">
+			<display_name>Use HTTP Authentication ?</display_name>
 		</field>
 	</section>
 	<section name="Listing Engine Assets Selection">

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed_management.inc,v 1.3 2006/12/06 22:14:20 emcdonald Exp $
+* $Id: page_rss_feed_management.inc,v 1.4 2006/12/14 22:46:58 bcaldwell Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -76,6 +76,14 @@ class Page_RSS_Feed_Management extends Asset_Management
 													'added'		=> '0.1',
 													'type'		=> 'serialise',
 													'default'	=> Array(),
+												   ),
+						'http_auth'				=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'parameters'	=> Array(
+																		'allow_empty'		=> FALSE,
+																	   ),
 												   ),
 					  );
 
