@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.207 2006/12/14 04:28:41 tbarrett Exp $
+* $Id: mysource.inc,v 1.208 2006/12/14 22:01:39 bcaldwell Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.207 $
+* @version $Revision: 1.208 $
 * @package MySource_Matrix
 */
 class MySource
@@ -221,11 +221,13 @@ class MySource
 				// proxy configuration exists, let's see if we need to do anything
 				require_once($proxy_conf_file);
 
-				$url_parts = parse_url($_SERVER['HTTP_HOST']);
-				if (SQ_PROXY_URL_PORT_STRIP && isset($url_parts['port'])) {
-					unset($url_parts['port']);
+				if (SQ_PROXY_URL_PORT_STRIP) {
+					$url_parts = parse_url($_SERVER['HTTP_HOST']);
+
+					// remove port information from url and reconstruct it
+					if (isset($url_parts['port'])) unset($url_parts['port']);
+					$_SERVER['HTTP_HOST'] = implode('', $url_parts);
 				}
-				$_SERVER['HTTP_HOST'] = implode('', $url_parts);
 			}
 
 			$domain = strip_url(sq_web_path('root_url'), TRUE);
