@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.157 2006/12/14 03:23:28 tbarrett Exp $
+* $Id: general.inc,v 1.158 2006/12/14 03:33:56 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.157 $
+* @version $Revision: 1.158 $
 * @package MySource_Matrix
 */
 
@@ -1553,7 +1553,7 @@ function do_redirect($url, $message=NULL, $timeout=0)
 	if ($timeout || $message || headers_sent()) {
 		// Javascript Redirect
 		if (is_null($message)) {
-			$message = translate('redirecting_you_to');
+			$message = translate('redirecting_you_to', htmlentities($url));
 		}
 		?>
 		<html>
