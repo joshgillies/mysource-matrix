@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.156 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: general.inc,v 1.156.2.1 2006/12/14 03:25:23 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.156 $
+* @version $Revision: 1.156.2.1 $
 * @package MySource_Matrix
 */
 
@@ -1550,7 +1550,6 @@ function quick_hipo($callback_assetid, $callback_function, $items, $settings, $f
 */
 function do_redirect($url, $message=NULL, $timeout=0)
 {
-	error_log("Redirecing to $url as requested by ".get_calling_func());
 	if ($timeout || $message || headers_sent()) {
 		// Javascript Redirect
 		if (is_null($message)) {
