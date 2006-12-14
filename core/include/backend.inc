@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.159 2006/12/11 00:41:16 lwright Exp $
+* $Id: backend.inc,v 1.159.2.1 2006/12/14 03:52:22 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.159 $
+* @version $Revision: 1.159.2.1 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -140,7 +140,7 @@ class Backend extends MySource_Object
 			// we need to set backend page to 'main', so that _printMain can work correctly
 			// and user can add '<a href="?asset_ei_screen=metadata">Metadata Screen</a>'
 			// in their limbo layout content (e.g. for tabbed screen menu)
-			if (!isset($_REQUEST['SQ_BACKEND_PAGE'])) {
+			if (SQ_IN_LIMBO && !isset($_REQUEST['SQ_BACKEND_PAGE'])) {
 				$_REQUEST['SQ_BACKEND_PAGE'] = 'main';
 				// note: SQ_BACKEND_PAGE can be frames, if the user enter the query string manually
 			}
@@ -220,17 +220,20 @@ class Backend extends MySource_Object
 			}
 		}
 
-		if (isset($_GET['limbo_assetid'])) {
-			$main_extras .= '&limbo_assetid='.$_GET['limbo_assetid'];
-		}
-		if (isset($_GET['asset_ei_screen'])) {
-			$main_extras .= '&asset_ei_screen='.$_GET['asset_ei_screen'];
-		}
+		parse_str($_SERVER['QUERY_STRING'], $query_vars=Array());
+		if (!empty($query_vars)) {
+			// At this point, SQ_BACKEND_PAGE shouldn't be overriden other than 'main' for
+			// main frame URL. We can possibly have endlessly nested backend frames if the
+			// value was set to be 'frames'
+			if (isset($query_vars['SQ_BACKEND_PAGE'])) {
+				unset($query_vars['SQ_BACKEND_PAGE']);
+			}
 
-		if (isset($_SERVER['QUERY_STRING'])) {
 			// append additional user defined query string
 			// (e.g. for trigger condition 'url matches')
-			$main_extras .= '&'.$_SERVER['QUERY_STRING'];
+			foreach ($query_vars as $key => $value) {
+				$main_extras .= '&'.$key.'='.$value;
+			}
 		}
 
 		$main_url = $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main'.$main_extras;
