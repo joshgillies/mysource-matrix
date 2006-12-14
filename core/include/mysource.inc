@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.206 2006/12/11 05:09:53 bcaldwell Exp $
+* $Id: mysource.inc,v 1.207 2006/12/14 04:28:41 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.206 $
+* @version $Revision: 1.207 $
 * @package MySource_Matrix
 */
 class MySource
@@ -296,7 +296,7 @@ class MySource
 				define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 			}
 
-			$this->_setupUser();
+			$this->setupUser();
 			$this->_updateSessionCookie();
 			$_SESSION['user_last_access'] = time();
 
@@ -815,7 +815,7 @@ class MySource
 	* @return void
 	* @access public
 	*/
-	function _setupUser()
+	function setupUser()
 	{
 		if (!SQ_CONF_ALLOW_IP_CHANGE && isset($_SESSION['remote_addr']) && ($_SESSION['remote_addr'] != $_SERVER['REMOTE_ADDR'])) {
 			// IP address has changed and we don't allow that
@@ -923,7 +923,7 @@ class MySource
 		$this->_user_is_sys_admin = $_SESSION['user_is_sys_admin'];
 		$this->_user_is_public    = $_SESSION['user_is_public'];
 
-	}//end _setupUser()
+	}//end setupUser()
 
 
 	/**
@@ -1052,14 +1052,14 @@ class MySource
 				// deliberately don't have a break here so if the
 				// login fails we make sure that we're logged out
 			case 'logout' :
-				if ($this->user && !is_a($this->user, 'public_user')) {
-					$this->_logSecurityMsg('system.security.logout.manual');
-					$this->broadcastTriggerEvent('trigger_event_user_logout', $this->user, NULL);
-				}
+				$for_real = ($this->user && !is_a($this->user, 'public_user'));
 				$this->_clearSession();
 				$this->_loginPublicUser();
 				$this->generateLoginKey(TRUE);
-
+				if ($for_real) {
+					$this->_logSecurityMsg('system.security.logout.manual');
+					$this->broadcastTriggerEvent('trigger_event_user_logout', $this->user, NULL);
+				}
 			break;
 
 			case 'send_security_key' :
