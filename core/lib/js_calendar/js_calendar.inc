@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.inc,v 1.9 2006/12/05 05:08:23 bcaldwell Exp $
+* $Id: js_calendar.inc,v 1.10 2006/12/14 01:57:34 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     An object to init and paint the JS calendar
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -87,10 +87,10 @@ class JS_Calendar
 			$css = array_get_index($this->settings,'cssURL',sq_web_path('fudge').'/js_calendar/js_calendar.css');
 			?>
 			<!-- Start init of JS Calendar -->
-			<style type="text/css">
-				@import url("<?php echo $css; ?>");
-			</style>
 			<script src="<?php echo sq_web_path('fudge'); ?>/js_calendar/js_calendar.js" type="text/javascript"></script>
+			<script type="text/javascript">
+				addStyle('@import url("<?php echo $css; ?>");');
+			</script>
 			<!-- End init of JS Calendar -->
 			<?php
 			$GLOBALS['SQ_JS_CALENDAR_INIT'] = true;

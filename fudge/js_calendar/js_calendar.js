@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.js,v 1.12 2006/12/06 05:13:04 bcaldwell Exp $
+* $Id: js_calendar.js,v 1.13 2006/12/14 01:58:10 tbarrett Exp $
 *
 */
 
@@ -716,3 +716,15 @@ function frameRedirect(url)
 	}
 
 }//end frameRedirect()
+
+function addStyle(css)
+{
+	var myStyle = document.createElement('STYLE');
+	document.getElementsByTagName('HEAD')[0].appendChild(myStyle);
+	if (null == myStyle.canHaveChildren || myStyle.canHaveChildren) {
+		var styleContent = document.createTextNode(css);
+		myStyle.appendChild(styleContent);
+	} else {
+		myStyle.styleSheet.cssText = css;
+	}
+}
