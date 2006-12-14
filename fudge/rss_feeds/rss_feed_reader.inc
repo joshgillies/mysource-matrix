@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.11 2006/12/06 05:12:47 bcaldwell Exp $
+* $Id: rss_feed_reader.inc,v 1.11.2.1 2006/12/14 00:48:02 bcaldwell Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -212,7 +212,17 @@ class RSS_Feed_Reader
 		} else {
 			$this->parsed = TRUE;
 			if (!is_string($this->fp)) {
+				$first_chunk = TRUE;
 				while ($data = fread($fp, 4096)) {
+					// strip out possible http headers (when proxy is used)
+					if ($first_chunk) {
+						$data = explode('<?xml', $data);
+						if (count($data) > 1) array_shift($data);
+						$data = '<?xml'.implode('', $data);
+
+						// we're done with the first chunk, shouldn't be headers elsewhere
+						$first_chunk = FALSE;
+					}
 					if (!xml_parse($this->parser, $data)) {
 						return 'Error in the feed';
 					}
