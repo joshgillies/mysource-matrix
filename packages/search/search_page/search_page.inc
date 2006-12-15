@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.173.2.15 2006/12/15 00:33:57 skim Exp $
+* $Id: search_page.inc,v 1.173.2.16 2006/12/15 02:58:30 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.173.2.15 $
+* @version $Revision: 1.173.2.16 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1764,7 +1764,7 @@ class Search_Page extends Listing_Engine
 						$field_name = $matches[1];
 						if (isset($this->_tmp['search_suggestions'][$field_name])) {
 							$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name)), 'queries_'.$field_name.'_query='.urlencode($this->_tmp['search_suggestions'][$field_name]), $queries);
-							$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($this->_tmp['search_suggestions'][$field_name]).'</a>';
+							$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.$current_result_page.'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($this->_tmp['search_suggestions'][$field_name]).'</a>';
 						} else {
 							$replacement = '';
 						}
@@ -1777,7 +1777,7 @@ class Search_Page extends Listing_Engine
 						foreach ($this->_tmp['search_synonyms'][$field_name] as $word => $synonyms) {
 							foreach ($synonyms as $synonym) {
 								$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name)), 'queries_'.$field_name.'_query='.urlencode($synonym), $queries);
-								$suggestion_string[] = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($synonym).'</a>';
+								$suggestion_string[] = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.$current_result_page.'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($synonym).'</a>';
 							}
 						}
 
