@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.159.2.1 2006/12/14 03:52:22 skim Exp $
+* $Id: backend.inc,v 1.159.2.2 2006/12/15 00:46:25 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.159.2.1 $
+* @version $Revision: 1.159.2.2 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -232,6 +232,7 @@ class Backend extends MySource_Object
 			// append additional user defined query string
 			// (e.g. for trigger condition 'url matches')
 			foreach ($query_vars as $key => $value) {
+				if ($key == 'SQ_ACTION') continue;
 				$main_extras .= '&'.$key.'='.$value;
 			}
 		}
