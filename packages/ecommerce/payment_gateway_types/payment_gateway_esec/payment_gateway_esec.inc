@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.12 2006/12/07 05:26:30 bcaldwell Exp $
+* $Id: payment_gateway_esec.inc,v 1.13 2006/12/15 01:20:48 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/esec_processor_integration_interface.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -86,6 +86,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 			$card_info = Array(
 					'name' => '',
 					'number' => '',
+					'ccv' => '',
 					'month' => '',
 					'year' => '',
 					'type' => '',
@@ -128,43 +129,52 @@ class Payment_Gateway_Esec extends Payment_Gateway
 
 		$datapath = sq_web_path('data').'/asset_types/payment_gateway_esec/files';
 
-		$form_contents .= <<<FORMBODY
-		<script src="{$datapath}/loader.js"></script>
+		ob_start();
+		?>
+		<script src="<?php echo $datapath; ?>/loader.js"></script>
 		<script>
-			var Loader = new Loader('{$card}','#FFFFFF','Processing Transaction...','{$datapath}/loader.gif');
+			var Loader = new Loader('<?php echo $card; ?>','#FFFFFF','Processing Transaction...','<?php echo $datapath; ?>/loader.gif');
 			Loader.print();
 		</script>
 		<form method="post" action="" onsubmit="Loader.show();">
-			<div>$message</div>
-			<div style="background-color: #CCC; padding: 5px"><strong>\$$amount</strong> Australian Dollars are about to be debited from your credit card</div>
-			<table>
+			<div><?php echo $message; ?></div>
+			<div style="background-color: #CCC; padding: 5px"><strong>$<?php echo $amount; ?></strong> Australian Dollars are about to be debited from your credit card</div>
+			<table cellpadding="5">
 				<tr>
-					<td>Name on Card</td>
-					<td><input name="{$card}[name]" value="{$card_info['name']}" /></td>
+					<td align="right">Name on Card</td>
+					<td><input name="<?php echo $card; ?>[name]" value="<?php echo $card_info['name'];?>" /></td>
 				</tr>
 				<tr>
-					<td>Number</td>
-					<td>$card_number</td>
+					<td align="right">Number</td>
+					<td><?php echo $card_number; ?></td>
+				</tr>
+			<?php if ($this->attr('display_ccv')) { ?>
+				<tr>
+					<td  align="right">CCV</td>
+					<td><input name="<?php echo $card; ?>[ccv]" value="<?php echo $card_info['ccv'];?>" size='4' /> - from the back of your credit card</td>
+				</tr>
+			<?php } ?>
+				<tr>
+					<td align="right">Expiry Date (MM/YY)</td>
+					<td><input name="<?php echo $card; ?>[month]" value="<?php echo $card_info['month'];?>" size="2" /> / <input name="<?php echo $card; ?>[year]" value="<?php echo $card_info['year'];?>" size="2" /></td>
 				</tr>
 				<tr>
-					<td>Expiry Date (MM/YY)</td>
-					<td><input name="{$card}[month]" value="{$card_info['month']}" size="2" /> / <input name="{$card}[year]" value="{$card_info['year']}" size="2" /></td>
-				</tr>
-				<tr>
-					<td>Type</td>
+					<td align="right">Type</td>
 					<td>
-						<select name="{$card}[type]">
-							$form_contents_select
+						<select name="<?php echo $card; ?>[type]">
+							<?php echo $form_contents_select; ?>
 						</select>
 					</td>
 				</tr>
 				<tr>
 					<td>&nbsp;</td>
-					<td><input type="submit" value="                  Pay                  " /><input type="reset" value="Reset" /><input type="submit" name="{$prefix}_action" value="Cancel" /></td>
+					<td><input type="submit" value="                  Pay                  " /><input type="reset" value="Reset" /><input type="submit" name="<?php echo $prefix; ?>_action" value="Cancel" /></td>
 				</tr>
 			</table>
 		</form>
-FORMBODY;
+		<?php
+		$form_contents .= ob_get_clean();
+
 
 		return $form_contents;
 
@@ -189,6 +199,7 @@ FORMBODY;
 		$Esec->setReference($ref_no);
 		$Esec->setMerchant($this->attr('merchant_id'));
 		$Esec->setCardNumber($card_info['number']);
+		$Esec->setCCV(array_get_index($card_info, 'ccv', ''));
 		$Esec->setCardType($card_info['type']);
 		$Esec->setCardExpiryMonth($card_info['month']);
 		$Esec->setCardExpiryYear($card_info['year']);
