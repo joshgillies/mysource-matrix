@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec_management.inc,v 1.6 2005/04/29 05:39:37 gsherwood Exp $
+* $Id: payment_gateway_esec_management.inc,v 1.6.6.1 2006/12/15 04:06:27 arailean Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -38,28 +38,38 @@ class Payment_Gateway_Esec_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 		$this->vars = Array(
-			'merchant_id' => Array(
-				'added'			=> '0.1',
-				'type'			=> 'text',
-				'default'		=> '',
-				'description'   => 'Gateway Merchant ID for the e-commerce transaction',
-			),
+						'merchant_id'	=> Array(
+											'added'			=> '0.1',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'Gateway Merchant ID for the e-commerce transaction',
+										  ),
 
-			'test_mode' => Array(
-				'added'			=> '0.1',
-				'type'			=> 'boolean',
-				'default'		=> false,
-				'description'   => 'Turn this ON for test mode',
-				'parameters' => Array(
-					'allow_empty' => false
-				),
-			),
+						'test_mode' 	=> Array(
+											'added'			=> '0.1',
+											'type'			=> 'boolean',
+											'default'		=> false,
+											'description'	=> 'Turn this ON for test mode',
+											'parameters'	=> Array(
+																'allow_empty' => false,
+															   ),
+										   ),
 
-			'message' => Array(
-				'added'     => '0.1',
-				'type'      => 'wysiwyg',
-				'default'   => '',
-			),
+						'message' 		=> Array(
+											'added'	=> '0.1',
+											'type'		=> 'wysiwyg',
+											'default'	=> '',
+										   ),
+
+						'display_ccv'	=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'boolean',
+											'default'		=> false,
+											'description'   => 'Enables CCV field in the form',
+											'parameters'	=> Array(
+																'allow_empty' => false,
+															   ),
+										  ),
 
 		);
 

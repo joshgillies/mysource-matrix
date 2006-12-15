@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2005/04/29 05:39:37 gsherwood Exp $
+* $Id: lang_screen_details.xml,v 1.2.6.1 2006/12/15 04:06:27 arailean Exp $
 *
 */
 -->
@@ -33,16 +33,20 @@
 			<note />
 		</field>
 	</section>
+	<section name="Interface Options" write_access="write:attributes">
+		<field attribute="display_ccv">
+			<display_name>CCV Field</display_name>
+			<note>When enabled, this will print the CCV field on the credit card details form.</note>
+		</field>
+		<field attribute="message">
+			<display_name>Message</display_name>
+			<note>This message will be displayed on the gateway upon redirect from the e-commerce page.</note>
+		</field>
+	</section>
 	<section name="Testing Mode">
 		<field attribute="test_mode">
 			<display_name>Test Mode</display_name>
 			<note>Turn this switch ON for testing purposes. This will set the merchant ID to test among other things. When turned on, the gateway screen will display that it is in testing mode.</note>
-		</field>
-	</section>
-	<section name="Message">
-		<field attribute="message">
-			<display_name>Gateway Screen Message</display_name>
-			<note>This message will be displayed on the gateway upon redirect from the e-commerce page.</note>
 		</field>
 	</section>
 </contents>
