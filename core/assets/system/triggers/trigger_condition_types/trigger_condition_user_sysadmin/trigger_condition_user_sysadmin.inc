@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_user_sysadmin.inc,v 1.1 2006/12/15 03:34:02 tbarrett Exp $
+* $Id: trigger_condition_user_sysadmin.inc,v 1.2 2006/12/15 04:25:19 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author   Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Trigger_Condition_User_Sysadmin extends Trigger_Condition
 	*/
 	function evaluate($settings, &$state)
 	{
-		$res = ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($state['asset']) == $settings['is_sysadmin']);
+		$res = ($GLOBALS['SQ_SYSTEM']->userSystemAdmin() == $settings['is_sysadmin']);
 		return $res;
 
 	}//end evaluate()

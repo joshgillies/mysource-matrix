@@ -12,7 +12,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2006/12/15 03:34:02 tbarrett Exp $
+* $Id: asset.xml,v 1.2 2006/12/15 04:25:19 tbarrett Exp $
 *
 */
 -->
@@ -21,9 +21,9 @@
 	<package>__core__</package>
 	<type_code>trigger_condition_user_sysadmin</type_code>
 	<version>0.1</version>
-	<name>Asset is a system administrator</name>
+	<name>Current user is a system administrator</name>
 	<description>
-		Matches conditions of the current user's sysadmin status
+		Returns whether the current user is a system administrator
 	</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
