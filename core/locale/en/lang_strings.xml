@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.201 2006/12/07 04:17:54 skim Exp $
+* $Id: lang_strings.xml,v 1.201.2.1 2006/12/15 03:40:18 tbarrett Exp $
 *
 */
 
@@ -150,6 +150,8 @@
 	<string source="hide_errors_on_the_frontend">Hide Errors on the Frontend</string>
 	<string source="hostname">Hostname</string>
 	<string source="id">ID:</string>
+	<string source="is">is</string>
+	<string source="is_not">is not</string>
 	<string source="important_notice">Important Notice</string>
 	<string source="includes_tax">Includes Tax</string>
 	<string source="install_options">Install Options</string>
@@ -1070,6 +1072,7 @@
 
 	<string source="trigger_asset_id">Asset ID is %s</string>
 	<string source="trigger_asset_type">Asset is of type %s</string>
+	<string source="trigger_asset_sysadmin">Asset %s effectively a system administrator</string>
 
 	<string source="trigger_link_exists_basic"><![CDATA[has a %1$s asset <ul style="list-style-type: none; padding: 0;"><li>%2$sof type %3$s</li><li>%4$s with ID %5$s</li><li>%6$s Use only advanced link parameters (below). This option ONLY works for the triggering link.</li></ul>%7$s]]></string>
 	<string source="match_current_link_only">Match only the triggering link (for events that relate to links like 'Link Created' and 'Link Deleted')</string>
