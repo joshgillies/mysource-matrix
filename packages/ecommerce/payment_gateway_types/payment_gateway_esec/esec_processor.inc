@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor.inc,v 1.11 2006/12/07 05:26:30 bcaldwell Exp $
+* $Id: esec_processor.inc,v 1.12 2006/12/15 01:19:00 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -384,6 +384,21 @@ class Esec_Processor
 		$this->set('EPS_REFERENCEID', $ref_no);
 
 	}//end setReference()
+
+
+	/**
+	* set CCV number
+	*
+	* @param	$ccv_no	CCV - credit card verification number
+	*
+	* @access public
+	* @return void
+	*/
+	function setCCV($ccv_no)
+	{
+		$this->set('EPS_CCV', $ccv_no);
+
+	}//end setCCV()
 
 
 	/**
