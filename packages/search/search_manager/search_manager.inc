@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.115.2.6 2006/10/27 01:41:29 rhoward Exp $
+* $Id: search_manager.inc,v 1.115.2.7 2006/12/15 03:17:11 emcdonald Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.115.2.6 $
+* @version $Revision: 1.115.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -591,11 +591,6 @@ class Search_Manager extends Asset
 			$contents = strtolower($asset->getContent());
 			// strip tags and replace with whitespace so as to preserve word boundaries
 			$contents = preg_replace('/<\/?[^>]+>/i', ' ', $contents);
-			$contents = html_entity_decode($contents, ENT_NOQUOTES);
-
-			// html_entity_decode does not converts '$nbsp;' into an empty string.
-			// Check the function documentation from http://www.php.net
-			$contents = str_replace('&nbsp;', ' ', $contents);
 
 			if (trim($contents) != '') {
 				foreach (get_word_counts($contents) as $word => $count) {
