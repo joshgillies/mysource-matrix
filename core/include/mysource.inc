@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.209 2006/12/15 01:20:00 tbarrett Exp $
+* $Id: mysource.inc,v 1.210 2006/12/15 03:38:18 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.209 $
+* @version $Revision: 1.210 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1055,12 +1055,13 @@ class MySource
 				// login fails we make sure that we're logged out
 			case 'logout' :
 				$for_real = ($this->user && !is_a($this->user, 'public_user'));
+				$old_user =& $this->user;
 				$this->_clearSession();
 				$this->_loginPublicUser();
 				$this->generateLoginKey(TRUE);
 				if ($for_real) {
 					$this->_logSecurityMsg('system.security.logout.manual');
-					$this->broadcastTriggerEvent('trigger_event_user_logout', $this->user, NULL);
+					$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
 				}
 			break;
 
