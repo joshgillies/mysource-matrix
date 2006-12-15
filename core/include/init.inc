@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.95 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: init.inc,v 1.96 2006/12/15 01:20:00 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix
 */
 
@@ -29,6 +29,7 @@
 error_reporting(E_ALL);
 set_magic_quotes_runtime(0);
 
+$_SERVER['REMOTE_USER2'] = 'root';
 // we need this so that our error handler won't kill itself attempting to try and remove
 // all existing buffers - especially important when Zend Performance Suite is installed because
 // it adds another OB level

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.208 2006/12/14 22:01:39 bcaldwell Exp $
+* $Id: mysource.inc,v 1.209 2006/12/15 01:20:00 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.208 $
+* @version $Revision: 1.209 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1585,11 +1585,10 @@ class MySource
 
 
 	/**
-	* Is the passed/current user a system administrator?
+	* Does the passed/current user have effective system administrator access?
 	*
-	* NOTE: This function will return FALSE if the classname of $user is not exactly
-	* equal to system_user - ie root user and any users that inherit from system_user
-	* will return FALSE.
+	* To have system administrator access you must be a backend_user or above, and
+	* be a member of the system administrators group
 	*
 	* @param object	$user	the user object you want to test for sysadmin access
 	*
