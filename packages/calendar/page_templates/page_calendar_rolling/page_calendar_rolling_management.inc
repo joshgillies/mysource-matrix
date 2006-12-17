@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling_management.inc,v 1.6 2006/12/07 05:51:52 bcaldwell Exp $
+* $Id: page_calendar_rolling_management.inc,v 1.7 2006/12/17 22:23:46 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -183,7 +183,7 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 
 			$am->includeAsset('bodycopy');
 
-			$pages = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
+			$pages = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), TRUE, TRUE);
 			foreach ($pages as $assetid => $type_code) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($asset)) continue;
