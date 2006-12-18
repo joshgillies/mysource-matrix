@@ -12,7 +12,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.29 2006/12/07 02:46:11 bcaldwell Exp $
+* $Id: asset.xml,v 1.30 2006/12/18 04:08:46 lwright Exp $
 *
 */
 -->
@@ -20,7 +20,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>search</package>
 	<type_code>search_page</type_code>
-	<version>0.18</version>
+	<version>0.19</version>
 	<name>Search Page</name>
 	<description>Search Page asset; provides a front-end interface to the search manager so a user can search for assets within a MySource Matrix system.</description>
 	<instantiable>yes</instantiable>

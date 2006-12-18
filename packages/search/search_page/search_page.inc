@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.195 2006/12/15 02:56:13 skim Exp $
+* $Id: search_page.inc,v 1.196 2006/12/18 04:08:47 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.195 $
+* @version $Revision: 1.196 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1782,30 +1782,48 @@ class Search_Page extends Listing_Engine
 
 						$replacement = $this->getSearchedFieldReplacement($matches[1]);
 
-					} else if (ereg('(.+)_query_suggestions$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+					} else if (ereg('(.+)_query_suggestions(_message)?$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						// spell-checking suggestions
 						$field_name = $matches[1];
 						if (isset($this->_tmp['search_suggestions'][$field_name])) {
 							$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name)), 'queries_'.$field_name.'_query='.urlencode($this->_tmp['search_suggestions'][$field_name]), $queries);
-							$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.$current_result_page.'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($this->_tmp['search_suggestions'][$field_name]).'</a>';
+							$spell_check_string = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.$current_result_page.'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($this->_tmp['search_suggestions'][$field_name]).'</a>';
 						} else {
-							$replacement = '';
+							$spell_check_string = '';
 						}
 
-					} else if (ereg('(.+)_query_synonyms$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
-
-						// synonym searching
-						$field_name = $matches[1];
-						$suggestion_string = Array();
-						foreach ($this->_tmp['search_synonyms'][$field_name] as $word => $synonyms) {
-							foreach ($synonyms as $synonym) {
-								$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name)), 'queries_'.$field_name.'_query='.urlencode($synonym), $queries);
-								$suggestion_string[] = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.$current_result_page.'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($synonym).'</a>';
+						if (!empty($spell_check_string)) {
+							if (substr($keyword, -8) == '_message') {
+								$message = $this->attr('spell_check_string');
+								$replacement = str_replace('%suggestions%', $spell_check_string, $message);
+							} else {
+								$replacement = $spell_check_string;
 							}
 						}
 
-						$replacement = implode(', ', $suggestion_string);
+					} else if (ereg('(.+)_query_synonyms(_message)?$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+
+						// synonym searching
+						$field_name = $matches[1];
+						$synonym_string = Array();
+						foreach (array_get_index($this->_tmp['search_synonyms'], $field_name, Array()) as $word => $synonyms) {
+							foreach ($synonyms as $synonym) {
+								$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name)), 'queries_'.$field_name.'_query='.urlencode($synonym), $queries);
+								$synonym_string[] = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.$current_result_page.'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($synonym).'</a>';
+							}
+						}
+
+						$synonym_string = implode(', ', $synonym_string);
+
+						if (!empty($synonym_string)) {
+							if (substr($keyword, -8) == '_message') {
+								$message = $this->attr('synonym_string');
+								$replacement = str_replace('%suggestions%', $synonym_string, $message);
+							} else {
+								$replacement = $synonym_string;
+							}
+						}
 
 					} else if (ereg('(.+)_query_(.+)$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
