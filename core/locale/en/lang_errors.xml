@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.71 2006/12/07 22:04:25 lwright Exp $
+* $Id: lang_errors.xml,v 1.72 2006/12/18 05:19:02 arailean Exp $
 *
 */
 
@@ -1474,7 +1474,7 @@ Full Node Contents %3$s</error>
 	<error code="CORE0103">Update failed checking-out latest version of file</error>
 	<error code="CORE0104">Update failed deleting file from public data directory</error>
 	<error code="CORE0105">Uploaded file is not a PDF file</error>
-	<error code="CORE0106">Uploaded file is not an MS Word document. Word doc files must be of type doc or dot</error>
+	<error code="CORE0106">File extension not allowed. The supplied file is of type "%2$s". Expected types: %1$s. </error>
 	<error code="CORE0107">Uploaded file is not an image. Image files must be of type %1$s. The uploaded file is of type "%2$s"</error>
 	<error code="CORE0108">Uploaded file is too large. Thumbnails must be no more than %1$s x %2$s pixels</error>
 	<error code="CORE0109">User %s does not have a workspace</error>
