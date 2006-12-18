@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.52 2006/12/07 02:46:11 bcaldwell Exp $
+* $Id: search_page_management.inc,v 1.52.2.1 2006/12/18 04:45:46 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.52.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -118,6 +118,20 @@ class Search_Page_Management extends Asset_Management
 												'description'	=> 'If true, empty search query will search for everything',
 												'parameters'	=> Array('allow_empty' => FALSE),
 											);
+
+		$this->vars['spell_check_string'] = Array(
+										'added'			=> '0.19',
+										'type'			=> 'text',
+										'default'		=> 'Did you mean: %suggestions%',
+										'description'	=> 'String to use for the "spell check suggestions" keyword',
+									);
+
+		$this->vars['synonym_string'] = Array(
+										'added'			=> '0.19',
+										'type'			=> 'text',
+										'default'		=> 'Did you mean: %suggestions%',
+										'description'	=> 'String to use for the "synonyms" keyword',
+									);
 
 	}//end constructor
 
