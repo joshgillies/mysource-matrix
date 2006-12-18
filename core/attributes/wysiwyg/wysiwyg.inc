@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.25 2006/12/05 05:40:03 bcaldwell Exp $
+* $Id: wysiwyg.inc,v 1.25.2.1 2006/12/18 03:28:22 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -232,28 +232,45 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	*/
 	function getKeywordValue($format='')
 	{
-		if ($format !== '') return ''; // no formats supported
-		preg_match_all('|\\./\\?a=([0-9]+)([^0-9:])|', $this->value, $matches=Array());
-		$normal_assetids = empty($matches[1]) ? Array() : $matches[1];
-		preg_match_all('|\\./\\?a=([0-9]+:[^$]*)\\$|', $this->value, $matches=Array(), PREG_PATTERN_ORDER);
-		$shadow_assetids = empty($matches[1]) ? Array() : $matches[1];
-		$assetids = array_unique(array_merge($normal_assetids, $shadow_assetids));
-		$urls = $GLOBALS['SQ_SYSTEM']->am->getAssetUrl($assetids);
-		$res = $this->value;
-		foreach ($urls as $id => $url) {
-			if (FALSE === strpos($id, ':')) {
-				if (!empty($url)) {
-					$res = str_replace('./?a='.$id, $url, $res);
-				}
-			} else {
-				if (!empty($url)) {
-					$res = str_replace('./?a='.$id.'$', $url, $res);
+		if (!in_array($format, Array('', 'disableurls', 'disablekeywords', 'disableall'))) {
+			return '';
+		}
+
+		$output = $this->value;
+
+		if (!in_array($format, Array('disableurls', 'disableall'))) {
+			preg_match_all('|\\./\\?a=([0-9]+)([^0-9:])|', $output, $matches=Array());
+			$normal_assetids = empty($matches[1]) ? Array() : $matches[1];
+			preg_match_all('|\\./\\?a=([0-9]+:[^$]*)\\$|', $output, $matches=Array(), PREG_PATTERN_ORDER);
+			$shadow_assetids = empty($matches[1]) ? Array() : $matches[1];
+			$assetids = array_unique(array_merge($normal_assetids, $shadow_assetids));
+			$urls = $GLOBALS['SQ_SYSTEM']->am->getAssetUrl($assetids);
+			$output = $this->value;
+			foreach ($urls as $id => $url) {
+				if (FALSE === strpos($id, ':')) {
+					if (!empty($url)) {
+						$output = str_replace('./?a='.$id, $url, $output);
+					}
 				} else {
-					$res = str_replace('./?a='.$id.'$', './?a='.$id, $res);
+					if (!empty($url)) {
+						$output = str_replace('./?a='.$id.'$', $url, $output);
+					} else {
+						$output = str_replace('./?a='.$id.'$', './?a='.$id, $output);
+					}
 				}
 			}
 		}
-		return $res;
+
+		if (in_array($format, Array('disablekeywords', 'disableall'))) {
+			// Simulate 'disable keywords' from bodycopy_container
+			// by encoding %s
+			$keywords = retrieve_keywords_replacements($output);
+			foreach ($keywords as $keyword) {
+				$output = str_replace("%$keyword%", "&#37;{$keyword}&#37;", $output);
+			}
+		}
+
+		return $output;
 
 	}//end getKeywordValue()
 
