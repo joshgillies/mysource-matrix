@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.31 2006/12/05 05:45:17 emcdonald Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.32 2006/12/18 03:35:12 bcaldwell Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -277,10 +277,18 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>" width="4%" style="border: 1px dashed #C0C0C0;">
 				<span style="float: left;">
 				<?php
+
+				$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+
+				$public_read = FALSE;
+				if ($asset->status == SQ_STATUS_LIVE && $asset->readAccess(Array($public_userid))) {
+					$public_read = TRUE;
+				}
 				$status_name = get_status_description($asset->status);
 				$status_img = get_asset_status_icon($asset->status);
-				$desc = 'Status: '.$status_img.'<b>'.get_status_description($asset->status).'</b><br />';
-				$desc .= (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : '');
+				$desc = translate('content_type_tooltip_status').': '.$status_img.'<b>'.get_status_description($asset->status).'</b><br />';
+				$desc .= translate('content_type_tooltip_public').': <b>'.($public_read ? translate('yes') : translate('no')).'</b><br />';
+				$desc .= (($popup_attribute_list) ?  translate('current_properties').':<br> '.$popup_attribute_list : '');
 				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', 'Edit '.$asset->attr('name').'\'s Properties', $desc, 'table_properties', '[Edit Properties]');
 
 				if (!is_null($content_type)) {
