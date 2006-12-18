@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.143 2006/12/07 22:11:44 lwright Exp $
+* $Id: file.inc,v 1.144 2006/12/18 05:13:45 arailean Exp $
 *
 */
 
@@ -25,12 +25,19 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.143 $
+* @version $Revision: 1.144 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class File extends Asset
 {
+
+
+	/**
+	* List of file extensions this asset type can handle. Empty means no restriction.
+	* @var Array(string)
+	*/
+	var $allowed_extensions = Array();
 
 
 	/**
@@ -948,6 +955,13 @@ class File extends Asset
 		$pre_uploaded = FALSE;
 		if (isset($info['non_uploaded_file']) && $info['non_uploaded_file']) {
 			$pre_uploaded = TRUE;
+		}
+
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		$ext = get_file_type($info['filename']);
+		if (!empty($this->allowed_extensions) && !in_array($ext, $this->allowed_extensions)) {
+			trigger_localised_error('CORE0106', E_USER_WARNING, make_readable_list($this->allowed_extensions, 'or'), strtoupper($ext));
+			return FALSE;
 		}
 
 		if ($this->_validFileSize($info, $pre_uploaded) && $this->_validFileExtension($info, $pre_uploaded)) {
