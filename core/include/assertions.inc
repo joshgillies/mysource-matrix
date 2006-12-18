@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.20 2006/12/05 05:36:13 bcaldwell Exp $
+* $Id: assertions.inc,v 1.21 2006/12/18 23:59:33 lwright Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 
@@ -505,6 +505,7 @@ function trigger_exception($msg, $silent=false, $fatal=false)
 	$error_type = ($fatal) ? E_USER_ERROR : E_USER_WARNING;
 
 	if (!$silent) {
+		bam(array_contents(debug_backtrace(), 3));
 		trigger_localised_error('SYS0270', $error_type, $msg, $line, $file);
 	}
 

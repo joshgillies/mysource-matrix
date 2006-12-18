@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.534 2006/12/14 23:30:33 arailean Exp $
+* $Id: asset_manager.inc,v 1.535 2006/12/18 23:59:33 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.534 $
+* @version $Revision: 1.535 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7327,7 +7327,7 @@ class Asset_Manager extends MySource_Object
 			$in_sql = 'SELECT * FROM '.$in_sql;
 		}
 
-		$select = 'SELECT DISTINCT(ll.majorid), ll.type_code, ll.treeid';
+		$select = 'SELECT DISTINCT(ll.majorid), ll.type_code, ll.treeid, length(ll.treeid)/'.SQ_CONF_ASSET_TREE_SIZE.' as depth';
 
 		$from = 'FROM
 					(
@@ -7423,7 +7423,7 @@ class Asset_Manager extends MySource_Object
 			$order_by = 'ORDER BY sort_value';
 			$select .= ', ll.'.$sort_by.' AS sort_value';
 		} else {
-			$order_by = 'ORDER BY treeid';
+			$order_by = 'ORDER BY depth DESC';
 		}
 
 		$group_by = '';
@@ -7483,7 +7483,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 
-		$union_select = ' UNION ALL SELECT sl.majorid, null, null as treeid';
+		$union_select = ' UNION ALL SELECT sl.majorid, null, null as treeid, null as depth';
 		if (!is_null($sort_by)) {
 			$union_select .= ', null as sort_value';
 		}
