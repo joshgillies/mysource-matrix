@@ -10,11 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.79 2006/12/05 23:14:13 emcdonald Exp $
+* $Id: file_edit_fns.inc,v 1.80 2006/12/18 05:14:41 arailean Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 /**
 * File_Edit_Fns
@@ -23,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -158,6 +159,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				$max_size = min($ini_size, $post_size, $mem_limit_size);
 			}
 			?><br/><span style="font-size: 10px;"><?php echo translate('core_cannot_upload_file_larger_than', strtoupper(easy_filesize($max_size))); ?></span><?php
+			if (!empty($asset->allowed_extensions)) {
+				$o->note(translate('core_only_upload_files_of_type', make_readable_list($asset->allowed_extensions)));
+			}
 		}//end if
 
 		return TRUE;
@@ -207,10 +211,13 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (!isset($info['path'])) {
 			$info['path'] = array_get_index($info, 'tmp_name', '');
 		}
+
 		if (!isset($info['filename'])) {
 			$info['filename'] = array_get_index($info, 'name', '');
 		}
+
 		if (!$asset->validFile($info)) return FALSE;
+
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$name = current(make_valid_web_paths(Array($info['name'])));
