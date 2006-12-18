@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling_management.inc,v 1.7 2006/12/17 22:23:46 tbarrett Exp $
+* $Id: page_calendar_rolling_management.inc,v 1.8 2006/12/18 00:53:43 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -234,6 +234,11 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			}//end foreach
+
+			// unfortunate but necessary flag to tell the restricted-period
+			// calendar page to upgrade itself too
+			$GLOBALS['ROLLING_CAL_PAGE_UPGRADED_TO_03'] = 1;
+			
 			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION 0.2');
 
 		}//end if - upgrade to version 0.3

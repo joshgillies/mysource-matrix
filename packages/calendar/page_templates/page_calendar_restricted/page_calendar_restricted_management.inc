@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_restricted_management.inc,v 1.5 2006/12/17 22:23:46 tbarrett Exp $
+* $Id: page_calendar_restricted_management.inc,v 1.6 2006/12/18 00:53:43 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -126,7 +126,7 @@ class Page_Calendar_Restricted_Management extends Asset_Management
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 
-		if (version_compare($current_version, '0.3', '<')) {
+		if (version_compare($current_version, '0.3', '<') && !empty($GLOBALS['ROLLING_CAL_PAGE_UPGRADED_TO_03'])) {
 			// version 0.2 -> 0.3
 			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.3');
 
@@ -136,7 +136,6 @@ class Page_Calendar_Restricted_Management extends Asset_Management
 			foreach ($pages as $assetid => $type_code) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($asset)) continue;
-
 				echo 'Upgrading Asset #'.$assetid."...\n";
 
 				// switch the old days_* over to the new attributes
