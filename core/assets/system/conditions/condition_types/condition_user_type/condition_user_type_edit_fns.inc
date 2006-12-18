@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_type_edit_fns.inc,v 1.1 2006/12/17 23:59:41 bcaldwell Exp $
+* $Id: condition_user_type_edit_fns.inc,v 1.2 2006/12/18 01:09:51 bcaldwell Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,27 +57,39 @@ class Condition_User_type_Edit_Fns extends Condition_Edit_Fns
 	*/
 	function paintEditInterface(&$condition_data, &$o, $prefix, $write_access)
 	{
-		?>
-		<table style="width: auto" border="0" class="no-borders">
-			<tr>
-				<td><?php echo translate('condition_user_type_list'); ?>: </td>
-				<td>
-					<?php
+		$user_types = array_get_index($condition_data, 'user_types', '');
 
-					$user_types = array_get_index($condition_data, 'user_types', '');
+		$type_list = Array();
+		if (!empty($user_types)) {
+			$user_types = str_replace(' ', '', $user_types);
+			$type_list = explode(',', $user_types);
+		}
 
-					if ($write_access) {
-						text_box($prefix.'[type_list]', $user_types, 30);
-					} else if (!empty($user_types)) {
-						echo '<ul><li>';
-						echo implode('</li><li>', $user_types);
-						echo '</li></ul>';
-					}
-					?>
-				</td>
-			</tr>
-		</table>
-		<?php
+		if ($write_access) {
+			?><table style="width: auto" border="0" class="no-borders">
+				<tr>
+					<td><?php
+						asset_type_chooser($prefix.'[type_list]', TRUE, $type_list, NULL, FALSE, FALSE, Array('user'));
+					?></td>
+				</tr>
+			</table><?php
+		} elseif (!empty($type_list)) {
+			$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_list, 'name');
+			?><table class="sq-backend-table">
+				<tr>
+					<th><?php echo translate('type') ?></th>
+				</tr><?php
+				$inherit_image_path = sq_web_path('lib').'/web/images/';
+				foreach ($type_list as $type) {
+					?><tr>
+						<td><?php
+							echo get_asset_type_icon($type);
+							echo $type_names[$type];
+						?></td>
+					</tr><?php
+				}
+			?></table><?php
+		}
 
 	}//end paintEditInterface()
 
@@ -93,11 +105,15 @@ class Condition_User_type_Edit_Fns extends Condition_Edit_Fns
 	*/
 	function processEditInterface(&$o, $prefix)
 	{
+		if (!isset($_POST[$prefix]['type_list']) || empty($_POST[$prefix]['type_list'])) {
+			return Array();
+		}
+
 		// construct and return data required by this condition
 		// as found in the post data, array required consists of
 		// 'match' and 'condition_data'
 		$results = Array(
-					'user_types'	=> $_POST[$prefix]['type_list'],
+					'user_types'	=> implode(', ', $_POST[$prefix]['type_list']),
 				   );
 
 		return $results;
