@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.80 2006/12/18 05:14:41 arailean Exp $
+* $Id: file_edit_fns.inc,v 1.81 2006/12/18 21:50:05 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -160,7 +160,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			}
 			?><br/><span style="font-size: 10px;"><?php echo translate('core_cannot_upload_file_larger_than', strtoupper(easy_filesize($max_size))); ?></span><?php
 			if (!empty($asset->allowed_extensions)) {
-				$o->note(translate('core_only_upload_files_of_type', make_readable_list($asset->allowed_extensions)));
+				$o->note(translate('core_only_upload_files_of_type', make_readable_list($asset->allowed_extensions, strtolower(translate('and')))));
 			}
 		}//end if
 

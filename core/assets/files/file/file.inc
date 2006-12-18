@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.144 2006/12/18 05:13:45 arailean Exp $
+* $Id: file.inc,v 1.145 2006/12/18 21:49:42 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.144 $
+* @version $Revision: 1.145 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -960,7 +960,7 @@ class File extends Asset
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$ext = get_file_type($info['filename']);
 		if (!empty($this->allowed_extensions) && !in_array($ext, $this->allowed_extensions)) {
-			trigger_localised_error('CORE0106', E_USER_WARNING, make_readable_list($this->allowed_extensions, 'or'), strtoupper($ext));
+			trigger_localised_error('CORE0106', E_USER_WARNING, make_readable_list($this->allowed_extensions, strtolower(translate('or'))), strtoupper($ext));
 			return FALSE;
 		}
 
