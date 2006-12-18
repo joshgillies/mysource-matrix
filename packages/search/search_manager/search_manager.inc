@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.132 2006/12/15 03:53:04 emcdonald Exp $
+* $Id: search_manager.inc,v 1.133 2006/12/18 23:01:54 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.132 $
+* @version $Revision: 1.133 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1419,20 +1419,20 @@ class Search_Manager extends Asset
 					$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($assetid);
 					$closest_parentid = 0;
 
+					// check to see if there are any customisations under this
+					// tree for the specified asset type. Note that tree proximity supersedes
+					// the type hierachy, so search the type hierachy if applicable
+					if (!$strict_type_code) {
+						$type_hier = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, TRUE);
+						// add the current type code so that we can also find
+						// weightings for this type, not just its parent types
+						array_unshift($type_hier, $type_code);
+					} else {
+						$type_hier = Array($type_code);
+					}
+
 					foreach (array_keys($parents) as $parentid) {
 						if (in_array($parentid, array_keys($asset_tree_weightings))) {
-
-							// check to see if there are any customisations under this
-							// tree for the specified asset type. Note that tree proximity supersedes
-							// the type hierachy, so search the type hierachy if applicable
-							if (!$strict_type_code) {
-								$type_hier = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, TRUE);
-								// add the current type code so that we can also find
-								// weightings for this type, not just its parent types
-								$type_hier[] = $type_code;
-							} else {
-								$type_hier = Array($type_code);
-							}
 							foreach ($type_hier as $type_code) {
 								if (isset($asset_tree_weightings[$parentid]['type_weights'])) {
 									if (in_array($type_code, array_keys($asset_tree_weightings[$parentid]['type_weights']))) {
