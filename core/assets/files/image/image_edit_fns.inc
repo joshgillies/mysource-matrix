@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.47 2006/12/05 23:14:14 emcdonald Exp $
+* $Id: image_edit_fns.inc,v 1.48 2006/12/18 05:26:13 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,9 +47,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 	function paintFileUpload(&$asset, &$o, $prefix)
 	{
 		parent::paintFileUpload($asset, $o, $prefix);
-		if ($asset->writeAccess('attributes')) {
-			?><br/><span style="font-size: 10px;">You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?></span><?php
-		}
+
 		if ((!$asset->id) && file_exists(SQ_FUDGE_PATH.'/image_editor/imagej.jar')) {
 			// we are in the create screen, so offer the editor too
 			echo '<p>';
@@ -438,40 +436,6 @@ class Image_Edit_Fns extends File_Edit_Fns
 		return $options;
 
 	}//end getPreUploadOptions()
-
-
-	/**
-	* Get a formatted string of extensions (eg 1,2,3 and 4)
-	*
-	* @param array	$extensions	array of extensions to format
-	* @param string	$glue		word used to join last extension to the string (and, or etc)
-	*
-	* @return string
-	* @access public
-	*/
-	function _getExtensionString($extensions, $glue='and')
-	{
-		if (empty($extensions) || !is_array($extensions)) {
-			return '';
-		}
-
-		$count = count($extensions);
-		$retval = '';
-
-		for ($i = 0; $i < $count; $i++) {
-			$ext = $extensions[$i];
-			if ($i != 0 && ($i+1) == $count) {
-				// the last in the list
-				$retval .= " $glue ";
-			} else if ($i != 0) {
-				$retval .= ', ';
-			}
-			$retval .= $ext;
-		}
-
-		return $retval;
-
-	}//end _getExtensionString()
 
 
 	/**
