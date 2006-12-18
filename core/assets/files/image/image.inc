@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.60 2006/12/05 23:14:14 emcdonald Exp $
+* $Id: image.inc,v 1.61 2006/12/18 05:18:00 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -161,31 +161,6 @@ class Image extends File
 		return parent::cloneComponents($clone, $components);
 
 	}//end cloneComponents()
-
-
-	/**
-	* Checks a file on the file system to see if it can be used as an image
-	*
-	* @param array	$info	an array of information about the uploaded file
-	*
-	* @return boolean
-	* @access public
-	*/
-	function validFile($info)
-	{
-		if (!parent::validFile($info)) return FALSE;
-
-		// check that the extension is allowed
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$ext = get_file_type($info['filename']);
-		if (!in_array($ext, $this->allowed_extensions)) {
-			$edit_fns = $this->getEditFns();
-			trigger_localised_error('CORE0107', E_USER_WARNING, $edit_fns->_getExtensionString($this->allowed_extensions, 'or'), strtoupper($ext));
-			return FALSE;
-		}
-		return TRUE;
-
-	}//end validFile()
 
 
 	/**

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail.inc,v 1.22 2006/12/05 23:14:15 emcdonald Exp $
+* $Id: thumbnail.inc,v 1.23 2006/12/18 05:18:02 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,23 +55,6 @@ class Thumbnail extends Image
 		$this->Image($assetid);
 
 	}//end constructor
-
-
-	/**
-	* Checks a file on the file system to see if it can be used as a thumbnail
-	*
-	* @param array	$info	an array of information about the uploaded file
-	*
-	* @return boolean
-	* @access public
-	*/
-	function validFile($info)
-	{
-		if (!parent::validFile($info)) return FALSE;
-
-		return TRUE;
-
-	}//end validFile()
 
 
 	/**

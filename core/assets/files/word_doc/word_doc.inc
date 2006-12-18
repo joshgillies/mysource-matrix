@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.18 2006/12/05 23:14:15 emcdonald Exp $
+* $Id: word_doc.inc,v 1.19 2006/12/18 05:18:02 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,30 +51,6 @@ class Word_Doc extends File
 		$this->File($assetid);
 
 	}//end constructor
-
-
-	/**
-	* Checks a file on the file system to see if it can be used as an image
-	*
-	* @param array	$info	an array of information about the uploaded file
-	*
-	* @return boolean
-	* @access public
-	*/
-	function validFile($info)
-	{
-		if (!parent::validFile($info)) return FALSE;
-
-		// check that the extension is allowed
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$ext = get_file_type($info['filename']);
-		if (!in_array($ext, $this->allowed_extensions)) {
-			trigger_localised_error('CORE0106', E_USER_WARNING);
-			return FALSE;
-		}
-		return TRUE;
-
-	}//end validFile()
 
 
 	/**

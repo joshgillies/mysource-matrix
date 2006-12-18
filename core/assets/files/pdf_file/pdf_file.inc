@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.26 2006/12/05 23:14:14 emcdonald Exp $
+* $Id: pdf_file.inc,v 1.27 2006/12/18 05:18:02 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,30 +51,6 @@ class PDF_File extends File
 		$this->File($assetid);
 
 	}//end constructor
-
-
-	/**
-	* Checks a file on the file system to see if it can be used as an image
-	*
-	* @param array	$info	an array of information about the uploaded file
-	*
-	* @return boolean
-	* @access public
-	*/
-	function validFile($info)
-	{
-		if (!parent::validFile($info)) return FALSE;
-
-		// check that the extension is allowed
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$ext = get_file_type($info['filename']);
-		if (!in_array($ext, $this->allowed_extensions)) {
-			trigger_localised_error('CORE0105', E_USER_WARNING);
-			return FALSE;
-		}
-		return TRUE;
-
-	}//end validFile()
 
 
 	/**
