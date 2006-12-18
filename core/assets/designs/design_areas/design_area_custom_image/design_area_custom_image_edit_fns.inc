@@ -10,12 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image_edit_fns.inc,v 1.21 2006/12/05 22:42:12 emcdonald Exp $
+* $Id: design_area_custom_image_edit_fns.inc,v 1.22 2006/12/18 05:09:53 arailean Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc';
+require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 /**
 * Design_Area_Custom_Image_Edit_Fns
@@ -24,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,7 +47,7 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		file_upload($prefix);
-		$o->note(translate('core_only_upload_files_of_type', $this->_getExtensionString($asset->allowed_extensions)));
+		$o->note(translate('core_only_upload_files_of_type', make_readable_list($asset->allowed_extensions)));
 		$o->note(translate('core_image_size_restricted', $asset->attr('max_width'), $asset->attr('max_height')));
 
 		return TRUE;
@@ -76,7 +77,7 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 		// check that the extension is allowed
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		if (!in_array(get_file_type($info['name']) , $asset->allowed_extensions)) {
-			trigger_localised_error('CORE0190', E_USER_WARNING, $this->_getExtensionString($asset->allowed_extensions));
+			trigger_localised_error('CORE0190', E_USER_WARNING, make_readable_list($asset->allowed_extensions));
 			return FALSE;
 		}
 
@@ -141,27 +142,6 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 		return TRUE;
 
 	}//end paintCurrentImage()
-
-
-	/**
-	* Get a formatted string of extensions (eg 1,2,3 and 4)
-	*
-	* @param array	$extensions	array of extensions to format
-	*
-	* @return string
-	* @access public
-	*/
-	function _getExtensionString($extensions)
-	{
-		if (empty($extensions)) return '';
-		$last = array_pop($extensions);
-		if (empty($extensions)) {
-			return $last;
-		} else {
-			return implode(', ', $extensions).' and '.$last;
-		}
-
-	}//end _getExtensionString()
 
 
 }//end class
