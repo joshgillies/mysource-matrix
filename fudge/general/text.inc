@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.28 2006/12/06 05:14:24 bcaldwell Exp $
+* $Id: text.inc,v 1.29 2006/12/18 03:44:18 arailean Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package Fudge
 * @subpackage Text
 */
@@ -203,6 +203,36 @@ function ucwords_no_space($string, $word_separator='_')
 	return $tmp_word;
 
 }//end ucwords_no_space()
+
+
+/**
+* Makes a human-readable list of words
+*
+* Given an array of strings like A,B,C create a human readable list like A, B and C
+* where and is an ending delimeter that can be supplied
+*
+* @param array	$string_array	array of words to format
+* @param string	$end_delimiter	delimiter used to join last word to the list
+*
+* @return string
+* @access public
+*/
+function make_readable_list($string_array, $end_delimiter='and')
+{
+	if (empty($string_array) || !is_array($string_array)) {
+		return '';
+	}
+
+	$last = array_pop($string_array);
+
+	if (empty($string_array)) return $last;
+
+	$retval = implode(', ', $string_array);
+	$retval .= ' '.$end_delimiter.' '.$last;
+
+	return $retval;
+
+}//end make_readable_list()
 
 
 ?>
