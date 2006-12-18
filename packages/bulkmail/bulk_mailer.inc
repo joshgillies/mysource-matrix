@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.60 2006/12/07 05:55:55 bcaldwell Exp $
+* $Id: bulk_mailer.inc,v 1.60.2.1 2006/12/18 05:40:05 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.60 $
+* @version $Revision: 1.60.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -273,7 +273,7 @@ class Bulk_Mailer
 
 			$pid = $this->fork();
 			if (!$pid) {
-				$mime =& new Mail_mime();
+				$mime =& new Mail_mime("\n");
 				$mail_queue =& new Mail_Queue($details['queue_details'], $details['server_details']);
 
 				for ($recipient_chunk; NULL !== ($user_id = key($recipient_chunk)); next($recipient_chunk)) {
