@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_data_dirs.php,v 1.6 2006/12/06 05:39:52 bcaldwell Exp $
+* $Id: upgrade_data_dirs.php,v 1.7 2006/12/18 06:13:12 skim Exp $
 *
 */
 
 /**
 *
 * @author Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -283,6 +283,13 @@ function process_file_versioning($base_dir, $curr_dir)
 							sq_file_vers_file
 						WHERE
 							path = '.$db->quoteSmart($old_file_vers_path);
+				// Fix for image varieties
+				if (file_exists($new_dir_path.'/varieties') && is_dir($new_dir_path.'/varieties')) {
+					$sql .= '
+						OR path = '.$db->quoteSmart($old_file_vers_path.'/varieties').'
+					';
+				}
+
 				$result =& $db->getAssoc($sql);
 				if (PEAR::isError($result)) {
 					print_log("[$old_file_vers_path :(] SELECT query failed. ".$result->getMessage(), 0, TRUE);
@@ -307,6 +314,13 @@ function process_file_versioning($base_dir, $curr_dir)
 							}
 						}
 
+						// Fix for image varieties
+						$varieties = FALSE;
+						if (substr($file_path, -10) == '/varieties') {
+							$varieties = TRUE;
+							$new_file_vers_path = 'assets/'.$curr_dir.'/'.$hash.'/'.$assetid.'/varieties';
+						}
+
 						$sql = 'UPDATE
 									sq_file_vers_file
 								SET
@@ -324,7 +338,9 @@ function process_file_versioning($base_dir, $curr_dir)
 							$result = $db->commit();
 							record_log($old_file_vers_path, 'path updated');
 							print_log("[SUCCESS] fileid:$fileid update completed.", 2);
-							$count['file_vers_query_count']++;
+							if (!$varieties) {
+								$count['file_vers_query_count']++;
+							}
 						}
 					}
 
@@ -486,8 +502,10 @@ function _process_public_dir_lookup($base_dir, $curr_dir, $assetid)
 		$sql = 'SELECT * FROM '.$table.' WHERE url LIKE ';
 
 		$hash = get_asset_hash($assetid);
-		$old_public_url = '__data/assets/'.$curr_dir.'/'.$assetid;
-		$new_public_url = '__data/assets/'.$curr_dir.'/'.$hash.'/'.$assetid;
+
+		// Remove '__data' to include System Static URL
+		$old_public_url = '/assets/'.$curr_dir.'/'.$assetid;
+		$new_public_url = '/assets/'.$curr_dir.'/'.$hash.'/'.$assetid;
 
 		switch ($table) {
 			case 'sq_ast_lookup' :
@@ -653,7 +671,7 @@ function generate_report($with_result=FALSE)
 														FROM
 															'.$table.'
 														WHERE
-															url LIKE '.$db->quoteSmart('%/__data/assets/'.$file.'/'.$assetid.'%');
+															url LIKE '.$db->quoteSmart('%/assets/'.$file.'/'.$assetid.'%');
 											break;
 											case 'sq_ast_lookup_remap' :
 												$sql = 'SELECT
@@ -661,8 +679,8 @@ function generate_report($with_result=FALSE)
 														FROM
 															'.$table.'
 														WHERE
-															url LIKE '.$db->quoteSmart('%/__data/assets/'.$file.'/'.$assetid.'%').' OR
-															remap_url LIKE'.$db->quoteSmart('%/__data/assets/'.$file.'/'.$assetid.'%');
+															url LIKE '.$db->quoteSmart('%/assets/'.$file.'/'.$assetid.'%').' OR
+															remap_url LIKE'.$db->quoteSmart('%/assets/'.$file.'/'.$assetid.'%');
 											break;
 										}
 
