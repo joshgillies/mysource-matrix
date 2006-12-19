@@ -10,14 +10,19 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_create.xml,v 1.1 2006/12/19 22:13:12 arailean Exp $
+* $Id: edit_interface_create.xml,v 1.2 2006/12/19 23:45:23 arailean Exp $
 *
 */
 -->
 
 <contents screen="details">
-		<section name="Details">
-			<field attribute="name" />
-			<field attribute="comment" />
-		</section>
+	<section name="Details">
+		<field attribute="name" />
+		<field keyword="comment">
+			<function_call>
+				<paint_function   name="paintComment"   />
+				<process_function name="processComment" />
+			</function_call>
+		</field>
+	</section>
 s</contents>
