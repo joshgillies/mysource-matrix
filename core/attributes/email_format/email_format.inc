@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.34 2006/12/05 05:42:30 bcaldwell Exp $
+* $Id: email_format.inc,v 1.35 2006/12/19 06:03:18 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -450,7 +450,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				}
 			}
 
-			$mime->setTXTBody(strip_tags($text_body));
+			$mime->setTXTBody($text_body);
 			$mime->setHTMLBody($html_body);
 
 			// get() must be called before headers()
@@ -472,12 +472,31 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	function getKeywords()
 	{
 		$current_value = @unserialize($this->value);
+		$keyword_fields = Array(
+							'to',
+							'from',
+							'subject',
+							'text_format',
+							'html_format',
+						  );
+
 		$res = Array();
-		$res = array_merge($res, retrieve_keywords_replacements(array_get_index($current_value, 'to')));
-		$res = array_merge($res, retrieve_keywords_replacements(array_get_index($current_value, 'from')));
-		$res = array_merge($res, retrieve_keywords_replacements(array_get_index($current_value, 'subject')));
-		$res = array_merge($res, retrieve_keywords_replacements(array_get_index($current_value, 'text_format')));
-		$res = array_merge($res, retrieve_keywords_replacements(array_get_index($current_value, 'html_format')));
+		foreach ($keyword_fields as $field) {
+			$field_value = array_get_index($current_value, $field, '');
+			if (!empty($field_value)) {
+				if (is_array($field_value)) {
+					$value = Array();
+					foreach ($field_value as $idx => $val) {
+						$value[$idx] = retrieve_keywords_replacements($val);
+						$res = array_merge($res, $value[$idx]);
+					}
+				} else {
+					$value = retrieve_keywords_replacements($field_value);
+					$res = array_merge($res, $value);
+				}
+			}
+		}
+
 		return $res;
 
 	}//end getKeywords()
