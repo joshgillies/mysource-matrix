@@ -1,0 +1,59 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2006/12/19 06:20:02 rhoward Exp $
+*
+*
+* Ecommerce Package Localised Strings File
+*/
+-->
+
+<strings>
+<string source="online_quiz_keyword_error_list">Error list</string>
+<string source="online_quiz_keyword_warning_list">Warning list</string>
+<string source="online_quiz_keyword_question_number">Question Number (Asset Position)</string>
+<string source="online_quiz_keyword_results_table_full">Results Table (Full)</string>
+<string source="online_quiz_keyword_results_table_simple">Results Table (Simple)</string>
+<string source="online_quiz_keyword_question_range">Question Range (which questions are currently being displayed)</string>
+<string source="online_quiz_keyword_question_count">Question Count (number of questions in this quiz)</string>
+
+<string source="online_quiz_bodycopy_thank_you">Thank You Bodycopy</string>
+<string source="online_quiz_bodycopy_thank_you_desc">This format defines the layout of the "Thank You" page that (optionally) appears when the quiz is completed.</string>
+<string source="online_quiz_bodycopy_already_taken">Already Taken Bodycopy</string>
+<string source="online_quiz_bodycopy_already_taken_desc">This format defines the layout of the "Already Taken" notification page appears (which displays when the test has already been taken).</string>
+<string source="online_quiz_bodycopy_user_details">User Details Bodycopy</string>
+<string source="online_quiz_bodycopy_user_details_desc">This format defines the layout of the "User Details" page that appears when a user has to enter their details. Make sure to include the %%form_contents%% keyword.</string>
+<string source="online_quiz_form_user_details">User Details Form</string>
+<string source="online_quiz_form_user_details_desc">This form defines which questions can/must be filled out before the quiz can be taken. Note that this form will be displayed to non-logged-in users regardless of the "User Details Source" setting.</string>
+
+<string source="online_quiz_bodycopy_thank_you_default">Thank you for taking the quiz; your results are displayed below:</string>
+<string source="online_quiz_bodycopy_user_details_default">Please fill out your details below:</string>
+<string source="online_quiz_bodycopy_already_taken_default">You've already taken this quiz, and cannot take it again.</string>
+
+<string source="online_quiz_results_header_question_num">#</string>
+<string source="online_quiz_results_header_assetid">Asset ID</string>
+<string source="online_quiz_results_header_question_text">Question</string>
+<string source="online_quiz_results_header_value">Answer</string>
+<string source="online_quiz_results_header_summary">Answer Text</string>
+<string source="online_quiz_results_header_points">Score</string>
+<string source="online_quiz_results_header_available_points">Maximum Score</string>
+<string source="online_quiz_results_header_total_points">Total Score</string>
+<string source="online_quiz_results_header_total_available_points">Total Maximum Score</string>
+<string source="online_quiz_results_header_totals">Totals</string>
+
+<!-- A hack to make an empty column cell appear on all browsers -->
+<string source="online_quiz_results_header_totals_empty_cell">&amp;nbsp;</string>
+
+
+</strings>
+

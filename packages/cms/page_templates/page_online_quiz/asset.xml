@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../asset.xsl" type="text/xsl"?>
+
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: asset.xml,v 1.1 2006/12/19 06:20:01 rhoward Exp $
+*
+*/
+-->
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
+	<package>cms</package>
+	<type_code>page_online_quiz</type_code>
+	<version>0.1</version>
+	<name>Online Quiz</name>
+	<description>An online quiz</description>
+	<instantiable>yes</instantiable>
+	<allowed_access>backend_user</allowed_access>
+	<parent_type>page_asset_listing</parent_type>
+	<requirements>
+		<requirement type="system">
+			<code>System</code>
+			<version>3.11.0</version>
+		</requirement>
+		<requirement type="asset">
+			<code>page_asset_listing</code>
+			<version>0.4</version>
+		</requirement>
+	</requirements>
+	<flash_menu_path>Pages</flash_menu_path>
+</asset_info>

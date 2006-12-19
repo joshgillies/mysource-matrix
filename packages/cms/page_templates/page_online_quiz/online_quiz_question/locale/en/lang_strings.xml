@@ -1,0 +1,36 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2006/12/19 06:20:04 rhoward Exp $
+*
+* Localised Strings File for Form Question Asset
+*/
+-->
+
+<strings>
+<string source="online_quiz_question_warning_empty_question">Question #%s has not been answered.</string>
+<string source="online_quiz_question_use_question_text_bodycopy">Use Bodycopy for Question Text?</string>
+<string source="online_quiz_question_use_question_text_bodycopy_note">If this is set to Yes, an additional "Question Text" bodycopy will appear, allowing you more control over the question text. Note that this is turned off by default.</string>
+<string source="online_quiz_question_bodycopy_question_text">Question Text</string>
+
+<string source="online_quiz_question_keyword_question_text">Question Text</string>
+<string source="online_quiz_question_keyword_response_form">Response Form</string>
+<string source="online_quiz_question_keyword_available_points">Available Points</string>
+</strings>

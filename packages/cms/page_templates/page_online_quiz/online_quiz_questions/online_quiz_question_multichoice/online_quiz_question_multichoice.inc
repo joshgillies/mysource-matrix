@@ -1,0 +1,477 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: online_quiz_question_multichoice.inc,v 1.1 2006/12/19 06:20:05 rhoward Exp $
+*
+*/
+
+
+require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_online_quiz/online_quiz_question/online_quiz_question.inc';
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
+
+/**
+* Online_Quiz_Question_Multichoice
+*
+* Purpose
+*	A quiz question that can display a list of options for the user to select
+*
+*	NOTE: It is recommended that a question only be used once per user, even if the question is shared amongst different quizes
+*	Simultaneously taking two tests with the same question contained in each will cause both questions to share data
+*
+*
+* @author  Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage cms
+*/
+class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
+{
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	the assetid of the asset to load into this object
+	*
+	* @return void
+	* @access public
+	*/
+	function Online_Quiz_Question_Multichoice($assetid=0)
+	{
+		$this->_ser_attrs = TRUE;
+		$this->Online_Quiz_Question($assetid);
+
+	}//end constructor
+
+
+	/**
+	* Set Attribute Value
+	*
+	* @param string	$name	name of attribute
+	* @param mixed	$value	value of attribute
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setAttrValue($name, $value)
+	{
+		switch ($name) {
+			case 'max_option_selections':
+				if ($value < 1) $value = 1;
+			break;
+		}
+		return parent::setAttrValue($name, $value);
+
+	}//end setAttrValue()
+
+
+	/**
+	* Processes the form using submitted values
+	*
+	* NOTE: Returns TRUE if the value is valid, otherwise returns FALSE or an array in the following format:
+	* <pre>
+	* Array(
+	* 	'errors'	=> Array('Sample error string'),
+	* 	'warnings'	=> Array('Question #12 has not been answered'),
+	* )
+	* </pre>
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processResponseForm()
+	{
+		$prefix = $this->getPrefix();
+
+		switch ($this->attr('option_style')) {
+			case 'list':
+				if ($this->attr('max_option_selections') <= 1) {
+					$value = array_get_index($_REQUEST, $prefix.'_response', NULL);
+				} else {
+					// Request format: Array(
+					// 					0 => option_key,
+					// 				   )
+					$value = array_get_index($_REQUEST, $prefix.'_response', Array());
+				}
+			break;
+
+			case 'radio':
+				if ($this->attr('max_option_selections') <= 1) {
+					$value = array_get_index($_REQUEST, $prefix.'_response', NULL);
+				} else {
+					// Request format: Array(
+					// 					option_key => is_checked
+					// 				   )
+					$value = array_keys(array_get_index($_REQUEST, $prefix.'_response', Array()));
+				}
+			break;
+		}//end switch (option_style)
+
+		$valid = $this->validateValue($value);
+		$errors = array_get_index($valid, 'errors', Array());
+		if (empty($errors)) {
+			$this->_value = $value;
+			$this->saveQuestion();
+		}
+
+		// return the error stack
+		return $valid;
+
+	}//end processResponseForm()
+
+
+	/**
+	* Determine whether or not this question
+	* currently has a valid value
+	*
+	* NOTE: Returns an array in the following format:
+	* <pre>
+	* Array(
+	* 	'errors'	=> Array('Sample error string'),
+	* 	'warnings'	=> Array('Question #12 has not been answered'),
+	* )
+	* </pre>
+	* The 'errors' and 'warnings' keys will always be present, but empty if no errors
+	* or warnings need to be returned
+	*
+	* @param mixed	$value	Custom value to compare with - if left NULL (or unspecified), use the current value of the question
+	*
+	* @return array
+	* @access public
+	*/
+	function validateValue($value=NULL)
+	{
+		if (is_null($value)) $value = $this->_value;
+
+		$errors = Array(
+					'errors'	=> Array(),
+					'warnings'	=> Array(),
+				  );
+
+		if (empty($value)) {
+			$errors['warnings'][] = translate('online_quiz_question_warning_empty_question', $this->getPosition());
+		}
+
+		return $errors;
+
+	}//end validateValue()
+
+
+	/**
+	* Returns the javascript used to validate the question
+	*
+	* @return string
+	* @access public
+	*/
+	function getValidationJS()
+	{
+		static $printed_fn = FALSE;
+
+		$prefix = $this->getPrefix();
+
+		ob_start();
+			if (!$printed_fn) {
+				// the "< echo translate('string', '%s'); >".replace(/%s/, question) is
+				// a hack to insert the question number in a translation string
+				// without using js_translate (which is unsupported on the frontend)
+				?>
+					function <?php echo $this->type(); ?>_validate(error_stack, question, answer)
+					{
+						if (!answer.length) {
+							 error_stack["warnings"][error_stack["warnings"].length] = "<?php echo translate('online_quiz_question_warning_empty_question', '%s'); ?>".replace('%s', question);
+						}
+					}
+				<?php
+				$printed_fn = TRUE;
+			}
+
+			$options = $this->attr('response_form');
+
+			// figure out which option(s) are selected
+			?>
+			var selected = new Array();
+			<?php
+
+			if ($this->attr('option_style') == 'radio') {
+				// checkboxes and radio buttons use the same format for their IDs
+				foreach ($options as $option_key => $option) {
+					?>
+					if (document.getElementById("<?php echo $prefix.'_response_'.$option_key; ?>").checked) selected[selected.length] = "<?php echo $option_key; ?>";
+					<?php
+				}
+			} else {
+				?>
+				select_box = document.getElementById("<?php echo $prefix.'_response'; ?>");
+				for (var ii in select_box.options) {
+					if (select_box.options[ii].selected) selected[selected.length] = ii;
+				}
+				<?php
+			}
+			?>
+			<?php echo $this->type(); ?>_validate(error_stack, <?php echo $this->getPosition(); ?>, selected);
+			<?php
+
+		return ob_get_clean();
+
+	}//end getValidationJS()
+
+
+	/**
+	* Returns the current user response in a human-readable format
+	*
+	* NOTE: Arrays of answers will stay in array format, with the exception
+	* that each element of the array will be rendered human-readable
+	*
+	* @return mixed
+	* @access public
+	*/
+	function getSummary()
+	{
+		$value = $this->getValue();
+		if ($this->attr('max_option_selections') <= 1) {
+			$options = $this->attr('response_form');
+			$selected_option = array_get_index($options, $value, Array());
+			return array_get_index($selected_option, 'text', '');
+		} else {
+			$options = $this->attr('response_form');
+			$summary = Array();
+			if (!empty($value)) {
+				foreach ($value as $response) {
+					$selected_option = array_get_index($options, $response, Array());
+					$summary[]       = array_get_index($selected_option, 'text', '');
+				}
+			}
+			return $summary;
+		}
+
+	}//end getSummary()
+
+
+	/**
+	* Determine how many points the given value (or the question's current value) is worth
+	*
+	* @param mixed	$value	the value to use determining the number of points scored - if NULL, use the question's value
+	*
+	* @return int
+	* @access public
+	*/
+	function getPoints($value=NULL)
+	{
+		if (is_null($value)) $value = $this->getValue();
+
+		$total_points   = 0;
+
+		$options         = $this->attr('response_form');
+		$max_selections  = $this->attr('max_option_selections');
+		$forfeit_penalty = $this->attr('forfeit_penalty');
+
+		if (empty($options) || empty($max_selections)) {
+			// invalid, nothing to select; bail without docking points
+			return 0;
+		}
+
+		// if the nothing was selected, apply the forfeit penalty and bail
+		if (empty($value)) return ($forfeit_penalty * -1);
+
+		if ($max_selections == 1) {
+
+			// if an invalid answer was selected - dock points as if they hadn't answered at all
+			if (!isset($options[$value]['points'])) {
+				return ($forfeit_penalty * -1);
+			}
+
+			$total_points += $options[$value]['points'];
+
+		} else {
+
+			// make sure only $max_selections or less options have been selected - otherwise
+			// dock points as if they hadn't answered at all
+			// (this prevents the user just selecting everything and getting the answer right)
+			if (count($value) > $max_selections) {
+				return ($forfeit_penalty * -1);
+			}
+
+			foreach ($options as $option_key => $option) {
+				if (in_array($option_key, $value)) {
+					$total_points += $option['points'];
+				}
+			}
+
+		}
+
+		return $total_points;
+
+	}//end getPoints()
+
+
+	/**
+	* Determine how many points are available from this question in total
+	*
+	* @return int
+	* @access public
+	*/
+	function getAvailablePoints()
+	{
+		$total_points   = 0;
+
+		$options        = $this->attr('response_form');
+		$max_selections = $this->attr('max_option_selections');
+
+		if (empty($options) || empty($max_selections)) {
+			// invalid, nothing to select
+			return 0;
+		}
+
+		// order the questions by points value, then choose the
+		// first $this->attr('max_option_selections') and add them up
+
+		$option_points = Array();
+		foreach ($options as $option_key => $option) {
+			$option_points[] = $option['points'];
+		}
+		rsort($option_points, SORT_NUMERIC);
+
+		$slice_min = 0;
+		$slice_max = min(count($option_points), $max_selections);
+
+		$points_to_count = array_slice($option_points, $slice_min, $slice_max);
+
+		foreach ($points_to_count as $points_value) {
+			if ($points_value > 0) $total_points += $points_value;
+		}
+
+		return $total_points;
+
+	}//end getAvailablePoints()
+
+
+	/**
+	* Compiles the results array to be used by the quiz during marking
+	*
+	* The results are returned in the following format:
+	* <pre>
+	* Array(
+	*	'assetid'			=> assetid,
+	*	'value'				=> string,	// flattened raw value
+	*	'summary'			=> string,	// flattened human-readible value
+	*	'points'			=> int,		// earned points
+	*	'available_points'	=> int,		// available points
+	* )
+	* </pre>
+	*
+	* @param boolean	$flatten	whether not to flatten the human-readable 'summary' array into a single string (TRUE by default)
+	*
+	* @return array
+	* @access public
+	*/
+	function getResults($flatten=TRUE)
+	{
+		$value     = $this->getValue();
+		if ($flatten && is_array($value)) {
+			$value = implode(', ', $value);
+		}
+
+		$summary   = $this->getSummary();
+		if ($flatten && is_array($summary)) {
+			if (count($summary) <= 1) {
+				$summary = reset($summary);
+			} else {
+				$summary = '"'.implode('", "', $summary).'"';
+			}
+		}
+
+		$points    = $this->getPoints();
+		$available = $this->getAvailablePoints();
+
+		$results   = Array(
+						'assetid'			=> $this->id,
+						'value'				=> $value,
+						'summary'			=> $summary,
+						'points'			=> $points,
+						'available_points'	=> $available,
+					 );
+
+		return $results;
+
+	}//end getResults()
+
+
+//--        Keyword Replacements        --//
+
+
+	/**
+	* Get the replacement for the "response_form" keyword
+	*
+	* To be overridden by the children
+	*
+	* @return string
+	* @access public
+	*/
+	function getResponseFormKeywordReplacement()
+	{
+		$prefix = $this->getPrefix();
+
+		$options = $this->attr('response_form');
+		$value = $this->getValue();
+
+		ob_start();
+			?><div class="sq-<?php echo str_replace('_', '-', $this->type()); ?>"><?php
+
+			if (empty($options)) {
+				echo translate('online_quiz_question_multichoice_empty_options');
+			} else {
+				switch ($this->attr('option_style')) {
+					case 'list':
+						$selection_contents = Array();
+						foreach ($options as $option_key => $option) {
+							$selection_contents[$option_key] = htmlentities($option['text']);
+						}
+						combo_box($prefix.'_response', $selection_contents, ($this->attr('max_option_selections') > 1), $value);
+					break;
+
+					case 'radio':
+					default:
+						?><ul><?php
+						foreach ($options as $option_key => $option) {
+							?><li><?php
+							if ($this->attr('max_option_selections') <= 1) {
+								radio_button($prefix.'_response', $option_key, ($value == $option_key), '', 'id="'.$prefix.'_response_'.$option_key.'"');
+							} else {
+								if (!is_array($value)) $value = Array();
+								check_box($prefix.'_response['.$option_key.']', '1', (in_array($option_key, $value)), '', 'id="'.$prefix.'_response_'.$option_key.'"');
+							}
+							label(htmlentities($option['text']), $prefix.'_response['.$option_key.']');
+							?></li><?php
+						}
+						?></ul><?php
+					break;
+				}//end switch (option_style)
+			}//end if (empty($options))
+
+			?></div><?php
+
+		return ob_get_clean();
+
+	}//end getResponseFormKeywordReplacement()
+
+
+}//end class
+?>
