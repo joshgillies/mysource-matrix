@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.134 2006/12/19 00:21:39 lwright Exp $
+* $Id: search_manager.inc,v 1.135 2006/12/19 00:45:21 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.134 $
+* @version $Revision: 1.135 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1444,7 +1444,7 @@ class Search_Manager extends Asset
 						}
 
 						// If we already have a parent, break out
-						if ($closest_parent != 0) break;
+						if ($closest_parentid != 0) break;
 					}
 
 					if ($closest_parentid != 0) {
