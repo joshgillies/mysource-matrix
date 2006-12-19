@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.135 2006/12/19 00:45:21 lwright Exp $
+* $Id: search_manager.inc,v 1.136 2006/12/19 00:53:49 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.135 $
+* @version $Revision: 1.136 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1402,7 +1402,8 @@ class Search_Manager extends Asset
 					}
 				} else {
 					$type_code = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
-					$type_code = $type_code[$assetid];
+					$type_code = array_get_index($type_code, $assetid, '');
+
 					// firstly, check to see if there is an explicit entry for this assetid
 					if (isset($asset_tree_weightings[$assetid]['type_weights'][$type_code])) {
 						return $asset_tree_weightings[$assetid]['type_weights'][$type_code];
@@ -1412,6 +1413,9 @@ class Search_Manager extends Asset
 					if (isset($asset_tree_weightings[$assetid]['type_weights']['asset'])) {
 						return $asset_tree_weightings[$assetid]['type_weights']['asset'];
 					}
+
+					// if type code not found for some unknown reason, default to base asset
+					if (empty($type_code)) $type_code = 'asset';
 
 					// there is no explicit weighting customisation for the assetid
 					// so do a tree lookup for the closest one. getParents ORDER's by treeid
