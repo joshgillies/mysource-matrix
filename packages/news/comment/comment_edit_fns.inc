@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_edit_fns.inc,v 1.1 2006/12/19 05:37:03 bcaldwell Exp $
+* $Id: comment_edit_fns.inc,v 1.2 2006/12/19 22:13:12 arailean Exp $
 *
 */
 
@@ -23,11 +23,11 @@ require_once SQ_CORE_PACKAGE_PATH.'/page_templates/page_standard/page_standard_e
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
-class Comment_Edit_Fns extends Page_Standard_Edit_Fns
+class Comment_Edit_Fns extends Asset_Edit_Fns
 {
 
 }//end class
