@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2006/12/19 22:13:12 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2006/12/19 23:34:06 arailean Exp $
 *
 */
 -->
@@ -20,8 +20,11 @@
 		<field attribute="name">
 			<text width="35" height="1" />
 		</field>
-		<field attribute="comment">
-			<text width="60" height="20" />
+		<field keyword="comment">
+			<function_call>
+				<paint_function   name="paintComment"   />
+				<process_function name="processComment" />
+			</function_call>
 		</field>
 	</section>
 </contents>

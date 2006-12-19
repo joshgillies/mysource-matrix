@@ -10,11 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment.inc,v 1.2 2006/12/19 22:13:12 arailean Exp $
+* $Id: comment.inc,v 1.3 2006/12/19 23:34:06 arailean Exp $
 *
 */
 
-require_once SQ_CORE_PACKAGE_PATH.'/page_templates/page_standard/page_standard.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 
 /**
 * Comment
@@ -22,28 +22,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/page_templates/page_standard/page_standard.i
 *   Purpose
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
-class Comment extends Asset
+class Comment extends Page
 {
-
-
-	/**
-	* Returns name of the asset
-	*
-	* @param boolean	$short_name	whether or not we are after the short name or the full name
-	*
-	* @return string
-	* @access private
-	* @see Asset::_getName()
-	*/
-	function _getName($short_name=FALSE)
-	{
-		return $this->attr('name');
-
-	}//end _getName()
 
 
 }//end class

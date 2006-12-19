@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_management.inc,v 1.2 2006/12/19 22:13:12 arailean Exp $
+* $Id: comment_management.inc,v 1.3 2006/12/19 23:34:06 arailean Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -36,13 +36,6 @@ class Comment_Management extends Asset_Management
 	function Comment_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-
-		$this->vars['name'] = Array(
-								'added'		=> '0.1',
-								'type'		=> 'text',
-								'default'	=> '',
-								'is_admin'      => false,
-							  );
 
 		$this->vars['comment'] = Array(
 									'added'		=> '0.1',
