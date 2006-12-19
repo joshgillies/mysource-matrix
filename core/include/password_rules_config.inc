@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: password_rules_config.inc,v 1.10 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: password_rules_config.inc,v 1.11 2006/12/19 23:07:24 tbarrett Exp $
 *
 */
 
@@ -23,12 +23,11 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * Purpose
 *
-*    Looks after the creation and editing of the location of external tools
-*    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
+*    Allows the configuration of rules for passwords
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 class Password_Rules_Config extends Config
@@ -198,19 +197,19 @@ class Password_Rules_Config extends Config
 							<?php
 							switch ($password_rule) {
 								case 'SQ_PASSWD_RULE_NUM_CAPS':
-									echo translate('capital_letters');
+									echo ucfirst(translate('capital_letters'));
 								break;
 								case 'SQ_PASSWD_RULE_NUM_LOWER':
-									echo translate('lower_case_letters');
+									echo ucfirst(translate('lowercase_letters'));
 								break;
 								case 'SQ_PASSWD_RULE_NUM_INT':
-									echo translate('numbers');
+									echo ucfirst(translate('numeric_digits'));
 								break;
 								case 'SQ_PASSWD_RULE_NUM_PUNC':
-									echo translate('punctuation');
+									echo ucfirst(translate('punctuation_characters'));
 								break;
 								case 'SQ_PASSWD_RULE_NUM_SPC':
-									echo translate('spaces');
+									echo ucfirst(translate('spaces'));
 								break;
 
 								default:

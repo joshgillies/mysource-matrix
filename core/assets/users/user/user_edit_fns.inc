@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.31 2006/12/05 06:04:33 bcaldwell Exp $
+* $Id: user_edit_fns.inc,v 1.32 2006/12/19 23:07:24 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,6 +45,28 @@ class User_Edit_Fns extends Asset_Edit_Fns
 		$this->Asset_Edit_Fns();
 
 	}//end constructor
+
+
+
+	/**
+	* Paints interface for entering password
+	*
+	* @param object	&$asset	the user asset
+	* @param object	&$o		the backend outputter object
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintPasswordNote(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			$o->note(translate('password_entry_instructions').'<br />'.$asset->getPasswordRulesDescription());
+			return TRUE;
+		}
+		return FALSE;
+
+	}//end paintPassword()
 
 
 	/**

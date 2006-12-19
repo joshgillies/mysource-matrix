@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.207 2006/12/18 21:49:08 arailean Exp $
+* $Id: lang_strings.xml,v 1.208 2006/12/19 23:07:24 tbarrett Exp $
 *
 */
 
@@ -67,7 +67,6 @@
 	<string source="inherit_types">Inherit Types</string>
 	<string source="at" js="1">At</string>
 	<string source="attribute_search_fields">Attribute Search Fields</string>
-	<string source="capital_letters">Capital letters</string>
 	<string source="cascade_options">Cascade Options</string>
 	<string source="cascade_permission_changes">Cascade Permission Changes?</string>
 	<string source="cascade">Cascade</string>
@@ -180,7 +179,6 @@
 	<string source="logical_keywords">Logical Keywords</string>
 	<string source="login/session_settings">Login/Session Settings</string>
 	<string source="lookups_updating_threshold">Lookups Updating Threshold</string>
-	<string source="lower_case_letters">Lower case letters</string>
 	<string source="manage_passwd_rules">Manage Password Rules</string>
 	<string source="manually_cascade_permissions">Manually Cascade Permissions?</string>
 	<string source="match_condition">Match Condition</string>
@@ -220,6 +218,7 @@
 	<string source="no_status_selected">No statuses are selected</string>
 	<string source="note">Note</string>
 	<string source="numbers">Numbers</string>
+	<string source="one">one</string>
 	<string source="or_value_of_question">OR Value of Question</string>
 	<string source="old_url">Old URL</string>
 	<string source="operator">Operator</string>
@@ -250,7 +249,6 @@
 	<string source="proxy_url_manipulation">Proxy URL Manipulation</string>
 	<string source="proxy_url_strip_port">Ignore Port Number</string>
 	<string source="proxy_url_strip_port_note">Useful if you access MySource Matrix using a specific port number (i.e. specified in the URL). If you choose to ignore port numbers, URLs printed by MySource Matrix will not contain the port number by which the system is being accessed.</string>
-	<string source="punctuation">Punctuation</string>
 	<string source="purge_trash_threshold">Purge Trash Threshold</string>
 	<string source="regular_expression">Regular Expression</string>
 	<string source="remove_question">Remove ?</string>
@@ -266,7 +264,6 @@
 	<string source="show_in_asset_map">Show in Asset Map</string>
 	<string source="show_lineages">Show Lineages</string>
 	<string source="show_safe_edit_difference">Show the differences between the system version and the edited version</string>
-	<string source="spaces">Spaces</string>
 	<string source="specify_min_length_passwd">Specify a minimum password length</string>
 	<string source="standard_asset_field">Standard Asset Field</string>
 	<string source="standard_search_fields">Standard Search Fields</string>
@@ -2086,4 +2083,31 @@ Are you sure you want to proceed?</string>
 	<string source="force_secure_login_urls_note">Any time login box is to printed at a URL based on a root URL selected above, secure HTTP protocol will be used, regardless of any other protocol settings</string>
 	<string source="require_secure_login">Require Secure Login</string>
 
+	<string source="password_rules_min_length">Passwords must be at least %d characters long</string>
+	<string source="password_rules_user_info_prohibited">Passwords must not contain any user information</string>
+	<string source="password_rules_at_least_n_caps">Passwords must contain at least %d capital letter(s)</string>
+	<string source="password_rules_at_least_n_lower">Passwords must contain at least %d lower-case letter(s)</string>
+	<string source="password_rules_at_least_n_numeric">Passwords must contain at least %d numeric digit(s)</string>
+	<string source="password_rules_at_least_n_punc">Passwords must contain at least %d punctuation character(s)</string>
+	<string source="password_rules_at_least_n_spaces">Passwords must contain at least %d space(s)</string>
+
+	<string source="password_rules_not_allowed">%s are not allowed in passwords</string>
+	<string source="password_rules_at_least">Passwords must contain at least %1$s %2$s</string>
+
+	<string source="capital_letters">capital letters</string>
+	<string source="lowercase_letters">lower case letters</string>
+	<string source="numeric_digits">numeric digits</string>
+	<string source="punctuation_characters">punctuation characters</string>
+	<string source="spaces">spaces</string>
+
+	<string source="capital_letter">capital letter</string>
+	<string source="lowercase_letter">lower case letter</string>
+	<string source="numeric_digit">numeric digit</string>
+	<string source="punctuation_character">punctuation character</string>
+	<string source="space">space</string>
+
+	<string source="password_rules_blacklist_strict">The following passwords are not allowed: %s</string>
+	<string source="password_rules_blacklist_loose">Passwords must not contain any of these words: %s</string>
+	<string source="password_rules_intro">The following password rules are in effect</string>
+	<string source="password_entry_instructions">Enter password once, then again to confirm.</string>
 </strings>

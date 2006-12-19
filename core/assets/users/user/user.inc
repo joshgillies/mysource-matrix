@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.110 2006/12/05 06:04:33 bcaldwell Exp $
+* $Id: user.inc,v 1.111 2006/12/19 23:07:24 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.110 $
+* @version $Revision: 1.111 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -368,6 +368,94 @@ class User extends Asset
 		return $status;
 
 	}//end validatePassword()
+
+
+	/**
+	* Get a description of the password rules currently in effect
+	*
+	* @return string
+	* @access public
+	*/
+	function getPasswordRulesDescription()
+	{
+		include_once SQ_DATA_PATH.'/private/conf/password_rules.inc';
+		$res = Array();
+		if (SQ_PASSWD_RULE_LENGTH > 0) {
+			$res[] = translate('password_rules_min_length', SQ_PASSWD_RULE_LENGTH);
+		}
+		if (SQ_PASSWD_RULE_DISALLOW_USER_INFO == 0) {
+			// yes this was built the wrong way around
+			$res[] = translate('password_rules_user_info_prohibited');
+		}
+
+		if (SQ_PASSWD_RULE_NUM_CAPS > 1) {
+			$res[] = translate('password_rules_at_least', SQ_PASSWD_RULE_NUM_CAPS, translate('capital_letters'));
+		}
+		if (SQ_PASSWD_RULE_NUM_LOWER > 1) {
+			$res[] = translate('password_rules_at_least', SQ_PASSWD_RULE_NUM_LOWER, translate('lowercase_letters'));
+		}
+		if (SQ_PASSWD_RULE_NUM_INT > 1) {
+			$res[] = translate('password_rules_at_least', SQ_PASSWD_RULE_NUM_INT, translate('numeric_digits'));
+		}
+		if (SQ_PASSWD_RULE_NUM_PUNC > 1) {
+			$res[] = translate('password_rules_at_least', SQ_PASSWD_RULE_NUM_PUNC, translate('punctuation_characters'));
+		}
+		if (SQ_PASSWD_RULE_NUM_SPC > 1) {
+			$res[] = translate('password_rules_at_least', SQ_PASSWD_RULE_NUM_SPC, translate('spaces'));
+		}
+
+		if (SQ_PASSWD_RULE_NUM_CAPS == 1) {
+			$res[] = translate('password_rules_at_least', translate('one'), translate('capital_letter'));
+		}
+		if (SQ_PASSWD_RULE_NUM_LOWER == 1) {
+			$res[] = translate('password_rules_at_least', translate('one'), translate('lowercase_letter'));
+		}
+		if (SQ_PASSWD_RULE_NUM_INT == 1) {
+			$res[] = translate('password_rules_at_least', translate('one'), translate('numeric_digit'));
+		}
+		if (SQ_PASSWD_RULE_NUM_PUNC == 1) {
+			$res[] = translate('password_rules_at_least', translate('one'), translate('punctuation_character'));
+		}
+		if (SQ_PASSWD_RULE_NUM_SPC == 1) {
+			$res[] = translate('password_rules_at_least', translate('one'), translate('space'));
+		}
+
+		$disallowed_chars = Array();
+		if (SQ_PASSWD_RULE_NUM_CAPS == -1) {
+			$disallowed_chars[] = translate('capital_letters');
+		}
+		if (SQ_PASSWD_RULE_NUM_LOWER == -1) {
+			$disallowed_chars[] = translate('lowercase_letters');
+		}
+		if (SQ_PASSWD_RULE_NUM_INT == -1) {
+			$disallowed_chars[] = translate('numeric_digits');
+		}
+		if (SQ_PASSWD_RULE_NUM_PUNC == -1) {
+			$disallowed_chars[] = translate('punctuation_characters');
+		}
+		if (SQ_PASSWD_RULE_NUM_SPC == -1) {
+			$disallowed_chars[] = translate('spaces');
+		}
+		if (!empty($disallowed_chars)) {
+			include_once SQ_FUDGE_PATH.'/general/text.inc';
+			$res[] = ucfirst(translate('password_rules_not_allowed', make_readable_list($disallowed_chars, strtolower(translate('and')))));
+		}
+
+		$black_words = Array();
+		foreach (explode("\n", SQ_PASSWD_RULE_BLACK_LIST) as $word) {
+			$black_words[] = '"'.trim($word).'"';
+		}
+		if (!empty($black_words)) {
+			if (SQ_PASSWD_RULE_BLACK_LIST_EXACT) {
+				$res[] = translate('password_rules_blacklist_strict', implode(', ', $black_words));
+			} else {
+				$res[] = translate('password_rules_blacklist_loose', implode(', ', $black_words));
+			}
+		}
+
+		return translate('password_rules_intro').': <ul class="password-rules"><li>'.implode('</li><li>', $res).'</li></ul>';
+
+	}//end getPasswordRulesDescription()
 
 
 	/**
