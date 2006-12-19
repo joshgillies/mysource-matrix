@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.131.2.2 2006/12/18 23:02:26 lwright Exp $
+* $Id: search_manager.inc,v 1.131.2.3 2006/12/19 03:27:53 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.131.2.2 $
+* @version $Revision: 1.131.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1407,7 +1407,8 @@ class Search_Manager extends Asset
 					}
 				} else {
 					$type_code = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
-					$type_code = $type_code[$assetid];
+					$type_code = array_get_index($type_code, $assetid, '');
+
 					// firstly, check to see if there is an explicit entry for this assetid
 					if (isset($asset_tree_weightings[$assetid]['type_weights'][$type_code])) {
 						return $asset_tree_weightings[$assetid]['type_weights'][$type_code];
@@ -1418,15 +1419,16 @@ class Search_Manager extends Asset
 						return $asset_tree_weightings[$assetid]['type_weights']['asset'];
 					}
 
+					// if type code not found for some unknown reason, default to base asset
+					if (empty($type_code)) $type_code = 'asset';
+
 					// there is no explicit weighting customisation for the assetid
 					// so do a tree lookup for the closest one. getParents ORDER's by treeid
 					// by default so we can be garunteed that the closest assetids are at the top of the array
 					$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($assetid);
 					$closest_parentid = 0;
 
-					// check to see if there are any customisations under this
-					// tree for the specified asset type. Note that tree proximity supersedes
-					// the type hierachy, so search the type hierachy if applicable
+					// find the parent asset types of this type code
 					if (!$strict_type_code) {
 						$type_hier = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, TRUE);
 						// add the current type code so that we can also find
@@ -1436,9 +1438,11 @@ class Search_Manager extends Asset
 						$type_hier = Array($type_code);
 					}
 
-					foreach (array_keys($parents) as $parentid) {
-						if (in_array($parentid, array_keys($asset_tree_weightings))) {
-							foreach ($type_hier as $type_code) {
+					// Search by type code first; that way we will always find the
+					// closest asset type to what we are using
+					foreach ($type_hier as $type_code) {
+						foreach (array_keys($parents) as $parentid) {
+							if (in_array($parentid, array_keys($asset_tree_weightings))) {
 								if (isset($asset_tree_weightings[$parentid]['type_weights'])) {
 									if (in_array($type_code, array_keys($asset_tree_weightings[$parentid]['type_weights']))) {
 										$closest_parentid = $parentid;
@@ -1447,7 +1451,11 @@ class Search_Manager extends Asset
 								}
 							}
 						}
+
+						// If we already have a parent, break out
+						if ($closest_parent != 0) break;
 					}
+
 					if ($closest_parentid != 0) {
 						return $asset_tree_weightings[$closest_parentid]['type_weights'][$type_code];
 					}
