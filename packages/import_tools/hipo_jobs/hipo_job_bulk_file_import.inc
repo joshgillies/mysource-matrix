@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_bulk_file_import.inc,v 1.3 2006/12/06 22:31:40 emcdonald Exp $
+* $Id: hipo_job_bulk_file_import.inc,v 1.3.2.1 2006/12/19 04:11:15 skim Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * HIPO for importing files into Matrix assets
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -117,7 +117,7 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return translate('file_import_tools_hipo_threshold');
+		return translate('file_import_tools_bulk_file_import_hipo_name');
 
 	}//end getHipoName()
 
