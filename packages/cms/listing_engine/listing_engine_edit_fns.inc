@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.68 2006/12/07 00:04:19 emcdonald Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.69 2006/12/19 06:04:59 rhoward Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -525,7 +525,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Paint links to the defaut formats
+	* Paint links to the default formats
 	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class
@@ -563,20 +563,22 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	* @param string	$root_assetid			the id of the asset to look under for bodycopies; NULL indicates the listing_engine asset itself
 	* @param string	$bodycopy_name			the name of the bodycopy to print, eg. 'no_results'
 	* @param string	$bodycopy_description	the description to label the bodycopy with
+	* @param string	$type_code				the type_code of the format to the print (by default, 'bodycopy')
+	* @param string	$screen					the edit screen to link to
 	*
 	* @return void
 	* @access private
 	*/
-	function _paintDefaultFormatLink($root_assetid, $bodycopy_name, $bodycopy_description)
+	function _paintDefaultFormatLink($root_assetid, $bodycopy_name, $bodycopy_description, $type_code='bodycopy', $screen='contents')
 	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($root_assetid, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $bodycopy_name);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($root_assetid, SQ_LINK_TYPE_2, $type_code, TRUE, $bodycopy_name);
 		if (!empty($link)) {
 			$info = Array($link['minorid'] => 'contents');
 			$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
 			?>
 			<tr>
 				<td>
-					<?php echo get_asset_tag_line($link['minorid'], 'contents'); ?>
+					<?php echo get_asset_tag_line($link['minorid'], $screen); ?>
 				</td>
 				<td>
 					<?php echo $bodycopy_description; ?>
