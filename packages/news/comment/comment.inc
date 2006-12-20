@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment.inc,v 1.9 2006/12/20 23:52:43 bcaldwell Exp $
+* $Id: comment.inc,v 1.10 2006/12/20 23:56:56 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define ('SQ_COMMENT_HTML_STRIP',	2);
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -78,6 +78,25 @@ class Comment extends Page
 		return $length;
 
 	}//end getCommentMaxLengthKeywordReplacement()
+
+
+	/**
+	* Return the keywords for this asset type.
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableKeywords()
+	{
+		$keywords = parent::getAvailableKeywords();
+
+		$keywords['comment_body'] = translate('news_comment_body');
+		$keywords['comment_title'] = translate('news_comment_title');
+		$keywords['comment_max_length'] = translate('news_comment_max_length');
+
+		return $keywords;
+
+	}//end getAvailableKeywords()
 
 
 	/**
