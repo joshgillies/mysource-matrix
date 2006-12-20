@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.4 2006/12/07 02:48:05 bcaldwell Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.5 2006/12/20 02:42:53 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -41,11 +41,14 @@ class Search_Manager_Plugin_PgSQL
 	* @param string	$search_term	Word to search for
 	* @param array	$data_source	Details of the data source to search in
 	* @param array	$base_query		The base of the sql query to use
+	* @param string	$word_logic		operator to use for intra-word logic
+	*								(IGNORED in PostgreSQL as the words are
+	*								already split up)
 	*
 	* @return array
 	* @access public
 	*/
-	function processWordSearch(&$sm, $search_term, $data_source, $base_query)
+	function processWordSearch(&$sm, $search_term, $data_source, $base_query, $word_logic='AND')
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 

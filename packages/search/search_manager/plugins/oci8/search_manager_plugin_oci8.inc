@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.7 2006/12/07 02:48:05 bcaldwell Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.8 2006/12/20 02:42:53 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -30,7 +30,7 @@ class Search_Manager_Plugin_OCI8
 {
 
 
-		/**
+	/**
 	* Processes a search for a particular word in a particular data source
 	*
 	* Return value is based on what has been set as the 'select' fields in the
@@ -41,18 +41,19 @@ class Search_Manager_Plugin_OCI8
 	* @param string	$search_term	Word to search for
 	* @param array	$data_source	Details of the data source to search in
 	* @param array	$base_query		The base of the sql query to use
+	* @param string	$word_logic		operator to use for intra-word logic
 	*
 	* @return array
 	* @access public
 	*/
-	function processWordSearch(&$sm, $search_term, $data_source, $base_query)
+	function processWordSearch(&$sm, $search_term, $data_source, $base_query, $word_logic='AND')
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		switch ($data_source['type']) {
 
 			case 'include_all':
-				$contains_str = $this->_buildContainsQuery('ai.value', $search_term);
+				$contains_str = $this->_buildContainsQuery('ai.value', $search_term, $word_logic);
 				if (!$contains_str) return Array();
 				$base_query['where'][] = $contains_str;
 
@@ -62,7 +63,7 @@ class Search_Manager_Plugin_OCI8
 				$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 				$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attribute->name);
 
-				$contains_str = $this->_buildContainsQuery('ai.value', $search_term);
+				$contains_str = $this->_buildContainsQuery('ai.value', $search_term, $word_logic);
 				if (!$contains_str) return Array();
 				$base_query['where'][] = $contains_str;
 			break;
@@ -96,7 +97,7 @@ class Search_Manager_Plugin_OCI8
 					$sub_contains_qry = trim($sub_contains_qry,$split_type);
 					$contains_str = ' contains(ai.value, '.$db->quoteSmart($sub_contains_qry).', 1) > 0';
 				} else {
-					$contains_str = $this->_buildContainsQuery('ai.value', $search_term, 1, (($key_type != 'text')));
+					$contains_str = $this->_buildContainsQuery('ai.value', $search_term, $word_logic, 1, (($key_type != 'text')));
 				}
 				if (!$contains_str) return Array();
 				$base_query['where'][] = $contains_str;
@@ -107,7 +108,7 @@ class Search_Manager_Plugin_OCI8
 				if (isset($sm->standard_text_fields[$field])) {
 					$base_query['where'][] = 'ai.component = '.$db->quote('__'.$field.'__');
 
-					$contains_str = $this->_buildContainsQuery('ai.value', $search_term);
+					$contains_str = $this->_buildContainsQuery('ai.value', $search_term, $word_logic);
 					if (!$contains_str) return Array();
 					$base_query['where'][] = $contains_str;
 				} else {
@@ -117,6 +118,7 @@ class Search_Manager_Plugin_OCI8
 
 		}//end switch
 		$sql = implode_sql($base_query);
+
 		if (count($base_query['select']) > 2) {
 			$result = $db->getAll($sql);
 		} else {
@@ -716,12 +718,13 @@ class Search_Manager_Plugin_OCI8
 	*
 	* returns TRUE if a reparse is required
 	*
-	* @param string	&$terms	the terms
+	* @param string	&$terms		the terms
+	* @param string	$word_logic	operator to use for intra-word logic
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _parseTerms(&$terms)
+	function _parseTerms(&$terms, $word_logic)
 	{
 		$prev_terms = $terms;
 		// 1	replace all space seperated words and phrases so that they are 'and'ed together
@@ -730,16 +733,19 @@ class Search_Manager_Plugin_OCI8
 		// 3	all words next to brackets need an operator between them
 		// 4	all phrases next to brackets need an operator between them
 		// 5	all phrases and words need an operator between them
+
+		$op = ($word_logic == 'OR') ? '|' : '&';
+
 		$replacements = Array(
-							'/(#)+(#)+/U'					=> '\1&\2',	// 1
-							'/(@)+(@)+/U'					=> '\1&\2',	// 1
-							'/(\)+)([^\&\|\~\@\#])*(\()/U'	=> '\1&\3',	// 2
-							'/(\))(#)/'						=> '\1&\2',	// 3
-							'/(#)(\()/'						=> '\1&\2',	// 3
-							'/(\))(@)/'						=> '\1&\2',	// 4
-							'/(@)(\()/'						=> '\1&\2',	// 4
-							'/(#)(@)/'						=> '\1&\2',	// 5
-							'/(@)(#)/'						=> '\1&\2',	// 5
+							'/(#)+(#)+/U'					=> '\1'.$op.'\2',	// 1
+							'/(@)+(@)+/U'					=> '\1'.$op.'\2',	// 1
+							'/(\)+)([^\&\|\~\@\#])*(\()/U'	=> '\1'.$op.'\3',	// 2
+							'/(\))(#)/'						=> '\1'.$op.'\2',	// 3
+							'/(#)(\()/'						=> '\1'.$op.'\2',	// 3
+							'/(\))(@)/'						=> '\1'.$op.'\2',	// 4
+							'/(@)(\()/'						=> '\1'.$op.'\2',	// 4
+							'/(#)(@)/'						=> '\1'.$op.'\2',	// 5
+							'/(@)(#)/'						=> '\1'.$op.'\2',	// 5
 						);
 		$terms = preg_replace(array_keys($replacements), $replacements, $terms);
 
@@ -842,15 +848,16 @@ class Search_Manager_Plugin_OCI8
 	* limit) and will switch to LIKE instead. This is lot slower than the text
 	* package function but avoids the possible truncation.
 	*
-	* @param string	$column	the column with the ctx_context index
-	* @param string	$terms	the terms from the text box (unquoted)
-	* @param string	$score	the score to use in the score() function
-	* @param string	$exact	whether to require an exact match
+	* @param string	$column		the column with the ctx_context index
+	* @param string	$terms		the terms from the text box (unquoted)
+	* @param string	$word_logic	operator to use for intra-word logic
+	* @param string	$score		the score to use in the score() function
+	* @param string	$exact		whether to require an exact match
 	*
 	* @return mixed string|boolean
 	* @access private
 	*/
-	function _buildContainsQuery($column, $terms, $score=1, $exact=FALSE)
+	function _buildContainsQuery($column, $terms, $word_logic='AND', $score=1, $exact=FALSE)
 	{
 		$exact_terms = $terms;
 		$terms = strtolower($terms);
@@ -901,7 +908,7 @@ class Search_Manager_Plugin_OCI8
 			$reparse = FALSE;
 			$reparse |= $this->_parseBrackets($terms);
 			$reparse |= $this->_parseOperators($terms);
-			$reparse |= $this->_parseTerms($terms);
+			$reparse |= $this->_parseTerms($terms, $word_logic);
 		}
 
 		// re-replace the terms
