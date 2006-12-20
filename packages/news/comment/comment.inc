@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment.inc,v 1.8 2006/12/20 23:40:20 bcaldwell Exp $
+* $Id: comment.inc,v 1.9 2006/12/20 23:52:43 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define ('SQ_COMMENT_HTML_STRIP',	2);
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -68,7 +68,6 @@ class Comment extends Page
 	* Get the maximum allowed length of comment input box
 	*
 	* Returns the setting from the Global Preferences screen.
-	* 0 (zero) means no limit
 	*
 	* @return string
 	* @access public
@@ -125,7 +124,6 @@ class Comment extends Page
 	function _formatValueBasedOnPreference($value)
 	{
 		$html_conf = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_COMMENT_HTML_CONF');
-		$value = html_entity_decode($value);
 
 		switch ($html_conf) {
 			case SQ_COMMENT_HTML_STRIP:
