@@ -10,13 +10,19 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_prefs.inc,v 1.1 2006/12/20 03:04:36 bcaldwell Exp $
+* $Id: comment_prefs.inc,v 1.2 2006/12/20 06:16:08 arailean Exp $
 *
 */
 
 require_once SQ_LIB_PATH.'/config/prefs.inc';
 require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
+require_once SQ_ATTRIBUTES_PATH.'/boolean/boolean.inc';
+
+
+define ('SQ_COMMENT_HTML_ALLOW',	0);
+define ('SQ_COMMENT_HTML_ESCAPE',	1);
+define ('SQ_COMMENT_HTML_STRIP',	2);
 
 /**
 * Comment_Prefs
@@ -26,7 +32,7 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 *    Looks after the creation the Comment Preferences
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Comment_Prefs extends Prefs
@@ -52,6 +58,12 @@ class Comment_Prefs extends Prefs
 						'SQ_COMMENT_MAX_LENGTH'	=> Array(
 													'name'			=> 'Comment Maximum Length',
 													'description'	=> 'This preferences allows you to set the maximum number of characters that can be entered in the Comment Input Box',
+													'default'		=> 0,
+													'protected'		=> FALSE,
+												   ),
+						'SQ_COMMENT_HTML_CONF'	=> Array(
+													'name'			=> 'HTML Treatment in comments',
+													'description'	=> 'Determines whether HTML is allowed, escaped or removed',
 													'default'		=> 0,
 													'protected'		=> FALSE,
 												   ),
@@ -84,6 +96,9 @@ class Comment_Prefs extends Prefs
 	var $int_max_length;
 
 
+	var $html_conf_options = Array();
+
+
 	/**
 	* Constructor
 	*
@@ -99,6 +114,12 @@ class Comment_Prefs extends Prefs
 		// attribute for input of SQ_COMMENT_MAX_LENGTH
 		$this->int_max_length =& new Asset_Attribute_Int();
 		$this->int_max_length->setParam('allow_negative', FALSE);
+
+		$this->html_conf_options = Array(
+								SQ_COMMENT_HTML_ALLOW	=> translate('allow'),
+								SQ_COMMENT_HTML_ESCAPE	=> translate('escape'),
+								SQ_COMMENT_HTML_STRIP	=> translate('strip'),
+							 );
 
 	}//end constructor
 
@@ -117,7 +138,7 @@ class Comment_Prefs extends Prefs
 	{
 		$prefs = array_keys($this->pref_vars);
 		if (!is_null($pref) && in_array($pref, array_keys($this->pref_vars))) {
-			$prefs = array($pref);
+			$prefs = Array($pref);
 		}
 
 		foreach ($prefs as $pref) {
@@ -215,6 +236,38 @@ class Comment_Prefs extends Prefs
 
 
 	/**
+	* Paints the interface for allowing HTML in comments
+	*
+	* @param object		&$o			reference to the backend outputter instance
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to process
+	*
+	* @return void
+	* @access public
+	*/
+	function paintSqCommentHtmlConfBackend(&$o, $have_lock, $pref)
+	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+
+		$o->openField(translate('comment_pref_html_conf_label'));
+
+			$current_conf = $this->pref_vars[$pref]['default'];
+
+			$readonly = !($have_lock && $is_admin);
+
+			if ($readonly) {
+				echo array_get_index($this->html_conf_options, $current_conf);
+			} else {
+				combo_box($pref, $this->html_conf_options, FALSE, $current_conf);
+			}
+
+		$o->closeField();
+
+	}//end paintSqCommentHtmlConfBackend()
+
+
+	/**
 	* Processes the backend interface to edit preferences
 	*
 	* @param object		&$o			reference to the backend outputter instance
@@ -228,7 +281,7 @@ class Comment_Prefs extends Prefs
 	{
 		$prefs = array_keys($this->pref_vars);
 		if (!is_null($pref) && in_array($pref, array_keys($this->pref_vars))) {
-			$prefs = array($pref);
+			$prefs = Array($pref);
 		}
 
 		$res = TRUE;
@@ -259,7 +312,9 @@ class Comment_Prefs extends Prefs
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (!$is_admin || !$have_lock) return FALSE;
+		if (!$is_admin || !$have_lock) {
+			return FALSE;
+		}
 
 		if (isset($_POST[$pref.'_width']) && isset($_POST[$pref.'_height'])) {
 			// process css attributes
@@ -290,7 +345,9 @@ class Comment_Prefs extends Prefs
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (!$is_admin || !$have_lock) return FALSE;
+		if (!$is_admin || !$have_lock) {
+			return FALSE;
+		}
 
 		if (isset($_POST[$pref.'_max_length'])) {
 
@@ -301,7 +358,37 @@ class Comment_Prefs extends Prefs
 		}
 		return FALSE;
 
-	}//end paintSqCommentMaxLengthBackend()
+	}//end processSqCommentMaxLengthBackend()
+
+
+	/**
+	* Processes the interface for configuring the maximum comment length
+	*
+	* @param object		&$o			reference to the backend outputter instance
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to process
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSqCommentHtmlConfBackend(&$o, $have_lock, $pref)
+	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		if (!$is_admin || !$have_lock) {
+			return FALSE;
+		}
+
+		$new_setting = array_get_index($_POST, $pref);
+
+		if (!is_null($new_setting)) {
+			$this->pref_vars[$pref]['default'] = $new_setting;
+
+			return TRUE;
+		}
+		return FALSE;
+
+	}//end processSqCommentHtmlConfBackend()
 
 
 }//end class
