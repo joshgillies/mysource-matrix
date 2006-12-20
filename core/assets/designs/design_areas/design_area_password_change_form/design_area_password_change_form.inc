@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_password_change_form.inc,v 1.5 2006/12/05 22:42:14 emcdonald Exp $
+* $Id: design_area_password_change_form.inc,v 1.6 2006/12/20 01:43:20 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -169,6 +169,12 @@ class Design_Area_Password_Change_Form extends Design_Area
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
 				}
 				submit_button('change_password_logout_button', empty($args['value']) ? ucfirst($this->_tmp['painting_section']) : $args['value'], '', $extras);
+			break;
+
+			case 'password_rules_note':
+				echo '<','?php
+					echo $GLOBALS["SQ_SYSTEM"]->user->getPasswordRulesDescription();
+					?', '>';
 			break;
 
 			default :
