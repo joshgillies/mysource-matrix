@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.16 2006/12/06 00:05:38 bcaldwell Exp $
+* $Id: trigger_action_create_link.inc,v 1.17 2006/12/20 04:19:26 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,7 +99,12 @@ class Trigger_Action_Create_Link extends Trigger_Action
 
 
 		$side_of_link = ($settings['is_major']) ? 'major' : 'minor';
-		$link_info = $am->getLinkByAsset($state['assetid'], $settings['assetid'], $settings['link_type'], NULL, $side_of_link, TRUE);
+		if (!empty($settings['value'])) {
+			$link_info = $am->getLinkByAsset($state['assetid'], $settings['assetid'], $settings['link_type'], $settings['value'], $side_of_link, TRUE);
+		} else {
+			$link_info = $am->getLinkByAsset($state['assetid'], $settings['assetid'], $settings['link_type'], NULL, $side_of_link, TRUE);
+		}
+
 		$create_link = FALSE;
 		if (empty($link_info)) {
 			$create_link = TRUE;
