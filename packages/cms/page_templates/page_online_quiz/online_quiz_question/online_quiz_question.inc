@@ -1,24 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Open Source Licence                                      |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
-* | This source file may be used subject to, and only in accordance    |
-* | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
-* | Make sure you have read and accept the terms of that licence,      |
-* | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
-* | modify, adapt or enhance this software, you agree to assign your   |
-* | intellectual property rights in the modification, adaptation and   |
-* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question.inc,v 1.1 2006/12/19 06:20:03 rhoward Exp $
+* $Id: online_quiz_question.inc,v 1.2 2006/12/20 23:57:06 rhoward Exp $
 *
 */
 
@@ -41,7 +33,7 @@ define('SQ_ONLINE_QUIZ_QUESTION_SESSION_VAR', 'SQ_ONLINE_QUIZ');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -193,9 +185,6 @@ class Online_Quiz_Question extends Asset
 	/**
 	* Returns the current user response in a human-readable format
 	*
-	* NOTE: Arrays of answers will stay in array format, with the exception
-	* that each element of the array will be rendered human-readable
-	*
 	* @return string
 	* @access public
 	*/
@@ -204,6 +193,32 @@ class Online_Quiz_Question extends Asset
 		return $this->getValue();
 
 	}//end getSummary()
+
+
+	/**
+	* Returns the correct response
+	*
+	* @return mixed
+	* @access public
+	*/
+	function getCorrectValue()
+	{
+		return $this->getValue();
+
+	}//end getCorrectValue()
+
+
+	/**
+	* Returns the correct response in a human-readable format
+	*
+	* @return mixed
+	* @access public
+	*/
+	function getCorrectSummary()
+	{
+		return $this->getSummary();
+
+	}//end getCorrectSummary()
 
 
 	/**
@@ -403,16 +418,20 @@ class Online_Quiz_Question extends Asset
 	*/
 	function getResults()
 	{
-		$value     = $question->getValue();
-		$summary   = $question->getSummary();
-		$position  = $question->getPosition();
-		$points    = $question->getPoints();
-		$available = $question->getAvailablePoints();
+		$value           = $question->getValue();
+		$summary         = $question->getSummary();
+		$correct_value   = $question->getCorrectValue();
+		$correct_summary = $question->getCorrectSummary();
+		$position        = $question->getPosition();
+		$points          = $question->getPoints();
+		$available       = $question->getAvailablePoints();
 
 		$results   = Array(
 						'assetid'			=> $id,
 						'value'				=> $value,
 						'summary'			=> $summary,
+						'correct_value'		=> $correct_value,
+						'correct_summary'	=> $correct_summary,
 						'points'			=> $points,
 						'available_points'	=> $available,
 					 );

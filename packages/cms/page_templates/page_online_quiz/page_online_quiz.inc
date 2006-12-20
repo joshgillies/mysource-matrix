@@ -1,17 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Commercial Module Licence                                |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
-* +--------------------------------------------------------------------+
-* | This source file is not open source or freely usable and may be    |
-* | used subject to, and only in accordance with, the Squiz Commercial |
-* | Module Licence.                                                    |
-* | Please refer to http://www.squiz.net/licence for more information. |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.1 2006/12/19 06:20:01 rhoward Exp $
+* $Id: page_online_quiz.inc,v 1.2 2006/12/20 23:57:03 rhoward Exp $
 *
 */
 
@@ -61,7 +60,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2019,9 +2018,9 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		if (!is_array($show_columns)) {
 			// set to defaults
 			$show_columns = Array(
-								'question_num',
-								'points',
-								'available_points',
+								'question_num'		=> translate('online_quiz_results_header_question_num'),
+								'points'			=> translate('online_quiz_results_header_points'),
+								'available_points'	=> translate('online_quiz_results_header_available_points'),
 							);
 		}
 
@@ -2032,6 +2031,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 								'question_text'		=> translate('online_quiz_results_header_question_text'),
 								'value'				=> translate('online_quiz_results_header_value'),
 								'summary'			=> translate('online_quiz_results_header_summary'),
+								'correct_value'		=> translate('online_quiz_results_header_correct_value'),
+								'correct_summary'	=> translate('online_quiz_results_header_correct_summary'),
 								'points'			=> translate('online_quiz_results_header_points'),
 								'available_points'	=> translate('online_quiz_results_header_available_points'),
 							 );
@@ -2041,10 +2042,12 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$longest_column_length = 0;
 
 		$columns = Array();
-		foreach ($show_columns as $column) {
-			$columns[$column] = $available_columns[$column];
-			if (strlen($available_columns[$column]) > $longest_column_length) {
-				$longest_column_length = strlen($available_columns[$column]);
+		foreach ($show_columns as $column => $column_title) {
+			if (isset($available_columns[$column])) {
+				$columns[$column] = $column_title;
+				if (strlen($column_title) > $longest_column_length) {
+					$longest_column_length = strlen($column_title);
+				}
 			}
 		}
 
@@ -2083,6 +2086,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 					$column_counter = 1;
 					foreach ($columns as $column => $column_name) {
+						$alignment_padding = '';
 						if ($html) {
 							?><td class="<?php echo $css_class_prefix.'_c'.$column_counter; ?> <?php echo $css_class_prefix.'_r'.$row_counter; ?>"><?php
 						} else {
@@ -2090,38 +2094,78 @@ class Page_Online_Quiz extends Page_Asset_Listing
 							echo $column_name;
 							echo $column_name_suffix;
 							for ($ii = 0; $ii < ($longest_column_length - strlen($column_name)); $ii++) {
+								$alignment_padding .= ' ';
 								echo ' ';
+							}
+							for ($ii = 0; $ii < strlen($column_name.$column_name_suffix); $ii++) {
+								$alignment_padding .= ' ';
 							}
 						}
 
-						switch ($column) {
-							case 'question_num':
-								echo $question_num;
-							break;
+						ob_start();
 
-							case 'question_text':
-								$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_results['assetid']);
-								if (!is_null($question)) {
-									ob_start();
-										echo $question->getQuestionText();
-									$question_text = ob_get_clean();
-									if (!$html) {
-										// a hack to make bodycopy-derived question text appear normal when sending a plain-text email
-										$question_text = trim(strip_tags($question_text));
-										$question_text = html_entity_decode($question_text);
+							switch ($column) {
+								case 'question_num':
+									echo $question_num;
+								break;
+
+								case 'question_text':
+									$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_results['assetid']);
+									if (!is_null($question)) {
+										ob_start();
+											echo $question->getQuestionText();
+										$question_text = ob_get_clean();
+										if (!$html) {
+											// a hack to make bodycopy-derived question text appear normal when sending a plain-text email
+											$question_text = trim(strip_tags($question_text));
+											$question_text = html_entity_decode($question_text);
+
+											// indent each line
+											$question_text = str_replace("\n", "\n".$alignment_padding, $question_text);
+										}
+										echo $question_text;
+										$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
 									}
-									echo $question_text;
-									$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
-								}
-							break;
+								break;
 
-							case 'assetid':
-							case 'value':
-							case 'summary':
-							case 'points':
-							case 'available_points':
-								echo array_get_index($question_results, $column);
-							break;
+								case 'assetid':
+								case 'value':
+								case 'correct_value':
+								case 'points':
+								case 'available_points':
+									echo array_get_index($question_results, $column);
+
+								break;
+
+								case 'summary':
+								case 'correct_summary':
+									if ($html) {
+										// explode into <li>
+										$summary_text  = array_get_index($question_results, $column, '');
+										if (!empty($summary_text)) {
+											$summary_array = explode("\n", array_get_index($question_results, $column, ''));
+											if (!empty($summary_array)) {
+												?><ul><?php
+													foreach ($summary_array as $summary_item) {
+														?><li><?php
+														echo $summary_item;
+														?></li><?php
+													}
+												?></ul><?php
+											}
+										}
+									} else {
+										// indent each new line
+										echo str_replace("\n", "\n".$alignment_padding, array_get_index($question_results, $column));
+									}
+								break;
+							}
+
+						$cell_contents = ob_get_clean();
+						if ($html && !strlen($cell_contents)) {
+							echo translate('online_quiz_results_empty_cell');
+						} else {
+							echo $cell_contents;
 						}
 
 						if ($html) {
@@ -2179,7 +2223,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 										echo translate('online_quiz_results_header_totals');
 									} else {
 										// otherwise print an "empty" cell
-										echo translate('online_quiz_results_header_totals_empty_cell');
+										echo translate('online_quiz_results_empty_cell');
 									}
 								}
 
@@ -2242,12 +2286,14 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	function getResultsTableFullKeywordReplacement($html=TRUE)
 	{
 		$columns = Array(
-					'question_num',
-					'question_text',
-					'value',
-					'summary',
-					'points',
-					'available_points',
+					'question_num'		=> translate('online_quiz_results_header_question_num'),
+					'question_text'		=> translate('online_quiz_results_header_question_text'),
+					'value'				=> translate('online_quiz_results_header_value'),
+					'summary'			=> translate('online_quiz_results_header_summary'),
+					'correct_value'		=> translate('online_quiz_results_header_correct_value'),
+					'correct_summary'	=> translate('online_quiz_results_header_correct_summary'),
+					'points'			=> translate('online_quiz_results_header_points'),
+					'available_points'	=> translate('online_quiz_results_header_available_points'),
 				   );
 		return $this->getResultsTableKeywordReplacement($columns, TRUE, $html);
 
@@ -2278,10 +2324,11 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	function getResultsTableSimpleKeywordReplacement($html=TRUE)
 	{
 		$columns = Array(
-					'question_num',
-					'value',
-					'points',
-					'available_points',
+					'question_num'		=> translate('online_quiz_results_header_question_num'),
+					'value'				=> translate('online_quiz_results_header_value'),
+					'correct_value'		=> translate('online_quiz_results_header_correct_value'),
+					'points'			=> translate('online_quiz_results_header_points'),
+					'available_points'	=> translate('online_quiz_results_header_available_points'),
 				   );
 		return $this->getResultsTableKeywordReplacement($columns, TRUE, $html);
 

@@ -1,24 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | Squiz.net Open Source Licence                                      |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
-* | This source file may be used subject to, and only in accordance    |
-* | with, the Squiz Open Source Licence Agreement found at             |
-* | http://www.squiz.net/licence.                                      |
-* | Make sure you have read and accept the terms of that licence,      |
-* | including its limitations of liability and disclaimers, before     |
-* | using this software in any way. Your use of this software is       |
-* | deemed to constitute agreement to be bound by that licence. If you |
-* | modify, adapt or enhance this software, you agree to assign your   |
-* | intellectual property rights in the modification, adaptation and   |
-* | enhancement to Squiz Pty Ltd for use and distribution under that   |
-* | licence.                                                           |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice.inc,v 1.1 2006/12/19 06:20:05 rhoward Exp $
+* $Id: online_quiz_question_multichoice.inc,v 1.2 2006/12/20 23:57:08 rhoward Exp $
 *
 */
 
@@ -38,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -246,12 +238,12 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 	function getSummary()
 	{
 		$value = $this->getValue();
+		$options = $this->attr('response_form');
+
 		if ($this->attr('max_option_selections') <= 1) {
-			$options = $this->attr('response_form');
 			$selected_option = array_get_index($options, $value, Array());
 			return array_get_index($selected_option, 'text', '');
 		} else {
-			$options = $this->attr('response_form');
 			$summary = Array();
 			if (!empty($value)) {
 				foreach ($value as $response) {
@@ -263,6 +255,65 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 		}
 
 	}//end getSummary()
+
+
+	/**
+	* Returns the option keys of the correct answers
+	*
+	* @return array
+	* @access public
+	*/
+	function _getCorrectOptionKeys()
+	{
+		// figure out which answers return points
+
+		$options = $this->attr('response_form');
+		$correct_keys = Array();
+		foreach ($options as $option_key => $option) {
+			if ($option['points'] > 0) {
+				$correct_keys[] = $option_key;
+			}
+		}
+
+		return $correct_keys;
+
+	}//end _getCorrectOptionKeys()
+
+
+	/**
+	* Returns the correct response
+	*
+	* @return mixed
+	* @access public
+	*/
+	function getCorrectValue()
+	{
+		return $this->_getCorrectOptionKeys();
+
+	}//end getCorrectValue()
+
+
+	/**
+	* Returns the correct response in a human-readable format
+	*
+	* @return mixed
+	* @access public
+	*/
+	function getCorrectSummary()
+	{
+		$options      = $this->attr('response_form');
+		$correct_keys = $this->_getCorrectOptionKeys();
+		$summary      = Array();
+
+		foreach ($correct_keys as $key) {
+			if (!empty($options[$key]['text'])) {
+				$summary[] = $options[$key]['text'];
+			}
+		}
+
+		return $summary;
+
+	}//end getCorrectSummary()
 
 
 	/**
@@ -384,19 +435,10 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 	*/
 	function getResults($flatten=TRUE)
 	{
-		$value     = $this->getValue();
-		if ($flatten && is_array($value)) {
-			$value = implode(', ', $value);
-		}
-
-		$summary   = $this->getSummary();
-		if ($flatten && is_array($summary)) {
-			if (count($summary) <= 1) {
-				$summary = reset($summary);
-			} else {
-				$summary = '"'.implode('", "', $summary).'"';
-			}
-		}
+		$value           = $this->getValue();
+		$correct_value   = $this->getCorrectValue();
+		$summary         = $this->getSummary();
+		$correct_summary = $this->getCorrectSummary();
 
 		$points    = $this->getPoints();
 		$available = $this->getAvailablePoints();
@@ -405,9 +447,26 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 						'assetid'			=> $this->id,
 						'value'				=> $value,
 						'summary'			=> $summary,
+						'correct_value'		=> $correct_value,
+						'correct_summary'	=> $correct_summary,
 						'points'			=> $points,
 						'available_points'	=> $available,
 					 );
+
+		// flatten out the value and summary fields
+		foreach (Array('value', 'correct_value') as $field) {
+			$value = $results[$field];
+			if ($flatten && is_array($value)) {
+				$results[$field] = implode(', ', $value);
+			}
+		}
+
+		foreach (Array('summary', 'correct_summary') as $field) {
+			$summary = $results[$field];
+			if ($flatten && is_array($summary)) {
+				$results[$field] = implode("\n", $summary);
+			}
+		}
 
 		return $results;
 
