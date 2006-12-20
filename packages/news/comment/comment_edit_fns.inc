@@ -10,11 +10,24 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_edit_fns.inc,v 1.6 2006/12/20 03:36:39 arailean Exp $
+* $Id: comment_edit_fns.inc,v 1.7 2006/12/20 06:20:46 arailean Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
+
+if (!defined('SQ_COMMENT_HTML_ALLOW')) {
+	define ('SQ_COMMENT_HTML_ALLOW',	0);
+}
+
+if (!defined('SQ_COMMENT_HTML_ESCAPE')) {
+	define ('SQ_COMMENT_HTML_ESCAPE',	1);
+}
+
+if (!defined('SQ_COMMENT_HTML_STRIP')) {
+	define ('SQ_COMMENT_HTML_STRIP',	2);
+}
+
 
 /**
 * Comment_Edit_Fns
@@ -24,7 +37,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -77,6 +90,23 @@ class Comment_Edit_Fns extends Page_Edit_Fns
 		if ($write_access) {
 			$comment = array_get_index($_REQUEST, $prefix.'_comment');
 			$length = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_COMMENT_MAX_LENGTH');
+
+			$html_conf = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_COMMENT_HTML_CONF');
+
+			switch ($html_conf) {
+				case SQ_COMMENT_HTML_STRIP:
+					$comment = strip_tags($comment);
+				break;
+
+				case SQ_COMMENT_HTML_ESCAPE:
+					$comment = htmlspecialchars($comment);
+				break;
+
+				case SQ_COMMENT_HTML_ALLOW:
+
+				break;
+
+			}
 
 			if (!empty($length) && (strlen($comment) > $length)) {
 				$comment = substr($comment, 0, $length);
