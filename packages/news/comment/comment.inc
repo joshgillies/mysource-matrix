@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment.inc,v 1.7 2006/12/20 23:08:36 arailean Exp $
+* $Id: comment.inc,v 1.8 2006/12/20 23:40:20 bcaldwell Exp $
 *
 */
 
@@ -28,12 +28,40 @@ define ('SQ_COMMENT_HTML_STRIP',	2);
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
 class Comment extends Page
 {
+
+
+	/**
+	* Get keyword replacement for the formatted comment title
+	*
+	* @return string
+	* @access public
+	* @see Comment::_formatValueBasedOnPreference()
+	*/
+	function getCommentTitleKeywordReplacement()
+	{
+		return $this->_formatValueBasedOnPreference($this->attr('name'));
+
+	}//end getCommentTitleKeywordReplacement()
+
+
+	/**
+	* Get keyword replacement for the formatted comment body
+	*
+	* @return string
+	* @access public
+	* @see Comment::_formatValueBasedOnPreference()
+	*/
+	function getCommentBodyKeywordReplacement()
+	{
+		return $this->_formatValueBasedOnPreference($this->attr('comment'));
+
+	}//end getCommentBodyKeywordReplacement()
 
 
 	/**
@@ -74,12 +102,10 @@ class Comment extends Page
 					$value = substr($value, 0, $length);
 				}
 				$value = trim($value);
-				$value = $this->_formatValueBasedOnPreference($value);
 			break;
 
 			case 'name':
 				$value = trim($value);
-				$value = $this->_formatValueBasedOnPreference($value);
 			break;
 		}
 
@@ -99,6 +125,7 @@ class Comment extends Page
 	function _formatValueBasedOnPreference($value)
 	{
 		$html_conf = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_COMMENT_HTML_CONF');
+		$value = html_entity_decode($value);
 
 		switch ($html_conf) {
 			case SQ_COMMENT_HTML_STRIP:
