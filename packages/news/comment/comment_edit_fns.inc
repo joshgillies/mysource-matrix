@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_edit_fns.inc,v 1.3 2006/12/19 23:34:06 arailean Exp $
+* $Id: comment_edit_fns.inc,v 1.4 2006/12/20 02:58:16 bcaldwell Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -44,12 +44,11 @@ class Comment_Edit_Fns extends Page_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		$width = 60;
-		$height = 20;
-		$max_length = NULL;
+		$size   = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_COMMENT_INPUT_SIZE');
+		$length = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_COMMENT_MAX_LENGTH');
 
 		if ($write_access) {
-			text_area($prefix.'_comment', $asset->attr('comment'), $width, $height, $max_length);
+			text_area($prefix.'_comment', $asset->attr('comment'), 0, 0, $length, 'style="width: '.$size['width'].'; height: '.$size['height'].';"');
 		} else {
 			echo $asset->attr('comment');
 		}
