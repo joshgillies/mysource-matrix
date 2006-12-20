@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment.inc,v 1.4 2006/12/20 03:35:01 arailean Exp $
+* $Id: comment.inc,v 1.5 2006/12/20 04:02:21 arailean Exp $
 *
 */
 
@@ -22,7 +22,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *   Purpose
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.4 $
+* @author  Andrei Railean <arailean@squiz.net>
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
