@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_edit_fns.inc,v 1.4 2006/12/20 02:58:16 bcaldwell Exp $
+* $Id: comment_edit_fns.inc,v 1.5 2006/12/20 03:30:37 arailean Exp $
 *
 */
 
@@ -23,12 +23,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
 class Comment_Edit_Fns extends Page_Edit_Fns
 {
+
 
 	/**
 	* Paint the comment interface
@@ -72,15 +73,21 @@ class Comment_Edit_Fns extends Page_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		$comment = array_get_index($_REQUEST, $prefix.'_comment');
-
 		if ($write_access) {
+			$comment = array_get_index($_REQUEST, $prefix.'_comment');
+			$length = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_COMMENT_MAX_LENGTH');
+
+			if (!empty($length) && (strlen($comment) > $length)) {
+				$comment = substr($comment, 0, $length);
+			}
+
 			$asset->setAttrValue('comment', $comment);
 		}
 
 		return TRUE;
 
 	}//end processComment()
+
 
 }//end class
 ?>
