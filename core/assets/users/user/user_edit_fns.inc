@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.32 2006/12/19 23:07:24 tbarrett Exp $
+* $Id: user_edit_fns.inc,v 1.33 2006/12/20 01:46:11 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,7 +45,6 @@ class User_Edit_Fns extends Asset_Edit_Fns
 		$this->Asset_Edit_Fns();
 
 	}//end constructor
-
 
 
 	/**
@@ -66,7 +65,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 		}
 		return FALSE;
 
-	}//end paintPassword()
+	}//end paintPasswordNote()
 
 
 	/**
