@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.131.2.3 2006/12/19 03:27:53 lwright Exp $
+* $Id: search_manager.inc,v 1.131.2.4 2006/12/20 02:56:56 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.131.2.3 $
+* @version $Revision: 1.131.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1804,7 +1804,7 @@ class Search_Manager extends Asset
 					$data_source_results = NULL;
 
 					foreach ($field_details['words'] as $search_term) {
-						$term_results = $this->_processWordSearch($search_term, $data_source, $base_query);
+						$term_results = $this->_processWordSearch($search_term, $data_source, $base_query, $word_logic);
 
 						if (!isset($all_source_results[$search_term])) {
 							$all_source_results[$search_term] = Array();
@@ -1972,7 +1972,6 @@ class Search_Manager extends Asset
 		} else {
 			// remove unindexable words
 			$words = Array();
-			$field_details['words'] = $this->_getRawNumberInText($field_details['words']);
 
 			foreach ($this->generateWordList($field_details['words']) as $word) {
 				if ($this->isWordIndexable($word)) {
@@ -1991,11 +1990,13 @@ class Search_Manager extends Asset
 	* @param string	$search_term	Word to search for
 	* @param array	$data_source	Details of the data source to search in
 	* @param array	$base_query		The base of the sql query to use
+	* @param string	$word_logic		Word logic (for DBs that don't split up their
+	*								terms here, ie. Oracle)
 	*
 	* @return array
 	* @access public
 	*/
-	function _processWordSearch($search_term, $data_source, $base_query)
+	function _processWordSearch($search_term, $data_source, $base_query, $word_logic='AND')
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -2015,12 +2016,10 @@ class Search_Manager extends Asset
 		}
 		$cache_key .= $search_term;
 
-		$search_term = $this->_getRawNumberInText($search_term);
-
 		$result = $this->_tmp['cm']->loadFromCache($this->id, $this->type(), $cache_key);
 		if (empty($result)) {
 			$plugin =& $this->_getDBPlugin();
-			$result = $plugin->processWordSearch($this, $search_term, $data_source, $base_query);
+			$result = $plugin->processWordSearch($this, $search_term, $data_source, $base_query, $word_logic);
 			$r = $this->_tmp['cm']->saveToCache($this->id, $this->type(), $cache_key, serialize($result));
 		} else {
 			$result = unserialize($result);
