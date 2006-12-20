@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.210 2006/12/15 03:38:18 tbarrett Exp $
+* $Id: mysource.inc,v 1.211 2006/12/20 01:49:05 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.210 $
+* @version $Revision: 1.211 $
 * @package MySource_Matrix
 */
 class MySource
@@ -976,8 +976,11 @@ class MySource
 						$run_level_changed = FALSE;
 					}
 
-					$result = $this->user->setAttrValue('password', $password_new);
-					$result = $result && $this->user->saveAttributes();
+					$result = FALSE;
+					if ($this->user->validatePassword($password_new, TRUE)) {
+						$result = $this->user->setAttrValue('password', $password_new);
+						$result = $result && $this->user->saveAttributes();
+					}
 
 					if ($run_level_changed) {
 						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
