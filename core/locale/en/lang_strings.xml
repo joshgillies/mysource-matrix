@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.208 2006/12/19 23:07:24 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.209 2006/12/20 01:54:10 tbarrett Exp $
 *
 */
 
@@ -2108,6 +2108,6 @@ Are you sure you want to proceed?</string>
 
 	<string source="password_rules_blacklist_strict">The following passwords are not allowed: %s</string>
 	<string source="password_rules_blacklist_loose">Passwords must not contain any of these words: %s</string>
-	<string source="password_rules_intro">The following password rules are in effect</string>
+	<string source="password_rules_intro">The following rules apply to new passwords:</string>
 	<string source="password_entry_instructions">Enter password once, then again to confirm.</string>
 </strings>
