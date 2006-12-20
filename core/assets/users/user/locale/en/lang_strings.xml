@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.8 2006/12/05 06:04:33 bcaldwell Exp $
+* $Id: lang_strings.xml,v 1.9 2006/12/20 01:47:08 tbarrett Exp $
 *
 */
 -->
@@ -34,4 +34,5 @@
 	<string source="current_locks">Current Locks</string>
 	<string source="release_locks">Release Held Locks</string>
 	<string source="release_locks_note">Releasing all locks will delete any editing changes that this user has not yet committed.</string>
+	<string source="password_validation_error">The supplied password is not valid: %s</string>
 </strings>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.111 2006/12/19 23:07:24 tbarrett Exp $
+* $Id: user.inc,v 1.112 2006/12/20 01:47:08 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.111 $
+* @version $Revision: 1.112 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -189,8 +189,6 @@ class User extends Asset
 		if ($name == 'password') {
 			$this->_tmp['password_set'] = TRUE; // so we know at create time whether to throw an extra error
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PASSWORD_VALIDATION)) {
-				$config =& new Password_Rules_Config();
-				require_once $config->config_file;
 				if (!$this->validatePassword($value)) return FALSE;
 			}
 			$value = crypt($value); // let salt be generated
@@ -236,21 +234,29 @@ class User extends Asset
 	/**
 	* Validates the passed password against a list of rules
 	*
-	* @param string	$passwd	the password to validate
+	* @param string		$passwd				the password to validate
+	* @param boolean	$add_system_message	If true, adds a system message instead of triggering errors
 	*
 	* @return boolean
 	* @access public
 	*/
-	function validatePassword($passwd)
+	function validatePassword($passwd, $add_system_message=FALSE)
 	{
+		$config =& new Password_Rules_Config();
+		require_once $config->config_file;
+
 		// one rule that is always in effect:
 		if ($passwd === '') {
-			trigger_localised_error('CORE0247', E_USER_NOTICE);
+			if ($add_system_message) {
+				$GLOBALS['SQ_SYSTEM']->addMessage($$GLOBALS['SQ_SYSTEM']->getErrorMessage('CORE0247'));
+			} else {
+				trigger_localised_error('CORE0247', E_USER_NOTICE);
+			}
 			$this->_tmp['password_validation_error'] = TRUE;
 			return FALSE;
 		}
 
-		$status = TRUE;
+		$errors = Array();
 
 		// errors for when a character type does not occur in the password
 		$not_occurring_error_map = Array(
@@ -272,23 +278,18 @@ class User extends Asset
 
 		if (defined('SQ_PASSWD_RULE_LENGTH') && SQ_PASSWD_RULE_LENGTH > -1) {
 			if (strlen($passwd) < SQ_PASSWD_RULE_LENGTH) {
-				$status = FALSE;
-				trigger_localised_error('CORE0220', E_USER_WARNING, strlen($passwd), SQ_PASSWD_RULE_LENGTH);
+				$errors[] = Array('CORE0220', strlen($passwd), SQ_PASSWD_RULE_LENGTH);
 			}
 		}
 
 		if (defined('SQ_PASSWD_RULE_DISALLOW_USER_INFO') && SQ_PASSWD_RULE_DISALLOW_USER_INFO == 0) {
 			$components = Array('username', 'first_name', 'last_name', 'email');
-			$user_info_status = TRUE;
 			foreach ($components as $component) {
 				$attr = $this->attr($component);
 				if (!empty($attr) && preg_match('/.*'.$this->attr($component).'.*/i', $passwd)) {
-					$user_info_status = FALSE;
-					$status = FALSE;
+					$errors[] = Array('CORE0221');
+					break;
 				}
-			}
-			if (!$user_info_status) {
-				trigger_localised_error('CORE0221', E_USER_WARNING);
 			}
 		}
 
@@ -338,14 +339,12 @@ class User extends Asset
 			if ($value != SQ_PASSWD_RULE_DISABLED) {
 				eval('$tmp_counter = $'.$rule.'_counter;');
 				if ($value == SQ_PASSWD_RULE_DISALLOWED && $tmp_counter > 0) {
-					$status = FALSE;
 					if (isset($occurring_error_map[$rule])) {
-						trigger_localised_error($occurring_error_map[$rule], E_USER_WARNING);
+						$errors[] = Array($occurring_error_map[$rule]);
 					}
 				} else if ($tmp_counter < $value) {
-					$status = FALSE;
 					if (isset($not_occurring_error_map[$rule])) {
-						trigger_localised_error($not_occurring_error_map[$rule], E_USER_WARNING, $tmp_counter, $value);
+						$errors[] = Array($not_occurring_error_map[$rule], $tmp_counter, $value);
 					}
 				}
 			}
@@ -359,13 +358,28 @@ class User extends Asset
 			$blacklist = split("\n", $blacklist);
 			foreach ($blacklist as $word) {
 				if ((!SQ_PASSWD_RULE_BLACK_LIST_EXACT && preg_match('/'.$word.'/', $passwd)) || (SQ_PASSWD_RULE_BLACK_LIST_EXACT && (strcmp($passwd, $word) == 0))) {
-					trigger_localised_error('CORE0260', E_USER_WARNING);
-					$status =  FALSE;
+					$errors[] = Array('CORE0260');
 				}
 			}
 		}
 
-		return $status;
+		if ($add_system_message) {
+			$msgs = '';
+			foreach ($errors as $error) {
+				$code = array_shift($error);
+				$bit = $GLOBALS['SQ_SYSTEM']->lm->getErrorMessage($code, $error);
+				$bit = preg_replace('/\[([^\]]*)\]$/', '', $bit); // remove error code
+				$msgs .= '<li>'.$bit.'</li>';
+			}
+			$GLOBALS['SQ_SYSTEM']->addMessage(translate('password_validation_error', '<ul>'.$msgs.'</ul>'));
+		} else {
+			foreach ($errors as $error) {
+				$code = array_shift($error);
+				$GLOBALS['SQ_SYSTEM']->lm->raiseError($code, E_USER_WARNING, $error);
+			}
+		}
+
+		return empty($errors);
 
 	}//end validatePassword()
 
@@ -441,19 +455,24 @@ class User extends Asset
 			$res[] = ucfirst(translate('password_rules_not_allowed', make_readable_list($disallowed_chars, strtolower(translate('and')))));
 		}
 
-		$black_words = Array();
-		foreach (explode("\n", SQ_PASSWD_RULE_BLACK_LIST) as $word) {
-			$black_words[] = '"'.trim($word).'"';
-		}
-		if (!empty($black_words)) {
-			if (SQ_PASSWD_RULE_BLACK_LIST_EXACT) {
-				$res[] = translate('password_rules_blacklist_strict', implode(', ', $black_words));
-			} else {
-				$res[] = translate('password_rules_blacklist_loose', implode(', ', $black_words));
+		if (trim(SQ_PASSWD_RULE_BLACK_LIST) != '') {
+			$black_words = Array();
+			foreach (explode("\n", SQ_PASSWD_RULE_BLACK_LIST) as $word) {
+				$black_words[] = '"'.trim($word).'"';
+			}
+			if (!empty($black_words)) {
+				if (SQ_PASSWD_RULE_BLACK_LIST_EXACT) {
+					$res[] = translate('password_rules_blacklist_strict', implode(', ', $black_words));
+				} else {
+					$res[] = translate('password_rules_blacklist_loose', implode(', ', $black_words));
+				}
 			}
 		}
 
-		return translate('password_rules_intro').': <ul class="password-rules"><li>'.implode('</li><li>', $res).'</li></ul>';
+		if (!empty($res)) {
+			return translate('password_rules_intro').': <ul class="password-rules"><li>'.implode('</li><li>', $res).'</li></ul>';
+		}
+		return '';
 
 	}//end getPasswordRulesDescription()
 
