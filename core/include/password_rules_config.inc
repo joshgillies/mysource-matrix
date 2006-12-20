@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: password_rules_config.inc,v 1.11 2006/12/19 23:07:24 tbarrett Exp $
+* $Id: password_rules_config.inc,v 1.12 2006/12/20 01:44:05 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 class Password_Rules_Config extends Config
@@ -88,6 +88,8 @@ class Password_Rules_Config extends Config
 				return FALSE;
 			}
 		}
+
+		$vars['SQ_PASSWD_RULE_BLACK_LIST'] = trim($vars['SQ_PASSWD_RULE_BLACK_LIST']);
 
 		return parent::save($vars, $backup_existing, $send_message);
 
