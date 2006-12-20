@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_prefs.inc,v 1.2 2006/12/20 06:16:08 arailean Exp $
+* $Id: comment_prefs.inc,v 1.3 2006/12/20 23:10:29 arailean Exp $
 *
 */
 
@@ -20,10 +20,6 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 require_once SQ_ATTRIBUTES_PATH.'/boolean/boolean.inc';
 
 
-define ('SQ_COMMENT_HTML_ALLOW',	0);
-define ('SQ_COMMENT_HTML_ESCAPE',	1);
-define ('SQ_COMMENT_HTML_STRIP',	2);
-
 /**
 * Comment_Prefs
 *
@@ -32,7 +28,7 @@ define ('SQ_COMMENT_HTML_STRIP',	2);
 *    Looks after the creation the Comment Preferences
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Comment_Prefs extends Prefs
@@ -116,10 +112,10 @@ class Comment_Prefs extends Prefs
 		$this->int_max_length->setParam('allow_negative', FALSE);
 
 		$this->html_conf_options = Array(
-								SQ_COMMENT_HTML_ALLOW	=> translate('allow'),
-								SQ_COMMENT_HTML_ESCAPE	=> translate('escape'),
-								SQ_COMMENT_HTML_STRIP	=> translate('strip'),
-							 );
+									SQ_COMMENT_HTML_ALLOW	=> translate('allow'),
+									SQ_COMMENT_HTML_ESCAPE	=> translate('escape'),
+									SQ_COMMENT_HTML_STRIP	=> translate('strip'),
+								   );
 
 	}//end constructor
 
