@@ -10,24 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_edit_fns.inc,v 1.7 2006/12/20 06:20:46 arailean Exp $
+* $Id: comment_edit_fns.inc,v 1.8 2006/12/20 23:09:45 arailean Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
-
-if (!defined('SQ_COMMENT_HTML_ALLOW')) {
-	define ('SQ_COMMENT_HTML_ALLOW',	0);
-}
-
-if (!defined('SQ_COMMENT_HTML_ESCAPE')) {
-	define ('SQ_COMMENT_HTML_ESCAPE',	1);
-}
-
-if (!defined('SQ_COMMENT_HTML_STRIP')) {
-	define ('SQ_COMMENT_HTML_STRIP',	2);
-}
-
 
 /**
 * Comment_Edit_Fns
@@ -37,12 +24,64 @@ if (!defined('SQ_COMMENT_HTML_STRIP')) {
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
 class Comment_Edit_Fns extends Page_Edit_Fns
 {
+
+
+	/**
+	* Paint the comment interface
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintName(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$size   = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_COMMENT_INPUT_SIZE');
+
+		if ($write_access) {
+			text_box($prefix.'_name', $asset->attr('name'), '', '', FALSE, 'style="width: '.$size['width'].';"');
+		} else {
+			echo $asset->attr('name');
+		}
+
+		return TRUE;
+
+	}//end paintName()
+
+
+	/**
+	* Process the comment interface
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processName(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		if ($write_access) {
+			$value = array_get_index($_REQUEST, $prefix.'_name');
+			$asset->setAttrValue('name', $value);
+			$asset->setAttrValue('short_name', $asset->attr('name'));
+		}
+
+		return TRUE;
+
+	}//end processName()
 
 
 	/**
@@ -89,29 +128,6 @@ class Comment_Edit_Fns extends Page_Edit_Fns
 
 		if ($write_access) {
 			$comment = array_get_index($_REQUEST, $prefix.'_comment');
-			$length = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_COMMENT_MAX_LENGTH');
-
-			$html_conf = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_COMMENT_HTML_CONF');
-
-			switch ($html_conf) {
-				case SQ_COMMENT_HTML_STRIP:
-					$comment = strip_tags($comment);
-				break;
-
-				case SQ_COMMENT_HTML_ESCAPE:
-					$comment = htmlspecialchars($comment);
-				break;
-
-				case SQ_COMMENT_HTML_ALLOW:
-
-				break;
-
-			}
-
-			if (!empty($length) && (strlen($comment) > $length)) {
-				$comment = substr($comment, 0, $length);
-			}
-
 			$asset->setAttrValue('comment', $comment);
 		}
 
