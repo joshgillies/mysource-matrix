@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment.inc,v 1.5 2006/12/20 04:02:21 arailean Exp $
+* $Id: comment.inc,v 1.6 2006/12/20 05:12:55 bcaldwell Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -42,8 +42,7 @@ class Comment extends Page
 	*/
 	function getCommentMaxLengthKeywordReplacement()
 	{
-		$length = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_COMMENT_MAX_LENGTH');
-
+		$length = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_COMMENT_MAX_LENGTH');
 		return $length;
 
 	}//end getCommentMaxLengthKeywordReplacement()
