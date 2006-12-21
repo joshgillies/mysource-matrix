@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.103.2.13 2006/10/15 23:07:35 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.103.2.14 2006/12/21 00:52:03 hnguyen Exp $
 *
 */
 
@@ -890,7 +890,7 @@
 
 	<string source="trigger_single_subscreen_explanation">This subscreen is for editing a single trigger. A trigger consists of descriptive information and a set of events, conditions and actions. Use the sections below to change settings of this trigger. In order to speed trigger execution, MySource Matrix tries to make some pre-calculations. There is an overhead to determining whether a trigger needs to be run. Upon loading, the conditions are checked and if all pass, the actions are executed. It can be rewarding to put the fastest conditions first. As a rule of the thumb any condition that works on a whole range of values, like "anything that extends this asset type" will be relatively slow and should not be placed first. On the other hand system conditions that work on exact values of asset type (not inheritance), status and tree location should be placed first.</string>
 	<string source="trigger_subscreen_add_or_edit">This subscreen allows you to add new trigger or select an existing one to edit</string>
-	<string source="trigger_events_list">This is a list of all the events installed in this system. Select the ones you want this trigger to respond to. If you do not specify any events, the trigger will be fired when ANY event is fired, which can negatively affect the speed of the system.</string>
+	<string source="trigger_events_list">This is a list of all the events installed in this system. Select the ones you want this trigger to respond to. Having a trigger fire on an excessive number of events may negatively affect the speed of the system.</string>
 	<string source="no_event_selected">No Events Were Selected</string>
 	<string source="trigger_conditions_explanation">Here you specify the conditions that must be satisfied before the actions are allowed to perform. Note that order is important. New conditions are added to the bottom of the list with default settings. If you add a condition, but do not change it's settings it will automatically fail. Some condition types can only be used once in a trigger.</string>
 	<string source="trigger_actions_explanation">Actions are performed in the order they are specified. If one action fails, the trigger will fail. Unless 'Ignore Permissions' is selected, the action is run as a user that caused the trigger to be executed (currently logged in user). This means that some actions might fail if they user doesn't have appropriate access privileges. To make sure that the actions are performed regardles of user's access rights, select 'Ignore Permissions'. Actions can be marked as 'Non-Critical' which means that if that action fails for any reason, the remaining actions will continue to run normally. If an action fails and it is required, then the system will try to undo all the previous actions in this trigger.</string>
