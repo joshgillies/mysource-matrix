@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_prefs.inc,v 1.3 2006/12/20 23:10:29 arailean Exp $
+* $Id: comment_prefs.inc,v 1.4 2006/12/21 04:44:31 arailean Exp $
 *
 */
 
@@ -19,6 +19,17 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 require_once SQ_ATTRIBUTES_PATH.'/boolean/boolean.inc';
 
+if (!defined('SQ_COMMENT_HTML_ALLOW')) {
+	define ('SQ_COMMENT_HTML_ALLOW',	0);
+}
+
+if (!defined('SQ_COMMENT_HTML_ESCAPE')) {
+	define ('SQ_COMMENT_HTML_ESCAPE',	1);
+}
+
+if (!defined('SQ_COMMENT_HTML_STRIP')) {
+	define ('SQ_COMMENT_HTML_STRIP',	2);
+}
 
 /**
 * Comment_Prefs
@@ -28,7 +39,7 @@ require_once SQ_ATTRIBUTES_PATH.'/boolean/boolean.inc';
 *    Looks after the creation the Comment Preferences
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Comment_Prefs extends Prefs
