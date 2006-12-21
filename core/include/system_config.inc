@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.92 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: system_config.inc,v 1.93 2006/12/21 05:25:32 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -547,7 +547,61 @@ class System_Config extends Config
 
 			$o->openField(translate('http_login_var'));
 			if ($write_access && $is_root) {
-				text_box($class.'[SQ_CONF_HTTP_LOGIN_VAR]', SQ_CONF_HTTP_LOGIN_VAR, 40);
+
+				$server = array_keys($_SERVER);
+
+				?>
+
+				<script language="JavaScript" type="text/javascript">
+				//<![CDATA[
+				    function toggle_http_login_var() {
+				        list = document.getElementById('sq-conf-http-login-var-list');
+				        txt = document.getElementById('sq-conf-http-login-var-toggle');
+				        if (txt && list) {
+				            list.style.display = (list.style.display == 'none' ? 'block' : 'none');
+				            txt.innerHTML = js_translate('http_login_var_' + (list.style.display == 'none' ? 'show' : 'hide') + '_server_var');
+				        }
+				    }// end set_conf_debug
+				//]]>
+				</script>
+
+				<?php
+				text_box($class.'[SQ_CONF_HTTP_LOGIN_VAR]', SQ_CONF_HTTP_LOGIN_VAR, 40, '', FALSE , 'id="sq-conf-http-login-var"');
+				?>
+
+				<br />
+				<span id="sq-conf-http-login-var-toggle" class="clickable" onclick=toggle_http_login_var();><?php echo translate('http_login_var_show_server_var');?></span>
+				<div id="sq-conf-http-login-var-list" style="display:none;">
+					<table class="sq-backend-table" width="400">
+						<tr>
+							<th colspan="2">
+							<?php echo translate('http_login_var_list_header');?>
+							</th>
+						</tr>
+						<tr>
+							<td>
+								<?php
+									if (!empty($server)) {
+										?><ul><?php
+											for ($i=0; $i < sizeof($server); $i++) {
+												// make the second column
+												if ($i == round(sizeof($server)/2)) {
+													echo '</ul></td><td ><ul>';
+												}
+												?><li>
+													<span class="clickable" onclick="elt=document.getElementById('sq-conf-http-login-var'); if(elt) elt.value='<?php echo $server[$i];?>';">
+														<?php echo $server[$i];?>
+													</span>
+												</li><?php
+											}
+										?></ul><?php
+									}
+								?>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<?php
 			} else {
 				echo SQ_CONF_HTTP_LOGIN_VAR;
 			}
@@ -767,7 +821,7 @@ class System_Config extends Config
 	/**
 	* Saves the config settings that were submitted
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	* @param object	&$o	reference to the backend outputter
 	*
 	* @return boolean
 	* @access public
@@ -795,7 +849,6 @@ class System_Config extends Config
 		return parent::processBackend($o);
 
 	}//end processBackend()
-
 
 
 }//end class

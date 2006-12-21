@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.211 2006/12/20 06:07:07 arailean Exp $
+* $Id: lang_strings.xml,v 1.212 2006/12/21 05:25:43 hnguyen Exp $
 *
 */
 
@@ -46,6 +46,9 @@
 	<string source="allow_single_sign_in">Accept HTTP Authentication</string>
 	<string source="allow_single_sign_in_note">If this option is enabled and a username is found in the server variable specified below, the system will try to automatically log in a user with that username.  (It will assume that the user has already been authenticated by some external mechanism.)</string>
 	<string source="http_login_var">HTTP Authentication Variable</string>
+	<string source="http_login_var_show_server_var" js="1">Show Server Variables</string>
+	<string source="http_login_var_hide_server_var" js="1">Hide Server Variables</string>
+	<string source="http_login_var_list_header">Server Variables</string>
 	<string source="applies_to">Applies To</string>
 	<string source="asset_date_search_fields">Asset Date Search Fields</string>
 	<string source="assetid">Assetid</string>
