@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.41 2006/12/13 04:37:49 rong Exp $
+* $Id: trigger_manager.inc,v 1.42 2006/12/21 22:27:05 emcdonald Exp $
 *
 */
 
@@ -42,7 +42,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1223,9 +1223,10 @@ class Trigger_Manager extends Asset
 				foreach ($action_locks as $lock_assetid => $lock_types) {
 					foreach ($lock_types as $lock_type) {
 						$lock_success = $am->acquireLock($lock_assetid, $lock_type);
-						if ($lock_success) {
+						// add this lock to the list of locks to release if we actually acquired, not if we only updated
+						if ($lock_success==1) {
 							$locks_held[$lock_assetid][$lock_type] = TRUE;
-						} else {
+						} else if ($lock_success==0) {
 							// bail if we can't get all of the locks
 							break 2;
 						}
@@ -1244,7 +1245,7 @@ class Trigger_Manager extends Asset
 
 				// execute action
 				$action_success = call_user_func_array(Array($action['type'], 'execute'), Array($action['data'], &$state_data));
-			}
+			}//end else
 
 			if ($action_success === FALSE) {
 				if ($not_required) {
