@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment.inc,v 1.11 2006/12/21 00:42:48 arailean Exp $
+* $Id: comment.inc,v 1.12 2006/12/21 00:57:22 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define ('SQ_COMMENT_HTML_STRIP',	2);
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -50,37 +50,9 @@ class Comment extends Page
 	*/
 	function _getName($short_name=FALSE)
 	{
-		return $this->attr('name');
+		return strip_tags($this->attr('name'));
 
 	}//end _getName()
-
-
-	/**
-	* Get keyword replacement for the formatted comment title
-	*
-	* @return string
-	* @access public
-	* @see Comment::_formatValueBasedOnPreference()
-	*/
-	function getCommentTitleKeywordReplacement()
-	{
-		return $this->_formatValueBasedOnPreference($this->attr('name'));
-
-	}//end getCommentTitleKeywordReplacement()
-
-
-	/**
-	* Get keyword replacement for the formatted comment body
-	*
-	* @return string
-	* @access public
-	* @see Comment::_formatValueBasedOnPreference()
-	*/
-	function getCommentBodyKeywordReplacement()
-	{
-		return $this->_formatValueBasedOnPreference($this->attr('comment'));
-
-	}//end getCommentBodyKeywordReplacement()
 
 
 	/**
@@ -109,13 +81,31 @@ class Comment extends Page
 	{
 		$keywords = parent::getAvailableKeywords();
 
-		$keywords['comment_body'] = translate('news_comment_body');
-		$keywords['comment_title'] = translate('news_comment_title');
 		$keywords['comment_max_length'] = translate('news_comment_max_length');
 
 		return $keywords;
 
 	}//end getAvailableKeywords()
+
+
+	/**
+	* Get the value of an attribute
+	*
+	* @param string	$name	the name of the attribute whose value you want to get
+	*
+	* @return mixed string|NULL
+	* @access public
+	*/
+	function attr($name)
+	{
+		if (in_array($name, Array('name', 'short_name', 'comment'))) {
+			return $this->_formatValueBasedOnPreference(parent::attr($name));
+		} else if (in_array($name, Array('name_raw', 'short_name_raw', 'comment_raw'))) {
+			return parent::attr(str_replace('_raw', '', $name));
+		}
+		return parent::attr($name);
+
+	}//end attr()
 
 
 	/**
@@ -132,6 +122,13 @@ class Comment extends Page
 	*/
 	function setAttrValue($name, $value)
 	{
+		$caller = array_get_index(debug_backtrace(), 1);
+		if (array_get_index($caller, 'class') == 'page_asset_builder') {
+			if (in_array($name, Array('name', 'short_name', 'comment'))) {
+				return TRUE;
+			}
+		}
+
 		switch ($name) {
 			case 'comment':
 				$length = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_COMMENT_MAX_LENGTH');
