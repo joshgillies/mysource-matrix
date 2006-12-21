@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.535 2006/12/18 23:59:33 lwright Exp $
+* $Id: asset_manager.inc,v 1.536 2006/12/21 05:50:12 emcdonald Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.535 $
+* @version $Revision: 1.536 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1993,6 +1993,8 @@ class Asset_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction(($success) ? 'COMMIT' : 'ROLLBACK');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		// return 2 for expiry updated only, 1 for success and 0 for failure
 		return ($success) ? (($lock_updated) ? 2 : 1) : 0;
 
 	}//end acquireLock()
