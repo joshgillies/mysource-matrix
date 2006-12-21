@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment.inc,v 1.10 2006/12/20 23:56:56 arailean Exp $
+* $Id: comment.inc,v 1.11 2006/12/21 00:42:48 arailean Exp $
 *
 */
 
@@ -28,12 +28,31 @@ define ('SQ_COMMENT_HTML_STRIP',	2);
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
 class Comment extends Page
 {
+
+
+	/**
+	* Return a name to use to describe this instance of the asset
+	*
+	* This function should be overridden by children as it is used to set the <i>name</i> and <i>short_name</i>
+	* values for this asset when updating.
+	*
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
+	*
+	* @return string
+	* @access private
+	* @see _updated
+	*/
+	function _getName($short_name=FALSE)
+	{
+		return $this->attr('name');
+
+	}//end _getName()
 
 
 	/**
