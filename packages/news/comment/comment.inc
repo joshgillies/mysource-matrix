@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment.inc,v 1.12 2006/12/21 00:57:22 bcaldwell Exp $
+* $Id: comment.inc,v 1.13 2006/12/21 01:01:06 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define ('SQ_COMMENT_HTML_STRIP',	2);
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -50,7 +50,7 @@ class Comment extends Page
 	*/
 	function _getName($short_name=FALSE)
 	{
-		return strip_tags($this->attr('name'));
+		return strip_tags($this->attr('name_raw'));
 
 	}//end _getName()
 
