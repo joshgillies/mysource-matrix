@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment.inc,v 1.13 2006/12/21 01:01:06 bcaldwell Exp $
+* $Id: comment.inc,v 1.14 2006/12/21 03:21:24 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define ('SQ_COMMENT_HTML_STRIP',	2);
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -53,6 +53,34 @@ class Comment extends Page
 		return strip_tags($this->attr('name_raw'));
 
 	}//end _getName()
+
+
+	/**
+	* Overwrite the keyword replacement function for the name attribute
+	*
+	* @return string
+	* @access public
+	* @see Asset::getKeywordReplacement()
+	*/
+	function getAssetAttributeNameKeywordReplacement()
+	{
+		return $this->attr('name');
+
+	}//end getAssetAttributeNameKeywordReplacement()
+
+
+	/**
+	* Overwrite the keyword replacement function for the name attribute
+	*
+	* @return string
+	* @access public
+	* @see Asset::getKeywordReplacement()
+	*/
+	function getAssetAttributeCommentKeywordReplacement()
+	{
+		return $this->attr('comment');
+
+	}//end getAssetAttributeCommentKeywordReplacement()
 
 
 	/**
