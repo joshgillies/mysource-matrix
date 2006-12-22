@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.98 2006/12/05 05:36:13 bcaldwell Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.98.2.1 2006/12/22 05:46:04 skim Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.98.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -147,7 +147,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					$limbo_asset =& $this->am->getAsset($_REQUEST['limbo_assetid']);
 					// if the limbo asset is invalid, just use the current asset
 					if (is_null($limbo_asset)) $limbo_asset =& $asset;
-					$o->addFormActionGetVar('limbo_assetid', $limbo_asset->id);
+					$o->addFormActionGetVar('limbo_assetid', $limbo_asset->id, TRUE);
 				}
 
 				$o->addFormActionGetVar('assetid', $asset->id);
