@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.38 2006/12/05 05:39:09 bcaldwell Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.39 2006/12/22 04:23:15 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -43,8 +43,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	/**
 	* Paints backend of this job
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
-	* @param string						$class		calling class name
+	* @param object	&$o		reference to the backend outputter
+	* @param string	$class	calling class name
 	*
 	* @return void
 	* @access private
@@ -73,7 +73,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	/**
 	* Sets some info about thresholds that this hipo requires.
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getConfigVars()
@@ -132,10 +132,10 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 										'init_details_function'	=> 'getLockAssetDetails',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> true,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -144,10 +144,10 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 										'process_function'	=> 'processSchemas',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> true,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 				Array(
@@ -156,10 +156,10 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 										'process_function'	=> 'releaseLocks',
 									   ),
 					'running_mode'	=> 'server',
-					'auto_step'		=> true,
-					'allow_cancel'	=> false,
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
-					'complete'		=> false,
+					'complete'		=> FALSE,
 					'message'		=> '',
 				),
 			   );
@@ -197,10 +197,10 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	{
 		while (!empty($this->_running_vars['todo_assetids'])) {
 			if (!$this->processSchemas($this->_steps[0], get_class($this))) {
-				return false;
+				return FALSE;
 			}
 		}
-		return true;
+		return TRUE;
 
 	}//end freestyle()
 
@@ -216,7 +216,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 		// to start editing schemas, we need to have an asset id to start editing schemas at
 		if (empty($this->_running_vars['assets'])) {
 			trigger_localised_error('HIPO0017', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		$this->_running_vars['done_assetids'] = Array();
@@ -226,8 +226,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 		} else {
 			$assets = $this->_running_vars['assets'];
 			$child_assets = Array();
-			for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) {
 					trigger_localised_error('HIPO0016', E_USER_WARNING, $assetid);
 					return '';
@@ -236,8 +236,29 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 				$child_assets[$assetid] = $asset->type();
 				unset($asset);
 			}
+			$types_with_assets = Array();
+
+			foreach ($child_assets as $assetid => $type) {
+				if (!isset($types_with_assets[$type])) {
+					$types_with_assets[$type] = Array();
+				}
+				$types_with_assets[$type][$assetid] = $type;
+			}
+
+			foreach ($types_with_assets as $type => $assetids) {
+				// if this asset does not allow the user to set metadata values then
+				// I think its okay to assume that we dont need to set any schemas
+				// because nothing is ever going to get filled in - thus required
+				// fields with defaults will always be blank
+				if (!$GLOBALS['SQ_SYSTEM']->mm->allowsMetadata(reset(array_keys($assetids)))) {
+					// if not remove assets from child asset list.
+					// What happen here if $types_with_assets is an array of array?
+					$child_assets = array_diff($child_assets, $assetids);
+				}
+            }
+
 			$this->_running_vars['todo_assetids'] = $child_assets;
-		}
+		}//end else
 
 		return parent::prepare();
 
@@ -247,8 +268,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	/**
 	* Edit schemas for a single asset in the to-do list
 	*
-	* @param array		&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -259,74 +280,63 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
 			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
-			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 			if (!is_null($asset)) {
-				// if this asset does not allow the user to set metadata values then
-				// I think its okay to assume that we dont need to set any schemas
-				// because nothing is ever going to get filled in - thus required
-				// fields with defaults will always be blank
-				if ($mm->allowsMetadata($asset->id)) {
 
-					foreach ($this->_running_vars['schema_changes'] as $set_data) {
-						if ($set_data['schemaid']) {
-							$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($set_data['schemaid']);
-							if (is_null($schema)) {
-								$schema_name = 'Unknown Schema';
-							} else {
-								$schema_name = $schema->name;
-							}
+				foreach ($this->_running_vars['schema_changes'] as $set_data) {
+					if ($set_data['schemaid']) {
+						$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($set_data['schemaid']);
+						if (is_null($schema)) {
+							$schema_name = 'Unknown Schema';
 						} else {
+							$schema_name = $schema->name;
+						}
+					} else {
+						continue;
+					}
+
+					$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+
+					if ($set_data['previous_access'] === NULL) {
+						// to edit this schema, there must not currently be a schema set
+						// at all - either grant OR deny - for this asset
+						$schemas = $mm->getSchemas($asset->id, $set_data['granted']);
+						if (isset($schemas[$set_data['schemaid']])) {
+							$new_access     = ($set_data['granted']) ? translate('apply') : translate('deny');
+							$current_access = ($schemas[$set_data['schemaid']]) ? translate('applied') : translate('denied');
+							$this->_addError(translate('hipo_cannot_modify_schema', $new_access, $schema_name, $asset->name, $current_access), TRUE);
 							continue;
 						}
-
-						$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-
-						if ($set_data['previous_access'] === null) {
-							// to edit this schema, there must not currently be a schema set
-							// at all - either grant OR deny - for this asset
-							$schemas = $mm->getSchemas($asset->id, $set_data['granted']);
-							if (isset($schemas[$set_data['schemaid']])) {
-								$new_access     = ($set_data['granted']) ? translate('apply') : translate('deny');
-								$current_access = ($schemas[$set_data['schemaid']]) ? translate('applied') : translate('denied');
-								$this->_addError(translate('hipo_cannot_modify_schema', $new_access, $schema_name, $asset->name, $current_access), true);
-								continue;
-							}
-						} else {
-							// we need to have a schema set and the access level be the same
-							$schemas = $mm->getSchemas($asset->id);
-							if (!isset($schemas[$set_data['schemaid']])) {
-								continue;
-							} else if ($schemas[$set_data['schemaid']] != $set_data['previous_access']) {
-								$new_access     = ($set_data['previous_access']) ? translate('revoke')  : translate('apply');
-								$current_access = ($set_data['previous_access']) ? translate('applied') : translate('denied');
-								$this->_addError(translate('hipo_cannot_modify_schema', $new_access, $schema_name, $asset->name, $current_access), true);
-								continue;
-							}
-						}
-
-						switch ($set_data['granted']) {
-							case -1 :
-								// delete a schema
-								$mm->deleteSchema($asset->id, $set_data['schemaid']);
-							break;
-
-							case 0  :
-							case 1  :
-								// apply a schema
-								$mm->setSchema($asset->id, $set_data['schemaid'], $set_data['granted']);
-							break;
+					} else {
+						// we need to have a schema set and the access level be the same
+						$schemas = $mm->getSchemas($asset->id);
+						if (!isset($schemas[$set_data['schemaid']])) {
+							continue;
+						} else if ($schemas[$set_data['schemaid']] != $set_data['previous_access']) {
+							$new_access     = ($set_data['previous_access']) ? translate('revoke')  : translate('apply');
+							$current_access = ($set_data['previous_access']) ? translate('applied') : translate('denied');
+							$this->_addError(translate('hipo_cannot_modify_schema', $new_access, $schema_name, $asset->name, $current_access), TRUE);
+							continue;
 						}
 					}
 
-					$step_data['message'] = translate('hipo_editing_metadata_schema', $asset->name);
+					switch ($set_data['granted']) {
+						case -1 :
+							// delete a schema
+							$mm->deleteSchema($asset->id, $set_data['schemaid']);
+						break;
 
-				} else {
-					$step_data['message'] = translate('hipo_skipping_metadata_schema', $asset->name);
+						case 0  :
+						case 1  :
+							// apply a schema
+							$mm->setSchema($asset->id, $set_data['schemaid'], $set_data['granted']);
+						break;
+					}
+				}//end foreach
 
-				}//end if metadata screen exists
-
+				$step_data['message'] = translate('hipo_editing_metadata_schema', $asset->name);
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
@@ -337,19 +347,19 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 
 			// add this assetid to the done array so we dont do it again
 			$this->_running_vars['done_assetids'][] = $assetid;
-		}
+		}//end if
 
 		if (empty($this->_running_vars['todo_assetids'])) {
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 			unset($this->_running_vars['done_assetids']);
 		} else {
 			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end processSchemas()
 
@@ -357,9 +367,9 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	/**
 	* This function is used to set-up the details for the locking the assets by the nested HIPO_Job
 	*
-	* @param string		&$job_type
-	* @param array		&$running_vars
-	* @param array		&$options
+	* @param string	&$job_type		job type
+	* @param array	&$running_vars	running vars
+	* @param array	&$options		options
 	*
 	* @return void
 	* @access public
@@ -368,13 +378,13 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	{
 		$job_type = 'hipo_job_acquire_locks';
 
-		$options['auto_complete'] = true;
+		$options['auto_complete'] = TRUE;
 
 		$running_vars = Array(
 							'assetids'			=> array_keys($this->_running_vars['assets']),
 							'lock_type'			=> Array('metadata'),
-							'forceably_acquire'	=> false,
-							'dependants_only'	=> false,
+							'forceably_acquire'	=> FALSE,
+							'dependants_only'	=> FALSE,
 						);
 
 	}//end getLockAssetDetails()
@@ -383,8 +393,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	/**
 	* Release the locks we acquired while setting the schemas
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -415,13 +425,13 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 		if (empty($this->_running_vars['re_lock_assets'])) {
 			unset($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
+			$step_data['complete']     = TRUE;
 		} else {
 			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / count($this->_running_vars['assets'])) * 100;
-			$step_data['complete']     = false;
+			$step_data['complete']     = FALSE;
 		}
 
-		return true;
+		return TRUE;
 
 	}//end releaseLocks()
 
