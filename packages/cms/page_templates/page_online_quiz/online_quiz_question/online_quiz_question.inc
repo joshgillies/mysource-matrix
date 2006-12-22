@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question.inc,v 1.2 2006/12/20 23:57:06 rhoward Exp $
+* $Id: online_quiz_question.inc,v 1.3 2006/12/22 04:40:06 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ define('SQ_ONLINE_QUIZ_QUESTION_SESSION_VAR', 'SQ_ONLINE_QUIZ');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -103,7 +103,8 @@ class Online_Quiz_Question extends Asset
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['bodycopy']   = Array('card' => 1, 'exclusive' => FALSE);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1, 'exclusive' => FALSE);
+		$page_links[SQ_LINK_TYPE_3]['bodycopy'] = Array('card' => 1, 'exclusive' => FALSE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
