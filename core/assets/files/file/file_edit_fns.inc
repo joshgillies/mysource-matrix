@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.81 2006/12/18 21:50:05 arailean Exp $
+* $Id: file_edit_fns.inc,v 1.82 2006/12/22 01:19:12 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,6 +117,26 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintFileUpload(&$asset, &$o, $prefix)
 	{
+		// We redirect the header frame to the new location only if
+		// we are in limbo, the file name has been changed and allow_unrestricted is false.
+		// If allow_unrestricted is true, the asset is identified by limbo_assetid GET var
+		if (SQ_IN_LIMBO) {
+			if (!empty($_REQUEST['redirect_header'])) {
+				$url = strip_url($asset->getUrl()).'/'.SQ_CONF_LIMBO_SUFFIX
+						.'?SQ_BACKEND_PAGE=header'
+						.'&current_assetid='.$asset->id
+						.'&sq_popups_blocked=0';
+				?>
+				<script type="text/javascript">
+					if (parent.frames["sq_header"]) {
+						lock_type = parent.frames["sq_main"].get_form_element_value('sq_lock_type');
+						parent.frames["sq_header"].location = "<?php echo $url ?>" + "&sq_lock_type=" + lock_type;
+					}
+				</script>
+				<?php
+			}
+		}
+
 		if ($asset->writeAccess('attributes')) {
 			file_upload($prefix);
 			if ($this->havePreUploadedFiles($asset, $prefix)) {
@@ -320,10 +340,12 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			return FALSE;
 		}
 
-		if (SQ_IN_LIMBO && $name_changed && $redirect_in_limbo && !isset($_REQUEST['limbo_assetid'])) {
+		if (SQ_IN_LIMBO && $name_changed && $redirect_in_limbo) {
 			// if we are in limbo and the name of the file has changed, the URL will also change
 			// so we need to redirect to the new limbo URL
-			$o->setRedirect(strip_url($asset->getUrl()).'/'.SQ_CONF_LIMBO_SUFFIX);
+			if (!$asset->attr('allow_unrestricted')) {
+				$o->setRedirect(strip_url($asset->getUrl()).'/'.SQ_CONF_LIMBO_SUFFIX.'?redirect_header=1');
+			}
 		}
 
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
