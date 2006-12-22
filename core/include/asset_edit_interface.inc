@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.299.2.5 2006/12/11 01:16:34 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.299.2.6 2006/12/22 01:18:22 skim Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.299.2.5 $
+* @version $Revision: 1.299.2.6 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1161,7 +1161,10 @@ class Asset_Edit_Interface extends MySource_Object
 						'lock_type'			=> $locks,
 						'forceably_acquire'	=> FALSE,
 					);
-			$hh->queueHipo('hipo_job_acquire_locks', $vars);
+
+			// if redirect locations is already set, pass it onto hipo job
+			$on_complete_url = (empty($o->_redirect) ? '' : $o->_redirect);
+			$hh->queueHipo('hipo_job_acquire_locks', $vars, $on_complete_url);
 			$url = $hh->runQueuedJobs();
 			if (!empty($url)) {
 				// redirect to the correct url and fire hipo (not passing sq_redirect_url)
