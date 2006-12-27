@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.136 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: backend_outputter.inc,v 1.136.2.1 2006/12/27 22:21:36 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.136 $
+* @version $Revision: 1.136.2.1 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1048,6 +1048,26 @@ class Backend_Outputter
 					// basically if they get this far then we can submit
 					SQ_FORM_SUBMITTED = true;
 
+					// If we are submitting the header frame, we are probably
+					// submitting the search... so add "search in progress"
+					// screen
+					if (self.name == 'sq_header') {
+						top.frames["sq_main"].document.getElementById("sq-search-wait-popup").style.display = "block";
+
+						screenMenu = top.frames["sq_main"].document.getElementById("sq_screen_menu");
+						screenMenuFiller = top.frames["sq_main"].document.getElementById("sq_screen_menu_filler");
+
+						if (screenMenu) {
+							if (window.navigator.userAgent.indexOf('MSIE') > 0) {
+								screenMenuFiller.style.width = screenMenu.offsetWidth;
+								screenMenuFiller.style.height = screenMenu.offsetHeight;
+								screenMenuFiller.style.display = "block";
+								screenMenu.style.display = "none";
+							}
+							screenMenu.style.MozOpacity = "0";
+						}
+					}
+
 					// disable all submit buttons
 					disable_buttons();
 
@@ -1067,6 +1087,9 @@ class Backend_Outputter
 			</script>
 		</head>
 		<body onload="page_on_load();" onUnLoad="page_on_unload();">
+		<div id="sq-search-wait-popup"><div id="sq-search-wait-popup-titlebar"><div id="sq-search-wait-popup-close">[ <a href="#" onclick="document.getElementById('sq-search-wait-popup').style.display = 'none'; return false;">x</a> ]</div><span id="sq-search-wait-popup-title">Search in Progress</span></div>
+			<div id="sq-search-wait-popup-details">Your search is being processed, please wait...</div>
+		</div>
 		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onsubmit="return form_on_submit();">
 		<?php
 		hidden_field('process_form', '1');
