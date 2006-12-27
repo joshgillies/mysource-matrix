@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.161 2006/12/15 00:55:36 tbarrett Exp $
+* $Id: backend.inc,v 1.162 2006/12/27 21:38:56 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.161 $
+* @version $Revision: 1.162 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -417,10 +417,12 @@ class Backend extends MySource_Object
 		}
 
 
-		  //////////////////////////////
-		 //  ASSET ID/URL SEARCH     //
-		//////////////////////////////
+		  //////////////////////////////////////
+		 //  ASSET ID/URL/KEYWORD SEARCH     //
+		//////////////////////////////////////
 		if (!empty($_POST['asset_search']) && $_POST['asset_search'] != $asset_search_default) {
+			include_once SQ_LIB_PATH.'/backend_search/backend_search.inc';
+
 			$_POST['asset_search'] = trim($_POST['asset_search']);
 
 			$assetid_match = FALSE;
@@ -437,7 +439,7 @@ class Backend extends MySource_Object
 			}
 
 			$search_terms = $_POST['asset_search'];
-			$results = $this->doBackendSearch($search_terms);
+			$results = Backend_Search::processSearch($search_terms);
 
 			$js_code = '';
 

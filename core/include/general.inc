@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.159 2006/12/14 03:41:57 tbarrett Exp $
+* $Id: general.inc,v 1.160 2006/12/27 21:38:57 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.159 $
+* @version $Revision: 1.160 $
 * @package MySource_Matrix
 */
 
@@ -1284,7 +1284,7 @@ function get_asset_tag_line($assetid, $screen='')
 				}
 				$lineage_names[$assetid] = $asset_info['name'];
 				?><tr>
-				<td class="sq-backend-table-cell" ><a href="#" onclick="if ((window['sq_wysiwyg_dialog'] != undefined) && !window['sq_wysiwyg_dialog'].closed) { am = sq_wysiwyg_dialog; am.focus(); } else { am = parent.top.frames['sq_sidenav']; } am.asset_locator_start('<?php echo get_asset_lineage_sort_order($lineage_assetids) ?>'); tooltip.hide(); return false;"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
+				<td class="sq-backend-table-cell" ><a href="#" onclick="if (self.name == 'sq_wysiwyg_popup_main') {am = self;} else if ((typeof sq_wysiwyg_dialog != 'undefined') && !sq_wysiwyg_dialog.closed) { am = sq_wysiwyg_dialog; am.focus(); } else { am = parent.top.frames['sq_sidenav']; } am.asset_locator_start('<?php echo get_asset_lineage_sort_order($lineage_assetids) ?>'); tooltip.hide(); return false;"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
 				</tr><?php
 			} else {
 				unset($lineages[$lineage_key]);
@@ -1308,7 +1308,15 @@ function get_asset_tag_line($assetid, $screen='')
 			sort($lineages);
 			$lineage_names = $lineages[0]['lineage'];
 			$lineage_names[$assetid] = $asset_info['name'];
-			$lineages_onclick = 'if ((window[\'sq_wysiwyg_dialog\'] != undefined) && !window[\'sq_wysiwyg_dialog\'].closed) { am = sq_wysiwyg_dialog; am.focus(); } else { am = parent.top.frames[\'sq_sidenav\']; } am.asset_locator_start(\''.get_asset_lineage_sort_order($lineage_assetids).'\'); return false;';
+
+			// Logic:
+			// 1. Invoking from a WYSIWYG popup itself (WYSIWYG search results)
+			//    => target is the popup, to target the simple asset map
+			// 2. Invoking from main window when a WYSIWYG popup is active
+			//    => target is the popup (simple asset map), BUT need to focus it
+			// 3. Invoking from main window, no WYSWIYG popup
+			//    => target is the sidenav window, to target the main asset map
+			$lineages_onclick = 'if (self.name == \'sq_wysiwyg_popup_main\') {am = self;} else if ((typeof sq_wysiwyg_dialog != \'undefined\') && !sq_wysiwyg_dialog.closed) { am = sq_wysiwyg_dialog.frames[\'sq_wysiwyg_popup_main\']; am.focus(); } else { am = parent.top.frames[\'sq_sidenav\']; } am.asset_locator_start(\''.get_asset_lineage_sort_order($lineage_assetids).'\'); return false;';
 			$lineages_name = translate('show_in_asset_map');
 		}
 
@@ -1318,9 +1326,23 @@ function get_asset_tag_line($assetid, $screen='')
 			echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' align="absmiddle"  onclick="'.$lineages_onclick.'"');
 		}
 
-		if ($screen_url) echo '<a href="'.$screen_url.'">';
+		// Screen parameter now supports javascript code to be added to the
+		// onclick event in lieu of actually going to a screen
+		if (preg_match('/^javascript:/i', $screen)) {
+			$js = preg_replace('/^javascript:/i', '', $screen);
+			if (substr($js, -1) != ';') $js .= ';';
+		}
+
+		if (!empty($js)) {
+			echo '<a href="#" onclick="'.$js.' return false;">';
+		} else if (!empty($screen_url)) {
+			echo '<a href="'.$screen_url.'">';
+		}
 		echo $asset_info['name'];
-		if ($screen_url) echo '</a>';
+
+		if (!empty($js) || !empty($screen_url)) {
+			echo '</a>';
+		}
 
 		echo ' (Id: #'.$assetid.') ';
 
