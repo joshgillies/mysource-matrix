@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.inc,v 1.13 2006/12/06 01:07:35 emcdonald Exp $
+* $Id: metadata_field_date.inc,v 1.14 2006/12/27 23:30:17 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -140,34 +140,9 @@ class Metadata_Field_Date extends Metadata_Field
 			}
 		}
 
-		if ($value == '---------- --:--:--') {
-			$value_arr = Array(
-							'y'	=> '',
-							'm'	=> '',
-							'd'	=> '',
-							'h'	=> '',
-							'i'	=> '',
-							's'	=> '',
-						 );
-		} else {
-			$date = getdate(iso8601_ts($value));
-			$value_arr = Array(
-							'y'	=> $date['year'],
-							'm'	=> $date['mon'],
-							'd'	=> $date['mday'],
-							'h'	=> $date['hours'],
-							'i'	=> $date['minutes'],
-							's'	=> $date['seconds'],
-						 );
-		}
-
-		$value = '';
 		$field =& new DateTime_Field($prefix.'_datetime', $value, $parameters);
-		$value = $field->unitsArrayToStr($value_arr);
-		$field->setValue($value);
 
 		return $field;
-
 	}//end _getDateTimeField()
 
 
