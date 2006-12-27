@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: popup.js,v 1.10 2006/12/06 05:11:07 bcaldwell Exp $
+* $Id: popup.js,v 1.11 2006/12/27 21:52:16 lwright Exp $
 *
 */
 
@@ -22,14 +22,14 @@ function __dlg_onclose(code) {
 function __dlg_init(code) {
 	if (!document.all) {
 		// init dialogArguments, as IE gets it
-		window.dialogArguments = opener.dialogWins[code].args;
+		window.dialogArguments = top.opener.dialogWins[code].args;
 
-		if (opener.dialogWins[code].isModal) {
-			window.sizeToContent();
-			window.sizeToContent();	// for reasons beyond understanding,
+		if (top.opener.dialogWins[code].isModal) {
+			window.top.sizeToContent();
+			window.top.sizeToContent();	// for reasons beyond understanding,
 									// only if we call it twice we get the
 									// correct size.
-			window.addEventListener("unload", __dlg_onclose(code), true);
+			window.top.addEventListener("unload", __dlg_onclose(code), true);
 			// center on parent
 			var px1 = opener.screenX;
 			var px2 = opener.screenX + opener.outerWidth;
@@ -48,10 +48,10 @@ function __dlg_init(code) {
 
 // closes the dialog and passes the return info upper.
 function __dlg_close(code, val) {
-	if (document.all && !opener) { // modal in IE
-		window.returnValue = val;
+	if (!opener && top.opener) {
+		if (top.opener.dialogWins[code].returnFunc) { top.opener.dialogWins[code].returnFunc(val); }
 	} else {
 		if (opener.dialogWins[code].returnFunc) { opener.dialogWins[code].returnFunc(val); }
 	}
-	window.close();
+	window.top.close();
 };

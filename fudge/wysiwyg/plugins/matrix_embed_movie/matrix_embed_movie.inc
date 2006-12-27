@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_movie.inc,v 1.22 2006/12/06 05:11:09 bcaldwell Exp $
+* $Id: matrix_embed_movie.inc,v 1.23 2006/12/27 21:52:17 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     in the editable document using a file asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -149,9 +149,9 @@ class matrix_embed_movie extends wysiwyg_plugin
 				if (this._inPopup == true) { in_popup = '1'; }
 
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
-				strPage = "<?php echo $this->get_popup_href('embed_movie.php')?>?f_fileurl=" + escape(fileurl) + "&f_fileprotocol=" + escape(fileprotocol) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_auto_start=" + escape(auto_start) + "&f_show_controls=" + escape(show_controls) + "&f_embed_loop=" + escape(embed_loop) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
+				strPage = "<?php echo $this->get_popup_href('embed_movie_frames.php')?>?f_fileurl=" + escape(fileurl) + "&f_fileprotocol=" + escape(fileprotocol) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_auto_start=" + escape(auto_start) + "&f_show_controls=" + escape(show_controls) + "&f_embed_loop=" + escape(embed_loop) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixEmbedMovie", strPage, 640, 500, true, function(param) {
+				this._popupDialog("matrixEmbedMovie", strPage, 780, 500, true, function(param) {
 					if (!param) {
 						// user must have pressed Cancel
 						return false;

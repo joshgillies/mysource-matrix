@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.43 2006/12/06 05:11:10 bcaldwell Exp $
+* $Id: insert_image.php,v 1.44 2006/12/27 21:52:17 lwright Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 */
 
@@ -62,6 +62,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/JsHttpConnector.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/tooltip.js' ?>"></script>
 
 		<script type="text/javascript">
 
@@ -189,12 +190,35 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				font: 11px Tahoma,Verdana,sans-serif;
 				margin: 0px;
 				padding: 0px;
-				padding: 5px;
 			}
 
 			table {
 				font: 11px Tahoma,Verdana,sans-serif;
 			}
+
+			form#main-form {
+				padding: 5px;
+				clear: right;
+			}
+
+			#quick-search {
+				font: 11px Tahoma,Verdana,sans-serif;
+				letter-spacing: 0;
+				float: right;
+				padding-right: 12px;
+			}
+
+			#quick-search #quick-search-for {
+				font: 11px Arial,Verdana,sans-serif;
+				border: 1px solid black;
+				padding: 1px 3px;
+			}
+
+			#quick-search #quick-search-for-label {
+				font: 11px Arial,Verdana,sans-serif;
+				color: #999;
+			}
+
 
 			/* main popup title */
 			.title {
@@ -202,7 +226,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				color: #FFFFFF;
 				font-weight: bold;
 				font-size: 120%;
-				padding: 3px 10px;
+				padding: 6px 10px;
 				margin-bottom: 10px;
 				border-bottom: 1px solid black;
 				letter-spacing: 4px;
@@ -260,13 +284,145 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 
 			.buttonColor-nocolor, .buttonColor-nocolor-hilite { padding: 0px; }
 			.buttonColor-nocolor-hilite { background: #402F48; color: #FFFFFF; }
+
+			/* Popup styles (for backend search feature) */
+
+			#new-message-popup, #search-wait-popup {
+				position: absolute;
+				right: 10px;
+				top: 0;
+				width: 300px;
+				background-color: white;
+				border: 2px solid black;
+				font: normal 10px Arial,Verdana,sans-serif;
+				display: none;
+			}
+
+			#new-message-popup-titlebar, #search-wait-popup-titlebar {
+				font-weight: bold;
+				padding: 5px;
+			}
+
+			#new-message-popup-close, #search-wait-popup-close {
+				float: right;
+			}
+
+			#new-message-popup-close a, #search-wait-popup-close a {
+				color: black;
+				text-decoration: none;
+			}
+
+			#new-message-popup-details, #search-wait-popup-details {
+				padding: 5px;
+			}
+
+			div.search-result {
+				padding: 0;
+				margin: 5px;
+			}
+
+			div.search-result-blurb {
+				padding: 0;
+				margin: 5px;
+				font-weight: bold;
+			}
+
+			div.search-result-pager {
+				padding: 0;
+				margin: 5px;
+				text-align: center;
+			}
+
+			div.search-result-detail {
+				padding: 0;
+				padding-left: 15px;
+				margin: 5px;
+				display: none;
+			}
+
+			a.search-result-expand-link {
+				text-decoration:	none;
+				top:				0px;
+				left:				0px;
+				height:				10px;
+				font-size:			14px;
+				margin-top:			0px;
+				font-weight: 		bold;
+				text-decoration:	none;
+				color:				#33B9E6;
+			}
+
+			.search-result-expand-div {
+				float:				left;
+				width:				22px;
+				font-weight: 		bold;
+				background-color:	white;
+				white-space:		nowrap;
+			}
+
+			.search-result-entry {
+				margin-top:		5px;
+				text-indent:	-38px;
+				padding-left:	50px;
+			}
+
+			.sq-backend-search-failed-table {
+				border:				2px solid #594165;
+				border-collapse:	collapse;
+				background-color:	#ECECEC;
+			}
+
+			.sq-backend-search-failed-heading, .sq-backend-search-failed-body {
+				color:				#342939;
+				background-color:	#ececec;
+				font-family:		Arial, Verdana, Helvetica, sans-serif;
+				font-size:			10px;
+				vertical-align:		top;
+				padding:			5px;
+				text-decoration:	none;
+				font-weight:		bold;
+			}
+
+			.sq-backend-search-failed-body {
+				color:				#342939;
+				font-weight:		normal;
+			}
+
+			.sq-backend-search-results-table {
+				border:				2px solid #594165;
+				border-collapse:	collapse;
+				background-color:	#ECECEC;
+			}
+
+			.sq-backend-search-results-heading, .sq-backend-search-results-body {
+				color:				#342939;
+				background-color:	#FFFFFF;
+				font-family:		Arial, Verdana, Helvetica, sans-serif;
+				font-size:			10px;
+				vertical-align:		top;
+				padding:			5px;
+				text-decoration:	none;
+				font-weight:		bold;
+			}
+
+			.sq-backend-search-results-heading {
+				background-color:	#F0F0E6;
+			}
+
+			.sq-backend-search-results-highlight {
+				background-color:	yellow;
+			}
+
+			.sq-backend-search-results-body {
+				color:				#342939;
+				font-weight:		normal;
+			}
 		</style>
 	</head>
 
 	<body onload="Init();" onUnload="asset_finder_onunload();">
 
-		<div class="title"><?php echo translate('insert_image'); ?></div>
-		<form action="" method="get" name="main_form">
+		<form action="" method="get" name="main_form" id="main-form">
 			<table width="100%">
 				<tr>
 					<td valign="top">
@@ -485,5 +641,61 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				</tr>
 			</table>
 		</form>
+
+		<!-- Search results -->
+		<div id="new-message-popup"><div id="new-message-popup-titlebar"><div id="new-message-popup-close">[ <a href="#" onclick="document.getElementById('new-message-popup').style.display = 'none'; return false;">x</a> ]</div><span id="new-message-popup-title">Searched for ''</span></div>
+			<div id="new-message-popup-details"></div>
+		</div>
+		<div id="search-wait-popup"><div id="search-wait-popup-titlebar"><div id="search-wait-popup-close">[ <a href="#" onclick="document.getElementById('search-wait-popup').style.display = 'none'; return false;">x</a> ]</div><span id="search-wait-popup-title">Search in Progress</span></div>
+			<div id="search-wait-popup-details">Your search is being processed, please wait...</div>
+		</div>
+
+		<script type="text/javascript"><!--
+			var current = 1;
+			var results_per_page = <?php echo $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE'); ?>;
+			var total_results = 0;
+
+			function jump_to_search_results(page) {
+				// Show the correct page
+				document.getElementById("search-result-page-" + current).style.display = 'none';
+				document.getElementById("search-result-page-" + page).style.display = 'block';
+
+				// Update page start and end markers
+				document.getElementById("sq-search-results-page-start").innerHTML = (results_per_page * (page - 1)) + 1;
+				document.getElementById("sq-search-results-page-end").innerHTML = Math.min(total_results, results_per_page * page);
+
+				for (i = ((page - 1) * results_per_page) + 1; i <= Math.min(total_results, page * results_per_page); i++) {
+					// collapse the new page when page is switched, so they're
+					// back to just the tag lines
+					document.getElementById("search-result-" + i + "-expand-link").innerHTML = '+';
+					document.getElementById("search-result-" + i + "-detail").style.display = 'none';
+				}
+
+				current = page;
+			}
+
+			function set_asset_finder_from_search(assetid, label, url, linkid, filename, alt, width, height) {
+				document.cookie = 'lastSelectedAssetId=' + escape(assetid);
+
+				ASSET_FINDER_OBJ.set_hidden_field('f_imageid[assetid]', assetid);
+				ASSET_FINDER_OBJ.set_hidden_field('f_imageid[url]', url);
+				ASSET_FINDER_OBJ.set_hidden_field('f_imageid[linkid]', linkid);
+				ASSET_FINDER_OBJ.set_text_field('sq_asset_finder_f_imageid_label', (assetid == 0) ? '' : label + ' (Id : #' + assetid + ')');
+
+				document.getElementById("new-message-popup").style.display = 'none';
+				document.getElementById("f_alt").value = alt;
+
+				image_info = new Array();
+				image_info['name'] = filename;
+				image_info['alt'] = alt;
+				image_info['width'] = width;
+				image_info['height'] = height;
+
+				image_info_ser = var_serialise(image_info);
+				populateImageInfo(image_info_ser);
+				//setUrl('', './?a=' + assetid);
+			}
+
+		// --></script>
 	</body>
 </html>
