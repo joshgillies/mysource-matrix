@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.124 2006/12/05 05:11:15 bcaldwell Exp $
+* $Id: html_form.inc,v 1.125 2006/12/27 21:43:34 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.124 $
+* @version $Revision: 1.125 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -744,12 +744,12 @@ function get_type_codes_string($type_codes)
 */
 function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sidenav', $new_window=FALSE, $done_fn='null', $buttons=Array('clear', 'reset'))
 {
-	$finder_frame = ($new_window || empty($map_frame)) ? 'parent.top' : 'parent.frames["sq_main"]';
+	$finder_frame = ($new_window || empty($map_frame)) ? 'self' : 'parent.frames["sq_main"]';
 
 	if (!empty($map_frame)) {
 		$map_frame = trim('parent.frames["'.$map_frame.'"]', '.');
 	} else {
-		$map_frame = 'top';
+		$map_frame = 'self';
 	}
 	if ($new_window) {
 		$map_frame = 'window.opener.'.$map_frame;
