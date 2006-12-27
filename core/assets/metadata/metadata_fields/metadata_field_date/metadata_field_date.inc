@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.inc,v 1.12 2006/01/26 22:34:04 lwright Exp $
+* $Id: metadata_field_date.inc,v 1.12.4.1 2006/12/27 23:01:27 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -148,31 +148,7 @@ class Metadata_Field_Date extends Metadata_Field
 			}
 		}
 
-		if ($value == '---------- --:--:--') {
-			$value_arr = Array(
-							'y'	=> '',
-							'm'	=> '',
-							'd'	=> '',
-							'h'	=> '',
-							'i'	=> '',
-							's'	=> '',
-						 );
-		} else {
-			$date = getdate(iso8601_ts($value));
-			$value_arr = Array(
-							'y'	=> $date['year'],
-							'm'	=> $date['mon'],
-							'd'	=> $date['mday'],
-							'h'	=> $date['hours'],
-							'i'	=> $date['minutes'],
-							's'	=> $date['seconds'],
-						 );
-		}
-
-		$value = '';
 		$field =& new DateTime_Field($prefix.'_datetime', $value, $parameters);
-		$value = $field->unitsArrayToStr($value_arr);
-		$field->setValue($value);
 
 		return $field;
 
