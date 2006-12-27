@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.163 2006/12/27 21:40:35 lwright Exp $
+* $Id: backend.inc,v 1.164 2006/12/27 22:15:46 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.163 $
+* @version $Revision: 1.164 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -690,11 +690,14 @@ class Backend extends MySource_Object
 						}
 						screenMenu.style.MozOpacity = "0";
 					}
+
+					msgDiv.style.visibility = "hidden";
 					msgDiv.style.display = "block";
 					counter = msgDiv.offsetHeight;
 
 					divTop = (counter * -1);
 					msgDiv.style.top = divTop + "px";
+					msgDiv.style.visibility = "visible";
 
 					myTimer = setInterval("moveIt()", delay);
 				}
@@ -730,6 +733,9 @@ class Backend extends MySource_Object
 
 					setTimeout("showMsgDiv()", 500);
 					messageIndex++;
+
+					// Remove any "search in progress" message
+					top.frames["sq_main"].document.getElementById("sq-search-wait-popup").style.display = "none";
 				}
 
 				var popupContents = new Array();
@@ -793,6 +799,7 @@ class Backend extends MySource_Object
 					}
 					?>
 				}
+
 			</script>
 			<?php
 		}//end if empty msgs

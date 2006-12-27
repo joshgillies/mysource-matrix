@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.68 2006/12/19 23:07:24 tbarrett Exp $
+* $Id: edit.css,v 1.69 2006/12/27 22:15:46 lwright Exp $
 *
 */
 
@@ -624,4 +624,34 @@ a.sq-search-results-expand-link {
 .sq-search-results-detail {
 	display:		none;
 	text-indent:	0px;
+}
+
+#sq-search-wait-popup {
+	position: absolute;
+	right: 10px;
+	top: 0;
+	width: 300px;
+	background-color: white;
+	border: 2px solid black;
+	font: normal 10px Arial,Verdana,sans-serif;
+	display: none;
+	z-index: 2000;
+}
+
+#sq-search-wait-popup-titlebar {
+	font-weight: bold;
+	padding: 5px;
+}
+
+#sq-search-wait-popup-close {
+	float: right;
+}
+
+#sq-search-wait-popup-close a {
+	color: black;
+	text-decoration: none;
+}
+
+#sq-search-wait-popup-details {
+	padding: 5px;
 }
