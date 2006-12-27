@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.41 2006/12/06 05:15:10 bcaldwell Exp $
+* $Id: datetime_field.inc,v 1.41.2.1 2006/12/27 23:10:21 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.41.2.1 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -438,10 +438,16 @@ class DateTime_Field
 		$c = (isset($ar_value[2])) ? $ar_value[2] : '';
 
 		// separate date into year, month and day
-		$ar_date = explode('-', $date);
-		$y = (isset($ar_date[0])) ? $ar_date[0] : '';
-		$m = (isset($ar_date[1])) ? $ar_date[1] : '';
-		$d = (isset($ar_date[2])) ? $ar_date[2] : '';
+		if (strlen($date) == 10) {
+			$y = substr($date, 0, 4);
+			$m = substr($date, 5, 2);
+			$d = substr($date, 8, 2);
+		} else {
+			$ar_date = explode('-', $date);
+			$y = (isset($ar_date[0])) ? $ar_date[0] : '';
+			$m = (isset($ar_date[1])) ? $ar_date[1] : '';
+			$d = (isset($ar_date[2])) ? $ar_date[2] : '';
+		}
 
 		// separate time into hour, minute, second
 		$ar_time = explode(':', $time);
