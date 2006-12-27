@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.162 2006/12/27 21:38:56 lwright Exp $
+* $Id: backend.inc,v 1.163 2006/12/27 21:40:35 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.162 $
+* @version $Revision: 1.163 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -1348,40 +1348,6 @@ class Backend extends MySource_Object
 		return $html;
 
 	}//end _getDHTMLMessage()
-
-
-	function doBackendSearch($words)
-	{
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-
-		// Ugh, I don't like this, but if we are to have enhanced backend
-		// searching, we have to do it this way...
-		if ($GLOBALS['SQ_SYSTEM']->am->installed('search_manager')) {
-			$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
-
-			$search_info = Array(
-							'fields'	=> Array(
-											'backend'	=> Array(
-															'words'			=> $words,
-															'word_logic'	=> 'AND',
-															'data_sources'	=> Array(
-																				0 => Array('type' => 'include_all'),
-																			   ),
-														   ),
-										   ),
-							'statuses'	=> get_constant_values('SQ_STATUS_'),
-						   );
-			$results = $sm->processSearch($search_info, TRUE);
-			if (!empty($results)) {
-				$results = $sm->getFormattedResults($results, $words);
-			}
-
-		} else {
-			$results = Array();
-		}
-
-		return $results;
-	}
 
 
 }//end class
