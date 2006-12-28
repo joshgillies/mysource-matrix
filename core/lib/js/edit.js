@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.37 2006/12/11 01:14:09 tbarrett Exp $
+* $Id: edit.js,v 1.38 2006/12/28 01:25:47 lwright Exp $
 *
 */
 
@@ -377,7 +377,16 @@ function deleteOptionListRow(button)
 	while (input.tagName != 'INPUT') {
 		input = input.previousSibling;
 	}
+
 	if (input.value == '') return;
+
+	// Don't let the option list get down to a single element. Clear the field
+	// instead, but leave it as two elements
+	var inputs = input.parentNode.getElementsByTagName('INPUT');
+	if (inputs.length <= 2) {
+		input.value = '';
+		return;
+	}
 
 	var moveUpBut = button.nextSibling;
 	while (moveUpBut != null) {
