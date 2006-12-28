@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.69 2006/12/19 06:04:59 rhoward Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.70 2006/12/28 00:30:52 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -957,7 +957,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Paints the interface for selecting sort field
+	* Paints the interface for managing sort-by options
 	*
 	* @param object	&$asset	asset being painted
 	* @param object	&$o		backend outputter
@@ -966,425 +966,681 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintSortBy(&$asset, &$o, $prefix)
+	function paintSortOptions(&$asset, &$o, $prefix)
 	{
-		$write_access    = $asset->writeAccess('attributes');
-		$sort_by_list    = $asset->attr('sort_by');
+		// If random grouping is on, no sorting allowed
+		if ($asset->attr('group_by') == 'random') {
+			$o->openRaw();
+			echo translate('cms_listing_random_selected_no_sort');
+			$o->closeRaw();
+			return FALSE;
+		}
 
-		$sort_by_options = $this->_getSortByOptions($asset);
-		$o->openField(translate('cms_listing_new_sort_by_field'));
+		// If no types, no sorting!
+		$types = $asset->attr('types');
+		if (empty($types)) {
+			$o->openRaw();
+			echo translate('cms_listing_no_types_no_sort');
+			$o->closeRaw();
+			return FALSE;
+		}
 
-			if ($asset->attr('group_by') == 'random') {
-				echo translate('cms_listing_random_selected_no_sort');
-				return FALSE;
-			} else {
-				$sort_by_options = $this->_getSortByOptions($asset);
-			}
-			if ($write_access) {
-				echo ' '.translate('name').' ';
-				text_box($prefix.'_name', '');
-				echo ' '.translate('sort_by').' ';
-				combo_box($prefix.'_sort_by', $sort_by_options, FALSE, '');
-			}
+		$wa = $asset->writeAccess('attributes');
 
-		$o->closeField();
+		$o->openSection(translate('cms_listing_sort_by_standard_field'));
+			$this->_paintStandardFieldSortOptions($asset, $o, $prefix.'_std_sort_options');
+		$o->closeSection(); // end standard asset fields
 
-		// Sort by standard asset field
-		$o->openField('');
+		$o->openSection(translate('cms_listing_sort_by_attribute'));
+			$this->_paintAttributeSortOptions($asset, $o, $prefix.'_attr_sort_options');
+		$o->closeSection(); // end asset attributes
 
-			if (!empty($sort_by_list)) {
-				$o->openSection(translate('cms_listing_sort_by_asset_field'));
-					$o->openField('');
+		$o->openSection(translate('cms_listing_sort_by_metadata_field'));
+			$this->_paintMetadataSortOptions($asset, $o, $prefix.'_metadata_sort_options');
+		$o->closeSection(); // end metadata
 
-						$fields = Array();
-						foreach ($sort_by_list as $option_id => $info) {
-							if ($info['type'] == 'field') {
-								$fields[$option_id] = $info;
-							}
-						}
-						?>
-					<?php
+		$o->openSection(translate('cms_listing_sort_by_extras'));
+			$this->_paintExtraSortOptions($asset, $o, $prefix.'_extra_sort_options');
+		$o->closeSection(); // end extra options
 
-						if (!empty($fields)) {
-							?>
-							<table class="sq-backend-table">
-								<tr>
-									<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('asset_field'); ?></td>
-									<th><?php echo translate('display_name') ?></th>
-									<th>&nbsp;</th>
-									<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('remove_question'); ?></td>
-								</tr>
-							<?php
+		return $wa;
 
-							$combo_list = Array('' => '');
-							foreach ($fields as $id => $info) {
-								if (empty($sort_by_options[$info['params']['field']])) {
-									continue;
-								}
-								?>
-									<tr>
-										<td>
-											<?php
-												hidden_field($prefix.'_fields['.$id.'][params][field]', $info['params']['field']);
-												hidden_field($prefix.'_fields['.$id.'][type]', 'field');
-												echo $sort_by_options[$info['params']['field']];
-											?>
-										</td>
-										<td>
-											<?php
-												if ($write_access) {
-													text_box($prefix.'_fields['.$id.'][name]', $info['name']);
-												} else {
-													echo array_get_index($info, 'name', '');
-												}
-											?>
-										</td>
-										<td></td>
-										<td>
-											<?php
-												if ($write_access) {
-													check_box($prefix.'_remove['.$id.']', '');
-												}
-											?>
-										</td>
-									</tr>
-								<?php
-							}//end foreach
-							?>
-							</table>
-						<?php
-						} else {
-							echo translate('cms_listing_no_field_sort_options');
-						}
-
-					$o->closeField();
-				$o->closeSection();
-
-			// Sort by attribute
-			$o->openSection(translate('cms_listing_sort_by_attribute'));
-				$o->openField('');
-
-					$attrs = Array();
-					foreach ($sort_by_list as $id => $info) {
-						if ($info['type'] == 'asset_attrib') {
-							$attrs[$id] = $info;
-						}
-					}
-
-					if (!empty($attrs)) {
-
-						?>
-						<table class="sq-backend-table">
-							<tr>
-								<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('asset_type'); ?></td>
-								<th><?php echo translate('display_name') ?></th>
-								<th><?php echo translate('attribute_name'); ?></th>
-								<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('remove_question'); ?></td>
-								</tr>
-							<?php
-
-						foreach ($attrs as $id => $info) {
-							hidden_field($prefix.'_fields['.$id.'][params][type_code]', $info['params']['type_code']);
-							hidden_field($prefix.'_fields['.$id.'][type]', 'asset_attrib');
-							?>
-								<tr>
-									<td>
-										<?php
-											if ($write_access) {
-												$types = $asset->attr('types');
-												$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
-												combo_box($prefix.'_fields['.$id.'][params][type_code]', $type_info, FALSE, $info['params']['type_code']);
-											} else {
-												$type_code = $info['params']['type_code'];
-												$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name');
-												echo get_asset_type_icon($type_code);
-												echo $type_name;
-											}
-										?>
-									</td>
-									<td>
-										<?php
-											if ($write_access) {
-												text_box($prefix.'_fields['.$id.'][name]', $info['name']);
-											} else {
-												echo array_get_index($info, 'name', '');
-											}
-										?>
-									</td>
-									<td>
-										<?php
-											$attributes = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($info['params']['type_code']);
-											$display_attributes = Array();
-											foreach (array_keys($attributes) as $attribute) {
-												$display_attributes[$attribute] = ucwords(str_replace('_', ' ', $attribute));
-											}
-											if ($write_access) {
-												combo_box($prefix.'_fields['.$id.'][params][attribute]', $display_attributes, FALSE, $info['params']['attribute']);
-											} else {
-												echo $display_attributes[$info['params']['attribute']];
-											}
-										?>
-									</td>
-									<td>
-										<?php
-											if ($write_access) {
-												check_box($prefix.'_remove['.$id.']', '');
-											}
-										?>
-									</td>
-								</tr>
-							<?php
-						}//end foreach
-						?>
-							</table>
-						<?php
-					} else {
-						echo translate('cms_listing_no_attribute_sort_options').'<br /><br /><br />';
-					}
-
-				$o->closeField();
-			$o->closeSection();
-			} else {
-				$o->closeField();
-			}
-
-		// Sort by metadata
-		$o->openField(translate('cms_listing_new_sort_by_metadata'));
-			if ($write_access) {
-				echo ' '.translate('name').' ';
-				text_box($prefix.'_new_metadata', '');
-				echo ' '.translate('metadata_field').' ';
-				asset_finder($prefix.'_new_metadata_fieldid',0,Array('metadata_field' => 'D'));
-			}
-		$o->closeField();
-
-		if (!empty($sort_by_list)) {
-			$o->openSection(translate('cms_listing_sort_by_metadata'));
-				$o->openField('');
-
-					$meta_datas = Array();
-					foreach ($sort_by_list as $id => $info) {
-						if ($info['type'] == 'metadata') {
-							$meta_datas[$id] = $info;
-						}
-					}
-
-					if (!empty($meta_datas)) {
-						?>
-						<table class="sq-backend-table">
-							<tr>
-
-								<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('metadata_field'); ?></td>
-								<th><?php echo translate('display_name') ?></th>
-								<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('remove_question'); ?></td>
-								</tr>
-							<?php
-
-						foreach ($meta_datas as $id => $info) {
-							hidden_field($prefix.'_metadatas['.$id.'][type]', 'metadata');
-							?>
-							<tr>
-								<td>
-									<?php
-										if ($write_access) {
-											asset_finder($prefix.'_metadatas['.$id.'][field]',$info['field'],Array('metadata_field' => 'D'));
-										} else {
-											echo get_asset_tag_line($info['field']);
-										}
-									?>
-								</td>
-								<td>
-									<?php
-										if ($write_access) {
-											text_box($prefix.'_metadatas['.$id.'][name]', array_get_index($info,'name',''));
-										} else {
-											echo array_get_index($info, 'name', '');
-										}
-									?>
-								</td>
-							<?php
-
-							?>
-								<td>
-									<?php
-										if ($write_access) {
-											check_box($prefix.'_remove['.$id.']', '');
-										}
-									?>
-								</td>
-							</tr>
-							<?php
-						}//end foreach
-						?>
-						</table>
-						<?php
-					} else {
-						echo translate('cms_listing_no_metadata_sort_options');
-					}
-				$o->closeField();
-			$o->closeSection();
-		}//end if
-
-		$o->closeField();
-
-		return $write_access;
-
-	}//end paintSortBy()
+	}//end paintSortOptions()
 
 
 	/**
-	* Paints the interface for selecting sort field
+	* Process the inteface for managing sort-by options
 	*
 	* @param object	&$asset	asset being painted
 	* @param object	&$o		backend outputter
 	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
-	* @access public
+	* @access private
 	*/
-	function processSortBy(&$asset, &$o, $prefix)
+	function processSortOptions(&$asset, &$o, $prefix)
 	{
-		$sort_by = array_get_index($_POST, $prefix.'_sort_by', '');
+		$res = FALSE;
+		$res = $this->_processStandardFieldSortOptions($asset, $o, $prefix.'_std_sort_options') || $res;
+		$res = $this->_processAttributeSortOptions($asset, $o, $prefix.'_attr_sort_options') || $res;
+		$res = $this->_processMetadataSortOptions($asset, $o, $prefix.'_metadata_sort_options') || $res;
+		$res = $this->_processExtraSortOptions($asset, $o, $prefix.'_extra_sort_options') || $res;
 
-		$name    = array_get_index($_POST, $prefix.'_name', '');
-		$meta_data = array_get_index($_POST, $prefix.'_new_metadata', '');
-		$new_metadata = array_get_index($_POST, $prefix.'_new_metadata_fieldid', '');
-		if (isset($new_metadata['assetid'])) {
-			$metadata_fieldid = $new_metadata['assetid'];
+		if ($res) {
+			// renumber
+			return $asset->setAttrValue('sort_by', array_values($asset->attr('sort_by')));
 		}
-
-		$options = $this->_getSortByOptions($asset);
-		$save    = TRUE;
-		$invalid_name = FALSE;
-
-		$remove      = array_get_index($_POST, $prefix.'_remove', Array());
-		$posted_list = array_get_index($_POST, $prefix.'_fields', Array());
-
-		$save_list = Array();
-
-		foreach ($posted_list as $id => $info) {
-			// skip ones that we are removing
-			if (in_array($id, array_keys($remove))) {
-				$save = TRUE;
-				continue;
-			}
-			// skip the new one if we already have a name with that id
-			if ($info['name'] == $name) $invalid_name = TRUE;
-
-			// set the attribute type for the chosen attribute if there is one
-			if ($info['type'] == 'asset_attrib') {
-				$attributes = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($info['params']['type_code']);
-				$info['params']['attr_type'] = $attributes[$info['params']['attribute']];
-			}
-
-			$save_list[$id] = $info;
-			$save = TRUE;
-		}
-
-		// -- MetaData -- //
-		$posted_list = array_get_index($_POST, $prefix.'_metadatas', Array());
-
-		foreach ($posted_list as $id => $info) {
-			// skip ones that we are removing
-			if (in_array($id, array_keys($remove))) {
-				$save = TRUE;
-				continue;
-			}
-
-			// dont allow blank names
-			if (!isset($info['name']) || !strlen($info['name'])) {
-				continue;
-			}
-
-			$info['field'] = $info['field']['assetid'];
-
-			$save_list[$id] = $info;
-			$save = TRUE;
-		}
-
-		// add a new metadata field
-		if (!empty($sort_by) && !empty($meta_data)  && !empty($metadata_fieldid)) {
-			$type = 'metadata';
-			$new_index = count($save_list);
-			$save_list[$new_index] = Array();
-			$save_list[$new_index]['name'] = $meta_data;
-			$save_list[$new_index]['type'] = $type;
-			$save_list[$new_index]['field'] = $metadata_fieldid;
-		}
-
-		// --- Fields --- //
-		if (!empty($sort_by) && !empty($name)) {
-			if (!$invalid_name) {
-				$invalid = FALSE;
-				$new_index = count($save_list);
-				$save_list[$new_index] = Array();
-				$save_list[$new_index]['params'] = Array();
-				$save_list[$new_index]['name'] = $name;
-
-				if ($sort_by == 'asset_attrib') {
-					$type = 'asset_attrib';
-
-					// set a default type and attribute
-					$types = $asset->attr('types');
-
-					if (!empty($types)) {
-						$default_type = array_shift(array_keys($types));
-						$attributes   = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($default_type);
-						$save_list[$new_index]['params']['type_code'] = $default_type;
-						$save_list[$new_index]['params']['attribute'] = array_shift(array_keys($attributes));
-						$save_list[$new_index]['params']['attr_type'] = array_shift($attributes);
-					} else {
-						trigger_localised_error('CMS0051', E_USER_WARNING, $name);
-						$invalid = TRUE;
-					}
-				} else {
-					$type = 'field';
-					$save_list[$new_index]['params']['field'] = $sort_by;
-				}
-
-				if (!$invalid) {
-					$save_list[$new_index]['type'] = $type;
-					$save = TRUE;
-				} else {
-					unset($save_list[$new_index]);
-				}
-			}//end if not invalid name
-		}//end if
-
-		$empty_sort = Array (
-						'params'	=> Array (
-										'field'	=> '',
-									   ),
-						'type'		=> '',
-						'name'		=> 'No Sorting',
-					  );
-		$random_sort = Array (
-						'params'	=> Array (
-										'field'	=> '',
-									   ),
-						'type'		=> '',
-						'name'		=> 'Random',
-					   );
-		$save_list[] = $random_sort;
-		$save_list[] = $empty_sort;
-
-
-		// re-order the list so that the indexes are aligned
-		ksort($save_list);
-		$reordered_list = Array();
-		$i = 0;
-		foreach ($save_list as $id => $info) {
-			$reordered_list[$i++] = $info;
-		}
-
-		if ($save) {
-			$asset->setAttrValue('sort_by', $reordered_list);
-			return TRUE;
-		}
-
 		return FALSE;
 
-	}//end processSortBy()
+	}//end processSortOptions()
+
+
+	/**
+	* Paint the inteface for configuring standard asset field sort-by options
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _paintStandardFieldSortOptions(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$sort_by_options = $this->_getStandardSortByOptions($asset);
+		$o->openField($wa ? translate('current') : '');
+			$fields = Array();
+			foreach ($asset->attr('sort_by') as $option_id => $info) {
+				if ($info['type'] == 'field') {
+					$fields[$option_id] = $info;
+				}
+			}
+			if (!empty($fields)) {
+				?>
+				<table class="sq-backend-table" >
+					<tr>
+						<th style="width: 60ex"><?php echo translate('asset_field'); ?></td>
+						<th><?php echo translate('display_name') ?></th>
+					<?php
+					if ($wa) {
+						?>
+						<th style="width: 12ex"><?php echo translate('remove_question'); ?></td>
+						<?php
+					}
+					?>
+					</tr>
+				<?php
+				foreach ($fields as $id => $info) {
+					if (empty($sort_by_options[$info['params']['field']])) {
+						continue;
+					}
+					?>
+					<tr>
+						<td>
+							<?php
+							echo $sort_by_options[$info['params']['field']];
+							?>
+						</td>
+						<td>
+							<?php
+							if ($wa) {
+								text_box($prefix.'_current['.$id.'][name]', $info['name']);
+							} else {
+								echo array_get_index($info, 'name', '');
+							}
+							?>
+						</td>
+					<?php
+					if ($wa) {
+						?>
+						<td>
+							<?php
+							check_box($prefix.'_current['.$id.'][remove]', '1');
+							?>
+						</td>
+						<?php
+					}
+					?>
+					</tr>
+					<?php
+				}//end foreach
+				?>
+				</table>
+				<?php
+			} else {
+				echo translate('cms_listing_sort_by_standard_field_none');
+			}
+		$o->closeField();
+
+		if ($wa) {
+			$o->openField(translate('new'));
+				?>
+				<table class="sq-backend-table" style="width: 60ex">
+					<tr>
+						<th style="width: 20ex"><?php echo translate('asset_field'); ?></th>
+						<td>
+							<?php
+							combo_box($prefix.'_new[field]', $sort_by_options, FALSE, '');
+							?>
+						</td>
+					</tr>
+					<tr>
+						<th><?php echo translate('display_name'); ?></th>
+						<td><?php text_box($prefix.'_new[name]', ''); ?></td>
+					</tr>
+				</table>
+				<?php
+			$o->closeField();
+		}
+
+	}//end _paintStandardFieldSortOptions()
+
+
+	/**
+	* Process the inteface for configuring standard asset field sort-by options
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _processStandardFieldSortOptions(&$asset, &$o, $prefix)
+	{
+		$val = $asset->attr('sort_by');
+		$res = FALSE;
+		if (!empty($_POST[$prefix.'_current'])) {
+			foreach ($_POST[$prefix.'_current'] as $i => $details) {
+				if (!empty($details['remove'])) {
+					unset($val[$i]);
+				} else {
+					$val[$i]['name'] = $details['name'];
+				}
+			}
+			$res = TRUE;
+		}
+		if (!empty($_POST[$prefix.'_new']['name'])) {
+			$option = Array(
+						'type'		=> 'field',
+						'name'		=> $_POST[$prefix.'_new']['name'],
+						'params'	=> Array('field' => $_POST[$prefix.'_new']['field']),
+					  );
+			$this->_addNewSortOption($val, $option);
+			$res = TRUE;
+		}
+		if ($res) {
+			return $asset->setAttrValue('sort_by', $val);
+		}
+		return FALSE;
+
+	}//end _processStandardFieldSortOptions()
+
+
+	/**
+	* Process the inteface for configuring asset-attribute sort-by options
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _paintAttributeSortOptions(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$types = $asset->attr('types');
+		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
+
+
+		$o->openField($wa ? translate('current') : '');
+
+			$attrs = Array();
+			foreach ($asset->attr('sort_by') as $id => $info) {
+				if ($info['type'] == 'asset_attrib') {
+					$attrs[$id] = $info;
+				}
+			}
+
+			if (!empty($attrs)) {
+				?>
+				<table class="sq-backend-table">
+					<tr>
+						<th style="width: 30ex"><?php echo translate('asset_type'); ?></th>
+						<th style="width: 30ex; padding-left: 0px; padding-right: 0px"><?php echo translate('attribute_name'); ?></th>
+						<th><?php echo translate('display_name') ?></th>
+					<?php
+					if ($wa) {
+						?>
+						<th style="width: 12ex"><?php echo translate('remove_question'); ?></th>
+						<?php
+					}
+					?>
+					</tr>
+				<?php
+				foreach ($attrs as $id => $info) {
+					?>
+					<tr>
+						<td>
+							<?php
+							if ($wa) {
+								combo_box($prefix.'_current['.$id.'][type_code]', $type_info, FALSE, $info['params']['type_code']);
+							} else {
+								echo get_asset_type_icon($info['params']['type_code']);
+								echo $type_info[$info['params']['type_code']];
+							}
+							?>
+						</td>
+						<td>
+							<?php
+							$attributes = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($info['params']['type_code']);
+							$display_attributes = Array();
+							foreach (array_keys($attributes) as $attribute) {
+								$display_attributes[$attribute] = ucwords(str_replace('_', ' ', $attribute));
+							}
+							if ($wa) {
+								combo_box($prefix.'_current['.$id.'][attribute]', $display_attributes, FALSE, $info['params']['attribute']);
+							} else {
+								echo $display_attributes[$info['params']['attribute']];
+							}
+							?>
+						</td>
+						<td>
+							<?php
+							if ($wa) {
+								text_box($prefix.'_current['.$id.'][name]', $info['name']);
+							} else {
+								echo array_get_index($info, 'name', '');
+							}
+							?>
+						</td>
+					<?php
+					if ($wa) {
+						?>
+						<td>
+							<?php
+							check_box($prefix.'_current['.$id.'][remove]', '1');
+							?>
+						</td>
+						<?php
+					}
+					?>
+					</tr>
+					<?php
+				}//end foreach
+				?>
+				</table>
+				<?php
+			} else {
+				echo translate('cms_listing_sort_by_attribute_none');
+			}
+		$o->closeField();
+
+		if ($wa) {
+			$o->openField(translate('new'));
+				?>
+				<table class="sq-backend-table" style="width: 60ex">
+					<tr>
+						<th style="width: 20ex"><?php echo translate('asset_type'); ?></th>
+						<td>
+							<?php
+							$types = $asset->attr('types');
+							$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
+							combo_box($prefix.'_new[type_code]', $type_info, FALSE);
+							?>
+						</td>
+					</tr>
+					<tr>
+						<th><?php echo translate('display_name'); ?></th>
+						<td><?php text_box($prefix.'_new[name]', ''); ?></td>
+					</tr>
+				</table>
+				<?php
+			$o->closeField();
+		}
+
+	}//end _paintAttributeSortOptions()
+
+
+	/**
+	* Process the inteface for configuring asset-attribute sort-by options
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _processAttributeSortOptions(&$asset, &$o, $prefix)
+	{
+		$val = $asset->attr('sort_by');
+		$res = FALSE;
+
+		if (!empty($_POST[$prefix.'_current'])) {
+			foreach ($_POST[$prefix.'_current'] as $i => $details) {
+				if (!empty($details['remove'])) {
+					unset($val[$i]);
+				} else {
+					$val[$i]['name'] = $details['name'];
+					$val[$i]['params']['type_code'] = $details['type_code'];
+					$attributes = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($details['type_code']);
+					if (isset($attributes[$details['attribute']])) {
+						$val[$i]['params']['attribute'] = $details['attribute'];
+					} else {
+						$val[$i]['params']['attribute'] = reset(array_keys($attributes));
+					}
+				}
+			}
+			$res = TRUE;
+		}
+
+		if (!empty($_POST[$prefix.'_new']['name'])) {
+			$attributes = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($_POST[$prefix.'_new']['type_code']);
+			$default_attr = array_shift(array_keys($attributes));
+			$option = Array(
+						'type'		=> 'asset_attrib',
+						'name'		=> $_POST[$prefix.'_new']['name'],
+						'params'	=> Array(
+										'type_code'	=> $_POST[$prefix.'_new']['type_code'],
+										'attribute'	=> $default_attr,
+									   ),
+					  );
+			$this->_addNewSortOption($val, $option);
+			$res = TRUE;
+		}
+
+		if ($res) {
+			return $asset->setAttrValue('sort_by', $val);
+		}
+		return FALSE;
+
+	}//end _processAttributeSortOptions()
+
+
+	/**
+	* Paint the inteface for configuring metadata-field-value sort-by options
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _paintMetadataSortOptions(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$o->openField($wa ? translate('current') : '');
+			$meta_datas = Array();
+			foreach ($asset->attr('sort_by') as $id => $info) {
+				if ($info['type'] == 'metadata') {
+					$meta_datas[$id] = $info;
+				}
+			}
+
+			if (!empty($meta_datas)) {
+				?>
+				<table class="sq-backend-table">
+					<tr>
+						<th style="width: 60ex"><?php echo translate('metadata_field'); ?></th>
+						<th><?php echo translate('display_name') ?></th>
+					<?php
+					if ($wa) {
+						?>
+						<th style="width: 12ex"><?php echo translate('remove_question'); ?></th>
+						<?php
+					}
+					?>
+					</tr>
+				<?php
+				foreach ($meta_datas as $id => $info) {
+					?>
+					<tr>
+						<td>
+							<?php
+							if ($wa) {
+								asset_finder($prefix.'_current['.$id.'][field]',$info['field'],Array('metadata_field' => 'D'));
+							} else {
+								echo get_asset_tag_line($info['field']);
+							}
+							?>
+						</td>
+						<td>
+							<?php
+							if ($wa) {
+								text_box($prefix.'_current['.$id.'][name]', array_get_index($info,'name',''));
+							} else {
+								echo array_get_index($info, 'name', '');
+							}
+							?>
+						</td>
+					<?php
+					if ($wa) {
+						?>
+						<td>
+							<?php
+							check_box($prefix.'_current['.$id.'][remove]', '');
+							?>
+						</td>
+						<?php
+					}
+					?>
+					</tr>
+					<?php
+				}//end foreach
+				?>
+				</table>
+				<?php
+			} else {
+				echo translate('cms_listing_sort_by_metadata_field_none');
+			}
+		$o->closeField();
+		if ($wa) {
+			$o->openField(translate('new'));
+				?>
+				<table class="sq-backend-table" style="width: 60ex">
+					<tr>
+						<th style="width: 20ex"><?php echo translate('metadata_field'); ?></th>
+						<td><?php asset_finder($prefix.'_new[field]',0,Array('metadata_field' => 'D')); ;?></td>
+					</tr>
+					<tr>
+						<th><?php echo translate('display_name'); ?></th>
+						<td><?php text_box($prefix.'_new[name]', ''); ?></td>
+					</tr>
+				</table>
+				<?php
+			$o->closeField();
+		}
+
+	}//end _paintMetadataSortOptions()
+
+
+	/**
+	* Process the inteface for configuring metadata-field-value sort-by options
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _processMetadataSortOptions(&$asset, &$o, $prefix)
+	{
+		$val = $asset->attr('sort_by');
+		$res = FALSE;
+
+		if (!empty($_POST[$prefix.'_current'])) {
+			foreach ($_POST[$prefix.'_current'] as $i => $details) {
+				if (!empty($details['remove'])) {
+					unset($val[$i]);
+				} else {
+					$val[$i]['name'] = $details['name'];
+					if (!empty($details['field']['assetid'])) {
+						$val[$i]['field'] = $details['field']['assetid'];
+					}
+				}
+			}
+			$res = TRUE;
+		}
+
+		if (!empty($_POST[$prefix.'_new']['name']) && !empty($_POST[$prefix.'_new']['field']['assetid'])) {
+			$option = Array(
+						'type'		=> 'metadata',
+						'name'		=> $_POST[$prefix.'_new']['name'],
+						'field'		=> $_POST[$prefix.'_new']['field']['assetid'],
+						'params'	=> Array(),
+					  );
+			$this->_addNewSortOption($val, $option);
+			$res = TRUE;
+		}
+
+		if ($res) {
+			return $asset->setAttrValue('sort_by', $val);
+		}
+		return FALSE;
+
+	}//end _processMetadataSortOptions()
+
+
+	/**
+	* Paint the inteface for configuring extra sort fields
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _paintExtraSortOptions(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		if ($wa) $o->addHiddenField($prefix.'_submitted', 1);
+
+		$o->openField(translate('cms_listing_random_sort'));
+			$random_enabled = FALSE;
+			foreach ($asset->attr('sort_by') as $v) {
+				if ($v['name'] == 'Random') {
+					$random_enabled = TRUE;
+					break;
+				}
+			}
+			if ($wa) {
+				check_box($prefix.'_enable_random', '1', $random_enabled);
+				label(translate('cms_listing_enable_random_sort'), $prefix.'_enable_random');
+			} else {
+				$filename = $random_enabled ? 'tick' : 'cross';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" /> ';
+				echo translate('cms_listing_enable_random_sort');
+			}
+		$o->closeField();
+		$o->openField(translate('cms_listing_no_sort'));
+			$nosort_enabled = FALSE;
+			foreach ($asset->attr('sort_by') as $v) {
+				if ($v['name'] == 'No Sorting') {
+					$nosort_enabled = TRUE;
+					break;
+				}
+			}
+			if ($wa) {
+				check_box($prefix.'_enable_nosort', '1', $nosort_enabled);
+				label(translate('cms_listing_enable_no_sort'), $prefix.'_enable_nosort');
+			} else {
+				$filename = $nosort_enabled ? 'tick' : 'cross';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" /> ';
+				echo translate('cms_listing_enable_no_sort');
+			}
+		$o->closeField();
+
+	}//end _paintExtraSortOptions()
+
+
+	/**
+	* Process the inteface for configuring extra sort fields
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _processExtraSortOptions(&$asset, &$o, $prefix)
+	{
+		$val = $asset->attr('sort_by');
+		if (isset($_POST[$prefix.'_submitted'])) {
+			$want_random = !empty($_POST[$prefix.'_enable_random']);
+			$random_index = FALSE;
+			foreach ($val as $i => $v) {
+				if ($v['name'] == 'Random') {
+					$random_index = $i;
+					break;
+				}
+			}
+			if (($random_index !== FALSE) && !$want_random) {
+				unset($val[$random_index]);
+			} else if (($random_index === FALSE) && $want_random) {
+				$val[] = Array(
+							'name'		=> 'Random',
+							'type'		=> '',
+							'field'		=> '',
+							'params'	=> '',
+						 );
+			}
+
+			$want_nosort = !empty($_POST[$prefix.'_enable_nosort']);
+			$nosort_index = FALSE;
+			foreach ($val as $i => $v) {
+				if ($v['name'] == 'No Sorting') {
+					$nosort_index = $i;
+					break;
+				}
+			}
+			if (($nosort_index !== FALSE) && !$want_nosort) {
+				unset($val[$nosort_index]);
+			} else if (($nosort_index === FALSE) && $want_nosort) {
+				$val[] = Array(
+							'name'		=> 'No Sorting',
+							'type'		=> '',
+							'field'		=> '',
+							'params'	=> '',
+						 );
+			}
+			return $asset->setAttrValue('sort_by', $val);
+		}//end if
+		return FALSE;
+
+	}//end _processExtraSortOptions()
+
+
+	/**
+	* Add an option to the sort-by array
+	*
+	* The new option is added in such a way as to preserve the positioning of
+	* 'no sorting' and 'random' at the end of the list, if that's their current position
+	*
+	* @param array	&$options	The current list of options
+	* @param array	$new_option	Option to add
+	*
+	* @return void
+	* @access public
+	*/
+	function _addNewSortOption(&$options, $new_option)
+	{
+		$last = end($options);
+		$ending = Array();
+		while (($last['name'] == 'Random') || ($last['name'] == 'No Sorting')) {
+			array_unshift($ending, $last);
+			array_pop($options);
+			$last = end($options);
+		}
+		$options = array_merge($options, Array($new_option), $ending);
+
+	}//end _addNewSortOption()
 
 
 	/**
@@ -1402,109 +1658,25 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$sort_by_list = $asset->attr('sort_by');
 
-		$o->openField(translate('cms_listing_default_sort_by_option'));
+		if (empty($sort_by_list)) {
+			echo translate('cms_listing_no_sorting_applied');
+			return FALSE;
+		}
+		$last_index = count($sort_by_list) - 1;
+		$names = Array();
+		$default =  $asset->attr('default_sort_by');
 
-			foreach ($sort_by_list as $key => $list) {
-				// to get rid of the empty options
-				if (empty($list)) unset($sort_by_list[$key]);
+		foreach ($sort_by_list as $id => $info) {
+			$names[$id] = $info['name'];
+		}
+
+		if ($write_access) {
+			combo_box($prefix.'_default_sort', $names, FALSE, $default);
+		} else {
+			if (isset($sort_by_list[$default]['name'])) {
+				echo $sort_by_list[$default]['name'];
 			}
-			if (empty($sort_by_list)) {
-				$asset->setAttrValue('default_sort_by', 0);
-				echo 'No Sorting';
-				return FALSE;
-			}
-			$last_index = count($sort_by_list) - 1;
-
-			$names = Array();
-			$default =  $asset->attr('default_sort_by');
-
-			// bug fix 1513, move 'No Sorting' option to the end
-			if ($sort_by_list[$last_index]['name'] != 'No Sorting') {
-				// if 'No Sort' is not at the end, find and move it
-				$reordered = Array();
-				$no_sort = Array();
-				foreach ($sort_by_list as $id => $info) {
-					if ($info['name'] == 'No Sorting') {
-						// update the default index accordingly
-						if ($default > $id) {
-							$default--;
-						} else if ($default == $id) {
-							$default = $last_index;
-						}
-						$no_sort = $info;
-					} else {
-						$reordered[] = $info;
-					}
-				}
-
-				// move 'No Sorting' to the end, and update the attributes
-				if (empty($no_sort)) {
-					// 3.6 to 3.8, no sorting not yet added
-					$no_sort = Array (
-								'params'	=> Array ('field'	=> ''),
-								'type'		=> '',
-								'name'		=> 'No Sorting',
-							   );
-				}
-				$reordered[] = $no_sort;
-				$sort_by_list = $reordered;
-				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-				$asset->setAttrValue('default_sort_by', $default);
-				$asset->setAttrValue('sort_by', $sort_by_list);
-				$asset->saveAttributes();
-				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-			}
-			// bug fix 1513, move 'Random' option to before 'No Sorting'
-			if ($sort_by_list[$last_index-1]['name'] != 'Random') {
-				// if 'Random' is not before 'No Sorting', find and move it
-				$reordered = Array();
-				$random_sort = Array();
-				foreach ($sort_by_list as $id => $info) {
-					if ($info['name'] == 'Random') {
-						// update the default index accordingly
-						if ($default > $id) {
-							$default--;
-						} else if ($default == $id) {
-							$default = $last_index - 1;
-						}
-						$random_sort = $info;
-					} else {
-						$reordered[] = $info;
-					}
-				}
-
-				// move 'Random' to the before 'No Sort', and update the attributes
-				$last_item = array_pop($reordered);
-				if (empty($random_sort)) {
-					$random_sort = Array (
-									'params'	=> Array ('field'	=> ''),
-									'type'		=> '',
-									'name'		=> 'Random',
-								   );
-				}
-				$reordered[] = $random_sort;
-				$reordered[] = $last_item;
-				$sort_by_list = $reordered;
-				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-				$asset->setAttrValue('default_sort_by', $default);
-				$asset->setAttrValue('sort_by', $sort_by_list);
-				$asset->saveAttributes();
-				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-			}
-
-
-			foreach ($sort_by_list as $id => $info) {
-				$names[$id] = $info['name'];
-			}
-
-			if ($write_access) {
-				combo_box($prefix.'_default', $names, FALSE, $default);
-			} else {
-				if (isset($sort_by_list[$default]['name'])) {
-					echo $sort_by_list[$default]['name'];
-				}
-			}
-		$o->closeField();
+		}
 
 		return $write_access;
 
@@ -1524,12 +1696,29 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function processDefaultSortByOption(&$asset, &$o, $prefix)
 	{
 		// check to see if the default has changed
-		if (isset($_POST[$prefix.'_default'])) {
-			$default = $asset->attr('default_sort_by');
-			if ($_POST[$prefix.'_default'] != $default) {
-				$asset->setAttrValue('default_sort_by', $_POST[$prefix.'_default']);
-				return TRUE;
+		if (isset($_POST[$prefix.'_default_sort'])) {
+			$new_default_index = $_POST[$prefix.'_default_sort'];
+			$new_sort_order = $asset->attr('sort_by');
+			$old_sort_order = $this->_tmp['unshuffled_sort_options'];
+			$new_default_entry = $new_sort_order[$new_default_index];
+			unset($new_default_entry['name']);
+			$old_default_entry = $old_sort_order[$new_default_index];
+			unset($old_default_entry['name']);
+			if ($new_default_entry != $old_default_entry) {
+				// the chosen default has been moved to a new spot,
+				// so we'll have to search for the new index by characteristics
+				// If they've renamed it this will still work, but if they've
+				// changed its characteristics we won't find it, bad luck.
+				foreach ($new_sort_order as $i => $v) {
+					unset($v['name']);
+					if ($v == $old_default_entry) {
+						// everything matches except maybe the name
+						$new_default_entry = $i;
+						break;
+					}
+				}
 			}
+			return $asset->setAttrValue('default_sort_by', $new_default_entry);
 		}
 		return FALSE;
 
@@ -1546,128 +1735,146 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintOrderSortOptions(&$asset, &$o, $prefix)
+	function paintSortOptionOrder(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$sort_by_list = $asset->attr('sort_by');
 
-		if (empty($sort_by_list)) return FALSE;
+		if (empty($sort_by_list)) {
+			echo translate('cms_listing_no_sort_by_options');
+			return FALSE;
+		}
 
-		$o->openField(translate('cms_listing_list_sort_order'));
+		// If no types, no sorting!
+		$types = $asset->attr('types');
+		if (empty($types)) {
+			echo translate('cms_listing_no_types_no_sort');
+			return FALSE;
+		}
 
+		?>
+		<script type="text/javascript">
+			function sortOrderMoveDown(currentOrder) {
+				if (!document.getElementById) {
+					alert(js_translate('brower_does_not_support_getelementbyid'));
+					return;
+				}
+
+				var currentElement = document.getElementById('<?php echo $prefix ?>_sort_order_' + currentOrder);
+				var nextElement    = document.getElementById('<?php echo $prefix ?>_sort_order_' + (currentOrder + 1));
+
+				// if there is no next element, then this is the last one; we shouldn't be running
+				if (!nextElement) return;
+
+				if (!currentElement.innerHTML) {
+					alert(js_translate('brower_does_not_support_innerhtml'));
+					return;
+				}
+
+				var table = currentElement.parentNode;
+				while (table.tagName != 'TABLE') {
+					table = table.parentNode;
+				}
+				table.style.border = '2px dashed #7B9EBD';
+
+				// switch the question names
+				var temp = currentElement.innerHTML;
+				currentElement.innerHTML = nextElement.innerHTML;
+				nextElement.innerHTML = temp;
+
+				var currOrder = document.getElementById('<?php echo $prefix; ?>_sort_order_list[' + currentOrder +']');
+				var prevOrder = document.getElementById('<?php echo $prefix; ?>_sort_order_list[' + (currentOrder + 1) +']');
+
+				var temp = prevOrder.value;
+				prevOrder.value = currOrder.value;
+				currOrder.value = temp;
+			}
+
+			function sortOrderMoveUp(currentOrder) {
+				if (!document.getElementById) {
+					alert(js_translate('brower_does_not_support_getelementbyid'));
+					return;
+				}
+
+				if (currentOrder == 0) return;
+
+				var currentElement = document.getElementById('<?php echo $prefix ?>_sort_order_' + currentOrder);
+				var prevElement    = document.getElementById('<?php echo $prefix ?>_sort_order_' + (currentOrder - 1));
+
+				if (!currentElement.innerHTML) {
+					alert(js_translate('brower_does_not_support_innerhtml'));
+					return;
+				}
+
+				var table = currentElement.parentNode;
+				while (table.tagName != 'TABLE') {
+					table = table.parentNode;
+				}
+				table.style.border = '2px dashed #7B9EBD';
+
+				// switch the question names
+				var temp = currentElement.innerHTML;
+				currentElement.innerHTML = prevElement.innerHTML;
+				prevElement.innerHTML = temp;
+
+				var currOrder = document.getElementById('<?php echo $prefix; ?>_sort_order_list[' + currentOrder +']');
+				var prevOrder = document.getElementById('<?php echo $prefix; ?>_sort_order_list[' + (currentOrder - 1) +']');
+
+				var temp = prevOrder.value;
+				prevOrder.value = currOrder.value;
+				currOrder.value = temp;
+			}
+		</script>
+		<table class="sq-backend-table" style="width: 50%;">
+			<tr>
+				<th><?php echo translate('cms_listing_sort_option_name'); ?></th>
+				<?php
+					if ($write_access) {
+						?><th colspan="2" style="width: 8ex"><?php echo translate('order'); ?></th><?php
+					}
 			?>
-			<script language="JavaScript">
-				function sortOrderMoveDown(currentOrder) {
-					if (!document.getElementById) {
-						alert(js_translate('brower_does_not_support_getelementbyid'));
-						return;
-					}
-
-					var currentElement = document.getElementById('<?php echo $prefix ?>_sort_order_' + currentOrder);
-					var nextElement    = document.getElementById('<?php echo $prefix ?>_sort_order_' + (currentOrder + 1));
-
-					// if there is no next element, then this is the last one; we shouldn't be running
-					if (!nextElement) return;
-
-					if (!currentElement.innerHTML) {
-						alert(js_translate('brower_does_not_support_innerhtml'));
-						return;
-					}
-
-					// switch the question names
-					var temp = currentElement.innerHTML;
-					currentElement.innerHTML = nextElement.innerHTML;
-					nextElement.innerHTML = temp;
-
-					var currOrder = document.getElementById('<?php echo $prefix; ?>_sort_order_list[' + currentOrder +']');
-					var prevOrder = document.getElementById('<?php echo $prefix; ?>_sort_order_list[' + (currentOrder + 1) +']');
-
-					var temp = prevOrder.value;
-					prevOrder.value = currOrder.value;
-					currOrder.value = temp;
-				}
-
-				function sortOrderMoveUp(currentOrder) {
-					if (!document.getElementById) {
-						alert(js_translate('brower_does_not_support_getelementbyid'));
-						return;
-					}
-
-					if (currentOrder == 0) return;
-
-					var currentElement = document.getElementById('<?php echo $prefix ?>_sort_order_' + currentOrder);
-					var prevElement    = document.getElementById('<?php echo $prefix ?>_sort_order_' + (currentOrder - 1));
-
-					if (!currentElement.innerHTML) {
-						alert(js_translate('brower_does_not_support_innerhtml'));
-						return;
-					}
-
-					// switch the question names
-					var temp = currentElement.innerHTML;
-					currentElement.innerHTML = prevElement.innerHTML;
-					prevElement.innerHTML = temp;
-
-					var currOrder = document.getElementById('<?php echo $prefix; ?>_sort_order_list[' + currentOrder +']');
-					var prevOrder = document.getElementById('<?php echo $prefix; ?>_sort_order_list[' + (currentOrder - 1) +']');
-
-					var temp = prevOrder.value;
-					prevOrder.value = currOrder.value;
-					currOrder.value = temp;
-				}
-			</script>
-			<table class="sq-backend-table" style="width: 50%">
-				<tr>
-					<th><?php echo translate('cms_listing_sort_option_name'); ?></th>
-					<?php
-						if ($write_access) {
-							?><th><?php echo translate('order'); ?></th><?php
-						}
-				?>
-				</tr>
-					<?php
-						$i = 0;
-						foreach ($sort_by_list as $id => $info) {
-							?>
-							<tr>
+			</tr>
+				<?php
+					$i = 0;
+					foreach ($sort_by_list as $id => $info) {
+						?>
+						<tr>
+							<td>
+								<?php
+								hidden_field($prefix.'_sort_order_list['.$id.']', $id); ?>
+								<span id ="<?php echo $prefix ?>_sort_order_<?php echo $id; ?>"><?php echo $info['name']; ?></span>
+							</td>
+							<?php
+							if ($write_access) {
+								?>
 								<td>
 									<?php
-									hidden_field($prefix.'_sort_order_list['.$id.']', $id); ?>
-									<span id ="<?php echo $prefix ?>_sort_order_<?php echo $id; ?>"><?php echo $info['name']; ?></span>
+									if ($i != 0) {
+										sq_print_icon(sq_web_path('lib').'/web/images/icons/up_arrow.png', 16, 16, translate('move_up'), NULL, 'class="clickable" onclick="sortOrderMoveUp('.$id.')"');
+									}
+									?>
+								</td>
+								<td>
+									<?php
+									if ($i != count($sort_by_list)-1) {
+										sq_print_icon(sq_web_path('lib').'/web/images/icons/down_arrow.png', 16, 16, translate('move_down'), NULL, 'class="clickable" onclick="sortOrderMoveDown('.$id.')"');
+									}
+									?>
 								</td>
 								<?php
-								if ($write_access) {
-									?>
-									<td>
-										<?php
-										if ($info['name'] != 'No Sorting' && $info['name'] != 'Random') {
-											if ($i != 0) {
-												?><a href="#" onclick="sortOrderMoveUp(<?php echo $id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "<?php echo translate('move_up'); ?>");</script></a><?php
-											}
+							}
+							?>
+						</tr>
+						<?php
 
-											if ($i != count($sort_by_list) - 3) {
-												?><a href="#" onclick="sortOrderMoveDown(<?php echo $id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "<?php echo translate('move_down'); ?>");</script></a><?php
-											}
-										}
-											?>
-									</td>
-									<?php
-								}
-								?>
-
-							</tr>
-							<?php
-
-							$i++;
-						}//end foreach
-					?>
-			</table>
+						$i++;
+					}//end foreach
+				?>
+		</table>
 		<?php
-		$o->closeField();
-
 		return $write_access;
 
-	}//end paintOrderSortOptions()
+	}//end paintSortOptionOrder()
 
 
 	/**
@@ -1680,44 +1887,29 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processOrderSortOptions(&$asset, &$o, $prefix)
+	function processSortOptionOrder(&$asset, &$o, $prefix)
 	{
 		$sort_by_list = $asset->attr('sort_by');
-		$sort_order = array_get_index($_POST, $prefix.'_sort_order_list', Array());
-
-		$save = FALSE;
-		$save_list = Array();
-		$i = 0;
-		foreach ($sort_order as $id => $order) {
-			// check to see if they have re-ordered anything
-			// we can rely on the name being unique
-			if (isset($sort_by_list[$order]) && isset($sort_by_list[$id])) {
-				if ($sort_by_list[$order]['name'] != $sort_by_list[$id]['name']) {
-					$save = TRUE;
+		$this->_tmp['unshuffled_sort_options'] = $sort_by_list; // used by default sort option
+		if (isset($_POST[$prefix.'_sort_order_list'])) {
+			$sort_order = $_POST[$prefix.'_sort_order_list'];
+			$save_list = Array();
+			$i = 0;
+			foreach ($sort_order as $id => $order) {
+				if (empty($sort_by_list[$order])) {
+					unset($sort_by_list[$order]);
 				}
-				$save_list[$i++] = $sort_by_list[$order];
-			}
-		}
-
-		if ($save) {
-			$asset->setAttrValue('sort_by', $save_list);
-
-			// list order changed
-			$default_sort_by = $asset->attr('default_sort_by');
-			if ($sort_order[$default_sort_by] != $default_sort_by) {
-				foreach ($sort_order as $key => $val) {
-					if ($val == $default_sort_by) {
-						// update the default sort by index too
-						$asset->setAttrValue('default_sort_by', $key);
-					}
+				if (isset($sort_by_list[$order])) {
+					$save_list[$i++] = $sort_by_list[$order];
+					unset($sort_by_list[$order]);
 				}
 			}
-
-			return TRUE;
+			// $sort_by_list now contains only the newly-added fields, which we'll put last
+			return $asset->setAttrValue('sort_by', array_merge($save_list, $sort_by_list));
 		}
 		return FALSE;
 
-	}//end processOrderSortOptions()
+	}//end processSortOptionOrder()
 
 
 	/**
@@ -1742,13 +1934,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					'1'	=> $sort_desc_text,
 				   );
 
-		$o->openField('Default Sort Direction');
-			if ($write_access) {
-				combo_box($prefix.'_default_sort_direction', $options, FALSE, $sort_direction);
-			} else {
-				echo (!$sort_direction) ? $sort_asc_text : $sort_desc_text;
-			}
-		$o->closeField();
+		if ($write_access) {
+			combo_box($prefix.'_default_sort_direction', $options, FALSE, $sort_direction);
+		} else {
+			echo (!$sort_direction) ? $sort_asc_text : $sort_desc_text;
+		}
 
 		return $write_access;
 
@@ -1786,19 +1976,18 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	* @return array
 	* @access protected
 	*/
-	function _getSortByOptions(&$asset)
+	function _getStandardSortByOptions(&$asset)
 	{
-		$asset_fields = $GLOBALS['SQ_SYSTEM']->am->getAssetInfoFields();
 		if ($asset->attr('group_by') == 'letter') {
 			return Array(
 					'name'			=> translate('name'),
 					'short_name'	=> translate('short_name'),
 				   );
 		} else {
-			return $asset_fields + Array('asset_attrib'	=> translate('cms_listing_asset_attribute(s)'));
+			return $GLOBALS['SQ_SYSTEM']->am->getAssetInfoFields();
 		}
 
-	}//end _getSortByOptions()
+	}//end _getStandardSortByOptions()
 
 
 	/**
@@ -2298,9 +2487,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			// for now we will only sort by the original set of options (not
 			// attributes - it would clutter the page for one)
-			$sort_by_options = $this->_getSortByOptions($asset);
+			$sort_by_options = $this->_getStandardSortByOptions($asset);
 			$sort_by_options[''] = '-- '.translate('select').' --';
-			unset($sort_by_options['asset_attrib']);
 
 			$current_option = array_get_index($group_by_option, 'sort_by', '');
 
@@ -2309,7 +2497,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			} else {
 
 				if (empty($current_option)) {
-					echo '<i>'.'No sorting applied'.'</i>';
+					echo '<i>'.translate('cms_listing_no_sorting_applied').'</i>';
 				} else {
 					echo $sort_by_options[$current_option];
 				}

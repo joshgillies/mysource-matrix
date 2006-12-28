@@ -10,46 +10,44 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_sorting.xml,v 1.4 2006/12/07 00:04:19 emcdonald Exp $
+* $Id: edit_interface_screen_sorting.xml,v 1.5 2006/12/28 00:30:52 tbarrett Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Sort Defaults" write_access="write:attributes">
+	<section name="Sort-by Options" write_access="write:attributes">
+		<function_call>
+			<paint_function name="paintSortOptions" />
+			<process_function name="processSortOptions" />
+		</function_call>
+	</section>
+	<section name="Sorting Selection Interface" write_access="write:attributes">
 		<field>
 			<function_call>
-				<paint_function name="paintDefaultSortDirection" />
-				<process_function name="processDefaultSortDirection" />
+				<paint_function name="paintSortOptionOrder" />
+				<process_function name="processSortOptionOrder" />
 			</function_call>
 		</field>
+		<field attribute="sort_direction_asc_text">
+			<text width="15" />
+		</field>
+		<field attribute="sort_direction_desc_text">
+			<text width="15" />
+		</field>
+	</section>
+	<section name="Default Sorting" write_access="write:attributes">
 		<field>
 			<function_call>
 				<paint_function name="paintDefaultSortByOption" />
 				<process_function name="processDefaultSortByOption" />
 			</function_call>
 		</field>
-	</section>
-	<section name="Asset Sorting Options" write_access="write:attributes">
 		<field>
 			<function_call>
-				<paint_function name="paintSortBy" />
-				<process_function name="processSortBy" />
+				<paint_function name="paintDefaultSortDirection" />
+				<process_function name="processDefaultSortDirection" />
 			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function name="paintOrderSortOptions" />
-				<process_function name="processOrderSortOptions" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Sort Direction Text" write_access="write:attributes">
-		<field write_access="write:attributes" attribute="sort_direction_asc_text">
-			<text width="15" />
-		</field>
-		<field write_access="write:attributes" attribute="sort_direction_desc_text">
-			<text width="15" />
 		</field>
 	</section>
 </contents>

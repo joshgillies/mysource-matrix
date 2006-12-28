@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.30 2006/12/07 21:48:05 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.31 2006/12/28 00:30:53 tbarrett Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -36,8 +36,6 @@
 <string source="cms_listing_new_position_format">New Position Format:</string>
 <string source="cms_listing_random_selected_no_sort">Random list format is currently selected. Sorting is disabled.</string>
 <string source="cms_listing_no_types_no_sort">There are no types defined. No sorting can be applied.</string>
-<string source="cms_listing_sort_attribute">Sort Attribute</string>
-<string source="cms_listing_asset_attribute(s)">Asset Attribute(s)...</string>
 <string source="cms_listing_root_node_link_desc">The root node of the Asset Listing</string>
 <string source="cms_listing_cannot_delete_type_formats_link">You cannot delete the link between the type formats folder and the %s page</string>
 <string source="cms_listing_cannot_delete_position_formats_link">You cannot delete the link between the position formats folder and the %s page</string>
@@ -52,15 +50,20 @@
 <string source="cms_listing_asset_selection">Asset Selection</string>
 <string source="cms_listing_asset_selection_check_all">Asset Selection Check All (%s)</string>
 <string source="cms_listing_asset_selection_check_all_in_group">Asset Selection Check All In Group (%s)</string>
-<string source="cms_listing_default_sort_by_option">Default Sort By Option</string>
-<string source="cms_listing_no_sort_by_options">There are no sort by options</string>
-<string source="cms_listing_list_sort_order">List Sort Order</string>
-<string source="cms_listing_sort_option_name">Sort Option Name</string>
-<string source="cms_listing_no_attribute_sort_options">There are no sort by attribute options</string>
-<string source="cms_listing_sort_by_attribute">Sort By Attribute</string>
-<string source="cms_listing_no_field_sort_options">There are no sort by asset field options</string>
-<string source="cms_listing_sort_by_asset_field">Sort By Asset Field</string>
-<string source="cms_listing_new_sort_by_field">New Sort By Field</string>
+<string source="cms_listing_no_sort_by_options">There are no sort-by options</string>
+
+<string source="cms_listing_sort_by_standard_field">Sorting by Standard Asset Field Value</string>
+<string source="cms_listing_sort_by_standard_field_none">There are no standard asset field sort options</string>
+
+<string source="cms_listing_sort_by_attribute">Sorting by Asset Attribute Value</string>
+<string source="cms_listing_sort_by_attribute_none">There are no asset attribute sort options</string>
+
+<string source="cms_listing_sort_by_metadata_field">Sorting by Metadata Field Value</string>
+<string source="cms_listing_sort_by_metadata_field_none">There are no metadata field sort options</string>
+
+<string source="cms_listing_sort_by_extras">Extra Sort-by options</string>
+<string source="cms_listing_sort_option_name">Sort-by Option Name</string>
+
 <string source="cms_listing_keyword_root_nodes">Root Nodes (separated by commas)</string>
 <string source="cms_listing_keyword_submit_button">Submit Button</string>
 <string source="cms_listing_keyword_reset_button">Reset Button</string>
@@ -126,5 +129,9 @@
 <string source="cms_listing_parent_contents_raw">Raw Contents of the Parent Asset</string>
 <string source="cms_listing_no_results">No results were found</string>
 <string source="cms_listing_page_list_sliding">Sliding page list showing X page numbers at a time</string>
+<string source="cms_listing_random_sort">Random Sorting</string>
+<string source="cms_listing_no_sort">No Sorting</string>
+<string source="cms_listing_enable_random_sort">Enable "Random Order" option</string>
+<string source="cms_listing_enable_no_sort">Enable "No Sorting" option</string>
 
 </strings>
