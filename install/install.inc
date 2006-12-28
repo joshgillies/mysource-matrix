@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.67 2006/12/06 05:17:23 bcaldwell Exp $
+* $Id: install.inc,v 1.67.2.1 2006/12/28 23:51:21 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.67 $
+* @version $Revision: 1.67.2.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -834,7 +834,14 @@ function build_localised_screen($asset_type, $screen, $locale)
 
 					case 'note':
 						// is a section note already set?
-						if (!isset($this_section->attributes['note'])) {
+						$section_note_found = FALSE;
+						foreach ($this_section->children as $child) {
+							if ($child->name == 'note') {
+								$section_note_found = TRUE;
+								break;
+							}
+						}
+						if (!$section_note_found) {
 							$this_section->insertChild(NULL, count($this_section->children), $xml_field->name, $xml_field->content);
 						}
 					break;
