@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.137 2006/12/20 02:42:52 lwright Exp $
+* $Id: search_manager.inc,v 1.138 2006/12/28 01:49:29 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.137 $
+* @version $Revision: 1.138 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1103,6 +1103,12 @@ class Search_Manager extends Asset
 							$value = $plugin->handleMultipleMetadataSelect($value);
 						}
 
+						$key_type = 'selection';
+					break;
+
+					case 'metadata_field_multiple_text':
+						$plugin =& $this->_getDBPlugin();
+						$value = $plugin->handleMultipleMetadataSelect($value);
 						$key_type = 'selection';
 					break;
 
