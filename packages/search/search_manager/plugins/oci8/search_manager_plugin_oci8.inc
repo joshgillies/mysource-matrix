@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.8 2006/12/20 02:42:53 lwright Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.9 2006/12/28 03:16:00 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -577,7 +577,7 @@ class Search_Manager_Plugin_OCI8
 	*/
 	function handleMultipleMetadataSelect($value)
 	{
-		$components = explode('\;', $value);
+		$components = explode('; ', $value);
 		$value = '';
 		foreach ($components as $comp) {
 			$comp = trim($comp);
