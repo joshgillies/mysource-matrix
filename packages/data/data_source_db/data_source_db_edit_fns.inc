@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.19 2006/06/21 04:34:48 skim Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.19.2.1 2006/12/28 23:43:49 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1863,11 +1863,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 						$sql .= '<br />'.$val['field'].' ';
 						!empty($val['condition']) && !in_array($val['condition'], Array('Relation', 'Other')) ? $sql .= $val['condition'] : $sql .= '';
 						isset($val['operator']) ? $sql .= ' '.$val['operator'] : $sql .= '';
-						if (trim($val['value']) != '') {
-							$sql .= ' '.$val['value'];
+						if (trim(array_get_index($val, 'value', '')) != '') {
+							$sql .= ' '.array_get_index($val, 'value', '');
 						} else {
-							if (trim($val['min_value']) != '' && trim($val['max_value']) != '') {
-								$sql .=' '.$val['min_value'].' AND '.$val['max_value'];
+							if (trim(array_get_index($val, 'min_value', '')) != '' && trim(array_get_index($val, 'max_value', '')) != '') {
+								$sql .=' '.array_get_index($val, 'min_value', '').' AND '.array_get_index($val, 'max_value', '');
 							}
 						}
 						$val['multi'] != 'none' ? $sql .= ' '.$val['multi'] : $sql .= '';
