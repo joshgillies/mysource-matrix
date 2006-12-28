@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.33 2006/12/05 05:41:18 bcaldwell Exp $
+* $Id: option_list.inc,v 1.34 2006/12/28 04:19:42 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_OPTION_LIST_DELIMITER_MAC', "\n");
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -113,6 +113,30 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 			</div>
 			<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/edit.js"></script>
 			<script type="text/javascript">
+			<?php
+			// Yeesh... this is hackish but this essentially (attempts to)
+			// correct the lack of delete-button class in front-end
+			// asset builder creation
+			if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) {
+			?>
+				buttons = document.getElementsByTagName('BUTTON');
+				for (i = 0; i < buttons.length; i++) {
+					if (buttons[i].className == 'delete-button') {
+						with (buttons[i].style) {
+							backgroundImage = 'url(<?php echo sq_web_path('lib') ?>/web/images/icons/delete.png)';
+							backgroundPosition = '50% 50%';
+							backgroundRepeat = 'no-repeat';
+							width = '16px';
+							height = '16px';
+							backgroundColor = 'transparent';
+							border = '0px';
+							cursor = 'pointer';
+						}
+					}
+				}
+			<?php
+			}
+			?>
 				var optionItemPrefix = '<?php echo $prefix; ?>';
 				// attach the event handlers
 				var optionList = document.getElementById('option-list-<?php echo $prefix; ?>');
