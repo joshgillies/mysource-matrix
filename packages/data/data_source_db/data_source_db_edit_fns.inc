@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.19.2.1 2006/12/28 23:43:49 lwright Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.19.2.2 2006/12/28 23:54:38 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19.2.1 $
+* @version $Revision: 1.19.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1078,6 +1078,18 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 			<?php
 			}
+
+			// Check that the aggregate function has a table to work on, unless
+			// we are using COUNT(*)
+			if (isset($_POST['aggregate_func'])) {
+				$function = $_POST['aggregate_func'];
+				$new_table= NULL;
+				isset($_POST['aggregate_table']) ? $new_table = $tables[$_POST['aggregate_table']] : $new_table = NULL;
+				if (($function != 'COUNT(*)') && empty($new_table)) {
+					unset($_POST['aggregate_func']);
+				}
+			}
+
 			if (!empty($old_aggregates) || isset($_POST['aggregate_func'])) {
 				?>
 				<table class="sq-backend-table">
@@ -1125,9 +1137,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				$function = $_POST['aggregate_func'];
 				$new_table= NULL;
 				isset($_POST['aggregate_table']) ? $new_table = $tables[$_POST['aggregate_table']] : $new_table = NULL;
-				if (($function != 'COUNT(*)') && empty($new_table)) {
-					return FALSE;
-				}
 				?>
 				<tr>
 					<td><?php combo_box('aggregate['.$i.'][function]', $aggregates, FALSE, $function); ?></td>
@@ -1145,6 +1154,10 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 					<td><?php text_box('aggregate['.$i.'][alias]', '');?></td>
 					<td><?php check_box('aggregate['.$i.'][delete]', 'delete', FALSE, '');?></td>
 				</tr>
+				<?php
+			}
+			if (!empty($old_aggregates) || isset($_POST['aggregate_func'])) {
+				?>
 				</table>
 				<?php
 			}
