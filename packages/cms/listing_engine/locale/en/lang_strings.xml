@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.30 2006/12/07 21:48:05 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.30.2.1 2006/12/28 23:55:19 tbarrett Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -113,7 +113,6 @@
 <string source="cms_listing_no_asset_types_selected">No asset types have been selected</string>
 <string source="cms_listing_edit_group_format">Edit Group Format</string>
 <string source="cms_listing_no_status_selected">No statuses are selected. Only LIVE assets will be listed.</string>
-<string source="cms_listing_engine_grouping_section_note">To make these grouping settings apply to the frontend you must choose "Custom Grouping" in the "List Format" field on the details screen</string>
 <string source="cms_listing_sort_by_metadata">Sort By Metadata Field</string>
 <string source="cms_listing_new_sort_by_metadata">New Sort By Metadata Field</string>
 <string source="cms_listing_no_metadata_sort_options">There are no sort by metadata field options</string>
