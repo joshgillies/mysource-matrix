@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.22 2006/12/18 23:59:53 lwright Exp $
+* $Id: assertions.inc,v 1.23 2006/12/28 03:37:32 tbarrett Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 
@@ -499,13 +499,16 @@ function assert_valid_assetid($assetids, $msg='', $silent=false, $fatal=true)
 */
 function trigger_exception($msg, $silent=false, $fatal=false)
 {
-	$backtrace = debug_backtrace();
-	$line = $backtrace[1]['line'];
-	$file = $backtrace[1]['file'];
 	$error_type = ($fatal) ? E_USER_ERROR : E_USER_WARNING;
-
 	if (!$silent) {
-		trigger_localised_error('SYS0270', $error_type, $msg, $line, $file);
+		if (SQ_CONF_DEBUG & 1) {
+			$backtrace = debug_backtrace();
+			$line = $backtrace[1]['line'];
+			$file = $backtrace[1]['file'];
+			trigger_localised_error('SYS0270', $error_type, $msg, $line, $file);
+		} else {
+			trigger_localised_error('SYS0320', $error_type, $msg);
+		}
 	}
 
 	if ($fatal) exit();
