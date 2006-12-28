@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.36 2006/12/06 01:07:36 emcdonald Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.37 2006/12/28 01:44:36 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -115,8 +115,8 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 				$contents = Array();
 				foreach ($descendant_types as  $type) {
 					// $te[2] - type of the field, which we need
-					$te = explode('_', $type);
-					$contents[$type] = ucfirst($te[2]); // capitalizing the first char
+					$te = explode('_', $type, 3);
+					$contents[$type] = ucwords(str_replace('_', ' ', $te[2])); // capitalizing the first char
 				}
 
 				combo_box($prefix.'_field_type', $contents, FALSE, 'metadata_field_text');
