@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.28 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: linking.inc,v 1.28.2.1 2006/12/29 04:20:07 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix
 */
 
@@ -87,6 +87,9 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON a.assetid = pl.minorid
 				';
+		foreach ($assetid_keys as $assetid_key_index => $assetid_key) {
+			$assetid_keys[$assetid_key_index] = $db->quoteSmart((string) $assetid_key);
+		}
 		$where = 'cl.minorid IN ('.implode(', ', $assetid_keys).')
 				  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
 				  AND pt.treeid <= ct.treeid';
