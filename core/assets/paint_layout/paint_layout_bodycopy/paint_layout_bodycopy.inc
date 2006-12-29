@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.30 2006/12/06 02:53:10 emcdonald Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.31 2006/12/29 04:51:16 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,53 +82,100 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		// and to store the original content before any substitutions take place
 		if (!parent::_updated()) return FALSE;
 
-		$content = $this->getRawBodycopyContent();
-		$required_keywords = $this->getKeywords();
+		$this->_generateContentFile();
 
+		return TRUE;
+
+	}//end _updated()
+
+
+	/**
+	* Generate the content file for this paint layout bodycopy
+	*
+	* @return void
+	* @access private
+	*/
+	function _generateContentFile()
+	{
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$php_begin = ' <'.'?'.'php ';
 		$php_end = ' ?'.'> ';
-		$keyword_replacements = Array();
-		$additional_keywords = Array();
-
+		$content_file = '';
 		$required_substitution_keywords = Array();
 
-		// find all the required keywords and replace the condition-block keywords by PHP code
-		foreach ($required_keywords as $keyword) {
-			if (!isset($keyword_replacements[$keyword])) {
-				$value = NULL;
+		$containers =& $this->getContainers();
+		foreach (array_keys($containers) as $i) {
+			ob_start();
+				$container =& $containers[$i]; // need this by reference
+				$edit =& $container->getEditFns();
+				$edit->paint($container, FALSE, TRUE);
+				$content = ob_get_contents();
+			ob_end_clean();
+	
+			$required_keywords = retrieve_keywords_replacements($content);
+			$keyword_replacements = Array();
+			$additional_keywords = Array();
 
-				if (preg_match('/^('.SQ_KEYWORD_CONDITION_BEGIN.'|'.SQ_KEYWORD_CONDITION_END.'|'.SQ_KEYWORD_CONDITION_ELSE.')_(.*)$/', $keyword, $condition_parts)) {
-					if (count($condition_parts) == 3) {
-						$test_keyword = $condition_parts[2];
-						switch ($condition_parts[1]) {
-							case SQ_KEYWORD_CONDITION_BEGIN :
-								$this->_addRequiredKeywordsFromEvaluatedKeyword($test_keyword, $required_substitution_keywords);
-								$value = 'if (!empty($paint_layout_keywords[\''.$test_keyword.'\']) && trim($paint_layout_keywords[\''.$test_keyword.'\']) != \'\') {';
-							break;
-							case SQ_KEYWORD_CONDITION_ELSE :
-								$value = '} else {';
-							break;
-							case SQ_KEYWORD_CONDITION_END :
-								$value = '} //'.$test_keyword;
-							break;
-						}
+			// find all the required keywords and replace the condition-block keywords by PHP code
+			foreach ($required_keywords as $keyword) {
+				if (!isset($keyword_replacements[$keyword])) {
+					$value = NULL;
 
-						if (!empty($value)) {
-							$value = $php_begin.$value.$php_end;
+					if (preg_match('/^('.SQ_KEYWORD_CONDITION_BEGIN.'|'.SQ_KEYWORD_CONDITION_END.'|'.SQ_KEYWORD_CONDITION_ELSE.')_(.*)$/', $keyword, $condition_parts)) {
+						if (count($condition_parts) == 3) {
+							$test_keyword = $condition_parts[2];
+							switch ($condition_parts[1]) {
+								case SQ_KEYWORD_CONDITION_BEGIN :
+									$this->_addRequiredKeywordsFromEvaluatedKeyword($test_keyword, $required_substitution_keywords);
+									$value = 'if (!empty($paint_layout_keywords[\''.$test_keyword.'\']) && trim($paint_layout_keywords[\''.$test_keyword.'\']) != \'\') {';
+								break;
+								case SQ_KEYWORD_CONDITION_ELSE :
+									$value = '} else {';
+								break;
+								case SQ_KEYWORD_CONDITION_END :
+									$value = '} // end '.$test_keyword;
+								break;
+							}
+
+							if (!empty($value)) {
+								$value = $php_begin.$value.$php_end;
+							}
 						}
 					}
-				}
 
-				if (isset($value)) {
-					$keyword_replacements[$keyword] = $value;
-				} else {
-					$required_substitution_keywords[$keyword] = 1;
+					if (isset($value)) {
+						$keyword_replacements[$keyword] = $value;
+					} else {
+						$required_substitution_keywords[$keyword] = 1;
+					}
 				}
-			}
-		}//end foreach
+			}//end foreach
 
-		// Replace all the conditional keywords in our content with valid PHP code
-		replace_keywords($content, $keyword_replacements);
+			// Replace all the conditional keywords in our content with valid PHP code
+			replace_keywords($content, $keyword_replacements);
+
+			// Change each ./?a= url to reference the sq_asset_url_list array, which
+			// is built from our container's notice links when content is printed.
+			$e = '|\./\?a=([0-9]+)([^0-9])|';
+			$with = '<'.'?php echo $sq_asset_url_list[\\1]; ?'.'>\\2';
+			$content = preg_replace($e, $with, $content);
+
+			$content_file .= '
+							$container =& $GLOBALS["SQ_SYSTEM"]->am->getAsset('.$container->id.',  "'.$container->type().'");
+							if ($container->readAccess()) {
+								'.$php_end.$content.$php_begin.'
+							}//end if read access for container '.$container->id.'
+							';
+
+		}//end foreach container
+
+		$content_file = $php_begin.$content_file.$php_end;
+
+		// save the contents of the bodycopy
+		if (!string_to_file($content_file, $this->data_path.'/content_file.php')) {
+			trigger_localised_error('CORE0047', E_USER_WARNING, $this->name);
+			return FALSE;
+		}
 
 		// Save the substitution keywords we will need to lookup for each asset display
 		create_directory($this->data_path);
@@ -136,24 +183,8 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
-
-		// Change each ./?a= url to reference the sq_asset_url_list array, which
-		// is built from our container's notice links when content is printed.
-		$e = '|\./\?a=([0-9]+)([^0-9])|';
-		$with = '<'.'?php echo $sq_asset_url_list[\\1]; ?'.'>\\2';
-		$content = preg_replace($e, $with, $content);
-
-		$content = $content.$php_begin;
-
-		// save the contents of the bodycopy
-		if (!string_to_file($content, $this->data_path.'/content_file.php')) {
-			trigger_localised_error('CORE0047', E_USER_WARNING, $this->name);
-			return FALSE;
-		}
-
-		return TRUE;
-
-	}//end _updated()
+		
+	}
 
 
 	/**
