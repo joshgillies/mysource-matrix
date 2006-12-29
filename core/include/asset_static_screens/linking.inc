@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.29 2006/12/29 04:19:40 lwright Exp $
+* $Id: linking.inc,v 1.30 2006/12/29 05:39:47 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 
@@ -149,7 +149,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 						if ($link_type & SQ_SC_LINK_BACKEND_NAV) {
 							?>
 							<a href="#">
-							<?php echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, translate('show_in_asset_map'), translate('show_in_asset_map'),' style="border: 0;"  onclick="'.asset_locator_js($asset_lineage_ids).'"');
+							<?php echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, translate('show_in_asset_map'), translate('show_in_asset_map'),' style="border: 0; cursor: pointer"  onclick="'.asset_locator_js($asset_lineage_ids).'"');
 							?>
 							</a>
 							<?php
