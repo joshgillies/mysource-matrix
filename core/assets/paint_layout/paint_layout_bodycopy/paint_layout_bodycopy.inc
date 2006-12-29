@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.31 2006/12/29 04:51:16 tbarrett Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.32 2006/12/29 05:11:26 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,7 +111,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 				$edit->paint($container, FALSE, TRUE);
 				$content = ob_get_contents();
 			ob_end_clean();
-	
+
 			$required_keywords = retrieve_keywords_replacements($content);
 			$keyword_replacements = Array();
 			$additional_keywords = Array();
@@ -183,8 +183,8 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
-		
-	}
+
+	}//end _generateContentFile()
 
 
 	/**
