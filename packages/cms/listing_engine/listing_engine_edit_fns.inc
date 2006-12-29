@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.71 2006/12/28 21:38:46 tbarrett Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.72 2006/12/29 01:02:57 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2204,8 +2204,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			$o->closeSection();
 		}//end foreach
-
-		$o->sectionNote(translate('cms_listing_engine_grouping_section_note'));
 
 		return $commit_button;
 
