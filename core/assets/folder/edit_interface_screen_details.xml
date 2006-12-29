@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.12 2006/12/06 00:35:26 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.13 2006/12/29 01:15:50 tbarrett Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
+	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
 			<text width="30" height="1" />
 		</field>
