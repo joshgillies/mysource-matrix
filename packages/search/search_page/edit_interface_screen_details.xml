@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.39 2006/12/07 02:46:11 bcaldwell Exp $
+* $Id: edit_interface_screen_details.xml,v 1.40 2006/12/29 01:05:58 tbarrett Exp $
 *
 */
 -->
@@ -44,6 +44,9 @@
 		</field>
 	</section>
 	<section name="Display Options">
+		<field attribute="group_by" write_access="write:attributes">
+			<selection style="list" />
+		</field>
 		<field attribute="num_per_page" write_access="write:attributes">
 			<int width="5" />
 		</field>

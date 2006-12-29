@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.53 2006/12/18 04:08:47 lwright Exp $
+* $Id: search_page_management.inc,v 1.54 2006/12/29 01:05:58 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -38,7 +38,19 @@ class Search_Page_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars['group_by']['default'] = 'grouped';
+		$this->vars['group_by'] = Array(
+									'added'			=> '0.1',
+									'type'			=> 'selection',
+									'default'		=> 'number',
+									'parameters'	=> Array(
+														'multiple'		=> FALSE,
+														'allow_empty'	=> FALSE,
+														'options'		=> Array(
+																			'number'	=> 'Standard',
+																			'grouped'	=> 'Custom Grouping',
+																		   ),
+													   ),
+								  );
 
 		$this->vars['proxy_types'] = Array(
 										'added'		=> '0.15',
@@ -387,22 +399,6 @@ class Search_Page_Management extends Asset_Management
 			pre_echo('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.12');
 		}//end version 0.13 upgrade
 
-		if (version_compare($current_version, '0.14', '<')) {
-			pre_echo('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.13');
-			// version 0.13->0.14
-			// changing the default value of attr 'group_by')
-			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
-			foreach ($children as $assetid) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				$asset->setAttrValue('group_by', 'grouped');
-				$asset->saveAttributes();
-
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			}
-
-			pre_echo('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.13');
-		}//end version 0.12 upgrade
-
 		if (version_compare($current_version, '0.15', '<')) {
 			pre_echo('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.14');
 			// version 0.14 -> 0.15
@@ -511,6 +507,24 @@ class Search_Page_Management extends Asset_Management
 			}
 			pre_echo('FINISHED SEARCH PAGE UPGRADE TO VERSION 0.18');
 		}//end if
+
+		if (version_compare($current_version, '0.20', '<')) {
+			pre_echo('STARTING SEARCH PAGE UPGRADE - TO VERSION 0.20');
+			// version 0.19 - 0.20
+			// group_by interface is exposed
+			// preserve the old default value of 'grouped' if there are some groups,
+			// otherwise leave the new default which is 'number';
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
+			foreach ($children as $assetid) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$val = (count($asset->attr('asset_grouping')) > 0) ? 'grouped' : 'number';
+				$asset->setAttrValue('group_by', $val);
+				$asset->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+
+			pre_echo('SEARCH PAGE UPGRADE COMPLETE - TO VERSION 0.20');
+		}//end version 0.20 upgrade
 
 		return TRUE;
 
