@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link_search.php,v 1.1 2006/12/27 21:52:17 lwright Exp $
+* $Id: insert_link_search.php,v 1.2 2007/01/02 00:22:28 mbrydon Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -64,92 +64,94 @@ if ($search_for != '') {
 		$found_asset_line .= '</div>';
 	}
 
-	$result_list = Array();
+	if (!empty($results)) {
+		$result_list = Array();
 
-	foreach($results as $result_assetid => $result_detail) {
-		$tag_line = get_asset_tag_line($result_assetid);
+		foreach ($results as $result_assetid => $result_detail) {
+			$tag_line = get_asset_tag_line($result_assetid);
 
-		$this_detail = Array();
+			$this_detail = Array();
 
-		foreach ($result_detail as $result_component_name => $result_component) {
-			foreach ($result_component as $name => $value) {
+			foreach ($result_detail as $result_component_name => $result_component) {
+				foreach ($result_component as $name => $value) {
 
-				$name_detail = '';
-				switch ($result_component_name) {
-					case 'contents':
-						$name_detail = 'Asset Contents';
-					break;
+					$name_detail = '';
+					switch ($result_component_name) {
+						case 'contents':
+							$name_detail = 'Asset Contents';
+						break;
 
-					case 'metadata':
-					case 'schema':
-						$name_detail = ($result_component_name == 'schema' ? 'Default ' : '').'Metadata: ';
+						case 'metadata':
+						case 'schema':
+							$name_detail = ($result_component_name == 'schema' ? 'Default ' : '').'Metadata: ';
 
-						// Find a friendly name for the metadata field, if there
-						// is none then use the standard name of the field itself
-						$attr_values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('friendly_name', 'metadata_field', Array($name));
-						if (empty($attr_values)) {
-							$name_detail .= $value['name'];
-						} else {
-							$name_detail .= $attr_values[$name];
-						}
+							// Find a friendly name for the metadata field, if there
+							// is none then use the standard name of the field itself
+							$attr_values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('friendly_name', 'metadata_field', Array($name));
+							if (empty($attr_values)) {
+								$name_detail .= $value['name'];
+							} else {
+								$name_detail .= $attr_values[$name];
+							}
 
-						$value = $value['value'];
-					break;
+							$value = $value['value'];
+						break;
 
-					case 'attributes':
-						$name_detail = 'Attribute: '.ucwords(str_replace('_', ' ', $name));
-					break;
-				}
-
-				$words = explode(' ', $search_for);
-				$value = strip_tags($value);
-
-				preg_match_all('/('.addslashes(implode('|', $words)).')/i', $value, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
-
-				// We go backwards, because that way we don't invalidate
-				// our offsets. This section ellipsisises the bits between
-				// matches so that there's 15 characters either side of
-				// matches.
-
-				// Last match position
-				if ($matches[count($matches) - 1][0][1] < strlen($value) - 15) {
-					$value = substr_replace($value, '...', $matches[count($matches) - 1][0][1] + 15);
-				}
-
-				for ($i = count($matches) - 1; $i > 0; $i--) {
-					$previous_match = $matches[$i - 1][0];
-					$this_match = $matches[$i][0];
-
-					$prev_pos = $previous_match[1] + strlen($previous_match[0]);
-					$next_pos = $this_match[1];
-
-					if (($next_pos - $prev_pos) > 30) {
-						$value = substr_replace($value, '...', $prev_pos + 15, ($next_pos - $prev_pos) - 30);
+						case 'attributes':
+							$name_detail = 'Attribute: '.ucwords(str_replace('_', ' ', $name));
+						break;
 					}
-				}
 
-				// First match position
-				if ($matches[0][0][1] > 15) {
-					$value = substr_replace($value, '...', 0, $matches[0][0][1] - 15);
-				}
+					$words = explode(' ', $search_for);
+					$value = strip_tags($value);
 
-				// Cut it down to a certain number of characters anyway
-				$value = ellipsisize($value, 120);
+					preg_match_all('/('.addslashes(implode('|', $words)).')/i', $value, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
-				$value = preg_replace('/('.addslashes(implode('|', $words)).')/i', '<span class="sq-backend-search-results-highlight">$1</span>', $value);
+					// We go backwards, because that way we don't invalidate
+					// our offsets. This section ellipsisises the bits between
+					// matches so that there's 15 characters either side of
+					// matches.
 
-				// remove \r and replace \n with line breaks
-				$this_detail[] = $name_detail.'<br/><em>'.str_replace("\r", '', str_replace("\n", '<br/>', $value)).'</em>';
-			}
-		}
+					// Last match position
+					if ($matches[count($matches) - 1][0][1] < strlen($value) - 15) {
+						$value = substr_replace($value, '...', $matches[count($matches) - 1][0][1] + 15);
+					}
 
-		$asset_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($result_assetid, 'asset', FALSE, 'name');
+					for ($i = count($matches) - 1; $i > 0; $i--) {
+						$previous_match = $matches[$i - 1][0];
+						$this_match = $matches[$i][0];
 
-		$result_list[] = Array(
-							'tag_line' => get_asset_tag_line($result_assetid, 'javascript:set_asset_finder_from_search(\''.$result_assetid.'\', \''.htmlspecialchars($asset_name[$result_assetid], ENT_QUOTES).'\', \'\', \'0\');'),
-							'detail'   => implode($this_detail, '<br/>'),
-						 );
-	}
+						$prev_pos = $previous_match[1] + strlen($previous_match[0]);
+						$next_pos = $this_match[1];
+
+						if (($next_pos - $prev_pos) > 30) {
+							$value = substr_replace($value, '...', $prev_pos + 15, ($next_pos - $prev_pos) - 30);
+						}
+					}
+
+					// First match position
+					if ($matches[0][0][1] > 15) {
+						$value = substr_replace($value, '...', 0, $matches[0][0][1] - 15);
+					}
+
+					// Cut it down to a certain number of characters anyway
+					$value = ellipsisize($value, 120);
+
+					$value = preg_replace('/('.addslashes(implode('|', $words)).')/i', '<span class="sq-backend-search-results-highlight">$1</span>', $value);
+
+					// remove \r and replace \n with line breaks
+					$this_detail[] = $name_detail.'<br/><em>'.str_replace("\r", '', str_replace("\n", '<br/>', $value)).'</em>';
+				}//end foreach
+			}//end foreach
+
+			$asset_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($result_assetid, 'asset', FALSE, 'name');
+
+			$result_list[] = Array(
+								'tag_line'	=> get_asset_tag_line($result_assetid, 'javascript:set_asset_finder_from_search(\''.$result_assetid.'\', \''.htmlspecialchars($asset_name[$result_assetid], ENT_QUOTES).'\', \'\', \'0\');'),
+								'detail'	=> implode($this_detail, '<br/>'),
+							 );
+		}//end foreach
+	}//end if
 
 	// Are there any results? If not, put in a "search failed" box, otherwise
 	// build the results box
@@ -189,7 +191,9 @@ if ($search_for != '') {
 				if ($result_number % $results_per_page == 0) {
 					if ($page_number > 1) $html .= '</div>';
 					$html .= '<div class="search-result-page" id="search-result-page-'.$page_number.'"';
-					if ($page_number > 1) $html .= ' style="display: none"';
+					if ($page_number > 1) {
+						$html .= ' style="display: none"';
+					}
 					$html .= '>';
 				}
 
@@ -207,10 +211,10 @@ if ($search_for != '') {
 			// End of last page
 			$html .= '</div>';
 
-		}
+		}//end if
 
 		$style_base = 'search-results';
-	}
+	}//end else
 
 	$html = str_replace("\r", '', $html);
 	$html = str_replace("\n", '  ', $html);
