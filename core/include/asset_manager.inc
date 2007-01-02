@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.531.2.1 2006/12/19 03:26:47 lwright Exp $
+* $Id: asset_manager.inc,v 1.531.2.2 2007/01/02 00:15:10 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.531.2.1 $
+* @version $Revision: 1.531.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6618,7 +6618,7 @@ class Asset_Manager extends MySource_Object
 		if (!empty($the_rest)) {
 			$assetid_cond_array = $the_rest;
 			for (reset($assetid_cond_array); NULL !== ($k = key($assetid_cond_array)); next($assetid_cond_array)) {
-				$assetid_cond_array[$k] = $db->quote($assetid_cond_array[$k]);
+				$assetid_cond_array[$k] = $db->quoteSmart((string) $assetid_cond_array[$k]);
 			}
 
 			// IN query needs to be chunked to be Oracle-safe (is also slow
