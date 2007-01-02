@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.16 2006/12/07 01:09:34 bcaldwell Exp $
+* $Id: search_list.inc,v 1.17 2007/01/02 22:05:59 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -93,6 +93,10 @@ class Search_List extends Listing_Engine
 		// get information about the search field
 		$search_page_fields = $search_page->attr('fields');
 		$search_field_name = $this->attr('search_field');
+		if (empty($search_page_fields) || empty($search_field_name)) {
+			// if search field has not been setup properly
+			return Array();
+		}
 		$search_field = $search_page_fields[$search_field_name];
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -133,7 +137,9 @@ class Search_List extends Listing_Engine
 			}
 		}
 
-		$query_comps['where'][] = '('.implode(') OR (', $data_source_comps).')';
+		if (!empty($data_source_comps)) {
+			$query_comps['where'][] = '('.implode(') OR (', $data_source_comps).')';
+		}
 
 		$query_comps['group_by'][] = 'ai.value';
 		$query_comps['group_by'][] = 'ai.assetid';
