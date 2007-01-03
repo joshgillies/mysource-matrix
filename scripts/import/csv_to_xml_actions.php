@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv_to_xml_actions.php,v 1.6 2006/12/10 22:32:07 mbrydon Exp $
+* $Id: csv_to_xml_actions.php,v 1.6.2.1 2007/01/03 22:50:26 mbrydon Exp $
 *
 */
 
@@ -451,6 +451,12 @@ if ((php_sapi_name() != 'cli')) {
 // Matrix system root directory
 $argv = $_SERVER['argv'];
 $GLOBALS['SYSTEM_ROOT'] = (isset($argv[1])) ? $argv[1] : '';
+if (empty($GLOBALS['SYSTEM_ROOT'])) {
+	printUsage();
+	printStdErr("* The Matrix system root directory must be specified as the first parameter\n");
+	exit(-99);
+}
+
 require_once $GLOBALS['SYSTEM_ROOT'].'/core/include/init.inc';
 
 // Has a CSV filename been supplied?
@@ -668,6 +674,7 @@ while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 
 				$group_by_folder_name = 'create_folder_'.$folder_name;
 
+				// Create a folder if one has not been created during this import with the specified name
 				if (!isset($group_names[$value])) {
 					$group_names[$value] = 1;
 
@@ -684,13 +691,13 @@ while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 								);
 					printCreateTriggerAction('set_folder_'.$folder_name.'_name', 'set_attribute_value', 'output://create_folder_'.$folder_name.'.assetid', $settings);
 				}
-			}
 
-			// ...and give it a web path
-			$settings = Array(
-							'path'	=> $folder_name,
-						);
-			printCreateTriggerAction('set_folder_'.$folder_name.'_path', 'add_web_path', 'output://create_folder_'.$folder_name.'.assetid', $settings);
+				// ...and give it a web path
+				$settings = Array(
+								'path'	=> $folder_name,
+							);
+				printCreateTriggerAction('set_folder_'.$folder_name.'_path', 'add_web_path', 'output://create_folder_'.$folder_name.'.assetid', $settings);
+			}//end if
 
 			// Now create an asset of the specified type (under the relevant group by folder, if specified)
 			$asset_parent_id = $global_parent_id;
