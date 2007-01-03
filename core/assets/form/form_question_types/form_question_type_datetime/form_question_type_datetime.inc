@@ -10,13 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.12 2006/12/06 22:51:26 colivar Exp $
+* $Id: form_question_type_datetime.inc,v 1.13 2007/01/03 05:47:40 arailean Exp $
 *
 */
 
 
 require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
+require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
 /**
 * Form_Question_Type_Text
@@ -26,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
