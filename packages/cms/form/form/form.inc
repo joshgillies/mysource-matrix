@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.144 2006/12/07 00:04:17 emcdonald Exp $
+* $Id: form.inc,v 1.145 2007/01/03 22:02:04 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.144 $
+* @version $Revision: 1.145 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1070,8 +1070,10 @@ class Form extends Asset
 				$this->printErrors();
 				$err_output = ob_get_contents();
 			ob_end_clean();
+			$err_msg = $this->attr('submission_errors_msg');
 		} else {
 			$err_output = '';
+			$err_msg = '';
 		}
 
 		$bodycopy =& $this->getBodycopy('Page Contents');
@@ -1121,6 +1123,7 @@ class Form extends Asset
 
 			$replacements['form_contents'] = &$cf_output;
 			$replacements['form_errors']   = &$err_output;
+			$replacements['form_errors_message'] = &$err_msg;
 			$replacements['submit_button'] = &$submit_button;
 			$replacements['reset_button']  = &$reset_button;
 
@@ -1769,6 +1772,7 @@ class Form extends Asset
 			if ($bodycopy == 'Page Contents') {
 				$keywords['form_contents'] = translate('cms_form_contents');
 				$keywords['form_errors']   = translate('cms_form_errors');
+				$keywords['form_errors_message']   = translate('cms_form_errors_message');
 
 				foreach ($questions as $q_id => $question) {
 					$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
