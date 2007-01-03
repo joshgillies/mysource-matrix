@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.21 2007/01/03 03:15:57 arailean Exp $
+* $Id: soap_application.inc,v 1.22 2007/01/03 03:19:13 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -547,18 +547,25 @@ class SOAP_Application extends Asset
 	}//end getCurrentStepNumberKeywordReplacement()
 
 
+	/**
+	* List of available keywords
+	*
+	* @return array
+	* @access public
+	*/
 	function getAvailableKeywords()
 	{
 		$keywords = parent::getAvailableKeywords();
 
-		$keywords['step_content'] = "Step Content";
-		$keywords['step_count'] = "Step Count";
-		$keywords['current_step_number'] = "Current Step Number";
-		$keywords['step_name'] = "Step Name";
+		$keywords['step_content'] = 'Step Content';
+		$keywords['step_count'] = 'Step Count';
+		$keywords['step_name'] = 'Step Name';
+		$keywords['current_step_number'] = 'Current Step Number';
 
 		return $keywords;
 
-	}
+	}//end getAvailableKeywords()
+
 
 }//end class
 
