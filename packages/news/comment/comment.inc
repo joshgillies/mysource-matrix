@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment.inc,v 1.14 2006/12/21 03:21:24 bcaldwell Exp $
+* $Id: comment.inc,v 1.15 2007/01/03 00:10:53 bcaldwell Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define ('SQ_COMMENT_HTML_STRIP',	2);
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -190,11 +190,11 @@ class Comment extends Page
 
 		switch ($html_conf) {
 			case SQ_COMMENT_HTML_STRIP:
-				$value = strip_tags($value);
+				$value = nl2br(strip_tags($value));
 			break;
 
 			case SQ_COMMENT_HTML_ESCAPE:
-				$value = htmlspecialchars($value);
+				$value = nl2br(htmlspecialchars($value));
 			break;
 
 			case SQ_COMMENT_HTML_ALLOW:
