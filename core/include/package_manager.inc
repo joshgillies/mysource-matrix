@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.79 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: package_manager.inc,v 1.80 2007/01/03 03:21:19 arailean Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -272,37 +272,40 @@ class Package_Manager extends MySource_Object
 				echo "$k => $type_code \n";
 
 				// now we simply call the management class for this object
-				$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/'.$type_code.'_management.inc';
+				$class = $type_code.'_management';
+				$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/'.$class.'.inc';
 				// include rather that require so that if it doesn't exist we can kill the transaction
 				require_once $file;
-				$class = $type_code.'_management';
 				// make sure the class exists
-				if (class_exists($class)) {
-					// now just create an instance of it, and run update()
-					$management =& new $class($this);
-					if (!$management->update()) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-						return false;
-					} else {
-						// generate the temporary list of event listeners
-						$events = $management->getEventList();
-						if (!is_array($events)) {
-							trigger_localised_error('SYS0142', E_USER_WARNING, $type_code, gettype($events));
-							return false;
-						}
-						if (!empty($events)) {
-							// register the event to be installed later
-							$em->installStaticEvents($events, $type_code);
-						}
-					}
-
-				} else {
+				if (!class_exists($class)) {
 					trigger_localised_error('SYS0083', E_USER_WARNING, $type_code, $file);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
 				}
+
+				// now just create an instance of it, and run update()
+				$management =& new $class($this);
+				if (!$management->update()) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return false;
+				}
+
+				// generate the temporary list of event listeners
+				$events = $management->getEventList();
+				if (!is_array($events)) {
+					trigger_localised_error('SYS0142', E_USER_WARNING, $type_code, gettype($events));
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return false;
+				}
+
+				if (!empty($events)) {
+					// register the event to be installed later
+					$em->installStaticEvents($events, $type_code);
+				}
+
 
 				// fire assetInstall event to signal asset installation or update
 				// sends the type_code of the installed asset

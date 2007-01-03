@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.77 2006/12/05 05:36:13 bcaldwell Exp $
+* $Id: asset_management.inc,v 1.78 2007/01/03 03:21:19 arailean Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -116,7 +116,7 @@ class Asset_Management extends MySource_Object
 
 
 	/**
-	* This get's run to intall/upgrade the asset that this management class represents
+	* This gets run to intall/upgrade the asset that this management class represents
 	*
 	* @return boolean
 	* @access public
@@ -147,7 +147,7 @@ class Asset_Management extends MySource_Object
 			return false;
 		}
 
-		// if the asset manager knows about it it is installed, so upgrade...
+		// if the asset manager knows about it - it is installed, so upgrade...
 		if ($this->_am->installed($type_code)) {
 			if (!$this->_upgrade($this->_am->getTypeInfo($type_code, 'version'))) {
 				return false;
