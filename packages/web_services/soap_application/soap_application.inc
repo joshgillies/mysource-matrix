@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.20 2006/12/07 03:53:36 bcaldwell Exp $
+* $Id: soap_application.inc,v 1.21 2007/01/03 03:15:57 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -105,9 +105,6 @@ class SOAP_Application extends Asset
 
 		$default_bodycopy = translate('soap_app_default_contents');
 
-		$sub_assets	= $this->_getInitialStepDefinitions();
-		if (empty($sub_assets)) return FALSE;
-
 		$main_bc_data = Array(
 							'type_code'		=> 'bodycopy',
 							'name'			=> 'Main Bodycopy',
@@ -129,9 +126,9 @@ class SOAP_Application extends Asset
 			$copy_link = Array(
 							'asset'			=> &$this,
 							'value'			=> array_get_index($sub_asset, 'link_value'),
-							'link_type'		=> $sub_asset['link_type'],
+							'link_type'		=> array_get_index($sub_asset, 'link_type', SQ_LINK_TYPE_2),
 							'is_dependant'	=> array_get_index($sub_asset, 'dependant', FALSE),
-							'is_exclusive'	=> $sub_asset['exclusive'],
+							'is_exclusive'	=> array_get_index($sub_asset, 'exclusive', FALSE),
 						 );
 
 			$asset->setAttrValue('name', $sub_asset['name']);
@@ -549,6 +546,19 @@ class SOAP_Application extends Asset
 
 	}//end getCurrentStepNumberKeywordReplacement()
 
+
+	function getAvailableKeywords()
+	{
+		$keywords = parent::getAvailableKeywords();
+
+		$keywords['step_content'] = "Step Content";
+		$keywords['step_count'] = "Step Count";
+		$keywords['current_step_number'] = "Current Step Number";
+		$keywords['step_name'] = "Step Name";
+
+		return $keywords;
+
+	}
 
 }//end class
 
