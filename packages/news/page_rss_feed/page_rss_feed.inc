@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.15 2006/12/14 22:46:58 bcaldwell Exp $
+* $Id: page_rss_feed.inc,v 1.16 2007/01/04 23:51:47 bcaldwell Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -323,15 +323,6 @@ class Page_RSS_Feed extends Page
 										$sub_tag = explode('.', $tag);
 										$new_items[$index][$sub_tag[0]]['ATTRIBUTES'][$sub_tag[1]] = $replacement;
 									} else {
-										// converting date values into the respective formats
-										if (in_array($tag, Array('updated', 'pubDate', 'lastBuildDate', 'published'))) {
-											$timestamp = strtotime($replacement);
-											if ($rss_type == 'rss_2.0') {
-												$replacement = date('D, j M Y H:i:s T', $timestamp);
-											} else if ($rss_type == 'atom_1.0') {
-												$replacement = date('Y-m-d', $timestamp).'T'.date('H:i:s', $timestamp).'Z';
-											}
-										}
 										$new_items[$index][$tag] = $replacement;
 									}
 								}//end foreach keywords
