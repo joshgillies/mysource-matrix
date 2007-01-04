@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.537 2006/12/29 05:42:31 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.538 2007/01/04 03:37:06 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.537 $
+* @version $Revision: 1.538 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3345,6 +3345,7 @@ class Asset_Manager extends MySource_Object
 	*															1	=> FALSE,
 	*														   ),
 	*										)
+	* @param boolean	$include_dependants	Whether to include dependants
 	*
 	* @return boolean
 	* @access private
@@ -5087,7 +5088,7 @@ class Asset_Manager extends MySource_Object
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 			if ($link['link_type'] == SQ_LINK_NOTICE) {
 				// to delete a notice link we need effective write access to the major asset
-				if (!($major->writeAccess() && $major->accessEffective())) {
+				if (!($major->writeAccess() && $major->accessEffective()) && empty($GLOBALS['SQ_PURGING_TRASH'])) {
 					trigger_localised_error('SYS0319', E_USER_WARNING, $linkid, $major->id, $major->name);
 					return FALSE;
 				}
@@ -5393,7 +5394,7 @@ class Asset_Manager extends MySource_Object
 	*
 	* This deletes its links to all its current parents, and creates a link for it in the trash folder
 	*
-	* @param int	$assetid	the asset to trash
+	* @param string	$assetid	the asset to trash
 	*
 	* @return boolean
 	* @access public
