@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.14.2.1 2007/01/04 03:34:59 bcaldwell Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.14.2.2 2007/01/04 03:36:26 bcaldwell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.14.2.1 $
+* @version $Revision: 1.14.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -760,7 +760,6 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 									$datasets[$plot_name]['settings']['stacked_data'][$key]['datasource']		= $_POST[$prefix.'_stacked_'.strval($key).'_datasource']['assetid'];
 									$datasets[$plot_name]['settings']['stacked_data'][$key]['colour_1']		= $_POST[$prefix.'_stacked_'.strval($key).'_gradient_colour_1'];
 									$datasets[$plot_name]['settings']['stacked_data'][$key]['colour_2']		= $_POST[$prefix.'_stacked_'.strval($key).'_gradient_colour_2'];
-									$datasets[$plot_name]['settings']['stacked_data'][$key]['line_colour']		= $_POST[$prefix.'_stacked_'.strval($key).'_line_colour'];
 									$datasets[$plot_name]['settings']['stacked_data'][$key]['gradient_type']	= $_POST[$prefix.'_stacked_'.strval($key).'_gradient_type'];
 									$datasets[$plot_name]['settings']['stacked_data'][$key]['x_axis']			= $_POST[$prefix.'_stacked_'.strval($key).'_x_axis'];
 									$datasets[$plot_name]['settings']['stacked_data'][$key]['y_axis']			= $_POST[$prefix.'_stacked_'.strval($key).'_y_axis'];
@@ -774,7 +773,6 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 							$datasets[$plot_name]['settings']['stacked_data'][$key]['datasource']		= $_POST[$prefix.'_stacked_'.strval($key).'_datasource']['assetid'];
 							$datasets[$plot_name]['settings']['stacked_data'][$key]['colour_1']		= $_POST[$prefix.'_stacked_'.strval($key).'_gradient_colour_1'];
 							$datasets[$plot_name]['settings']['stacked_data'][$key]['colour_2']		= $_POST[$prefix.'_stacked_'.strval($key).'_gradient_colour_2'];
-							$datasets[$plot_name]['settings']['stacked_data'][$key]['line_colour']		= $_POST[$prefix.'_stacked_'.strval($key).'_line_colour'];
 							$datasets[$plot_name]['settings']['stacked_data'][$key]['gradient_type']	= $_POST[$prefix.'_stacked_'.strval($key).'_gradient_type'];
 
 							$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_stacked_'.strval($key).'_datasource']['assetid']);
