@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.14 2006/06/21 04:11:41 skim Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.14.2.1 2007/01/04 03:34:59 bcaldwell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -635,7 +635,6 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 										<?php combo_box($prefix.'_stacked_'.strval($key).'_gradient_type', $this->fill_grad_types, FALSE, $stack_data['gradient_type']); ?><br />
 										<?php colour_box($prefix.'_stacked_'.strval($key).'_gradient_colour_2', $stack_data['colour_1']); ?>Gradient Colour 1<br />
 										<?php colour_box($prefix.'_stacked_'.strval($key).'_gradient_colour_1', $stack_data['colour_2']); ?>Gradient Colour 2<br />
-										<?php colour_box($prefix.'_stacked_'.strval($key).'_line_colour', $stack_data['line_colour']); ?>Line Colour
 									</td>
 									<td>
 									<?php
@@ -660,7 +659,6 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 								<?php combo_box($prefix.'_stacked_'.strval($key).'_gradient_type', $this->fill_grad_types, FALSE, 'none'); ?><br />
 								<?php colour_box($prefix.'_stacked_'.strval($key).'_gradient_colour_1', '000000'); ?>Gradient Colour 1<br />
 								<?php colour_box($prefix.'_stacked_'.strval($key).'_gradient_colour_2', '000000'); ?>Gradient Colour 2<br />
-								<?php colour_box($prefix.'_stacked_'.strval($key).'_line_colour', '000000'); ?>Line Colour
 							</td>
 							<td></td>
 						</tr>
