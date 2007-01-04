@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.531.2.2 2007/01/02 00:15:10 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.531.2.3 2007/01/04 03:38:15 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.531.2.2 $
+* @version $Revision: 1.531.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3340,6 +3340,7 @@ class Asset_Manager extends MySource_Object
 	*															1	=> FALSE,
 	*														   ),
 	*										)
+	* @param boolean	$include_dependants	Whether to include dependants
 	*
 	* @return boolean
 	* @access private
@@ -5082,7 +5083,7 @@ class Asset_Manager extends MySource_Object
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 			if ($link['link_type'] == SQ_LINK_NOTICE) {
 				// to delete a notice link we need effective write access to the major asset
-				if (!($major->writeAccess() && $major->accessEffective())) {
+				if (!($major->writeAccess() && $major->accessEffective()) && empty($GLOBALS['SQ_PURGING_TRASH'])) {
 					trigger_localised_error('SYS0319', E_USER_WARNING, $linkid, $major->id, $major->name);
 					return FALSE;
 				}
