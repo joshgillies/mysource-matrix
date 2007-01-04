@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll_management.inc,v 1.6 2006/12/07 00:04:22 emcdonald Exp $
+* $Id: page_poll_management.inc,v 1.6.2.1 2007/01/04 02:50:35 rhoward Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -52,9 +52,12 @@ class Page_Poll_Management extends Asset_Management
 														'default'	=> 'Vote',
 													   ),
 						'allow_multiple_votes'		=> Array(
-														'added'		=> '0.2',
-														'type'		=> 'boolean',
-														'default'	=> FALSE,
+														'added'			=> '0.2',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
 													   ),
 						'previous_questions_text'	=> Array(
 														'added'		=> '0.2',
