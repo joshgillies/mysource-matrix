@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.239 2006/12/05 05:26:35 bcaldwell Exp $
+* $Id: asset_map.inc,v 1.239.2.1 2007/01/04 00:02:15 emcdonald Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.239 $
+* @version $Revision: 1.239.2.1 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -304,7 +304,7 @@ class Asset_Map
 
 							if ($asset_lineage[$i] == 1) continue;
 							$assetids .= $asset_lineage[$i].'|';
-							$sort_orders .= '1|';
+							$sort_orders .= '-1|';
 						}//end for
 
 						$assetids = trim($assetids, '|');
