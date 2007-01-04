@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.103 2006/12/12 22:39:31 skim Exp $
+* $Id: page_asset_builder.inc,v 1.104 2007/01/04 22:30:10 hnguyen Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -918,6 +918,19 @@ class Page_Asset_Builder extends Page
 		foreach ($this->attr('create_location_optional') as $name => $data) {
 			$code_name = $this->_sanitiseLocationSetName($name);
 			$options = $data['locations'];
+			if (!$this->attr('allow_public_user')) {
+				$remaining_options = Array();
+				$user_groups = $GLOBALS['SQ_SYSTEM']->user->getUserGroups();
+				$user_groups[] = $GLOBALS['SQ_SYSTEM']->user->id;
+				$user_groups[] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+				foreach ($options as $key => $value) {
+					$allowed_user_groups = $GLOBALS['SQ_SYSTEM']->am->getPermission($key,SQ_PERMISSION_WRITE,TRUE);
+					if (array_intersect($user_groups,$allowed_user_groups)) {
+						$remaining_options[$key] = $value;
+					}
+				}
+				$options =& $remaining_options;
+			}
 			ob_start();
 				switch ($data['input_style']) {
 
@@ -988,7 +1001,7 @@ class Page_Asset_Builder extends Page
 			}
 			$types = array_keys($types);
 			ob_start();
-				structured_drop_down($code_name, $data['root'], $types, Array(), 0, $data['allow_multiple'] ? 5 : 1, $data['depth'], $data['allow_multiple'], '-', FALSE, '', $data['input_style'] == 'radio', Array(), $data['display_structured'], array_keys($data['filter_link_type']), $data['allow_empty']);
+				structured_drop_down($code_name, $data['root'], $types, Array(), 0, $data['allow_multiple'] ? 5 : 1, $data['depth'], $data['allow_multiple'], '-', FALSE, '', $data['input_style'] == 'radio', Array(), $data['display_structured'], array_keys($data['filter_link_type']), $data['allow_empty'], $this->attr('allow_public_user') ? NULL : SQ_PERMISSION_WRITE);
 				$this->_replacements[$code_name.'_field'] = ob_get_contents();
 			ob_end_clean();
 		}//end foreach
