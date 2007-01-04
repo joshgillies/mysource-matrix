@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.16.2.1 2006/09/25 07:14:57 colivar Exp $
+* $Id: page_poll.inc,v 1.16.2.2 2007/01/04 02:52:56 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.16.2.1 $
+* @version $Revision: 1.16.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -250,7 +250,7 @@ class Page_Poll extends Page
 
 		// if the poll was just voted on...
 		if (isset($_POST['option_id'])) {
-			// save the results
+			// save the results (if applicable), then show the results screen
 			if ($can_vote) {
 				// tie any vote processing to the subsequent printing of results
 				// (due to possible slow DB replication issues) using db2
@@ -263,17 +263,21 @@ class Page_Poll extends Page
 		} else {
 
 			// if accessing the results screen by ID of View Results, or cannot vote
-			if (array_get_index($_GET, 'SQ_ACTION') == $prefix.'_results') {
-				$format_type = 'results_format';
-				$keyword_reps = $this->_getResultsFormatKeywordReplacements($question);
-			} else if (array_get_index($_GET, 'SQ_ACTION') == $prefix.'_past_polls' ) {
+			if (array_get_index($_GET, 'SQ_ACTION') == $prefix.'_past_polls') {
 				$format_type = 'past_questions_format';
 				$keyword_reps = $this->_getPastQuestionFormatKeywordReplacements($question, $active_question_id);
-			} else if ($can_vote) {
-				// set the question to vote on to the active question
-				$question = $active_question;
-				$format_type = 'question_format';
-				$keyword_reps = $this->_getQuestionFormatKeywordReplacements($question);
+			} else {
+				// if can vote, but we're not specifically asking for the results screen
+				if ($can_vote && array_get_index($_GET, 'SQ_ACTION') != $prefix.'_results') {
+					// set the question to vote on to the active question
+					$question     = $active_question;
+					$format_type  = 'question_format';
+					$keyword_reps = $this->_getQuestionFormatKeywordReplacements($question);
+				} else {
+					// print the results screen
+					$format_type = 'results_format';
+					$keyword_reps = $this->_getResultsFormatKeywordReplacements($question);
+				}
 			}
 
 		}//end if ($_POST['option_id'])

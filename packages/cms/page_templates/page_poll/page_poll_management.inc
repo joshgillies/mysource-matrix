@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll_management.inc,v 1.5 2006/01/20 03:05:14 sdanis Exp $
+* $Id: page_poll_management.inc,v 1.5.4.1 2007/01/04 02:52:56 rhoward Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -53,9 +53,12 @@ class Page_Poll_Management extends Asset_Management
 														'default'	=> 'Vote',
 													   ),
 						'allow_multiple_votes'		=> Array(
-														'added'		=> '0.2',
-														'type'		=> 'boolean',
-														'default'	=> FALSE,
+														'added'			=> '0.2',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
 													   ),
 						'previous_questions_text'	=> Array(
 														'added'		=> '0.2',
