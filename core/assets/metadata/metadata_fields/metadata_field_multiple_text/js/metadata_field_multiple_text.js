@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_multiple_text.js,v 1.1 2006/12/28 01:48:14 lwright Exp $
+* $Id: metadata_field_multiple_text.js,v 1.2 2007/01/04 02:50:45 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ function setInputsEnabled(parent, enabled)
 	}
 }
 
-function handleDefaultClick(defaultCheckbox, prefix, default_vals)
+function handleDefaultClickMT(defaultCheckbox, prefix, default_vals)
 {
 	var inputs = document.getElementById(prefix+'_field').getElementsByTagName('INPUT');
 
@@ -37,6 +37,13 @@ function handleDefaultClick(defaultCheckbox, prefix, default_vals)
 			}
 
 			inputs[i].value = default_vals[i];
+		}
+
+		// Ooh, this is interesting. :-D What this part does is start from
+		// whatever index we left off from (because we ran out of default values)
+		// and replace them with blanks
+		for (; i < inputs.length; i++) {
+			inputs[i].value = '';
 		}
 	}
 	setInputsEnabled(document.getElementById(prefix+'_field'), !defaultCheckbox.checked);
