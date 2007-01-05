@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg_plugin.inc,v 1.18 2006/12/06 05:11:07 bcaldwell Exp $
+* $Id: wysiwyg_plugin.inc,v 1.18.2.1 2007/01/05 06:22:12 hnguyen Exp $
 *
 */
 require_once dirname(__FILE__).'/../../core/include/init.inc';
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../core/include/init.inc';
 *     of wysiwyg.inc
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -384,6 +384,22 @@ class wysiwyg_plugin
 		return $classname.'/'.$filename;
 
 	}//end get_popup_href()
+
+
+	/**
+ 	* Check whether this plugin is ready to be used.
+ 	*
+ 	* Return a TRUE if ok or a error message.
+ 	*
+ 	* @return mixed boolean|string
+ 	* @access public
+ 	* @static
+	*/
+	function check_usable()
+	{
+		return TRUE;
+
+	}//end check_usable()
 
 
 }//end class
