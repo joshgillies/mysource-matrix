@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.18 2006/12/05 05:48:39 emcdonald Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.18.2.1 2007/01/05 06:21:12 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -192,13 +192,21 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				if (!empty($all_plugins)) {
 					hidden_field('prefs[SQ_WYSIWYG_PLUGINS_PRESENT]', '1');
 				}
+				global $ROOT_PATH;
+				$ROOT_PATH = SQ_FUDGE_PATH.'/wysiwyg/';
 				foreach ($all_plugins as $plugin_name) {
 					$plugin_path = SQ_FUDGE_PATH.'/wysiwyg/plugins/'.$plugin_name;
 					if (!is_file($plugin_path.'/'.$plugin_name.'.inc')) {
 						continue;
 					}
-					check_box('prefs[SQ_WYSIWYG_PLUGINS]['.$plugin_name.']', '1', ($all || in_array($plugin_name, $plugins)));
-					echo '&nbsp;'.ucwords(str_replace('_', ' ', $plugin_name)).'<br/>';
+					include $plugin_path.'/'.$plugin_name.'.inc';
+					$check_result = call_user_func(Array($plugin_name, 'check_usable'));
+					$extra = ($check_result === TRUE) ? '' : 'disabled="disabled"';
+					check_box('prefs[SQ_WYSIWYG_PLUGINS]['.$plugin_name.']', '1', ($all || in_array($plugin_name, $plugins)),'',$extra);
+					echo '&nbsp;'.ucwords(str_replace('_', ' ', $plugin_name));
+					if ($check_result !== TRUE) {
+						echo ' <i>('.$check_result.')</i>';					}
+					echo '<br/>';					
 				}
 			} else {
 				if ($all) {
