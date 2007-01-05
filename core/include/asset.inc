@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.579 2006/12/12 22:05:36 rhoward Exp $
+* $Id: asset.inc,v 1.580 2007/01/05 00:15:43 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.579 $
+* @version $Revision: 1.580 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -226,6 +226,7 @@ class Asset extends MySource_Object
 			trigger_localised_error('CORE0268', E_USER_WARNING, $this->type());
 			return;
 		}
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -326,28 +327,21 @@ class Asset extends MySource_Object
 		$this->status_changed        = $now;
 		$this->status_changed_userid = $userid;
 
-		// log what happened
+		// Get ready to log what happens
 		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openLog();
 
-		// do this so that all calls to getAsset() get a reference to us, and don't load a new instance from the DB
+		// Register ourselves with asset mgr so getAsset doesn't load a us again from the DB
 		$GLOBALS['SQ_SYSTEM']->am->rememberAsset($this);
 
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
-			// OK, what we need to do here is set write access for this asset to the current user
-			// so that they can actually do anything
-			// NOW normally this would require admin access but this is a very special case
-			$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
-
-			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
-					return $this->_abortCreate($trigger_level_changed);
-				}
+		// Acquire permissions lock on ourselves so permissions can be cascaded
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
+				return $this->_abortCreate($trigger_level_changed);
 			}
-
-			unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 		}
 
+		// Send a message to tell everyone the good news
 		$message_body = 'New '.$this->type().' "'.$this->name.'" created';
 		$msg_reps = Array(
 						'type_code'		=> $this->type(),
@@ -357,11 +351,10 @@ class Asset extends MySource_Object
 		$message->parameters['assetid'] = $this->id;
 		$message->send();
 
-		// set the attribute values that have been stored temporarily
+		// Save the attribute values that have been stored temporarily
 		$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
 		$ok = $this->saveAttributes(TRUE);
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-
 		if (!$ok) {
 			return $this->_abortCreate($trigger_level_changed);
 		}
@@ -369,7 +362,6 @@ class Asset extends MySource_Object
 		$this->_loadVars();
 
 		if (!empty($link)) {
-			// create the initial link
 			if (!isset($link['value'])) $link['value'] = '';
 			if (!isset($link['sort_order'])) {
 				$link['sort_order'] = -1;
@@ -382,14 +374,17 @@ class Asset extends MySource_Object
 			}
 
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-				$lock_info = @$GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'links');
-				$parent_was_locked = !empty($lock_info);
-				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id, 'links')) {
+				// Acquire the links lock on the new parent
+				$lock_result = $GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id, 'links');
+				if (!$lock_result) {
 					return $this->_abortCreate($trigger_level_changed);
 				}
+				$parent_was_locked = ($lock_result == 2);
 
-				// if we are creating a dependant link, we need to make sure this new
-				// asset is locked in the same chain as the parent (ie, has the same source_assetid)
+				// Acquire links lock on ourselves
+				// If we are creating a dependant link, we need to make sure this new
+				// asset is locked in the same chain as the parent
+				// (ie. has the same source_assetid)
 				$source_assetid = 0;
 				if ($link['is_dependant']) {
 					$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'links');
@@ -400,40 +395,46 @@ class Asset extends MySource_Object
 				}
 			}
 
-			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
-			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['is_dependant'], $link['is_exclusive']);
-			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-
-			// get the link so we can find out if it was dependant (cant rely on the info passed in
-			// because other assets may have changed what happens in createLink)
-			$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id, 'minor');
-
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
-				// cascade permissions, and schemas on this asset that the parent
-				// has if the parent is not the root folder or the system management folder
+				// Cascade various components from parent asset to new child
+				// unless the parent is the root folder or system management folder
 				$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
-
 				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
-				if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow', 'content_tags', 'roles'))) {
-					return $this->_abortCreate($trigger_level_changed);
-				}
+
+					if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow', 'content_tags', 'roles'))) {
+						return $this->_abortCreate($trigger_level_changed);
+					}
+
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 			}
 
+			// Create the link to the parent asset
+			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['is_dependant'], $link['is_exclusive']);
+			if (!$linkid) {
+				if (!$parent_was_locked) {
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id, 'links');
+				}
+				return $this->_abortCreate($trigger_level_changed);
+			}
+
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+
 				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
 					return $this->_abortCreate($trigger_level_changed);
 				}
 
-				// release locks depending on if the parent was locked before we were created
+				// Get the link so we can find out if it was dependent
+				// (link details may have changed during createLink)
+				$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id, 'minor');
+
+				// Release locks, unless the parent was locked before we were created
 				if (!$parent_was_locked) {
-					// parent was not locked, so unlock both the parent and us
 					if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id, 'links')) {
 						return $this->_abortCreate($trigger_level_changed);
 					}
 				} else if ($new_link['is_dependant']) {
-					// the parent was locked before we created this asset and the new asset
+					// The parent was locked before we created this asset and the new asset
 					// is dependantly linked, so make sure we have all the locks of our parent
 					$parent_lock_info = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'all');
 					foreach (array_values($parent_lock_info) as $lock_details) {
@@ -443,33 +444,29 @@ class Asset extends MySource_Object
 						}
 					}
 				}
-
 				if (!$new_link['is_dependant']) {
 					if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'links')) {
 						return $this->_abortCreate($trigger_level_changed);
 					}
 				}
-			}
 
-			if (!$linkid) {
-				return $this->_abortCreate($trigger_level_changed);
-			}
+			}//end if locking subsystem enabled
 
 		}//end if creating link
 
-		// re-enable the triggers, if they were disabled here
+		// Re-enable the triggers, if they were disabled here
 		if ($trigger_level_changed) {
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
 
-		// before firing the "Before Asset Created" event, turn off locking checks
+		// Before firing the "Before Asset Created" event, turn off locking checks
 		$modified_runlevel = FALSE;
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() - SQ_SECURITY_LOCKING);
 			$modified_runlevel = TRUE;
 		}
 
-		// fire the event, abort if the event fails
+		// Fire the event, abort if the event fails
 		$event_result = $GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_before_asset_created', $this);
 
 		if ($modified_runlevel) {
@@ -480,7 +477,7 @@ class Asset extends MySource_Object
 
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
-			// perform any additional processing during the create - such as creating other assets
+			// Perform any additional processing required, such as creating other assets
 			if (!$this->_createAdditional($link)) {
 				return $this->_abortCreate();
 			}
@@ -613,6 +610,7 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
 		unset($this->_tmp['__creating__']);
+		@$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'all');
 		$this->id = 0;
 		return FALSE;
 
@@ -3904,14 +3902,18 @@ class Asset extends MySource_Object
 			$this->_tmp['valid_protocols'] = Array();
 			if (is_array($res)) {
 				foreach ($res as $protocol => $valid) {
-					if ($this->force_secure && ($protocol == 'http')) continue;
-					if ($valid) $this->_tmp['valid_protocols'][] = $protocol;
+					if ($this->force_secure && ($protocol == 'http')) {
+						continue;
+					}
+					if ($valid) {
+						$this->_tmp['valid_protocols'][] = $protocol;
+					}
 				}
 			}
 		}
 		return $this->_tmp['valid_protocols'];
 
-	}//end _needProtocolChange()
+	}//end getValidProtocols()
 
 
 	/**
