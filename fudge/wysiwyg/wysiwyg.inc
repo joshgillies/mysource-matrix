@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.67 2006/12/06 05:11:07 bcaldwell Exp $
+* $Id: wysiwyg.inc,v 1.68 2007/01/05 05:05:32 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -56,7 +56,7 @@ class wysiwyg
 	* @var string
 	* @see paint(), set_init_onload()
 	*/
-	var $init_onload  = true;
+	var $init_onload  = TRUE;
 
 
 	/**
@@ -65,7 +65,7 @@ class wysiwyg
 	* @var boolean
 	* @see print_config(), set_show_status_bar()
 	*/
-	var $show_status_bar = true;
+	var $show_status_bar = TRUE;
 
 	/**
 	* The relative path for web accessable files
@@ -153,7 +153,7 @@ class wysiwyg
 	* @var boolean
 	* @see open_group(), close_group(), add_plugin()
 	*/
-	var $_group_open = false;
+	var $_group_open = FALSE;
 
 	/**
 	* Has this WYSIWYG printed its header info yet?
@@ -163,7 +163,7 @@ class wysiwyg
 	* @var boolean
 	* @see paint()
 	*/
-	var $init = false;
+	var $init = FALSE;
 
 
 	/**
@@ -242,7 +242,9 @@ class wysiwyg
 
 					var toolbar = document.createElement("div");
 					<?php
-					if ($this->width != 'auto') echo 'toolbar.style.width = "'.$this->width.'";';
+					if ($this->width != 'auto') {
+						echo 'toolbar.style.width = "'.$this->width.'";';
+					}
 					?>
 					var innerToolbar = document.createElement("div");
 
@@ -1046,7 +1048,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 					return html;
 				};
 
-				// We want to replace actual entities in the html(like ©) with
+				// We want to replace actual entities in the html(like ï¿½) with
 				// Their correct &bla; representations
 				HTMLArea.prototype.replace_entities = function(html_code) {
 return html_code;
@@ -1299,8 +1301,8 @@ return html_code;
 				@import url("<?php echo $this->web_path?>core/htmlarea.css");
 			</style>
 			<?php
-			$WYSIWYG_INIT = true;
-		}
+			$WYSIWYG_INIT = TRUE;
+		}//end if
 		?>
 
 			<?php $this->print_plugin_functions()?>
@@ -1345,7 +1347,7 @@ return html_code;
 		// replace out special form tags back with real form tags
 		$html = preg_replace('|<HTMLAREA_FORM ([^>]*?)>(.*?)</HTMLAREA_FORM>|is', '<FORM \\1>\\2</FORM>', $html);
 
-		for (reset($this->_loaded_plugins); null !== ($k = key($this->_loaded_plugins)); next($this->_loaded_plugins)) {
+		for (reset($this->_loaded_plugins); NULL !== ($k = key($this->_loaded_plugins)); next($this->_loaded_plugins)) {
 			$plugin =& $this->_loaded_plugins[$k];
 			$plugin->process($html);
 		}
@@ -1419,8 +1421,8 @@ return html_code;
 								foreach ($this->_plugins as $plugin_group) {
 									if (!empty($plugin_group)) {
 										$pre_group_output = $output;
-										$output .= "[ ";
-										$printed_buttons = false;
+										$output .= '[ ';
+										$printed_buttons = FALSE;
 										foreach ($plugin_group as $name) {
 											$plugin = $this->_loaded_plugins[$name];
 											foreach ($plugin->buttons as $id => $button) {
@@ -1430,12 +1432,15 @@ return html_code;
 												}
 												if (isset($button['menu_start'])) $output .= '[ ';
 												if ($id) $output .= '["'.$id.'"], ';
-												$printed_buttons = true;
+												$printed_buttons = TRUE;
 											}
 											unset($plugin);
 										}
-										if ($printed_buttons) $output .= '["separator"] ],'."\n\t\t\t\t\t\t\t";
-										else $output = $pre_group_output;
+										if ($printed_buttons) {
+											$output .= '["separator"] ],'."\n\t\t\t\t\t\t\t";
+										} else {
+											$output = $pre_group_output;
+										}//end else
 									}
 								}
 								$output = trim($output,"\t\n,");
@@ -1482,7 +1487,9 @@ return html_code;
 	*/
 	function print_plugin_vars()
 	{
-		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_vars();
+		foreach ($this->_loaded_plugins as $name => $plugin) {
+			$plugin->print_plugin_vars();
+		}
 
 	}//end print_plugin_vars()
 
@@ -1495,7 +1502,9 @@ return html_code;
 	*/
 	function print_plugin_shortcuts()
 	{
-		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_shortcuts();
+		foreach ($this->_loaded_plugins as $name => $plugin) {
+			$plugin->print_plugin_shortcuts();
+		}
 
 	}//end print_plugin_shortcuts()
 
@@ -1508,7 +1517,9 @@ return html_code;
 	*/
 	function print_plugin_create_select()
 	{
-		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_create_select();
+		foreach ($this->_loaded_plugins as $name => $plugin) {
+			$plugin->print_plugin_create_select();
+		}
 
 	}//end print_plugin_create_select()
 
@@ -1521,7 +1532,9 @@ return html_code;
 	*/
 	function print_plugin_functions()
 	{
-		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->paint();
+		foreach ($this->_loaded_plugins as $name => $plugin) {
+			$plugin->paint();
+		}
 
 	}//end print_plugin_functions()
 
@@ -1534,7 +1547,9 @@ return html_code;
 	*/
 	function print_plugin_generic_functions()
 	{
-		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->paint_generic();
+		foreach ($this->_loaded_plugins as $name => $plugin) {
+			$plugin->paint_generic();
+		}
 
 	}//end print_plugin_generic_functions()
 
@@ -1547,7 +1562,9 @@ return html_code;
 	*/
 	function print_plugin_button_clicks()
 	{
-		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_button_click();
+		foreach ($this->_loaded_plugins as $name => $plugin) {
+			$plugin->print_plugin_button_click();
+		}
 
 	}//end print_plugin_button_clicks()
 
@@ -1560,7 +1577,9 @@ return html_code;
 	*/
 	function print_plugin_combo_selected()
 	{
-		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_combo_selected();
+		foreach ($this->_loaded_plugins as $name => $plugin) {
+			$plugin->print_plugin_combo_selected();
+		}
 
 	}//end print_plugin_combo_selected()
 
@@ -1573,7 +1592,9 @@ return html_code;
 	*/
 	function print_plugin_button_type()
 	{
-		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_button_type();
+		foreach ($this->_loaded_plugins as $name => $plugin) {
+			$plugin->print_plugin_button_type();
+		}
 
 	}//end print_plugin_button_type()
 
@@ -1586,7 +1607,9 @@ return html_code;
 	*/
 	function print_plugin_update_toolbar()
 	{
-		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_update_toolbar();
+		foreach ($this->_loaded_plugins as $name => $plugin) {
+			$plugin->print_plugin_update_toolbar();
+		}
 
 	}//end print_plugin_update_toolbar()
 
@@ -1599,12 +1622,14 @@ return html_code;
 	*/
 	function print_plugin_exec_commands()
 	{
-		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_exec_command();
+		foreach ($this->_loaded_plugins as $name => $plugin) {
+			$plugin->print_plugin_exec_command();
+		}
 
 	}//end print_plugin_exec_commands()
 
 
-/**
+	/**
 	* Prints any JS the plugin wants executed on before getHTML gets the contents
 	*
 	* @return void
@@ -1612,9 +1637,12 @@ return html_code;
 	*/
 	function print_plugin_pre_get_html()
 	{
-		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_pre_get_html();
+		foreach ($this->_loaded_plugins as $name => $plugin) {
+			$plugin->print_plugin_pre_get_html();
+		}
 
 	}//end print_plugin_pre_get_html()
+
 
 	/**
 	* Prints any JS the plugin wants executed on returned HTML from getHTML
@@ -1624,7 +1652,9 @@ return html_code;
 	*/
 	function print_plugin_get_html()
 	{
-		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_get_html();
+		foreach ($this->_loaded_plugins as $name => $plugin) {
+			$plugin->print_plugin_get_html();
+		}
 
 	}//end print_plugin_get_html()
 
@@ -1637,7 +1667,9 @@ return html_code;
 	*/
 	function print_plugin_form_submit()
 	{
-		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_form_submit();
+		foreach ($this->_loaded_plugins as $name => $plugin) {
+			$plugin->print_plugin_form_submit();
+		}
 
 	}//end print_plugin_form_submit()
 
@@ -1650,7 +1682,9 @@ return html_code;
 	*/
 	function print_plugin_event_handlers()
 	{
-		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_event_handler();
+		foreach ($this->_loaded_plugins as $name => $plugin) {
+			$plugin->print_plugin_event_handler();
+		}
 
 	}//end print_plugin_event_handlers()
 
@@ -1663,7 +1697,7 @@ return html_code;
 	* plugin will be added to a new group, otherwise they will join the
 	* currently open one.
 	*
-	* @param string $name   The unique name of this plugin
+	* @param string	$name	The unique name of this plugin
 	*
 	* @return boolean
 	* @access public
@@ -1677,17 +1711,17 @@ return html_code;
 			$this->_loaded_plugins[$name] = new $name($this);
 		}
 
-		$own_group = false;
+		$own_group = FALSE;
 		if ($this->_loaded_plugins[$name]->_show_in_toolbar && !$this->_group_open) {
-			if (!$this->open_group()) return false;
-			$own_group = true;
+			if (!$this->open_group()) return FALSE;
+			$own_group = TRUE;
 		}
 
 		$groupid = count($this->_plugins) - 1;
 		$this->_plugins[$groupid][] = $name;
 
 		if ($own_group) return $this->close_group();
-		return true;
+		return TRUE;
 
 	}//end add_plugin()
 
@@ -1701,8 +1735,8 @@ return html_code;
 	*/
 	function open_group()
 	{
-		if ($this->_group_open) return false;
-		$this->_group_open = true;
+		if ($this->_group_open) return FALSE;
+		$this->_group_open = TRUE;
 		$new_group = Array();
 		return array_push($this->_plugins, $new_group);
 
@@ -1718,9 +1752,9 @@ return html_code;
 	*/
 	function close_group()
 	{
-		if (!$this->_group_open) return false;
-		$this->_group_open = false;
-		return true;
+		if (!$this->_group_open) return FALSE;
+		$this->_group_open = FALSE;
+		return TRUE;
 
 	}//end close_group()
 
@@ -1728,7 +1762,7 @@ return html_code;
 	/**
 	* Checks if a plugin has been loaded into the editor
 	*
-	* @param string $name   The unique name of the plugin
+	* @param string	$name	The unique name of the plugin
 	*
 	* @return boolean
 	* @access public
@@ -1744,9 +1778,9 @@ return html_code;
 	/**
 	* Get a reference to a plugin object
 	*
-	* @param string $name   The unique name of the plugin to get
+	* @param string	$name	The unique name of the plugin to get
 	*
-	* @return object | NULL
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &get_plugin($name)
@@ -1763,7 +1797,7 @@ return html_code;
 	/**
 	* Sets the body type of the WYSIWYG editor (iframe or div)
 	*
-	* @param string $type   The body type used to print/scale
+	* @param string	$type	The body type used to print/scale
 	*
 	* @return void
 	* @access public
@@ -1778,12 +1812,12 @@ return html_code;
 	/**
 	* Sets weather the WYSIWYG initilises itself onLoad for the window
 	*
-	* @param boolean    $init   Init or not
+	* @param boolean	$init	Init or not
 	*
 	* @return void
 	* @access public
 	*/
-	function set_init_onload($init=true)
+	function set_init_onload($init=TRUE)
 	{
 		$this->init_onload = (bool) $init;
 
@@ -1793,12 +1827,12 @@ return html_code;
 	/**
 	* Sets weather we should show the status bar or not
 	*
-	* @param boolean    $show   Show or not
+	* @param boolean	$show	Show or not
 	*
 	* @return void
 	* @access public
 	*/
-	function set_show_status_bar($show=true)
+	function set_show_status_bar($show=TRUE)
 	{
 		$this->show_status_bar = (bool)$show;
 
@@ -1808,17 +1842,14 @@ return html_code;
 	/**
 	* Sets the width of the WYSIWYG editor
 	*
-	* @param string $width  The width of the editor
+	* @param string	$width	The width of the editor
 	*
 	* @return void
 	* @access public
 	*/
 	function set_width($width='auto')
 	{
-		if (is_numeric($width)) {
-			$width .= 'px';
-		}
-
+		if (is_numeric($width))	$width .= 'px';
 		$this->width = $width;
 
 	}//end set_width()
@@ -1827,17 +1858,14 @@ return html_code;
 	/**
 	* Sets the height of the WYSIWYG editor
 	*
-	* @param string $height The height of the editor
+	* @param string	$height	The height of the editor
 	*
 	* @return void
 	* @access public
 	*/
 	function set_height($height='auto')
 	{
-		if (is_numeric($height)) {
-			$height .= 'px';
-		}
-
+		if (is_numeric($height)) $height .= 'px';
 		$this->height = $height;
 
 	}//end set_height()
@@ -1847,7 +1875,7 @@ return html_code;
 	* Sets extra HTML you want in the TEXTAREA tag
 	* Usually would be used to set width and height
 	*
-	* @param string $extras The extra HTML
+	* @param string	$extras	The extra HTML
 	*
 	* @return void
 	* @access public
@@ -1862,14 +1890,16 @@ return html_code;
 	/**
 	* Sets the initial contents of the WYSIWYG editor
 	*
-	* @param string $contents   Some HTML content
+	* @param string	$contents	Some HTML content
 	*
 	* @return void
 	* @access public
 	*/
 	function set_contents($contents)
 	{
-		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->set_contents($contents);
+		foreach ($this->_loaded_plugins as $name => $plugin) {
+			$plugin->set_contents($contents);
+		}
 
 		// replace form tags in the HTML with special form tags that will not cuase JS errors
 		// due to nested forms on the page
@@ -1882,7 +1912,7 @@ return html_code;
 	/**
 	* Sets the stylesheet for the WYSIWYG editor to use
 	*
-	* @param string $stylesheet The href of the stylesheet
+	* @param string	$stylesheet	The href of the stylesheet
 	*
 	* @return void
 	* @access public
@@ -1897,8 +1927,8 @@ return html_code;
 	/**
 	* Add a relative HREF check to the editor
 	*
-	* @param string $find       the pattern to match the absolute URL
-	* @param string $replace    the replacement to make the relative HREF
+	* @param string	$find		the pattern to match the absolute URL
+	* @param string	$replace	the replacement to make the relative HREF
 	*
 	* @return void
 	* @access public
@@ -1915,8 +1945,8 @@ return html_code;
 	/**
 	* Add an absolute URL check to the editor
 	*
-	* @param string $find       the pattern to match the relative HREF
-	* @param string $replace    the replacement to make the absolute URL
+	* @param string	$find		the pattern to match the relative HREF
+	* @param string	$replace	the replacement to make the absolute URL
 	*
 	* @return void
 	* @access public

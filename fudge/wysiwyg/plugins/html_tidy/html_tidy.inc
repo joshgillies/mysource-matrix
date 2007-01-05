@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.45 2006/12/06 05:11:09 bcaldwell Exp $
+* $Id: html_tidy.inc,v 1.46 2007/01/05 05:05:34 hnguyen Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -83,9 +83,11 @@ class HTML_Tidy extends Wysiwyg_Plugin
 	*/
 	function new_inline_tag($tag_name)
 	{
-		if (in_array($tag_name, $this->_new_inline_tags)) return true;
+		if (in_array($tag_name, $this->_new_inline_tags)) {
+			return TRUE;
+		}
 		$this->_new_inline_tags[] = $tag_name;
-		return true;
+		return TRUE;
 
 	}//end new_inline_tag()
 
@@ -113,8 +115,8 @@ class HTML_Tidy extends Wysiwyg_Plugin
 
 			// Remove the following unsupported character codes that do not get replaced
 			// back to their original characters through the encoding process (mostly MS Word chars)
-			$search  = Array("%u2018",  "%u2019",  "%u2013",  "%u2014",  "%u2026",   "%u201C",  "%u201D");
-			$replace = Array("&lsquo;", "&rsquo;", "&ndash;", "&mdash;", "&hellip;", "&ldquo;", "&rdquo;");
+			$search  = Array('%u2018',  '%u2019',  '%u2013',  '%u2014',  '%u2026',   '%u201C',  '%u201D');
+			$replace = Array('&lsquo;', '&rsquo;', '&ndash;', '&mdash;', '&hellip;', '&ldquo;', '&rdquo;');
 			$html = str_replace($search, $replace, $html);
 
 			// replace unicode's URL '%u' character entities with their HTML entity equivs
@@ -142,7 +144,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 			/////////////////
 
 			// If HTML Tidy is enabled, let's rock'n'roll
-			if (SQ_TOOL_HTML_TIDY_ENABLED && SQ_TOOL_HTML_TIDY_PATH != '') {
+			if ($this->check_usable() === TRUE) {
 				// tidy the HTML produced using the HTMLTidy program
 				$path_to_tidy = SQ_TOOL_HTML_TIDY_PATH;
 
@@ -153,11 +155,12 @@ class HTML_Tidy extends Wysiwyg_Plugin
 						require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
 						$tidy_char_set = array_get_index($standards_lists_tidy_char_sets, SQ_CONF_DEFAULT_CHARACTER_SET);
 
-						$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --quote-marks 1 --word-2000 1 --force-output 1 --char-encoding ".$tidy_char_set;
+						$command = '/bin/echo '.escapeshellarg($html).' | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --quote-marks 1 --word-2000 1 --force-output 1 --char-encoding '.$tidy_char_set;
 						// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
 						// so HTMLTidy doesnt strip them out
-						if (!empty($this->_new_inline_tags)) $command .= ' --new-inline-tags "'.implode('","',$this->_new_inline_tags).'"';
-
+						if (!empty($this->_new_inline_tags)) {
+							$command .= ' --new-inline-tags "'.implode('","',$this->_new_inline_tags).'"';
+						}
 						$tidy = Array();
 						exec($command, $tidy);
 						if (empty($tidy) || empty($tidy_char_set)) {
@@ -165,24 +168,24 @@ class HTML_Tidy extends Wysiwyg_Plugin
 						} else {
 							$html = implode("\n", $tidy);
 
-							//Change old style HTML Tags to XHTML compliant self closing tags (singletons)
+							// Change old style HTML Tags to XHTML compliant self closing tags (singletons)
 							$html = preg_replace('|<br>|is', '<br />', $html);
 							$html = preg_replace('|<hr>|is', '<hr />', $html);
 						}
 						unset($tidy);
 					}
 				}
-			}
-		}
+			}//end if
+		}//end else
 
-	}//end process
+	}//end process()
 
 
 	/**
 	* Open the HTML tidy dialog
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
 	function print_plugin_button_click()
 	{
@@ -299,6 +302,25 @@ class HTML_Tidy extends Wysiwyg_Plugin
 		<?php
 
 	}//end print_plugin_button_click()
+
+
+	/**
+ 	* Check whether this plugin is ready to be used.
+ 	*
+ 	* Return a TRUE if ok or a error message.
+ 	*
+	* @return mixed boolean|string
+	* @access public
+ 	* @static
+	*/
+	function check_usable()
+	{
+		if (SQ_TOOL_HTML_TIDY_ENABLED && SQ_TOOL_HTML_TIDY_PATH != '') {
+			return TRUE;
+		}
+		return translate('wysiwyg_htmltidy_status_disabled');
+
+	}//end check_usable()
 
 
 }//end class

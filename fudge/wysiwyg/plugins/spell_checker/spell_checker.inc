@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.inc,v 1.9 2006/12/06 05:11:11 bcaldwell Exp $
+* $Id: spell_checker.inc,v 1.10 2007/01/05 05:05:37 hnguyen Exp $
 *
 */
 
@@ -25,12 +25,13 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to allow the user to Check the spelling of the document
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package Fudge
 * @subpackage wysiwyg
 */
 class spell_checker extends wysiwyg_plugin
 {
+
 
 	/**
 	* Constructor
@@ -41,7 +42,9 @@ class spell_checker extends wysiwyg_plugin
 	function spell_checker(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('spellchecker','spellchecker','Check Spelling','false','54');
+		if (function_exists('pspell_suggest')) {
+			$this->_add_button('spellchecker','spellchecker','Check Spelling','false','54');
+		}
 
 	}//end constructor
 
@@ -49,16 +52,16 @@ class spell_checker extends wysiwyg_plugin
 	/**
 	* Adds a printable toolbar button to this plugin
 	*
-	* @param string $id			A unique ID for this button
-	* @param string $cmd		The command to run when the button is clicked
+	* @param string	$id			A unique ID for this button
+	* @param string	$cmd		The command to run when the button is clicked
 	*							This command will be used to switch on action of
 	*							a pressed button to determine the functionality
-	* @param string $tooltip	The tooltip for this button (appears on hover)
-	* @param string $textmode	Should this button be available in text mode?
+	* @param string	$tooltip	The tooltip for this button (appears on hover)
+	* @param string	$textmode	Should this button be available in text mode?
 	*							Value is either 'true' or 'false' (with quotes)
-	* @param string $position	The position of the button in the toolbar image
+	* @param string	$position	The position of the button in the toolbar image
 	*							This is zero indexed (first button is id zero)
-	* @param string $context	Enable this button if outside this element
+	* @param string	$context	Enable this button if outside this element
 	*
 	* @return void
 	* @access private
@@ -83,8 +86,8 @@ class spell_checker extends wysiwyg_plugin
 	* A URL must be entered for the image you want to insert. Alt text must
 	* also be entered before the image will be inserted.
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
 	function paint_generic()
 	{
@@ -126,8 +129,8 @@ class spell_checker extends wysiwyg_plugin
 	/**
 	* Call the insert image function when the button is clicked
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
 	function print_plugin_button_click()
 	{
@@ -139,6 +142,25 @@ class spell_checker extends wysiwyg_plugin
 		<?php
 
 	}//end print_plugin_button_click()
-}
+
+
+	/**
+	* Check whether this plugin is ready to be used.
+	*
+	* Return a TRUE if ok or a error message.
+	*
+	* @return mixed string|boolean
+	* @access public
+	* @static
+	*/
+	function check_usable()
+	{
+		if (function_exists('pspell_suggest')) return TRUE;
+		return translate('wysiwyg_pspell_not_installed');
+
+	}//end check_usable()
+
+
+}//end class
 
 ?>

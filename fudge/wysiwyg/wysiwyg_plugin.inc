@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg_plugin.inc,v 1.18 2006/12/06 05:11:07 bcaldwell Exp $
+* $Id: wysiwyg_plugin.inc,v 1.19 2007/01/05 05:05:33 hnguyen Exp $
 *
 */
 require_once dirname(__FILE__).'/../../core/include/init.inc';
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../core/include/init.inc';
 *     of wysiwyg.inc
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -45,14 +45,14 @@ class wysiwyg_plugin
 	*
 	* @var array
 	*/
-	var $_show_in_toolbar = true;
+	var $_show_in_toolbar = TRUE;
 
 	/**
 	* A reference to the WYSIWYG object that created this plugin
 	*
 	* @var object WYSIWYG
 	*/
-	var $wysiwyg = null;
+	var $wysiwyg = NULL;
 
 
 	/**
@@ -74,16 +74,16 @@ class wysiwyg_plugin
 	/**
 	* Adds a printable toolbar button to this plugin
 	*
-	* @param string $id			A unique ID for this button
-	* @param string $cmd		The command to run when the button is clicked
+	* @param string	$id			A unique ID for this button
+	* @param string	$cmd		The command to run when the button is clicked
 	*							This command will be used to switch on action of
 	*							a pressed button to determine the functionality
-	* @param string $tooltip	The tooltip for this button (appears on hover)
-	* @param string $textmode	Should this button be available in text mode?
+	* @param string	$tooltip	The tooltip for this button (appears on hover)
+	* @param string	$textmode	Should this button be available in text mode?
 	*							Value is either 'true' or 'false' (with quotes)
-	* @param string $position	The position of the button in the toolbar image
+	* @param string	$position	The position of the button in the toolbar image
 	*							This is zero indexed (first button is id zero)
-	* @param string $context	Enable this button if outside this element
+	* @param string	$context	Enable this button if outside this element
 	*
 	* @return void
 	* @access private
@@ -102,13 +102,13 @@ class wysiwyg_plugin
 	/**
 	* Opens a drop down menu to group buttons
 	*
-	* @param string $id			A unique ID for this menu
-	* @param string $tooltip	The tooltip for the menu button (appears on hover)
-	* @param string $textmode	Should this menu be available in text mode?
+	* @param string	$id			A unique ID for this menu
+	* @param string	$tooltip	The tooltip for the menu button (appears on hover)
+	* @param string	$textmode	Should this menu be available in text mode?
 	*							Value is either 'true' or 'false' (with quotes)
-	* @param string $position	The position of the menu button in the toolbar image
+	* @param string	$position	The position of the menu button in the toolbar image
 	*							This is zero indexed (first button is id zero)
-	* @param string $context	Enable this menu if outside this element
+	* @param string	$context	Enable this menu if outside this element
 	*
 	* @return void
 	* @access private
@@ -120,7 +120,7 @@ class wysiwyg_plugin
 		$this->buttons[$id]['textmode']   = $textmode;
 		$this->buttons[$id]['position']   = $position;
 		$this->buttons[$id]['context']    = $context;
-		$this->buttons[$id]['menu_start'] = true;
+		$this->buttons[$id]['menu_start'] = TRUE;
 
 	}//end _open_menu()
 
@@ -128,14 +128,14 @@ class wysiwyg_plugin
 	/**
 	* Closes an open menu of grouped buttons
 	*
-	* @param string $id			A unique ID of the menu
+	* @param string	$id	A unique ID of the menu
 	*
 	* @return void
 	* @access private
 	*/
 	function _close_menu($id)
 	{
-		$this->buttons['menu_end_'.$id]['menu_end'] = true;
+		$this->buttons['menu_end_'.$id]['menu_end'] = TRUE;
 
 	}//end _close_menu()
 
@@ -200,7 +200,7 @@ class wysiwyg_plugin
 	* Processes and returns the submitted HTML from the editor
 	* This allows plugins to modify the html as they see fit.
 	*
-	* @param string	&html	the HTML that was submitted by the editor
+	* @param string	&$html	the HTML that was submitted by the editor
 	*
 	* @return string
 	* @access public
@@ -375,6 +375,9 @@ class wysiwyg_plugin
 	* This value can be passed to the _popupDialog function of the
 	* WYSIWYG object
 	*
+	* @param $filename
+	* @param $classname
+	*
 	* @return string
 	* @access public
 	*/
@@ -384,6 +387,22 @@ class wysiwyg_plugin
 		return $classname.'/'.$filename;
 
 	}//end get_popup_href()
+
+
+	/**
+ 	* Check whether this plugin is ready to be used.
+ 	*
+ 	* Return a TRUE if ok or a error message.
+ 	*
+ 	* @return mixed boolean|string
+ 	* @access public
+ 	* @static
+	*/
+	function check_usable()
+	{
+		return TRUE;
+
+	}//end check_usable()
 
 
 }//end class
