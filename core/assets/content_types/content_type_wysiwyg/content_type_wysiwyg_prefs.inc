@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.19 2007/01/05 05:25:43 hnguyen Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.20 2007/01/05 05:28:38 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -200,7 +200,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 						continue;
 					}
 					include $plugin_path.'/'.$plugin_name.'.inc';
-					$check_result = call_user_func(array($plugin_name, 'check_usable'));
+					$check_result = call_user_func(Array($plugin_name, 'check_usable'));
 					$extra = ($check_result === TRUE) ? '' : 'disabled="disabled"';
 					check_box('prefs[SQ_WYSIWYG_PLUGINS]['.$plugin_name.']', '1', ($all || in_array($plugin_name, $plugins)),'',$extra);
 					echo '&nbsp;'.ucwords(str_replace('_', ' ', $plugin_name));
@@ -337,7 +337,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				}
 				$this->pref_vars['SQ_WYSIWYG_PLUGINS']['default'] = $plugin_list;
 			}
-		}
+		}//end if
 
 		// WYSIWYG DISABLE IMAGE RESIZE
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE') {
@@ -411,7 +411,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				} else {
 					$merged_prefs[$var_name]['protected'] = $prefs1[$var_name]['protected'];
 				}
-			}
+			}//end if
 		}//end foreach
 
 		return $merged_prefs;
