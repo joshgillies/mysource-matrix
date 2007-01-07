@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.203 2006/12/14 22:54:01 rhoward Exp $
+* $Id: listing_engine.inc,v 1.204 2007/01/07 23:12:08 hnguyen Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.203 $
+* @version $Revision: 1.204 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2744,10 +2744,15 @@ class Listing_Engine extends Page
 					break;
 
 					case 'metadata':
-						$metadata_field_id = $group_level['metadata_field'];
-						$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
+						$metadata_field = NULL;
+						$metadate_field_id = NULL;
+						if (!empty($group_level['metadata_field'])) {
+							$metadata_field_id = $group_level['metadata_field'];
+						}
+						if (!empty($metadata_field_id)) {
+							$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
+						}
 						$value = '';
-
 						if (!is_null($metadata_field)) {
 							// get the metadata manager if we haven't already
 							if (!isset($mm)) {
