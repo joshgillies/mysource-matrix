@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_js_calendar_navigator.inc,v 1.13 2006/12/07 05:51:51 bcaldwell Exp $
+* $Id: design_area_js_calendar_navigator.inc,v 1.14 2007/01/07 23:46:36 tbarrett Exp $
 *
 */
 
@@ -24,12 +24,34 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
 class Design_Area_JS_Calendar_Navigator extends Design_Area
 {
+
+
+	/**
+	* Returns an array of all the permitted links type, the type asset and the cardinality
+	* In the form
+	*
+	*   Array('[link_type]' => Array('[type_code]' => Array('card' => [cardinality], 'exclusive' => [exclusive])));
+	* Where:
+	*   link_type   = SQ_LINK_TYPE_1|SQ_LINK_TYPE_2|SQ_LINK_TYPE_3|SQ_LINK_NOTICE
+	*   cardinality = [max number of links]|'M'
+	*   exclusive   = TRUE|FALSE
+	*
+	* @return array
+	* @access private
+	*/
+	function _getAllowedLinks()
+	{
+		$res = parent::_getAllowedLinks();
+		$res[SQ_LINK_NOTICE]['page_calendar'] = Array('card' => 'M', 'exclusive' => FALSE);
+		return $res;
+
+	}//end _getAllowedLinks()
 
 
 	/**
@@ -41,45 +63,52 @@ class Design_Area_JS_Calendar_Navigator extends Design_Area
 	*/
 	function printPaintingCode()
 	{
-		$php_code = '
-		<!-- start calendar navigator -->
-		<?php
-		$am =& $GLOBALS["SQ_SYSTEM"]->am;
-		$calendar_navigator = &$am->getAsset('.$this->id.');
-		$element_id 		= $calendar_navigator->attr("element_id");
-		$calendar_assetid 	= $calendar_navigator->attr("target_assetid");
+		$page_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'page_calendar', FALSE);
+		$page_ids = Array();
+		foreach ($page_links as $link) {
+			$page_ids[substr($link['value'], 0, -5)] = $link['minorid'];
+		}
+		log_dump($page_ids);
+		log_dump($page_links);
+		error_log(var_export($page_ids, 1));
 
-		if (!empty($calendar_assetid)) {
-			$asset = &$am->getAsset($calendar_assetid);
-			$target_url = $asset->getURL();
+		$open_php = '<'.'?'.'php';
+		$close_php = '?'.'>';
+		?>
 
-			// generate javascript event handlers
-			?>
-			<script type="text/javascript">
-			//<![CDATA[
-				function onDayClick(day, mon, year)
-				{
-					frameRedirect("<?php echo($target_url);?>?SQ_CALENDAR_VIEW=day&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year));
-				}
+		<?php echo $open_php; ?>
+			$<?php echo $this->attr('id_name'); ?>_target_pages = <?php var_export($page_ids); ?>;
+			$<?php echo $this->attr('id_name'); ?>_target_urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_values($<?php echo $this->attr('id_name'); ?>_target_pages));
+		<?php echo $close_php; ?>
 
-				function onWeekClick(day, mon, year)
-				{
-					frameRedirect("<?php echo($target_url);?>?SQ_CALENDAR_VIEW=week&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year));
-				}
-
-				function onMonthClick(day, mon, year)
-				{
-					frameRedirect("<?php echo($target_url);?>?SQ_CALENDAR_VIEW=month&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year));
-				}
-
-				function onYearClick(day, mon, year)
-				{
-					frameRedirect("<?php echo($target_url);?>?SQ_CALENDAR_VIEW=year&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year));
-				}
-			//]]>
-			</script>
-
+		<script type="text/javascript">
+		//<![CDATA[
 			<?php
+			foreach (Array('day', 'week', 'month', 'year') as $unit) {
+				?>
+
+				function on<?php echo ucfirst($unit); ?>Click(day, mon, year)
+				{
+					<?php echo $open_php; ?>
+					if (!empty($<?php echo $this->attr('id_name'); ?>_target_pages['<?php echo $unit; ?>'])) {
+						$cal_page_id = $<?php echo $this->attr('id_name'); ?>_target_pages['<?php echo $unit; ?>'];
+						if (!empty($<?php echo $this->attr('id_name'); ?>_target_urls[$cal_page_id])) {
+							<?php echo $close_php; ?>
+							frameRedirect("<?php echo $open_php; ?> echo $<?php echo $this->attr('id_name'); ?>_target_urls[$cal_page_id]; <?php echo $close_php; ?>?SQ_CALENDAR_VIEW=<?php echo $unit; ?>&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year));
+							<?php echo $open_php; ?>
+						}
+					}
+					<?php echo $close_php; ?>
+				}
+
+				<?php
+			}
+			?>
+		//]]>
+		</script>
+
+		<?php echo $open_php; ?>
+		if (!empty($<?php echo $this->attr('id_name'); ?>_target_urls)) {
 			require_once SQ_LIB_PATH."/js_calendar/js_calendar.inc";
 			$calendar = new JS_Calendar();
 			$calendar->changeSetting("onDayClick", 	"onDayClick");
@@ -92,19 +121,17 @@ class Design_Area_JS_Calendar_Navigator extends Design_Area
 				$calendar->changeSetting("currentDate",	$_GET["SQ_CALENDAR_DATE"]);
 			}
 
-			$custom_style_assetid = $calendar_navigator->attr("style_assetid");
+			$custom_style_assetid = '<?php echo $this->attr('style_assetid'); ?>';
 			if (!empty($custom_style_assetid)) {
-				$style_file =& $am->getAsset($custom_style_assetid);
+				$style_file =& $GLOBALS['SQ_SYSTEM']->am->getAsset($custom_style_assetid);
 				$calendar->changeSetting("cssURL",  $style_file->getURL());
 			}
 
-			$calendar->paint("js_calendar",$element_id);
+			$calendar->paint("js_calendar", '<?php echo str_replace("'", "\\'", $this->attr('element_id')); ?>');
 		}
-		?>
-		<!-- end calendar navigator -->
-		';
+		<?php echo $close_php; ?>
 
-		echo $php_code;
+		<?php
 		return TRUE;
 
 	}//end printPaintingCode()
