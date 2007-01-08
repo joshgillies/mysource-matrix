@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.13 2006/12/15 01:20:48 arailean Exp $
+* $Id: payment_gateway_esec.inc,v 1.14 2007/01/08 03:27:18 emcdonald Exp $
 *
 */
 
-
+check_ssv_licence();
 require_once dirname(__FILE__).'/../../payment_gateway/payment_gateway.inc';
 require_once dirname(__FILE__).'/esec_processor_integration_interface.inc';
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/esec_processor_integration_interface.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */

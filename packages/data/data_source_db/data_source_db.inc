@@ -10,11 +10,15 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.16 2006/12/08 00:51:59 emcdonald Exp $
+* $Id: data_source_db.inc,v 1.17 2007/01/08 03:26:24 emcdonald Exp $
 *
 */
 
-
+check_ssv_licence();
+require_once SQ_CORE_PACKAGE_PATH.'/../include/asset.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 
 /**
 * Data_Source_DB
@@ -23,15 +27,10 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-	require_once SQ_CORE_PACKAGE_PATH.'/../include/asset.inc';
-	require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
-	require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-	require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
-
 class Data_Source_DB extends Data_Source
 {
 

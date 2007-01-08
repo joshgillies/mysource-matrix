@@ -10,11 +10,14 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss.inc,v 1.8 2006/12/08 00:52:00 emcdonald Exp $
+* $Id: data_source_rss.inc,v 1.9 2007/01/08 03:26:25 emcdonald Exp $
 *
 */
 
-
+check_ssv_licence();
+require_once SQ_CORE_PACKAGE_PATH.'/../include/asset.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * Data_Source_RSS
@@ -23,14 +26,10 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
-	require_once SQ_CORE_PACKAGE_PATH.'/../include/asset.inc';
-	require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
-	require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-
 class Data_Source_RSS extends Data_Source
 {
 	var $reader;
