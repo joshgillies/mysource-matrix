@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.67.2.2 2007/01/08 03:22:45 lwright Exp $
+* $Id: install.inc,v 1.67.2.3 2007/01/08 23:01:21 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.67.2.2 $
+* @version $Revision: 1.67.2.3 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1665,11 +1665,9 @@ function extract_internal_messages($file)
 /**
 * Generate an install key for this system
 *
-* The install key is simply an md5_file() on the main.inc file. This function
-* should be called the FIRST time step_03.php is called, then again when the
-* generate_install_key.php script is run.
+* Install key = md5(host name . '-' . ip address . '-' . system root path)
 *
-* This function will return NULL if the main.inc file does not exist.
+* This function will return NULL if it could not save the licence config file
 *
 * @param boolean	$create_key_file	If TRUE, also add to licence config
 *										(if key is not NULL)
@@ -1679,18 +1677,15 @@ function extract_internal_messages($file)
 */
 function generate_install_key($create_key_file=FALSE)
 {
-	$install_key = NULL;
-	$main_file = SQ_DATA_PATH.'/private/conf/main.inc';
+	$host = php_uname('n');
+	$ip = gethostbyname($host);
+	$install_key = md5($host.'-'.$ip.'-'.SQ_SYSTEM_ROOT);
 
-	if (file_exists($main_file)) {
-		$install_key = md5_file($main_file);
-
-		if ($create_key_file) {
-			require_once SQ_INCLUDE_PATH.'/licence_config.inc';
-			$cfg =& new Licence_Config();
-			if (!$cfg->save(Array('SQ_LICENCE_INSTALL_KEY' => $install_key), FALSE)) {
-				return NULL;
-			}
+	if ($create_key_file) {
+		require_once SQ_INCLUDE_PATH.'/licence_config.inc';
+		$cfg =& new Licence_Config();
+		if (!$cfg->save(Array('SQ_LICENCE_INSTALL_KEY' => $install_key), FALSE)) {
+			return NULL;
 		}
 	}
 
