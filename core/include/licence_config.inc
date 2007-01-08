@@ -1,0 +1,61 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: licence_config.inc,v 1.1.2.2 2007/01/08 03:20:21 lwright Exp $
+*
+*/
+
+require_once SQ_LIB_PATH.'/config/config.inc';
+
+/**
+* System_Config
+*
+* Purpose
+*
+*    Looks after the creation and editing of the system config
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Revision: 1.1.2.2 $
+* @package MySource_Matrix
+*/
+class Licence_Config extends Config
+{
+
+	/**
+	* Holds the definitions for all the constants managed by this configuration object
+	* In the form : Array([var name] => Array('editable' => [boolean], 'default' => [mixed scalar]))
+	* @var array
+	*/
+	var $config_vars = Array(
+						'SQ_LICENCE_TYPE'			=> Array('editable' => 1, 'default' => 'GPL'),
+						'SQ_LICENCE_INSTALL_KEY'	=> Array('editable' => 1, 'default' => ''),
+						'SQ_LICENCE_WARRANTY_KEY'	=> Array('editable' => 1, 'default' => ''),
+					   );
+
+
+	/**
+	* Constructor
+	*
+	* @return object
+	* @access public
+	*/
+	function Licence_Config()
+	{
+		$this->Config();
+		$this->config_file = SQ_DATA_PATH.'/private/conf/licence.inc';
+
+	}//end constructor
+
+
+}//end class
+
+?>
