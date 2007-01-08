@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.36 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: details.inc,v 1.37 2007/01/08 02:50:50 lwright Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 */
 
@@ -77,7 +77,13 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 			continue;
 		}
 
-		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
+		//
+		$safe_trash_job_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'cron_job_attempt_safe_trash', TRUE, NULL, 'minor');
+
+		$avoiding_safe_trash_section = ($section->attributes['name'] == 'Safe Trash Status') && !$safe_trash_job_link;
+		if (!$avoiding_safe_trash_section) {
+			$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
+		}
 
 		if (!($num_fields = count($section->children))) {
 			continue;
@@ -87,6 +93,60 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 			$field =& $section->children[$j];
 
 			switch (strtolower($field->attributes['code'])) {
+
+				case 'safe_trash' :
+
+					if (!$avoiding_safe_trash_section) {
+						$safe_trash_enabled = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_SAFE_TYPE3_TRASH');
+						$safe_trash_errors = $GLOBALS['SQ_SYSTEM']->am->canSafeTrashAsset($owner->id);
+						$o->openRaw();
+							if ($safe_trash_enabled) {
+								if (empty($safe_trash_errors)) {
+								?>
+								<div><?php echo translate('safe_trash_line_common'); ?><br/>
+								<?php echo translate('safe_trash_line_unblocked'); ?></div>
+								<?php
+								} else {
+								?>
+								<div class="sq-backend-warning"><strong><?php echo translate('safe_trash_line_common'); ?><br/>
+								<?php echo translate('safe_trash_line_still_blocked'); ?></strong></div>
+
+								<ul>
+								<?php
+								if (!empty($safe_trash_errors['status'])) {
+								?>
+								<li><?php echo translate('safe_trash_line_blocked_status'); ?></li>
+								<?php
+								}
+								?>
+								<?php
+								if (!empty($safe_trash_errors['links'])) {
+								?>
+								<li><?php echo translate('safe_trash_line_blocked_links', $owner->getBackendHref('linking')); ?></li>
+								<?php
+								}
+								?>
+								<?php
+								if (!empty($safe_trash_errors['children'])) {
+								?>
+								<li><?php echo translate('safe_trash_line_blocked_children'); ?></li>
+								<?php
+								}
+								?>
+								</ul></div>
+								<?php
+								}
+							} else {
+								?>
+								<div><?php echo translate('safe_trash_line_common'); ?><br/>
+								<?php echo translate('safe_trash_line_disabled'); ?></div>
+								<?php
+							}
+
+						$o->closeRaw();
+					}
+
+				break;
 
 				///// STATUS CHANGES - NOW AND IN THE FUTURE ////
 
@@ -333,7 +393,9 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 
 		}//end for
 
-		$o->closeSection();
+		if (!$avoiding_safe_trash_section) {
+			$o->closeSection();
+		}
 
 		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
 			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower($section->attributes['name'])]] = ob_get_contents();

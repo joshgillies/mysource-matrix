@@ -10,12 +10,15 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_static_screen_details.xml,v 1.18 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: edit_interface_static_screen_details.xml,v 1.19 2007/01/08 02:50:49 lwright Exp $
 *
 */
 -->
 
 <contents>
+	<section name="Safe Trash Status" limbo_access="1">
+		<field code="safe_trash" />
+	</section>
 	<section name="Status" limbo_access="1">
 		<field code="status_current" />
 		<field code="status_change" read_access="write:" write_access="write:attributes" />

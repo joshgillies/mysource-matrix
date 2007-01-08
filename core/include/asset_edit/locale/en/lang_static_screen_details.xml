@@ -10,13 +10,18 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_static_screen_details.xml,v 1.4 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: lang_static_screen_details.xml,v 1.5 2007/01/08 02:50:50 lwright Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Status">
+	<section name="Safe Trash Status">
+		<field code="safe_trash">
+			<display_name></display_name>
+			<note />
+		</field>
+	</section><section name="Status">
 		<field code="status_current">
 			<display_name>Current</display_name>
 			<note />
