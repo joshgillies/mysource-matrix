@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.43 2006/12/05 05:39:09 bcaldwell Exp $
+* $Id: hipo_job_create_links.inc,v 1.44 2007/01/08 03:04:30 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -282,53 +282,33 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						// note that we are also going to ask the major asset in the link
 						// to describe it so it makes sense to the user looking at it
 						$affected_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE, '', TRUE, 'minor');
+						$safe_trash_cron_job = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, 'cron_job_attempt_safe_trash', TRUE, 'minor');
+
+						// We can't use array_diff() because it does a string comparison
+						// ("Array" == "Array".... ooh nasty). So we will trawl through the
+						// array to find the cron job and pluck it out
+						foreach (array_keys($affected_links) as $affected_link_key) {
+							if ($affected_links[$affected_link_key]['linkid'] == $safe_trash_cron_job[0]['linkid']) {
+								unset($affected_links[$affected_link_key]);
+								break;
+							}
+						}
+
 						if (!empty($affected_links)) {
 							$this->_running_vars['affected_links'][$assetid] = $affected_links;
-
-							// if type3 or notice linked to other asset, it is not safe to be trashed
-							if ($safe_trash) {
-								$this->_running_vars['do_not_trash'][$assetid]['link'] = $affected_links;
-								$this->_running_vars['do_not_trash'][$assetid]['name'] = $asset->name;
-							}
 						}
 
 					}//end if !$num_other_links
 
-					// if the status is not under construction and not archived, it is not safe to be trashed
-					if ($safe_trash && $asset->status >= SQ_STATUS_LIVE) {
-						$this->_running_vars['do_not_trash'][$assetid]['status'] = $asset->status;
-						$this->_running_vars['do_not_trash'][$assetid]['name'] = $asset->name;
-					}
-
-					// check the same thing for all children
-					// generate the get children query
-					$children = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($asset, '', TRUE, FALSE);
-					if (!empty($children)) {
-						// modify the selection so that we only get 1 column
-						$children['select'] = '(SELECT DISTINCT l.minorid';
-						if (isset($children['union_select'])) {
-							$children['union_select'] = 'UNION ALL SELECT sl.minorid';
-						}
-						$db =& $GLOBALS['SQ_SYSTEM']->db;
-						$sql = 'SELECT
-									majorid, minorid, name, linkid, status, link_type
-								FROM
-									'.SQ_TABLE_RUNNING_PREFIX.'ast_lnk lnk
-									INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast ast ON (ast.assetid = lnk.minorid)
-								WHERE
-									(
-										(link_type = '.$db->quoteSmart(SQ_LINK_TYPE_3).' OR link_type = '.$db->quoteSmart(SQ_LINK_NOTICE).') OR
-										(status >= '.$db->quoteSmart(SQ_STATUS_LIVE).')
-									) AND
-									assetid IN ('.implode(' ', $children).')';
-						$result = $db->getAll($sql);
-						assert_valid_db_result($result);
-						if (!empty($result)) {
-							$this->_running_vars['do_not_trash'][$assetid]['children'] = $result;
+					// if we can't safe trash for any reason whatsoever, then
+					// let them know
+					if ($safe_trash) {
+						$trash_errors = $GLOBALS['SQ_SYSTEM']->am->canSafeTrashAsset($assetid, $current['linkid'], FALSE);
+						if ($trash_errors) {
+							$this->_running_vars['do_not_trash'][$assetid] = $trash_errors;
 							$this->_running_vars['do_not_trash'][$assetid]['name'] = $asset->name;
 						}
 					}
-
 				}//end for
 
 			}//end if the assets have been moved to the trash
@@ -417,14 +397,14 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$safe_trash = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_SAFE_TYPE3_TRASH');
 
 				// work out how many assets do we really have to trash
+				// If we have nothing to trash, we no longer take out the "next"
+				// button because of the possibility for marking for safe trash
 				$nothing_to_trash = FALSE;
 				$not_to_trash = 0;
 				if ($safe_trash) {
 					$to_trash = count($assets);
 					$not_to_trash = count($this->_running_vars['do_not_trash']);
 					$nothing_to_trash = ($not_to_trash == $to_trash);
-					// if there is nothing to trash, pass this hipo var so herder will not print next button
-					$this->_hipo_vars['no_next'] = $nothing_to_trash ? TRUE: FALSE;
 				}
 
 				$o->openField('&nbsp;');
@@ -496,6 +476,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 					$affected_links = array_get_index($this->_running_vars,'affected_links',Array());
 					foreach ($affected_links as $assetid => $links) {
+						$trash_errors = $GLOBALS['SQ_SYSTEM']->am->canSafeTrashAsset($assetid);
+						bam($trash_errors);
+
 						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						// now lets get all the other links this asset has in the system and
 						// display them to the user
@@ -616,6 +599,43 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						$o->closeField();
 						$o->closeSection();
 					}
+
+					// paint the mark for safe trash
+					if ($safe_trash && !empty($this->_running_vars['do_not_trash'])) {
+						$o->openSection('Mark Assets for Deletion');
+						$o->openField('');
+
+						$assetids = array_keys($this->_running_vars['do_not_trash']);
+						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
+
+						?><p>Here is a summary of assets that cannot be trashed due to Safe Trash rules. You can mark these assets for deletion - this creates a Cron Job that will attempt to trash the asset on each run, if and when the above Safe Trash conditions are satisfied.</p>
+
+						<div id="<?php echo $prefix ?>_mark">
+						<?php if (count($assetids) > 1) {
+							?><input type="checkbox" id="<?php echo $prefix ?>_mark_all" onclick="inputs = this.parentNode.getElementsByTagName('INPUT'); for (i = 0; i &lt; inputs.length; i++) { if ((inputs[i].type == 'checkbox') && (inputs[i]!= this)) inputs[i].checked = this.checked; }"> <em><?php echo translate('select_all'); ?></em>
+							<hr />
+							<?php } ?>
+						<?php
+
+						foreach ($assetids as $assetid) {
+						?>
+						<div><input type="checkbox" name="<?php echo $prefix ?>_mark[<?php echo $assetid ?>]" id="<?php echo $prefix ?>_mark_<?php echo $assetid ?>" value="1" <?php
+						if (count($assetids) > 1) {
+							?> onclick="selall = document.getElementById('<?php echo $prefix ?>_mark_all'); inputs = this.parentNode.parentNode.getElementsByTagName('INPUT'); sel_value = true; for (i = 0; i &lt; inputs.length; i++) { if ((inputs[i].type == 'checkbox') && (inputs[i] != selall)) { sel_value = sel_value && inputs[i].checked; } if (!sel_value) break; } selall.checked = sel_value;">
+							<?php
+						}
+						?>
+							<?php echo get_asset_type_icon($asset_info[$assetid]['type_code']); ?>
+							<?php echo $asset_info[$assetid]['name']; ?> (Id: #<?php echo $assetid; ?>)</div>
+						<?php
+						}
+						?>
+						</div>
+						<?php
+						$o->closeField();
+						$o->closeSection();
+					}
+
 				}//end if the assets have been moved to the trash
 				$o->closeSection();
 			}//end if action is 'move'
@@ -627,7 +647,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 
 	/**
-	* Does nothing
+	* Process confirmation screen, setting up remaps and "mark for safe trash"
+	* assets
 	*
 	* @param array	&$step_data	the step data for this job
 	* @param string	$prefix		prefix to be used with this job
@@ -671,6 +692,13 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				}
 			}
 		}//end if HIPO form submitted
+
+		if (isset($_POST['form_submitted']) && isset($_POST[$prefix.'_mark'])) {
+
+			$this->_running_vars['mark_for_deletion'] = $_POST[$prefix.'_mark'];
+
+
+		}
 
 		if ($step_data['percent_done'] == 0) {
 			$step_data['percent_done'] = 50;
@@ -776,7 +804,13 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				if (isset($id_parts[1])) $bridge_id = $id_parts[0];
 
 				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
-				$this->_running_vars['assets_children'] = array_merge($this->_running_vars['assets_children'], array_keys($children));
+
+				// If we aren't allowed to trash this, then it's not going
+				// anywhere, so there's no point running update lookups over
+				// the children
+				if (!isset($this->_running_vars['do_not_trash'][$assetid])) {
+						$this->_running_vars['assets_children'] = array_merge($this->_running_vars['assets_children'], array_keys($children));
+				}
 
 				// delete links in which the minor is being deleted
 				$affected_links = array_get_index(array_get_index($this->_running_vars,'affected_links',Array()),$assetid,Array());
@@ -863,7 +897,36 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 					$this->_running_vars['to_parent_pos']++;
 				} else {
-					$step_data['message'] = translate('hipo_skipping_asset', $asset->id);
+					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					// If we are marking for deletion, then do so
+					if (!$safe_to_trash) {
+						$cron_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+						$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_attempt_safe_trash');
+
+						if (isset($this->_running_vars['mark_for_deletion'][$asset->id])) {
+							$link = $GLOBALS['SQ_SYSTEM']->am->getLink($assetid, SQ_LINK_NOTICE, 'cron_job_attempt_safe_trash', TRUE, NULL, 'minor');
+							if (!$link) {
+								// Create the cron job
+								$cron_job =& new Cron_Job_Attempt_Safe_Trash();
+								$cron_job->setAssetToUpdate($asset);
+
+								$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+								$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+								if ($cron_manager->addJob($cron_job, $GLOBALS['SQ_SYSTEM']->user)) {
+									$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+								} else {
+									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								}
+								$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_job);
+								unset($cron_job);
+							}
+						}
+						$step_data['message'] = translate('hipo_creating_safe_trash_job', $asset->id);
+					} else {
+						$step_data['message'] = translate('hipo_skipping_asset', $asset->id);
+					}
 				}
 
 			}//end else moving to trash
@@ -896,6 +959,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 		unset($asset);
+
+		if (count(array_diff(array_keys($this->_running_vars['assets']), array_keys($this->_running_vars['do_not_trash']))) == 0) {
+			if (empty($this->_running_vars['assets_children'])) {
+				$this->skipStep(2);
+			}
+		}
 
 		return TRUE;
 
@@ -1137,7 +1206,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		$assets = $this->_running_vars['assets'];
 
 		for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
-			$assetids[] = $assetid;
+			if (!isset($this->_running_vars['do_not_trash'][$assetid])) {
+				$assetids[] = $assetid;
+			}
 		}
 
 		if (!empty($this->_running_vars['assets_children'])) {
@@ -1312,6 +1383,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	function paintRefresh(&$step_data, &$o, $prefix)
 	{
 		$o->addOnLoad('if (window.opener.parent.frames["sq_sidenav"] && window.opener.parent.frames["sq_sidenav"].reload_asset) window.opener.parent.frames["sq_sidenav"].reload_asset("'.$this->_running_vars['to_parent_assetid'].'");');
+
+		$refreshids = Array();
 
 		foreach ($this->_running_vars['assets'] as $asset_details) {
 			$refreshids[] = $asset_details['parentid'];
