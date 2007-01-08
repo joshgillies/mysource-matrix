@@ -10,10 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.54.2.2 2006/12/13 01:07:15 bcaldwell Exp $
+* $Id: ldap_bridge.inc,v 1.54.2.3 2007/01/08 05:33:10 emcdonald Exp $
 *
 */
 
+check_ssv_licence();
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 
@@ -24,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54.2.2 $
+* @version $Revision: 1.54.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */

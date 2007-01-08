@@ -10,10 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.192.2.4 2006/12/18 04:45:46 lwright Exp $
+* $Id: search_page.inc,v 1.192.2.5 2007/01/08 05:33:46 emcdonald Exp $
 *
 */
 
+check_ssv_licence();
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_FUDGE_PATH.'/general/general.inc';
@@ -30,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.192.2.4 $
+* @version $Revision: 1.192.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */

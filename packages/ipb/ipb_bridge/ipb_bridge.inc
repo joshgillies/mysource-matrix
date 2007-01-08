@@ -10,10 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge.inc,v 1.10 2006/12/07 03:17:15 bcaldwell Exp $
+* $Id: ipb_bridge.inc,v 1.10.2.1 2007/01/08 05:32:49 emcdonald Exp $
 *
 */
 
+check_ssv_licence();
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_PACKAGES_PATH.'/ipb/ipb.inc';
 
@@ -25,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/ipb/ipb.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */

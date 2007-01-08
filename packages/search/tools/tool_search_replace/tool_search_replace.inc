@@ -10,10 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.21.2.1 2006/12/12 03:40:27 skim Exp $
+* $Id: tool_search_replace.inc,v 1.21.2.2 2007/01/08 05:33:46 emcdonald Exp $
 *
 */
 
+check_ssv_licence();
 require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 
 /**
@@ -26,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.21.2.1 $
+* @version $Revision: 1.21.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
