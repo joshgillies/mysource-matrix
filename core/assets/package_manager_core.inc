@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.35 2006/12/05 05:43:12 bcaldwell Exp $
+* $Id: package_manager_core.inc,v 1.36 2007/01/08 02:58:52 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -129,6 +129,7 @@ class Package_Manager_Core extends Package_Manager
 				'password_change_design',
 				'cron_job_expired_workflow',
 				'cron_job_generate_log_reports',
+				'cron_job_escalate_safe_trash',
 				'tag_manager',
 			   );
 
@@ -697,6 +698,37 @@ class Package_Manager_Core extends Package_Manager
 		return $cron_job;
 
 	}//end createCronJobGenerateLogReports()
+
+
+	/**
+	* Create the generate log report cron job
+	*
+	* @return object
+	* @access public
+	*/
+	function &createCronJobEscalateSafeTrash()
+	{
+		$cron_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_manager)) {
+			trigger_error('Couldn\'t get cron manager, couldn\'t create Escalate Safe Trash Cron Job', E_USER_WARNING);
+			$null = NULL;
+			return $null;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_generate_log_reports');
+
+		$cron_job =& new Cron_Job_Escalate_Safe_Trash();
+		$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
+			trigger_error('Escalate Safe Trash Cron Job NOT CREATED', E_USER_ERROR);
+		}
+		pre_echo('Escalate Safe Trash Cron Job Id: '.$cron_job->id);
+
+		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_escalate_safe_trash', $cron_job->id);
+
+		return $cron_job;
+
+	}//end createCronJobEscalateSafeTrash()
 
 
 	/**
