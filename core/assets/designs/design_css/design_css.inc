@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.25 2006/12/10 22:50:35 tbarrett Exp $
+* $Id: design_css.inc,v 1.26 2007/01/08 03:12:33 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -367,12 +367,14 @@ class Design_Css extends Design
 	{
 		switch ($var) {
 			case 'css_header' :
-echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
-	  Content (c) Copyright <?php echo SQ_CONF_SYSTEM_OWNER."\n"; ?>
-	Running <?php echo SQ_SYSTEM_LONG_NAME; ?> - <?php echo SQ_SYSTEM_URL."\n"; ?>
-   Developed by Squiz  - http://www.squiz.net
+echo '/*
+  <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
+  Content (c) Copyright <?php echo SQ_CONF_SYSTEM_OWNER."\n"; ?>
+  Running <?php echo SQ_SYSTEM_LONG_NAME; ?> - <?php echo SQ_SYSTEM_URL."\n"; ?>
+  Developed by Squiz  - http://www.squiz.net
   (c) Copyright <?php echo date(\'Y\') ?>. All rights reserved.
   Page generated: <?php echo date(\'d F Y H:i:s\')."\n"; ?>
+  Install key: <?php echo (defined("SQ_LICENCE_INSTALL_KEY") ? SQ_LICENCE_INSTALL_KEY : "None")."\n"; ?>
 */
 
 ';
