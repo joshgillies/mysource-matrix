@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.97 2006/12/15 03:37:41 tbarrett Exp $
+* $Id: init.inc,v 1.98 2007/01/08 03:04:50 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix
 */
 
@@ -61,6 +61,11 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 
 // include the main system config file
 require_once SQ_DATA_PATH.'/private/conf/main.inc';
+
+// include installation key if it exists
+if (file_exists(SQ_DATA_PATH.'/private/conf/licence.inc')) {
+	require_once SQ_DATA_PATH.'/private/conf/licence.inc';
+}
 
 // To be able to use symlinks without MySource Matrix tripping over the index.php, strip
 // it out of the PHP_SELF variable (pretend we're someone we're not). When
