@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.205.2.7 2007/01/08 23:01:20 lwright Exp $
+* $Id: mysource.inc,v 1.205.2.8 2007/01/08 23:09:29 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.205.2.7 $
+* @version $Revision: 1.205.2.8 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1279,8 +1279,10 @@ class MySource
 		if (defined('SQ_LICENCE_WARRANTY_KEY') && (base64_decode(SQ_LICENCE_WARRANTY_KEY) !== 'abcd00000000') && (SQ_LICENCE_TYPE === 'SSV')) {
 			$wkey_snippet = substr(base64_decode(SQ_LICENCE_WARRANTY_KEY), 0, 4);
 			$ikey_snippet = substr(SQ_LICENCE_INSTALL_KEY, 0, 4);
+
 			$expiry_date = substr(base64_decode(SQ_LICENCE_WARRANTY_KEY), 4);
 			$current_date = date('Ymd');
+
 			$warranty_expired = ($current_date > $expiry_date) || ($wkey_snippet !== $ikey_snippet);
 		} else {
 			// no warranty
