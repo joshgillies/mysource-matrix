@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tool_converter.inc,v 1.4 2006/12/07 01:09:31 emcdonald Exp $
+* $Id: import_tool_converter.inc,v 1.4.2.1 2007/01/08 05:25:43 emcdonald Exp $
 *
 */
 
-
+check_ssv_licence();
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */

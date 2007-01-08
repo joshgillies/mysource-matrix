@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.30.2.1 2006/12/18 05:40:05 rong Exp $
+* $Id: bulkmail_job.inc,v 1.30.2.2 2007/01/08 05:23:53 emcdonald Exp $
 *
 */
 
-
+check_ssv_licence();
 require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_office.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.30.2.1 $
+* @version $Revision: 1.30.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */

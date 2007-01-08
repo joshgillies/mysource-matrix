@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_js_calendar_navigator.inc,v 1.13 2006/12/07 05:51:51 bcaldwell Exp $
+* $Id: design_area_js_calendar_navigator.inc,v 1.13.2.1 2007/01/08 05:24:17 emcdonald Exp $
 *
 */
 
-
+check_ssv_licence();
 require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 
 /**
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */

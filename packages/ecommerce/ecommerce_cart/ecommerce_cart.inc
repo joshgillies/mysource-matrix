@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.28 2006/12/07 21:42:34 tbarrett Exp $
+* $Id: ecommerce_cart.inc,v 1.28.2.1 2007/01/08 05:25:29 emcdonald Exp $
 *
 */
 
-
+check_ssv_licence();
 require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 
@@ -31,7 +31,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
