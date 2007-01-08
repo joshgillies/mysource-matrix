@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.43 2006/12/05 05:39:09 bcaldwell Exp $
+* $Id: hipo_job_create_links.inc,v 1.43.2.1 2007/01/08 06:42:17 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -229,6 +229,22 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 
 	/**
+	* Prepares and sets up the running vars of this hipo.
+	* This is run before initialise(), because initialise() may not be run at all if this Job can be freestyle()'d
+	*
+	* @return boolean
+	* @access public
+	*/
+	function prepare()
+	{
+		// an array of assetids that are not supposed to be trashed when safe trash = Yes
+		$this->_running_vars['do_not_trash'] = Array();
+		return parent::prepare();
+
+	}//end prepare()
+	
+	
+	/**
 	* Set up vars and database information that the HIPO will need to run
 	*
 	* Returns the code_name for the new job
@@ -252,9 +268,6 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			trigger_localised_error('HIPO0024', E_USER_WARNING);
 			return '';
 		}
-
-		// an array of assetids that are not supposed to be trashed when safe trash = Yes
-		$this->_running_vars['do_not_trash'] = Array();
 
 		// get a list of links that will be affected by this change
 		if ($this->_running_vars['link_action'] == 'move') {
