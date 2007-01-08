@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_multiple_text_edit_fns.inc,v 1.1 2006/12/28 01:48:14 lwright Exp $
+* $Id: metadata_field_multiple_text_edit_fns.inc,v 1.2 2007/01/08 02:47:52 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,7 +106,7 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				$i = 0;
 				$default_keys = explode('; ', $asset->attr('default'));
 				$default_vals_expr = '[\''.implode('\', \'', $default_keys).'\']';
-				check_box($prefix.'_default', '1', $is_default, "handleDefaultClick(this, '$prefix', $default_vals_expr); ");
+				check_box($prefix.'_default', '1', $is_default, "handleDefaultClickMT(this, '$prefix', $default_vals_expr); ");
 				label(translate('use_default'), $prefix.'_default');
 				if ($is_default) {
 					?>
