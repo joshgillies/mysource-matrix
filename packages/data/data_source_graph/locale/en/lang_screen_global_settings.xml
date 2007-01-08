@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_global_settings.xml,v 1.1.2.2 2006/08/07 04:20:18 skim Exp $
+* $Id: lang_screen_global_settings.xml,v 1.1.2.3 2007/01/08 02:51:19 colivar Exp $
 *
 */
 -->
@@ -38,31 +38,31 @@
 			<note />
 		</field>
 		<field attribute="x_set_title">
-			<display_name>Set Titles For x-Axis?</display_name>
+			<display_name>Title for x-Axis</display_name>
 			<note />
 		</field>
 		<field attribute="y_set_title">
-			<display_name>Set Titles For y-Axis?</display_name>
+			<display_name>Title for y-Axis</display_name>
 			<note />
 		</field>
 		<field attribute="x_label_interval">
-			<display_name>Set Label Intervals For x-Axis?</display_name>
+			<display_name>Label Intervals for x-Axis</display_name>
 			<note />
 		</field>
 		<field attribute="y_label_interval">
-			<display_name>Set Label Intervals For y-Axis</display_name>
+			<display_name>Label Intervals for y-Axis</display_name>
 			<note />
 		</field>
 		<field attribute="graph_angle">
-			<display_name>Set Angle for the graph?</display_name>
+			<display_name>Angle for the graph</display_name>
 			<note />
 		</field>
 		<field attribute="x_font_label_angle">
-			<display_name>Set Angle for x-Axis Label?</display_name>
+			<display_name>Angle for x-Axis Label</display_name>
 			<note />
 		</field>
 		<field attribute="y_font_label_angle">
-			<display_name>Set Angle for y-Axis Label?</display_name>
+			<display_name>Angle for y-Axis Label</display_name>
 			<note />
 		</field>
 		<field attribute="show_legend">
