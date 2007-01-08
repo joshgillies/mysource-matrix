@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.159.2.3 2006/12/27 22:21:34 lwright Exp $
+* $Id: backend.inc,v 1.159.2.4 2007/01/08 03:37:27 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.159.2.3 $
+* @version $Revision: 1.159.2.4 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -816,7 +816,24 @@ class Backend extends MySource_Object
 				<td nowrap class="sq-backend-header-item" valign="middle">
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1" />
 					<a class="sq-backend-header-item" style="text-decoration: none; margin-left: 9px" href="#" onclick="Javascript: reloadHeader(); return false;">
-					<?php echo translate('logged_in_as', $GLOBALS['SQ_SYSTEM']->user->name, date('d M Y g:i a', $now)); ?></a>
+
+					<?php
+					// check warranty (if a warranty key exists)
+					if (defined('SQ_LICENCE_WARRANTY_KEY') && (SQ_LICENCE_WARRANTY_KEY !== '') && (SQ_LICENCE_TYPE === 'SSV')) {
+						$expiry_date = substr(base64_decode(SQ_LICENCE_WARRANTY_KEY), 4);
+						$current_date = date('Ymd');
+						if ($current_date > $expiry_date) {
+							$message = translate('licence_type_ssv_expired');
+						} else {
+							$message = translate('licence_type_ssv_valid');
+						}
+					} else {
+						// no warranty
+						$message = translate('licence_type_gpl');
+					}
+					?>
+
+					<?php echo translate('logged_in_as', $GLOBALS['SQ_SYSTEM']->user->name, $message); ?></a>
 				</td>
 				<td nowrap class="sq-backend-header-item" valign="middle" align="right">
 					<table cellpadding="0" border="0" cellspacing="0">
@@ -1099,7 +1116,11 @@ class Backend extends MySource_Object
 					</tr>
 					<tr>
 						<td class="sq-backend-header-item" style="padding-bottom: 5px;">
-							<a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-header-item" target="_blank" style="text-decoration:none;"><?php echo SQ_SYSTEM_LONG_NAME;?></a>
+							<a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-header-item" target="_blank" style="text-decoration:none;" <?php
+								if (defined('SQ_LICENCE_INSTALL_KEY')) {
+									echo ' title="Install Key: '.SQ_LICENCE_INSTALL_KEY.'"';
+								}
+							?>><?php echo SQ_SYSTEM_LONG_NAME;?></a>
 						</td>
 					</tr>
 				</table>
