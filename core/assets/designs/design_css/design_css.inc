@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.25 2006/12/10 22:50:35 tbarrett Exp $
+* $Id: design_css.inc,v 1.25.2.1 2007/01/08 03:05:50 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -691,6 +691,13 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	function _setCacheFileEnabled($enabled)
 	{
 		$cache_id = $this->getCacheFileId();
+		if (empty($cache_id)) {
+			$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id);
+			if (empty($parents)) return;
+			$cache =& $this->_createCacheFile();
+			$cache_id = $cache->id;
+		}
+
 		$cache_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($cache_id);
 		if (empty($cache_url) == $enabled) {
 			// it either has a url but shouldn't or doesn't have a url but should
