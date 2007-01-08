@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.18.2.2 2006/09/05 05:16:07 skim Exp $
+* $Id: data_source_graph.inc,v 1.18.2.3 2007/01/08 02:55:36 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.18.2.2 $
+* @version $Revision: 1.18.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -405,13 +405,8 @@ class Data_Source_Graph extends Image
 		// Border Color
 		$graph->setBorderColor($this->attr('border_colour'));
 
-		$x_axis_title_angle = 90;
-		$y_axis_title_angle = 90;
-		if ($this->attr('graph_angle')) {
-			$x_axis_title_angle = $x_axis_title_angle * 2;
-		} else {
-			$y_axis_title_angle = $y_axis_title_angle * 2;
-		}
+		$x_axis_title_angle = ($this->attr('x_font_label_angle') ? 90 : 0);
+		$y_axis_title_angle = ($this->attr('y_font_label_angle') ? 90 : 0);
 
 		$x_axis =& $plotarea->getAxis(IMAGE_GRAPH_AXIS_X);
 		$x_axis->setTitle($this->attr('x_set_title'), Array('size' => 13, 'angle' => $x_axis_title_angle));
