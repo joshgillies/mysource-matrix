@@ -1,5 +1,32 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.8.10
+
+Complete Changelog
+-----------------------------------
+
+Core
+
+* Update lookups HIPO now only runs on Site asset's URLs screen if URLs were changed
+* Fixed bug #1908: WYSIWYG inconsistent when trying to apply a class to a selected element
+* Fixed bug #1920: Form Validation for date time questions is working strangely
+* Fixed bug #1951: Trigger not executing on 'ANY' event
+
+Search
+
+* Fixed bug: Global search and replace tool did not properly escape '/' character in regexes (Global Search and Replace Tool)
+* Fixed bug #1941: %<term>_query_suggestions% link is off by 1 (Search Page)
+
+Calendar
+
+* Fixed bug #1912: Paint layout errors in 3.10.4? (JS Calendar Design Area)
+
+Bulkmail
+
+* Fixed bug #1939: Cannot view Details screen of bulkmail job on Oracle (Bulkmail Job)
+* Fixed bug #1944: Extra '=%0a' character at the end of line for HTML email (Bulkmail Job)
+
+
 VERSION 3.8.9
 
 Complete Changelog
