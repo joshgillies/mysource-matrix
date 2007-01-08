@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: key_reminder.css,v 1.1 2007/01/08 03:14:41 lwright Exp $
+* $Id: key_reminder.css,v 1.2 2007/01/08 23:12:48 lwright Exp $
 *
 */
 
@@ -54,4 +54,28 @@ h2 {
 .key-reminder-footer a {
 	color:				#666;
 	text-decoration:	none;
+}
+
+.key-reminder-warning {
+	font-size:			1.5em;
+	font-weight:		bold;
+	color:				red;
+	text-align:			center;
+}
+
+.key-reminder-info {
+	color:				#00a6e5;
+	border:				1px solid #00a6e5;
+	padding:			5px;
+}
+
+.key-reminder-info a {
+	color:				#00a6e5;
+}
+
+.key-reminder pre {
+	color:				#00a6e5;
+	border:				1px dashed #00a6e5;
+	padding:			5px;
+	font:				1em 'Courier New', monospace;
 }

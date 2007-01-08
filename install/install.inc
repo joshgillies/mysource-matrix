@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.69 2007/01/08 03:01:44 lwright Exp $
+* $Id: install.inc,v 1.70 2007/01/08 23:12:48 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1679,18 +1679,15 @@ function extract_internal_messages($file)
 */
 function generate_install_key($create_key_file=FALSE)
 {
-	$install_key = NULL;
-	$main_file = SQ_DATA_PATH.'/private/conf/main.inc';
+	$host = php_uname('n');
+	$ip = gethostbyname($host);
+	$install_key = md5($host.'-'.$ip.'-'.SQ_SYSTEM_ROOT);
 
-	if (file_exists($main_file)) {
-		$install_key = md5_file($main_file);
-
-		if ($create_key_file) {
-			require_once SQ_INCLUDE_PATH.'/licence_config.inc';
-			$cfg =& new Licence_Config();
-			if (!$cfg->save(Array('SQ_LICENCE_INSTALL_KEY' => $install_key), FALSE)) {
-				return NULL;
-			}
+	if ($create_key_file) {
+		require_once SQ_INCLUDE_PATH.'/licence_config.inc';
+		$cfg =& new Licence_Config();
+		if (!$cfg->save(Array('SQ_LICENCE_INSTALL_KEY' => $install_key), FALSE)) {
+			return NULL;
 		}
 	}
 
