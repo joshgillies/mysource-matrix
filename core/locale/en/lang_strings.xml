@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.201.2.3 2007/01/05 06:22:57 hnguyen Exp $
+* $Id: lang_strings.xml,v 1.201.2.4 2007/01/08 03:24:15 lwright Exp $
 *
 */
 
@@ -60,7 +60,7 @@
 	<string source="asset_future_status_change_from_parent">Future status for this asset can only be set from parent asset's &lt;a href="%s"&gt;details screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="cannot_make_live_metadata_incomplete">This asset cannot be made live because some mandatory %s fields are empty</string>
 	<string source="cannot_approve_metadata_incomplete">This asset cannot be approved to go live because some mandatory %s fields are empty</string>
-	
+
 	<string source="asset_type_counts">Asset Type Counts</string>
 	<string source="asset_types">Asset Types</string>
 	<string source="asset_type">Asset Type</string>
@@ -423,7 +423,7 @@
 	<string source="never_published">This asset has never been published</string>
 	<string source="disable_popup_blocking">MySource Matrix requires popup blocking to be disabled for certain functions to work correctly.</string>
 	<string source="popups_blocked">Popups are Blocked</string>
-	<string source="logged_in_as">Logged in as: &lt;b&gt;%1$s - %2$s&lt;/b&gt;</string>
+	<string source="logged_in_as"><![CDATA[Logged in as: <strong>%1$s</strong> (%2$s)]]></string>
 	<string source="logged_in">Logged in</string>
 	<string source="asset_search_default_keyword">Enter keywords, asset ID or URL</string>
 	<string source="asset_search_default">Enter asset ID or URL</string>
@@ -2084,4 +2084,7 @@ Are you sure you want to proceed?</string>
 	<string source="force_secure_login_urls_note">Any time login box is to printed at a URL based on a root URL selected above, secure HTTP protocol will be used, regardless of any other protocol settings</string>
 	<string source="require_secure_login">Require Secure Login</string>
 
+	<string source="licence_type_gpl"><![CDATA[GPL Version - <strong><u>NO WARRANTY</u></strong>]]></string>
+	<string source="licence_type_ssv_valid"><![CDATA[Squiz-Supported Version - Warranty Valid]]></string>
+	<string source="licence_type_ssv_expired"><![CDATA[Squiz-Supported Version - <strong><u>WARRANTY EXPIRED</u></strong>]]></string>
 </strings>
