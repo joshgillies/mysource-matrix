@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.43 2006/12/05 05:39:10 bcaldwell Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.43.2.1 2007/01/08 06:42:40 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -251,7 +251,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			foreach (array_chunk(array_unique($todo_normal), 999) as $chunk) {
 				$quoted = Array();
 				foreach ($chunk as $id) {
-					$quoted[] = $db->quoteSmart($id);
+					$quoted[] = $db->quoteSmart((string)$id);
 				}
 				$wheres[] = '(l.minorid IN ('.implode(', ', $quoted).'))';
 			}
