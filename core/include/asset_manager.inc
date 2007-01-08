@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.538 2007/01/04 03:37:06 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.539 2007/01/08 03:03:39 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.538 $
+* @version $Revision: 1.539 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5390,6 +5390,125 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
+	* Return list of errors if the asset would be blocked from being trashed if
+	* Safe Trash feature is on, empty array otherwise
+	*
+	* @param int		$assetid			The asset we want to trash
+	* @param int		$ignore_linkid		Link ID to ignore when calculating the number
+	*										of type 1/2 links remaining (typically the
+	*										link we are moving)
+	* @param boolean	$ignore_other_links	Whether to check whether there are any remaining
+	*										type 1/2 links before providing link errors
+	*										(default = TRUE, as most use of this is for
+	*										status of safe trash cron job)
+	*
+	*
+	* @return array
+	* @access public
+	*/
+	function canSafeTrashAsset($assetid, $ignore_linkid=0, $ignore_other_links=TRUE)
+	{
+		$asset =& $this->getAsset($assetid);
+
+		$trash_errors = Array();
+
+		// If we are ignoring other backend links (so we can provide a status),
+		// then skip this part and always run the links check. Otherwise, we
+		// don't consider links a problem if we are not the last link going into
+		// the trash, and therefore only look at links if there are no more
+		// links outside the trash
+
+		if (!$ignore_other_links) {
+			$trash_assetid = $this->getSystemAssetid('trash_folder');
+			$trash_link = $this->getLinkByAsset($trash_assetid, $asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
+			$num_other_links = $this->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 + SQ_LINK_TYPE_2, '', TRUE, $ignore_linkid);
+
+			if (!empty($trash_link)) $num_other_links--;
+		} else {
+			$num_other_links = 0;
+		}
+
+		if (!$num_other_links) {
+			// Get all the TYPE_3|NOTICE links this asset has in the system and
+			// display them to the user
+			// note that we are also going to ask the major asset in the link
+			// to describe it so it makes sense to the user looking at it
+			// NB: if there is a Safe Trash cron job attached to this, don't
+			//     count that towards this
+			$affected_links = $this->getLinks($asset->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, '', TRUE, 'minor');
+			$safe_trash_cron_job = $this->getLinks($asset->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, 'cron_job_attempt_safe_trash', TRUE, 'minor');
+
+			// We can't use array_diff() because it does a string comparison
+			// ("Array" == "Array".... ooh nasty). So we will trawl through the
+			// array to find the cron job and pluck it out
+			if (!empty($safe_trash_cron_job)) {
+				foreach (array_keys($affected_links) as $affected_link_key) {
+					if ($affected_links[$affected_link_key]['linkid'] == $safe_trash_cron_job[0]['linkid']) {
+						unset($affected_links[$affected_link_key]);
+						break;
+					}
+				}
+			}
+
+			if (!empty($affected_links)) {
+				// if type3 or notice linked to other asset, it is not safe to be trashed
+				$trash_errors['links'] = $affected_links;
+			}
+		}
+
+		// if the status is not under construction and not archived, it is not safe to be trashed
+		if ($asset->status >= SQ_STATUS_LIVE) {
+			$trash_errors['status'] = $asset->status;
+		}
+
+		// check the same thing for all children
+		// generate the get children query
+		$children = $this->generateGetChildrenQuery($asset, '', TRUE, FALSE);
+		if (!empty($children)) {
+			// modify the selection so that we only get 1 column
+			$children['select'] = '(SELECT DISTINCT l.minorid';
+			if (isset($children['union_select'])) {
+				$children['union_select'] = 'UNION ALL SELECT sl.minorid';
+			}
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'SELECT
+						majorid, minorid, name, linkid, status, link_type
+					FROM
+						'.SQ_TABLE_RUNNING_PREFIX.'ast_lnk lnk
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast ast ON (ast.assetid = lnk.minorid)
+					WHERE
+						(
+							(link_type = '.$db->quoteSmart(SQ_LINK_TYPE_3).' OR link_type = '.$db->quoteSmart(SQ_LINK_NOTICE).') OR
+							(status >= '.$db->quoteSmart(SQ_STATUS_LIVE).')
+						) AND
+						assetid IN ('.implode(' ', $children).')';
+			$result = $db->getAll($sql);
+			assert_valid_db_result($result);
+			if (!empty($result)) {
+				$used_minorids = Array();
+
+				// Reduce the children array so there is only one entry for
+				// each violating asset
+				foreach (array_keys($result) as $result_key) {
+					$minorid = $result[$result_key]['minorid'];
+					if (in_array($minorid, $used_minorids)) {
+						unset($result[$result_key]);
+					} else {
+						$used_minorids[] = $minorid;
+					}
+
+				}
+
+				$trash_errors['children'] = $result;
+			}
+		}
+
+		return $trash_errors;
+
+	}//end canSafeTrashAsset()
+
+
+	/**
 	* Send the specified asset directly to the trash, where possible
 	*
 	* This deletes its links to all its current parents, and creates a link for it in the trash folder
@@ -7184,7 +7303,6 @@ class Asset_Manager extends MySource_Object
 		if ($direct_shadows_only) {
 			$union_where = 'sl.majorid = '.$db->quoteSmart($asset->id);
 		} else {
-			$union_where = "sl.majorid IN (SELECT DISTINCT l.minorid $from $where)";
 		}
 		$union_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
 
