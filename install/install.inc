@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.67.2.1 2006/12/28 23:51:21 tbarrett Exp $
+* $Id: install.inc,v 1.67.2.2 2007/01/08 03:22:45 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.67.2.1 $
+* @version $Revision: 1.67.2.2 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -39,6 +39,11 @@ function regenerate_configs()
 	// Re-generate the System Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/system_config.inc';
 	$cfg =& new System_Config();
+	if (!$cfg->save(Array(), FALSE)) return FALSE;
+
+	// Re-generate the Licence Config to ensure it exists
+	require_once SQ_INCLUDE_PATH.'/licence_config.inc';
+	$cfg =& new Licence_Config();
 	if (!$cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the External Tools Config to make sure that we get any new defines that may have been issued
@@ -834,14 +839,7 @@ function build_localised_screen($asset_type, $screen, $locale)
 
 					case 'note':
 						// is a section note already set?
-						$section_note_found = FALSE;
-						foreach ($this_section->children as $child) {
-							if ($child->name == 'note') {
-								$section_note_found = TRUE;
-								break;
-							}
-						}
-						if (!$section_note_found) {
+						if (!isset($this_section->attributes['note'])) {
 							$this_section->insertChild(NULL, count($this_section->children), $xml_field->name, $xml_field->content);
 						}
 					break;
@@ -1662,6 +1660,43 @@ function extract_internal_messages($file)
 	return $extracted_messages;
 
 }//end extract_internal_messages()
+
+
+/**
+* Generate an install key for this system
+*
+* The install key is simply an md5_file() on the main.inc file. This function
+* should be called the FIRST time step_03.php is called, then again when the
+* generate_install_key.php script is run.
+*
+* This function will return NULL if the main.inc file does not exist.
+*
+* @param boolean	$create_key_file	If TRUE, also add to licence config
+*										(if key is not NULL)
+*
+* @return mixed string|null
+* @access public
+*/
+function generate_install_key($create_key_file=FALSE)
+{
+	$install_key = NULL;
+	$main_file = SQ_DATA_PATH.'/private/conf/main.inc';
+
+	if (file_exists($main_file)) {
+		$install_key = md5_file($main_file);
+
+		if ($create_key_file) {
+			require_once SQ_INCLUDE_PATH.'/licence_config.inc';
+			$cfg =& new Licence_Config();
+			if (!$cfg->save(Array('SQ_LICENCE_INSTALL_KEY' => $install_key), FALSE)) {
+				return NULL;
+			}
+		}
+	}
+
+	return $install_key;
+
+}//end generate_install_key()
 
 
 ?>
