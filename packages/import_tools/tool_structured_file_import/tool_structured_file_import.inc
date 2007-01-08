@@ -10,10 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_structured_file_import.inc,v 1.8 2006/12/07 01:09:33 emcdonald Exp $
+* $Id: tool_structured_file_import.inc,v 1.9 2007/01/08 03:47:45 emcdonald Exp $
 *
 */
 
+check_ssv_licence();
 require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -28,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    searching.
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */

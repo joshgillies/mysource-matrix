@@ -10,10 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_poll.inc,v 1.3 2006/12/07 03:17:17 bcaldwell Exp $
+* $Id: ipb_poll.inc,v 1.4 2007/01/08 03:49:22 emcdonald Exp $
 *
 */
 
+check_ssv_licence();
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
@@ -23,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */

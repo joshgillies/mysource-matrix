@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ipb.inc,v 1.6 2006/12/07 03:18:13 bcaldwell Exp $
+* $Id: authentication_ipb.inc,v 1.7 2007/01/08 03:49:22 emcdonald Exp $
 *
 */
 
-
+check_ssv_licence();
 require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authentication.inc';
 require_once SQ_PACKAGES_PATH.'/ipb/ipb.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
