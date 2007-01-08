@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.72 2006/12/29 01:02:57 tbarrett Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.73 2007/01/08 23:02:33 hnguyen Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2486,12 +2486,19 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			// for now we will only sort by the original set of options (not
 			// attributes - it would clutter the page for one)
 			$sort_by_options = $this->_getStandardSortByOptions($asset);
+			$sort_by_options['sorting_metadata_field'] = 'Metadata Field';
 			$sort_by_options[''] = '-- '.translate('select').' --';
 
 			$current_option = array_get_index($group_by_option, 'sort_by', '');
 
 			if ($write_access) {
 				combo_box($prefix.'[sort_by]', $sort_by_options, FALSE, $current_option);
+				if ($current_option == 'sorting_metadata_field') {
+					echo '<br>';
+					$field_assetid = array_get_index($group_by_option, 'sorting_metadata_field', 0);
+					asset_finder($prefix.'[sorting_metadata_field]',$field_assetid);
+				}
+				$o->note('Select the order in which the parent assets should be displayed');
 			} else {
 
 				if (empty($current_option)) {
@@ -2535,6 +2542,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					unset($group_by_option['restrict_types']['type_code'][$key]);
 					unset($group_by_option['restrict_types']['inherit'][$key]);
 				}
+			}
+
+			if (isset($posted_option['sorting_metadata_field'])) {
+			$group_by_option['sorting_metadata_field'] = $posted_option['sorting_metadata_field']['assetid'];
 			}
 
 			$group_by_option['direct_parent_only'] = array_get_index($posted_option, 'direct_parent_only', FALSE);
