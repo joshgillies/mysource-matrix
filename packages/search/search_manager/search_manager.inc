@@ -10,9 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.131.2.4 2006/12/20 02:56:56 lwright Exp $
+* $Id: search_manager.inc,v 1.131.2.5 2007/01/08 05:41:13 emcdonald Exp $
 *
 */
+
+check_ssv_licence();
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
@@ -22,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.131.2.4 $
+* @version $Revision: 1.131.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */

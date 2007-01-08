@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.29 2006/12/07 02:46:11 bcaldwell Exp $
+* $Id: design_area_searchbox.inc,v 1.29.2.1 2007/01/08 05:41:14 emcdonald Exp $
 *
 */
 
-
+check_ssv_licence();
 require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
