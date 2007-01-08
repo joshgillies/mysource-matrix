@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.156.2.4 2007/01/01 23:21:52 emcdonald Exp $
+* $Id: general.inc,v 1.156.2.5 2007/01/08 03:49:00 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.156.2.4 $
+* @version $Revision: 1.156.2.5 $
 * @package MySource_Matrix
 */
 
@@ -1491,7 +1491,7 @@ function replace_global_keywords(&$text)
 				if (0 === strpos($keyword, 'globals_asset_')) {
 					$asset_keyword = 'asset_'.substr($keyword, 14);
 					$asset_replacement = $GLOBALS['SQ_SYSTEM']->frontend_asset->getKeywordReplacement($asset_keyword);
-					if ($asset_replacement != "%$asset_keyword%") {
+					if ($asset_replacement != "%$user_keyword%") {
 						$replacements[$keyword] = $asset_replacement;
 					}
 				}
@@ -1586,4 +1586,24 @@ function do_redirect($url, $message=NULL, $timeout=0)
 	exit(1);
 
 }//end do_redirect()
+
+
+/**
+* Check licence for Squiz Supported Version (SSV)
+*
+* If licence file does not exist, or this is not an SSV edition, then exit
+*
+* @return boolean
+* @access public
+*/
+function check_ssv_licence()
+{
+	if (file_exists(SQ_DATA_PATH.'/private/conf/licence.inc')) {
+		include_once SQ_DATA_PATH.'/private/conf/licence.inc';
+		if (SQ_LICENCE_TYPE !== 'SSV') exit(1);
+	} else {
+		exit(1);
+	}
+
+}//end is_ssv()
 ?>
