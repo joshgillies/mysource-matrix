@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.204 2007/01/07 23:12:08 hnguyen Exp $
+* $Id: listing_engine.inc,v 1.205 2007/01/08 23:01:35 hnguyen Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.204 $
+* @version $Revision: 1.205 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3011,8 +3011,25 @@ class Listing_Engine extends Page
 			case 'parent_asset':
 				// find the info on the assets that are being used, sort by them,
 				// then re-order the results based upon them
-				$group_order = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($results), 'asset', FALSE, array_get_index($group_type, 'sort_by', 'assetid'));
+				if (!empty($group_type['sorting_metadata_field'])) {
+					$sorting_metadata_field_id = $group_type['sorting_metadata_field'];
+					if (!empty($sorting_metadata_field_id)) {
+						$sorting_metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sorting_metadata_field_id);
+					}
+					if (!is_null($sorting_metadata_field)) {
+						// get the metadata manager if we haven't already
+						if (!isset($mm)) {
+							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						}//end if
+						$group_order = Array();
+						foreach ($results as $key => $arrayInfo) {
+							$group_order[$key] = $mm->getMetadataValueByAssetid($key, $sorting_metadata_field_id, TRUE);
+						}//end foreach
+					}//end if
+				} else {
+					$group_order = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($results), 'asset', FALSE,array_get_index($group_type, 'sort_by', 'assetid'));
 
+				}//end else
 				if (array_get_index($group_type, 'sort_order', 'asc') == 'asc') {
 					asort($group_order);
 				} else {
