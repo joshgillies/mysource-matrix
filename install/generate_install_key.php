@@ -10,17 +10,17 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_01.php,v 1.42 2007/01/08 03:01:44 lwright Exp $
+* $Id: generate_install_key.php,v 1.1 2007/01/08 03:01:44 lwright Exp $
 *
 */
 
 /**
-* Install Step 1
+* Generate Install Key
 *
 * Purpose
 *
-* @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.42 $
+* @author  Luke Wright <lwright@squiz.net>
+* @version $Revision: 1.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -51,28 +51,20 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error($err_msg, E_USER_ERROR);
 }
 
-define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
-define('SQ_INCLUDE_PATH', SQ_SYSTEM_ROOT.'/core/include');
-define('SQ_LIB_PATH',     SQ_SYSTEM_ROOT.'/core/lib');
-define('SQ_DATA_PATH',    SQ_SYSTEM_ROOT.'/data');
-define('SQ_FUDGE_PATH',   SQ_SYSTEM_ROOT.'/fudge');
-define('SQ_PHP_CLI',      (php_sapi_name() == 'cli'));
+define ('SQ_SYSTEM_ROOT', $SYSTEM_ROOT);
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
+require_once $SYSTEM_ROOT.'/install/install.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
-require_once SQ_INCLUDE_PATH.'/system_config.inc';
-require_once SQ_INCLUDE_PATH.'/licence_config.inc';
+echo 'Generating install key...'."\n";
 
-// override some of the default config values
-define('SQ_CONF_PEAR_PATH', SQ_SYSTEM_ROOT.'/php_includes');
+$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+$install_key = generate_install_key(TRUE);
+$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-$cfg =& new System_Config();
-$cfg->save(Array(), TRUE);
-
-$cfg =& new Licence_Config();
-$cfg->save(Array(), TRUE);
-
-// reminder for chmod
-echo 'Remember to give your system\'s Apache user write access to'."\n";
-echo 'the cache and data directories of your Matrix install...'."\n";
-
+if (is_null($install_key)) {
+	echo 'Could not generate an install key because the main.inc file was not found or is not accessible'."\n";
+} else {
+	echo 'Your system\'s install key is [ '.$install_key.' ]'."\n";
+}
 ?>
