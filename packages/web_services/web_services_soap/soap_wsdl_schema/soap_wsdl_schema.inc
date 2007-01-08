@@ -10,10 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_schema.inc,v 1.15 2006/12/07 04:06:31 bcaldwell Exp $
+* $Id: soap_wsdl_schema.inc,v 1.16 2007/01/08 04:01:42 emcdonald Exp $
 *
 */
 
+check_ssv_licence();
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once 'SOAP/Client.php';
 
@@ -40,7 +41,7 @@ define('SQ_SOAP_WSDL_COMPONENT_TYPE', 'asset');
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */

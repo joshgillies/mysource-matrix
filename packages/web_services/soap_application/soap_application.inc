@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application.inc,v 1.22 2007/01/03 03:19:13 arailean Exp $
+* $Id: soap_application.inc,v 1.23 2007/01/08 04:01:40 emcdonald Exp $
 *
 */
 
-
+check_ssv_licence();
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */

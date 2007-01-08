@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_application_step.inc,v 1.22 2006/12/07 03:53:36 bcaldwell Exp $
+* $Id: soap_application_step.inc,v 1.23 2007/01/08 04:01:41 emcdonald Exp $
 *
 */
 
-
+check_ssv_licence();
 define('SQ_SOAP_APP_TYPE_KEYWORD_PREFIX',  'wsdl_type');
 define('SQ_SOAP_APP_VALUE_KEYWORD_PREFIX', 'wsdl_value');
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */

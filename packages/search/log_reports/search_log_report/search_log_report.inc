@@ -10,10 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report.inc,v 1.4 2006/12/07 01:07:18 bcaldwell Exp $
+* $Id: search_log_report.inc,v 1.5 2007/01/08 04:00:57 emcdonald Exp $
 *
 */
 
+check_ssv_licence();
 require_once SQ_CORE_PACKAGE_PATH.'/log_report/log_report.inc';
 
 /**
@@ -25,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/log_report/log_report.inc';
 *
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */

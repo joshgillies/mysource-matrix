@@ -10,10 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_wsdl_element.inc,v 1.6 2006/12/07 04:06:29 bcaldwell Exp $
+* $Id: soap_wsdl_element.inc,v 1.7 2007/01/08 04:01:41 emcdonald Exp $
 *
 */
 
+check_ssv_licence();
 require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_component/soap_wsdl_component.inc';
 
 /**
@@ -23,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/web_services_soap/soap_wsdl_compone
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
