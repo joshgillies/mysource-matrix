@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation_edit_fns.inc,v 1.17 2006/12/05 22:56:41 emcdonald Exp $
+* $Id: design_css_customisation_edit_fns.inc,v 1.17.2.1 2007/01/08 04:05:54 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -249,6 +249,7 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 	function _updateDesignAreaLink(&$asset, $data)
 	{
 		$da_links = $asset->getDesignAreaLink();
+		$old_da_ids = Array();
 		foreach ($da_links as $da_link) {
 			$id_name = $da_link['value'];
 			// skip this design area if it is not in the list of design areas to update
@@ -259,6 +260,8 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 			if ($data[$id_name][0] == $da_link['minorid']) {
 				continue;
 			}
+
+			$old_da_ids[] = $da_link['minorid'];
 
 			// remove the old link (the one from the original design)
 			if (!$asset->deleteLink($da_link['linkid'])) {
@@ -283,11 +286,27 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 
 		}//end foreach
 
+		// Update our customisations to use our DAs where appropriate
 		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_css_customisation', TRUE, 'major', 'customisation');
 		foreach ($customisation_links as $customisation_link) {
 			$customisation =& $GLOBALS['SQ_SYSTEM']->am->getAsset($customisation_link['minorid'], $customisation_link['minor_type_code']);
 			if (is_null($customisation)) continue;
-			if (!$this->_updateDesignAreaLink($customisation, $data)) {
+
+			// We don't want to overwrite already-customised design areas in the 
+			// customisation, so we filter the update array to remove them.
+			// We do this by applying the rule that we can only unlink DAs
+			// from the customisation if we just unlinked them from ourselves
+			$cust_update_data = $data; // copy
+			foreach ($customisation->getCustomisedAreas() as $link) {
+				if (isset($cust_update_data[$link['value']])) {
+					if (!in_array($link['minorid'], $old_da_ids)) {
+						// this customisation has its own version of this DA already
+						// so don't cascade our DA to it
+						unset($cust_update_data[$link['value']]);
+					}
+				}
+			}
+			if (!$this->_updateDesignAreaLink($customisation, $cust_update_data)) {
 				return FALSE;
 			}
 		}
