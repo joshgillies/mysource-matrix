@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.213 2007/01/05 05:20:28 hnguyen Exp $
+* $Id: lang_strings.xml,v 1.214 2007/01/08 03:02:43 lwright Exp $
 *
 */
 
@@ -168,6 +168,7 @@
 	<string source="keyword_name">Keyword Name</string>
 	<string source="layout_code">Layout Code</string>
 	<string source="level">Level</string>
+	<string source="links">Links</string>
 	<string source="lineage">Lineage</string>
 	<string source="lineages">Lineages</string>
 	<string source="lock_length">Lock Length</string>
@@ -333,7 +334,7 @@
 	<string source="wysiwyg_htmltidy_status_wait">HTMLTidy has not been used to validate this content</string>
 	<string source="wysiwyg_htmltidy_status_pass">HTMLTidy has validated this content</string>
 	<string source="wysiwyg_htmltidy_status_fail">HTMLTidy failed to validate this content</string>
-	<string source="wysiwyg_pspell_not_installed">Pspell not installed</string>	
+	<string source="wysiwyg_pspell_not_installed">Pspell not installed</string>
 	<string source="warning_-_moving_to_trash">Warning - Moving To Trash</string>
 	<string source="word_list">Word List</string>
 	<string source="word_list_note">New line separated list of words that are not allowed to be used as password</string>
@@ -380,11 +381,15 @@
 	<string source="cron_deadlock_must_acquire_lock">You must acquire the lock in order resolve this issue</string>
 	<string source="cron_deadlock_warning_contact_root">You must contact the root user to resolve this issue</string>
 	<string source="cron_force_lock_removal">Force Removal of Lock</string>
+	<string source="cron_job_escalate_safe_trash">Escalate Safe Trash Cron Job</string>
 	<string source="cron_job_expired_workflow">Expired Workflow Cron Job</string>
 	<string source="cron_new_future_linking">New Future Linking</string>
 	<string source="cron_job_asset-less_future_linking">Asset-less Future Linking Cron Job</string>
 	<string source="cron_job_asset_less_future_status">Asset-less Future Status Cron Job</string>
+	<string source="cron_job_assetless_attempt_safe_trash">Asset-less Attempt Safe Trash Cron Job</string>
 	<string source="cron_job_generate_log_reports">Generate Log Reports Cron Job</string>
+	<string source="cron_safe_trash_for">Safe Trash for %s</string>
+	<string source="cron_attempt_safe_trash_for">Attempt Safe Trash for %s</string>
 	<string source="cron_fl_for">FL for %s</string>
 	<string source="cron_fl_delete_all_existing_links">All</string>
 	<string source="cron_fl_delete_all_existing_links_long">Delete all existing links</string>
@@ -425,7 +430,7 @@
 	<string source="never_published">This asset has never been published</string>
 	<string source="disable_popup_blocking">MySource Matrix requires popup blocking to be disabled for certain functions to work correctly.</string>
 	<string source="popups_blocked">Popups are Blocked</string>
-	<string source="logged_in_as">Logged in as: &lt;b&gt;%1$s - %2$s&lt;/b&gt;</string>
+	<string source="logged_in_as"><![CDATA[Logged in as: <strong>%1$s</strong> (%2$s)]]></string>
 	<string source="logged_in">Logged in</string>
 	<string source="asset_search_default_keyword">Enter keywords, asset ID or URL</string>
 	<string source="asset_search_default">Enter asset ID or URL</string>
@@ -2118,4 +2123,20 @@ Are you sure you want to proceed?</string>
 	<string source="password_rules_blacklist_loose">Passwords must not contain any of these words: %s</string>
 	<string source="password_rules_intro">The following rules apply to new passwords:</string>
 	<string source="password_entry_instructions">Enter password once, then again to confirm.</string>
+
+	<string source="safe_trash_line_common">This asset is marked to be automatically trashed when it meets Safe Trash conditions.</string>
+	<string source="safe_trash_line_still_blocked">There are still Safe Trash conditions that prevent this asset from being trashed:</string>
+	<string source="safe_trash_line_unblocked">This asset now satisfies those conditions and will now be trashed at the next run of the Cron Manager.</string>
+	<string source="safe_trash_line_disabled">However, Safe Trash is currently disabled. This asset will be trashed at the next run of the Cron Manager.</string>
+	<string source="safe_trash_line_blocked_links"><![CDATA[There are NOTICE or TYPE_3 links from another asset to this asset. See the <a href="%s">Linking screen</a> for details of all this asset's links.]]></string>
+	<string source="safe_trash_line_blocked_status"><![CDATA[The asset's status is Live or higher status. Change the status to <em>Under Construction</em> or <em>Archived</em> to satisfy this condition.]]></string>
+	<string source="safe_trash_line_blocked_children">Any of the asset's children is either of Live or higher status, or is NOTICE or TYPE_3 linked to another asset.</string>
+
+	<string source="safe_trash_child_message_both">Your asset is currently at a status of "%s". Also, your asset contains links to other assets that are hidden to the asset map.</string>
+	<string source="safe_trash_child_message_links">Your asset currently contains links to other assets that are hidden to the asset map.</string>
+	<string source="safe_trash_child_message_status">Your asset is currently at a status of "%s".</string>
+
+	<string source="licence_type_gpl"><![CDATA[GPL Version - <strong><u>NO WARRANTY</u></strong>]]></string>
+	<string source="licence_type_ssv_valid"><![CDATA[Squiz-Supported Version - Warranty Valid]]></string>
+	<string source="licence_type_ssv_expired"><![CDATA[Squiz-Supported Version - <strong><u>WARRANTY EXPIRED</u></strong>]]></string>
 </strings>

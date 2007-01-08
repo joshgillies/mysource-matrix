@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.19 2006/12/05 04:59:23 bcaldwell Exp $
+* $Id: lang_messages.xml,v 1.20 2007/01/08 03:02:43 lwright Exp $
 *
 * Core Internal Messages File
 */
@@ -418,5 +418,29 @@ A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<S
 	<message type="inbox.sent">
 		<subject>%subject%</subject>
 		<body>%body%</body>
+	</message>
+	<message type="cron.safetrash.notify.children">
+		<subject>Safe Trash Warning: %asset_name%</subject>
+		<body>You have administrator access to the asset "%link_asset_name%" (Id: #%link_assetid%), which is a child of asset "%asset_name%" (Id: #%assetid%). The parent asset was marked to be safe-trashed by "%trashing_user%", and has been marked since %trash_date%.
+
+"%asset_name%" cannot be trashed until all of its children also meet safe-trash conditions. Your asset is currently blocking this safe-trashing. This could be for one of two reasons. Your asset could be at a status of "Live" or higher. Or, your asset could contain links to other assets that are hidden to the asset map.
+
+Please rectify the above issues so the asset can be trashed as soon as possible, or consult the user who marked the asset for safe trashing.</body>
+	</message>
+	<message type="cron.safetrash.notify.links">
+		<subject>Safe Trash Warning: %asset_name%</subject>
+		<body>You have administrator access to the asset "%link_asset_name%" (Id: #%link_assetid%), which is linked to asset "%asset_name%" (Id: #%assetid%). The linked asset was marked to be safe-trashed by "%trashing_user%", and has been marked since %trash_date%.
+
+Your asset currently contains links to "%asset_name%" that are hidden to the asset map (of type TYPE_3 or NOTICE - often this is due to links within bodycopies). "%asset_name%" cannot be trashed until all TYPE_3 or NOTICE links to it are removed.
+
+Please rectify the above issue (by removing the links) so the asset can be trashed as soon as possible, or consult the user who marked the asset for safe trashing.</body>
+	</message>
+	<message type="cron.safetrash.notify.status">
+		<subject>Safe Trash Warning: %asset_name%</subject>
+		<body>You have administrator access to the asset "%asset_name%" (Id: #%assetid%), which was marked to be safe-trashed by "%trashing_user%". The asset has been marked since %trash_date%.
+
+This asset is currently at a status of "%asset_status%". It cannot be trashed until the asset is "Placed Under Construction" or "Archived".
+
+Please rectify the above issue (by changing the status of the asset) so it can be trashed as soon as possible, or consult the user who marked the asset for safe trashing.</body>
 	</message>
 </messages>
