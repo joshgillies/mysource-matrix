@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.38 2006/12/28 01:25:47 lwright Exp $
+* $Id: edit.js,v 1.39 2007/01/08 02:49:35 lwright Exp $
 *
 */
 
@@ -347,6 +347,9 @@ function listMoveUp(obj, optionList) {
 	}
 	if (currentOrder == 0) return;
 
+	// If the input is disabled, don't respond
+	if (inputs[currentOrder].disabled) return;
+
 	var temp = inputs[currentOrder-1].value;
 	inputs[currentOrder-1].value = inputs[currentOrder].value;
 	inputs[currentOrder].value = temp;
@@ -366,6 +369,9 @@ function listMoveDown(obj, optionList) {
 
 	if (currentOrder == inputs.length) return;
 
+	// If the input is disabled, don't respond
+	if (inputs[currentOrder].disabled) return;
+
 	var temp = inputs[currentOrder+1].value;
 	inputs[currentOrder+1].value = inputs[currentOrder].value;
 	inputs[currentOrder].value = temp;
@@ -379,6 +385,9 @@ function deleteOptionListRow(button)
 	}
 
 	if (input.value == '') return;
+
+	// If the input is disabled, don't respond
+	if (input.disabled) return;
 
 	// Don't let the option list get down to a single element. Clear the field
 	// instead, but leave it as two elements
