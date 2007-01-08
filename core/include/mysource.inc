@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.205.2.5 2006/12/15 03:38:30 tbarrett Exp $
+* $Id: mysource.inc,v 1.205.2.6 2007/01/08 03:46:02 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.205.2.5 $
+* @version $Revision: 1.205.2.6 $
 * @package MySource_Matrix
 */
 class MySource
@@ -164,6 +164,7 @@ class MySource
 	* @var boolean
 	*/
 	var $_user_is_public = TRUE;
+
 
 	/**
 	* Array of system messages
@@ -1273,6 +1274,28 @@ class MySource
 		// Do pass any event data since we can get it from $_SESSION
 		$event_data = Array('password' => array_get_index($_POST, 'SQ_LOGIN_PASSWORD'));
 		$this->broadcastTriggerEvent('trigger_event_user_login', $user, $event_data);
+
+		// check warranty (if a warranty key exists)
+		if (defined('SQ_LICENCE_WARRANTY_KEY') && (SQ_LICENCE_WARRANTY_KEY !== '') && (SQ_LICENCE_TYPE === 'SSV')) {
+			$expiry_date = substr(base64_decode(SQ_LICENCE_WARRANTY_KEY), 4);
+			$current_date = date('Ymd');
+			$warranty_expired = ($current_date > $expiry_date);
+		} else {
+			// no warranty
+			$warranty_expired = FALSE;
+		}
+
+		if ($this->userSystemAdmin($user) && $warranty_expired) {
+			$return_url = current_protocol().'://'.current_url(FALSE);
+
+			// We need to handle the 'return to HTTP' stuff here in any case
+			if (!$_SESSION['user_is_public'] && array_get_index($_SESSION, 'SQ_RETURN_TO_HTTP')) {
+				unset($_SESSION['SQ_RETURN_TO_HTTP']);
+				$return_url = 'http://'.current_url(FALSE);
+			}
+			require_once dirname(__FILE__).'/key_reminder.inc';
+			exit();
+		}
 
 		if (!$_SESSION['user_is_public'] && array_get_index($_SESSION, 'SQ_RETURN_TO_HTTP')) {
 			unset($_SESSION['SQ_RETURN_TO_HTTP']);
