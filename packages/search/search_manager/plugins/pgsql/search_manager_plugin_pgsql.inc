@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.5 2006/12/20 02:42:53 lwright Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.6 2007/01/08 05:35:56 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -536,6 +536,7 @@ class Search_Manager_Plugin_PgSQL
 	function splitIndexableContent($contents, $type_code, $data_type, $component, $weighting)
 	{
 		$index_content = Array();
+		$contents = strtolower($contents);
 
 		if (trim($contents) != '') {
 			foreach (get_word_counts($contents) as $word => $count) {
