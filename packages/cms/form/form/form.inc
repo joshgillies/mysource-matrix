@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.138.2.2 2006/11/30 22:12:27 lwright Exp $
+* $Id: form.inc,v 1.138.2.3 2007/01/09 05:51:25 rhoward Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.138.2.2 $
+* @version $Revision: 1.138.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1704,6 +1704,7 @@ class Form extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		if (!$submission->create($copy_link)) {
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
