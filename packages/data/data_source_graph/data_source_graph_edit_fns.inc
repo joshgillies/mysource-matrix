@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.18 2007/01/04 03:38:23 bcaldwell Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.19 2007/01/09 03:23:37 rhoward Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -193,20 +193,45 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 		$plot_order = $asset->attr('plot_order');
 
 		if (!empty($_POST[$prefix.'_new_name']) && $_POST[$prefix.'_new_data_source']['assetid'] != '0') {
-			$datasets = $asset->attr('datasets');
+			$datasets        = $asset->attr('datasets');
+			$dataset_assetid = $_POST[$prefix.'_new_data_source']['assetid'];
+			
+			// get the first result, extract the field names from that
+			// otherwise, fall back on 'Not saved'
+			$axis_default_val  =  'Not saved';
+			$data_source_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($dataset_assetid);
+			if (!is_null($data_source_asset)) {
+				$first_result = reset($data_source_asset->getResultSet('default'));
+				if (is_array($first_result)) {
+					$data = array_keys($first_result);
+					// default to the first field available to us
+					$axis_default_val = reset($data);
+				}
+			}
+
 			$datasets[$_POST[$prefix.'_new_name']] = Array(
-														'assetid'	=> $_POST[$prefix.'_new_data_source']['assetid'],
+														'assetid'	=> $dataset_assetid,
 														'settings'	=> Array(
-																		'plot_name'		=> $_POST[$prefix.'_new_name'],
-																		'display_name'	=> $_POST[$prefix.'_new_name'],
-																		'graph_type'	=> 'Image_Graph_Plot_Bar',
-																		'x_axis'		=> 'Not saved',
-																		'y_axis'		=> 'Not saved',
-																		'accumulative'	=> 0,
-																		'fill_colour'	=> '',
-																		'gradient_type'	=> 'none',
-																		'gradient_1'	=> '',
-																		'gradient_2'	=> '',
+																		'plot_name'				=> $_POST[$prefix.'_new_name'],
+																		'display_name'			=> $_POST[$prefix.'_new_name'],
+																		'graph_type'			=> 'Image_Graph_Plot_Bar',
+																		'x_axis'				=> $axis_default_val,
+																		'y_axis'				=> $axis_default_val,
+																		'accumulative'			=> 0,
+																		'fill_colour'			=> 'ffffff',
+																		'gradient_type'			=> 'none',
+																		'gradient_1'			=> '000000',
+																		'gradient_2'			=> '000000',
+																		'line_colour'			=> '000000',
+																		'marker_font_colour'	=> 'ffffff',
+																		'marker_line_colour'	=> '000000',
+																		'marker_fill_colour'	=> '000000',
+																		'bar_spacing'			=> 0,
+																		'use_stacked'			=> FALSE,
+																		'marker_type'			=> 'none',
+																		'value_marker_type'		=> 'IMAGE_GRAPH_VALUE_X',
+																		'pointer_type'			=> 'none',
+																		'pointer_length'		=> 20,
 																	   ),
 													 );
 			// add plot_order entry
@@ -376,7 +401,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 				colour_box($prefix.'_fill_colour', empty($datasets[$plot_name]['settings']['fill_colour']) ? 'ffffff' : $datasets[$plot_name]['settings']['fill_colour']);
 			$o->closeField();
 			$o->openField('Line Colour');
-				colour_box($prefix.'_line_colour', empty($datasets[$plot_name]['settings']['line_colour']) ? 'ffffff' : $datasets[$plot_name]['settings']['line_colour']);
+				colour_box($prefix.'_line_colour', empty($datasets[$plot_name]['settings']['line_colour']) ? '000000' : $datasets[$plot_name]['settings']['line_colour']);
 			$o->closeField();
 			$o->openField('Fill Gradient Type');
 				combo_box($prefix.'_gradient_type', $this->fill_grad_types, FALSE, $datasets[$plot_name]['settings']['gradient_type']);
@@ -860,8 +885,8 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 			$o->openField('Choose Value To be Marked On The Graph');
 				combo_box($prefix.'_value_marker_type', $this->value_marker_types, FALSE, empty($datasets[$plot_name]['settings']['value_marker_type']) ? 'none' : $datasets[$plot_name]['settings']['value_marker_type']);
 			$o->closeField();
-			foreach ($colours as $fiend_title => $key) {
-				$o->openField($fiend_title);
+			foreach ($colours as $field_title => $key) {
+				$o->openField($field_title);
 					colour_box($prefix.'_'.$key, empty($datasets[$plot_name]['settings'][$key]) ? '000000' : $datasets[$plot_name]['settings'][$key]);
 				$o->closeField();
 			}
@@ -881,8 +906,8 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 			$o->openField('Choose Value To be Marked On The Graph');
 				echo $datasets[$plot_name]['settings']['value_marker_type'];
 			$o->closeField();
-			foreach ($colours as $fiend_title => $key) {
-				$o->openField($fiend_title);
+			foreach ($colours as $field_title => $key) {
+				$o->openField($field_title);
 				if (empty($datasets[$plot_name]['settings'][$key])) {
 					echo 'none';
 				} else {
