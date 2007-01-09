@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.45 2007/01/08 06:36:21 tbarrett Exp $
+* $Id: hipo_job_create_links.inc,v 1.46 2007/01/09 00:14:07 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -299,10 +299,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						// We can't use array_diff() because it does a string comparison
 						// ("Array" == "Array".... ooh nasty). So we will trawl through the
 						// array to find the cron job and pluck it out
-						foreach (array_keys($affected_links) as $affected_link_key) {
-							if ($affected_links[$affected_link_key]['linkid'] == $safe_trash_cron_job[0]['linkid']) {
-								unset($affected_links[$affected_link_key]);
-								break;
+						if (!empty($safe_trash_cron_job)) {
+							foreach (array_keys($affected_links) as $affected_link_key) {
+								if ($affected_links[$affected_link_key]['linkid'] == $safe_trash_cron_job[0]['linkid']) {
+									unset($affected_links[$affected_link_key]);
+									break;
+								}
 							}
 						}
 
