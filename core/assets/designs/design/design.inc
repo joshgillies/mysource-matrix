@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.122.2.1 2007/01/08 03:40:19 lwright Exp $
+* $Id: design.inc,v 1.122.2.2 2007/01/09 00:22:39 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.122.2.1 $
+* @version $Revision: 1.122.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -562,7 +562,7 @@ echo '<!--
   Developed by Squiz  - http://www.squiz.net
   (c) Copyright <?php echo date(\'Y\') ?>. All rights reserved.
   Page generated: <?php echo date(\'d F Y H:i:s\')."\n"; ?>
-  Install key: <?php echo (defined("SQ_LICENCE_INSTALL_KEY") ? SQ_LICENCE_INSTALL_KEY : "None")."\n"; ?>
+  Warranty key: <?php echo (defined("SQ_LICENCE_WARRANTY_KEY") ? SQ_LICENCE_WARRANTY_KEY : "None")."\n"; ?>
 -->
 
 <?php
@@ -596,7 +596,7 @@ echo '/*
    Developed by Squiz  - http://www.squiz.net
   (c) Copyright <?php echo date(\'Y\') ?>. All rights reserved.
   Page generated: <?php echo date(\'d F Y H:i:s\')."\n"; ?>
-  Install key: <?php echo (defined("SQ_LICENCE_INSTALL_KEY") ? SQ_LICENCE_INSTALL_KEY : "None")."\n"; ?>
+  Warranty key: <?php echo (defined("SQ_LICENCE_WARRANTY_KEY") ? SQ_LICENCE_WARRANTY_KEY : "None")."\n"; ?>
 */
 
 ';
