@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.56 2006/12/07 00:04:18 emcdonald Exp $
+* $Id: form_email.inc,v 1.57 2007/01/09 23:46:33 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -118,8 +118,12 @@ class Form_Email extends Form
 		}
 		// add form submission time
 		$now = date('d M Y g:i a', time());
-		$information .= ($html) ? '<tr><td valign="top">Submission Time</td>' : 'Submission Time : ';
+		$information .= ($html) ? '<tr><td valign="top">'.translate('cms_form_submission_time').'</td>' : translate('cms_form_submission_time').' : ';
 		$information .= ($html) ? '<td valign="top">'.$now.'</td></tr>' : $now."\n";
+		// add submission ip address
+		$ip_address = $_SERVER['REMOTE_ADDR'];
+		$information .= ($html) ? '<tr><td valign="top">'.translate('cms_form_submission_ip_address').'</td>' : translate('cms_form_submission_ip_address').' : ';
+		$information .= ($html) ? '<td valign="top">'.$ip_address.'</td></tr>' : $ip_address."\n";
 
 		$information .= ($html) ? '</table>' : '';
 		return $information;

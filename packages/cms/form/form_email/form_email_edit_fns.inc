@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.74 2006/12/07 00:04:18 emcdonald Exp $
+* $Id: form_email_edit_fns.inc,v 1.75 2007/01/09 23:46:33 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -632,7 +632,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
 
 		$logs = Array();
-		$headers = Array('__time__' => translate('submission_time'), '__user__' => translate('cms_form_user_submitting'));
+		$headers = Array('__time__' => translate('submission_time'), '__user__' => translate('cms_form_user_submitting'), '__ipaddress__' => translate('cms_form_ipaddress_submitting'));
 
 		$sql = 'SELECT
 					a.assetid, a.type_code, a.created, a.created_userid
@@ -655,15 +655,21 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		while ($asset_info = $result->fetchRow()) {
 			$assetid = $asset_info['assetid'];
 			$type_code = $asset_info['type_code'];
+
 			$create_time = strtotime($asset_info['created']);
 
 			$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 			if (!$sub_asset->attr('complete')) continue;
-			$summary = $sub_asset->getSummary();
 
+			// get the submission ip
+			$ipaddress = $sub_asset->getIP();
+
+			// get the summary
+			$summary = $sub_asset->getSummary();
 			$logs[$assetid] = Array(
-								'__time__'	=> date('Y-m-d H:i:s', $create_time),
-								'__user__'	=> $asset_info['created_userid'],
+								'__time__'		=> date('Y-m-d H:i:s', $create_time),
+								'__user__'		=> $asset_info['created_userid'],
+								'__ipaddress__'	=> $ipaddress,
 							  );
 			if (empty($summary)) $summary = Array();
 			foreach ($summary as $id => $element) {
@@ -748,10 +754,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		while ($asset_info = $result->fetchRow()) {
 			$assetid = $asset_info['assetid'];
 			$type_code = $asset_info['type_code'];
-			$create_time = strtotime($asset_info['created']);
 
 			$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 			if (!$sub_asset->attr('complete')) continue;
+
 			if (trim($sub_asset->attr('xml')) == '') continue;
 			echo $sub_asset->attr('xml');
 		}

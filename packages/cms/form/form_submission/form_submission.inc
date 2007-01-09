@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.29 2006/12/07 00:04:18 emcdonald Exp $
+* $Id: form_submission.inc,v 1.30 2007/01/09 23:46:33 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -400,6 +400,45 @@ class Form_Submission extends Asset
 		return $res;
 
 	}//end getAvailableKeywords()
+
+
+	/**
+	* returns the IP of a submission
+	*
+	* @return mixed boolean|string
+	* @access public
+	*/
+	function getIP()
+	{
+		$a = $this->attr('attributes');
+		if (isset($a['misc']['ip'])) return $a['misc']['ip'];
+		return FALSE;
+
+	}//end getIP()
+
+
+	/**
+	* sets the IP of a submission object
+	*
+	* @param string	$ip	the ip of the user who submitted
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setIP($ip)
+	{
+		$a = $this->attr('attributes');
+		if (empty($a['mics'])) $a['misc'] = Array();
+
+		$a['misc']['ip'] = $ip;
+
+		if (!$this->setAttrValue('attributes', $a)) {
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end setIP()
 
 
 }//end class

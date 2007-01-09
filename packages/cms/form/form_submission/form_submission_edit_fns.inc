@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.18 2006/12/07 00:04:18 emcdonald Exp $
+* $Id: form_submission_edit_fns.inc,v 1.19 2007/01/09 23:46:33 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -55,6 +55,17 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintSubmissionDetails(&$asset, &$o, $prefix)
 	{
+
+		$o->openField(translate('cms_form_submission_ip_address'));
+		echo $asset->getIP();
+		$o->closeField();
+
+		$o->openField(translate('cms_form_submission_time_submitted'));
+		echo date('d M Y H:i:s',$asset->created);
+		$o->closeField();
+		$o->closeSection();
+		$o->openSection(translate('cms_form_submission_answer_to_global_questions'));
+
 		if (!empty($this->_tmp['question_errors'])) {
 			?>
 			<div style="color: red">
@@ -112,10 +123,11 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 		$o->closeSection();
+
 		unset($section_questions[$form_id]);
 		foreach ($section_questions as $section_id => $section_qs) {
 			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_id);
-			$o->openSection('Answers for Section &quot;'.$section->name.'&quot;');
+			$o->openSection(translate('cms_form_submission_answers_for_section',$section->name));
 			foreach ($section->attr('sort_order') as $q_id) {
 				$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_id);
 				if ($q->isEditable() && !$is_editable_q) {
@@ -144,7 +156,8 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 				}
 			}
 			$o->closeSection();
-		}
+
+		}//end foreach
 		return $wa && $is_editable_q;
 
 	}//end paintSubmissionDetails()

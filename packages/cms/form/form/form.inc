@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.146 2007/01/09 05:46:41 rhoward Exp $
+* $Id: form.inc,v 1.147 2007/01/09 23:46:32 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.146 $
+* @version $Revision: 1.147 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1375,6 +1375,7 @@ class Form extends Asset
 					$this->submission_asset->setAnswer(key($questions), $question->getValue());
 					$this->submission_asset->setSummary(key($questions), $question->attr('name'), $question->getSummary());
 				}
+				$this->submission_asset->setIP($_SERVER['REMOTE_ADDR']);
 				$this->submission_asset->setAttrValue('complete', TRUE);
 				$this->submission_asset->setAttrValue('xml', $this->getXML());
 				$this->submission_asset->saveAttributes();
@@ -1502,6 +1503,7 @@ class Form extends Asset
 	{
 		ob_start();
 		echo '<submission time="'.str_replace(' ','T',ts_iso8601(time())).'"';
+		echo ' ip="'.$this->submission_asset->getIP().'"';
 		if (!is_null($cur_user =& $GLOBALS['SQ_SYSTEM']->user)) {
 			echo ' user="'.$cur_user->id.'"';
 		}
