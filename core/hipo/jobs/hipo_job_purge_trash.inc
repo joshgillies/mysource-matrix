@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.43 2006/12/05 05:39:10 bcaldwell Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.43.2.1 2007/01/09 01:31:33 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -277,17 +277,20 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			list($assetid, $type_code) = each($this->_running_vars['to_check']);
 			unset($this->_running_vars['to_check'][$assetid]);
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
-			$sql = 'SELECT COUNT(l.linkid)
-					FROM sq_ast_lnk_tree t INNER JOIN sq_ast_lnk l ON t.linkid = l.linkid
-					WHERE l.minorid = '.$db->quote($assetid).'
-					AND NOT t.treeid LIKE '.$db->quote($this->_running_vars['purge_root_treeid'].'%');
-			$num_external_links = $db->getOne($sql);
+			if (strpos($assetid, ':') === FALSE) {
 
-			assert_valid_db_result($num_external_links);
+				$db =& $GLOBALS['SQ_SYSTEM']->db;
+				$sql = 'SELECT COUNT(l.linkid)
+						FROM sq_ast_lnk_tree t INNER JOIN sq_ast_lnk l ON t.linkid = l.linkid
+						WHERE l.minorid = '.$db->quote($assetid).'
+						AND NOT t.treeid LIKE '.$db->quote($this->_running_vars['purge_root_treeid'].'%');
+				$num_external_links = $db->getOne($sql);
 
-			if ($num_external_links == 0) {
-				$this->_running_vars['to_delete'][$assetid] = $type_code;
+				assert_valid_db_result($num_external_links);
+
+				if ($num_external_links == 0) {
+					$this->_running_vars['to_delete'][$assetid] = $type_code;
+				}
 			}
 		}
 
