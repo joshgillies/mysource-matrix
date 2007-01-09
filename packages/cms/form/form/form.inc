@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.145 2007/01/03 22:02:04 tbarrett Exp $
+* $Id: form.inc,v 1.146 2007/01/09 05:46:41 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.145 $
+* @version $Revision: 1.146 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1717,6 +1717,7 @@ class Form extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		if (!$submission->create($copy_link)) {
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
