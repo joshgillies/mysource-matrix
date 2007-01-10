@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page_edit_fns.inc,v 1.5 2006/12/07 00:04:21 emcdonald Exp $
+* $Id: page_multiple_page_edit_fns.inc,v 1.6 2007/01/10 00:22:15 rhoward Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -148,12 +148,7 @@ class Page_Multiple_Page_Edit_Fns extends Page_Edit_Fns
 
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
-		if ($write_access && isset($_POST[$prefix.'_new_page']) && !empty($_POST[$prefix.'_new_page'])) {
-			$asset->createChildPage($_POST[$prefix.'_new_page']);
-		}
-
-		if (isset($_POST[$prefix.'_delete_page'])) {
-
+		if ($write_access && isset($_POST[$prefix.'_delete_page'])) {
 			// Set the following flag, so the updating of lookups doesnt cause dramas
 			$asset->_tmp['deleting_links'] = TRUE;
 			foreach ($_POST[$prefix.'_delete_page'] as $id => $flag) {
@@ -165,6 +160,10 @@ class Page_Multiple_Page_Edit_Fns extends Page_Edit_Fns
 		}
 		// Restore the flag set above
 		$asset->_tmp['deleting_links'] = FALSE;
+
+		if ($write_access && isset($_POST[$prefix.'_new_page']) && !empty($_POST[$prefix.'_new_page'])) {
+			$asset->createChildPage($_POST[$prefix.'_new_page']);
+		}
 
 		$asset->linksUpdated();
 
