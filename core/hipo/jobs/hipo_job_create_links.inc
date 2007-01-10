@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.46 2007/01/09 00:14:07 lwright Exp $
+* $Id: hipo_job_create_links.inc,v 1.47 2007/01/10 23:33:37 bcaldwell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -510,7 +510,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 									$trash_section_painted = TRUE;
 						}
 
-						echo $asset->name." (Id: #$asset->id)";
+						?><script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/tooltip.js' ?>"></script><?php
+
+						echo get_asset_tag_line($asset->id).'<br /><br />';
 
 						$link_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id);
 
@@ -544,7 +546,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 							?>
 							<tr>
 								<td class="sq-backend-table-cell">
-									<?php echo $lineage; ?>
+									<?php echo get_asset_tag_line($major->id); ?>
 									<?php echo (!empty($link_description)) ? '<br/>'.$link_description : ''; ?>
 								</td>
 							</tr>
