@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.205.2.9 2007/01/10 00:51:45 lwright Exp $
+* $Id: mysource.inc,v 1.205.2.10 2007/01/10 01:02:55 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.205.2.9 $
+* @version $Revision: 1.205.2.10 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1276,11 +1276,12 @@ class MySource
 		$this->broadcastTriggerEvent('trigger_event_user_login', $user, $event_data);
 
 		// check warranty (if a warranty key exists)
-		if (defined('SQ_LICENCE_WARRANTY_KEY') && (base64_decode(SQ_LICENCE_WARRANTY_KEY) !== 'abcdef000000AU00000000') && (SQ_LICENCE_TYPE === 'SSV')) {
-			$wkey_snippet = substr(base64_decode(SQ_LICENCE_WARRANTY_KEY), 0, 6);
+		$decoded_wkey = base64_decode(SQ_LICENCE_WARRANTY_KEY);
+		if (defined('SQ_LICENCE_WARRANTY_KEY') && (substr_replace($decoded_wkey, '', 6, 8) !== 'abcdef00000000') && (SQ_LICENCE_TYPE === 'SSV')) {
+			$wkey_snippet = substr($decoded_wkey, 0, 6);
 			$ikey_snippet = substr(SQ_LICENCE_INSTALL_KEY, 0, 6);
 
-			$expiry_date = substr(base64_decode(SQ_LICENCE_WARRANTY_KEY), 14);
+			$expiry_date = substr($decoded_wkey, 14);
 			$current_date = date('Ymd');
 
 			$warranty_expired = ($current_date > $expiry_date) || ($wkey_snippet !== $ikey_snippet);
