@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.167 2007/01/08 23:12:48 lwright Exp $
+* $Id: backend.inc,v 1.168 2007/01/10 00:51:26 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.167 $
+* @version $Revision: 1.168 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -823,10 +823,10 @@ class Backend extends MySource_Object
 					<?php
 					// check warranty (if a warranty key exists)
 					if (defined('SQ_LICENCE_WARRANTY_KEY') && (SQ_LICENCE_TYPE === 'SSV')) {
-						$wkey_snippet = substr(base64_decode(SQ_LICENCE_WARRANTY_KEY), 0, 4);
-						$ikey_snippet = substr(SQ_LICENCE_INSTALL_KEY, 0, 4);
+						$wkey_snippet = substr(base64_decode(SQ_LICENCE_WARRANTY_KEY), 0, 6);
+						$ikey_snippet = substr(SQ_LICENCE_INSTALL_KEY, 0, 6);
 
-						$expiry_date = substr(base64_decode(SQ_LICENCE_WARRANTY_KEY), 4);
+						$expiry_date = substr(base64_decode(SQ_LICENCE_WARRANTY_KEY), 14);
 						$current_date = date('Ymd');
 						if ((SQ_LICENCE_WARRANTY_KEY === '') || ($current_date > $expiry_date) || ($wkey_snippet !== $ikey_snippet)) {
 							$message = translate('licence_type_ssv_expired');
