@@ -1,0 +1,36 @@
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: print.css,v 1.1 2007/01/11 03:15:34 tbarrett Exp $
+*
+*/
+
+/* MAIN BODY STYLES */
+
+body {
+	background-color: #312839; 
+	background-image: url('../images/icons/asset_map/matrix_logo.gif');
+	background-position: 10px 5px;
+	margin-top: 30px;
+	background-repeat: no-repeat;
+}
+
+/* HEADING STYLES */
+
+table.sq-backend-main-headings {
+	margin-bottom: 6px;
+}
+
+body form {
+	background: white;
+	height: 100%;
+	margin: 0px;
+}

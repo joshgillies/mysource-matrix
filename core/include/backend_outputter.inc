@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.138 2006/12/28 01:43:29 lwright Exp $
+* $Id: backend_outputter.inc,v 1.139 2007/01/11 03:14:51 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.138 $
+* @version $Revision: 1.139 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -945,14 +945,16 @@ class Backend_Outputter
 		?>
 		<html>
 		<head>
-			<title><?php echo htmlspecialchars($this->_heading); ?></title>
+			<title><?php echo htmlspecialchars(str_replace('&nbsp;', ' ', $this->_heading)); ?></title>
 			<?php
-
 			$this->addCssInclude($this->filesPath('css/edit.css'));
+			if (!empty($_REQUEST['print_view'])) {
+				$this->addCssInclude($this->filesPath('css/print.css'));
+			}
+
 			foreach ($this->_css_includes as $file) {
 				$this->_paintCssInclude($file);
 			}
-
 			// first add the js translation files
 			foreach ($GLOBALS['SQ_SYSTEM']->lm->getJavascriptIncludes() as $js_include) {
 				$this->addJsInclude($js_include);
@@ -1086,7 +1088,7 @@ class Backend_Outputter
 			//]]> -->
 			</script>
 		</head>
-		<body onload="page_on_load();" onUnLoad="page_on_unload();">
+		<body onload="page_on_load();" onunload="page_on_unload();">
 		<div id="sq-search-wait-popup"><div id="sq-search-wait-popup-titlebar"><div id="sq-search-wait-popup-close">[ <a href="#" onclick="document.getElementById('sq-search-wait-popup').style.display = 'none'; return false;">x</a> ]</div><span id="sq-search-wait-popup-title">Search in Progress</span></div>
 			<div id="sq-search-wait-popup-details">Your search is being processed, please wait...</div>
 		</div>
@@ -1116,17 +1118,26 @@ class Backend_Outputter
 							}
 						?>
 					</td>
+				<?php
+				if (empty($_REQUEST['print_view'])) {
+					?>
 					<td class="sq-backend-screen-menu">
 						<div id="sq_screen_menu_filler" style="display: none"></div>
 						<div id="sq_screen_menu">
-							<?php $this->printScreenMenu(); ?>
+							<?php
+							$this->printScreenMenu();
+							sq_print_icon(sq_web_path('lib').'/web/images/icons/printer.png', 16, 16, translate('print_this_page'), NULL, 'onclick="showPrintPopup()" class="clickable" style="margin-bottom: -2px; margin-right: 4px"');
+							?>
 						</div>
 					</td>
+					<?php
+				}
+				?>
 				</tr>
 			</table>
 			<?php
 
-			if (isset($_SESSION['sq_nav_history'])) {
+			if (isset($_SESSION['sq_nav_history']) && empty($_REQUEST['print_view'])) {
 				?>
 				<table class="sq-backend-nav-history-container">
 					<tr>

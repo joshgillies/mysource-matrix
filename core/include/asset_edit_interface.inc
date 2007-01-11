@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.312 2006/12/22 01:19:13 skim Exp $
+* $Id: asset_edit_interface.inc,v 1.313 2007/01/11 03:14:51 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.312 $
+* @version $Revision: 1.313 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -309,7 +309,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			} else {
 
-				if (strtolower($screen_lock_type) != 'none') {
+				if ((strtolower($screen_lock_type) != 'none') && empty($_REQUEST['print_view'])) {
 					// lets tell the user if the asset is locked for editing
 					// or if they can lock it to edit it
 					$o->openSection(translate('locking_editing'));
@@ -652,7 +652,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$page_heading = 'Create new '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name');
 		}
 		$page_heading .= '&nbsp;&nbsp;|&nbsp;&nbsp;'.$active_screen_name;
-		if (!$creating) {
+		if (!$creating && empty($_REQUEST['print_view'])) {
 			$page_heading .= '&nbsp;&nbsp;<span class="sq_asset_info_toggle" onclick="sq_toggle_asset_info(this)" id="sq_asset_info_toggle">[ '.translate('more_info').' ]</span>';
 		}
 
@@ -732,7 +732,7 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		// we have printed an editable interface on a static screen - show the commit button
-		if ($print_commit_button) {
+		if ($print_commit_button && empty($_REQUEST['print_view'])) {
 			$o->commitButton('', $force_unlock_on_commit);
 		}
 
