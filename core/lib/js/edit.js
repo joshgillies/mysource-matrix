@@ -9,38 +9,9 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.39 2007/01/08 02:49:35 lwright Exp $
+* $Id: edit.js,v 1.40 2007/01/11 03:09:24 tbarrett Exp $
 *
 */
-
-// if the browser is IE, regiter the onkeydown event
-if(document.all) { document.onkeydown = sq_process_key_down; }
-
-
-// Execute keyboard shortcuts for IE browsers
-function sq_process_key_down() {
-
-	var key;
-
-	// was the ALT key pressed?
-	if(!event.altKey) return true;
-
-	// okay, ALT was pressed - but what other key was pressed?
-	key = String.fromCharCode(event.keyCode);
-	key = key.toLowerCase();
-
-	switch (key) {
-		case "v" :
-			// preview the asset on the frontend in a new window
-			if (parent.frames["sq_main"]) { parent.frames["sq_main"].document.focus(); }
-			if (document.main_form.sq_preview_url) {
-				preview_popup = window.open(document.main_form.sq_preview_url.value, 'preview', '');
-			}
-		break;
-	}//end switch
-
-}//end sq_process_key_down()
-
 
 // This function switches the view between wysiwyg and
 // page content for a wysiwyg editing field on the page
@@ -538,4 +509,11 @@ function focusFirstTextInput()
 			} catch (e) {}
 		}
 	}
+}
+
+function showPrintPopup()
+{
+	var args = 'width='+(self.screen.availWidth/2)+',height='+parseInt(self.screen.availHeight*0.8)+',status=0,location=0,menubar=0,directories=0,scrollbars=1';
+	var printWindow = window.open(self.location.href + '&ignore_frames=1&print_view=1', 'printWindow', args);
+	printWindow.print();
 }
