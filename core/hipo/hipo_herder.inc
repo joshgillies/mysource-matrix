@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.83 2006/12/05 05:39:09 bcaldwell Exp $
+* $Id: hipo_herder.inc,v 1.84 2007/01/11 23:00:59 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -875,6 +875,7 @@ class HIPO_Herder extends MySource_Object
 
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 		$o->setHeading('HIPO Herder', sq_get_icon($o->filesPath('/images/icons/header/hipo_herder.png'), 20, 20, 'HIPO Icon'));
+        $o->setPageTitle('HIPO Herder');
 		$o->addHiddenField('herder_posted', '1');
 
 		// lets tell the user if the asset is locked for editing

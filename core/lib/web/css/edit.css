@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.71 2007/01/11 06:21:26 tbarrett Exp $
+* $Id: edit.css,v 1.72 2007/01/11 23:00:59 colivar Exp $
 *
 */
 
@@ -655,4 +655,24 @@ a.sq-search-results-expand-link {
 
 #sq-search-wait-popup-details {
 	padding: 5px;
+}
+
+/* style for the information and asset finder in asset screen title */
+ul.info_asset_finder {
+  margin:1px 15px; 
+  display:inline;
+  padding:0;
+  margin:0;
+} 
+
+ul.info_asset_finder li {
+  display:inline;
+  margin:0;
+  padding:0;
+  color:#ffffff;
+  font-size:1.1em;
+} 
+
+* html ul.info_asset_finder {
+   margin-left:5px;
 }

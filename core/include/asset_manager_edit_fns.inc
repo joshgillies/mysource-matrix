@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.99 2006/12/22 05:45:21 skim Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.100 2007/01/11 23:00:59 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -400,6 +400,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o =& $this->backend->out;
 
 		$o->setHeading('Asset Types', sq_get_icon($o->filesPath('/images/icons/header/asset_tree.png'), 20, 20, 'Asset Tree'));
+        $o->setPageTitle('Asset Types');
 
 		$o->addHiddenField('am_action');
 		$o->addHiddenField('am_new_type_code');

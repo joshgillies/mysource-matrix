@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tools.inc,v 1.9 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: tools.inc,v 1.10 2007/01/11 23:00:59 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class Tools extends MySource_Object
@@ -44,6 +44,7 @@ class Tools extends MySource_Object
 	{
 		$o =& $backend->out;
 		$o->setHeading(translate('system_tools'), sq_get_icon($o->filesPath('/images/icons/header/whereami.png'), 20, 20, 'Tools'));
+        $o->setPageTitle(translate('system_tools'));
 
 		if (isset($_REQUEST['committed_tool_type_code'])) {
 			// the user has pressed commit for a specific tool
@@ -111,6 +112,7 @@ class Tools extends MySource_Object
 			$am->includeAsset($type_code);
 			$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 			$o->setHeading('System Tools: '.$tool_info['name'], sq_get_icon($o->filesPath('/images/icons/header/asset_tree.png'), 20, 20, 'Tools'));
+            $o->setPageTitle('System Tools: '.$tool_info['name']);
 			call_user_func_array(Array($type_code, 'paintTool'), Array(&$o, $type_code));
 			$o->addHiddenField('committed_tool_type_code', $type_code);
 			$o->openSection('', 'commit');

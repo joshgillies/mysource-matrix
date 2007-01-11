@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.139 2007/01/11 03:14:51 tbarrett Exp $
+* $Id: backend_outputter.inc,v 1.140 2007/01/11 23:00:59 colivar Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.139 $
+* @version $Revision: 1.140 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -63,9 +63,10 @@ class Backend_Outputter
 	var $_anchor  = '';
 
 	// the page heading
+    var $_page_title = '';
 	var $_heading  = '';
 	var $_heading_icon = '';
-	var $_sub_heading = '';
+	var $_sub_heading = ''; 
 
 	// stylesheet files to include
 	var $_css_includes = Array();
@@ -287,6 +288,10 @@ class Backend_Outputter
 
 	}//end setFormAnchor()
 
+    function setPageTitle($title)
+    {
+      $this->_page_title = trim($title);
+    }
 
 	/**
 	* Set the heading for page
@@ -945,7 +950,7 @@ class Backend_Outputter
 		?>
 		<html>
 		<head>
-			<title><?php echo htmlspecialchars(str_replace('&nbsp;', ' ', $this->_heading)); ?></title>
+			<title><?php echo htmlspecialchars(str_replace('&nbsp;', ' ', $this->_page_title)); ?></title>
 			<?php
 			$this->addCssInclude($this->filesPath('css/edit.css'));
 			if (!empty($_REQUEST['print_view'])) {

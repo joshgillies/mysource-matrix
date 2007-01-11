@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.32 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: system_config_edit_interface.inc,v 1.33 2007/01/11 23:00:59 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -61,6 +61,7 @@ class System_Config_Edit_Interface extends MySource_Object
 		$o = &$backend->out;
 
 		$o->setHeading(translate('system_configuration'), sq_get_icon($o->filesPath('/images/icons/header/system_config.png'), 20, 20, 'System Configuration'));
+        $o->setPageTitle(translate('system_configuration'));
 		$o->addHiddenField('config_posted', '1');
 
 

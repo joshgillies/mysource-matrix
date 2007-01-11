@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.315 2007/01/11 06:22:09 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.316 2007/01/11 23:00:59 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.315 $
+* @version $Revision: 1.316 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -650,8 +650,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$page_heading = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').'&nbsp;&nbsp;|&nbsp;&nbsp;';
 			if (empty($_REQUEST['print_view'])) {
 				$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($owner->id);
-				$page_heading .= '<style>ul.info_asset_finder {margin:1px 15px; display:inline;padding:0;margin:0;} ul.info_asset_finder li {display:inline;margin:0;padding:0;color:#ffffff;font-size:1.1em;} * html ul.info_asset_finder {margin-left:5px;}</style><ul class="info_asset_finder">';
-
+                $page_heading .= '<ul class="info_asset_finder">';
 				foreach ($infos as $assetid => $info) {
 					$page_heading .= '<li>'.get_asset_tag_line($assetid).'</li>';
 				}
@@ -664,9 +663,10 @@ class Asset_Edit_Interface extends MySource_Object
 			$page_heading = 'Create new '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name');
 		}
 		$page_heading .= '&nbsp;&nbsp;|&nbsp;&nbsp;'.$active_screen_name;
-
+    
 		$o->setHeading($page_heading, sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code), 16, 16, ''));
-
+        
+        $o->setPageTitle($owner->name);        
 		$sub_heading = '';
 		if ($closest_parentid != $owner->id) {
 			$closest_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($closest_parentid);
@@ -674,7 +674,6 @@ class Asset_Edit_Interface extends MySource_Object
 				$sub_heading = translate('currently_editing', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($closest_parent->type(), 'name'), $closest_parent->name).'<br />';
 			}
 		}
-
 		$o->setSubHeading($sub_heading);
 
 

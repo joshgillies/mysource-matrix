@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.26 2006/12/05 04:58:44 bcaldwell Exp $
+* $Id: maps.inc,v 1.27 2007/01/11 23:01:00 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -66,6 +66,7 @@ class Maps extends MySource_Object
 		$o = &$backend->out;
 
 		$o->setHeading(translate('automated_patching_system'), sq_get_icon($o->filesPath('/images/icons/header/maps.png'), 20, 20, 'Automated Patching System'));
+        $o->setPageTitle(translate('automated_patching_system'));
 		$o->addHiddenField('form_posted', '1');
 
 
