@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.19 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: logs.inc,v 1.20 2007/01/11 03:13:14 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Logs Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 
@@ -50,20 +50,22 @@ function paintLogs(&$owner, &$o, &$ei)
 
 	$log_types = $db->getCol($sql);
 	assert_valid_db_result($log_types);
-
 	$active_log_type = (isset($_REQUEST['sq_backend_log_type'])) ? $_REQUEST['sq_backend_log_type'] : $log_types[0];
+	$selected_key = NULL;
 	$o->addFormActionGetVar('sq_backend_log_type', $active_log_type);
 	$o->openSection(translate('logged_messages'));
 		$o->openRaw();
 			$type_options = Array();
 			foreach ($log_types as $type) {
-				$type_options[$type] = ucwords(str_replace(Array('.', '_'), ' ', $type));
+				$key = replace_query_string_vars(Array('sq_backend_log_type' => $type));
+				if ($type == $active_log_type) $selected_key = $key;
+				$type_options[$key] = ucwords(str_replace(Array('.', '_'), ' ', $type));
 			}
 
 			echo '<b>'.translate('log_type').'</b>&nbsp;';
-			combo_box('sq_backend_log_type', $type_options, FALSE, $active_log_type);
+			combo_box('sq_backend_log_type', $type_options, FALSE, $selected_key);
 			echo '&nbsp;';
-			normal_button($prefix.'_go', translate('view'), 'submit_form()');
+			normal_button($prefix.'_go', translate('view'), 'self.location = document.getElementById(\'sq_backend_log_type\').value');
 		$o->closeRaw();
 
 		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
