@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge.inc,v 1.11 2007/01/08 03:49:22 emcdonald Exp $
+* $Id: ipb_bridge.inc,v 1.12 2007/01/11 05:37:25 amiller Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/ipb/ipb.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -251,7 +251,7 @@ class IPB_Bridge extends Asset
 
 			$asset =& new $class_name($this->id, $data);
 
-		}
+		}//end else
 		return $asset;
 
 	}//end getAsset()
@@ -498,7 +498,7 @@ class IPB_Bridge extends Asset
 								'is_dependant'	=> FALSE,
 								'is_exclusive'	=> FALSE,
 								'sort_order'	=> 0,
-							   );
+							 );
 
 					if ($prefix == 'g') {
 
@@ -555,9 +555,9 @@ class IPB_Bridge extends Asset
 						$links = Array();
 					}
 
-				}
+				}//end else
 
-			}
+			}//end else
 
 			// put in $_tmp
 			$this->_tmp['getLinks'][$assetid][$side_of_link] = $links;
@@ -654,7 +654,7 @@ class IPB_Bridge extends Asset
 					$parents[$id_parts[0].':'.'t_'.$result['topic_id']] = 'ipb_topic';
 				}
 
-			}
+			}//end else
 			$this->_tmp['getParents'][$assetid] = $parents;
 
 		}//end if
@@ -816,7 +816,7 @@ class IPB_Bridge extends Asset
 								}
 							}
 						}//end foreach
-					}
+					}//end else
 				} else {
 					if ($no_type_code) {
 						// topics + posts
@@ -853,7 +853,7 @@ class IPB_Bridge extends Asset
 							}
 						}
 					}
-				}
+				}//end else
 
 			} else if ($prefix == 'r') {
 				if ($no_type_code) {
@@ -908,7 +908,7 @@ class IPB_Bridge extends Asset
 							}
 						}
 					}
-				}
+				}//end else
 
 			} else if ($prefix == 't') {
 				// posts

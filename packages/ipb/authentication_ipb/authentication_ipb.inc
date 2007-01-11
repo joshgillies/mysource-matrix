@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ipb.inc,v 1.7 2007/01/08 03:49:22 emcdonald Exp $
+* $Id: authentication_ipb.inc,v 1.8 2007/01/11 05:37:25 amiller Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -56,7 +56,7 @@ class Authentication_IPB extends Authentication
 	* @param string	$username	the user name to search for
 	* @param string	$password	the password to match
 	*
-	* @return mixed object|null
+	* @return mixed object|NULL
 	* @access public
 	*/
 	function &authenticateUser($username, $password)

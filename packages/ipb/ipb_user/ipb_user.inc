@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_user.inc,v 1.5 2007/01/08 03:49:23 emcdonald Exp $
+* $Id: ipb_user.inc,v 1.6 2007/01/11 05:37:25 amiller Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -161,7 +161,8 @@ class Ipb_User extends Backend_User
 		foreach ($custom_fields as $field) {
 			$field_name = strtolower($field['pf_title']);
 			$field_name = str_replace(' ', '_', $field_name);
-			$this->vars[$field_name]['value'] = $user_custom_data[0]['field_'.$field['pf_id']];
+			$field_value = (isset($user_custom_data[0]['field_'.$field['pf_id']]) ? $user_custom_data[0]['field_'.$field['pf_id']] : '');
+			$this->vars[$field_name]['value'] = $field_value;
 			$this->vars[$field_name]['type'] = 'text';
 		}
 

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_login_ipb.inc,v 1.3 2007/01/08 03:49:23 emcdonald Exp $
+* $Id: trigger_action_login_ipb.inc,v 1.4 2007/01/11 05:37:26 amiller Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,11 +79,11 @@ class Trigger_Action_Login_Ipb extends Trigger_Action
 		}
 
 		// Load and Start IPB SDK
-		if (!file_exists($settings['ipbsdk_path']."/ipbsdk_class.inc.php")) {
+		if (!file_exists($settings['ipbsdk_path'].'/ipbsdk_class.inc.php')) {
 			trigger_localised_error('IPB0001', E_USER_WARNING);
 			return FALSE;
 		}
-		require_once $settings['ipbsdk_path']."/ipbsdk_class.inc.php";
+		require_once $settings['ipbsdk_path'].'/ipbsdk_class.inc.php';
 
 		// We have to supress error reporting level since IPB and IPBSDK
 		// generates many PHP Notice warnings

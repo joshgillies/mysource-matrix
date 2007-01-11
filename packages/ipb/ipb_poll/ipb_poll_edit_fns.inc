@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_poll_edit_fns.inc,v 1.3 2006/12/07 03:17:17 bcaldwell Exp $
+* $Id: ipb_poll_edit_fns.inc,v 1.4 2007/01/11 05:37:25 amiller Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -160,7 +160,7 @@ class Ipb_Poll_Edit_Fns extends Asset_Edit_Fns
 				$o->closeField();
 
 			$o->closeSection();
-		}
+		}//end else
 
 		return FALSE;
 

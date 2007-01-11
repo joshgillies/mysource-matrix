@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.8 2006/12/07 03:08:30 bcaldwell Exp $
+* $Id: ipb.inc,v 1.9 2007/01/11 05:37:25 amiller Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package Fudge
 * @subpackage ipb
 */
@@ -85,9 +85,18 @@ class Ipb
 		$ipb_root_path = $path;
 		$ipb_kernel_path = $ipb_root_path.'/ips_kernel';
 
+		// Let's check to see if IPB can be found
+		if (!is_dir($ipb_root_path) || !is_dir($ipb_kernel_path)) {
+			return FALSE;
+		}
+
 		// Database details
 		$INFO = Array();
-		include $ipb_root_path.'/conf_global.php';
+		if (is_file($ipb_root_path.'/conf_global.php')) {
+			include $ipb_root_path.'/conf_global.php';
+		} else {
+			return FALSE;
+		}
 		$this->info =& $INFO;
 
 		// set URL
@@ -96,15 +105,27 @@ class Ipb
 				$this->ipb_url = $INFO['html_url'];
 			break;
 			case '2_1_3' :
+			case '2_2_1' :
 				$this->ipb_url = $INFO['board_url'];
 			break;
-		}
+	}
 
 		$INFO['sql_driver'] = ! $INFO['sql_driver'] ? 'mysql' : strtolower($INFO['sql_driver']);
 
 		require_once $ipb_kernel_path.'/class_db_'.$INFO['sql_driver'].'.php';
 
-		$this->db =& new db_driver;
+		switch ($version) {
+			case '2_0_4' :
+			case '2_1_3' :
+				$this->db =& new db_driver;
+			break;
+			case '2_2_1' :
+				$driver = 'db_driver_'.$INFO['sql_driver'];
+				$this->db =& new $driver;
+			break;
+		}
+
+		define ('IN_IPB', TRUE);
 		$this->db->obj['sql_database'] = $INFO['sql_database'];
 		$this->db->obj['sql_user'] = $INFO['sql_user'];
 		$this->db->obj['sql_pass'] = $INFO['sql_pass'];
@@ -115,7 +136,7 @@ class Ipb
 
 		if (is_array($this->db->connect_vars) && count($this->db->connect_vars)) {
 			foreach ($this->db->connect_vars as $k => $v) {
-				$this->db->connect_vars[$k] = $INFO[$k];
+				$this->db->connect_vars[$k] = (isset($INFO[$k]) ? $INFO[$k] : '');
 			}
 		}
 		if ($this->db->connect()) return TRUE;
@@ -220,6 +241,7 @@ class Ipb
 	/**
 	* Authenticate the user based on the username and the password
 	*
+	* @param object		$bridge			The current bridge
 	* @param string		$username		the user name to verify
 	* @param string		$password		the password to verify
 	* @param boolean	$is_email_login	it's TRUE if email is used for loggin
@@ -764,6 +786,7 @@ class Ipb
 			$tmp = explode('_', $group_id);
 			$id = $tmp[1];
 			$sql = $this->_buildQuery($fields, 'members', 'u', ' WHERE u.mgroup='.$id);
+			error_log($sql);
 		}
 
 		return $this->_getResult($sql, Array(), FALSE);
