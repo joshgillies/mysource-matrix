@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.314 2007/01/11 05:18:25 colivar Exp $
+* $Id: asset_edit_interface.inc,v 1.315 2007/01/11 06:22:09 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.314 $
+* @version $Revision: 1.315 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -648,16 +648,18 @@ class Asset_Edit_Interface extends MySource_Object
 		// set correct page headings based on what we are doing
 		if (!$creating) {
 			$page_heading = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').'&nbsp;&nbsp;|&nbsp;&nbsp;';
+			if (empty($_REQUEST['print_view'])) {
+				$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($owner->id);
+				$page_heading .= '<style>ul.info_asset_finder {margin:1px 15px; display:inline;padding:0;margin:0;} ul.info_asset_finder li {display:inline;margin:0;padding:0;color:#ffffff;font-size:1.1em;} * html ul.info_asset_finder {margin-left:5px;}</style><ul class="info_asset_finder">';
 
-            $infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($owner->id);
-            $page_heading .= '<style>ul.info_asset_finder {margin:1px 15px; display:inline;padding:0;margin:0;} ul.info_asset_finder li {display:inline;margin:0;padding:0;color:#ffffff;font-size:1.1em;} * html ul.info_asset_finder {margin-left:5px;}</style><ul class="info_asset_finder">';
-
-            foreach ($infos as $assetid => $info) {
-                $page_heading .= '<li>'.get_asset_tag_line($assetid).'</li>';
-            }
-            $page_heading .= '</ul>';
-
-            $page_heading .= 'v. '.$owner->version;
+				foreach ($infos as $assetid => $info) {
+					$page_heading .= '<li>'.get_asset_tag_line($assetid).'</li>';
+				}
+				$page_heading .= '</ul>';
+			} else {
+				$page_heading .= $owner->name.' (Id: #'.$owner->id.') ';
+			}
+			$page_heading .= 'v. '.$owner->version;
 		} else {
 			$page_heading = 'Create new '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name');
 		}
