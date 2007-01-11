@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed_edit_fns.inc,v 1.9.2.1 2007/01/11 04:59:44 tbarrett Exp $
+* $Id: page_rss_feed_edit_fns.inc,v 1.9.2.2 2007/01/11 05:02:11 tbarrett Exp $
 *
 */
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -21,7 +21,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.9.2.1 $
+* @version $Revision: 1.9.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -399,7 +399,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 						$required = Array('id', 'title', 'updated');
 						$recommended = Array('author_name', 'author_email', 'author_uri', 'link.rel', 'link.href');
 						$optional = Array('category.term', 'contributor_name', 'icon', 'logo', 'rights', 'subtitle');
-						$tags = array_merge($recommended, $optional);
+						$tags = array_merge($required, $recommended, $optional);
 					}
 				break;
 				case 'add_image':
