@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.70 2007/01/08 03:08:54 lwright Exp $
+* $Id: edit.css,v 1.71 2007/01/11 06:21:26 tbarrett Exp $
 *
 */
 
@@ -61,6 +61,7 @@ table.sq-backend-main-headings td.sq-backend-main-heading {
 table.sq-backend-main-headings td.sq-backend-heading-icon {
 	padding-top:		6px;
 	padding-left:		5px;
+	width:				1%;
 }
 .sq-backend-sub-heading {
 	background-color:	#594165;
