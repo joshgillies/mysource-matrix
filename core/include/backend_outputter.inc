@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.140 2007/01/11 23:00:59 colivar Exp $
+* $Id: backend_outputter.inc,v 1.141 2007/01/11 23:20:05 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140 $
+* @version $Revision: 1.141 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -972,6 +972,7 @@ class Backend_Outputter
 			$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/tooltip.js');
+			$this->addOnLoad('fixIcons(\''.sq_web_path('lib').'/web/images/blank.gif\');');
 
 			// and paint them all out
 			foreach ($this->_js_includes as $file) {

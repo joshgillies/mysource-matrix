@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.163 2007/01/10 23:07:20 bcaldwell Exp $
+* $Id: general.inc,v 1.164 2007/01/11 23:20:05 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.163 $
+* @version $Revision: 1.164 $
 * @package MySource_Matrix
 */
 
@@ -1133,16 +1133,8 @@ function sq_get_icon($path, $width, $height, $alt='', $title=NULL, $extras='')
 		$title = $alt;
 	}
 	if (is_null($title)) $title = '';
-	$style = 'background:url('.$path.'); background: expression(\'none\'); filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\''.$path.'\', sizingMethod=\'crop\'); width: '.$width.'px; height: '.$height.'px;';
-	$style_pos = strpos($extras, 'style="');
-	if (FALSE !== $style_pos) {
-		$extras = substr($extras, 0, $style_pos + strlen('style="')).$style.substr($extras,$style_pos + strlen('style="'));
-	} else {
-		$extras = 'style="'.$style."\"\n\t     ".$extras;
-	}
 	return '
-
-	<img src="'.sq_web_path('lib').'/web/images/blank.gif"
+	<img class="sq-icon" src="'.$path.'"
 		 alt="'.$alt.'"
 		 title="'.$title.'"
 		 '.$extras.' />

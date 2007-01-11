@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.js,v 1.17 2006/12/05 05:10:21 bcaldwell Exp $
+* $Id: general.js,v 1.18 2007/01/11 23:20:05 tbarrett Exp $
 *
 */
 
@@ -271,6 +271,29 @@ function sq_print_icon(path, width, height, alt) {
 	}
 
 }//end sq_print_icon()
+
+
+// In IE v5.5 - 6 convert tranparent PNGs to use the filter background
+// so the transparency works
+function fixIcons(blankSrc)
+{
+	var ieVersion = 0;
+	regex = new RegExp("MSIE ([0-9.]*)");
+	if (m = (regex.exec(navigator.userAgent))) {
+		ieVersion = parseFloat(m[1]);
+	}
+	if ((ieVersion >= 5.5) && (ieVersion < 7)) {
+		var images = document.getElementsByTagName('IMG');
+		for (var i=0; i < images.length; i++) {
+			if (images[i].className == 'sq-icon') {
+				images[i].style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='"+images[i].src+"', sizingMethod='scale')";
+				images[i].style.height = images[i].height+'px';
+				images[i].style.width = images[i].width+'px';
+				images[i].src = blankSrc;
+			}
+		}
+	}
+}
 
 
 // redirect the user to another page with a friendly message
