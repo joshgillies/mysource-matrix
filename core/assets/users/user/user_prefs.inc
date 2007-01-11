@@ -10,13 +10,16 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.8 2006/12/05 06:04:33 bcaldwell Exp $
+* $Id: user_prefs.inc,v 1.9 2007/01/11 01:25:41 arailean Exp $
 *
 */
 
 
 require_once SQ_LIB_PATH.'/config/prefs.inc';
 require_once SQ_ATTRIBUTES_PATH.'/duration/duration.inc';
+require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
+
+
 
 /**
 * User_Prefs
@@ -26,12 +29,11 @@ require_once SQ_ATTRIBUTES_PATH.'/duration/duration.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
 {
-
 	var $pref_vars = Array (
 						'SQ_USER_SESSION_PREFS'		=> Array(
 														'name'			=> 'Session Expiry Rules',
@@ -51,7 +53,16 @@ class User_Prefs extends Prefs
 														'default'		=> FALSE,
 														'protected'		=> FALSE,
 													   ),
+						'SQ_USER_ASSET_MAP_WIDTH'	=> Array(
+														'name'			=> 'Width of Asset Map Frame',
+														'description'	=> 'Allows changing of asset map frame width',
+														'default'		=> 275,
+														'protected'		=> FALSE,
+													   ),
 					 );
+
+	var $int_am_frame_width;
+	var $int_am_frame_width_default = 275;
 
 
 	/**
@@ -61,6 +72,12 @@ class User_Prefs extends Prefs
 	function User_Prefs($pref_file='')
 	{
 		$this->Prefs($pref_file);
+
+		// attribute for input of SQ_COMMENT_MAX_LENGTH
+		$this->int_am_frame_width =& new Asset_Attribute_Int();
+		$this->int_am_frame_width->setParam('allow_negative', FALSE);
+		$this->int_am_frame_width->setParam('allow_empty', FALSE);
+		$this->int_am_frame_width->setParam('range_lower', $this->int_am_frame_width_default);
 
 	}//end constructor
 
@@ -209,9 +226,7 @@ class User_Prefs extends Prefs
 		}//end if
 
 		if (is_null($pref) || $pref == 'SQ_USER_SAFE_TYPE3_TRASH') {
-			if (is_null($pref)) {
-				$o->openField('Safe Trash');
-			}
+			if (is_null($pref)) $o->openField('Safe Trash');
 			?>
 			<div class="sq-backend-table sq-backend-table-cell">
 			<?php
@@ -231,6 +246,37 @@ class User_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}//end if
 
+
+		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_WIDTH') {
+			if (is_null($pref)) $o->openField('Asset Map Width');
+			?>
+			<div class="sq-backend-table sq-backend-table-cell">
+			<?php
+
+			if ($have_lock && $is_admin) {
+
+				if (isset($this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'])) {
+					$asset_map_settings = $this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'];
+				} else {
+					$asset_map_settings = '';
+				}
+				$this->int_am_frame_width->value = $asset_map_settings;
+				$this->int_am_frame_width->paint($pref.'_am_frame_width', !$have_lock);
+			} else {
+				if (!empty($this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'])) {
+					echo $this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'];
+				}
+			}
+			?>
+			<br /><br />
+			<?php
+			echo $this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['description'];
+			?>
+			</div>
+			<?php
+
+			if (is_null($pref)) $o->closeField();
+		}//end if
 
 
 		return TRUE;
@@ -300,6 +346,16 @@ class User_Prefs extends Prefs
 			}
 		}
 
+
+		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_WIDTH') {
+			@$this->int_am_frame_width->process($pref.'_am_frame_width');
+			if (!empty($this->int_am_frame_width->value)) {
+				$this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'] = $this->int_am_frame_width->value;
+			} else {
+				trigger_localised_error('CORE0270', E_USER_NOTICE);
+				$this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'] = $this->int_am_frame_width_default;
+			}
+		}
 
 
 		return TRUE;
