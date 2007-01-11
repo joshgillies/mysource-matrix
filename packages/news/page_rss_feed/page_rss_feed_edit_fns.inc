@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed_edit_fns.inc,v 1.12 2007/01/11 05:01:56 tbarrett Exp $
+* $Id: page_rss_feed_edit_fns.inc,v 1.13 2007/01/11 05:08:12 tbarrett Exp $
 *
 */
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -21,7 +21,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -407,7 +407,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 						$tags = Array('title', 'url', 'link');
 						$required = Array('title', 'url', 'link');
 					} else if ($type == 'rss_2.0') {
-						$tags = Array('title', 'description', 'url', 'weight', 'height', 'link');
+						$tags = Array('title', 'description', 'url', 'width', 'height', 'link');
 						$required = Array('title', 'url', 'link');
 					} else {
 						// ATOM 1.0
