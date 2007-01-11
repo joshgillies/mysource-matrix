@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.168 2007/01/10 00:51:26 lwright Exp $
+* $Id: backend.inc,v 1.169 2007/01/11 01:27:04 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.168 $
+* @version $Revision: 1.169 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -276,7 +276,8 @@ class Backend extends MySource_Object
 				// i.e. one less column in the second frameset
 				// see _printMain() for more info
 				$header_height = $limbo_hide_frames ? 0 : 28;
-				$sidenav_width = SQ_IN_LIMBO ? 0 : 280;
+				$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
+				$sidenav_width = SQ_IN_LIMBO ? 0 : ($am_width+5);
 				$resizer_width = $limbo_hide_frames ? 0 : 10;
 				$frameset_cols = $sidenav_width.','.$resizer_width.',*';
 				?>
@@ -1135,7 +1136,8 @@ class Backend extends MySource_Object
 					<?php
 					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 					$asset_map =& new Asset_Map();
-					$asset_map->embedAssetMap('complex', '275');
+					$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
+					$asset_map->embedAssetMap('complex', $am_width);
 					?>
 				</div>
 				<div id="my_space" style="position: absolute; top: 44px; left: 0px; visibility: hidden;">
