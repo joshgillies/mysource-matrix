@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed_edit_fns.inc,v 1.9 2006/12/06 22:14:20 emcdonald Exp $
+* $Id: page_rss_feed_edit_fns.inc,v 1.10 2007/01/11 04:55:02 tbarrett Exp $
 *
 */
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -21,7 +21,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -211,7 +211,8 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 								$tags = Array('title', 'description', 'link', 'pubDate', 'category', 'author', 'comments', 'guid', 'enclosure.url', 'enclosure.length', 'enclosure.type');
 							} else {
 								// it is of type ATOM 1.0
-								$tags = Array('title', 'content', 'link.rel', 'link.type', 'link.href', 'category.term', 'category.label',  'id', 'contributor_name', 'author_name', 'author_email', 'summary', 'published', 'updated', 'source_id', 'source_title', 'source_rights');
+								// Refer http://www.atomenabled.org/developers/syndication/#requiredEntryElements
+								$tags = Array('title', 'author_name', 'author_email', 'author_uri', 'content', 'link.rel', 'link.href', 'summary', 'category.term', 'contributor_name', 'contributor_email', 'contributor_uri', 'source_id', 'source_title', 'source_updated', 'source_rights', 'rights');
 							}
 							foreach ($tags as $key => $val) {
 								$tags[$val] = strpos($val, '_') !== FALSE? str_replace('_', ' ', $val): (strpos($val, '.') !== FALSE? str_replace('.', ' ', $val).' = ':$val);
@@ -394,8 +395,11 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 						$tags = Array('title', 'link', 'description', 'pubDate', 'lastBuildDate', 'language', 'copyright', 'webMaster', 'managingEditor', 'category', 'generator', 'ttl');
 					} else {
 						// type is ATOM 1.0
-						$required = Array('title', 'id', 'updated');
-						$tags = Array('title', 'id', 'updated', 'link.rel', 'link.type', 'link.href', 'subtitle', 'rights', 'author_name', 'author_email', 'category.term', 'category.label', 'category.scheme', 'rights');
+						// Refer http://www.atomenabled.org/developers/syndication/#requiredFeedElements
+						$required = Array('id', 'title', 'updated');
+						$recommended = Array('author_name', 'author_email', 'author_uri', 'link.rel', 'link.href');
+						$optional = Array('category.term', 'contributor_name', 'icon', 'logo', 'rights', 'subtitle');
+						$tags = array_merge($recommended, $optional);
 					}
 				break;
 				case 'add_image':
