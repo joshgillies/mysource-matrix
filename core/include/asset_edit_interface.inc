@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.313 2007/01/11 03:14:51 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.314 2007/01/11 05:18:25 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.313 $
+* @version $Revision: 1.314 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -647,14 +647,21 @@ class Asset_Edit_Interface extends MySource_Object
 		/////////////////////
 		// set correct page headings based on what we are doing
 		if (!$creating) {
-			$page_heading = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').' - '.$owner->name.' (#'.$owner->id.', v. '.$owner->version.')';
+			$page_heading = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').'&nbsp;&nbsp;|&nbsp;&nbsp;';
+
+            $infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($owner->id);
+            $page_heading .= '<style>ul.info_asset_finder {margin:1px 15px; display:inline;padding:0;margin:0;} ul.info_asset_finder li {display:inline;margin:0;padding:0;color:#ffffff;font-size:1.1em;} * html ul.info_asset_finder {margin-left:5px;}</style><ul class="info_asset_finder">';
+
+            foreach ($infos as $assetid => $info) {
+                $page_heading .= '<li>'.get_asset_tag_line($assetid).'</li>';
+            }
+            $page_heading .= '</ul>';
+
+            $page_heading .= 'v. '.$owner->version;
 		} else {
 			$page_heading = 'Create new '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name');
 		}
 		$page_heading .= '&nbsp;&nbsp;|&nbsp;&nbsp;'.$active_screen_name;
-		if (!$creating && empty($_REQUEST['print_view'])) {
-			$page_heading .= '&nbsp;&nbsp;<span class="sq_asset_info_toggle" onclick="sq_toggle_asset_info(this)" id="sq_asset_info_toggle">[ '.translate('more_info').' ]</span>';
-		}
 
 		$o->setHeading($page_heading, sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code), 16, 16, ''));
 
@@ -666,32 +673,6 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 		}
 
-		if (!$creating) {
-			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-			$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($owner->created_userid, $owner->updated_userid, $owner->published_userid), 'user', FALSE);
-			$created_by_name = (isset($user_info[$owner->created_userid]['short_name'])) ? $user_info[$owner->created_userid]['short_name'] : '&lt;unknown&gt;';
-			$updated_by_name = (isset($user_info[$owner->updated_userid]['short_name'])) ? $user_info[$owner->updated_userid]['short_name'] : '&lt;unknown&gt;';
-			$published_by_name = (isset($user_info[$owner->published_userid])) ? $user_info[$owner->published_userid]['short_name'] : '&lt;unknown&gt;';
-
-			$sub_heading .= '<table id="sq_asset_info" style="display: none">
-								<tr>
-									<td valign="top">
-										'.sq_get_icon(sq_web_path('lib').'/web/images/icons/info.png', 16, 16).'
-									</td>
-									<td class="sq-backend-asset-info">
-									'.translate('created_by', $created_by_name, readable_datetime($owner->created)).'<br />
-									'.translate('last_updated', $updated_by_name, readable_datetime($owner->updated)).'<br />';
-
-			if (!is_null($owner->published)) {
-				$sub_heading .= translate('last_published', $published_by_name, readable_datetime($owner->published));
-			} else {
-				$sub_heading .= translate('never_published');
-			}
-
-			$sub_heading .=	'		</td>
-								</tr>
-							</table>';
-		}
 		$o->setSubHeading($sub_heading);
 
 
