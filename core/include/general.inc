@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.165 2007/01/12 02:36:15 tbarrett Exp $
+* $Id: general.inc,v 1.166 2007/01/12 02:38:42 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.165 $
+* @version $Revision: 1.166 $
 * @package MySource_Matrix
 */
 
@@ -1320,7 +1320,7 @@ function get_asset_tag_line($assetid, $screen='')
 		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', 16, 16, '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$assetid.'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
 
 		if (count($lineages) > 0) {
-			echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' align="absmiddle"  onclick="'.$lineages_onclick.'"');
+			echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' class="clickable" align="absmiddle"  onclick="'.$lineages_onclick.'"');
 		}
 
 		// Screen parameter now supports javascript code to be added to the
