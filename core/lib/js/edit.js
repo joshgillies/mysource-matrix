@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.40 2007/01/11 03:09:24 tbarrett Exp $
+* $Id: edit.js,v 1.41 2007/01/12 00:11:23 tbarrett Exp $
 *
 */
 
@@ -514,6 +514,14 @@ function focusFirstTextInput()
 function showPrintPopup()
 {
 	var args = 'width='+(self.screen.availWidth/2)+',height='+parseInt(self.screen.availHeight*0.8)+',status=0,location=0,menubar=0,directories=0,scrollbars=1';
-	var printWindow = window.open(self.location.href + '&ignore_frames=1&print_view=1', 'printWindow', args);
+	var urlSuffix = '&ignore_frames=1&print_view=1';
+	var urlBase = self.location.href;
+	if (urlBase.indexOf('&assetid=') == -1) {
+		// the assetid is not in the url, probably cause we just created
+		// try to find it elsewhere
+		var mainForm = document.getElementById('main_form');
+		if (mainForm) urlBase = mainForm.action;
+	}
+	var printWindow = window.open(urlBase + urlSuffix, 'printWindow', args);
 	printWindow.print();
 }
