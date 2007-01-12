@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.539 2007/01/08 03:03:39 lwright Exp $
+* $Id: asset_manager.inc,v 1.540 2007/01/12 00:49:05 bcaldwell Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.539 $
+* @version $Revision: 1.540 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3138,7 +3138,7 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	* @see generateGetChildrenQuery()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE)
 	{
 		assert_valid_assetid($assetid);
 		// check if we are getting children for a shadow asset, and palm the request off to the
@@ -3169,7 +3169,8 @@ class Asset_Manager extends MySource_Object
 			$this->forgetAsset($asset);
 			return $children;
 		}
-		$query = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by, $access, TRUE, $min_depth, $max_depth, $direct_shadows_only);
+		$query = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by, $access, $effective, TRUE, $min_depth, $max_depth, $direct_shadows_only);
+		error_log(implode(' ', $query));
 		$this->forgetAsset($asset);
 		unset($asset);
 		if (empty($query)) return Array();
@@ -7239,7 +7240,7 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	* @see getChildren()
 	*/
-	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $inc_type_code=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE)
+	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $inc_type_code=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -7326,31 +7327,42 @@ class Asset_Manager extends MySource_Object
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = a.assetid ';
 				$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON p.userid = r.roleid ';
-				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-				$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
-				$public_userid = (String)$this->getSystemAssetid('public_user');
-				$userids[] = $public_userid;
-				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$userids[$i] = $db->quote((String)$userids[$i]);
-				}
 
-				$userids_str = implode(',', $userids);
-				$userid_cond = ' (p.userid IN ('.$userids_str.') OR r.userid IN ('.$userids_str.'))';
-				$where .= $userid_cond.'
-					AND (
-							(p.permission = '.$db->quote($access).' AND (
-									p.userid <> '.$db->quote($public_userid).'
-									OR r.userid <> '.$db->quote($public_userid).'
-									OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
-									OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+				if ($effective) {
+					$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+					$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
+					$public_userid = (String)$this->getSystemAssetid('public_user');
+					$userids[] = $public_userid;
+					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+						$userids[$i] = $db->quote((String)$userids[$i]);
+					}
+
+					$userids_str = implode(',', $userids);
+					$userid_cond = ' (p.userid IN ('.$userids_str.') OR r.userid IN ('.$userids_str.'))';
+					$where .= $userid_cond.'
+						AND (
+								(p.permission = '.$db->quote($access).' AND (
+										p.userid <> '.$db->quote($public_userid).'
+										OR r.userid <> '.$db->quote($public_userid).'
+										OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+										OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+									)
 								)
-							)
-							OR	(
-									p.permission > '.$db->quote($access).' AND p.granted = 1
-								)
+								OR	(
+										p.permission > '.$db->quote($access).' AND p.granted = 1
+									)
+							) AND ';
+					$having .= 'HAVING MIN(p.granted) <> 0';
+					$group_by .= ', p.assetid';
+				} else {
+					$userid = (String) $GLOBALS['SQ_SYSTEM']->user->id;
+					$where .= '
+						(
+							p.userid = '.$db->quote($userid).'
+							AND p.permission = '.$db->quote($access).'
+							AND p.granted = 1
 						) AND ';
-				$having .= 'HAVING MIN(p.granted) <> 0';
-				$group_by .= ', p.assetid';
+				}
 			}
 		}//end if access is not null
 

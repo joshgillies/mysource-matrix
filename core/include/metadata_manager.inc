@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.128 2006/12/14 05:38:57 tbarrett Exp $
+* $Id: metadata_manager.inc,v 1.129 2007/01/12 00:49:34 bcaldwell Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -397,7 +397,7 @@ class Metadata_Manager extends MySource_Object
 			}
 			$where .= '
 						mv.fieldid IN (
-						'.implode(' ', $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($schema, 'metadata_field', FALSE, NULL, NULL, NULL, FALSE)).'
+						'.implode(' ', $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($schema, 'metadata_field', FALSE, NULL, NULL, NULL, TRUE, FALSE)).'
 						) OR ';
 
 		}// end foreach

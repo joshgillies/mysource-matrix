@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.99 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: workflow_manager.inc,v 1.100 2007/01/12 00:49:34 bcaldwell Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -660,7 +660,7 @@ class Workflow_Manager extends MySource_Object
 						}
 					} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
 						// getChildren with all the shadow asset children
-						$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE, NULL, NULL, NULL, NULL, NULL, FALSE));
+						$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE));
 					}
 				}
 
@@ -1083,7 +1083,7 @@ class Workflow_Manager extends MySource_Object
 						}
 					}
 				} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
-					$can_publish = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($publisher->id, Array('user'), FALSE, NULL, NULL, NULL, NULL, NULL, FALSE));
+					$can_publish = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($publisher->id, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE));
 				}
 			}
 

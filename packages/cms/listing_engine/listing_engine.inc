@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.205 2007/01/08 23:01:35 hnguyen Exp $
+* $Id: listing_engine.inc,v 1.206 2007/01/12 00:49:35 bcaldwell Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.205 $
+* @version $Revision: 1.206 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2732,7 +2732,7 @@ class Listing_Engine extends Page
 								if ($this->attr('direction') == 'down') {
 									$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid, '', FALSE, NULL, NULL, $min_depth, $max_depth);
 								} else {
-									$parents = $GLOBALS['SQ_SYSTEM']->am->getChildren($parent_assetid, '', FALSE, NULL, NULL, NULL, $min_depth, $max_depth);
+									$parents = $GLOBALS['SQ_SYSTEM']->am->getChildren($parent_assetid, '', FALSE, NULL, NULL, NULL, TRUE, $min_depth, $max_depth);
 								}
 
 								$intersection = array_intersect(array_keys($parents), $root_nodes);

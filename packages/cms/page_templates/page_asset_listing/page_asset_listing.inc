@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.104 2006/12/07 00:04:20 emcdonald Exp $
+* $Id: page_asset_listing.inc,v 1.105 2007/01/12 00:49:35 bcaldwell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -156,7 +156,7 @@ class Page_Asset_Listing extends Listing_Engine
 					foreach ($root_asset_ids as $root_asset_id) {
 						if ($this->attr('direction') == 'down') {
 							$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
-							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, SQ_PERMISSION_READ, TRUE, $min_depth, $max_depth);
+							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, SQ_PERMISSION_READ, TRUE, TRUE, $min_depth, $max_depth);
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
 							$table_alias = 'a';
 						} else {
@@ -190,7 +190,7 @@ class Page_Asset_Listing extends Listing_Engine
 
 					if ($this->attr('direction') == 'down') {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $this->_combineAssets($logic, $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, SQ_PERMISSION_READ, $min_depth, $max_depth), $assets_to_list);
+							$assets_to_list = $this->_combineAssets($logic, $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, SQ_PERMISSION_READ, TRUE, $min_depth, $max_depth), $assets_to_list);
 						}
 					} else {
 						foreach ($root_asset_ids as $root_asset_id) {
