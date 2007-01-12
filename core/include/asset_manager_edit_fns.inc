@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.98.2.1 2006/12/22 05:46:04 skim Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.98.2.2 2007/01/12 03:51:24 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.98.2.1 $
+* @version $Revision: 1.98.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -363,7 +363,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 						foreach ($lock['chained_assets'] as $chained_info) {
 							$chained_asset =& $this->am->getAsset($chained_info['assetid']);
 							if (is_null($chained_asset)) {
-								trigger_localised_error('SYS0086', E_USER_WARNING, $chained_assetid);
+								trigger_localised_error('SYS0086', E_USER_WARNING, $chained_info['assetid']);
 								continue;
 							}
 							echo '<li class="sq-backend-data">'.$chained_asset->name.'</li>';

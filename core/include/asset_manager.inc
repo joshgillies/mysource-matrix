@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.531.2.3 2007/01/04 03:38:15 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.531.2.4 2007/01/12 03:51:24 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.531.2.3 $
+* @version $Revision: 1.531.2.4 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1574,11 +1574,26 @@ class Asset_Manager extends MySource_Object
 	* </pre>
 	* @param array	&$clone_map	a map for that can be used for re-indexing data held in
 	*							assets of the form Array([old asset id] => [new asset id])
+	* @param array		$components			the wanted components to clone,
+	* <pre>
+	* Array(
+	*   'attributes',
+	*   'metadata_schemas',
+	*   'metadata',
+	*   'workflow',
+	*   'permissions',
+	*   'data'// data directory
+	* );
+	* </pre>
+	* or alternately
+	* <pre>
+	* Array('all');
+	* </pre>
 	*
 	* @return mixed object|NULL
 	* @access private
 	*/
-	function &_cloneAsset(&$source, &$link, &$clone_map)
+	function &_cloneAsset(&$source, &$link, &$clone_map, $components)
 	{
 		if (!empty($link)) {
 			// make sure the initial link information is passed in
@@ -1660,6 +1675,13 @@ class Asset_Manager extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return $null;
 			}
+		}
+
+		// we need permissions from here on down, so lets do this now
+		if (!$source->cloneComponents($clone, $components)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return $null;
 		}
 
 		if (!empty($link)) {
@@ -1776,15 +1798,8 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$clone =& $this->_cloneAsset($source, $link, $clone_map);
+		$clone =& $this->_cloneAsset($source, $link, $clone_map, $components);
 		if (is_null($clone)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return $null;
-		}
-
-		// we may need permissions from here on down, so lets do this now
-		if (!$source->cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $null;
