@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.67 2007/01/12 01:06:40 emcdonald Exp $
+* $Id: step_03.php,v 1.68 2007/01/12 02:59:46 emcdonald Exp $
 *
 */
 
@@ -35,7 +35,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -86,7 +86,7 @@ if ($cli) {
 	}
 }
 
-define ('SQ_SYSTEM_ROOT', realpath($SYSTEM_ROOT));
+define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 // get the list of functions used during install
