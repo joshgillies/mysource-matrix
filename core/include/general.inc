@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.166 2007/01/12 02:38:42 tbarrett Exp $
+* $Id: general.inc,v 1.167 2007/01/12 03:21:47 emcdonald Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.166 $
+* @version $Revision: 1.167 $
 * @package MySource_Matrix
 */
 
@@ -1041,7 +1041,10 @@ function log_error($message, $level=E_USER_NOTICE, $file='', $line='', $log_name
 */
 function hide_system_root($message='')
 {
-	$message = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $message);
+
+	if (SQ_SYSTEM_ROOT !== '.') {
+		$message = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $message);
+	}
 
 	return $message;
 
@@ -1616,10 +1619,29 @@ function check_ssv_licence()
 {
 	if (file_exists(SQ_DATA_PATH.'/private/conf/licence.inc')) {
 		include_once SQ_DATA_PATH.'/private/conf/licence.inc';
-		if (SQ_LICENCE_TYPE !== 'SSV') exit(1);
-	} else {
-		exit(1);
+		if (SQ_LICENCE_TYPE == 'SSV') return TRUE;
 	}
+	// error text is not localised in case compile_locale has not been run before step 3
+	ob_start();
+?>
+You are attempting to use a Squiz.net MySource Module with the GPL version of
+MySource Matrix. These modules are not available under the GPL consequently
+MySource Matrix will not run.
 
-}//end is_ssv()
+You may swap to the Squiz Supported Version licence (SSV) which will allow the
+modules to run by changing SQ_LICENCE_TYPE from GPL to SSV in the
+/path/to/matrix/data/private/conf/licence.inc file.
+
+Please ensure you have read and agree to the terms of this alternate license
+(available in /path/to/matrix/SSV.txt) before making the change. Alternatively,
+you may remove the MySource Modules and continue to run the application under
+the GPL.
+<?php
+	$licence_error =  ob_get_clean();
+
+	trigger_error($licence_error, E_USER_ERROR);
+
+}//end check_ssv_licence()
+
+
 ?>
