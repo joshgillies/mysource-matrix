@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.164 2007/01/11 23:20:05 tbarrett Exp $
+* $Id: general.inc,v 1.165 2007/01/12 02:36:15 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.164 $
+* @version $Revision: 1.165 $
 * @package MySource_Matrix
 */
 
@@ -1133,8 +1133,13 @@ function sq_get_icon($path, $width, $height, $alt='', $title=NULL, $extras='')
 		$title = $alt;
 	}
 	if (is_null($title)) $title = '';
+	if (FALSE !== strpos($extras, 'class=')) {
+		$extras = preg_replace('/class="([^"]*)"/', 'class="\\1 sq-icon"', $extras);
+	} else {
+		$extras .= ' class="sq-icon"';
+	}
 	return '
-	<img class="sq-icon" src="'.$path.'"
+	<img src="'.$path.'"
 		 alt="'.$alt.'"
 		 title="'.$title.'"
 		 '.$extras.' />
