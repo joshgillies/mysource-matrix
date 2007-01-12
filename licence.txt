@@ -1,9 +1,8 @@
 +------------------------------------------------------------------------------+
 | PLEASE NOTE :                                                                |
 +------------------------------------------------------------------------------+
-| This LICENCE file is provided for convenience only, the                      |
-| authoritative version of the Squiz Open Source Licence Agreement             |
-| can be found at http://www.matrix.squiz.net/licence                          |
+| This LICENCE file is provided for convenience only, the authoritative        |
+| version of this LICENCE file can be found at http://www.squiz.net/licence    |
 +------------------------------------------------------------------------------+
 
 
