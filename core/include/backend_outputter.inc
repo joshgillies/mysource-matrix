@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.141 2007/01/11 23:20:05 tbarrett Exp $
+* $Id: backend_outputter.inc,v 1.142 2007/01/12 04:00:24 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.141 $
+* @version $Revision: 1.142 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1478,20 +1478,23 @@ class Backend_Outputter
 	* @return void
 	* @access public
 	*/
-	function commitButton($value='', $release_lock=TRUE)
+	function commitButton($value='', $release_lock=TRUE, $include_section=TRUE)
 	{
 		// value is empty, use default caption
 		if (empty($value)) {
 			$value = !defined('SQ_CONF_COMMIT_BUTTON_TEXT') ? 'Commit' : SQ_CONF_COMMIT_BUTTON_TEXT;
 		}
 		$release_lock = (int) $release_lock;
-		$this->openSection(' ');
+		if ($include_section) {
+			$this->openSection(' ');
 			$this->openField('', 'commit');
-				hidden_field('sq_lock_release', $release_lock);
-				normal_button('sq_commit_button', $value, 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; } ', 'accesskey="s"');
-
+		}
+		hidden_field('sq_lock_release', $release_lock);
+		normal_button('sq_commit_button', $value, 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; } ', 'accesskey="s"');
+		if ($include_section) {
 			$this->closeField();
-		$this->closeSection();
+			$this->closeSection();
+		}
 
 	}//end commitButton()
 

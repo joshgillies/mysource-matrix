@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.316 2007/01/11 23:00:59 colivar Exp $
+* $Id: asset_edit_interface.inc,v 1.317 2007/01/12 04:00:24 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.316 $
+* @version $Revision: 1.317 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1280,6 +1280,13 @@ class Asset_Edit_Interface extends MySource_Object
 				ob_start();
 					$o->commitButton('', FALSE);
 					$this->_tmp['layout_keyword_replacements']['commit_button'] = ob_get_contents();
+				ob_end_clean();
+				continue;
+
+			} else if (($keyword == 'commit_button_clean') && $print_commit_button) {
+				ob_start();
+					$o->commitButton('', FALSE, FALSE);
+					$this->_tmp['layout_keyword_replacements']['commit_button_clean'] = ob_get_contents();
 				ob_end_clean();
 				continue;
 
