@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed_edit_fns.inc,v 1.13 2007/01/11 05:08:12 tbarrett Exp $
+* $Id: page_rss_feed_edit_fns.inc,v 1.14 2007/01/12 00:23:16 tbarrett Exp $
 *
 */
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -21,7 +21,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -212,7 +212,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 							} else {
 								// it is of type ATOM 1.0
 								// Refer http://www.atomenabled.org/developers/syndication/#requiredEntryElements
-								$tags = Array('title', 'updated', 'author_name', 'author_email', 'author_uri', 'content', 'link.rel', 'link.href', 'summary', 'category.term', 'contributor_name', 'contributor_email', 'contributor_uri', 'source_id', 'source_title', 'source_updated', 'source_rights', 'rights');
+								$tags = Array('id', 'title', 'updated', 'author_name', 'author_email', 'author_uri', 'content', 'link.rel', 'link.href', 'summary', 'category.term', 'contributor_name', 'contributor_email', 'contributor_uri', 'source_id', 'source_title', 'source_updated', 'source_rights', 'rights');
 							}
 							foreach ($tags as $key => $val) {
 								$tags[$val] = strpos($val, '_') !== FALSE? str_replace('_', ' ', $val): (strpos($val, '.') !== FALSE? str_replace('.', ' ', $val).' = ':$val);
