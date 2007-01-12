@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.68 2006/12/06 05:17:23 bcaldwell Exp $
+* $Id: step_02.php,v 1.69 2007/01/12 01:06:40 emcdonald Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -53,7 +53,7 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error($err_msg, E_USER_ERROR);
 }
 
-define ('SQ_SYSTEM_ROOT', $SYSTEM_ROOT);
+define ('SQ_SYSTEM_ROOT', realpath($SYSTEM_ROOT));
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once $SYSTEM_ROOT.'/install/install.inc';
 require_once SQ_LIB_PATH.'/db_install/db_install.inc';

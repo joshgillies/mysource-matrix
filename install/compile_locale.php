@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: compile_locale.php,v 1.10 2006/12/06 05:17:23 bcaldwell Exp $
+* $Id: compile_locale.php,v 1.11 2007/01/12 01:06:40 emcdonald Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -78,7 +78,7 @@ if (empty($locale_list)) {
 
 // dont set SQ_INSTALL flag before this include because we want
 // a complete load now that the database has been created
-define('SQ_SYSTEM_ROOT', $SYSTEM_ROOT);
+define('SQ_SYSTEM_ROOT', realpath($SYSTEM_ROOT));
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 // get the list of functions used during install
 require_once $SYSTEM_ROOT.'/install/install.inc';
