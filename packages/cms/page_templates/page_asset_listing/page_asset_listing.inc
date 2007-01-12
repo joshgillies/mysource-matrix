@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.105 2007/01/12 00:49:35 bcaldwell Exp $
+* $Id: page_asset_listing.inc,v 1.106 2007/01/12 04:09:49 bcaldwell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -190,11 +190,11 @@ class Page_Asset_Listing extends Listing_Engine
 
 					if ($this->attr('direction') == 'down') {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $this->_combineAssets($logic, $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, SQ_PERMISSION_READ, TRUE, $min_depth, $max_depth), $assets_to_list);
+							$assets_to_list = $this->_combineAssets($logic, $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, SQ_PERMISSION_READ, FALSE, $min_depth, $max_depth), $assets_to_list);
 						}
 					} else {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $this->_combineAssets($logic, $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), NULL, NULL, SQ_PERMISSION_READ, $min_depth, $max_depth), $assets_to_list);
+							$assets_to_list = $this->_combineAssets($logic, $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), NULL, NULL, SQ_PERMISSION_READ, TRUE, $min_depth, $max_depth), $assets_to_list);
 						}
 					}
 

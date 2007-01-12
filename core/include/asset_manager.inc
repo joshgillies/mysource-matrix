@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.540 2007/01/12 00:49:05 bcaldwell Exp $
+* $Id: asset_manager.inc,v 1.541 2007/01/12 04:09:47 bcaldwell Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.540 $
+* @version $Revision: 1.541 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2611,11 +2611,12 @@ class Asset_Manager extends MySource_Object
 	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
 	*											Specify that links should be returned for assets the user has read,
 	*											write, or admin access for. Leave NULL to ignore permissions.
+	* @param boolean		$effective			If effective permissions should be considered or not.
 	*
 	* @return array
 	* @access public
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $value=NULL, $dependant=NULL, $exclusive=NULL, $sort_by=NULL, $access=NULL)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $value=NULL, $dependant=NULL, $exclusive=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE)
 	{
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
@@ -2720,7 +2721,7 @@ class Asset_Manager extends MySource_Object
 
 		if (!empty($query_assetids)) {
 			// we couldnt palm the request off, so we better do it ourselves
-			$query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access);
+			$query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access, $effective);
 			if (!empty($query)) {
 				$db =& $GLOBALS['SQ_SYSTEM']->db;
 				$result = $db->getAssoc(implode(' ', $query), FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
@@ -3024,6 +3025,7 @@ class Asset_Manager extends MySource_Object
 	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
 	*											Specify that links should be returned for assets the user has read,
 	*											write, or admin access for. Leave NULL to ignore permissions.
+	* @param boolean		$effective			If effective permissions should be considered or not.
 	* @param int			$min_height			Optional parameter that specifies minimum number of levels above
 	*											the specified asset for a parent to qualify (immediate parent is 1)
 	* @param int			$max_height			Optional parameter that specifies maximum number of levels above
@@ -3035,7 +3037,7 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	* @see generateGetParentsQuery()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=TRUE, $sort_by=NULL, $access=NULL, $min_height=NULL, $max_height=NULL, $ignore_bridge=FALSE)
+	function getParents($assetid, $type_code='', $strict_type_code=TRUE, $sort_by=NULL, $access=NULL, $effective=TRUE, $min_height=NULL, $max_height=NULL, $ignore_bridge=FALSE)
 	{
 		// check if we are getting parents for a shadow asset, and palm the request off to the
 		// handler of the shadow asset if we are
@@ -3090,7 +3092,7 @@ class Asset_Manager extends MySource_Object
 			return $parents;
 		}//end if shadow asset
 
-		$query = $this->generateGetParentsQuery($assetid, $type_code, $strict_type_code, $sort_by, $access, $min_height, $max_height);
+		$query = $this->generateGetParentsQuery($assetid, $type_code, $strict_type_code, $sort_by, $access, $effective, $min_height, $max_height);
 		if (empty($query)) return Array();
 		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
 		assert_valid_db_result($result);
@@ -3127,6 +3129,7 @@ class Asset_Manager extends MySource_Object
 	* @param int			$access					SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
 	*												Specify that links should be returned for assets the user has read,
 	*												write, or admin access for. Leave NULL to ignore permissions.
+	* @param boolean		$effective				If effective permissions should be considered or not.
 	* @param int			$min_depth				Optional parameter that specifies minimum number of levels below
 	*												the specified asset for a child to qualify (immediate child is 1)
 	* @param int			$max_depth				Optional parameter that specifies maximum number of levels below
@@ -7068,11 +7071,12 @@ class Asset_Manager extends MySource_Object
 	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
 	*											Specify that links should be returned for assets the user has read,
 	*											write, or admin access for. Leave NULL to ignore permissions.
+	* @param boolean		$effective			If effective permissions should be considered or not.
 	*
 	* @return array
 	* @access public
 	*/
-	function generateGetLinksQuery($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $value=NULL, $dependant=NULL, $exclusive=NULL, $sort_by=NULL, $access=NULL)
+	function generateGetLinksQuery($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $value=NULL, $dependant=NULL, $exclusive=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE)
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
@@ -7125,32 +7129,42 @@ class Asset_Manager extends MySource_Object
 				$from .= '
 					LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid';
 
-				// get user and group ids
-				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-				$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
-				$public_userid = (String)$this->getSystemAssetid('public_user');
-				$userids[] = $public_userid;
-				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$userids[$i] = $db->quote((String)$userids[$i]);
-				}
+				if ($effective) {
+					// get user and group ids
+					$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+					$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
+					$public_userid = (String)$this->getSystemAssetid('public_user');
+					$userids[] = $public_userid;
+					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+						$userids[$i] = $db->quote((String)$userids[$i]);
+					}
 
-				$userids_str = implode(',', $userids);
-				$userid_cond = ' AND (p.userid IN ('.$userids_str.') OR r.userid IN ('.$userids_str.'))';
-				$where .= $userid_cond.'
-					AND (
-						(p.permission = '.$db->quote($access).' AND (
-									p.userid <> '.$db->quote($public_userid).'
-									OR r.userid <> '.$db->quote($public_userid).'
-									OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
-									OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
-								)
-						)
-						OR
+					$userids_str = implode(',', $userids);
+					$userid_cond = ' AND (p.userid IN ('.$userids_str.') OR r.userid IN ('.$userids_str.'))';
+					$where .= $userid_cond.'
+						AND (
+							(p.permission = '.$db->quote($access).' AND (
+										p.userid <> '.$db->quote($public_userid).'
+										OR r.userid <> '.$db->quote($public_userid).'
+										OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+										OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+									)
+							)
+							OR
+							(
+								p.permission > '.$db->quote($access).' AND p.granted = 1)
+							)';
+					$having .= 'HAVING MIN(p.granted) <> 0';
+					$group_by .= ', p.assetid';
+				} else {
+					$userid = (String) $GLOBALS['SQ_SYSTEM']->user->id;
+					$where .= 'AND
 						(
-							p.permission > '.$db->quote($access).' AND p.granted = 1)
+							p.userid = '.$db->quote($userid).'
+							AND p.permission = '.$db->quote($access).'
+							AND p.granted = 1
 						)';
-				$having .= 'HAVING MIN(p.granted) <> 0';
-				$group_by .= ', p.assetid';
+				}
 			}//end if
 
 		}//end if access is not null
@@ -7228,6 +7242,7 @@ class Asset_Manager extends MySource_Object
 	* @param int			$access					SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
 	*												Specify that links should be returned for assets the user has read,
 	*												write, or admin access for. Leave NULL to ignore permissions.
+	* @param boolean		$effective				If effective permissions should be considered or not.
 	* @param boolean		$inc_type_code			whether to include the type code in the SELECT or not
 	* @param int			$min_depth				Optional parameter that specifies minimum number of levels below
 	*												the specified asset for a child to qualify (immediate child is 1)
@@ -7426,6 +7441,7 @@ class Asset_Manager extends MySource_Object
 	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
 	*											Specify that links should be returned for assets the user has read,
 	*											write, or admin access for. Leave NULL to ignore permissions.
+	* @param boolean		$effective			If effective permissions should be considered or not.
 	* @param int			$min_height			Optional parameter that specifies minimum number of levels above
 	*											the specified asset for a parent to qualify (immediate parent is 1)
 	* @param int			$max_height			Optional parameter that specifies maximum number of levels above
@@ -7435,7 +7451,7 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	* @see getParents()
 	*/
-	function generateGetParentsQuery($assetid, $type_code='', $strict_type_code=TRUE, $sort_by=NULL, $access=NULL, $min_height=NULL, $max_height=NULL)
+	function generateGetParentsQuery($assetid, $type_code='', $strict_type_code=TRUE, $sort_by=NULL, $access=NULL, $effective=TRUE, $min_height=NULL, $max_height=NULL)
 	{
 		assert_valid_assetid($assetid);
 
@@ -7568,22 +7584,33 @@ class Asset_Manager extends MySource_Object
 			$group_by = 'GROUP BY ll.majorid, ll.treeid, ll.type_code, ll.name';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$where .= ' AND p.assetid = a.assetid';
-				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
-				$public_userid = (String)$this->getSystemAssetid('public_user');
-				$userids[] = $public_userid;
-				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$userids[$i] = $db->quote((String)$userids[$i]);
-				}
-				$userids_str = implode(',', $userids);
-				$userid_cond = ' AND p.userid IN ('.$userids_str.')';
-				$where .= $userid_cond.'
-					AND (
-						(p.permission = '.$db->quote($access).' AND (p.userid <> '.$db->quote($public_userid).' OR (userid = '.$db->quote($public_userid).' AND granted = 1)))
-						OR
-						(p.permission > '.$db->quote($access).' AND p.granted = 1)
+
+				if ($effective) {
+					$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+					$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
+					$public_userid = (String)$this->getSystemAssetid('public_user');
+					$userids[] = $public_userid;
+					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+						$userids[$i] = $db->quote((String)$userids[$i]);
+					}
+					$userids_str = implode(',', $userids);
+					$userid_cond = ' AND p.userid IN ('.$userids_str.')';
+					$where .= $userid_cond.'
+						AND (
+							(p.permission = '.$db->quote($access).' AND (p.userid <> '.$db->quote($public_userid).' OR (userid = '.$db->quote($public_userid).' AND granted = 1)))
+							OR
+							(p.permission > '.$db->quote($access).' AND p.granted = 1)
+							)';
+					$having .= 'HAVING MIN(ll.granted) <> 0';
+				} else {
+					$userid = (String) $GLOBALS['SQ_SYSTEM']->user->id;
+					$where .= '
+						(
+							p.userid = '.$db->quote($userid).'
+							AND p.permission = '.$db->quote($access).'
+							AND p.granted = 1
 						)';
-				$having .= 'HAVING MIN(ll.granted) <> 0';
+				}
 
 			}
 
