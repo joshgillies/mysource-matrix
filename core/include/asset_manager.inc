@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.541 2007/01/12 04:09:47 bcaldwell Exp $
+* $Id: asset_manager.inc,v 1.542 2007/01/12 04:14:49 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.541 $
+* @version $Revision: 1.542 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7319,6 +7319,7 @@ class Asset_Manager extends MySource_Object
 		if ($direct_shadows_only) {
 			$union_where = 'sl.majorid = '.$db->quoteSmart($asset->id);
 		} else {
+			$union_where = "sl.majorid IN (SELECT DISTINCT l.minorid $from $where)";
 		}
 		$union_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
 
