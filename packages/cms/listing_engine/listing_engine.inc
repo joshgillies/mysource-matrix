@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.202 2006/12/07 21:48:05 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.202.2.1 2007/01/12 00:32:16 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.202 $
+* @version $Revision: 1.202.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1004,7 +1004,7 @@ class Listing_Engine extends Page
 		if (!empty($wanted_statuses) && (array_sum($wanted_statuses) != SQ_SC_STATUS_ALL)) {
 			// find which of the assets have the right statuses
 			foreach (array_unique(array_merge($real_assetids, $bridge_assetids)) as $assetid) {
-				$query_assetids[] = $db->quoteSmart($assetid);
+				$query_assetids[] = $db->quoteSmart((string)$assetid);
 			}
 			$in_clauses = Array();
 			foreach (array_chunk($query_assetids, 999) as $chunk) {
