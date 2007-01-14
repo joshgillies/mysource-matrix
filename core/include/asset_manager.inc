@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.543 2007/01/12 04:53:26 rhoward Exp $
+* $Id: asset_manager.inc,v 1.544 2007/01/14 22:37:30 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.543 $
+* @version $Revision: 1.544 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3188,7 +3188,6 @@ class Asset_Manager extends MySource_Object
 			return $children;
 		}
 		$query = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by, $access, $effective, TRUE, $min_depth, $max_depth, $direct_shadows_only);
-		error_log(implode(' ', $query));
 		$this->forgetAsset($asset);
 		unset($asset);
 		if (empty($query)) return Array();
