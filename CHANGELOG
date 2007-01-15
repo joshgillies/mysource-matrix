@@ -1,5 +1,128 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.12.0
+
+Featured Changes
+-----------------------------------
+
+New Keyword Suffixes to Disable Keyword/URL Expansion
+
+    If a keyword is %keyword%, then %keyword_disablekeywords% disables the expansion of global keywords, where %keyword_disableurls% prevents expansion of Matrix internal-asset URLs (./?a=###). The keyword %keyword_disableall% disables both.
+
+
+Reload User Trigger Action
+
+    This new trigger action reloads a user if external authentication variables are present. This can be used to stop a user authenticated through external means from logging out of the system and logging in as a new user, by attaching this action to the "User Logout" event.
+
+
+Changes to Asset Tree Weightings in Search Manager
+
+    Tree weightings are now determined by looking through each tree for the indexed asset's type, then each tree for each parent asset type in order. This differs from previous versions, where it searched through each tree for all asset types before moving to the next tree.
+
+
+New Search Page Keywords
+
+    A new Messages screen has been added to Search Page where a message for spell-check or synonym suggestions can be created. They will only be printed if suggestions exist. This was written to prevent stray "Did you mean..." messages appearing when no suggestions existed. They are accessible through the keywords %[term]_query_suggestions_message% and %[term]_query_synonyms_message%, respectively.
+
+
+LDAP Users have Release All Locks button
+
+    LDAP Users - both standard and backend versions - now have a Release All Locks button on their Details screen, similar to that for normal users.
+
+
+Single-Element Array LDAP Information Returned as Text
+
+    Additional LDAP information returned from an LDAP Bridge will be stored as a text attribute if the value is an array of one element. This should allow more information to be able to be printed using keywords than previously.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
++ Backend search now has a "Search in Progress" screen to inform users that the backend search is running
++ New "Is Current User Sysadmin" trigger condition
++ New "Set Workflow Schema" trigger action
++ Global keyword replacement now works on Matrix-generated 404 pages
++ Improved Thesaurus XML Export interface
++ Newlines in Thesaurus Term notes are now properly displayed
+* Spell check now disabled in WYSIWYG if pspell support not compiled into PHP
+* Update lookups HIPO now only runs on Site asset's URLs screen if URLs were changed
+* User Logout trigger event is now broadcast AFTER logout is effected
+* Fixed bug: section notes in parent asset type screen locale files were taking precedence over child type ones in compile_locale.php run
+* Fixed bug: Create Link trigger action did not allow creation of multiple NOTICE links with different values
+* Fixed bug: Trigger manager released all locks after executing an action, even if it did not originally acquire them
+* Fixed bug: File asset's Simple Edit interface broken due to URL change when "allow unrestricted" off and new file uploaded
+* Fixed bug: Upgrade Data Directories script did not work with system static URLs or image varieties
+* Fixed bug #1933: The Visual Aid WYSIWYG plugin erases contents of Table Cells that contain Paragraph tags
+* Fixed bug #1936: No workflow messages sent for assets without dependants
+* Fixed bug #1951: Trigger not executing on 'ANY' event
+* Fixed bug #1955: Date metadata "allow blank" actually sets undesired values
+* Fixed bug #1958: WYSIWYG Popup throws an error when trying to find a paginated asset
+* Fixed bug #1960: WYSIWYG Visual Aid Plugin doesn't remove the visual aids
+* Fixed bug #1965: Permissions ignored on Paint Layout bodycopies
+* Fixed bug #1966: Global asset keyword replacement throws undefined index error
+* Fixed bug #1976: Trashing archived asset with thumbnail (or other NOTICE links) does not work
+* Fixed bug #1978: CSV to XML import script: Output for assignment of folder web path occurs when "group by" field is not used
+* Fixed bug #1985: Changing design customisations - changes to children lost when parent is changed
+* Fixed bug #1997: Bodycopy and child assets getting assigned metadata schemas
+* Fixed bug #2005: Cloning asset fails when inaccessible Metadata Schema is applied
+
+CMS
+
+* Clearer message returned by Links Report if the server does not respond (Links Report)
+* Fixed bug: Set Metadata Schema feature was being attempted even if nothing was selected (Asset Builder)
+* Fixed bug #1977: Online Poll - Results Keywords blanked when Multiple Voting is off (Online Poll)
+* Fixed bug #1988: Multiple Page - Cannot simultaneously delete last page and create new page (Multiple Page)
+* Fixed bug #2009: Metadata values not saved when asset builder set up with multiple create types (Asset Builder Page)
+
+Search
+
+- Reindex Assets section no longer shows if indexing is turned off (Search Manager)
+* Search List now returns empty result if search fields not set up properly (Search List)
+* Fixed bug: Global search and replace tool did not properly escape '/' character in regexes (Global Search and Replace Tool)
+* Fixed bug: Decoding of HTML entities causing storage issues in non-UTF8 databases, especially Oracle (Search Manager)
+* Fixed bug: when calculating tree weightings, if parent was searched, it was only able to select "All Asset Types" setting (Search Manager)
+* Fixed bug #1941: %<term>_query_suggestions% link is off by 1 (Search Page)
+* Fixed bug #1948: "Any" word logic not working on metadata text field with Oracle (Search Manager)
+
+Calendar
+
+* Fixed bug: Upgrade script breaks with Restricted Calendar Page assets (Rolling Calendar Page)
+* Fixed bug #1938: Changes to Calendar Event broke Modification/Cancellation asset creation (Calendar Event Cancellation/Modification)
+
+News
+
+* Fixed bug: When proxy used, HTTP headers break parsing of returned XML (RSS Data Source)
+* Fixed bug #1983: ISO8601 and iCal date format keywords not working (RSS Feed)
+* Fixed bug #2002: RSS Feed - weight or width (RSS Feed)
+* Fixed bug #2003: RSS Feed - two "rights" field (RSS Feed)
+
+Ecommerce
+
++ Added support for entry of Card Verification Value (CVV) on Credit Card payment form (Esec Payment Gateway)
+
+Bulkmail
+
+* Fixed bug #1939: Cannot view Details screen of bulkmail job on Oracle (Bulkmail Job)
+* Fixed bug #1944: Extra '=%0a' character at the end of line for HTML email (Bulkmail Job)
+
+Data
+
+- Option for separate line colours in a stacked graph has been removed due to library limitations
+* Global Settings entry fields - labels no longer written in form of a question
+* Fixed bug #1961: Query Builder screen layout is wrong for the DB Data Source (DB Data Source)
+* Fixed bug #1962: PHP Notice for the DB Data Source (DB Data Source)
+* Fixed bug #1970: Data Source Graph - angle for y-axis not working (Data Source Graph)
+* Fixed bug #1972: MySource Error for the Data Source Graph (Data Source Graph)
+* Fixed bug #1973: Data Source Graph - PHP Notice when chosing the graph type (Data Source Graph)
+
+Import Tools
+
+* Fixed bug #1946: Bulk File Import Tool missing string (Bulk File Import Tool)
+
+
+
 VERSION 3.12.0 RC1
 
 Featured Changes
