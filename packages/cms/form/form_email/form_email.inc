@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.57 2007/01/09 23:46:33 hnguyen Exp $
+* $Id: form_email.inc,v 1.58 2007/01/15 01:09:06 lwright Exp $
 *
 */
 
@@ -18,6 +18,7 @@
 require_once dirname(__FILE__).'/../form/form.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 /**
 * Form_Email
@@ -26,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -262,75 +263,18 @@ class Form_Email extends Form
 		if (empty($email_field)) return FALSE;
 		$address = $email_field->getValue();
 
-		// get the form info (in both formats)
-		$info = $this->getFormInfo(TRUE);
-		$info_text = $this->getFormInfo(FALSE);
-
-		// get the form summary (both formats)
-		ob_start();
-			$this->printSummary(TRUE);
-			$body = ob_get_contents();
-		ob_end_clean();
-
-		ob_start();
-			$this->printSummary(FALSE);
-			$body_text = ob_get_contents();
-		ob_end_clean();
-
-		$reps = Array(
+		$additional_reps = Array(
 					'receipt_address'	=> $address,
-					'form_summary_html'	=> $body,
-					'form_summary_text'	=> $body_text,
-					'form_info_html'	=> $info,
-					'form_info_text'	=> $info_text,
 				);
-
-		if (!is_null($this->submission_asset)) {
-			$reps['form_submission_id'] = $this->submission_asset->id;
-		}
-
-		// replacements of question responses
-		$questions = $this->getQuestions();
-		$sections =& $this->getSections();
-
-		foreach ($questions as $q_id => $question) {
-			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
-			$q_name = $q_asset->attr('name');
-			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary();
-		}
-
-		foreach ($sections as $section) {
-			$reps['section_title_'.$section->id] = $section->attr('name');
-			$questions = $section->getQuestions();
-			foreach ($questions as $q_id => $question) {
-				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
-				$q_name = $section->attr('name').': '.$q_asset->attr('name');
-				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary();
-			}
-		}
 
 		$email_format_attr =& $this->getAttribute('receipt_emails_format');
 
 		// append the 'To:' address with the address from the e-mail field
 		$current_value = @unserialize($email_format_attr->value);
 		$current_value['to'][] = $address;
-
-		// substitute generic keywords with email format-specific keywords
-		$current_value['html_format'] = str_replace(
-			Array('%form_info%', '%form_summary%'),
-			Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
-		$current_value['text_format'] = str_replace(
-			Array('%form_info%', '%form_summary%'),
-			Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
-
-
-		// add attachments to emails
-		$current_value['attachments'] = Array();
-		$current_value['attachments'] = $this->_getAttachments();
-
 		$email_format_attr->value = serialize($current_value);
 
-		$email_format_attr->sendMail($reps);
+		$this->_sendEmail($email_format_attr, $additional_reps);
 
 		return TRUE;
 
@@ -346,77 +290,7 @@ class Form_Email extends Form
 	function mailRecipients()
 	{
 		$email_format_attr =& $this->getAttribute('recipient_emails_format');
-
-		$current_value = @unserialize($email_format_attr->value);
-
-		// return false if there is no-one to send to
-		if (empty($current_value['to']) && empty($current_value['to_assetids'])) {
-			return FALSE;
-		}
-
-		// get the form info (in both formats)
-		$info = $this->getFormInfo(TRUE);
-		$info_text = $this->getFormInfo(FALSE);
-
-		// get the form summary
-		ob_start();
-			$this->printSummary(TRUE);
-			$body = ob_get_contents();
-		ob_end_clean();
-
-		ob_start();
-			$this->printSummary(FALSE);
-			$body_text = ob_get_contents();
-		ob_end_clean();
-
-		$reps = Array(
-					'form_summary_html'	=> $body,
-					'form_summary_text'	=> $body_text,
-					'form_info_html'	=> $info,
-					'form_info_text'	=> $info_text,
-				);
-
-		if (!is_null($this->submission_asset)) {
-			$reps['form_submission_id'] = $this->submission_asset->id;
-		}
-
-		// replacements of question responses
-		$questions = $this->getQuestions();
-		$sections =& $this->getSections();
-
-		foreach ($questions as $q_id => $question) {
-
-			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
-			$q_name = $q_asset->attr('name');
-			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary();
-		}
-
-		foreach ($sections as $section) {
-			$reps['section_title_'.$section->id] = $section->attr('name');
-			$questions = $section->getQuestions();
-			foreach ($questions as $q_id => $question) {
-				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
-				$q_name = $section->attr('name').': '.$q_asset->attr('name');
-				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary();
-			}
-		}
-
-		// substitute generic keywords with email format-specific keywords
-		$current_value['html_format'] = str_replace(
-			Array('%form_info%',      '%form_summary%'),
-			Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
-		$current_value['text_format'] = str_replace(
-			Array('%form_info%',      '%form_summary%'),
-			Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
-
-		// add attachments to emails
-		$current_value['attachments'] = Array();
-		$current_value['attachments'] = $this->_getAttachments();
-
-		$email_format_attr->value = serialize($current_value);
-
-		$email_format_attr->sendMail($reps);
-
+		$this->_sendEmail($email_format_attr);
 		return TRUE;
 
 	}//end mailRecipients()
@@ -465,105 +339,14 @@ class Form_Email extends Form
 		if (empty($email_field)) return FALSE;
 		$addresses = preg_split('/[\s;,]+/',$email_field->getValue());
 
-		// get the form info
-		$info = $this->getFormInfo(TRUE);
-		$info_text = $this->getFormInfo(FALSE);
-
-		// get the form summary
-		ob_start();
-			$this->printSummary(TRUE);
-			$body = ob_get_contents();
-		ob_end_clean();
-
-		ob_start();
-			$this->printSummary(FALSE);
-			$body_text = ob_get_contents();
-		ob_end_clean();
-
-		$prefix = $this->getPrefix();
-		$referer = (isset($_POST[$prefix.'_referral_url'])) ? $_POST[$prefix.'_referral_url'] : '';
-
-		if (!empty($referer)) {
-			// use the url to work out the referring asset
-			$url_parts = parse_url($referer);
-			$protocol = array_get_index($url_parts, 'scheme');
-			$path = array_get_index($url_parts, 'host').array_get_index($url_parts, 'path');
-
-			$referer_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $path);
-		}
-
-		$reps = Array(
-					'form_summary_html'	=> $body,
-					'form_summary_text'	=> $body_text,
-					'form_info_html'	=> $info,
-					'form_info_text'	=> $info_text,
-					'referral_url'		=> $referer,
-				);
-
-		if (!is_null($this->submission_asset)) {
-			$reps['form_submission_id'] = $this->submission_asset->id;
-		}
-
-		// replacements of question responses
-		$questions = $this->getQuestions();
-		$sections =& $this->getSections();
-
-		foreach ($questions as $q_id => $question) {
-			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
-			$q_name = $q_asset->attr('name');
-			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary();
-		}
-
-		foreach ($sections as $section) {
-			$reps['section_title_'.$section->id] = $section->attr('name');
-			$questions = $section->getQuestions();
-			foreach ($questions as $q_id => $question) {
-				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
-				$q_name = $section->attr('name').': '.$q_asset->attr('name');
-				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary();
-			}
-		}
-
 		$email_format_attr =& $this->getAttribute('staf_format');
 
 		// append the 'To:' address with the address from the e-mail field
 		$current_value = @unserialize($email_format_attr->value);
 		$current_value['to'] = array_merge($current_value['to'], $addresses);
-
-		// substitute generic keywords with email format-specific keywords
-		$current_value['html_format'] = str_replace(
-			Array('%form_info%', '%form_summary%'),
-			Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
-		$current_value['text_format'] = str_replace(
-			Array('%form_info%', '%form_summary%'),
-			Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
-
-		if (!is_null($referer_asset)) {
-			// work out repalcements for referer asset keywords
-			$keywords = array_merge(
-							retrieve_keywords_replacements($current_value['text_format']),
-							retrieve_keywords_replacements($current_value['html_format']),
-							retrieve_keywords_replacements($current_value['subject'])
-						);
-
-			foreach ($keywords as $keyword) {
-				if (0 === strpos($keyword, 'referral_asset_')) {
-					$referer_keyword = substr($keyword, 9);
-					$referer_replacement = $referer_asset->getKeywordReplacement($referer_keyword);
-					if ($referer_replacement != "%$referer_keyword%") {
-						$reps[$keyword] = $referer_replacement;
-					}
-				}
-			}
-		}
-
-		// add attachments to emails
-		$current_value['attachments'] = Array();
-		$current_value['attachments'] = $this->_getAttachments();
-
 		$email_format_attr->value = serialize($current_value);
 
-		$email_format_attr->sendMail($reps);
+		$this->_sendEmail($email_format_attr);
 
 		return TRUE;
 
@@ -660,55 +443,6 @@ class Form_Email extends Form
 
 		}//end for selective email rules
 
-		// form info will be common amongst all emails so we might as well
-		// capture it up the top of this thing
-
-		// get the form info
-		$info = $this->getFormInfo(TRUE);
-		$info_text = $this->getFormInfo(FALSE);
-
-		// get the form summary
-		ob_start();
-			$this->printSummary(TRUE);
-			$body = ob_get_contents();
-		ob_end_clean();
-
-		ob_start();
-			$this->printSummary(FALSE);
-			$body_text = ob_get_contents();
-		ob_end_clean();
-
-		// keyword replacements
-		$reps = Array(
-					'form_summary_html'	=> $body,
-					'form_summary_text'	=> $body_text,
-					'form_info_html'	=> $info,
-					'form_info_text'	=> $info_text,
-				);
-
-		if (!is_null($this->submission_asset)) {
-			$reps['form_submission_id'] = $this->submission_asset->id;
-		}
-
-		// replacements of question responses
-		$questions = $this->getQuestions();
-		$sections =& $this->getSections();
-
-		foreach ($questions as $q_id => $question) {
-			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
-			$q_name = $q_asset->attr('name');
-			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary();
-		}
-
-		foreach ($sections as $section) {
-			$reps['section_title_'.$section->id] = $section->attr('name');
-			$questions = $section->getQuestions();
-			foreach ($questions as $q_id => $question) {
-				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
-				$q_name = $section->attr('name').': '.$q_asset->attr('name');
-				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary();
-			}
-		}
 
 		// recipient emails
 		if (!empty($recipients)) {
@@ -722,23 +456,11 @@ class Form_Email extends Form
 
 			if (!empty($current_value)) {
 				$current_value['to'] = $recipients;
-
-				$current_value['html_format'] = str_replace(
-					Array('%form_info%', '%form_summary%'),
-					Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
-				$current_value['text_format'] = str_replace(
-					Array('%form_info%', '%form_summary%'),
-					Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
-
-				// add attachments to emails
-				$current_value['attachments'] = Array();
-				$current_value['attachments'] = $this->_getAttachments();
-
 				$email_format->value = serialize($current_value);
-
-				$email_format->sendMail($reps);
+				$this->_sendEmail($email_format);
 			}
 		}
+
 
 		// receipt emails
 		if (!empty($receipts)) {
@@ -752,23 +474,13 @@ class Form_Email extends Form
 
 			if (!empty($current_value)) {
 				$current_value['to'] = $receipts;
-
-				$current_value['html_format'] = str_replace(
-					Array('%form_info%', '%form_summary%'),
-					Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
-				$current_value['text_format'] = str_replace(
-					Array('%form_info%', '%form_summary%'),
-					Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
-
-				// add attachments to emails
-				$current_value['attachments'] = Array();
-				$current_value['attachments'] = $this->_getAttachments();
-
 				$email_format->value = serialize($current_value);
 
-				$email_format->sendMail($reps);
+				$additional_reps = Array('receipt_address' => '');
+				$this->_sendEmail($email_format, $additional_reps);
 			}
 		}
+
 
 		// send to a friend
 		if (!empty($stafs)) {
@@ -782,27 +494,75 @@ class Form_Email extends Form
 
 			if (!empty($current_value)) {
 				$current_value['to'] = $stafs;
-
-				$current_value['html_format'] = str_replace(
-					Array('%form_info%', '%form_summary%'),
-					Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
-				$current_value['text_format'] = str_replace(
-					Array('%form_info%', '%form_summary%'),
-					Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
-
-				// add attachments to emails
-				$current_value['attachments'] = Array();
-				$current_value['attachments'] = $this->_getAttachments();
-
 				$email_format->value = serialize($current_value);
-
-				$email_format->sendMail($reps);
+				$this->_sendEmail($email_format);
 			}
 		}
 
 		return TRUE;
 
 	}//end runSelectiveEmails()
+
+
+	/**
+	* Common function for sending away an email format
+	*
+	* This function automatically replaces the common Thank You/email bodycopy
+	* keywords. Additional keywords to replace can be sent through the
+	* $additional_reps parameter.
+	*
+	* @param object	&$email_format_attr	(Asset_Attribute_Email_Format)
+	*									The email format to send off
+	* @param array	$additional_reps	(string => string)
+	*									Additional replacements for a certain
+	*									email (eg. receipt address)
+	*
+	* @return void
+	* @access private
+	*/
+	function _sendEmail(&$email_format_attr, $additional_reps=Array())
+	{
+		$current_value = @unserialize($email_format_attr->value);
+
+		// return false if there is no-one to send to
+		if (empty($current_value['to']) && empty($current_value['to_assetids'])) {
+			return FALSE;
+		}
+
+		// substitute generic keywords with email format-specific keywords
+		$current_value['html_format'] = str_replace(
+			Array('%form_info%',      '%form_summary%'),
+			Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
+		$current_value['text_format'] = str_replace(
+			Array('%form_info%',      '%form_summary%'),
+			Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
+
+		// add attachments to emails
+		$current_value['attachments'] = Array();
+		$current_value['attachments'] = $this->_getAttachments();
+
+		// Get list of replacements
+		$reps_list = array_merge(
+									retrieve_keywords_replacements($current_value['html_format']),
+									retrieve_keywords_replacements($current_value['text_format']),
+									retrieve_keywords_replacements(implode(', ', $current_value['to'])),
+									retrieve_keywords_replacements($current_value['from']),
+									retrieve_keywords_replacements($current_value['subject'])
+								);
+
+		$reps_list = array_unique($reps_list);
+
+		// ...and find their replacements
+		foreach ($reps_list as $rep_name) {
+			$reps[$rep_name] = $this->_getThankYouKeywordReplacement($rep_name);
+		}
+
+		$reps = array_merge($reps, $additional_reps);
+
+		$email_format_attr->value = serialize($current_value);
+		$email_format_attr->sendMail($reps);
+
+	}//end _sendEmail()
 
 
 }//end class

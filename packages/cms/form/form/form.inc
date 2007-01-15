@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.147 2007/01/09 23:46:32 hnguyen Exp $
+* $Id: form.inc,v 1.148 2007/01/15 01:09:03 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.147 $
+* @version $Revision: 1.148 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1426,33 +1426,18 @@ class Form extends Asset
 
 			if ($this->attr('show_results')) {
 
-				$questions =& $this->getQuestionAssets();
-				$sections =& $this->getSections();
-				$replacements = Array();
-
-				for (reset($questions); $q_asset =& $questions[key($questions)]; next($questions)) {
-					$q_name = $q_asset->attr('name');
-					$replacements['response_'.str_replace(':', '_', $q_asset->id)] = $q_asset->getSummary();
-				}
-
-				for (reset($sections); $section =& $sections[key($sections)]; next($sections)) {
-					$replacements['section_title_'.$section->id] = $section->attr('name');
-					$questions =& $section->getQuestionAssets();
-					for (reset($questions); $q_asset =& $questions[key($questions)]; next($questions)) {
-						$q_name = $section->attr('name').': '.$q_asset->attr('name');
-						$replacements['response_'.str_replace(':', '_', $q_asset->id)] = $q_asset->getSummary();
-					}
-				}
-
-				if (!is_null($this->submission_asset)) {
-					$replacements['form_submission_id'] = $this->submission_asset->id;
-				}
-
-				$replacements['form_summary'] = &$summary_info;
-
 				// add global keywords
 				$keywords = $tyb->getKeywords();
 				foreach ($keywords as $word) {
+
+					// If form_info or form_summary, we need to make sure the
+					// HTML version gets printed
+					if (($word === 'form_info') || ($word == 'form_summary')) {
+						$replacements[$word] = $this->_getThankYouKeywordReplacement($word.'_html');
+					} else {
+						$replacements[$word] = $this->_getThankYouKeywordReplacement($word);
+					}
+
 					if (!isset($replacements[$word])) {
 						$replacements[$word] = $this->getKeywordReplacement($word);
 					}
@@ -1804,13 +1789,22 @@ class Form extends Asset
 				$keywords['submit_button'] = translate('cms_form_submit_button');
 
 			} else if ($bodycopy == 'Thank You') {
-				$keywords['form_summary'] = translate('cms_form_submission_summary');
-				$keywords['form_submission_id'] = translate('cms_form_submission_id');
+				$keywords['form_summary']               = translate('cms_form_submission_summary');
+				$keywords['form_info']                  = translate('cms_form_submission_info');
+				$keywords['form_submission_id']         = translate('cms_form_submission_id');
+				$keywords['form_submission_ip_address'] = translate('cms_form_submission_ip_address');
+				$keywords['form_submission_time']       = translate('cms_form_submission_time_format', translate('date_format_default'));
+
+				foreach (get_date_format_names() as $date_name => $date_format) {
+					$keywords['form_submission_time_'.$date_name] = translate('cms_form_submission_time_format', translate('date_format_'.$date_name));
+				}
 
 				foreach ($questions as $q_id => $question) {
 					$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 					$q_name = $q_asset->attr('name');
-					$keywords['response_'.$this->id.'_q'.$q_id] = translate('cms_form_question_response', ellipsisize($q_name,30));
+					$keywords['response_'.$this->id.'_q'.$q_id]      = translate('cms_form_question_response', ellipsisize($q_name,30));
+					$keywords['question_name_'.$this->id.'_q'.$q_id] = translate('cms_form_question_name', ellipsisize($q_name,30));
+					$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_question_note', ellipsisize($q_name,30));
 				}
 
 				foreach ($sections as $section) {
@@ -1819,9 +1813,12 @@ class Form extends Asset
 					foreach ($questions as $q_id => $question) {
 						$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $q_asset->attr('name');
-						$keywords['response_'.$section->id.'_q'.$q_id] = translate('cms_form_section_response', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
+						$keywords['response_'.$section->id.'_q'.$q_id]   = translate('cms_form_section_response', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
+						$keywords['question_name_'.$this->id.'_q'.$q_id] = translate('cms_form_section_q_name', ellipsisize($q_name,30));
+						$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_section_q_note', ellipsisize($q_name,30));
 					}
 				}
+
 			}
 
 
@@ -2125,6 +2122,215 @@ class Form extends Asset
 		return 0;
 
 	}//end createAssetLink()
+
+
+	/**
+	* Get appropriate keywords for Thank You bodycopy and emails
+	*
+	* @param string		$keyword	keyword to replace
+	*
+	* @return string
+	* @access protected
+	*/
+	function _getThankYouKeywordReplacement($keyword)
+	{
+		$replacement = '%'.$keyword.'%';
+		$prefix = $this->getPrefix();
+
+		// referrer gets referred to (!) in multiple keywords, so get it up here
+		$referrer = (isset($_POST[$prefix.'_referral_url'])) ? $_POST[$prefix.'_referral_url'] : '';
+
+		// Easier to use if-else if rather than switch, because some of these
+		// will be regex matches
+
+		if ($keyword === 'form_info_html') {
+			// Form info keyword - HTML email
+			// %form_info_html%
+
+			$replacement = $this->getFormInfo(TRUE);
+
+		} else if ($keyword === 'form_info_text') {
+			// Form info keyword - text email
+			// %form_info_text%
+
+			$replacement = $this->getFormInfo(FALSE);
+
+		} else if ($keyword === 'form_summary_html') {
+			// Form summary keyword - HTML email
+			// %form_summary_html%
+
+			ob_start();
+				$this->printSummary(TRUE);
+				$replacement = ob_get_contents();
+			ob_end_clean();
+
+		} else if ($keyword === 'form_summary_text') {
+			// Form summary keyword
+			// %form_summary_text%
+
+			ob_start();
+				$this->printSummary(FALSE);
+				$replacement = ob_get_contents();
+			ob_end_clean();
+
+		} else if ($keyword === 'form_submission_id') {
+			// Asset ID of the form submission
+			// %form_submission_id%
+
+			if (!is_null($this->submission_asset)) {
+				$replacement = $this->submission_asset->id;
+			}
+
+		} else if (preg_match('|^form_submission_time(_.*)|', $keyword, $matches)) {
+			// Submission time - can use date formats - if not recognised as
+			// a valid shorthand date format, it's assumed to be a date() format
+			// (just like date keywords elsewhere)
+			// %form_submission_time_rfc2822%
+
+			if (empty($matches[1])) {
+				$date_format = 'Y-m-d H:i:s';
+			} else {
+				$date_format = substr($matches[1], 1);
+			}
+
+			if (!is_null($this->submission_asset)) {
+				$date_formats_list = get_date_formats();
+				if (array_key_exists($date_format, $date_formats_list)) {
+					$replacement = format_date($this->submission_asset->created, $date_format);
+				} else {
+					$replacement = date($date_format, $this->submission_asset->created);
+				}
+			}
+
+		} else if ($keyword === 'form_submission_ip_address') {
+			// IP address of the submitting user
+			// %form_submission_ip_address%
+
+			// TODO: Should we handle proxy-forwarded IP addresses
+			//       (X-Forwarded-For header)?
+			$ip_address = $_SERVER['REMOTE_ADDR'];
+			$replacement = $ip_address;
+
+		} else if (preg_match('|^form_asset_(.*)|', $keyword, $matches)) {
+			// form PAGE asset keyword
+			// eg. %form_asset_assetid%
+
+			$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'page_custom_form', FALSE, NULL, 'minor');
+			$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid']);
+
+			$form_keyword = 'asset_'.$matches[1];
+			$asset_replacement = $parent_asset->getKeywordReplacement($form_keyword);
+			if ($asset_replacement !== "%$form_keyword%") {
+				$replacement = $asset_replacement;
+			}
+
+		} else if ($keyword === 'referral_url') {
+			// URL of the referring page/asset
+			// %referral_url%
+
+			$replacement = $referrer;
+
+		} else if (preg_match('|^referring_asset_(.*)|', $keyword, $matches)) {
+			// referring asset keyword, if we have been referred from an
+			// asset within MySource Matrix
+			// eg. %referring_asset_assetid%
+
+			if (!empty($referrer)) {
+				// use the url to work out the referring asset
+				$url_parts = parse_url($referrer);
+				$protocol = array_get_index($url_parts, 'scheme');
+				$path = array_get_index($url_parts, 'host').array_get_index($url_parts, 'path');
+
+				$referrer_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $path, TRUE, TRUE);
+				if (!is_null($referrer_asset)) {
+					$referrer_keyword = 'asset_'.$matches[1];
+
+					$referrer_replacement = $referrer_asset->getKeywordReplacement($referrer_keyword);
+					if ($referrer_replacement !== "%$referrer_keyword%") {
+						$replacement = $referrer_replacement;
+					} else {
+						$replacement = '';
+					}
+				}
+			}//end if referrer is not empty
+
+		} else {
+			// questions that depend on knowing what questions and sections we have
+			// We will cache them though, so we don't load them up all the time
+
+			if (empty($this->_tmp['keyword_cache'])) {
+				$this->_tmp['keyword_cache']['questions'] =& $this->getQuestions();
+				$this->_tmp['keyword_cache']['sections' ] =& $this->getSections();
+			}
+
+			$questions =& $this->_tmp['keyword_cache']['questions'];
+			$sections  =& $this->_tmp['keyword_cache']['sections'];
+
+			if (preg_match('|^section_title_(.*)|', $keyword, $matches)) {
+					// Section title keyword
+					// eg. %section_title_123%
+
+					$section_assetid = $matches[1];
+					$section_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid, 'form_section');
+					if (!empty($section_asset)) {
+						$replacement = $section_asset->attr('title');
+					}
+
+			} else if (preg_match('|^question_([^_]*)_([^_]*_)?q(.*)|', $keyword, $matches)) {
+					// Question name/note keywords, eg.
+					// %question_note_123_q4% ... note for q.4 from form/section
+					//                            with ID 123
+					// %question_name_q4% ....... name of q.4 from the form
+
+					$question_keyword = $matches[1];
+					if (empty($matches[2])) {
+						// One asset ID
+						$section_assetid = $this->id;
+						$question_assetid = $matches[3];
+					} else {
+						$section_assetid = str_replace('_', '', $matches[2]);
+						$question_assetid = $matches[3];
+					}
+
+					$question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid.':q'.$question_assetid);
+					if (!empty($question_asset)) {
+						switch ($question_keyword) {
+							case 'name':
+								$replacement = $question_asset->attr('name');
+							break;
+
+							case 'note':
+								$replacement = $question_asset->attr('note');
+							break;
+						}
+					}
+
+			} else if (preg_match('|^response_(.*_)?q(.*)?|', $keyword, $matches)) {
+					// Question response keywords, eg.
+					// %response_123_q4% ... question 4 from form/section ID 123
+					// %response_q4% ....... question 4 from the form
+
+					if (empty($matches[1])) {
+						// One asset ID
+						$section_assetid = $this->id;
+						$question_assetid = $matches[2];
+					} else {
+						$section_assetid = str_replace('_', '', $matches[1]);
+						$question_assetid = $matches[2];
+					}
+
+					$question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid.':q'.$question_assetid);
+					if (!empty($question_asset)) {
+						$replacement = $question_asset->getSummary();
+					}
+
+			}
+
+		}//end if - keyword list
+
+		return $replacement;
+
+	}//end _getThankYouKeywordReplacement()
 
 
 }//end class
