@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page.inc,v 1.21 2006/12/07 00:04:21 emcdonald Exp $
+* $Id: page_multiple_page.inc,v 1.22 2007/01/15 06:15:53 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -275,7 +275,6 @@ class Page_Multiple_Page extends Page
 	*/
 	function linksUpdated()
 	{
-
 		$AM = $GLOBALS['SQ_SYSTEM']->am;
 
 		$AM->acquireLock($this->id, 'attributes', 0, TRUE);
@@ -296,7 +295,11 @@ class Page_Multiple_Page extends Page
 			unset($current_children[$data['minorid']]);
 			$paths = $page->getWebPaths();
 			$new_paths[strval(intval($data['sort_order']) + 1)] = &$page;
-			$page->saveWebPaths(Array());
+			if (!empty($this->_tmp['no_sort_order_paths'])) {
+				if ($this->_tmp['no_sort_order_paths']) {
+					$page->saveWebPaths(Array());
+				}
+			}
 		}
 
 
@@ -311,12 +314,19 @@ class Page_Multiple_Page extends Page
 
 		parent::linksUpdated();
 
-
+		$debug_new_paths = Array();
 		foreach ($new_paths as $path => $asset) {
-			$asset->saveWebPaths(Array($path));
-			$AM->forgetAsset($asset);
+			$debug_new_paths[$asset->id] = $path;
 		}
 
+		if (!empty($this->_tmp['no_sort_order_paths'])) {
+			if ($this->_tmp['no_sort_order_paths']) {
+				foreach ($new_paths as $path => $asset) {
+					$asset->saveWebPaths(Array($path));
+					$AM->forgetAsset($asset);
+				}
+			}
+		}
 
 		// This will store all current pages,
 		$this->setAttrValue('current_page_ids', $new_page_children);
@@ -769,6 +779,24 @@ class Page_Multiple_Page extends Page
 		return $nav;
 
 	}//end paintNavSelectionList()
+
+
+	/**
+	* Prints a Selection List with onChange event to navigate between pages.
+	*
+	* @param int		$linkid		The id of the link being passed
+	* @param int		$sort_order	The order of the link to be changed
+	* @param boolean	$switch		Boolean value to determine whether saveWebPath() should be executed.
+	*
+	* @return string
+	* @access public
+	*/
+	function sortOrder($linkid, $sort_order, $switch)
+	{
+		$this->_tmp['no_sort_order_paths'] = $switch;
+		$GLOBALS['SQ_SYSTEM']->am->updateLink($linkid,NULL,NULL,$sort_order);
+
+	}//end sortOrder()
 
 
 }//end class
