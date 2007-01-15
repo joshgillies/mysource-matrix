@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.44 2006/12/07 00:04:20 emcdonald Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.44.2.1 2007/01/15 00:20:53 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.44.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -213,6 +213,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	function paintCreateFormCustomisation(&$asset, &$o, $prefix)
 	{
 		$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($asset->attr('create_type')), 'name');
+		if (empty($type_names)) return false;
 		$customised_types = $asset->attr('create_form_customisations');
 		$wa = $asset->writeAccess('attributes');
 		if ($wa) {
