@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.105 2007/01/15 00:11:26 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.106 2007/01/15 00:11:56 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -346,7 +346,6 @@ class Page_Asset_Builder extends Page
 				break;
 
 				case 'create' :
-					log_dump($_POST);
 
 					// create our dummy asset so we can access all its you beaut functions
 					// to make life easier for ourselves
