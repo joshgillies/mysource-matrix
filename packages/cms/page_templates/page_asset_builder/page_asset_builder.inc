@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.104 2007/01/04 22:30:10 hnguyen Exp $
+* $Id: page_asset_builder.inc,v 1.105 2007/01/15 00:11:26 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -144,11 +144,11 @@ class Page_Asset_Builder extends Page
 					$layout =& new Layout();
 					$layout->setAttrValue('name', translate('cms_asset_builder_create_form_layout_for_type', $type_names[$type_code]));
 					$link = Array(
-								'asset'		=> &$this,
-								'link_type'	=> SQ_LINK_TYPE_2,
-								'dependant'	=> TRUE,
-								'exclusive'	=> FALSE,
-								'value'		=> $type_code,
+								'asset'			=> &$this,
+								'link_type'		=> SQ_LINK_TYPE_2,
+								'is_dependant'	=> TRUE,
+								'is_exclusive'	=> TRUE,
+								'value'			=> $type_code,
 							);
 					$layout->create($link);
 				}
@@ -224,7 +224,7 @@ class Page_Asset_Builder extends Page
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => count($this->_getBodycopies()), 'exclusive' => TRUE);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 'M', 'exclusive' => TRUE);
 		$page_links[SQ_LINK_NOTICE]['metadata_schema'] = Array('card' => 'M', 'exclusive' => FALSE);
 		return $page_links;
 
@@ -302,7 +302,7 @@ class Page_Asset_Builder extends Page
 	{
 		$submission_url = $this->attr('submit_to_page_url') ? replace_query_string_vars(Array(), $this->getURL()) : replace_query_string_vars(Array());
 		?>
-		<form id="<?php echo $this->getPrefix() ?>" method="post" action="<?php echo $submission_url; ?>" enctype="multipart/form-data">
+		<form id="<?php echo $this->getPrefix() ?>" method="post" action="<?php echo $submission_url; ?>" enctype="multipart/form-data" onsubmit="return form_on_submit()">
 			<?php
 			hidden_field('ASSET_BUILDER_ACTION', $this->_default_state);
 			$parameter_map =& $this->getAttribute('parameter_map');
@@ -346,6 +346,7 @@ class Page_Asset_Builder extends Page
 				break;
 
 				case 'create' :
+					log_dump($_POST);
 
 					// create our dummy asset so we can access all its you beaut functions
 					// to make life easier for ourselves
@@ -1438,6 +1439,7 @@ class Page_Asset_Builder extends Page
 		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 		$o =& new Limbo_Outputter();
 		$o->addHiddenField('ASSET_BUILDER_CREATE_TYPE', key($create_types)); // first asset type is selected initially
+		$o->addOnSubmit('disableHiddenInputs();');
 
 		// Get the Metadata schemas ready
 		$metadata_schemas = $this->_getMetadataSchemasToApply();
@@ -1530,6 +1532,31 @@ class Page_Asset_Builder extends Page
 						document.getElementById('ASSET_BUILDER_CREATE_TYPE').value = type_code;
 
 					}//end showAssetBuilderTab()
+
+					function disableHiddenInputs()
+					{
+						var divs = document.getElementsByTagName('DIV');
+						for (var i=0; i < divs.length; i++) {
+							if (divs[i].className == 'sq-asset-builder-tab-content') {
+								if (divs[i].style.display == 'none') {
+									var inputs = divs[i].getElementsByTagName('INPUT');
+									for (var j=0; j < inputs.length; j++) {
+										inputs[j].disabled = true;
+									}
+									inputs = divs[i].getElementsByTagName('TEXTAREA');
+									for (var j=0; j < inputs.length; j++) {
+										inputs[j].disabled = true;
+									}
+									inputs = divs[i].getElementsByTagName('SELECT');
+									for (var j=0; j < inputs.length; j++) {
+										inputs[j].disabled = true;
+									}
+								}
+							}
+						}
+						return true;
+					}
+
 				//]]> -->
 				</script>
 
