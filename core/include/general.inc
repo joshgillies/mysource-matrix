@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.167 2007/01/12 03:21:47 emcdonald Exp $
+* $Id: general.inc,v 1.168 2007/01/15 01:07:51 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.167 $
+* @version $Revision: 1.168 $
 * @package MySource_Matrix
 */
 
@@ -845,6 +845,24 @@ function get_date_formats()
 	return $date_formats;
 
 }//end get_date_formats()
+
+
+/**
+* Get names for the matrix standard date formats
+*
+* @return array
+* @access public
+*/
+function get_date_format_names()
+{
+	$date_formats = get_date_formats();
+	foreach ($date_formats as $date_id => $date_format) {
+		$date_formats[$date_id] = translate('date_format_'.$date_id);
+	}
+
+	return $date_formats;
+
+}//end get_date_format_names()
 
 
 /**

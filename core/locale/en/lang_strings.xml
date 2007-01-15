@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.216 2007/01/11 03:14:53 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.217 2007/01/15 01:07:51 lwright Exp $
 *
 */
 
@@ -2141,4 +2141,15 @@ Are you sure you want to proceed?</string>
 	<string source="licence_type_ssv_expired"><![CDATA[Squiz Supported Version warranty <u>EXPIRED</u>]]></string>
 
 	<string source="print_this_page">Print this Page</string>
+
+	<string source="date_format_default">yyyy-mm-dd hh:mm:ss</string>
+	<string source="date_format_short">yyyy-mm-dd</string>
+	<string source="date_format_readable">dd m yyyy h:mm[am pm]</string>
+	<string source="date_format_readabledate">date only - dd m yyyy</string>
+	<string source="date_format_readabletime">time only - h:mm[am pm]</string>
+	<string source="date_format_iso8601">ISO8601 format</string>
+	<string source="date_format_rfc2822">RFC2822 format</string>
+	<string source="date_format_rfc2822-dateonly">RFC2822 format, date only</string>
+	<string source="date_format_ical">iCalendar format</string>
+
 </strings>
