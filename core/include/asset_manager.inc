@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.544 2007/01/14 22:37:30 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.545 2007/01/15 05:02:21 bcaldwell Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.544 $
+* @version $Revision: 1.545 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7143,42 +7143,32 @@ class Asset_Manager extends MySource_Object
 				$from .= '
 					LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid';
 
-				if ($effective) {
-					// get user and group ids
-					$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-					$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
-					$public_userid = (String)$this->getSystemAssetid('public_user');
-					$userids[] = $public_userid;
-					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-						$userids[$i] = $db->quote((String)$userids[$i]);
-					}
-
-					$userids_str = implode(',', $userids);
-					$userid_cond = ' AND (p.userid IN ('.$userids_str.') OR r.userid IN ('.$userids_str.'))';
-					$where .= $userid_cond.'
-						AND (
-							(p.permission = '.$db->quote($access).' AND (
-										p.userid <> '.$db->quote($public_userid).'
-										OR r.userid <> '.$db->quote($public_userid).'
-										OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
-										OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
-									)
-							)
-							OR
-							(
-								p.permission > '.$db->quote($access).' AND p.granted = 1)
-							)';
-					$having .= 'HAVING MIN(p.granted) <> 0';
-					$group_by .= ', p.assetid';
-				} else {
-					$userid = (String) $GLOBALS['SQ_SYSTEM']->user->id;
-					$where .= 'AND
-						(
-							p.userid = '.$db->quote($userid).'
-							AND p.permission = '.$db->quote($access).'
-							AND p.granted = 1
-						)';
+				// get user and group ids
+				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+				$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
+				$public_userid = (String)$this->getSystemAssetid('public_user');
+				$userids[] = $public_userid;
+				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+					$userids[$i] = $db->quote((String)$userids[$i]);
 				}
+
+				$userids_str = implode(',', $userids);
+				$userid_cond = ' AND (p.userid IN ('.$userids_str.') OR r.userid IN ('.$userids_str.'))';
+				$where .= $userid_cond.'
+					AND (
+						(p.permission = '.$db->quote($access).' AND (
+									p.userid <> '.$db->quote($public_userid).'
+									OR r.userid <> '.$db->quote($public_userid).'
+									OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+									OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+								)
+						)';
+				if ($effective) {
+					$where .= ' OR (p.permission > '.$db->quote($access).' AND p.granted = 1)';
+				}
+				$where .= ')';
+				$having .= 'HAVING MIN(p.granted) <> 0';
+				$group_by .= ', p.assetid';
 			}//end if
 
 		}//end if access is not null
@@ -7358,41 +7348,31 @@ class Asset_Manager extends MySource_Object
 				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = a.assetid ';
 				$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON p.userid = r.roleid ';
 
-				if ($effective) {
-					$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-					$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
-					$public_userid = (String)$this->getSystemAssetid('public_user');
-					$userids[] = $public_userid;
-					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-						$userids[$i] = $db->quote((String)$userids[$i]);
-					}
-
-					$userids_str = implode(',', $userids);
-					$userid_cond = ' (p.userid IN ('.$userids_str.') OR r.userid IN ('.$userids_str.'))';
-					$where .= $userid_cond.'
-						AND (
-								(p.permission = '.$db->quote($access).' AND (
-										p.userid <> '.$db->quote($public_userid).'
-										OR r.userid <> '.$db->quote($public_userid).'
-										OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
-										OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
-									)
-								)
-								OR	(
-										p.permission > '.$db->quote($access).' AND p.granted = 1
-									)
-							) AND ';
-					$having .= 'HAVING MIN(p.granted) <> 0';
-					$group_by .= ', p.assetid';
-				} else {
-					$userid = (String) $GLOBALS['SQ_SYSTEM']->user->id;
-					$where .= '
-						(
-							p.userid = '.$db->quote($userid).'
-							AND p.permission = '.$db->quote($access).'
-							AND p.granted = 1
-						) AND ';
+				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+				$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
+				$public_userid = (String)$this->getSystemAssetid('public_user');
+				$userids[] = $public_userid;
+				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+					$userids[$i] = $db->quote((String)$userids[$i]);
 				}
+
+				$userids_str = implode(',', $userids);
+				$userid_cond = ' (p.userid IN ('.$userids_str.') OR r.userid IN ('.$userids_str.'))';
+				$where .= $userid_cond.'
+					AND (
+							(p.permission = '.$db->quote($access).' AND (
+									p.userid <> '.$db->quote($public_userid).'
+									OR r.userid <> '.$db->quote($public_userid).'
+									OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+									OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+								)
+							)';
+				if ($effective) {
+					$where .= ' OR (p.permission > '.$db->quote($access).' AND p.granted = 1)';
+				}
+				$where .= ') AND ';
+				$having .= 'HAVING MIN(p.granted) <> 0';
+				$group_by .= ', p.assetid';
 			}
 		}//end if access is not null
 
@@ -7600,33 +7580,27 @@ class Asset_Manager extends MySource_Object
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$where .= ' AND p.assetid = a.assetid';
 
-				if ($effective) {
-					$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-					$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
-					$public_userid = (String)$this->getSystemAssetid('public_user');
-					$userids[] = $public_userid;
-					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-						$userids[$i] = $db->quote((String)$userids[$i]);
-					}
-					$userids_str = implode(',', $userids);
-					$userid_cond = ' AND p.userid IN ('.$userids_str.')';
-					$where .= $userid_cond.'
-						AND (
-							(p.permission = '.$db->quote($access).' AND (p.userid <> '.$db->quote($public_userid).' OR (userid = '.$db->quote($public_userid).' AND granted = 1)))
-							OR
-							(p.permission > '.$db->quote($access).' AND p.granted = 1)
-							)';
-					$having .= 'HAVING MIN(ll.granted) <> 0';
-				} else {
-					$userid = (String) $GLOBALS['SQ_SYSTEM']->user->id;
-					$where .= '
-						(
-							p.userid = '.$db->quote($userid).'
-							AND p.permission = '.$db->quote($access).'
-							AND p.granted = 1
-						)';
+				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
+				$public_userid = (String)$this->getSystemAssetid('public_user');
+				$userids[] = $public_userid;
+				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+					$userids[$i] = $db->quote((String)$userids[$i]);
 				}
-
+				$userids_str = implode(',', $userids);
+				$userid_cond = ' AND p.userid IN ('.$userids_str.')';
+				$where .= $userid_cond.'
+					AND (
+							(p.permission = '.$db->quote($access).' AND (
+								p.userid <> '.$db->quote($public_userid).'
+								OR (userid = '.$db->quote($public_userid).' AND granted = 1)
+								)
+							)';
+				if ($effective) {
+					$where .= ' OR (p.permission > '.$db->quote($access).' AND p.granted = 1)';
+				}
+				$where .= ')';
+				$having .= 'HAVING MIN(ll.granted) <> 0';
 			}
 
 		}
@@ -7649,12 +7623,14 @@ class Asset_Manager extends MySource_Object
 																						OR (ll.userid = '.$db->quote($public_userid).' AND ll.granted = 1)
 																						OR (r.userid = '.$db->quote($public_userid).' AND ll.granted = 1)
 																					)
-									)
-									OR
+									)';
+			if ($effective) {
+				$outer_where .= ' OR
 									(
 										ll.permission > '.$db->quote($access).' AND ll.granted = 1
-									)
-								)';
+									)';
+			}
+			$outer_where .= ')';
 		}
 
 
