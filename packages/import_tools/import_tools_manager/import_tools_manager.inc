@@ -10,11 +10,10 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tools_manager.inc,v 1.3.2.2 2007/01/11 22:06:24 lwright Exp $
+* $Id: import_tools_manager.inc,v 1.3.2.3 2007/01/15 05:00:09 lwright Exp $
 *
 */
 
-check_ssv_licence();
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
@@ -23,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Manages searching and relevance weights for attributes of asset types.
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3.2.2 $
+* @version $Revision: 1.3.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */

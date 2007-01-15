@@ -10,11 +10,10 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_bulk_file_import.inc,v 1.3.2.1 2007/01/08 05:25:46 emcdonald Exp $
+* $Id: tool_bulk_file_import.inc,v 1.3.2.2 2007/01/15 05:00:09 lwright Exp $
 *
 */
 
-check_ssv_licence();
 require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -28,7 +27,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for importing files into Matrix
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3.2.1 $
+* @version $Revision: 1.3.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
