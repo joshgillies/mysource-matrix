@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.106 2007/01/15 00:11:56 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.107 2007/01/15 00:50:11 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1438,7 +1438,7 @@ class Page_Asset_Builder extends Page
 		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 		$o =& new Limbo_Outputter();
 		$o->addHiddenField('ASSET_BUILDER_CREATE_TYPE', key($create_types)); // first asset type is selected initially
-		$o->addOnSubmit('disableHiddenInputs();');
+		if (count($create_types) > 1) $o->addOnSubmit('disableHiddenInputs();');
 
 		// Get the Metadata schemas ready
 		$metadata_schemas = $this->_getMetadataSchemasToApply();
