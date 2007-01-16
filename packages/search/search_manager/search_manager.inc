@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.139 2007/01/08 04:00:57 emcdonald Exp $
+* $Id: search_manager.inc,v 1.140 2007/01/16 22:39:25 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.139 $
+* @version $Revision: 1.140 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2651,13 +2651,41 @@ class Search_Manager extends Asset
 
 
 	/**
+	* Reduce results to be keyed based on asset ID
+	*
+	* @param array	$results	raw results array
+	*
+	* @return array
+	* @access public
+	*/
+	function getCondensedResults($results) {
+		$searched_results = Array();
+
+		// transform the array into a better working format
+		foreach ($results as $result) {
+			if (empty($searched_results[$result['assetid']])) {
+					$searched_results[$result['assetid']]['score'] = 0;
+			}
+			$searched_results[$result['assetid']]['sources'][] = $result['source'];
+			$searched_results[$result['assetid']]['score'] += $result['search_score'];
+		}
+
+		uasort($searched_results, create_function('$a,$b', 'return $b["score"] - $a["score"];'));
+
+		return $searched_results;
+
+	}//end getCondensedResults()
+
+
+	/**
 	* Provide generic format of search results data
 	*
 	* Results array is in the format returned by search manager
 	* when a detailed searched is made
 	*
-	* @param array	$results		Search Results
-	* @param string	$search_string	String searched for
+	* @param array	$results		*CONDENSED* search results (returned by
+	*								getCondensedResults())
+	* @param string	$search_string	string searched for
 	*
 	* @return array
 	* @access public
@@ -2670,14 +2698,10 @@ class Search_Manager extends Asset
 
 		$formatted_results = Array();
 
-		// transform the array into a better working format
-		foreach ($results as $result) {
-			$searched_results[$result['assetid']][] = $result['source'];
-		}
-
 		// populate the results array as required
 		// note we dont include fields that dont have matches
-		foreach ($searched_results as $assetid => $content) {
+		foreach ($results as $assetid => $content) {
+			$content = $content['sources'];
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			foreach ($content as $content_type) {

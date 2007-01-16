@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_search.inc,v 1.2 2007/01/16 04:09:08 lwright Exp $
+* $Id: backend_search.inc,v 1.3 2007/01/16 22:39:23 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Backend_Search
@@ -104,12 +104,13 @@ class Backend_Search
 
 			if (!empty($results)) {
 				$result_limit = $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_RESULT_LIMIT');
-				$results = $sm->getFormattedResults($results, $search_terms);
+				$results = $sm->getCondensedResults($results);
 				if ($result_limit > 0) {
 					while (count($results) > $result_limit) {
 						array_pop($results);
 					}
 				}
+				$results = $sm->getFormattedResults($results, $search_terms);
 
 			}
 		} else {
