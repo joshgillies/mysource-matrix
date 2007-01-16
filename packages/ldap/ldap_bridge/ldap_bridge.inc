@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.58 2007/01/12 04:09:48 bcaldwell Exp $
+* $Id: ldap_bridge.inc,v 1.59 2007/01/16 05:59:24 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -179,6 +179,8 @@ class LDAP_Bridge extends Asset
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
 			$inbox_asset =& new Inbox();
 			$inbox_asset->id = $this->id.':'.$shadowid.':inbox';
+			$inbox_asset->name = 'Inbox';
+			$inbox_asset->status = $this->status;
 			return $inbox_asset;
 		}
 
