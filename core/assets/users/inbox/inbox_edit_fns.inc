@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.56 2006/12/05 06:04:32 bcaldwell Exp $
+* $Id: inbox_edit_fns.inc,v 1.57 2007/01/16 04:32:58 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -365,6 +365,86 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			echo '<div style="text-align: center">Your inbox is empty.</div></div>';
 		} else {
 ?>
+<?php
+			$num_per_page = 20;
+			$total_assets = $num_inbox;
+			$num_pages = ceil($total_assets / $num_per_page);
+
+			$link_offset = array_get_index($_POST, $prefix.'_link_offset', 0);
+
+			// if the page number is greater to the total of pages
+			if ( (round(($link_offset + $num_per_page) / $num_per_page)) > (ceil($total_assets / $num_per_page)) ) {
+				$link_offset = (ceil($total_assets / $num_per_page)-1)*$num_per_page;
+			}
+?>
+			<!-- start print pagination bar top -->
+			<table class="sq-backend-table">
+				<tr><td class="sq-backend-table-header-header"><b>
+					<?php
+					hidden_field($prefix.'_link_offset', $link_offset);
+					if ($link_offset > 0) {
+					?>
+						<a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;">
+					<?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+					}
+					?>
+					&lt;&lt;
+					<?php
+					if ($link_offset > 0) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?> &nbsp; &nbsp; <?php
+					if ($link_offset > 0) {
+						?><a title="<?php echo translate('pagination_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+					}
+					?>
+					&lt;
+					<?php
+					if ($link_offset > 0) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?>
+					&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
+					<?php
+					if (($link_offset + $num_per_page) < $total_assets) {
+						?><a title="<?php echo translate('pagination_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+					}
+					?>
+					&gt;
+					<?php
+					if (($link_offset + $num_per_page) < $total_assets) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?> &nbsp; &nbsp; <?php
+					if (($link_offset + $num_per_page) < $total_assets) {
+						?><a title="<?php echo translate('pagination_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+					} else {
+						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+					}
+					?>
+					&gt;&gt;
+					<?php
+					if (($link_offset + $num_per_page) < $total_assets) {
+						?></a><?php
+					} else {
+						?></span><?php
+					}
+					?>
+				</b></td><tr>
+				</table>
+				<!-- end print pagination bar -->
 			<table border="0" cellspacing="0" cellpadding="1" id="inbox_table">
 			<tr>
 				<td class="sq-backend-table-header"><?php echo strtoupper(translate('from')); ?></td>
@@ -398,11 +478,16 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			</tr>
 			<?php
 
-
+			$total_assets = 0;
 			for ($i = 0; $i < $num_messages; $i ++) {
 
 				$data = $messages[$i];
 				if ($data['type'] == 'inbox.sent') continue;
+
+				if (($total_assets < $link_offset) || (($link_offset+$num_per_page-1) < $total_assets)) {
+					$total_assets++;
+					continue;
+				}
 
 				// work out the sender icon
 				$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
@@ -450,7 +535,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 ?>
 				</tr>
 				<?php
-
+				$total_assets++;
 			}//end for - each message
 ?>
 			</table>
