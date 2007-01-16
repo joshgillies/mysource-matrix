@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.531.2.4 2007/01/12 03:51:24 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.531.2.5 2007/01/16 03:23:19 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.531.2.4 $
+* @version $Revision: 1.531.2.5 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -915,11 +915,15 @@ class Asset_Manager extends MySource_Object
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
 				$real_assetid = $id_parts[0];
-				$bridge =& $this->getAsset($real_assetid, '', $mute_errors);
-				if (!method_exists($bridge, 'getAsset')) {
+				$bridge =& $this->getAsset($real_assetid, '', TRUE);
+				if (is_null($bridge)) {
+					// bridge is unknown, we cannot return anything from it
+					$asset = NULL;
+					return $asset;
+				} else if (!method_exists($bridge, 'getAsset')) {
 					trigger_localised_error('SYS0203', E_USER_WARNING, $asset->name);
 				} else {
-					$asset =& $bridge->getAsset($assetid);
+					$asset =& $bridge->getAsset($assetid, '', $mute_errors);
 				}
 				$this->forgetAsset($bridge);
 
@@ -1329,8 +1333,8 @@ class Asset_Manager extends MySource_Object
 
 			// make each bridge get its info
 			foreach ($shadowids as $assetid => $shadows) {
-				$asset =& $this->getAsset($assetid);
-				if (method_exists($asset, 'getAssetInfo')) {
+				$asset =& $this->getAsset($assetid, '', TRUE);
+				if ($asset && method_exists($asset, 'getAssetInfo')) {
 					$shadow_results += $asset->getAssetInfo($shadows, $type_code, $strict_type_code, $field);
 				}
 			}
