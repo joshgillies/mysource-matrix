@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.52.2.1 2006/12/13 22:34:21 lwright Exp $
+* $Id: messaging_service.inc,v 1.52.2.2 2007/01/16 04:37:38 rong Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52.2.1 $
+* @version $Revision: 1.52.2.2 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -535,11 +535,13 @@ class Messaging_Service extends MySource_Object
 				$id_parts = explode(':', $result[$i]['userfrom']);
 				if (isset($id_parts[1])) {
 					$bridgeid = $id_parts[0];
-					$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
-					$shadow =& $bridge->getAsset($id_parts[1]);
-					if (!is_null($shadow)) {
-						$result[$i]['from_name'] = $shadow->$get_user_name;
-						$result[$i]['type_code'] = $shadow->type();
+					$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid, '', TRUE);
+					if (!is_null($bridge)) {
+						$shadow =& $bridge->getAsset($id_parts[1]);
+						if (!is_null($shadow)) {
+							$result[$i]['from_name'] = $shadow->$get_user_name;
+							$result[$i]['type_code'] = $shadow->type();
+						}
 					}
 				}
 

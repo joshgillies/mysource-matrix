@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.27.2.1 2006/07/18 05:19:27 lwright Exp $
+* $Id: permissions.inc,v 1.27.2.2 2007/01/16 04:37:38 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.27.2.1 $
+* @version $Revision: 1.27.2.2 $
 * @package MySource_Matrix
 */
 
@@ -174,8 +174,8 @@ function paintPermissions(&$owner, &$o, &$ei)
 
 				foreach ($userids as $userid) {
 					if ($userid) {
-						$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), FALSE);
-						if (empty($user_info)) continue;
+						// $user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), FALSE);
+						// if (empty($user_info)) continue;
 					}
 					?>
 					<tr>
