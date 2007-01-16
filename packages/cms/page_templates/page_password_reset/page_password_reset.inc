@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset.inc,v 1.10 2006/12/07 00:04:22 emcdonald Exp $
+* $Id: page_password_reset.inc,v 1.11 2007/01/16 21:30:59 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	Allows a user to reset their password.
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -119,7 +119,9 @@ class Page_Password_Reset extends Page
 
 			$bodycopy->setAttrValue('name', $details['name']);
 			unset($details['name']);
-			if (!$bodycopy->create($copy_link, $details)) return FALSE;
+			if (!$bodycopy->create($copy_link, $details)) {
+				 return FALSE;
+			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
 		}
 		return TRUE;
@@ -671,7 +673,9 @@ class Page_Password_Reset extends Page
 	{
 		$keywords = $this->_getStandardKeywords();
 
-		$keywords['password_input'] = 'The input fields for password reset';
+		$keywords['password_input'] = 'The input fields for password reset (new and confirmation password input fields)';
+		$keywords['password_new'] = 'Input field for the new password';
+		$keywords['password_confirmation'] = 'Input field for the Confirmation of the new password';
 
 		return $keywords;
 
@@ -727,6 +731,36 @@ class Page_Password_Reset extends Page
 		return ob_get_clean();
 
 	}//end getPasswordInputKeywordReplacement()
+
+
+    /**
+    * Prints a form allowing the user to enter a new password.
+    *
+    * @return string
+    * @access public
+    */
+	function getPasswordNewKeywordReplacement()
+	{
+		ob_start();
+			password_box('password[]');
+		return ob_get_clean();
+
+	}//end getPasswordNewKeywordReplacement()
+
+
+    /**
+    * Prints a form allowing the user to enter a new password.
+    *
+    * @return string
+    * @access public
+    */
+	function getPasswordConfirmationKeywordReplacement()
+	{
+		ob_start();
+        	password_box('password[]');
+        return ob_get_clean();
+
+	}//end getPasswordConfirmationKeywordReplacement()
 
 
 	/**
