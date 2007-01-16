@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.142 2007/01/12 04:00:24 tbarrett Exp $
+* $Id: backend_outputter.inc,v 1.143 2007/01/16 23:38:08 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.142 $
+* @version $Revision: 1.143 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -66,7 +66,7 @@ class Backend_Outputter
     var $_page_title = '';
 	var $_heading  = '';
 	var $_heading_icon = '';
-	var $_sub_heading = ''; 
+	var $_sub_heading = '';
 
 	// stylesheet files to include
 	var $_css_includes = Array();
@@ -1073,6 +1073,10 @@ class Backend_Outputter
 								screenMenu.style.display = "none";
 							}
 							screenMenu.style.MozOpacity = "0";
+						}
+
+						if (reload_timeout) {
+							clearTimeout(reload_timeout);
 						}
 					}
 

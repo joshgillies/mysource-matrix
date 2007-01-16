@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.169 2007/01/11 01:27:04 arailean Exp $
+* $Id: backend.inc,v 1.170 2007/01/16 23:38:08 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.169 $
+* @version $Revision: 1.170 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -367,7 +367,7 @@ class Backend extends MySource_Object
 					header_delayed = true;
 					// Check every 10 seconds so that if we've clicked off the
 					// page, we can at still update this
-					setTimeout("reloadHeader()", 10 * 1000);
+					reload_timeout = setTimeout("reloadHeader()", 10 * 1000);
 					return;
 				}
 
@@ -383,8 +383,8 @@ class Backend extends MySource_Object
 			}
 		</script>
 		<?php
-		$this->out->addOnLoad('setTimeout("reloadHeader()", REFRESH_UPDATE * 1000);');
-		$this->out->addOnLoad('setTimeout("reloadHeader(true)", MAX_UPDATE * 1000);');
+		$this->out->addOnLoad('reload_timeout = setTimeout("reloadHeader()", REFRESH_UPDATE * 1000);');
+		$this->out->addOnLoad('reload_force_timeout = setTimeout("reloadHeader(true)", MAX_UPDATE * 1000);');
 
 		if (!SQ_IN_LIMBO && isset($_SESSION['backend_header_last_refresh'])) {
 			// check for updates to the asset tree
