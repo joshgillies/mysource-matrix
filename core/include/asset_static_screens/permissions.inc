@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.29 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: permissions.inc,v 1.30 2007/01/16 01:06:33 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 
@@ -165,10 +165,6 @@ function paintPermissions(&$owner, &$o, &$ei)
 				<?php
 
 				foreach ($userids as $userid) {
-					if ($userid) {
-						$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), FALSE);
-						if (empty($user_info)) continue;
-					}
 					?>
 					<tr>
 						<td class="sq-backend-table-cell">
