@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.546 2007/01/16 01:04:16 rong Exp $
+* $Id: asset_manager.inc,v 1.547 2007/01/16 01:40:01 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.546 $
+* @version $Revision: 1.547 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -918,7 +918,8 @@ class Asset_Manager extends MySource_Object
 				$bridge =& $this->getAsset($real_assetid, '', TRUE);
 				if (is_null($bridge)) {
 					// bridge is unknown, we cannot return anything from it
-					return NULL;
+					$asset = NULL;
+					return $asset;
 				} else if (!method_exists($bridge, 'getAsset')) {
 					trigger_localised_error('SYS0203', E_USER_WARNING, $asset->name);
 				} else {
