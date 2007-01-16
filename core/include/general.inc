@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.168 2007/01/15 01:07:51 lwright Exp $
+* $Id: general.inc,v 1.169 2007/01/16 01:05:10 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.168 $
+* @version $Revision: 1.169 $
 * @package MySource_Matrix
 */
 
@@ -1184,33 +1184,12 @@ function sq_get_icon($path, $width, $height, $alt='', $title=NULL, $extras='')
 */
 function get_asset_tag_line($assetid, $screen='')
 {
-	// If it's a shadow asset, there is nothing in the database so we cannot use
-	// the shortcut - we have to get the info from the asset instead
-	if (strpos($assetid, ':') !== FALSE) {
-		list($real_assetid, $shadowid) = explode(':', $assetid, 2);
-		$asset_info = Array();
-		$shadow_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		if ($shadow_asset) {
-			$asset_info['type_code'] = $shadow_asset->type();
-			$asset_info['name'] = $shadow_asset->name;
-			$asset_info['short_name'] = $shadow_asset->short_name;
-			$asset_info['status'] = $shadow_asset->status;
-			$asset_info['created'] = $shadow_asset->created;
-			$asset_info['created_userid'] = $shadow_asset->created_userid;
-			$asset_info['updated'] = $shadow_asset->updated;
-			$asset_info['updated_userid'] = $shadow_asset->updated_userid;
-			$asset_info['published'] = $shadow_asset->published;
-			$asset_info['published_userid'] = $shadow_asset->published_userid;
-			$asset_info['status_changed'] = $shadow_asset->status_changed;
-			$asset_info['status_changed_userid'] = $shadow_asset->status_changed_userid;
-		}
-	} else {
-		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
-		if (isset($asset_info[$assetid])) {
-			$asset_info = $asset_info[$assetid];
-		}
-		$real_assetid = $assetid;
+	// note: shadow assets are handled in getAssetInfo function
+	$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+	if (isset($asset_info[$assetid])) {
+		$asset_info = $asset_info[$assetid];
 	}
+	$real_assetid = $assetid;
 
 	if (empty($asset_info)) {
 		ob_start();
