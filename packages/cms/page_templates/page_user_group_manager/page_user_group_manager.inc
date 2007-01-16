@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.15 2006/12/07 00:04:24 emcdonald Exp $
+* $Id: page_user_group_manager.inc,v 1.16 2007/01/16 02:52:58 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -650,7 +650,7 @@ class Page_User_Group_Manager extends Page
 					<td valign="top">&nbsp;</td>
 					<td valign="top">
 						<input type="hidden" name="SQ_ACTION" value="" id="SQ_ACTION" />
-						<?php echo submit_button('', 'Login', 'document.getElementById(\'SQ_ACTION\').value = \'login\'; document.getElementById(\'ASSET_BUILDER_ACTION\').value = \'login\';'); ?>
+						<?php echo submit_button('', 'Login', 'document.getElementById(\'SQ_ACTION\').value = \'login\'; document.getElementById(\''.$this->id.'ASSET_BUILDER_ACTION\').value = \'login\';'); ?>
 					</td>
 				</tr>
 			</table>

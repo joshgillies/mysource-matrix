@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.107 2007/01/15 00:50:11 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.108 2007/01/16 02:52:58 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -239,7 +239,7 @@ class Page_Asset_Builder extends Page
 	*/
 	function printBody()
 	{
-		if (isset($_POST['ASSET_BUILDER_ACTION'])) {
+		if (isset($_POST[$this->id.'_ASSET_BUILDER_ACTION'])) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		}
 
@@ -250,15 +250,15 @@ class Page_Asset_Builder extends Page
 		restore_error_handler();
 
 		// create a friendly error message on error
-		if (isset($_POST['ASSET_BUILDER_ACTION']) && !$success) {
-			$this->_replacements[strtolower($_POST['ASSET_BUILDER_ACTION']).'_error'] = $this->attr(strtolower($_POST['ASSET_BUILDER_ACTION']).'_error');
+		if (isset($_POST[$this->id.'_ASSET_BUILDER_ACTION']) && !$success) {
+			$this->_replacements[strtolower($_POST[$this->id.'_ASSET_BUILDER_ACTION']).'_error'] = $this->attr(strtolower($_POST[$this->id.'_ASSET_BUILDER_ACTION']).'_error');
 
 			if (!empty($this->_errors)) {
 				$errors = '';
 				foreach ($this->_errors as $text) {
 					$errors .= '<li>'.$text.'</li>';
 				}
-				$this->_replacements[strtolower($_POST['ASSET_BUILDER_ACTION']).'_error'] .= '<ul>'.$errors.'</ul>';
+				$this->_replacements[strtolower($_POST[$this->id.'_ASSET_BUILDER_ACTION']).'_error'] .= '<ul>'.$errors.'</ul>';
 			}
 		}
 
@@ -285,7 +285,7 @@ class Page_Asset_Builder extends Page
 		$this->$fn();
 		$this->_printBody();
 
-		if (isset($_POST['ASSET_BUILDER_ACTION'])) {
+		if (isset($_POST[$this->id.'_ASSET_BUILDER_ACTION'])) {
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}
 
@@ -304,12 +304,12 @@ class Page_Asset_Builder extends Page
 		?>
 		<form id="<?php echo $this->getPrefix() ?>" method="post" action="<?php echo $submission_url; ?>" enctype="multipart/form-data" onsubmit="return form_on_submit()">
 			<?php
-			hidden_field('ASSET_BUILDER_ACTION', $this->_default_state);
+			hidden_field($this->id.'_ASSET_BUILDER_ACTION', $this->_default_state);
 			$parameter_map =& $this->getAttribute('parameter_map');
 			if (($additional_locs = $parameter_map->getParameterValue('additional_locations')) != NULL) {
-				hidden_field('ASSET_BUILDER_ADDITIONAL_LOCATIONS', $additional_locs);
-			} else if (isset($_POST['ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
-				hidden_field('ASSET_BUILDER_ADDITIONAL_LOCATIONS', $_POST['ASSET_BUILDER_ADDITIONAL_LOCATIONS']);
+				hidden_field($this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS', $additional_locs);
+			} else if (isset($_POST[$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
+				hidden_field($this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS', $_POST[$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS']);
 			}
 			$this->_printContents();
 			?>
@@ -332,12 +332,12 @@ class Page_Asset_Builder extends Page
 		$success = TRUE;
 
 		// process some global asset builder actions
-		if (isset($_POST['ASSET_BUILDER_ACTION'])) {
+		if (isset($_POST[$this->id.'_ASSET_BUILDER_ACTION'])) {
 
 			// okay, we are doing something - so success is not guaranteed
 			$success = FALSE;
 
-			switch (strtolower($_POST['ASSET_BUILDER_ACTION'])) {
+			switch (strtolower($_POST[$this->id.'_ASSET_BUILDER_ACTION'])) {
 
 				case 'login' :
 					// they have tried logging in - but failed
@@ -349,7 +349,7 @@ class Page_Asset_Builder extends Page
 
 					// create our dummy asset so we can access all its you beaut functions
 					// to make life easier for ourselves
-					$create_type = $_POST['ASSET_BUILDER_CREATE_TYPE'];
+					$create_type = $_POST[$this->id.'_ASSET_BUILDER_CREATE_TYPE'];
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
 					$new_asset =& new $create_type();
 					$prefix = $new_asset->getPrefix();
@@ -655,7 +655,7 @@ class Page_Asset_Builder extends Page
 	{
 		$all_rule_match_locations = Array();
 		if (empty($attributes)) {
-			$create_type = $_POST['ASSET_BUILDER_CREATE_TYPE'];
+			$create_type = $_POST[$this->id.'_ASSET_BUILDER_CREATE_TYPE'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
 			$temp_asset =& new $create_type();
 			$prefix = $temp_asset->getPrefix();
@@ -750,9 +750,9 @@ class Page_Asset_Builder extends Page
 	function getAdditionalCreateLocations()
 	{
 		$res = Array();
-		if (isset($_REQUEST['ASSET_BUILDER_ADDITIONAL_LOCATIONS']) && !empty($_REQUEST['ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
+		if (isset($_REQUEST[$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS']) && !empty($_REQUEST[$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
 			// set the assetids and link types from the query
-			foreach (explode(';', $_REQUEST['ASSET_BUILDER_ADDITIONAL_LOCATIONS']) as $loc_code) {
+			foreach (explode(';', $_REQUEST[$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS']) as $loc_code) {
 				if (FALSE === strpos($loc_code, '-')) {
 					// no link type specified, use the default
 					$link_type = $this->attr('additional_location_default_link_type');
@@ -1304,7 +1304,7 @@ class Page_Asset_Builder extends Page
 					<td valign="top">&nbsp;</td>
 					<td valign="top">
 						<input type="hidden" name="SQ_ACTION" value="" id="SQ_ACTION" />
-						<?php echo submit_button('', 'Login', 'document.getElementById(\'SQ_ACTION\').value = \'login\'; document.getElementById(\'ASSET_BUILDER_ACTION\').value = \'login\';'); ?>
+						<?php echo submit_button('', 'Login', 'document.getElementById(\'SQ_ACTION\').value = \'login\'; document.getElementById(\''.$this->id.'_ASSET_BUILDER_ACTION\').value = \'login\';'); ?>
 					</td>
 				</tr>
 			</table>
@@ -1437,7 +1437,7 @@ class Page_Asset_Builder extends Page
 
 		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 		$o =& new Limbo_Outputter();
-		$o->addHiddenField('ASSET_BUILDER_CREATE_TYPE', key($create_types)); // first asset type is selected initially
+		$o->addHiddenField($this->id.'_ASSET_BUILDER_CREATE_TYPE', key($create_types)); // first asset type is selected initially
 		if (count($create_types) > 1) $o->addOnSubmit('disableHiddenInputs();');
 
 		// Get the Metadata schemas ready
@@ -1528,7 +1528,7 @@ class Page_Asset_Builder extends Page
 						current_option = '<?php echo $this->type().'_'.$this->id.'_type_' ?>' + type_code;
 						document.getElementById(current_option).style.display = 'block';
 						document.getElementById(current_option+"_tab").className = 'sq-asset-builder-tab-active';
-						document.getElementById('ASSET_BUILDER_CREATE_TYPE').value = type_code;
+						document.getElementById('<?php echo $this->id ?>_ASSET_BUILDER_CREATE_TYPE').value = type_code;
 
 					}//end showAssetBuilderTab()
 
