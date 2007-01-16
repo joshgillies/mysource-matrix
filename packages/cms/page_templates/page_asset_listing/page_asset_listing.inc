@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.106 2007/01/12 04:09:49 bcaldwell Exp $
+* $Id: page_asset_listing.inc,v 1.107 2007/01/16 00:41:34 bcaldwell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -67,6 +67,10 @@ class Page_Asset_Listing extends Listing_Engine
 		$assets_to_list = NULL;
 		$group_by = $this->attr('group_by');
 
+		// access
+		$list_permission = $this->attr('list_permission');
+		$list_effective  = $this->attr('list_effective');
+
 		$logic = $this->attr('all_root_nodes') ? 'AND' : 'OR';
 
 		// this is the list of all type codes that we are going to show
@@ -106,7 +110,7 @@ class Page_Asset_Listing extends Listing_Engine
 
 				case 'letter' :
 					foreach ($root_asset_ids as $root_asset_id) {
-						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, $side_of_link, NULL, NULL, NULL, $letter_sort_by, SQ_PERMISSION_READ);
+						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, $side_of_link, NULL, NULL, NULL, $letter_sort_by, $list_permission, $list_effective);
 						if (empty($query)) return Array();
 						// the table alias is 'l' rather than 'a' as the query queries the view sq_vw_ast_lnk_minor
 						// which returns the results from the asset table, using the table alias 'l'
@@ -133,7 +137,7 @@ class Page_Asset_Listing extends Listing_Engine
 				case 'number' :
 				case 'grouped' :
 					foreach ($root_asset_ids as $root_asset_id) {
-						$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, $side_of_link, NULL, NULL, NULL, NULL, SQ_PERMISSION_READ);
+						$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, $side_of_link, NULL, NULL, NULL, NULL, $list_permission, $list_effective);
 
 						$new_assets_to_list = Array();
 						foreach ($links as $link_info) {
@@ -156,12 +160,12 @@ class Page_Asset_Listing extends Listing_Engine
 					foreach ($root_asset_ids as $root_asset_id) {
 						if ($this->attr('direction') == 'down') {
 							$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
-							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, SQ_PERMISSION_READ, TRUE, TRUE, $min_depth, $max_depth);
+							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, $list_permission, $list_effective, TRUE, $min_depth, $max_depth);
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
 							$table_alias = 'a';
 						} else {
 							$table_alias = 'll';
-							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset_id, array_keys($wanted_types), FALSE, $letter_sort_by, SQ_PERMISSION_READ, TRUE, $min_depth, $max_depth);
+							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset_id, array_keys($wanted_types), FALSE, $letter_sort_by, $list_permission, $list_effective, TRUE, $min_depth, $max_depth);
 						}
 						if (empty($query)) $new_assets_to_list = Array();
 
@@ -190,11 +194,11 @@ class Page_Asset_Listing extends Listing_Engine
 
 					if ($this->attr('direction') == 'down') {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $this->_combineAssets($logic, $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, SQ_PERMISSION_READ, FALSE, $min_depth, $max_depth), $assets_to_list);
+							$assets_to_list = $this->_combineAssets($logic, $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, FALSE, $min_depth, $max_depth), $assets_to_list);
 						}
 					} else {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $this->_combineAssets($logic, $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), NULL, NULL, SQ_PERMISSION_READ, TRUE, $min_depth, $max_depth), $assets_to_list);
+							$assets_to_list = $this->_combineAssets($logic, $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), NULL, NULL, $list_permission, $list_effective, TRUE, $min_depth, $max_depth), $assets_to_list);
 						}
 					}
 

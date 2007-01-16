@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.207 2007/01/12 04:09:49 bcaldwell Exp $
+* $Id: listing_engine.inc,v 1.208 2007/01/16 00:41:34 bcaldwell Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.207 $
+* @version $Revision: 1.208 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1059,7 +1059,7 @@ class Listing_Engine extends Page
 			if ($may_have_sublives) {
 				$sub_live_assets = Array();
 				foreach ($status_matches as $assetid) {
-					$query_assetids[] = $db->quoteSmart($assetid);
+					$query_assetids[] = $db->quoteSmart((string) $assetid);
 				}
 				$in_clauses = Array();
 				foreach (array_chunk($query_assetids, 999) as $chunk) {

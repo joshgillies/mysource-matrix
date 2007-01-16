@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.32 2006/12/29 01:02:57 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.33 2007/01/16 00:41:34 bcaldwell Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -132,5 +132,9 @@
 <string source="cms_listing_no_sort">No Sorting</string>
 <string source="cms_listing_enable_random_sort">Enable "Random Order" option</string>
 <string source="cms_listing_enable_no_sort">Enable "No Sorting" option</string>
+
+<string source="cms_listing_access_effective">Effective</string>
+<string source="cms_listing_access_effective_permission">Effective %1$s</string>
+<string source="cms_listing_access_include_effective">Include effective permissions</string>
 
 </strings>

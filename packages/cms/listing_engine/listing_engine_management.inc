@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.64 2006/12/07 00:04:19 emcdonald Exp $
+* $Id: listing_engine_management.inc,v 1.65 2007/01/16 00:41:34 bcaldwell Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -51,6 +51,20 @@ class Listing_Engine_Management extends Asset_Management
 									'default'		=> Array(),
 									'description'	=> 'Statuses that are being listed.',
 								  );
+
+		$this->vars['list_permission'] = Array(
+										'added'			=> '0.15',
+										'type'			=> 'int',
+										'default'		=> SQ_PERMISSION_READ,
+										'description'	=> 'Only assets that the user has this access to will be listed.',
+									 );
+
+		$this->vars['list_effective'] = Array(
+											'added'			=> '0.15',
+											'type'			=> 'boolean',
+											'default'		=> TRUE,
+											'description'	=> 'If effective permissions should be used when listing restricted by permissions.',
+										);
 
 		$this->vars['link_types'] = Array(
 										'added'			=> '0.13',

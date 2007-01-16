@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.73 2007/01/08 23:02:33 hnguyen Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.74 2007/01/16 00:41:34 bcaldwell Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3160,7 +3160,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				?></ul><?php
 			}
 		}
-
 		return $write_access;
 
 	}//end paintStatus()
@@ -3192,6 +3191,83 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		return $asset->setAttrValue('statuses', $statuses);
 
 	}//end processStatus()
+
+
+	/**
+	* Paint the interface for selecting searched permissions
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintPermissions(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$perms = Array(
+					'read' => SQ_PERMISSION_READ,
+					'write' => SQ_PERMISSION_WRITE,
+					'admin' => SQ_PERMISSION_ADMIN
+				 );
+
+		// translate permissions
+		$perm_options = Array();
+		foreach ($perms as $title => $perm) {
+			$perm_options[$perm] = translate($title);
+		}
+		$conf_perm = $asset->attr('list_permission');
+		$conf_eff  = $asset->attr('list_effective');
+
+		if ($write_access) {
+			combo_box($prefix.'_permissions[list]', $perm_options, FALSE, $conf_perm);
+
+			echo '&nbsp;';
+
+			// checkbox for effective permissions
+			check_box($prefix.'_permissions[effective]', 1, $conf_eff);
+			label(translate('cms_listing_access_include_effective'), $prefix.'_permissions[effective]');
+		} else {
+				// display effective permission status
+				if ($conf_eff) {
+					echo translate('cms_listing_access_effective_permission', $perm_options[$conf_perm]);
+				} else {
+					echo $perm_options[$conf_perm];
+				}
+		}
+		return $asset->writeAccess('attributes');
+
+	}//end paintPermissions()
+
+
+	/**
+	* Processes the interface for selecting searched permissions
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processPermissions(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return FALSE;
+
+		$permission = array_get_index($_POST[$prefix.'_permissions'], 'list');
+		$effective  = array_get_index($_POST[$prefix.'_permissions'], 'effective', 0);
+
+		if (is_null($permission)) return FALSE;
+
+		$asset->setAttrValue('list_permission', $permission);
+		$asset->setAttrValue('list_effective', $effective);
+
+		return TRUE;
+
+	}//end processPermissions()
 
 
 	/**
