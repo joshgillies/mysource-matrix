@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.196 2007/01/08 03:25:04 emcdonald Exp $
+* $Id: page_calendar.inc,v 1.197 2007/01/16 01:13:55 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.196 $
+* @version $Revision: 1.197 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -169,6 +169,9 @@ class Page_Calendar extends Page
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($type_formats);
 		unset($type_formats);
 
+        $GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+        unset($asset);
+
 		return TRUE;
 
 	}//end _createAdditional()
@@ -186,7 +189,7 @@ class Page_Calendar extends Page
 		$page_links = parent::_getAllowedLinks();
 		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 'M', 'exclusive' => FALSE);
 		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => FALSE);
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1,   'exclusive' => TRUE);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 2,   'exclusive' => TRUE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -255,7 +258,7 @@ class Page_Calendar extends Page
 				?>
 			</style>
 			<?php
-		}
+		}//end if
 		?>
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('data'); ?>/asset_types/page_calendar/css/calendar_default.css" />
 		<?php
@@ -298,25 +301,49 @@ class Page_Calendar extends Page
 			} else {
 				// have to generate from scratch
 
-				$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
-				if (empty($bodycopy_link)) return FALSE;
-
-				$contents_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
-				if (is_null($contents_bodycopy)) return FALSE;
-
 				// Get replacements.  Contents is first because it may change the view if,
 				// for example, we have just finished editing an event
 				$replacements = Array();
 
+                // the following variable will store the event listing
+                // this array will be passed to getCalendarContents.
+                // getCalendarContents will make a call to
+                // getEventYear, or getEvent Month, or getWeekEvents or getDayEvents to list all the event.
+
+                $events_array = Array();
+
 				// Save the current calendar date - we need to edit it in contents to make it work
 				$calendar_date = $_REQUEST['SQ_CALENDAR_DATE'];
-				$replacements['calendar_contents'] = $this->getCalendarContents();
+				$replacements['calendar_contents'] = $this->getCalendarContents($events_array);
 				$_REQUEST['SQ_CALENDAR_DATE'] = $calendar_date;
 
 				$replacements['calendar_title'] = $this->getCalendarTitle();
 				$replacements['current_user'] = $GLOBALS['SQ_SYSTEM']->user->name;
 
 				$replacements += $this->_getNavLinkReplacements();
+
+                // initialise the bodycopy link and contents bodycopy
+                $bodycopy_link = '';
+                $contents_bodycopy = '';
+                // get the number of events we will need to display
+
+                $nb_events = count($events_array);
+
+                // if there is no event and use_no_results_body_copy is true then we use the page_contents_no_results
+				$use_no_results_body_copy = $this->attr('use_no_results_body_copy');
+                if ( (!empty($use_no_results_body_copy)) && ($nb_events == 0)) {
+                  $bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents_no_results');
+                  if (empty($bodycopy_link)) return FALSE;
+                  $contents_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+                } else {
+                  $bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
+                  if (empty($bodycopy_link)) return FALSE;
+                  $contents_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+                }
+
+                if (is_null($contents_bodycopy)) return FALSE;
+
+
 
 				ob_start();
 					echo '<script type="text/javascript">if (typeof cal != "undefined") cal.setDate(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\')</script>';
@@ -623,11 +650,12 @@ class Page_Calendar extends Page
 	* Get the replacement for the %calendar_contents% keyword
 	*
 	* The contents to be displayed
-	*
+    * @param array &$events_array will keep a list of all the events
+    *
 	* @return string
 	* @access public
 	*/
-	function getCalendarContents()
+	function getCalendarContents(&$events_array)
 	{
 		$cal_view = $_REQUEST['SQ_CALENDAR_VIEW'];
 		$formats = $this->attr('enabled_views');
@@ -637,7 +665,7 @@ class Page_Calendar extends Page
 			$res .= '<div id="calendarTable">';
 		}
 		$func = 'get'.ucfirst($cal_view).'View';
-		$res .= (($cal_view == 'event') || ($cal_view == 'edit')) ? $this->$func($_REQUEST['SQ_CALENDAR_EVENT_ID']) : $this->$func($_REQUEST['SQ_CALENDAR_DATE'], $format);
+		$res .= (($cal_view == 'event') || ($cal_view == 'edit')) ? $this->$func($_REQUEST['SQ_CALENDAR_EVENT_ID']) : $this->$func($_REQUEST['SQ_CALENDAR_DATE'], $format, $events_array);
 		if (strpos($format, 'list') === FALSE) {
 			$res .= '</div>';
 		}
@@ -649,13 +677,14 @@ class Page_Calendar extends Page
 	/**
 	* Get the contents of the year view for the year containing the specified day
 	*
-	* @param string	$date	the ISO 8601'd date that we are displaying (YYYY-MM-DD)
-	* @param string	$format	the format of display
+	* @param string	$date			the ISO 8601'd date that we are displaying (YYYY-MM-DD)
+	* @param string	$format			the format of display
+    * @param array &$events_array	will keep a list of all the events
 	*
 	* @return void
 	* @access public
 	*/
-	function getYearView($date, $format)
+	function getYearView($date, $format, &$events_array)
 	{
 		ob_start();
 		list($year, $month, $day) = explode('-', $date);
@@ -664,6 +693,7 @@ class Page_Calendar extends Page
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getYearEvents($year);
+            $events_array = $events;
 			uasort($events, Array('Calendar_Common', 'compareStartDates'));
 			if ($list_entry_types['year'] == 'title') {
 				echo $this->_getTitleList($events);
@@ -672,7 +702,14 @@ class Page_Calendar extends Page
 			}
 		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
+
 			$events = $this->getYearEventsByMonth($year);
+
+            // copy all the events to $events_array
+            foreach ($events as $month => $month_events) {
+              $events_array = array_merge($events_array, $month_events);
+            }
+
 			foreach ($this->month_names_full as $month_num => $month_name) {
 				$_REQUEST['SQ_CALENDAR_DATE']= $year.'-'.sprintf('%02d', $month_num).'-01';
 				uasort($events[$month_num], Array('Calendar_Common', 'compareStartDates'));
@@ -692,6 +729,14 @@ class Page_Calendar extends Page
 			}
 		} else {
 			$events = $this->getYearEventsByMonthAndDay($year);
+
+			// add all events to the $events_array
+            foreach ($events as $month => $month_array) {
+				foreach ($month_array as $day => $day_events) {
+					$events_array = array_merge($events_array, $day_events);
+                }
+            }
+
 			$week_start_day = $this->attr('week_starts_on');
 			$today_iso = date('Y-m-d');
 			?>
@@ -780,11 +825,12 @@ class Page_Calendar extends Page
 	*
 	* @param string	$date	the ISO 8601'd date that we are displaying (YYYY-MM-DD)
 	* @param string	$format	the format of display
+    * @param array &$events_array	will keep a list of all the events
 	*
 	* @return void
 	* @access public
 	*/
-	function getMonthView($date, $format)
+	function getMonthView($date, $format, &$events_array)
 	{
 		$this->_printPopupsScript();
 		list($year, $month, $day) = explode('-', $date);
@@ -798,6 +844,7 @@ class Page_Calendar extends Page
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$raw_events = $this->getMonthEvents($year, $month);
+            $events_array = $raw_events;
 			$events = $this->groupMonthEventsByDay($raw_events, $year, $month);
 			$month_length = days_in_month($month, $year);
 			$done_events = Array();
@@ -825,6 +872,7 @@ class Page_Calendar extends Page
 		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$raw_events = $this->getMonthEvents($year, $month);
+            $events_array = $raw_events;
 			$events = $this->groupMonthEventsByDay($raw_events, $year, $month);
 			$month_length = days_in_month($month, $year);
 			for ($current_day = 1; $current_day <= $month_length; $current_day++) {
@@ -846,6 +894,7 @@ class Page_Calendar extends Page
 			}
 		} else {
 			$raw_events = $this->getMonthEvents($year, $month);
+            $events_array = $raw_events;
 			$this->_initEventLabels('month', $raw_events);
 			$events = $this->groupMonthEventsByDay($raw_events, $year, $month);
 			$column_width = $this->attr('month_column_width');
@@ -1043,11 +1092,12 @@ class Page_Calendar extends Page
 	*
 	* @param string	$date	the ISO 8601'd date that we are displaying (YYYY-MM-DD)
 	* @param string	$format	the format of display
+    * @param array &$events_array	will keep a list of all the events
 	*
 	* @return void
 	* @access public
 	*/
-	function getWeekView($date, $format)
+	function getWeekView($date, $format, &$events_array)
 	{
 		ob_start();
 		$root_nodes = $this->attr('root_nodes');
@@ -1055,6 +1105,7 @@ class Page_Calendar extends Page
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$raw_events = $this->getWeekEvents($date);
+            $events_array = $raw_events;
 			$events = $this->groupWeekEventsByDay($raw_events, $date);
 			$done_events = Array();
 
@@ -1083,6 +1134,7 @@ class Page_Calendar extends Page
 		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$raw_events = $this->getWeekEvents($date);
+            $events_array = $raw_events;
 			$events = $this->groupWeekEventsByDay($raw_events, $date);
 			foreach ($events as $day_date => $day_events) {
 				$_REQUEST['SQ_CALENDAR_DATE'] = $day_date;
@@ -1098,6 +1150,7 @@ class Page_Calendar extends Page
 			}
 		} else {
 			$raw_events = $this->getWeekEvents($date);
+            $events_array = $raw_events;
 			$this->_initEventLabels('week', $raw_events);
 			$events = $this->groupWeekEventsByDayAndTime($raw_events, $date);
 			$column_names = Array();
@@ -1121,19 +1174,21 @@ class Page_Calendar extends Page
 	/**
 	* Get the contents of the day view for the specified day
 	*
-	* @param string	$date	the ISO 8601'd day (YYYY-MM-DD)
-	* @param string	$format	'list_with_headings' | 'list_without_headings' | 'calendar_format'
+	* @param string	$date			the ISO 8601'd day (YYYY-MM-DD)
+	* @param string	$format			'list_with_headings' | 'list_without_headings' | 'calendar_format'
+    * @param array &$events_array	will keep a list of all the events
 	*
 	* @return void
 	* @access public
 	*/
-	function getDayView($date, $format)
+	function getDayView($date, $format, &$events_array)
 	{
 		ob_start();
 		if (strpos($format, 'list') === 0) {
 			$list_entry_types = $this->attr('list_entry_types');
 			$enabled_views = $this->attr('enabled_views');
 			$events = $this->getDayEvents($date);
+            $events_array = $events;
 			if ($list_entry_types['day'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
@@ -1156,11 +1211,13 @@ class Page_Calendar extends Page
 					$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('other') : $this->attr('other_column_name');
 				}
 				$raw_events = $this->getDayEvents($date);
+                $events_array = $raw_events;
 				$this->_initEventLabels('day', $raw_events);
 				$events = $this->groupDayEventsByRootNodeAndTime($raw_events);
 			} else {
 				$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('events') : $this->attr('other_column_name');
 				$raw_events = $this->getDayEvents($date);
+                $events_array = $raw_events;
 				$this->_initEventLabels('day', $raw_events);
 				$events = Array('*' => $this->groupDayEventsByTime($raw_events, $date));
 			}
@@ -2423,7 +2480,6 @@ class Page_Calendar extends Page
 				Calendar_Common::processExceptions($res[$month][$date]);
 			}
 		}
-
 		return $res;
 
 	}//end getYearEventsByMonthAndDay()
@@ -3028,6 +3084,43 @@ class Page_Calendar extends Page
 		return Array();
 
 	}//end _getRestrictiveRootNodeIds()
+
+
+    /**
+    * Save attributes set with setAttrValue to the database
+    *
+    * @param boolean    $dont_run_updated   if TRUE this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
+    *
+    * @return boolean
+    * @access public
+    * @see Asset::setAttrValue()
+    */
+    function saveAttributes($dont_run_updated=FALSE)
+    {
+		// if the attribute use_no_results_body_copy is not empty and the no results body copy does not exist
+        // we will add a no results body copy
+        $GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+
+		if (!empty($this->id)) {
+	        $bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents_no_results');
+    	    $use_no_results_body_copy = $this->attr('use_no_results_body_copy');
+
+        	// if no results body copy does not exist
+    	 	// add it to the asset
+       	 	if ((!empty($use_no_results_body_copy)) && empty($bodycopy_link)) {
+            	$page_contents_data = Array('content' => '<h2 style="text-align: center">%calendar_title%</h2><p style="text-align: center">%prev_link%&nbsp;&nbsp;&nbsp;&nbsp;%up_link%&nbsp;&nbsp;&nbsp;&nbsp;%next_link%</p><p>No events</p>');
+            	$tmp_body =& new Bodycopy();
+            	$copy_link = Array('asset' => &$this, 'value' => 'page_contents_no_results' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+            	$tmp_body->setAttrValue('name', 'Page Contents (No Results)');
+            	if (!$tmp_body->create($copy_link, $page_contents_data)) {
+					trigger_localised_error('CAL0062', E_USER_WARNING);
+                	return FALSE;
+            	}
+        	}
+		}
+        return parent::saveAttributes($dont_run_updated);
+
+    }//end saveAttributes()
 
 
 }//end class

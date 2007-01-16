@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2006/12/07 05:51:52 bcaldwell Exp $
+* $Id: lang_screen_details.xml,v 1.8 2007/01/16 01:13:55 colivar Exp $
 *
 */
 -->
@@ -88,6 +88,11 @@
 			<display_name>Today Link Text</display_name>
 			<note>Text for the link that a user can use to go straight to today's date in the current view</note>
 		</field>
+        <field attribute="use_no_results_body_copy">
+			<display_name>Use No Results Body Copy</display_name>
+            <note>if this value is set to true, the calendar page will use the no results body copy.</note>
+        </field>
+
 	</section>
 
 	<section name="Settings for Year View">
@@ -235,3 +240,4 @@
 		</field>
 	</section>
 </contents>
+

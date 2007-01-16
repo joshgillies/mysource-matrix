@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.53 2006/12/07 05:51:51 bcaldwell Exp $
+* $Id: page_calendar_management.inc,v 1.54 2007/01/16 01:13:55 colivar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -247,6 +247,14 @@ class Page_Calendar_Management extends Asset_Management
 											'type'		=> 'text',
 											'default'	=> 'Show Today',
 										);
+
+        // for the body copy no results use. If true we use the body copy no results.
+        $this->vars['use_no_results_body_copy'] = Array(
+                                        			'added'		=> '0.7',
+                                       				'type'		=> 'boolean',
+                                        			'default'	=> '0',
+			                                        'parameters'=> Array('allow_empty' => FALSE),
+                                      				);
 
 
 

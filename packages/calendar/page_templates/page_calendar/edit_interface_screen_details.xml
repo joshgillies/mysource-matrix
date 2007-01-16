@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.32 2006/12/07 05:51:51 bcaldwell Exp $
+* $Id: edit_interface_screen_details.xml,v 1.33 2007/01/16 01:13:55 colivar Exp $
 *
 */
 -->
@@ -71,6 +71,9 @@
 		<field attribute="today_link_text">
 			<text />
 		</field>
+        <field attribute="use_no_results_body_copy">
+            <boolean true_text="yes" false_text="no" />
+        </field>
 	</section>
 
 	<section name="Settings for Year View" write_access="write:attributes">
@@ -186,3 +189,4 @@
 		</field>
 	</section>
 </contents>
+
