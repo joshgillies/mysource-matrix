@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.45 2007/01/03 22:02:04 tbarrett Exp $
+* $Id: form_management.inc,v 1.46 2007/01/17 03:08:42 emcdonald Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -134,9 +134,31 @@ class Form_Management extends Asset_Management
 														'default'	=> 0,
 													   ),
 						'submission_errors_msg'		=> Array(
-														'added'			=> '0.0.2',
-														'type'			=> 'wysiwyg',
-														'default'		=> translate('cms_form_error_msg_default'),
+														'added'		=> '0.0.2',
+														'type'		=> 'wysiwyg',
+														'default'	=> translate('cms_form_error_msg_default'),
+													   ),
+						'require_captcha'			=> Array(
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+													   ),
+						'captcha_length'			=> Array(
+														'added'		=> '0.9',
+														'type'		=> 'int',
+														'default'	=> 4,
+													   ),
+						'captcha_zoom'				=> Array(
+														'added'		=> '0.9',
+														'type'		=> 'int',
+														'default'	=> 1,
+													   ),
+						'captcha_link_text'			=> Array(
+														'added'		=> '0.9',
+														'type'		=> 'text',
+														'default'	=> 'Regenerate security key',
 													   ),
 					  );
 

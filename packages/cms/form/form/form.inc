@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.148 2007/01/15 01:09:03 lwright Exp $
+* $Id: form.inc,v 1.149 2007/01/17 03:08:42 emcdonald Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.148 $
+* @version $Revision: 1.149 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1094,6 +1094,35 @@ class Form extends Asset
 			$reset_button = ob_get_contents();
 		ob_end_clean();
 
+
+		ob_start();
+		security_key($this->attr('captcha_length'), $this->attr('captcha_length'), $this->attr('captcha_zoom'));
+		$captcha = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+		security_key_image_box($this->attr('captcha_length'), $this->attr('captcha_zoom'));
+		$captcha_image = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+		security_key_field($this->attr('captcha_length'));
+		$captcha_field = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+		security_key_image_link($this->attr('captcha_link_text'));
+		$captcha_link = ob_get_contents();
+		ob_end_clean();
+
+
+		$replacements['form_captcha_image']  = &$captcha_image;
+		$replacements['form_captcha_field']  = &$captcha_field;
+		$replacements['form_captcha_link']  = &$captcha_link;
+		$replacements['form_captcha']  = &$captcha;
+
+
+
 		// check to see if the bodycopy attached to this form has any content
 		if ($this->attr('use_bodycopy_main') && $bodycopy && !$bodycopy->isEmpty()) {
 			$questions = $this->getQuestions();
@@ -1151,6 +1180,13 @@ class Form extends Asset
 			$output .= ($this->attr('question_col_width')) ? ' 	width="'.$this->attr('question_col_width').'">' : '>';
 			$output .='&nbsp;</td><td';
 			$output .= ($this->attr('answer_col_width')) ? ' 	width="'.$this->attr('answer_col_width').'">' 	: '>';
+			if ($this->attr('require_captcha')) {
+				ob_start();
+				security_key($this->attr('captcha_length'), $this->attr('captcha_length'), $this->attr('captcha_zoom'));
+				$captcha = ob_get_contents();
+				ob_end_clean();
+				$output .= $captcha;
+			}
 
 			$output .= $submit_button;
 			$output .= $reset_button;
@@ -1342,6 +1378,11 @@ class Form extends Asset
 		$ok = TRUE;
 		$this->submission_errors = Array();
 
+		// verify captcha
+		if ($this->attr('require_captcha') && !validate_security_key()) {
+			$this->submission_errors = array_merge($this->submission_errors, translate('security_key_incorrect'));
+			$ok = FALSE;
+		}
 		$questions =& $this->getAllQuestionAssets();
 		for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
 			$question->populate();
@@ -1788,6 +1829,11 @@ class Form extends Asset
 				$keywords['reset_button']  = translate('cms_form_reset_button');
 				$keywords['submit_button'] = translate('cms_form_submit_button');
 
+				$keywords['form_captcha'] = translate('cms_form_captcha');
+				$keywords['form_captcha_image'] = translate('cms_form_captcha_image');
+				$keywords['form_captcha_field'] = translate('cms_form_captcha_field');
+				$keywords['form_captcha_link'] = translate('cms_form_captcha_link');
+
 			} else if ($bodycopy == 'Thank You') {
 				$keywords['form_summary']               = translate('cms_form_submission_summary');
 				$keywords['form_info']                  = translate('cms_form_submission_info');
@@ -1819,7 +1865,7 @@ class Form extends Asset
 					}
 				}
 
-			}
+			}//end if
 
 
 		}//end foreach
@@ -2127,7 +2173,7 @@ class Form extends Asset
 	/**
 	* Get appropriate keywords for Thank You bodycopy and emails
 	*
-	* @param string		$keyword	keyword to replace
+	* @param string	$keyword	keyword to replace
 	*
 	* @return string
 	* @access protected
@@ -2326,7 +2372,7 @@ class Form extends Asset
 
 			}
 
-		}//end if - keyword list
+		}//end else - keyword list
 
 		return $replacement;
 

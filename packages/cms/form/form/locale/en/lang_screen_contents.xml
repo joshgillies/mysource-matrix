@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.7 2007/01/03 22:02:04 tbarrett Exp $
+* $Id: lang_screen_contents.xml,v 1.8 2007/01/17 03:08:42 emcdonald Exp $
 *
 */
 -->
@@ -84,6 +84,25 @@
 			<note>The %form_errors_message% keyword will be replaced with this text if there are submission errors</note>
 		</field>
 	</section>
+	<section name="CAPTCHA">
+		<field attribute="require_captcha">
+			<display_name>Require CAPTCHA</display_name>
+			<note>CAPTCHA attempts to assert that the form has been submitted by a human, not an automated agent. If require CAPTCHA is set to 'yes' and the default bodycopy is not used, the %form_captcha% keyword or %form_captcha_image% plus %form_captcha_field% keywords must be included for form submissions to be accepted.</note>
+		</field>
+		<field attribute="captcha_length">
+			<display_name>CAPTCHA Key Length</display_name>
+			<note>Number of characters in the CAPTCHA key</note>
+		</field>
+		<field attribute="captcha_zoom">
+			<display_name>CAPTCHA Character Zoom</display_name>
+			<note>Each character will be randomly zoomed between x1 and this figure.</note>
+		</field>
+		<field attribute="captcha_link_text">
+			<display_name>CAPTCHA Regen Link Text</display_name>
+			<note>This text will appear when the %form_captcha_link% keyword is used.</note>
+		</field>
+	</section>
+
 	<section name="Simple Formatting">
 		<field attribute="form_width">
 			<display_name>Form Width</display_name>

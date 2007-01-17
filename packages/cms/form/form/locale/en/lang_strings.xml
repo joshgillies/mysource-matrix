@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.9 2007/01/15 01:09:05 lwright Exp $
+* $Id: lang_strings.xml,v 1.10 2007/01/17 03:08:42 emcdonald Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -50,6 +50,11 @@
 
 <string source="cms_form_contents">Form Contents</string>
 <string source="cms_form_errors">List of Submission Errors</string>
+<string source="cms_form_captcha">CAPTCHA</string>
+<string source="cms_form_captcha_image">CAPTCHA image</string>
+<string source="cms_form_captcha_field">CAPTCHA input field</string>
+<string source="cms_form_captcha_link">CAPTCHA regeneration link</string>
+
 <string source="cms_form_submit_button">Submit Button</string>
 <string source="cms_form_reset_button">Reset Button</string>
 <string source="cms_form_error_msg_default">There were errors submitting the form.  Please correct the marked fields and try again</string>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.24 2007/01/03 22:02:04 tbarrett Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.25 2007/01/17 03:08:42 emcdonald Exp $
 *
 */
 -->
@@ -67,6 +67,20 @@
 		</field>
 		<field attribute="submission_errors_msg">
 			<wysiwyg height="40" />
+		</field>
+	</section>
+	<section name="CAPTCHA">
+		<field attribute="require_captcha">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="captcha_length">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_zoom">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_link_text">
+			<text width="50" />
 		</field>
 	</section>
 	<section name="Simple Formatting">
