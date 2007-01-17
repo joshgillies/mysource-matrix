@@ -123,7 +123,7 @@ this Licence then DO NOT DOWNLOAD, INSTALL or USE the Software.
 
      2.1 Subject to the terms of this Agreement, Squiz grants You a limited,
          non-exclusive and non-transferable licence to
-         (a) Use one (1) Instance of the Software; and
+         (a) Use one (1) Instance of the Software for any purpose; and
          (b) Use the Software for the sole purpose of Internal Testing; and
          (c) modify the Software; and
          (d) Use the Documentation.
