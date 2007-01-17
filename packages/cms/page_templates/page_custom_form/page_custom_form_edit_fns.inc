@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_edit_fns.inc,v 1.15 2006/12/07 00:04:21 emcdonald Exp $
+* $Id: page_custom_form_edit_fns.inc,v 1.16 2007/01/17 00:29:13 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -56,8 +56,8 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	function redirectToFormContents(&$asset, &$o, $prefix)
 	{
 		// get the bodycopy attached to us
-		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'form', FALSE, 'major', '', '1', '1');
-		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_link[0]['minorid']);
+		$form =& $asset->getForm();
+
 		if (is_null($form)) {
 			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id, 'Contents');
 			return FALSE;
@@ -88,8 +88,8 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	function redirectToSubmissions(&$asset, &$o, $prefix)
 	{
 		// get the bodycopy attached to us
-		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'form', FALSE, 'major', '', '1', '1');
-		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_link[0]['minorid']);
+		$form =& $asset->getForm();
+
 		if (is_null($form)) {
 			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id);
 			return FALSE;
