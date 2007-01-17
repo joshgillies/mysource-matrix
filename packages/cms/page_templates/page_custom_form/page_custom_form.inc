@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form.inc,v 1.22 2006/12/07 00:04:21 emcdonald Exp $
+* $Id: page_custom_form.inc,v 1.23 2007/01/17 00:27:04 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -100,8 +100,7 @@ class Page_Custom_Form extends Page
 	*/
 	function printFrontend()
 	{
-		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form', FALSE, '', 'major');
-		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], $form_link['minor_type_code']);
+		$form =& $this->getForm();
 
 		if (is_null($form)) {
 			trigger_localised_error('CMS0023', E_USER_ERROR, $this->name, $this->id);
@@ -122,8 +121,7 @@ class Page_Custom_Form extends Page
 	*/
 	function printBody()
 	{
-		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form_email', TRUE, '', 'major');
-		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], $form_link['minor_type_code']);
+		$form =& $this->getForm();
 
 		if (is_null($form)) {
 			trigger_localised_error('CMS0023', E_USER_ERROR, $this->name, $this->id);
@@ -137,30 +135,23 @@ class Page_Custom_Form extends Page
 
 
 	/**
-	* Initialise the limbo (simple-edit) interface by painting to the limbo outputter
+	* Return the form linked to this page
 	*
-	* Custom Form should allow the logs to be viewed
-	*
-	* @return void
+	* @return object
 	* @access public
 	*/
-	function initLimbo()
+	function &getForm()
 	{
-		$lm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
-		if ($lm->hasLayout($this->type(), 'log')) {
-			parent::initLimbo();
-		} else {
-			require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
-			$o =& $GLOBALS['SQ_SYSTEM']->backend->out;
-			$o->openSection('');
-			$edit_fns = $this->getEditFns();
-			$prefix = $this->getPrefix();
-			$edit_fns->paintExport($this, $o, $prefix);
-			$edit_fns->paintSubmissions($this, $o, $prefix);
-			$o->closeSection();
+		$form = NULL;
+
+		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form_email', TRUE, '', 'major');
+		if (!empty($form_link)) {
+			$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], $form_link['minor_type_code']);
 		}
 
-	}//end initLimbo()
+		return $form;
+
+	}//end getForm()
 
 
 }//end class
