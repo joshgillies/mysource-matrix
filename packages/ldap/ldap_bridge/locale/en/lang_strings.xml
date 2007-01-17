@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2006/02/21 23:38:10 bcaldwell Exp $
+* $Id: lang_strings.xml,v 1.1.2.1 2007/01/17 05:28:33 lwright Exp $
 *
 *
 * Search Package Localised Strings File
@@ -22,5 +22,6 @@
 	<!-- LDAP connection option strings -->
 	<string source="option_ldap_opt_protocol_version">Use Protocol Version 3</string>
 	<string source="option_ldap_opt_referrals">Disallow Referrals</string>
-
+	<string source="ldap_not_available_line_1">The LDAP extension has not been enabled on this PHP installation.</string>
+	<string source="ldap_not_available_line_2">LDAP support needs to be compiled into/enabled in PHP, before the LDAP Bridge can work. For further information, please contact your system administrator.</string>
 </strings>

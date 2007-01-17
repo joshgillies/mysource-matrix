@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.21 2006/02/21 23:38:10 bcaldwell Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.21.2.1 2007/01/17 05:28:33 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -377,6 +377,70 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		return $asset->setAttrValue('user_attributes', $user_attributes);
 
 	}//end processUserSetup()
+
+
+	/**
+	* Paints the message for LDAP not being available
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLDAPNotAvailable(&$asset, &$o, $prefix)
+	{
+		?>
+		<p class="sq-backend-warning"><strong><?php echo translate('ldap_not_available_line_1'); ?></strong></p>
+		<p><?php echo translate('ldap_not_available_line_2'); ?></p>
+		<?php
+		return FALSE;
+
+	}//end paintLDAPNotAvailable()
+
+
+	/**
+	* Processes the (non-existant) interface for LDAP not being available
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processLDAPNotAvailable(&$asset, &$o, $prefix)
+	{
+		return FALSE;
+
+	}//end processLDAPNotAvailable()
+
+
+	/**
+	* Show-if conditional: show if LDAP is available
+	*
+	* @return boolean
+	* @access public
+	*/
+	function ldapAvailable()
+	{
+		return extension_loaded('ldap');
+
+	}//end ldapAvailable()
+
+
+	/**
+	* Show-if conditional: show if LDAP is NOT available
+	*
+	* @return boolean
+	* @access public
+	*/
+	function ldapNotAvailable()
+	{
+		return !$this->ldapAvailable();
+
+	}//end ldapNotAvailable()
 
 
 }//end class
