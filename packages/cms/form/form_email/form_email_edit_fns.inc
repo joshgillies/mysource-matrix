@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.76 2007/01/17 22:27:02 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.77 2007/01/17 22:28:54 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1198,8 +1198,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$asset->setAttrValue('selective_emails', $all_se);
 
-		$ok = $asset->saveAttributes();
-		return $ok;
+		return $asset->saveAttributes();
 
 	}//end processCurrentSelectiveEmails()
 
