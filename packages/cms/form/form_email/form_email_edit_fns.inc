@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.72.2.1 2006/07/18 01:24:15 skim Exp $
+* $Id: form_email_edit_fns.inc,v 1.72.2.2 2007/01/17 22:30:14 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.72.2.1 $
+* @version $Revision: 1.72.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1014,6 +1014,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		if (!$asset->setAttrValue('selective_emails', $all_se)) {
 			return FALSE;
 		}
+
 		return $asset->saveAttributes();
 
 	}//end processAddSelectiveEmailRule()
@@ -1072,15 +1073,15 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$rule_prefix = $prefix.'_r'.$k;
 			$valid = TRUE;
 			?>
-			<tr>
+			<tr<?php if ($ruleid == $k) echo ' class="alt"'; ?>>
 				<?php
 				if ($admin_access) {
 					?>
-					<td valign="top" align="center" width="30" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt'; ?>"><a href="<?php echo $o->getCurrentLocation(); ?>&<?php echo $prefix?>_se_active_ruleid=<?php echo $k ?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/edit_mode.png" width="15" height="15" border="0" /></a></td>
+					<td valign="top" align="center" width="30" class="sq-backend-table-cell"><a href="<?php echo $o->getCurrentLocation(); ?>&<?php echo $prefix?>_se_active_ruleid=<?php echo $k ?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/edit_mode.png" width="15" height="15" border="0" /></a></td>
 					<?php
 				}
 				?>
-				<td valign="top" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt' ?>">
+				<td valign="top" class="sq-backend-table-cell">
 					<?php
 					if (empty($info['rules'])) {
 						?>
@@ -1145,10 +1146,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					echo '</b>';
 					?>
 				</td>
-				<td valign="top" align="center" width="70" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt'; ?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $valid ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /></td>
+				<td valign="top" align="center" width="70" class="sq-backend-table-cell"><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $valid ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /></td>
 				<?php
 				if ($admin_access) {
-					?><td valign="top"  align="center" width="50" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt'; ?>"><?php check_box($prefix.'_deletes[]', $k); ?></td><?php
+					?><td valign="top"  align="center" width="50" class="sq-backend-table-cell"><?php check_box($prefix.'_deletes[]', $k); ?></td><?php
 				}
 				?>
 			</tr>
@@ -1183,7 +1184,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		// delete our selective e-mail rules
 		foreach ($delete_ruleids as $ruleid) {
 			unset($all_se[$ruleid]);
-			if (!empty($_REQUEST[$prefix.'_se_active_ruleid'])) {
+			if (isset($_REQUEST[$prefix.'_se_active_ruleid'])) {
 				if ($ruleid == $_REQUEST[$prefix.'_se_active_ruleid']) {
 					unset($_REQUEST[$prefix.'_se_active_ruleid']);
 				}
@@ -1191,6 +1192,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		}
 
 		$asset->setAttrValue('selective_emails', $all_se);
+
 		return $asset->saveAttributes();
 
 	}//end processCurrentSelectiveEmails()
