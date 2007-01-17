@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_edit_fns.inc,v 1.16 2007/01/17 00:29:13 arailean Exp $
+* $Id: page_custom_form_edit_fns.inc,v 1.17 2007/01/17 03:11:57 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -119,12 +119,15 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintSubmissions(&$asset, &$o, $prefix)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$children = array_keys($am->getChildren($asset->id, 'form_email'));
-		if (empty($children)) return FALSE;
-		$form_email =& $am->getAsset($children[0]);
-		$edit_fns = $form_email->getEditFns();
-		return $edit_fns->paintSubmissions($form_email, $o, $prefix);
+		$form =& $asset->getForm();
+		if (is_null($form)) {
+			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id);
+			return FALSE;
+		}
+
+
+		$edit_fns = $form->getEditFns();
+		return $edit_fns->paintSubmissions($form, $o, $prefix);
 
 	}//end paintSubmissions()
 
@@ -141,12 +144,15 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processSubmissions(&$asset, &$o, $prefix)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$children = array_keys($am->getChildren($asset->id, 'form_email'));
-		if (empty($children)) return FALSE;
-		$form_email =& $am->getAsset($children[0]);
-		$edit_fns = $form_email->getEditFns();
-		return $edit_fns->processSubmissions($form_email, $o, $prefix);
+		$form =& $asset->getForm();
+		if (is_null($form)) {
+			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id);
+			return FALSE;
+		}
+
+
+		$edit_fns = $form->getEditFns();
+		return $edit_fns->processSubmissions($form, $o, $prefix);
 
 	}//end processSubmissions()
 
@@ -163,12 +169,15 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintExport(&$asset, &$o, $prefix)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$children = array_keys($am->getChildren($asset->id, 'form_email'));
-		if (empty($children)) return FALSE;
-		$form_email =& $am->getAsset($children[0]);
-		$edit_fns = $form_email->getEditFns();
-		return $edit_fns->paintExport($form_email, $o, $prefix);
+		$form =& $asset->getForm();
+		if (is_null($form)) {
+			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id);
+			return FALSE;
+		}
+
+
+		$edit_fns = $form->getEditFns();
+		return $edit_fns->paintExport($form, $o, $prefix);
 
 	}//end paintExport()
 
@@ -188,12 +197,15 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processExport(&$asset, &$o, $prefix)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$children = array_keys($am->getChildren($asset->id, 'form_email'));
-		if (empty($children)) return FALSE;
-		$form_email =& $am->getAsset($children[0]);
-		$edit_fns = $form_email->getEditFns();
-		return $edit_fns->processExport($form_email, $o, $prefix);
+		$form =& $asset->getForm();
+		if (is_null($form)) {
+			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id);
+			return FALSE;
+		}
+
+
+		$edit_fns = $form->getEditFns();
+		return $edit_fns->processExport($form, $o, $prefix);
 
 	}//end processExport()
 
