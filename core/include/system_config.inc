@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.92 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: system_config.inc,v 1.92.2.1 2007/01/17 22:58:48 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.92.2.1 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -160,8 +160,8 @@ class System_Config extends Config
 					unset($vars['SQ_CONF_CRON_MEMORY_LIMIT']);
 				}
 
-				if (isset($vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS'])) {
-					$vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS'] = implode("\n", $vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS']);
+				if (isset($_POST['SQ_CONF_FORCE_SECURE_LOGIN_URLS_SUBMITTED'])) {
+					$vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS'] = implode("\n", array_get_index($vars, 'SQ_CONF_FORCE_SECURE_LOGIN_URLS', Array()));
 				}
 				if (isset($vars['SQ_CONF_STATIC_ROOT_URL']) && substr($vars['SQ_CONF_STATIC_ROOT_URL'], -1) == '/') {
 					$vars['SQ_CONF_STATIC_ROOT_URL'] = substr($vars['SQ_CONF_STATIC_ROOT_URL'], 0, strlen($vars['SQ_CONF_STATIC_ROOT_URL']) -1);
@@ -480,6 +480,7 @@ class System_Config extends Config
 			$o->openField(translate('force_secure_login_urls'));
 				$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 				$force_secure_urls = explode("\n", SQ_CONF_FORCE_SECURE_LOGIN_URLS);
+				hidden_field('SQ_CONF_FORCE_SECURE_LOGIN_URLS_SUBMITTED', 1);
 				?>
 				<table class="sq-backend-table" style="width: auto">
 					<thead>
