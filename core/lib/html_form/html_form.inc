@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.125 2006/12/27 21:43:34 lwright Exp $
+* $Id: html_form.inc,v 1.126 2007/01/17 01:04:22 emcdonald Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.125 $
+* @version $Revision: 1.126 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -852,7 +852,7 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 
 
 /**
-* Prints an interface for entering a security key genereted inside an image
+* Prints an interface for entering a security key generated inside an image
 * Call validate_security_key() to check if the value entered was correct
 *
 * @param int		$key_len		the lenght of the random string to display in the image
@@ -919,6 +919,87 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 	<?php
 
 }//end security_key()
+
+
+/**
+* Prints an security key generated inside an image and sets the security key session vars
+*
+* @param int	$key_len	the lenght of the random string to display in the image
+* @param float	$zoom		each character will be randomly zoomed between x1 and this figure
+* @param string	$bg			the background colour of the image (eg FFFFFF)
+* @param string	$text		the colour of the text in the image (eg 000000)
+* @param string	$border		the colour of the border image (eg 000000)
+*							for no border, set to the same colour as the background
+*
+* @return void
+* @access public
+*/
+function security_key_image_box($key_len, $zoom=1, $bg='FFFFFF', $text='000000', $border='000000')
+{
+	// generate a random security key string
+	require_once SQ_FUDGE_PATH.'/general/general.inc';
+	$password = generate_security_key($key_len);
+
+	// work out the width and height of the image
+	$img_width  = $key_len * 10.5;
+	$img_height = 20;
+
+	// we need to store these vars in the session so we can get the
+	// system to print the security image for us
+	$security_vars = Array(
+						'key'			=> $password,
+						'width'			=> $img_width,
+						'height'		=> $img_height,
+						'bg_colour'		=> $bg,
+						'text_colour'	=> $text,
+						'border_colour'	=> $border,
+						'zoom'			=> $zoom,
+					 );
+	$_SESSION['SQ_SYSTEM_SECURITY_KEY'] = $security_vars;
+
+	// generate the url to get the security image to print
+	$img_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=send_security_key';
+	?>
+		<img id="sq_security_key" src="<?php echo $img_url; ?>" border="0" />
+	<?php
+
+}//end security_key_image_box()
+
+
+/**
+* Prints a link for loading a new security key image with javascript
+*
+* @param int	$box_len	size of the input field
+*
+* @return void
+* @access public
+*/
+function security_key_field($box_len)
+{
+	echo text_box('SQ_SYSTEM_SECURITY_KEY_VALUE', '', $box_len);
+
+}//end security_key_field()
+
+
+/**
+* Prints a link for loading a new security key image with javascript
+*
+* @param string	$link_text	text to be used for the link
+*
+* @return void
+* @access public
+*/
+function security_key_image_link($link_text)
+{
+	$img_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=send_security_key';
+	ob_start();
+		?><a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1'; return false;"><?php echo $link_text; ?></a><?php
+		$replacement_link = ob_get_contents();
+	ob_end_clean();
+
+	echo $replacement_link;
+
+}//end security_key_image_link()
 
 
 /**
