@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.205.2.10 2007/01/10 01:02:55 lwright Exp $
+* $Id: mysource.inc,v 1.205.2.11 2007/01/17 22:42:20 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.205.2.10 $
+* @version $Revision: 1.205.2.11 $
 * @package MySource_Matrix
 */
 class MySource
@@ -705,7 +705,7 @@ class MySource
 			return;
 		}
 
-		if (current_protocol() == 'http') {
+		if ((current_protocol() == 'http') && (SQ_CONF_FORCE_SECURE_LOGIN_URLS != '')) {
 			// check if we require secure login for this root URL
 			$current_url = current_url(FALSE, TRUE);
 			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
