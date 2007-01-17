@@ -10,9 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.159.2.7 2007/01/10 00:51:45 lwright Exp $
+* $Id: backend.inc,v 1.159.2.8 2007/01/17 22:32:42 lwright Exp $
 *
 */
+
+
+require_once SQ_INCLUDE_PATH.'/general.inc';
 
 
 /**
@@ -24,7 +27,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.159.2.7 $
+* @version $Revision: 1.159.2.8 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
