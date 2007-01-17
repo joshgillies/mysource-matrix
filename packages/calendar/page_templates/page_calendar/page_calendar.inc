@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.184.2.5 2006/12/07 06:25:54 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.184.2.6 2007/01/17 00:04:56 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.184.2.5 $
+* @version $Revision: 1.184.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -275,11 +275,24 @@ class Page_Calendar extends Page
 
 		$res = '';
 		$action = array_get_index($_REQUEST,'SQ_CALENDAR_EVENT_ACTION',FALSE);
-		if ($action) {
+		$event_id = array_get_index($_REQUEST,'SQ_CALENDAR_EVENT_ID',FALSE);
+
+		if ($event_id) {
 			$event_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset((int)$_REQUEST['SQ_CALENDAR_EVENT_ID']);
-			$res = $event_asset->processEventAction($action);
-			echo $res;
+			if (!$event_asset->readAccess()) {
+				return;
+			}
 		}
+
+		if ($action) {
+			if ($event_asset->readAccess()) {
+				$res = $event_asset->processEventAction($action);
+				echo $res;
+			} else {
+				$this->_tmp['valid_request'] = FALSE;
+			}
+		}
+
 		if (!$res) {
 			if (!isset($this->_tmp['valid_request'])) {
 				$this->_tmp['valid_request'] = $this->_validateRequest();
