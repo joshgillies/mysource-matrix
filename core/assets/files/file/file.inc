@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.143 2006/12/07 22:11:44 lwright Exp $
+* $Id: file.inc,v 1.143.2.1 2007/01/17 22:21:59 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.143 $
+* @version $Revision: 1.143.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -744,15 +744,14 @@ class File extends Asset
 	*/
 	function processBackend(&$o, &$link)
 	{
+		if (in_array($_POST['asset_action'], Array('create', 'create_custom'))) {
+			$this->_tmp['uploading_file'] = 1;
+		}
 		switch ($_POST['asset_action']) {
 			case 'create' :
-				$this->_tmp['uploading_file'] = 1;
 				$ei =& $this->getEI();
 				if (!$ei->process($this, $o, TRUE)) return FALSE;
-
-				$prefix = $this->getPrefix();
 				$this->setAttrValue('name', 'temp');
-
 				return $this->create($link);
 			break;
 
