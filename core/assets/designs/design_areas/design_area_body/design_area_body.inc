@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.31 2006/12/05 22:42:11 emcdonald Exp $
+* $Id: design_area_body.inc,v 1.32 2007/01/17 00:11:07 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -124,25 +124,26 @@ class Design_Area_Body extends Design_Area
 
 			<?php
 			switch ($format) {
-				case 'text':
 				case 'low_bandwidth':
+					// low bandwidth design - strip images, embeds, objects, and additional whitespace
+					echo '
+						$body = preg_replace(\'|\s+|\', \' \', $body);
+						$body = str_replace(\'<br />\', \'<br/>\', $body);
+						$body = str_replace(\'<br/>\', "\n", $body);
+						$body = preg_replace(\'|\n\s+|\', "\n", $body);
+						$body = preg_replace(\'|[\n]+|\', "\n", $body);
+						$body = str_replace("\n", \'<br/>\', $body);
+						';
+
+				// break is missing on purpose
+
+				case 'text':
 					// text only design - strip images, embeds and objects
 					echo '
 						$body = preg_replace(\'|\<img([^\>]*)\>|Ui\',\'\',$body);
 						$body = preg_replace(\'|\\<embed(.*)\>(.*)</embed>|i\',\'\',$body);
 						$body = preg_replace(\'|\\<object(.*)\>(.*)</object>|i\',\'\',$body);
 						';
-					if ($format == 'low_bandwidth') {
-						// low bandwidth design - strip images, embeds, objects, and additional whitespace
-						echo '
-							$body = preg_replace(\'|\s+|\', \' \', $body);
-							$body = str_replace(\'<br />\', \'<br/>\', $body);
-							$body = str_replace(\'<br/>\', "\n", $body);
-							$body = preg_replace(\'|\n\s+|\', "\n", $body);
-							$body = preg_replace(\'|[\n]+|\', "\n", $body);
-							$body = str_replace("\n", \'<br/>\', $body);
-							';
-					}
 				break;
 			}
 			?>
