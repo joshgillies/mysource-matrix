@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.42 2006/12/05 05:34:15 emcdonald Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.43 2007/01/17 22:00:05 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -179,17 +179,17 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		<style type="text/css">
 			#bodycopyPopupDiv {
-				color: #fffff;
-				position:absolute;
-				left:100;
-				top:120;
-				width:<?php echo $init_layer_width?>;
-				height:<?php echo $init_layer_height?>;
-				clip:rect(0,600,600,0);
+				color: #ffffff;
+				position: absolute;
+				left: 100;
+				top: 120;
+				width: <?php echo $init_layer_width?>;
+				height: <?php echo $init_layer_height?>;
+				clip: rect(0,600,600,0);
 				visibility: hidden;
 			}
 			#bodycopyToolTipDiv {
-				position:absolute;
+				position: absolute;
 				width:  1px;
 				height: 1px;
 				visibility: hidden;
@@ -307,8 +307,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		?>
 		</table>
 		<!-- Begin Tooltip -->
-		<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;top:-200px;left:-110px;width:10px; height:30px;progid:DXImageTransform.Microsoft.Alpha(style=0, opacity=0)" src="about:blank"></iframe>
-		<table cellspacing="0" cellpadding="0" border="0" id="ToolBox" style="position:absolute;top:0px;left:0px;z-index:1000;visibility:hidden;filter:progid:DXImageTransform.Microsoft.Fade(duration=0.5)"><tr><td id="ToolBoxTitle" style="padding:0px"></td></tr><tr><td id="ToolBoxContent" style="padding:2px"></td></tr></table>
+		<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;top:-200px;left:-110px;width:10px; height:30px;" src="about:blank"></iframe>
+		<table cellspacing="0" cellpadding="0" border="0" id="ToolBox" style="position:absolute;top:0px;left:0px;z-index:1000;visibility:hidden;"><tr><td id="ToolBoxTitle" style="padding:0px"></td></tr><tr><td id="ToolBoxContent" style="padding:2px"></td></tr></table>
 		<!-- End Tooltip -->
 		<?php
 
