@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.6 2006/12/05 05:10:54 bcaldwell Exp $
+* $Id: import.inc,v 1.7 2007/01/17 03:33:28 rhoward Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -78,7 +78,7 @@ function get_import_actions($import_file)
 */
 function populate_import_action_array(&$store, &$vals)
 {
-	for (current($vals); null !== ($k = key($vals)); next($vals)) {
+	for (current($vals); NULL !== ($k = key($vals)); next($vals)) {
 		$data  = $vals[$k];
 		$value = array_get_index($data, 'value', '');
 		$tag   = array_get_index($data, 'tag', '');
@@ -178,10 +178,10 @@ function execute_import_action($action, &$outputs)
 	$action_class = 'trigger_action_'.$action['action_type'][0];
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_class);
 	eval('$output = '.$action_class.'::execute($settings, $state);');
-	if ($output === false) return false;
+	if ($output === FALSE) return FALSE;
 
 	$outputs[$action['action_id'][0]] = $output;
-	return true;
+	return TRUE;
 
 }//end execute_import_action()
 
@@ -244,6 +244,35 @@ function get_import_action_input_value($action, $attribute, $outputs=Array())
 			$conf_value = $tmp[0].$matches[2][0];
 		}
 		$value = $conf_value;
+	}
+
+	// construct-specific calls - will not work on a regular import
+	$matches = Array();
+	preg_match_all('|\[\[construct://([^\]]+)\]\]|', $value, $matches);
+	for ($ii = 0; $ii < count($matches[0]); $ii++) {
+		$construct_value = '';
+		switch ($matches[1][$ii]) {
+			case 'current_test_path':
+				$construct_value = '';
+				if (isset($GLOBALS['THE_CONSTRUCT'])) {
+					$construct_value = $GLOBALS['THE_CONSTRUCT']->unit_test_path;
+				}
+			case 'current_test_group_path':
+				$construct_value = '';
+				if (isset($GLOBALS['THE_CONSTRUCT'])) {
+					$construct_value = dirname($GLOBALS['THE_CONSTRUCT']->unit_test_path);
+				}
+			break;
+			case 'unit_test_path':
+				$construct_value = (defined('TC_CONF_UNIT_TEST_PATH') ? TC_CONF_UNIT_TEST_PATH : '');
+			break;
+			case 'construct_path':
+				$construct_value = (defined('TC_CONF_CONSTRUCT_PATH') ? TC_CONF_CONSTRUCT_PATH : '');
+			case 'simpletest_path':
+				$construct_value = (defined('TC_CONF_SIMPLETEST_PATH') ? TC_CONF_SIMPLETEST_PATH : '');
+			break;
+		}
+		$value = str_replace($matches[0][$ii], $construct_value, $value);
 	}
 
 	return $value;
