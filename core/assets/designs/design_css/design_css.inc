@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.30 2007/01/18 02:54:28 rong Exp $
+* $Id: design_css.inc,v 1.31 2007/01/18 03:13:02 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,10 +67,10 @@ class Design_Css extends Design
 		$new_name = strtolower(trim($this->attr('id_name')));
 
 		// no ampersands in css file name
-		$new_name = str_replace('&', '_and_',  $new_name);
+		$new_name = str_replace('&', SQ_CONF_WEB_PATH_SEPARATOR.'and'.SQ_CONF_WEB_PATH_SEPARATOR,  $new_name);
 
 		// no spaces in css file name
-		$new_name = preg_replace('/\\s+/', '_', $new_name);
+		$new_name = preg_replace('/\\s+/', SQ_CONF_WEB_PATH_SEPARATOR, $new_name);
 
 		// taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
 		$new_name = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $new_name);
@@ -100,6 +100,14 @@ class Design_Css extends Design
 	function _createAdditional(&$link)
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
+
+		// set an initial web path
+		$initial_path = strtolower($this->attr('id_name'));
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($initial_path));
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, TRUE);
+		$this->saveWebPaths($good_paths);
+
 		$this->_createCacheFile();
 		return TRUE;
 
@@ -659,28 +667,8 @@ echo '/*
 			$file_path = $this->data_path.'/design_file.php';
 		}
 
-		// design file not found for this asset
-		if (!file_exists($file_path)) {
-			// use the template file of parent design_css asset
-			$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'design_css', FALSE);
-			foreach ($parents as $id => $type) {
-				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
-				if ($parent) {
-					$file_path = $parent->data_path.'/design_file.php';
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
-					if (file_exists($file_path)) {
-						break;
-					}
-				}
-			}
-		}
-
 		// Now we just include the design file to get it to print
-		if (file_exists($file_path)) {
-			require_once $file_path;
-		} else {
-			trigger_localised_error('CORE0259', E_USER_WARNING, $ASSET->name);
-		}
+		if (file_exists($file_path)) require_once $file_path;
 
 	}//end paint()
 
