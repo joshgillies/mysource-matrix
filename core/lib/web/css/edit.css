@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.72 2007/01/11 23:00:59 colivar Exp $
+* $Id: edit.css,v 1.73 2007/01/18 03:46:24 tbarrett Exp $
 *
 */
 
@@ -76,9 +76,9 @@ table.sq-backend-nav-history-container {
 	width:				100%;
 	border-collapse:	collapse;
 	margin-bottom:		1px;
-	table-layout:fixed;
 }
 table.sq-backend-nav-history-container td {
+	line-height:		20px;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	background-color:	#C8BDCB;
 	color:				#000000;
@@ -87,19 +87,21 @@ table.sq-backend-nav-history-container td {
 	vertical-align:		middle;
 	border-bottom:		1px solid #342939;
 	padding:			4px 4px 2px 4px;
-	white-space:		nowrap;
-	overflow:			hidden;
+	height:				auto;
+
 }
 table.sq-backend-nav-history-container td.sq-backend-nav-history a {
+	line-height:		20px;
 	text-decoration:	none;
-	line-height:		25px;
 	margin:				0px;
+	white-space:		nowrap;
 }
 table.sq-backend-nav-history-container td.sq-backend-nav-history a span {
 	font-size:			8px;
 }
 table.sq-backend-nav-history-container td.sq-backend-nav-history span.divider {
 	color:				#FFFFFF;
+	height:				20px; /* this is to make the line-height work in IE http://www.brunildo.org/test/IElineheight.html */
 }
 td.sq-backend-nav-history a img {
 	padding-bottom:		2px;
@@ -115,6 +117,7 @@ table.sq-backend-nav-history-container td.sq-backend-nav-history-title  {
 	width:				12ex;
 	white-space:		nowrap;
 	padding-top:		6px;
+	vertical-align:		top;
 }
 
 table.sq-backend-main-headings .sq-backend-asset-info {

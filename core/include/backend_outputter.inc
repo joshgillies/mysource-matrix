@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.143 2007/01/16 23:38:08 lwright Exp $
+* $Id: backend_outputter.inc,v 1.144 2007/01/18 03:46:22 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.143 $
+* @version $Revision: 1.144 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1174,7 +1174,7 @@ class Backend_Outputter
 									continue;
 								}
 								?>
-								<a style="margin: 0px" href="<?php echo $nav_asset->getBackendHref($nav_details['screen']); ?>&sq_nav_goback=<?php echo $i; ?>">
+								<a href="<?php echo $nav_asset->getBackendHref($nav_details['screen']); ?>&sq_nav_goback=<?php echo $i; ?>">
 									<?php
 									sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($nav_asset->type()), 16, 16, $nav_asset->short_name);
 									echo $nav_asset->short_name;
