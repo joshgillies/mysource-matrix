@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.29 2007/01/18 02:51:10 rong Exp $
+* $Id: design_css.inc,v 1.30 2007/01/18 02:54:28 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -666,7 +666,7 @@ echo '/*
 			foreach ($parents as $id => $type) {
 				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 				if ($parent) {
-					//$file_path = $parent->data_path.'/design_file.php';
+					$file_path = $parent->data_path.'/design_file.php';
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
 					if (file_exists($file_path)) {
 						break;

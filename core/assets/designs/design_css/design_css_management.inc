@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_management.inc,v 1.9 2006/12/05 22:56:41 emcdonald Exp $
+* $Id: design_css_management.inc,v 1.10 2007/01/18 02:51:30 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,9 +51,10 @@ class Design_Css_Management extends Asset_Management
 									'parameters'	=> Array('allow_empty' => FALSE),
 								   );
 		$this->vars['strip_whitespace'] = Array(
-											'added'		=> '0.0.1',
-											'type'		=> 'boolean',
-											'default'	=> FALSE,
+											'added'			=> '0.0.1',
+											'type'			=> 'boolean',
+											'default'		=> FALSE,
+											'parameters'	=> Array('allow_empty' => FALSE),
 										  );
 
 	}//end constructor
