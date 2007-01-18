@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.531.2.5 2007/01/16 03:23:19 rong Exp $
+* $Id: asset_manager.inc,v 1.531.2.6 2007/01/18 05:48:54 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.531.2.5 $
+* @version $Revision: 1.531.2.6 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2599,6 +2599,50 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
+	* Get details of the link(s) between the two specified assets
+	*
+	* It returns array of link info if only one link and force_array=FALSE,
+	* array of arrays of link info otherwise
+	*
+	* @param array	$array1	first array to merge
+	* @param array	$array2	second array to merge
+	*
+	* @return array
+	* @access public
+	*/
+	function arrayMerge($array1,$array2)
+	{
+		$common_keys = Array();
+		$merged_array = Array();
+		if (!is_array($array1)) $array1 = Array();
+		if (!is_array($array2)) $array2 = Array();
+
+		// add all elements which is not common to both array
+		foreach ($array1 as $key => $value) {
+			if (array_key_exists($key, $array2)) {
+				$common_keys = array_merge($common_keys, Array($key));
+				continue;
+			}
+			// if the key does not exist in the other array
+			$merged_array[$key] = $array1[$key];
+		}
+
+		foreach ($array2 as $key => $value) {
+			if (array_key_exists($key, $array1)) continue;
+
+			// if the key does not exist in the other array
+			$merged_array[$key] = $array2[$key];
+		}
+
+		foreach ($common_keys as $key) {
+			$merged_array[$key] = array_merge($array1[$key], $array2[$key]);
+		}
+		return $merged_array;
+
+	}//end arrayMerge()
+
+
+	/**
 	* Get all links matching the specified characteristics
 	*
 	* The query generated to get the links is actually contructed in the Asset Manager's
@@ -2721,8 +2765,6 @@ class Asset_Manager extends MySource_Object
 				if (is_null($asset)) return Array();
 				if (implements_interface($asset, 'bridge')) {
 					$links[$assetid] = $asset->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by, $dependant, $exclusive);
-					$this->forgetAsset($asset);
-					continue;
 				}
 				$this->forgetAsset($asset);
 			}
@@ -2739,7 +2781,7 @@ class Asset_Manager extends MySource_Object
 				$db =& $GLOBALS['SQ_SYSTEM']->db;
 				$result = $db->getAssoc(implode(' ', $query), FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
 				assert_valid_db_result($result);
-				$links += $result;
+				$links = $this->arrayMerge($result, $links);
 			}
 		}
 
@@ -5127,25 +5169,25 @@ class Asset_Manager extends MySource_Object
 				// Let the bridge handle it
 				$result = $major->deleteAssetLink($linkid);
 				$this->forgetAsset($asset);
-				return $result;
-			} else {
-				// Link between a normal asset and a shadow asset
-				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				if ($result != FALSE) return $result;
+			} 
+			// Link between a normal asset and a shadow asset
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-				$db =& $GLOBALS['SQ_SYSTEM']->db;
-				$sql = 'DELETE FROM
-							sq_shdw_ast_lnk
-						WHERE
-							linkid = '.$db->quoteSmart($linkid);
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'DELETE FROM
+						sq_shdw_ast_lnk
+					WHERE
+						linkid = '.$db->quoteSmart($linkid);
 
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return TRUE;
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return TRUE;
+			
 		}//end if shadow asset
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';

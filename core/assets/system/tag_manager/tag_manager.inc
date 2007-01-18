@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.5 2006/12/06 00:14:44 bcaldwell Exp $
+* $Id: tag_manager.inc,v 1.5.2.1 2007/01/18 05:48:54 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends Asset
@@ -375,6 +375,7 @@ class Tag_Manager extends Asset
 	function deleteTag($assetid, $tag)
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($assetid, $tag, SQ_LINK_NOTICE);
+		if (empty($link)) return FALSE;
 		$success = $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
 
 		return $success;
@@ -418,6 +419,7 @@ class Tag_Manager extends Asset
 		return $this->attr('restrict_tag_source');
 
 	}//end isTagSourceRestricted()
+
 
 }//end class
 ?>
