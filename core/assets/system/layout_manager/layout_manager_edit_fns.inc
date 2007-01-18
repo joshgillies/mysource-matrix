@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager_edit_fns.inc,v 1.11 2006/12/06 04:40:08 emcdonald Exp $
+* $Id: layout_manager_edit_fns.inc,v 1.11.2.1 2007/01/18 00:51:51 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -211,7 +211,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 					$as =& new $type_code();
 					$ef =& $as->getEditFns();
 
-					$screens = Array('', 'create'); // first option is blank
+					$screens = Array(''); // first option is blank
 					foreach (array_keys($ef->static_screens) as $screen) {
 						$screens[] = $screen;
 					}
