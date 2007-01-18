@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.14.2.1 2007/01/04 23:52:33 bcaldwell Exp $
+* $Id: page_rss_feed.inc,v 1.14.2.2 2007/01/18 22:28:27 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.14.2.1 $
+* @version $Revision: 1.14.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -263,8 +263,8 @@ class Page_RSS_Feed extends Page
 						}
 						$asset = null;
 						if (strcasecmp($type, $asset_type) == 0) {
-							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
-							if ($asset) {
+							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+							if ($asset && is_a($asset, $asset_type)) {
 								foreach ($keywords as $tag => $keyword) {
 									// if the user enters multiple keywords or some text along with keywords then
 									// we need to pick the keywords and insert the replacements in the entered text.
