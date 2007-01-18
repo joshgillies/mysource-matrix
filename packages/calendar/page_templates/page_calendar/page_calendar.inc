@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.198 2007/01/17 00:03:41 lwright Exp $
+* $Id: page_calendar.inc,v 1.199 2007/01/18 23:41:33 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.198 $
+* @version $Revision: 1.199 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -101,6 +101,37 @@ class Page_Calendar extends Page
 		return $linkid;
 
 	}//end create()
+
+
+	/**
+	* Returns TRUE if we can delete the passed link, or a string with the error msg
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return mixed boolean|string
+	* @access public
+	*/
+	function isDeletableLink($linkid)
+	{
+		// the only reason why we would object to this link being
+		// deleted is if it is the bodycopy linked to us
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', 'page_contents', '1', '1');
+		$bodycopy_no_results_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', 'page_contents_no_results', '1', '1');
+
+		// if this is not a purge trash
+		if (!$GLOBALS['SQ_PURGING_TRASH']) {
+
+			// if the user is trying to delete the bodycopy or the no results body copy return an error message
+			if ((!empty($bodycopy_link)) && ($bodycopy_link[0]['linkid'] == $linkid)) {
+				return translate('cal_page_error_bodycopy_link_cannot_delete');
+			} else if ((!empty($bodycopy_no_results_link) && ($bodycopy_no_results_link[0]['linkid'] == $linkid))) {
+				return translate('cal_page_error_bodycopy_no_results_link_cannot_delete');
+			}
+		}
+
+		return parent::isDeletableLink($linkid);
+
+	}//end isDeletableLink()
 
 
 	/**
@@ -281,9 +312,7 @@ class Page_Calendar extends Page
 
 		if ($event_id) {
 			$event_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset((int)$_REQUEST['SQ_CALENDAR_EVENT_ID']);
-			if (!$event_asset->readAccess()) {
-				return;
-			}
+			if (!$event_asset->readAccess()) return;
 		}
 
 		if ($action) {
@@ -663,7 +692,7 @@ class Page_Calendar extends Page
 	* Get the replacement for the %calendar_contents% keyword
 	*
 	* The contents to be displayed
-    * @param array &$events_array will keep a list of all the events
+    * @param array &$events_array 	will keep a list of all the events
     *
 	* @return string
 	* @access public
@@ -1187,9 +1216,9 @@ class Page_Calendar extends Page
 	/**
 	* Get the contents of the day view for the specified day
 	*
-	* @param string	$date			the ISO 8601'd day (YYYY-MM-DD)
-	* @param string	$format			'list_with_headings' | 'list_without_headings' | 'calendar_format'
-    * @param array &$events_array	will keep a list of all the events
+	* @param string	$date				the ISO 8601'd day (YYYY-MM-DD)
+	* @param string	$format				'list_with_headings' | 'list_without_headings' | 'calendar_format'
+    * @param array &$events_array		will keep a list of all the events
 	*
 	* @return void
 	* @access public

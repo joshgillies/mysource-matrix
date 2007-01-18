@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.7 2006/12/07 05:51:52 bcaldwell Exp $
+* $Id: lang_strings.xml,v 1.8 2007/01/18 23:41:33 colivar Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -63,5 +63,7 @@
 	<string source="confirm_move_event_to_place_date" js="1">Move this event to %1$s on %2$s?</string>
 	<string source="confirm_move_event_to_place_datetime" js="1">Move this event to %1$s on %2$s at %3$s?</string>
 	<string source="cal_page_today_link">Link to jump to today's date in the current view</string>
+	<string source="cal_page_error_bodycopy_link_cannot_delete">You are now allow to delete this page contents</string>
+	<string source="cal_page_error_bodycopy_no_results_link_cannot_delete">You are now allow to delete this page contents (no results)</string>
 </strings>
 
