@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.28 2007/01/09 00:21:46 lwright Exp $
+* $Id: design_css.inc,v 1.29 2007/01/18 02:51:10 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -659,8 +659,28 @@ echo '/*
 			$file_path = $this->data_path.'/design_file.php';
 		}
 
+		// design file not found for this asset
+		if (!file_exists($file_path)) {
+			// use the template file of parent design_css asset
+			$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'design_css', FALSE);
+			foreach ($parents as $id => $type) {
+				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+				if ($parent) {
+					//$file_path = $parent->data_path.'/design_file.php';
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
+					if (file_exists($file_path)) {
+						break;
+					}
+				}
+			}
+		}
+
 		// Now we just include the design file to get it to print
-		if (file_exists($file_path)) require_once $file_path;
+		if (file_exists($file_path)) {
+			require_once $file_path;
+		} else {
+			trigger_localised_error('CORE0259', E_USER_WARNING, $ASSET->name);
+		}
 
 	}//end paint()
 
