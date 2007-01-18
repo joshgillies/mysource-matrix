@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.11 2006/12/08 04:01:42 arailean Exp $
+* $Id: thesaurus_term.inc,v 1.12 2007/01/18 01:53:24 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,7 +90,7 @@ class Thesaurus_Term extends Asset
 	*/
 	function create(&$link)
 	{
-
+		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$this->name = $this->attr('name');
 		if (empty($this->name)) return FALSE;
 
@@ -112,7 +112,7 @@ class Thesaurus_Term extends Asset
 
 		$relation = trim($relation);
 
-		$created = TRUE;
+		$created = FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -130,14 +130,16 @@ class Thesaurus_Term extends Asset
 			$created = TRUE;
 		}
 
-
 		$this->id = $this->_thesaurus->id.':'.$termid;
 		$this->_termid = $termid;
-
 
 		// if we're adding a top level term it's a stray term - not linked to anything
 		if (is_null($majorid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			if ($created) {
+				$em->broadcastEvent($this, 'AssetCreate', Array('name','assetid'));
+			}
+			$em->broadcastEvent($this->_thesaurus, 'CreateLink', Array());
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return TRUE;
 		}
@@ -157,15 +159,14 @@ class Thesaurus_Term extends Asset
 			return FALSE;
 		}
 
-
 		$this->_thesaurus->markContentsChanged();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		if ($created) {
 			$em->broadcastEvent($this, 'AssetCreate', Array('name','assetid'));
 		}
+
 
 		return TRUE;
 
