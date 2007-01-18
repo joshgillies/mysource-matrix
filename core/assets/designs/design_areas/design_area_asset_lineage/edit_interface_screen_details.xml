@@ -10,13 +10,21 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2006/12/05 22:42:11 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2.2.1 2007/01/18 05:13:21 tbarrett Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
+	<section name="General" write_access="write:attributes">
+		<field attribute="print">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="cache">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>
+	<section name="Lineage options" write_access="write:attributes">
 		<field>
 			<function_call>
 				<paint_function   name="paintExcludedTypes" />
