@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.js,v 1.18 2007/01/11 23:20:05 tbarrett Exp $
+* $Id: general.js,v 1.19 2007/01/18 00:44:56 tbarrett Exp $
 *
 */
 
@@ -285,7 +285,7 @@ function fixIcons(blankSrc)
 	if ((ieVersion >= 5.5) && (ieVersion < 7)) {
 		var images = document.getElementsByTagName('IMG');
 		for (var i=0; i < images.length; i++) {
-			if (images[i].className == 'sq-icon') {
+			if (images[i].className.match(/(^| )sq-icon($| )/)) {
 				images[i].style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='"+images[i].src+"', sizingMethod='scale')";
 				images[i].style.height = images[i].height+'px';
 				images[i].style.width = images[i].width+'px';
