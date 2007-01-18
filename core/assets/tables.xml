@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.46 2006/12/08 05:19:07 lwright Exp $
+* $Id: tables.xml,v 1.47 2007/01/18 00:24:02 tbarrett Exp $
 *
 */
 -->
@@ -1143,6 +1143,10 @@
 					<column name="userto" />
 				</index>
 				<index>
+					<column name="type" />
+				</index>
+				<index name="to_and_type">
+					<column name="userto" />
 					<column name="type" />
 				</index>
 			</indexes>
