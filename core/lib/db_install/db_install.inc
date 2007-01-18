@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.41 2006/12/05 05:11:37 bcaldwell Exp $
+* $Id: db_install.inc,v 1.42 2007/01/18 00:23:43 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -152,21 +152,22 @@ function parse_tables_xml($xml_file)
 				$table_index =& $table_indexes[$kk];
 
 				// work out the columns in this index
+				$index_cols = Array();
 				for ($k = 0; $k < count($table_index->children); $k++) {
-					$index_col_name = $table_index->children[$k]->attributes['name'];
+					$index_cols[] = $table_index->children[$k]->attributes['name'];
 				}
 
 				// work out the name of the index
-				$index_name    = array_get_index($table_index->attributes, 'name', $index_col_name);
+				$index_name    = array_get_index($table_index->attributes, 'name', reset($index_cols));
 				$index_type    = array_get_index($table_index->attributes, 'type', NULL);
 				$index_db_type = array_get_index($table_index->attributes, 'db', NULL);
 
 				$index_info = Array(
-								'name'		=> $index_name,
+								'columns'	=> $index_cols,
 								'type'		=> $index_type,
 								'db_type'	=> $index_db_type,
 							  );
-				$info['tables'][$table_name]['indexes'][$index_col_name] = $index_info;
+				$info['tables'][$table_name]['indexes'][$index_name] = $index_info;
 			}//end for
 		}//end for
 	}//end for
@@ -193,7 +194,7 @@ function parse_tables_xml($xml_file)
 * @return void
 * @access public
 */
-function create_index($tablename, $column, $index_name=NULL, $index_type=NULL)
+function create_index($tablename, $columns, $index_name=NULL, $index_type=NULL)
 {
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	if (is_null($index_name)) $index_name = $column;
@@ -206,7 +207,7 @@ function create_index($tablename, $column, $index_name=NULL, $index_type=NULL)
 			$sql .= ' USING '.$index_type.'('.$column.')';
 		}
 	} else {
-		$sql .= ' ('.$column.')';
+		$sql .= ' ('.implode(', ', $columns).')';
 	}
 
 	$result = $db->query($sql);
@@ -451,13 +452,13 @@ function db_install($xml_file, $verbose=TRUE)
 				}
 
 				// prepare indexes for the "sq_eff_from" and "sq_eff_to" columns
-				$table_info['rb_indexes']['sq_eff_from'] = Array(
-															'name'		=> 'effrm',
+				$table_info['rb_indexes']['effrm'] = Array(
+															'columns'	=> Array('sq_eff_from'),
 															'type'		=> NULL,
 															'db_type'	=> NULL,
 														   );
-				$table_info['rb_indexes']['sq_eff_to'] = Array(
-															'name'		=> 'efto',
+				$table_info['rb_indexes']['efto'] = Array(
+															'columns'	=> Array('sq_eff_to'),
 															'type'		=> NULL,
 															'db_type'	=> NULL,
 														 );
@@ -473,16 +474,16 @@ function db_install($xml_file, $verbose=TRUE)
 		$indexes_in_db = get_database_indexes($tablename, TRUE);
 
 		if (!empty($table_info['indexes'])) {
-			foreach ($table_info['indexes'] as $index_col => $index_info) {
+			foreach ($table_info['indexes'] as $index_name => $index_info) {
 				if (is_null($index_info['db_type']) || $index_info['db_type'] == $db->phptype) {
-					if (!in_array('sq_'.$tablename.'_'.$index_info['name'], $indexes_in_db)) {
-						create_index($tablename, $index_col, $index_info['name'], $index_info['type']);
-						$created_indexes[] = 'sq_'.$tablename.'_'.$index_info['name'];
+					if (!in_array('sq_'.$tablename.'_'.$index_name, $indexes_in_db)) {
+						create_index($tablename, $index_info['columns'], $index_name, $index_info['type']);
+						$created_indexes[] = 'sq_'.$tablename.'_'.$index_name;
 					}
 					if ($table_info['rollback']) {
-						if (!in_array('sq_rb_'.$tablename.'_'.$index_info['name'], $indexes_in_db)) {
-							create_index('rb_'.$tablename, $index_col, $index_info['name'], $index_info['type']);
-							$created_indexes[] = 'sq_rb_'.$tablename.'_'.$index_info['name'];
+						if (!in_array('sq_rb_'.$tablename.'_'.$index_name, $indexes_in_db)) {
+							create_index('rb_'.$tablename, $index_info['columns'], $index_name, $index_info['type']);
+							$created_indexes[] = 'sq_rb_'.$tablename.'_'.$index_name;
 						}
 					}
 				}
@@ -492,10 +493,10 @@ function db_install($xml_file, $verbose=TRUE)
 
 		// create indexes (prepared earlier) which are specific to rollback and not required to be replicated for "non-rollback" tables
 		if (($table_info['rollback']) && (!empty($table_info['rb_indexes']))) {
-			foreach ($table_info['rb_indexes'] as $index_col => $index_info) {
-				if (!in_array('sq_rb_'.$tablename.'_'.$index_info['name'], $indexes_in_db)) {
-					create_index('rb_'.$tablename, $index_col, $index_info['name'], $index_info['type']);
-					$created_indexes[] = 'sq_rb_'.$tablename.'_'.$index_info['name'];
+			foreach ($table_info['rb_indexes'] as $index_name => $index_info) {
+				if (!in_array('sq_rb_'.$tablename.'_'.$index_name, $indexes_in_db)) {
+					create_index('rb_'.$tablename, $index_info['columns'], $index_name, $index_info['type']);
+					$created_indexes[] = 'sq_rb_'.$tablename.'_'.$index_name;
 				}
 			}// end foreach
 		}// end if
