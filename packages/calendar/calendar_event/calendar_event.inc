@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.73 2007/01/08 03:25:03 emcdonald Exp $
+* $Id: calendar_event.inc,v 1.74 2007/01/19 00:03:47 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -199,6 +199,40 @@ class Calendar_Event extends Asset
 		return $keywords;
 
 	}//end getAvailableKeywords()
+
+
+	/**
+	* Returns an array of all the permitted links type, the type asset and the cardinality
+	* In the form
+	*
+	*   Array('[link_type]' => Array('[type_code]' => Array('card' => [cardinality], 'exclusive' => [exclusive])));
+	* Where:
+	*   link_type   = SQ_LINK_TYPE_1|SQ_LINK_TYPE_2|SQ_LINK_TYPE_3|SQ_LINK_NOTICE
+	*   cardinality = [max number of links]|'M'
+	*   exclusive   = TRUE|FALSE
+	*
+	* @return array
+	* @access private
+	*/
+	function _getAllowedLinks()
+	{
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(
+									'file'	=> Array('card' => 'M', 'exclusive' => FALSE),
+									'page'	=> Array('card' => 'M', 'exclusive' => FALSE),
+								   ),
+				SQ_LINK_TYPE_2	=> Array(
+									'file'	=> Array('card' => 'M', 'exclusive' => FALSE),
+									'page'	=> Array('card' => 'M', 'exclusive' => FALSE),
+								   ),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array(
+									'image'		=> Array('card' => 1, 'exclusive' => FALSE),
+									'design'	=> Array('card' => 'M', 'exclusive' => FALSE),
+								   ),
+			   );
+
+	}//end _getAllowedLinks()
 
 
 	/**
