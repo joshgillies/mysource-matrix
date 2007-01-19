@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.47 2007/01/10 23:33:37 bcaldwell Exp $
+* $Id: hipo_job_create_links.inc,v 1.48 2007/01/19 08:48:05 amiller Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -491,7 +491,6 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					$affected_links = array_get_index($this->_running_vars,'affected_links',Array());
 					foreach ($affected_links as $assetid => $links) {
 						$trash_errors = $GLOBALS['SQ_SYSTEM']->am->canSafeTrashAsset($assetid);
-						bam($trash_errors);
 
 						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						// now lets get all the other links this asset has in the system and
