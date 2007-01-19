@@ -9,58 +9,53 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: Makefile,v 1.5 2006/12/05 05:28:40 bcaldwell Exp $
+#* $Id: Makefile,v 1.5.2.1 2007/01/19 02:45:34 rong Exp $
 #*
 #*/
 
 # Makefile for Matrix java asset map
 #
 # @author Marc McIntyre <mmcintyre@squiz.net>
+# @author Rayn Ong <rong@squiz.net>
 
 
-#xml
-xmlsourcepath = src/net/squiz/matrix/xml
-xmlsourcefiles = src/net/squiz/matrix/xml/*.java
-xmlclassfiles = net/squiz/matrix/xml/*.class
-
-# pluggable look and feel
-#plafsourcefiles = src/net/squiz/matrix/plaf/*.java
-#plafsourcepath = src/net/squiz/matrix/plaf
-#plafclassfiles = net/squiz/matrix/plaf/*.class
-
-# location of the xml files
-xmlfiles = xml
-
-# components
-componentsourcepath = src/net/squiz/matrix
-componentsourcefiles = $(xmlsourcefiles) #$(plafsourcefiles)
-componentclassfiles = $(xmlclassfiles)# $(plafclassfiles) $(xmlfiles)
-
-#simple
-simplesourcefiles = src/net/squiz/matrix/assetmap/*.java
-simpleclassfiles = net/squiz/matrix/assetmap/* $(componentclassfiles) META-INF/
-simplesourcepath = src/net/squiz/matrix/assetmap
-
-#complex
-complexsourcepath = src/squiz/matrix/complexassetmap
-complexsourcefiles = src/net/squiz/matrix/complexassetmap/*.java
-complexclassfiles = net/squiz/matrix/complexassetmap/*.class $(simpleclassfiles)
-
+# asset map component
+component = assetmap core debug inspector matrixtree plaf ui
+componentpaths = $(patsubst %,net.squiz.matrix.%, $(component))
+componentsourcefiles = src/net/squiz/cuetree/*.java $(patsubst %,src/net/squiz/matrix/%/*.java, $(component))
+componentclassfiles = src/net/squiz/cuetree/*.class $(patsubst %,src/net/squiz/matrix/%/*.class, $(component))
 
 
 # compiles the assetmap package
+# note on java40.jar
+#    Netscape LiveConnect libraries for connecting from Java to Javascript.
+#    We do not distribute this file due to licensing concerns.
+#    It is easily acquirable from most Netscape based browser installs
+# note on SquizKeyStore
+#    Keystore file with certificate information (mykey)
+#    http://java.sun.com/j2se/1.4.2/docs/guide/plugin/developer_guide/rsa_signing.html
+#    http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/keytool.html
+#    Cerberus Ticket: #KVW-52908-317: Squiz - Code Signing Certificate
 simple:
-	javac -sourcepath $(simplesourcepath):$(componentsourcepath) -classpath java40.jar:. -d . $(simplesourcefiles) $(componentsourcefiles)
-	#compile components after simple as it is dependent on it
-	javac -sourcepath $(componentsourcepath) -classpath . -d . $(componentsourcefiles)
+	javac -classpath java40.jar $(componentsourcefiles)
+	jar cvfm assetmap.jar simplemanifest $(componentclassfiles) src/META-INF
+	jarsigner -keystore SquizKeyStore assetmap.jar mykey
+	jarsigner -verify assetmap.jar
 
-	 jar cvf assetmap.jar $(simpleclassfiles)
 
 # compiles the complexassetmap package
 complex: simple
-	javac -sourcepath $(complexsourcepath) -classpath java40.jar:. -d . $(complexsourcefiles)
-	jar cvfm complexassetmap.jar complexmanifest $(complexclassfiles)
+	javac -classpath java40.jar $(componentsourcefiles)
+	jar cvfm complexassetmap.jar complexmanifest $(componentclassfiles) src/META-INF
+	jarsigner -keystore SquizKeyStore complexassetmap.jar mykey
+	jarsigner -verify complexassetmap.jar
+
+
+# get rid of the class files
+clean:
+	rm $(componentclassfiles)
+
 
 # generates the documentation
 doc:
-	javadoc -d doc -sourcepath src net.squiz.matrix.*
+	javadoc -d doc -sourcepath src $(componentpaths)
