@@ -9,7 +9,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: Makefile,v 1.5.2.1 2007/01/19 02:45:34 rong Exp $
+#* $Id: Makefile,v 1.5.2.2 2007/01/19 05:05:13 rong Exp $
 #*
 #*/
 
@@ -22,8 +22,8 @@
 # asset map component
 component = assetmap core debug inspector matrixtree plaf ui
 componentpaths = $(patsubst %,net.squiz.matrix.%, $(component))
-componentsourcefiles = src/net/squiz/cuetree/*.java $(patsubst %,src/net/squiz/matrix/%/*.java, $(component))
-componentclassfiles = src/net/squiz/cuetree/*.class $(patsubst %,src/net/squiz/matrix/%/*.class, $(component))
+componentsourcefiles = net/squiz/cuetree/*.java $(patsubst %,net/squiz/matrix/%/*.java, $(component))
+componentclassfiles = net/squiz/cuetree/*.class $(patsubst %,net/squiz/matrix/%/*.class, $(component))
 
 
 # compiles the assetmap package
@@ -31,29 +31,29 @@ componentclassfiles = src/net/squiz/cuetree/*.class $(patsubst %,src/net/squiz/m
 #    Netscape LiveConnect libraries for connecting from Java to Javascript.
 #    We do not distribute this file due to licensing concerns.
 #    It is easily acquirable from most Netscape based browser installs
+#    Place this file in core/lib/asset_map/java/src directory
 # note on SquizKeyStore
 #    Keystore file with certificate information (mykey)
 #    http://java.sun.com/j2se/1.4.2/docs/guide/plugin/developer_guide/rsa_signing.html
 #    http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/keytool.html
 #    Cerberus Ticket: #KVW-52908-317: Squiz - Code Signing Certificate
 simple:
-	javac -classpath java40.jar $(componentsourcefiles)
-	jar cvfm assetmap.jar simplemanifest $(componentclassfiles) src/META-INF
+	cd src && javac -classpath java40.jar $(componentsourcefiles)
+	cd src && jar cvfm ../assetmap.jar ../simplemanifest $(componentclassfiles) META-INF
 	jarsigner -keystore SquizKeyStore assetmap.jar mykey
 	jarsigner -verify assetmap.jar
 
 
 # compiles the complexassetmap package
 complex: simple
-	javac -classpath java40.jar $(componentsourcefiles)
-	jar cvfm complexassetmap.jar complexmanifest $(componentclassfiles) src/META-INF
+	cd src && jar cvfm ../complexassetmap.jar ../complexmanifest $(componentclassfiles) META-INF
 	jarsigner -keystore SquizKeyStore complexassetmap.jar mykey
 	jarsigner -verify complexassetmap.jar
 
 
 # get rid of the class files
 clean:
-	rm $(componentclassfiles)
+	cd src && rm $(componentclassfiles)
 
 
 # generates the documentation
