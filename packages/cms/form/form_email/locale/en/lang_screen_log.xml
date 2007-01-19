@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_log.xml,v 1.6 2006/12/07 00:04:18 emcdonald Exp $
+* $Id: lang_screen_log.xml,v 1.7 2007/01/19 04:46:13 arailean Exp $
 *
 */
 -->
@@ -22,18 +22,47 @@
 			<note></note>
 		</field>
 	</section>
-	<section name="Export">
-		<function_call>
-			<paint_function   name="paintExport"   />
-			<process_function name="processExport" />
-		</function_call>
-		<note>Select the date range and file type, then click Download File. A pop-up should appear allowing you to save the resulting file</note>
+	<section name="Export" write_access="write:attributes">
+		<field keyword="download_date_range">
+			<display_name>Date Range</display_name>
+			<function_call>
+				<paint_function   name="paintDownloadDateRange"   />
+			</function_call>
+		</field>
+		<field keyword="download_format">
+			<display_name>Format</display_name>
+			<function_call>
+				<paint_function   name="paintDownloadFormat"   />
+			</function_call>
+		</field>
+		<field keyword="download_button">
+			<display_name>Download</display_name>
+			<function_call>
+				<paint_function   name="paintDownloadButton"   />
+				<process_function name="processDownloadButton" />
+			</function_call>
+		</field>
 	</section>
 	<section name="Submissions">
-		<function_call>
-			<paint_function   name="paintSubmissions"   />
-			<process_function name="processSubmissions" />
-		</function_call>
+		<field keyword="submission_date_range">
+			<display_name>Date Range</display_name>
+			<function_call>
+				<paint_function   name="paintSubmissionDateRange"   />
+			</function_call>
+		</field>
+		<field keyword="submission_count">
+			<display_name>Items per Page</display_name>
+			<function_call>
+				<paint_function   name="paintSubmissionCount"   />
+			</function_call>
+		</field>
+		<field keyword="submission_list">
+			<display_name>Submissions</display_name>
+			<function_call>
+				<paint_function   name="paintSubmissionList"   />
+				<process_function   name="processSubmissionList"   />
+			</function_call>
+		</field>
 		<note>Select a date range to display - a summary of submissions in that time period will be displayed. To display the responses for a submission, check the Expand box for that submission and click Commit</note>
 	</section>
 </contents>

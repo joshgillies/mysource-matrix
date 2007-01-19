@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.11 2006/12/07 00:04:17 emcdonald Exp $
+* $Id: asset.xml,v 1.12 2007/01/19 04:45:59 arailean Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>form_email</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Form</name>
 	<description>Form Email - Form with Email Functionality</description>
 	<instantiable>yes</instantiable>

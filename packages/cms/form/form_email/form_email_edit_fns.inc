@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.77 2007/01/17 22:28:54 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.78 2007/01/19 04:45:59 arailean Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -50,7 +50,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 
 	/**
-	* Paints the submissions block
+	* Paints the date range selector
 	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class
@@ -59,14 +59,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintSubmissions(&$asset, &$o, $prefix)
+	function paintSubmissionDateRange(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return FALSE;
-
-		$o->openField(translate('cms_form_date_range'));
-		$expand_list = isset($_POST[$prefix.'_expand']) ? $_POST[$prefix.'_expand'] : Array();
-		$num_subs = 0;
-
 		$parameters = Array(
 						'min'			=> '2003-01-01 00:00:00',
 						'max'			=> ts_iso8601(time()),
@@ -88,34 +82,59 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from =& new Datetime_Field($prefix.'_from', $from_value, $parameters);
 		$to =& new Datetime_Field($prefix.'_to', $to_value, $parameters);
 
-		// grab the number of assets per page, defaulting to 50 at a time
-		$num_per_page = array_get_index($_REQUEST, $prefix.'_per_page', 50);
-		$submission_offset = array_get_index($_REQUEST, $prefix.'_submission_offset', 0);
 
+		$from->printField();
+		echo ' '.translate('to').' ';
+		$to->printField();
+
+		return TRUE;
+
+	}//end paintSubmissionDateRange()
+
+
+	/**
+	* Paints the submission count interface
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSubmissionCount(&$asset, &$o, $prefix)
+	{
+		$num_per_page = array_get_index($_REQUEST, $prefix.'_per_page', 50);
 		if ($num_per_page < 1) $num_per_page = 50;
 
-		// grab the fields for printing as a substitution
-		ob_start();
-			$from->printField();
-			$from_field = ob_get_contents();
-		ob_end_clean();
+		text_box($prefix.'_per_page', $num_per_page, 3);
 
-		ob_start();
-			$to->printField();
-			$to_field = ob_get_contents();
-		ob_end_clean();
+	}//end paintSubmissionCount()
 
-		ob_start();
-			text_box($prefix.'_per_page', $num_per_page, 3);
-			$page_field = ob_get_contents();
-		ob_end_clean();
 
-		echo translate('cms_form_view_submission_range', $from_field, $to_field);
-		echo translate('cms_form_view_submission_per_page', $page_field);
+	/**
+	* Paints the submission list
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSubmissionList(&$asset, &$o, $prefix)
+	{
+		$expand_list = isset($_POST[$prefix.'_expand']) ? $_POST[$prefix.'_expand'] : Array();
+		$num_subs = 0;
 
-		$o->closeField();
+		// grab the number of assets per page, defaulting to 50 at a time
+		$num_per_page = array_get_index($_REQUEST, $prefix.'_per_page', 50);
+		if ($num_per_page < 1) $num_per_page = 50;
 
-		$o->openField('Submissions');
+		$submission_offset = array_get_index($_REQUEST, $prefix.'_submission_offset', 0);
+
+		$from_value = isset($_POST[$prefix.'_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_fromvalue']['m'],$_POST[$prefix.'_fromvalue']['d'],$_POST[$prefix.'_fromvalue']['y'])) : date('Y-m-d',time()-7*86400).' --:--:--';
+		$to_value = isset($_POST[$prefix.'_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_tovalue']['m'],$_POST[$prefix.'_tovalue']['d'],$_POST[$prefix.'_tovalue']['y'])) : date('Y-m-d').' --:--:--';
 
 		$from_value = iso8601_date_component($from_value).' 00:00:00';
 		$to_value = iso8601_date_component($to_value).' 23:59:59';
@@ -401,9 +420,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		<?php
 		}//end else
 
+
 		return TRUE;
 
-	}//end paintSubmissions()
+	}//end paintSubmissionList()
 
 
 	/**
@@ -416,7 +436,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processSubmissions(&$asset, &$o, $prefix)
+	function processSubmissionList(&$asset, &$o, $prefix)
 	{
 		$delete_list = isset($_POST[$prefix.'_delete']) ? $_POST[$prefix.'_delete'] : Array();
 		if (empty($delete_list)) return FALSE;
@@ -479,11 +499,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		return TRUE;
 
-	}//end processSubmissions()
+	}//end processSubmissionList()
 
 
 	/**
-	* Paints the export block
+	* Paints the download date range selector for the export block
 	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class
@@ -492,10 +512,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintExport(&$asset, &$o, $prefix)
+	function paintDownloadDateRange(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return FALSE;
-		$o->openField(translate('cms_form_date_range'));
 		$parameters = Array(
 						'min'			=> '2003-01-01 00:00:00',
 						'max'			=> ts_iso8601(time()),
@@ -518,13 +536,24 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to =& new Datetime_Field($prefix.'_export_to', $to_value, $parameters);
 
 		$from->printField();
-		echo ' to ';
+		echo ' '.translate('to').' ';
 		$to->printField();
 
-		$o->closeField();
+	}//end paintDownloadDateRange()
 
-		$o->openField(translate('format'));
 
+	/**
+	* Paints the download format selector for the export block
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDownloadFormat(&$asset, &$o, $prefix)
+	{
 		$options = Array(
 					''			=> '------- '.translate('please_select').' -------',
 					'csv'		=> translate('cms_form_download_csv'),
@@ -539,8 +568,21 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		echo ' &nbsp; Delimiter &nbsp;';
 		echo text_box($prefix.'_delimiter',$delimiter_text,1,1,TRUE);
 
-		$o->closeField();
+	}//end paintDownloadFormat()
 
+
+	/**
+	* Paints the download button for the export block
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDownloadButton(&$asset, &$o, $prefix)
+	{
 		// explanation for onClick for the Download button, there is some trickery involved here >:)
 		// - set export switch to 1 = "ON"
 		// - submit form (automatically sets SQ_FORM_SUBMITTED) - we're still here though, as the
@@ -550,17 +592,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		// - set export switch to 0 = "OFF" so Commit doesn't try to save a file either
 		// - return true for the event as per JS standard
 
-		$o->openField(translate('download'));
-
 		echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
 
-		return TRUE;
-
-	}//end paintExport()
+	}//end paintDownloadButton()
 
 
 	/**
-	* Processes the export block
+	* Processes the Download Button press
 	*
 	* This function will pass off the work to processExportCSV() or processExportXML(), as appropriate.
 	* If we aren't downloading a file, this function will silently return a success.
@@ -572,11 +610,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processExport(&$asset, &$o, $prefix)
+	function processDownloadButton(&$asset, &$o, $prefix)
 	{
-		if (!$_POST[$prefix.'_export_switch']) return TRUE;
-		$export_type = isset($_POST[$prefix.'_export_format']) ? $_POST[$prefix.'_export_format'] : '';
-		$export_delimiter = isset($_POST[$prefix.'_delimiter']) ? $_POST[$prefix.'_delimiter'] : '';
+		$export_button_pressed = array_get_index($_POST, $prefix.'_export_switch');
+		if (is_null($export_button_pressed)) return TRUE;
+
+		$export_type = array_get_index($_POST, $prefix.'_export_format', '');
+		$export_delimiter = array_get_index($_POST, $prefix.'_delimiter', '');
 
 		switch ($export_type) {
 			case 'csv':
@@ -594,7 +634,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		return TRUE;
 
-	}//end processExport()
+	}//end processDownloadButton()
 
 
 	/**

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_edit_fns.inc,v 1.17 2007/01/17 03:11:57 arailean Exp $
+* $Id: page_custom_form_edit_fns.inc,v 1.18 2007/01/19 04:46:13 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -133,7 +133,7 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Processes the submissions block (nothing to process!)
+	* Paints the download button
 	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class
@@ -142,23 +142,15 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processSubmissions(&$asset, &$o, $prefix)
+	function paintDownloadDateRange(&$asset, &$o, $prefix)
 	{
-		$form =& $asset->getForm();
-		if (is_null($form)) {
-			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id);
-			return FALSE;
-		}
+		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
 
-
-		$edit_fns = $form->getEditFns();
-		return $edit_fns->processSubmissions($form, $o, $prefix);
-
-	}//end processSubmissions()
+	}//end paintDownloadDateRange()
 
 
 	/**
-	* Paints the export block
+	* Paints the download button
 	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class
@@ -167,26 +159,15 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintExport(&$asset, &$o, $prefix)
+	function paintDownloadFormat(&$asset, &$o, $prefix)
 	{
-		$form =& $asset->getForm();
-		if (is_null($form)) {
-			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id);
-			return FALSE;
-		}
+		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
 
-
-		$edit_fns = $form->getEditFns();
-		return $edit_fns->paintExport($form, $o, $prefix);
-
-	}//end paintExport()
+	}//end paintDownloadFormat()
 
 
 	/**
-	* Processes the export block
-	*
-	* This function will pass off the work to processExportCSV() or processExportXML(), as appropriate.
-	* If we aren't downloading a file, this function will silently return a success.
+	* Paints the download button
 	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class
@@ -195,7 +176,111 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processExport(&$asset, &$o, $prefix)
+	function paintDownloadButton(&$asset, &$o, $prefix)
+	{
+		log_dump(__FUNCTION__);
+		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
+
+	}//end paintDownloadButton()
+
+
+	/**
+	* Paints the download button
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processDownloadButton(&$asset, &$o, $prefix)
+	{
+		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
+
+	}//end processDownloadButton()
+
+
+	/**
+	* Paint submission date range
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSubmissionDateRange(&$asset, &$o, $prefix)
+	{
+		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
+
+	}//end paintSubmissionDateRange()
+
+
+	/**
+	* Paint submission count
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSubmissionCount(&$asset, &$o, $prefix)
+	{
+		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
+
+	}//end paintSubmissionCount()
+
+
+	/**
+	* Paint submission list
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSubmissionList(&$asset, &$o, $prefix)
+	{
+		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
+
+	}//end paintSubmissionList()
+
+
+	/**
+	* process submission list
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSubmissionList(&$asset, &$o, $prefix)
+	{
+		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
+
+	}//end processSubmissionList()
+
+
+	/**
+	* Delegate painting or processing to the child form's edit function
+	*
+	* @param object	&$asset			the asset whose interface we are painting
+	* @param object	&$o				the outputter class
+	* @param string	$prefix			prefix for the form elements
+	* @param string	$edit_method	delegated method
+	*
+	* @return boolean
+	* @access public
+	*/
+	function delegateToFormEditMethod(&$asset, &$o, $prefix, $edit_method)
 	{
 		$form =& $asset->getForm();
 		if (is_null($form)) {
@@ -203,11 +288,15 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 			return FALSE;
 		}
 
-
 		$edit_fns = $form->getEditFns();
-		return $edit_fns->processExport($form, $o, $prefix);
+		if (method_exists($edit_fns, $edit_method)) {
+			return $edit_fns->$edit_method($form, $o, $prefix);
+		} else {
+			trigger_localised_error('CMS0067', E_USER_ERROR, $form->name, $edit_method);
+			return FALSE;
+		}
 
-	}//end processExport()
+	}//end delegateToFormEditMethod()
 
 
 }//end class
