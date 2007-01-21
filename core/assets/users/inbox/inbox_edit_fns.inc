@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.57 2007/01/16 04:32:58 colivar Exp $
+* $Id: inbox_edit_fns.inc,v 1.58 2007/01/21 22:36:33 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -366,7 +366,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		} else {
 ?>
 <?php
-			$num_per_page = 20;
+			$num_per_page = $GLOBALS['SQ_SYSTEM']->getUserPrefs('inbox', 'SQ_INBOX_MAIL_PER_PAGE');
+			if (empty($num_per_page)) $num_per_page = 20;
 			$total_assets = $num_inbox;
 			$num_pages = ceil($total_assets / $num_per_page);
 
