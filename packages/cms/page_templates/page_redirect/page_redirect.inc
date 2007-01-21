@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.32 2006/12/07 00:04:23 emcdonald Exp $
+* $Id: page_redirect.inc,v 1.32.2.1 2007/01/21 22:43:13 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -172,6 +172,7 @@ class Page_Redirect extends Page
 		}
 
 		$url = $this->_getRedirectURL();
+		if (empty($url)) return;
 
 		$timeout = $this->attr('timeout');
 		if (($timeout > 0) || headers_sent()) {
@@ -330,7 +331,7 @@ class Page_Redirect extends Page
 
 		if ($url == '') {
 			trigger_localised_error('CMS0037', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return;
+			return '';
 		}
 
 		$url .= trim($this->attr('url_suffix'));
@@ -360,6 +361,7 @@ class Page_Redirect extends Page
 
 		$timeout = $this->attr('timeout');
 		$url = $this->_getRedirectURL();
+		if (empty($url)) return;
 
 		ob_start();
 			if (headers_sent()) {
