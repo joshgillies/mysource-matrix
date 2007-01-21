@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_attribute_value.inc,v 1.5 2006/12/05 23:55:15 bcaldwell Exp $
+* $Id: trigger_condition_attribute_value.inc,v 1.6 2007/01/21 23:28:18 tbarrett Exp $
 *
 */
 
@@ -24,12 +24,27 @@ require_once dirname(dirname(__FILE__)).'/trigger_condition_asset_type/trigger_c
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 {
+
+	/**
+	* Get the options for the comparison operator field
+	*
+	* @return array
+	* @access public
+	*/
+	function getOperatorOptions()
+	{
+		return Array(
+				'='		=> strtolower(translate('equals')),
+				'!='	=> strtolower(translate('does_not_equal')),
+			   );
+
+	}//end getOperatorOptions()
 
 
 	/**
@@ -71,11 +86,11 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 
 		if ($settings['inherit']) {
 			if (is_a($state['asset'], $settings['asset_type'])) {
-				return ($state['asset']->attr($settings['attribute']) == $value);
+				return ($state['asset']->attr($settings['attribute']) == $value) == (array_get_index($settings, 'operator', '=') == '=');
 			}
 		} else {
 			if ($state['asset_type'] == $settings['asset_type']) {
-				return ($state['asset']->attr($settings['attribute']) == $value);
+				return ($state['asset']->attr($settings['attribute']) == $value) == (array_get_index($settings, 'operator', '=') == '=');
 			}
 		}
 		return FALSE;
@@ -140,10 +155,24 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 			$attribute_component = ob_get_contents();
 		ob_end_clean();
 
+		// operator selector
+		ob_start();
+			$operator_options = Trigger_Condition_Attribute_Value::getOperatorOptions();
+			$operator = array_get_index($settings, 'operator', '=');
+			if ($write_access) {
+				combo_box($prefix.'[operator]', $operator_options, FALSE, $operator);
+			} else {
+				echo '<b>'.$operator_options[$operator].'</b>';
+			}
+			$operator_component = ob_get_contents();
+		ob_end_clean();
+
+
 		// value selector
 		ob_start();
 			$value = array_get_index($settings, 'text_value', '');
 			if ($write_access) {
+				echo '<br />';
 				text_area($prefix.'[value]', $value, 80, 5);
 			} else {
 				echo '<b>'.$value.'</b>';
@@ -151,7 +180,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 			$value_component = ob_get_contents();
 		ob_end_clean();
 
-		return translate('trigger_attribute_value', $asset_type_component, $attribute_component, $value_component);
+		return translate('trigger_attribute_value', $asset_type_component, $attribute_component, $operator_component, $value_component);
 
 	}//end getInterface()
 
@@ -180,6 +209,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 		$settings['asset_type'] = $asset_type;
 		$settings['inherit'] = !empty($request_data['inherit']);
 		$settings['attribute'] = array_get_index($request_data, 'attribute', FALSE);
+		$settings['operator'] = array_get_index($request_data, 'operator', '=');
 
 		$value = array_get_index($request_data, 'value', FALSE);
 		$settings['text_value'] = $value;
