@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.581 2007/01/11 04:02:07 tbarrett Exp $
+* $Id: asset.inc,v 1.582 2007/01/22 01:14:49 skim Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.581 $
+* @version $Revision: 1.582 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1983,6 +1983,23 @@ class Asset extends MySource_Object
 			}
 		}//end if data
 
+
+		  ////////////////////
+		 /// CONTENT TAGS ///
+		////////////////////
+
+		if (in_array('content_tags', $components) || in_array('all', $components)) {
+
+			$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
+
+			// don't clone content tags if there's no tag manager yet
+			if (!is_null($tag_manager)) {
+				$current_tag_links = $tag_manager->getTagLinks($this->id);
+				foreach ($current_tag_links as $link) {
+					$tag_manager->setTag($clone->id, $link['minorid'], $link['value']);
+				}
+			}
+		}//end if content tags
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
