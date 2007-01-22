@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.41 2007/01/12 00:11:23 tbarrett Exp $
+* $Id: edit.js,v 1.42 2007/01/22 00:17:55 tbarrett Exp $
 *
 */
 
@@ -525,3 +525,51 @@ function showPrintPopup()
 	var printWindow = window.open(urlBase + urlSuffix, 'printWindow', args);
 	printWindow.print();
 }
+
+function initEnableFieldLists()
+{
+	var uls = document.getElementsByTagName('UL');
+	for (var i=0; i < uls.length; i++) {
+		if (uls[i].className.match(/(^| )enable-field-list($| )/)) {
+			var lis = uls[i].getElementsByTagName('INPUT');
+			for (var j=0; j < lis.length; j++) {
+				if (lis[j].type == 'radio') {
+					lis[j].onclick = updateEnableFieldList;
+					if (lis[j].checked) lis[j].click();
+				}
+			}
+		}
+	}
+}
+
+function setInputsEnabled(parent, enabled)
+{
+	var inputs = parent.getElementsByTagName('INPUT');
+	for (var i=0; i < inputs.length; i++) {
+		inputs[i].disabled = !enabled;
+	}
+	var selects = parent.getElementsByTagName('SELECT');
+	for (var i=0; i < selects.length; i++) {
+		selects[i].disabled = !enabled;
+	}
+}
+
+function updateEnableFieldList()
+{
+	var parentLI = this.parentNode;
+	while (parentLI.tagName != 'LI') {
+		parentLI = parentLI.parentNode;
+	}
+	var parentUL = parentLI.parentNode;
+	while (parentUL.tagName != 'UL') {
+		parentUL = parentUL.parentNode;
+	}
+	var lis = parentUL.getElementsByTagName('LI');
+	for (var j=0; j < lis.length; j++) {
+		var div = lis[j].getElementsByTagName('DIV')[0];
+		div.className = (lis[j] == parentLI) ? 'active' : '';
+		setInputsEnabled(div, lis[j] == parentLI);
+	}
+}
+
+
