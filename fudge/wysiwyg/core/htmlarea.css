@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: htmlarea.css,v 1.17 2006/12/06 05:11:07 bcaldwell Exp $
+* $Id: htmlarea.css,v 1.18 2007/01/22 23:41:40 rong Exp $
 *
 */
 
@@ -75,7 +75,7 @@
 
 .htmlarea-menuRow {
 	background:			#5A5A5A;
-	border:				0px
+	border:				0px;
 	padding:			0px 0px;
 	border-collapse:	collapse;
 }

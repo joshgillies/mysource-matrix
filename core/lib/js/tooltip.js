@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tooltip.js,v 1.13 2006/12/11 02:32:24 lwright Exp $
+* $Id: tooltip.js,v 1.14 2007/01/22 23:41:39 rong Exp $
 *
 */
 
@@ -256,8 +256,6 @@ function tt_paint(top, left, text, title, close_button)
 		  hider.style.visibility = "visible";
 		}
 	}
-
-	tool_box.bgColor 			= this.background;
 	tool_box.style.font 		= this.normal_font;
 	tool_box.style.color 		= this.color;
 	tool_box.style.border 		= this.border;
