@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.126 2007/01/17 01:04:22 emcdonald Exp $
+* $Id: html_form.inc,v 1.127 2007/01/22 00:12:46 tbarrett Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.126 $
+* @version $Revision: 1.127 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -338,7 +338,7 @@ function radio_button($name, $value='1', $checked=FALSE, $on_click='', $extras='
 		$extras .= ' class="sq-form-field"';
 	}
 	if (!stristr($extras, 'id=')) {
-		$extras .= ' id="'.htmlspecialchars($name).'"';
+		$extras .= ' id="'.htmlspecialchars($name.'_'.$value).'"';
 	}
 	echo	'<input type="radio" ',
 			'name="', htmlspecialchars($name), '" ',
