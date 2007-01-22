@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_props.php,v 1.11 2006/12/05 05:34:15 emcdonald Exp $
+* $Id: edit_table_props.php,v 1.12 2007/01/22 23:02:57 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,7 +77,7 @@ include(dirname(__FILE__).'/header.php');
 	Table Properties
 </div>
 <script language="JavaScript">
-if (owner.bodycopy_current_edit["can_delete"] == FALSE) { document.getElementById('sq_edit_div_props_delete').innerHTML = '&nbsp;'; }
+if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementById('sq_edit_div_props_delete').innerHTML = '&nbsp;'; }
 </script>
 
 <form name="main_form">
