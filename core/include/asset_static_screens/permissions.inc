@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.30 2007/01/16 01:06:33 rong Exp $
+* $Id: permissions.inc,v 1.31 2007/01/22 05:34:42 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 
@@ -146,9 +146,14 @@ function paintPermissions(&$owner, &$o, &$ei)
 			$direct[$granted][] = $userid;
 		}
 		ksort($direct);
+		
+		if ($admin_access) {
+			$o->openField(translate('current'));
+		} else {
+			$o->openRaw();
+		}
 
 		if (!empty($direct)) {
-			$o->openField('&nbsp;');
 			foreach ($direct as $granted => $userids) {
 			?>
 				<table class="sq-backend-table">
@@ -189,22 +194,46 @@ function paintPermissions(&$owner, &$o, &$ei)
 			}//end foreach inherited
 
 		} else {
-			$o->openRaw();
 			echo translate('no_access_permissions_set', strtolower($title));
-			$o->closeRaw();
 		}//end if
-
+		
 		if ($admin_access) {
-			$o->openField('New ?', 'new_line');
+			$o->closeField();
+		} else {
+			$o->closeRaw();
+		}
+		
+		if ($admin_access) {
+			$o->openField(translate('new'));
+				?>
+				<table cellspacing="0">
+				<?php
 				// if Public Access isn't set
 				if (!in_array($public_userid, array_get_index($direct, 0, Array())) && !in_array($public_userid, array_get_index($direct, 1, Array()))) {
-					combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
-					echo ' '.translate('public_permission').'<br/>';
+					?>
+					<tr>
+						<td colspan="2">
+							<?php 
+							combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
+							echo ' '.translate('public_permission'); 
+							?>
+						</td>
+					</tr>
+					<?php
 				}
-
-				combo_box($prefix.'_permissions['.$perm.'][new][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
-				echo ' '.translate('specific_permission').' ';
-				asset_finder($prefix.'_permissions['.$perm.'][new][userid]', 0, Array('user' => 'D', 'user_group' => 'D'));
+				?>
+					<tr>
+						<td valign="top">
+							<?php 
+							combo_box($prefix.'_permissions['.$perm.'][new][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
+							echo ' '.translate('specific_permission'); 
+							?>
+							&nbsp;
+						</td>
+						<td><?php multiple_asset_finder($prefix.'_permissions['.$perm.'][new][userid]', Array(), Array('user' => 'D', 'user_group' => 'D')); ?></td>
+					</tr>
+				</table>
+				<?php
 			$o->closeField();
 		}//end if
 
@@ -290,16 +319,21 @@ function processPermissions(&$owner, &$o, &$ei)
 										);
 		}
 
-		// grant access to a user
-		if (!empty($post_data['new']['userid']['assetid'])) {
-			if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
-				trigger_localised_error('SYS0269', E_USER_NOTICE, $post_data['new']['userid']['assetid']);
-			} else {
-					$permission_vars[$perm][] = Array(
-													'granted'			=> (int)$post_data['new']['granted'],
-													'userid'			=> $post_data['new']['userid']['assetid'],
-													'previous_access'	=> NULL,
-												);
+		// grant access to users
+		if (!empty($post_data['new'])) {
+			foreach ($post_data['new']['userid'] as $entry) {
+				if (!empty($entry['assetid'])) {
+					if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
+						trigger_localised_error('SYS0269', E_USER_NOTICE);
+						break;
+					} else {
+						$permission_vars[$perm][] = Array(
+														'granted'			=> (int)$post_data['new']['granted'],
+														'userid'			=> $entry['assetid'],
+														'previous_access'	=> NULL,
+													);
+					}
+				}
 			}
 		}
 
