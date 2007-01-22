@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.12 2006/12/06 00:02:02 bcaldwell Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.13 2007/01/22 00:19:08 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,8 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.12 $
+* @author   Tom Barrett <tbarrett@squiz.net>
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,8 +74,32 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 
 		$fs =& new Cron_Job_Future_Status();
 		$fs->setAttrValue('status', $settings['status']);
-		$fs->setAttrValue('when', $settings['when']);
 		$fs->setAttrValue('dependants_only', !$settings['cascade']);
+
+		if (in_array($settings['when_type'], Array('attr_interval', 'attr_exact'))) {
+			// need to try to consult an attribute value
+			if (empty($settings['when_attr_name'])) return FALSE; // incomplete config
+			if (!is_a($state['asset'], $settings['when_asset_type'])) {
+				return FALSE; // wrong asset type
+			}
+			$val = @$state['asset']->attr($settings['when_attr_name']);
+			if (empty($val)) return FALSE; // empty date time attr
+			if ($settings['when_type'] == 'attr_interval') {
+				$offset = (int)substr($settings['when'], 4) * 60;
+				$when = iso8601_ts($val) + $offset;
+				if ($when < time()) return FALSE;  // it's in the past
+				$fs->setAttrValue('when', 'OO='.substr(ts_iso8601($when), 0, 16));
+			} else {
+				// just the straight value
+				$ts = iso8601_ts($val);
+				if ($ts < time()) return FALSE; // in the past
+				$fs->setAttrValue('when', 'OO='.substr(ts_iso8601($ts), 0, 16));
+			}
+		} else {
+			// the simple, and backwards-compatible case:
+			$fs->setAttrValue('when', $settings['when']);
+		}
+
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
 			$user_for_status_change = $GLOBALS['SQ_SYSTEM']->user;
@@ -132,36 +157,123 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 	*/
 	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
-		// first, munge the prefix so that we can use the Cron Job interfaces to paint/process
+		// set defaults
+		$settings['status']				= array_get_index($settings, 'status', SQ_STATUS_LIVE_APPROVAL);
+		$settings['cascade']			= array_get_index($settings, 'cascade', FALSE);
+		$settings['when']				= array_get_index($settings, 'when');
+		$settings['when_asset_type']	= array_get_index($settings, 'when_asset_type', '');
+		$settings['when_attr_name']		= array_get_index($settings, 'when_attr_name', '');
+		if (!isset($settings['when_type'])) {
+			if (empty($settings['when'])) {
+				$settings['when_type'] = 'explicit_exact';
+			} else {
+				// some backwards compatibility
+				if (FALSE === strpos($settings['when'], 'OO!')) {
+					$settings['when_type'] = 'explicit_exact';
+				} else {
+					$settings['when_type'] = 'explicit_interval';
+					$weights = Array('i' => 1, 'h' => 60, 'd' => 1440, 'w' => 10080, 'm' => 43200, 'y' => 535600);
+					$settings['when'] = 'OO!i'.($weights[$settings['when'][3]] * substr($settings['when'], 4));
+				}
+			}
+		}
 		$munge_prefix = str_replace('[', '_', $prefix);
 		$munge_prefix = str_replace(']', '', $munge_prefix);
-
-		// set defaults
-		$settings['when']		= array_get_index($settings, 'when');
-		$settings['status']		= array_get_index($settings, 'status', SQ_STATUS_LIVE_APPROVAL);
-		$settings['cascade']	= array_get_index($settings, 'cascade', FALSE);
-		$settings['prefix']		= $munge_prefix;
-
-		$status_list = Trigger_Action_Set_Future_Status::_getStatusList();
-
-		if (!$write_access) {
-			$form_element_extras = 'disabled="disabled"';
-		} else {
-			$form_element_extras = '';
-		}
-
-		// capture anything printed
-		ob_start();
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
-		$fs =& new Cron_Job_Future_Status();
-
-		if (!is_null($settings['status'])) {
-			$fs->setAttrValue('status', $settings['status']);
-		}
-
-		$edit_fns = $fs->getEditFns();
-		$edit_fns->paintInLineBackend($fs, $o, $munge_prefix, $settings['when'], $settings['cascade'], $form_element_extras);
 		hidden_field($prefix.'[prefix]', $munge_prefix);
+		$prefix = $munge_prefix;
+
+		ob_start();
+
+		include_once SQ_ATTRIBUTES_PATH.'/duration/duration.inc';
+		$duration =& new Asset_Attribute_Duration();
+		$duration->setEditParam('biggest_units', $duration->units['days']);
+		$duration->setEditParam('smallest_units', $duration->units['minutes']);
+		$mins = 0;
+		if (0 === strpos($settings['when'], 'OO!i')) {
+			$mins = ((int)(substr($settings['when'], 4)) * 60);
+			$duration->value = abs($mins);
+		}
+
+		include_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
+		$datetime =& new Asset_Attribute_Datetime();
+		$datetime->setEditParam('show', Array('y', 'm', 'd', 'h', 'i'));
+		$datetime->setEditParam('min', date('Y-m-d H:i:s')); // must be in the future
+		if (FALSE === strpos($settings['when'], 'OO!')) {
+			$datetime->value = substr($settings['when'], 3).':00';
+		}
+
+		echo translate('trigger_action_future_status_make_status_change_to').' ';
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
+		$descs = Cron_Job_Future_Status::_getAllStatiiDescs();
+		if ($write_access) {
+			combo_box($prefix.'_status', $descs, FALSE, $settings['status'], NULL);
+		} else {
+			echo '<b>'.$descs[$settings['status']].'</b> ';
+		}
+
+		$formats = Array();
+
+		ob_start();
+			label(translate('trigger_action_future_status_explicit_exact').' ', $prefix.'_when_type_explicit_exact');
+			$datetime->paint($prefix.'_explicit_exact', !$write_access);
+		$formats['explicit_exact'] = ob_get_clean();
+
+		ob_start();
+			$duration->paint($prefix.'_explicit_interval', !$write_access);
+			label(' '.translate('trigger_action_future_status_explicit_interval'), $prefix.'_when_type_explicit_interval');
+		$formats['explicit_interval'] = ob_get_clean();
+
+		ob_start();
+			label(translate('trigger_action_future_status_attr_exact').' ', $prefix.'_when_type_attr_exact');
+			echo Trigger_Action_Set_Future_Status::getAttributeChooser($prefix.'_exact_attr', $write_access, $settings['when_asset_type'], $settings['when_attr_name']);
+		$formats['attr_exact'] = ob_get_clean();
+
+		ob_start();
+			$duration->paint($prefix.'_attr_interval', !$write_access);
+			echo ' ';
+			if ($write_access) {
+				combo_box($prefix.'_attr_interval_operator', Array('-' => translate('before'), '+' => translate('after')), FALSE, ($mins < 0) ? '-' : '+');
+			} else {
+				echo translate(($mins < 0) ? 'before' : 'after');
+			}
+			label(' '.translate('trigger_action_future_status_attr_interval').' ', $prefix.'_when_type_attr_interval');
+			echo Trigger_Action_Set_Future_Status::getAttributeChooser($prefix.'_interval_attr', $write_access, $settings['when_asset_type'], $settings['when_attr_name']);
+		$formats['attr_interval'] = ob_get_clean();
+
+		if ($write_access) {
+			$GLOBALS['SQ_SYSTEM']->backend->out->addOnLoad('initEnableFieldLists();');
+			?>
+			<ul class="radio-list enable-field-list">
+			<?php
+			foreach ($formats as $type => $content) {
+				?>
+				<li>
+					<?php radio_button($prefix.'_when_type', $type, ($settings['when_type'] == $type)); ?>
+					<div>
+					<?php echo $content; ?>
+					</div>
+				</li>
+				<?php
+			}
+			?>
+			</ul>
+			<?php
+		} else {
+			echo preg_replace('/<label([^>]*)>/', '', $formats[$settings['when_type']]);
+		}
+
+		if ($write_access) {
+			check_box($prefix.'_cascade_all', '1', $settings['cascade']);
+			label(translate('trigger_action_future_status_cascade_all'), $prefix.'_cascade_all');
+			?>
+			<p><em class="sq-backend-smallprint">(<?php echo translate('trigger_action_future_status_failure_conditions'); ?>)</em></p>
+			<?php
+		} else {
+			if ($settings['cascade']) {
+				echo ' '.translate('trigger_action_future_status_cascade_all');
+			}
+		}
 
 		return ob_get_clean();
 
@@ -181,29 +293,62 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 	*/
 	function processInterface(&$settings, $request_data)
 	{
-		$munge_prefix = $request_data['prefix'];
-		$set_status = $_POST[$munge_prefix.'_status'];
-		$cascade_status = isset($_POST[$munge_prefix.'_change_status_all_children']) ? TRUE : FALSE;
+		$prefix = $request_data['prefix'];
 
-		if (!$set_status) return 'Status not specified';
+		if (empty($_POST[$prefix.'_when_type'])) return TRUE;
 
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
-		$fs =& new Cron_Job_Future_Status();
-		$edit_fns = $fs->getEditFns();
-
-		$settings['when'] = $edit_fns->_processWhenBox($fs, $o, $munge_prefix);
-		$settings['prefix'] = $munge_prefix;
-
+		$settings['when_type'] = $_POST[$prefix.'_when_type'];
+		$settings['cascade'] = !empty($_POST[$prefix.'_cascade_all']);
 		$status_list = Trigger_Action_Set_Future_Status::_getStatusList();
-
-		// check if the status is valid
-		if (isset($status_list[$set_status])) {
-			$settings['status'] = $set_status;
-			$settings['cascade'] = $cascade_status;
-			return FALSE;
-		} else {
-			return 'Invalid Status specified';
+		if (!isset($status_list[$_POST[$prefix.'_status']])) {
+			return 'Invalid status';
 		}
+		$settings['status'] = $_POST[$prefix.'_status'];
+
+		include_once SQ_ATTRIBUTES_PATH.'/duration/duration.inc';
+		$duration =& new Asset_Attribute_Duration();
+		$duration->setEditParam('biggest_units', $duration->units['days']);
+		$duration->setEditParam('smallest_units', $duration->units['minutes']);
+
+		include_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
+		$datetime =& new Asset_Attribute_Datetime();
+		$datetime->setEditParam('show', Array('y', 'm', 'd', 'h', 'i'));
+		$datetime->setEditParam('min', date('Y-m-d H:i:s')); // must be in the future
+
+		switch ($settings['when_type']) {
+			case 'explicit_exact':
+				$settings['when_asset_type'] = '';
+				$settings['when_attr_name'] = '';
+				$datetime->process($prefix.'_explicit_exact');
+				$settings['when'] = 'OO='.substr($datetime->value, 0, 16);
+			break;
+
+			case 'explicit_interval':
+				$settings['when_asset_type'] = '';
+				$settings['when_attr_name'] = '';
+				$duration->process($prefix.'_explicit_interval');
+				$settings['when'] = 'OO!i'.((int)$duration->value/60);
+			break;
+
+			case 'attr_exact':
+				$settings['when_asset_type'] = $_POST[$prefix.'_exact_attr']['asset_type'];
+				$settings['when_attr_name'] = array_get_index($_POST[$prefix.'_exact_attr'], 'attribute');
+				$settings['when'] = '';
+			break;
+
+			case 'attr_interval':
+				$settings['when_asset_type'] = $_POST[$prefix.'_interval_attr']['asset_type'];
+				$settings['when_attr_name'] = array_get_index($_POST[$prefix.'_interval_attr'], 'attribute');
+				$duration->process($prefix.'_attr_interval');
+				$mins = ((int)$duration->value/60);
+				if ($_POST[$prefix.'_attr_interval_operator'] == '-') {
+					$mins = $mins * -1;
+				}
+				$settings['when'] = 'OO!i'.$mins;
+			break;
+		}//end switch
+
+		return FALSE;
 
 	}//end processInterface()
 
@@ -225,6 +370,55 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		return $status;
 
 	}//end _getStatusList()
+
+
+	/**
+	* Get the interface for choosing an asset attribute (asset type and then attribute name)
+	*
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	determines whether the interface is editable
+	* @param string		$type			the current value of the type-code selector
+	* @param string		$attr			the current value of the attr name selector
+	*
+	* @return string
+	* @access public
+	*/
+	function getAttributeChooser($prefix, $write_access, $type, $attr)
+	{
+		ob_start();
+			if ($write_access) {
+				asset_type_chooser($prefix.'[asset_type]', FALSE, Array($type), TRUE);
+			} else {
+				echo '<b>'.$type.'</b> ';
+			}
+			$basic_part_1 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			if ($type == '') {
+				echo '<em>['.translate('asset_type_not_selected').']</em>';
+			} else {
+				$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($type, Array('name', 'type'));
+				if (empty($attrs)) {
+					echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
+				} else {
+					if ($write_access) {
+						$attr_options = Array('' => '');
+						foreach ($attrs as $name => $type) {
+							if ($type == 'datetime') $attr_options[$name] = $name;
+						}
+						combo_box($prefix.'[attribute]', $attr_options, FALSE, $attr);
+					} else {
+						echo '<b>'.$attr.'</b>';
+					}
+				}
+			}
+			$basic_part_2 = ob_get_contents();
+		ob_end_clean();
+
+		return $basic_part_1.$basic_part_2;
+
+	}//end getAttributeChooser()
 
 
 }//end class
