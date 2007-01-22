@@ -11,7 +11,7 @@
 * +--------------------------------------------------------------------+
 *
 *
-* $Id: key_reminder.inc,v 1.1.2.3 2007/01/08 23:01:20 lwright Exp $
+* $Id: key_reminder.inc,v 1.1.2.4 2007/01/22 02:37:47 skim Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * Purpose
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1.2.3 $
+* @version $Revision: 1.1.2.4 $
 * @package MySource_Matrix
 */
 ?>
@@ -35,7 +35,7 @@
 	<body>
 		<form method="get" action="<?php echo $return_url ?>">
 		<div class="key-reminder">
-			<h1><?php echo sq_get_icon(sq_web_path('lib').'/web/images/icons/header/system_config.png', 20, 20, 'Key icon', '', 'align="absmiddle"') ?> Invalid Warranty Key</h2>
+			<h1><?php echo sq_get_icon(sq_web_path('lib').'/web/images/icons/header/system_config.png', 20, 20, 'Key icon', '', 'align="absmiddle"') ?> Invalid Warranty Key</h1>
 			<div class="key-reminder-body">
 			<p class="key-reminder-warning">YOUR WARRANTY KEY IS INVALID CONSEQUENTLY YOUR SYSTEM IS CURRENTLY NOT WARRANTED.</p>
 
