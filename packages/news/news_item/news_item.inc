@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item.inc,v 1.16 2006/12/06 22:14:19 emcdonald Exp $
+* $Id: news_item.inc,v 1.17 2007/01/22 01:18:23 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -235,57 +235,76 @@ class News_Item extends Page
 
 
 	/**
-	* Return the keywords with their replacements
+	* Return the keywords for this asset type.
 	*
+	* This function is called in asset-listing situations like the asset listing, search page etc
 	* The return value is in the form:
-	* <pre>
+	* <PRE>
 	* Array(
-	*     'name' => Array (
-	*          'value' => 'page',
-	*          'description' => 'the asset name',
-	*     ),
-	* )
-	* </pre>
+	*   'name' => 'description' => 'the asset name',
+	* );
+	* </PRE>
 	*
-	* @param boolean $descriptions if TRUE descriptions will be included in the array
-	*
+	* @return array
 	* @access public
-	* @return Array(mixed)
 	*/
-	function getAssetKeywords($descriptions=false)
+	function getAvailableKeywords()
 	{
-		$keywords = parent::getAssetKeywords($descriptions);
+		$res = parent::getAvailableKeywords();
+		$res['asset_name_linked_to_link_url'] = 'Asset name linked to link URL';
+		$res['link_url'] = 'The Link URL for this item';
+		return $res;
 
-		$keywords['asset_name_linked_to_link_url'] = Array();
+	}//end getAvailableKeywords()
 
-		if ($descriptions) {
-			$keywords['asset_name_linked_to_link_url']['value'] = 'News Item Linked';
-			$keywords['asset_name_linked_to_link_url']['description'] = 'Name of the News Item linked to the URL/Asset.';
+
+	/**
+	* Get the replacement for the asset_name_linked_to_link_url keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getAssetNameLinkedToLinkURLKeywordReplacement()
+	{
+		$url = $this->getLinkUrlKeywordReplacement();
+		if (empty($url)) {
+			// no URL or Asset, so link to the asset itself
+			return '<a href="'.$this->getURL().'">'.$this->attr('name').'</a>';
 		} else {
-			// get the asset name linked to the Link URL
-			$link_asset = &$this->getLinkAsset();
-			$url = '';
-			if (is_null($link_asset)) {
-				$link_url = $this->attr('link_url');
-				if (!empty($link_url)) {
-					$url = trim($this->attr('link_url')).'?'.trim($this->attr('url_suffix'));
-				}
-			} else {
-				$url = $link_asset->getURL();
-				if (empty($url)) {
-					$url = current_url().'?a='.$link_asset->id;
+			return '<a href="'.$url.'">'.$this->attr('name').'</a>';
+		}
+
+	}//end getAssetNameLinkedToLinkURLKeywordReplacement()
+
+
+	/**
+	* Get the replacement for the link_url keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getLinkUrlKeywordReplacement()
+	{
+		$url = '';
+		$link_asset = &$this->getLinkAsset();
+		if (is_null($link_asset)) {
+			$link_url = trim($this->attr('link_url'));
+			if (!empty($link_url)) {
+				$url = $link_url;
+				$suffix = $this->attr('url_suffix');
+				if (!empty($suffix)) {
+					$url .= '?'.trim($suffix);
 				}
 			}
+		} else {
+			$url = $link_asset->getURL();
 			if (empty($url)) {
-				// no URL or Asset, so link to the asset itself
-				$keywords['asset_name_linked_to_link_url']['value'] = '<a href="'.$this->getURL().'">'.$this->attr('name').'</a>';
-			} else {
-				$keywords['asset_name_linked_to_link_url']['value'] = '<a href="'.$url.'">'.$this->attr('name').'</a>';
+				$url = current_url().'?a='.$link_asset->id;
 			}
 		}
-		return $keywords;
+		return $url;
 
-	}//end getAssetKeywords()
+	}//end getLinkUrlKeywordReplacement()
 
 
 	/**
@@ -306,5 +325,4 @@ class News_Item extends Page
 
 
 }//end class
-
 ?>
