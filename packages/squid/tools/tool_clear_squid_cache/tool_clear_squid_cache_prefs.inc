@@ -10,11 +10,19 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_squid_cache_prefs.inc,v 1.2 2006/12/07 02:54:14 bcaldwell Exp $
+* $Id: tool_clear_squid_cache_prefs.inc,v 1.3 2007/01/22 03:11:59 rong Exp $
 *
 */
 
 require_once SQ_LIB_PATH.'/config/prefs.inc';
+
+if (!defined('SQ_SQUID_CACHE_SLASH_ALLOW')) {
+	define ('SQ_SQUID_CACHE_SLASH_ALLOW', 1);
+}
+
+if (!defined('SQ_SQUID_CACHE_SLASH_DENY')) {
+	define ('SQ_SQUID_CACHE_SLASH_DENY', 0);
+}
 
 /**
 * Tool_Clear_Squid_Cache_Prefs
@@ -24,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    List of host names to be used when purging the Squid Cache in the Global Prefs
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -54,6 +62,12 @@ class Tool_Clear_Squid_Cache_Prefs extends Prefs
 														'name'			=> 'Additional Options',
 														'description'	=> 'Additonal options to be included in the purge command',
 														'default'		=> '',
+														'protected'		=> FALSE,
+													   ),
+						'SQ_SQUID_CACHE_SLASH'		=> Array(
+														'name'			=> 'Purge Trailing Slash',
+														'description'	=> 'URLs with trailing slash are also processed by the purge command',
+														'default'		=> FALSE,
 														'protected'		=> FALSE,
 													   ),
 					 );
@@ -138,6 +152,25 @@ class Tool_Clear_Squid_Cache_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}
 
+		if (is_null($pref) || $pref == 'SQ_SQUID_CACHE_SLASH') {
+			// Whether URLs with trailing slash should also be included in the PURGE command
+			if (is_null($pref)) {
+				$o->openField(translate('squid_tool_slash_field'));
+			}
+			$val = $this->pref_vars['SQ_SQUID_CACHE_SLASH']['default'];
+			if ($have_lock && $is_admin) {
+				$selection = Array(
+								SQ_SQUID_CACHE_SLASH_ALLOW => translate('true'),
+								SQ_SQUID_CACHE_SLASH_DENY  => translate('false'),
+							);
+				combo_box('prefs[SQ_SQUID_CACHE_SLASH]', $selection, FALSE, $val);
+			} else {
+				?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $val ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
+			}
+			$o->note(translate('squid_tool_slash_note'));
+			if (is_null($pref)) $o->closeField();
+		}
+
 		return TRUE;
 
 	}//end paintBackend()
@@ -180,6 +213,12 @@ class Tool_Clear_Squid_Cache_Prefs extends Prefs
 		if (is_null($pref) || $pref == 'SQ_SQUID_CACHE_OPTION') {
 			if (isset($_POST['prefs']['SQ_SQUID_CACHE_OPTION'])) {
 				$this->pref_vars['SQ_SQUID_CACHE_OPTION']['default'] = $_POST['prefs']['SQ_SQUID_CACHE_OPTION'];
+			}
+		}
+
+		if (is_null($pref) || $pref == 'SQ_SQUID_CACHE_SLASH') {
+			if (isset($_POST['prefs']['SQ_SQUID_CACHE_SLASH'])) {
+				$this->pref_vars['SQ_SQUID_CACHE_SLASH']['default'] = $_POST['prefs']['SQ_SQUID_CACHE_SLASH'];
 			}
 		}
 

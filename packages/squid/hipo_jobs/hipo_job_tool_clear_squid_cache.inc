@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.3 2006/12/07 02:54:14 bcaldwell Exp $
+* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.4 2007/01/22 03:11:59 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -141,6 +141,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 			$this->_running_vars['port'] = '-p '.$this->_running_vars['port'];
 		}
 		$this->_running_vars['option'] = $GLOBALS['SQ_SYSTEM']->getUserPrefs('tool_clear_squid_cache', 'SQ_SQUID_CACHE_OPTION');
+		$this->_running_vars['slash'] = $GLOBALS['SQ_SYSTEM']->getUserPrefs('tool_clear_squid_cache', 'SQ_SQUID_CACHE_SLASH');
 
 		// if cascade option is enabled, get the children of the selected asset
 		$assetids = Array($this->_running_vars['assetid']);
@@ -179,7 +180,11 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 			$options = $this->_running_vars['option'];
 			$cascade = $this->_running_vars['cascade'];
 			$index = array_shift(array_keys($this->_running_vars['todo_urls']));
-			$url = $this->_running_vars['todo_urls'][$index]['url'];
+			$urls = Array($this->_running_vars['todo_urls'][$index]['url']);
+			if ($this->_running_vars['slash']) {
+				// include the same url, with a trailing slash
+				$urls[] = $this->_running_vars['todo_urls'][$index]['url'].'/';
+			}
 			$protocol = 'http';
 			if ($this->_running_vars['todo_urls'][$index]['https']) {
 				$protocol = 'https';
@@ -190,46 +195,49 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 			foreach ($hostnames as $hostname) {
 
 				$hostname = trim($hostname);
-				$output = Array();
-				$system_log_command = "$path -h $hostname $port $options -m PURGE $protocol://$url";
-				exec($system_log_command, $output, $status);
+				foreach ($urls as $url) {
+					$output = Array();
+					$system_log_command = "$path -h $hostname $port $options -m PURGE $protocol://$url";
+					exec($system_log_command, $output, $status);
 
-				// re-request the page to recache it
-				if ($this->_running_vars['repopulate']) {
-					$this->requestPage("$protocol://$url", $hostname, $port);
-				}
+					// error_log("\n\t"."$path -h $hostname $port $options -m PURGE $protocol://$url \n". serialize($output)."\n");
+					if (empty($output)) {
+						trigger_localised_error('SQUID0002', E_USER_WARNING);
+					} else {
+						// add a system log message if successful
+						$msg = $ms->newMessage();
+						$msg->type = 'purge.squid.cache';
+						$msg->from = 0; // a system message
 
-				// error_log("\n\t"."$path -h $hostname $port $options -m PURGE $protocol://$url \n". serialize($output)."\n");
-				if (empty($output)) {
-					trigger_localised_error('SQUID0002', E_USER_WARNING);
-				} else {
-					// add a system log message if successful
-					$msg = $ms->newMessage();
-					$msg->type = 'purge.squid.cache';
-					$msg->from = 0; // a system message
+						$command_str = $system_log_command;
+						$repopulate = ($this->_running_vars['repopulate']) ? translate('yes') : translate('no');
+						$command_str .= "\nRepopulate Cache: ".$repopulate;
+						$cascade = ($this->_running_vars['cascade']) ? translate('yes') : translate('no');
+						$command_str .= ', Cascade: '.$cascade;
+						$system_log_output = "Output : \n";
+						foreach ($output as $key=>$line) {
+							$system_log_output .= "$line\n";
+						}
+						$msg_reps = Array(
+										'command'	=> $command_str,
+										'result'	=> $system_log_output,
+									);
 
-					$command_str = $system_log_command;
-					$repopulate = ($this->_running_vars['repopulate']) ? translate('yes') : translate('no');
-					$command_str .= "\nRepopulate Cache: ".$repopulate;
-					$cascade = ($this->_running_vars['cascade']) ? translate('yes') : translate('no');
-					$command_str .= ', Cascade: '.$cascade;
-					$system_log_output = "Output : \n";
-					foreach ($output as $key=>$line) {
-						$system_log_output .= "$line\n";
+						$msg->replacements = $msg_reps;
+						$ms->send(Array($msg));
 					}
-					$msg_reps = Array(
-									'command'	=> $command_str,
-									'result'	=> $system_log_output,
-								);
-
-					$msg->replacements = $msg_reps;
-					$ms->send(Array($msg));
 				}
 
 			}//end foreach
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ms);
 
+			// re-request the page to recache it
+			if ($this->_running_vars['repopulate']) {
+				foreach ($urls as $url) {
+					$this->requestPage("$protocol://$url", $hostname, $port);
+				}
+			}
 
 			// add this url to the done array
 			$step_data['message'] = translate('squid_clearing_squid_cache', $url);
