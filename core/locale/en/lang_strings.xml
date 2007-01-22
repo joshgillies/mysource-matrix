@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.218 2007/01/21 23:28:26 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.219 2007/01/22 05:30:17 tbarrett Exp $
 *
 */
 
@@ -1238,6 +1238,8 @@
 	<string source="allow">Allow</string>
 	<string source="escape">Escape</string>
 	<string source="strip">Strip</string>
+	<string source="before">before</string>
+	<string source="after">after</string>
 
 	<!-- priority level strings -->
 
@@ -2146,11 +2148,21 @@ Are you sure you want to proceed?</string>
 	<string source="date_format_default">yyyy-mm-dd hh:mm:ss</string>
 	<string source="date_format_short">yyyy-mm-dd</string>
 	<string source="date_format_readable">dd m yyyy h:mm[am pm]</string>
-	<string source="date_format_readabledate">date only - dd m yyyy</string>
+	<string source="date_format_readabledate">date only - dd M yyyy</string>
 	<string source="date_format_readabletime">time only - h:mm[am pm]</string>
 	<string source="date_format_iso8601">ISO8601 format</string>
 	<string source="date_format_rfc2822">RFC2822 format</string>
 	<string source="date_format_rfc2822-dateonly">RFC2822 format, date only</string>
 	<string source="date_format_ical">iCalendar format</string>
+
+	<!-- Future Status Trigger Actions -->
+	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to:</string>
+	<string source="trigger_action_future_status_cascade_all">and cascade the status change to all children of the asset</string>
+	<string source="trigger_action_future_status_failure_conditions">NB. If a selected attribute is empty or not present, or the calculated value is in the past, no future status will be set</string>
+	<string source="trigger_action_future_status_make_status_change_to">Add a cron job to change the asset's status to</string>
+	<string source="trigger_action_future_status_explicit_exact">at exactly</string>
+	<string source="trigger_action_future_status_explicit_interval">after the trigger was fired</string>
+	<string source="trigger_action_future_status_attr_exact">at exactly the date and time stored in the attribute</string>
+	<string source="trigger_action_future_status_attr_interval">the date and time stored in the attribute</string>
 
 </strings>
