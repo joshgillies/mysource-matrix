@@ -10,15 +10,19 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: keywords.php,v 1.4 2006/12/06 01:07:35 emcdonald Exp $
+* $Id: keywords.php,v 1.5 2007/01/23 05:35:59 arailean Exp $
 *
 */
 
 	require_once dirname(__FILE__).'/../../../../../core/include/init.inc';
 	require_once dirname(__FILE__).'/../../../../../core/lib/html_form/html_form.inc';
-	if (!isset($_GET['assetid'])) return FALSE;
+
+	$assetid = array_get_index($_GET, 'assetid');
+	if (is_null($assetid)) return FALSE;
+	assert_valid_assetid($assetid);
+
 	$all = array_get_index($_REQUEST, 'all', FALSE);
-	assert_valid_assetid($_GET['assetid']);
+
 ?>
 
 <html>
@@ -136,7 +140,7 @@
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($role);
 				}
 			} else {
-				$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($_GET['assetid']);
+				$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid);
 				$roles = array_keys($roles);
 			}
 
@@ -168,10 +172,35 @@
 							<?php
 						}
 						?>
+						</table>
 					</fieldset>
 				</p>
 				<?php
 			}//end if
-		?>
+
+?>
+<p>
+<fieldset>
+<legend><b>All Keywords</b> (dynamically populated)</legend>
+<table border="0" width="100%">
+<?php
+$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+$keywords = $asset->getAvailableKeywords();
+ksort($keywords);
+
+foreach ($keywords as $keyword => $description) {
+	?>
+	<tr>
+		<td valign="top" width="200"><b>%<?php echo $keyword; ?>%</b></td>
+		<td valign="top"><?php echo $description; ?></td>
+	</tr>
+	<?php
+}
+
+?>
+</table>
+</fieldset>
+</p>
+
 	</body>
 </html>
