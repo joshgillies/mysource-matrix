@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.129 2007/01/12 00:49:34 bcaldwell Exp $
+* $Id: metadata_manager.inc,v 1.130 2007/01/23 05:29:00 arailean Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.129 $
+* @version $Revision: 1.130 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -773,7 +773,10 @@ class Metadata_Manager extends MySource_Object
 				echo '$am =& $GLOBALS[\'SQ_SYSTEM\']->am;'."\n";
 				echo '$metadata_asset = &$am->getAsset('.$asset->id.', \'\', TRUE);'."\n\n";
 				echo '/* 1 */', "\n";
-				$replacements = $this->generateKeywordReplacements($asset, $keywords);
+				echo '$metadata_replacements = Array();'."\n";
+				foreach ($keywords as $keyword) {
+					echo '$metadata_replacements["'.$keyword.'"] = $metadata_asset->getKeywordReplacement("'.$keyword.'");'."\n";
+				}
 				echo '/* 2 */', "\n";
 				replace_keywords($tag_values, $replacements);
 				echo '/* 3 */', "\n";
@@ -844,14 +847,13 @@ class Metadata_Manager extends MySource_Object
 			} while ($fields_modified);
 
 			// print the values, to be referenced by the meta tags later
-			echo '$metadata_values = Array(';
+			echo '$metadata_values = Array('."\n";
 			foreach ($tag_values as $n => $v) {
 				$n = $this->escapeMetadata($n, TRUE);
-				$v = stripslashes($v);
 				$v = $this->escapeMetadata($v, TRUE);
 				// unescape metadata_replacements
 				// leave metadata_values for later - unescape them at runtime
-				$v = preg_replace('|(\$metadata_replacements\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
+				$v = preg_replace('/%([^%\' ]+)%/', '\'.$metadata_replacements["\1"].\'', $v);
 				echo "'$n' => '$v',\n";
 			}
 			echo ");\n\n";
