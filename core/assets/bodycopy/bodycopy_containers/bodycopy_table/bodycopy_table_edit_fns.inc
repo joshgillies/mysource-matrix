@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.26 2006/04/20 06:24:12 tbarrett Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.26.2.1 2007/01/23 04:06:52 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,9 +77,11 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 								case <?php echo $i?> :
 									switch (cellid) {
 										<?php
-										for ($x = 0; $x < count($table_rows[$i]); $x++) {
-											if (isset($table_rows[$i]['cells'][$x])) {
-												$table_rows[$i]['cells'][$x]->printBackendJsData($x);
+										if (isset($table_rows[$i]['cells'])) {
+											for ($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
+												if (isset($table_rows[$i]['cells'][$x])) {
+													$table_rows[$i]['cells'][$x]->printBackendJsData($x);
+												}
 											}
 										}
 										?>
