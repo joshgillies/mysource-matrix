@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.317 2007/01/12 04:00:24 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.318 2007/01/23 03:15:23 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317 $
+* @version $Revision: 1.318 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -2046,7 +2046,7 @@ class Asset_Edit_Interface extends MySource_Object
 		if (empty($groups)) return Array(); // all screens allowed
 
 		for (reset($groups); NULL !== ($k = key($groups)); next($groups)) {
-			$groups[$k] = $db->quote($groups[$k]);
+			$groups[$k] = $db->quoteSmart((string) $groups[$k]);
 		}
 
 		$sql = 'SELECT screen, section
@@ -2054,11 +2054,11 @@ class Asset_Edit_Interface extends MySource_Object
 		$where = 'userid IN ('.implode(',', $groups).')';
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		$where .= ' AND (type_code = '.$db->quote('0').'
+		$where .= ' AND (type_code = '.$db->quoteSmart('0').'
 					OR type_code IN (
 									SELECT inhd_type_code
 									FROM sq_ast_typ_inhd
-									WHERE type_code = '.$db->quote($owner->type()).'
+									WHERE type_code = '.$db->quoteSmart($owner->type()).'
 									))';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
