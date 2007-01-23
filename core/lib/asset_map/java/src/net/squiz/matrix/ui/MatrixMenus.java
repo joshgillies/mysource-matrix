@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixMenus.java,v 1.10 2006/12/05 05:26:37 bcaldwell Exp $
+* $Id: MatrixMenus.java,v 1.10.2.1 2007/01/23 01:18:03 skim Exp $
 *
 */
 
@@ -142,9 +142,10 @@ public class MatrixMenus implements MatrixConstants {
 
 				String assetPath = MatrixToolkit.rawUrlEncode(node.getAssetPath(), true);
 				String linkPath  = MatrixToolkit.rawUrlEncode(node.getLinkPath(), true);
+				String assetid   = MatrixToolkit.rawUrlEncode(asset.getId(), true);
 
 				String screenUrl = getScreenUrl(
-					asset.getId(),
+					assetid,
 					assetPath,
 					linkPath,
 					command
