@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixMenus.java,v 1.9 2005/12/14 23:07:24 sdanis Exp $
+* $Id: MatrixMenus.java,v 1.9.4.1 2007/01/23 01:40:28 skim Exp $
 *
 */
 
@@ -150,9 +150,10 @@ public class MatrixMenus implements MatrixConstants {
 
 				String assetPath = MatrixToolkit.rawUrlEncode(node.getAssetPath(), true);
 				String linkPath  = MatrixToolkit.rawUrlEncode(node.getLinkPath(), true);
+				String assetid   = MatrixToolkit.rawUrlEncode(asset.getId(), true);
 
 				String screenUrl = getScreenUrl(
-					asset.getId(),
+					assetid,
 					assetPath,
 					linkPath,
 					command
