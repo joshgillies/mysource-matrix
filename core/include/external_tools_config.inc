@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.18 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: external_tools_config.inc,v 1.19 2007/01/24 04:38:29 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -40,12 +40,14 @@ class External_Tools_Config extends Config
 	*/
 	var $config_vars = Array(
 						'SQ_TOOL_HTML_TIDY_PATH'		=> Array('editable' => 1, 'default' => '/usr/bin/tidy'),
-						'SQ_TOOL_HTML_TIDY_ENABLED'		=> Array('editable' => 1, 'default' => false),
+						'SQ_TOOL_HTML_TIDY_ENABLED'		=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_TOOL_PDFTOHTML_PATH'		=> Array('editable' => 1, 'default' => '/usr/bin/pdftohtml'),
-						'SQ_TOOL_PDFTOHTML_ENABLED'		=> Array('editable' => 1, 'default' => false),
+						'SQ_TOOL_PDFTOHTML_ENABLED'		=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_TOOL_ANTIWORD_PATH'			=> Array('editable' => 1, 'default' => '/usr/bin/antiword'),
 						'SQ_TOOL_ANTIWORD_MAPPING_PATH'	=> Array('editable' => 1, 'default' => '/usr/share/antiword'),
-						'SQ_TOOL_ANTIWORD_ENABLED'		=> Array('editable' => 1, 'default' => false),
+						'SQ_TOOL_ANTIWORD_ENABLED'		=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_JPEG_TOOLKIT_PATH'		=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_JPEG_TOOLKIT_ENABLED'	=> Array('editable' => 1, 'default' => FALSE),
 					   );
 
 
@@ -64,15 +66,17 @@ class External_Tools_Config extends Config
 	/**
 	* Rewrites the conf file with current variables
 	*
-	* @param Array		$vars				the array with any new values (that are allowed to be edited)
+	* return value indicates whether the file was written
+	*
+	* @param array		$vars				the array with any new values (that are allowed to be edited)
 	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
-	* @param boolean 	$send_message		whether to send a message using the messaging system
+	* @param boolean	$send_message		whether to send a message using the messaging system
 	*
-	* @return boolean	indicates whether the file was written
+	* @return boolean
 	* @access public
 	*/
-	function save($vars, $backup_existing=false, $send_message=true)
+	function save($vars, $backup_existing=FALSE, $send_message=TRUE)
 	{
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
 			$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
@@ -81,7 +85,7 @@ class External_Tools_Config extends Config
 			// if we dont have access, go away
 			if (!$is_admin) {
 				trigger_localised_error('SYS0267', E_USER_WARNING, $this->name);
-				return false;
+				return FALSE;
 			}
 		}
 
@@ -113,9 +117,10 @@ class External_Tools_Config extends Config
 	*/
 	function writeAccess()
 	{
-		if (!parent::writeAccess()) return false;
+		if (!parent::writeAccess()) return FALSE;
+
 		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
-			return true;
+			return TRUE;
 		}
 
 		// need to be root or a sys admin
@@ -130,7 +135,7 @@ class External_Tools_Config extends Config
 	* If you (as a sub-class) put your config vars so that when they are submitted appear in
 	* $_POST[get_class($this)] then you probably won't need to override processBackend()
 	*
-	* @param object Backend_Outputter	&$o		reference to the backend outputter
+	* @param object	&$o	reference to the backend outputter
 	*
 	* @return void
 	* @access public
@@ -150,7 +155,7 @@ class External_Tools_Config extends Config
 
 			$o->openField(translate('enable_html_tidy'), '', '');
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_TOOL_HTML_TIDY_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_TOOL_HTML_TIDY_ENABLED);
+				combo_box($class.'[SQ_TOOL_HTML_TIDY_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_HTML_TIDY_ENABLED);
 			} else {
 				echo (SQ_TOOL_HTML_TIDY_ENABLED) ? translate('yes') : translate('no');
 			}
@@ -164,16 +169,23 @@ class External_Tools_Config extends Config
 
 			$o->openField(translate('enable_pdftohtml'), '', '');
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_TOOL_PDFTOHTML_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_TOOL_PDFTOHTML_ENABLED);
+				combo_box($class.'[SQ_TOOL_PDFTOHTML_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_PDFTOHTML_ENABLED);
 			} else {
 				echo (SQ_TOOL_PDFTOHTML_ENABLED) ? translate('yes') : translate('no');
 			}
 
 			$o->openField(translate('enable_antiword'), '', '');
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_TOOL_ANTIWORD_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_TOOL_ANTIWORD_ENABLED);
+				combo_box($class.'[SQ_TOOL_ANTIWORD_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_ANTIWORD_ENABLED);
 			} else {
 				echo (SQ_TOOL_ANTIWORD_ENABLED) ? translate('yes') : translate('no');
+			}
+
+			$o->openField('Enable Photoshop Metadata Extraction');
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_JPEG_TOOLKIT_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_JPEG_TOOLKIT_ENABLED);
+			} else {
+				echo (SQ_TOOL_JPEG_TOOLKIT_ENABLED) ? translate('yes') : translate('no');
 			}
 
 		$o->closeSection();
@@ -234,10 +246,25 @@ class External_Tools_Config extends Config
 				?><br /><span class="sq-backend-warning">The path to Antiword Mappings is not valid</span><?php
 			}
 
+		$o->closeSection();
 
+
+		$o->openSection('Photoshop Image Metadata Extraction');
+
+			$o->openField('Path to PHP JPEG Metadata Toolkit');
+			if ($write_access) {
+				text_box($class.'[SQ_TOOL_JPEG_TOOLKIT_PATH]', SQ_TOOL_JPEG_TOOLKIT_PATH, 60);
+			} else {
+				echo SQ_TOOL_JPEG_TOOLKIT_PATH;
+			}
+
+			if (!is_dir(SQ_TOOL_JPEG_TOOLKIT_PATH)) {
+				?><br /><span class="sq-backend-warning">Supplied path is not valid</span><?php
+			}
 
 		$o->closeSection();
-		if ($write_access) $o->commitButton('', true);
+
+		if ($write_access) $o->commitButton('', TRUE);
 
 	}//end paintBackend()
 
