@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.198 2007/01/08 04:00:57 emcdonald Exp $
+* $Id: search_page.inc,v 1.199 2007/01/24 23:22:57 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.198 $
+* @version $Revision: 1.199 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1411,7 +1411,7 @@ class Search_Page extends Listing_Engine
 					$replacement  = '<input type="submit" name="'.$field_name.'" onclick="listing_form = document.getElementById(\''.$this->getPrefix().'\');
 						listing_form.current_result_page.value=\'0\';
 						if (typeof listing_form.mode != \'undefined\') listing_form.mode.value = \'results\';
-						return TRUE;
+						return true;
 					" value="'.$this->attr('submit_button_text').'" />';
 				}
 			break;
