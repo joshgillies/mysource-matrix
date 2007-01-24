@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: oci8_functions.xml,v 1.15 2006/12/06 05:17:23 bcaldwell Exp $
+* $Id: oci8_functions.xml,v 1.16 2007/01/24 05:50:50 lwright Exp $
 *
 */
 -->
@@ -188,22 +188,14 @@
 				END IF;
 
 				sql_str := 'SELECT treeid FROM ' || table_prefix || 'ast_lnk l INNER JOIN ' || table_prefix || 'ast_lnk_tree t ON l.linkid = t.linkid
-						    WHERE l.minorid IN (SELECT l.majorid FROM ' || table_prefix || 'ast_lnk l WHERE l.minorid = "' || minorid || '"';
+						    WHERE l.minorid = "' || minorid || '"';
 
 				IF rb_date IS NOT NULL THEN
-                    -- note the extra bracket on the end of this first statement is to end the I clause above
-
                     sql_str := sql_str || ' AND l.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'
-						|| ' AND (l.sq_eff_to IS NULL OR l.sq_eff_to > TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")' || '))';
-
-					sql_str := sql_str || ' AND l.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'
 						|| ' AND (l.sq_eff_to IS NULL OR l.sq_eff_to > TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")' || ')';
 
 					sql_str := sql_str || ' AND t.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'
 						|| ' AND (t.sq_eff_to IS NULL OR t.sq_eff_to > TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")' || ')';
-                ELSE
-                    -- close the bracket of the IN clause
-                    sql_str := sql_str || ')';
 				END IF;
 
 				sql_str := replace(sql_str, '"', '''' );
@@ -218,6 +210,7 @@
 						DBMS_SQL.COLUMN_VALUE(cursor_ptr, 1, db_treeid);
 						offset := 1;
 						concat_treeids := '';
+						db_treeid := SUBSTR(db_treeid, 1, LENGTH(db_treeid) - SQ_TREE_BASE_SIZE);
 						LOOP
 							next_treeid := SUBSTR(db_treeid, offset, SQ_TREE_BASE_SIZE);
 							EXIT WHEN next_treeid IS NULL;
