@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.140 2007/01/16 22:39:25 lwright Exp $
+* $Id: search_manager.inc,v 1.141 2007/01/24 23:34:54 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.140 $
+* @version $Revision: 1.141 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2386,15 +2386,15 @@ class Search_Manager extends Asset
 			$query['join'][] = 'INNER JOIN sq_ast_perm p ON p.assetid = a.assetid';
 			$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
 
-			$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
-
-			// sanity check; if the global user isn't set, assume we're a public user
-			if (empty($GLOBALS['SQ_SYSTEM']->user->id) || $GLOBALS['SQ_SYSTEM']->user->id == $public_userid) {
-				$userids = Array($public_userid);
+			$public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+			$current_user =& $GLOBALS['SQ_SYSTEM']->user;
+			if (empty($current_user)) {
+				$userids = $public_user->getUserGroups();
 			} else {
-				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-				array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
+				$userids = $current_user->getUserGroups();
+				$userids[] = $current_user->id;
 			}
+			$userids[] = $public_user->id;
 
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 				$userids[$i] = $db->quoteSmart((String)$userids[$i]);
@@ -2404,10 +2404,10 @@ class Search_Manager extends Asset
 			$query['where'][] = '(
 						(p.permission = '.$db->quoteSmart((String)SQ_PERMISSION_READ).'
 							AND (
-									p.userid <> '.$db->quoteSmart($public_userid).'
-									OR r.userid <> '.$db->quoteSmart($public_userid).'
-									OR (p.userid = '.$db->quoteSmart($public_userid).' AND granted = 1)
-									OR (r.userid = '.$db->quoteSmart($public_userid).' AND granted = 1)
+									p.userid <> '.$db->quoteSmart($public_user->id).'
+									OR r.userid <> '.$db->quoteSmart($public_user->id).'
+									OR (p.userid = '.$db->quoteSmart($public_user->id).' AND granted = 1)
+									OR (r.userid = '.$db->quoteSmart($public_user->id).' AND granted = 1)
 								)
 						)
 						OR
