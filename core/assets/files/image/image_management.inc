@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_management.inc,v 1.17 2006/12/05 23:14:14 emcdonald Exp $
+* $Id: image_management.inc,v 1.18 2007/01/24 04:56:11 arailean Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -33,6 +33,8 @@ class Image_Management extends Asset_Management
 
 	/**
 	* Constructor
+	*
+	* 'embedded_data' is in format Array('keyword'=>Array('name'=>name of data element, 'value'=>Array(value,...)))
 	*
 	*/
 	function Image_Management(&$pm)
@@ -86,6 +88,13 @@ class Image_Management extends Asset_Management
 											'type'		=> 'int',
 											'default'	=> 1,
 											'is_admin'	=> TRUE,
+										   ),
+						'embedded_data'	=> Array(
+											'added'			=> '0.4',
+											'type'			=> 'serialise',
+											'default'		=> Array(),
+											'description'	=> 'Embedded Metadata placed by Photoshop',
+											'is_admin'		=> TRUE,
 										   ),
 					  );
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.48 2006/12/18 05:26:13 arailean Exp $
+* $Id: image_edit_fns.inc,v 1.49 2007/01/24 04:56:10 arailean Exp $
 *
 */
 
@@ -24,7 +24,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @author  Andrei Railean <arailean@squiz.net>
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,6 +59,50 @@ class Image_Edit_Fns extends File_Edit_Fns
 		return TRUE;
 
 	}//end paintFileUpload()
+
+
+	/**
+	* Prints the list of embedded data
+	*
+	* @param object	&$asset	the file asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintEmbeddedData(&$asset, &$o, $prefix)
+	{
+		$embedded_data = $asset->attr('embedded_data');
+
+		if (empty($embedded_data)) {
+			$o->note('Not found');
+			return;
+		}
+
+		echo '<table class="sq-backend-table">';
+		echo '<tr><th>'.translate('name').'</th>';
+		echo '<th>'.translate('keyword').'</th>';
+		echo '<th>'.translate('value').'</th></tr>';
+		foreach ($embedded_data as $keyword => $value_set) {
+			$code = array_get_index($value_set, 'name');
+			echo '<tr>';
+			echo '<td>';
+			echo $code;
+			echo '</td>';
+			echo '<td>';
+			echo '%image_embedded_'.$keyword.'%';
+			echo '</td>';
+			echo '<td>';
+			foreach (array_get_index($value_set, 'value', Array()) as $data_item) {
+				echo $data_item;
+				echo '<br />';
+			}
+			echo '</td></tr>';
+		}
+		echo '</table>';
+
+	}//end paintEmbeddedData()
 
 
 	/**
@@ -102,6 +147,13 @@ class Image_Edit_Fns extends File_Edit_Fns
 		}//end if
 
 		$this->_recreateVarietyImages($asset);
+
+
+		// extract Photoshop metadata
+		$meta = $this->_extractImageMetadata($info['path']);
+		if (!$asset->setAttrValue('embedded_data', $meta)) {
+			return FALSE;
+		}
 
 		if (!$asset->saveAttributes()) {
 			trigger_localised_error('CORE0052', E_USER_WARNING);
@@ -533,6 +585,90 @@ class Image_Edit_Fns extends File_Edit_Fns
 		}// end if
 
 	}//end _recreateVarietyImages()
+
+
+	/**
+	* Extracts photoshop metadata from an image file
+	*
+	* @param string	$filename	filename to extract metadata from
+	*
+	* @return void
+	* @access private
+	*/
+	function _extractImageMetadata($filename)
+	{
+		$meta = Array();
+
+		if (!SQ_TOOL_JPEG_TOOLKIT_ENABLED) return $meta;
+
+		define ('META_TOOLKIT_DIR', SQ_TOOL_JPEG_TOOLKIT_PATH);
+
+		if (!file_exists(META_TOOLKIT_DIR.'/JPEG.php')) {
+			trigger_error('JPEG Metadata Toolkit Path is invalid', E_USER_WARNING);
+			return $meta;
+		}
+
+		include META_TOOLKIT_DIR.'/JPEG.php';
+		include META_TOOLKIT_DIR.'/JFIF.php';
+		include META_TOOLKIT_DIR.'/PictureInfo.php';
+		include META_TOOLKIT_DIR.'/XMP.php';
+		include META_TOOLKIT_DIR.'/Photoshop_IRB.php';
+		include META_TOOLKIT_DIR.'/EXIF.php';
+		include META_TOOLKIT_DIR.'/Photoshop_File_Info.php';
+
+		// we start the buffer because the tool prints stuff to screen on error. nOObs
+		ob_start();
+		$jpeg_header_data = get_jpeg_header_data($filename);
+		$XMP_array = read_XMP_array_from_text( get_XMP_text( $jpeg_header_data ) );
+		ob_end_clean();
+
+		if (empty($XMP_array)) return $meta;
+
+		// the bit below is hardcoded to look for dc: prefix in tag name
+		foreach ($XMP_array as $xmp_item) {
+			if ($xmp_item['tag'] != 'x:xmpmeta') continue;
+			if (!isset($xmp_item['children'])) continue;
+
+			foreach ($xmp_item['children'] as $xmp_meta_item) {
+				if ($xmp_meta_item['tag'] != 'rdf:RDF') continue;
+				if (!isset($xmp_meta_item['children'])) continue;
+
+				foreach ($xmp_meta_item['children'] as $rdf_data) {
+					if ($rdf_data['tag'] == 'rdf:Description') {
+						if (!isset($rdf_data['children'])) continue;
+
+						foreach ($rdf_data['children'] as $description_data) {
+							$tag_name = $description_data['tag'];
+							if (strpos($tag_name, 'dc:') !== 0) continue;
+
+							if (!isset($description_data['children'])) continue;
+
+							$ns = 'dc';
+							// 3 is the length of 'dc:'
+							$current_tag = substr($tag_name, 3);
+							$keyword = $ns.'--'.$current_tag;
+
+							foreach ($description_data['children'] as $tag_value_list) {
+								if (!isset($tag_value_list['children'])) continue;
+
+								$meta[$keyword]['name'] = $tag_name;
+								foreach ($tag_value_list['children'] as $tag_value) {
+									$meta[$keyword]['value'][] = $tag_value['value'];
+								}
+							}
+						}
+
+					}//end if
+
+				}//end foreach
+
+			}//end foreach
+
+		}//end foreach
+
+		return $meta;
+
+	}//end _extractImageMetadata()
 
 
 }//end class

@@ -10,12 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.61 2006/12/18 05:18:00 arailean Exp $
+* $Id: image.inc,v 1.62 2007/01/24 04:56:10 arailean Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
+require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 
 /**
 * Image
@@ -24,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -845,6 +846,15 @@ class Image extends File
 		$keywords['image_height']	= 'Height of the image in pixels';
 		$keywords['image_tag']		= 'HTML IMG tag to display this image';
 
+		$embedded_data = $this->attr('embedded_data');
+		if (!empty($embedded_data)) {
+			foreach ($embedded_data as $keyword => $value_set) {
+				if (empty($value_set)) continue;
+
+				$keywords['image_embedded_'.$keyword] = 'Embedded Data: "'.$value_set['name'].'"';
+			}
+		}
+
 		return $keywords;
 
 	}//end getAvailableKeywords()
@@ -924,10 +934,38 @@ class Image extends File
 				}
 				return $string;
 			}
+		} else if (0 === strpos($keyword, 'image_embedded_')) {
+			$embedded_key = substr($keyword, strlen('image_embedded_'));
+			$replacement = $this->_getEmbeddedKeywordReplacement($embedded_key);
+			return $replacement;
 		}
+
 		return parent::getKeywordReplacement($keyword);
 
 	}//end getKeywordReplacement()
+
+
+	/**
+	* Get replacement for an embedded keyword
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function _getEmbeddedKeywordReplacement($keyword)
+	{
+		$replacement = '';
+
+		$embedded_data = $this->attr('embedded_data');
+		$data_set = array_get_index($embedded_data, $keyword);
+		if (is_null($data_set)) return $replacement;
+
+		$replacement = implode(',', $data_set['value']);
+
+		return $replacement;
+
+	}//end _getEmbeddedKeywordReplacement()
 
 
 	/**
