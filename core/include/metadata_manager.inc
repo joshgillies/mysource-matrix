@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.130 2007/01/23 05:29:00 arailean Exp $
+* $Id: metadata_manager.inc,v 1.131 2007/01/24 23:29:57 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.131 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1004,6 +1004,9 @@ class Metadata_Manager extends MySource_Object
 
 					case 'asset_thumbnail' :
 					case 'asset_thumbnail_url' :
+					case 'asset_thumbnail_width' :
+					case 'asset_thumbnail_height' :
+					case 'asset_thumbnail_alt' :
 					case 'asset_thumbnail_caption' :
 						if (!$thumbnail_generated) {
 							echo '$thumbnail = null;';
@@ -1021,8 +1024,12 @@ class Metadata_Manager extends MySource_Object
 							case 'asset_thumbnail_url' :
 								echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->getURL();'."\n";
 							break;
+							case 'asset_thumbnail_width' :
+							case 'asset_thumbnail_height' :
+							case 'asset_thumbnail_alt' :
 							case 'asset_thumbnail_caption' :
-								echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->attr(\'caption\');'."\n";
+								$sub_keyword = substr($keyword, 16);
+								echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->attr(\''.$sub_keyword.'\');'."\n";
 							break;
 						}
 					break;
