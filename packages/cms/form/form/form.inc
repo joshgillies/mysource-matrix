@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.149 2007/01/17 03:08:42 emcdonald Exp $
+* $Id: form.inc,v 1.150 2007/01/24 23:10:51 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.149 $
+* @version $Revision: 1.150 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1400,12 +1400,7 @@ class Form extends Asset
 
 				// If the question is sticky, stick the value then
 				if ($question->attr('sticky')) {
-					$cookie_expiry = $this->attr('cookie_expiry');
-					if ($cookie_expiry == 0) {
-						$question->stickValue($question->getValue());
-					} else {
-						$question->stickValue($question->getValue(), time() + $this->attr('cookie_expiry'));
-					}
+					$question->stickValue($question->getValue());
 				}
 			}
 
