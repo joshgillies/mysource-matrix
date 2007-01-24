@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.173.2.16 2006/12/15 02:58:30 skim Exp $
+* $Id: search_page.inc,v 1.173.2.17 2007/01/24 23:22:33 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.173.2.16 $
+* @version $Revision: 1.173.2.17 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1384,7 +1384,7 @@ class Search_Page extends Listing_Engine
 					$replacement  = '<input type="submit" name="'.$field_name.'" onclick="listing_form = document.getElementById(\''.$this->getPrefix().'\');
 						listing_form.current_result_page.value=\'0\';
 						if (typeof listing_form.mode != \'undefined\') listing_form.mode.value = \'results\';
-						return TRUE;
+						return true;
 					" value="'.$this->attr('submit_button_text').'" />';
 				}
 			break;
