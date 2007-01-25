@@ -10,16 +10,28 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.14 2007/01/09 23:46:33 hnguyen Exp $
+* $Id: edit_interface_screen_details.xml,v 1.15 2007/01/25 04:50:42 arailean Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Submission Information" write_access="write:attributes">
+	<section name="Submission Information">
+		<field>
 			<function_call>
-				<paint_function name="paintSubmissionDetails" />
-				<process_function name="processSubmissionDetails" />
+				<paint_function name="paintSubmissionIpAddress" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintSubmissionTime" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Answers To Global Questions" write_access="write:attributes">
+			<function_call>
+				<paint_function name="paintSubmissionAnswers" />
+				<process_function name="processSubmissionAnswers" />
 			</function_call>
 	</section>
 </contents>

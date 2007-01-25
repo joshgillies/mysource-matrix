@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.19 2007/01/09 23:46:33 hnguyen Exp $
+* $Id: form_submission_edit_fns.inc,v 1.20 2007/01/25 04:50:42 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -53,18 +53,42 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function paintSubmissionDetails(&$asset, &$o, $prefix)
+	function paintSubmissionIpAddress(&$asset, &$o, $prefix)
 	{
-
-		$o->openField(translate('cms_form_submission_ip_address'));
 		echo $asset->getIP();
-		$o->closeField();
 
-		$o->openField(translate('cms_form_submission_time_submitted'));
+	}//end paintSubmissionIpAddress()
+
+
+	/**
+	* Paint interface to edit form submission answers
+	*
+	* @param object	&$asset	asset being edited
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for html elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintSubmissionTime(&$asset, &$o, $prefix)
+	{
 		echo date('d M Y H:i:s',$asset->created);
-		$o->closeField();
-		$o->closeSection();
-		$o->openSection(translate('cms_form_submission_answer_to_global_questions'));
+
+	}//end paintSubmissionTime()
+
+
+	/**
+	* Paint interface to edit form submission answers
+	*
+	* @param object	&$asset	asset being edited
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for html elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintSubmissionAnswers(&$asset, &$o, $prefix)
+	{
 
 		if (!empty($this->_tmp['question_errors'])) {
 			?>
@@ -160,7 +184,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		}//end foreach
 		return $wa && $is_editable_q;
 
-	}//end paintSubmissionDetails()
+	}//end paintSubmissionAnswers()
 
 
 	/**

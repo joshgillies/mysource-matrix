@@ -10,16 +10,30 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2007/01/09 23:46:33 hnguyen Exp $
+* $Id: lang_screen_details.xml,v 1.7 2007/01/25 04:50:42 arailean Exp $
 *
 */
 -->
 
 <contents>
 	<section name="Submission Information">
+		<field>
+			<display_name>IP Address</display_name>
 			<function_call>
-				<paint_function name="paintSubmissionDetails" />
-				<process_function name="processSubmissionDetails" />
+				<paint_function name="paintSubmissionIpAddress" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Time Submitted</display_name>
+			<function_call>
+				<paint_function name="paintSubmissionTime" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Answers To Global Questions">
+			<function_call>
+				<paint_function name="paintSubmissionAnswers" />
+				<process_function name="processSubmissionAnswers" />
 			</function_call>
 	</section>
 </contents>
