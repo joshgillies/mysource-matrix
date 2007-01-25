@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.30 2007/01/09 23:46:33 hnguyen Exp $
+* $Id: form_submission.inc,v 1.31 2007/01/25 04:48:00 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -397,6 +397,7 @@ class Form_Submission extends Asset
 		$res = parent::getAvailableKeywords();
 		$res['question_name_X_qY'] = 'The name of the question with ID X:qY';
 		$res['question_answer_X_qY'] = 'The answer to the question with ID X:qY';
+		$res['submission_ip_address'] = 'IP address that created this submission';
 		return $res;
 
 	}//end getAvailableKeywords()
@@ -439,6 +440,19 @@ class Form_Submission extends Asset
 		return TRUE;
 
 	}//end setIP()
+
+
+	/**
+	* Get the IP of the submission
+	*
+	* @return string
+	* @access public
+	*/
+	function getSubmissionIpAddressKeywordReplacement()
+	{
+		return $this->getIP();
+
+	}//end getSubmissionIpAddressKeywordReplacement()
 
 
 }//end class
