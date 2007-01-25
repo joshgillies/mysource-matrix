@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.47.2.4 2007/01/25 00:22:56 rong Exp $
+* $Id: hipo_job_edit_status.inc,v 1.47.2.5 2007/01/25 01:10:43 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47.2.4 $
+* @version $Revision: 1.47.2.5 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -407,8 +407,8 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 					// this asset has dependants, so we are going to spawn another edit_status hipo
 					// to take care of processing them
 					if (!empty($dependants) && empty($this->_running_vars['process_dependants'])) {
-						$this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], $ms->queueContents());
-						if ($code_name = $this->spawnDependantStatusHipo($asset->id, $new_status, $this->_running_vars['messages'])) {
+						$messages = array_merge($this->_running_vars['messages'], $ms->queueContents());
+						if ($code_name = $this->spawnDependantStatusHipo($asset->id, $new_status, $messages)) {
 							$this->_running_vars['dependant_hipo_job'] = $code_name;
 						}
 					}
@@ -434,9 +434,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		if (empty($this->_running_vars['todo_assetids']) && empty($this->_running_vars['dependant_hipo_job'])) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;
-			//if (!empty($this->_running_vars['process_dependants'])) {
-				$ms->send($this->_running_vars['messages']);
-			//}
+			$ms->send($this->_running_vars['messages']);
 		} else {
 			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
@@ -460,7 +458,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	*/
 	function spawnDependantStatusHipo($assetid, $new_status, &$messages)
 	{
-		$init_hipo = new Hipo_Job_Edit_Status();
+		$init_hipo =& new Hipo_Job_Edit_Status();
 
 		$options['auto_complete'] = TRUE;
 
