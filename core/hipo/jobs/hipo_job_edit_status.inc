@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.51.2.1 2006/12/11 05:22:55 lwright Exp $
+* $Id: hipo_job_edit_status.inc,v 1.51.2.2 2007/01/25 00:29:49 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51.2.1 $
+* @version $Revision: 1.51.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -425,9 +425,9 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		if (empty($this->_running_vars['todo_assetids']) && empty($this->_running_vars['dependant_hipo_job'])) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;
-			if (empty($this->_running_vars['process_dependants'])) {
+			//if (empty($this->_running_vars['process_dependants'])) {
 				$ms->send($this->_running_vars['messages']);
-			}
+			//}
 		} else {
 			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
