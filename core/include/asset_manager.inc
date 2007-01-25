@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.531.2.6 2007/01/18 05:48:54 colivar Exp $
+* $Id: asset_manager.inc,v 1.531.2.7 2007/01/25 00:42:57 skim Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.531.2.6 $
+* @version $Revision: 1.531.2.7 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -848,13 +848,20 @@ class Asset_Manager extends MySource_Object
 		if (empty($assetids)) return Array();
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
+		// IN clause fix - assetids were not being treated as strings
+		$in = 'assetid IN (';
+
+		for ($i = 0; $i < count($assetids); $i++) {
+			$in .= $db->quoteSmart( (string) $assetids[$i] ).(($i == count($assetids) - 1) ? ')' : ',');
+		}
+
 		// First get the default values
 		$sql = 'SELECT a.assetid, at.default_val
 				FROM sq_ast a, sq_ast_attr at
 				WHERE a.type_code = at.type_code
 					AND at.name = '.$db->quote($attr_name).'
 					AND ((at.type_code = '.$db->quote($asset_type).') OR (at.owning_type_code = '.$db->quote($asset_type).'))
-					AND a.assetid IN ('.implode(', ', $assetids).')';
+					AND a.'.$in;
 		$res = $db->getAssoc($sql);
 		assert_valid_db_result($res);
 
@@ -866,7 +873,7 @@ class Asset_Manager extends MySource_Object
 		$sql = 'SELECT assetid, custom_val
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val
 				WHERE attrid IN ('.$sub_sql.')
-					AND assetid IN ('.implode(', ', $assetids).')';
+					AND '.$in;
 		$custom_vals = $db->getAssoc($sql);
 		assert_valid_db_result($custom_vals);
 
@@ -5170,7 +5177,7 @@ class Asset_Manager extends MySource_Object
 				$result = $major->deleteAssetLink($linkid);
 				$this->forgetAsset($asset);
 				if ($result != FALSE) return $result;
-			} 
+			}
 			// Link between a normal asset and a shadow asset
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -5187,7 +5194,7 @@ class Asset_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return TRUE;
-			
+
 		}//end if shadow asset
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
