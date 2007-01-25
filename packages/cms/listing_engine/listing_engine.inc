@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.209 2007/01/25 00:36:03 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.210 2007/01/25 02:53:03 skim Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.209 $
+* @version $Revision: 1.210 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -832,7 +832,7 @@ class Listing_Engine extends Page
 				// do we have an attribute to sort on for this type code?
 				// if we don't, we'll have to come back to it as a skipped asset
 				if ($process) {
-					if (!in_array($sort_params['attr_type'], Array('int', 'float'))) {
+					if (isset($sort_params['attr_type']) && !in_array($sort_params['attr_type'], Array('int', 'float'))) {
 						$sort_numeric = FALSE;
 					}
 
