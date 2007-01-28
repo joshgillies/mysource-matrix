@@ -17,11 +17,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: visual-aid.js,v 1.4.2.2 2006/12/28 04:57:08 tbarrett Exp $
+* $Id: visual-aid.js,v 1.4.2.3 2007/01/28 22:11:20 skim Exp $
 *
 */
 
-z
+
 /**
 * WYSIWYG Plugin - Visual Aid
 *
