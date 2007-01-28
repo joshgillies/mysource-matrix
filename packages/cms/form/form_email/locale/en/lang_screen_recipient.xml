@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_recipient.xml,v 1.6 2006/12/07 00:04:18 emcdonald Exp $
+* $Id: lang_screen_recipient.xml,v 1.7 2007/01/28 23:28:22 skim Exp $
 *
 */
 -->
@@ -71,7 +71,7 @@
 			&lt;ul&gt;
 			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
 			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
-			&lt;li&gt;%referral_url% - the URL (if any) that the user was viewing before comming to this form&lt;/li&gt;
+			&lt;li&gt;%referral_url% - the URL (if any) that the user was viewing before coming to this form&lt;/li&gt;
 			&lt;li&gt;%referral_asset% - you can use keywords from the referring asset by prepending the normal asset keyword with the 'referral' tag (i.e. %referral_asset_attribute_name%)&lt;/li&gt;
 			&lt;/ul&gt;
 			</note>
