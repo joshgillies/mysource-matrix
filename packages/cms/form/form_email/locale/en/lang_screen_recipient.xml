@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_recipient.xml,v 1.3.2.1 2006/08/17 00:33:50 bcaldwell Exp $
+* $Id: lang_screen_recipient.xml,v 1.3.2.2 2007/01/28 23:27:03 skim Exp $
 *
 */
 -->
@@ -72,7 +72,7 @@
 			&lt;ul&gt;
 			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
 			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
-			&lt;li&gt;%referral_url% - the URL (if any) that the user was viewing before comming to this form&lt;/li&gt;
+			&lt;li&gt;%referral_url% - the URL (if any) that the user was viewing before coming to this form&lt;/li&gt;
 			&lt;/ul&gt;
 			</note>
 		</field>
