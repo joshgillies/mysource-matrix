@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2007/01/16 01:13:55 colivar Exp $
+* $Id: lang_screen_details.xml,v 1.9 2007/01/29 23:57:13 lwright Exp $
 *
 */
 -->
@@ -89,8 +89,8 @@
 			<note>Text for the link that a user can use to go straight to today's date in the current view</note>
 		</field>
         <field attribute="use_no_results_body_copy">
-			<display_name>Use No Results Body Copy</display_name>
-            <note>if this value is set to true, the calendar page will use the no results body copy.</note>
+			<display_name>Use No Results Bodycopy</display_name>
+            <note>If this option is set to "Yes", a "No Results" bodycopy will be created, that will be used in place of the normal calendar view when there are no events within the current time period.</note>
         </field>
 
 	</section>
