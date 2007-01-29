@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.550 2007/01/29 04:00:48 skim Exp $
+* $Id: asset_manager.inc,v 1.551 2007/01/29 23:23:31 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.550 $
+* @version $Revision: 1.551 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7062,9 +7062,9 @@ class Asset_Manager extends MySource_Object
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_path p
 					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 					ON p.assetid = l.minorid ';
-			$where = 'WHERE l.majorid = '.$major->id.' ';
+			$where = 'WHERE l.majorid = '.$db->quoteSmart((string) $major->id).' ';
 			if ($ignore_assetid) {
-				$where .= 'AND l.minorid <> '.$ignore_assetid.' ';
+				$where .= 'AND l.minorid <> '.$db->quoteSmart((string) $ignore_assetid).' ';
 			}
 			$where .= 'AND p.path IN ('.$paths_string.')
 					AND '.db_extras_bitand($db, 'l.link_type', SQ_SC_LINK_WEB_PATHS).' > 0 ';
