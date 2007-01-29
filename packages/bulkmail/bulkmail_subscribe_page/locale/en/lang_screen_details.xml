@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2006/12/13 22:11:35 rong Exp $
+* $Id: lang_screen_details.xml,v 1.5 2007/01/29 05:38:59 tbarrett Exp $
 *
 */
 -->
@@ -28,7 +28,7 @@
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode"  />
 			</function_call>
-			<note>The User Group to create Bulkmail Users in.</note>
+			<note>Users will be able to subscribe to / unsubscribe from groups linked underneath this asset</note>
 		</field>
 		<field>
 			<display_name>Asset Statuses</display_name>

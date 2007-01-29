@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.13 2007/01/08 03:23:47 emcdonald Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.14 2007/01/29 05:38:58 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -834,6 +834,44 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 
 	}//end getCurrentSubscriptionsKeywordReplacement()
 
+
+	/**
+	* Get the default contents for a bodycopy
+	*
+	* @param string	$code	The code name for the bodycopy
+	*
+	* @return void
+	* @access public
+	*/
+	function _getDefaultBodycopyContents($code)
+	{
+		switch ($code) {
+			case 'logged_in':
+				return '<h2>'.translate('bsp_default_title_logged_in', '%user_name%').'</h2>
+					%success_messages_list% %error_messages_list%
+					<h3>'.translate('bsp_default_subtitle_current_subs').'</h3>
+					%current_subscriptions%
+					<h3>'.translate('bsp_default_subtitle_add_sub').'</h3>
+					%subscriptions_picker%
+					<h3>'.translate('bsp_default_subtitle_remove_sub').'</h3>
+					%unsubscriptions_picker%
+					<br />%commit_button%
+				';
+			case 'not_logged_in':
+				return '<h2>'.translate('bsp_default_title_not_logged_in').'</h2>
+					%success_messages_list% %error_messages_list%
+					'.translate('username').': %subscribe_user_name% <br />
+					'.translate('email').': %subscribe_email_address% <br />
+					<h3>'.translate('bsp_default_subtitle_add_sub').'</h3>
+					%subscriptions_picker%
+					<h3>'.translate('bsp_default_subtitle_remove_sub').'</h3>
+					%unsubscriptions_picker%
+					<br />%commit_button%
+				';
+		}
+		return '';
+
+	}//end _getDefaultBodycopyContents()
 
 }//end class
 

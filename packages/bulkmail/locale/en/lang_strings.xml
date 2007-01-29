@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.30 2006/12/13 22:11:35 rong Exp $
+* $Id: lang_strings.xml,v 1.31 2007/01/29 05:38:59 tbarrett Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -36,6 +36,13 @@
 Please click on the following link if you would like to proceed:
 
 %s</string>
+
+	<string source="bsp_default_title_logged_in">Editing list subscriptions for %s</string>
+	<string source="bsp_default_title_not_logged_in">Edit List Subscriptions</string>
+	<string source="bsp_default_subtitle_current_subs">Current Subscriptions</string>
+	<string source="bsp_default_subtitle_add_sub">Subscribe to new list</string>
+	<string source="bsp_default_subtitle_remove_sub">Unsubscribe from list</string>
+
 	<string source="bm_adhoc_job_name">Ad-Hoc Job</string>
 	<string source="bm_state_action_pause">Pause</string>
 	<string source="bm_state_action_resume">Resume</string>
