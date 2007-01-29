@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.202.2.2 2007/01/25 00:37:13 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.202.2.3 2007/01/29 04:33:21 skim Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.202.2.2 $
+* @version $Revision: 1.202.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -264,6 +264,80 @@ class Listing_Engine extends Page
 		return parent::isDeletableLink($linkid);
 
 	}//end isDeletableLink()
+
+
+	/**
+	* Perform any additional processing required during the cloning of this asset
+	*
+	* This function is being called by asset_manager after the dependants of asset
+	* have been cloned.
+	*
+	* @param object	&$clone		the clone asset shell
+	* @param array	$components	the wanted components to clone eg.
+	*							Array(
+	*							'attributes',
+	*							'metadata_schemas',
+	*							'metadata',
+	*							'workflow',
+	*							'permissions',
+	*							'data',
+	*							);
+	*							or alternately
+	*							Array('all');
+	*
+	* @return boolean
+	* @access public
+	* @see asset::cloneComponentsAdditional()
+	*/
+	function cloneComponentsAdditional(&$clone, $components)
+	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (in_array('attributes', $components) || in_array('all', $components)) {
+
+			// assetids of asset grouping bodycopies are sotred an array.
+			// They need to be updated the newly cloned bodycopies.
+			$asset_grouping = $this->attr('asset_grouping');
+			if (!empty($asset_grouping)) {
+				$am =& $GLOBALS['SQ_SYSTEM']->am;
+				$new_asset_grouping = $asset_grouping;
+				foreach ($asset_grouping as $key => $group) {
+					if (isset($group['format_assetid']) && !empty($group['format_assetid'])) {
+						$bodycopy =& $am->getAsset($group['format_assetid']);
+						$group_format_names[$key] = $bodycopy->name;
+					}
+				}
+
+				$folder =& $clone->getFolder('group_formats');
+				if (is_null($folder)) {
+					// something went wrong during the dependants cloning
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					trigger_localised_error('CMS0068', E_USER_WARNING);
+					return FALSE;
+				} else {
+					$links_to_bodycopy = $am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
+					if (!empty($links_to_bodycopy)) {
+						foreach ($links_to_bodycopy as $link) {
+							$bodycopy =& $am->getAsset($link['minorid']);
+							if (($key = array_search($bodycopy->name, $group_format_names)) !== FALSE) {
+								$new_asset_grouping[$key]['format_assetid'] = $bodycopy->id;
+							}
+						}
+					}
+					$clone->setAttrValue('asset_grouping', $new_asset_grouping);
+					$clone->saveAttributes();
+				}
+			}//end if asset grouping
+
+		}//end if components
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return TRUE;
+
+	}//end cloneComponentsAdditional()
 
 
 	/**
