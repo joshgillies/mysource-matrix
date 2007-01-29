@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.107 2007/01/16 00:41:34 bcaldwell Exp $
+* $Id: page_asset_listing.inc,v 1.108 2007/01/29 02:43:12 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -186,19 +186,112 @@ class Page_Asset_Listing extends Listing_Engine
 					}
 				break;
 
+				case 'grouped' :
+
+					// If there is one grouping type and it's "group by direct
+					// parent", we can cache the direct parents now and then
+					// groupAssetsRecursively() in Listing Engine can use them,
+					// instead of calculating the parents once for each asset
+
+					$min_depth = ($this->attr('min_depth') === '') ? NULL : $this->attr('min_depth');
+					$max_depth = ($this->attr('max_depth') === '') ? NULL : $this->attr('max_depth');
+
+					$grouping_attr = $this->attr('asset_grouping');
+
+					if ((count($grouping_attr) == 1) && ($grouping_attr[0]['group_type'] == 'parent_asset') && $grouping_attr[0]['direct_parent_only']) {
+						$group = $grouping_attr[0];
+
+						$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+						$links_sql = 'SELECT DISTINCT
+											minorid, majorid
+										FROM
+											'.SQ_TABLE_RUNNING_PREFIX.'ast_lnk
+										WHERE minorid IN (%s)';
+
+						$types_sql = '
+										AND majorid IN
+										(
+											SELECT assetid FROM sq_ast WHERE %s
+										)';
+
+
+						if (!empty($group['restrict_types']['type_code'])) {
+							$types_sub_sql = Array();
+
+							$inherited_types = Array();
+							$non_inherited_types = Array();
+
+							// Need to handle which of these type codes are
+							// inherited, and which are not
+							foreach ($group['restrict_types']['type_code'] as $key => $type) {
+								if ($group['restrict_types']['inherit'][$key]) {
+									$inherited_types[] = $db->quote($type);
+								} else {
+									$uninherited_types[] = $db->quote($type);
+								}
+							}
+
+							if (!empty($uninherited_types)) {
+								$types_sub_sql[] = '(type_code IN ('.implode(', ', $uninherited_types).'))';
+							}
+
+							if (!empty($inherited_types)) {
+								$types_sub_sql[] = '(type_code IN
+													(
+														SELECT
+															type_code
+														FROM
+															'.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd
+														WHERE inhd_type_code IN ('.implode(', ', $inherited_types).')))';
+							}
+
+							$types_sub_sql = implode(' OR ', $types_sub_sql);
+							$types_sql = sprintf($types_sql, $types_sub_sql);
+
+							$links_sql .= $types_sql;
+						}
+
+						$sqls = Array();
+
+						foreach ($root_asset_ids as $root_asset_id) {
+							$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
+
+							$sql = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, TRUE, FALSE, $min_depth, $max_depth);
+							$sql['select'] = str_replace(', a.type_code', '', $sql['select']);
+							$sql['union_select'] = str_replace(', null', '', $sql['union_select']);
+
+							$sql = implode(' ', $sql);
+							$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+							$sqls[] = '('.sprintf($links_sql, $sql).')';
+
+						}
+
+						$sql = implode(' UNION ', $sqls);
+
+						// The fifth param to getAssoc() lets us get this
+						$links = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
+						$this->_tmp['direct_parent_grouping'] = $links;
+					}
+
+				// Intentionally fall through; we still need to do the query
+
 				case 'number' :
 				case 'random' :
-				case 'grouped' :
+
 					$min_depth = ($this->attr('min_depth') === '') ? NULL : $this->attr('min_depth');
 					$max_depth = ($this->attr('max_depth') === '') ? NULL : $this->attr('max_depth');
 
 					if ($this->attr('direction') == 'down') {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $this->_combineAssets($logic, $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, FALSE, $min_depth, $max_depth), $assets_to_list);
+							$asset_list = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, FALSE, $min_depth, $max_depth);
+							$assets_to_list = $this->_combineAssets($logic, $asset_list, $assets_to_list);
 						}
 					} else {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $this->_combineAssets($logic, $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), NULL, NULL, $list_permission, $list_effective, TRUE, $min_depth, $max_depth), $assets_to_list);
+							$asset_list = $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), NULL, NULL, $list_permission, $list_effective, TRUE, $min_depth, $max_depth);
+							$assets_to_list = $this->_combineAssets($logic, $asset_list, $assets_to_list);
 						}
 					}
 
