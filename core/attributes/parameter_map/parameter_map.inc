@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.19 2006/12/05 05:41:18 bcaldwell Exp $
+* $Id: parameter_map.inc,v 1.20 2007/01/29 05:01:16 emcdonald Exp $
 *
 */
 
@@ -45,7 +45,7 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 * 			)
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -189,8 +189,8 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 
 		if (!$read_only) {
 			hidden_field($prefix.'[source]', $source_type);
-		}
 
+		}
 		switch ($source_type) {
 			case 'ASSET':
 			case 'CURRENT_SITE':
@@ -226,6 +226,19 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 					}
 				} else {
 					asset_finder($prefix.'[asset_finder]', $asset_id, Array('form_question' => 'D'));
+				}
+			break;
+
+			case 'STATIC_ASSET':
+				$asset_id = array_get_index($data, 'index');
+				if ($read_only) {
+					if (is_null($asset_id)) {
+						echo translate('not_configured');
+					} else {
+						echo get_asset_tag_line($asset_id, 'details');
+					}
+				} else {
+					asset_finder($prefix.'[static_asset_finder]', $asset_id, Array());
 				}
 			break;
 
@@ -293,6 +306,12 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 						unset($value[$index][$j]['attribute']);
 						$value[$index][$j]['index'] = $fields['asset_finder']['assetid'];
 						unset($value[$index][$j]['asset_finder']);
+
+					} else if ($fields['source'] == 'STATIC_ASSET') {
+						unset($value[$index][$j]['keyword']);
+						unset($value[$index][$j]['attribute']);
+						$value[$index][$j]['index'] = $fields['static_asset_finder']['assetid'];
+						unset($value[$index][$j]['asset_finder']);
 					} else {
 						unset($value[$index][$j]['keyword']);
 						unset($value[$index][$j]['attribute']);
@@ -303,9 +322,9 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 						if (empty($value[$index])) unset($value[$index]);
 					}
 
-				}
-			}//end foreach ($_POST[$prefix])
+				}//end foreach
 
+			}//end foreach ($_POST[$prefix])
 			foreach ($_POST[$prefix]['new'] as $new_mapping) {
 				if (empty($new_mapping['parameter'])) continue;
 
@@ -315,8 +334,8 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				$value[$param][] = $new_mapping;
 			}
 
-			if (!$this->validateValue($value)) return FALSE;
 
+			if (!$this->validateValue($value)) return FALSE;
 			$this->processed = $this->setValue($value);
 
 		}//end if (is_array())
@@ -394,6 +413,10 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 							return $question_asset->getValue();
 						}
 					}
+				break;
+
+				case 'STATIC_ASSET':
+					return array_get_index($rule, 'index', '');
 				break;
 
 			}//end switch ($rule['source'])
@@ -476,6 +499,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				'CURRENT_SITE'		=> translate('current_site'),
 				'ASSET_QUESTION'	=> translate('form_question_asset'),
 				'STATIC'			=> translate('static_value'),
+				'STATIC_ASSET'		=> translate('static_asset'),
 			   );
 
 	}//end _getSourceTypes()
