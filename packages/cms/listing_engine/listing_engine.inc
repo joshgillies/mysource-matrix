@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.214 2007/01/29 04:00:50 skim Exp $
+* $Id: listing_engine.inc,v 1.215 2007/01/29 04:39:17 skim Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.214 $
+* @version $Revision: 1.215 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2795,7 +2795,16 @@ class Listing_Engine extends Page
 					case 'parent_asset':
 						$restrict_types = array_get_index($group_level, 'restrict_types', Array());
 						$direct_parent_only = array_get_index($group_level, 'direct_parent_only', FALSE);
-						$value = $this->getGroupableParentAssetids($current_parent, $restrict_types, $direct_parent_only);
+
+						// If our direct parents have been cached from a Listing
+						// Engine-type asset (eg. Asset Listing does this if there
+						// is only one level and it's a direct parent grouping),
+						// then use that instead of working it out each time
+						if ($direct_parent_only && isset($this->_tmp['direct_parent_grouping'][$current_parent])) {
+							$value = $this->_tmp['direct_parent_grouping'][$current_parent];
+						} else {
+							$value = $this->getGroupableParentAssetids($current_parent, $restrict_types, $direct_parent_only);
+						}
 
 						// skip this whole section if both depth fields are NULL
 						// otherwise, we are limiting by parent's depth, relative
