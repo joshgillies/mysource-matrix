@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.47.2.5 2007/01/25 01:10:43 rong Exp $
+* $Id: hipo_job_edit_status.inc,v 1.47.2.6 2007/01/29 22:13:52 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47.2.5 $
+* @version $Revision: 1.47.2.6 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -425,16 +425,26 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			$this->_running_vars['done_assetids'][] = $assetid;
 		}//end if
 
-		$this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], $ms->queueContents());
+		if(empty($this->_running_vars['process_dependants']) && isset($assetid)) {
+			$this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], $ms->queueContents());
+		}
 		$ms->abortQueue();	// we don't need the messages anymore, dump them
 
-		// just because there are no assets left in our todo list doesn't mean that we're finished. the
-		// last asset might have had some dependants that a sub-sub-hipo thingy is processing so we'll continue
-		// until it completes
-		if (empty($this->_running_vars['todo_assetids']) && empty($this->_running_vars['dependant_hipo_job'])) {
-			$step_data['percent_done'] = 100;
-			$step_data['complete']     = TRUE;
-			$ms->send($this->_running_vars['messages']);
+		if (empty($this->_running_vars['todo_assetids'])) {
+			if (empty($this->_running_vars['process_dependants']) && isset($assetid)) {
+				// send workflow email at this point
+				// there might still be a dependant job waiting to be processed
+				$ms->send($this->_running_vars['messages']);
+			}
+			if (empty($this->_running_vars['dependant_hipo_job'])) {
+				// todo array is empty, and no dependant job left
+				$step_data['percent_done'] = 100;
+				$step_data['complete']     = TRUE;
+			} else {
+				// todo array is empty, but sub-hipo is processing the dependants
+				// so we'll continue until it completes
+				$step_data['complete']     = FALSE;
+			}
 		} else {
 			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
 			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
@@ -451,12 +461,12 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	*
 	* @param string	$assetid	The ID of the asset to process dependants of
 	* @param int	$new_status	The status to change dependants to
-	* @param array	&$messages	The current message queue
+	* @param array	$messages	The current message queue
 	*
 	* @return string
 	* @access private
 	*/
-	function spawnDependantStatusHipo($assetid, $new_status, &$messages)
+	function spawnDependantStatusHipo($assetid, $new_status, $messages)
 	{
 		$init_hipo =& new Hipo_Job_Edit_Status();
 
