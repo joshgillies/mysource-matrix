@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.212 2007/01/29 02:47:07 lwright Exp $
+* $Id: listing_engine.inc,v 1.213 2007/01/29 02:47:26 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.212 $
+* @version $Revision: 1.213 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2672,8 +2672,6 @@ class Listing_Engine extends Page
 	*/
 	function groupAssetsRecursively($group_levels, $assetids, &$results)
 	{
-		speed_check();
-
 		$min_depth = $this->attr('min_depth');
 		if ($min_depth == '') $min_depth = NULL;
 		$max_depth = $this->attr('max_depth');
@@ -2846,8 +2844,6 @@ class Listing_Engine extends Page
 		$this->limitAssetsRecursively($results, $limit_array);
 
 		unset($this->_tmp['root_node_treeids']); // just in case we are nested in a different context later
-
-		speed_check();
 
 	}//end groupAssetsRecursively()
 
