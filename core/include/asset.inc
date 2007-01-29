@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.552.2.11 2006/11/29 23:28:55 rong Exp $
+* $Id: asset.inc,v 1.552.2.12 2007/01/29 04:33:04 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.552.2.11 $
+* @version $Revision: 1.552.2.12 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1993,6 +1993,35 @@ class Asset extends MySource_Object
 		return TRUE;
 
 	}//end cloneComponents()
+
+
+	/**
+	* Perform any additional processing required during the cloning of this asset
+	*
+	* This function is being called by asset_manager after the dependants of asset
+	* have been cloned.
+	*
+	* @param object &$clone         the clone asset shell
+	* @param array  $components     the wanted components to clone eg.
+	*                                                       Array(
+	*                                                       'attributes',
+	*                                                       'metadata_schemas',
+	*                                                       'metadata',
+	*                                                       'workflow',
+	*                                                       'permissions',
+	*                                                       'data',
+	*                                                       );
+	*                                                       or alternately
+	*                                                       Array('all');
+	*
+	* @return boolean
+	* @access public
+	*/
+	function cloneComponentsAdditional(&$clone, $components)
+	{
+		return TRUE;
+
+	}//end cloneComponentsAdditional()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.491.2.17 2007/01/16 04:37:38 rong Exp $
+* $Id: asset_manager.inc,v 1.491.2.18 2007/01/29 04:33:04 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.491.2.17 $
+* @version $Revision: 1.491.2.18 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1847,6 +1847,14 @@ class Asset_Manager extends MySource_Object
 				}//end foreach
 			}//end if empty
 		}//end if clone dependants
+
+		// Now all the dependants are clones. cloneComponentsAdditional()
+		// will process extra processing required for completing cloning
+		if (!$source->cloneComponentsAdditional($clone, Array('all'))) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return $null;
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();

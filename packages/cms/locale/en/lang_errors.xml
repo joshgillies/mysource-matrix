@@ -12,7 +12,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.10.4.2 2006/10/23 00:03:19 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.10.4.3 2007/01/29 04:33:07 skim Exp $
 *
 */
 -->
@@ -196,5 +196,6 @@
         <error code="CMS0065">Cannot encode URL hash - no URL supplied</error>
         <error code="CMS0066">Error decoding URL hash - no URL found</error>
 
-
+	<!-- listing engine cloning -->
+	<error code="CMS0068">Cannot complete the cloning. Group Formats folder was not properly created</error>
 </errors>
