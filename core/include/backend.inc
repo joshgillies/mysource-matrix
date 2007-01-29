@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.172 2007/01/17 22:34:28 lwright Exp $
+* $Id: backend.inc,v 1.173 2007/01/29 04:35:24 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.172 $
+* @version $Revision: 1.173 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -158,8 +158,9 @@ class Backend extends MySource_Object
 			$asset_map->process($this);
 
 		} else {
-
-			if (SQ_IN_LIMBO && $_REQUEST['SQ_BACKEND_PAGE'] == 'main') {
+			// Require backend outputter for the Force-Acquire page, so it at
+			// least has a design to use
+			if (SQ_IN_LIMBO && (($_REQUEST['SQ_BACKEND_PAGE'] == 'main') && (array_get_index($_REQUEST, 'am_section', '') != 'forceably_acquire_lock'))) {
 				// use limbo outputter for main frame
 				require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 				$this->out =& new Limbo_Outputter();
@@ -197,8 +198,10 @@ class Backend extends MySource_Object
 
 			}//end switch
 
-			if (!SQ_IN_LIMBO || $_REQUEST['SQ_BACKEND_PAGE'] != 'main') {
+			if (!SQ_IN_LIMBO || (($_REQUEST['SQ_BACKEND_PAGE'] != 'main') || (array_get_index($_REQUEST, 'am_section', '') == 'forceably_acquire_lock'))) {
 				// main frame printing is handled by the asset itself
+				// EXCEPT if the main frame is being used to print out
+				// 'force-acquire locks'
 				$this->out->paint();
 			}
 
