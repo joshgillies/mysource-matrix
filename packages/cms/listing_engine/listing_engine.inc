@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.211 2007/01/29 02:43:12 lwright Exp $
+* $Id: listing_engine.inc,v 1.212 2007/01/29 02:47:07 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.211 $
+* @version $Revision: 1.212 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2672,6 +2672,8 @@ class Listing_Engine extends Page
 	*/
 	function groupAssetsRecursively($group_levels, $assetids, &$results)
 	{
+		speed_check();
+
 		$min_depth = $this->attr('min_depth');
 		if ($min_depth == '') $min_depth = NULL;
 		$max_depth = $this->attr('max_depth');
@@ -2726,12 +2728,10 @@ class Listing_Engine extends Page
 						// Engine-type asset (eg. Asset Listing does this if there
 						// is only one level and it's a direct parent grouping),
 						// then use that instead of working it out each time
-						if ($direct_parent_only) {
-							if (isset($this->_tmp['direct_parent_grouping'][$current_parent])) {
-								$value = $this->_tmp['direct_parent_grouping'][$current_parent];
-							} else {
-								$value = $this->getGroupableParentAssetids($current_parent, $restrict_types, $direct_parent_only);
-							}
+						if ($direct_parent_only && isset($this->_tmp['direct_parent_grouping'][$current_parent])) {
+							$value = $this->_tmp['direct_parent_grouping'][$current_parent];
+						} else {
+							$value = $this->getGroupableParentAssetids($current_parent, $restrict_types, $direct_parent_only);
 						}
 
 						// skip this whole section if both depth fields are NULL
@@ -2846,6 +2846,8 @@ class Listing_Engine extends Page
 		$this->limitAssetsRecursively($results, $limit_array);
 
 		unset($this->_tmp['root_node_treeids']); // just in case we are nested in a different context later
+
+		speed_check();
 
 	}//end groupAssetsRecursively()
 

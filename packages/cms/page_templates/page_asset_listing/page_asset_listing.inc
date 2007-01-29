@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.108 2007/01/29 02:43:12 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.109 2007/01/29 02:47:07 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -198,7 +198,7 @@ class Page_Asset_Listing extends Listing_Engine
 
 					$grouping_attr = $this->attr('asset_grouping');
 
-					if ((count($grouping_attr) == 1) && ($grouping_attr[0]['group_type'] == 'parent_asset') && $grouping_attr[0]['direct_parent_only']) {
+					if ((count($grouping_attr) == 1) && ($grouping_attr[0]['group_type'] == 'parent_asset') && array_get_index($grouping_attr[0], 'direct_parent_only', FALSE)) {
 						$group = $grouping_attr[0];
 
 						$db =& $GLOBALS['SQ_SYSTEM']->db;
