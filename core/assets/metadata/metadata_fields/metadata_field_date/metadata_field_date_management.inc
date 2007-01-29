@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_management.inc,v 1.10 2006/12/06 01:07:35 emcdonald Exp $
+* $Id: metadata_field_date_management.inc,v 1.11 2007/01/29 04:03:46 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,6 +54,12 @@ class Metadata_Field_Date_Management extends Asset_Management
 											'added'		=> '0.0.1',
 											'type'		=> 'serialise',
 											'default'	=> Array(),
+										   ),
+						'show_keywords'	=> Array(
+											'added'			=> '0.1',
+											'type'			=> 'boolean',
+											'default'		=> TRUE,
+											'parameters'	=> Array('allow_empty' => FALSE),
 										   ),
 					  );
 

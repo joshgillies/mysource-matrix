@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.33 2006/12/06 01:07:35 emcdonald Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.34 2007/01/29 04:03:46 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -346,24 +346,28 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		$uses_keyword = (substr($value, 0, 1) == '%');
 		if (empty($value)) $value = NULL;
 		$field = $asset->_getDateTimeField($prefix, $value);
-		$field->parameters['extras'] = Array(
-										'd'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
-										'm'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
-										'y'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
-										'h'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
-										'm'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
-										's'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
-										'i'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
-									   );
+		if ($asset->attr('show_keywords')) {
+			$field->parameters['extras'] = Array(
+											'd'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+											'm'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+											'y'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+											'h'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+											'm'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+											's'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+											'i'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
+										   );
+		}
 		if ($write_access && $asset->attr('editable')) {
 
 			$field->printField();
-			echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
-			combo_box($prefix.'_repkeys', $select_options, FALSE, $value, 0, '');
+			if ($asset->attr('show_keywords')) {
+				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
+				combo_box($prefix.'_repkeys', $select_options, FALSE, $value, 0, '');
+			}
 
 			if ($enable_default) {
 				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
-				if (substr($default_val, 0, 1) == '%') {
+				if ((substr($default_val, 0, 1) == '%') || empty($value)) {
 					$default_date_exp = 'null';
 					$default_kw_exp = "'$default_val'";
 				} else {
