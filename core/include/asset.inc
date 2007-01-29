@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.583 2007/01/29 04:00:47 skim Exp $
+* $Id: asset.inc,v 1.584 2007/01/29 04:20:24 skim Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.583 $
+* @version $Revision: 1.584 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2034,7 +2034,7 @@ class Asset extends MySource_Object
 	{
 		return TRUE;
 
-	}//end _createAdditional()
+	}//end cloneComponentsAdditional()
 
 
 	/**
