@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.109 2007/01/29 02:47:07 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.110 2007/01/29 23:19:34 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.109 $
+* @version $Revision: 1.110 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -257,7 +257,7 @@ class Page_Asset_Listing extends Listing_Engine
 						foreach ($root_asset_ids as $root_asset_id) {
 							$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
 
-							$sql = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, TRUE, FALSE, $min_depth, $max_depth);
+							$sql = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, TRUE, $min_depth, $max_depth, FALSE);
 							$sql['select'] = str_replace(', a.type_code', '', $sql['select']);
 							$sql['union_select'] = str_replace(', null', '', $sql['union_select']);
 
@@ -285,12 +285,12 @@ class Page_Asset_Listing extends Listing_Engine
 
 					if ($this->attr('direction') == 'down') {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$asset_list = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, FALSE, $min_depth, $max_depth);
+							$asset_list = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, $min_depth, $max_depth, FALSE);
 							$assets_to_list = $this->_combineAssets($logic, $asset_list, $assets_to_list);
 						}
 					} else {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$asset_list = $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), NULL, NULL, $list_permission, $list_effective, TRUE, $min_depth, $max_depth);
+							$asset_list = $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), FALSE, NULL, $list_permission, $list_effective, $min_depth, $max_depth, TRUE);
 							$assets_to_list = $this->_combineAssets($logic, $asset_list, $assets_to_list);
 						}
 					}
