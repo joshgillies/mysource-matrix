@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.213 2007/01/29 02:47:26 lwright Exp $
+* $Id: listing_engine.inc,v 1.214 2007/01/29 04:00:50 skim Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.213 $
+* @version $Revision: 1.214 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -264,6 +264,80 @@ class Listing_Engine extends Page
 		return parent::isDeletableLink($linkid);
 
 	}//end isDeletableLink()
+
+
+	/**
+	* Perform any additional processing required during the cloning of this asset
+	*
+	* This function is being called by asset_manager after the dependants of asset
+	* have been cloned.
+	*
+	* @param object	&$clone		the clone asset shell
+	* @param array	$components	the wanted components to clone eg.
+	*							Array(
+	*							'attributes',
+	*							'metadata_schemas',
+	*							'metadata',
+	*							'workflow',
+	*							'permissions',
+	*							'data',
+	*							);
+	*							or alternately
+	*							Array('all');
+	*
+	* @return boolean
+	* @access public
+	* @see asset::cloneComponentsAdditional()
+	*/
+	function cloneComponentsAdditional(&$clone, $components)
+	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (in_array('attributes', $components) || in_array('all', $components)) {
+
+			// assetids of asset grouping bodycopies are sotred an array.
+			// They need to be updated the newly cloned bodycopies.
+			$asset_grouping = $this->attr('asset_grouping');
+			if (!empty($asset_grouping)) {
+				$am =& $GLOBALS['SQ_SYSTEM']->am;
+				$new_asset_grouping = $asset_grouping;
+				foreach ($asset_grouping as $key => $group) {
+					if (isset($group['format_assetid']) && !empty($group['format_assetid'])) {
+						$bodycopy =& $am->getAsset($group['format_assetid']);
+						$group_format_names[$key] = $bodycopy->name;
+					}
+				}
+
+				$folder =& $clone->getFolder('group_formats');
+				if (is_null($folder)) {
+					// something went wrong during the dependants cloning
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					trigger_localised_error('CMS0068', E_USER_WARNING);
+					return FALSE;
+				} else {
+					$links_to_bodycopy = $am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
+					if (!empty($links_to_bodycopy)) {
+						foreach ($links_to_bodycopy as $link) {
+							$bodycopy =& $am->getAsset($link['minorid']);
+							if (($key = array_search($bodycopy->name, $group_format_names)) !== FALSE) {
+								$new_asset_grouping[$key]['format_assetid'] = $bodycopy->id;
+							}
+						}
+					}
+					$clone->setAttrValue('asset_grouping', $new_asset_grouping);
+					$clone->saveAttributes();
+				}
+			}//end if asset grouping
+
+		}//end if components
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return TRUE;
+
+	}//end cloneComponentsAdditional()
 
 
 	/**
@@ -2721,16 +2795,7 @@ class Listing_Engine extends Page
 					case 'parent_asset':
 						$restrict_types = array_get_index($group_level, 'restrict_types', Array());
 						$direct_parent_only = array_get_index($group_level, 'direct_parent_only', FALSE);
-
-						// If our direct parents have been cached from a Listing
-						// Engine-type asset (eg. Asset Listing does this if there
-						// is only one level and it's a direct parent grouping),
-						// then use that instead of working it out each time
-						if ($direct_parent_only && isset($this->_tmp['direct_parent_grouping'][$current_parent])) {
-							$value = $this->_tmp['direct_parent_grouping'][$current_parent];
-						} else {
-							$value = $this->getGroupableParentAssetids($current_parent, $restrict_types, $direct_parent_only);
-						}
+						$value = $this->getGroupableParentAssetids($current_parent, $restrict_types, $direct_parent_only);
 
 						// skip this whole section if both depth fields are NULL
 						// otherwise, we are limiting by parent's depth, relative

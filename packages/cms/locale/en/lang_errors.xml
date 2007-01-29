@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.15 2007/01/19 04:04:50 arailean Exp $
+* $Id: lang_errors.xml,v 1.16 2007/01/29 04:00:51 skim Exp $
 *
 */
 -->
@@ -197,4 +197,6 @@
 
 	<error code="CMS0067">Delegate method "%2$s" not found in edit functions of asset "%1$s"</error>
 
+	<!-- listing engine cloning -->
+	<error code="CMS0068">Cannot complete the cloning. Group Formats folder was not properly created</error>
 </errors>
