@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.318 2007/01/23 03:15:23 rhoward Exp $
+* $Id: asset_edit_interface.inc,v 1.319 2007/01/30 00:17:21 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.318 $
+* @version $Revision: 1.319 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -157,6 +157,7 @@ class Asset_Edit_Interface extends MySource_Object
 	*/
 	function paint(&$owner, &$o, $creating)
 	{
+
 		// if we dont have read access, go away
 		if ($owner->id && !$owner->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
@@ -602,7 +603,6 @@ class Asset_Edit_Interface extends MySource_Object
 				return $this->paintLayout($owner, $o, $layout);
 			}
 		}
-
 
 		  //////////////////////////
 		 //  Navigation History  //
@@ -1221,11 +1221,12 @@ class Asset_Edit_Interface extends MySource_Object
 			if ($screen == 'metadata') continue;
 			if ($screen == 'workflow') continue;
 			if ($screen == 'tagging') continue;
+			if ($screen == 'settings') continue;
+
 
 			// its not a static screen, so get the xml file and parse it for
 			// the keywords that we want, if the xml file exists
 			$file = $this->findLanguageFile('screen_'.$screen);
-
 			if (empty($file)) {
 				$file  = $this->findFile('screen_'.$screen);
 				$input =& new XML_Tree($file);
@@ -1246,6 +1247,7 @@ class Asset_Edit_Interface extends MySource_Object
 			}//end if
 
 		}//end foreach
+
 
 		// if there are some custom keywords, get some replacements from the owner
 		if (isset($keywords['custom']) && !empty($keywords['custom'])) {
@@ -1401,10 +1403,8 @@ class Asset_Edit_Interface extends MySource_Object
 	{
 		$prefix = $owner->getPrefix();
 		$print_commit_button = FALSE;
-
 		// start buffering anything and trash the content at the end
 		ob_start();
-
 		for ($i = 0; $i < count($root->children); $i++) {
 
 			$section =& $root->children[$i];
