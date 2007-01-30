@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.32 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: asset_status_live.inc,v 1.33 2007/01/30 23:05:01 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    LIVE -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live extends Asset_Status
@@ -137,14 +137,14 @@ class Asset_Status_Live extends Asset_Status
 									'user_name'		=> $user->name,
 									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
 									'asset_name'	=> $this->owner->name,
-									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow'),
+									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow', FALSE),
 								);
 					$msg->replacements = $msg_reps;
 					$asset_edt_fns = $this->owner->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
-						$msg->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview');
+						$msg->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
 					} else {
-						$msg->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details');
+						$msg->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
 					}
 
 					if (!$wfm->startWorkflow($this->owner->id, false, $msg)) {
@@ -160,15 +160,15 @@ class Asset_Status_Live extends Asset_Status
 									'user_name'		=> $user->name,
 									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
 									'asset_name'	=> $this->owner->name,
-									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow'),
+									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow', FALSE),
 								);
 					//$log->to = Array(0);
 					$log->replacements = $msg_reps;
 					$asset_edt_fns = $this->owner->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
-						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview');
+						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
 					} else {
-						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details');
+						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
 					}
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));

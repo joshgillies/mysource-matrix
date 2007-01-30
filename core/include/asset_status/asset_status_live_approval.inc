@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.42 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: asset_status_live_approval.inc,v 1.43 2007/01/30 23:05:01 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                   there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live_Approval extends Asset_Status
@@ -164,15 +164,15 @@ class Asset_Status_Live_Approval extends Asset_Status
 									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
 									'asset_name'	=> $this->owner->name,
 									'status'		=> get_status_description($new_status),
-									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow'),
+									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow', FALSE),
 								);
 				$msg->replacements = $msg_reps;
 				$msg->type = 'asset.workflow.review.cancel';
 				$asset_edt_fns = $this->owner->getEditFns();
 				if (isset($asset_edt_fns->static_screens['preview'])) {
-					$msg->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview');
+					$msg->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
 				} else {
-					$msg->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details');
+					$msg->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
 				}
 
 				if (!$wfm->cancelWorkflow($this->owner->id, $msg)) {
@@ -200,14 +200,14 @@ class Asset_Status_Live_Approval extends Asset_Status
 								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
 								'asset_name'	=> $this->owner->name,
 								'status'		=> get_status_description($new_status),
-								'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow'),
+								'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow', FALSE),
 							);
 				$log->replacements = $msg_reps;
 				$asset_edt_fns = $this->owner->getEditFns();
 				if (isset($asset_edt_fns->static_screens['preview'])) {
-					$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview');
+					$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
 				} else {
-					$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details');
+					$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
 				}
 
 				$log->type = 'asset.workflow.log.review.cancel';
@@ -273,16 +273,16 @@ class Asset_Status_Live_Approval extends Asset_Status
 										'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
 										'asset_name'	=> $this->owner->name,
 										'status'		=> get_status_description($new_status),
-										'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow'),
+										'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow', FALSE),
 									);
 						$log->replacements = $msg_reps;
 						//$log->to = Array(0);
 						$log->type = 'asset.workflow.log.review.complete';
 						$asset_edt_fns = $this->owner->getEditFns();
 						if (isset($asset_edt_fns->static_screens['preview'])) {
-							$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview');
+							$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
 						} else {
-							$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details');
+							$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
 						}
 
 						$log->parameters['assetid'] = $this->owner->id;

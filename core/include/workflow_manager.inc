@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.100 2007/01/12 00:49:34 bcaldwell Exp $
+* $Id: workflow_manager.inc,v 1.101 2007/01/30 23:05:01 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -507,9 +507,9 @@ class Workflow_Manager extends MySource_Object
 			// create a link to the preview screen, or to the details screen if preview doesn't exist
 			$asset_edt_fns = $asset->getEditFns();
 			if (isset($asset_edt_fns->static_screens['preview'])) {
-				$msg_reps['asset_url'] = current_url().$asset->getBackendHref('preview');
+				$msg_reps['asset_url'] = current_url().$asset->getBackendHref('preview', FALSE);
 			} else {
-				$msg_reps['asset_url'] = current_url().$asset->getBackendHref('details');
+				$msg_reps['asset_url'] = current_url().$asset->getBackendHref('details', FALSE);
 			}
 
 			$msg->parameters['assetid'] = $asset->id;
@@ -925,7 +925,7 @@ class Workflow_Manager extends MySource_Object
 						'user_name'		=> $user->name,
 						'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 						'asset_name'	=> $asset->name,
-						'workflow_url'	=> current_url().$asset->getBackendHref('workflow'),
+						'workflow_url'	=> current_url().$asset->getBackendHref('workflow', FALSE),
 					);
 		$log->replacements = $msg_reps;
 		$log->type = 'asset.workflow.log.approve';
@@ -969,14 +969,14 @@ class Workflow_Manager extends MySource_Object
 									'previous_step_name'	=> $previous_step_name,
 									'current_step_id'		=> $step,
 									'current_step_name'		=> $current_step_name,
-									'workflow_url'			=> current_url().$asset->getBackendHref('workflow'),
+									'workflow_url'			=> current_url().$asset->getBackendHref('workflow', FALSE),
 								);
 
 					$asset_edt_fns = $asset->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
-						$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview');
+						$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview', FALSE);
 					} else {
-						$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details');
+						$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details', FALSE);
 					}
 
 					$msg->type    = 'asset.workflow.invitation.progress';
@@ -1266,13 +1266,13 @@ class Workflow_Manager extends MySource_Object
 								'user_name'		=> $user->name,
 								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 								'asset_name'	=> $asset->name,
-								'workflow_url'	=> current_url().$asset->getBackendHref('workflow'),
+								'workflow_url'	=> current_url().$asset->getBackendHref('workflow', FALSE),
 							);
 				$asset_edt_fns = $asset->getEditFns();
 				if (isset($asset_edt_fns->static_screens['preview'])) {
-					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview');
+					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview', FALSE);
 				} else {
-					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details');
+					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details', FALSE);
 				}
 				$msg->replacements = $msg_reps;
 			}
@@ -1381,13 +1381,13 @@ class Workflow_Manager extends MySource_Object
 								'user_name'		=> $user->name,
 								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 								'asset_name'	=> $asset->name,
-								'workflow_url'	=> current_url().$asset->getBackendHref('workflow'),
+								'workflow_url'	=> current_url().$asset->getBackendHref('workflow', FALSE),
 							);
 				$asset_edt_fns = $asset->getEditFns();
 				if (isset($asset_edt_fns->static_screens['preview'])) {
-					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview');
+					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview', FALSE);
 				} else {
-					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details');
+					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details', FALSE);
 				}
 				$msg->replacements = $msg_reps;
 			}
@@ -1567,7 +1567,7 @@ class Workflow_Manager extends MySource_Object
 
 		if ($workflow['current_step'] == Array()) {
 			// We can't complete workflow by escalating
-			$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'workflow'));
+			$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'workflow'), FALSE);
 			$href = str_replace('./', '', current($hrefs));
 			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 			$url = 'http://'.current($root_urls).'/'.$href;
@@ -1640,7 +1640,7 @@ class Workflow_Manager extends MySource_Object
 						'user_name'				=> $user->name,
 						'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 						'asset_name'			=> $asset->name,
-						'workflow_url'			=> current_url().$asset->getBackendHref('workflow'),
+						'workflow_url'			=> current_url().$asset->getBackendHref('workflow', FALSE),
 						'assetid'				=> $assetid,
 						'previous_step_id'		=> implode('.', $step_before_id),
 						'previous_step_name'	=> $step_before['step_name'],
@@ -1683,14 +1683,14 @@ class Workflow_Manager extends MySource_Object
 							'previous_step_name'	=> $step_before['step_name'],
 							'current_step_id'		=> implode('.',$workflow['current_step']),
 							'current_step_name'		=> $current_step['step_name'],
-							'workflow_url'			=> current_url().$asset->getBackendHref('workflow'),
+							'workflow_url'			=> current_url().$asset->getBackendHref('workflow', FALSE),
 						);
 
 			$asset_edt_fns = $asset->getEditFns();
 			if (isset($asset_edt_fns->static_screens['preview'])) {
-				$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview');
+				$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview', FALSE);
 			} else {
-				$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details');
+				$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details', FALSE);
 			}
 
 			$msg->type    = 'asset.workflow.invitation.progress';
