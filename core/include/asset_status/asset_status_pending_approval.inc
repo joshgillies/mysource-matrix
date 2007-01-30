@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_pending_approval.inc,v 1.38 2007/01/30 23:05:01 rong Exp $
+* $Id: asset_status_pending_approval.inc,v 1.39 2007/01/30 23:52:21 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 */
 class Asset_Status_Pending_Approval extends Asset_Status
@@ -167,6 +167,12 @@ class Asset_Status_Pending_Approval extends Asset_Status
 									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow', FALSE),
 								);
 					$log->replacements = $msg_reps;
+					$asset_edt_fns = $this->owner->getEditFns();
+					if (isset($asset_edt_fns->static_screens['preview'])) {
+						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
+					} else {
+						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
+					}
 					$log->type    = 'asset.workflow.log.reject';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
