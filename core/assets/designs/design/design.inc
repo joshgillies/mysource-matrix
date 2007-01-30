@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.124 2007/01/09 00:21:46 lwright Exp $
+* $Id: design.inc,v 1.125 2007/01/30 05:19:10 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.124 $
+* @version $Revision: 1.125 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -860,7 +860,7 @@ echo '/*
 			$file_path = $this->data_path.'/design_file.php';
 			if (!file_exists($file_path)) {
 
-				// If the design file does not exist, find the pare
+				// If the design file does not exist, find from the parent design asset
 				$arr['majorid'] = $this->id;
 				do {
 					$arr = $GLOBALS['SQ_SYSTEM']->am->getLink($arr['majorid'], NULL, 'design', FALSE, NULL,'minor', FALSE);
@@ -869,7 +869,7 @@ echo '/*
 						break;
 					}
 					$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($arr['majorid']);
-					$file_path = dirname(dirname($design->data_path)).'/design/'.$arr['majorid'].'/design_file.php';
+					$file_path = dirname(dirname($design->data_path)).'/'.get_asset_hash($design->id).'/'.$arr['majorid'].'/design_file.php';
 				} while(!file_exists($file_path));
 			}
 		}
