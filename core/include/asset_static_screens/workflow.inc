@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.46 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: workflow.inc,v 1.47 2007/01/30 05:35:54 colivar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 */
 
@@ -147,7 +147,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 			continue;
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))])) {
 			ob_start();
 		}
 
@@ -767,8 +767,8 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 
 		$o->closeSection();
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
-			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower($section->attributes['name'])]] = ob_get_contents();
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))])) {
+			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))]] = ob_get_contents();
 			ob_end_flush();
 		}
 

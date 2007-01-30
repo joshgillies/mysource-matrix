@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.31 2007/01/22 05:34:42 tbarrett Exp $
+* $Id: permissions.inc,v 1.32 2007/01/30 05:35:54 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 
@@ -29,8 +29,8 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Paint the the access for permissions on a particular asset (used in popups etx)
 *
 * @param object	&$owner	the asset whose interface we are painting
-* @param object	&$o		the outputter class
-* @param object	&$ei	the edit interface
+* @param object	&$o				the outputter class
+* @param object	&$ei			the edit interface
 *
 * @return boolean
 * @access public
@@ -121,11 +121,12 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 * @param object	&$owner	the asset whose interface we are painting
 * @param object	&$o		the outputter class
 * @param object	&$ei	the edit interface
+* @param array	$keywords the keywords to replace
 *
 * @return boolean
 * @access public
 */
-function paintPermissions(&$owner, &$o, &$ei)
+function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 {
 	$prefix = $owner->getPrefix();
 	$perms = Array('read' => SQ_PERMISSION_READ, 'write' => SQ_PERMISSION_WRITE, 'admin' => SQ_PERMISSION_ADMIN);

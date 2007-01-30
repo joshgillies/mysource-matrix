@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.19 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: tagging.inc,v 1.20 2007/01/30 05:35:54 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 
@@ -62,7 +62,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 			continue;
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(   str_replace(' ', '_', $section->attributes['name'])    )])) {
 			ob_start();
 		}
 
@@ -83,8 +83,13 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 			switch (strtolower($field->attributes['code'])) {
 
 				case 'suggest_tags' :
+				
+				
 
 					$o->openField('');
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+						ob_start();
+					}
 
 					if ($write_access) {
 						ob_start();
@@ -101,12 +106,20 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 						ob_end_flush();
 					}
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+						ob_end_flush();
+					}
 					$o->closeField();
 				break;
 
 				case 'tags' :
 
 					$o->openField('');
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+						ob_start();
+					}
+					
 					$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
 					$current_tag_links = $tag_manager->getTagLinks($owner->id);
 					ob_start();
@@ -141,6 +154,10 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 						$o->note($field->children[1]->content);
 					}
 					ob_end_flush();
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+						ob_end_flush();
+					}
 					$o->closeField();
 				break;
 
@@ -149,6 +166,10 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 					$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
 					$current_tag_links = $tag_manager->getTagLinks($owner->id);
 					$o->openField('');
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+						ob_start();
+					}
+
 					ob_start();
 
 					if ($write_access) {
@@ -166,6 +187,11 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 					}
 
 					ob_end_flush();
+
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+						ob_end_flush();
+					}					
 					$o->closeField();
 				break;
 
@@ -173,8 +199,12 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 					if ($write_access) {
 						$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id, Array(), FALSE, FALSE);
 						$kiddies = array_filter($kiddies);
-						if (count($kiddies)) {
-							$o->openSection(translate('cascade_options'));
+						if (count($kiddies)) {						
+							if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+								ob_start();
+							}							
+							
+							$o->openSection(translate('cascade_options'));								
 								$o->openField('Note');
 									echo translate('action_affects_assets_below_this', count($kiddies), $owner->name);
 								$o->closeField();
@@ -193,6 +223,11 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 								$o->closeField();
 
 							$o->closeSection();
+							if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+								$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+								ob_end_flush();
+							}			
+							
 
 						}
 					}
@@ -203,7 +238,11 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 		}//end for
 
 		$o->closeSection();
-
+		
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(    str_replace(' ', '_', $section->attributes['name'])        )])) {
+			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower(             str_replace(' ', '_', $section->attributes['name'])            )]] = ob_get_contents();
+			ob_end_flush();
+		}
 	}//end for
 
 	return $write_access;

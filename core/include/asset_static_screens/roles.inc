@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: roles.inc,v 1.5 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: roles.inc,v 1.6 2007/01/30 05:35:54 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Roles Static Screen Functions
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 
@@ -102,7 +102,7 @@ function paintInlineRoles(&$owner, &$o, &$ei)
 * @param object		&$owner		the asset whose interface we are painting
 * @param object		&$o			the outputter class
 * @param object		&$ei		the edit interface
-* @param boolean	$keywords	the keywords to replace
+* @param array		$keywords	the keywords to replace
 *
 * @return boolean
 * @access public
@@ -132,7 +132,7 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 			continue;
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))])) {
 			ob_start();
 		}
 
@@ -156,6 +156,9 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 			}
 
 			$o->openField($field_name);
+			if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+					ob_start();
+			}
 				switch (strtolower($field->attributes['code'])) {
 					case 'roles_current' :
 						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($owner->id);
@@ -237,6 +240,10 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 					$o->note($field->children[1]->content);
 				}
 
+			if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+				$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+				ob_end_flush();
+			}					
 			$o->closeField();
 
 		}//end for
@@ -268,8 +275,8 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 			}
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
-			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower($section->attributes['name'])]] = ob_get_contents();
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))])) {
+			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))]] = ob_get_contents();
 			ob_end_flush();
 		}
 

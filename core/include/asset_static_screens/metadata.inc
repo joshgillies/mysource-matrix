@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.30 2006/12/14 22:00:09 tbarrett Exp $
+* $Id: metadata.inc,v 1.31 2007/01/30 05:35:54 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 
@@ -66,7 +66,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 			continue;
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(      str_replace(' ', '_', $section->attributes['name'])     )])) {
 			ob_start();
 		}
 
@@ -202,8 +202,8 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 		}//end for
 		$o->closeSection();
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
-			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower($section->attributes['name'])]] = ob_get_contents();
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(          str_replace(' ', '_', $section->attributes['name'])           )])) {
+			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower(          str_replace(' ', '_', $section->attributes['name'])          )]] = ob_get_contents();
 			ob_end_flush();
 		}
 

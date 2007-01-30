@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.39 2007/01/29 23:57:44 colivar Exp $
+* $Id: settings.inc,v 1.40 2007/01/30 05:35:54 colivar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 
@@ -84,12 +84,12 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						$display_name = $field->children[0]->content;
 					}
 					$o->openField($display_name);
-					if (!is_null($keywords) && isset($keywords['fields']['version_current_version'])) {
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
 						ob_start();
 					}
 					echo $owner->version;
-					if (!is_null($keywords) && isset($keywords['fields']['version_current_version'])) {
-						$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['version_current_version']] = ob_get_contents();
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
 						ob_end_flush();
 					}
 					$o->closeField();

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: dependants.inc,v 1.10 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: dependants.inc,v 1.11 2007/01/30 05:35:54 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Dependants Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
@@ -28,14 +28,15 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paints the interface for viewing dependants details
 *
-* @param object	&$owner	the asset whose interface we are painting
-* @param object	&$o		the outputter class
-* @param object	&$ei	the edit interface
+* @param object	&$owner		the asset whose interface we are painting
+* @param object	&$o				the outputter class
+* @param object	&$ei			the edit interface
+* @param array	$keywords	the keywords to replace
 *
 * @return boolean
 * @access public
 */
-function paintDependants(&$owner, &$o, &$ei)
+function paintDependants(&$owner, &$o, &$ei, $keywords=NULL)
 {
 	$o->openSection(translate('current_lock_status'));
 	$o->openField('&nbsp;');

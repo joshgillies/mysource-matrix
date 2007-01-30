@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.319 2007/01/30 00:17:21 colivar Exp $
+* $Id: asset_edit_interface.inc,v 1.320 2007/01/30 05:35:54 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.319 $
+* @version $Revision: 1.320 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1184,7 +1184,7 @@ class Asset_Edit_Interface extends MySource_Object
 		if (!isset($keywords['entire_screens'])) {
 			$keywords['entire_screens'] = Array();
 		}
-
+		
 		$screens = array_merge(array_keys($keywords['screens']), array_keys($keywords['entire_screens']));
 		$screens = array_unique($screens);
 
@@ -1222,7 +1222,16 @@ class Asset_Edit_Interface extends MySource_Object
 			if ($screen == 'workflow') continue;
 			if ($screen == 'tagging') continue;
 			if ($screen == 'settings') continue;
-
+			if ($screen == 'permissions')	continue;
+			if ($screen == 'roles') continue;
+			if ($screen == 'metadataschemas') continue;
+			if ($screen == 'dependants') continue;
+			if ($screen == 'linking') continue;
+			if ($screen == 'history') continue;
+			if ($screen == 'logs') continue;
+			if ($screen == 'preview') continue;
+			if ($screen == 'tagging') continue;
+			if ($screen == 'lookupValues') continue;
 
 			// its not a static screen, so get the xml file and parse it for
 			// the keywords that we want, if the xml file exists
