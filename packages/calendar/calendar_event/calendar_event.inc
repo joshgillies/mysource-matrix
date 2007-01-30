@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.74 2007/01/19 00:03:47 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.75 2007/01/30 00:15:27 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -724,6 +724,7 @@ class Calendar_Event extends Asset
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$date_values = Array();
+
 		foreach (Array('start_date', 'end_date') as $date_comp) {
 			$iso = $this->attr($date_comp);
 

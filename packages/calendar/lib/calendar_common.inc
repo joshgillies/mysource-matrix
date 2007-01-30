@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.54 2006/12/07 05:51:51 bcaldwell Exp $
+* $Id: calendar_common.inc,v 1.55 2007/01/30 00:15:27 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -313,7 +313,7 @@ class Calendar_Common
 			break;
 
 			case 'period' :
-				$last_date = date('Y-m-d', strtotime("$iso 12:00:00 +$length days"));
+				$last_date = date('Y-m-d', strtotime("$iso 00:00:00 +$length days") - strtotime('1970-01-01 00:00:00 Z'));
 				$last_date_components = Calendar_Common::getDateComponents($last_date);
 				$last_day = $last_date_components['ds'];
 
@@ -846,6 +846,8 @@ class Calendar_Common
 		$event_start_date = sprintf('%04d-%02d-%02d', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday']);
 		$event_start_dts = ($event['start_date_hours'] * 60) + $event['start_date_minutes'];
 
+		$event_start_date = sprintf('%04d-%02d-%02d %02d:%02d:00', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday'], $event['start_date_hours'], $event['start_date_minutes']);
+
 		$i = 0;
 
 		if (!is_null($event['end_date_ds'])) {
@@ -853,35 +855,27 @@ class Calendar_Common
 			$event_end_date = sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
 			$event_end_dts = (($event['end_date_hours'] * 60) + $event['end_date_minutes']);
 
+			$event_end_date = sprintf('%04d-%02d-%02d %02d:%02d:00', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday'], $event['end_date_hours'], $event['end_date_minutes']);
+
 			if ($event['start_date_ds'] != $event['end_date_ds']) {
 				// covers multiple days
 				$event['expanded'] = 1;
-				$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 
-				$end_time = mktime(12, 0, 0, $event['end_date_mon'], $event['end_date_mday'], $event['end_date_year']);
+				//$start_time = gmmktime(0, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 
-				if (($first_day <= $event_start_date) && ($event_start_dts < $day_end_dts)) {
+				//$end_time = gmmktime(0, 0, 0, $event['end_date_mon'], $event['end_date_mday'], $event['end_date_year']);
+
+				if (($first_day <= substr($event_start_date, 0, 10)) && ($event_start_dts < $day_end_dts)) {
 					// insert first day
 					$result_list[$assetid.':'.$i] = Array();
 					for (reset($event); NULL !== ($k = key($event)); next($event)) {
 						$result_list[$assetid.':'.$i][$k] = $event[$k];
 					}
-					$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $start_time);
-					$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $start_time);
-					$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $start_time);
-					$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $start_time);
-					$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $start_time);
-					$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
-					$result_list[$assetid.':'.$i] = array_merge($event, Array(
-																			'start_date_year'	=> date('Y', $start_time), 'start_date_mon' => date('n', $start_time),
-																			'start_date_mday'	=> date('j', $start_time),
-																			'end_date_year'		=> date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
-																			'end_date_mday'		=> date('j', $start_time),
-																		));
-						if (!is_null($result_list[$assetid.':'.$i]['start_date_hours'])) {
-							$result_list[$assetid.':'.$i]['end_date_hours'] = $day_end_hours;
-							$result_list[$assetid.':'.$i]['end_date_minutes'] = $day_end_minutes;
-						}
+
+					$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i],
+														Calendar_Common::getDateComponents($event_start_date, 'start_date_'),
+														Calendar_Common::getDateComponents(substr($event_start_date, 0, 10).' 24:00:00', 'end_date_'));
+
 					$i++;
 				}
 
@@ -889,45 +883,31 @@ class Calendar_Common
 				$inter_date = date('Y-m-d', strtotime(max(add_days_to_iso($event_start_date, 1), $first_day),' +1 day'));
 				$last_inter_date = min($last_day, add_days_to_iso($event_end_date, -1));
 				while ($inter_date <= $last_inter_date) {
-					$inter_time = iso8601_ts($inter_date.' 12:00:00');
+					//$inter_time = iso8601_ts($inter_date.' 12:00:00');
 					$result_list[$assetid.':'.$i] = Array();
 					for (reset($event); NULL !== ($k = key($event)); next($event)) {
 						$result_list[$assetid.':'.$i][$k] = $event[$k];
 					}
-					$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $inter_time);
-					$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $inter_time);
-					$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $inter_time);
-					$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $inter_time);
-					$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $inter_time);
-					$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $inter_time);
 
-					if (!is_null($result_list[$assetid.':'.$i]['start_date_hours'])) {
-						$result_list[$assetid.':'.$i]['start_date_hours'] = $day_start_hours;
-						$result_list[$assetid.':'.$i]['start_date_minutes'] = $day_start_minutes;
-						$result_list[$assetid.':'.$i]['end_date_hours'] = $day_end_hours;
-						$result_list[$assetid.':'.$i]['end_date_minutes'] = $day_end_minutes;
-					}
+					$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i],
+														Calendar_Common::getDateComponents($inter_date.' 00:00:00', 'start_date_'),
+														Calendar_Common::getDateComponents($inter_date.' 24:00:00', 'end_date_'));
+
 					$inter_date = add_days_to_iso($inter_date, 1);
 					$i++;
 				}
 
-				if (($event_end_date <= $last_day) && ($event_end_dts > $day_start_dts)) {
+				if ((substr($event_end_date, 0, 10) <= $last_day) && ($event_end_dts > $day_start_dts)) {
 					// insert the last day
 					$result_list[$assetid.':'.$i] = Array();
 					for (reset($event); NULL !== ($k = key($event)); next($event)) {
 						$result_list[$assetid.':'.$i][$k] = $event[$k];
 					}
 
-					$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $end_time);
-					$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $end_time);
-					$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $end_time);
-					$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $end_time);
-					$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $end_time);
-					$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $end_time);
-					if (!is_null($result_list[$assetid.':'.$i]['start_date_hours'])) {
-						$result_list[$assetid.':'.$i]['start_date_hours'] = $day_start_hours;
-						$result_list[$assetid.':'.$i]['start_date_minutes'] = $day_start_minutes;
-					}
+					$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i],
+														Calendar_Common::getDateComponents(substr($event_end_date, 0, 10).' 00:00:00', 'start_date_'),
+														Calendar_Common::getDateComponents($event_end_date, 'end_date_'));
+
 				}
 				$i++;
 
@@ -937,18 +917,15 @@ class Calendar_Common
 					// ended too early or started too late to be shown
 					return;
 				}
-				$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
+				$start_time = gmmktime(0, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 				$result_list[$assetid.':'.$i] = Array();
 				for (reset($event); NULL !== ($k = key($event)); next($event)) {
 					$result_list[$assetid.':'.$i][$k] = $event[$k];
 				}
 
-				$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $start_time);
-				$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $start_time);
-				$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $start_time);
-				$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $start_time);
-				$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $start_time);
-				$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
+				$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i],
+													Calendar_Common::getDateComponents($event_start_date, 'start_date_'),
+													Calendar_Common::getDateComponents($event_end_date, 'end_date_'));
 
 				$i++;
 			}
@@ -961,19 +938,21 @@ class Calendar_Common
 					return;
 				}
 			}
-			$start_time = mktime(12, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
+			$start_time = gmmktime(0, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 			$result_list[$assetid.':'.$i] = Array();
 			for (reset($event); NULL !== ($k = key($event)); next($event)) {
 				$result_list[$assetid.':'.$i][$k] = $event[$k];
 			}
 
-			$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $start_time);
-			$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $start_time);
-			$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $start_time);
-			$result_list[$assetid.':'.$i]['end_date_ds']     = round(iso8601_ts($start_time) / 86400);
-			$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $start_time);
-			$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $start_time);
-			$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
+			if (!is_null($event['start_date_hours'])) {
+				$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i],
+													Calendar_Common::getDateComponents($event_start_date, 'start_date_'),
+													Calendar_Common::getDateComponents($event_start_date, 'end_date_'));
+			} else {
+				$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i],
+													Calendar_Common::getDateComponents($event_start_date.' 00:00:00', 'start_date_'),
+													Calendar_Common::getDateComponents($event_start_date.' 24:00:00', 'end_date_'));
+			}
 
 			$i++;
 
@@ -1013,6 +992,9 @@ class Calendar_Common
 		$event_end_date = is_null($event['end_date_ds']) ? NULL : sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
 		$event_start_dts = is_null($event['start_date_hours']) ? NULL : (($event['start_date_hours'] * 60) + $event['start_date_minutes']);
 		$event_end_dts = is_null($event['end_date_hours']) ? NULL : (($event['end_date_hours'] * 60) + $event['end_date_minutes']);
+
+		$event_start_date = sprintf('%04d-%02d-%02d %02d:%02d:00', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday'], $event['start_date_hours'], $event['start_date_minutes']);
+		$event_end_date = is_null($event['end_date_ds']) ? NULL : sprintf('%04d-%02d-%02d %02d:%02d:00', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday'], $event['end_date_hours'], $event['end_date_minutes']);
 
 		// dispose of one case immediately
 		if (is_null($event['end_date_ds']) && !is_null($event['start_date_hours'])) {
@@ -1056,7 +1038,8 @@ class Calendar_Common
 
 		// process instances until we get to the end of the period
 		$i = 0;
-		while (($next_occur !== FALSE) && ($next_occur <= $last_day)) {
+
+		while (($next_occur !== FALSE) && (substr($next_occur, 0, 10) <= $last_day)) {
 
 			$next_occur_ds = Calendar_Common::_getDayStamp($next_occur);
 			// days between occurrences
@@ -1067,10 +1050,10 @@ class Calendar_Common
 				if ($event['start_date_ds'] != $event['end_date_ds']) {
 
 					// multiple day
-					$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
+					$start_time = gmmktime(0, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
 					$start_date = date('Y-m-d', $start_time);
 
-					$end_time = mktime(12, 0, 0, $event['end_date_mon'], $event['end_date_mday'], $event['end_date_year'])+$difference*86400;
+					$end_time = gmmktime(0, 0, 0, $event['end_date_mon'], $event['end_date_mday'], $event['end_date_year'])+$difference*86400;
 					$end_date = date('Y-m-d', $end_time);
 
 					if (($start_date >= $first_day) && ($start_date <= $last_day) && (is_null($event_start_dts) || ($event_start_dts <= $day_end_dts))) {
@@ -1080,17 +1063,10 @@ class Calendar_Common
 							$result_list[$assetid.':'.$i][$k] = $event[$k];
 						}
 
-						$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $start_time);
-						$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $start_time);
-						$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $start_time);
-						$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $start_time);
-						$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $start_time);
-						$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
+						$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i],
+														Calendar_Common::getDateComponents($event_start_date.' +'.$difference.' days', 'start_date_'),
+														Calendar_Common::getDateComponents($start_date.' 24:00:00', 'end_date_'));
 
-						if (!is_null($event['end_date_hours'])) {
-							list($result_list[$assetid.':'.$i]['end_date_hours'], $result_list[$assetid.':'.$i]['end_date_minutes']) = explode(':', $day_end_time);
-							$result_list[$assetid.':'.$i]['end_date_ts'] = iso8601_ts($start_date.' '.$day_end_time.':00 Z');
-						}
 						$i++;
 
 					}
@@ -1105,22 +1081,12 @@ class Calendar_Common
 								$result_list[$assetid.':'.$i][$k] = $event[$k];
 							}
 
-							$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $inter_time);
-							$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $inter_time);
-							$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $inter_time);
-							$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $inter_time);
-							$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $inter_time);
-							$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $inter_time);
+							$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i],
+																Calendar_Common::getDateComponents($inter_date.' 00:00:00', 'start_date_'),
+																Calendar_Common::getDateComponents($inter_date.' 24:00:00', 'end_date_'));
+
 							$result_list[$assetid.':'.$i]['partition_start']   = $day_start_time;
 
-							if (!is_null($event['start_date_hours'])) {
-								list($result_list[$assetid.':'.$i]['start_date_hours'], $result_list[$assetid.':'.$i]['start_date_minutes']) = explode(':', $day_start_time);
-								$result_list[$assetid.':'.$i]['start_date_ts'] = iso8601_ts($inter_date.' '.$day_start_time.':00 Z');
-							}
-							if (!is_null($event['end_date_hours'])) {
-								list($result_list[$assetid.':'.$i]['end_date_hours'], $result_list[$assetid.':'.$i]['end_date_minutes']) = explode(':', $day_end_time);
-								$result_list[$assetid.':'.$i]['end_date_ts'] = iso8601_ts($inter_date.' '.$day_end_time.':00 Z');
-							}
 							$i++;
 						}
 					}
@@ -1132,25 +1098,18 @@ class Calendar_Common
 							$result_list[$assetid.':'.$i][$k] = $event[$k];
 						}
 
-						$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $end_time);
-						$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $end_time);
-						$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $end_time);
-						$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $end_time);
-						$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $end_time);
-						$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $end_time);
-						$result_list[$assetid.':'.$i]['partition_start'] = $day_start_time;
+						$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i],
+																Calendar_Common::getDateComponents($end_date.' 00:00:00', 'start_date_'),
+																Calendar_Common::getDateComponents($event_end_date.' +'.$difference.' days', 'end_date_'));
 
-						if (!is_null($event['start_date_hours'])) {
-							list($result_list[$assetid.':'.$i]['start_date_hours'], $result_list[$assetid.':'.$i]['start_date_minutes']) = explode(':', $day_start_time);
-							$result_list[$assetid.':'.$i]['start_date_ts'] = iso8601_ts($end_date.' '.$day_start_time.':00 Z');
-						}
+						$result_list[$assetid.':'.$i]['partition_start'] = $day_start_time;
 
 						$i++;
 					}
 
 				} else {
 					// fully-specified but falls within a single day
-					$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
+					$start_time = gmmktime(0, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
 					$start_date = date('Y-m-d', $start_time);
 					if (($start_date >= $first_day) && ($start_date <= $last_day) &&
 							(is_null($event_start_dts) ||
@@ -1164,27 +1123,16 @@ class Calendar_Common
 							$result_list[$assetid.':'.$i][$k] = $event[$k];
 						}
 
-						$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $start_time);
-						$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $start_time);
-						$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $start_time);
-						$result_list[$assetid.':'.$i]['end_date_ds']     = Calendar_Common::_getDayStamp($start_time);
-						$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $start_time);
-						$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $start_time);
-						$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
+						$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i],
+																Calendar_Common::getDateComponents($event_start_date.' +'.$difference.' days', 'start_date_'),
+																Calendar_Common::getDateComponents($event_end_date.' +'.$difference.' days', 'end_date_'));
 
-						if (!is_null($event['start_date_hours'])) {
-							$result_list[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date.' '.$event['start_date_hours'].':'.$event['start_date_minutes'].':00 Z');
-							$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' '.$event['end_date_hours'].':'.$event['end_date_minutes'].':00 Z');
-						} else {
-							$result_list[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date.' Z');
-							$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' Z');
-						}
 						$i++;
 					}
 				}//end else
 			} else {
 				// end date not specified, so it's either just a date or a point in time
-				$start_time = mktime(12, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
+				$start_time = gmmktime(0, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
 				$start_date = date('Y-m-d', $start_time);
 
 				if (($start_date >= $first_day) && ($start_date <= $last_day)) {
@@ -1193,20 +1141,14 @@ class Calendar_Common
 						$result_list[$assetid.':'.$i][$k] = $event[$k];
 					}
 
-					$result_list[$assetid.':'.$i]['start_date_year'] = date('Y', $start_time);
-					$result_list[$assetid.':'.$i]['start_date_mon']  = date('n', $start_time);
-					$result_list[$assetid.':'.$i]['start_date_mday'] = date('j', $start_time);
-					$result_list[$assetid.':'.$i]['end_date_ds']     = Calendar_Common::_getDayStamp($start_time);
-					$result_list[$assetid.':'.$i]['end_date_year']   = date('Y', $start_time);
-					$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $start_time);
-					$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
-
 					if (!is_null($event['start_date_hours'])) {
-						$result_list[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date.' '.$event['start_date_hours'].':'.$event['start_date_minutes'].':00 Z');
-						$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' '.$event['end_date_hours'].':'.$event['end_date_minutes'].':00 Z');
+						$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i],
+																Calendar_Common::getDateComponents($event_start_date.' +'.$difference.' days', 'start_date_'),
+																Calendar_Common::getDateComponents($event_start_date.' +'.$difference.' days', 'end_date_'));
 					} else {
-						$result_list[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date.' Z');
-						$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' Z');
+						$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i],
+																Calendar_Common::getDateComponents($event_start_date.' 00:00:00 +'.$difference.' days', 'start_date_'),
+																Calendar_Common::getDateComponents($event_start_date.' 24:00:00 +'.$difference.' days', 'end_date_'));
 					}
 
 					$i++;
@@ -1233,11 +1175,11 @@ class Calendar_Common
 	{
 		if (is_numeric($value)) {
 			// timestamp
-			return round($value / 86400);
+			return floor($value / 86400);
 		} else {
 			// iso format
-			$value = substr($value, 0, 10).' 12:00:00';
-			return round(iso8601_ts($value) / 86400);
+			$value = strtotime(substr($value, 0, 10).' 00:00:00 Z') - strtotime('1970-01-01 00:00:00 Z');
+			return floor($value / 86400);
 		}
 
 	}//end _getDayStamp()

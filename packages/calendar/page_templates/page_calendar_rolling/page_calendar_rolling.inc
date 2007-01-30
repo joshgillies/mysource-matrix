@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.19 2007/01/08 03:25:04 emcdonald Exp $
+* $Id: page_calendar_rolling.inc,v 1.20 2007/01/30 00:15:28 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -584,7 +584,7 @@ class Page_Calendar_Rolling extends Page
 		}
 
 		// get the single events
-		$start_date_stamp = floor(strtotime($start_date.' 12:00:00 GMT') / 86400);
+		$start_date_stamp = Calendar_Common::_getDayStamp($start_date);
 		$end_date_stamp = $start_date_stamp + $length;
 		$date_sql = '(cd.start_date_ds BETWEEN '.$db->quote($start_date_stamp).' AND '.$db->quote($end_date_stamp).') OR (cd.start_date_ds < '.$db->quote($start_date_stamp).' AND cd.end_date_ds >= '.$db->quote($start_date_stamp).')';
 		$sql = Calendar_Common::getSingleEventQueryBase(array_keys($root_nodes)).' AND ('.$date_sql.') ORDER BY cd.start_date_ts';

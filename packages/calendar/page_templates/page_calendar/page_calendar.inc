@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.199 2007/01/18 23:41:33 colivar Exp $
+* $Id: page_calendar.inc,v 1.200 2007/01/30 00:15:28 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.199 $
+* @version $Revision: 1.200 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2646,7 +2646,7 @@ class Page_Calendar extends Page
 		}
 
 		// get the single events
-		$start_date_stamp = floor(strtotime($date.' 12:00:00 GMT')/86400);
+		$start_date_stamp = Calendar_Common::_getDayStamp($date);
 		$end_date_stamp = $start_date_stamp + 6;
 		$date_sql = '(cd.start_date_ds BETWEEN '.$db->quoteSmart($start_date_stamp).' AND '.$db->quoteSmart($end_date_stamp).') OR (cd.start_date_ds < '.$db->quoteSmart($start_date_stamp).' AND cd.end_date_ds >= '.$db->quoteSmart($start_date_stamp).')';
 		$sql = Calendar_Common::getSingleEventQueryBase($root_ids).' AND ('.$date_sql.')';
@@ -2846,7 +2846,7 @@ class Page_Calendar extends Page
 		}
 
 		// GET SINGLE EVENTS:
-		$today_date_stamp = floor(strtotime($date.' 12:00:00 GMT')/86400);
+		$today_date_stamp = Calendar_Common::_getDayStamp($date);
 		$date_sql = '(('.$today_date_stamp.' = cd.start_date_ds) OR ('.$today_date_stamp.' BETWEEN cd.start_date_ds AND cd.end_date_ds))';
 		$sql = Calendar_Common::getSingleEventQueryBase($root_ids).' AND '.$date_sql;
 		$sql .= $this->_getRootNodeRestrictionSQL();
