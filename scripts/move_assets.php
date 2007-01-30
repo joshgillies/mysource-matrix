@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: move_assets.php,v 1.5 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: move_assets.php,v 1.6 2007/01/30 00:44:51 rong Exp $
 *
 */
 
@@ -34,21 +34,21 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 //FROM FOLDER
 $FROM_FOLDER = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
 if (empty($FROM_FOLDER)) {
-	echo "ERROR: You need to provide the asset id of the root folder as the second argument\n";
+	echo "ERROR: You need to provide the from-folder-id as the second argument\n";
 	exit();
 }
 
 //TO FOLDER
 $TO_FOLDER = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : '';
 if (empty($TO_FOLDER)) {
-	echo "ERROR: You need to provide the asset id of the root folder as the second argument\n";
+	echo "ERROR: You need to provide the to-folder-id as the third argument\n";
 	exit();
 }
 
 //ASSET_TYPE
 $ASSET_TYPE = (isset($_SERVER['argv'][4])) ? $_SERVER['argv'][4] : '';
 if (empty($ASSET_TYPE)) {
-	echo "ERROR: You need to enter the asset_type as the third argument\n";
+	echo "ERROR: You need to enter the asset_type as the fourth argument\n";
 	exit();
 }
 
