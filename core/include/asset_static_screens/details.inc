@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.37 2007/01/08 02:50:50 lwright Exp $
+* $Id: details.inc,v 1.38 2007/01/30 00:20:30 colivar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 */
 
@@ -69,7 +69,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 			}
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))])) {
 			ob_start();
 		}
 
@@ -397,8 +397,8 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 			$o->closeSection();
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
-			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower($section->attributes['name'])]] = ob_get_contents();
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))])) {
+			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))]] = ob_get_contents();
 			ob_end_flush();
 		}
 
