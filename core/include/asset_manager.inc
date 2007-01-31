@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.531.2.8 2007/01/29 04:33:19 skim Exp $
+* $Id: asset_manager.inc,v 1.531.2.9 2007/01/31 00:17:04 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.531.2.8 $
+* @version $Revision: 1.531.2.9 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6858,12 +6858,15 @@ class Asset_Manager extends MySource_Object
 	*
 	* It reutrns an array of assetid and hrefs to the wanted screen
 	*
-	* @param array	$asset_info	an array of asset info in the form assetid => screen code name
+	* @param array	$asset_info		an array of asset info in the form assetid => screen code name
+	* @param bool	$backend_page	whether to include the 'SQ_BACKEND_PAGE=main' query string
+	*								include this bit when we are switching screens in the backend
+	*								do not include when generating URL (e.g. for workflow emails)
 	*
 	* @return array
 	* @access public
 	*/
-	function getAssetBackendHref($asset_info)
+	function getAssetBackendHref($asset_info, $backend_page=TRUE)
 	{
 		if (empty($asset_info)) return Array();
 
@@ -6874,7 +6877,8 @@ class Asset_Manager extends MySource_Object
 			if (SQ_IN_LIMBO) {
 				$href = sq_web_path('edit').'/?asset_ei_screen='.$screen;
 			} else {
-				$href = sq_web_path('admin').'/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.$assetid.'&asset_ei_screen='.$screen;
+				$frame = ($backend_page) ? 'SQ_BACKEND_PAGE=main&' : '';
+				$href = sq_web_path('admin').'/?'.$frame.'backend_section=am&am_section=edit_asset&assetid='.$assetid.'&asset_ei_screen='.$screen;
 			}
 			if (!$current_url_complete && strpos($href, './') === 0) {
 				$href = substr($href, 2);
