@@ -10,12 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.10 2006/12/06 00:00:30 bcaldwell Exp $
+* $Id: trigger_action_set_permission.inc,v 1.11 2007/01/31 22:06:57 emcdonald Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
+require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 
 /**
 * Trigger_Action_Set_Permission
@@ -24,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +56,17 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	{
 		// check required settings
 		if (empty($settings['permission'])) return FALSE;
-		if (empty($settings['userid'])) return FALSE;
+
+		$parameter_map_value = array_get_index($settings, 'user_map', serialize(Array()));
+		$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+		$userid = $atr_parameter_map->getParameterValue('user');
+
+		$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid, Array('user', 'user_group'), FALSE);
+
+		if (empty($userid) || empty($user_info)) {
+			return FALSE;
+		}
+
 		if (empty($state['assetid'])) return FALSE;
 		$granted = array_get_index($settings, 'granted', TRUE);
 		$dependant_only = array_get_index($settings, 'dependant_only', FALSE);
@@ -89,7 +100,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 										$settings['permission']	=> Array(
 																	Array(
 																		'granted'			=> $granted,
-																		'userid'			=> $settings['userid'],
+																		'userid'			=> $userid,
 																		'previous_access'	=> NULL,
 																	),
 																   ),
@@ -101,7 +112,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 
 		return Array(
 				'assetid'		=> $state['assetid'],
-				'userid'		=> $settings['userid'],
+				'userid'		=> $userid,
 				'permission'	=> $settings['permission'],
 				'granted'		=> $granted,
 			   );
@@ -121,9 +132,13 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	*/
 	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
-		// due to "access for" being the only stable text in this interface
+	// due to "access for" being the only stable text in this interface
 		// we are not translating like the rest but just the text as it appears
 		ob_start();
+
+		// attribute friendly prefix
+		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+		hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 		// print the grant/deny selection
 		if (empty($settings['granted'])) {
@@ -156,34 +171,12 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		}
 		echo ' '.translate('access_for').' ';
 
-		// print the asset finder
-		if (empty($settings['userid'])) {
-			$selected_userid = 0;
-		} else {
-			$selected_userid = $settings['userid'];
-		}
-		if ($write_access) {
+		$parameter_map_value = array_get_index($settings, 'user_map', serialize(Array()));
 
-			asset_finder(
-				$prefix.'[userid]',
-				$selected_userid,
-				Array(
-					'user'			=> 'D',
-					'user_group'	=> 'D',
-				)
-			);
+		$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 
-		} else {
-			$user = NULL;
-			if ($selected_userid > 0) {
-				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($selected_userid);
-			}
-			if (is_null($user)) {
-				echo '<b>['.translate('trigger_no_user_selected').']</b>';
-			} else {
-				echo '<b>'.$user->name.'</b>';
-			}
-		}
+		$atr_parameter_map->setParameter('user', 'Userid or Groupid');
+		echo $atr_parameter_map->paint($new_prefix.'_parameter_map', !$write_access);
 
 		// dependants_only
 		$dependants_only = array_get_index($settings, 'dependants_only', FALSE);
@@ -223,6 +216,8 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	*/
 	function processInterface(&$settings, $request_data)
 	{
+		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+
 		// check if the permission is valid
 		$permission = array_get_index($request_data, 'permission', FALSE);
 		if (!$permission) return 'Permission not specified';
@@ -241,17 +236,21 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		}
 		$settings['granted'] = $granted;
 
-		// a userid must have been selected
-		$user_data = array_get_index($request_data, 'userid', FALSE);
-		$userid = $user_data['assetid'];
 
-		if (empty($userid)) return 'User id is not specified';
+		$atr_parameter_map =& new Asset_Attribute_Parameter_Map();
+		$atr_parameter_map->process($new_prefix.'_parameter_map');
 
-		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-		if (is_null($user)) {
-			return 'Specified user is not a valid asset';
+
+		$userid = $atr_parameter_map->getParameterValue('user');
+
+		if ($userid) {
+			$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid, Array('user', 'user_group'), FALSE);
+			if (empty($user_info)) {
+				return 'Specified user is not a valid asset';
+			}
 		}
-		$settings['userid'] = $userid;
+
+		$settings['user_map'] = $atr_parameter_map->value;
 
 		// dependants_only
 		$dependants_only = array_get_index($request_data, 'dependants_only', FALSE);
