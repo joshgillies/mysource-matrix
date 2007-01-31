@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.552.2.12 2007/01/29 04:33:04 skim Exp $
+* $Id: asset.inc,v 1.552.2.13 2007/01/31 03:31:20 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.552.2.12 $
+* @version $Revision: 1.552.2.13 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4181,14 +4181,17 @@ class Asset extends MySource_Object
 	/**
 	* Returns the href for getting to the nearest backend for this asset
 	*
-	* @param string	$screen	the code name of the screen that you want displayed when the asset is loaded
+	* @param string	$screen			the code name of the screen that you want displayed when the asset is loaded
+	* @param bool	$backend_page	whether to include the 'SQ_BACKEND_PAGE=main' query string
+	*								include this bit when we are switching screens in the backend
+	*								do not include when generating URL (e.g. for workflow emails)
 	*
 	* @return string
 	* @access public
 	*/
-	function getBackendHref($screen='')
+	function getBackendHref($screen='', $backend_page=TRUE)
 	{
-		$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($this->id => $screen));
+		$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($this->id => $screen), $backend_page);
 		return $href[$this->id];
 
 	}//end getBackendHref()
