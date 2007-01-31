@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.220 2007/01/29 05:01:16 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.221 2007/01/31 03:36:24 rhoward Exp $
 *
 */
 
@@ -602,6 +602,7 @@
 	<string source="suggested_tags_for">Suggested tags for</string>
 	<string source="click_to_tag">Click 'Add Tag' to tag this asset with the term</string>
 	<string source="no_tags_to_add">No tags to add</string>
+	<string source="no_tags_set">No tags have been applied</string>
 	<string source="tag_thesaurus_note">Note: You can only select tags from %s</string>
 	<string source="tag_no_thesaurus_set_note">Note: You can only select tags from the tagging thesaurus. Please set a tagging thesaurus in the tag manager</string>
 
@@ -1120,6 +1121,15 @@
 	<string source="trigger_set_cache_expiry_default_dsn">Default Cache DSN: %s</string>
 	<string source="trigger_set_cache_expiry_alt_dsn">Alternative Cache DSN: %s</string>
 
+	<string source="trigger_set_role_no_role_selected">No Role Selected</string>
+	<string source="trigger_set_role_no_users_selected">No Users Selected</string>
+
+	<string source="trigger_set_tag_no_tag_selected">No Tag Selected</string>
+	<string source="trigger_set_tag_select_tag">Select a tag to apply:</string>
+	<string source="trigger_set_tag_set_weighting">Set the weighting:</string>
+	<string source="trigger_set_tag_label_remove_tag">Remove instead of setting this tag</string>
+
+
 	<string source="security_key_incorrect_message">The security key entered was incorrect. The lock on "%s" has not been forcibly acquired. You may try again using the new security key displayed below.</string>
 
 
@@ -1386,7 +1396,7 @@
 	<string source="manually_cascade_roles_option">Yes, manually cascade role assignment changes</string>
 	<string source="manually_cascade_roles_note">Manually cascading role assignments will try to set the current roles of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;i&gt;Any additional roles set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any roles set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any role changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.&lt;/b&gt;</string>
 	<string source="no_roles_set">No roles have been assigned</string>
-	<string source="select_a_role">Select a role</string>
+	<string source="select_a_role">Select a role:</string>
 	<string source="select_users_for_role">Select the users who will perform the role on this asset:</string>
 	<string source="roles">Roles</string>
 	<string source="role">Role</string>
