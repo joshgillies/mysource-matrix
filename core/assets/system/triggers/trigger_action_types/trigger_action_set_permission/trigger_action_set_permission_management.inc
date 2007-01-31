@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission_management.inc,v 1.3 2007/01/31 22:06:57 emcdonald Exp $
+* $Id: trigger_action_set_permission_management.inc,v 1.4 2007/01/31 22:13:32 emcdonald Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,7 +39,6 @@ class Trigger_Action_Set_Permission_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 	}//end constructor
-
 
 
 	/**
@@ -84,19 +83,19 @@ class Trigger_Action_Set_Permission_Management extends Asset_Management
 
 					if ($action_ref['type'] == 'trigger_action_set_permission') {
 						if (isset($action_ref['data']['userid'])) {
-							//create a parameter map
+							// create a parameter map
 							$param_map = Array();
 							$param_map['user'] = Array(
-													'0' => Array(
-															'source' => 'STATIC_ASSET',
-															'static_asset_finder' => Array(
-																					'assetid' => $action_ref['data']['userid'],
-																					'url' => '',
-																					'linkid' => '',
-																					 ),
-															'index' => $action_ref['data']['userid'],
-															),
-														);
+													'0'	=> Array(
+															'source'				=> 'STATIC_ASSET',
+															'static_asset_finder'	=> Array(
+																						'assetid'	=> $action_ref['data']['userid'],
+																						'url'		=> '',
+																						'linkid'	=> '',
+																					   ),
+															'index'					=> $action_ref['data']['userid'],
+														   ),
+												 );
 							// we're done with the user id now
 							unset($action_ref['data']['userid']);
 							$param_map = serialize($param_map);
@@ -118,18 +117,17 @@ class Trigger_Action_Set_Permission_Management extends Asset_Management
 
 							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-						}
-					}
-				}
-			}
+						}//end if
+					}//end if
+				}//end foreach
+			}//end foreach
 			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.2');
 
-		}//end version 0.2 upgrade
+		}//end if version 0.2 upgrade
 
 		return TRUE;
 
 	}//end _upgrade()
-
 
 
 }//end class
