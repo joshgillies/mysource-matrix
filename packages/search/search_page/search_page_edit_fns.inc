@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.71 2006/12/07 02:46:11 bcaldwell Exp $
+* $Id: search_page_edit_fns.inc,v 1.72 2007/01/31 05:33:26 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1440,6 +1440,97 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		return $ok;
 
 	}//end processThesaurusAsset()
+
+
+	/**
+	* Paints the auto synonym search section
+	*
+	* @param object	&$asset	the asset being painted
+	* @param object	&$o		backend outputter class
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAutoSynonymSearch(&$asset, &$o, $prefix)
+	{
+		$search_fields = array_keys($asset->attr('fields'));
+		$keyed_search_fields = Array();
+		foreach ($search_fields as $field) {
+			$keyed_search_fields[$field] = $field;
+		}
+
+		$write_access = $asset->writeAccess('attributes');
+
+		// No search fields present
+		if (empty($search_fields)) {
+			echo translate('sch_auto_syn_error_no_search_fields');
+			return FALSE;
+		}
+
+		// Thesaurus asset not installed (why? it's in the core...)
+		if (!$this->thesaurusInstalled($asset, $prefix)) {
+			echo translate('sch_auto_syn_error_thesaurus_not_installed');
+			return FALSE;
+		}
+
+		$link_value = 'thesaurus';
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', false, $link_value);
+
+		// No thesaurus asset set
+		if (empty($root_link)) {
+			echo translate('sch_auto_syn_error_no_thesaurus_set');
+			return FALSE;
+		}
+
+		$field = $asset->attr('auto_synonym_search_field');
+
+		if ($write_access) {
+			check_box($prefix.'_auto_synonym_search_enabled', 1, !empty($field), 'form.elements["'.$prefix.'_auto_synonym_search_field"].disabled = !this.checked; return true;');
+			echo translate('sch_auto_syn_enable');
+			$o->closeField();
+			$o->openField(translate('sch_auto_syn_use_search_field'));
+			combo_box($prefix.'_auto_synonym_search_field', $keyed_search_fields, FALSE, $field, 0,  empty($field) ? 'disabled="disabled"' : '');
+		} else {
+			if (empty($field)) {
+				echo translate('sch_auto_syn_not_enabled');
+			} else {
+				echo translate('sch_auto_syn_enabled_using_field', $field);
+			}
+		}
+
+		return FALSE;
+
+	}//end paintAutoSynonymSearch()
+
+
+	/**
+	* Processes the auto synonym search section
+	*
+	* @param object	&$asset	the asset being painted
+	* @param object	&$o		backend outputter class
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return void
+	* @access public
+	*/
+	function processAutoSynonymSearch(&$asset, &$o, $prefix)
+	{
+		// If the check box was not enabled, then store a blank string
+		if (empty($_POST[$prefix.'_auto_synonym_search_enabled'])) {
+			$asset->setAttrValue('auto_synonym_search_field', '');
+			return TRUE;
+		}
+
+		// Otherwise
+		if (!empty($_POST[$prefix.'_auto_synonym_search_field'])) {
+			$asset->setAttrValue('auto_synonym_search_field', $_POST[$prefix.'_auto_synonym_search_field']);
+			return TRUE;
+		}
+
+		return FALSE;
+
+	}//end processAutoSynonymSearch()
 
 
 	/**

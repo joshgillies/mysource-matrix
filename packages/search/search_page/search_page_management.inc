@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.54 2006/12/29 01:05:58 tbarrett Exp $
+* $Id: search_page_management.inc,v 1.55 2007/01/31 05:33:26 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -86,6 +86,13 @@ class Search_Page_Management extends Asset_Management
 											'description'	=> 'The text that appears for a "no category selected" options.',
 										  );
 
+		$this->vars['auto_synonym_search_field'] = Array(
+													'added'			=> '0.21',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'Field to automatically search for synonyms on if the original search term(s) return no results. Empty string = auto synonym searching disabled',
+												   );
+
 		$this->vars['search_types'] = Array(
 										'added'			=> '0.1',
 										'type'			=> 'serialise',
@@ -144,6 +151,13 @@ class Search_Page_Management extends Asset_Management
 										'default'		=> 'Did you mean: %suggestions%',
 										'description'	=> 'String to use for the "synonyms" keyword',
 									);
+
+		$this->vars['auto_synonym_string'] = Array(
+												'added'			=> '0.21',
+												'type'			=> 'text',
+												'default'		=> '(and related terms)',
+												'description'	=> 'String to display for the "auto synonym search triggered" keyword',
+											);
 
 	}//end constructor
 

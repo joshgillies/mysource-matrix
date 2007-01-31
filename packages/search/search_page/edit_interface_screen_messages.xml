@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_messages.xml,v 1.1 2006/12/18 04:17:13 lwright Exp $
+* $Id: edit_interface_screen_messages.xml,v 1.2 2007/01/31 05:33:26 lwright Exp $
 *
 */
 -->
@@ -21,6 +21,9 @@
 			<text width="100" />
 		</field>
 		<field attribute="synonym_string">
+			<text width="100" />
+		</field>
+		<field attribute="auto_synonym_string">
 			<text width="100" />
 		</field>
 	</section>

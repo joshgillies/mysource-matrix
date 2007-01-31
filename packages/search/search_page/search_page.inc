@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.199 2007/01/24 23:22:57 tbarrett Exp $
+* $Id: search_page.inc,v 1.200 2007/01/31 05:33:26 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.199 $
+* @version $Revision: 1.200 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1650,8 +1650,10 @@ class Search_Page extends Listing_Engine
 		// if we are to use the listing engine stuff then we need to change
 		// to a getAssetList() style format
 
-		$sort_info  = $this->getSortInfo();
-		$asset_info = $this->sortAssetList($results, $sort_info);
+		if (!empty($results)) {
+			$sort_info  = $this->getSortInfo();
+			$asset_info = $this->sortAssetList($results, $sort_info);
+		}
 
 		$this->filterAssetList($asset_info);
 
@@ -1783,6 +1785,12 @@ class Search_Page extends Listing_Engine
 					} else if (ereg('(.+)_query_terms$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						$replacement = $this->getSearchedFieldReplacement($matches[1]);
+
+					} else if (ereg('(.+)_query_synonym_search_message$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+
+						if (!empty($this->_tmp['auto_synonym_search_used'])) {
+							$replacement = $this->attr('auto_synonym_string');
+						}
 
 					} else if (ereg('(.+)_query_suggestions(_message)?$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
@@ -2265,7 +2273,46 @@ class Search_Page extends Listing_Engine
 		}//end if
 
 		if ($query_fields_exist) {
-			return $sm->processSearch($search_info);
+			$search_results = $sm->processSearch($search_info);
+
+			// If there are no results, check to see whether there is an auto
+			// synonym search set up, and if so, use that
+			if (empty($search_results)) {
+				$auto_ss_field = $this->attr('auto_synonym_search_field');
+
+				if (!empty($auto_ss_field)) {
+					// Search with a copy of the original search info, because
+					// we don't want to interfere with the original search
+					$syn_search_info = $search_info;
+					$this->_tmp['auto_synonym_search_used'] = TRUE;
+
+					$search_field = $search_info['fields'][$auto_ss_field];
+					$words = $search_field['words'];
+					if (!is_array($words)) $words = explode(' ', $words);
+
+					// automatically search by synonyms
+					$synonym_words = Array();
+
+					// Note that even if the original query had word logic of
+					// AND, we will search for all synonyms found using OR.
+					// The next logical step would be to provide some way where
+					// each word's synonyms are ANDed together, but this would
+					// require a large overhaul to get this to work in
+					// PostgreSQL
+					foreach ($words as $word) {
+						$synonym_words += $synonyms[$auto_ss_field][$word];
+					}
+
+					if (!empty($synonym_words)) {
+						$syn_search_info['fields'][$auto_ss_field]['words'] = implode(' ', $synonym_words);
+						$search_results = $sm->processSearch($syn_search_info);
+					}
+				}
+
+			}
+
+			return $search_results;
+
 		} else if ($this->attr('allow_empty_search')) {
 			return $sm->processBasicSearch($search_info);
 		} else {
