@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.5.4.2 2006/12/12 03:35:43 skim Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.5.4.3 2007/01/31 00:24:10 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.5.4.2 $
+* @version $Revision: 1.5.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -989,12 +989,19 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			$offset = $result + strlen($needle);
 			$result = strpos($haystack, $needle, $offset);
 		}
-		$offset = 0;
-		$result = strpos($haystack, htmlentities($needle));
-		while (FALSE !== $result) {
-			$occurrences[] = $result;
-			$offset = $result + strlen($needle);
-			$result = strpos($haystack, htmlentities($needle), $offset);
+
+		// Bug Fix 2076 and additional fix for Bug Fix 1575
+		// Only perform the following block if html encoded needle is not the same as
+		// the original needle. Or not we have the duplicated entries in the result array
+		$html_encoded_needle = htmlentities($needle);
+		if ($needle != $html_encoded_needle) {
+			$offset = 0;
+			$result = strpos($haystack, $html_encoded_needle);
+			while (FALSE !== $result) {
+				$occurrences[] = $result;
+				$offset = $result + strlen($needle);
+				$result = strpos($haystack, $html_encoded_needle, $offset);
+			}
 		}
 		return $occurrences;
 
