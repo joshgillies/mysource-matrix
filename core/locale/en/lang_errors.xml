@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.76 2007/01/22 05:34:43 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.77 2007/01/31 23:45:28 rhoward Exp $
 *
 */
 
@@ -1361,12 +1361,21 @@ Full Node Contents %3$s</error>
 
 	<error code="SYS0313">Unable to set role for "%s", permission denied</error>
 
+	<error code="SYS0321">Unable to set file(s) for "%s", permission denied</error>
+
+	<error code="SYS0322">Unable to set permissions for "%s", permission denied</error>
+	<error code="SYS0323">Unable to set metadata schemas for "%s", permission denied</error>
+	<error code="SYS0324">Unable to set workflow schemas for "%s", permission denied</error>
+	<error code="SYS0325">Unable to set roles for "%s", permission denied</error>
+	<error code="SYS0326">Unable to set tags for "%s", permission denied</error>
+
 	<!-- Apache Configuration Errors -->
 	<error code="SYS0314">Cannot set request note name for "%s". A request note with this name already exists.</error>
 
 	<error code="SYS0315">System Default email address has not been set.</error>
 	<error code="SYS0316">System Tech email address has not been set.</error>
 	<error code="SYS0317">Neither the System Default nor Tech email addresses have been set.</error>
+
 
 	<!-- CORE ASSETS -->
 
