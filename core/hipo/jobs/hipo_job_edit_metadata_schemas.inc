@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.39 2006/12/22 04:23:15 hnguyen Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.40 2007/02/01 23:31:42 skim Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -196,7 +196,16 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	function freestyle()
 	{
 		while (!empty($this->_running_vars['todo_assetids'])) {
-			if (!$this->processSchemas($this->_steps[0], get_class($this))) {
+			$id = key($this->_running_vars['todo_assetids']);
+			$result = $GLOBALS['SQ_SYSTEM']->am->acquireLock($id, 'metadata');
+			if ($result) {
+				if (!$this->processSchemas($this->_steps[1], get_class($this))) {
+					return FALSE;
+				}
+				if ($result == 1) {
+					$result = $GLOBALS['SQ_SYSTEM']->am->releaseLock($id, 'metadata');
+				}
+			} else {
 				return FALSE;
 			}
 		}
@@ -255,7 +264,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 					// What happen here if $types_with_assets is an array of array?
 					$child_assets = array_diff($child_assets, $assetids);
 				}
-            }
+			}
 
 			$this->_running_vars['todo_assetids'] = $child_assets;
 		}//end else
