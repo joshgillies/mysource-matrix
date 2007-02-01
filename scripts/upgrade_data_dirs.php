@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_data_dirs.php,v 1.8 2007/01/23 06:27:31 lwright Exp $
+* $Id: upgrade_data_dirs.php,v 1.9 2007/02/01 21:53:47 skim Exp $
 *
 */
 
 /**
 *
 * @author Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -72,7 +72,7 @@ include_once $_SYSTEM_ROOT.'/data/private/conf/main.inc';
 
 $data_dirs = Array('/data/private/assets', '/data/public/assets', '/data/file_repository/assets');
 $lookup_tables = Array('sq_ast_lookup', 'sq_ast_lookup_value', 'sq_ast_lookup_remap');
-$skip_dirs = Array('.stop_pruning', '.cvsignore', '.', '..', 'CVS');
+$skip_dirs = Array('.stop_pruning', '.cvsignore', '.', '..', 'CVS', 'cvs');
 
 $log = read_log();
 $count = Array(
