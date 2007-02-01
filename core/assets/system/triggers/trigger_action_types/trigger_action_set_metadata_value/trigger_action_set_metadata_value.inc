@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.5.2.3 2006/10/24 05:52:58 skim Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.5.2.4 2007/02/01 05:27:20 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5.2.3 $
+* @version $Revision: 1.5.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -153,8 +153,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 				// set the field name
 				$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_fieldid);
 				$edit_fns = $metadata_field->getEditFns();
-				$null = NULL;
-				$edit_fns->paintValueInterface($metadata_field, $null, $metadata_field_value, TRUE);
+				$edit_fns->paintValueInterface($metadata_field, $GLOBALS['SQ_SYSTEM']->backend->out, $metadata_field_value, TRUE);
 				hidden_field($prefix.'[form_printed]', 1);
 			}
 			$output_part2 = ob_get_contents();
