@@ -10,13 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.9 2006/12/06 00:04:01 bcaldwell Exp $
+* $Id: trigger_action_send_email.inc,v 1.10 2007/02/01 03:25:06 emcdonald Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 require_once SQ_SYSTEM_ROOT.'/core/attributes/email_format/email_format.inc';
+require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 
 /**
 * Trigger_Action_Add_URL
@@ -25,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/email_format/email_format.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,7 +100,7 @@ class Trigger_Action_Send_Email extends Trigger_Action
 				$unserialised['to_assetids'] = array_merge($unserialised['to_assetids'],array_keys($group_members));
 				$email_format_value = serialize($unserialised);
 			}
-		}
+		}//end if
 
 		if ($settings['roles']) {
 			// add role members
@@ -114,6 +115,20 @@ class Trigger_Action_Send_Email extends Trigger_Action
 			}
 			$unserialised = unserialize($email_format_value);
 			$unserialised['to_assetids'] = array_merge($unserialised['to_assetids'],$role_members);
+			$email_format_value = serialize($unserialised);
+		}
+
+		if ($settings['email_recipient_map']) {
+			// paramater map parameters
+			$parameter_map_value = array_get_index($settings, 'email_recipient_map', serialize(Array()));
+			$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+			$paramater_map_assetid = $atr_parameter_map->getParameterValue('user_assetid');
+
+			$paramater_map_email = $atr_parameter_map->getParameterValue('user_email');
+
+			$unserialised = unserialize($email_format_value);
+			$unserialised['to'] = array_merge($unserialised['to'],$paramater_map_email);
+			$unserialised['to_assetids'] = array_merge($unserialised['to_assetids'],$paramater_map_assetid);
 			$email_format_value = serialize($unserialised);
 		}
 
@@ -155,10 +170,16 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		$current_roles = array_get_index($settings, 'roles', Array());
 		$current_groups = array_get_index($settings, 'groups', Array());
 
-		$new_prefix = ereg_replace('\[','_',ereg_replace('\]','_',$prefix));
+		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
 		$email_format_value = array_get_index($settings, 'email_format_value', Array());
 		$atr_email_format =& new Asset_Attribute_Email_Format(0, $email_format_value);
 		$atr_email_format->setEditParam('with_asset_finder', TRUE);
+
+		$parameter_map_value = array_get_index($settings, 'email_recipient_map', serialize(Array()));
+		$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+
+		$atr_parameter_map->setParameter('user_assetid', 'Recipient Asset ID');
+		$atr_parameter_map->setParameter('user_email', 'Recipient E-mail Address');
 
 		?>
 		<table class="sq-backend-table" border="1" style="width: auto">
@@ -218,14 +239,20 @@ class Trigger_Action_Send_Email extends Trigger_Action
 				</td>
 			</tr>
 			<tr>
+				<th><?php echo 'Recipient Source'; ?></th>
+				<td>
+					<?php echo $atr_parameter_map->paint($new_prefix.'_param', !$write_access); ?>
+				</td>
+			</tr>
+			<tr>
 				<th><?php echo translate('trigger_general_email_settings'); ?></th>
 				<td>
-					<?php $atr_email_format->paint($new_prefix, !$write_access); ?>
+					<?php $atr_email_format->paint($new_prefix.'_email', !$write_access); ?>
 				</td>
 			</tr>
 		</table>
 		<?php
-		hidden_field($prefix.'[new_prefix]',$new_prefix);
+		hidden_field($prefix.'[new_prefix]', $new_prefix);
 		return ob_get_clean();
 
 	}//end getInterface()
@@ -269,11 +296,16 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		$settings['roles'] = $role_ids;
 
 		// create a wysiwyg compatable prefix
-		$new_prefix = ereg_replace('\[','_',ereg_replace('\]','_',array_get_index($request_data, 'new_prefix', '')));
+		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
 
 		$email_format =& new Asset_Attribute_Email_Format();
-		$email_format->process($new_prefix);
+		$email_format->process($new_prefix.'_email');
 		$settings['email_format_value'] = $email_format->value;
+
+		$atr_parameter_map =& new Asset_Attribute_Parameter_Map();
+		$atr_parameter_map->process($new_prefix.'_param');
+
+		$settings['email_recipient_map'] = $atr_parameter_map->value;
 
 		return FALSE;
 
