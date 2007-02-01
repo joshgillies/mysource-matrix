@@ -10,11 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_thesaurus_xml.inc,v 1.4.2.1 2006/12/12 01:18:11 arailean Exp $
+* $Id: hipo_job_export_thesaurus_xml.inc,v 1.4.2.2 2007/02/01 22:54:28 lwright Exp $
 *
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
 
 /**
 * Highly Intensive Processing Object (HIPO) to import thesaurus xml
@@ -24,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.4.2.1 $
+* @version $Revision: 1.4.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -216,7 +218,9 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 	{
 		$thesaurus =& $this->getThesaurusRef();
 		$filepath = $thesaurus->getXmlFilePath();
-		$filepath = realpath($filepath);
+		if (file_exists($filepath)) {
+			$filepath = realpath($filepath);
+		}
 		$finished = FALSE;
 		$iterations_per_step = 100;
 		$iterations_this_step = 0;
@@ -225,6 +229,7 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 
 		if (!isset($step_data['unprocessed'])) {
 			if (file_exists($filepath)) unlink($filepath);
+			create_directory(dirname($filepath));
 			touch($filepath);
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
