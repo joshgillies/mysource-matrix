@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.11 2007/01/31 22:06:57 emcdonald Exp $
+* $Id: trigger_action_set_permission.inc,v 1.12 2007/02/01 02:45:58 emcdonald Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -296,6 +296,38 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		return Array($state['assetid'] => Array('permissions'));
 
 	}//end getLocks()
+
+
+	/**
+	* Add the userid value to a settings array.
+	*
+	* @param string	$value		The userid value to be added to the settings array
+	* @param array	$settings	a container for any data the action might want to save
+	*
+	* @return array
+	* @access public
+	*/
+	function addSettingUserid($value, $settings)
+	{
+
+		// TODO: Parameter map should expose an interface for building these value structures.
+		$param_map = Array();
+		$param_map['user'] = Array(
+								'0'	=> Array(
+										'source'				=> 'STATIC_ASSET',
+										'static_asset_finder'	=> Array(
+																	'assetid'	=> $value,
+																	'url'		=> '',
+																	'linkid'	=> '',
+																   ),
+										'index'					=> $value,
+									   ),
+							 );
+
+		$settings['user_map'] = serialize($param_map);
+		return $settings;
+
+	}//end addSettingUserid()
 
 
 }//end class
