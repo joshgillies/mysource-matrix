@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.13 2007/01/22 00:19:08 tbarrett Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.14 2007/02/01 05:01:39 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Avi Miller <amiller@squiz.net>
 * @author   Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -249,8 +249,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 			foreach ($formats as $type => $content) {
 				?>
 				<li>
-					<?php radio_button($prefix.'_when_type', $type, ($settings['when_type'] == $type)); ?>
-					<div>
+					<?php radio_button($prefix.'_when_type', $type, ($settings['when_type'] == $type)); ?><div>
 					<?php echo $content; ?>
 					</div>
 				</li>
