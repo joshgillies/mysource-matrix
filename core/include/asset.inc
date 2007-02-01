@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.585 2007/01/30 23:05:01 rong Exp $
+* $Id: asset.inc,v 1.586 2007/02/01 22:12:57 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.585 $
+* @version $Revision: 1.586 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -610,7 +610,9 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
 		unset($this->_tmp['__creating__']);
-		@$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'all');
+		if ($this->id) {
+			@$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'all');
+		}
 		$this->id = 0;
 		return FALSE;
 
