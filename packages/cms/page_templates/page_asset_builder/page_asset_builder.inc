@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.109 2007/01/31 22:55:14 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.110 2007/02/01 23:49:18 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.109 $
+* @version $Revision: 1.110 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -469,6 +469,11 @@ class Page_Asset_Builder extends Page
 						$metadata_values = Array();
 						$schemaids = $this->_getMetadataSchemasToApply();
 						if (!empty($schemaids)) {
+							$metadata_run_level_changed = FALSE;
+							if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+								$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() - SQ_SECURITY_PERMISSIONS);
+								$metadata_run_level_changed = TRUE;
+							}
 							$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_asset->id, 'metadata');
 							foreach ($schemaids as $schemaid) {
 								$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
@@ -481,6 +486,9 @@ class Page_Asset_Builder extends Page
 							$mm->setMetadata($new_asset->id, $metadata_values);
 							$mm->regenerateMetadata($new_asset->id);
 							$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_asset->id, 'metadata');
+							if ($metadata_run_level_changed) {
+								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+							}
 						}
 
 
