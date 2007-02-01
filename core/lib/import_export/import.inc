@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.7 2007/01/17 03:33:28 rhoward Exp $
+* $Id: import.inc,v 1.8 2007/02/01 02:43:35 emcdonald Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -157,6 +157,12 @@ function execute_import_action($action, &$outputs)
 	$settings = Array();
 	$state = Array();
 
+	$action_class = 'trigger_action_'.$action['action_type'][0];
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_class);
+
+	// we call execute as a static method, but instantiate for method_exists
+	$class_instance =& new $action_class;
+
 	// gather settings required for the action
 	foreach ($action as $key => $value) {
 		// skip action metadata
@@ -170,13 +176,20 @@ function execute_import_action($action, &$outputs)
 			// the state array for the trigger action so it knows what
 			// asset to perform the action on (if any)
 			$state['assetid'] = $value;
-		} else {
-			$settings[$key] = $value;
+			continue;
 		}
+
+		$function_name = 'addSetting'.ucfirst($key);
+
+		if (method_exists($class_instance, $function_name)) {
+			eval('$settings = '.$action_class.'::'.$function_name.'($value, $settings);');
+			continue;
+		}
+
+		$settings[$key] = $value;
+
 	}
 
-	$action_class = 'trigger_action_'.$action['action_type'][0];
-	$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_class);
 	eval('$output = '.$action_class.'::execute($settings, $state);');
 	if ($output === FALSE) return FALSE;
 
