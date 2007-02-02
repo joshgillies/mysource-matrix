@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_edit_fns.inc,v 1.12 2006/12/21 00:57:22 bcaldwell Exp $
+* $Id: comment_edit_fns.inc,v 1.13 2007/02/02 05:21:37 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -82,6 +82,71 @@ class Comment_Edit_Fns extends Page_Edit_Fns
 		return TRUE;
 
 	}//end processName()
+
+
+	/**
+	* Paint the rating interface
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintRating(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$current_setting = $asset->attr('rating');
+		if ($current_setting != -1) {
+			$current_setting = $asset->_getRatingScaledInteger();
+		}
+
+		if ($write_access) {
+			$max_rating = $asset->_getRatingLimit();
+
+			$option_array[-1] = 'No Rating';
+			for ($i = 0; $i<=$max_rating; $i++) {
+				$option_array[$i] = $i;
+			}
+
+			combo_box($prefix.'_rating', $option_array, FALSE, $current_setting);
+		} else {
+			echo $current_setting;
+		}
+
+		return TRUE;
+
+	}//end paintRating()
+
+
+	/**
+	* Process the rating interface
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRating(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		if ($write_access) {
+			$value = array_get_index($_REQUEST, $prefix.'_rating');
+
+			if ($value != -1) {
+				$percent = $asset->_convertIntegerRatingToPercent($value);
+				$asset->setAttrValue('rating', $percent);
+			}
+		}
+
+		return TRUE;
+
+	}//end processRating()
 
 
 	/**

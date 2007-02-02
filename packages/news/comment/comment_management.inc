@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_management.inc,v 1.3 2006/12/19 23:34:06 arailean Exp $
+* $Id: comment_management.inc,v 1.4 2007/02/02 05:21:37 arailean Exp $
 *
 */
 
@@ -22,12 +22,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
 class Comment_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -41,9 +42,34 @@ class Comment_Management extends Asset_Management
 									'added'		=> '0.1',
 									'type'		=> 'text',
 									'default'	=> '',
-									'is_admin'      => false,
-								  );
-	}
+									'is_admin'	=> FALSE,
+								 );
+
+		$this->vars['rating'] = Array(
+									'added'		=> '0.3',
+									'type'		=> 'int',
+									'default'	=> -1,
+									'is_admin'	=> FALSE,
+								);
+
+	}//end constructor
+
+
+	/**
+	* Gets a list of all files that we want web accessable
+	*
+	* @return array
+	* @access private
+	*/
+	function _getFileList()
+	{
+		return Array(
+				'files/star.png',
+				'files/star_grey.png',
+			   );
+
+	}//end _getFileList()
+
 
 }//end class
 

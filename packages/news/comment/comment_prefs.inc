@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_prefs.inc,v 1.4 2006/12/21 04:44:31 arailean Exp $
+* $Id: comment_prefs.inc,v 1.5 2007/02/02 05:21:37 arailean Exp $
 *
 */
 
@@ -18,6 +18,8 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 require_once SQ_ATTRIBUTES_PATH.'/boolean/boolean.inc';
+require_once SQ_ATTRIBUTES_PATH.'/url/url.inc';
+
 
 if (!defined('SQ_COMMENT_HTML_ALLOW')) {
 	define ('SQ_COMMENT_HTML_ALLOW',	0);
@@ -39,7 +41,7 @@ if (!defined('SQ_COMMENT_HTML_STRIP')) {
 *    Looks after the creation the Comment Preferences
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Comment_Prefs extends Prefs
@@ -74,6 +76,24 @@ class Comment_Prefs extends Prefs
 													'default'		=> 0,
 													'protected'		=> FALSE,
 												   ),
+						'SQ_COMMENT_MAX_RATING'	=> Array(
+													'name'			=> 'Maximum Rating',
+													'description'	=> 'This preference sets the upper bound for ratings',
+													'default'		=> 5,
+													'protected'		=> FALSE,
+												   ),
+						'SQ_COMMENT_IMG_RATED'	=> Array(
+													'name'			=> 'Rated Image',
+													'description'	=> 'Rated Image to be used instead of the default',
+													'default'		=> NULL,
+													'protected'		=> FALSE,
+												   ),
+						'SQ_COMMENT_IMG_BLANK'	=> Array(
+													'name'			=> 'Blank Image',
+													'description'	=> 'Blank Image to be used instead of the default',
+													'default'		=> NULL,
+													'protected'		=> FALSE,
+												   ),
 					 );
 
 	/**
@@ -103,6 +123,24 @@ class Comment_Prefs extends Prefs
 	var $int_max_length;
 
 
+	/**
+	* Attribute for painting max length input method
+	*
+	* @var object
+	* @access private
+	*/
+	var $int_max_rating;
+
+
+	/**
+	* Helper attribute for processing URLs collection interfaces
+	*
+	* @var object
+	* @access private
+	*/
+	var $url_processor;
+
+
 	var $html_conf_options = Array();
 
 
@@ -121,6 +159,15 @@ class Comment_Prefs extends Prefs
 		// attribute for input of SQ_COMMENT_MAX_LENGTH
 		$this->int_max_length =& new Asset_Attribute_Int();
 		$this->int_max_length->setParam('allow_negative', FALSE);
+
+		// attribute for input of SQ_COMMENT_MAX_RATING
+		$this->int_max_rating =& new Asset_Attribute_Int();
+		$this->int_max_rating->setParam('allow_negative', FALSE);
+		$this->int_max_rating->setParam('allow_empty', FALSE);
+
+		$this->url_processor =& new Asset_Attribute_Url();
+		$this->url_processor->_edit_params['protocols'] = Array('http','https');
+		$this->url_processor->_edit_params['width'] = '60';
 
 		$this->html_conf_options = Array(
 									SQ_COMMENT_HTML_ALLOW	=> translate('allow'),
@@ -275,6 +322,35 @@ class Comment_Prefs extends Prefs
 
 
 	/**
+	* Paints the interface for allowing HTML in comments
+	*
+	* @param object		&$o			reference to the backend outputter instance
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to process
+	*
+	* @return void
+	* @access public
+	*/
+	function paintSqCommentMaxRatingBackend(&$o, $have_lock, $pref)
+	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+
+		$o->openField($this->pref_vars[$pref]['name']);
+
+		$max_rating = $this->pref_vars[$pref]['default'];
+
+		$readonly = !($have_lock && $is_admin);
+
+		$this->int_max_rating->value = $max_rating;
+		$this->int_max_rating->paint($pref, $readonly);
+
+		$o->closeField();
+
+	}//end paintSqCommentMaxRatingBackend()
+
+
+	/**
 	* Processes the backend interface to edit preferences
 	*
 	* @param object		&$o			reference to the backend outputter instance
@@ -396,6 +472,190 @@ class Comment_Prefs extends Prefs
 		return FALSE;
 
 	}//end processSqCommentHtmlConfBackend()
+
+
+	/**
+	* Processes the interface for configuring the maximum comment length
+	*
+	* @param object		&$o			reference to the backend outputter instance
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to process
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSqCommentMaxRatingBackend(&$o, $have_lock, $pref)
+	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		if (!$is_admin || !$have_lock) {
+			return FALSE;
+		}
+
+		$this->int_max_rating->process($pref);
+		if (!$this->int_max_rating->processed) {
+			return FALSE;
+		}
+
+		$this->pref_vars[$pref]['default'] = $this->int_max_rating->value;
+
+		return TRUE;
+
+	}//end processSqCommentMaxRatingBackend()
+
+
+	/**
+	* Paints the interface for configuring the maximum comment length
+	*
+	* @param object		&$o			reference to the backend outputter instance
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to process
+	*
+	* @return void
+	* @access public
+	*/
+	function paintSqCommentImgRatedBackend(&$o, $have_lock, $pref)
+	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+
+		$o->openField($this->pref_vars[$pref]['name']);
+
+		$current_setting = $this->pref_vars[$pref]['default'];
+
+		$read_only = !($have_lock && $is_admin);
+
+		$image_location_prefix = sq_web_path('data').'/asset_types/comment/files';
+
+		if (empty($current_setting)) {
+			$current_image = sq_web_path('data').'/asset_types/comment/files/star.png';
+		} else {
+			$current_image = $current_setting;
+		}
+
+		echo 'Current Image: <img src="'.htmlspecialchars($current_image).'" />';
+		echo '<br />';
+
+		$url = $this->url_processor;
+		$url->value = $current_setting;
+		$url->paint($pref, $read_only);
+
+
+		if (!$read_only) {
+			$o->note($this->pref_vars[$pref]['description']);
+			$o->note('Empty means default');
+		}
+
+		$o->closeField();
+
+	}//end paintSqCommentImgRatedBackend()
+
+
+	/**
+	* Processes the interface for configuring the maximum comment length
+	*
+	* @param object		&$o			reference to the backend outputter instance
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to process
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSqCommentImgRatedBackend(&$o, $have_lock, $pref)
+	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		if (!$is_admin || !$have_lock) {
+			return FALSE;
+		}
+
+		$url = $this->url_processor;
+
+		$url->process($pref);
+		$new_setting = $url->value;
+
+		$this->pref_vars[$pref]['default'] = $new_setting;
+
+		return TRUE;
+
+	}//end processSqCommentMaxRatingBackend()
+
+
+	/**
+	* Paints the interface for configuring the maximum comment length
+	*
+	* @param object		&$o			reference to the backend outputter instance
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to process
+	*
+	* @return void
+	* @access public
+	*/
+	function paintSqCommentImgBlankBackend(&$o, $have_lock, $pref)
+	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+
+		$o->openField($this->pref_vars[$pref]['name']);
+
+		$current_setting = $this->pref_vars[$pref]['default'];
+
+		$read_only = !($have_lock && $is_admin);
+
+		$image_location_prefix = sq_web_path('data').'/asset_types/comment/files';
+
+		if (empty($current_setting)) {
+			$current_image = sq_web_path('data').'/asset_types/comment/files/star_grey.png';
+		} else {
+			$current_image = $current_setting;
+		}
+
+		echo 'Current Image: <img src="'.htmlspecialchars($current_image).'" />';
+		echo '<br />';
+
+		$url = $this->url_processor;
+		$url->value = $current_setting;
+		$url->paint($pref, $read_only);
+
+		if (!$read_only) {
+			$o->note($this->pref_vars[$pref]['description']);
+			$o->note('Empty means default');
+		}
+
+		$o->closeField();
+
+	}//end paintSqCommentImgBlankBackend()
+
+
+	/**
+	* Processes the interface for configuring the maximum comment length
+	*
+	* @param object		&$o			reference to the backend outputter instance
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to process
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSqCommentImgBlankBackend(&$o, $have_lock, $pref)
+	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		if (!$is_admin || !$have_lock) {
+			return FALSE;
+		}
+
+
+		$url = $this->url_processor;
+
+		$url->process($pref);
+		$new_setting = $url->value;
+
+		$this->pref_vars[$pref]['default'] = $new_setting;
+
+		return TRUE;
+
+	}//end processSqCommentImgBlankBackend()
 
 
 }//end class

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment.inc,v 1.15 2007/01/03 00:10:53 bcaldwell Exp $
+* $Id: comment.inc,v 1.16 2007/02/02 05:21:37 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define ('SQ_COMMENT_HTML_STRIP',	2);
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -100,6 +100,186 @@ class Comment extends Page
 
 
 	/**
+	* Get the maximum rating keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCommentMaxRatingKeywordReplacement()
+	{
+		$length = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_COMMENT_MAX_RATING');
+		return $length;
+
+	}//end getCommentMaxRatingKeywordReplacement()
+
+
+	/**
+	* Get the integer rating keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCommentRatingIntegerKeywordReplacement()
+	{
+		$rating = $this->attr('rating');
+		if ($rating == -1) return;
+
+		return $this->_getRatingScaledInteger();
+
+	}//end getCommentRatingIntegerKeywordReplacement()
+
+
+	/**
+	* Get the current rating keyword replacement (may not be an integer)
+	*
+	* @return string
+	* @access public
+	*/
+	function getCommentRatingKeywordReplacement()
+	{
+		$rating = $this->attr('rating');
+		if ($rating == -1) return;
+
+		return round($this->_getRatingScaled(), 2);
+
+	}//end getCommentRatingKeywordReplacement()
+
+
+	/**
+	* Get the rating scaled to the current maximum rating setting
+	*
+	* @return string
+	* @access private
+	*/
+	function _getRatingScaled()
+	{
+		$rating_scale = $this->_getRatingLimit();
+		$rating_absolute = $this->attr('rating');
+
+		if (empty($rating_scale)) return 0;
+
+		$rating = $rating_absolute/100 * $rating_scale;
+
+		return $rating;
+
+	}//end _getRatingScaled()
+
+
+	/**
+	* Get the rating scaled to the current maximum rating setting rounded to an integer
+	*
+	* @return string
+	* @access private
+	*/
+	function _getRatingScaledInteger()
+	{
+		return round($this->_getRatingScaled());
+
+	}//end _getRatingScaledInteger()
+
+
+	/**
+	* Convert an integer value to percent based on the current max setting
+	*
+	* @param int	$integer	value to convert to percent
+	*
+	* @return string
+	* @access private
+	*/
+	function _convertIntegerRatingToPercent($integer)
+	{
+		if (empty($integer) || !is_numeric($integer) || $integer < 0) {
+			return 0;
+		}
+
+		$rating_scale = $this->_getRatingLimit();
+
+		if (empty($rating_scale)) return 0;
+
+		if ($integer > $rating_scale) return 100;
+
+		$percentage = $integer/$rating_scale * 100;
+
+		return $percentage;
+
+	}//end _convertIntegerRatingToPercent()
+
+
+	/**
+	* Get the value of the maximum possible rating setting
+	*
+	* @return string
+	* @access private
+	*/
+	function _getRatingLimit()
+	{
+		$rating_max = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_COMMENT_MAX_RATING');
+		return $rating_max;
+
+	}//end _getRatingLimit()
+
+
+	/**
+	* Get the HTML block for printing the rating stars
+	*
+	* @return string
+	* @access public
+	*/
+	function getCommentRatingImageHtmlBlockKeywordReplacement()
+	{
+		$max_rating = $this->_getRatingLimit();
+		$rating = $this->attr('rating');
+		if ($rating == -1) return;
+
+		$rating = $this->_getRatingScaledInteger();
+
+		$image_location_prefix = sq_web_path('data').'/asset_types/comment/files';
+
+		$image_rated = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_COMMENT_IMG_RATED');
+		if (empty($image_rated)) {
+			$image_rated = $image_location_prefix.'/star.png';
+		}
+
+		$image_blank = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_COMMENT_IMG_BLANK');
+		if (empty($image_blank)) {
+			$image_blank = $image_location_prefix.'/star_grey.png';
+		}
+
+		$html = '';
+
+		for ($i = 0; $i < $max_rating; $i++) {
+			if ($i < $rating) {
+				$alt = '*';
+				$image = $image_rated;
+			} else {
+				$alt = '.';
+				$image = $image_blank;
+			}
+			$html .= '<img src="'.htmlspecialchars($image).'" alt="'.$alt.'" />';
+		}
+
+		return $html;
+
+	}//end getCommentRatingImageHtmlBlockKeywordReplacement()
+
+
+	/**
+	* Get the percentage keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCommentRatingPercentageKeywordReplacement()
+	{
+		$rating = $this->attr('rating');
+		if ($rating == -1) return;
+
+		return round($rating, 2);
+
+	}//end getCommentRatingPercentageKeywordReplacement()
+
+
+	/**
 	* Return the keywords for this asset type.
 	*
 	* @return array
@@ -110,6 +290,11 @@ class Comment extends Page
 		$keywords = parent::getAvailableKeywords();
 
 		$keywords['comment_max_length'] = translate('news_comment_max_length');
+		$keywords['comment_max_rating'] = 'Max Rating Value';
+		$keywords['comment_rating'] = 'Rating Assigned to the comment (possibly a decimal)';
+		$keywords['comment_rating_integer'] = 'Rating Assigned to the comment as integer';
+		$keywords['comment_rating_percentage'] = 'Rating Assigned to the comment as percent';
+		$keywords['comment_rating_image_html_block'] = 'Rating Assigned to the comment in form of images';
 
 		return $keywords;
 
