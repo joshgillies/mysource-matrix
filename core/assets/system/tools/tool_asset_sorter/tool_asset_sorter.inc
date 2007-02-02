@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_asset_sorter.inc,v 1.3 2006/12/06 00:13:03 bcaldwell Exp $
+* $Id: tool_asset_sorter.inc,v 1.4 2007/02/02 03:14:45 skim Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Provides a tool for making multiple clones of an asset
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -129,7 +129,7 @@ class Tool_Asset_Sorter extends Tool
 			}
 			$sql = 'UPDATE sq_ast_lnk
 					SET sort_order = CASE '.$cases.' ELSE sort_order END
-					WHERE linkid IN ('.implode(', ', $linkids).')';
+					WHERE linkid IN ('.implode(', ', $chunk).')';
 			$res = $db->query($sql);
 			assert_valid_db_result($res);
 		}
