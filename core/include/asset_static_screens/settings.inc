@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.40 2007/01/30 05:35:54 colivar Exp $
+* $Id: settings.inc,v 1.41 2007/02/02 03:45:17 colivar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 */
 
@@ -508,9 +508,9 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 								text_box($prefix.'_designs['.$design_name.'][name]', '', 20, 30);
 							$o->closeField();
 						} else {
-							// $o->openRaw(); this line was commented because it was causing a problem in the limbo mode
+							$o->openRaw(); 
 							hidden_field($prefix.'_designs['.$design_name.'][name]', $design_name);
-							// $o->closeRaw(); this line was commented because it was causing a problem in the limbo mode
+							$o->closeRaw();
 
 							if ($design_type == 'user') {
 								$o->openField(translate('design_code'));
