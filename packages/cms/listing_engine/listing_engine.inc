@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.202.2.3 2007/01/29 04:33:21 skim Exp $
+* $Id: listing_engine.inc,v 1.202.2.4 2007/02/02 05:21:40 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.202.2.3 $
+* @version $Revision: 1.202.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1686,12 +1686,10 @@ class Listing_Engine extends Page
 		$this->_tmp['default_format'] = '';
 		$this->_tmp['is_default']     = Array();
 		if (empty($this->_tmp['assets_info'])) {
-			// first check that at least the first key is numeric
-			reset($todo);
-			if (0 != (int)key($todo)) {
-				$this->_tmp['assets_info'] = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
-			}
-			$this->_tmp['asset_urls'] = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($todo));
+			include_once SQ_FUDGE_PATH.'/general/general.inc';
+			$flattened = array_keys(array_flatten($todo, FALSE, TRUE));
+			$this->_tmp['assets_info'] = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($flattened);
+			$this->_tmp['asset_urls'] = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($flattened);
 		}
 
 		$type_folder =& $this->getFolder('type_formats');
