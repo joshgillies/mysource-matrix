@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.20 2007/01/11 03:13:14 tbarrett Exp $
+* $Id: logs.inc,v 1.21 2007/02/02 03:19:24 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Logs Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 
@@ -28,15 +28,18 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paints the interface for viewing logged information about the asset
 *
-* @param object	&$owner	the asset whose interface we are painting
+* @param object	&$owner		the asset whose interface we are painting
 * @param object	&$o		the outputter class
-* @param object	&$ei	the edit interface
+* @param object	&$ei		the edit interface
+* @param array	$keywords	list of keywords to replace
 *
 * @return boolean
 * @access public
 */
-function paintLogs(&$owner, &$o, &$ei)
+function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 {
+
+
 	// prefix for all the form vars
 	$prefix = $owner->getPrefix();
 
@@ -54,6 +57,8 @@ function paintLogs(&$owner, &$o, &$ei)
 	$selected_key = NULL;
 	$o->addFormActionGetVar('sq_backend_log_type', $active_log_type);
 	$o->openSection(translate('logged_messages'));
+
+
 		$o->openRaw();
 			$type_options = Array();
 			foreach ($log_types as $type) {
@@ -63,10 +68,20 @@ function paintLogs(&$owner, &$o, &$ei)
 			}
 
 			echo '<b>'.translate('log_type').'</b>&nbsp;';
-			combo_box('sq_backend_log_type', $type_options, FALSE, $selected_key);
+
+			// if it is in limbo mode there will be already an element with sq_backend_log_type id
+			$_combo_box_name = 'sq_backend_log_type';
+
+			// if it is in limbo mode there will be already an element with sq_backend_log_type id
+			// therefore we will change the name of the combo box
+                        if (SQ_IN_LIMBO) {
+			   $_combo_box_name = 'sq_backend_log_type2';
+			}
+ 			combo_box($_combo_box_name, $type_options, FALSE, $selected_key);
 			echo '&nbsp;';
-			normal_button($prefix.'_go', translate('view'), 'self.location = document.getElementById(\'sq_backend_log_type\').value');
+			normal_button($prefix.'_go', translate('view'), 'self.location = document.getElementById(\''.$_combo_box_name.'\').value');
 		$o->closeRaw();
+
 
 		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
@@ -182,6 +197,7 @@ function paintLogs(&$owner, &$o, &$ei)
 				<?php
 			$o->closeRaw();
 		}//end else
+
 
 	$o->closeSection();
 
