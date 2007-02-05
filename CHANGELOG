@@ -1,5 +1,50 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.10.6
+
+Complete Changelog
+-----------------------------------
+
+* Fixed bug #1398: Cannot link LDAP User with space in DN to Matrix group
+* Fixed bug #1983: ISO8601 and iCal date format keywords not working
+* Fixed bug #2010: Asset ID not found error if LDAP user is deleted
+* Fixed bug #2048: Bodycopy table can't recall properties
+* Fixed bug #2057: Workflow email not sending for some assets
+* Fixed bug #2063: WYSIWYG Visual Aid Plugin not working
+* Fixed bug #2068: Forcibly Acquire Locks window displaying nothing in Simple Edit Interface
+* Fixed bug #2072: Links provided in workflow email does not work
+* Fixed bug #2077: Apply metadata to an standard page asset with an image asset child
+* Fixed bug #2078: Fatal trigger error when setting metadata select field value
+
+CMS
+
+* Fixed bug #1796: Selective Emails screen not highlighting selected rule (Custom Form)
+* Fixed bug #1988: Multiple Page - Cannot simultaneously delete last page and create new page (Multiple Page)
+* Fixed bug #2038: Redirect Page endless loop (Redirect Page)
+* Fixed bug #2060: Cloning asset lists with Custom Grouping links instead of clones group format (Listing Engine)
+
+News
+
+* Fixed bug #2002: RSS Feed - weight or width (RSS Feed)
+* Fixed bug #2003: RSS Feed - two "rights" field (RSS Feed)
+* Fixed bug #2033: RSS Feed does not like items of an inherited type from a source asset listing (RSS Feed)
+* Fixed bug #2045: Keyword %asset_name_linked_to_link_url% not working (News Item)
+
+Search
+
+* Fixed bug #2055: Public user group membership, and group membership restrictions, ignored when processing search (Search Manager)
+* Fixed bug #2076: Global search and replace shows matches multiple times (Global Search and Replace Tool)
+
+Bulkmail
+
+* Fixed bug #2065: Bulkmail subscriber page -> suggested text change (Bulkmail Subscribe Page)
+
+LDAP
+
+* Message now appears on LDAP Bridge Details screen if LDAP not compiled into PHP
+
+
+
 VERSION 3.10.5
 
 Featured Changes
