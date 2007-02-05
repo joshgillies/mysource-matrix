@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_management.inc,v 1.16 2006/12/07 00:04:18 emcdonald Exp $
+* $Id: form_submission_management.inc,v 1.17 2007/02/05 04:03:38 emcdonald Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -81,7 +81,7 @@ class Form_Submission_Management extends Asset_Management
 
 		if (version_compare($current_version, '0.3.1', '<')) {
 
-			bam('STARTING FORM SUBMISSION UPGRADE TO VERSION 0.3.1');
+			pre_echo('STARTING FORM SUBMISSION UPGRADE TO VERSION 0.3.1');
 
 			// if they are had already upgraded to version 0.3 (which is where this upgrade should really have happened
 			// then we need to just get the assets that are using the default attribute value
@@ -130,10 +130,42 @@ class Form_Submission_Management extends Asset_Management
 
 			}// end foreach
 
-			bam('FORM SUBMISSION UPGRADE TO VERSION 0.3.1 COMPLETED '.(($errors) ? 'WITH ERRORS' : 'SUCCESSFULLY'));
+			pre_echo('FORM SUBMISSION UPGRADE TO VERSION 0.3.1 COMPLETED '.(($errors) ? 'WITH ERRORS' : 'SUCCESSFULLY'));
 
 		}//end if
 
+		if (version_compare($current_version, '0.5', '<')) {
+
+			pre_echo('STARTING FORM SUBMISSION UPGRADE TO VERSION 0.5');
+
+			// unset the exclusive and dependant flags on all form submission links
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			$sql = 'UPDATE
+						sq_ast_lnk l
+					SET
+						is_dependant = 0,
+						is_exclusive = 0
+					FROM
+						sq_ast a
+					WHERE
+						l.minorid=a.assetid
+						AND
+						a.type_code='.$db->quotesmart('form_submission').'
+					';
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			unset($db);
+
+			pre_echo(('FORM SUBMISSION UPGRADE TO VERSION 0.5 COMPLETED SUCCESSFULLY'));
+
+		}//end if
 		return TRUE;
 
 	}//end _upgrade()
