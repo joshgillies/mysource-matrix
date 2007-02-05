@@ -1,5 +1,59 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.12.1
+
+Complete Changelog
+-----------------------------------
+
+* Asset Lineage Design Area now has Print and Cache options on Customisation screen
+* Backend History now wraps to multiple lines instead of being chopped off
+* Fixed bug #1398: Cannot link LDAP User with space in DN to Matrix group
+* Fixed bug #2010: Asset ID not found error if LDAP user is deleted
+* Fixed bug #2019: Image files cannot be tagged
+* Fixed bug #2021: Spurious redirect occurs during login
+* Fixed bug #2026: Cannot remove all force-secure-login root URLs in system config
+* Fixed bug #2028: Tagging behaving differently between 3.10 and higher version
+* Fixed bug #2041: Squiz Supported Version - Invalid Warranty Key warning screen
+* Fixed bug #2048: Bodycopy table can't recall properties
+* Fixed bug #2057: Workflow email not sending for some assets
+* Fixed bug #2068: Forcibly Acquire Locks window displaying nothing in Simple Edit Interface
+* Fixed bug #2071: Error when creating and applying a design customisation
+* Fixed bug #2072: Links provided in workflow email does not work
+* Fixed bug #2077: Apply metadata to an standard page asset with an image asset child
+* Fixed bug #2078: Fatal trigger error when setting metadata select field value
+* Fixed bug #2080: Generate XML - Thesaurus
+* Fixed bug #2087: Trying to Asset Sort with more than 1000 children fails on Oracle
+
+CMS
+
+* Fixed bug #1796: Selective Emails screen not highlighting selected rule (Custom Form)
+* Fixed bug #2025: Errors creating file assets using asset builder with customised create form (Asset Builder Page)
+* Fixed bug #2038: Redirect Page endless loop (Redirect Page)
+* Fixed bug #2058: Asset listing throws recursion warning too easily (Listing Engine)
+* Fixed bug #2060: Cloning asset lists with Custom Grouping links instead of clones group format (Listing Engine)
+* Fixed bug #2083: Adding metadata via Asset Builder - Permissions Error (Asset Builder Page)
+
+News
+
+* Fixed bug #2033: RSS Feed does not like items of an inherited type from a source asset listing (RSS Feed)
+* Fixed bug #2045: Keyword %asset_name_linked_to_link_url% not working (News Item)
+
+Search
+
+* Fixed bug #2023: typo in search_manager.inc (Search Manager)
+* Fixed bug #2055: Public user group membership, and group membership restrictions, ignored when processing search (Search Manager)
+* Fixed bug #2076: Global search and replace shows matches multiple times (Global Search and Replace Tool)
+
+Bulkmail
+
+* Fixed bug #2065: Bulkmail subscriber page -> suggested text change (Bulkmail Subscribe Page)
+
+LDAP
+
+* Message now appears on LDAP Bridge Details screen if LDAP not compiled into PHP
+
+
+
 VERSION 3.12.0
 
 Featured Changes
