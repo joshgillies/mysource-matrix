@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.38.2.3 2006/10/16 06:10:38 mbrydon Exp $
+* $Id: hipo_job_create_links.inc,v 1.38.2.4 2007/02/05 00:10:14 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.38.2.3 $
+* @version $Revision: 1.38.2.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -508,7 +508,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			foreach ($assets_to_remap as $source_assetid => $remap_info) {
 				$dest_assetid = $_POST[$prefix.'_remap_new_url']['assetid'];
 				if ($dest_assetid) {
-					$dest_url = $_POST[$prefix.'_remap_new_url']['url'];
+					$dest_url = strip_url($_POST[$prefix.'_remap_new_url']['url']);
 
 					if ($dest_assetid == $source_assetid) {
 						$source_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
