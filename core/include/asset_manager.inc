@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.531.2.9 2007/01/31 00:17:04 rong Exp $
+* $Id: asset_manager.inc,v 1.531.2.10 2007/02/05 04:26:22 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.531.2.9 $
+* @version $Revision: 1.531.2.10 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1050,7 +1050,7 @@ class Asset_Manager extends MySource_Object
 			$in = 'assetid IN (';
 
 			for ($i=0; $i<count($assetids); $i++) {
-				$in .= $db->quoteSmart($assetids[$i]).(($i == count($assetids) - 1) ? ')' : ',');
+				$in .= $db->quoteSmart( (string) $assetids[$i]).(($i == count($assetids) - 1) ? ')' : ',');
 			}
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($in);
