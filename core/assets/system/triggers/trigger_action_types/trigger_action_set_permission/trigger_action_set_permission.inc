@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.10 2006/12/06 00:00:30 bcaldwell Exp $
+* $Id: trigger_action_set_permission.inc,v 1.10.2.1 2007/02/05 00:35:11 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,7 +54,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	function execute($settings, &$state)
 	{
 		// check required settings
-		if (empty($settings['permission'])) return FALSE;
+		if (!isset($settings['permission'])) return FALSE;
 		if (empty($settings['userid'])) return FALSE;
 		if (empty($state['assetid'])) return FALSE;
 		$granted = array_get_index($settings, 'granted', TRUE);
@@ -126,7 +126,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		ob_start();
 
 		// print the grant/deny selection
-		if (empty($settings['granted'])) {
+		if (!isset($settings['granted'])) {
 			$selected_granted = '1';
 		} else {
 			$selected_granted = $settings['granted'];
