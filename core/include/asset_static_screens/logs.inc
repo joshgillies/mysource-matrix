@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.21 2007/02/02 03:19:24 colivar Exp $
+* $Id: logs.inc,v 1.22 2007/02/05 05:39:05 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Logs Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 
@@ -60,7 +60,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 
 
 		$o->openRaw();
-			$type_options = Array();
+					$type_options = Array();
 			foreach ($log_types as $type) {
 				$key = replace_query_string_vars(Array('sq_backend_log_type' => $type));
 				if ($type == $active_log_type) $selected_key = $key;
@@ -81,7 +81,6 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 			echo '&nbsp;';
 			normal_button($prefix.'_go', translate('view'), 'self.location = document.getElementById(\''.$_combo_box_name.'\').value');
 		$o->closeRaw();
-
 
 		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 

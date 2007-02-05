@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookupValues.inc,v 1.11 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: lookupValues.inc,v 1.12 2007/02/05 05:39:05 colivar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 
@@ -32,11 +32,12 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @param object	&$owner	the asset whose interface we are painting
 * @param object	&$o		the outputter class
 * @param object	&$ei	the edit interface
+* @param array	$keywords	the list of keywords
 *
 * @return boolean
 * @access public
 */
-function paintLookupValues(&$owner, &$o, &$ei)
+function paintLookupValues(&$owner, &$o, &$ei, $keywords=NULL)
 {
 
 	$prefix = $owner->getPrefix();

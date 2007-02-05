@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.320 2007/01/30 05:35:54 colivar Exp $
+* $Id: asset_edit_interface.inc,v 1.321 2007/02/05 05:39:05 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.320 $
+* @version $Revision: 1.321 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -650,7 +650,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$page_heading = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').'&nbsp;&nbsp;|&nbsp;&nbsp;';
 			if (empty($_REQUEST['print_view'])) {
 				$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($owner->id);
-                $page_heading .= '<ul class="info_asset_finder">';
+				$page_heading .= '<ul class="info_asset_finder">';
 				foreach ($infos as $assetid => $info) {
 					$page_heading .= '<li>'.get_asset_tag_line($assetid).'</li>';
 				}
@@ -663,10 +663,10 @@ class Asset_Edit_Interface extends MySource_Object
 			$page_heading = 'Create new '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name');
 		}
 		$page_heading .= '&nbsp;&nbsp;|&nbsp;&nbsp;'.$active_screen_name;
-    
+
 		$o->setHeading($page_heading, sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code), 16, 16, ''));
-        
-        $o->setPageTitle($owner->name);        
+
+		$o->setPageTitle($owner->name);
 		$sub_heading = '';
 		if ($closest_parentid != $owner->id) {
 			$closest_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($closest_parentid);
@@ -1184,7 +1184,7 @@ class Asset_Edit_Interface extends MySource_Object
 		if (!isset($keywords['entire_screens'])) {
 			$keywords['entire_screens'] = Array();
 		}
-		
+
 		$screens = array_merge(array_keys($keywords['screens']), array_keys($keywords['entire_screens']));
 		$screens = array_unique($screens);
 
@@ -1196,22 +1196,33 @@ class Asset_Edit_Interface extends MySource_Object
 		// loop over the screens and get the xml file for each screen
 		// generate some keywords for each screen
 		foreach ($screens as $screen) {
-
 			// check to see if we want the entire screen
 			$entire_screen = FALSE;
 			if (in_array($screen, array_keys($keywords['entire_screens']))) {
 				$entire_screen = TRUE;
 			}
 
+			// there is a problem with metadataSchemas and lookup settings
+			// a quick fix was to add in the "if" statement a condition for
+			// metadataschema and lookupSetting
+
 			// if we have a static screen on our hands, then we want to
 			// call the function to paint it
-			if (isset($this->_edit_fns->static_screens[$screen])) {
+			if (isset($this->_edit_fns->static_screens[$screen]) || (($screen == 'metadataschemas') && (isset($this->_edit_fns->static_screens['metadataSchemas']))) || (($screen == 'lookupvalues') && (isset($this->_edit_fns->static_screens['lookupValues']))) ) {
 				$static_keywords = (isset($keywords['screens'][$screen])) ? $keywords['screens'][$screen] : NULL;
 				if (!is_null($static_keywords) || $entire_screen) {
 					if (is_null($static_keywords)) {
 						$static_keywords = Array();
 					}
-					if ($this->_getStaticScreenKeywordReplacements($owner, $o, $screen, $static_keywords, $entire_screen)) {
+					if ($screen == 'metadataschemas') {
+						if ($this->_getStaticScreenKeywordReplacements($owner, $o, 'metadataSchemas', $static_keywords, $entire_screen)) {
+							$print_commit_button = TRUE;
+						}
+					} else if ($screen == 'lookupvalues') {
+						if ($this->_getStaticScreenKeywordReplacements($owner, $o, 'lookupValues', $static_keywords, $entire_screen)) {
+							$print_commit_button = TRUE;
+						}
+					} else if ($this->_getStaticScreenKeywordReplacements($owner, $o, $screen, $static_keywords, $entire_screen)) {
 						$print_commit_button = TRUE;
 					}
 				}
@@ -1231,7 +1242,7 @@ class Asset_Edit_Interface extends MySource_Object
 			if ($screen == 'logs') continue;
 			if ($screen == 'preview') continue;
 			if ($screen == 'tagging') continue;
-			if ($screen == 'lookupValues') continue;
+			if ($screen == 'lookupvalues') continue;
 
 			// its not a static screen, so get the xml file and parse it for
 			// the keywords that we want, if the xml file exists
@@ -1386,7 +1397,13 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 
 			if ($get_screen) {
-				$this->_tmp['layout_keyword_replacements'][$screen.'-'] = ob_get_contents();
+				if ($screen == 'metadataSchemas') {
+					$this->_tmp['layout_keyword_replacements']['metadataschemas-'] = ob_get_contents();
+				} else if ($screen == 'lookupValues') {
+					$this->_tmp['layout_keyword_replacements']['lookupvalues-'] = ob_get_contents();
+				} else {
+					$this->_tmp['layout_keyword_replacements'][$screen.'-'] = ob_get_contents();
+				}
 			}
 		ob_end_clean();
 
@@ -2084,11 +2101,12 @@ class Asset_Edit_Interface extends MySource_Object
 	* closest to the type of the asset that we are creating or editing
 	*
 	* @param string	$file_name	the file to find
+	* @param string $throw_error	this boolean controls if the findFile should throw an error or not
 	*
 	* @return string
 	* @access public
 	*/
-	function findFile($file_name)
+	function findFile($file_name, $throw_error=TRUE)
 	{
 		$file_name = 'edit_interface_'.$file_name.'.xml';
 
@@ -2099,7 +2117,7 @@ class Asset_Edit_Interface extends MySource_Object
 				break;
 			}
 		}
-		if (!$file) {
+		if ( (!$file) && $throw_error) {
 			trigger_localised_error('SYS0065', E_USER_WARNING, $file_name, $this->_type_code);
 			return FALSE;
 		}
@@ -2285,6 +2303,291 @@ class Asset_Edit_Interface extends MySource_Object
 		require_once SQ_INCLUDE_PATH.'/asset_static_screens/'.$screen.'.inc';
 
 	}//end includeStaticScreen()
+
+
+	/**
+	* Takes the requested filename and searches back up the directories to find the matching file
+	* closest to the type of the asset that we are creating or editing
+	*
+	* @param string	$file_name	the file to find
+	* @param string $throw_error	this boolean controls if the findFile should throw an error or not
+	*
+	* @return string
+	* @access public
+	*/
+	function findSpecificFile($file_name, $throw_error=TRUE)
+	{
+		if (file_exists($file_name)) return $file_name;
+		if ($throw_error) {
+			trigger_localised_error('SYS0065', E_USER_WARNING, $file_name, $this->_type_code);
+			return FALSE;
+		}
+
+		return FALSE;
+
+	}//end findSpecificFile()
+
+
+	/**
+	* works the same way as findScreen but uses a specific file name instead
+	* @param string	$specific_file	the name of the specific file
+	*
+	* @return object
+	* @access public
+	*/
+	function &findSpecificScreen($specific_file)
+	{
+		$root = NULL;
+		if (($file = $this->findSpecificFile($specific_file))) {
+			$input =& new XML_Tree($file);
+			$root  =& $input->getTreeFromFile();
+			if (PEAR::isError($root)) {
+				trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+				$root = NULL;
+				return $root;
+			}
+			return $root;
+
+			// if empty, then just skip the searching for language files,
+			// otherwise find the closest language file
+			if (!empty($root) && !empty($root->children)) {
+				$lang_file = $this->findLanguageFile($screen_name, FALSE);
+				if (empty($lang_file)) {
+					$root = NULL;
+					return $root;
+				} else {
+					$root = unserialize(file_get_contents($lang_file));
+				}
+			}
+		}
+
+		return $root;
+
+	}//end findSpecificScreen()
+
+
+	/**
+	*
+	* prerequisites: the asset_type should exist $asset_type and
+	* the outputter should be already initialised.
+	* Info: This function will print all the keywords of the asset type
+	* passed as a parameter.
+	* outcome: It will use the outputter $o to display all the simple
+	* edit keywords available
+	*
+	* @param string	$asset_type	the asset type
+	* @param object &$o			the outputter
+	*
+	* @return void
+	* @access public
+	*/
+	function getSimpleEditKeywords($asset_type='page_standard', &$o)
+	{
+
+		$ei =& new Asset_Edit_Interface($asset_type);
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type);
+		$as =& new $asset_type();
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset_type);
+		$asset_dir = SQ_SYSTEM_ROOT.'/'.$asset_info['dir'];
+		$ef =& $as->getEditFns();
+
+		$screens_static = Array();
+		$screens_specific = Array();
+
+		foreach ($ef->static_screens as $key => $screen) {
+			$screens_static[$screen['name']] = $key;
+		}
+
+		$screens_all = $screens_static;
+		foreach ($ei->getScreens() as $key => $screen) {
+			$screens_specific[$screen['name']] = $key;
+			$screens_all[$screen['name']] = $key;
+		}
+
+		$o->openRaw();
+		?>
+			<div><h1 style="font-size:1.7em;">General Screens</h1></div>
+		<?php
+		$o->closeRaw();
+
+		// loop through all the screen and all the xml files
+		foreach ($screens_all as $current_screen_name => $current_screen) {
+
+			$section_array = Array();
+
+			if ($this->findFile('static_screen_'.$current_screen, FALSE)) {
+				$root = $this->findScreen('static_screen_'.$current_screen);
+				for ($i = 0; $i < count($root->children); $i++) {
+					$section =& $root->children[$i];
+					$current_section_name =$section->attributes['name'];
+
+					if (!isset($section_array[$current_section_name])) {
+						$section_array[$current_section_name] = Array();
+					}
+
+					if (!($num_fields = count($section->children))) {
+						continue;
+					}
+
+					for ($j = 0; $j < $num_fields; $j++) {
+						$field =& $section->children[$j];
+						$keyword = array_get_index($field->attributes, 'code', 0);
+						if (!empty($keyword)) {
+							$section_array[$current_section_name][] = $keyword;
+
+
+						}
+					}
+
+				}
+			}
+
+			if ($this->findFile('screen_'.$current_screen, FALSE)) {
+				$root = $this->findScreen('screen_'.$current_screen);
+
+				for ($i = 0; $i < count($root->children); $i++) {
+					$section =& $root->children[$i];
+
+					$current_section_name =$section->attributes['name'];
+					if (!isset($section_array[$current_section_name])) {
+						$section_array[$current_section_name] = Array();
+					}
+
+					if (!($num_fields = count($section->children))) {
+						continue;
+					}
+
+					for ($j = 0; $j < $num_fields; $j++) {
+						$field =& $section->children[$j];
+						$keyword = array_get_index($field->attributes, 'attribute', 0);
+						if (!empty($keyword)) {
+							$section_array[$current_section_name][] = $keyword;
+
+						}
+					}
+				}
+			}
+
+			if ($tmpFile=$this->findSpecificFile($asset_dir.'/edit_interface_screen_'.$current_screen.'.xml', FALSE)) {
+
+				$root = $this->findSpecificScreen($tmpFile);
+
+				for ($i = 0; $i < count($root->children); $i++) {
+					$section =& $root->children[$i];
+					$current_section_name =$section->attributes['name'];
+
+					if (!isset($section_array[$current_section_name])) {
+						$section_array[$current_section_name] = Array();
+					}
+
+
+					if (!($num_fields = count($section->children))) {
+						continue;
+					}
+
+					for ($j = 0; $j < $num_fields; $j++) {
+						$field =& $section->children[$j];
+						$keyword = array_get_index($field->attributes, 'attribute', 0);
+						if (empty($keyword)) {
+							$keyword = array_get_index($field->attributes, 'keyword', 0);
+						}
+						if (!empty($keyword)) {
+							$section_array[$current_section_name][] = $keyword;
+						}
+					}
+
+				}
+
+				// remove duplicates fields
+				foreach ($section_array as $key => $value) {
+					$value = (array_unique($value));
+					$section_array[$key]= $value;
+				}
+			}//end if
+
+			$o->openRaw();
+			?>
+				<style type="text/css">
+				.screen_kw, .section_kw, .field_kw {
+					font-weight:normal;
+				}
+
+				.field_kw {
+					display:block;
+				}
+
+				.section_title, .field_title {
+				}
+
+				.section_title {
+				}
+				.field_title {
+					margin:0;
+					padding:0;
+				}
+				#limbo_keywords .sq-backend-field {
+					padding-bottom:0;
+				}
+				</style>
+				<div id="limbo_keywords">
+			<?php
+
+			$o->closeRaw();
+			$counter = 0;
+			reset($screens_specific);
+
+			if (!strcmp($current_screen, current($screens_specific))) {
+
+				$o->openRaw();
+				?>
+				<div><h1 style="font-size:1.7em;">Asset Specific Screens</h1></div>
+				<?php
+				$o->closeRaw();
+			}
+
+			if (strtolower($current_screen) != 'contents') {
+			   $o->openSection($current_screen_name.' screen'.' <span class="screen_kw">(%'.str_replace(' ', '_', strtolower($current_screen)).'-%)</span>');
+			} else {
+				$o->openSection($current_screen_name.' screen'.' <span class="screen_kw">(%__custom-'.str_replace(' ', '_', strtolower($current_screen)).'%)</span>');
+				$o->closeSection();
+				continue;
+			}
+
+			foreach ($section_array as $tmp_section => $tmp_fields) {
+				// if the section name is empty
+				if (strlen($tmp_section) > 0) {
+					$o->openSection('<span class="section_title">Section <strong>"'.$tmp_section.'"</strong></span> <span class="section_kw">(%'.$current_screen.'-S_'.strtolower(str_replace(' ', '_', $tmp_section)).'%)</span>');
+				} else {
+					$o->openSection('&nbsp;');
+				}
+
+				// display the fields of that section
+				foreach ($tmp_fields as $tmp_field) {
+					$o->openField('<span class="field_title">Field <strong>"'.$tmp_field.'"</strong></span>');
+					echo '<span class="field_kw">%'.$current_screen.'-F_'.$tmp_field.'%</span>';
+					$o->closeField();
+				}
+
+				$o->closeSection();
+			}
+
+			if (!strcmp(strtolower($current_screen_name), 'metadata')) {
+				$o->openField('<span class="field_title"><strong>Print a specific metadata schema field</strong></span> ');
+				echo '<span class="field_kw">%metadata-F_{metadata schema field id}% </span>';
+				$o->closeField();
+				$o->openRaw();
+				echo '<span class="field_title">For example: %metadata-F_99999%</span>';
+				$o->closeRaw();
+			}
+
+			$o->closeSection();
+			$o->openRaw();
+			echo '</div>';
+			$o->closeRaw();
+		}//end foreach
+
+	}//end getSimpleEditKeywords()
 
 
 }//end class

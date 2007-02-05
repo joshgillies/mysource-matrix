@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.14 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: history.inc,v 1.15 2007/02/05 05:39:05 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * History Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 
@@ -32,11 +32,12 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @param object	&$owner	the asset whose interface we are painting
 * @param object	&$o		the outputter class
 * @param object	&$ei	the edit interface
+* @param array	$keywords	the keywords to replace
 *
 * @return boolean
 * @access public
 */
-function paintHistory(&$owner, &$o, &$ei)
+function paintHistory(&$owner, &$o, &$ei, $keywords=NULL)
 {
 	$write_access = $owner->writeAccess('');
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.33 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: limbo_outputter.inc,v 1.34 2007/02/05 05:39:05 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -85,6 +85,42 @@ class Limbo_Outputter extends Backend_Outputter
 		$this->_paintBodyFooter();
 
 	}//end paint()
+
+
+	/**
+	* Opens a section of the page for raw output
+	* we are overwritting the closeRaw so it handles non-buffering and limbo
+	*
+	* @return void
+	* @access public
+	*/
+	function openRaw()
+	{
+		if ((!$this->_buffering) && SQ_IN_LIMBO) {
+			parent::openSection('&nbsp;');
+		} else {
+			parent::openRaw();
+		}
+
+	}//end openRaw()
+
+
+	/**
+	* Closes a section of the page for raw output
+	* we are overwritting the closeRaw so it handles non-buffering and limbo
+	*
+	* @return void
+	* @access public
+	*/
+	function closeRaw()
+	{
+		if ((!$this->_buffering) && SQ_IN_LIMBO) {
+			parent::closeSection();
+		} else {
+			parent::closeRaw();
+		}
+
+	}//end closeRaw()
 
 
 	/**

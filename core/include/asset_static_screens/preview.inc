@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.23 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: preview.inc,v 1.24 2007/02/05 05:39:04 colivar Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 
@@ -30,11 +30,12 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @param object	&$owner	Asset:the asset whose interface we are painting
 * @param object	&$o		Backend_Outputter: the outputter class
 * @param object	&$ei	Asset_Edit_Interface: the edit interface
+* @param array	$keywords	the keywords to replace
 *
 * @return boolean
 * @access public
 */
-function paintPreview(&$owner, &$o, &$ei)
+function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 {
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	$sql = 'SELECT l.url, l.http, l.https, lv.name

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.21 2007/01/31 00:17:02 colivar Exp $
+* $Id: metadataSchemas.inc,v 1.22 2007/02/05 05:39:05 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 
@@ -31,11 +31,12 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @param object	&$owner	the asset whose interface we are painting
 * @param object	&$o		the outputter class
 * @param object	&$ei	the edit interface
+* @param array	$keywords	the list of keywords
 *
 * @return boolean
 * @access public
 */
-function paintInlineMetadataSchemas(&$owner, &$o, &$ei)
+function paintInlineMetadataSchemas(&$owner, &$o, &$ei, $keywords=NULL)
 {
 	$prefix = $owner->getPrefix();
 
@@ -128,7 +129,7 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 		$direct[$granted][] = $schemaid;
 	}
 	ksort($direct);
-	
+
 
 	if (!empty($direct)) {
 		$o->openField('&nbsp;');
