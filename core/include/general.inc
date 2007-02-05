@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.170 2007/01/16 04:32:42 rong Exp $
+* $Id: general.inc,v 1.171 2007/02/05 13:38:08 gnoel Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.170 $
+* @version $Revision: 1.171 $
 * @package MySource_Matrix
 */
 
@@ -1490,6 +1490,7 @@ function get_asset_lineage_sort_order($asset_lineage=Array())
 function replace_global_keywords(&$text)
 {
 	require_once SQ_FUDGE_PATH.'/general/text.inc';
+
 	$keywords = retrieve_keywords_replacements($text);
 	if (!empty($keywords)) {
 		$replacements = Array();
@@ -1530,7 +1531,7 @@ function replace_global_keywords(&$text)
 				if (0 === strpos($keyword, 'globals_asset_')) {
 					$asset_keyword = 'asset_'.substr($keyword, 14);
 					$asset_replacement = $GLOBALS['SQ_SYSTEM']->frontend_asset->getKeywordReplacement($asset_keyword);
-					if ($asset_replacement != "%$user_keyword%") {
+					if ($asset_replacement != "%$asset_keyword%") {
 						$replacements[$keyword] = $asset_replacement;
 					}
 				}
