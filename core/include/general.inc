@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.156.2.6 2007/01/12 03:28:34 emcdonald Exp $
+* $Id: general.inc,v 1.156.2.7 2007/02/05 13:43:28 gnoel Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.156.2.6 $
+* @version $Revision: 1.156.2.7 $
 * @package MySource_Matrix
 */
 
@@ -1493,7 +1493,7 @@ function replace_global_keywords(&$text)
 				if (0 === strpos($keyword, 'globals_asset_')) {
 					$asset_keyword = 'asset_'.substr($keyword, 14);
 					$asset_replacement = $GLOBALS['SQ_SYSTEM']->frontend_asset->getKeywordReplacement($asset_keyword);
-					if ($asset_replacement != "%$user_keyword%") {
+					if ($asset_replacement != "%$asset_keyword%") {
 						$replacements[$keyword] = $asset_replacement;
 					}
 				}
