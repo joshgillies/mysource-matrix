@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_management.inc,v 1.17 2007/02/05 04:03:38 emcdonald Exp $
+* $Id: form_submission_management.inc,v 1.18 2007/02/05 04:39:39 emcdonald Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -144,16 +144,19 @@ class Form_Submission_Management extends Asset_Management
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$sql = 'UPDATE
-						sq_ast_lnk l
+						sq_ast_lnk
 					SET
 						is_dependant = 0,
 						is_exclusive = 0
-					FROM
-						sq_ast a
 					WHERE
-						l.minorid=a.assetid
-						AND
-						a.type_code='.$db->quotesmart('form_submission').'
+						minorid IN
+							(SELECT
+								assetid
+							FROM
+								sq_ast
+							WHERE
+								type_code LIKE  '.$db->quotesmart('form_submission').'
+							)
 					';
 
 			$result = $db->query($sql);
