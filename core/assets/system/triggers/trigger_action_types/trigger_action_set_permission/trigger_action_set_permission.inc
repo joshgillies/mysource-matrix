@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.12 2007/02/01 02:45:58 emcdonald Exp $
+* $Id: trigger_action_set_permission.inc,v 1.13 2007/02/05 00:32:05 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	function execute($settings, &$state)
 	{
 		// check required settings
-		if (empty($settings['permission'])) return FALSE;
+		if (!isset($settings['permission'])) return FALSE;
 
 		$parameter_map_value = array_get_index($settings, 'user_map', serialize(Array()));
 		$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
@@ -106,6 +106,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 																   ),
 									  );
 		$vars['dependants_only'] = $dependant_only;
+
 		$status_errors = $hh->freestyleHipo('hipo_job_edit_permissions', $vars);
 
 		if (!empty($status_errors)) return FALSE;
@@ -141,7 +142,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 		// print the grant/deny selection
-		if (empty($settings['granted'])) {
+		if (!isset($settings['granted'])) {
 			$selected_granted = '1';
 		} else {
 			$selected_granted = $settings['granted'];
