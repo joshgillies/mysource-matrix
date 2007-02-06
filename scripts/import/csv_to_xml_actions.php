@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv_to_xml_actions.php,v 1.7 2007/01/03 22:43:47 mbrydon Exp $
+* $Id: csv_to_xml_actions.php,v 1.8 2007/02/06 03:47:18 mbrydon Exp $
 *
 */
 
@@ -45,24 +45,33 @@
 *			Mapping file input (XML):
 *				 <?xml version="1.0" encoding="iso-8859-1" ?>
 *				 <!-- template only, usage given below -->
-*				 <schema id="[metadata schema asset ID]" name_field="[alias of name field]" (group_by_field_id="[group by field asset ID]")>
+*				 <schema id="[metadata schema asset ID]" name_field="[alias of name field]" (group_by_field_id="[group by field asset ID]" | group_by_asset_field="[place assets under the asset ID specified in the named column]")>
 *				   <field id="[field 1 asset ID]" alias="[corresponding column name from CSV]" (ignore="1") />
 *				   <field id="[field n asset ID]" alias="[corresponding column name from CSV]" />
 *				 </schema>
 *
-*				 <!-- possible usage -->
+*				 <!-- possible usage, direct ungrouped asset import -->
 *				 <schema id="1234" name_field="first_name">
 *				   <field id="1236" alias="address" />
 *				   <field id="1237" alias="phone" />
 *				   <field id="1238" alias="colour" />
 *				 </schema>
 *
-*				 <!-- OR -->
+*				 <!-- OR automatic folder creation and grouping by a specified field... -->
 *				 <schema id="1234" group_by_field="1236" name_field="first_name">
 *				   <field id="1235" alias="first_name" />
 *				   <field id="1236" alias="address" />
 *				   <field id="1237" alias="phone" />
-*				   <field id="1237" alias="colour" ignore="1" />
+*				   <field id="1238" alias="colour" ignore="1" />
+*				 </schema>
+*
+*				 <!-- OR to place assets under an associated parent asset with the asset ID specified in the named column... -->
+*				 <schema id="1234" group_by_asset_field="parent_asset_id" name_field="first_name">
+*				   <field id="1235" alias="first_name" />
+*				   <field id="1236" alias="address" />
+*				   <field id="1237" alias="phone" />
+*				   <field id="1238" alias="colour" ignore="1" />
+*				   <field id="1239" alias="parent_asset_id" ignore="1" />
 *				 </schema>
 *
 *
@@ -245,6 +254,11 @@ function getMetadataMapping($mapping_filename)
 		$metadata_mapping['metadata_schema_group_field'] = (int)(trim($schema[0]['@group_by_field_id']));
 	}
 
+	$metadata_mapping['metadata_schema_asset_field'] = '';
+	if (isset($schema[0]['@group_by_asset_field'])) {
+		$metadata_mapping['metadata_schema_asset_field'] = trim($schema[0]['@group_by_asset_field']);
+	}
+
 	$metadata_mapping['metadata_schema_name_field'] = 0;
 	if (isset($schema[0]['@name_field'])) {
 		$metadata_mapping['metadata_schema_name_field'] = trim($schema[0]['@name_field']);
@@ -273,6 +287,12 @@ function getMetadataMapping($mapping_filename)
 
 	$group_by_field_specified = ($metadata_mapping['metadata_schema_group_field'] > 0);
 	$group_by_field_found = FALSE;
+
+	$group_by_asset_specified = ($metadata_mapping['metadata_schema_asset_field'] != '');
+	if ($group_by_field_specified && $group_by_asset_specified) {
+		printStdErr("* Group by field and group by parent asset must be used separately\n");
+		exit(-19);
+	}
 
 	$name_field_specified = ($metadata_mapping['metadata_schema_name_field'] != '');
 	$name_field_found = FALSE;
@@ -544,6 +564,7 @@ $group_names = Array();
 // Find the name of the group by field if this was specified
 $group_by_field_name = '';
 $group_by_field_column = -1;
+$group_by_asset_field_column = -1;
 $name_field_column = -1;
 
 if ($group_by_field > 0) {
@@ -576,6 +597,18 @@ while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 					if ($field_name == $group_by_field_name) {
 						$group_by_field_column = $key;
 						break;
+					}
+				}
+			}
+
+			// Find the column ID of the group by asset field if this was specified
+			if (isset($metadata_mapping['metadata_schema_asset_field'])) {
+				if ($metadata_mapping['metadata_schema_asset_field'] != '') {
+					foreach ($headers as $key => $field_name) {
+						if ($field_name == $metadata_mapping['metadata_schema_asset_field']) {
+							$group_by_asset_field_column = $key;
+							break;
+						}
 					}
 				}
 			}
@@ -743,6 +776,12 @@ while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 				} else {
 					$imported_records[$record_serialised] = 1;
 				}
+			}
+
+			// Find the parent so we can dynamically associate the child assets - this should be an Asset ID
+			if ($group_by_asset_field_column >= 0) {
+				$asset_parent_id = (int)$data[$group_by_asset_field_column];
+				printStdErr('-- Targeting asset '.$asset_parent_id);
 			}
 
 			printStdErr('-- Creating asset '.$name.(($folder_name_orig != '') ? (' in folder "'.$folder_name_orig).'"' : ''));
