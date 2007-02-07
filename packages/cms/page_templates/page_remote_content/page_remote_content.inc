@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.60 2007/01/08 03:25:32 emcdonald Exp $
+* $Id: page_remote_content.inc,v 1.61 2007/02/07 23:24:57 arailean Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -209,35 +209,58 @@ class Page_Remote_Content extends Page
 		$url = $url_parts[0].'?'.$query_string;
 
 
-		$raw_post = '';
+		$post_data = NULL;
+		$post_is_encoded = FALSE;
+
 		if ($is_post) {
-			$content_type = array_get_index($_SERVER, 'CONTENT_TYPE');
-			if (!is_null($content_type) && strpos(strtolower($content_type), 'multipart/form-data') !== FALSE) {
+			unset($_POST[SQ_REMOTE_SOURCE]);
+
+			$content_type = array_get_index($_SERVER, 'CONTENT_TYPE', '');
+			if (strpos(strtolower($content_type), 'multipart/form-data') === FALSE) {
+				$post_data = file_get_contents('php://input');
+				$post_data = trim(str_replace(SQ_REMOTE_SOURCE.'='.urlencode($remote_source), '', $post_data));
+				$post_is_encoded = TRUE;
+			} else {
 				// NOTE that this is not fully compatible with those systems
 				// where post data is allowed to look like a=1&a=2&a=3
 				// PHP will only see a=3 in POST vars, so we lose a=1,a=2, so we cannot pass it along
 				// that's why when content-type is NOT form-data we use the php://input
-				$raw_post = make_raw_post_data($_POST);
-			} else {
 				// the reason we don't always use php://input is because when content type is multipart/form-data it is empty
-				$raw_post = file_get_contents('php://input');
-				$raw_post = trim(str_replace(SQ_REMOTE_SOURCE.'='.urlencode($remote_source), '', $raw_post));
+				$post_data = $_POST;
 			}
 
 		}
+
 
 		// support custom post variables if they've been set
 		// NOTE: custom post variables are only sent on INITIAL request
 		$post_variables = $this->attr('post_variables');
 		if ($initial_request && !empty($post_variables)) {
 			$is_post = TRUE;
-			$addon_array = Array();
-			if (!empty($raw_post)) $addon_array[] = $raw_post;
+			if ($post_is_encoded) {
+				$addon_array = Array();
+				if (!empty($post_data)) $addon_array[] = $post_data;
 
-			foreach ($post_variables as $index => $variable) {
-				$addon_array[] = urlencode($variable['name']).'='.urlencode(replace_global_keywords($variable['value']));
+				foreach ($post_variables as $index => $variable) {
+					$addon_array[] = urlencode($variable['name']).'='.urlencode(replace_global_keywords($variable['value']));
+				}
+				$post_data = implode('&', $addon_array);
+
+			} else {
+				foreach ($post_variables as $index => $variable) {
+					$var_name = $variable['name'];
+					$var_value = $variable['value'];
+					if (isset($post_data[$var_name])) {
+						if (!is_array($post_data[$var_name])) {
+							$post_data[$var_name] = Array($post_data[$var_name], $var_value);
+						} else {
+							$post_data[$var_name][] = $var_value;
+						}
+					} else {
+						$post_data[$var_name] = $var_value;
+					}
+				}
 			}
-			$raw_post = implode('&', $addon_array);
 		}
 
 		////// Remote Communication Section. Using HTTP_Client PEAR package
@@ -290,6 +313,7 @@ class Page_Remote_Content extends Page
 			$HTTP_Client->enableHistory(FALSE);
 		}
 
+		$HTTP_Client->setRequestParameter('useBrackets', FALSE);
 
 		if ($is_post) {
 			// Pass on uploaded files if necessary
@@ -312,15 +336,23 @@ class Page_Remote_Content extends Page
 				}
 			}
 			// a workaround for HTTP_Client's inability to handle empty post data
-			if (empty($raw_post) && empty($files)) {
-				$random = md5(rand());
-				$raw_post = $random.'='.$random;
+			if (empty($post_data) && empty($files)) {
+				if ($post_is_encoded) {
+					$random = md5(rand());
+					$post_data = $random.'='.$random;
+				}
 			}
 
-			$result = $HTTP_Client->post($url, $raw_post, TRUE, $files);
+			if (!$post_is_encoded) {
+				$HTTP_Client->setRequestParameter('useBrackets', TRUE);
+			}
+
+			$result = $HTTP_Client->post($url, $post_data, $post_is_encoded, $files);
+
 		} else {
 			$result = $HTTP_Client->get($url);
 		}
+
 
 		// exit on error
 		if (PEAR::isError($result)) {
