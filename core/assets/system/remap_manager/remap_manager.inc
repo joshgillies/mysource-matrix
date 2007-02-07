@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.29 2006/12/06 04:40:09 emcdonald Exp $
+* $Id: remap_manager.inc,v 1.30 2007/02/07 23:22:45 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -178,17 +178,23 @@ class Remap_Manager extends Asset
 	*/
 	function addRemapURL($old_url, $new_url, $expires=NULL)
 	{
-		$old_url = strip_url($old_url);
-		$new_url = strip_url($new_url);
-
 		// old url and new url must be strings, makes not sense otherwise
 		if (!is_string($old_url) || !is_string($new_url)) {
 			trigger_localised_error('CORE0093', E_USER_WARNING);
 			return 0;
 		}
+		
+		$old_url = strip_url($old_url);
+		$new_url = strip_url($new_url);
 
 		// there is no use remapping a URL to itself
 		if (strcmp($old_url, $new_url) == 0) return 1;
+
+		// can't remap to a blank URL
+		if ($new_url === '') {
+			trigger_localised_error('CORE0271', E_USER_WARNING);
+			return 0;
+		}
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
