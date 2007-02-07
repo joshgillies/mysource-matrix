@@ -22,7 +22,7 @@
 		$tyle_list = Array();
 		$asset_type_list = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes();
 		foreach ($asset_type_list as $key => $value) {
-			if (($value['allowed_access'] == 'backend_user') && ($value['instantiable'] == 1)) {
+			if ($value['instantiable'] == 1) {
 				$type_list[] = $key;
 			}
 		}
