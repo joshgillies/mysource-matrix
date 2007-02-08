@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.15 2006/12/06 04:40:08 emcdonald Exp $
+* $Id: layout_manager.inc,v 1.16 2007/02/08 01:12:52 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -175,8 +175,11 @@ class Layout_Manager extends Asset
 			if (!isset($layouts[$type_code][$screen])) {
 				return $null;
 			}
-			$layout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($layouts[$type_code][$screen], 'layout');
-			if (is_null($layout)) return $null;
+			$layout = NULL;
+			if (!empty($layouts[$type_code][$screen])) {
+				$layout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($layouts[$type_code][$screen], 'layout');
+			}
+			return $layout;
 		}
 		return $layout;
 
