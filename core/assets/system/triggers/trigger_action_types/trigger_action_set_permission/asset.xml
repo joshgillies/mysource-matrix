@@ -12,7 +12,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.5 2007/01/31 22:06:57 emcdonald Exp $
+* $Id: asset.xml,v 1.6 2007/02/08 23:08:27 emcdonald Exp $
 *
 */
 -->
@@ -20,7 +20,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<package>__core__</package>
 	<type_code>trigger_action_set_permission</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Set Permission</name>
 	<description>Grant or deny a permission on an asset</description>
 	<instantiable>no</instantiable>

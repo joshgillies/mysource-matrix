@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.13 2007/02/05 00:32:05 lwright Exp $
+* $Id: trigger_action_set_permission.inc,v 1.14 2007/02/08 23:08:29 emcdonald Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,14 +57,20 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		// check required settings
 		if (!isset($settings['permission'])) return FALSE;
 
+		// must provide a static id, even if it is only a default for the param map
+		if (empty($settings['userid'])) return FALSE;
+
 		$parameter_map_value = array_get_index($settings, 'user_map', serialize(Array()));
 		$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 		$userid = $atr_parameter_map->getParameterValue('user');
 
-		$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid, Array('user', 'user_group'), FALSE);
-
-		if (empty($userid) || empty($user_info)) {
-			return FALSE;
+		if (!empty($userid)) {
+			// ensure that the value from the parameter map is a valid asset id
+			$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid, Array('user', 'user_group'), FALSE);
+			if (empty($user_info)) return FALSE;
+		} else {
+			// no user id has been supplied by the parameter map, so use the static userid
+			$userid = $settings['userid'];
 		}
 
 		if (empty($state['assetid'])) return FALSE;
@@ -133,6 +139,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	*/
 	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
+
 	// due to "access for" being the only stable text in this interface
 		// we are not translating like the rest but just the text as it appears
 		ob_start();
@@ -171,6 +178,35 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			echo '<b>'.$permissions[$selected_permission].'</b>';
 		}
 		echo ' '.translate('access_for').' ';
+
+
+
+		// print the asset finder
+		if (empty($settings['userid'])) {
+			$selected_userid = 0;
+		} else {
+			$selected_userid = $settings['userid'];
+		}
+		if ($write_access) {
+			asset_finder(
+				$prefix.'[userid]',
+				$selected_userid,
+				Array(
+					'user'			=> 'D',
+					'user_group'	=> 'D',
+				)
+			);
+		} else {
+			$user = NULL;
+			if ($selected_userid > 0) {
+				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($selected_userid);
+			}
+			if (is_null($user)) {
+				echo '<b>['.translate('trigger_no_user_selected').']</b>';
+			} else {
+				echo '<b>'.$user->name.'</b>';
+			}
+		}
 
 		$parameter_map_value = array_get_index($settings, 'user_map', serialize(Array()));
 
@@ -237,19 +273,23 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		}
 		$settings['granted'] = $granted;
 
+		// a userid must have been selected
+		$user_data = array_get_index($request_data, 'userid', FALSE);
+		$userid = $user_data['assetid'];
+
+		if (empty($userid)) return 'User id is not specified';
+
 
 		$atr_parameter_map =& new Asset_Attribute_Parameter_Map();
 		$atr_parameter_map->process($new_prefix.'_parameter_map');
 
 
-		$userid = $atr_parameter_map->getParameterValue('user');
-
-		if ($userid) {
-			$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid, Array('user', 'user_group'), FALSE);
-			if (empty($user_info)) {
-				return 'Specified user is not a valid asset';
-			}
+		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+		if (is_null($user)) {
+			return 'Specified user is not a valid asset';
 		}
+		$settings['userid'] = $userid;
+
 
 		$settings['user_map'] = $atr_parameter_map->value;
 
@@ -311,21 +351,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	function addSettingUserid($value, $settings)
 	{
 
-		// TODO: Parameter map should expose an interface for building these value structures.
-		$param_map = Array();
-		$param_map['user'] = Array(
-								'0'	=> Array(
-										'source'				=> 'STATIC_ASSET',
-										'static_asset_finder'	=> Array(
-																	'assetid'	=> $value,
-																	'url'		=> '',
-																	'linkid'	=> '',
-																   ),
-										'index'					=> $value,
-									   ),
-							 );
-
-		$settings['user_map'] = serialize($param_map);
+		$settings['userid'] = $value;
 		return $settings;
 
 	}//end addSettingUserid()

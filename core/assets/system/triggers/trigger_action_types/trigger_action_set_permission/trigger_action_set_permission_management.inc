@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission_management.inc,v 1.4 2007/01/31 22:13:32 emcdonald Exp $
+* $Id: trigger_action_set_permission_management.inc,v 1.5 2007/02/08 23:08:29 emcdonald Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,8 +55,10 @@ class Trigger_Action_Set_Permission_Management extends Asset_Management
 
 		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
 
-		if (version_compare($current_version, '0.2', '<')) {
-				// get all triggers from the db and check their actions
+
+		// 0.2 upgrade made changes which need to be reverted in 0.3, so 0.1 uses the same data format as 0.3
+		if (version_compare($current_version, '0.2', '=')) {
+			// get all triggers from the db and check their actions
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			// compose query
@@ -82,46 +84,41 @@ class Trigger_Action_Set_Permission_Management extends Asset_Management
 					$action_ref =&  $actions[$actionid];
 
 					if ($action_ref['type'] == 'trigger_action_set_permission') {
-						if (isset($action_ref['data']['userid'])) {
-							// create a parameter map
-							$param_map = Array();
-							$param_map['user'] = Array(
-													'0'	=> Array(
-															'source'				=> 'STATIC_ASSET',
-															'static_asset_finder'	=> Array(
-																						'assetid'	=> $action_ref['data']['userid'],
-																						'url'		=> '',
-																						'linkid'	=> '',
-																					   ),
-															'index'					=> $action_ref['data']['userid'],
-														   ),
-												 );
-							// we're done with the user id now
-							unset($action_ref['data']['userid']);
-							$param_map = serialize($param_map);
-							$action_ref['data']['user_map'] = $param_map;
+						if (isset($action_ref['data']['user_map'])) {
+							$param_map = unserialize($action_ref['data']['user_map']);
+							// get the first static asset entry from the map's user parameter
+							$userid = '';
+							foreach ($param_map['user'] as $source) {
 
-							$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-							$db =& $GLOBALS['SQ_SYSTEM']->db;
-							$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+								if ($source['source'] == 'STATIC_ASSET') {
+									$userid = array_get_index($source, 'index');
+								}
+							}
+							if (!empty($userid)) {
+								$action_ref['data']['userid'] = $userid;
 
-							$sql = 'UPDATE
-										SQ_TRIG
-									SET
-										data = '.$db->quoteSmart(serialize($trigger_data)).'
-									WHERE
-										id = '.$db->quoteSmart($trigger_id).'
-									';
-							$result = $db->query($sql);
-							assert_valid_db_result($result);
+								$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+								$db =& $GLOBALS['SQ_SYSTEM']->db;
+								$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-						}//end if
+								$sql = 'UPDATE
+											SQ_TRIG
+										SET
+											data = '.$db->quoteSmart(serialize($trigger_data)).'
+										WHERE
+											id = '.$db->quoteSmart($trigger_id).'
+										';
+								$result = $db->query($sql);
+								assert_valid_db_result($result);
+
+								$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+								$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							}
+						}
 					}//end if
 				}//end foreach
 			}//end foreach
-			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.2');
+			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.3');
 
 		}//end if version 0.2 upgrade
 
