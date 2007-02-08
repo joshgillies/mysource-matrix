@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_normal_management.inc,v 1.10 2006/12/05 22:42:14 emcdonald Exp $
+* $Id: design_area_menu_normal_management.inc,v 1.11 2007/02/08 06:04:09 rong Exp $
 *
 */
 
@@ -23,11 +23,33 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Menu_Normal_Management extends Asset_Management
 {
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function Design_Area_Menu_Normal_Management(&$pm)
+	{
+		$this->Asset_Management($pm);
+
+		$this->vars = Array(
+						'root_node'	=> Array(
+										'added'			=> '0.2',
+										'type'			=> 'assetid',
+										'default'		=> 0,
+										'description'	=> 'The asset id of the top level asset, overwrites default site asset',
+									   ),
+					  );
+
+	}//end constructor
+
+
 }//end class
 ?>
