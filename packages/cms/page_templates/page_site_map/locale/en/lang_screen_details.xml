@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.9 2006/12/07 00:04:24 emcdonald Exp $
+* $Id: lang_screen_details.xml,v 1.10 2007/02/08 00:26:23 tbarrett Exp $
 *
 */
 -->
@@ -28,12 +28,16 @@
 	</section>
 	<section name="Site Map Settings">
 		<field>
-			<display_name>Root Node</display_name>
+			<display_name>Static Root Node</display_name>
 			<note>Leave blank to print the site map for the current site</note>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />
 			</function_call>
+		</field>
+		<field attribute="parameter_map">
+			<display_name>Dynamic Root Node</display_name>
+			<note />
 		</field>
 		<field attribute="map_format">
 			<display_name>Map Format</display_name>

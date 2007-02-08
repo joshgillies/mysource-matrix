@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_management.inc,v 1.16 2006/12/07 00:04:23 emcdonald Exp $
+* $Id: page_site_map_management.inc,v 1.17 2007/02/08 00:26:23 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -123,6 +123,16 @@ class Page_Site_Map_Management extends Asset_Management
 													'added'		=> '0.2',
 													'type'		=> 'serialise',
 													'default'	=> Array(),
+												   ),
+						'parameter_map'			=> Array(
+													'added'			=> '0.3',
+													'type'			=> 'parameter_map',
+													'default'		=> Array(),
+													'parameters'	=> Array(
+																		'parameters'	=> Array(
+																							'root_node'	=> 'Replacement root nodes (must be child of static root node)',
+																						   ),
+																	   ),
 												   ),
 					  );
 

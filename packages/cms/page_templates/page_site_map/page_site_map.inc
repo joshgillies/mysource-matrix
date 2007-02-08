@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.35 2006/12/07 00:04:23 emcdonald Exp $
+* $Id: page_site_map.inc,v 1.36 2007/02/08 00:26:23 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -110,31 +110,17 @@ class Page_Site_Map extends Page
 	function printBody()
 	{
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$cached_contents = $cm->loadFromCache($this->id, $this->type(), 'site_map');
+		$rootid = $this->_getRootNodeId();
+
+		// Try to load from cache, with our root node as cache key
+		$cached_contents = $cm->loadFromCache($this->id, $this->type(), $rootid);
 
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
 
-			$root_asset = NULL;
-			$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', FALSE, 'root');
-			if (!empty($root_link)) {
-				$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
-			}
-
-			if (is_null($root_asset)) {
-				// firstly, get the sites that this page belongs to
-				$site_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
-				if (empty($site_info)) return FALSE;
-				$siteid = $site_info['assetid'];
-			} else {
-				$siteid = $root_asset->id;
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
-				unset($root_asset);
-			}
-
 			$levels = ($this->attr('levels') != 0) ? $this->attr('levels') : NULL;
 
-			$page_data = $GLOBALS['SQ_SYSTEM']->am->getAssetTree($siteid, $levels, array_keys($this->attr('exclude_list')), $this->attr('show_type_2') ? SQ_SC_LINK_BACKEND_NAV : SQ_SC_LINK_FRONTEND_NAV, $this->attr('include_types'), $this->attr('include_dependants'));
+			$page_data = $GLOBALS['SQ_SYSTEM']->am->getAssetTree($rootid, $levels, array_keys($this->attr('exclude_list')), $this->attr('show_type_2') ? SQ_SC_LINK_BACKEND_NAV : SQ_SC_LINK_FRONTEND_NAV, $this->attr('include_types'), $this->attr('include_dependants'));
 
 			$assetids = Array();
 
@@ -159,13 +145,13 @@ class Page_Site_Map extends Page
 					return;
 				}
 
-				$num_pages = count(array_keys($page_data[$siteid]));
+				$num_pages = count(array_keys($page_data[$rootid]));
 
 				$num_chunks = ceil($num_pages / $num_columns);
 				// CHUNK chunk CHUNK chunk CHUNK it up!
-				$chunks = array_chunk($page_data[$siteid], $num_chunks, TRUE);
-				$root_data = $page_data[$siteid];
-				unset($page_data[$siteid]);
+				$chunks = array_chunk($page_data[$rootid], $num_chunks, TRUE);
+				$root_data = $page_data[$rootid];
+				unset($page_data[$rootid]);
 
 				// better than conditional html everywhere, well have different functions
 				// for each format
@@ -175,11 +161,11 @@ class Page_Site_Map extends Page
 					break;
 
 					default:
-						$this->_paintDefault($chunks, $page_data, $siteid);
+						$this->_paintDefault($chunks, $page_data, $rootid);
 				}
 
 				$cached_contents = ob_get_contents();
-				$cm->saveToCache($this->id, $this->type(), 'site_map', $cached_contents);
+				$cm->saveToCache($this->id, $this->type(), $rootid, $cached_contents);
 			ob_end_clean();
 
 		}//end if cached
@@ -187,6 +173,46 @@ class Page_Site_Map extends Page
 		echo $cached_contents;
 
 	}//end printBody()
+
+
+	/**
+	* Get the ID of the effective root node for this page
+	*
+	* @return int
+	* @access private
+	*/
+	function _getRootNodeId()
+	{
+		$root_asset = NULL;
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', FALSE, 'root');
+		if (!empty($root_link)) {
+			$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
+		}
+
+		if (is_null($root_asset)) {
+			// firstly, get the sites that this page belongs to
+			$site_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
+			if (empty($site_info)) return FALSE;
+			$rootid = $site_info['assetid'];
+		} else {
+			$rootid = $root_asset->id;
+
+			$parameter_map =& $this->getAttribute('parameter_map');
+			$dynamic_root = $parameter_map->getParameterValue('root_node');
+			if (!empty($dynamic_root)) {
+				$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
+				if (isset($parents[$rootid])) {
+					// dynamic root is a child of the static root, so can be used
+					$rootid = $dynamic_root;
+				}
+			}
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
+			unset($root_asset);
+		}
+		return $rootid;
+
+	}//end _getRootNodeId()
 
 
 	/**
@@ -244,12 +270,12 @@ class Page_Site_Map extends Page
 	*
 	* @param array	$chunks		chunks of assets to buuild the map with
 	* @param array	$page_data	data on assets
-	* @param int	$siteid		id of root asset
+	* @param int	$rootid		id of root asset
 	*
 	* @return void
 	* @access private
 	*/
-	function _paintDefault($chunks=Array(), $page_data, $siteid)
+	function _paintDefault($chunks=Array(), $page_data, $rootid)
 	{
 		?>
 
@@ -259,9 +285,9 @@ class Page_Site_Map extends Page
 		foreach ($chunks as $chunk) {
 			?><td valign="top"><?php
 			$sub_chunk = Array();
-			$sub_chunk[$siteid] = $chunk;
+			$sub_chunk[$rootid] = $chunk;
 			$sub_chunk = $sub_chunk + $page_data;
-			$this->_defaultRecursePrintAssetList($sub_chunk, $siteid, 1);
+			$this->_defaultRecursePrintAssetList($sub_chunk, $rootid, 1);
 			unset($sub_chunk);
 			?></td><?php
 		}
