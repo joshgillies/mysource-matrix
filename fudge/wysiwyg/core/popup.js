@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: popup.js,v 1.11 2006/12/27 21:52:16 lwright Exp $
+* $Id: popup.js,v 1.12 2007/02/09 00:06:45 tbarrett Exp $
 *
 */
 
@@ -20,28 +20,26 @@ function __dlg_onclose(code) {
 };
 
 function __dlg_init(code) {
-	if (!document.all) {
-		// init dialogArguments, as IE gets it
-		window.dialogArguments = top.opener.dialogWins[code].args;
+	// init dialogArguments, as IE gets it
+	window.dialogArguments = top.opener.dialogWins[code].args;
 
-		if (top.opener.dialogWins[code].isModal) {
-			window.top.sizeToContent();
-			window.top.sizeToContent();	// for reasons beyond understanding,
-									// only if we call it twice we get the
-									// correct size.
-			window.top.addEventListener("unload", __dlg_onclose(code), true);
-			// center on parent
-			var px1 = opener.screenX;
-			var px2 = opener.screenX + opener.outerWidth;
-			var py1 = opener.screenY;
-			var py2 = opener.screenY + opener.outerHeight;
-			var x = (px2 - px1 - window.outerWidth) / 2;
-			var y = (py2 - py1 - window.outerHeight) / 2;
-			window.moveTo(x, y);
-			var body = document.body;
-			window.innerHeight = body.offsetHeight;
-			window.innerWidth = body.offsetWidth;
-		}
+	if (top.opener.dialogWins[code].isModal) {
+		window.top.sizeToContent();
+		window.top.sizeToContent();	// for reasons beyond understanding,
+								// only if we call it twice we get the
+								// correct size.
+		window.top.addEventListener("unload", __dlg_onclose(code), true);
+		// center on parent
+		var px1 = opener.screenX;
+		var px2 = opener.screenX + opener.outerWidth;
+		var py1 = opener.screenY;
+		var py2 = opener.screenY + opener.outerHeight;
+		var x = (px2 - px1 - window.outerWidth) / 2;
+		var y = (py2 - py1 - window.outerHeight) / 2;
+		window.moveTo(x, y);
+		var body = document.body;
+		window.innerHeight = body.offsetHeight;
+		window.innerWidth = body.offsetWidth;
 	}
 };
 
