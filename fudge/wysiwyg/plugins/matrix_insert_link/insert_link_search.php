@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link_search.php,v 1.2 2007/01/02 00:22:28 mbrydon Exp $
+* $Id: insert_link_search.php,v 1.3 2007/02/09 05:14:14 amiller Exp $
 *
 */
 
@@ -18,13 +18,14 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_LIB_PATH.'/backend_search/backend_search.inc';
+require_once SQ_FUDGE_PATH.'/general/general.inc';
 
 if (Backend_Search::isAvailable()) {
 	$quick_search_for_text = translate('asset_search_default_keyword');
