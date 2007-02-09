@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.42 2007/01/22 00:17:55 tbarrett Exp $
+* $Id: edit.js,v 1.43 2007/02/09 01:18:08 hnguyen Exp $
 *
 */
 
@@ -511,6 +511,11 @@ function focusFirstTextInput()
 	}
 }
 
+function pagePrint()
+{
+	window.setTimeout('window.print()',100);
+}
+
 function showPrintPopup()
 {
 	var args = 'width='+(self.screen.availWidth/2)+',height='+parseInt(self.screen.availHeight*0.8)+',status=0,location=0,menubar=0,directories=0,scrollbars=1';
@@ -523,7 +528,7 @@ function showPrintPopup()
 		if (mainForm) urlBase = mainForm.action;
 	}
 	var printWindow = window.open(urlBase + urlSuffix, 'printWindow', args);
-	printWindow.print();
+
 }
 
 function initEnableFieldLists()

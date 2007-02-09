@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.144 2007/01/18 03:46:22 tbarrett Exp $
+* $Id: backend_outputter.inc,v 1.145 2007/02/09 01:18:08 hnguyen Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.144 $
+* @version $Revision: 1.145 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -955,6 +955,7 @@ class Backend_Outputter
 			$this->addCssInclude($this->filesPath('css/edit.css'));
 			if (!empty($_REQUEST['print_view'])) {
 				$this->addCssInclude($this->filesPath('css/print.css'));
+				$this->addOnLoad('pagePrint()');
 			}
 
 			foreach ($this->_css_includes as $file) {
