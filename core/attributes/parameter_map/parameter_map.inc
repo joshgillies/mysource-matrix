@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.21 2007/02/09 05:00:41 emcdonald Exp $
+* $Id: parameter_map.inc,v 1.22 2007/02/09 05:54:35 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 *
 * 	Depending on the Source Type the format of the rule array is:
 *
-* 		*GET, POST, STATIC, ASSET_QUESTION:
+* 		*GET, POST
 * 			Array(
 * 			 'index' 		=> source value
 * 			)
@@ -45,7 +45,7 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 * 			)
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -215,32 +215,6 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 							   );
 					combo_box($prefix.'[attribute]', $options, FALSE, $attribute, 0, 'onchange="document.getElementById(\''.$prefix.'[keyword]\').style.visibility = (this.value == \'keyword\') ? \'\' : \'hidden\'"');
 					text_box($prefix.'[keyword]', $keyword, '', '', FALSE, ($attribute == SQ_PARAM_MAP_ATTR_OPTION_KEYWORD) ? '' : 'style="visibility: hidden"');
-				}
-			break;
-
-			case 'ASSET_QUESTION':
-				$asset_id = array_get_index($data, 'index');
-				if ($read_only) {
-					if (is_null($asset_id)) {
-						echo translate('not_configured');
-					} else {
-						echo get_asset_tag_line($asset_id, 'details');
-					}
-				} else {
-					asset_finder($prefix.'[asset_finder]', $asset_id, Array('form_question' => 'D'));
-				}
-			break;
-
-			case 'STATIC_ASSET':
-				$asset_id = array_get_index($data, 'index');
-				if ($read_only) {
-					if (is_null($asset_id)) {
-						echo translate('not_configured');
-					} else {
-						echo get_asset_tag_line($asset_id, 'details');
-					}
-				} else {
-					asset_finder($prefix.'[static_asset_finder]', $asset_id, Array());
 				}
 			break;
 
