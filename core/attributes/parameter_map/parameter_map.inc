@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.20 2007/01/29 05:01:16 emcdonald Exp $
+* $Id: parameter_map.inc,v 1.21 2007/02/09 05:00:41 emcdonald Exp $
 *
 */
 
@@ -45,7 +45,7 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 * 			)
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -121,6 +121,8 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 						<?php
 						foreach ($sources as $index => $details) {
 							$source_type = $details['source'];
+							if (!isset($source_types[$source_type])) continue;
+
 							$one_source_prefix = $prefix.'['.$parameter.']['.$index.']';
 							?>
 							<tr>
@@ -142,7 +144,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 					</td>
 				</tr>
 				<?php
-			}
+			}//end foreach
 			if (!$read_only) {
 				?>
 				<tr>
@@ -301,17 +303,6 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 								$value[$index][$j]['keyword'] = SQ_PARAM_MAP_DEFAULT_KEYWORD;
 							}
 						}
-					} else if ($fields['source'] == 'ASSET_QUESTION') {
-						unset($value[$index][$j]['keyword']);
-						unset($value[$index][$j]['attribute']);
-						$value[$index][$j]['index'] = $fields['asset_finder']['assetid'];
-						unset($value[$index][$j]['asset_finder']);
-
-					} else if ($fields['source'] == 'STATIC_ASSET') {
-						unset($value[$index][$j]['keyword']);
-						unset($value[$index][$j]['attribute']);
-						$value[$index][$j]['index'] = $fields['static_asset_finder']['assetid'];
-						unset($value[$index][$j]['asset_finder']);
 					} else {
 						unset($value[$index][$j]['keyword']);
 						unset($value[$index][$j]['attribute']);
@@ -396,29 +387,6 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 					}
 				break;
 
-				// this is primitive, but allows for great flexibility
-				case 'STATIC':
-					// need to restructure the rules array to be more logical
-					return array_get_index($rule, 'index', '');
-				break;
-
-				// NOTE: This might need to be replaced by a general asset handler
-				case 'ASSET_QUESTION':
-					// question id is stored in the index
-					$asset_id = array_get_index($rule, 'index');
-					if (!empty($asset_id)) {
-						$question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
-						if (!is_null($question_asset)) {
-							// TODO: (maybe?) Check that the form has been processed
-							return $question_asset->getValue();
-						}
-					}
-				break;
-
-				case 'STATIC_ASSET':
-					return array_get_index($rule, 'index', '');
-				break;
-
 			}//end switch ($rule['source'])
 
 		}//end foreach ($value[$parameter])
@@ -492,14 +460,11 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 		// 'ASSET_ANY'		=> 'Any Asset (Paint Asset Chooser)',
 
 		return Array(
-				'GET'				=> 'GET '.translate('variable_name'),
-				'POST'				=> 'POST '.translate('variable_name'),
-				'ASSET'				=> translate('current_asset'),
-				'USER'				=> translate('current_user'),
-				'CURRENT_SITE'		=> translate('current_site'),
-				'ASSET_QUESTION'	=> translate('form_question_asset'),
-				'STATIC'			=> translate('static_value'),
-				'STATIC_ASSET'		=> translate('static_asset'),
+				'GET'			=> 'GET '.translate('variable_name'),
+				'POST'			=> 'POST '.translate('variable_name'),
+				'ASSET'			=> translate('current_asset'),
+				'USER'			=> translate('current_user'),
+				'CURRENT_SITE'	=> translate('current_site'),
 			   );
 
 	}//end _getSourceTypes()
