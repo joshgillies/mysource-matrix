@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_edit_fns.inc,v 1.4 2006/12/06 00:11:16 bcaldwell Exp $
+* $Id: trigger_edit_fns.inc,v 1.5 2007/02/09 03:46:25 arailean Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * Trigger_Edit_Fns
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,8 +63,8 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 
 		// the styles below can be moved to edit.css in the future
-		?>
-		<style type="text/css">
+		$o->openRaw();
+		?><style type="text/css">
 			.sq-backend-triggers-component-header {
 				background-color: #666;
 				color: #fff;
@@ -110,10 +110,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 				margin: 10px 0;
 			}
 
-		</style>
-
-		<script type="text/javascript">
-			//<![CDATA[
+		</style><script type="text/javascript">//<![CDATA[
 			/**
 			* Moves a div up (if possible) relative to the div with the same class name
 			*/
@@ -239,20 +236,43 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 
 			}
 			//]]>
-		</script>
-		<?php
+		</script><?php
 
 		$tm =& $this->_getTriggerManager($asset);
 		if (is_null($tm)) return FALSE;
 
 		// get event types
 		$event_type_list = $tm->_getEventList();
+		asort($event_type_list);
+
 		$events = $asset->attr('events');
 
 		// paint a tickbox list of all the events in the system
 		$events_selected = FALSE;
 		$event_prefix = $prefix.'[events]';
+		$event_count = count($event_type_list);
+
+		$event_columns = 4;
+		$events_per_column = floor($event_count / $event_columns);
+		$extra_in_columns = $event_count % $event_columns;
+		$current_column = 0;
+		$current_event_no = 0;
+		$max_this_col = 0;
+
+		echo '<div style="margin-bottom: 2ex;">';
+		echo '<table><tr>';
 		foreach ($event_type_list as $e_type => $e_name) {
+			$open = FALSE;
+			if ($current_event_no == $max_this_col) {
+				$current_column++;
+				$max_this_col = $max_this_col + $events_per_column;
+				if ($extra_in_columns) {
+					$extra_in_columns--;
+					$max_this_col++;
+				}
+				$open = TRUE;
+			}
+
 			if (isset($events[$e_type])) {
 				$checked = TRUE;
 			} else {
@@ -261,6 +281,15 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 
 			$events_selected = $checked || $events_selected;
 
+			if ($open) {
+				if ($current_column && $current_event_no) {
+					echo '</td>';
+				}
+				echo '<td valign="top" style="padding-right: 3ex;">';
+			}
+
+			$current_event_no++;
+
 			if ($write_access) {
 				check_box($event_prefix.'[]', $e_type, $checked, '', 'id="'.$event_prefix.'_'.$e_type.'"');
 				label($e_name, $event_prefix.'_'.$e_type);
@@ -268,11 +297,19 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 			} else {
 				if ($checked) echo '<li>'.$e_name.'</li>';
 			}
-		}
+
+			if ($current_event_no == $event_count) echo '</td>';
+
+		}//end foreach
+
+		echo '</tr></table>';
+		echo '</div>';
 
 		if (!$write_access && !$events_selected) {
 			echo '<strong>'.translate('no_event_selected').'</strong>';
 		}
+
+		$o->closeRaw();
 
 		return $write_access;
 
@@ -306,7 +343,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 		$asset->setAttrValue('events', $processed_events);
 		return TRUE;
 
-	}//end processEventsSection()
+	}//end processEvents()
 
 
 	/**
@@ -328,8 +365,11 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 
 		// get event types
 		$condition_type_list = $tm->_getConditionList();
+		ksort($condition_type_list);
+
 		$conditions = $asset->attr('conditions');
 
+		$o->openRaw();
 		?>
 		<div class="sq-backend-triggers-component-block-wrapper">
 			<div class="sq-backend-triggers-component-block">
@@ -428,6 +468,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 			}
 			?>
 		</div><?php
+		$o->closeRaw();
 
 		return $write_access;
 
@@ -532,6 +573,14 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
+	* Paint the trigger action interface
+	*
+	* @param object	&$asset	trigger
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access private
 	*/
 	function paintActions(&$asset, &$o, $prefix)
 	{
@@ -542,8 +591,11 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 
 		// get event types
 		$action_type_list = $tm->_getActionList();
+		ksort($action_type_list);
+
 		$actions = $asset->attr('actions');
 
+		$o->openRaw();
 		?>
 		<div class="sq-backend-triggers-component-block-wrapper">
 			<div class="sq-backend-triggers-component-block">
@@ -634,6 +686,8 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 			?>
 			</div>
 		</div><?php
+
+		$o->closeRaw();
 
 		return $write_access;
 
