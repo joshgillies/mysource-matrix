@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.19 2006/12/05 05:41:18 bcaldwell Exp $
+* $Id: parameter_map.inc,v 1.19.2.1 2007/02/11 22:43:09 emcdonald Exp $
 *
 */
 
@@ -33,7 +33,7 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 *
 * 	Depending on the Source Type the format of the rule array is:
 *
-* 		*GET, POST, STATIC, ASSET_QUESTION:
+* 		*GET, POST
 * 			Array(
 * 			 'index' 		=> source value
 * 			)
@@ -45,7 +45,7 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 * 			)
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -121,6 +121,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 						<?php
 						foreach ($sources as $index => $details) {
 							$source_type = $details['source'];
+							if (!isset($source_types[$source_type])) continue;
 							$one_source_prefix = $prefix.'['.$parameter.']['.$index.']';
 							?>
 							<tr>
@@ -142,7 +143,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 					</td>
 				</tr>
 				<?php
-			}
+			}//end foreach
 			if (!$read_only) {
 				?>
 				<tr>
@@ -216,19 +217,6 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				}
 			break;
 
-			case 'ASSET_QUESTION':
-				$asset_id = array_get_index($data, 'index');
-				if ($read_only) {
-					if (is_null($asset_id)) {
-						echo translate('not_configured');
-					} else {
-						echo get_asset_tag_line($asset_id, 'details');
-					}
-				} else {
-					asset_finder($prefix.'[asset_finder]', $asset_id, Array('form_question' => 'D'));
-				}
-			break;
-
 			default:
 				$value = array_get_index($data, 'index');
 				if ($read_only) {
@@ -288,11 +276,6 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 								$value[$index][$j]['keyword'] = SQ_PARAM_MAP_DEFAULT_KEYWORD;
 							}
 						}
-					} else if ($fields['source'] == 'ASSET_QUESTION') {
-						unset($value[$index][$j]['keyword']);
-						unset($value[$index][$j]['attribute']);
-						$value[$index][$j]['index'] = $fields['asset_finder']['assetid'];
-						unset($value[$index][$j]['asset_finder']);
 					} else {
 						unset($value[$index][$j]['keyword']);
 						unset($value[$index][$j]['attribute']);
@@ -303,7 +286,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 						if (empty($value[$index])) unset($value[$index]);
 					}
 
-				}
+				}//end foreach
 			}//end foreach ($_POST[$prefix])
 
 			foreach ($_POST[$prefix]['new'] as $new_mapping) {
@@ -374,25 +357,6 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 						default:
 							return $assetid;
 						break;
-					}
-				break;
-
-				// this is primitive, but allows for great flexibility
-				case 'STATIC':
-					// need to restructure the rules array to be more logical
-					return array_get_index($rule, 'index', '');
-				break;
-
-				// NOTE: This might need to be replaced by a general asset handler
-				case 'ASSET_QUESTION':
-					// question id is stored in the index
-					$asset_id = array_get_index($rule, 'index');
-					if (!empty($asset_id)) {
-						$question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
-						if (!is_null($question_asset)) {
-							// TODO: (maybe?) Check that the form has been processed
-							return $question_asset->getValue();
-						}
 					}
 				break;
 
@@ -469,13 +433,11 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 		// 'ASSET_ANY'		=> 'Any Asset (Paint Asset Chooser)',
 
 		return Array(
-				'GET'				=> 'GET '.translate('variable_name'),
-				'POST'				=> 'POST '.translate('variable_name'),
-				'ASSET'				=> translate('current_asset'),
-				'USER'				=> translate('current_user'),
-				'CURRENT_SITE'		=> translate('current_site'),
-				'ASSET_QUESTION'	=> translate('form_question_asset'),
-				'STATIC'			=> translate('static_value'),
+				'GET'			=> 'GET '.translate('variable_name'),
+				'POST'			=> 'POST '.translate('variable_name'),
+				'ASSET'			=> translate('current_asset'),
+				'USER'			=> translate('current_user'),
+				'CURRENT_SITE'	=> translate('current_site'),
 			   );
 
 	}//end _getSourceTypes()
