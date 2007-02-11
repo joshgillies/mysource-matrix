@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.131 2007/01/24 23:29:57 lwright Exp $
+* $Id: metadata_manager.inc,v 1.132 2007/02/11 22:12:23 skim Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.132 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -850,6 +850,7 @@ class Metadata_Manager extends MySource_Object
 			echo '$metadata_values = Array('."\n";
 			foreach ($tag_values as $n => $v) {
 				$n = $this->escapeMetadata($n, TRUE);
+				$v = stripslashes($v);
 				$v = $this->escapeMetadata($v, TRUE);
 				// unescape metadata_replacements
 				// leave metadata_values for later - unescape them at runtime
