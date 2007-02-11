@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.217 2007/02/11 22:41:42 hnguyen Exp $
+* $Id: listing_engine.inc,v 1.218 2007/02/11 23:54:45 hnguyen Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.217 $
+* @version $Revision: 1.218 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -843,7 +843,6 @@ class Listing_Engine extends Page
 		if (count($asset_list) == 1 || empty($sort_info)) {
 			return $asset_list;
 		}
-
 		if ((!is_array($asset_list)) || (empty($asset_list))) {
 			return Array();
 		}
@@ -904,7 +903,7 @@ class Listing_Engine extends Page
 				// if we don't, we'll have to come back to it as a skipped asset
 
 				if ($process) {
-					if (isset($sort_params['attribute']) && !in_array($sort_params['attribute'], Array('int', 'float'))) {
+					if (isset($sort_params['attr_type']) && !in_array($sort_params['attr_type'], Array('int', 'float'))) {
 						$sort_numeric = FALSE;
 					}
 

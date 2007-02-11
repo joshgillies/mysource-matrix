@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.74 2007/01/16 00:41:34 bcaldwell Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.75 2007/02/11 23:54:45 hnguyen Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1329,6 +1329,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					$attributes = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($details['type_code']);
 					if (isset($attributes[$details['attribute']])) {
 						$val[$i]['params']['attribute'] = $details['attribute'];
+						$val[$i]['params']['attr_type'] = $attributes[$val[$i]['params']['attribute']];
 					} else {
 						$val[$i]['params']['attribute'] = reset(array_keys($attributes));
 					}
@@ -1346,6 +1347,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						'params'	=> Array(
 										'type_code'	=> $_POST[$prefix.'_new']['type_code'],
 										'attribute'	=> $default_attr,
+										'attr_type'	=> $attributes[$default_attr],
 									   ),
 					  );
 			$this->_addNewSortOption($val, $option);
