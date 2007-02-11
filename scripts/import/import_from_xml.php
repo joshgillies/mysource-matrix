@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_from_xml.php,v 1.6 2006/12/06 05:42:21 bcaldwell Exp $
+* $Id: import_from_xml.php,v 1.7 2007/02/11 22:22:12 tbarrett Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -67,7 +67,7 @@ foreach ($import_actions['actions'][0]['action'] as $action) {
 	printActionId($action['action_id'][0]);
 	if (!execute_import_action($action, $import_action_outputs)) {
 		printStatus('--');
-		trigger_error('Action ID, "'.$action_id.'" could not be executed', E_USER_WARNING);
+		trigger_error('Action ID "'.$action['action_id'][0].'" could not be executed', E_USER_WARNING);
 	} else {
 		printStatus('OK');
 	}
