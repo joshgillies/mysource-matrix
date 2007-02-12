@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.143 2007/02/12 00:11:40 lwright Exp $
+* $Id: search_manager.inc,v 1.144 2007/02/12 02:53:28 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.143 $
+* @version $Revision: 1.144 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2695,8 +2695,11 @@ class Search_Manager extends Asset
 		$search_string = preg_replace('/([\.\\\!\+\*\?\[\]\^\$\(\)\=\!\<\>\|\:]+)/i', '\\\${1}',$search_string);
 
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$plugin =& $this->_getDBPlugin();
 
 		$formatted_results = Array();
+
+		$words = $plugin->getWords($search_string);
 
 		// populate the results array as required
 		// note we dont include fields that dont have matches
@@ -2705,15 +2708,19 @@ class Search_Manager extends Asset
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			foreach ($content as $content_type) {
-				switch ($content_type['source']) {
+				switch (TRUE) {
 
 					// asset contents containing search string
 					case preg_match('/contents/', $content_type) > 0:
 						$asset_contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
 
 						foreach ($asset_contents as $contents_id => $contents_value) {
-							if (preg_match('/'.htmlentities($search_string).'/i', $contents_value) || preg_match('/'.($search_string).'/i', $contents_value)) {
-								$formatted_results[$assetid]['contents'][$contents_id] = $contents_value;
+
+							foreach ($words as $word) {
+								if (preg_match('/'.htmlentities($word).'/i', $contents_value) || preg_match('/'.($word).'/i', $contents_value)) {
+									$formatted_results[$assetid]['contents'][$contents_id] = $contents_value;
+									break;
+								}
 							}
 						}
 					break;
@@ -2725,8 +2732,11 @@ class Search_Manager extends Asset
 						if (isset($asset->vars[$matches[1]])) {
 							$attribute = $asset->attr($matches[1]);
 
-							if (preg_match("/$search_string/i", $attribute)) {
-								$formatted_results[$assetid]['attributes'][$matches[1]] = $attribute;
+							foreach ($words as $word) {
+								if (preg_match("/$word/i", $attribute)) {
+									$formatted_results[$assetid]['attributes'][$matches[1]] = $attribute;
+									break;
+								}
 							}
 						}
 					break;
@@ -2741,8 +2751,11 @@ class Search_Manager extends Asset
 						$metadata = $mm->getMetadata($assetid);
 
 						foreach ($metadata as $fieldid => $data) {
-							if (preg_match("/$search_string/i", $data['value'])) {
-								$formatted_results[$assetid]['metadata'][$fieldid] = $data;
+							foreach ($words as $word) {
+								if (preg_match("/$word/i", $data['value'])) {
+									$formatted_results[$assetid]['metadata'][$fieldid] = $data;
+									break;
+								}
 							}
 						}
 
@@ -2753,10 +2766,12 @@ class Search_Manager extends Asset
 							foreach ($schemas as  $schemaid) {
 								$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 								$schema_data = $mm->getSchemaDefaultValues($schema->id);
-
 								foreach ($schema_data as $fieldid => $data) {
-									if (preg_match("/$search_string/i", $data['value'])) {
-										$formatted_results[$schema->id]['schema'][$fieldid] = $data;
+									foreach ($words as $word) {
+										if (preg_match("/$word/i", $data['value'])) {
+											$formatted_results[$schema->id]['schema'][$fieldid] = $data;
+											break;
+										}
 									}
 								}
 

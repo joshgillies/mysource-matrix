@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.10 2007/02/12 00:06:12 lwright Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.11 2007/02/12 02:53:28 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -71,14 +71,15 @@ class Search_Manager_Plugin_OCI8
 			case 'metadata':
 				$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 				$key_types = Array(
-								'metadata_field_select'		=> 'selection',
-								'metadata_field_thesaurus'	=> 'thesaurus',
+								'metadata_field_select'			=> 'selection',
+								'metadata_field_multiple_text'	=> 'selection',
+								'metadata_field_thesaurus'		=> 'thesaurus',
 							 );
 				$key_type = array_get_index($key_types, get_class($metadata_field), 'text');
 				$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
 				$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$data_source['params']['assetid']);
 
-				if (get_class($metadata_field) == 'metadata_field_select' && $metadata_field->attr('multiple')) {
+				if ((get_class($metadata_field) == 'metadata_field_select' && $metadata_field->attr('multiple')) || get_class($metadata_field) == 'metadata_field_multiple_text') {
 					if (strpos($search_term,' AND ') !== FALSE) {
 						$split = ' AND ';
 						$split_type = '&';
@@ -118,6 +119,8 @@ class Search_Manager_Plugin_OCI8
 
 		}//end switch
 		$sql = implode_sql($base_query);
+
+		bam($sql);
 
 		if (count($base_query['select']) > 2) {
 			$result = $db->getAll($sql);
