@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_multiple_text.inc,v 1.1 2006/12/28 01:48:13 lwright Exp $
+* $Id: metadata_field_multiple_text.inc,v 1.2 2007/02/12 00:56:38 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,8 @@ class Metadata_Field_Multiple_Text extends Metadata_Field
 	/**
 	* Get an Option List attribute to print the values and edit interfaces
 	*
-	* @return
+	* @return object
+	* @access public
 	*/
 	function &getOptionListAttribute()
 	{
@@ -63,9 +64,9 @@ class Metadata_Field_Multiple_Text extends Metadata_Field
 		}
 
 		return $attribute;
-	}
+
+	}//end getOptionListAttribute()
 
 
 }//end class
-
 ?>
