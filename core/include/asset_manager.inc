@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.491.2.19 2007/01/31 03:31:49 rong Exp $
+* $Id: asset_manager.inc,v 1.491.2.20 2007/02/12 00:20:23 hnguyen Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.491.2.19 $
+* @version $Revision: 1.491.2.20 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -839,13 +839,20 @@ class Asset_Manager extends MySource_Object
 		if (empty($assetids)) return Array();
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
+		// IN clause fix - assetids were not being treated as strings
+		$in = 'assetid IN (';
+
+		for ($i = 0; $i < count($assetids); $i++) {
+			$in .= $db->quoteSmart( (string) $assetids[$i] ).(($i == count($assetids) - 1) ? ')' : ',');
+		}
+
 		// First get the default values
 		$sql = 'SELECT a.assetid, at.default_val
 				FROM sq_ast a, sq_ast_attr at
 				WHERE a.type_code = at.type_code
 					AND at.name = '.$db->quote($attr_name).'
 					AND ((at.type_code = '.$db->quote($asset_type).') OR (at.owning_type_code = '.$db->quote($asset_type).'))
-					AND a.assetid IN ('.implode(', ', $assetids).')';
+					AND a.'.$in;
 		$res = $db->getAssoc($sql);
 		assert_valid_db_result($res);
 
@@ -857,7 +864,7 @@ class Asset_Manager extends MySource_Object
 		$sql = 'SELECT assetid, custom_val
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val
 				WHERE attrid IN ('.$sub_sql.')
-					AND assetid IN ('.implode(', ', $assetids).')';
+					AND '.$in;
 		$custom_vals = $db->getAssoc($sql);
 		assert_valid_db_result($custom_vals);
 
