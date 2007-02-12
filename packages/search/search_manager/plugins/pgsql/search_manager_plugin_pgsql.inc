@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.4.2.2 2007/01/17 22:48:56 lwright Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.4.2.3 2007/02/12 05:45:31 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4.2.2 $
+* @version $Revision: 1.4.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -617,6 +617,22 @@ class Search_Manager_Plugin_PgSQL
 		return 255;
 
 	}//end getMaxWordLength()
+
+
+	/**
+	* External access to function that gets the list of search terms
+	* from the search string
+	*
+	* @param string	&$terms	the terms string
+	*
+	* @return array
+	* @access private
+	*/
+	function getWords($search_string)
+	{
+		return preg_split("|\s|", $search_string);
+
+	}//end getWords();
 
 
 }//end class
