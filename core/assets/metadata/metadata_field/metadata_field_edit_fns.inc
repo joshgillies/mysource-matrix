@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.44 2006/12/14 06:28:45 tbarrett Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.45 2007/02/12 01:08:54 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -296,8 +296,11 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the interface for filling in metadata values
 	*
+	* Returns true if this field has been processed, false if not and it should be ignored
+	*
 	* @param object	&$asset			the asset whose interface we are processing
 	* @param string	&$new_value_str	a string by reference that we can store the new values in
+	*								set to NULL to revert to default
 	*
 	* @return boolean
 	* @access public

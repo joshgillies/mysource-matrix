@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_multiple_text_edit_fns.inc,v 1.2 2007/01/08 02:47:52 lwright Exp $
+* $Id: metadata_field_multiple_text_edit_fns.inc,v 1.3 2007/02/12 01:08:54 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -139,25 +139,27 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	function processInlineValueInterface(&$asset, &$new_value_str)
 	{
 		// nothing for us to do
-		if (!$asset->attr('editable')) return TRUE;
+		if (!$asset->attr('editable')) return FALSE;
+
 		$prefix = $asset->getPrefix();
-
-		$use_default = array_get_index($_POST, $prefix.'_default', '');
-
-		if ($use_default) {
+		if (!empty($_POST[$prefix.'_default'])) {
+			// use default
 			$new_value_str = NULL;
 			return TRUE;
+		} else {
+			// not default
+			$attribute = $asset->getOptionListAttribute();
+			$attribute->process($prefix);
+			if ($attribute->processed) {
+				// Get the string into proper form for the metadata field function
+				$value = str_replace($attribute->delimiter, '; ', $attribute->value);
+				$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
+				return TRUE;
+			} else {
+				// not submitted at all
+				return FALSE;
+			}
 		}
-
-		// Default is not checked, so process ur select attribute
-		$attribute = $asset->getOptionListAttribute();
-		$attribute->process($prefix);
-
-		// Get the string into proper form for the metadata field function
-		$value = str_replace($attribute->delimiter, '; ', $attribute->value);
-		$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
-
-		return TRUE;
 
 	}//end processInlineValueInterface()
 
@@ -185,6 +187,16 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	}//end generateMetadata()
 
 
+	/**
+	* Paint the interface for choosing default value
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter object
+	* @param object	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
 	function paintDefault(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
@@ -197,6 +209,16 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	}//end paintDefault()
 
 
+	/**
+	* Process the interface for choosing default value
+	*
+	* @param object	&$asset	the asset whose interface we are processing
+	* @param object	&$o		the outputter object
+	* @param object	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
 	function processDefault(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;

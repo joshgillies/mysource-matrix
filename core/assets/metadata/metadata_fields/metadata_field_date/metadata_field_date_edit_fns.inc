@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.34 2007/01/29 04:03:46 tbarrett Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.35 2007/02/12 01:08:54 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -407,43 +407,39 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Process the interface for filling in metadata values
 	*
+	* Returns true if this field has been processed, false if not and it should be ignored
+	*
 	* @param object	&$asset			the asset whose interface we are processing
 	* @param string	&$new_value_str	a string by reference that we can store the new values in
+	*								set to NULL to revert to default
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processInlineValueInterface(&$asset, &$new_value_str)
 	{
-		// nothing for us to do
-		if (!$asset->attr('editable')) return TRUE;
+		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
 
 		$prefix = $asset->getPrefix();
-
-		$value = array_get_index($_POST, $prefix.'_repkeys', '');
-		$use_default = array_get_index($_POST, $prefix.'_default', '');
-
-		if ($use_default) {
+		if (!empty($_POST[$prefix.'_default'])) {
+			// use default
 			$new_value_str = NULL;
+			return TRUE;
 		} else {
-			// if we aren't using keywords...get the date that was set
-			if ($value == '') {
+			$value = array_get_index($_POST, $prefix.'_repkeys', '');
+			if (empty($value)) {
 				$field = $asset->_getDateTimeField($prefix);
 				if ($field->processField()) {
 					$value = $field->value;
+					$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
+					return TRUE;
 				} else {
-					// field could not be processed
-					trigger_localised_error('CORE0203', E_USER_WARNING, $asset->name);
+					 // nothing submitted
 					return FALSE;
 				}
 			}
 		}
 
-		if (!is_null($new_value_str)) {
-			$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
-		}
-
-		return TRUE;
 
 	}//end processInlineValueInterface()
 
