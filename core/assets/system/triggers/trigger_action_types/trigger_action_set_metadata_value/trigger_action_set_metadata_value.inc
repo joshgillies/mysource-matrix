@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.10 2007/02/01 05:01:22 tbarrett Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.11 2007/02/12 02:53:04 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -125,7 +125,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 	{
 		$output					= '';
 		$metadata_fieldid		= array_get_index($settings, 'fieldid', 0);
-		$metadata_field_value	= array_get_index($settings, 'value', '');
+		$metadata_field_value	= array_get_index($settings, 'value', NULL);
 
 		// asset finder for Metadata Field
 		ob_start();
