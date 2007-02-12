@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.133 2007/02/12 02:51:48 tbarrett Exp $
+* $Id: metadata_manager.inc,v 1.134 2007/02/12 05:41:24 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.133 $
+* @version $Revision: 1.134 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -626,12 +626,16 @@ class Metadata_Manager extends MySource_Object
 
 		// Delete from mdata_val table where necessary
 		$delete_fieldids = Array();
+		$remaining = Array();
 		foreach ($metadata as $fieldid => $details) {
 			if ($details['value'] === NULL) {
 				// we want to revert this field to default, done by deleting it from the mdata_val table
-				$delete_fieldids[] = $db->quoteSmart((string)$asset->id);
+				$delete_fieldids[] = $db->quoteSmart((string)$fieldid);
+			} else {
+				$remaining[] = $fieldid;
 			}
 		}
+
 		if (!empty($delete_fieldids)) {
 			$sql = 'DELETE FROM
 						sq_ast_mdata_val
@@ -642,7 +646,6 @@ class Metadata_Manager extends MySource_Object
 			assert_valid_db_result($result);
 		}
 
-		$remaining = array_diff(array_keys($metadata), $delete_fieldids);
 
 		if (!empty($remaining)) {
 			// Find any fields that have existing entries...so we know what to update and what to insert
