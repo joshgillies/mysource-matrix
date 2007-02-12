@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.9 2006/12/28 03:16:00 lwright Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.10 2007/02/12 00:06:12 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1111,6 +1111,22 @@ class Search_Manager_Plugin_OCI8
 		}
 
 	}//end _escapeContainReservedWords()
+
+
+	/**
+	* External access to function that gets the list of search terms
+	* from the search string
+	*
+	* @param string	&$terms	the terms string
+	*
+	* @return array
+	* @access private
+	*/
+	function getWords($search_string)
+	{
+		return $this->_getWords($search_string);
+
+	}//end getWords();
 
 
 }//end class
