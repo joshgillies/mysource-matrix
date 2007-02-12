@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.45 2007/02/12 01:08:54 tbarrett Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.46 2007/02/12 22:18:53 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -367,7 +367,6 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		$frontend_option = $asset->attr('frontend');
 		// if we aren't printing this on the frontend then don't print anything
-		if ($frontend_option == 'hide') return TRUE;
 
 		if (is_null($value_str)) {
 			$value = $asset->attr('default');
@@ -393,6 +392,10 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			return TRUE;
 		}
 
+		$tag_value = $value_str;
+
+		if ($frontend_option == 'hide') return TRUE;
+
 		echo '<meta name="'.$mm->escapeMetadata($asset->name).'"';
 		if (trim($asset->attr('language')) != '') {
 			echo ' lang="'.$mm->escapeMetadata($asset->attr('language')).'"';
@@ -403,7 +406,6 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		echo ' content="<?php echo $metadata_values[\''.$mm->escapeMetadata($asset->name, TRUE).'\']; ?>" />'."\n";
 
-		$tag_value = $value_str;
 
 		return TRUE;
 
