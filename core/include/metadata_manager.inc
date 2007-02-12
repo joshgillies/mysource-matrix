@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.134 2007/02/12 05:41:24 tbarrett Exp $
+* $Id: metadata_manager.inc,v 1.135 2007/02/12 23:26:33 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.134 $
+* @version $Revision: 1.135 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -376,6 +376,8 @@ class Metadata_Manager extends MySource_Object
 
 		if (empty($schemas)) return Array();
 
+
+
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// And to think I didn't like it when this generating query got pulled out of the Asset_Manager::getChildren() :)
@@ -509,15 +511,11 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function getMetadataFieldValues($assetid, $field_names=Array())
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-
-		$db->show_queries = TRUE;
-
-		// the array of field values we are going to return
+		$asset =& $am->getAsset($assetid);
 		$field_values = Array();
 
-		$asset =& $am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_localised_error('SYS0038', E_USER_WARNING, $assetid);
 			return $field_values;
@@ -527,6 +525,9 @@ class Metadata_Manager extends MySource_Object
 		if (empty($schemas)) return $field_values;
 
 		// get the values without any replacements or special processing
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db->show_queries = TRUE;
+
 		$values = $this->getMetadata($asset->id);
 		foreach ($schemas as $schemaid) {
 			$schema =& $am->getAsset($schemaid);
@@ -563,11 +564,6 @@ class Metadata_Manager extends MySource_Object
 					continue;
 				}
 
-				$value_str = $field->getMetadataValue($asset, (isset($values[$field->id]) ? $values[$field->id]['value'] : NULL));
-				require_once SQ_CORE_PACKAGE_PATH.'/metadata/metadata_field/metadata_field.inc';
-				Metadata_Field::decodeValueString($value_str, $value='', $components=Array());
-				$field_values[$field->name] = $value;
-
 				$am->forgetAsset($field);
 				unset($field);
 
@@ -577,6 +573,37 @@ class Metadata_Manager extends MySource_Object
 			unset($schema);
 
 		}//end foreach schema
+
+
+		// we suppose that the metadata values are stored in the file called metadata.php
+		// if the file does not exists it means that not metadata was generated because
+		// no metatadata schema was applied to the asset
+		// this will enhance the speed of this function and will replace any keyword
+		$_metadata_filename = $asset->data_path.'/metadata.php';
+
+		if (!file_exists($_metadata_filename)) {
+			return $field_values;
+		}
+
+		// include the file but must not display anything
+		ob_start();
+		include $_metadata_filename;
+		ob_end_clean();
+
+
+		// if the field_names is not empty return the value asked
+		// else return all the values
+		if (!empty($field_names)) {
+			foreach ($field_names as $key => $value) {
+				if (isset($metadata_values[$value])) {
+					$field_values[$value] = $metadata_values[$value];
+				} else {
+					$field_values[$value] = '';
+				}
+			}
+		} else {
+			$field_values = $metadata_values;
+		}
 
 		$am->forgetAsset($asset);
 		unset($asset);
@@ -794,7 +821,6 @@ class Metadata_Manager extends MySource_Object
 
 		$metadata_str = ob_get_contents();
 		ob_end_clean();
-
 
 		ob_start();
 			echo '<'.'?php'."\n";
