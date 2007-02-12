@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.200 2007/01/31 05:33:26 lwright Exp $
+* $Id: search_page.inc,v 1.201 2007/02/12 03:10:18 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.200 $
+* @version $Revision: 1.201 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1152,6 +1152,7 @@ class Search_Page extends Listing_Engine
 								break;
 								case 'metadata_field_text' :
 								case 'metadata_field_thesaurus':
+								case 'metadata_field_multiple_text':
 									text_box('queries_'.$query_var, '', $this->defaults['query_width']);
 								break;
 								case 'metadata_field_select' :
@@ -1314,6 +1315,7 @@ class Search_Page extends Listing_Engine
 								break;
 								case 'metadata_field_text' :
 								case 'metadata_field_thesaurus':
+								case 'metadata_field_multiple_text':
 									echo htmlspecialchars($query);
 								break;
 								case 'metadata_field_select' :
