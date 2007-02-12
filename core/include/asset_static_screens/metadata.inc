@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.22.2.3 2006/09/22 06:09:47 colivar Exp $
+* $Id: metadata.inc,v 1.22.2.4 2007/02/12 00:12:06 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.22.2.3 $
+* @version $Revision: 1.22.2.4 $
 * @package MySource_Matrix
 */
 
@@ -200,6 +200,9 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 							ob_start();
 						}
 
+						if ($owner->writeAccess('metadata')) {
+							$o->addHiddenField('metadata_interface_printed', 1);
+						}
 						$values = $mm->getMetadata($owner->id);
 						foreach ($schemas as $schemaid) {
 							$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
@@ -304,6 +307,10 @@ function processMetadata(&$owner, &$o, $ei)
 {
 	// if we dont have write access, dont process anything
 	if (!$owner->writeAccess('metadata')) return FALSE;
+	
+	// if the flag indicating the interface was printed is absent, don't try to process anything
+	// NB This is a solution for 3.10 branch only; subsequent branches do this in a more sophisticated way
+	if (empty($_REQUEST['metadata_interface_printed'])) return FALSE;
 
 	$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
