@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.11 2007/02/12 02:53:28 lwright Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.12 2007/02/12 02:54:35 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -119,8 +119,6 @@ class Search_Manager_Plugin_OCI8
 
 		}//end switch
 		$sql = implode_sql($base_query);
-
-		bam($sql);
 
 		if (count($base_query['select']) > 2) {
 			$result = $db->getAll($sql);
