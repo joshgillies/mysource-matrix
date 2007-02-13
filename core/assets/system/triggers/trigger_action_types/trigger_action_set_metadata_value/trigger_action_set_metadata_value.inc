@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.11 2007/02/12 02:53:04 tbarrett Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.12 2007/02/13 03:21:09 emcdonald Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,22 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 
 		// check required settings
 		if (empty($settings['fieldid'])) return FALSE;
-		if (empty($settings['value'])) return FALSE;
+		// null value indicates default
+		if (empty($settings['value']) && !is_null($settings['value'])) {
+			return FALSE;
+		}
+
+
+		$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
+		$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+		$param_map_value = $atr_parameter_map->getParameterValue('metadata_value');
+
+		// settings contains the 'fallback' static value.
+		if (!empty($param_map_value)) {
+			$value = $param_map_value;
+		} else {
+			$value = $settings['value'];
+		}
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
@@ -82,27 +97,22 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			$field_name = $metadata[$settings['fieldid']]['name'];
 		}
 
-		$value = '';
-		$value_component = Array();
-
 		// set the new value
 		$metadata[$settings['fieldid']] = Array(
 											'name'	=> $field_name,
-											'value'	=> $settings['value'],
+											'value'	=> $value,
 										  );
 		$success = $mm->setMetadata($asset->id, $metadata);
 
 		// Regenerate Metadata File
-		if ($success) {
-			$mm->regenerateMetadata($asset->id);
-		}
+		if ($success) $mm->regenerateMetadata($asset->id);
 
 		// all done very smoothly like an ice cream
 		if ($success) {
 			return Array(
 					'fieldid'		=> $settings['fieldid'],
 					'field_name'	=> $field_name,
-					'value'			=> $settings['value'],
+					'value'			=> $value,
 				   );
 		} else {
 			return FALSE;
@@ -148,6 +158,19 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 				$edit_fns = $metadata_field->getEditFns();
 				$edit_fns->paintValueInterface($metadata_field, $GLOBALS['SQ_SYSTEM']->backend->out, $metadata_field_value, TRUE);
 				hidden_field($prefix.'[form_printed]', 1);
+
+				// attribute friendly prefix
+				$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+				hidden_field($prefix.'[new_prefix]', $new_prefix);
+
+				$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
+				log_dump($parameter_map_value);
+				log_dump(serialize(Array()));
+				$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+
+				$atr_parameter_map->setParameter('metadata_value', 'Metadata Field Value');
+				echo $atr_parameter_map->paint($new_prefix.'_parameter_map');
+
 			}
 			$output_part2 = ob_get_contents();
 		ob_end_clean();
@@ -176,7 +199,6 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		$form_printed = array_get_index($request_data, 'form_printed', 0);
 
 		$fieldid = $fieldid_data['assetid'];
-		$value_accepted = array_get_index($request_data, 'value_accepted', 0);
 
 		if ($fieldid) {
 			$settings['fieldid'] = $fieldid;
@@ -199,6 +221,13 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 
 			$settings['field_name']	= $metadata_field->name;
 			$settings['value']		= $result;
+
+			$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+			if ($new_prefix) {
+				$atr_parameter_map =& new Asset_Attribute_Parameter_Map();
+				$atr_parameter_map->process($new_prefix.'_parameter_map');
+				$settings['value_map'] = $atr_parameter_map->value;
+			}
 		}
 
 		return FALSE;
