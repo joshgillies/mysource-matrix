@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.27 2006/12/07 00:04:25 emcdonald Exp $
+* $Id: report_links_edit_fns.inc,v 1.28 2007/02/13 01:26:54 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -117,7 +117,6 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						$link_valid = '0';
 						$link_description = '';
 						$link_type = '';
-
 						$results = Array();
 						preg_match('|^\./\?a=([0-9]+)#?([^$]*)?|',$match, $results);
 						$validated_results = FALSE;
@@ -237,7 +236,12 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$description = translate('cms_report_links_point_to_trash');
 			$valid = '0';
 		} else if (!empty($link[2])) {
-			$contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
+			$contents = Array();
+			$editable_contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
+			if (is_array($editable_contents)) {
+				$contents = $editable_contents;
+			}
+
 			$anchorExists = FALSE;
 
 			// check if we are looking for an interface for this asset
@@ -247,6 +251,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				$anchorExists = TRUE;
 			} else {
 			// otherwise lets traul the contents for a matching anchor
+
 				foreach ($contents as $content) {
 					if (preg_match('/<a\s+(name|id)="#?'.$link[2].'"(\s+(name|id)="#?'.$link[2].'")?>/', $content, $matches)) {
 						$anchorExists = TRUE;
@@ -1197,7 +1202,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				if ($cron_epoc > 0 && $cron_refresh > 0) {
 					$edit_fns->paintInLineBackend($cron_job, $o, $prefix.'_new_rl');
 					$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
-				} else{
+				} else {
 					echo translate('cron_manager_not_configured_regen');
 				}
 			} else {
