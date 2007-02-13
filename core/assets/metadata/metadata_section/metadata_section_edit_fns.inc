@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.38 2007/02/12 01:08:55 tbarrett Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.39 2007/02/13 21:43:46 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -300,9 +300,12 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	{
 		$frontend_option = $asset->attr('frontend');
 		// if we aren't printing this on the frontend then don't print anything
-		if (!$frontend_option) return TRUE;
 
 		$mm =& $GLOBALS['SQ_SYSTEM']->mm;
+
+		// Buffer the contents of any META tags
+		ob_start();
+
 		echo '<!-- '.$mm->escapeMetadata($asset->name).' //-->'."\n";
 
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
@@ -315,11 +318,19 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$edit_fns = $field->getEditFns();
 			$tag_values[$field->name] = '';
 
-			if (!$edit_fns->generateMetadata($field, ((isset($values[$field->id])) ? $values[$field->id]['value'] : NULL), $tag_values[$field->name], $keywords)) {
-				return FALSE;
-			}
+
+				if (!$edit_fns->generateMetadata($field, ((isset($values[$field->id])) ? $values[$field->id]['value'] : NULL), $tag_values[$field->name], $keywords)) {
+					ob_end_clean();
+					return FALSE;
+				}
+
 		}
+
 		echo "\n";
+
+		// If printing on front-end, print the META tags, otherwise discard them
+		$contents = ob_get_clean();
+		if ($frontend_option) echo $contents;
 
 		return TRUE;
 
