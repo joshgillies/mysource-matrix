@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.27 2006/12/07 00:04:25 emcdonald Exp $
+* $Id: report_links_edit_fns.inc,v 1.27.2.1 2007/02/13 01:28:14 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.27.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -237,7 +237,13 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$description = translate('cms_report_links_point_to_trash');
 			$valid = '0';
 		} else if (!empty($link[2])) {
-			$contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
+
+			$contents = Array();
+			$editable_contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
+			if (is_array($editable_contents)) {
+				$contents = $editable_contents;
+			}
+
 			$anchorExists = FALSE;
 
 			// check if we are looking for an interface for this asset
