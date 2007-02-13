@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.135 2007/02/12 23:26:33 colivar Exp $
+* $Id: metadata_manager.inc,v 1.136 2007/02/13 05:48:46 skim Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.135 $
+* @version $Revision: 1.136 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -430,16 +430,18 @@ class Metadata_Manager extends MySource_Object
 	function _cleanupMetadataValues($assetid)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$fieldid_conds = Array();
+		$fieldid_conds = Array('assetid = '.((string)$db->quoteSmart($assetid)));
 		foreach ($this->getSchemas($assetid, TRUE) as $schemaid) {
 			$fieldid_conds[] = '(fieldid NOT IN (
 								'.implode(' ', $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($schemaid, 'metadata_field', FALSE, NULL, NULL, NULL, TRUE, FALSE)).'))';
 		}
 		$sql = 'DELETE FROM sq_ast_mdata_val
 				';
-		if (!empty($fieldids_conds)) {
+
+		if (!empty($fieldid_conds)) {
 			$sql .= 'WHERE '.implode("\n\tAND ", $fieldid_conds);
 		}
+
 		$res = $db->query($sql);
 		assert_valid_db_result($res);
 
@@ -672,7 +674,6 @@ class Metadata_Manager extends MySource_Object
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 		}
-
 
 		if (!empty($remaining)) {
 			// Find any fields that have existing entries...so we know what to update and what to insert
