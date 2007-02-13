@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.18 2007/02/13 03:11:33 emcdonald Exp $
+* $Id: asset.xml,v 1.19 2007/02/13 22:59:58 emcdonald Exp $
 *
 */
 -->
@@ -21,10 +21,10 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>form_submission</type_code>
-	<version>0.6</version>
+	<version>0.7</version>
 	<name>Form Submission</name>
 	<description>Form Submission for the form template</description>
-	<instantiable>yes</instantiable>
+	<instantiable>no</instantiable>
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>asset</parent_type>
 	<requirements>
