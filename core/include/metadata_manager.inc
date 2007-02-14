@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.136 2007/02/13 05:48:46 skim Exp $
+* $Id: metadata_manager.inc,v 1.137 2007/02/14 03:26:17 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.136 $
+* @version $Revision: 1.137 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -513,7 +513,6 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function getMetadataFieldValues($assetid, $field_names=Array())
 	{
-
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$asset =& $am->getAsset($assetid);
 		$field_values = Array();
@@ -592,13 +591,14 @@ class Metadata_Manager extends MySource_Object
 		include $_metadata_filename;
 		ob_end_clean();
 
-
 		// if the field_names is not empty return the value asked
 		// else return all the values
 		if (!empty($field_names)) {
 			foreach ($field_names as $key => $value) {
 				if (isset($metadata_values[$value])) {
 					$field_values[$value] = $metadata_values[$value];
+				} else if (isset($metadata_values[str_replace('_', ' ', $value)])) {
+					$field_values[$value] = $metadata_values[str_replace('_', ' ',$value)];
 				} else {
 					$field_values[$value] = '';
 				}
