@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.35 2007/02/12 01:08:54 tbarrett Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.36 2007/02/14 22:00:22 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -427,7 +427,10 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			return TRUE;
 		} else {
 			$value = array_get_index($_POST, $prefix.'_repkeys', '');
-			if (empty($value)) {
+			if (!empty($value)) {
+				$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
+				return TRUE;
+			} else {
 				$field = $asset->_getDateTimeField($prefix);
 				if ($field->processField()) {
 					$value = $field->value;
