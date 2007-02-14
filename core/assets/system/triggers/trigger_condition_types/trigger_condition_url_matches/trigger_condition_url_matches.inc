@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_url_matches.inc,v 1.3 2006/12/05 23:53:33 bcaldwell Exp $
+* $Id: trigger_condition_url_matches.inc,v 1.4 2007/02/14 23:59:09 emcdonald Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,10 +106,10 @@ class Trigger_Condition_URL_Matches extends Trigger_Condition
 			if ($write_access) {
 				text_box($prefix.'[pattern]', $pattern, '100', '', FALSE, $form_element_extras);
 				echo '<br>';
-				// include the javascript to handle onclick so that only 1 option get selected
-				radio_button($prefix.'[match]', '1', $match, 'document.getElementById("'.$prefix.'[not_match]").checked = 0', $form_element_extras);
+
+				radio_button($prefix.'[match]', '1', $match, NULL,  $form_element_extras);
 				echo ' Must be in URL<br>';
-				radio_button($prefix.'[not_match]', '1', !$match, 'document.getElementById("'.$prefix.'[match]").checked = 0', $form_element_extras);
+				radio_button($prefix.'[match]', '0', !$match, NULL, $form_element_extras);
 				echo ' Must not be in URL<br>';
 			} else {
 				$match_str = ($match) ? 'must be in URL' : 'must not be in URL';
