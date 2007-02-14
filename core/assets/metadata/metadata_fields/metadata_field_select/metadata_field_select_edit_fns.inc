@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.32 2006/12/06 01:07:35 emcdonald Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.32.2.1 2007/02/14 01:23:47 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,17 +65,15 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		$value = '';
 		$value_components = $asset->attr('value_components');
 
+		$select_options = $asset->attr('select_options');
+		$is_default = FALSE;
+		if (is_null($value_str)) {
+			$value_str = $asset->getDefaultValue();
+			$is_default = TRUE;
+		}
+
 		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 
-		$select_options = $asset->attr('select_options');
-		if ($enable_default) {
-			$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_select/js/metadata_field_select.js');
-			$is_default = FALSE;
-			if (is_null($value_str)) {
-				$value_str = $asset->getDefaultValue();
-				$is_default = TRUE;
-			}
-		}
 		if ($asset->attr('multiple')) {
 			// if there is no value we need a blank array...not an array with one element (a blank string)
 			if ($value == '') {
@@ -134,6 +132,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				$non_default_vals_expr = '['.implode(', ', $non_default_vals).']';
 				check_box($prefix.'_default', '1', $is_default, "handleDefaultClick(this, '$prefix', $default_vals_expr, $non_default_vals_expr); ");
 				label(translate('use_default'), $prefix.'_default');
+				$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_select/js/metadata_field_select.js');
 			} else {
 				if ($is_default) {
 					echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
