@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.102.2.5 2007/02/02 00:07:51 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.102.2.6 2007/02/14 00:32:45 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.102.2.5 $
+* @version $Revision: 1.102.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -469,6 +469,7 @@ class Page_Asset_Builder extends Page
 						$metadata_values = Array();
 						$schemaids = $this->_getMetadataSchemasToApply();
 						if (!empty($schemaids)) {
+							$metadata_run_level_changed = FALSE;
 							if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
 								$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() - SQ_SECURITY_PERMISSIONS);
 								$metadata_run_level_changed = TRUE;
