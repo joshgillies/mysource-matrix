@@ -10,11 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.12 2007/02/13 03:21:09 emcdonald Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.13 2007/02/14 05:41:12 emcdonald Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
+require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 
 /**
 * Trigger_Action_Set_Metadata_Value
@@ -22,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -164,8 +165,6 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 				hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 				$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
-				log_dump($parameter_map_value);
-				log_dump(serialize(Array()));
 				$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 
 				$atr_parameter_map->setParameter('metadata_value', 'Metadata Field Value');
