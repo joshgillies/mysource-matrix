@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_tag.inc,v 1.1 2007/01/31 03:36:24 rhoward Exp $
+* $Id: trigger_action_set_tag.inc,v 1.2 2007/02/14 05:40:29 rhoward Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,12 +39,14 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 	* The settings used by this action are in the form:
 	* <pre>
 	* Array(
-	*       'tagid'				=> int,		// the assetid of the tag
-	*		'weighting'			=> int,		// what weighting to the give the new tag
+	* 		'tagid'				=> string,	// the assetid of the tag
+	* 		'thesaurusid'		=> string,	// optionally, supply the thesaurus id...
+	*		'term_name'			=> string,	// ... and term name instead
+	* 		'weighting'			=> int,		// what weighting to the give the new tag
 	* 		'action'			=> string,	// whether to add or delete
-	*		'cascade'			=> boolean,	// cascade tag changes to children?
-	*		'manual_cascade'	=> boolean,	// manually cascade the changes instead (mutually exclusive with 'cascade')
-	*		);
+	* 		'cascade'			=> boolean,	// cascade tag changes to children?
+	* 		'manual_cascade'	=> boolean,	// manually cascade the changes instead (mutually exclusive with 'cascade')
+	* );
 	* </pre>
 	*
 	* @param array	$settings	the stored settings for this action
@@ -57,13 +59,6 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 	{
 		$result = FALSE;
 
-		// if no settings, fail
-		if (empty($settings['tagid'])) return FALSE;
-
-		if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($settings['tagid'])) {
-			return FALSE;
-		}
-
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
@@ -73,7 +68,26 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 			}
 		}
 
-		$tagid  = array_get_index($settings, 'tagid', 0);
+		// if tagid is not set or incorrect, fall back on 'thesaurusid' and 'term_name'
+		$tagid = 0;
+		if (!empty($settings['tagid']) && $GLOBALS['SQ_SYSTEM']->am->assetExists($settings['tagid'])) {
+			$tagid = $settings['tagid'];
+		} else {
+			// use the thesaurusid / term_name combo instead
+			if (!empty($settings['thesaurusid'])) {
+				$thesaurus =& $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['thesaurusid']);
+				if (!is_null($thesaurus)) {
+					$termid = $thesaurus->getTermIdByName($settings['term_name']);
+					if (!empty($termid)) {
+						$tagid = $thesaurus->id.':'.$termid;
+					}
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($thesaurus);
+				}
+			}
+		}
+
+		if (empty($tagid)) return FALSE;
+
 		$action = array_get_index($settings, 'action', 'add');
 		if ($action == 'delete') {
 			$weighting = NULL;
