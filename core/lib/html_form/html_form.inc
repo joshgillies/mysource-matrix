@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.128 2007/01/22 05:29:34 tbarrett Exp $
+* $Id: html_form.inc,v 1.129 2007/02/15 01:16:05 tbarrett Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -826,7 +826,7 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 	?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
 
 	echo '<div>';
-	foreach ($assetids as $index => $assetid) {
+	foreach (array_values($assetids) as $index => $assetid) {
 		asset_finder($name.'['.$index.']', $assetid, $type_codes, $map_frame, $new_window, $done_fn);
 		echo '<br />';
 	}
