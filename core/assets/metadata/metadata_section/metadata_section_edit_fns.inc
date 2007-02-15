@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.36 2006/12/06 01:07:36 emcdonald Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.36.2.1 2007/02/15 05:23:53 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -209,12 +209,13 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
+		$res = FALSE;
 		foreach ($current_links as $link) {
 			$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
 			$edit_fns = $field->getEditFns();
-			if (!$edit_fns->paintInlineValueInterface($field, $o, (isset($values[$field->id])) ? $values[$field->id]['value'] : NULL, $write_access)) {
-				return FALSE;
+			if ($edit_fns->paintInlineValueInterface($field, $o, (isset($values[$field->id])) ? $values[$field->id]['value'] : NULL, $write_access)) {
+				$res = TRUE;
 			}
 		}
 		$o->closeSection();
@@ -227,6 +228,8 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Process the interface for filling in metadata values
 	*
+	* Returns true if at least one field processed itself and got a value
+	*
 	* @param object	&$asset			the asset whose interface we are painting
 	* @param array	&$new_values	an array we can store the new values in
 	*
@@ -235,6 +238,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processInlineValueInterface(&$asset, &$new_values)
 	{
+		$res = FALSE;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
 			$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
@@ -242,21 +246,16 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 				continue;
 			}
 			$edit_fns = $field->getEditFns();
-			$new_values[$field->id] = Array('name' => $field->name, 'value' => '');
 			$new_value = '';
-			if (!$edit_fns->processInlineValueInterface($field, $new_value)) {
-				return FALSE;
-			}
-
-			// if the new value is NOT null, add it to the set of new values
-			if (!is_null($new_value)) {
-				$new_values[$field->id]['value'] = $new_value;
-			} else {
-				unset($new_values[$field->id]);
+			if ($edit_fns->processInlineValueInterface($field, $new_value)) {
+				// the process fn returned true, meaning something was submitted
+				// $new_value may be NULL, however, which signifies that we are reverting to default
+				$new_values[$field->id] = Array('name' => $field->name, 'value' => $new_value);
+				$res = TRUE;
 			}
 		}
 
-		return TRUE;
+		return $res;
 
 	}//end processInlineValueInterface()
 

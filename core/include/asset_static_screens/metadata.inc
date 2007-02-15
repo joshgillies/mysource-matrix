@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.28 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: metadata.inc,v 1.28.2.1 2007/02/15 05:23:54 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix
 */
 
@@ -325,21 +325,22 @@ function processMetadata(&$owner, &$o, $ei)
 	if (!$owner->writeAccess('metadata')) return FALSE;
 
 	$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-
 	$schemas = $mm->getSchemas($owner->id, TRUE);
-
+	$save = FALSE;
 	if (!empty($schemas)) {
 		$new_values = Array();
 		foreach ($schemas as $schemaid) {
 			$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			$edit_fns = $schema->getEditFns();
-			$edit_fns->processInlineValueInterface($schema, $new_values);
-		}
-		if (!$mm->setMetadata($owner->id, $new_values)) {
-			return FALSE;
+			if ($edit_fns->processInlineValueInterface($schema, $new_values)) {
+				$save = TRUE;
+			}
 		}
 	}
-	$mm->generateContentFile($owner->id);
+	if ($save) {
+		$mm->setMetadata($owner->id, $new_values);
+		$mm->generateContentFile($owner->id);
+	}
 	return FALSE; // no need to call saveAttributes
 
 }//end processMetadata()

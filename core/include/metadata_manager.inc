@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.127 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: metadata_manager.inc,v 1.127.2.1 2007/02/15 05:23:53 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.127 $
+* @version $Revision: 1.127.2.1 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -263,6 +263,7 @@ class Metadata_Manager extends MySource_Object
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($asset, 'MetadataDeleted', Array('schemaid' => $schemaid));
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_metadata_updated', $asset);
+		$this->_cleanupMetadataValues($assetid);
 		$this->generateContentFile($assetid, FALSE);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -414,6 +415,31 @@ class Metadata_Manager extends MySource_Object
 		return $metadata;
 
 	}//end getMetadata()
+
+
+	/**
+	* Remove entries from the mdata_val table that don't correspond to an applied schema
+	*
+	* @param int	$assetid	The ID of the asset whose values we want to clean up
+	*
+	* @return void
+	* @access private
+	*/
+	function _cleanupMetadataValues($assetid)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$fieldid_conds = Array('assetid = '.($db->quoteSmart((string)$assetid)));
+		foreach ($this->getSchemas($assetid, TRUE) as $schemaid) {
+			$fieldid_conds[] = '(fieldid NOT IN (
+								'.implode(' ', $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($schemaid, 'metadata_field', FALSE, NULL, NULL, NULL, TRUE, FALSE)).'))';
+		}
+		$sql = 'DELETE FROM sq_ast_mdata_val
+				WHERE 
+					'.implode("\n\tAND ", $fieldid_conds);
+		$res = $db->query($sql);
+		assert_valid_db_result($res);
+
+	}//end _cleanupMetadataValues()
 
 
 	/**
@@ -586,44 +612,46 @@ class Metadata_Manager extends MySource_Object
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// find all the fields...for two reasons.
-		// 1. make sure they are editable
-		// 2. we need to do some cleanup incase there has been a change in the fields that are available for this asset
-		$quoted_fieldids = Array();
+		// Make sure all the fields exist and are editable
 		foreach (array_keys($metadata) as $fieldid) {
-
 			$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
 			if (is_null($field) || !$field->attr('editable')) {
 				unset($metadata[$fieldid]);
 				continue;
 			}
-			$quoted_fieldids[] = $db->quoteSmart($fieldid);
 
 		}//end foreach
 
-		// Remove any old values...it's just easier than having to screw about with old fields and new fields, different assetids for the same name etc
-		$where = '	assetid = '.$db->quoteSmart($asset->id);
-		if (!empty($quoted_fieldids)) {
-			$where .= ' AND fieldid NOT IN ('.implode(',', $quoted_fieldids).')';
+		// Delete from mdata_val table where necessary
+		$delete_fieldids = Array();
+		$remaining = Array();
+		foreach ($metadata as $fieldid => $details) {
+			if ($details['value'] === NULL) {
+				// we want to revert this field to default, done by deleting it from the mdata_val table
+				$delete_fieldids[] = $db->quoteSmart((string)$fieldid);
+			} else {
+				$remaining[] = $fieldid;
+			}
 		}
 
-		$sql = 'DELETE FROM
-					sq_ast_mdata_val
-				WHERE
-					'.$where;
+		if (!empty($delete_fieldids)) {
+			$sql = 'DELETE FROM
+						sq_ast_mdata_val
+					WHERE
+						assetid = '.$db->quote($assetid).'
+						AND fieldid IN ('.implode(', ', $delete_fieldids).')';
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+		}
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		if (!empty($quoted_fieldids)) {
+		if (!empty($remaining)) {
 			// Find any fields that have existing entries...so we know what to update and what to insert
 			$sql = 'SELECT
 						fieldid
 					FROM
 						'.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val';
 
-			$where = '	assetid = '.$db->quote($asset->id).'
-					 AND fieldid IN ('.implode(',', $quoted_fieldids).')';
+			$where = '	assetid = '.$db->quote($asset->id);
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$updates = $db->getCol($sql.$where);
@@ -657,8 +685,7 @@ class Metadata_Manager extends MySource_Object
 			$update_prepared = $db->prepare($sql);
 			assert_valid_db_result($update_prepared);
 
-			for (reset($metadata); NULL !== ($fieldid = key($metadata)); next($metadata)) {
-
+			foreach ($remaining as $fieldid) {
 				// we need to insert
 				if (!in_array($fieldid, $updates)) {
 

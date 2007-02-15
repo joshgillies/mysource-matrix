@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.32.2.1 2007/02/14 01:23:47 tbarrett Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.32.2.2 2007/02/15 05:23:53 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.32.2.1 $
+* @version $Revision: 1.32.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -156,26 +156,27 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function processInlineValueInterface(&$asset, &$new_value_str)
 	{
-		// nothing for us to do
-		if (!$asset->attr('editable')) return TRUE;
+		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
+
 		$prefix = $asset->getPrefix();
-
-		$use_default = array_get_index($_POST, $prefix.'_default', '');
-
-		if ($use_default) {
+		if (!empty($_POST[$prefix.'_default'])) {
+			// use default
 			$new_value_str = NULL;
 			return TRUE;
+		} else {
+			// Default is not checked, so process our select attribute
+			$selection = $asset->getSelectionAttribute();
+			$selection->process($prefix);
+			if ($selection->processed) {
+				// Get the string into proper form for the metadata field function
+				$value = str_replace('|', '; ', $selection->value);
+				$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
+				return TRUE;
+			} else {
+				// nothing was submitted
+				return FALSE;
+			}
 		}
-
-		// Default is not checked, so process ur select attribute
-		$selection = $asset->getSelectionAttribute();
-		$selection->process($prefix);
-
-		// Get the string into proper form for the metadata field function
-		$value = str_replace('|', '; ', $selection->value);
-		$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
-
-		return TRUE;
 
 	}//end processInlineValueInterface()
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.44 2006/12/06 01:07:36 emcdonald Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.44.2.1 2007/02/15 05:23:53 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.44.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -259,6 +259,8 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Process the interface for filling in metadata values
 	*
+	* Returns true if at least one section processed something
+	*
 	* @param object	&$asset			the asset whose interface we are painting
 	* @param array	&$new_values	an array we can store the new values in
 	*
@@ -267,17 +269,17 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processInlineValueInterface(&$asset, &$new_values)
 	{
+		$res = FALSE;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
 			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
-			if (!$edit_fns->processInlineValueInterface($section, $new_values)) {
-				return FALSE;
+			if ($edit_fns->processInlineValueInterface($section, $new_values)) {
+				$res = TRUE;
 			}
 		}
-
-		return TRUE;
+		return $res;
 
 	}//end processInlineValueInterface()
 

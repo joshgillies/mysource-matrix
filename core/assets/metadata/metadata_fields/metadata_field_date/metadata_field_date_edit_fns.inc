@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.33 2006/12/06 01:07:35 emcdonald Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.33.2.1 2007/02/15 05:23:53 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -206,17 +206,17 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		$select_options = Array(
 							''					=> '-- '.strtolower(translate('keywords')).' --',
-							'%asset_created%'	=> translate('creation_date'),
-							'%asset_updated%'	=> translate('last_updated_date'),
-							'%asset_published%'	=> translate('last_published_date'),
+							'asset_created'		=> translate('creation_date'),
+							'asset_updated'		=> translate('last_updated_date'),
+							'asset_published'	=> translate('last_published_date'),
 						  );
 
 		// displaying default value if any values were actually saved in the array
 		if ($write_access) {
-			combo_box($prefix.'_repkeys', $select_options, FALSE, $default);
+			combo_box($prefix.'_repkeys', $select_options, FALSE, trim($default, '%'));
 		} else {
 			if (strpos($default, '%') === 0) {
-				echo $select_options[$default];
+				echo $select_options[trim($default, '%')];
 			} else {
 				echo translate('none_selected');
 			}
@@ -246,7 +246,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		$new_default = trim($_POST[$prefix.'_repkeys']);
 		if ($new_default != '') {
-			$asset->setAttrValue('default', $new_default);
+			$asset->setAttrValue('default', '%'.$new_default.'%');
 		}
 
 		return TRUE;
@@ -337,9 +337,9 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		$select_options = Array(
 							''					=> '-- '.strtolower(translate('keywords')).' --',
-							'%asset_created%'	=> translate('creation_date'),
-							'%asset_updated%'	=> translate('last_updated_date'),
-							'%asset_published%'	=> translate('last_published_date'),
+							'asset_created'		=> translate('creation_date'),
+							'asset_updated'		=> translate('last_updated_date'),
+							'asset_published'	=> translate('last_published_date'),
 						  );
 
 		// checking if the value is a keyword replacement
@@ -359,13 +359,13 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 			$field->printField();
 			echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
-			combo_box($prefix.'_repkeys', $select_options, FALSE, $value, 0, '');
+			combo_box($prefix.'_repkeys', $select_options, FALSE, trim($value, '%'), 0, '');
 
 			if ($enable_default) {
 				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
 				if (substr($default_val, 0, 1) == '%') {
 					$default_date_exp = 'null';
-					$default_kw_exp = "'$default_val'";
+					$default_kw_exp = "'".trim($default_val, '%')."'";
 				} else {
 					list($dy, $dm, $dd, $dh, $di, $ds) = sscanf($default_val, '%d-%d-%d %d:%d:%d');
 					$default_date_exp = "{y:$dy, m:$dm, d:$dd, h:$dh, i:$di, s:$ds}";
@@ -383,8 +383,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 				</script>
 				<?php
 			}
-		} else if ($uses_keyword && isset($select_options[$value])) {
-			echo '<i>'.translate('keyword_replacement').': </i>', $select_options[$value];
+		} else if ($uses_keyword && isset($select_options[trim($value, '%')])) {
+			echo '<i>'.translate('keyword_replacement').': </i>', $select_options[trim($value, '%')];
 			if ($is_default && $enable_default) {
 				echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
 			}
@@ -411,35 +411,30 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function processInlineValueInterface(&$asset, &$new_value_str)
 	{
-		// nothing for us to do
-		if (!$asset->attr('editable')) return TRUE;
+		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
 
 		$prefix = $asset->getPrefix();
-
-		$value = array_get_index($_POST, $prefix.'_repkeys', '');
-		$use_default = array_get_index($_POST, $prefix.'_default', '');
-
-		if ($use_default) {
+		if (!empty($_POST[$prefix.'_default'])) {
+			// use default
 			$new_value_str = NULL;
+			return TRUE;
 		} else {
-			// if we aren't using keywords...get the date that was set
-			if ($value == '') {
+			$value = array_get_index($_POST, $prefix.'_repkeys', '');
+			if (!empty($value)) {
+				$new_value_str = Metadata_Field::encodeValueString('%'.trim($value).'%', Array());
+				return TRUE;
+			} else {
 				$field = $asset->_getDateTimeField($prefix);
 				if ($field->processField()) {
 					$value = $field->value;
+					$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
+					return TRUE;
 				} else {
-					// field could not be processed
-					trigger_localised_error('CORE0203', E_USER_WARNING, $asset->name);
+					 // nothing submitted
 					return FALSE;
 				}
 			}
 		}
-
-		if (!is_null($new_value_str)) {
-			$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
-		}
-
-		return TRUE;
 
 	}//end processInlineValueInterface()
 

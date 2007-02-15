@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.8 2006/12/06 01:07:36 emcdonald Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.8.2.1 2007/02/15 05:23:53 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -172,6 +172,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 				// non-default-value chooser
 				echo '<div id="'.$prefix.'_interface" style="padding: 5px 0px; display:'.($is_default ? 'none' : 'block').'">';
 				multiple_asset_finder($prefix.'_thes_term', $term_assetids, Array('thesaurus_term'=>'D'));
+				hidden_field($prefix.'_terms_submitted', 1);
 				echo '<div style="margin-top: 3px">';
 				echo translate('thesaurus_meta_thesaurus_note', get_asset_tag_line($thesaurus->id, 'details'));
 				echo '</div>';
@@ -185,6 +186,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			} else {
 
 				multiple_asset_finder($prefix.'_thes_term', $term_assetids, Array('thesaurus_term'=>'D'));
+				hidden_field($prefix.'_terms_submitted', 1);
 
 			}
 
@@ -244,40 +246,47 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function processInlineValueInterface(&$asset, &$new_value_str)
 	{
+		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
+
 		$prefix = $asset->getPrefix();
 		$thesaurus =& $asset->getThesaurusRef();
 		$value = Array();
 
-		if (isset($_REQUEST[$prefix.'_default'])) {
+		if (!empty($_POST[$prefix.'_default'])) {
+			// use default
 			$new_value_str = NULL;
-
+			return TRUE;
 		} else {
-
-			$new_terms = array_get_index($_REQUEST, $prefix.'_thes_term', Array());
-			foreach ($new_terms as $one_term) {
-				if (empty($one_term['assetid'])) continue;
-				$term_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_term['assetid']);
-				$term_name = $term_asset->attr('name');
-				if ($term_asset->_thesaurus->id != $thesaurus->id) {
-					$asset->_tmp['error'][] = translate('thesaurus_meta_wrong_thesaurus', $term_name, $term_asset->_thesaurus->name, $term_asset->_thesaurus->id);
+			if (!empty($_REQUEST[$prefix.'_terms_submitted'])) {
+				$new_terms = array_get_index($_REQUEST, $prefix.'_thes_term', Array());
+				log_dump($new_terms);
+				foreach ($new_terms as $one_term) {
+					if (empty($one_term['assetid'])) continue;
+					$term_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_term['assetid']);
+					$term_name = $term_asset->attr('name');
+					if ($term_asset->_thesaurus->id != $thesaurus->id) {
+						$asset->_tmp['error'][] = translate('thesaurus_meta_wrong_thesaurus', $term_name, $term_asset->_thesaurus->name, $term_asset->_thesaurus->id);
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($term_asset);
+						continue;
+					}
+					$value[] = $term_name;
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($term_asset);
-					continue;
 				}
-				$value[] = $term_name;
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($term_asset);
-			}
 
-			$old_count = count($value);
-			$value = array_unique($value);
-			if ($old_count != count($value)) {
-				$asset->_tmp['error'][] = translate('thesaurus_term_duplicate_removed');
+				$old_count = count($value);
+				$value = array_unique($value);
+				if ($old_count != count($value)) {
+					$asset->_tmp['error'][] = translate('thesaurus_term_duplicate_removed');
+				}
+				log_dump($value);
+				$value = implode(',', $value);
+				$new_value_str = Metadata_Field::encodeValueString($value, Array());
+				log_dump($new_value_str);
+				return TRUE;
+			} else {
+				return FALSE;
 			}
-			$value = implode(',', $value);
-			$new_value_str = Metadata_Field::encodeValueString($value, Array());
-
 		}
-
-		return TRUE;
 
 	}//end processInlineValueInterface()
 
