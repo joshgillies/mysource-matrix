@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.js,v 1.3 2006/12/06 01:07:35 emcdonald Exp $
+* $Id: metadata_field_select.js,v 1.4 2007/02/15 05:18:14 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ function in_array(elt, ar)
 }
 function setSelection(prefix, values, selected)
 {
-	select = document.getElementById(prefix);
+	var select = document.getElementById(prefix);
 	if ((select !== null) && (typeof select.options != "undefined")) {
 		for (var i=0; i < select.options.length; i++) {
 			if (in_array(select.options[i].value, values)) {
