@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.js,v 1.3 2007/01/29 04:03:46 tbarrett Exp $
+* $Id: metadata_field_date.js,v 1.4 2007/02/15 06:44:48 tbarrett Exp $
 *
 */
 
@@ -46,7 +46,8 @@ function handleMetadataDatetimeDefaultClick(defaultCheckbox, prefix, defaultDate
 					elt.disabled = true;
 				}
 			}
-			if (var repKeys = document.getElementById(prefix+'_repkeys')) {
+			var repKeys = document.getElementById(prefix+'_repkeys');
+			if (repKeys) {
 				repKeys.value = '';
 			}
 		}

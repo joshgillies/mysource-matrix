@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.12 2007/01/29 04:03:46 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.13 2007/02/15 06:44:48 tbarrett Exp $
 *
 */
 -->
@@ -28,8 +28,8 @@
 		</field>
 		<field>
 			<function_call>
-				<paint_function   name="paintDefaultDateTime" />
-				<process_function name="processDefaultDateTime" />
+				<paint_function   name="paintDefaultValue" />
+				<process_function name="processDefaultValue" />
 			</function_call>
 		</field>
 		<field>
@@ -40,24 +40,9 @@
 		</field>
 		<field>
 			<function_call>
-				<paint_function   name="paintRepKeys" />
-				<process_function name="processRepKeys" />
+				<paint_function   name="paintDateFormat" />
+				<process_function   name="processDateFormat" />
 			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintSetupParams" />
-				<process_function name="processSetupParams" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintDateFormatKeys" />
-				<process_function name="processDateFormatKeys" />
-			</function_call>
-		</field>
-		<field attribute="format">
-			<text width="15" height="1" />
 		</field>
 		<field attribute="scheme">
 			<text width="30" height="1" />
@@ -69,6 +54,12 @@
 	<section name="Options" write_access="write:attributes">
 		<field attribute="editable">
 			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintSetupParams" />
+				<process_function name="processSetupParams" />
+			</function_call>
 		</field>
 		<field attribute="show_keywords">
 			<boolean true_text="yes" false_text="no" />

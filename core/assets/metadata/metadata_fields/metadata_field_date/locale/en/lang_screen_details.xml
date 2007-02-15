@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2007/01/29 04:03:46 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.6 2007/02/15 06:44:48 tbarrett Exp $
 *
 */
 -->
@@ -30,11 +30,11 @@
 			<note />
 		</field>
 		<field>
-			<display_name>Default</display_name>
-			<note>Value in this field is relevant only if you do not select a keyword replacement</note>
+			<display_name>Default Value</display_name>
+			<note>Choose the default value for this field.  If 'show keyword selector' (below) is enabled, an asset keyword may be chosen as the default value.</note>
 			<function_call>
-				<paint_function   name="paintDefaultDateTime" />
-				<process_function name="processDefaultDateTime" />
+				<paint_function   name="paintDefaultValue" />
+				<process_function name="processDefaultValue" />
 			</function_call>
 		</field>
 		<field>
@@ -46,32 +46,11 @@
 			</function_call>
 		</field>
 		<field>
-			<display_name>Keyword Replacements</display_name>
-			<note></note>
+			<display_name>Display Format</display_name>
 			<function_call>
-				<paint_function   name="paintRepKeys" />
-				<process_function name="processRepKeys" />
+				<paint_function   name="paintDateFormat" />
+				<process_function   name="processDateFormat" />
 			</function_call>
-		</field>
-		<field>
-			<display_name>Setup</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintSetupParams" />
-				<process_function name="processSetupParams" />
-			</function_call>
-		</field>
-		<field>
-			<display_name></display_name>
-			<note />
-			<function_call>
-				<paint_function   name="paintDateFormatKeys" />
-				<process_function name="processDateFormatKeys" />
-			</function_call>
-		</field>
-		<field attribute="format">
-			<display_name>Format</display_name>
-			<note>Note that you cannot use a tilde ('~') to separate date fields</note>
 		</field>
 		<field attribute="scheme">
 			<display_name>Scheme</display_name>
@@ -87,9 +66,17 @@
 			<display_name>Editable</display_name>
 			<note>If this field is not editable, the user will always see the default value</note>
 		</field>
+		<field>
+			<display_name>Editing Style</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintSetupParams" />
+				<process_function name="processSetupParams" />
+			</function_call>
+		</field>
 		<field attribute="show_keywords">
 			<display_name>Show keyword selector</display_name>
-			<note>This controls whether the user is shown the widget for setting this field to a keyword value as well as the normal date input fields</note>
+			<note>Choose whether metadata editors should be able to choose asset keywords for this field's value, as an alternative to a specific date.</note>
 		</field>
 		<field attribute="required">
 			<display_name>Required</display_name>
