@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.61 2007/02/07 23:24:57 arailean Exp $
+* $Id: page_remote_content.inc,v 1.62 2007/02/16 00:58:46 arailean Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -240,7 +240,6 @@ class Page_Remote_Content extends Page
 			if ($post_is_encoded) {
 				$addon_array = Array();
 				if (!empty($post_data)) $addon_array[] = $post_data;
-
 				foreach ($post_variables as $index => $variable) {
 					$addon_array[] = urlencode($variable['name']).'='.urlencode(replace_global_keywords($variable['value']));
 				}
@@ -250,6 +249,7 @@ class Page_Remote_Content extends Page
 				foreach ($post_variables as $index => $variable) {
 					$var_name = $variable['name'];
 					$var_value = $variable['value'];
+					$var_value = replace_global_keywords($var_value);
 					if (isset($post_data[$var_name])) {
 						if (!is_array($post_data[$var_name])) {
 							$post_data[$var_name] = Array($post_data[$var_name], $var_value);
