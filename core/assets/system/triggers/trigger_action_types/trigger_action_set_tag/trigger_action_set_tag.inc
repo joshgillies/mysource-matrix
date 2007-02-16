@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_tag.inc,v 1.2 2007/02/14 05:40:29 rhoward Exp $
+* $Id: trigger_action_set_tag.inc,v 1.3 2007/02/16 04:57:26 rhoward Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -187,7 +187,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 	*/
 	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
-		// TODO: Print javascript to disable weighting checkbox, and to handle cascading
+		// print javascript to disable weighting checkbox, and to handle cascading
 		ob_start();
 			if ($write_access) {
 				?><script>
