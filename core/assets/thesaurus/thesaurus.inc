@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.34 2007/01/18 01:53:24 tbarrett Exp $
+* $Id: thesaurus.inc,v 1.35 2007/02/16 04:20:05 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -2583,6 +2583,21 @@ class Thesaurus extends Asset
 		return TRUE;
 
 	}//end setReflections()
+
+
+	/**
+	* Returns TRUE if this type of asset can be cloned
+	*
+	* Override this function if you do not want a particular type of asset to be cloned
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canClone()
+	{
+		return FALSE;
+
+	}//end canClone()
 
 
 }//end class
