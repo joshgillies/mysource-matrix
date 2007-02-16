@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.586 2007/02/01 22:12:57 tbarrett Exp $
+* $Id: asset.inc,v 1.587 2007/02/16 01:03:51 arailean Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.586 $
+* @version $Revision: 1.587 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1939,7 +1939,7 @@ class Asset extends MySource_Object
 						}
 					}
 				}
-			}
+			}//end if mm->allowsMetadata
 
 		}//end if metadata
 
@@ -3277,8 +3277,33 @@ class Asset extends MySource_Object
 	*
 	* @return string
 	* @access public
+	* @see _getKeywordReplacement
 	*/
 	function getKeywordReplacement($keyword)
+	{
+		$replacement = $this->_getKeywordReplacement($keyword);
+		return $replacement;
+
+	}//end getKeywordReplacement()
+
+
+	/**
+	* Get bodycopy keyword replacement
+	* Provides a mechanism for providing keyword replacement functions by
+	* looking up the function named 'getKeywordNameKeywordReplacement'
+	* so an asset wishing to add support for 'best_ever' custom keyword
+	* should implement a function getBestEverKeywordReplacement()
+	* which returns a replacement string
+	*
+	* Note that this function returns NULL for any keywords it doesn't
+	* recognise, unless the keyword begins with %globals_
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access private
+	*/
+	function _getKeywordReplacement($keyword)
 	{
 		if (empty($keyword)) return '';
 		if (0 === strpos($keyword, 'globals_')) {
@@ -3336,7 +3361,7 @@ class Asset extends MySource_Object
 
 		return $replacement;
 
-	}//end getKeywordReplacement()
+	}//end _getKeywordReplacement()
 
 
 	/**
@@ -4232,10 +4257,10 @@ class Asset extends MySource_Object
 	/**
 	* Returns the href for getting to the nearest backend for this asset
 	*
-	* @param string	$screen			the code name of the screen that you want displayed when the asset is loaded
-	* @param bool	$backend_page	whether to include the 'SQ_BACKEND_PAGE=main' query string
-	*								include this bit when we are switching screens in the backend
-	*								do not include when generating URL (e.g. for workflow emails)
+	* @param string		$screen			the code name of the screen that you want displayed when the asset is loaded
+	* @param boolean	$backend_page	whether to include the 'SQ_BACKEND_PAGE=main' query string
+	*									include this bit when we are switching screens in the backend
+	*									do not include when generating URL (e.g. for workflow emails)
 	*
 	* @return string
 	* @access public
