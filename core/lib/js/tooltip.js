@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tooltip.js,v 1.14 2007/01/22 23:41:39 rong Exp $
+* $Id: tooltip.js,v 1.15 2007/02/16 01:30:32 tbarrett Exp $
 *
 */
 
@@ -160,10 +160,10 @@ function tt_hide()
 {
 	var tool_box = document.getElementById("ToolBox");
 
-	if (tool_box.filters) tool_box.filters[0].Apply();
+	if (tool_box.filters && tool_box.filters[0]) tool_box.filters[0].Apply();
 	tool_box.style.visibility 	= "hidden";
 	document.getElementById("hider").style.visibility = "hidden";
-	if (tool_box.filters) tool_box.filters[0].Play();
+	if (tool_box.filters && tool_box.filters[0]) tool_box.filters[0].Play();
 
 	this.showing = false;
 
@@ -185,7 +185,7 @@ function tt_paint(top, left, text, title, close_button)
 {
 	var tool_box = document.getElementById("ToolBox");
 
-	if (tool_box.filters) tool_box.filters[0].Apply();
+	if (tool_box.filters && tool_box.filters[0]) tool_box.filters[0].Apply();
 
 	if ((typeof(title) != "undefined" && title != "") || (typeof(top) == "undefined"))
 	{
@@ -262,7 +262,7 @@ function tt_paint(top, left, text, title, close_button)
 	tool_box.style.background 	= this.normal_bg;
 	tool_box.style.visibility 	= "visible";
 
-	if (tool_box.filters) tool_box.filters[0].Play();
+	if (tool_box.filters && tool_box.filters[0]) tool_box.filters[0].Play();
 
 }//end tt_paint()
 
