@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.222 2007/02/15 06:45:05 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.223 2007/02/16 06:34:59 colivar Exp $
 *
 */
 
@@ -99,6 +99,8 @@
 	<string source="current_hipo_jobs">Current HIPO Jobs</string>
 	<string source="orphaned_hipo_jobs">Orphaned HIPO Jobs</string>
 	<string source="current_linking">Current Linking</string>
+	<string source="create_linking">Create New Link</string>
+	<string source="delete_linking">Delete link</string>
 	<string source="current_lock_status">Current Lock Status</string>
 	<string source="current_variety">Current Variety</string>
 	<string source="current">Current</string>
@@ -359,6 +361,10 @@
 	<string source="cron_manager_not_configured">The Cron Manager has not been configured. No future statuses can be set for this asset</string>
 	<string source="cron_manager_not_configured_regen">The Cron Manager has not been configured. No future regeneration can be set for this asset</string>
 	<string source="cron_manager_next_run">The Cron Manager runs every &lt;b&gt;%1$s&lt;/b&gt;. It will next run on the &lt;b&gt;%2$s&lt;/b&gt;</string>
+	<string source="cron_manager_create_now_or_later">If no time is set, the new link will be created immediately else the cron manager will create the link at a future time</string>
+	<string source="cron_manager_future_not_available_create">For this type of asset, you cannot create a new link at a future time using a cron job.</string>
+	<string source="cron_manager_future_not_available_delete">For this type of asset, you cannot delete a link at a future time using a cron job.</string>
+    <string source="cron_manager_delete_now_or_later">If no time is set, the selected link will be deleted immediately else the cron manager will delete the link at a future time</string>
 	<string source="asset_currently_in_workflow">&lt;i&gt;This asset is currently in workflow. Approval or rejection of the changes must be done on the &lt;a href="%s"&gt;asset workflow screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="workflow_not_running">Workflow is not currently running for this asset</string>
 	<string source="no_thumbnail_attatched">No thumbnail attached</string>

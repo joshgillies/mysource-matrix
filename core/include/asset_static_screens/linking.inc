@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.30 2006/12/29 05:39:47 tbarrett Exp $
+* $Id: linking.inc,v 1.31 2007/02/16 06:34:59 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 
@@ -104,7 +104,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 		$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
 
 		assert_valid_db_result($result);
-	}
+	}//end 
 
 	foreach ($asset_links as $link_data) {
 		$link_info[$link_data['majorid']][] = $link_data;
@@ -289,7 +289,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_lineage');
 	$fl_jobs = &Cron_Job_Future_Lineage::getActiveJobs($owner);
 
-	if (!empty($fl_jobs) || $write_access) {
+	if (!empty($fl_jobs)) {
 		$created = TRUE;
 		$o->openSection(translate('future_linking'));
 			if (!empty($fl_jobs)) {
@@ -348,19 +348,31 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 				$o->closeField();
 			}//end if future lineage jobs
 
-			if ($write_access) {
-				$created = TRUE;
-				$fl =& new Cron_Job_Future_Lineage();
-				$fl->setAssetInLink($owner, 'minor');
-				$edit_fns = $fl->getEditFns();
-				$edit_fns->paintInLineBackend($fl, $o, $prefix.'_new_fl');
-			}
-
 		$o->closeSection();
+
+
 
 	}//end if future lineage jobs or write access
 
+	// if the user got the write access we add two sections
+	// create linking and delete linking
+	if ($write_access) {
+		// use the cron Job future linage asset to print the
+		// create new link screen
+
+		$fl_create =& new Cron_Job_Future_Lineage();
+		$fl_create->setAssetInLink($owner, 'minor');
+		$edit_fns_create = $fl_create->getEditFns();
+		$edit_fns_create->paintInLineBackendCreate($fl_create, $o, $prefix.'_create');
+
+		// use tje cron Job Future linage asset to print the
+		// delete link screen
+		$edit_fns_create->paintInLineBackendDelete($fl_create, $o, $prefix.'_delete');
+		$created = TRUE;
+
+	}
 	return $created;
+	return TRUE;
 
 }//end paintLinking()
 
@@ -377,6 +389,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 */
 function processLinking(&$owner, &$o, &$ei)
 {
+
 	// if we dont have admin access, go away
 	if ($owner->id && !$owner->writeAccess('')) {
 		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
@@ -451,6 +464,40 @@ function processLinking(&$owner, &$o, &$ei)
 		}
 
 	}//end if
+
+	$fl_create =& new Cron_Job_Future_Lineage();
+	$edit_fns_create = $fl_create->getEditFns();
+	$fl_create->setAssetInLink($owner, 'minor');
+
+	// we process the create new link
+	// if all the parameters are set properly we add to the cron manager the new job
+	if ($edit_fns_create->processInLineBackendCreate($fl_create, $o, $prefix.'_create')) {
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		if ($cron_mgr->addJob($fl_create, $GLOBALS['SQ_SYSTEM']->user)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$done_something = TRUE;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+	}
+
+	// we process the deletion of links
+	// if all the parameters for the cron are set properly
+	if ($edit_fns_create->processInLineBackendDelete($fl_create, $o, $prefix.'_delete')) {
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		if ($cron_mgr->addJob($fl_create, $GLOBALS['SQ_SYSTEM']->user)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$done_something = TRUE;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+	}
 
 	return $done_something;
 

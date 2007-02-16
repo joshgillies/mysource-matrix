@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.36 2006/12/06 04:23:59 emcdonald Exp $
+* $Id: cron_job_edit_fns.inc,v 1.37 2007/02/16 06:34:59 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -266,7 +266,9 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 					}
 				</script>
 				<?php
-				normal_button($prefix.'_set_now', translate('next_run'), "setCurrentTime('$prefix');");
+				if ( $form_extra_elements != 'disabled') {
+					normal_button($prefix.'_set_now', translate('next_run'), "setCurrentTime('$prefix');");
+				}
 				echo ' '.translate('or_in').' ';
 				text_box($prefix.'_duration', ($when_arr['duration'] <> '' ? $when_arr['duration'] : '-'), 2, '', TRUE, $form_extra_elements)
 				?>
