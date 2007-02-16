@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_workflow_schema.inc,v 1.2 2006/12/20 04:09:26 skim Exp $
+* $Id: trigger_action_set_workflow_schema.inc,v 1.3 2007/02/16 04:32:27 rhoward Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a workflow schema
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -37,8 +37,10 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 	* The settings used by this action are in the form:<BR />
 	* <PRE>
 	* Array(
-	*       'schemaid' => assetid // the workflow schema assetid
-	*       'granted'  => boolean // true or false
+	*       'schemaid' 				=> assetid // the workflow schema assetid
+	*       'granted'  				=> boolean // true or false
+	* 		'cascade_to_dependents'	=> boolean // defaults to FALSE; TRUE will cascade the workflow down to any dependant assets.
+	* 		'cascade'				=> boolean // defaults to FALSE; TRUE will cascade the workflow down to any children underneath.
 	*       );
 	* </PRE>
 	*
@@ -67,19 +69,52 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 
 		if (is_null($state['asset'])) return FALSE;
 
+		$granted               = array_get_index($settings, 'granted', TRUE);
+		$cascade_to_dependents = array_get_index($settings, 'cascade_to_dependents', FALSE);
+		$cascade               = array_get_index($settings, 'cascade', FALSE);
+
 		$schema =& $am->getAsset($settings['schemaid']);
 		if (is_null($schema)) return FALSE;
 		if ($schema->type() != 'workflow_schema') return FALSE;
 
-		$success = $wfm->setSchema($state['asset']->id, $schema->id, $settings['granted']);
-
-		if ($success) {
-			return Array(
-					'assetid'	=> $state['asset']->id,
-					'schemaid'	=> $schema->id,
-				   );
+		if (!$cascade_to_dependents && !$cascade) {
+			$result = $wfm->setSchema($state['asset']->id, $schema->id, $granted);
 		} else {
+			$schema_vars[]	= Array(
+								'granted'			=> $granted,
+								'schemaid'			=> $settings['schemaid'],
+								'previous_access'	=> NULL,
+							  );
+			$vars = Array(
+						'assets'			=> Array(
+												$state['asset']->id	=> Array(
+																		'type_code'	=> $state['asset']->type(),
+																	   ),
+											   ),
+						'schema_changes'	=> $schema_vars,
+					);
+
+			if ($cascade_to_dependents) {
+				$vars['dependants_only'] = 1;
+			} else if ($cascade) {
+				$vars['dependants_only'] = 0;
+			}
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$errors = $hh->freestyleHIPO('hipo_job_edit_workflow_schemas', $vars);
+			$result = empty($errors);
+		}
+
+
+		if (!$result) {
 			return FALSE;
+		} else {
+			return Array(
+					'assetid'				=> $state['asset']->id,
+					'schemaid'				=> $settings['schemaid'],
+					'granted'				=> $granted,
+					'cascade'				=> $cascade,
+					'cascade_to_dependents'	=> $cascade_to_dependents,
+				   );
 		}
 
 	}//end execute()
@@ -97,26 +132,46 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 	*/
 	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
-		$current_schemaid = array_get_index($settings, 'schemaid', 0);
-		$granted = array_get_index($settings, 'granted', 1);
+		$current_schemaid      = array_get_index($settings, 'schemaid', 0);
+		$granted               = array_get_index($settings, 'granted', 1);
+		$cascade               = array_get_index($settings, 'cascade', FALSE);
+		$cascade_to_dependents = array_get_index($settings, 'cascade_to_dependents', FALSE);
+
 		$options = Array(
-					TRUE	=> 'Apply',
-					FALSE	=> 'Deny',
+					TRUE	=> translate('apply'),
+					FALSE	=> translate('deny'),
 				   );
 
 		ob_start();
 			if ($write_access) {
-				combo_box($prefix.'[granted]', $options, FALSE, $granted);
-				echo ' the following schema ';
+				ob_start();
+					combo_box($prefix.'[granted]', $options, FALSE, $granted);
+				$combo_box = ob_get_clean();
+				echo translate('trigger_schema_apply-deny_the_following_schema', $combo_box).' ';
 				asset_finder($prefix.'[schemaid]', $current_schemaid, Array('workflow_schema' => 'I'));
+				echo '<br />';
+				check_box($prefix.'[cascade]', '1', $cascade);
+				label(translate('cascade_schema_changes'), $prefix.'[cascade]');
+
+				echo '<br />';
+				check_box($prefix.'[cascade_to_dependents]', '1', $cascade_to_dependents);
+				label(translate('cascade_schema_changes_to_dependents'), $prefix.'[cascade_to_dependents]');
 			} else {
-				$granted_str = ($granted) ? 'Apply' : 'Deny';
 				if (!empty($current_schemaid)) {
 					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_schemaid));
-					echo $options[$granted].' the following schema <b>'.$schema_info[$current_schemaid]['name'].' (#'.$current_schemaid.')</b>';
+					echo translate('trigger_schema_apply-deny_the_following_schema', $options[$granted]).' ';
+					echo '<b>'.$schema_info[$current_schemaid]['name'].' (#'.$current_schemaid.')</b>';
 				} else {
-					echo $options[$granted].' the following schema <b>No schema specified</b>';
+					echo translate('trigger_schema_apply-deny_the_following_schema', $options[$granted]).' ';
+					echo '<b>'.translate('trigger_schema_no_schema_specified').'</b>';
 				}
+				echo '<br />';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif" alt="'.($cascade ? translate('yes') : translate('no')).'" /> ';
+				echo translate('cascade_schema_changes');
+
+				echo '<br />';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_dependents ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_dependents ? translate('yes') : translate('no')).'" /> ';
+				echo translate('cascade_schema_changes_to_dependents');
 			}
 
 			$output = ob_get_contents();
@@ -142,7 +197,13 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 	{
 		$schema_info = array_get_index($request_data, 'schemaid', Array('assetid' => 0));
 		$settings['schemaid'] = array_get_index($schema_info, 'assetid', 0);
-		$settings['granted'] = array_get_index($request_data, 'granted', TRUE);
+		$settings['granted']  = array_get_index($request_data, 'granted', TRUE);
+		$settings['cascade']  = array_get_index($request_data, 'cascade', FALSE);
+		if ($settings['cascade']) {
+			$settings['cascade_to_dependents'] = TRUE;
+		} else {
+			$settings['cascade_to_dependents'] = array_get_index($request_data, 'cascade_to_dependents', FALSE);
+		}
 		return FALSE;
 
 	}//end processInterface()
