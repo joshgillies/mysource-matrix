@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.52 2006/12/07 00:04:18 emcdonald Exp $
+* $Id: form_section.inc,v 1.53 2007/02/18 23:35:13 rhoward Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -790,32 +790,34 @@ class Form_Section extends Asset
 	/**
 	* Clones certain specified components of the asset
 	*
-	* @param object	&$clone		the clone shell
-	* @param array	$components	the wanted components to clone eg.
+	* @param object		&$clone		the clone shell
+	* @param array		$components	the wanted components to clone eg.
 	* <pre>
-	*                       Array(
-	*                         'attributes',
-	*                         'metadata_shemas',
-	*                         'metadata',
-	*                         'workflow',
-	*                         'permissions',
-	*                         'data',
-	*						  'content_tags'
-	*                       );
-	*                       or alternately
-	*                       Array('all');
+	* 								Array(
+	* 									'attributes',
+	* 									'metadata_schemas',
+	* 									'metadata',
+	* 									'workflow',
+	* 									'permissions',
+	* 									'data',
+	* 									'content_tags',
+	* 									'roles',
+	* 								);
+	* 								or alternately
+	* 								Array('all');
 	* </pre>
+	* @param boolean	$override	whether or not to override the existing permission, metadata schemas, workflow schemas with the new ones.
 	*
 	* @return boolean
 	* @access public
 	* @see asset::cloneComponents()
 	*/
-	function cloneComponents(&$clone, $components)
+	function cloneComponents(&$clone, $components, $override=FALSE)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!parent::cloneComponents($clone, $components)) {
+		if (!parent::cloneComponents($clone, $components, $override)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;

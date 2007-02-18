@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.146 2007/01/17 22:19:49 tbarrett Exp $
+* $Id: file.inc,v 1.147 2007/02/18 23:34:46 rhoward Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.146 $
+* @version $Revision: 1.147 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -187,23 +187,29 @@ class File extends Asset
 	/**
 	* Processes the file upload from the source file so that file versioning cloned properly
 	*
-	* @param object	&$clone		the clone asset shell
-	* @param array	$components	the wanted components to clone eg.
-	*							Array(
-	*							'attributes',
-	*							'metadata_shemas',
-	*							'metadata',
-	*							'workflow',
-	*							'permissions',
-	*							'data'
-	*							);
-	*							or alternately Array('all');
+	* @param object		&$clone		the clone asset shell
+	* @param array		$components	the wanted components to clone eg.
+	* <pre>
+	* 						Array(
+	* 							'attributes',
+	* 							'metadata_schemas',
+	* 							'metadata',
+	* 							'workflow',
+	* 							'permissions',
+	* 							'data',
+	* 							'content_tags',
+	* 							'roles',
+	* 						);
+	* 						or alternately
+	* 						Array('all');
+	* </pre>
+	* @param boolean	$override	whether or not to override the existing permission, metadata schemas, workflow schemas with the new ones.
 	*
 	* @return boolean
 	* @access public
 	* @see asset::cloneComponents()
 	*/
-	function cloneComponents(&$clone, $components)
+	function cloneComponents(&$clone, $components, $override=FALSE)
 	{
 		// create some information so we know where to clone the file from
 		$temp_info = Array('name' => $this->name, 'tmp_name' => $this->data_path.'/'.$this->name, 'non_uploaded_file' => TRUE);
@@ -214,7 +220,7 @@ class File extends Asset
 			return FALSE;
 		}
 
-		return parent::cloneComponents($clone, $components);
+		return parent::cloneComponents($clone, $components, $override);
 
 	}//end cloneComponents()
 

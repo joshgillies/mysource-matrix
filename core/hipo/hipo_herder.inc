@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.84 2007/01/11 23:00:59 colivar Exp $
+* $Id: hipo_herder.inc,v 1.85 2007/02/18 23:34:49 rhoward Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -720,14 +720,14 @@ class HIPO_Herder extends MySource_Object
 	* Run the HIPO Job right now
 	*
 	* @param string	$job_type	the type of job (hipo_job_BLAH)
-	* @param array	$vars		HIPO vars to send to the job
+	* @param array	&$vars		HIPO vars to send to the job
 	* @param string	$job_dir	where to find this hipo job include files
 	*							(can be left blank to use default hipo job directory)
 	*
 	* @return array
 	* @access public
 	*/
-	function freestyleHipo($job_type, $vars=Array(), $job_dir='')
+	function freestyleHipo($job_type, &$vars, $job_dir='')
 	{
 		if (empty($job_dir)) {
 			$job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
@@ -992,9 +992,12 @@ class HIPO_Herder extends MySource_Object
 								<?php
 									// if the current user is the owner of the hipo job or the current user is a sysadmin or a root
 									// then display the resume button
-									if (($source_job->userid === $current_user_id) || $GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {  ?>
+									if (($source_job->userid === $current_user_id) || $GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+										?>
 										<a href="./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>&return_to_herder=1" style="text-decoration: none;"><img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume.png" title="<?php echo translate('hipo_herder_continue'); ?>" alt="Resume <?php echo $source_code_name; ?>" /></a>
-								<?php } ?>
+										<?php
+									}
+								?>
 							</td>
 							<?php
 							}

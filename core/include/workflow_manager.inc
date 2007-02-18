@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.101 2007/01/30 23:05:01 rong Exp $
+* $Id: workflow_manager.inc,v 1.102 2007/02/18 23:34:44 rhoward Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -116,15 +116,17 @@ class Workflow_Manager extends MySource_Object
 	* @param int		$assetid	the ID of the asset to set the schema on
 	* @param int		$schemaid	the ID of the schema to set
 	* @param boolean	$granted	is this schema applied (TRUE) or denied (FALSE)?
+	* @param boolean	$force_set	if true, existing workflow schemas will be updated regardless of whether or not the new workflow schemas are found to conflict with them
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setSchema($assetid, $schemaid, $granted)
+	function setSchema($assetid, $schemaid, $granted, $force_set=FALSE)
 	{
 		$assetid  = (int)  $assetid;
 		$schemaid = (int)  $schemaid;
 		$granted  = (bool) $granted;
+		$db_action = 'insert';
 
 		$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
@@ -157,19 +159,22 @@ class Workflow_Manager extends MySource_Object
 
 		// get the current schemas that are set
 		$schemas = $this->getSchemas($assetid);
-
 		// check if this schema is already set
 		if (isset($schemas[$schemaid])) {
 			if ((bool)$schemas[$schemaid] == $granted) {
 				// schema is set with same access level
 				return TRUE;
 			} else {
-				// schema is set but with the opposite access level
-				$new_access     = ($granted) ? 'apply'  : 'deny';
-				$current_access = ($granted) ? 'denied' : 'applied';
+				if ($force_set) {
+					$db_action = 'update';
+				} else {
+					// schema is set but with the opposite access level
+					$new_access     = ($granted) ? 'apply'  : 'deny';
+					$current_access = ($granted) ? 'denied' : 'applied';
 
-				trigger_localised_error('SYS0124', E_USER_WARNING, $new_access, $schema->name, $asset->name, $current_access);
-				return FALSE;
+					trigger_localised_error('SYS0124', E_USER_WARNING, $new_access, $schema->name, $asset->name, $current_access);
+					return FALSE;
+				}
 			}
 		}
 
@@ -177,33 +182,38 @@ class Workflow_Manager extends MySource_Object
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = 'INSERT INTO
-					sq_ast_wflow
-					(
-						assetid,
-						schemaid,
-						wflow,
-						granted
-					)
-					VALUES
-					(
-						?,
-						?,
-						?,
-						?
-					)';
+		switch ($db_action) {
+			case 'insert':
+				$sql = 'INSERT INTO
+						sq_ast_wflow
+						(
+							assetid,
+							schemaid,
+							wflow,
+							granted
+						)
+						VALUES
+						(
+							'.$db->quoteSmart((string)$assetid).',
+							'.$db->quoteSmart((string)$schemaid).',
+							NULL,
+							'.$db->quoteSmart(($granted) ? '1' : '0').'
+						)';
+			break;
+			case 'update':
+				$sql = 'UPDATE
+								sq_ast_wflow
+							SET
+								granted = '.$db->quoteSmart(($granted) ? '1' : '0').'
+							WHERE
+								assetid = '.$db->quoteSmart((string)$assetid).'
+							AND
+								schemaid  = '.$db->quoteSmart((string)$schemaid);
 
-		$prepared = $db->prepare($sql);
-		assert_valid_db_result($prepared);
+			break;
+		}
 
-		$values = Array(
-					$asset->id,
-					$schemaid,
-					NULL,
-					(($granted) ? '1' : '0'),
-				  );
-
-		$result = $db->execute($prepared, $values);
+		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
 		unset($this->_tmp['schemas'][(int)$assetid]);
@@ -1059,7 +1069,6 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		$step_data =& $this->getCurrentStep($workflow);
-
 		for (reset($step_data['conditions']);
 				NULL !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
 

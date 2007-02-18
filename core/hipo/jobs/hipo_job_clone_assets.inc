@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.24 2006/12/05 05:39:09 bcaldwell Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.25 2007/02/18 23:34:51 rhoward Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -179,85 +179,6 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 					'message'		=> '',
 				),
 				Array(
-					'name'			=> translate('hipo_cascading_options'),
-					'function_call'	=> Array(
-										'paint_function'	=> 'paintInterface',
-										'process_function'	=> 'processInterface',
-									   ),
-					'running_mode'	=> 'web',
-					'auto_step'		=> FALSE,
-					'skip_step'		=> FALSE,
-					'allow_cancel'	=> FALSE,
-					'percent_done'	=> 0,
-					'complete'		=> FALSE,
-					'message'		=> '',
-				),
-				Array(
-					'name'			=> translate('hipo_cascading_permissions'),
-					'hipo_job'		=> Array(
-										'init_details_function'	=> 'cascadePermissions',
-									   ),
-					'running_mode'	=> 'server',
-					'auto_step'		=> TRUE,
-					'skip_step'		=> FALSE,
-					'allow_cancel'	=> FALSE,
-					'percent_done'	=> 0,
-					'complete'		=> FALSE,
-					'message'		=> '',
-				),
-				Array(
-					'name'			=> translate('hipo_cascading_metadata'),
-					'hipo_job'		=> Array(
-										'init_details_function'	=> 'cascadeMetadata',
-									   ),
-					'running_mode'	=> 'server',
-					'auto_step'		=> TRUE,
-					'skip_step'		=> FALSE,
-					'allow_cancel'	=> FALSE,
-					'percent_done'	=> 0,
-					'complete'		=> FALSE,
-					'message'		=> '',
-				),
-				Array(
-					'name'			=> translate('hipo_cascading_workflow'),
-					'hipo_job'		=> Array(
-										'init_details_function'	=> 'cascadeWorkflow',
-									   ),
-					'running_mode'	=> 'server',
-					'auto_step'		=> TRUE,
-					'skip_step'		=> FALSE,
-					'allow_cancel'	=> FALSE,
-					'percent_done'	=> 0,
-					'complete'		=> FALSE,
-					'message'		=> '',
-				),
-				Array(
-					'name'			=> translate('hipo_cascading_content_tags'),
-					'hipo_job'		=> Array(
-										'init_details_function'	=> 'cascadeTags',
-									   ),
-					'running_mode'	=> 'server',
-					'auto_step'		=> TRUE,
-					'skip_step'		=> FALSE,
-					'allow_cancel'	=> FALSE,
-					'percent_done'	=> 0,
-					'complete'		=> FALSE,
-					'message'		=> '',
-				),
-				Array(
-					'name'			=> translate('hipo_cascading_roles'),
-					'hipo_job'		=> Array(
-										'init_details_function'	=> 'cascadeRoles',
-									   ),
-					'running_mode'	=> 'server',
-					'auto_step'		=> TRUE,
-					'skip_step'		=> FALSE,
-					'allow_cancel'	=> FALSE,
-					'percent_done'	=> 0,
-					'complete'		=> FALSE,
-					'message'		=> '',
-				),
-				Array(
 					'name'			=> translate('hipo_releasing_locks'),
 					'function_call'	=> Array(
 										'process_function'	=> 'releaseLocks',
@@ -317,11 +238,41 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	*/
 	function freestyle()
 	{
-		while (!empty($this->_running_vars['todo_assetids'])) {
-			if (!$this->processLookups($this->_steps[0], get_class($this))) {
-				return FALSE;
-			}
+		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$step_data = Array();
+
+		// skip the confirmation screen, go straight into locking
+		$job_type = '';
+		$running_vars = Array();
+		$options = '';
+		$this->getLockAssetDetails($job_type, $running_vars, $options);
+		$errors = $hh->freestyleHipo($job_type, $running_vars);
+		if (!empty($errors)) {
+			$this->_addError('acquiring locks failed');
+			return FALSE;
 		}
+
+		$success = TRUE;
+
+		// clone assets
+		if ($success && !$this->processCloneAssets($step_data, '')) {
+			$this->_addError('clone assets failed');
+			$success = FALSE;
+		}
+
+		// handle remaps
+		if ($success && !$this->processRemap($step_data, '')) {
+			$this->_addError('remap failed');
+			$success = FALSE;
+		}
+
+
+		// unlock assets - release locks regardless of previous non-lock-related failures
+		if (!$this->releaseLocks($step_data, '')) {
+			$this->_addError('releasing locks failed');
+			return FALSE;
+		}
+
 		return TRUE;
 
 	}//end freestyle()
@@ -341,6 +292,14 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 			return FALSE;
 		}
 
+		foreach ($this->_running_vars['assets'] as $assetid => $info) {
+			$id_parts = explode(':', $assetid);
+			if (isset($id_parts[1])) {
+				trigger_localised_error('HIPO0084', E_USER_WARNING, $assetid);
+				return FALSE;
+			}
+		}
+
 		$this->_running_vars['remap'] = Array();
 
 		return parent::prepare();
@@ -351,9 +310,9 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	/**
 	* This function is used to set-up the details for the locking the assets by the nested HIPO_Job
 	*
-	* @param string		&$job_type
-	* @param array		&$running_vars
-	* @param array		&$options
+	* @param string	&$job_type		the hipo job type
+	* @param array	&$running_vars	array contains the information for the hipo to run
+	* @param array	&$options		options
 	*
 	* @return void
 	* @access public
@@ -378,7 +337,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	* Release the locks that were acquired while cloning assets
 	*
 	* @param array	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -426,9 +385,9 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	* All dependant asset will be automatically cloned, so no interface will be
 	* supplied for duping dependant assets which should save some space.
 	*
-	* @param array		&$step_data	a reference to the step data for this step
+	* @param array	&$step_data	a reference to the step data for this step
 	* @param object	&$o			the hipo backend outputter object
-	* @param string		$prefix		a string for prefixing form variables
+	* @param string	$prefix		a string for prefixing form variables
 	*
 	* @return boolean
 	* @access public
@@ -461,8 +420,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	/**
 	* Does nothing
 	*
-	* @param array		&$step_data	a reference to the step data for this step
-	* @param string		$prefix		a string for prefixing form variables
+	* @param array	&$step_data	a reference to the step data for this step
+	* @param string	$prefix		a string for prefixing form variables
 	*
 	* @return boolean
 	* @access public
@@ -484,8 +443,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	/**
 	* Processes the assets that need to be cloned, and clones them
 	*
-	* @param array		&$step_data	a reference to the step data for this step
-	* @param string		$prefix		a string for prefixing form vairables
+	* @param array	&$step_data	a reference to the step data for this step
+	* @param string	$prefix		a string for prefixing form vairables
 	*
 	* @return boolean
 	* @access public
@@ -565,7 +524,6 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$this->_running_vars['cloned_asset'][$clone->id]['linkid'] = $link_info['linkid'];
 		$this->_running_vars['cloned_asset'][$clone->id]['parentid'] = $this->_running_vars['to_parent_assetid'];
 
-
 		if (!$clone->saveWebPaths($good_paths)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_asset);
@@ -596,15 +554,6 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 			$step_data['complete']     = FALSE;
 		}
 
-		if ($this->_canSkipCascadeSteps($parent_asset->id)) {
-			$this->skipStep(4);
-			$this->skipStep(5);
-			$this->skipStep(6);
-			$this->skipStep(7);
-			$this->skipStep(8);
-			$this->skipStep(9);
-		}
-
 		return TRUE;
 
 	}//end processCloneAssets()
@@ -615,8 +564,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	*
 	* Uses a map returned from the clone() function in asset.inc
 	*
-	* @param array		&$step_data	a reference to the step data for this step
-	* @param string		$prefix		a string for prefixing form vairables
+	* @param array	&$step_data	a reference to the step data for this step
+	* @param string	$prefix		a string for prefixing form vairables
 	*
 	* @return boolean
 	* @access public
@@ -657,9 +606,9 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	/**
 	* Paint the interface for accepting user input on what to cascade (permissions/metadata/workflow)
 	*
-	* @param array		&$step_data	a reference to the array of information about the current step
-	* @param object 	&$o			the backend outputter class
-	* @param string		$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param object	&$o			the backend outputter class
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -745,250 +694,11 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 
 	/**
-	* Process the user's selections to cascade whatever, and skip those steps that they don't want to run
-	*
-	* @param	array	&$step_data		the step data for this job
-	* @param	string	$prefix			prefix to be used with this job
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processInterface(&$step_data, $prefix)
-	{
-		// has the next button been clicked ?
-		if (isset($_REQUEST['form_submitted'])) {
-			if (isset($_REQUEST['cascade'])) {
-				// permissions
-				if (!in_array('cascade_pe', $_REQUEST['cascade'])) {
-					$this->skipStep(5);
-				}
-				// metadata
-				if (!in_array('cascade_ms', $_REQUEST['cascade'])) {
-					$this->skipStep(6);
-				}
-				// workflow
-				if (!in_array('cascade_wf', $_REQUEST['cascade'])) {
-					$this->skipStep(7);
-				}
-				// content tags
-				if (!in_array('cascade_ta', $_REQUEST['cascade'])) {
-					$this->skipStep(8);
-				}
-				// roles
-				if (!in_array('cascade_ro', $_REQUEST['cascade'])) {
-					$this->skipStep(9);
-				}
-			} else {
-				$this->skipStep(5); // permissions
-				$this->skipStep(6); // metadata
-				$this->skipStep(7); // workflow
-				$this->skipStep(8); // content tags
-				$this->skipStep(9); // roles
-			}
-			$step_data['percent_done'] = 100;
-			$step_data['complete'] = TRUE;
-		}//end if
-		return TRUE;
-
-	}//end processInterface()
-
-
-	/**
-	* Returns true if parent asset has nothing to cascade
-	* checked settings are: permissions, workflow sch, metadata sch, tag links
-	*
-	* @param string	$parentid	Id of the new parent asset
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _canSkipCascadeSteps($parentid)
-	{
-		// Permissions
-		$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
-		foreach ($perms as $title => $perm) {
-			$ppermissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($parentid, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
-			if (!empty($ppermissions)) return FALSE;
-		}
-
-		// Workflow Schemas
-		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-		$pschemas = $wfm->getSchemas($parentid);
-		if (!empty($pschemas)) return FALSE;
-
-		// Metadata Schemas
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$pschemas = $mm->getSchemas($parentid);
-		if (!empty($pschemas)) return FALSE;
-
-		// Tag links
-		$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
-		$ptls = $tag_manager->getTagLinks($parentid);
-		if (count($ptls) != 0) return FALSE;
-
-		// Roles
-		$proles = $GLOBALS['SQ_SYSTEM']->am->getRole($parentid);
-		if (!empty($proles)) return FALSE;
-
-		return TRUE;
-
-	}//end _canSkipCascadeSteps()
-
-
-	/**
-	* Cascade permissions (if not skipped)
-	*
-	* @param string		&$job_type
-	* @param array		&$running_vars
-	* @param array		&$options
-	*
-	* @return void
-	* @access public
-	*/
-	function cascadePermissions(&$job_type, &$running_vars, &$options)
-	{
-		$job_type = 'hipo_job_edit_permissions';
-		$permission_vars = Array();
-
-		foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-			$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->_running_vars['to_parent_assetid'], $perm, NULL, FALSE, FALSE, TRUE, TRUE);
-			foreach ($set_perms as $userid => $granted) {
-				$permission_vars[$perm][] = Array(
-												'granted'			=> $granted,
-												'userid'			=> $userid,
-												'previous_access'	=> NULL,
-											);
-			}
-		}
-
-		$running_vars['permission_changes'] = $permission_vars;
-		$running_vars['assets'] = $this->_running_vars['cloned_asset'];
-
-	}//end cascadePermissions()
-
-
-	/**
-	* Cascade metadata (if not skipped)
-	*
-	* @param string		&$job_type
-	* @param array		&$running_vars
-	* @param array		&$options
-	*
-	* @return void
-	* @access public
-	*/
-	function cascadeMetadata(&$job_type, &$running_vars, &$options)
-	{
-		$job_type = 'hipo_job_edit_metadata_schemas';
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$schemas = $mm->getSchemas($this->_running_vars['to_parent_assetid']);
-		$schema_vars = Array();
-
-		foreach ($schemas as $schemaid => $granted) {
-			$schema_vars[] = Array(
-								'granted'			=> $granted,
-								'schemaid'			=> $schemaid,
-								'previous_access'	=> NULL,
-							 );
-		}
-		$running_vars['schema_changes'] = $schema_vars;
-		$running_vars['assets'] = $this->_running_vars['cloned_asset'];
-
-	}//end cascadeMetadata()
-
-
-	/**
-	* Cascade workflow (if not skipped)
-	*
-	* @param string		&$job_type
-	* @param array		&$running_vars
-	* @param array		&$options
-	*
-	* @return void
-	* @access public
-	*/
-	function cascadeWorkflow(&$job_type, &$running_vars, &$options)
-	{
-		$job_type = 'hipo_job_edit_workflow_schemas';
-		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-		$schemas = $wfm->getSchemas($this->_running_vars['to_parent_assetid']);
-		$schema_vars = Array();
-
-		foreach ($schemas as $schemaid => $granted) {
-			$schema_vars[] = Array(
-								'granted'			=> $granted,
-								'schemaid'			=> $schemaid,
-								'previous_access'	=> NULL,
-							 );
-		}
-		$running_vars['schema_changes'] = $schema_vars;
-		$running_vars['assets'] = $this->_running_vars['cloned_asset'];
-
-	}//end cascadeWorkflow()
-
-
-	/**
-	* Cascade tags (if not skipped)
-	*
-	* @param string	&$job_type		job type
-	* @param array	&$running_vars	running vars
-	* @param array	&$options		options
-	*
-	* @return void
-	* @access public
-	*/
-	function cascadeTags(&$job_type, &$running_vars, &$options)
-	{
-		$job_type = 'hipo_job_edit_tags';
-		$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
-		$current_tag_links = $tag_manager->getTagLinks($this->_running_vars['to_parent_assetid']);
-		$tag_vars = Array();
-
-		foreach ($current_tag_links as $link) {
-			$tag_vars[] = Array(
-							'tag_id'	=> $link['minorid'],
-							'action'	=> 'add',
-							'weight'	=> $link['value'],
-						  );
-		}
-
-		$running_vars['tag_changes'] = $tag_vars;
-		$running_vars['assets'] = $this->_running_vars['cloned_asset'];
-
-	}//end cascadeTags()
-
-
-	/**
-	* Cascade tags (if not skipped)
-	*
-	* @param string	&$job_type		job type
-	* @param array	&$running_vars	running vars
-	* @param array	&$options		options
-	*
-	* @return void
-	* @access public
-	*/
-	function cascadeRoles(&$job_type, &$running_vars, &$options)
-	{
-		$job_type = 'hipo_job_edit_roles';
-		$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($this->_running_vars['to_parent_assetid']);
-		$roles_vars = Array();
-
-		foreach ($roles as $roleid => $users) {
-			$role_vars['add'][$roleid] = $users;
-		}
-		$running_vars['role_changes'] = $role_vars;
-		$running_vars['assets'] = $this->_running_vars['cloned_asset'];
-
-	}//end cascadeRoles()
-
-
-	/**
 	* Refreshes the asset map to reflect cloned assets that were added
 	*
-	* @param array							&$step_data	a reference to the array of information about the current step
-	* @param object 						&$o			the backend outputter class
-	* @param string							$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param object	&$o			the backend outputter class
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public

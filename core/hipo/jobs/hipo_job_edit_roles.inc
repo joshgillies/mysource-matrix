@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_roles.inc,v 1.3 2006/12/05 05:39:09 bcaldwell Exp $
+* $Id: hipo_job_edit_roles.inc,v 1.4 2007/02/18 23:34:51 rhoward Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -194,8 +194,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 		}
 
 		if (empty($this->_running_vars['role_changes'])) {
-			trigger_localised_error('HIPO0076', E_USER_WARNING);
-			return '';
+			$this->_running_vars['role_changes'] = Array();
 		}
 
 		$assets = $this->_running_vars['assets'];
@@ -294,9 +293,9 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 	/**
 	* This function is used to set-up the details for the locking the assets by the nested HIPO_Job
 	*
-	* @param string	&$job_type
-	* @param array	&$running_vars
-	* @param array	&$options
+	* @param string	&$job_type		the hipo job type
+	* @param array	&$running_vars	array contains the information for the hipo to run
+	* @param array	&$options		options
 	*
 	* @return void
 	* @access public

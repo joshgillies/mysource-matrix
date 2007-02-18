@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.552 2007/01/30 23:05:01 rong Exp $
+* $Id: asset_manager.inc,v 1.553 2007/02/18 23:34:44 rhoward Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.552 $
+* @version $Revision: 1.553 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -190,8 +190,8 @@ class Asset_Manager extends MySource_Object
 		while ($this->_asset_types[$tmp_type_code]['parent_type'] != 'asset') {
 			// this should NEVER happen, if it does DIE
 			assert_isset($this->_asset_types[$this->_asset_types[$tmp_type_code]['parent_type']], 'Asset "'.$this->_asset_types[$tmp_type_code]['parent_type'].'" is not installed on the system,<br/>'
-							 .'therefore we cannot get the parent type of Asset "'.$tmp_type_code.'".<br/>'
-							 .'Check that you got the Asset_Manager by reference');
+							.'therefore we cannot get the parent type of Asset "'.$tmp_type_code.'".<br/>'
+							.'Check that you got the Asset_Manager by reference');
 
 			$tmp_type_code = $this->_asset_types[$tmp_type_code]['parent_type'];
 			$parents[] = $tmp_type_code;
@@ -1566,45 +1566,47 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Create the shell of a clone without cloning any of the source's components
+	* Creates the shell of a clone without cloning any of the source's components
 	*
 	* The only child assets that are cloned are the ones that are <i>DEPENDENTLY</i> linked to this asset.
 	* <i>NO OTHER</i> linked assets are cloned.
 	* It returns the reference to the new object or NULL if an error occured
 	*
-	* @param object	&$source	the source asset that we are creating a clone of
-	* @param array	&$link		information used to create the initial link,
+	* @param object		&$source			the source asset that we are creating a clone of
+	* @param array		&$link				information used to create the initial link,
 	* <pre>
-	* Array ('asset'         => [ref major asset to create link under],
-	*        'link_type'     => SQ_LINK_?,
-	*        'value'         => [link value],
-	*        'sort_order'    => [link sort order],
-	*        'is_dependant'  => [0|1],
-	*        'is_exclusive'  => [0|1]
-	*        )
+	* 										Array (
+	*											'asset'			=> [ref major asset to create link under],
+	* 											'link_type'		=> SQ_LINK_?,
+	*			 								'value'			=> [link value],
+	* 											'sort_order'	=> [link sort order],
+	* 											'is_dependant'	=> [0|1],
+	* 											'is_exclusive'	=> [0|1]
+	* 										)
 	* </pre>
-	* @param array	&$clone_map	a map for that can be used for re-indexing data held in
-	*							assets of the form Array([old asset id] => [new asset id])
+	* @param array		&$clone_map			a map for that can be used for re-indexing data held in
+	*										assets of the form Array([old asset id] => [new asset id])
 	* @param array		$components			the wanted components to clone,
 	* <pre>
-	* Array(
-	*   'attributes',
-	*   'metadata_schemas',
-	*   'metadata',
-	*   'workflow',
-	*   'permissions',
-	*   'data'// data directory
-	* );
+	* 										Array(
+	* 											'attributes',
+	* 											'metadata_schemas',
+	* 											'metadata',
+	* 											'workflow',
+	* 											'permissions',
+	* 											'data',
+	* 											 'content_tags',
+	* 											 'roles',
+	* 										);
+	* 										or alternately
+	*		 								Array('all');
 	* </pre>
-	* or alternately
-	* <pre>
-	* Array('all');
-	* </pre>
+	* @param boolean	$cloning_dependent	by default FALSE, flipped to TRUE if the asset being cloned is another asset's dependent
 	*
 	* @return mixed object|NULL
 	* @access private
 	*/
-	function &_cloneAsset(&$source, &$link, &$clone_map, $components)
+	function &_cloneAsset(&$source, &$link, &$clone_map, $components, $cloning_dependent=FALSE)
 	{
 		if (!empty($link)) {
 			// make sure the initial link information is passed in
@@ -1615,7 +1617,6 @@ class Asset_Manager extends MySource_Object
 
 		$null = NULL; // needed because we return by reference
 		if (!$source->id) return $null;
-
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 			$lock = $this->getLockInfo($source->id, 'all');
 			foreach ($lock as $lock_type => $lock_info) {
@@ -1625,7 +1626,6 @@ class Asset_Manager extends MySource_Object
 				}
 			}
 		}
-
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -1688,13 +1688,70 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		// we need permissions from here on down, so lets do this now
-		if (!$source->cloneComponents($clone, $components)) {
+		$parent_components = Array('permissions', 'metadata_schemas', 'workflow', 'roles');
+		// make an exception for tags - tags never cascade to dependent assets, so leave
+		// them out if we're cloning a dependent asset
+		if (!$cloning_dependent) {
+			$parent_components[]	= 'content_tags';
+		}
+
+		// cascade various components from parent asset to new child
+		// unless the parent is the root folder or system management folder;
+		// components are cascaded from the new parent regardless of what permissions the
+		// current user has (to match creation and moving assets)
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
+			$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
+			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
+			if (!$link['asset']->cloneComponents($clone, $parent_components)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				return $null;
+			}
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			unset($this->_tmp[__CLASS__.'_in_create_cascading']);
+		}
+
+		// now that we (might) have permission, copy all the schemas, attributes,
+		// etc. from the original asset
+		// (will throw errors but return TRUE if the user doesn't have sufficient permissions
+		// to cascade everything
+		if (!$source->cloneComponents($clone, $components, TRUE)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $null;
 		}
 
+		// we've created the asset, now link it to its new parent
+		$clone = $this->_cloneLink($clone, $link, $lock);
+		if (is_null($clone)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return $clone_result;
+		}
+
+		// if we got this far all is well,
+		// so add to the map and return the clone
+		$clone_map[$source->id] = $clone->id;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return $clone;
+
+	}//end _cloneAsset()
+
+
+	/**
+	* Acquires a lock on an asset
+	*
+	* @param int	&$clone	the new clone
+	* @param string	&$link	the link object
+	* @param int	&$lock	the lock object
+	*
+	* @return mixed NULL|object
+	* @access public
+	*/
+	function &_cloneLink(&$clone, &$link, &$lock)
+	{
 		if (!empty($link)) {
 			// create the initial link
 			if (!isset($link['value'])) $link['value'] = '';
@@ -1716,44 +1773,30 @@ class Asset_Manager extends MySource_Object
 
 					if (!empty($parent_lock)) {
 						if (!$this->releaseLock($link['asset']->id, 'links')) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							return $null;
 						}
 					}
 
 					if (!$this->acquireLock($link['asset']->id, 'links', $lock['links']['source_assetid'])) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return $null;
 					}
 				}
 			}
 
 			$linkid = $link['asset']->createLink($clone, $link['link_type'], $link['value'], $link['sort_order'], $link['is_dependant'], $link['is_exclusive']);
-			if (empty($linkid)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return $null;
-			}
+			if (empty($linkid)) return $null;
 
 		}//end if !empty(link)
 
-		// if we got this far all is well,
-		// so add to the map and return the clone
-		$clone_map[$source->id] = $clone->id;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
 		return $clone;
 
-	}//end _cloneAsset()
+	}//end _cloneLink()
 
 
 	/**
-	* Creats a clone of an asset and clones the required components of the source asset
+	* Creates a clone of an asset and clones the required components of the source asset
 	*
-	* if $clone_dependants is set the TRUE, the dependants of the source asset will be cloned,
+	* if $clone_dependents is set the TRUE, the dependents of the source asset will be cloned,
 	* and the specified components will be cloned to them as well.
 	* It returns the clone of the source, NULL on error
 	*
@@ -1786,16 +1829,17 @@ class Asset_Manager extends MySource_Object
 	* <pre>
 	* Array('all');
 	* </pre>
-	* @param boolean	$clone_dependants	if TRUE the dependants of the source asset will be cloned
+	* @param boolean	$clone_dependents	if TRUE the dependents of the source asset will be cloned
 	*										and will have their sources components cloned
+	* @param boolean	$cloning_dependent	TRUE mean this call is a recursive call from itself, and it
+	*										is cloning the dependent of an asset (in a recursive manner)
 	*
 	* @return object
 	* @access public
 	*/
-	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependants=TRUE)
+	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependents=TRUE, $cloning_dependent=FALSE)
 	{
 		$null = NULL;
-
 		// if the source asset is actually a shadow asset, skip it
 		$id_parts = explode(':', $source->id);
 		if (isset($id_parts[1])) return $null;
@@ -1805,11 +1849,10 @@ class Asset_Manager extends MySource_Object
 			trigger_localised_error('SYS0070', E_USER_WARNING, $source->type());
 			return $null;
 		}
-
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$clone =& $this->_cloneAsset($source, $link, $clone_map, $components);
+		$clone =& $this->_cloneAsset($source, $link, $clone_map, $components, $cloning_dependent);
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1822,12 +1865,12 @@ class Asset_Manager extends MySource_Object
 			return $null;
 		}
 
-		// OK now that we are linked up let's our dependants
-		if ($clone_dependants) {
+		// OK now that we are linked up let's our dependents
+		if ($clone_dependents) {
 
-			$dependant_links = $this->getLinks($source->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'major', NULL, 1);
+			$dependent_links = $this->getLinks($source->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'major', NULL, 1);
 
-			if (!empty($dependant_links)) {
+			if (!empty($dependent_links)) {
 				$create_link = Array(
 								'asset'			=> &$clone,
 								'link_type'		=> NULL,
@@ -1837,7 +1880,7 @@ class Asset_Manager extends MySource_Object
 								'is_exclusive'	=> '0',
 							   );
 
-				foreach ($dependant_links as $data) {
+				foreach ($dependent_links as $data) {
 					// If this asset has already been cloned in this duplication run
 					// then just link it to the new clone of ourselves
 					if (isset($clone_map[$data['minorid']])) {
@@ -1869,8 +1912,9 @@ class Asset_Manager extends MySource_Object
 						$create_link['value']			= $data['value'];
 						$create_link['sort_order'] 		= $data['sort_order'];
 						$create_link['is_exclusive']	= $data['is_exclusive'];
+						$new_component = Array();
 
-						$cloned_child =& $this->cloneAsset($child, $create_link, $clone_map, $components, $clone_dependants);
+						$cloned_child =& $this->cloneAsset($child, $create_link, $clone_map, $components, $clone_dependents, TRUE);
 
 						if (is_null($cloned_child)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1878,11 +1922,23 @@ class Asset_Manager extends MySource_Object
 							return $null;
 						}
 					}//end if
+
+					if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+					// lock the new clone in the same chain as we are locked
+					$lock = $this->getLockInfo($cloned_child->id,'all');
+						if (!empty($lock)) {
+							if (!$this->releaseLock($cloned_child->id, 'all')) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+								return $null;
+							}//end if
+						}//end if not empty lock
+					}//end if
 				}//end foreach
 			}//end if empty
-		}//end if clone dependants
+		}//end if clone dependents
 
-		// Now all the dependants are clones. cloneComponentsAdditional()
+		// Now all the dependents are clones. cloneComponentsAdditional()
 		// will process extra processing required for completing cloning
 		if (!$source->cloneComponentsAdditional($clone, Array('all'))) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -2264,7 +2320,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (!is_null($exclusive)) {
-		  $where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
+			$where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
 		}
 
 		if ($type_code) {
@@ -2578,7 +2634,7 @@ class Asset_Manager extends MySource_Object
 					  AND l.'.$other_side.'id  IN ( '.implode(',', $prepared_otherids).')';
 
 			if (!is_null($link_types)) {
-			  $where .= ' AND '.db_extras_bitand($db, 'l.link_type', $link_types).' > 0 ';
+				$where .= ' AND '.db_extras_bitand($db, 'l.link_type', $link_types).' > 0 ';
 			}
 			if (!is_null($value)) {
 				if (empty($value)) {
@@ -2862,7 +2918,7 @@ class Asset_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$sql = 'SELECT SUBSTR(t.treeid, '.$db->quoteSmart((int) strlen($treeid) + 1).') as treeid,
 							((LENGTH(t.treeid) / '.SQ_CONF_ASSET_TREE_SIZE.') '.(($current_level) ? ' - '.$current_level : '').') as lvl,
-							l.linkid, a.assetid, a.short_name, a.type_code, l.link_type, l.sort_order, l.value, l.is_dependant
+							l.linkid, a.assetid, a.short_name, a.type_code, l.link_type, l.sort_order, l.value, l.is_dependant, l.is_exclusive
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 						  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
 						  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid
@@ -3006,7 +3062,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_lineage_treeids('.$db->quoteSmart((string) $assetid).', '.
-				  $db->quoteSmart((int) SQ_CONF_ASSET_TREE_SIZE).')';
+		$db->quoteSmart((int) SQ_CONF_ASSET_TREE_SIZE).')';
 
 		if ($db->phptype == 'oci8') {
 			$in_sql = 'SELECT * FROM table('.$in_sql.')';
@@ -3381,6 +3437,7 @@ class Asset_Manager extends MySource_Object
 	* @param array		$exclude_list		an array of assetid to exclude from the tree
 	* @param int		$link_type			the type of wanted links
 	* @param array		$include_type_list	Array of asset types to include
+	* <pre>
 	*										Array(
 	*											'type_code' => Array(
 	*															0	=> 'type_code1',
@@ -3391,6 +3448,7 @@ class Asset_Manager extends MySource_Object
 	*															1	=> FALSE,
 	*														   ),
 	*										)
+	* </pre>
 	* @param boolean	$include_dependants	a boolean
 	*
 	* @return array
@@ -3415,6 +3473,7 @@ class Asset_Manager extends MySource_Object
 	* @param array		$exclude_list		an array of assetid to exclude from the tree
 	* @param int		$link_type			the type of wanted links
 	* @param array		$include_type_list	Array of asset types to include
+	* <pre>
 	*										Array(
 	*											'type_code' => Array(
 	*															0	=> 'type_code1',
@@ -3425,6 +3484,7 @@ class Asset_Manager extends MySource_Object
 	*															1	=> FALSE,
 	*														   ),
 	*										)
+	* </pre>
 	* @param boolean	$include_dependants	Whether to include dependants
 	*
 	* @return boolean
@@ -3512,7 +3572,7 @@ class Asset_Manager extends MySource_Object
 					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON a.assetid = l.minorid
 					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path pt ON a.assetid = pt.assetid ';
 		if (!empty($USERIDS_COND)) {
-		$sql   .= '
+			$sql   .= '
 				INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p ON a.assetid = p.assetid ';
 		}
 		$where  = 'l.majorid IN ('.substr($majorids_str, 0, -1).')
@@ -4848,10 +4908,10 @@ class Asset_Manager extends MySource_Object
 		// shadow asset found, pipe the request of to the bridge
 		if (isset($id_parts[1])) {
 
-				$bridge =& $this->getAsset($id_parts[0]);
-				$result =  $bridge->updateLink($linkid, $link_type, $value, $sort_order);
-				$this->forgetAsset($bridge);
-				return $result;
+			$bridge =& $this->getAsset($id_parts[0]);
+			$result =  $bridge->updateLink($linkid, $link_type, $value, $sort_order);
+			$this->forgetAsset($bridge);
+			return $result;
 		}
 
 
@@ -5482,7 +5542,6 @@ class Asset_Manager extends MySource_Object
 	*										(default = TRUE, as most use of this is for
 	*										status of safe trash cron job)
 	*
-	*
 	* @return array
 	* @access public
 	*/
@@ -5575,13 +5634,13 @@ class Asset_Manager extends MySource_Object
 						unset($result[$result_key]);
 					} else {
 						$used_minorids[] = $minorid;
-					}
+					}//end if
 
 				}
 
 				$trash_errors['children'] = $result;
-			}
-		}
+			}//end if
+		}//end if
 
 		return $trash_errors;
 
@@ -5788,14 +5847,16 @@ class Asset_Manager extends MySource_Object
 	* @param int		$userid		the id of the user or user_group to add the permission for
 	* @param string		$permission	the permission code you are adding
 	* @param boolean	$granted	whether this permission grants access or not
+	* @param boolean	$force_set	if TRUE, existing permissions will be overridden even if the new permissions are found to conflict with them
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setPermission($assetid, $userid, $permission, $granted)
+	function setPermission($assetid, $userid, $permission, $granted, $force_set=FALSE)
 	{
 		$permission = (int)  $permission;
 		$granted    = (bool) $granted;
+		$db_action  = 'insert';
 
 		// check if we are getting links for a shadow asset, and palm the request off to the
 		// handler of the shadow asset if we are
@@ -5846,13 +5907,17 @@ class Asset_Manager extends MySource_Object
 		// check if the reverse access of this permission is set
 		$current = $this->getPermission($assetid, $permission, !$granted, FALSE, FALSE, FALSE, TRUE);
 		if (in_array($userid, array_values($current))) {
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			$perm_name = permission_type_name($permission);
+			if ($force_set) {
+				$db_action = 'update';
+			} else {
+				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+				$perm_name = permission_type_name($permission);
 
-			$new_access     = ($granted) ? 'grant'   : 'revoke';
-			$current_access = ($granted) ? 'revoked' : 'granted';
-			trigger_localised_error('SYS0123', E_USER_WARNING, $new_access, $perm_name, $user_name, $asset->name, $current_access);
-			return FALSE;
+				$new_access     = ($granted) ? 'grant'   : 'revoke';
+				$current_access = ($granted) ? 'revoked' : 'granted';
+				trigger_localised_error('SYS0123', E_USER_WARNING, $new_access, $perm_name, $user_name, $asset->name, $current_access);
+				return FALSE;
+			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -5860,21 +5925,39 @@ class Asset_Manager extends MySource_Object
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'INSERT INTO
-					sq_ast_perm
-					(
-						assetid,
-						userid,
-						permission,
-						granted
-					)
-					VALUES
-					(
-						'.$db->quoteSmart($assetid).',
-						'.$db->quoteSmart($userid).',
-						'.$db->quoteSmart($permission).',
-						'.$db->quoteSmart((($granted) ? '1' : '0')).'
-					)';
+		switch ($db_action) {
+			case 'insert':
+				$sql = 'INSERT INTO
+							sq_ast_perm
+							(
+								assetid,
+								userid,
+								permission,
+								granted
+							)
+							VALUES
+							(
+								'.$db->quoteSmart($assetid).',
+								'.$db->quoteSmart($userid).',
+								'.$db->quoteSmart($permission).',
+								'.$db->quoteSmart((($granted) ? '1' : '0')).'
+							)';
+
+			break;
+			case 'update':
+				$sql = 'UPDATE
+							sq_ast_perm
+						SET
+							granted = '.$db->quoteSmart(($granted) ? '1' : '0').'
+						WHERE
+							assetid = '.$db->quoteSmart($assetid).'
+						AND
+							userid  = '.$db->quoteSmart($userid).'
+						AND
+							permission = '.$db->quoteSmart($permission);
+
+			break;
+		}//end switch
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
@@ -6145,6 +6228,14 @@ class Asset_Manager extends MySource_Object
 	*/
 	function setRole($assetid, $roleid, $userid)
 	{
+		// check if we have permission to set roles
+		$asset =& $this->getAsset($assetid);
+		if (is_null($asset)) return FALSE;
+		if (!$asset->adminAccess('roles')) {
+			trigger_localised_error('SYS0313', E_USER_WARNING, $asset->name);
+			return FALSE;
+		}
+
 		// check if this role is already set
 		$current = $this->getRole($assetid, $roleid, $userid);
 		if (in_array($userid, array_get_index($current, $roleid, Array()))) {
@@ -6191,6 +6282,14 @@ class Asset_Manager extends MySource_Object
 	*/
 	function deleteRole($assetid, $roleid=NULL, $userid=NULL)
 	{
+		// check if we have permission to set roles
+		$asset =& $this->getAsset($assetid);
+		if (is_null($asset)) return FALSE;
+		if (!$asset->adminAccess('roles')) {
+			trigger_localised_error('SYS0313', E_USER_WARNING, $asset->name);
+			return FALSE;
+		}
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -6986,10 +7085,10 @@ class Asset_Manager extends MySource_Object
 	*
 	* It reutrns an array of assetid and hrefs to the wanted screen
 	*
-	* @param array	$asset_info		an array of asset info in the form assetid => screen code name
-	* @param bool	$backend_page	whether to include the 'SQ_BACKEND_PAGE=main' query string
-	*								include this bit when we are switching screens in the backend
-	*								do not include when generating URL (e.g. for workflow emails)
+	* @param array		$asset_info		an array of asset info in the form assetid => screen code name
+	* @param boolean	$backend_page	whether to include the 'SQ_BACKEND_PAGE=main' query string
+	*									include this bit when we are switching screens in the backend
+	*									do not include when generating URL (e.g. for workflow emails)
 	*
 	* @return array
 	* @access public

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.138 2007/02/18 22:12:51 skim Exp $
+* $Id: metadata_manager.inc,v 1.139 2007/02/18 23:34:44 rhoward Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.138 $
+* @version $Revision: 1.139 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -144,12 +144,14 @@ class Metadata_Manager extends MySource_Object
 	* @param string		$assetid	the ID of the asset to set the schema on
 	* @param string		$schemaid	the ID of the schema to set
 	* @param boolean	$granted	is this schema applied (TRUE) or denied (FALSE)?
+	* @param boolean	$force_set	if true, existing metadata schemas will be updated regardless of whether or not the new metadata schemas are found to conflict with them
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setSchema($assetid, $schemaid, $granted)
+	function setSchema($assetid, $schemaid, $granted, $force_set=FALSE)
 	{
+		$db_action = 'insert';
 		$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
 			trigger_localised_error('SYS0047', E_USER_WARNING, $schemaid);
@@ -181,12 +183,16 @@ class Metadata_Manager extends MySource_Object
 				// schema is set with same access level
 				return TRUE;
 			} else {
-				// schema is set but with the opposite access level
-				$new_access     = ($granted) ? 'apply'  : 'deny';
-				$current_access = ($granted) ? 'denied' : 'applied';
+				if ($force_set) {
+					$db_action = 'update';
+				} else {
+					// schema is set but with the opposite access level
+					$new_access     = ($granted) ? 'apply'  : 'deny';
+					$current_access = ($granted) ? 'denied' : 'applied';
 
-				trigger_localised_error('SYS0032', E_USER_WARNING, $new_access, $schema->name, $asset->name, $current_access);
-				return FALSE;
+					trigger_localised_error('SYS0032', E_USER_WARNING, $new_access, $schema->name, $asset->name, $current_access);
+					return FALSE;
+				}
 			}
 		}
 
@@ -194,19 +200,35 @@ class Metadata_Manager extends MySource_Object
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = 'INSERT INTO
-					sq_ast_mdata
-					(
-						assetid,
-						schemaid,
-						granted
-					)
-					VALUES
-					(
-						'.$db->quoteSmart($asset->id).',
-						'.$db->quoteSmart($schemaid).',
-						'.$db->quoteSmart((($granted) ? '1' : '0')).'
-					)';
+		switch ($db_action) {
+			case 'insert':
+				$sql = 'INSERT INTO
+							sq_ast_mdata
+							(
+								assetid,
+								schemaid,
+								granted
+							)
+							VALUES
+							(
+								'.$db->quoteSmart($asset->id).',
+								'.$db->quoteSmart($schemaid).',
+								'.$db->quoteSmart((($granted) ? '1' : '0')).'
+							)';
+
+			break;
+			case 'update':
+				$sql = 'UPDATE
+							sq_ast_mdata
+						SET
+							granted = '.$db->quoteSmart(($granted) ? '1' : '0').'
+						WHERE
+							assetid = '.$db->quoteSmart((string)$assetid).'
+						AND
+							schemaid  = '.$db->quoteSmart((string)$schemaid);
+
+			break;
+		}
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);

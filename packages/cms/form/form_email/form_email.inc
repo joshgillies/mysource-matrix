@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.58 2007/01/15 01:09:06 lwright Exp $
+* $Id: form_email.inc,v 1.59 2007/02/18 23:35:12 rhoward Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -135,24 +135,29 @@ class Form_Email extends Form
 	/**
 	* Clones certain specified components of the asset
 	*
-	* @param object	&$clone		the clone asset shell
-	* @param array	$components	the wanted components to clone eg.
-	*							Array(
-	*							'attributes',
-	*							'metadata_shemas',
-	*							'metadata',
-	*							'workflow',
-	*							'permissions',
-	*							'data'
-	*							);
-	*							or alternately
-	*							Array('all');
+	* @param object		&$clone		the clone asset shell
+	* @param array		$components	the wanted components to clone eg.
+	* <pre>
+	* 								Array(
+	* 									'attributes',
+	* 									'metadata_schemas',
+	* 									'metadata',
+	* 									'workflow',
+	* 									'permissions',
+	* 									'data',
+	* 									'content_tags',
+	* 									'roles',
+	* 								);
+	* 								or alternately
+	* 								Array('all');
+	* </pre>
+	* @param boolean	$override	whether or not to override the existing permission, metadata schemas, workflow schemas with the new ones.
 	*
 	* @return boolean
 	* @access public
 	* @see asset::cloneComponents()
 	*/
-	function cloneComponents(&$clone, $components)
+	function cloneComponents(&$clone, $components, $override=FALSE)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -163,7 +168,7 @@ class Form_Email extends Form
 			unset($components[$metadata_schemas_key]);
 		}
 
-		if (!parent::cloneComponents($clone, $components)) {
+		if (!parent::cloneComponents($clone, $components, $override)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
@@ -264,8 +269,8 @@ class Form_Email extends Form
 		$address = $email_field->getValue();
 
 		$additional_reps = Array(
-					'receipt_address'	=> $address,
-				);
+							'receipt_address'	=> $address,
+						   );
 
 		$email_format_attr =& $this->getAttribute('receipt_emails_format');
 

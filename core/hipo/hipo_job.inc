@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.87 2006/12/05 05:39:09 bcaldwell Exp $
+* $Id: hipo_job.inc,v 1.88 2007/02/18 23:34:49 rhoward Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -250,7 +250,7 @@ class HIPO_Job extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getRunningVars()
+	function &getRunningVars()
 	{
 		return $this->_running_vars;
 
@@ -260,18 +260,18 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Resets the vars that the HIPO steps use
 	*
-	* @param array	$vars	variables used in hipo job
+	* @param array	&$vars	variables used in hipo job
 	*
 	* @return void
 	* @access public
 	*/
-	function setRunningVars($vars)
+	function setRunningVars(&$vars)
 	{
 		if (!is_array($vars)) {
 			trigger_localised_error('HIPO0045', E_USER_WARNING);
 			return;
 		}
-		$this->_running_vars = $vars;
+		$this->_running_vars =& $vars;
 
 	}//end setRunningVars()
 
@@ -301,7 +301,7 @@ class HIPO_Job extends MySource_Object
 	*
 	* @param string	$name	name of the option
 	*
-	* @return mixed
+	* @return mixed NULL|string
 	* @access public
 	*/
 	function getOption($name)
@@ -338,9 +338,9 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Returns one of the global hipo vars for the HIPO
 	*
-	* @param string	$name		name of the hipo var
+	* @param string	$name	name of the hipo var
 	*
-	* @return mixed
+	* @return mixed NULL|string
 	* @access public
 	*/
 	function getHipoVar($name)

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.75 2007/01/30 00:15:27 lwright Exp $
+* $Id: calendar_event.inc,v 1.76 2007/02/18 23:34:54 rhoward Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -358,8 +358,8 @@ class Calendar_Event extends Asset
 	/**
 	* Takes a clone shell and clones the sources required components to the clone shell
 	*
-	* @param object	&$clone		the clone shell
-	* @param array	$components	the wanted components to clone eg.
+	* @param object		&$clone		the clone shell
+	* @param array		$components	the wanted components to clone eg.
 	* <pre>
 	*                       Array(
 	*                           'attributes',
@@ -372,16 +372,17 @@ class Calendar_Event extends Asset
 	*                       or alternately
 	*                       Array('all');
 	* </pre>
+	* @param boolean	$override	whether or not to override the existing permission, metadata schemas, workflow schemas with the new ones.
 	*
 	* @return boolean
 	* @access public
 	*/
-	function cloneComponents(&$clone, $components)
+	function cloneComponents(&$clone, $components, $override=FALSE)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!parent::cloneComponents($clone, $components)) {
+		if (!parent::cloneComponents($clone, $components, $override)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;

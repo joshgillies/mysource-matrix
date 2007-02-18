@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.77 2007/01/31 23:45:28 rhoward Exp $
+* $Id: lang_errors.xml,v 1.78 2007/02/18 23:34:52 rhoward Exp $
 *
 */
 
@@ -237,7 +237,7 @@
 	<error code="HIPO0083">Purge aborted, Purge root is not in the trash"</error>
 	<!-- core/hipo/jobs/hipo_job_purge_trash.inc: -->
 
-
+	<error code="HIPO0084">Unable to clone asset "%1$s", shadow asset can not be cloned.</error>
 
 	<!-- CRON MANAGER -->
 
@@ -1707,7 +1707,7 @@ Full Node Contents :
 
 	<!-- Triggering System -->
 	<error code="TRIG0001">Cannot save trigger without a name</error>
-	
+
 	<!--  User Inbox  -->
 	<error code="IBOX0001">The Number of emails per page must be an integer and at least 1</error>
 

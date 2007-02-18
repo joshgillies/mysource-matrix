@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.151 2007/02/05 04:03:37 emcdonald Exp $
+* $Id: form.inc,v 1.152 2007/02/18 23:34:56 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.151 $
+* @version $Revision: 1.152 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -943,29 +943,34 @@ class Form extends Asset
 	/**
 	* Clones certain specified components of the asset
 	*
-	* @param object	&$clone		the clone asset shell
-	* @param array	$components	the wanted components to clone eg.
-	*							Array(
-	*							'attributes',
-	*							'metadata_schemas',
-	*							'metadata',
-	*							'workflow',
-	*							'permissions',
-	*							'data',
-	*							);
-	*							or alternately
-	*							Array('all');
+	* @param object		&$clone		the clone asset shell
+	* @param array		$components	the wanted components to clone eg.
+	* <pre>
+	* 								Array(
+	* 									'attributes',
+	* 									'metadata_schemas',
+	* 									'metadata',
+	* 									'workflow',
+	* 									'permissions',
+	* 									'data',
+	* 									'content_tags',
+	* 									'roles',
+	* 								);
+	* 								or alternately
+	* 								Array('all');
+	* </pre>
+	* @param boolean	$override	whether or not to override the existing permission, metadata schemas, workflow schemas with the new ones.
 	*
 	* @return boolean
 	* @access public
 	* @see asset::cloneComponents()
 	*/
-	function cloneComponents(&$clone, $components)
+	function cloneComponents(&$clone, $components, $override=FALSE)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!parent::cloneComponents($clone, $components)) {
+		if (!parent::cloneComponents($clone, $components, $override)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
