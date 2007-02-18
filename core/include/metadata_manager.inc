@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.137 2007/02/14 03:26:17 colivar Exp $
+* $Id: metadata_manager.inc,v 1.138 2007/02/18 22:12:51 skim Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.137 $
+* @version $Revision: 1.138 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -907,14 +907,17 @@ class Metadata_Manager extends MySource_Object
 			echo '$metadata_values = Array('."\n";
 			foreach ($tag_values as $n => $v) {
 				$n = $this->escapeMetadata($n, TRUE);
-				$v = stripslashes($v);
-				$v = $this->escapeMetadata($v, TRUE);
+				$v = str_replace("'", "\'", stripslashes($v));
+
 				// unescape metadata_replacements
 				// leave metadata_values for later - unescape them at runtime
 				$v = preg_replace('/%([^%\' ]+)%/', '\'.$metadata_replacements["\1"].\'', $v);
 				echo "'$n' => '$v',\n";
 			}
 			echo ");\n\n";
+
+			// print the metadata manager reference for value encoding
+			echo '$mm =& $GLOBALS[\'SQ_SYSTEM\']->getMetadataManager();'."\n";
 
 			// print the warnings
 			echo '$metadata_warnings = Array();'."\n";
