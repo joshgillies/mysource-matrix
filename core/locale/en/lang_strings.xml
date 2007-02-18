@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.223 2007/02/16 06:34:59 colivar Exp $
+* $Id: lang_strings.xml,v 1.224 2007/02/18 23:36:15 rhoward Exp $
 *
 */
 
@@ -534,6 +534,7 @@
 
 	<string source="manually_cascade_schema">Manually cascade schemas</string>
 	<string source="cascade_schema_changes">Cascade schema changes</string>
+	<string source="cascade_schema_changes_to_dependents">Cascade schema changes to dependent children</string>
 	<string source="no_children_to_cascade_workflow">There are no children to cascade workflow schemas to</string>
 	<string source="cannot_cascade_while_workflow_running">You cannot cascade workflow schemas while workflow is running</string>
 	<string source="no_access_to_cascade_workflow">You do not have access to cascade workflow schemas for this asset</string>
@@ -1097,6 +1098,9 @@
 	<string source="trigger_has_status_basic">Asset has the current status of: %s</string>
 	<string source="trigger_selected_status_invalid">Selected status is invalid</string>
 
+	<string source="trigger_schema_apply-deny_the_following_schema">%s the following schema:</string>
+	<string source="trigger_schema_no_schema_specified">No schema specified</string>
+
 	<string source="trigger_tree_location_basic">Asset is under %s</string>
 	<string source="immediate_child_only">Immediate child only</string>
 	<string source="as_an_immediate_child_only">as an immediate child only</string>
@@ -1397,6 +1401,7 @@
 
 	<string source="cascade_roles">Cascade Changes to Role Assignments?</string>
 	<string source="cascade_roles_option">Yes, cascade role assignment changes</string>
+	<string source="cascade_roles_to_dependents">Yes, cascade role assignment changes to dependent children</string>
 	<string source="cascade_roles_note">If you choose to cascade the role assignment changes you make for "%1$s", the changes will also be made on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.</string>
 	<string source="manually_cascade_roles">Manually Cascade Changes to Role Assignments?</string>
 	<string source="manually_cascade_roles_option">Yes, manually cascade role assignment changes</string>
