@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.12 2007/02/12 02:54:35 lwright Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.13 2007/02/19 23:52:20 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -809,8 +809,10 @@ class Search_Manager_Plugin_OCI8
 	*/
 	function _getWords(&$terms, $remove_stop_words=FALSE, $return_stop_words=FALSE, $replace=FALSE)
 	{
+		$replace_chars = '[^\t\n\r ]';
+
 		// replace all words with #
-		if (preg_match_all('/(\w+)/', $terms, $words)) {
+		if (preg_match_all('/('.$replace_chars.'+)/', $terms, $words)) {
 			// remove any # symbols as we are going to replace words
 			// with that symbol
 			if ($replace) {
@@ -824,12 +826,12 @@ class Search_Manager_Plugin_OCI8
 				if (!$sm->isWordIndexable($word)) {
 					if ($remove_stop_words) {
 						// remove non-indexable words
-						$terms = preg_replace('/\w+/', '', $terms, 1);
+						$terms = preg_replace('/'.$replace_chars.'+/', '', $terms, 1);
 					}
 					if (!$return_stop_words) continue;
 				}
 				if ($replace) {
-					$terms = preg_replace('/\w+/', '#', $terms, 1);
+					$terms = preg_replace('/'.$replace_chars.'+/', '#', $terms, 1);
 				}
 				$good_words[] = $word;
 			}
