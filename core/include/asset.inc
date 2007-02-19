@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.552.2.13 2007/01/31 03:31:20 rong Exp $
+* $Id: asset.inc,v 1.552.2.14 2007/02/19 03:05:09 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.552.2.13 $
+* @version $Revision: 1.552.2.14 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4029,6 +4029,7 @@ class Asset extends MySource_Object
 			}
 		} else {
 			// we can't find a layout, oh well let's just print out our body
+			log_dump();
 			$this->printBody();
 		}
 
