@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.78 2007/02/18 23:34:52 rhoward Exp $
+* $Id: lang_errors.xml,v 1.79 2007/02/19 21:58:56 skim Exp $
 *
 */
 
@@ -1694,6 +1694,10 @@ Full Node Contents :
 
 	<!-- User Preferences -->
 	<error code="CORE0270">An invalid "Asset Map Width" value has been supplied. Default has been set</error>
+
+	<!-- Trigger Actio Add Remap -->
+	<error code="CORE0271">Adding remap entry failed in Trigger Action Add Remap</error>
+	<error code="CORE0272">%s is already remapped, Trigger Action Add Remap failed</error>
 
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->

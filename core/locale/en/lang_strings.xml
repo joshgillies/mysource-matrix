@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.225 2007/02/19 04:11:55 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.226 2007/02/19 21:58:56 skim Exp $
 *
 */
 
@@ -1139,10 +1139,9 @@
 	<string source="trigger_set_tag_set_weighting">Set the weighting:</string>
 	<string source="trigger_set_tag_label_remove_tag">Remove instead of setting this tag</string>
 
-
 	<string source="security_key_incorrect_message">The security key entered was incorrect. The lock on "%s" has not been forcibly acquired. You may try again using the new security key displayed below.</string>
 
-
+	<string source="trigger_action_add_remap_message">The new remap URL consisting of site URL and assetid will be added to remap.</string>
 	<!-- common single word strings -->
 
 	<string source="all">All</string>
