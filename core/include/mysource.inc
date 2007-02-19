@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.205.2.11 2007/01/17 22:42:20 tbarrett Exp $
+* $Id: mysource.inc,v 1.205.2.12 2007/02/19 03:04:58 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.205.2.11 $
+* @version $Revision: 1.205.2.12 $
 * @package MySource_Matrix
 */
 class MySource
@@ -589,8 +589,8 @@ class MySource
 			foreach ($keywords as $word) {
 				if (!isset($additional_replacements[$word])) {
 					$replacement = $this->frontend_asset->getKeywordReplacement($word);
-					// still cannot replace it, blank it out
-					if ($replacement == "%$word%") {
+					// if still cannot replace it, blank it out unless it could be an encoded special char
+					if (($replacement == "%$word%") && (strpos('0123456789', $word[0]) === FALSE)) {
 						$additional_replacements[$word] = '';
 					} else {
 						$additional_replacements[$word] = $replacement;
