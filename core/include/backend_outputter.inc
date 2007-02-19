@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.146 2007/02/19 22:11:27 lwright Exp $
+* $Id: backend_outputter.inc,v 1.147 2007/02/19 22:15:06 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.146 $
+* @version $Revision: 1.147 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1062,7 +1062,7 @@ class Backend_Outputter
 					// screen
 					if (self.name == 'sq_header') {
 						// Only pop-up the "search in progress" box if there's something to search on
-						if (top.frames["sq_main"].document.getElementById("asset_search").value != '') {
+						if (self.document.getElementById("asset_search").value != '') {
 							top.frames["sq_main"].document.getElementById("sq-search-wait-popup").style.display = "block";
 						}
 
