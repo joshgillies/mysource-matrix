@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.136.2.1 2006/12/27 22:21:36 lwright Exp $
+* $Id: backend_outputter.inc,v 1.136.2.2 2007/02/19 22:16:19 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.136.2.1 $
+* @version $Revision: 1.136.2.2 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1052,7 +1052,10 @@ class Backend_Outputter
 					// submitting the search... so add "search in progress"
 					// screen
 					if (self.name == 'sq_header') {
-						top.frames["sq_main"].document.getElementById("sq-search-wait-popup").style.display = "block";
+						// Only pop-up the "search in progress" box if there's something to search on
+						if (self.document.getElementById("asset_search").value != '') {
+							top.frames["sq_main"].document.getElementById("sq-search-wait-popup").style.display = "block";
+						}
 
 						screenMenu = top.frames["sq_main"].document.getElementById("sq_screen_menu");
 						screenMenuFiller = top.frames["sq_main"].document.getElementById("sq_screen_menu_filler");
