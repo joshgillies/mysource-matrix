@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.12 2006/12/06 22:51:26 colivar Exp $
+* $Id: form_question_type_datetime.inc,v 1.12.2.1 2007/02/19 00:29:11 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,11 +82,12 @@ class Form_Question_Type_Datetime extends Form_Question
 		$parameters['null'] = Array();
 		$parameters['style'] = Array();
 		$parameters['min'] = $this->attr('minimum');
-		if ($parameters['min'] == '---------- --:--:--') {
+
+		if (($parameters['min'] == '---------- --:--:--') || ($parameters['min'] == '0001------ --:--:--')) {
 			$parameters['min'] = '1900-01-01 00:00:00';
 		}
 		$parameters['max'] = $this->attr('maximum');
-		if ($parameters['max'] == '---------- --:--:--') {
+		if (($parameters['max'] == '---------- --:--:--') || ($parameters['max'] == '0001------ --:--:--')) {
 			$parameters['max'] = '2099-12-31 23:59:59';
 		}
 		$parameters['extras'] = $this->attr('extras');
