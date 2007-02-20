@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.72 2007/02/20 05:22:34 hnguyen Exp $
+* $Id: internal_message.inc,v 1.73 2007/02/20 05:33:52 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -500,8 +500,8 @@ class Internal_Message extends MySource_Object
 	/**
 	* Replaces keywords in the body of the message
 	*
-	* @param object 	User				&$user	the user that the message is being sent to
-	* @param boolean	isInternalMessage	Determine whether this message is internal or to be sent to email.
+	* @param object		&$user				the user that the message is being sent to
+	* @param boolean	$isInternalMessage	Determine whether this message is internal or to be sent to email.
 	*
 	* @return boolean
 	* @access public
@@ -511,9 +511,9 @@ class Internal_Message extends MySource_Object
 		$tmpReplacements = $this->replacements;
 		$lm =& $GLOBALS['SQ_SYSTEM']->lm;
 
-		//If it is an internal message, check if the messages are of workflow related.
+		// If it is an internal message, check if the messages are of workflow related.
 		if ($isInternalMessage == TRUE) {
-			if (strpos($this->type, 'asset.workflow.') !== FALSE)  {
+			if (strpos($this->type, 'asset.workflow.') !== FALSE) {
 				// Add SQ_BACKEND_PAGE flag so the internal message will know that it is going to be opened
 				// within a frame.
 				if (isset($tmpReplacements['workflow_url'])) {
