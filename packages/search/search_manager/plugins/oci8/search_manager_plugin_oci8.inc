@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.13 2007/02/19 23:52:20 lwright Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.14 2007/02/20 04:05:52 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -775,12 +775,14 @@ class Search_Manager_Plugin_OCI8
 
 		$sym = ($clear) ? ' ' : '!';
 
+		$match_chars = '[\r\n\t ]';
+
 		$pats = Array(
-					'/(\W+)%(\W+)/'		=> '\1'.$sym.'\2',
-					'/(\W+)%(\W+)/U'	=> '\1'.$sym.'\2',
-					'/^%(\W+)/U'		=> $sym.'\1',
-					'/(\W+)%$/U'		=> '\1'.$sym.'\2',
-					'/^%$/'				=> $sym,
+					'/('.$match_chars.'+)%('.$match_chars.'+)/'		=> '\1'.$sym.'\2',
+					'/('.$match_chars.'+)%('.$match_chars.'+)/U'	=> '\1'.$sym.'\2',
+					'/^%('.$match_chars.'+)/U'						=> $sym.'\1',
+					'/('.$match_chars.'+)%$/U'						=> '\1'.$sym.'\2',
+					'/^%$/'											=> $sym,
 				);
 
 		foreach ($ops as $op => $sym) {
@@ -790,6 +792,7 @@ class Search_Manager_Plugin_OCI8
 				$terms = preg_replace($pat, $rep, $terms);
 			}
 		}
+
 		return $terms;
 
 	}//end _replaceOperators()
@@ -809,10 +812,15 @@ class Search_Manager_Plugin_OCI8
 	*/
 	function _getWords(&$terms, $remove_stop_words=FALSE, $return_stop_words=FALSE, $replace=FALSE)
 	{
-		$replace_chars = '[^\t\n\r ]';
+		// We need to not only match (or NOT match, rather) whitespace as word
+		// breaks, but also the operators themselves. When we replace with
+		// hashes we need to match the hash so it doesn't match with a previous
+		// one
+		$match_chars   = '[^\r\n\t \|\&\~]';
+		$replace_chars = '[^\r\n\t \|\&\~#]';
 
 		// replace all words with #
-		if (preg_match_all('/('.$replace_chars.'+)/', $terms, $words)) {
+		if (preg_match_all('/('.$match_chars.'+)/', $terms, $words)) {
 			// remove any # symbols as we are going to replace words
 			// with that symbol
 			if ($replace) {
@@ -940,7 +948,7 @@ class Search_Manager_Plugin_OCI8
 		}
 
 		// if there is nothing to search on
-		if (!preg_match('/\w+/', str_replace('_', '', $terms))) {
+		if (!preg_match('/[^\r\n\t ]+/', str_replace('_', '', $terms))) {
 			return FALSE;
 		}
 		if (trim($terms) == '') return FALSE;

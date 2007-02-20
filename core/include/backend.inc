@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.173 2007/01/29 04:35:24 lwright Exp $
+* $Id: backend.inc,v 1.174 2007/02/20 04:05:51 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.173 $
+* @version $Revision: 1.174 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -516,45 +516,48 @@ class Backend extends MySource_Object
 									break;
 								}
 
-								$words = explode(' ', $search_terms);
+								$words = preg_split('/[\r\n\t \|\&\~]+/', $search_terms);
 								$value = strip_tags($value);
 
 								preg_match_all('/('.addslashes(implode('|', $words)).')/i', $value, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
-								// We go backwards, because that way we don't invalidate
-								// our offsets. This section ellipsisises the bits between
-								// matches so that there's 15 characters either side of
-								// matches.
+								if (count($matches) > 0) {
 
-								// Last match position
-								if ($matches[count($matches) - 1][0][1] < strlen($value) - 15) {
-									$value = substr_replace($value, '...', $matches[count($matches) - 1][0][1] + 15);
-								}
+									// We go backwards, because that way we don't invalidate
+									// our offsets. This section ellipsisises the bits between
+									// matches so that there's 15 characters either side of
+									// matches.
 
-								for ($i = count($matches) - 1; $i > 0; $i--) {
-									$previous_match = $matches[$i - 1][0];
-									$this_match = $matches[$i][0];
-
-									$prev_pos = $previous_match[1] + strlen($previous_match[0]);
-									$next_pos = $this_match[1];
-
-									if (($next_pos - $prev_pos) > 30) {
-										$value = substr_replace($value, '...', $prev_pos + 15, ($next_pos - $prev_pos) - 30);
+									// Last match position
+									if ($matches[count($matches) - 1][0][1] < strlen($value) - 15) {
+										$value = substr_replace($value, '...', $matches[count($matches) - 1][0][1] + 15);
 									}
+
+									for ($i = count($matches) - 1; $i > 0; $i--) {
+										$previous_match = $matches[$i - 1][0];
+										$this_match = $matches[$i][0];
+
+										$prev_pos = $previous_match[1] + strlen($previous_match[0]);
+										$next_pos = $this_match[1];
+
+										if (($next_pos - $prev_pos) > 30) {
+											$value = substr_replace($value, '...', $prev_pos + 15, ($next_pos - $prev_pos) - 30);
+										}
+									}
+
+									// First match position
+									if ($matches[0][0][1] > 15) {
+										$value = substr_replace($value, '...', 0, $matches[0][0][1] - 15);
+									}
+
+									// Cut it down to a certain number of characters anyway
+									$value = ellipsisize($value, 120);
+
+									$value = preg_replace('/('.addslashes(implode('|', $words)).')/i', '<span class="sq-backend-search-results-highlight">$1</span>', $value);
+
+									// remove
+									$this_detail[] = $name_detail.'<br/><em>'.str_replace("\r", '', str_replace("\n", '<br/>', $value)).'</em>';
 								}
-
-								// First match position
-								if ($matches[0][0][1] > 15) {
-									$value = substr_replace($value, '...', 0, $matches[0][0][1] - 15);
-								}
-
-								// Cut it down to a certain number of characters anyway
-								$value = ellipsisize($value, 120);
-
-								$value = preg_replace('/('.addslashes(implode('|', $words)).')/i', '<span class="sq-backend-search-results-highlight">$1</span>', $value);
-
-								// remove
-								$this_detail[] = $name_detail.'<br/><em>'.str_replace("\r", '', str_replace("\n", '<br/>', $value)).'</em>';
 							}
 						}
 

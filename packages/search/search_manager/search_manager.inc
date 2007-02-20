@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.144 2007/02/12 02:53:28 lwright Exp $
+* $Id: search_manager.inc,v 1.145 2007/02/20 04:05:52 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.144 $
+* @version $Revision: 1.145 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2693,6 +2693,7 @@ class Search_Manager extends Asset
 	function getFormattedResults($results, $search_string)
 	{
 		$search_string = preg_replace('/([\.\\\!\+\*\?\[\]\^\$\(\)\=\!\<\>\|\:]+)/i', '\\\${1}',$search_string);
+		$search_string = trim(preg_replace('/[\~\&\|]/i', ' ', $search_string));
 
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$plugin =& $this->_getDBPlugin();
@@ -2726,7 +2727,7 @@ class Search_Manager extends Asset
 					break;
 
 					// attributes containing search string
-					// attributes come in 2 formats, __attribute__ and attr:attrname$
+					// attributes come in 2 formats, __attribute__ and attr:attrname
 					case preg_match('/__(.+)__/', $content_type, $matches) > 0:
 					case preg_match('/attr:(.+)$/', $content_type, $matches) > 0:
 						if (isset($asset->vars[$matches[1]])) {
