@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.71 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: internal_message.inc,v 1.71.2.1 2007/02/20 05:53:10 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.71.2.1 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -385,7 +385,7 @@ class Internal_Message extends MySource_Object
 								'From'		=> $from_string,
 								'Subject'	=> $subject,
 							);
-					$body = $this->formatBody($user);
+					$body = $this->formatBody($user, TRUE);
 					$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $body);
 
 					// log the internal message to the DB
@@ -411,6 +411,8 @@ class Internal_Message extends MySource_Object
 						// send an email as well
 						require_once SQ_FUDGE_PATH.'/general/www.inc';
 						$to_email = trim($user->attr('email'));
+						//reload the $body again, since it might be different from internal message.
+						$body = $this->formatBody($user);
 
 						// get the body with a header and a footer attached
 						$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $body);
@@ -501,16 +503,33 @@ class Internal_Message extends MySource_Object
 	/**
 	* Replaces keywords in the body of the message
 	*
-	* @param object User	&$user	the user that the message is being sent to
+	* @param object		&$user				the user that the message is being sent to
+	* @param boolean	$isInternalMessage	Determine whether this message is internal or to be sent to email.
 	*
 	* @return boolean
 	* @access public
 	*/
-	function formatBody(&$user)
+	function formatBody(&$user, $isInternalMessage=FALSE)
 	{
+		$tmpReplacements = $this->replacements;
 		$lm =& $GLOBALS['SQ_SYSTEM']->lm;
+
+		// If it is an internal message, check if the messages are of workflow related.
+		if ($isInternalMessage == TRUE) {
+			if (strpos($this->type, 'asset.workflow.') !== FALSE) {
+				// Add SQ_BACKEND_PAGE flag so the internal message will know that it is going to be opened
+				// within a frame.
+				if (isset($tmpReplacements['workflow_url'])) {
+					$tmpReplacements['workflow_url'] .= '&SQ_BACKEND_PAGE=main';
+				}
+				if (isset($tmpReplacements['preview_url'])) {
+					$tmpReplacements['preview_url']  .= '&SQ_BACKEND_PAGE=main';
+				}
+			}
+		}
+
 		if (!is_a($user, 'user')) {
-			return $lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
+			return $lm->getInternalMessageBody($this->type, $tmpReplacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
 		}
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 
@@ -521,7 +540,7 @@ class Internal_Message extends MySource_Object
 		if (empty($user_locale)) {
 			$user_locale = SQ_CONF_DEFAULT_BACKEND_LOCALE;
 		}
-		$body = $lm->getInternalMessageBody($this->type, $this->replacements, $user_locale);
+		$body = $lm->getInternalMessageBody($this->type, $tmpReplacements, $user_locale);
 		return replace_keywords($body, $replacements);
 
 	}//end formatBody()
