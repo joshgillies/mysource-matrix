@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_columns.xml,v 1.2 2005/03/30 00:41:12 lwright Exp $
+* $Id: edit_interface_screen_columns.xml,v 1.2.6.1 2007/02/20 03:50:42 colivar Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Column Settings" write_access="write:attributes">
+	<section name="Column Settings" write_access="write:attributes" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function   name="paintColumnSettings"   />
@@ -32,7 +32,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Column Layout Preview">
+	<section name="Column Layout Preview" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function   name="paintColumnPreview"   />

@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_sorting.xml,v 1.3 2005/04/28 04:59:09 arailean Exp $
+* $Id: edit_interface_screen_sorting.xml,v 1.3.6.1 2007/02/20 03:50:42 colivar Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Sort Defaults" write_access="write:attributes">
+	<section name="Sort Defaults" write_access="write:attributes" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function name="paintDefaultSortDirection" />
@@ -38,7 +38,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Asset Sorting Options" write_access="write:attributes">
+	<section name="Asset Sorting Options" write_access="write:attributes" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function name="paintSortBy" />
@@ -52,7 +52,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Sort Direction Text" write_access="write:attributes">
+	<section name="Sort Direction Text" write_access="write:attributes" limbo_access="1">
 		<field write_access="write:attributes" attribute="sort_direction_asc_text">
 			<text width="15" />
 		</field>

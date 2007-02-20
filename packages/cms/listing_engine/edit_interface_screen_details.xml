@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.14 2005/09/09 06:10:06 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.14.4.1 2007/02/20 03:50:42 colivar Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
+	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
 			<text width="35" height="1" />
 		</field>
@@ -32,7 +32,7 @@
 			<text width="25" height="1" />
 		</field>
 	</section>
-	<section name="Asset Selection" write_access="write:content">
+	<section name="Asset Selection" write_access="write:content" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function   name="paintAssetTypes"   />
@@ -40,7 +40,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="List Settings" write_access="write:content">
+	<section name="List Settings" write_access="write:content" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
@@ -60,7 +60,7 @@
 			<int width="5" />
 		</field>
 	</section>
-	<section name="List Position Settings" write_access="write:attributes">
+	<section name="List Position Settings" write_access="write:attributes" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function   name="paintAssetPositions"   />
@@ -68,12 +68,12 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Dynamic Parameters" write_access="write:attributes">
+	<section name="Dynamic Parameters" write_access="write:attributes" limbo_access="1">
 		<field attribute="parameter_map" format="new_line">
 			<parameter_map />
 		</field>
 	</section>
-	<section name="Structured Root Selector Options" write_access="write:attributes">
+	<section name="Structured Root Selector Options" write_access="write:attributes" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function   name="paintStructuredDropdownOptions"   />
@@ -81,7 +81,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Button Text" write_access="write:attributes">
+	<section name="Button Text" write_access="write:attributes" limbo_access="1">
 		<field attribute="submit_button_text">
 			<text width="25" height="1" />
 		</field>

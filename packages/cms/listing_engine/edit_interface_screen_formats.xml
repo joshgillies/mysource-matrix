@@ -18,27 +18,27 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_formats.xml,v 1.5 2005/07/27 11:09:19 brobertson Exp $
+* $Id: edit_interface_screen_formats.xml,v 1.5.4.1 2007/02/20 03:50:42 colivar Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Default Formats">
+	<section name="Default Formats" limbo_access="0">
 		<field>
 			<function_call>
 				<paint_function   name="paintDefaultFormatLinks"   />
 			</function_call>
 		</field>
 	</section>
-	<section name="Group Formats">
+	<section name="Group Formats" limbo_access="0">
 		<field>
 			<function_call>
 				<paint_function name="paintGroupFormatLinks" />
 			</function_call>
 		</field>
 	</section>
-	<section name="Customised Asset Type Formats" write_access="write:links">
+	<section name="Customised Asset Type Formats" write_access="write:links" limbo_access="0">
 		<field>
 			<function_call>
 				<paint_function   name="paintTypeFormats"   />
@@ -46,7 +46,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Customised List Position Formats" write_access="write:links">
+	<section name="Customised List Position Formats" write_access="write:links" limbo_access="0">
 		<field>
 			<function_call>
 				<paint_function   name="paintPositionFormats"   />

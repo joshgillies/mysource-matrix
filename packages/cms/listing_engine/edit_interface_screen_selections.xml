@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_selections.xml,v 1.1 2005/07/21 07:33:38 lwright Exp $
+* $Id: edit_interface_screen_selections.xml,v 1.1.4.1 2007/02/20 03:50:42 colivar Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Asset Selections" write_access="write:attributes">
+	<section name="Asset Selections" write_access="write:attributes" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function   name="paintSelections" />
@@ -32,7 +32,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Asset Targets" write_access="write:attributes">
+	<section name="Asset Targets" write_access="write:attributes" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function   name="paintTargets" />

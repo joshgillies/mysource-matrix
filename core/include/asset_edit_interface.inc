@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.299.2.6 2006/12/22 01:18:22 skim Exp $
+* $Id: asset_edit_interface.inc,v 1.299.2.7 2007/02/20 03:50:41 colivar Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.299.2.6 $
+* @version $Revision: 1.299.2.7 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1423,7 +1423,9 @@ class Asset_Edit_Interface extends MySource_Object
 
 			// find out if we have permission to print this section
 			$limbo_access = (isset($section->attributes['limbo_access']) && (int) $section->attributes['limbo_access'] == 1) ? TRUE : FALSE;
-
+			
+			// if the section should not be accessed in limbo mode continue
+			if ($limbo_access == FALSE) continue;
 			// find out what we need to get in this loop
 			$get_section = FALSE;
 			$section_name = strtolower(str_replace(' ', '_', $section->attributes['name']));
