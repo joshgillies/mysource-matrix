@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.9.2.1 2006/07/13 04:00:00 skim Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.9.2.2 2007/02/20 04:53:22 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.9.2.1 $
+* @version $Revision: 1.9.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -519,7 +519,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 				reset($this->_running_vars['headings']);
 				$heading = current($this->_running_vars['headings']);
 			}
-			$e = '/(<\s*'.$heading.'[^>]*>.*<\/\s*'.$heading.'>)/i';
+			$e = '/(<\s*'.$heading.'[^>]*>[^]*<\/\s*'.$heading.'>)/i';
 			$matches = preg_split($e, $file_data, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 			$this->_running_vars['started_scanning'] = TRUE;
