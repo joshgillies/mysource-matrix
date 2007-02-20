@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.14 2006/12/07 01:09:32 emcdonald Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.15 2007/02/20 04:08:13 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -159,6 +159,51 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 			   );
 
 	}//end getInitialStepData()
+
+
+	/**
+	* Performs the duties of this hipo, without showing any output
+	*
+	* @return boolean
+	* @access public
+	*/
+	function freestyle()
+	{
+		if (!$this->processTidying($this->_steps[0], $this->getCodeName())) {
+			return FALSE;
+		}
+
+		while (count($this->_running_vars['headings_to_process']) != 0) {
+			if (!$this->processHeadings($this->_steps[1], $this->getCodeName())) {
+				return FALSE;
+			}
+		}
+
+		while ($this->_running_vars['image_count'] != count($this->_running_vars['image_names'])) {
+			if (!$this->processImages($this->_steps[2], $this->getCodeName())) {
+				return FALSE;
+			}
+		}
+
+		do {
+			if (!$this->processScanning($this->_steps[3], $this->getCodeName())) {
+				return FALSE;
+			}
+		} while ($this->_running_vars['running_count'] != 0);
+
+		while ($this->_running_vars['top_level_count'] != $this->_running_vars['running_count']) {
+			if (!$this->processSplitting($this->_steps[4], $this->getCodeName())) {
+				return FALSE;
+			}
+		}
+
+		if (!$this->processAdditional($this->_steps[5], $this->getCodeName())) {
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end freestyle()
 
 
 	/**
@@ -523,7 +568,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 				reset($this->_running_vars['headings']);
 				$heading = current($this->_running_vars['headings']);
 			}
-			$e = '/(<\s*'.$heading.'[^>]*>.*<\/\s*'.$heading.'>)/i';
+			$e = '/(<\s*'.$heading.'[^>]*>[^>]*<\/\s*'.$heading.'>)/i';
 			$matches = preg_split($e, $file_data, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 			$this->_running_vars['started_scanning'] = TRUE;
@@ -645,7 +690,6 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 	*/
 	function processSplitting(&$step_data, $prefix)
 	{
-
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('page_standard');
 
 		$data = $this->_running_vars['data_structure'][$this->_running_vars['running_count']];
@@ -665,6 +709,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		if ($this->_running_vars['top_level_count'] == 0) {
 			$step_data['complete'] = TRUE;
 		}
+
 		return TRUE;
 
 	}//end processSplitting()
@@ -697,7 +742,6 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 			$page_data['name'] = 'Preface';
 		}
 		$new_page->setAttrValue('name', trim(strip_tags($page_data['name'])));
-
 		$new_page->create($import_link);
 
 		if ($this->_running_vars['fix_anchors']) {
