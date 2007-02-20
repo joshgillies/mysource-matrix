@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.9 2006/12/06 00:35:31 emcdonald Exp $
+* $Id: form_question_type_select.inc,v 1.10 2007/02/20 01:03:17 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -203,7 +203,12 @@ class Form_Question_Type_Select extends Form_Question
 	*/
 	function isSelected($option)
 	{
-		return in_array($option, $this->getValue());
+		$options = $this->getValue();
+		if (!is_array($options)) {
+			$options = Array($options);
+		}
+
+		return in_array($option, $options);
 
 	}//end isSelected()
 
