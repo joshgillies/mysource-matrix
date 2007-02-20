@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.9 2007/02/16 06:31:39 rhoward Exp $
+* $Id: import.inc,v 1.10 2007/02/20 03:23:15 rhoward Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -264,17 +264,6 @@ function get_import_action_input_value($action, $attribute, $outputs=Array())
 	for ($ii = 0; $ii < count($matches[0]); $ii++) {
 		$construct_value = '';
 		switch ($matches[1][$ii]) {
-			case 'current_test_path':
-				$construct_value = '';
-				if (isset($GLOBALS['THE_CONSTRUCT'])) {
-					$construct_value = $GLOBALS['THE_CONSTRUCT']->unit_test_path;
-				}
-			case 'current_test_group_path':
-				$construct_value = '';
-				if (isset($GLOBALS['THE_CONSTRUCT'])) {
-					$construct_value = dirname($GLOBALS['THE_CONSTRUCT']->unit_test_path);
-				}
-			break;
 			case 'unit_test_path':
 				$construct_value = (defined('TC_CONF_UNIT_TEST_PATH') ? TC_CONF_UNIT_TEST_PATH : '');
 			break;
