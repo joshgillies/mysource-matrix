@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: dependants.inc,v 1.11 2007/01/30 05:35:54 colivar Exp $
+* $Id: dependants.inc,v 1.12 2007/02/20 03:35:06 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Dependants Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 
@@ -38,6 +38,11 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintDependants(&$owner, &$o, &$ei, $keywords=NULL)
 {
+	// this line has been added to hide the dependant screen from the limbo mode
+	// there is some issues with the 'a' tags printing this screen in the simple edit mode
+	// the links are not right and they are not working
+	// a feature request should be to enable and fix this screen	 
+	if (SQ_IN_LIMBO) return FALSE;
 	$o->openSection(translate('current_lock_status'));
 	$o->openField('&nbsp;');
 

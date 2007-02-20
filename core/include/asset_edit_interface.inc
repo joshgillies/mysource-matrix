@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.321 2007/02/05 05:39:05 colivar Exp $
+* $Id: asset_edit_interface.inc,v 1.322 2007/02/20 03:35:06 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.321 $
+* @version $Revision: 1.322 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1437,6 +1437,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			// find out if we have permission to print this section
 			$limbo_access = (isset($section->attributes['limbo_access']) && (int) $section->attributes['limbo_access'] == 1) ? TRUE : FALSE;
+			if ($limbo_access == FALSE) continue;
 
 			// find out what we need to get in this loop
 			$get_section = FALSE;
@@ -2414,12 +2415,22 @@ class Asset_Edit_Interface extends MySource_Object
 		// loop through all the screen and all the xml files
 		foreach ($screens_all as $current_screen_name => $current_screen) {
 
+			// the dependant and format screens have some problems with the links displayed
+			// therefore we dont display dependants and format screens keywords
+			// until they are fixed
+			if ($current_screen == 'dependants') continue;
 			$section_array = Array();
 
 			if ($this->findFile('static_screen_'.$current_screen, FALSE)) {
 				$root = $this->findScreen('static_screen_'.$current_screen);
 				for ($i = 0; $i < count($root->children); $i++) {
 					$section =& $root->children[$i];
+
+					// if the section should not be displayed, continue
+					if (isset($section->attributes['limbo_access']) && (int)$section->attributes['limbo_access'] == 0) {
+						continue;
+					}
+
 					$current_section_name =$section->attributes['name'];
 
 					if (!isset($section_array[$current_section_name])) {
@@ -2449,6 +2460,11 @@ class Asset_Edit_Interface extends MySource_Object
 				for ($i = 0; $i < count($root->children); $i++) {
 					$section =& $root->children[$i];
 
+					// if the section should not be displayed, continue
+					if (isset($section->attributes['limbo_access']) && (int)$section->attributes['limbo_access'] == 0) {
+						continue;
+					}
+
 					$current_section_name =$section->attributes['name'];
 					if (!isset($section_array[$current_section_name])) {
 						$section_array[$current_section_name] = Array();
@@ -2475,6 +2491,12 @@ class Asset_Edit_Interface extends MySource_Object
 
 				for ($i = 0; $i < count($root->children); $i++) {
 					$section =& $root->children[$i];
+
+					// if the section should not be displayed, continue
+					if (isset($section->attributes['limbo_access']) && (int)$section->attributes['limbo_access'] == 0) {
+						continue;
+					}
+
 					$current_section_name =$section->attributes['name'];
 
 					if (!isset($section_array[$current_section_name])) {
@@ -2544,7 +2566,13 @@ class Asset_Edit_Interface extends MySource_Object
 				<div><h1 style="font-size:1.7em;">Asset Specific Screens</h1></div>
 				<?php
 				$o->closeRaw();
+
 			}
+
+			// the dependant and format screens have some problems with the links displayed
+			// therefore we dont display dependants and format screens keywords
+			// until they are fixed
+			if ($current_screen == 'formats') continue;
 
 			if (strtolower($current_screen) != 'contents') {
 			   $o->openSection($current_screen_name.' screen'.' <span class="screen_kw">(%'.str_replace(' ', '_', strtolower($current_screen)).'-%)</span>');
