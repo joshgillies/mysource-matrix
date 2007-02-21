@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.79 2007/02/19 21:58:56 skim Exp $
+* $Id: lang_errors.xml,v 1.80 2007/02/21 00:07:25 hnguyen Exp $
 *
 */
 
@@ -1694,6 +1694,7 @@ Full Node Contents :
 
 	<!-- User Preferences -->
 	<error code="CORE0270">An invalid "Asset Map Width" value has been supplied. Default has been set</error>
+	<error code="CORE0271">The report could not be exported as another error has occurred. Please check previous error messages.</error>
 
 	<!-- Trigger Actio Add Remap -->
 	<error code="CORE0271">Adding remap entry failed in Trigger Action Add Remap</error>

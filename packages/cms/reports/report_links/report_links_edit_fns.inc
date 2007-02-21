@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.28 2007/02/13 01:26:54 hnguyen Exp $
+* $Id: report_links_edit_fns.inc,v 1.29 2007/02/21 00:07:26 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1031,83 +1031,86 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	function processExport(&$asset, &$o, $prefix)
 	{
 		if (!$_POST[$prefix.'_export_switch']) return TRUE;
+		if (headers_sent()) {
+			trigger_localised_error('CORE0271', E_USER_WARNING);
+		} else {
+			require_once SQ_FUDGE_PATH.'/csv/csv.inc';
+			$csv =& new CSV();
+			$csv->setFilename($asset->name.'_report.csv');
+			$csv->setDeliminator(',');
 
-		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
-		$csv =& new CSV();
-		$csv->setFilename($asset->name.'_report.csv');
-		$csv->setDeliminator(',');
+			$am =& $GLOBALS['SQ_SYSTEM']->am;
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$logs = Array();
 
-		$logs = Array();
+			require_once 'XML/Tree.php';
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
-		require_once 'XML/Tree.php';
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			$report_path = $asset->data_path.'/report.xml';
 
-		$report_path = $asset->data_path.'/report.xml';
+			if (!is_file($report_path)) {
+				echo 'This report has not been generated';
+				return;
+			}
 
-		if (!is_file($report_path)) {
-			echo 'This report has not been generated';
-			return;
-		}
+			$input =& new XML_Tree($report_path);
+			$root =& $input->getTreeFromFile();
+			if (PEAR::isError($root)) {
+				trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
+				return;
+			}
 
-		$input =& new XML_Tree($report_path);
-		$root =& $input->getTreeFromFile();
-		if (PEAR::isError($root)) {
-			trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
-			return;
-		}
+			$headers = Array();
+			$empty_headers = TRUE;
+			$top_headers = TRUE;
 
-		$headers = Array();
-		$empty_headers = TRUE;
-		$top_headers = TRUE;
+			foreach ($root->children as $asset_node) {
+				$persistent_values = Array();
+				$parent_ast_info = $this->_getAssetReportInfo($asset_node->attributes['assetid']);
+				// Have to initialise the headers
+				foreach ($asset_node->attributes as $attr => $value) {
+					if ($top_headers) $headers[] = $attr;
 
-		foreach ($root->children as $asset_node) {
-			$persistent_values = Array();
-			$parent_ast_info = $this->_getAssetReportInfo($asset_node->attributes['assetid']);
-			// Have to initialise the headers
-			foreach ($asset_node->attributes as $attr => $value) {
-				if ($top_headers) $headers[] = $attr;
-
-				// the xml data might not be the data we want to export
-				if (isset($parent_ast_info[$attr])) {
-					$value = array_get_index($parent_ast_info, $attr);
-					if ($attr == 'status') {
-						// use the numerical representation of assets status
-						$value = array_get_index($parent_ast_info, 'status_code');
+					// the xml data might not be the data we want to export
+					if (isset($parent_ast_info[$attr])) {
+						$value = array_get_index($parent_ast_info, $attr);
+						if ($attr == 'status') {
+							// use the numerical representation of assets status
+							$value = array_get_index($parent_ast_info, 'status_code');
+						}
 					}
+					// Need to setup the persistent values for each of the nodes (like source asset, type etc)
+					$persistent_values[] = $value;
 				}
-				// Need to setup the persistent values for each of the nodes (like source asset, type etc)
-				$persistent_values[] = $value;
+				$top_headers = FALSE;
+
+				foreach ($asset_node->children as $asset_data) {
+					$row = $persistent_values;
+					foreach ($asset_data->attributes as $attr => $value) {
+						if ($empty_headers) $headers[] = $attr;
+						$row[] = $value;
+					}
+					foreach ($asset_data->children as $data) {
+						if ($empty_headers) $headers[] = $data->name;
+						$row[] = $data->content;
+					}
+					$logs[] = $row;
+					$empty_headers = FALSE;
+				}
+			}//end foreach
+
+			foreach ($headers as $id => $value) {
+				$headers[$id] = ucwords(str_replace('_', ' ', $value));
 			}
-			$top_headers = FALSE;
 
-			foreach ($asset_node->children as $asset_data) {
-				$row = $persistent_values;
-				foreach ($asset_data->attributes as $attr => $value) {
-					if ($empty_headers) $headers[] = $attr;
-					$row[] = $value;
-				}
-				foreach ($asset_data->children as $data) {
-					if ($empty_headers) $headers[] = $data->name;
-					$row[] = $data->content;
-				}
-				$logs[] = $row;
-				$empty_headers = FALSE;
-			}
-		}//end foreach
+			$csv->setFieldHeaders($headers);
 
-		foreach ($headers as $id => $value) {
-			$headers[$id] = ucwords(str_replace('_', ' ', $value));
-		}
+			$csv->setValues($logs);
 
-		$csv->setFieldHeaders($headers);
-
-		$csv->setValues($logs);
-
-		// export with keyed fields
-		$csv->export(TRUE);
-		exit(0);
+			// export with keyed fields
+			$csv->export(TRUE);
+			exit(0);
+		}//end else
 
 		return TRUE;
 
@@ -1256,8 +1259,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			}// end if
 		}
 
-		if ($asset->writeAccess('')) {
-
+		if ($asset->writeAccess('attributes')) {
 			$rl =& new Cron_Job_Regenerate_Report();
 			$edit_fns = $rl->getEditFns();
 
