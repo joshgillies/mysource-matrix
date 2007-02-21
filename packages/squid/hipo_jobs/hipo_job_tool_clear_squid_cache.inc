@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.4 2007/01/22 03:11:59 rong Exp $
+* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.5 2007/02/21 21:25:57 amiller Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -142,6 +142,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 		}
 		$this->_running_vars['option'] = $GLOBALS['SQ_SYSTEM']->getUserPrefs('tool_clear_squid_cache', 'SQ_SQUID_CACHE_OPTION');
 		$this->_running_vars['slash'] = $GLOBALS['SQ_SYSTEM']->getUserPrefs('tool_clear_squid_cache', 'SQ_SQUID_CACHE_SLASH');
+		$this->_running_vars['url_port'] = $GLOBALS['SQ_SYSTEM']->getUserPrefs('tool_clear_squid_cache', 'SQ_SQUID_URL_PORT');
 
 		// if cascade option is enabled, get the children of the selected asset
 		$assetids = Array($this->_running_vars['assetid']);
@@ -197,7 +198,23 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 				$hostname = trim($hostname);
 				foreach ($urls as $url) {
 					$output = Array();
+
+					if ($this->_running_vars['url_port'] <> '') {
+
+						// Explode into an array based on the first slash it finds (the '2' in the third
+						// parameter means only two array elements will be created)
+						$path_parts = explode('/', $url, 2);
+
+						// Add the port to the host name
+						$path_parts[0] .= ':'.$this->_running_vars['url_port'];
+
+						// Put it back together again
+						$url = implode('/', $path_parts);
+
+					} //end if
+
 					$system_log_command = "$path -h $hostname $port $options -m PURGE $protocol://$url";
+					error_log('Running: '.$system_log_command);
 					exec($system_log_command, $output, $status);
 
 					// error_log("\n\t"."$path -h $hostname $port $options -m PURGE $protocol://$url \n". serialize($output)."\n");
@@ -226,7 +243,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 						$msg->replacements = $msg_reps;
 						$ms->send(Array($msg));
 					}
-				}
+				}//end foreach
 
 			}//end foreach
 

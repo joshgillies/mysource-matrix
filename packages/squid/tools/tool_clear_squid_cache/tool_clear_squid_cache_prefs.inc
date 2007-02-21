@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_squid_cache_prefs.inc,v 1.3 2007/01/22 03:11:59 rong Exp $
+* $Id: tool_clear_squid_cache_prefs.inc,v 1.4 2007/02/21 21:25:35 amiller Exp $
 *
 */
 
@@ -32,7 +32,7 @@ if (!defined('SQ_SQUID_CACHE_SLASH_DENY')) {
 *    List of host names to be used when purging the Squid Cache in the Global Prefs
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -68,6 +68,12 @@ class Tool_Clear_Squid_Cache_Prefs extends Prefs
 														'name'			=> 'Purge Trailing Slash',
 														'description'	=> 'URLs with trailing slash are also processed by the purge command',
 														'default'		=> FALSE,
+														'protected'		=> FALSE,
+													   ),
+						'SQ_SQUID_URL_PORT'			=> Array(
+														'name'			=> 'Add Port to URL',
+														'description'	=> 'You can specify a port to add to each URL when submitted to Squid. If you are running MySource Matrix on a non-standard port behind Squid, you may need to add the port back to the URL to clear the cache.',
+														'default'		=> '',
 														'protected'		=> FALSE,
 													   ),
 					 );
@@ -160,14 +166,28 @@ class Tool_Clear_Squid_Cache_Prefs extends Prefs
 			$val = $this->pref_vars['SQ_SQUID_CACHE_SLASH']['default'];
 			if ($have_lock && $is_admin) {
 				$selection = Array(
-								SQ_SQUID_CACHE_SLASH_ALLOW => translate('true'),
-								SQ_SQUID_CACHE_SLASH_DENY  => translate('false'),
-							);
+								SQ_SQUID_CACHE_SLASH_ALLOW	=> translate('true'),
+								SQ_SQUID_CACHE_SLASH_DENY	=> translate('false'),
+							 );
 				combo_box('prefs[SQ_SQUID_CACHE_SLASH]', $selection, FALSE, $val);
 			} else {
 				?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $val ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
 			}
 			$o->note(translate('squid_tool_slash_note'));
+			if (is_null($pref)) $o->closeField();
+		}
+
+		if (is_null($pref) || $pref == 'SQ_SQUID_URL_PORT') {
+			// additional options to be included in the command, can be left blank
+			if (is_null($pref)) {
+				$o->openField(translate('squid_tool_url_port_field'));
+			}
+			if ($have_lock && $is_admin) {
+				text_box('prefs[SQ_SQUID_URL_PORT]', $this->pref_vars['SQ_SQUID_URL_PORT']['default'], 10);
+				$o->note(translate('squid_tool_url_port_note'));
+			} else {
+				echo nl2br($this->pref_vars['SQ_SQUID_URL_PORT']['default']);
+			}
 			if (is_null($pref)) $o->closeField();
 		}
 
@@ -219,6 +239,12 @@ class Tool_Clear_Squid_Cache_Prefs extends Prefs
 		if (is_null($pref) || $pref == 'SQ_SQUID_CACHE_SLASH') {
 			if (isset($_POST['prefs']['SQ_SQUID_CACHE_SLASH'])) {
 				$this->pref_vars['SQ_SQUID_CACHE_SLASH']['default'] = $_POST['prefs']['SQ_SQUID_CACHE_SLASH'];
+			}
+		}
+
+		if (is_null($pref) || $pref == 'SQ_SQUID_URL_PORT') {
+			if (isset($_POST['prefs']['SQ_SQUID_URL_PORT'])) {
+				$this->pref_vars['SQ_SQUID_URL_PORT']['default'] = $_POST['prefs']['SQ_SQUID_URL_PORT'];
 			}
 		}
 

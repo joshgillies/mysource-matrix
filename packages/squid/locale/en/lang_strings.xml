@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2007/01/22 03:11:59 rong Exp $
+* $Id: lang_strings.xml,v 1.4 2007/02/21 21:25:48 amiller Exp $
 *
 *
 * Squid Package Localised Strings File
@@ -44,6 +44,9 @@
 	<string source="squid_tool_populate_note">Request each URL after the purge action so that Squid can recache it.</string>
 	<string source="squid_tool_cascade_note">Clear the cache of the selected asset and its children.</string>
 	<string source="squid_tool_note">Note: Repopulate and Cascade option will also be applied to the cron job if you schedule one.</string>
+	
+	<string source="squid_tool_url_port_field">Add Port to URL</string>
+	<string source="squid_tool_url_port_note">You can specify a port to add to each URL when submitted to Squid. If you are running MySource Matrix on a non-standard port behind Squid, you may need to add the port back to the URL to clear the cache.</string>
 
 	<string source="squid_clear_this">Clear this cache %s </string>
 	<string source="squid_clear_at">at</string>
