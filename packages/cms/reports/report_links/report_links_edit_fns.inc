@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.29 2007/02/21 00:07:26 hnguyen Exp $
+* $Id: report_links_edit_fns.inc,v 1.30 2007/02/21 03:43:31 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1032,7 +1032,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	{
 		if (!$_POST[$prefix.'_export_switch']) return TRUE;
 		if (headers_sent()) {
-			trigger_localised_error('CORE0271', E_USER_WARNING);
+			trigger_localised_error('CORE0273', E_USER_WARNING);
 		} else {
 			require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 			$csv =& new CSV();
