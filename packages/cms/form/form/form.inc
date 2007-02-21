@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.152 2007/02/18 23:34:56 rhoward Exp $
+* $Id: form.inc,v 1.153 2007/02/21 01:10:12 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.152 $
+* @version $Revision: 1.153 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1786,93 +1786,125 @@ class Form extends Asset
 		$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
 
-		$bodycopies = Array();
+		$bodycopy_context_code = NULL;
 		foreach ($bodycopy_links as $link_info) {
 			if (isset($parents[$link_info['minorid']])) {
-				$bodycopies[] = $link_info['value'];
+				$bodycopy_context_code = $link_info['value'];
+				break;
 			}
 		}
-		if (empty($bodycopies)) return;
 
-		$questions = $this->getQuestions();
-		$sections =& $this->getSections();
+		if (is_null($bodycopy_context_code)) return;
 
-		foreach ($bodycopies as $bodycopy) {
-			if ($bodycopy == 'Page Contents') {
-				$keywords['form_contents'] = translate('cms_form_contents');
-				$keywords['form_errors']   = translate('cms_form_errors');
-				$keywords['form_errors_message']   = translate('cms_form_errors_message');
+		// note: if the value on the link is "Thank You", the method providing the keywords should be _getThankYouContextKeywords
+		$keyword_provider_method = '_get'.str_replace(' ','',ucfirst($bodycopy_context_code)).'ContextKeywords';
 
-				foreach ($questions as $q_id => $question) {
-					$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
-					$q_name = $q_asset->attr('name');
-					$keywords['question_field_'.$this->id.'_q'.$q_id] = translate('cms_form_question_field', ellipsisize($q_name,30));
-					$keywords['question_id_'.$this->id.'_q'.$q_id] = translate('cms_form_question_id', ellipsisize($q_name,30));
-					$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_question_note', ellipsisize($q_name,30));
-					$keywords['question_label_'.$this->id.'_q'.$q_id] = 'Question label for '.ellipsisize($q_name,30);
-				}
+		if (!method_exists($this, $keyword_provider_method)) {
+			return;
+		}
 
-				foreach ($sections as $section) {
-					$keywords['section_title_'.$section->id] = translate('cms_form_section_title', $section->attr('name'));
-					$questions = $section->getQuestions();
-					foreach ($questions as $q_id => $question) {
-						$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
-						$q_name = $q_asset->attr('name');
-						$keywords['question_field_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_field', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
-						$keywords['question_id_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_id', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
-						$keywords['question_note_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_note', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
-						$keywords['question_label_'.$section->id.'_q'.$q_id] = 'Question label for '.ellipsisize($q_name,30);
-					}
-				}
-
-				// These are best at the end
-				$keywords['reset_button']  = translate('cms_form_reset_button');
-				$keywords['submit_button'] = translate('cms_form_submit_button');
-
-				$keywords['form_captcha'] = translate('cms_form_captcha');
-				$keywords['form_captcha_image'] = translate('cms_form_captcha_image');
-				$keywords['form_captcha_field'] = translate('cms_form_captcha_field');
-				$keywords['form_captcha_link'] = translate('cms_form_captcha_link');
-
-			} else if ($bodycopy == 'Thank You') {
-				$keywords['form_summary']               = translate('cms_form_submission_summary');
-				$keywords['form_info']                  = translate('cms_form_submission_info');
-				$keywords['form_submission_id']         = translate('cms_form_submission_id');
-				$keywords['form_submission_ip_address'] = translate('cms_form_submission_ip_address');
-				$keywords['form_submission_time']       = translate('cms_form_submission_time_format', translate('date_format_default'));
-
-				foreach (get_date_format_names() as $date_name => $date_format) {
-					$keywords['form_submission_time_'.$date_name] = translate('cms_form_submission_time_format', translate('date_format_'.$date_name));
-				}
-
-				foreach ($questions as $q_id => $question) {
-					$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
-					$q_name = $q_asset->attr('name');
-					$keywords['response_'.$this->id.'_q'.$q_id]      = translate('cms_form_question_response', ellipsisize($q_name,30));
-					$keywords['question_name_'.$this->id.'_q'.$q_id] = translate('cms_form_question_name', ellipsisize($q_name,30));
-					$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_question_note', ellipsisize($q_name,30));
-				}
-
-				foreach ($sections as $section) {
-					$keywords['section_title_'.$section->id] = translate('cms_form_section_title', $section->attr('name'));
-					$questions = $section->getQuestions();
-					foreach ($questions as $q_id => $question) {
-						$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
-						$q_name = $q_asset->attr('name');
-						$keywords['response_'.$section->id.'_q'.$q_id]   = translate('cms_form_section_response', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
-						$keywords['question_name_'.$this->id.'_q'.$q_id] = translate('cms_form_section_q_name', ellipsisize($q_name,30));
-						$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_section_q_note', ellipsisize($q_name,30));
-					}
-				}
-
-			}//end if
-
-
-		}//end foreach
+		$keywords = $this->$keyword_provider_method();
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
 	}//end onRequestKeywords()
+
+
+	/**
+	* Get an array of keywords for Page Contents Context (bodycopy)
+	*
+	* @return array
+	* @access private
+	*/
+	function _getPageContentsContextKeywords()
+	{
+		$questions = $this->getQuestions();
+		$sections =& $this->getSections();
+
+		$keywords['form_contents'] = translate('cms_form_contents');
+		$keywords['form_errors']   = translate('cms_form_errors');
+		$keywords['form_errors_message']   = translate('cms_form_errors_message');
+
+		foreach ($questions as $q_id => $question) {
+			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_name = $q_asset->attr('name');
+			$keywords['question_field_'.$this->id.'_q'.$q_id] = translate('cms_form_question_field', ellipsisize($q_name,30));
+			$keywords['question_id_'.$this->id.'_q'.$q_id] = translate('cms_form_question_id', ellipsisize($q_name,30));
+			$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_question_note', ellipsisize($q_name,30));
+			$keywords['question_label_'.$this->id.'_q'.$q_id] = 'Question label for '.ellipsisize($q_name,30);
+		}
+
+		foreach ($sections as $section) {
+			$keywords['section_title_'.$section->id] = translate('cms_form_section_title', $section->attr('name'));
+			$questions = $section->getQuestions();
+			foreach ($questions as $q_id => $question) {
+				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+				$q_name = $q_asset->attr('name');
+				$keywords['question_field_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_field', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
+				$keywords['question_id_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_id', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
+				$keywords['question_note_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_note', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
+				$keywords['question_label_'.$section->id.'_q'.$q_id] = 'Question label for '.ellipsisize($q_name,30);
+			}
+		}
+
+		// These are best at the end
+		$keywords['reset_button']  = translate('cms_form_reset_button');
+		$keywords['submit_button'] = translate('cms_form_submit_button');
+
+		$keywords['form_captcha'] = translate('cms_form_captcha');
+		$keywords['form_captcha_image'] = translate('cms_form_captcha_image');
+		$keywords['form_captcha_field'] = translate('cms_form_captcha_field');
+		$keywords['form_captcha_link'] = translate('cms_form_captcha_link');
+
+		return $keywords;
+
+	}//end _getPageContentsContextKeywords()
+
+
+	/**
+	* Get an array of keywords for Thank You Context (bodycopy)
+	*
+	* @return array
+	* @access private
+	*/
+	function _getThankYouContextKeywords()
+	{
+		$questions = $this->getQuestions();
+		$sections =& $this->getSections();
+
+		$keywords['form_summary']               = translate('cms_form_submission_summary');
+		$keywords['form_info']                  = translate('cms_form_submission_info');
+		$keywords['form_submission_id']         = translate('cms_form_submission_id');
+		$keywords['form_submission_ip_address'] = translate('cms_form_submission_ip_address');
+		$keywords['form_submission_time']       = translate('cms_form_submission_time_format', translate('date_format_default'));
+
+		foreach (get_date_format_names() as $date_name => $date_format) {
+			$keywords['form_submission_time_'.$date_name] = translate('cms_form_submission_time_format', translate('date_format_'.$date_name));
+		}
+
+		foreach ($questions as $q_id => $question) {
+			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_name = $q_asset->attr('name');
+			$keywords['response_'.$this->id.'_q'.$q_id]      = translate('cms_form_question_response', ellipsisize($q_name,30));
+			$keywords['question_name_'.$this->id.'_q'.$q_id] = translate('cms_form_question_name', ellipsisize($q_name,30));
+			$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_question_note', ellipsisize($q_name,30));
+		}
+
+		foreach ($sections as $section) {
+			$keywords['section_title_'.$section->id] = translate('cms_form_section_title', $section->attr('name'));
+			$questions = $section->getQuestions();
+			foreach ($questions as $q_id => $question) {
+				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+				$q_name = $q_asset->attr('name');
+				$keywords['response_'.$section->id.'_q'.$q_id]   = translate('cms_form_section_response', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
+				$keywords['question_name_'.$this->id.'_q'.$q_id] = translate('cms_form_section_q_name', ellipsisize($q_name,30));
+				$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_section_q_note', ellipsisize($q_name,30));
+			}
+		}
+
+		return $keywords;
+
+	}//end _getThankYouContextKeywords()
 
 
 	/**
