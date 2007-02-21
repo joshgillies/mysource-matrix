@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_internal_message.php,v 1.3 2006/12/08 04:09:52 lwright Exp $
+* $Id: remove_internal_message.php,v 1.3.2.1 2007/02/21 00:42:44 hnguyen Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Delete internal messages
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -162,7 +162,7 @@ function purge_internal_message($period, $user_from='', $user_to='', $msg_type='
 	$sql = 'DELETE FROM'."\n";
 	$sql .= '    '.SQ_TABLE_RUNNING_PREFIX.'internal_msg'."\n";
 	$sql .= 'WHERE'."\n";
-	$sql .= '    sent >= '.$db->quoteSmart($period)."\n";
+	$sql .= '    sent <= '.$db->quoteSmart($period)."\n";
 
 	$userids = Array(
 				Array(
