@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.16 2007/01/16 02:52:58 lwright Exp $
+* $Id: page_user_group_manager.inc,v 1.17 2007/02/21 21:57:52 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -50,7 +50,7 @@ class Page_User_Group_Manager extends Page
 										   ),
 						'not_logged_in'	=> Array(
 											'login_form',
-							),
+										   ),
 					);
 
 	var $errors;
@@ -101,7 +101,9 @@ class Page_User_Group_Manager extends Page
 			$bodycopy =& new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
 			$args = Array('content' => $this->_getDefaultBodycopyContents($value));
-			if (!$bodycopy->create($copy_link, $args)) return FALSE;
+			if (!$bodycopy->create($copy_link, $args)) {
+				return FALSE;
+			}
 		}
 		return TRUE;
 
@@ -318,7 +320,15 @@ class Page_User_Group_Manager extends Page
 		ob_start();
 			$root_node = $this->attr('root_node');
 			$default = array_get_index($this->_tmp, 'selected', Array());
-			structured_drop_down($prefix.$suffix, $root_node, $full_types, $default, $this->attr('structured_width'), $this->attr('structured_height'), $this->attr('max_depth'), $this->attr('allow_multiple'), $this->attr('seperator'), $this->attr('include_root_node'), '', $this->attr('structured_style'), $this->attr('statuses'), TRUE, Array(), FALSE, SQ_PERMISSION_WRITE);
+			// if it is a public user, this function should return locations that public user can read
+			// else this function should return locations that current user has write permissions
+			$current_user =& $GLOBALS['SQ_SYSTEM']->user;
+			if (is_a($current_user, 'public_user')) {
+				$_permission = SQ_PERMISSION_READ;
+			} else {
+				$_permission = SQ_PERMISSION_WRITE;
+			}
+			structured_drop_down($prefix.$suffix, $root_node, $full_types, $default, $this->attr('structured_width'), $this->attr('structured_height'), $this->attr('max_depth'), $this->attr('allow_multiple'), $this->attr('seperator'), $this->attr('include_root_node'), '', $this->attr('structured_style'), $this->attr('statuses'), TRUE, Array(), FALSE, $_permission);
 			$selector = ob_get_contents();
 		ob_end_clean();
 		return $selector;
