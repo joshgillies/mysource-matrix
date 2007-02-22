@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.146.2.12 2006/10/16 00:53:06 skim Exp $
+* $Id: lang_strings.xml,v 1.146.2.13 2007/02/22 03:26:48 tbarrett Exp $
 *
 */
 
@@ -1699,6 +1699,7 @@ Items to delete: %s</string>
 	<string source="hipo_updating_workflow_schemas">Updating Workflow Schemas</string>
 	<string source="hipo_updating_tags">Updating Tags</string>
 	<string source="hipo_updating_roles">Updating Roles</string>
+	<string source="hipo_trash_url_remapping_choose_url">The asset you have chosen to remap to has several URLs.  Choose which of its URLs you would like to use</string>
 	<string source="hipo_cannot_remap_links_to_self">There is no point remapping the URLs of "%1$s" to itself - they are still going to be broken. Please choose another asset.</string>
 	<string source="hipo_cannot_remap_links_without_destination_url">You cannot remap URLs of "%1$s" to "%2$s" because it does not have a URL itself. Please choose another asset.</string>
 	<string source="hipo_cannot_remap_urls">The system was unable to remap the URLs for "%1$s" to "%2$s"</string>
