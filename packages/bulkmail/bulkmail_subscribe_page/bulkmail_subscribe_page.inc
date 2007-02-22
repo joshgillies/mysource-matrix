@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.15 2007/02/22 03:04:40 colivar Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.16 2007/02/22 04:07:39 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -178,7 +178,6 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'uv');
 
 		$result = $db->getOne($sql.$where);
-		log_dump($sql.$where);
 		assert_valid_db_result($result);
 		return $result;
 
@@ -500,7 +499,6 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			$creation_succeed = FALSE;
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED + SQ_SECURITY_LINK_INTEGRITY);
 
-
 				// if we could not set the email add a error
 				if (!$bulkmail_user->setAttrValue('email', $email_address)) {
 					$this->errors[] = translate('bm_email_invalid');
@@ -509,7 +507,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 				// if we could not set the name add a error
 				if (!$bulkmail_user->setAttrValue('name', $user_name)) {
 					$this->errors[] = translate('bm_username_invalid');
-				}
+				}				
 				$bulkmail_user->create($link);
 				// if create succeed processMinor Links
 				if (!empty($bulkmail_user->id)) {
