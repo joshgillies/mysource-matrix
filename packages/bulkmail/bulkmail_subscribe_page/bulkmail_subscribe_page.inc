@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.12.2.2 2007/01/29 05:40:12 tbarrett Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.12.2.3 2007/02/22 04:10:27 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.12.2.2 $
+* @version $Revision: 1.12.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -309,6 +309,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$unsubscriptions = empty($unsubscriptions) ? Array() : explode(',', $unsubscriptions);
 
 		if (empty($subscriptions) && empty($unsubscriptions)) {
+			$this->errors[] = translate('bm_no_subscription_no_unsubscription');
 			return;
 		}
 
@@ -397,7 +398,10 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	{
 		$email_address = array_get_index($_REQUEST, $this->getPrefix().'_email_address', '');
 		$user_name = array_get_index($_REQUEST, $this->getPrefix().'_user_name', '');
-		if (empty($email_address)) return;
+		if (empty($email_address)) {
+			$this->errors[] = translate('bm_email_empty');
+			return;
+		}
 
 		$subscriptions = array_get_index($_REQUEST, $this->getPrefix().'_subscriptions', Array());
 		$unsubscriptions = array_get_index($_REQUEST, $this->getPrefix().'_unsubscriptions', Array());
@@ -418,6 +422,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			}
 		}
 		if (empty($subscriptions) && empty($unsubscriptions)) {
+			$this->errors[] = translate('bm_no_subscription_no_unsubscription');
 			return;
 		}
 
@@ -489,16 +494,31 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 						'link_type'	=> $this->attr('link_type'),
 						'value'		=> $link_value,
 					);
-
+			$creation_succeed = FALSE;
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED + SQ_SECURITY_LINK_INTEGRITY);
-				$bulkmail_user->setAttrValue('email', $email_address);
-				$bulkmail_user->setAttrValue('name', $user_name);
+
+				// if we could not set the email add a error
+				if (!$bulkmail_user->setAttrValue('email', $email_address)) {
+					$this->errors[] = translate('bm_email_invalid');
+				}
+
+				// if we could not set the name add a error
+				if (!$bulkmail_user->setAttrValue('name', $user_name)) {
+					$this->errors[] = translate('bm_username_invalid');
+				}
+
 				$bulkmail_user->create($link);
-				$done = $this->processMinorLinks($bulkmail_user->id, Array(), $subscriptions, $this->attr('link_type'));
+				// if create succeed processMinor Links
+				if (!empty($bulkmail_user->id)) {
+					$done = $this->processMinorLinks($bulkmail_user->id, Array(), $subscriptions, $this->attr('link_type'));
+					$creation_succeed = TRUE;
+				}
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-			$done['add_success'][] = $parent_assetid;
-			$this->addLinkingMessages($done);
+			if ($creation_succeed) {
+				$done['add_success'][] = $parent_assetid;
+				$this->addLinkingMessages($done);
+			}
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_asset);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bulkmail_user);
@@ -872,6 +892,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		return '';
 
 	}//end _getDefaultBodycopyContents()
+
 
 }//end class
 

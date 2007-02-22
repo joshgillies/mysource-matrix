@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.29.2.2 2007/01/29 05:40:12 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.29.2.3 2007/02/22 04:10:27 colivar Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -127,5 +127,10 @@ Please click on the following link if you would like to proceed:
 	<string source="bm_hipo_name_import_bmail_user">Import Bulkmail User</string>
 	<string source="bm_hipo_importing_bmail_users">Importing Bulkmail Users</string>
 	<string source="bm_importing_bmail_user">Importing %s</string>
+
+	<string source="bm_email_empty">Email address was not provided</string>
+	<string source="bm_email_invalid">Email address provided is invalid</string>
+	<string source="bm_no_subscription_no_unsubscription">No subscription/unsubscription selected</string>
+	<string source="bm_username_invalid">Username probided is invalid</string>
 
 </strings>
