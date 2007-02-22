@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.47 2007/02/18 22:12:50 skim Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.48 2007/02/22 05:46:41 emcdonald Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -249,13 +249,15 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintInlineValueInterface(&$asset, &$o, $value_str, $write_access)
 	{
+
+		$complete = $this->requiredFieldsComplete($asset, $value_str);
 		// set field header to friendly_name if it is not empty
 		$field_name = $asset->attr('friendly_name');
 		if (!$field_name) $field_name = $asset->name;
 
 		if ($asset->attr('required')) {
 			$field_name .= ' <span class="sq-backend-warning">*</span>';
-			if (($value_str === '') && $write_access) {
+			if (!$complete && $write_access) {
 				$field_name .= '<br /><span class="sq-backend-warning">'.translate('currently_empty').'</span>';
 			}
 		}
@@ -263,7 +265,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		// use description as the note for this field
 		$o->openField($field_name, '', $asset->attr('description'));
 		$res = $this->paintValueInterface($asset, $o, $value_str, $write_access);
-		if (!$write_access && $asset->attr('required') && ($value_str === '')) {
+		if (!$write_access && $asset->attr('required') && !$complete) {
 			echo '<b class="sq-backend-warning">['.strtoupper(translate('empty')).']</b>';
 		}
 		$o->closeField();
