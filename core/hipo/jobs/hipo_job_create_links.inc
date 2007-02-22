@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.43.2.6 2007/02/22 01:43:39 tbarrett Exp $
+* $Id: hipo_job_create_links.inc,v 1.43.2.7 2007/02/22 01:44:59 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.43.2.6 $
+* @version $Revision: 1.43.2.7 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -695,7 +695,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 							if (isset($this->_running_vars['do_not_trash'][$source_assetid])) {
 								continue;
 							}
-							if (!$rm->remapAllURLs($source_assetid, ($dest_url_data['https'] ? 'https' : 'http').'://'.$dest_url_data['url'])) {
+							if (!$rm->remapAllURLs($source_assetid, ($dest_url_data['http'] ? 'http' : 'https').'://'.$dest_url_data['url'])) {
 								$source_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
 								$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_urls', $source_asset->name, $dest_url_data['url']).'</span>';
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
