@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.218 2007/02/11 23:54:45 hnguyen Exp $
+* $Id: listing_engine.inc,v 1.219 2007/02/22 04:12:53 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.218 $
+* @version $Revision: 1.219 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -474,9 +474,18 @@ class Listing_Engine extends Page
 						if ($form_method == 'get') {
 							// we couldn't preserve get vars in the form action URL so we add them as hidden fields
 							$vars_to_preserve = $_GET;
-							foreach ($vars_to_preserve as $name => $var) {
-								if (in_array($name, $used_fields)) {
-									unset($vars_to_preserve[$name]);
+							foreach ($used_fields as $used_field) {
+								if (substr($used_field, -1) == '%') {
+									// do a 'like' match
+									foreach ($vars_to_preserve as $i => $v) {
+										if (0 === strpos($i, substr($used_field, 0, -1))) {
+											unset($vars_to_preserve[$i]);
+										}
+									}
+								} else {
+									if (isset($vars_to_preserve[$used_field])) {
+										unset($vars_to_preserve[$used_field]);
+									}
 								}
 							}
 							var_to_hidden_field($vars_to_preserve);
