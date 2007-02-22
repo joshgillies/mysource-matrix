@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.145 2007/02/20 04:05:52 lwright Exp $
+* $Id: search_manager.inc,v 1.146 2007/02/22 04:14:05 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.145 $
+* @version $Revision: 1.146 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2350,10 +2350,14 @@ class Search_Manager extends Asset
 		if (!empty($search_info['roots'])) {
 			$root_logic = array_get_index($search_info, 'root_logic', 'OR');
 			// get the treeids of our search roots
+			$quoted_rootids = Array();
+			foreach ($search_info['roots'] as $rootid) {
+				$quoted_rootids[] = $db->quoteSmart((string)$rootid);
+			}
 			$treeid_sql = 'SELECT l.minorid, t.treeid
 						   FROM sq_ast_lnk_tree t
 							   JOIN sq_ast_lnk l on t.linkid = l.linkid
-						   WHERE l.minorid IN ('.implode(',', $search_info['roots']).')';
+						   WHERE l.minorid IN ('.implode(',', $quoted_rootids).')';
 			// getAssoc only gives us the first treeid for each minorid, which is actually just what we want!
 			$root_tree_ids = $db->getAssoc($treeid_sql);
 			assert_valid_db_result($root_tree_ids);
