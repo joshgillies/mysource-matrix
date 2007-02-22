@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.8.2.4 2007/02/22 04:10:55 colivar Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.8.2.5 2007/02/22 23:12:44 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.8.2.4 $
+* @version $Revision: 1.8.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -240,7 +240,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			$available_locations[] = $child_link['assetid'];
 		}
 
-		//if the root node is a user group and has the correct status, include it
+		// if the root node is a user group and has the correct status, include it
 		$root_node =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('root_node'));
 		if (is_a($root_node, 'user_group') && in_array($root_node->status, $statuses)) {
 			$available_locations[] = $root_node->id;
@@ -400,7 +400,9 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$email_address = array_get_index($_REQUEST, $this->getPrefix().'_email_address', '');
 		$user_name = array_get_index($_REQUEST, $this->getPrefix().'_user_name', '');
 		if (empty($email_address)) {
-			$this->errors[] = translate('bm_email_empty');			
+			if (isset($_REQUEST[$this->getPrefix().'_email_address'])) {
+				$this->errors[] = translate('bm_email_empty');
+			}
 			return;
 		}
 
@@ -456,8 +458,13 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 				trigger_localised_email('SYS0315', E_USER_WARNING);
 				trigger_localised_error('BML0016', E_USER_WARNING);
 			} else {
-				$this->sendConfirmationEmail($email_address, $from_addr, $subscriptions, $unsubscriptions, $uniqid);
-				$this->messages[] = translate('bsp_verification_email_sent', $email_address);
+				require_once SQ_FUDGE_PATH.'/general/www.inc';
+				$_email_address_trim = trim($email_address);
+				// if the email is valid send a confirmation
+				if (valid_email($_email_address_trim) && !empty($_email_address_trim)) {
+					$this->sendConfirmationEmail($email_address, $from_addr, $subscriptions, $unsubscriptions, $uniqid);
+					$this->messages[] = translate('bsp_verification_email_sent', $email_address);
+				}
 			}
 		}
 
@@ -496,7 +503,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 						'value'		=> $link_value,
 					);
 
-			$creation_succeed = FALSE;					
+			$creation_succeed = FALSE;
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED + SQ_SECURITY_LINK_INTEGRITY);
 
 				// if we could not set the email add a error
@@ -510,11 +517,11 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 				}
 
 				$bulkmail_user->create($link);
-				
+
 				// if create succeed processMinor Links
 				if (!empty($bulkmail_user->id)) {
 					$done = $this->processMinorLinks($bulkmail_user->id, Array(), $subscriptions, $this->attr('link_type'));
-					$creation_succeed = TRUE;					
+					$creation_succeed = TRUE;
 				}
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
