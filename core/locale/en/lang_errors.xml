@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.81 2007/02/21 03:43:30 hnguyen Exp $
+* $Id: lang_errors.xml,v 1.82 2007/02/22 05:13:55 rhoward Exp $
 *
 */
 
@@ -1368,6 +1368,8 @@ Full Node Contents %3$s</error>
 	<error code="SYS0324">Unable to set workflow schemas for "%s", permission denied</error>
 	<error code="SYS0325">Unable to set roles for "%s", permission denied</error>
 	<error code="SYS0326">Unable to set tags for "%s", permission denied</error>
+	<error code="SYS0327">Unable to set metadata values for "%s", permission denied</error>
+	<error code="SYS0328">Unable to set attribute values for "%s", permission denied</error>
 
 	<!-- Apache Configuration Errors -->
 	<error code="SYS0314">Cannot set request note name for "%s". A request note with this name already exists.</error>

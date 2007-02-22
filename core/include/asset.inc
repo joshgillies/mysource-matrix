@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.588 2007/02/18 23:34:44 rhoward Exp $
+* $Id: asset.inc,v 1.589 2007/02/22 05:13:55 rhoward Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.588 $
+* @version $Revision: 1.589 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1854,19 +1854,23 @@ class Asset extends MySource_Object
 		//////////////////
 
 		if (in_array('attributes', $components) || in_array('all', $components)) {
-			// Now we set all the attributes
-			foreach ($this->vars as $name => $data) {
-				if (!$clone->setAttrValue($name, $data['value'])) {
+			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->writeAccess('attributes')) {
+				// Now we set all the attributes
+				foreach ($this->vars as $name => $data) {
+					if (!$clone->setAttrValue($name, $data['value'])) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						return FALSE;
+					}
+				}
+				if (!$clone->saveAttributes()) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return FALSE;
 				}
-			}
-			if (!$clone->saveAttributes()) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return FALSE;
-			}
+			} else {
+				trigger_localised_error('SYS0328', E_USER_WARNING, $clone->name);
+			}//end if (permissions)
 		}//end if attributes
 
 
@@ -1875,7 +1879,7 @@ class Asset extends MySource_Object
 		///////////////////
 
 		if (in_array('permissions', $components) || in_array('all', $components)) {
-			if ($clone->adminAccess('permissions')) {
+			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->adminAccess('permissions')) {
 				$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
 				foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
 					$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
@@ -1900,7 +1904,7 @@ class Asset extends MySource_Object
 		/////////////
 
 		if (in_array('roles', $components) || in_array('all', $components)) {
-			if ($clone->adminAccess('roles')) {
+			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->adminAccess('roles')) {
 				$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($this->id);
 				foreach ($roles as $roleid => $userids) {
 					foreach ($userids as $userid) {
@@ -1923,7 +1927,7 @@ class Asset extends MySource_Object
 
 		// first up, clone the schemas
 		if (in_array('metadata_schemas', $components) || in_array('all', $components)) {
-			if ($clone->adminAccess('metadata')) {
+			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->adminAccess('metadata')) {
 				$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				if ($mm->allowsMetadata($clone->id)) {
 					// apply the schemas from the cloner to the clonee
@@ -1949,17 +1953,21 @@ class Asset extends MySource_Object
 		if (in_array('metadata', $components) || in_array('all', $components)) {
 			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			if ($mm->allowsMetadata($clone->id)) {
-				$metadata = $mm->getMetadata($this->id);
-				if (!empty($metadata)) {
-					// apply the metadata from $this to the clone - setMetadata() will ignore any values
-					// belonging to fields that don't exist on the clone, so we're fine even if the
-					// schemas weren't cloned
-					if (!$mm->setMetadata($clone->id, $metadata) || !$mm->regenerateMetadata($clone->id)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-						return FALSE;
+				if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->writeAccess('metadata')) {
+					$metadata = $mm->getMetadata($this->id);
+					if (!empty($metadata)) {
+						// apply the metadata from $this to the clone - setMetadata() will ignore any values
+						// belonging to fields that don't exist on the clone, so we're fine even if the
+						// schemas weren't cloned
+						if (!$mm->setMetadata($clone->id, $metadata) || !$mm->regenerateMetadata($clone->id)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							return FALSE;
+						}
 					}
-				}
+				} else {
+					trigger_localised_error('SYS0327', E_USER_WARNING, $clone->name);
+				}//end if ($clone->writeAccess('metadata'))
 			}//end if ($mm->allowsMetadata($clone->id))
 		}//end if metadata
 
@@ -1969,7 +1977,7 @@ class Asset extends MySource_Object
 		////////////////
 
 		if (in_array('workflow', $components) || in_array('all', $components)) {
-			if ($clone->adminAccess('workflow')) {
+			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->adminAccess('workflow')) {
 				$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 				$schemas = $wfm->getSchemas($this->id);
 				foreach ($schemas as $schemaid => $granted) {
@@ -1991,7 +1999,7 @@ class Asset extends MySource_Object
 
 		if (in_array('data', $components) || in_array('all', $components)) {
 			// make sure we have write access before we start mucking around with files
-			if (!$this->writeAccess('attributes')) {
+			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || !$clone->writeAccess('attributes')) {
 				trigger_localised_error('SYS0321', E_USER_WARNING, $clone->name);
 			} else {
 				// copy the directory (if it exists)
@@ -2013,7 +2021,7 @@ class Asset extends MySource_Object
 		////////////////////
 
 		if (in_array('content_tags', $components) || in_array('all', $components)) {
-			if ($clone->writeAccess('attributes') && $clone->writeAccess('links')) {
+			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || ($clone->writeAccess('attributes') && $clone->writeAccess('links'))) {
 				$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
 
 				// don't clone content tags if there's no tag manager yet
