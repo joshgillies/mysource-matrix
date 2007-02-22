@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.11.2.2 2007/02/21 22:05:21 colivar Exp $
+* $Id: page_user_group_manager.inc,v 1.11.2.3 2007/02/22 04:05:18 colivar Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.11.2.2 $
+* @version $Revision: 1.11.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -307,7 +307,7 @@ class Page_User_Group_Manager extends Page
 			} else {
 				$_permission = SQ_PERMISSION_WRITE;
 			}
-			structured_drop_down($prefix.$suffix, $root_node, $full_types, $default, $this->attr('structured_width'), $this->attr('structured_height'), $this->attr('max_depth'), $this->attr('allow_multiple'), $this->attr('seperator'), $this->attr('include_root_node'), '', $this->attr('structured_style'), $this->attr('statuses'), TRUE, Array(), FALSE, SQ_PERMISSION_WRITE);
+			structured_drop_down($prefix.$suffix, $root_node, $full_types, $default, $this->attr('structured_width'), $this->attr('structured_height'), $this->attr('max_depth'), $this->attr('allow_multiple'), $this->attr('seperator'), $this->attr('include_root_node'), '', $this->attr('structured_style'), $this->attr('statuses'), TRUE, Array(), FALSE, $_permission);
 			$selector = ob_get_contents();
 		ob_end_clean();
 		return $selector;
