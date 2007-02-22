@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_backend_outputter.inc,v 1.20 2006/12/05 05:39:09 bcaldwell Exp $
+* $Id: hipo_backend_outputter.inc,v 1.21 2007/02/22 00:16:00 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 *    suite hipo jobs
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 class Hipo_Backend_Outputter extends Backend_Outputter
@@ -192,21 +192,12 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 				} else {
 					// printing a top level section
 					?>
-					<tr>
+					<tr class="sq-backend-section-heading-container">
 						<td colspan="3">
-							<table border="0" cellspacing="0" cellpadding="0" width="100%">
+							<table border="0" cellspacing="0" cellpadding="0">
 								<tr>
-									<td class="sq-backend-section-heading" width="100%"><?php echo $section['heading'];?></td>
+									<td class="sq-backend-section-heading"><?php echo $section['heading'];?></td>
 									<td><img src="<?php echo $this->filesPath('images/section_icon.gif');?>" width="27" height="21" /></td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-					<tr>
-						<td colspan="3">
-							<table width="100%" cellpadding="0" cellspacing="0" border="0">
-								<tr>
-									<td width="100%" bgcolor="#B3B3B3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td>
 								</tr>
 							</table>
 						</td>
@@ -218,7 +209,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 			// print the section seperator
 			?>
 			<tr>
-				<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
+				<td colspan="2"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
 			</tr>
 			<tr>
 				<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
@@ -231,7 +222,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 					case 'section' :
 						?>
 							<tr>
-								<td width="100%" valign="top" colspan="3">
+								<td width="100%" valign="top" colspan="2">
 								<?php
 									$this->_paintSection($section['areas'][$j], $depth + 1);
 								?>
@@ -253,24 +244,17 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 								}
 								?>
 									<tr <?php echo $style; ?> <?php echo $id; ?>>
-										<td nowrap valign="top" class="sq-backend-field" colspan="3">
+										<td class="sq-backend-field sq-backend-field-newline" colspan="2">
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
 											<?php echo $field['name'];?>
 										</td>
 									</tr>
 									<tr>
-										<td valign="top" class="sq-backend-data" colspan="3">
-											<table cellpadding="0" cellspacing="0" border="0">
-												<tr>
-													<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
-													<td width="100%" valign="top" class="sq-backend-data">
-													<?php
-														echo $field['contents'];
-														if ($field['note']) $this->note($field['note']);
-													?>
-													</td>
-												</tr>
-											</table>
+										<td class="sq-backend-data sq-backend-data-newline" colspan="2">
+											<?php
+												echo $field['contents'];
+												if ($field['note']) $this->note($field['note']);
+											?>
 										</td>
 									</tr>
 								<?php
@@ -279,7 +263,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 							case 'commit' :
 								?>
 								<tr>
-									<td width="100%" valign="top" class="sq-backend-data" style="text-align: right;" colspan="3">
+									<td class="sq-backend-data" style="text-align: right;" colspan="2">
 									<?php
 										echo $field['contents'];
 										if ($field['note']) $this->note($field['note']);
@@ -303,20 +287,16 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 								}
 							?>
 								<tr <?php echo $style; ?> <?php echo $id; ?>>
-									<td nowrap valign="top" class="sq-backend-field">
+									<td class="sq-backend-field">
 										<a name="field_<?php echo $field['field_count']; ?>"></a>
 										<?php echo $field['name'];?>
 									</td>
-									<td width="10"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-									<td width="100%" valign="top" class="sq-backend-data">
+									<td class="sq-backend-data">
 									<?php
 										echo $field['contents'];
 										if ($field['note']) $this->note($field['note']);
 									?>
 									</td>
-								</tr>
-								<tr>
-									<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
 								</tr>
 							<?php
 						}//end switch

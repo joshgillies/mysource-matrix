@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.43 2007/02/09 01:18:08 hnguyen Exp $
+* $Id: edit.js,v 1.44 2007/02/22 00:16:00 tbarrett Exp $
 *
 */
 
@@ -577,4 +577,32 @@ function updateEnableFieldList()
 	}
 }
 
-
+/**
+* Toggle the display of the next element of type targetType
+*
+* This function will search elt's siblings (going back up the tree to traverse if necessary)
+* until it finds one of type targetType.  It will toggle the display of the element found.
+*
+* @param object	elt	The element we are coming from (eg the thing that was clicked)
+* @param string	targetType	The tagName of the thing we want to toggle the display of
+*
+* @return void
+* @access public
+*/
+function toggleNextElt(elt, targetType)
+{
+	var target = elt.nextSibling;
+	var i = 0;
+	while (target.tagName != targetType) {
+		if (i++ > 20) return;
+		if (target.nextSibling) {
+			target = target.nextSibling;
+		} else {
+			target = target.parentNode.nextSibling;
+			if (target.firstChild) {
+				target = target.firstChild;
+			}
+		}
+	}
+	with (target.style) { display = (display == 'none') ? 'block' : 'none'; }
+}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.226 2007/02/19 21:58:56 skim Exp $
+* $Id: lang_strings.xml,v 1.227 2007/02/22 00:16:01 tbarrett Exp $
 *
 */
 
@@ -84,6 +84,8 @@
 	<string source="character_rules_note">Enforce the use of a certain type of character in passwords by specifying the minimum number of times it must be used.&lt;br /&gt;Disallowing a character type will prevent users from including it in their passwords.</string>
 	<string source="character_type">Character Type</string>
 	<string source="children">Children</string>
+	<string source="n_children">%d children</string>
+	<string source="1_child">1 child</string>
 	<string source="clone_asset_threshold">Clone Asset Threshold</string>
 	<string source="commit_button_text">Commit Button Text</string>
 	<string source="condition_details">Condition Details</string>
@@ -99,14 +101,13 @@
 	<string source="current_hipo_jobs">Current HIPO Jobs</string>
 	<string source="orphaned_hipo_jobs">Orphaned HIPO Jobs</string>
 	<string source="current_linking">Current Linking</string>
-	<string source="create_linking">Create New Link</string>
-	<string source="delete_linking">Delete link</string>
 	<string source="current_lock_status">Current Lock Status</string>
 	<string source="current_variety">Current Variety</string>
 	<string source="current">Current</string>
 	<string source="currently_empty">Currently Empty</string>
 	<string source="current_asset">Current Asset</string>
 	<string source="current_user">Current User</string>
+	<string source="current_status">Current Status</string>
 	<string source="custom_error_text">Custom Error Text</string>
 	<string source="customise_row">Customise Row</string>
 	<string source="debug_settings">Debug Settings</string>
@@ -361,10 +362,6 @@
 	<string source="cron_manager_not_configured">The Cron Manager has not been configured. No future statuses can be set for this asset</string>
 	<string source="cron_manager_not_configured_regen">The Cron Manager has not been configured. No future regeneration can be set for this asset</string>
 	<string source="cron_manager_next_run">The Cron Manager runs every &lt;b&gt;%1$s&lt;/b&gt;. It will next run on the &lt;b&gt;%2$s&lt;/b&gt;</string>
-	<string source="cron_manager_create_now_or_later">If no time is set, the new link will be created immediately else the cron manager will create the link at a future time</string>
-	<string source="cron_manager_future_not_available_create">For this type of asset, you cannot create a new link at a future time using a cron job.</string>
-	<string source="cron_manager_future_not_available_delete">For this type of asset, you cannot delete a link at a future time using a cron job.</string>
-    <string source="cron_manager_delete_now_or_later">If no time is set, the selected link will be deleted immediately else the cron manager will delete the link at a future time</string>
 	<string source="asset_currently_in_workflow">&lt;i&gt;This asset is currently in workflow. Approval or rejection of the changes must be done on the &lt;a href="%s"&gt;asset workflow screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="workflow_not_running">Workflow is not currently running for this asset</string>
 	<string source="no_thumbnail_attatched">No thumbnail attached</string>
@@ -387,15 +384,15 @@
 	<string source="cron_deadlock_must_acquire_lock">You must acquire the lock in order resolve this issue</string>
 	<string source="cron_deadlock_warning_contact_root">You must contact the root user to resolve this issue</string>
 	<string source="cron_force_lock_removal">Force Removal of Lock</string>
-	<string source="cron_job_escalate_safe_trash">Escalate Safe Trash Cron Job</string>
+	<string source="cron_job_escalate_safe_trash">Escalate Safe-Trash Cron Job</string>
 	<string source="cron_job_expired_workflow">Expired Workflow Cron Job</string>
 	<string source="cron_new_future_linking">New Future Linking</string>
 	<string source="cron_job_asset-less_future_linking">Asset-less Future Linking Cron Job</string>
 	<string source="cron_job_asset_less_future_status">Asset-less Future Status Cron Job</string>
-	<string source="cron_job_assetless_attempt_safe_trash">Asset-less Attempt Safe Trash Cron Job</string>
+	<string source="cron_job_assetless_attempt_safe_trash">Asset-less Attempt Safe-Trash Cron Job</string>
 	<string source="cron_job_generate_log_reports">Generate Log Reports Cron Job</string>
-	<string source="cron_safe_trash_for">Safe Trash for %s</string>
-	<string source="cron_attempt_safe_trash_for">Attempt Safe Trash for %s</string>
+	<string source="cron_safe_trash_for">Safe-Trash for %s</string>
+	<string source="cron_attempt_safe_trash_for">Attempt Safe-Trash for %s</string>
 	<string source="cron_fl_for">FL for %s</string>
 	<string source="cron_fl_delete_all_existing_links">All</string>
 	<string source="cron_fl_delete_all_existing_links_long">Delete all existing links</string>
@@ -534,7 +531,6 @@
 
 	<string source="manually_cascade_schema">Manually cascade schemas</string>
 	<string source="cascade_schema_changes">Cascade schema changes</string>
-	<string source="cascade_schema_changes_to_dependents">Cascade schema changes to dependent children</string>
 	<string source="no_children_to_cascade_workflow">There are no children to cascade workflow schemas to</string>
 	<string source="cannot_cascade_while_workflow_running">You cannot cascade workflow schemas while workflow is running</string>
 	<string source="no_access_to_cascade_workflow">You do not have access to cascade workflow schemas for this asset</string>
@@ -694,20 +690,31 @@
 	<string source="hipo_asset_cloning_successful">The following asset(s) have been successfully Cloned under "%s":</string>
 	<string source="hipo_confirm_abort">Press the &lt;b&gt;Next&lt;/b&gt; button below to confirm or the &lt;b&gt;Cancel&lt;/b&gt; button to abort.</string>
 	<string source="hipo_abort">Press the &lt;b&gt;Cancel&lt;/b&gt; button to abort.</string>
-	<string source="hipo_warning_safe_trash_few">You have selected to trash %1$s asset(s) but %2$s asset(s) cannot be moved to the trash. Please see the warning section for more information.</string>
-	<string source="hipo_warning_safe_trash_all">None of the selected assets can be moved to the trash. Please see the warning section for more information.</string>
-	<string source="hipo_warning_safe_trash_notice_link">The following asset(s) will not be trashed until all related notice links are removed.</string>
-	<string source="hipo_warning_safe_trash_link">Asset has notice links to other assets</string>
-	<string source="hipo_warning_safe_trash_status">The following asset(s) will not be trashed until their statuses are set to Under Construction or Archived.</string>
-	<string source="hipo_warning_safe_trash_children">The following asset(s) will not be trashed because one or more of the children either have statuses that are not safe to be trashed, or have notice links to other assets.</string>
+	<string source="hipo_warning_safe_trash_few">You have selected to trash %1$s assets but %2$s of these assets cannot be moved to the trash. See below for details.</string>
+	<string source="hipo_warning_safe_trash_all">None of the selected assets can be moved to the trash. See below for details.</string>
+	<string source="hipo_safe_trash_linking_title">Safe-Trash Linking Restrictions</string>
+	<string source="hipo_safe_trash_linking_msg">The following assets are Notice- or Type-3-linked to other assets, and cannot be trashed until the links are removed:</string>
+	<string source="hipo_warning_safe_trash_link">Asset has Notice or Type-3 links to other assets</string>
+	<string source="hipo_safe_trash_status_title">Safe-Trash Status Restrictions</string>
+	<string source="hipo_safe_trash_status_msg">The following assets cannot be trashed until their statuses are set to Under Construction or Archived:</string>
+	<string source="hipo_safe_trash_children_title">Safe-Trash Restrictions on Child Assets</string>
+	<string source="hipo_safe_trash_children_msg">The following assets cannot be trashed because one or more of their children do not satisfy the Safe-Trash conditions:</string>
+	<string source="hipo_safe_trash_mark_future_title">Mark Assets for Future Trashing</string>
+	<string source="hipo_safe_trash_child_label_many">%1$s has %2$s that do not satisfy the Safe-Trash restrictions</string>
+	<string source="hipo_safe_trash_child_label_one">%1$s has %2$s that does not satisfy the Safe-Trash restrictions</string>
+
 	<string source="hipo_move_confirmation">Move Confirmation</string>
 	<string source="hipo_confirm_new_links">Please confirm that you are creating new link(s) for the following asset(s) under "%s":</string>
 	<string source="hipo_from_under">"%1$s" from under "%2$s"</string>
 	<string source="hipo_assets_not_require_move">The following asset(s) have already been re-ordered under "%s". They do not need to be moved again:</string>
 	<string source="hipo_confirm_move_trash">Please confirm that you are moving %s asset(s) to the trash.</string>
 	<string source="hipo_confirm_move_under">Please confirm that you are moving the following asset(s) to under "%s":</string>
-	<string source="hipo_trash_warn_break_urls">When these asset(s) are moved to the trash, any URLs that they currently have will be broken. Use the asset finder below to select another asset to remap the URL to (Eg. a "Page not found" asset). If you do not want to remap the URLs, just leave the field empty.</string>
-	<string source="hipo_warning_trashing_affects_other_assets">Moving these assets to the trash is going to affect other assets in the system. A list of the affected assets is shown below along with a description of their purpose.</string>
+	<string source="hipo_trash_warning_asset_linked_to">%1$s is linked to %2$s</string>
+	<string source="hipo_trash_url_remapping_title">URL Remapping</string>
+	<string source="hipo_trash_url_remapping_msg">When these assets are moved to the trash, any URLs that they currently have will be broken. To remap their URLs to another asset (Eg. a "Page not found" asset), select that asset in the field below.</string>
+	<string source="hipo_trash_url_remapping_choose_url">The asset you have chosen to remap to has several URLs.  Choose which of its URLs you would like to use</string>
+	<string source="hipo_trash_warning_affected_title">Affected Assets</string>
+	<string source="hipo_trash_warning_affected_msg">Trashing these assets will affect other assets that link to them.  The linked assets for each asset being trashed, with the purpose of each link, are shown below:</string>
 	<string source="hipo_move">Moving "%1$s" to "%2$s"</string>
 	<string source="hipo_asset_link_successful">The following asset(s) have been successfully linked under "%s":</string>
 	<string source="hipo_asset_move_successful">The following asset(s) have been successfully moved under "%s":</string>
@@ -962,7 +969,7 @@
 	<string source="trash_purge_warning">This will purge the selected assets from the trash and make them unavailable for restoring or editing.</string>
 	<string source="trash_is_empty">The trash is currently empty</string>
 	<string source="purge_root_node">Purge Root Node</string>
-	<string source="purge_root_note">Only this asset and it's children will be purged. If no purge root is selected, all assets will be purged.</string>
+	<string source="purge_root_note">Only this asset and its children will be purged. If no purge root is selected, all assets will be purged.</string>
 	<string source="purge_trash">Purge Trash?</string>
 	<string source="minor_not_asset">Minor is not an asset</string>
 
@@ -1097,9 +1104,6 @@
 
 	<string source="trigger_has_status_basic">Asset has the current status of: %s</string>
 	<string source="trigger_selected_status_invalid">Selected status is invalid</string>
-
-	<string source="trigger_schema_apply-deny_the_following_schema">%s the following schema:</string>
-	<string source="trigger_schema_no_schema_specified">No schema specified</string>
 
 	<string source="trigger_tree_location_basic">Asset is under %s</string>
 	<string source="immediate_child_only">Immediate child only</string>
@@ -1400,7 +1404,6 @@
 
 	<string source="cascade_roles">Cascade Changes to Role Assignments?</string>
 	<string source="cascade_roles_option">Yes, cascade role assignment changes</string>
-	<string source="cascade_roles_to_dependents">Yes, cascade role assignment changes to dependent children</string>
 	<string source="cascade_roles_note">If you choose to cascade the role assignment changes you make for "%1$s", the changes will also be made on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.</string>
 	<string source="manually_cascade_roles">Manually Cascade Changes to Role Assignments?</string>
 	<string source="manually_cascade_roles_option">Yes, manually cascade role assignment changes</string>
@@ -1513,6 +1516,7 @@
 
 	<string source="archived">Archived</string>
 	<string source="asset">Asset</string>
+	<string source="n_assets">%d assets</string>
 	<string source="asset_field">Asset Field</string>
 	<string source="asset_name">Asset Name</string>
 	<string source="asset_name_short">Asset Short Name</string>
@@ -1562,6 +1566,7 @@
 	<string source="col">Col</string>
 	<string source="headings">Headings</string>
 	<string source="click_to_select">Click to select</string>
+	<string source="click_to_toggle_details">Click to show/hide details</string>
 	<string source="align">Align</string>
 	<string source="table">Table</string>
 	<string source="caption">Caption</string>
@@ -1740,6 +1745,7 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_cascading_permissions">Cascading Permissions</string>
 	<string source="hipo_cascading_workflow">Cascading Workflow</string>
 	<string source="hipo_cascading_content_tags">Cascading Content Tags</string>
+	<string source="hipo_cascading_roles">Cascading Roles</string>
 	<string source="hipo_checking_asset_types">Checking Asset Types</string>
 	<string source="hipo_checking_file_updates">Checking File Updates</string>
 	<string source="hipo_checking_versions">Checking Versions</string>
@@ -1793,8 +1799,8 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_updating_workflow_schemas">Updating Workflow Schemas</string>
 	<string source="hipo_updating_tags">Updating Tags</string>
 	<string source="hipo_updating_roles">Updating Roles</string>
-	<string source="hipo_cannot_remap_links_to_self">There is no point remapping the URLs of "%1$s" to itself - they are still going to be broken. Please choose another asset.</string>
-	<string source="hipo_cannot_remap_links_without_destination_url">You cannot remap URLs of "%1$s" to "%2$s" because it does not have a URL itself. Please choose another asset.</string>
+	<string source="hipo_cannot_remap_links_to_self">There is no point remapping the URLs of "%s" to itself - they are still going to be broken. Please choose another asset.</string>
+	<string source="hipo_cannot_remap_links_without_destination_url">You cannot remap URLs to "%s" because it does not have a URL itself. Please choose another asset.</string>
 	<string source="hipo_cannot_remap_urls">The system was unable to remap the URLs for "%1$s" to "%2$s"</string>
 
 	<!-- JAVA STRINGS -->
@@ -2148,10 +2154,10 @@ Are you sure you want to proceed?</string>
 	<string source="password_rules_intro">The following rules apply to new passwords:</string>
 	<string source="password_entry_instructions">Enter password once, then again to confirm.</string>
 
-	<string source="safe_trash_line_common">This asset is marked to be automatically trashed when it meets Safe Trash conditions.</string>
-	<string source="safe_trash_line_still_blocked">There are still Safe Trash conditions that prevent this asset from being trashed:</string>
+	<string source="safe_trash_line_common">This asset is marked to be automatically trashed when it meets Safe-Trash conditions.</string>
+	<string source="safe_trash_line_still_blocked">There are still Safe-Trash conditions that prevent this asset from being trashed:</string>
 	<string source="safe_trash_line_unblocked">This asset now satisfies those conditions and will now be trashed at the next run of the Cron Manager.</string>
-	<string source="safe_trash_line_disabled">However, Safe Trash is currently disabled. This asset will be trashed at the next run of the Cron Manager.</string>
+	<string source="safe_trash_line_disabled">However, Safe-Trash is currently disabled. This asset will be trashed at the next run of the Cron Manager.</string>
 	<string source="safe_trash_line_blocked_links"><![CDATA[There are NOTICE or TYPE_3 links from another asset to this asset. See the <a href="%s">Linking screen</a> for details of all this asset's links.]]></string>
 	<string source="safe_trash_line_blocked_status"><![CDATA[The asset's status is Live or higher status. Change the status to <em>Under Construction</em> or <em>Archived</em> to satisfy this condition.]]></string>
 	<string source="safe_trash_line_blocked_children">Any of the asset's children is either of Live or higher status, or is NOTICE or TYPE_3 linked to another asset.</string>

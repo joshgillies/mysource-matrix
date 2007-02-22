@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.49 2007/02/05 00:03:04 tbarrett Exp $
+* $Id: hipo_job_create_links.inc,v 1.50 2007/02/22 00:16:00 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -227,6 +227,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 	}//end getInitialStepData()
 
+
 	/**
 	* Prepares and sets up the running vars of this hipo.
 	* This is run before initialise(), because initialise() may not be run at all if this Job can be freestyle()'d
@@ -236,7 +237,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	*/
 	function prepare()
 	{
-		// an array of assetids that are not supposed to be trashed when safe trash = Yes
+		// an array of assetids that are not supposed to be trashed when Safe-Trash = Yes
 		$this->_running_vars['do_not_trash'] = Array();
 		return parent::prepare();
 
@@ -275,7 +276,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 			// Check if the assets have been moved to the trash. If there are any, warn about which links will be affected
 			if ($new_parent->id == $trash_folder->id) {
-				// if we are moving to the trash folder, we need to check if the safe trash pref has been enabled
+				// if we are moving to the trash folder, we need to check if the Safe-Trash pref has been enabled
 				$safe_trash = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_SAFE_TYPE3_TRASH');
 
 				// when checking for the number of links left in the system, make sure we disregard
@@ -314,7 +315,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 					}//end if !$num_other_links
 
-					// if we can't safe trash for any reason whatsoever, then
+					// if we can't Safe-Trash for any reason whatsoever, then
 					// let them know
 					if ($safe_trash) {
 						$trash_errors = $GLOBALS['SQ_SYSTEM']->am->canSafeTrashAsset($assetid, $current['linkid'], FALSE);
@@ -326,7 +327,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				}//end for
 
 			}//end if the assets have been moved to the trash
-		}
+		}//end if action = move
 
 		$this->_running_vars['can_skip_cascade'] = TRUE;
 		$this->_running_vars['assets_children'] = Array();
@@ -358,7 +359,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		}
 
 		if ($this->_running_vars['link_action'] == 'create') {
-			// we are creating a new link
+
+			// We are creating a new link
 			$o->openSection(translate('new_link_confirmation'));
 				if (!empty($this->_tmp['message'])) {
 					$o->openField('<span style="color: #FF0000;">Error</span>');
@@ -366,7 +368,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					$o->closeField();
 				}
 
-				$o->openField('&nbsp;');
+				$o->openField('');
 						echo '<p>'.translate('hipo_confirm_new_links', $new_parent->name).'</p>';
 						echo '<ul>';
 						for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
@@ -391,8 +393,6 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					$o->closeField();
 				}
 
-				$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
-
 				// Check if any assets were re-ordered outside the HIPO job (ie, parentid == to_parent_id)
 				// and print them here to avoid confusion
 				if (!empty($reordered_assets)) {
@@ -407,253 +407,31 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					$o->closeField();
 				}
 
-				// if we are moving to the trash folder, we need to check if the safe trash pref has been enabled
-				$safe_trash = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_SAFE_TYPE3_TRASH');
+				if ($new_parent->id == $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('trash_folder')) {
 
-				// work out how many assets do we really have to trash
-				// If we have nothing to trash, we no longer take out the "next"
-				// button because of the possibility for marking for safe trash
-				$nothing_to_trash = FALSE;
-				$not_to_trash = 0;
-				if ($safe_trash) {
-					$to_trash = count($assets);
-					$not_to_trash = count($this->_running_vars['do_not_trash']);
-					$nothing_to_trash = ($not_to_trash == $to_trash);
-				}
+					// We are moving to trash - lots of special stuff to do
+					$this->_paintMoveToTrashConfirmation($o, $prefix);
 
-				$o->openField('&nbsp;');
-					if ($new_parent->id == $trash_folder->id) {
+				} else {
 
-						// confirm that they are trashing x assets
-						if (count($assets) - $not_to_trash > 0) {
-							?><p><?php echo translate('hipo_confirm_move_trash', count($assets) - $not_to_trash);?></p><?php
-						}
-
-						if ($safe_trash && $not_to_trash > 0) {
-							if (count($assets)== $not_to_trash) {
-								?><p><strong class="sq-backend-warning"><?php echo translate('hipo_warning_safe_trash_all');?></strong></p><?php
-							} else {
-								?><p><strong class="sq-backend-warning"><?php echo translate('hipo_warning_safe_trash_few', count($assets), $not_to_trash);?></strong></p><?php
-							}
-						}
-
-						$shadow_assets = Array();
-						foreach ($assets as $one_id => $one_info) {
-							if (strpos($one_id,':')) $shadow_assets[] = $one_id;
-						}
-						if (!empty($shadow_assets)) {
-							$shadow_info_array = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($shadow_assets);
-							echo '<p><strong class="sq-backend-warning">'.translate('hipo_immediate_delete_shadow').':</strong>';
-							echo '<ul>';
-							foreach ($shadow_info_array as $shadow_info) {
-								echo '<li>'.$shadow_info['short_name'].'</li>';
-							}
-							echo '</ul></p>';
-						}
-
-					} else {
-						echo '<p>'.translate('hipo_confirm_move_under', $new_parent->name).'</p>';
-						echo '<ul>';
-						for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
-							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-							$current = current($assets);
-							$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current['parentid']);
-							echo '<li>"'.translate('hipo_from_under', $asset->name, $parent->name).'</li>';
-						}
+					// We are moving somewhere else
+					$o->openField('');
+					echo '<p>'.translate('hipo_confirm_move_under', $new_parent->name).'</p>';
+					echo '<ul>';
+					for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
+						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$current = current($assets);
+						$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current['parentid']);
+						echo '<li>'.translate('hipo_from_under', $asset->name, $parent->name).'</li>';
 					}
 					echo '</ul>';
+					$o->closeField();
 
-					if (isset($this->_hipo_vars['no_next']) && $this->_hipo_vars['no_next']) {
-						// if no next button printed, modify the confirm message a little
-							echo '<p>'.translate('hipo_abort').'</p>';
-					} else {
-						echo '<p>'.translate('hipo_confirm_abort').'</p>';
-					}
+				}//end else
 
-					if ($new_parent->id == $trash_folder->id) {
-						if (!$safe_trash || ($safe_trash && !$nothing_to_trash)) {
-							// do not paint this section if we have nothing to trash
-							?><p><?php echo translate('hipo_trash_warn_break_urls'); ?></p><?php
-							asset_finder($prefix.'_remap_new_url', NULL, Array(), 'sq_sidenav', TRUE);
-						}
-					}
-				$o->closeField();
+			$o->closeSection();
 
-
-				// Check if the assets have been moved to the trash. If there are any, warn about which links will be affected
-				if ($new_parent->id == $trash_folder->id) {
-					// when checking for the number of links left in the system, make sure we disregard
-					// any link to the trash folder because even if this asset is already in the trash,
-					// we should warn about deleting it
-
-					$trash_section_painted = FALSE;
-
-					$affected_links = array_get_index($this->_running_vars,'affected_links',Array());
-					foreach ($affected_links as $assetid => $links) {
-						$trash_errors = $GLOBALS['SQ_SYSTEM']->am->canSafeTrashAsset($assetid);
-
-						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-						// now lets get all the other links this asset has in the system and
-						// display them to the user
-						// note that we are also going to ask the major asset in the link
-						// to describe it so it makes sense to the user looking at it
-
-						if (!$trash_section_painted) {
-							$o->openSection(translate('warning_-_moving_to_trash'));
-								$o->openField('&nbsp;');
-									if ($safe_trash) {
-										?><p><strong class="sq-backend-warning"><?php echo translate('hipo_warning_safe_trash_notice_link') ?></strong></p><?php
-									} else {
-										?><p><?php echo translate('hipo_warning_trashing_affects_other_assets'); ?></p><?php
-									}
-									$trash_section_painted = TRUE;
-						}
-
-						?><script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/tooltip.js' ?>"></script><?php
-
-						echo get_asset_tag_line($asset->id).'<br /><br />';
-
-						$link_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id);
-
-						?><table class="sq-backend-table"><?php
-						foreach ($links as $link_data) {
-							$major =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['majorid'], $link_data['major_type_code']);
-							$link_description = $major->describeLink($link_data['linkid']);
-							$link_lineage_data = array_pop($link_lineages);
-							$link_lineage = $link_lineage_data['lineage'];
-
-							// construct a human readable lineage
-							$num_in_lineage = count($link_lineage);
-							$lineage = '';
-
-							$i = 0;
-							foreach ($link_lineage as $parentid => $name) {
-								if ($i == ($num_in_lineage - 1)) {
-									continue;
-								} else if ($i <= 1 || $num_in_lineage <= 5) {
-									$lineage .= $name.' &gt; ';
-								} else if ($num_in_lineage - $i <= 3 && $num_in_lineage > 5) {
-									$lineage .= $name.' &gt; ';
-								} else if ($i == 2 && $num_in_lineage > 5) {
-									$lineage .= '... &gt; ';
-								}
-								$i++;
-							}
-
-							$lineage .= '<b>'.array_pop($link_lineage).'</b>';
-
-							?>
-							<tr>
-								<td class="sq-backend-table-cell">
-									<?php echo get_asset_tag_line($major->id); ?>
-									<?php echo (!empty($link_description)) ? '<br/>'.$link_description : ''; ?>
-								</td>
-							</tr>
-							<?php
-						}//end foreach
-						?></table><?php
-
-					}//end foreach
-
-					// paint the not safe status
-					if ($safe_trash && !empty($this->_running_vars['do_not_trash'])) {
-						$warning_painted = FALSE;
-						foreach($this->_running_vars['do_not_trash'] as $id => $data) {
-							if (isset($data['status'])) {
-								if (!$trash_section_painted) {
-									$o->openSection(translate('warning_-_moving_to_trash'));
-										$o->openField('&nbsp;');
-										$trash_section_painted = TRUE;
-								}
-								if (!$warning_painted) {
-									?><p><strong class="sq-backend-warning"><?php echo translate('hipo_warning_safe_trash_status') ?></strong></p><?php
-									$warning_painted = TRUE;
-								}
-								echo "$data[name] (Id: #$id), Current Status: ".get_asset_status_icon($data['status']).get_status_description($data['status']).'<br>';
-							}
-						}
-						echo '</p>';
-					}
-
-					// paint the not safe children section
-					if ($safe_trash && !empty($this->_running_vars['do_not_trash'])) {
-						$warning_painted = FALSE;
-						foreach($this->_running_vars['do_not_trash'] as $id => $data) {
-							if (isset($data['children'])) {
-								if (!$trash_section_painted) {
-									$o->openSection(translate('warning_-_moving_to_trash'));
-										$o->openField('&nbsp;');
-										$trash_section_painted = TRUE;
-								}
-								if (!$warning_painted) {
-									?><p><strong class="sq-backend-warning"><?php echo translate('hipo_warning_safe_trash_children') ?></strong></p><?php
-									echo '<ul>';
-									$warning_painted = TRUE;
-								}
-								echo '<li>'.$data['name']." (Id: #$id)";
-								echo '<ul>';
-								foreach ($data['children'] as $child_info) {
-									echo '<li>'.$child_info['name'].' (Id: #'.$child_info['minorid'].')';
-									if ($child_info['link_type'] == SQ_LINK_TYPE_3 || $child_info['link_type'] == SQ_LINK_NOTICE) {
-										echo '<br> &nbsp; '.translate('hipo_warning_safe_trash_link');
-									} else if ($child_info['status'] >= SQ_STATUS_LIVE) {
-										echo '<br> &nbsp; Current Status: '.get_asset_status_icon($child_info['status']).get_status_description($child_info['status']);
-
-									}
-									echo '</li>';
-								}
-								echo '</ul>';
-								echo '</li>';
-							}
-						}
-						if ($warning_painted) echo '</ul>';
-						echo '</p>';
-					}
-
-					if ($trash_section_painted) {
-						$o->closeField();
-						$o->closeSection();
-					}
-
-					// paint the mark for safe trash
-					if ($safe_trash && !empty($this->_running_vars['do_not_trash'])) {
-						$o->openSection('Mark Assets for Deletion');
-						$o->openField('');
-
-						$assetids = array_keys($this->_running_vars['do_not_trash']);
-						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
-
-						?><p>Here is a summary of assets that cannot be trashed due to Safe Trash rules. You can mark these assets for deletion - this creates a Cron Job that will attempt to trash the asset on each run, if and when the above Safe Trash conditions are satisfied.</p>
-
-						<div id="<?php echo $prefix ?>_mark">
-						<?php if (count($assetids) > 1) {
-							?><input type="checkbox" id="<?php echo $prefix ?>_mark_all" onclick="inputs = this.parentNode.getElementsByTagName('INPUT'); for (i = 0; i &lt; inputs.length; i++) { if ((inputs[i].type == 'checkbox') && (inputs[i]!= this)) inputs[i].checked = this.checked; }"> <em><?php echo translate('select_all'); ?></em>
-							<hr />
-							<?php } ?>
-						<?php
-
-						foreach ($assetids as $assetid) {
-						?>
-						<div><input type="checkbox" name="<?php echo $prefix ?>_mark[<?php echo $assetid ?>]" id="<?php echo $prefix ?>_mark_<?php echo $assetid ?>" value="1" <?php
-						if (count($assetids) > 1) {
-							?> onclick="selall = document.getElementById('<?php echo $prefix ?>_mark_all'); inputs = this.parentNode.parentNode.getElementsByTagName('INPUT'); sel_value = true; for (i = 0; i &lt; inputs.length; i++) { if ((inputs[i].type == 'checkbox') && (inputs[i] != selall)) { sel_value = sel_value && inputs[i].checked; } if (!sel_value) break; } selall.checked = sel_value;">
-							<?php
-						}
-						?>
-							<?php echo get_asset_type_icon($asset_info[$assetid]['type_code']); ?>
-							<?php echo $asset_info[$assetid]['name']; ?> (Id: #<?php echo $assetid; ?>)</div>
-						<?php
-						}
-						?>
-						</div>
-						<?php
-						$o->closeField();
-						$o->closeSection();
-					}
-
-				}//end if the assets have been moved to the trash
-				$o->closeSection();
-			}//end if action is 'move'
+		}//end if action is 'move'
 
 		$o->addHiddenField('form_submitted', 1);
 		return TRUE;
@@ -662,7 +440,342 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 
 	/**
-	* Process confirmation screen, setting up remaps and "mark for safe trash"
+	* Paint the interface for confirming the trashing of asset(s)
+	*
+	* @param object	&$o		Backend outputter
+	* @param string	$prefix	Prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function _paintMoveToTrashConfirmation(&$o, $prefix)
+	{
+		if (!empty($this->_running_vars['remap_choices'])) {
+
+			// They've chosen an asset to remap to but need to choose which of its URLs to use
+			$this->_paintRemapURLChooser($o, $prefix);
+
+		} else {
+
+			// check if the Safe-Trash pref has been enabled
+			$safe_trash = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_SAFE_TYPE3_TRASH');
+			$assets =& $this->_running_vars['assets'];
+
+			// work out how many assets do we really have to trash
+			// If we have nothing to trash, we no longer take out the "next"
+			// button because of the possibility for marking for Safe-Trash
+			$nothing_to_trash = FALSE;
+			$not_to_trash = 0;
+			if ($safe_trash) {
+				$to_trash = count($assets);
+				$not_to_trash = count($this->_running_vars['do_not_trash']);
+				$nothing_to_trash = ($not_to_trash == $to_trash);
+			}
+
+			$o->openField('');
+
+			// Ask them to confirm that they want to trash all these assets
+			if (count($assets) - $not_to_trash > 0) {
+				echo translate('hipo_confirm_move_trash', count($assets) - $not_to_trash).'</p>';
+				if (isset($this->_hipo_vars['no_next']) && $this->_hipo_vars['no_next']) {
+					// if no next button printed, modify the confirm message a little
+					echo '<p>'.translate('hipo_abort').'</p>';
+				} else {
+					echo '<p>'.translate('hipo_confirm_abort').'</p>';
+				}
+			}
+
+			// Print Safe-Trash notices
+			if ($safe_trash && $not_to_trash > 0) {
+				if (count($assets)== $not_to_trash) {
+					?><p><strong class="sq-backend-warning"><?php echo translate('hipo_warning_safe_trash_all');?></strong></p><?php
+				} else {
+					?><p><strong class="sq-backend-warning"><?php echo translate('hipo_warning_safe_trash_few', count($assets), $not_to_trash);?></strong></p><?php
+				}
+			}
+
+			// Warn that shadow assets will not be trashed
+			$shadow_assets = Array();
+			foreach ($assets as $one_id => $one_info) {
+				if (strpos($one_id,':')) $shadow_assets[] = $one_id;
+			}
+			if (!empty($shadow_assets)) {
+				$shadow_info_array = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($shadow_assets);
+				echo '<p><strong class="sq-backend-warning">'.translate('hipo_immediate_delete_shadow').':</strong>';
+				echo '<ul>';
+				foreach ($shadow_info_array as $shadow_info) {
+					echo '<li>'.$shadow_info['short_name'].'</li>';
+				}
+				echo '</ul></p>';
+			}
+
+			$o->closeField();
+
+			// Paint the list of affected assets, with appropriate warning message depending on
+			// whether we are Safe-Trashing ('those assets will be affected' / 'you can't delete these assets'
+			if ($safe_trash) {
+				$affected_title = translate('hipo_safe_trash_linking_title');
+				$warning_msg = translate('hipo_safe_trash_linking_msg');
+			} else {
+				$affected_title = translate('hipo_trash_warning_affected_title');
+				$warning_msg = translate('hipo_trash_warning_affected_msg');
+			}
+			$this->_paintAffectedAssetsWarning($o, $affected_title, $warning_msg);
+
+			if ($safe_trash && !empty($this->_running_vars['do_not_trash'])) {
+				// Paint other safe-trash sections
+				$this->_paintSafeTrashStatusWarning($o);
+				$this->_paintSafeTrashChildrenWarning($o);
+				$this->_paintMarkForDeletionList($o, $prefix);
+			}
+
+			if (!$nothing_to_trash) {
+				$this->_paintRemapAssetChooser($o, $prefix);
+			}
+		}//end else remap assetid not submitted
+
+	}//end _paintMoveToTrashConfirmation()
+
+
+	/**
+	* Warn the user of assets whose trashing will affect other assets
+	*
+	* If Safe-Trash is enabled this indicates that assets cannot be trashed
+	* otherwise it's just a notification
+	*
+	* @param object	&$o				Backend outputter
+	* @param string	$title			Title for the list
+	* @param string	$warning_msg	Message to be printed at the top of the list
+	*
+	* @return void
+	* @access public
+	*/
+	function _paintAffectedAssetsWarning(&$o, $title, $warning_msg)
+	{
+		// when checking for the number of links left in the system, make sure we disregard
+		// any link to the trash folder because even if this asset is already in the trash,
+		// we should warn about deleting it
+		$affected_links = array_get_index($this->_running_vars, 'affected_links', Array());
+		if (!empty($affected_links)) {
+			$o->addJsInclude(sq_web_path('lib').'/js/tooltip.js');
+			$o->openField($title, 'new_line');
+			echo '<p>'.$warning_msg.'</p>';
+			foreach ($affected_links as $assetid => $links) {
+				echo '<br />'.translate('hipo_trash_warning_asset_linked_to', get_asset_tag_line($assetid), '<u class="clickable" onclick="toggleNextElt(this, \'TABLE\')" title="'.translate('click_to_toggle_details').'">'.translate('n_assets', count($links)).'</u>');
+				?>
+				<table class="sq-backend-table" style="width: 80%; margin-left: 20px; display: none;">
+				<?php
+				foreach ($links as $link_data) {
+					$major =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['majorid'], $link_data['major_type_code']);
+					$link_description = $major->describeLink($link_data['linkid']);
+					?>
+					<tr>
+						<td><?php echo get_asset_tag_line($major->id); ?></td>
+						<td><?php echo (!empty($link_description)) ? $link_description : ''; ?></td>
+					</tr>
+					<?php
+				}//end foreach
+				?>
+				</table>
+				<?php
+			}//end foreach
+			echo '<br /><br />';
+			$o->closeField();
+		}//end if any affected links
+
+	}//end _paintAffectedAssetsWarning()
+
+
+	/**
+	* Warn user of assets that can't be trashed because their status violates Safe-Trash rules
+	*
+	* @param object	&$o	Backend outputter
+	*
+	* @return void
+	* @access public
+	*/
+	function _paintSafeTrashStatusWarning(&$o)
+	{
+		// paint the not safe status
+		$warning_painted = FALSE;
+		foreach ($this->_running_vars['do_not_trash'] as $id => $data) {
+			if (isset($data['status'])) {
+				if (!$warning_painted) {
+					$o->openField(translate('hipo_safe_trash_status_title'), 'new_line');
+					?><p><?php echo translate('hipo_safe_trash_status_msg') ?></p><?php
+					echo '<ul>';
+					$warning_painted = TRUE;
+				}
+				echo '<li>';
+				echo translate('asset_format', $data['name'], $id).' - ';
+				echo translate('current_status').': ';
+				echo get_asset_status_icon($data['status']).get_status_description($data['status']).'<br />';
+				echo '</li>';
+			}
+		}
+		if ($warning_painted) {
+			echo '</ul>';
+			$o->closeField();
+		}
+
+	}//end _paintSafeTrashStatusWarning()
+
+
+	/**
+	* Warn the user of assets that can't be trashed because their children violate Safe-Trash rules
+	*
+	* @param object	&$o	Backend outputter
+	*
+	* @return void
+	* @access public
+	*/
+	function _paintSafeTrashChildrenWarning(&$o)
+	{
+		$warning_painted = FALSE;
+		foreach ($this->_running_vars['do_not_trash'] as $id => $data) {
+			if (isset($data['children'])) {
+				if (!$warning_painted) {
+					$o->openField(translate('hipo_safe_trash_children_title'), 'new_line');
+					echo '<p>'.translate('hipo_safe_trash_children_msg').'</p>';
+					echo '<ul>';
+					$warning_painted = TRUE;
+				}
+
+				$details = '<ul style="display: none">';
+				$problem_child_count = 0;
+				foreach ($data['children'] as $child_info) {
+					$details .= '<li>'.translate('asset_format', $child_info['name'], $child_info['minorid']);
+					if ($child_info['link_type'] == SQ_LINK_TYPE_3 || $child_info['link_type'] == SQ_LINK_NOTICE) {
+						$details .= ' - '.translate('hipo_warning_safe_trash_link');
+						$problem_child_count++;
+					} else if ($child_info['status'] >= SQ_STATUS_LIVE) {
+						$details .= ' - '.translate('current_status').': '.get_asset_status_icon($child_info['status']).get_status_description($child_info['status']);
+						$problem_child_count++;
+					}
+					$details .= '</li>';
+				}
+				$details .= '</ul>';
+
+				$code = ($problem_child_count == 1) ? 'hipo_safe_trash_child_label_one' : 'hipo_safe_trash_child_label_many';
+				$sub_code = ($problem_child_count == 1) ? '1_child' : 'n_children';
+				echo '<li>'.translate($code, translate('asset_format', $data['name'], $id), '<u class="clickable" onclick="toggleNextElt(this, \'UL\')" title="'.translate('click_to_toggle_details').'">'.translate($sub_code, $problem_child_count).'</u>');
+				echo $details;
+				echo '</li>';
+			}
+		}
+		if ($warning_painted) {
+			echo '</ul>';
+			$o->closeField();
+		}
+
+	}//end _paintSafeTrashChildrenWarning()
+
+
+	/**
+	* Paint the interface for marking assets for future trashing
+	*
+	* @param object	&$o		Backend outputter
+	* @param string	$prefix	Prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function _paintMarkForDeletionList(&$o, $prefix)
+	{
+		$o->openField(translate('hipo_safe_trash_mark_future_title'), 'new_line');
+
+		$assetids = array_keys($this->_running_vars['do_not_trash']);
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
+
+		?><p>The assets that cannot be trashed due to Safe-Trash rules are listed below.  Selecting assets from this list will mark them for future trashing.  This creates a cron job that will automatically trash the asset as soon as the Safe-Trash rules are satisfied.</p>
+
+		<div id="<?php echo $prefix ?>_mark">
+			<?php
+			if (count($assetids) > 1) {
+				// enable select-all
+				?>
+				<input type="checkbox" id="<?php echo $prefix ?>_mark_all" onclick="inputs = this.parentNode.getElementsByTagName('INPUT'); for (i = 0; i &lt; inputs.length; i++) { if ((inputs[i].type == 'checkbox') && (inputs[i]!= this)) inputs[i].checked = this.checked; }"> 
+				<label for="<?php echo $prefix ?>_mark_all"><em><?php echo translate('select_all'); ?></em></label>
+				<hr />
+				<?php
+				$onclick = 'onclick="selall = document.getElementById(\''.$prefix.'_mark_all\'); inputs = this.parentNode.parentNode.getElementsByTagName(\'INPUT\'); sel_value = true; for (i = 0; i &lt; inputs.length; i++) { if ((inputs[i].type == \'checkbox\') && (inputs[i] != selall)) { sel_value = sel_value && inputs[i].checked; } if (!sel_value) break; } selall.checked = sel_value;"';
+			} else {
+				$onclick = '';
+			}
+			foreach ($assetids as $assetid) {
+				?>
+				<div>
+					<input type="checkbox" name="<?php echo $prefix ?>_mark[<?php echo $assetid ?>]" id="<?php echo $prefix ?>_mark_<?php echo $assetid ?>" value="1" <?php echo $onclick; ?> >
+					<label for="<?php echo $prefix ?>_mark_<?php echo $assetid ?>">
+					<?php
+					echo get_asset_type_icon($asset_info[$assetid]['type_code']);
+					echo translate('asset_format', $asset_info[$assetid]['name'], $assetid);
+					?>
+					</label>
+				</div>
+			<?php
+			}
+			?>
+		</div>
+		<?php
+		echo '<br />';
+		$o->closeField();
+
+	}//end _paintMarkForDeletionList()
+
+
+	/**
+	* Paint the interface for choosing an asset to remap URLs of a soon-to-be-trashed asset to
+	*
+	* @param object	&$o		Backend outputter
+	* @param string	$prefix	Prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function _paintRemapAssetChooser(&$o, $prefix)
+	{
+		// Paint the remap-URLs section if appropriate
+		$existing_urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($this->_running_vars['assets']));
+		foreach ($existing_urls as $url) {
+			if (!empty($url)) {
+				// At least one real URL exists, so ask if they want to remap URLs
+				$o->openField(translate('hipo_trash_url_remapping_title'), 'new_line');
+				echo '<p>'.translate('hipo_trash_url_remapping_msg').'</p>';
+				asset_finder($prefix.'_remap_new_url', NULL, Array(), 'sq_sidenav', TRUE);
+				$o->closeField();
+				break;
+			}
+		}
+
+	}//end _paintRemapAssetChooser()
+
+
+	/**
+	* Paint the interface for choosing which of the selected asset's URLs should be used for remapping
+	*
+	* @param object	&$o		Backend outputter
+	* @param string	$prefix	Prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function _paintRemapURLChooser(&$o, $prefix)
+	{
+		$o->openField('');
+		echo '<p>'.translate('hipo_trash_url_remapping_choose_url').':</p>';
+		foreach ($this->_running_vars['remap_choices'] as $i => $url) {
+			radio_button($prefix.'_chosen_remap_url', $i, ($i==0));
+			label($url['url'], $prefix.'_chosen_remap_url_'.$i);
+			echo '<br />';
+		}
+		$o->closeField();
+
+	}//end _paintRemapURLChooser()
+
+
+	/**
+	* Process confirmation screen, setting up remaps and "mark for Safe-Trash"
 	* assets
 	*
 	* @param array	&$step_data	the step data for this job
@@ -673,47 +786,68 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	*/
 	function processConfirmation(&$step_data, $prefix)
 	{
-		// if we are moving to the trash and they want to remap the URL's of the asset that
+		// if we are moving to the trash and they want to remap the URLs of the asset that
 		// is being trashed to another asset, go through and do all this for them
-
-		if (isset($_POST['form_submitted']) && isset($_POST[$prefix.'_remap_new_url']['assetid'])) {
-			$assets_to_remap = $this->_running_vars['assets'];
-			foreach ($assets_to_remap as $source_assetid => $remap_info) {
-				$dest_assetid = $_POST[$prefix.'_remap_new_url']['assetid'];
-				if ($dest_assetid) {
-					$dest_url = strip_url($_POST[$prefix.'_remap_new_url']['url']);
-
-					if ($dest_assetid == $source_assetid) {
-						$source_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
-						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_links_to_self', $source_asset->name).'</span>';
-						return TRUE;
+		if (isset($_POST['form_submitted'])) {
+			if (isset($_POST[$prefix.'_chosen_remap_url'])) {
+				$remap_url = $this->_running_vars['remap_choices'][(int)$_POST[$prefix.'_chosen_remap_url']]['url'];
+				$rm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+				foreach ($this->_running_vars['assets'] as $source_assetid => $info) {
+					if (isset($this->_running_vars['do_not_trash'][$source_assetid])) {
+						continue;
 					}
-
-					if (empty($dest_url)) {
+					if (!$rm->remapAllURLs($source_assetid, $remap_url)) {
 						$source_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
-						$remap_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($dest_assetid);
-						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_links_without_destination_url', $source_asset->name, $remap_asset->name).'</span>';
-						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
-						return TRUE;
-					}
-
-					$rm =&$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-					if (!$rm->remapAllURLs($source_assetid, $dest_url)) {
-						$source_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
-						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_urls', $source_asset->name, $dest_url).'</span>';
+						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_urls', $source_asset->name, remap_url).'</span>';
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
 						return TRUE;
 					}
 				}
 			}
+
+			if (!empty($_POST[$prefix.'_remap_new_url']['assetid'])) {
+				$dest_assetid = $_POST[$prefix.'_remap_new_url']['assetid'];
+				$dest_urls = $GLOBALS['SQ_SYSTEM']->am->getURLs($dest_assetid);
+				switch (count($dest_urls)) {
+					case 1:
+						// Target asset has exactly one URL - do the remap straight away
+						$dest_url_data = reset($dest_urls);
+						$rm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+						foreach ($this->_running_vars['assets'] as $source_assetid => $info) {
+							if (isset($this->_running_vars['do_not_trash'][$source_assetid])) {
+								continue;
+							}
+							if (!$rm->remapAllURLs($source_assetid, $dest_url_data['url'])) {
+								$source_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
+								$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_urls', $source_asset->name, $dest_url_data['url']).'</span>';
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
+								return TRUE;
+							}
+						}
+					break;
+					case 0:
+						// Cannot remap, the target asset has no URLs
+						$remap_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($dest_assetid);
+						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_links_without_destination_url', $remap_asset->name).'</span>';
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
+						return TRUE;
+					break;
+					default:
+						// Target asset has several URLs; ask the user which one to use
+						$this->_running_vars['remap_choices'] = $dest_urls;
+						$step_data['percent_done'] = 75;
+						$ste_data['complete'] = FALSE;
+						return TRUE;
+					break;
+				}//end switch
+			}//end if remap assetid supplied
+
+			if (isset($_POST[$prefix.'_mark'])) {
+				$this->_running_vars['mark_for_deletion'] = $_POST[$prefix.'_mark'];
+			}
+
 		}//end if HIPO form submitted
 
-		if (isset($_POST['form_submitted']) && isset($_POST[$prefix.'_mark'])) {
-
-			$this->_running_vars['mark_for_deletion'] = $_POST[$prefix.'_mark'];
-
-
-		}
 
 		if ($step_data['percent_done'] == 0) {
 			$step_data['percent_done'] = 50;
@@ -836,7 +970,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						$success = $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
 					}
 				}
-			}
+			}//end if moving to trash
 
 			// if we are moving a shadow asset to the trash, the bridge is responsible for deletion of links
 			// and determining whether the shadow asset itself should be deleted
@@ -849,7 +983,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				// if the major of this link contains no colon, and is not a bridge, then it's a real asset
 				// with a shadow asset linked underneath, so get the asset manager to handle this delete
 				if (!empty($link) && (FALSE === strpos($link['majorid'], ':')) && !implements_interface($asset, 'bridge')) {
-					// if safe trash is enabled, make sure we can delete this link
+					// if Safe-Trash is enabled, make sure we can delete this link
 					if (!$safe_trash || ($safe_trash && !in_array($assetid, array_keys($this->_running_vars['do_not_trash'])))) {
 
 						if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($value['linkid'], FALSE)) {
@@ -912,7 +1046,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 					$this->_running_vars['to_parent_pos']++;
 				} else {
-					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					// If we are marking for deletion, then do so
 					if (!$safe_to_trash) {
 						$cron_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
@@ -942,7 +1076,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					} else {
 						$step_data['message'] = translate('hipo_skipping_asset', $asset->id);
 					}
-				}
+				}//end else not actually trashing
 
 			}//end else moving to trash
 
