@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.14 2007/01/29 05:38:58 tbarrett Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.15 2007/02/22 03:04:40 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -178,6 +178,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'uv');
 
 		$result = $db->getOne($sql.$where);
+		log_dump($sql.$where);
 		assert_valid_db_result($result);
 		return $result;
 
@@ -309,6 +310,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$unsubscriptions = empty($unsubscriptions) ? Array() : explode(',', $unsubscriptions);
 
 		if (empty($subscriptions) && empty($unsubscriptions)) {
+			$this->errors[] = translate('bm_no_subscription_no_unsubscription');
 			return;
 		}
 
@@ -397,10 +399,14 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	{
 		$email_address = array_get_index($_REQUEST, $this->getPrefix().'_email_address', '');
 		$user_name = array_get_index($_REQUEST, $this->getPrefix().'_user_name', '');
-		if (empty($email_address)) return;
+		if (empty($email_address)) {
+			$this->errors[] = translate('bm_email_empty');
+			return;
+		}
 
 		$subscriptions = array_get_index($_REQUEST, $this->getPrefix().'_subscriptions', Array());
 		$unsubscriptions = array_get_index($_REQUEST, $this->getPrefix().'_unsubscriptions', Array());
+
 
 		// if the values are not passed as an array, force it into an array
 		if (!is_array($subscriptions)) {
@@ -418,6 +424,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			}
 		}
 		if (empty($subscriptions) && empty($unsubscriptions)) {
+			$this->errors[] = translate('bm_no_subscription_no_unsubscription');
 			return;
 		}
 
@@ -473,7 +480,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$bulk_userid = $this->getExistingBulkmailUserid($email_address);
 
 		// The user doesn't exist at all, so we are going to create it
-		if (empty($bulk_userid) && !empty($subscriptions)) {
+		if ( (empty($bulk_userid)) && !empty($subscriptions)) {
 			// We should clear the unsubscriptions considering you can't unsubscribe
 			// if you don't exist
 			$unsubscriptions = Array();
@@ -490,19 +497,34 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 						'value'		=> $link_value,
 					);
 
+			$creation_succeed = FALSE;
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED + SQ_SECURITY_LINK_INTEGRITY);
-				$bulkmail_user->setAttrValue('email', $email_address);
-				$bulkmail_user->setAttrValue('name', $user_name);
+
+
+				// if we could not set the email add a error
+				if (!$bulkmail_user->setAttrValue('email', $email_address)) {
+					$this->errors[] = translate('bm_email_invalid');
+				}
+
+				// if we could not set the name add a error
+				if (!$bulkmail_user->setAttrValue('name', $user_name)) {
+					$this->errors[] = translate('bm_username_invalid');
+				}
 				$bulkmail_user->create($link);
-				$done = $this->processMinorLinks($bulkmail_user->id, Array(), $subscriptions, $this->attr('link_type'));
+				// if create succeed processMinor Links
+				if (!empty($bulkmail_user->id)) {
+					$done = $this->processMinorLinks($bulkmail_user->id, Array(), $subscriptions, $this->attr('link_type'));
+					$creation_succeed = TRUE;
+				}
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-			$done['add_success'][] = $parent_assetid;
-			$this->addLinkingMessages($done);
+			if ($creation_succeed) {
+				$done['add_success'][] = $parent_assetid;
+				$this->addLinkingMessages($done);
+			}
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_asset);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bulkmail_user);
-
 		// The user already exists, so we need to shift them in and out of whatever groups they have selected
 		} else if ($bulk_userid) {
 			$bulkmail_user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bulk_userid, 'bulkmail_user');
@@ -872,6 +894,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		return '';
 
 	}//end _getDefaultBodycopyContents()
+
 
 }//end class
 
