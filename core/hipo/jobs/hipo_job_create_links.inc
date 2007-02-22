@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.43.2.2 2007/02/05 00:06:57 tbarrett Exp $
+* $Id: hipo_job_create_links.inc,v 1.43.2.3 2007/02/22 00:59:13 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.43.2.2 $
+* @version $Revision: 1.43.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -410,6 +410,21 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					$o->closeField();
 				}
 
+				if (!empty($this->_running_vars['remap_choices'])) {
+					// They've chosen an asset to remap to but need to choose which of its URLs to use
+					$o->openField('');
+					echo '<p>'.translate('hipo_trash_url_remapping_choose_url').':</p>';
+					foreach ($this->_running_vars['remap_choices'] as $i => $url) {
+						radio_button($prefix.'_chosen_remap_url', $i, ($i==0), '', 'id="'.$prefix.'_chosen_remap_url_'.$i.'"');
+						label($url['url'], $prefix.'_chosen_remap_url_'.$i);
+						echo '<br />';
+					}
+					$o->closeField();
+					$o->addHiddenField('form_submitted', 1);
+					return TRUE;
+				}
+
+
 				$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 
 				// Check if any assets were re-ordered outside the HIPO job (ie, parentid == to_parent_id)
@@ -650,39 +665,60 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	*/
 	function processConfirmation(&$step_data, $prefix)
 	{
-		// if we are moving to the trash and they want to remap the URL's of the asset that
-		// is being trashed to another asset, go through and do all this for them
-
-		if (isset($_POST['form_submitted']) && isset($_POST[$prefix.'_remap_new_url']['assetid'])) {
-			$assets_to_remap = $this->_running_vars['assets'];
-			foreach ($assets_to_remap as $source_assetid => $remap_info) {
-				$dest_assetid = $_POST[$prefix.'_remap_new_url']['assetid'];
-				if ($dest_assetid) {
-					$dest_url = strip_url($_POST[$prefix.'_remap_new_url']['url']);
-
-					if ($dest_assetid == $source_assetid) {
-						$source_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
-						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_links_to_self', $source_asset->name).'</span>';
-						return TRUE;
+		if (isset($_POST['form_submitted'])) {
+			if (isset($_POST[$prefix.'_chosen_remap_url'])) {
+				$remap_url = $this->_running_vars['remap_choices'][(int)$_POST[$prefix.'_chosen_remap_url']]['url'];
+				$rm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+				foreach ($this->_running_vars['assets'] as $source_assetid => $info) {
+					if (isset($this->_running_vars['do_not_trash'][$source_assetid])) {
+						continue;
 					}
-
-					if (empty($dest_url)) {
+					if (!$rm->remapAllURLs($source_assetid, $remap_url)) {
 						$source_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
-						$remap_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($dest_assetid);
-						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_links_without_destination_url', $source_asset->name, $remap_asset->name).'</span>';
-						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
-						return TRUE;
-					}
-
-					$rm =&$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-					if (!$rm->remapAllURLs($source_assetid, $dest_url)) {
-						$source_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
-						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_urls', $source_asset->name, $dest_url).'</span>';
+						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_urls', $source_asset->name, remap_url).'</span>';
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
 						return TRUE;
 					}
 				}
 			}
+
+			if (!empty($_POST[$prefix.'_remap_new_url']['assetid'])) {
+				$dest_assetid = $_POST[$prefix.'_remap_new_url']['assetid'];
+				$dest_urls = $GLOBALS['SQ_SYSTEM']->am->getURLs($dest_assetid);
+				switch (count($dest_urls)) {
+					case 1:
+						// Target asset has exactly one URL - do the remap straight away
+						$dest_url_data = reset($dest_urls);
+						$rm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+						foreach ($this->_running_vars['assets'] as $source_assetid => $info) {
+							if (isset($this->_running_vars['do_not_trash'][$source_assetid])) {
+								continue;
+							}
+							if (!$rm->remapAllURLs($source_assetid, $dest_url_data['url'])) {
+								$source_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
+								$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_urls', $source_asset->name, $dest_url_data['url']).'</span>';
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
+								return TRUE;
+							}
+						}
+					break;
+					case 0:
+						// Cannot remap, the target asset has no URLs
+						$remap_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($dest_assetid);
+						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_links_without_destination_url', $remap_asset->name).'</span>';
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
+						return TRUE;
+					break;
+					default:
+						// Target asset has several URLs; ask the user which one to use
+						$this->_running_vars['remap_choices'] = $dest_urls;
+						$step_data['percent_done'] = 75;
+						$ste_data['complete'] = FALSE;
+						return TRUE;
+					break;
+				}//end switch
+			}//end if remap assetid supplied
+
 		}//end if HIPO form submitted
 
 		if ($step_data['percent_done'] == 0) {
