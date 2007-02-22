@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.10 2007/02/01 03:25:06 emcdonald Exp $
+* $Id: trigger_action_send_email.inc,v 1.11 2007/02/22 04:28:38 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -132,18 +132,37 @@ class Trigger_Action_Send_Email extends Trigger_Action
 			$email_format_value = serialize($unserialised);
 		}
 
-		// get the keywords
-		$avl_keywords = $state['asset']->getAvailableKeywords();
-		foreach ($avl_keywords as $keyword => $desc) {
-			$keyword_replacements[$keyword] = $state['asset']->getKeywordReplacement($keyword);
+		// create a new email format object and send emails
+		$email_format_attr =& new Asset_Attribute_Email_Format(0, $email_format_value);
+		if (is_null($email_format_attr)) return FALSE;
+
+		$current_value = @unserialize($email_format_attr->value);
+
+		// return false if there is no-one to send to
+		if (empty($current_value['to']) && empty($current_value['to_assetids'])) {
+			return FALSE;
 		}
 
+
+		// Get list of replacements
+		$keywords_list = array_merge(
+									retrieve_keywords_replacements($current_value['html_format']),
+									retrieve_keywords_replacements($current_value['text_format']),
+									retrieve_keywords_replacements(implode(', ', $current_value['to'])),
+									retrieve_keywords_replacements($current_value['from']),
+									retrieve_keywords_replacements($current_value['subject'])
+								);
+
+		$keywords_list = array_unique($keywords_list);
+
+		// ...and find their replacements
+		$replacements = Array();
+		foreach ($keywords_list as $keyword) {
+			$replacements[$keyword] = $state['asset']->getKeywordReplacement($keyword);
+		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($state['asset']);
 
-		// create a new email format object and send emails
-		$email_format_atr =& new Asset_Attribute_Email_Format(0, $email_format_value);
-		if (is_null($email_format_atr)) return FALSE;
-		$email_format_atr->sendMail($keyword_replacements);
+		$email_format_attr->sendMail($replacements);
 
 		return Array(
 				'assetid'	=> $assetid,
