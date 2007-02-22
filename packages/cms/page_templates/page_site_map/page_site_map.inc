@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.35 2006/12/07 00:04:23 emcdonald Exp $
+* $Id: page_site_map.inc,v 1.35.2.1 2007/02/22 00:18:20 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -135,7 +135,6 @@ class Page_Site_Map extends Page
 			$levels = ($this->attr('levels') != 0) ? $this->attr('levels') : NULL;
 
 			$page_data = $GLOBALS['SQ_SYSTEM']->am->getAssetTree($siteid, $levels, array_keys($this->attr('exclude_list')), $this->attr('show_type_2') ? SQ_SC_LINK_BACKEND_NAV : SQ_SC_LINK_FRONTEND_NAV, $this->attr('include_types'), $this->attr('include_dependants'));
-
 			$assetids = Array();
 
 			foreach ($page_data as $assetid => $data) {
@@ -227,10 +226,12 @@ class Page_Site_Map extends Page
 ?>
 			<?php
 				$this->_paintUnorderedList($page_data[$item['assetid']], $page_data, $level + 1, $generating);
+			}
 ?>
+
 			</li>
 			<?php
-			}
+
 		}
 		?>
 		</ul>
