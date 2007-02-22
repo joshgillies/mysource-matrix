@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.43.2.3 2007/02/22 00:59:13 tbarrett Exp $
+* $Id: hipo_job_create_links.inc,v 1.43.2.4 2007/02/22 01:15:47 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.43.2.3 $
+* @version $Revision: 1.43.2.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -912,7 +912,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 					$this->_running_vars['to_parent_pos']++;
 				} else {
-					$step_data['message'] = translate('hipo_skipping_asset', $asset->id);
+					$step_data['message'] = translate('hipo_skipping_asset', $assetid);
 				}
 
 			}//end else moving to trash
