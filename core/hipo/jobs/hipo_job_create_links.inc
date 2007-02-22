@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.43.2.4 2007/02/22 01:15:47 tbarrett Exp $
+* $Id: hipo_job_create_links.inc,v 1.43.2.5 2007/02/22 01:42:18 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.43.2.4 $
+* @version $Revision: 1.43.2.5 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -667,7 +667,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	{
 		if (isset($_POST['form_submitted'])) {
 			if (isset($_POST[$prefix.'_chosen_remap_url'])) {
-				$remap_url = $this->_running_vars['remap_choices'][(int)$_POST[$prefix.'_chosen_remap_url']]['url'];
+				$dest_url_data = $this->_running_vars['remap_choices'][(int)$_POST[$prefix.'_chosen_remap_url']];
+				$remap_url = ($dest_url_data['https'] ? 'https' : 'http').'://'.$dest_url_data['url'];
 				$rm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 				foreach ($this->_running_vars['assets'] as $source_assetid => $info) {
 					if (isset($this->_running_vars['do_not_trash'][$source_assetid])) {
@@ -694,7 +695,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 							if (isset($this->_running_vars['do_not_trash'][$source_assetid])) {
 								continue;
 							}
-							if (!$rm->remapAllURLs($source_assetid, $dest_url_data['url'])) {
+							if (!$rm->remapAllURLs($source_assetid, ($dest_url_data['https'] ? 'https' : 'http').'://'.$dest_url_data['url'])) {
 								$source_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
 								$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_urls', $source_asset->name, $dest_url_data['url']).'</span>';
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
