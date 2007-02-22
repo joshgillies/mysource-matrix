@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.12.2.3 2007/02/22 04:10:27 colivar Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.12.2.4 2007/02/22 23:07:05 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.12.2.3 $
+* @version $Revision: 1.12.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -399,7 +399,9 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$email_address = array_get_index($_REQUEST, $this->getPrefix().'_email_address', '');
 		$user_name = array_get_index($_REQUEST, $this->getPrefix().'_user_name', '');
 		if (empty($email_address)) {
-			$this->errors[] = translate('bm_email_empty');
+			if (isset($_REQUEST[$this->getPrefix().'_email_address'])) {
+				$this->errors[] = translate('bm_email_empty');
+			}
 			return;
 		}
 
@@ -455,8 +457,13 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 				trigger_localised_email('SYS0315', E_USER_WARNING);
 				trigger_localised_error('BML0016', E_USER_WARNING);
 			} else {
-				$this->sendConfirmationEmail($email_address, $from_addr, $subscriptions, $unsubscriptions, $uniqid);
-				$this->messages[] = translate('bsp_verification_email_sent', $email_address);
+				require_once SQ_FUDGE_PATH.'/general/www.inc';
+				$_email_address_trim = trim($email_address);
+				// if the email is valid send a confirmation
+				if (valid_email($_email_address_trim) && !empty($_email_address_trim)) {
+					$this->sendConfirmationEmail($email_address, $from_addr, $subscriptions, $unsubscriptions, $uniqid);
+					$this->messages[] = translate('bsp_verification_email_sent', $email_address);
+				}
 			}
 		}
 
