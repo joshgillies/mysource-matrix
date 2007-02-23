@@ -1,20 +1,43 @@
 <?php
-echo 'Uncomment the code that stops this from working. Protection against accidental execution.';
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: search_replace_attribute_content.php,v 1.2 2007/02/23 05:25:21 arailean Exp $
+*
+*/
+
+/**
+* Replaces one string with another in a given attribute of a list of assets
+*
+*
+* @author  Andrei Railean <arailean@squiz.net>
+* @version $Revision: 1.2 $
+* @package MySource_Matrix
+*/
+echo 'Comment the code that stops this script from working. Protection against accidental execution.';
 echo "\n";
 exit;
 
-# Assets you want to modify are here
+// Assets you want to modify are here
 $to_process = Array();
 
-# Supply Your Strings Here
+// Supply Your Strings Here
 $search_for = 'NOTHING';
 $replace_with = 'SOMETHING';
 
 $attribute_name = 'html';
 
-## --
-## No configuration options below this comment
-## --
+// --
+// No configuration options below this comment
+// --
 
 $search_for = '/'.preg_quote($search_for, '/').'/';
 $replace_with = $replace_with;
@@ -39,10 +62,6 @@ $root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
 }
-
-// start matrix
-
-// load asset ids
 
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -76,7 +95,7 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 echo "\n";
-echo "DONE";
+echo 'DONE';
 echo "\n";
 
 ?>
