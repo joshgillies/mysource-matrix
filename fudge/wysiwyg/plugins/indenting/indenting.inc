@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: indenting.inc,v 1.9 2006/12/06 05:11:09 bcaldwell Exp $
+* $Id: indenting.inc,v 1.10 2007/02/23 05:15:26 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -59,136 +59,89 @@ class indenting extends wysiwyg_plugin
 	function paint_generic()
 	{
 		?>
-		<script type="text/javascript" language="Javascript">
+		<script type="text/javascript">
 			// Called when the user clicks on "Insert Blockquote" button
 			HTMLArea.prototype._changeIndent = function(direction) {
 
-				var editor = this; // for nested functions
+				if (HTMLArea.is_ie) {
 
-				var sel = this._getSelection();
-				var range = this._createRange(sel);
-				var parent = this.getParentElement();
+					// IE - we need to override some stuff
+					var blockElts = "|applet|div|embed|fieldset|form|h1|h2|h3|h4|h5|h6|iframe|ilayer|img|object|p|pre|quote|table|textarea|ul|ol|";
+					var sel = this._getSelection();
+					var range = this._createRange(sel);
+					range.expand();
+					range.select();
+					if (direction == 'right') {
 
-				if (HTMLArea.is_gecko) {
+						// First get the browser to do its thing
+						this._execCommand('indent', false, '');
 
-					if (range == null || range == "") {
-
-						while (parent.tagName != "P") {
-							parent = parent.parentNode
+						// Second, remove the blockquote element if necessary
+						var sel = this._getSelection();
+						var range = this._createRange(sel);
+						range.expand();
+						var parent = range.parentElement();
+						if (parent.tagName.toLowerCase() == 'p') {
+							parent = parent.parentNode;
 						}
-
-						// No text is selected
-						if (this._paragraphFilter(parent)) {
-							this._setLeftMargin(direction, parent);
+						if (parent.tagName == 'BLOCKQUOTE') {
+							var subElt = parent.firstChild;
+							while (subElt != null) {
+								newElt = subElt.nextSibling;
+								if (subElt.tagName) {
+									if (blockElts.indexOf('|'+subElt.tagName.toLowerCase()+'|') != -1) {
+										this._setLeftMargin(direction, subElt);
+									}
+									parent.removeChild(subElt);
+									parent.parentNode.insertBefore(subElt, parent);
+								}
+								subElt = newElt;
+							}
+							parent.parentNode.removeChild(parent);
 						}
-
 					} else {
 
-						var new_node = range.startContainer.parentNode;
-						while (new_node.tagName != "P") {
-							new_node = new_node.parentNode
+						// First, try to trim off left margin ourselves
+						var tRange =  this._doc.selection.createRange()
+						if (tRange.parentElement().tagName.toLowerCase() == 'p') {
+							tRange.moveToElementText(tRange.parentElement());
 						}
-						var tree_walker = this._doc.createTreeWalker(
-											new_node.parentNode,
-											NodeFilter.SHOW_ELEMENT,
-											this._paragraphFilter,
-											false);
-						el = tree_walker.firstChild();
-
-						do {
-
-							if (el.innerHTML == new_node.innerHTML) {
-								start_node = el;
-								start_node_found = true;
-								break;
-							}
-							el = tree_walker.nextSibling();
-						} while (el != null)
-
-						var attrs;
-						if (start_node_found) {
-
-							// Now start traverse the sibling so that we can adjust the indentation
-							var current_indent;
-							var pattern = /(\d)+px/g;
-							var new_px;
-							do {
-								this._setLeftMargin(direction, el);
-								var new_node = range.endContainer.parentNode;
-								while (new_node.tagName != "P") {
-									new_node = new_node.parentNode
-								}
-								if (el.innerHTML == new_node.innerHTML) break;
-							} while ((el = tree_walker.nextSibling()) != null)
+						tRange.moveStart('character', -1);
+						tRange.moveEnd('character', 1);
+						var parent = this.getParentElement();
+						if (parent.tagName.toLowerCase() == 'p') {
+							parent = parent.parentNode;
 						}
-					}
-
-				} else if (HTMLArea.is_ie) {
-
-					if (range.text == null || range.text == "") {
-
-						while (parent.tagName != "P") {
-							parent = parent.parentNode
-						}
-
-						// No text is selected
-						if (this._paragraphFilter(parent)) {
-							this._setLeftMargin(direction, parent);
-						}
-
-					} else {
-						// IE 6 does not support TreeWalker interface yet!
-						// Things should be done differently...
-						if (range.text == null) {
-							// No text is selected
-							if (this._paragraphFilter(parent) == true) {
-								this._setLeftMargin(direction, parent);
-							}
-						} else {
-							// Create paragraph map
-							var selected_parent = range.parentElement();
-							var child_nodes = selected_parent.children;
-							var text = "";
-							var offset = new Array();
-							for (var i = 0; i < child_nodes.length; i++) {
-								// TODO: _paragraphFilter?????
-								if (child_nodes.item(i).tagName == "P") {
-									text = text + child_nodes.item(i).innerText.replace(/\s/g,"");
-									offset.push(text.length);
-								}
-							}
-
-							var start_index = text.indexOf(range.text.replace(/\s/g,""));
-							var end_index = text.indexOf(range.text.replace(/\s/g,"")) + range.text.replace(/\s/g,"").length;
-
-							// Now we have the tools for cooking
-							for (var i = 0; i < child_nodes.length; i++) {
-								if (child_nodes.item(i).tagName == "P" && offset[i] > start_index) {
-
-									if (offset[i] < end_index) {
-										this._setLeftMargin(direction, child_nodes.item(i));
-									} else if ((i+1) == child_nodes.length) {
-										if (offset[i] >= end_index) {
-											this._setLeftMargin(direction, child_nodes.item(i));
-										}
-									} else if ((i+1) < child_nodes.length) {
-										if (offset[i+1] >= end_index) {
-											this._setLeftMargin(direction, child_nodes.item(i));
-											break;
-										}
+						var subElt = parent.firstChild;
+						var success = false;
+						var foundFirst = false;
+						while (subElt != null) {
+							var nextElt = subElt.nextSibling;
+							if (subElt.tagName) {
+								var nodeRange = tRange.duplicate();
+								nodeRange.moveToElementText(subElt);
+								nodeRange.expand();
+								if (tRange.inRange(nodeRange)) {
+									if (blockElts.indexOf('|'+subElt.tagName.toLowerCase()+'|') != -1) {
+										success = this._setLeftMargin(direction, subElt) || success;
 									}
 								}
 							}
+							subElt = nextElt;
+						}
+
+						// If we didn't catch anything, send it to the browser for handling
+						if (!success) {
+							this._doc.execCommand('outdent', false, '');
 						}
 					}
-				}//end if-else
-			};
 
-			// Helper function to filter the wanted element type
-			// during tree traversing
-			HTMLArea.prototype._paragraphFilter = function(node) {
-				if (node.tagName == 'P') return true;
-				else return false;
+				} else {
+
+					// NOT IE - browser default behaviour is fine
+					this._doc.execCommand((direction == 'left') ? 'outdent' : 'indent', false, '');
+
+				}
 			}
 
 			// Set the left margin value of the element's style
@@ -196,6 +149,8 @@ class indenting extends wysiwyg_plugin
 				if (el.style.marginLeft == "" || el.style.marginLeft == "0pt"|| el.style.marginLeft == "0px") {
 					if (direction == "right") {
 						el.style.marginLeft = "40px";
+					} else {
+						return false; // could not outdent
 					}
 				} else {
 					var new_px;
@@ -208,10 +163,13 @@ class indenting extends wysiwyg_plugin
 							new_px = current_indent - 40;
 						} else if (current_indent == 40) {
 							new_px = 0;
+						} else {
+							return false; // could not outdent
 						}
 					}
 					el.style.marginLeft = new_px.toString();
 				}
+				return true;
 			};
 
 		</script>
