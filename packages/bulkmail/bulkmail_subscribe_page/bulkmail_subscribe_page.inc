@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.8.2.5 2007/02/22 23:12:44 colivar Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.8.2.6 2007/02/25 23:35:46 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.8.2.5 $
+* @version $Revision: 1.8.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -526,7 +526,9 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 			if ($creation_succeed) {
-				$done['add_success'][] = $parent_assetid;
+				if ($parent_asset->id != $unverified_folder->id) {
+					$done['add_success'][] = $parent_assetid;
+				}
 				$this->addLinkingMessages($done);
 			}
 
