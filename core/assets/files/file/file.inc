@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.147 2007/02/18 23:34:46 rhoward Exp $
+* $Id: file.inc,v 1.148 2007/02/25 23:11:48 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.147 $
+* @version $Revision: 1.148 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1153,7 +1153,15 @@ class File extends Asset
 				header('Pragma: cache');
 				header('Last-Modified: '.gmdate('D, d M Y H:i:s',$existing['modified']).' GMT');
 			} else if (!$ssl_connection) {
-				header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+				// Internet Explorer must forcibly reload some file types from the server for correct inline operation in popup windows. (ref. http://support.microsoft.com/default.aspx?scid=kb;EN-US;q297822)
+				// If such files do not load as expected, "Send no-cache header option for HTTP requests" should be set to "No" on the System Configuration screen. The default operation is to send this header (i.e; set to "Yes").
+
+				if (SQ_CONF_SEND_NO_CACHE_HEADER) {
+					header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+				} else {
+					header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+				}
+
 				header('Pragma: no-cache');
 				header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
 			} else {
