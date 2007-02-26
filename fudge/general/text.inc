@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.29 2006/12/18 03:44:18 arailean Exp $
+* $Id: text.inc,v 1.30 2007/02/26 04:06:45 arailean Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package Fudge
 * @subpackage Text
 */
@@ -89,7 +89,26 @@ function _replace_keywords_recursive(&$text, &$replacements)
 
 
 /**
-* Takes a string and returns all occurances of "%keyword%"
+* An alias for extract keywords
+*
+* This function name is confusing because id does not deal with replacements, only keywords
+*
+* @param string	$text		the text or array to search
+* @param string	$additional	additional valid keyword charaters for this match
+*
+* @return array
+* @access public
+* @see extract_keywords
+*/
+function retrieve_keywords_replacements($text, $additional='')
+{
+	return extract_keywords($text, $additional);
+
+}//end retrieve_keywords_replacements()
+
+
+/**
+* Extract keywords from a given text container
 *
 * @param string	$text		the text or array to search
 * @param string	$additional	additional valid keyword charaters for this match
@@ -97,14 +116,14 @@ function _replace_keywords_recursive(&$text, &$replacements)
 * @return array
 * @access public
 */
-function retrieve_keywords_replacements($text, $additional='')
+function extract_keywords($text, $additional='')
 {
 	$matches = Array();
 	$additional = preg_replace('|(.)|', '\\\\\1', $additional);
 	preg_match_all ('/%([a-zA-Z_\-0-9\.'.$additional.']+)%/', $text, $matches, PREG_PATTERN_ORDER);
 	return (count($matches)) ? $matches[1] : Array();
 
-}//end retrieve_keywords_replacements()
+}//end extract_keywords()
 
 
 /**
