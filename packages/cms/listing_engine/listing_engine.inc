@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.180.2.13 2007/01/29 04:33:06 skim Exp $
+* $Id: listing_engine.inc,v 1.180.2.14 2007/02/26 00:07:48 tbarrett Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.180.2.13 $
+* @version $Revision: 1.180.2.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1104,7 +1104,9 @@ class Listing_Engine extends Page
 		foreach ($todo as $assetid => $v) {
 			if (isset($wanted_assets[$assetid])) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $wanted_assets[$assetid]);
-				if (!$asset->readAccess()) unset($todo[$assetid]);
+				if (is_null($asset) || !$asset->readAccess()) {
+					unset($todo[$assetid]);
+				}
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			}
