@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.55 2006/03/14 05:30:47 sdanis Exp $
+* $Id: inbox_edit_fns.inc,v 1.55.2.1 2007/02/26 04:20:51 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.55.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -358,7 +358,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/JsHttpConnector.js"></script>
 			<script type="text/javascript">
 			//<![CDATA[
-				var prefix = "<?php echo $prefix; ?>";
+				var prefix = "<?php echo urlencode($prefix); ?>";
 				var Bodies = new Object();
 			//]]>
 			</script>
@@ -440,7 +440,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					<td class="sq-backend-table-cell" nowrap="nowrap">
 						<?php
 
-				check_box($prefix.'_mark_as_read['.$data['msgid'].']', '1', ($data['status'] == SQ_MSG_READ), 'readClick(this)', ($write_access) ? '' : 'style="display:none"');
+				check_box(urlencode($prefix).'_mark_as_read['.$data['msgid'].']', '1', ($data['status'] == SQ_MSG_READ), 'readClick(this)', ($write_access) ? '' : 'style="display:none"');
 ?>
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" alt="" id="letterIcon[<?php echo $data['msgid'];?>]" class="<?php echo (($data['status'] == SQ_MSG_UNREAD) ? 'un' : ''); ?>read" onclick="readClick(this)" />
 					</td>
