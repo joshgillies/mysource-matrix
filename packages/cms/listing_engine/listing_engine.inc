@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.202.2.4 2007/02/02 05:21:40 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.202.2.5 2007/02/26 00:20:55 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.202.2.4 $
+* @version $Revision: 1.202.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1129,7 +1129,9 @@ class Listing_Engine extends Page
 				foreach ($status_matches as $i => $v) {
 					if (isset($sub_live_assets[$v])) {
 						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($v, $sub_live_assets[$v]);
-						if (!$asset->readAccess()) unset($status_matches[$i]);
+						if (is_null($asset) || !$asset->readAccess()) {
+							unset($status_matches[$i]);
+						}
 					}
 				}
 			}
