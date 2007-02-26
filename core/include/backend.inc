@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.174 2007/02/20 04:05:51 lwright Exp $
+* $Id: backend.inc,v 1.175 2007/02/26 23:48:28 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.174 $
+* @version $Revision: 1.175 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -445,41 +445,22 @@ class Backend extends MySource_Object
 				$url_match = TRUE;
 			}
 
-			$search_terms = $_POST['asset_search'];
-			$results = Backend_Search::processSearch($search_terms);
-
-			$js_code = '';
-
-			if (is_null($searched_asset) && empty($results)) {
-				$html = $this->_getDHTMLMessage(translate('search_failed'), translate('failed_searching_for', addslashes($_POST['asset_search'])), 'search-failed', 'info');
-				$dhtml_messages['search_failed'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
+			if (!is_null($searched_asset)) {
+				$this->out->addOnLoad('
+					if (parent.frames["sq_main"]) {
+						parent.frames["sq_main"].location = "'.$_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.urlencode($searched_asset->id).'";
+					}
+				');
 			} else {
-				$detail_lines = Array();
+				$search_terms = $_POST['asset_search'];
+				$results = Backend_Search::processSearch($search_terms);
 
-				if (!is_null($searched_asset)) {
-					if ($assetid_match) {
-						$detail_lines[] = '<strong>'.'Matched on Asset ID:'.'</strong>';
-					}
+				$js_code = '';
 
-					if ($url_match) {
-						$detail_lines[] = '<strong>'.'Matched on URL:'.'</strong>';
-					}
-
-					$detail_lines[] = get_asset_tag_line($searched_asset->id, 'details');
-
-					if (empty($results)) {
-						$this->out->addOnLoad('
-							if (parent.frames["sq_main"]) {
-								parent.frames["sq_main"].location = "'.$_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.urlencode($searched_asset->id).'";
-							}
-						');
-					}
-				}
-
-
-				if (!empty($results)) {
-					$result_list = Array();
-
+				if (empty($results)) {
+					$html = $this->_getDHTMLMessage(translate('search_failed'), translate('failed_searching_for', addslashes($_POST['asset_search'])), 'search-failed', 'info');
+					$dhtml_messages['search_failed'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
+				} else {
 					$detail_lines[] = '<strong>'.'Matched on Keyword ('.count($results).' asset'.(count($results) == 1 ? '' : 's').'):'.'</strong>';
 					$i = 0;
 
