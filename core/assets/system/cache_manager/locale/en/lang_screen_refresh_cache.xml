@@ -10,13 +10,27 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.4 2007/02/26 05:02:55 skim Exp $
+* $Id: lang_screen_refresh_cache.xml,v 1.1 2007/02/26 05:02:56 skim Exp $
 *
 */
 -->
-
-<screens>
-	<screen code_name="clear_cache" display_name="Clear Cache" icon="create" lock_type="attributes" force_unlock="1" />
-	<screen code_name="refresh_cache" display_name="Refresh Cache" icon="create" lock_type="attributes" force_unlock="0" />
-	<screen code_name="expiry" display_name="Cache Expiry" icon="create" lock_type="attributes" force_unlock="0" />
-</screens>
+<contents>
+	<section name="Refresh Cache">
+		<field>
+			<display_name>Add a Job</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintAddJob" />
+				<process_function name="processAddJob" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Current Jobs</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintCurrentJobs" />
+				<process_function name="processCurrentJobs" />
+			</function_call>
+		</field>
+	</section>
+</contents>

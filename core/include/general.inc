@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.171 2007/02/05 13:38:08 gnoel Exp $
+* $Id: general.inc,v 1.172 2007/02/26 05:02:58 skim Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.171 $
+* @version $Revision: 1.172 $
 * @package MySource_Matrix
 */
 
@@ -568,7 +568,7 @@ function asset_data_path_suffix($type_code, $assetid)
 */
 function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE)
 {
-	if (SQ_PHP_CLI) {
+	if (SQ_PHP_CLI && !isset($_SERVER['HTTP_HOST'])) {
 		// being called from eg. a squiz server HIPO
 		$url = '';
 	} else {

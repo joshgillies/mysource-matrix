@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.54 2006/12/06 04:23:57 emcdonald Exp $
+* $Id: cache_manager.inc,v 1.55 2007/02/26 05:02:55 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -148,7 +148,7 @@ class Cache_Manager extends Asset
 			$url = current_url();
 			// append the query string (if any)
 			if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING'])) {
-				$url .= '?'.$_SERVER['QUERY_STRING'];
+				$url = $this->_formUniqueUrl($url);
 			}
 		} else {
 			$url = $assetid;
@@ -211,13 +211,12 @@ class Cache_Manager extends Asset
 			$url = current_url();
 			// append the query string (if any)
 			if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING'])) {
-				$url .= '?'.$_SERVER['QUERY_STRING'];
+				$url = $this->_formUniqueUrl($url);
 			}
 		} else {
 			$url = $assetid;
 		}
 		$cache_key = md5($cache_key.$assetid);
-
 		// work out the file path and expiry time
 		$group = $this->getAssetHash($cache_key).$this->getAssetHash($perm_key);
 		$file_name = md5($cache_key.':'.$perm_key.':'.$url);
@@ -305,6 +304,39 @@ class Cache_Manager extends Asset
 
 
 	/**
+	* Saves the specified contents to the cache, which will be identified
+	* by the specfied asset and key/url
+	*
+	* If cache entry already exists, it will be overwritten with the new contents
+	* and expiry time
+	*
+	* @param string	$url	id of the the asset that owns the cache file
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _formUniqueUrl($url)
+	{
+		// we don't want this query vars for cache key, e.g. SQ_ACTION=login
+		parse_str($_SERVER['QUERY_STRING'], $query_vars=Array());
+		$mute_list = array_intersect(array_keys($query_vars), Array('SQ_BACKEND_PAGE', 'SQ_ACTION', 'SQ_DESIGN_NAME'));
+		foreach ($mute_list as $name) {
+			unset($query_vars[$name]);
+		}
+
+		if (!empty($query_vars)) {
+			$new_query_str = '';
+			foreach ($query_vars as $key => $val) {
+				$new_query_str .= $key.'='.$val.'&';
+			}
+			$url .= '?'.rtrim($new_query_str, '&');
+		}
+		return $url;
+
+	}//end _formUniqueUrl()
+
+
+	/**
 	* Removes all cache entries related to this assetid
 	*
 	* @param array	$assetids	id of the the asset that owns the cache file
@@ -335,7 +367,6 @@ class Cache_Manager extends Asset
 						sq_cache
 					WHERE
 						('.implode(' OR ', $in_clauses).')';
-
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);

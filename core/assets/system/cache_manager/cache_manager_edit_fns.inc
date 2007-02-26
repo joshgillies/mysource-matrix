@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.12 2006/12/06 04:23:57 emcdonald Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.13 2007/02/26 05:02:55 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.12 $ - 1.0
+* @version $Revision: 1.13 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -57,6 +57,9 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		unset($this->static_screens['permissions']);
 
 	}//end constructor
+
+
+//--        CACHE EXPIRY        --//
 
 
 	/**
@@ -252,6 +255,9 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	}//end processCustomiseTypeCodeCaching()
 
 
+//--        CLEAR CACHE        --//
+
+
 	/**
 	* Paints the interface for clearing the cache files
 	*
@@ -395,6 +401,237 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		return TRUE;
 
 	}//end processSystemWideClearCache()
+
+
+//--        REFRESH CACHE        --//
+
+
+	/**
+	* Paints the interface for refreshing asset cache
+	*
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAddJob(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$caching_on = $asset->attr('enabled');
+		if ($wa) {
+			if ($this->cronConfigured()) {
+				$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+
+				// Include Refresh Cache Cron Job
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_refresh_cache');
+
+				// Caching is off. Show the warning only
+				if (!$caching_on) {
+					?>
+					<span class="sq-backend-warning"><b>NOTE:</b> The caching is turned off at the moment. Although you can add a job here, it will not have any effect</span><br /><br />
+					<?php
+				}
+
+				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+				$cron_job =& new Cron_Job_Refresh_Cache();
+				$edit_fns = $cron_job->getEditFns();
+				$edit_fns->paintInLineBackend($cron_job, $o, $prefix.'_new_rc');
+				$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+
+			} else {
+				// Cron Manager is not configured yet.
+				echo translate('cron_manager_not_configured_refresh');
+			}
+		}
+
+		return TRUE;
+
+	}//end paintAddJob()
+
+
+	/**
+	* Processes the interface for refreshing asset cache
+	*
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAddJob(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		if ($wa && $this->cronConfigured()) {
+			$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+
+			// Include Refresh Cache Cron Job
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_refresh_cache');
+
+			if ($asset->writeAccess('')) {
+				$rc =& new Cron_Job_Refresh_Cache();
+				$edit_fns = $rc->getEditFns();
+				if ($edit_fns->processInLineBackend($rc, $o, $prefix.'_new_rc')) {
+					$rc->saveAttributes();
+				} else {
+					return FALSE;
+				}
+
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				if ($cron_mgr->addJob($rc, $GLOBALS['SQ_SYSTEM']->user)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				} else {
+					trigger_localised_error('CRON0054', E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return FALSE;
+				}
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			}
+
+		} else {
+			// Cron Manager not configured
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end processAddJob()
+
+
+	/**
+	* Paints the currently scheduled jobs
+	*
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCurrentJobs(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_refresh_cache');
+		$rc_jobs = $cron_mgr->getJobs('cron_job_refresh_cache');
+
+		if (empty($rc_jobs)) {
+			echo translate('cron_manager_refresh_no_job');
+		} else {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<th class="sq-backend-table-header">When</th>
+					<th class="sq-backend-table-header">Status</th>
+					<th class="sq-backend-table-header">Run As</th>
+					<th class="sq-backend-table-header">Delete</th>
+				</tr>
+				<?php
+				foreach ($rc_jobs as $rc_job) {
+					?>
+					<tr>
+						<td class="sq-backend-table-cell">
+						<?php
+							echo get_asset_tag_line($rc_job->attr('asset'));
+							echo '<br /><b>Scheduled At:&nbsp;</b>';
+							echo $rc_job->readableWhen();
+						?>
+						</td>
+						<td class="sq-backend-table-cell">
+						<?php
+							if ($rc_job->attr('long') && $rc_job->attr('running')) {
+								echo translate('cron_manager_refresh_cache_running');
+							} else {
+								echo translate('cron_manager_refresh_cache_not_running');
+							}
+						?>
+						</td>
+						<td class="sq-backend-table-cell">
+						<?php
+							$user =& $rc_job->getRunningUser();
+							echo get_asset_tag_line($user->id);
+							unset($user);
+						?>
+						</td>
+						<td class="sq-backend-table-cell">
+						<?php
+							if ($wa) {
+								check_box($prefix.'_remove_job_'.$rc_job->id);
+							}
+						?>
+						</td>
+					</tr>
+					<?php
+				}//end foreach
+				?>
+			</table>
+			<?php
+		}//end else
+		return TRUE;
+
+	}//end paintCurrentJobs()
+
+
+	/**
+	* Processes the currently scheduled jobs
+	*
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCurrentJobs(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		if ($wa && $this->cronConfigured()) {
+			$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+
+			// Include Refresh Cache Cron Job
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_refresh_cache');
+
+			// Any job delete?
+			$jobs = $cron_mgr->getJobs('cron_job_refresh_cache');
+			for ($i = 0; $i < count($jobs); $i++) {
+				if (!empty($_POST[$prefix.'_remove_job_'.($jobs[$i]->id)])) {
+
+					if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'links')) {
+						if (!$cron_mgr->removeJob($jobs[$i])) {
+							trigger_localised_error('CRON0055', E_USER_WARNING);
+						}
+						$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
+					}
+				}
+			}//end for delete job
+		}
+
+		return TRUE;
+
+	}//end processCurrentJobs()
+
+
+	/**
+	* Returns TRUE if the cron is configured in the system
+	*
+	* @return boolean
+	* @access public
+	*/
+	function cronConfigured()
+	{
+		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_epoc = (int)$cron_mgr->attr('epoch');
+		$cron_refresh = (int)$cron_mgr->attr('refresh_time');
+
+		return ($cron_epoc > 0) && ($cron_refresh > 0);
+
+	}//end cronConfigured()
+
+
+//--        DETAILS        --//
 
 
 	/**

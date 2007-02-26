@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.82 2007/02/22 05:13:55 rhoward Exp $
+* $Id: lang_errors.xml,v 1.83 2007/02/26 05:02:59 skim Exp $
 *
 */
 
@@ -386,6 +386,15 @@
 	<error code="CRON0051">Unable to set future lineage, asset %s is not safe to be trashed.</error>
 
 	<error code="CRON0052">Failed to escalate schema %1$s for asset %2$s.</error>
+
+	<error code="CRON0053">Failed to save attribute values for refresh cache cron job.</error>
+
+	<error code="CRON0054">Failed to add a refresh cache cron job.</error>
+
+	<error code="CRON0055">Failed to delete a refresh cache cron job.</error>
+
+	<error code="CRON0056">Failed to refresh the cache for (#%1$s), the HTTP request to URL, (%2$s), and the response code (%3$s) returned.</error>
+
 
 	<!-- MAPS - MYSOURCE AUTOMATED PATCHING SYSTEM -->
 

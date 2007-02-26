@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.228 2007/02/25 23:11:49 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.229 2007/02/26 05:02:59 skim Exp $
 *
 */
 
@@ -358,6 +358,10 @@
 	<!-- Cron translations -->
 	<string source="cron_manager_not_configured">The Cron Manager has not been configured. No future statuses can be set for this asset</string>
 	<string source="cron_manager_not_configured_regen">The Cron Manager has not been configured. No future regeneration can be set for this asset</string>
+	<string source="cron_manager_not_configured_refresh">The Cron Manager has not been configured. No future cache refreshing can be set for this asset</string>
+	<string source="cron_manager_refresh_cache_running">Running</string>
+	<string source="cron_manager_refresh_cache_not_running">Not Running</string>
+	<string source="cron_manager_refresh_no_job">No Jobs available</string>
 	<string source="cron_manager_next_run">The Cron Manager runs every &lt;b&gt;%1$s&lt;/b&gt;. It will next run on the &lt;b&gt;%2$s&lt;/b&gt;</string>
 	<string source="asset_currently_in_workflow">&lt;i&gt;This asset is currently in workflow. Approval or rejection of the changes must be done on the &lt;a href="%s"&gt;asset workflow screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="workflow_not_running">Workflow is not currently running for this asset</string>
