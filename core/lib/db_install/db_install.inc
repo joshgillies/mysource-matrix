@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.42 2007/01/18 00:23:43 tbarrett Exp $
+* $Id: db_install.inc,v 1.43 2007/02/27 05:58:49 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -202,9 +202,9 @@ function create_index($tablename, $columns, $index_name=NULL, $index_type=NULL)
 	$sql = 'CREATE INDEX sq_'.$tablename.'_'.$index_name.' ON sq_'.$tablename;
 	if (!empty($index_type)) {
 		if ($db->phptype == 'oci8') {
-			$sql .= '('.$column.') indextype is '.$index_type;
+			$sql .= '('.implode(', ', $columns).') indextype is '.$index_type;
 		} else if ($db->phptype == 'pgsql') {
-			$sql .= ' USING '.$index_type.'('.$column.')';
+			$sql .= ' USING '.$index_type.'('.implode(', ', $columns).')';
 		}
 	} else {
 		$sql .= ' ('.implode(', ', $columns).')';
