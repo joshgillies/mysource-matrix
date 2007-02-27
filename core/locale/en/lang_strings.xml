@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.229 2007/02/26 05:02:59 skim Exp $
+* $Id: lang_strings.xml,v 1.230 2007/02/27 03:03:22 mbrydon Exp $
 *
 */
 
@@ -84,6 +84,8 @@
 	<string source="character_rules_note">Enforce the use of a certain type of character in passwords by specifying the minimum number of times it must be used.&lt;br /&gt;Disallowing a character type will prevent users from including it in their passwords.</string>
 	<string source="character_type">Character Type</string>
 	<string source="children">Children</string>
+	<string source="n_children">%d children</string>
+	<string source="1_child">1 child</string>
 	<string source="clone_asset_threshold">Clone Asset Threshold</string>
 	<string source="commit_button_text">Commit Button Text</string>
 	<string source="condition_details">Condition Details</string>
@@ -105,6 +107,7 @@
 	<string source="currently_empty">Currently Empty</string>
 	<string source="current_asset">Current Asset</string>
 	<string source="current_user">Current User</string>
+	<string source="current_status">Current Status</string>
 	<string source="custom_error_text">Custom Error Text</string>
 	<string source="customise_row">Customise Row</string>
 	<string source="debug_settings">Debug Settings</string>
@@ -287,7 +290,7 @@
 	<string source="system_static_url_http">Static URL uses HTTP</string>
 	<string source="system_static_url_https">Static URL uses HTTPS</string>
 	<string source="system_parent_domains">System Parent Domains</string>
-	<string source="system_parent_domains_note">Parent domains are examined when the system is setting the session cookie, and are useful if several system root URLs have a common parent domain (eg syd.example.com and melb.example.com).  If the current URL ends with one of the parent domains then the cookie will be set on the parent domain instead, with the result that the user's session will persist across the parent domain and all its subdomains.</string>
+	<string source="system_parent_domains_note">Parent domains are examined when the system is setting the session cookie, and are useful if several system root URLs have a common parent domain (eg syd.example.com and melb.example.com).  If the current URL ends with one of the parent domains then the cookie will be set on the parent domain instead, with the result that the user's session will persist across the parent domain and all its subdomains.  Note that the common parent must be only one level up - alpha.syd.example.com and bravo.syd.example.com cannot share a cookie because their common parent domain is two levels up.</string>
 	<string source="system_static_url_note">Static URLs can be used to offload delivery of static files and images to an alternative web server. This is an advanced configuration option and requires specific web server configuration to operate correctly.</string>
 	<string source="system_root">System Root</string>
 	<string source="system_settings">System Settings</string>
@@ -385,15 +388,15 @@
 	<string source="cron_deadlock_must_acquire_lock">You must acquire the lock in order resolve this issue</string>
 	<string source="cron_deadlock_warning_contact_root">You must contact the root user to resolve this issue</string>
 	<string source="cron_force_lock_removal">Force Removal of Lock</string>
-	<string source="cron_job_escalate_safe_trash">Escalate Safe Trash Cron Job</string>
+	<string source="cron_job_escalate_safe_trash">Escalate Safe-Trash Cron Job</string>
 	<string source="cron_job_expired_workflow">Expired Workflow Cron Job</string>
 	<string source="cron_new_future_linking">New Future Linking</string>
 	<string source="cron_job_asset-less_future_linking">Asset-less Future Linking Cron Job</string>
 	<string source="cron_job_asset_less_future_status">Asset-less Future Status Cron Job</string>
-	<string source="cron_job_assetless_attempt_safe_trash">Asset-less Attempt Safe Trash Cron Job</string>
+	<string source="cron_job_assetless_attempt_safe_trash">Asset-less Attempt Safe-Trash Cron Job</string>
 	<string source="cron_job_generate_log_reports">Generate Log Reports Cron Job</string>
-	<string source="cron_safe_trash_for">Safe Trash for %s</string>
-	<string source="cron_attempt_safe_trash_for">Attempt Safe Trash for %s</string>
+	<string source="cron_safe_trash_for">Safe-Trash for %s</string>
+	<string source="cron_attempt_safe_trash_for">Attempt Safe-Trash for %s</string>
 	<string source="cron_fl_for">FL for %s</string>
 	<string source="cron_fl_delete_all_existing_links">All</string>
 	<string source="cron_fl_delete_all_existing_links_long">Delete all existing links</string>
@@ -573,12 +576,12 @@
 	<string source="metadata_keyword_replacements_usage">You can use keyword replacements in place of values for metadata fields on this page. For a complete list of available keyword replacements %s</string>
 	<string source="metadata_indexed_keywords">Since search indexing is enabled, you can generate a list of keywords from the index using %s</string>
 	<string source="metadata_explain_use_default">Deselect the <![CDATA[<b>Use Default</b>]]> checkbox to enter a value for a field.  To revert the field to the default value, select the <![CDATA[<b>Use Default</b>]]> checkbox.</string>
-	<string source="metadata_date_object_keys">You can use the following set of Date object keys in order to define your own date format for this field.&lt;br /&gt;For a complete list of available keyword replacements %s</string>
+	<string source="metadata_date_object_keys">%s to see the formatting keywords that can be used in this field. Note that you cannot use a tilde (~) to separate date fields.</string>
 	<string source="creation_date">Creation date</string>
 	<string source="last_updated_date">Last updated date</string>
 	<string source="last_published_date">Last published date</string>
 	<string source="metadata_use_selected_replacements">Selected keyword replacement will be used instead of any entered default date values</string>
-	<string source="metadata_setup_table_explanation">Setup table below only affects how the field looks to the metadata editor,&lt;br /&gt;NOT how it is displayed in the META field of your web page.</string>
+	<string source="metadata_setup_table_explanation">Note that this setup table only affects how the field looks to the metadata editor, NOT how it is displayed in META tags on the frontend.</string>
 	<string source="keyword_replacement">Keyword Replacement</string>
 	<string source="metadata_regenerate_files">Regenerate metadata files</string>
 	<string source="metadata_regenerate_for_currently_applied">Check the box below to regenerate the metadata for all assets that have currently applied this schema</string>
@@ -606,6 +609,7 @@
 	<string source="suggested_tags_for">Suggested tags for</string>
 	<string source="click_to_tag">Click 'Add Tag' to tag this asset with the term</string>
 	<string source="no_tags_to_add">No tags to add</string>
+	<string source="no_tags_set">No tags have been applied</string>
 	<string source="tag_thesaurus_note">Note: You can only select tags from %s</string>
 	<string source="tag_no_thesaurus_set_note">Note: You can only select tags from the tagging thesaurus. Please set a tagging thesaurus in the tag manager</string>
 
@@ -690,20 +694,37 @@
 	<string source="hipo_asset_cloning_successful">The following asset(s) have been successfully Cloned under "%s":</string>
 	<string source="hipo_confirm_abort">Press the &lt;b&gt;Next&lt;/b&gt; button below to confirm or the &lt;b&gt;Cancel&lt;/b&gt; button to abort.</string>
 	<string source="hipo_abort">Press the &lt;b&gt;Cancel&lt;/b&gt; button to abort.</string>
-	<string source="hipo_warning_safe_trash_few">You have selected to trash %1$s asset(s) but %2$s asset(s) cannot be moved to the trash. Please see the warning section for more information.</string>
-	<string source="hipo_warning_safe_trash_all">None of the selected assets can be moved to the trash. Please see the warning section for more information.</string>
-	<string source="hipo_warning_safe_trash_notice_link">The following asset(s) will not be trashed until all related notice links are removed.</string>
-	<string source="hipo_warning_safe_trash_link">Asset has notice links to other assets</string>
-	<string source="hipo_warning_safe_trash_status">The following asset(s) will not be trashed until their statuses are set to Under Construction or Archived.</string>
-	<string source="hipo_warning_safe_trash_children">The following asset(s) will not be trashed because one or more of the children either have statuses that are not safe to be trashed, or have notice links to other assets.</string>
+	<string source="hipo_warning_safe_trash_few">You have selected to trash %1$s assets but %2$s of these assets cannot be moved to the trash. See below for details.</string>
+	<string source="hipo_warning_safe_trash_all">None of the selected assets can be moved to the trash. See below for details.</string>
+	<string source="hipo_safe_trash_linking_title">Safe-Trash Linking Restrictions</string>
+	<string source="hipo_safe_trash_linking_msg">The following assets are Notice- or Type-3-linked to other assets, and cannot be trashed until the links are removed:</string>
+	<string source="hipo_warning_safe_trash_link">Asset has Notice or Type-3 links to other assets</string>
+
+	<string source="hipo_safe_trash_status_title">Safe-Trash Status Restrictions</string>
+
+	<string source="hipo_safe_trash_status_msg">The following assets cannot be trashed until their statuses are set to Under Construction or Archived:</string>
+	<string source="hipo_safe_trash_children_title">Safe-Trash Restrictions on Child Assets</string>
+	<string source="hipo_safe_trash_children_msg">The following assets cannot be trashed because one or more of their children do not satisfy the Safe-Trash conditions:</string>
+	<string source="hipo_safe_trash_mark_future_title">Mark Assets for Future Trashing</string>
+	<string source="hipo_safe_trash_child_label_many">%1$s has %2$s that do not satisfy the Safe-Trash restrictions</string>
+	<string source="hipo_safe_trash_child_label_one">%1$s has %2$s that does not satisfy the Safe-Trash restrictions</string>
+
 	<string source="hipo_move_confirmation">Move Confirmation</string>
 	<string source="hipo_confirm_new_links">Please confirm that you are creating new link(s) for the following asset(s) under "%s":</string>
 	<string source="hipo_from_under">"%1$s" from under "%2$s"</string>
 	<string source="hipo_assets_not_require_move">The following asset(s) have already been re-ordered under "%s". They do not need to be moved again:</string>
 	<string source="hipo_confirm_move_trash">Please confirm that you are moving %s asset(s) to the trash.</string>
 	<string source="hipo_confirm_move_under">Please confirm that you are moving the following asset(s) to under "%s":</string>
-	<string source="hipo_trash_warn_break_urls">When these asset(s) are moved to the trash, any URLs that they currently have will be broken. Use the asset finder below to select another asset to remap the URL to (Eg. a "Page not found" asset). If you do not want to remap the URLs, just leave the field empty.</string>
-	<string source="hipo_warning_trashing_affects_other_assets">Moving these assets to the trash is going to affect other assets in the system. A list of the affected assets is shown below along with a description of their purpose.</string>
+
+	<string source="hipo_trash_warning_asset_linked_to">%1$s is linked to %2$s</string>
+
+
+	<string source="hipo_trash_url_remapping_title">URL Remapping</string>
+
+	<string source="hipo_trash_url_remapping_msg">When these assets are moved to the trash, any URLs that they currently have will be broken. To remap their URLs to another asset (Eg. a "Page not found" asset), select that asset in the field below.</string>
+	<string source="hipo_trash_url_remapping_choose_url">The asset you have chosen to remap to has several URLs.  Choose which of its URLs you would like to use</string>
+	<string source="hipo_trash_warning_affected_title">Affected Assets</string>
+	<string source="hipo_trash_warning_affected_msg">Trashing these assets will affect other assets that link to them.  The linked assets for each asset being trashed, with the purpose of each link, are shown below:</string>
 	<string source="hipo_move">Moving "%1$s" to "%2$s"</string>
 	<string source="hipo_asset_link_successful">The following asset(s) have been successfully linked under "%s":</string>
 	<string source="hipo_asset_move_successful">The following asset(s) have been successfully moved under "%s":</string>
@@ -958,7 +979,7 @@
 	<string source="trash_purge_warning">This will purge the selected assets from the trash and make them unavailable for restoring or editing.</string>
 	<string source="trash_is_empty">The trash is currently empty</string>
 	<string source="purge_root_node">Purge Root Node</string>
-	<string source="purge_root_note">Only this asset and it's children will be purged. If no purge root is selected, all assets will be purged.</string>
+	<string source="purge_root_note">Only this asset and its children will be purged. If no purge root is selected, all assets will be purged.</string>
 	<string source="purge_trash">Purge Trash?</string>
 	<string source="minor_not_asset">Minor is not an asset</string>
 
@@ -1071,7 +1092,7 @@
 	<string source="asset_type_no_attributes_found">no attributes found for asset type</string>
 	<string source="asset_type_not_selected">asset type not selected</string>
 	<string source="attribute_not_selected">attribute not selected</string>
-	<string source="trigger_attribute_value">If the value of the %1$s attribute %2$s is equal to %3$s</string>
+	<string source="trigger_attribute_value">If the value of the %1$s attribute %2$s %3$s %4$s</string>
 	<string source="trigger_attribute_changed">If the value of the %1$s attribute %2$s changes&lt;br /&gt;&lt;br /&gt;&lt;strong&gt;Note:&lt;/strong&gt; This condition will cause the trigger to fail if the firing event is not "Attributes Changed"</string>
 	<string source="or_inherited_types">or inherited types</string>
 	<string source="trigger_set_attribute_value_serialise_note">You have selected a serialised attribute.  The value you set it to must be a valid PHP expression, for example "Array(1, 2, 4)"</string>
@@ -1124,9 +1145,17 @@
 	<string source="trigger_set_cache_expiry_default_dsn">Default Cache DSN: %s</string>
 	<string source="trigger_set_cache_expiry_alt_dsn">Alternative Cache DSN: %s</string>
 
+	<string source="trigger_set_role_no_role_selected">No Role Selected</string>
+	<string source="trigger_set_role_no_users_selected">No Users Selected</string>
+
+	<string source="trigger_set_tag_no_tag_selected">No Tag Selected</string>
+	<string source="trigger_set_tag_select_tag">Select a tag to apply:</string>
+	<string source="trigger_set_tag_set_weighting">Set the weighting:</string>
+	<string source="trigger_set_tag_label_remove_tag">Remove instead of setting this tag</string>
+
 	<string source="security_key_incorrect_message">The security key entered was incorrect. The lock on "%s" has not been forcibly acquired. You may try again using the new security key displayed below.</string>
 
-
+	<string source="trigger_action_add_remap_message">The new remap URL consisting of site URL and assetid will be added to remap.</string>
 	<!-- common single word strings -->
 
 	<string source="all">All</string>
@@ -1242,6 +1271,8 @@
 	<string source="allow">Allow</string>
 	<string source="escape">Escape</string>
 	<string source="strip">Strip</string>
+	<string source="before">before</string>
+	<string source="after">after</string>
 
 	<!-- priority level strings -->
 
@@ -1388,7 +1419,7 @@
 	<string source="manually_cascade_roles_option">Yes, manually cascade role assignment changes</string>
 	<string source="manually_cascade_roles_note">Manually cascading role assignments will try to set the current roles of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;i&gt;Any additional roles set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any roles set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any role changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.&lt;/b&gt;</string>
 	<string source="no_roles_set">No roles have been assigned</string>
-	<string source="select_a_role">Select a role</string>
+	<string source="select_a_role">Select a role:</string>
 	<string source="select_users_for_role">Select the users who will perform the role on this asset:</string>
 	<string source="roles">Roles</string>
 	<string source="role">Role</string>
@@ -1477,6 +1508,7 @@
 	<string source="date_type">Date Type</string>
 	<string source="ends_with">Ends With</string>
 	<string source="equals">Equals</string>
+	<string source="does_not_equal">Does Not Equal</string>
 	<string source="error_text">Error Text</string>
 	<string source="frequency">Frequency</string>
 	<string source="insert_keyword">Insert Keyword</string>
@@ -1494,6 +1526,7 @@
 
 	<string source="archived">Archived</string>
 	<string source="asset">Asset</string>
+	<string source="n_assets">%d assets</string>
 	<string source="asset_field">Asset Field</string>
 	<string source="asset_name">Asset Name</string>
 	<string source="asset_name_short">Asset Short Name</string>
@@ -1543,6 +1576,7 @@
 	<string source="col">Col</string>
 	<string source="headings">Headings</string>
 	<string source="click_to_select">Click to select</string>
+	<string source="click_to_toggle_details">Click to show/hide details</string>
 	<string source="align">Align</string>
 	<string source="table">Table</string>
 	<string source="caption">Caption</string>
@@ -1721,6 +1755,7 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_cascading_permissions">Cascading Permissions</string>
 	<string source="hipo_cascading_workflow">Cascading Workflow</string>
 	<string source="hipo_cascading_content_tags">Cascading Content Tags</string>
+	<string source="hipo_cascading_roles">Cascading Roles</string>
 	<string source="hipo_checking_asset_types">Checking Asset Types</string>
 	<string source="hipo_checking_file_updates">Checking File Updates</string>
 	<string source="hipo_checking_versions">Checking Versions</string>
@@ -1774,8 +1809,8 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_updating_workflow_schemas">Updating Workflow Schemas</string>
 	<string source="hipo_updating_tags">Updating Tags</string>
 	<string source="hipo_updating_roles">Updating Roles</string>
-	<string source="hipo_cannot_remap_links_to_self">There is no point remapping the URLs of "%1$s" to itself - they are still going to be broken. Please choose another asset.</string>
-	<string source="hipo_cannot_remap_links_without_destination_url">You cannot remap URLs of "%1$s" to "%2$s" because it does not have a URL itself. Please choose another asset.</string>
+	<string source="hipo_cannot_remap_links_to_self">There is no point remapping the URLs of "%s" to itself - they are still going to be broken. Please choose another asset.</string>
+	<string source="hipo_cannot_remap_links_without_destination_url">You cannot remap URLs to "%s" because it does not have a URL itself. Please choose another asset.</string>
 	<string source="hipo_cannot_remap_urls">The system was unable to remap the URLs for "%1$s" to "%2$s"</string>
 
 	<!-- JAVA STRINGS -->
@@ -2038,6 +2073,7 @@ Are you sure you want to proceed?</string>
 	<string source="variable_name">Variable Name</string>
 	<string source="form_question_asset">Form Question Asset</string>
 	<string source="static_value">Static Value</string>
+	<string source="static_asset">Static Asset ID</string>
 
 	<!-- Paint Layout -->
 	<string source="paint_layout_usage_explanation">This screen shows which parts of the asset tree this paint layout is used in, by listing the highest-level assets to which it has been applied and the number of their children to which it has cascaded.</string>
@@ -2130,10 +2166,10 @@ Are you sure you want to proceed?</string>
 	<string source="password_rules_intro">The following rules apply to new passwords:</string>
 	<string source="password_entry_instructions">Enter password once, then again to confirm.</string>
 
-	<string source="safe_trash_line_common">This asset is marked to be automatically trashed when it meets Safe Trash conditions.</string>
-	<string source="safe_trash_line_still_blocked">There are still Safe Trash conditions that prevent this asset from being trashed:</string>
+	<string source="safe_trash_line_common">This asset is marked to be automatically trashed when it meets Safe-Trash conditions.</string>
+	<string source="safe_trash_line_still_blocked">There are still Safe-Trash conditions that prevent this asset from being trashed:</string>
 	<string source="safe_trash_line_unblocked">This asset now satisfies those conditions and will now be trashed at the next run of the Cron Manager.</string>
-	<string source="safe_trash_line_disabled">However, Safe Trash is currently disabled. This asset will be trashed at the next run of the Cron Manager.</string>
+	<string source="safe_trash_line_disabled">However, Safe-Trash is currently disabled. This asset will be trashed at the next run of the Cron Manager.</string>
 	<string source="safe_trash_line_blocked_links"><![CDATA[There are NOTICE or TYPE_3 links from another asset to this asset. See the <a href="%s">Linking screen</a> for details of all this asset's links.]]></string>
 	<string source="safe_trash_line_blocked_status"><![CDATA[The asset's status is Live or higher status. Change the status to <em>Under Construction</em> or <em>Archived</em> to satisfy this condition.]]></string>
 	<string source="safe_trash_line_blocked_children">Any of the asset's children is either of Live or higher status, or is NOTICE or TYPE_3 linked to another asset.</string>
@@ -2145,4 +2181,27 @@ Are you sure you want to proceed?</string>
 	<string source="licence_type_gpl"><![CDATA[GPL version not warranted]]></string>
 	<string source="licence_type_ssv_valid"><![CDATA[Squiz Supported Version warranty valid]]></string>
 	<string source="licence_type_ssv_expired"><![CDATA[Squiz Supported Version warranty <u>EXPIRED</u>]]></string>
+
+	<string source="print_this_page">Print this Page</string>
+
+	<string source="date_format_default">yyyy-mm-dd hh:mm:ss</string> 	 
+	<string source="date_format_short">yyyy-mm-dd</string> 	 
+	<string source="date_format_readable">dd m yyyy h:mm[am pm]</string> 	 
+	<string source="date_format_readabledate">date only - dd M yyyy</string> 	 
+	<string source="date_format_readabletime">time only - h:mm[am pm]</string> 	 
+	<string source="date_format_iso8601">ISO8601 format</string> 	 
+	<string source="date_format_rfc2822">RFC2822 format</string> 	 
+	<string source="date_format_rfc2822-dateonly">RFC2822 format, date only</string> 	 
+	<string source="date_format_ical">iCalendar format</string> 	 
+
+	<!-- Future Status Trigger Actions --> 	 
+	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to:</string> 	 
+	<string source="trigger_action_future_status_cascade_all">and cascade the status change to all children of the asset</string> 	 
+	<string source="trigger_action_future_status_failure_conditions">NB. If a selected attribute is empty or not present, or the calculated value is in the past, no future status will be set</string> 	 
+	<string source="trigger_action_future_status_make_status_change_to">Add a cron job to change the asset's status to</string> 	 
+	<string source="trigger_action_future_status_explicit_exact">at exactly</string> 	 
+	<string source="trigger_action_future_status_explicit_interval">after the trigger was fired</string> 	 
+	<string source="trigger_action_future_status_attr_exact">at exactly the date and time stored in the attribute</string> 	 
+	<string source="trigger_action_future_status_attr_interval">the date and time stored in the attribute</string>
+
 </strings>
