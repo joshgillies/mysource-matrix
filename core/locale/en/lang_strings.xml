@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.230 2007/02/27 03:03:22 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.231 2007/02/27 21:54:25 hnguyen Exp $
 *
 */
 
@@ -1156,6 +1156,8 @@
 	<string source="security_key_incorrect_message">The security key entered was incorrect. The lock on "%s" has not been forcibly acquired. You may try again using the new security key displayed below.</string>
 
 	<string source="trigger_action_add_remap_message">The new remap URL consisting of site URL and assetid will be added to remap.</string>
+	<string source="trigger_create_design_customisation_usage">This trigger will create a design customisation of the design asset in which the trigger condition is matched.</string>
+
 	<!-- common single word strings -->
 
 	<string source="all">All</string>
