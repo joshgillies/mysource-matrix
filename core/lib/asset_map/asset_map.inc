@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.240 2007/01/03 23:50:17 emcdonald Exp $
+* $Id: asset_map.inc,v 1.241 2007/02/27 04:02:41 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.240 $
+* @version $Revision: 1.241 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -568,7 +568,7 @@ class Asset_Map
 
 		header('Content-Type: text/xml');
 		ob_start();
-			echo "<translations locale=\"$current_locale\">\n";
+			echo '<translations locale="'.$current_locale.'">'."\n";
 				echo "<![CDATA[\n";
 					$locales = $GLOBALS['SQ_SYSTEM']->lm->getCumulativeLocaleParts($current_locale);
 					foreach ($locales as $locale) {
@@ -1211,6 +1211,7 @@ class Asset_Map
 	*/
 	function _getAssets(&$input)
 	{
+
 		if (!count($input->root->children)) {
 			$this->_error('AMAP0006');
 			return;
@@ -1228,7 +1229,6 @@ class Asset_Map
 			$linkid = $node->attributes['linkid'];
 			$info = $this->_getAssetInfo(urldecode($assetid), urldecode($linkid));
 			$child =& $root->addChild('asset', '', $info);
-
 			$this->_getChildAssets($child, urldecode($assetid), FALSE, $start, $limit);
 		}
 
