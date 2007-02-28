@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.13 2006/12/06 02:59:55 emcdonald Exp $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.14 2007/02/28 04:49:04 emcdonald Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -135,6 +135,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 		if (empty($job->_running_vars['todo'])) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;
+			$job->_running_vars['complete'] = TRUE;
 
 			// move the temp file to become the real report XML file
 			fwrite($temp_file, "</assets>\n");
