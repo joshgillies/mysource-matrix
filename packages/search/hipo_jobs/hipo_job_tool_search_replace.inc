@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.7.2.2 2007/01/31 00:23:52 skim Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.7.2.3 2007/02/28 03:29:08 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.7.2.2 $
+* @version $Revision: 1.7.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -348,44 +348,26 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	{
 		$search_count = Array();
 		$search_string = preg_replace('/([\.\\\!\+\*\?\[\]\^\$\(\)\=\!\<\>\|\:\/]+)/i', '\\\${1}', $this->_running_vars['search_string']);
+
 		foreach ($this->_running_vars['search_data'] as $assetid => $contents) {
 			$search_count[$assetid] = 0;
-			if (isset($contents['attributes'])) {
-				foreach ($contents['attributes'] as $index => $value) {
-					preg_match_all("/$search_string/i", $value, $matches);
-					$search_count[$assetid] += count($matches[0]);
-					preg_match_all('/'.htmlentities($search_string).'/i', $value, $matches);
-					$search_count[$assetid] += count($matches[0]);
-					unset($matches);
+
+			foreach (Array('attributes', 'contents', 'metadata', 'schema') as $type) {
+				if (isset($contents[$type])) {
+
+					foreach ($contents[$type] as $index => $value) {
+						preg_match_all("/$search_string/i", $value, $matches);
+						$search_count[$assetid] += count($matches[0]);
+						$cvrd_sch_str = htmlentities($search_string);
+						if ($cvrd_sch_str != $search_string) {
+							preg_match_all('/'.$cvrd_sch_str.'/i', $value, $matches);
+							$search_count[$assetid] += count($matches[0]);
+						}
+						unset($matches);
+					}
 				}
 			}
-			if (isset($contents['contents'])) {
-				foreach ($contents['contents'] as $index => $value) {
-					preg_match_all("/$search_string/i", $value, $matches);
-					$search_count[$assetid] += count($matches[0]);
-					preg_match_all('/'.htmlentities($search_string).'/i', $value, $matches);
-					$search_count[$assetid] += count($matches[0]);
-					unset($matches);
-				}
-			}
-			if (isset($contents['metadata'])) {
-				foreach ($contents['metadata'] as $index => $value) {
-					preg_match_all("/$search_string/i", $value['value'], $matches);
-					$search_count[$assetid] += count($matches[0]);
-					preg_match_all('/'.htmlentities($search_string).'/i', $value, $matches);
-					$search_count[$assetid] += count($matches[0]);
-					unset($matches);
-				}
-			}
-			if (isset($contents['schema'])) {
-				foreach ($contents['schema'] as $index => $value) {
-					preg_match_all("/$search_string/i", $value['value'], $matches);
-					$search_count[$assetid] += count($matches[0]);
-					preg_match_all('/'.htmlentities($search_string).'/i', $value, $matches);
-					$search_count[$assetid] += count($matches[0]);
-					unset($matches);
-				}
-			}
+
 		}
 		return $search_count;
 
