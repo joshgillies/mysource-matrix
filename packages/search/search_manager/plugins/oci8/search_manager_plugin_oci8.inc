@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.14 2007/02/20 04:05:52 lwright Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.15 2007/02/28 22:27:53 skim Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -520,14 +520,18 @@ class Search_Manager_Plugin_OCI8
 	* Text can have a look at the whole string. So we return the word string back
 	* as a single element array
 	*
-	* @param string	$words	A string of words
+	* @param string|array	$words	A string of words, or an array of string
 	*
 	* @return array
 	* @access public
 	*/
 	function generateWordList($words)
 	{
-		return Array($words);
+		if (is_array($words)) {
+			return $words;
+		} else if (is_string($words)) {
+			return Array($words);
+		}
 
 	}//end generateWordList()
 
