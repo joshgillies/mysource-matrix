@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_edit_fns.inc,v 1.7 2006/12/06 02:59:55 emcdonald Exp $
+* $Id: structured_asset_info_edit_fns.inc,v 1.8 2007/02/28 04:53:56 emcdonald Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -663,6 +663,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 		if (empty($job->_running_vars['assets_to_list'])) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;
+			$job->_running_vars['complete'] = TRUE;
 			fwrite($temp_file, '</assets>'."\n");
 			// move the temp file to become the real report XML file
 			if (!copy($owner->data_path.'/report.tmp', $owner->data_path.'/report.xml')) {
