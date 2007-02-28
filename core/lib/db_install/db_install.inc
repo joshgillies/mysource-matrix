@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.43 2007/02/27 05:58:49 lwright Exp $
+* $Id: db_install.inc,v 1.44 2007/02/28 05:33:41 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -197,9 +197,11 @@ function parse_tables_xml($xml_file)
 function create_index($tablename, $columns, $index_name=NULL, $index_type=NULL)
 {
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
-	if (is_null($index_name)) $index_name = $column;
+	if (is_null($index_name)) $index_name = implode('_', $columns);
 
-	$sql = 'CREATE INDEX sq_'.$tablename.'_'.$index_name.' ON sq_'.$tablename;
+	// Truncate any index names to 30 characters to satisfy Oracle restrictions
+	// The '27' value takes out the 'sq_'
+	$sql = 'CREATE INDEX sq_'.substr($tablename.'_'.$index_name, 0, 27).' ON sq_'.$tablename;
 	if (!empty($index_type)) {
 		if ($db->phptype == 'oci8') {
 			$sql .= '('.implode(', ', $columns).') indextype is '.$index_type;
@@ -445,9 +447,26 @@ function db_install($xml_file, $verbose=TRUE)
 				$rb_table_info['columns'] = array_merge($rb_col, $rb_table_info['columns']);
 
 				if (!empty($rb_table_info['primary_key'])) {
+					foreach ($rb_table_info['primary_key'] as $field) {
+						// Create individual index on each field of the primary
+						// key (needed for some triggers)
+						$table_info['rb_indexes'][$field] = Array(
+																'columns'	=> Array($field),
+																'type'		=> NULL,
+																'db_type'	=> NULL,
+														   );
+					}
 					array_unshift($rb_table_info['primary_key'], 'sq_eff_from');
 				}
 				if (!empty($rb_table_info['unique_key'])) {
+					foreach ($rb_table_info['primary_key'] as $field) {
+						// Create individual index on each field of the unique key
+						$table_info['rb_indexes'][$field] = Array(
+																'columns'	=> Array($field),
+																'type'		=> NULL,
+																'db_type'	=> NULL,
+														   );
+					}
 					array_unshift($rb_table_info['unique_key'], 'sq_eff_from');
 				}
 
@@ -490,6 +509,11 @@ function db_install($xml_file, $verbose=TRUE)
 			}// end foreach
 
 		}//end if
+
+		// reload the list of indexes, to prevent cases where a rollback
+		// index overlaps one created above (which would cause a duplicate
+		// index error)
+		$indexes_in_db = get_database_indexes($tablename, TRUE);
 
 		// create indexes (prepared earlier) which are specific to rollback and not required to be replicated for "non-rollback" tables
 		if (($table_info['rollback']) && (!empty($table_info['rb_indexes']))) {
