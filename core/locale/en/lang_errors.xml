@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.83 2007/02/26 05:02:59 skim Exp $
+* $Id: lang_errors.xml,v 1.84 2007/02/28 22:48:47 rhoward Exp $
 *
 */
 
@@ -1710,6 +1710,9 @@ Full Node Contents :
 	<error code="CORE0271">Adding remap entry failed in Trigger Action Add Remap</error>
 	<error code="CORE0272">%s is already remapped, Trigger Action Add Remap failed</error>
 	<error code="CORE0273">The report could not be exported as another error has occurred. Please check previous error messages.</error>
+
+	<error code="CORE0274">Tags must be selected from the tagging thesaurus</error>
+	<error code="CORE0275">Tag already set on asset #%1$s with a different weighting (%2$s)</error>
 
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.6 2007/01/18 05:49:01 colivar Exp $
+* $Id: tag_manager.inc,v 1.7 2007/02/28 22:48:38 rhoward Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends Asset
@@ -293,7 +293,7 @@ class Tag_Manager extends Asset
 	{
 		if (!$this->isFromTaggingThesaurus($tagid)) {
 			// this tag is not in the required thesaurus
-			trigger_error('Tags must be selected from the tagging thesaurus', E_USER_WARNING);
+			trigger_localised_error('CORE0274', E_USER_WARNING);
 			return 0;
 		}
 
@@ -301,6 +301,22 @@ class Tag_Manager extends Asset
 		$asset          =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($new_tag_object) || is_null($asset)) {
 			return 0;
+		}
+
+		// see if the asset is already tagged with this tag
+		$tag_links = $this->getTagLinks($assetid);
+		log_dump($tag_links);
+		foreach ($tag_links as $link) {
+			if ($tagid == $link['minorid']) {
+				if ($weight == $link['value']) {
+					// already tagged with the same weighting, return the preexisting link
+					return $link['linkid'];
+				} else {
+					// already tagged, but with a different weighting; scream and shout
+					trigger_localised_error('CORE0275', E_USER_WARNING, $assetid, $weight);
+					return 0;
+				}
+			}
 		}
 
 		return $GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $new_tag_object, SQ_LINK_NOTICE, $weight);
