@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_asset.inc,v 1.9 2006/12/06 00:07:40 bcaldwell Exp $
+* $Id: trigger_action_create_asset.inc,v 1.10 2007/03/01 01:56:55 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -340,6 +340,42 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 		return FALSE;
 
 	}//end processInterface()
+
+
+	/**
+	* Add the attributes value from the import script to a settings array
+	*
+	* Attributes should be specified in the actions in the following format:
+	* <attributes>
+	*   <attribute>
+	*     <name>NAME OF ATTRIBUTE</name>
+	*     <value>ATTRIBUTE TO SET</value>
+	*   </attribute>
+	*   (...more attributes...)
+	* </attributes>
+	*
+	* Currently, only simple attributes (non-serialised) can be set.
+	*
+	* @param string	$value		The a value to be added to the settings array
+	* @param array	$settings	a container for any data the action might want to save
+	*
+	* @return array
+	* @access public
+	*/
+	function addSettingAttributes($value, $settings)
+	{
+		foreach ($value['attribute'] as $attribute) {
+			$attr_name = $attribute['name'][0];
+			$attr_value = $attribute['value'][0];
+			$settings['attributes'][] = Array(
+											'attribute'	=> $attr_name,
+											'value'		=> $attr_value,
+										);
+		}
+
+		return $settings;
+
+	}//end addSettingAttributes()
 
 
 }//end class
