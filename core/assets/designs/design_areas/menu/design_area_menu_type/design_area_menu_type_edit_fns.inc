@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.49 2006/12/05 22:42:15 emcdonald Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.50 2007/03/01 00:48:26 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -206,26 +206,56 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		$sub =& $asset->getSubMenu();
 		// nup ? create one now
 		if (is_null($sub)) {
+
 			// get the parent
-			$design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_3, 'design', FALSE, $asset->attr('id_name'), 'minor');
-			if (empty($design_link)) return FALSE;
-			$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($design_link['majorid']);
-			if (is_null($design)) return FALSE;
+			$design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3, 'design', FALSE, 'minor', $asset->attr('id_name'));
+
+			if (empty($design_links)) return FALSE;
+			$designs = Array();
+			foreach ($design_links as $design_link) {
+				$design_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($design_link['majorid']);
+				if (!is_null($design_asset)) {
+					$designs[] = $design_asset;
+				}
+			}
+
+			if (is_null($designs)) return FALSE;
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
 			$sub =& new $design_area();
-			$sub_link = Array('asset' => &$design, 'link_type' => SQ_LINK_TYPE_3, 'value' => $asset->attr('id_name').'__sub_menu', 'is_dependant' => 1);
+
 			$sub->setAttrValue('id_name', $asset->attr('id_name').'__sub_menu');
 			$sub->setAttrValue('contents', $contents);
-			if (!$sub->create($sub_link)) return FALSE;
 
-			if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $sub, SQ_LINK_NOTICE, 'sub_menu')) {
-				return FALSE;
+			$linkids = Array();
+			$created = FALSE;
+			// create link to design and customisation.
+			foreach ($designs as $design) {
+				$sub_link = Array('asset' => &$design, 'link_type' => SQ_LINK_TYPE_3, 'value' => $asset->attr('id_name').'__sub_menu', 'is_dependant' => 1);
+				// Create the asset and link it to one of the parents.
+				if (!$created) {
+					$linkid = $sub->create($sub_link);
+					if (!$linkid) return FALSE;
+					$created = TRUE;
+				} else {
+					// Create link only now
+					$linkid = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($design, $sub, SQ_LINK_TYPE_3, $asset->attr('id_name').'__sub_menu', NULL, 1);
+					if (!$linkid) return FALSE;
+				}
+
+				$linkids[] = $linkid;
 			}
-		}
+
+			// Create SQ_LINK_NOTICE to its Upper level menu
+			$createAssetLink = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $sub, SQ_LINK_NOTICE, 'sub_menu');
+
+			if (!$createAssetLink) return FALSE;
+
+		}//end if
 
 		// if the current sub is a different type of menu type then morph it to the correct one
 		if ($design_area != $sub->type()) {
+
 			// first up
 			if (!$sub->morph('design_area_menu_type')) {
 				return FALSE;
@@ -237,10 +267,13 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 			}
 		}
 		$edit_fns = $sub->getEditFns();
+
 		if (!$edit_fns->_processContents($sub, $contents) && $sub->saveAttributes()) {
 			return FALSE;
 		}
+
 		$asset->saveAttributes();
+
 		return TRUE;
 
 	}//end _processSubMenu()
