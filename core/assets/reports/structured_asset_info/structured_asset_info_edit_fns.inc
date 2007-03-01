@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_edit_fns.inc,v 1.7 2006/12/06 02:59:55 emcdonald Exp $
+* $Id: structured_asset_info_edit_fns.inc,v 1.7.2.1 2007/03/01 02:43:49 emcdonald Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -515,7 +515,9 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 
 			$child_links = $am->getLinks($root_id, SQ_SC_LINK_BACKEND_NAV);
 			foreach (array_reverse($child_links) as $link) {
-				array_unshift($assets_to_list, $link['minorid']);
+				if (($link['linkid'] != '0') && FALSE == strpos($link['linkid'], ':')) {
+					array_unshift($assets_to_list, $link['minorid']);
+				}
 			}
 
 			$job->_running_vars['assets_to_list'] = $assets_to_list;
@@ -641,7 +643,9 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 				$child_links = $am->getLinks($current_assetid, SQ_SC_LINK_BACKEND_NAV);
 				// get more assets to list and stack em
 				foreach (array_reverse($child_links) as $link) {
-					array_unshift($assets_to_list, $link['minorid']);
+					if (($link['linkid'] != '0') && FALSE == strpos($link['linkid'], ':')) {
+						array_unshift($assets_to_list, $link['minorid']);
+					}
 				}
 				$new_open_asset = Array(
 									'assetid'	=> $asset_info['assetid'],
