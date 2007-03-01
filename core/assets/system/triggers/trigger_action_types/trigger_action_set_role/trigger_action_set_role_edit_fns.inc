@@ -10,16 +10,16 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_role_edit_fns.inc,v 1.1 2007/01/31 03:36:24 rhoward Exp $
+* $Id: trigger_action_set_role_edit_fns.inc,v 1.2 2007/03/01 02:52:29 hnguyen Exp $
 *
 */
 
 
 /**
-* Trigger_Condition_Create_Clone_Edit_Fns
+* Trigger_Action_Set_Role_Edit_Fns
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

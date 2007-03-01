@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_role.inc,v 1.2 2007/02/16 04:32:27 rhoward Exp $
+* $Id: trigger_action_set_role.inc,v 1.3 2007/03/01 02:52:29 hnguyen Exp $
 *
 */
 
@@ -18,13 +18,13 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 /**
-* Trigger Action Create Clone
+* Trigger Action Set Role
 *
 * A trigger action that creates a clone of the firing asset
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
