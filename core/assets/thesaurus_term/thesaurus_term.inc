@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.12 2007/01/18 01:53:24 tbarrett Exp $
+* $Id: thesaurus_term.inc,v 1.13 2007/03/01 01:57:48 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -141,14 +141,14 @@ class Thesaurus_Term extends Asset
 			}
 			$em->broadcastEvent($this->_thesaurus, 'CreateLink', Array());
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return TRUE;
+			return $this->_thesaurus->id.':atoz:'.$termid;
 		}
 
 		$existing_link = $this->_thesaurus->getTermLinkByTermids($termid, $majorid, $relation);
 		if (!empty($existing_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return TRUE;
+			return $this->_thesaurus->id.':'.$existing_link['linkid'];
 		}
 
 		$linkid = $this->_thesaurus->linkTerms($termid, $majorid, $relation);
@@ -167,8 +167,7 @@ class Thesaurus_Term extends Asset
 			$em->broadcastEvent($this, 'AssetCreate', Array('name','assetid'));
 		}
 
-
-		return TRUE;
+		return $this->_thesaurus->id.':'.$linkid;
 
 	}//end create()
 

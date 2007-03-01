@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.35 2007/02/16 04:20:05 rhoward Exp $
+* $Id: thesaurus.inc,v 1.36 2007/03/01 01:57:48 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1885,6 +1885,7 @@ class Thesaurus extends Asset
 					'linkid'			=> $linkid,
 					'is_dependant'		=> 0,
 					'is_exclusive'		=> 0,
+					'sort_order'		=> NULL,
 				);
 
 		return $link;
