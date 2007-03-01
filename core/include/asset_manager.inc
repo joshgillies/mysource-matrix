@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.555 2007/03/01 03:33:56 lwright Exp $
+* $Id: asset_manager.inc,v 1.556 2007/03/01 05:26:16 rhoward Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.555 $
+* @version $Revision: 1.556 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1688,12 +1688,20 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		$parent_components = Array('permissions', 'metadata_schemas', 'workflow', 'roles');
+		$parent_components = Array(
+								'permissions',
+								'metadata_schemas',
+								'workflow',
+								'roles',
+							 );
 		// make an exception for tags - tags never cascade to dependent assets, so leave
 		// them out if we're cloning a dependent asset
 		if (!$cloning_dependent) {
-			$parent_components[]	= 'content_tags';
+			$parent_components[] = 'content_tags';
 		}
+
+
+		//// clone non-link-based components ////
 
 		// cascade various components from parent asset to new child
 		// unless the parent is the root folder or system management folder;
@@ -1701,30 +1709,47 @@ class Asset_Manager extends MySource_Object
 		// current user has (to match creation and moving assets)
 
 		// If no $link is specified, just don't clone anything from the parent. 
-		if(!empty($link)) {
+		if (!empty($link)) {
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
-					$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
-					$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
-					if (!$link['asset']->cloneComponents($clone, $parent_components)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-						return $null;
+				$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
+				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
+				
+				// remove content_tags from the array, if present; munge array, then give it to cloneComponents
+				$nonlink_parent_components = $parent_components;
+				foreach ($nonlink_parent_components as $idx => $component) {
+					if ($component == 'content_tags') {
+						unset($nonlink_parent_components[$idx]);
 					}
-					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				}
 
-					unset($this->_tmp[__CLASS__.'_in_create_cascading']);
+				if (!$link['asset']->cloneComponents($clone, $nonlink_parent_components)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return $null;
+				}
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 			}
 		}
 
 		// now that we (might) have permission, copy all the schemas, attributes,
 		// etc. from the original asset
 		// (will throw errors but return TRUE if the user doesn't have sufficient permissions
-		// to cascade everything
-		if (!$source->cloneComponents($clone, $components, TRUE)) {
+		// to cascade everything)
+		$nonlink_components = $components;
+		foreach ($nonlink_components as $idx => $component) {
+			if ($component == 'content_tags') {
+				unset($nonlink_components[$idx]);
+			}
+		}
+		if (!$source->cloneComponents($clone, $nonlink_components, TRUE)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $null;
 		}
+
+
+		//// clone links ////
 
 		// we've created the asset, now link it to its new parent
 		$clone = $this->_cloneLink($clone, $link, $lock);
@@ -1733,6 +1758,52 @@ class Asset_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $clone_result;
 		}
+
+		// clone the other links
+		if (!$source->cloneLinks($clone)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return $null;
+		}
+
+
+		//// go back and clone link-based components ////
+
+		// as per above, cascade components from parent asset to new
+		// child, regardless of permission
+
+		// If no $link is specified, just don't clone anything from the parent. 
+		if (!empty($link)) {
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
+				$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
+				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
+
+				// only clone content_tags this time (only link-based component so far)
+				$link_parent_components = (in_array('content_tags', $parent_components) ? Array('content_tags') : Array());
+
+				if (!empty($link_parent_components) && !$link['asset']->cloneComponents($clone, $link_parent_components)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return $null;
+				}
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				unset($this->_tmp[__CLASS__.'_in_create_cascading']);
+			}
+		}
+
+		// copy all link-based components from the original asset
+		$link_components = $components;
+		foreach ($link_components as $idx => $component) {
+			if ($component != 'content_tags') {
+				unset($link_components[$idx]);
+			}
+		}
+		if (!empty($link_components) && !$source->cloneComponents($clone, $link_components, TRUE)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return $null;
+		}
+
 
 		// if we got this far all is well,
 		// so add to the map and return the clone
@@ -1859,12 +1930,6 @@ class Asset_Manager extends MySource_Object
 
 		$clone =& $this->_cloneAsset($source, $link, $clone_map, $components, $cloning_dependent);
 		if (is_null($clone)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return $null;
-		}
-
-		if (!$source->cloneLinks($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $null;
