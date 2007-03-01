@@ -18,10 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_expand_keywords.inc,v 1.17 2006/04/17 23:50:55 tbarrett Exp $
+* $Id: matrix_expand_keywords.inc,v 1.17.2.1 2007/03/01 00:40:57 skim Exp $
 *
 */
 
+
+global $ROOT_PATH;
+include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 
 /**
 * Matrix Keyword Expander
@@ -32,7 +35,7 @@
 *     to replace it with its full version as you type
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
