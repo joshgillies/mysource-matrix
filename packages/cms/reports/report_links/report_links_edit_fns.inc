@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.27.2.1 2007/02/13 01:28:14 hnguyen Exp $
+* $Id: report_links_edit_fns.inc,v 1.27.2.2 2007/03/01 04:46:37 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27.2.1 $
+* @version $Revision: 1.27.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1203,7 +1203,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				if ($cron_epoc > 0 && $cron_refresh > 0) {
 					$edit_fns->paintInLineBackend($cron_job, $o, $prefix.'_new_rl');
 					$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
-				} else{
+				} else {
 					echo translate('cron_manager_not_configured_regen');
 				}
 			} else {
@@ -1255,38 +1255,43 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					trigger_localised_error('SYS0232', E_USER_NOTICE);
 				}// end if
 			}// end if
-		}
 
-		if ($asset->writeAccess('')) {
+			$cron_epoc = (int)$cron_mgr->attr('epoch');
+			$cron_refresh = (int)$cron_mgr->attr('refresh_time');
+			if ($cron_epoc > 0 && $cron_refresh > 0) {
+				if ($asset->writeAccess('attributes')) {
+					$rl =& new Cron_Job_Regenerate_Report();
+					$edit_fns = $rl->getEditFns();
 
-			$rl =& new Cron_Job_Regenerate_Report();
-			$edit_fns = $rl->getEditFns();
+					$new_rl = $prefix.'_new_rl';
+					if (isset($new_rl)) {
+						if ($edit_fns->processInLineBackend($rl, $o, $new_rl)) {
+							$rl->setAttrValue('long', TRUE);
+							$rl->setAttrValue('asset', $asset->id);
+							$rl->saveAttributes();
+						} else {
+							return FALSE;
+						}
+					} else {
+						return FALSE;
+					}
 
-			$new_rl = $prefix.'_new_rl';
-			if (isset($new_rl)) {
-				if ($edit_fns->processInLineBackend($rl, $o, $new_rl)) {
-					$rl->setAttrValue('long', TRUE);
-					$rl->setAttrValue('asset', $asset->id);
-					$rl->saveAttributes();
-				} else {
-					return FALSE;
-				}
-			} else {
-				return FALSE;
-			}
+					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					if ($cron_mgr->addJob($rl, $GLOBALS['SQ_SYSTEM']->user)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+						$is_updated = TRUE;
+					} else {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					}
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+				}// end if
+			}//end if
+
+		}//end if
 
 
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			if ($cron_mgr->addJob($rl, $GLOBALS['SQ_SYSTEM']->user)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-				$is_updated = TRUE;
-			} else {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			}
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-		}// end if
 
 	}//end processFutureRegenerate()
 
