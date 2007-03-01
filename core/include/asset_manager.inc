@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.553 2007/02/18 23:34:44 rhoward Exp $
+* $Id: asset_manager.inc,v 1.554 2007/03/01 00:41:36 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.553 $
+* @version $Revision: 1.554 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1699,16 +1699,21 @@ class Asset_Manager extends MySource_Object
 		// unless the parent is the root folder or system management folder;
 		// components are cascaded from the new parent regardless of what permissions the
 		// current user has (to match creation and moving assets)
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
-			$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
-			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
-			if (!$link['asset']->cloneComponents($clone, $parent_components)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return $null;
+
+		// If no $link is specified, just don't clone anything from the parent. 
+		if(!empty($link)) {
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
+					$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
+					$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
+					if (!$link['asset']->cloneComponents($clone, $parent_components)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						return $null;
+					}
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+					unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 			}
-			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-			unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 		}
 
 		// now that we (might) have permission, copy all the schemas, attributes,
@@ -4112,11 +4117,11 @@ class Asset_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$result = $db->query($sql);
+		
 		assert_valid_db_result($result);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
-
 			// This is a significant link, so do stuff with the tree
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
@@ -4336,7 +4341,6 @@ class Asset_Manager extends MySource_Object
 			// if we don't have any existing tree entries then
 			// we are the root folder, so do a simple insert
 			if ((string) $existing_treeid == '-') {
-
 				$sql = 'UPDATE
 							sq_ast_lnk_tree
 						SET
@@ -4351,7 +4355,6 @@ class Asset_Manager extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 			} else {
-
 				$sql = 'UPDATE
 							sq_ast_lnk_tree
 						SET
