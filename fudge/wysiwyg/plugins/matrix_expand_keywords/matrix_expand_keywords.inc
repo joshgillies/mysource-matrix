@@ -10,10 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_expand_keywords.inc,v 1.18 2006/12/06 05:11:09 bcaldwell Exp $
+* $Id: matrix_expand_keywords.inc,v 1.19 2007/03/01 00:40:04 skim Exp $
 *
 */
 
+
+global $ROOT_PATH;
+include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 
 /**
 * Matrix Keyword Expander
@@ -24,7 +27,7 @@
 *     to replace it with its full version as you type
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package Fudge
 * @subpackage wysiwyg
 */
