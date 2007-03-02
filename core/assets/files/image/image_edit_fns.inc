@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.49 2007/01/24 04:56:10 arailean Exp $
+* $Id: image_edit_fns.inc,v 1.50 2007/03/02 03:46:36 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -543,6 +543,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 			// -->
 		</script>
 
+		&nbsp;
 		<input type="hidden" name="<?php echo $prefix; ?>_applet_temp_filename" id="<?php echo $prefix; ?>_applet_temp_filename" value="" />
 		<input type="hidden" name="<?php echo $prefix; ?>_applet_filename" id="<?php echo $prefix; ?>_applet_filename" value="" />
 
