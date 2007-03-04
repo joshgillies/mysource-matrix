@@ -1,9 +1,44 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.10.7
+
+Complete Changelog
+-----------------------------------
+
+Core
+
+* Fixed bug #2092: %metadata_field_XXX% keyword doesn't work when set to "Never" display
+* Fixed bug #2099: Remapping URLs does not work when moving to trash
+* Fixed bug #2167: Matrix breaks URLs with encoded special chars
+* Fixed bug #2174: HTML Content without new line character generates problems when importing
+* Fixed bug #2189: Messages don't stay marked "Read" as LDAP user
+* Fixed bug #2198: Image Editor and Internet Explorer
+
+CMS
+
+* Fixed bug #2039: Custom Form - default values for datetime (Custom Form)
+* Fixed bug #2124: Links Report throws PHP warnings (Links Report)
+* Fixed bug #2175: Sitemap -> unordered list not valid XHTML (Site Map)
+* Fixed bug #2193: null asset problem in filterAssetStatuses (Listing Engine)
+
+Search
+
+* Fixed bug #2201: Global search and replace shows the number of occurrences doubled (Global Search and Replace Tool)
+
+Bulkmail
+
+* Fixed bug #2140: Bmail not showing %subscriptions_picker% output when Separator blank (Bulkmail Subscribe Page)
+* Fixed bug #2180: Bulkmail - Error when email is not valid (Bulkmail Subscribe Page)
+* Fixed bug #2188: Misleading message when public bulkmail user subscribes and enters unverified users folder (Bulkmail Subscribe Page)
+
+
+
 VERSION 3.10.6
 
 Complete Changelog
 -----------------------------------
+
+Core
 
 * Fixed bug #1398: Cannot link LDAP User with space in DN to Matrix group
 * Fixed bug #1983: ISO8601 and iCal date format keywords not working
