@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.30 2007/02/26 04:06:45 arailean Exp $
+* $Id: text.inc,v 1.31 2007/03/04 23:09:54 skim Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package Fudge
 * @subpackage Text
 */
@@ -153,7 +153,7 @@ function get_word_counts($text, $split_regexp="/[\t\n\r ]+/", $word_match_regexp
 
 	$words = preg_split($split_regexp, $text);
 
-	$silent_chars = Array('.', ':', ';', ',', '!', '?', '\'', '"', '(', ')');
+	$silent_chars = Array('.', ':', ';', ',', '!', '?', '\'', '"', '(', ')', '`', '~', '!', '@', '#', '$', '%', '^', '&', '*', '-', '_', '=', '+', '{', '}', '[', ']', '|', '\\', '<', '>', '/');
 	foreach ($words as $key => $word) {
 		$words[$key] = trim(str_replace($silent_chars, '', $word));
 	}
