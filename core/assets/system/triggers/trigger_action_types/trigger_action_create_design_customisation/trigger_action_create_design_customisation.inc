@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,7 +36,7 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
     * The settings used by this action are in the form:
     * <PRE>
     * Array(
-    *       ''                => int,     // the assetid of the role
+    *       'customisation_name'                => string,     // the name of the customisation
     *       );
     * </PRE>
     *
@@ -59,7 +59,6 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 			}
 		}
 
-
 		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -72,7 +71,16 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 			return FALSE;
 		}
 
-		$new_name = 'Customisation #'.$clone->id;
+		$default_name = 'Customisation #'.$clone->id;
+		$new_name = array_get_index($settings, 'customisation_name', $default_name);
+
+		$keywords_list = retrieve_keywords_replacements($new_name);
+		$keywords_list = array_unique($keywords_list);
+   		$replacements = Array();
+		foreach ($keywords_list as $keyword) {
+			$replacements[$keyword] = $state['asset']->getKeywordReplacement($keyword);
+		}
+		$new_name = replace_keywords($new_name, $replacements);
 
 		// Acquire a lock on the new object
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($clone->id, 'all')) {
@@ -185,7 +193,25 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
     */
     function getInterface($settings, $prefix, $write_access=FALSE)
     {
-		$contents = translate('trigger_create_design_customisation_usage');
+    	// How to get a list of keyword if there is no asset to get it from?
+    	$GLOBALS['SQ_SYSTEM']->am->includeAsset('design');
+    	$tmp_design =& new Design();
+    	$keywords = $tmp_design->getAvailableKeywords();
+    	ob_start();
+    		text_box($prefix.'[customisation_name]', '%asset_name% - Customisation', strlen('%asset_name% - Customisation'));
+    		$text_box = ob_get_contents();
+    	ob_end_clean();
+
+    	ob_start();
+    		combo_box($prefix.'[keywords]', $keywords, FALSE, '',0, 'onchange="document.getElementById(\''.$prefix.'[customisation_name]\').value += \' %\' + this.value + \'%\';"');
+    		$combo_box = ob_get_contents();
+    	ob_end_clean();
+
+		$contents =	translate('trigger_create_design_customisation_usage')
+		.'<br /><br />'.translate('trigger_create_design_customisation_select_keyword').$combo_box
+		.'<br /><br />'.
+		translate('trigger_create_design_customisation_specify_name').$text_box.'<br />'
+		;
 
 		return $contents;
 
@@ -206,6 +232,11 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
     function processInterface(&$settings, $request_data)
     {
         // make sure the assetid isn't blank
+		if (empty($request_data['customisation_name'])) {
+			return translate('trigger_create_design_customisation_name_missing');
+		}
+
+		$settings['customisation_name']   = $request_data['customisation_name'];
 
         return FALSE;
 
