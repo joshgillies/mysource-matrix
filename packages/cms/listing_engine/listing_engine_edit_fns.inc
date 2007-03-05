@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.75 2007/02/11 23:54:45 hnguyen Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.76 2007/03/05 02:19:05 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1020,6 +1020,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processSortOptions(&$asset, &$o, $prefix)
 	{
+		$this->_tmp['previous_sort_options'] = $asset->attr('sort_by');
+
 		$res = FALSE;
 		$res = $this->_processStandardFieldSortOptions($asset, $o, $prefix.'_std_sort_options') || $res;
 		$res = $this->_processAttributeSortOptions($asset, $o, $prefix.'_attr_sort_options') || $res;
@@ -1701,13 +1703,14 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		if (isset($_POST[$prefix.'_default_sort'])) {
 			$new_default_index = $_POST[$prefix.'_default_sort'];
 			$new_sort_order = $asset->attr('sort_by');
-			$old_sort_order = $this->_tmp['unshuffled_sort_options'];
-			$new_default_entry = $new_sort_order[$new_default_index];
-			unset($new_default_entry['name']);
+			$old_sort_order = $this->_tmp['previous_sort_options'];
+			$new_default_entry = array_get_index($new_sort_order, $new_default_index, -1);
 			$old_default_entry = $old_sort_order[$new_default_index];
+			unset($new_default_entry['name']);
 			unset($old_default_entry['name']);
 			if ($new_default_entry != $old_default_entry) {
 				// the chosen default has been moved to a new spot,
+				// or the number of options has changed,
 				// so we'll have to search for the new index by characteristics
 				// If they've renamed it this will still work, but if they've
 				// changed its characteristics we won't find it, bad luck.
