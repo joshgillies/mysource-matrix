@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.7.2.3 2007/02/28 03:29:08 skim Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.7.2.4 2007/03/05 00:09:35 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.7.2.3 $
+* @version $Revision: 1.7.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -356,11 +356,16 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 				if (isset($contents[$type])) {
 
 					foreach ($contents[$type] as $index => $value) {
-						preg_match_all("/$search_string/i", $value, $matches);
+
+						if ($type == 'metadata' || $type == 'schema') {
+							$value = $value['value'];
+						}
+
+						preg_match_all("/$search_string/i", $value, $matches=Array());
 						$search_count[$assetid] += count($matches[0]);
 						$cvrd_sch_str = htmlentities($search_string);
 						if ($cvrd_sch_str != $search_string) {
-							preg_match_all('/'.$cvrd_sch_str.'/i', $value, $matches);
+							preg_match_all('/'.$cvrd_sch_str.'/i', $value, $matches=Array() );
 							$search_count[$assetid] += count($matches[0]);
 						}
 						unset($matches);
@@ -619,7 +624,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		<table class="sq-backend-table expandable component" border="1">
 			<thead>
 				<tr>
-					<th colspan="" onclick="toggleTBodyDisplay(this)">
+					<th colspan="3" onclick="toggleTBodyDisplay(this)">
 						<?php echo translate('asset_metadata'); ?>
 					</th>
 					<th class="match-checkbox" style="text-align: right">
@@ -629,7 +634,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			</thead>
 			<tbody style="display: none">
 				<tr>
-					<th><?php echo translate('field'); ?></th>
+					<th><?php echo translate('field_id'); ?></th>
 					<th><?php echo translate('match'); ?></th>
 					<th>&nbsp;</th>
 				</tr>
@@ -681,7 +686,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			</thead>
 			<tbody style="display: none">
 				<tr>
-					<th><?php echo translate('field'); ?></th>
+					<th><?php echo translate('field_id'); ?></th>
 					<th><?php echo translate('match'); ?></th>
 					<th>&nbsp</th>
 				</tr>
