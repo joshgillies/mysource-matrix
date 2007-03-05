@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section.inc,v 1.17 2006/06/16 03:43:00 sdanis Exp $
+* $Id: metadata_section.inc,v 1.17.2.1 2007/03/05 22:42:43 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,6 +95,7 @@ class Metadata_Section extends Folder
 	{
 		// if this is a metadata field then we need to make it a dependant and exclusive link
 		if ($side_of_link == 'major' && is_a($asset, 'metadata_field') && ($dependant != '1' || $exclusive == '1')) {
+			$link_type = SQ_LINK_TYPE_2;
 			$dependant = '1';
 			$exclusive = '0';
 			return TRUE;

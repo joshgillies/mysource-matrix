@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.33.2.1 2006/08/24 01:26:11 rhoward Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.33.2.2 2007/03/05 22:42:43 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33.2.1 $
+* @version $Revision: 1.33.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -173,7 +173,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($new_field_type);
 			$new_field =& new $new_field_type();
 
-			$section_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1, 'is_exclusive' => 1);
+			$section_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1, 'is_exclusive' => 0);
 			$new_field->setAttrValue('name', $new_field_name);
 			if ($new_field->create($section_link)) $updated = TRUE;
 		}
