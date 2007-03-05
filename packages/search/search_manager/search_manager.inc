@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.131.2.8 2007/02/12 05:45:31 lwright Exp $
+* $Id: search_manager.inc,v 1.131.2.9 2007/03/05 02:46:50 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.131.2.8 $
+* @version $Revision: 1.131.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1859,6 +1859,12 @@ class Search_Manager extends Asset
 			$log_contents['results'] = count($final_results);
 			$log_contents['assetid'] = $search_info['requester'];
 			log_write($log_contents, 'search');
+		}
+
+		if (is_null($final_results)) {
+			// If this is the case then we didn't find anything to actually search on.  Maybe no 
+			// words were long enough.  Anyway, we should at least break the news in the correct format.
+			$final_results = Array();
 		}
 
 		return $final_results;
