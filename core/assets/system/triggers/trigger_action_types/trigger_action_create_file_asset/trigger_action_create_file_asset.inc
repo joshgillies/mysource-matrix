@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_file_asset.inc,v 1.4 2006/12/06 00:07:40 bcaldwell Exp $
+* $Id: trigger_action_create_file_asset.inc,v 1.5 2007/03/05 00:47:29 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,7 +62,11 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 		if (empty($settings['type_code'])) return FALSE;
 		if (empty($settings['parentid'])) return FALSE;
 		if (empty($settings['link_type'])) return FALSE;
-		if (empty($settings['file_path']) || !file_exists($settings['file_path'])) return FALSE;
+		if (empty($settings['file_path'])) return FALSE;
+		if (!is_readable($settings['file_path'])) {
+			trigger_localised_error('CORE0276', E_USER_WARNING, htmlentities($settings['file_path']));
+			return FALSE;
+		}
 
 		if ($settings['parentid'] == 'current_asset') {
 			$settings['parentid'] = $state['assetid'];
@@ -90,15 +94,15 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 				);
 
 		$info = Array(
-					'name'			    => basename($settings['file_path']),
-					'tmp_name'		    => $settings['file_path'],
-					'non_uploaded_file' => TRUE,
-					);
+					'name'				=> basename($settings['file_path']),
+					'tmp_name'			=> $settings['file_path'],
+					'non_uploaded_file'	=> TRUE,
+				);
 
 		$type_code = $settings['type_code'];
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 		$new_asset =& new $type_code();
-		$new_asset->_tmp['uploading_file'] = true;
+		$new_asset->_tmp['uploading_file'] = TRUE;
 
 		// set the attributes for the newly created asset
 		if (!empty($attributes)) {
@@ -112,7 +116,9 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 
 		// If we're running at a low runlevel, we need to run the _createAdditional function here
 		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
-			if (!$new_asset->_createAdditional($linkid)) return FALSE;
+			if (!$new_asset->_createAdditional($linkid)) {
+				return FALSE;
+			}
 
 		}
 
@@ -178,7 +184,7 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 			// begin buffering basic options
 			ob_start();
 				if ($write_access) {
-					asset_type_chooser($prefix.'[type_code]', FALSE, Array($type_code), TRUE);
+					asset_type_chooser($prefix.'[type_code]', FALSE, Array($type_code), TRUE, FALSE, FALSE, Array('file'));
 				} else {
 					echo '<b>'.$type_code.'</b>';
 				}
@@ -189,28 +195,32 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 
 			ob_start();
 				if ($write_access) {
+					radio_button($prefix.'[parent_type]', 'explicit', !$parent_broadcasted, '', 'id="parent_type_explicit"');
+					label(translate('under'), 'parent_type_explicit');
+					echo ' ';
 					asset_finder($prefix.'[parentid]', $parentid, Array('asset' => 'D'));
-					echo '<br /><b>'.translate('trigger_create_under_broadcaster').'</b>';
-					check_box($prefix.'[parentid]', 'current_asset', $parent_broadcasted);
+					echo '<br />';
+					radio_button($prefix.'[parent_type]', 'broadcaster', $parent_broadcasted, '', 'id="parent_type_broadcaster"');
+					label(translate('trigger_create_under_broadcaster'), 'parent_type_broadcaster');
 				} else {
-					$parent = NULL;
-					if ($parentid > 0) {
-						$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
-					}
-					if (is_null($parent)) {
-						echo '<b>['.translate('no_parent_selected').']</b>';
+					if ($parent_broadcasted) {
+						echo translate('trigger_create_under_broadcaster');
 					} else {
-						echo '<b>'.translate('asset_format', $parent->name, $parent->id).'</b>';
+						echo translate('under').' ';
+						if (!empty($parentid)) {
+							echo '<b>'.get_asset_tag_line($parentid).'</b>';
+						} else {
+							echo '<b>['.translate('no_parent_selected').']</b>';
+						}
 					}
 				}
 
 				$basic_part_2 = ob_get_contents();
 			ob_get_clean();
 
-			$link_type_list = get_link_type_names();
-			unset($link_type_list[SQ_LINK_NOTICE]);
-
 			ob_start();
+				$link_type_list = get_link_type_names();
+				unset($link_type_list[SQ_LINK_NOTICE]);
 				if ($write_access) {
 					combo_box($prefix.'[link_type]', $link_type_list, FALSE, $link_type);
 				} else {
@@ -218,6 +228,15 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 				}
 
 				$basic_part_3 = ob_get_contents();
+			ob_end_clean();
+
+			ob_start();
+				if ($write_access) {
+					text_box($prefix.'[file_path]', array_get_index($settings, 'file_path', ''), 40);
+				} else {
+					echo array_get_index($settings, 'file_path', '');
+				}
+				$basic_part_4 = ob_get_contents();
 			ob_end_clean();
 
 			// begin buffering advanced options
@@ -277,23 +296,29 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 							echo ucwords($attr['attribute']).':  '.$attr['value'].'<br />';
 						}
 					}
+				} else {
+					if (!$write_access) {
+						echo '<i>('.translate('none').')</i>';
+					}
 				}
 				if ($write_access) {
-					echo '<br />';
 					combo_box($prefix.'[attributes]['.$count.'][attribute]', $attributes, FALSE, '');
 					text_box($prefix.'[attributes]['.$count.'][value]', '');
+					echo '<br />';
 				}
 			}
 			$attributes = ob_get_contents();
 			ob_end_clean();
 
 			// now patch together the output
-			$contents =	translate('trigger_new_asset_basic', $basic_part_1, $basic_part_2, $basic_part_3).
+			$contents =	translate('trigger_new_asset_basic', $basic_part_1, $basic_part_2, $basic_part_3, $basic_part_4).
 						'<br /><br />'.
 						'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
-						translate('trigger_new_asset_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).
-						'<br /><br /><b>'.translate('set_attributes').'</b><br />'.$attributes.'<br /><br />'.
-						'<span class="sq-backend-warning"><b>'.translate('can_only_create_assets_explanation').'</b></span>';
+						translate('trigger_new_asset_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).'<br />'.
+						translate('set_attributes').':<br />'.$attributes;
+			if ($write_access) {
+				$contents .= '<p class="sq-backend-warning"><b>'.translate('trigger_create_file_required_attrs_warning').'</b></p>';
+			}
 
 		return $contents;
 
@@ -314,7 +339,7 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 	function processInterface(&$settings, $request_data)
 	{
 		// make sure the parentid isn't blank
-		if (($request_data['parentid'] != 'current_asset') && empty($request_data['parentid']['assetid'])) {
+		if (($request_data['parent_type'] != 'broadcaster') && empty($request_data['parentid']['assetid'])) {
 			return translate('parent_to_create_under_is_missing');
 		}
 
@@ -323,10 +348,10 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 			return translate('link_type_missing');
 		}
 
-		if (is_array($request_data['parentid'])) {
+		if (($request_data['parent_type'] == 'explicit')) {
 			$settings['parentid']  = $request_data['parentid']['assetid'];
 		} else {
-			$settings['parentid']  = $request_data['parentid'];
+			$settings['parentid']  = 'current_asset';
 		}
 		$settings['link_type'] = $request_data['link_type'];
 
@@ -335,6 +360,8 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 			return translate('asset_type_not_specified');
 		}
 		$settings['type_code'] = $type_code;
+
+		$settings['file_path'] = $request_data['file_path'];
 
 		// optional fields
 		$settings['value']        = array_get_index($request_data, 'value', '');
