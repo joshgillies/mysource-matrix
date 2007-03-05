@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.115.2.8 2007/01/24 22:27:41 tbarrett Exp $
+* $Id: search_manager.inc,v 1.115.2.9 2007/03/05 04:40:00 tbarrett Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.115.2.8 $
+* @version $Revision: 1.115.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1893,6 +1893,12 @@ class Search_Manager extends Asset
 		// join any results from bridges
 		if (!empty($shadow_results)) {
 			$final_results = $this->_combineResults($final_results, $shadow_results, array_get_index($search_info, 'root_logic', 'OR'));
+		}
+
+		if (is_null($final_results)) {
+			// If this is the case then we didn't find anything to actually search on.  Maybe no
+			// words were long enough.  Anyway, we should at least break the news in the correct format.
+			$final_results = Array();
 		}
 
 		  ///////////////////////
