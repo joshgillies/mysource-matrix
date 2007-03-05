@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.232 2007/03/04 23:00:21 hnguyen Exp $
+* $Id: lang_strings.xml,v 1.233 2007/03/05 01:04:45 tbarrett Exp $
 *
 */
 
@@ -994,7 +994,8 @@
 	<string source="parent_to_create_under_is_missing">Parent to create under is missing</string>
 	<string source="link_type_missing">Link type is missing</string>
 	<string source="asset_type_not_specified">Asset type not specified</string>
-	<string source="can_only_create_assets_explanation">You can create assets with no required attributes or assets for which the required attributes' values are entered here</string>
+	<string source="trigger_create_file_required_attrs_warning">Note:  If the selected asset type has any required attributes, values for those attributes must be supplied here or the asset will not be created</string>
+	<string source="trigger_replace_file_type_warning">Note:  This trigger action will fail if the broadcasting asset is not a file asset or descendant thereof</string>
 
 	<string source="cannot_delete_inbox-user_link">You can't delete the link between a user and their inbox</string>
 	<string source="cannot_delete_workspace-user_link">You can't delete the link between a user and their workspace</string>
@@ -1063,7 +1064,7 @@
 	<string source="trigger_input_data_error">There was an error with input data</string>
 	<string source="trigger_type_code_not_supplied">Asset type code has not been supplied</string>
 
-	<string source="trigger_new_asset_basic">Create a new asset of type %1$s linked under %2$s&lt;br /&gt;using a %3$s link.</string>
+	<string source="trigger_new_asset_basic">Create a new asset of type %1$s &lt;br /&gt; %2$s&lt;br /&gt;using a %3$s link &lt;br /&gt; and populate it with the file located on the server at %4$s</string>
 	<string source="no_parent_selected">no parent selected</string>
 	<string source="trigger_new_asset_advanced">Use the link value %1$s and link the asset %2$s and %3$s to the parent</string>
 	<string source="no_value_entered">no value entered</string>
@@ -1072,6 +1073,7 @@
 	<string source="trigger_require_constrain_width_height">must have constrain, height and width set, even if one is zero</string>
 	<string source="trigger_cannot_set_variety_value">Unable to set the variety's "%s" value</string>
 
+	<string source="trigger_replace_file">Replace the file asset's contents with the file stored on the server at %s</string>
 	<string source="trigger_create_clone_basic">Create a clone of the asset, and link it as child of: %1$s using a %2$s link.</string>
 	<string source="trigger_create_clone_advanced">Use this value as the link value: %1$s and link the child %2$s to the parent&lt;br /&gt;&lt;br /&gt;%4$s</string>
 	<string source="do_not_create_clone_if_same_name_exists">Do not create if a clone with the same name and asset type already exists</string>
@@ -1083,7 +1085,7 @@
 	<string source="trigger_create_link_remove_others">Unlink this asset from all its existing parents</string>
 	<string source="dependently">Dependently</string>
 	<string source="non_dependently">Non-dependently</string>
-	<string source="trigger_create_under_broadcaster">Create under the broadcasting asset</string>
+	<string source="trigger_create_under_broadcaster">under the broadcasting asset</string>
 
 	<string source="exclusively">Exclusively</string>
 	<string source="non_exclusively">Non-exclusively</string>
@@ -1277,6 +1279,7 @@
 	<string source="strip">Strip</string>
 	<string source="before">before</string>
 	<string source="after">after</string>
+	<string source="under">under</string>
 
 	<!-- priority level strings -->
 
