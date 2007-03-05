@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.76 2007/03/05 02:19:05 tbarrett Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.77 2007/03/05 02:26:18 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1895,7 +1895,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function processSortOptionOrder(&$asset, &$o, $prefix)
 	{
 		$sort_by_list = $asset->attr('sort_by');
-		$this->_tmp['unshuffled_sort_options'] = $sort_by_list; // used by default sort option
 		if (isset($_POST[$prefix.'_sort_order_list'])) {
 			$sort_order = $_POST[$prefix.'_sort_order_list'];
 			$save_list = Array();
