@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.82 2006/12/22 01:19:12 skim Exp $
+* $Id: file_edit_fns.inc,v 1.83 2007/03/05 00:01:40 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -191,6 +191,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 	/**
 	* Processes the interface for uploading a file
+	*
+	* NOTE: this function is called from several places other than by asset_edit_interface,
+	* for example file::_createAdditional and trigger_action_replace_file::execute
 	*
 	* If you want to process an upload of a file that was not uploaded through PHP
 	* (possible because of FTP or it was in a tar archive), ensure you pass the information
