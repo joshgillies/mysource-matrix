@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.491.2.20 2007/02/12 00:20:23 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.491.2.21 2007/03/05 22:39:49 hnguyen Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.491.2.20 $
+* @version $Revision: 1.491.2.21 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3351,7 +3351,7 @@ class Asset_Manager extends MySource_Object
 
 		foreach ($majorids as $id) {
 			if (empty($tree_data[$id])) {
-				$majorids_str .= $db->quoteSmart($id).',';
+				$majorids_str .= $db->quoteSmart((string) $id).',';
 			} else {
 				foreach ($tree_data[$id] as $row) {
 					$assetids[] = (int) $row['assetid'];
