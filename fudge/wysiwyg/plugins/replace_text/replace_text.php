@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.php,v 1.15 2006/12/10 21:51:37 bcaldwell Exp $
+* $Id: replace_text.php,v 1.1 2007/03/05 22:03:45 rong Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix
 */
 
