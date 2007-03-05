@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.55 2007/01/31 05:33:26 lwright Exp $
+* $Id: search_page_management.inc,v 1.56 2007/03/05 05:31:32 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -158,6 +158,71 @@ class Search_Page_Management extends Asset_Management
 												'default'		=> '(and related terms)',
 												'description'	=> 'String to display for the "auto synonym search triggered" keyword',
 											);
+
+		// Default sort-by options are different for search page
+		$this->vars['sort_by'] = Array(
+									'added'		=> '0.1',
+									'type'		=> 'serialise',
+									'default'	=> Array(
+													0	=> Array (
+															'params'	=> Array (
+																			'field'	=> 'score',
+																		   ),
+															'type'		=> '',
+															'name'		=> 'Relevance',
+														   ),
+													1	=> Array (
+															'params'	=> Array (
+																			'field'	=> 'name',
+																		   ),
+															'type'		=> 'field',
+															'name'		=> 'Name',
+														   ),
+													2	=> Array (
+															'params'	=> Array (
+																			'field'	=> 'short_name',
+																		   ),
+															'type'		=> 'field',
+															'name'		=> 'Short Name',
+														   ),
+													3	=> Array (
+															'params'	=> Array (
+																			'field'	=> 'created',
+																		   ),
+															'type'		=> 'field',
+															'name'		=> 'Created Date',
+														   ),
+													4	=> Array (
+															'params'	=> Array (
+																			'field'	=> 'updated',
+																		   ),
+															'type'		=> 'field',
+															'name'		=> 'Last Updated Date',
+														   ),
+													5	=> Array (
+															'params'	=> Array (
+																			'field'	=> 'published',
+																		   ),
+															'type'		=> 'field',
+															'name'		=> 'Last Published Date',
+														   ),
+													6	=> Array (
+															'params'	=> Array (
+																			'field'	=> 'type_code',
+																		   ),
+															'name'		=> 'Asset Type',
+															'type'		=> 'field',
+														   ),
+													7	=> Array (
+															'params'	=> Array (
+																			'field'	=> '',
+																		   ),
+															'name'		=> 'Random',
+															'type'		=> '',
+														   ),
+												   ),
+								 );
+
 
 	}//end constructor
 

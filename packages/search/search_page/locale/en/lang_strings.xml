@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.8 2007/01/31 05:33:26 lwright Exp $
+* $Id: lang_strings.xml,v 1.9 2007/03/05 05:31:32 tbarrett Exp $
 *
 *
 * Search Package Localised Strings File
@@ -34,6 +34,7 @@
 <string source="sch_page_sis">Search in Search</string>
 <string source="sch_page_no_thesaurus_asset_selected">No thesaurus asset has been selected</string>
 <string source="sch_page_relevance">Relevance</string>
+<string source="sch_page_enable_relevance">Enable "Sort by Relevance" option</string>
 <string source="sch_page_cannot_delete_bodycopies">You can't delete the link between the search page and its bodycopies</string>
 <string source="sch_page_root_node_link_desc">The root asset from where searches are conducted from</string>
 <string source="sch_page_date_range_prior_to">Prior to %s</string>

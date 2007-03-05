@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.72 2007/01/31 05:33:26 lwright Exp $
+* $Id: search_page_edit_fns.inc,v 1.73 2007/03/05 05:31:32 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1534,21 +1534,6 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 
 	/**
-	* Get the possible 'sort by' options
-	*
-	* @return Array(string => string)
-	* @access protected
-	*/
-	function _getSortByOptions(&$asset)
-	{
-		$options = parent::_getSortByOptions($asset);
-		$options['score'] = translate('sch_page_relevance');
-		return $options;
-
-	}//end _getSortByOptions()
-
-
-	/**
 	* Return true if the thesaurus asset type is installed
 	*
 	* @param object Asset        $asset  the asset whose interface we are painting
@@ -1800,6 +1785,84 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		return $asset->setAttrValue('proxy_types', $current_types);
 
 	}//end processProxyTypes()
+
+
+//--        SORTING        --//
+
+
+	/**
+	* Paint the inteface for configuring extra sort fields
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _paintExtraSortOptions(&$asset, &$o, $prefix)
+	{
+
+		parent::_paintExtraSortOptions($asset, $o, $prefix);
+		$wa = $asset->writeAccess('attributes');
+		$o->openField(translate('sch_page_relevance'));
+			$rel_enabled = FALSE;
+			foreach ($asset->attr('sort_by') as $v) {
+				if (array_get_index($v['params'], 'field') == 'score') {
+					$rel_enabled = TRUE;
+					break;
+				}
+			}
+			if ($wa) {
+				check_box($prefix.'_enable_rel', '1', $rel_enabled);
+				label(translate('sch_page_enable_relevance'), $prefix.'_enable_rel');
+			} else {
+				$filename = $rel_enabled ? 'tick' : 'cross';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.$filename.'.gif" /> ';
+				echo translate('sch_page_enable_relevance');
+			}
+		$o->closeField();
+
+	}//end _paintExtraSortOptions()
+
+
+	/**
+	* Process the inteface for configuring extra sort fields
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _processExtraSortOptions(&$asset, &$o, $prefix)
+	{
+		$res = parent::_processExtraSortOptions($asset, $o, $prefix);
+		$val = $asset->attr('sort_by');
+		if (isset($_POST[$prefix.'_submitted'])) {
+			$want_rel = !empty($_POST[$prefix.'_enable_rel']);
+			$rel_index = FALSE;
+			foreach ($val as $i => $v) {
+				if (array_get_index($v['params'], 'field') == 'score') {
+					$rel_index = $i;
+					break;
+				}
+			}
+			if (($rel_index !== FALSE) && !$want_rel) {
+				unset($val[$rel_index]);
+			} else if (($rel_index === FALSE) && $want_rel) {
+				$val[] = Array(
+							'name'		=> translate('sch_page_relevance'),
+							'type'		=> '',
+							'params'	=> Array('field' => 'score'),
+						 );
+			}
+			$res = $asset->setAttrValue('sort_by', $val) || $res;
+		}//end if
+		return $res;
+
+	}//end _processExtraSortOptions()
 
 
 }//end class
