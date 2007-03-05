@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.15 2006/06/21 04:34:48 skim Exp $
+* $Id: data_source_db.inc,v 1.15.2.1 2007/03/05 05:47:02 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -145,6 +145,7 @@ class Data_Source_DB extends Data_Source
 		if (!empty($dsn)) {
 			$conn = $this->connectToDB();
 			if ($conn !== FALSE) {
+				$sql = trim($sql, ';');
 				$result =& $conn->getAll($sql);
 				$assert_result = assert_valid_db_result($result, 'Query execution failed : '.$sql, FALSE, FALSE);
 				if (!$assert_result) {
