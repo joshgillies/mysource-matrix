@@ -10,7 +10,6 @@ Core
 * Fixed bug #2092: %metadata_field_XXX% keyword doesn't work when set to "Never" display
 * Fixed bug #2099: Remapping URLs does not work when moving to trash
 * Fixed bug #2167: Matrix breaks URLs with encoded special chars
-* Fixed bug #2174: HTML Content without new line character generates problems when importing
 * Fixed bug #2189: Messages don't stay marked "Read" as LDAP user
 * Fixed bug #2198: Image Editor and Internet Explorer
 
@@ -24,6 +23,10 @@ CMS
 Search
 
 * Fixed bug #2201: Global search and replace shows the number of occurrences doubled (Global Search and Replace Tool)
+
+Import Tools
+
+* Fixed bug #2174: HTML Content without new line character generates problems when importing (Structured File Import Tool)
 
 Bulkmail
 
