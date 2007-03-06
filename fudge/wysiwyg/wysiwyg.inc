@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.69 2007/02/04 23:54:46 lwright Exp $
+* $Id: wysiwyg.inc,v 1.70 2007/03/06 04:34:27 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1308,7 +1308,7 @@ return html_code;
 			<?php $this->print_plugin_functions()?>
 
 			<?php $this->print_config()?>
-			<textarea id="<?php echo $this->name?>" name="<?php echo $this->name?>" <?php echo $this->textarea_extras?>><?php echo htmlentities($this->contents); ?></textarea>
+			<textarea id="<?php echo $this->name?>" name="<?php echo $this->name?>" <?php echo $this->textarea_extras?>><?php echo htmlentities($this->contents, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET); ?></textarea>
 
 			<script type="text/javascript">
 				editor_<?php echo $this->name?> = new HTMLArea("<?php echo $this->name?>");
