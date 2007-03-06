@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.556 2007/03/01 05:26:16 rhoward Exp $
+* $Id: asset_manager.inc,v 1.557 2007/03/06 04:12:47 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.556 $
+* @version $Revision: 1.557 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6191,15 +6191,15 @@ class Asset_Manager extends MySource_Object
 
 		$where = Array();
 		if (!is_null($assetid)) {
-			$where[] = 'r.assetid = '.$db->quoteSmart($assetid);
+			$where[] = 'r.assetid = '.$db->quoteSmart((string) $assetid);
 		}
 
 		if (!is_null($roleid)) {
-			$where[] = 'r.roleid = '.$db->quoteSmart($roleid);
+			$where[] = 'r.roleid = '.$db->quoteSmart((string) $roleid);
 		}
 
 		if (!is_null($userid)) {
-			$where[] = 'r.userid = '.$db->quoteSmart($userid);
+			$where[] = 'r.userid = '.$db->quoteSmart((string) $userid);
 		}
 
 		$where_clause = '';
@@ -6363,11 +6363,11 @@ class Asset_Manager extends MySource_Object
 
 		$where_and = '';
 		if (!is_null($roleid)) {
-			$where_and .= ' AND roleid = '.$db->quoteSmart($roleid);
+			$where_and .= ' AND roleid = '.$db->quoteSmart((string) $roleid);
 		}
 
 		if (!is_null($userid)) {
-			$where_and .= ' AND userid = '.$db->quoteSmart($userid);
+			$where_and .= ' AND userid = '.$db->quoteSmart((string) $userid);
 		}
 
 		$sql = 'DELETE FROM sq_ast_role
