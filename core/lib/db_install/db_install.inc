@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.44 2007/02/28 05:33:41 lwright Exp $
+* $Id: db_install.inc,v 1.45 2007/03/07 22:38:08 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -459,7 +459,7 @@ function db_install($xml_file, $verbose=TRUE)
 					array_unshift($rb_table_info['primary_key'], 'sq_eff_from');
 				}
 				if (!empty($rb_table_info['unique_key'])) {
-					foreach ($rb_table_info['primary_key'] as $field) {
+					foreach ($rb_table_info['unique_key'] as $field) {
 						// Create individual index on each field of the unique key
 						$table_info['rb_indexes'][$field] = Array(
 																'columns'	=> Array($field),
