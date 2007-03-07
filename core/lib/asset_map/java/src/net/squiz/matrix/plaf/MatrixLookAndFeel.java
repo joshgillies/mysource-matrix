@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixLookAndFeel.java,v 1.4 2006/12/05 05:26:37 bcaldwell Exp $
+* $Id: MatrixLookAndFeel.java,v 1.5 2007/03/07 23:14:35 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,6 @@ public class MatrixLookAndFeel extends MetalLookAndFeel implements MatrixConstan
 	protected void initClassDefaults(UIDefaults table) {
 		super.initClassDefaults(table);
 		String packageName = "net.squiz.matrix.plaf.";
-		System.out.println("installing matrix specified UI classes");
 		Object[] uiDefaults = {
 			"SplitPaneUI", packageName + "MatrixSplitPaneUI",
 		};

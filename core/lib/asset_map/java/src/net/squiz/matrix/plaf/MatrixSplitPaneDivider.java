@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixSplitPaneDivider.java,v 1.2 2006/12/05 05:26:37 bcaldwell Exp $
+* $Id: MatrixSplitPaneDivider.java,v 1.3 2007/03/07 23:14:35 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,6 @@ public class MatrixSplitPaneDivider extends BasicSplitPaneDivider {
 
 	public MatrixSplitPaneDivider(BasicSplitPaneUI ui) {
 		super(ui);
-		System.out.println("constructing a matrix split pane divider");
 	}
 
 	public void addLeftOneTouchExpandableListener(ActionListener listener) {
