@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_management.inc,v 1.7 2006/12/06 02:59:54 emcdonald Exp $
+* $Id: report_management.inc,v 1.8 2007/03/07 23:47:20 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,7 +45,7 @@ class Report_Management extends Asset_Management
 
 		$this->vars['generated_date']['added']   = '0.1';
 		$this->vars['generated_date']['type']    = 'text';
-		$this->vars['generated_date']['default'] = '-- Never --';
+		$this->vars['generated_date']['default'] = '-- '.translate('never').' --';
 
 		$this->vars['generated_user']['added']   = '0.1';
 		$this->vars['generated_user']['type']    = 'text';
