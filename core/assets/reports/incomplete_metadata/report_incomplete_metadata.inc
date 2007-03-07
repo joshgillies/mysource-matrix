@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata.inc,v 1.10 2006/12/06 02:59:55 emcdonald Exp $
+* $Id: report_incomplete_metadata.inc,v 1.11 2007/03/07 04:41:35 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -87,9 +87,9 @@ class Report_Incomplete_Metadata extends Report
 							'accessible'	=> 1,
 							'type_code'		=> $result->attributes['type_code'],
 							'status'		=> $result->attributes['status'],
-							'linkid'		=> '0',
+							'linkid'		=> $this->id.':'.$result->attributes['assetid'],
 							'link_type'		=> SQ_LINK_TYPE_1,
-							'num_kids'		=> 0,
+							'num_kids'		=> -1,
 							'sort_order'	=> $sort_order,
 							'url'			=> '',
 							'path'			=> '',
@@ -163,7 +163,7 @@ class Report_Incomplete_Metadata extends Report
 				if ($result->name != 'asset') continue;
 
 				$links[] = Array(
-							'linkid'			=> 0,
+							'linkid'			=> $this->id.':'.$result->attributes['assetid'],
 							'minorid'			=> $result->attributes['assetid'],
 							'value'				=> '',
 							'link_type'			=> SQ_LINK_TYPE_1,
@@ -250,7 +250,7 @@ class Report_Incomplete_Metadata extends Report
 	}//end getLineageFromURL()
 
 
-/**
+	/**
 	* Get the mapping from assets type to the parent type that is handling presentation
 	*
 	* Returns the map in array format, with allowed asset type as an index
