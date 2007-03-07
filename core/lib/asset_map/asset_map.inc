@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.225.2.8 2006/11/29 00:12:44 bcaldwell Exp $
+* $Id: asset_map.inc,v 1.225.2.9 2007/03/07 05:25:15 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.225.2.8 $
+* @version $Revision: 1.225.2.9 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -499,6 +499,7 @@ class Asset_Map
 		$root =& $output->addRoot('error', $GLOBALS['SQ_SYSTEM']->lm->getErrorMessage($code, $func_args));
 
 		$this->_send($output);
+		exit();
 
 	}//end _error()
 
@@ -794,7 +795,7 @@ class Asset_Map
 		$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where.' ';
 
 			$where = ' l.assetid = '.$db->quoteSmart((string)$assetid);
-			if ($linkid) {
+			if ($linkid && is_numeric($linkid)) {
 				$where .= ' AND l.linkid = '.$db->quoteSmart((string)$linkid);
 			}
 
