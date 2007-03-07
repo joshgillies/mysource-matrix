@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.144.2.2 2007/01/25 00:05:23 arailean Exp $
+* $Id: form.inc,v 1.144.2.3 2007/03/07 02:44:24 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.144.2.2 $
+* @version $Revision: 1.144.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1714,6 +1714,9 @@ class Form extends Asset
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
+		$public_user_id = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+		$GLOBALS['SQ_SYSTEM']->am->deletePermission($submission->id, $public_user_id, SQ_PERMISSION_READ);
+		$GLOBALS['SQ_SYSTEM']->am->setPermission($submission->id, $public_user_id, SQ_PERMISSION_READ, 0);
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
