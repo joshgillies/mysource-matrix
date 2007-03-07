@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata.inc,v 1.9 2006/01/26 22:34:05 lwright Exp $
+* $Id: report_incomplete_metadata.inc,v 1.9.4.1 2007/03/07 05:24:36 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,9 +95,9 @@ class Report_Incomplete_Metadata extends Report
 							'accessible'	=> 1,
 							'type_code'		=> $result->attributes['type_code'],
 							'status'		=> $result->attributes['status'],
-							'linkid'		=> '0',
+							'linkid'		=> $this->id.':'.$result->attributes['assetid'],
 							'link_type'		=> SQ_LINK_TYPE_1,
-							'num_kids'		=> 0,
+							'num_kids'		=> -1,
 							'sort_order'	=> $sort_order,
 							'url'			=> '',
 							'path'			=> '',
@@ -171,7 +171,7 @@ class Report_Incomplete_Metadata extends Report
 				if ($result->name != 'asset') continue;
 
 				$links[] = Array(
-							'linkid'			=> 0,
+							'linkid'			=> $this->id.':'.$result->attributes['assetid'],
 							'minorid'			=> $result->attributes['assetid'],
 							'value'				=> '',
 							'link_type'			=> SQ_LINK_TYPE_1,
