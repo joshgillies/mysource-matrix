@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.33 2007/03/07 23:45:44 tbarrett Exp $
+* $Id: metadata.inc,v 1.34 2007/03/07 23:54:55 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 
@@ -152,7 +152,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 				///// METADATA EDITING INTERFACE /////
 
 				case 'metadata_values' :
-					if (empty($schemas) && $owner->id) {
+					if (empty($schemas)) {
 						$o->openField('&nbsp;');
 							if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) {
 								ob_start();
@@ -174,11 +174,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 							ob_start();
 						}
 
-						if ($owner->id) {
-							$values = $mm->getMetadata($owner->id);
-						} else {
-							$values = Array();
-						}
+						$values = $mm->getMetadata($owner->id);
 						foreach ($schemas as $schemaid) {
 							$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 							if (is_null($schema)) continue;
