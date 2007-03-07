@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.239.2.1 2007/01/04 00:02:15 emcdonald Exp $
+* $Id: asset_map.inc,v 1.239.2.2 2007/03/07 04:58:13 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.239.2.1 $
+* @version $Revision: 1.239.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -492,6 +492,7 @@ class Asset_Map
 		$root =& $output->addRoot('error', $GLOBALS['SQ_SYSTEM']->lm->getErrorMessage($code, $func_args));
 
 		$this->_send($output);
+		exit();
 
 	}//end _error()
 
@@ -568,7 +569,7 @@ class Asset_Map
 
 		header('Content-Type: text/xml');
 		ob_start();
-			echo "<translations locale=\"$current_locale\">\n";
+			echo '<translations locale="'.$current_locale.'">'."\n";
 				echo "<![CDATA[\n";
 					$locales = $GLOBALS['SQ_SYSTEM']->lm->getCumulativeLocaleParts($current_locale);
 					foreach ($locales as $locale) {
@@ -679,12 +680,10 @@ class Asset_Map
 	function _getAssetInfo($assetid, $linkid=0)
 	{
 		$attrs = Array();
-		$id_parts = explode(':', $assetid);
-		if (isset($id_parts[1])) {
-
+		if (FALSE !== strpos($assetid, ':')) {
 			// This is a shadow asset so we need to get info differently
 
-			$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id_parts[0]);
+			$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset(strtok($assetid, ':'));
 			if (method_exists($bridge, 'getAssetMapAssetInfo')) {
 				$attrs = $bridge->getAssetMapAssetInfo($assetid);
 			} else {
@@ -787,7 +786,7 @@ class Asset_Map
 			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where.' ';
 
 			$where = ' l.assetid = '.$db->quoteSmart((string)$assetid);
-			if ($linkid) {
+			if ($linkid && is_numeric($linkid)) {
 				$where .= ' AND l.linkid = '.$db->quoteSmart((string)$linkid);
 			}
 
@@ -1211,6 +1210,7 @@ class Asset_Map
 	*/
 	function _getAssets(&$input)
 	{
+
 		if (!count($input->root->children)) {
 			$this->_error('AMAP0006');
 			return;
@@ -1228,7 +1228,6 @@ class Asset_Map
 			$linkid = $node->attributes['linkid'];
 			$info = $this->_getAssetInfo(urldecode($assetid), urldecode($linkid));
 			$child =& $root->addChild('asset', '', $info);
-
 			$this->_getChildAssets($child, urldecode($assetid), FALSE, $start, $limit);
 		}
 
