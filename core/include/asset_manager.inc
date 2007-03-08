@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.531.2.12 2007/03/06 05:38:59 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.531.2.13 2007/03/08 03:06:09 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.531.2.12 $
+* @version $Revision: 1.531.2.13 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7197,6 +7197,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $inc_type_code=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE)
 	{
+		assert_valid_assetid($asset->id);
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// if we are the root folder then we just need to select from the asset table
