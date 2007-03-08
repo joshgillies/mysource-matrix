@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.14 2007/02/19 00:24:06 colivar Exp $
+* $Id: form_question_type_datetime.inc,v 1.15 2007/03/08 03:15:15 emcdonald Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -232,7 +232,7 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		// For checking purposes, set year, month, and day defaults for each value if they were not mandatory and were not specified. Feb 29th will be allowed if the year is not specified
 		foreach ($required_fields as $field => $required) {
-			if ($required != '1') {
+			if ($required == '1' || $show_params[$field] != '1') {
 				if ((($field == 'y') || ($field == 'm') || ($field == 'd')) && (substr($date[$field], 0, 2) == '--')) {
 					if ($field == 'y') {
 						$date['y'] = 2000;
