@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.9 2007/02/12 01:08:55 tbarrett Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.10 2007/03/08 04:00:38 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,10 +84,14 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Paint the interface for filling in metadata values
 	*
-	* @param object		&$asset			the asset whose interface we are painting
+	* Returns true if a submitable interface has been printed
+	*
+	* @param object		&$asset			the metadata field asset whose interface we are painting
 	* @param object		&$o				the outputter class
-	* @param string		$value_str		the current value for this field in the asset (NOT $asset) NULL means that there is no current value set
-	* @param boolean	$write_access	does the current user have write access to the asset that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param string		$value_str		the current value for this field in the owning asset (NOT $asset)
+	*									NULL means that there is no current value set
+	* @param boolean	$write_access	whether to allow editing of this field
+	*									(typically depends on write access to owner and editability of field)
 	* @param boolean	$enable_default	Whether to show the 'use default' checkbox
 	*
 	* @return boolean
@@ -95,9 +99,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function paintValueInterface(&$asset, &$o, $value_str, $write_access, $enable_default=TRUE)
 	{
-		if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) {
-			return;
-		}
+		if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) return;
 
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -140,9 +142,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			echo '</ul>';
 		}
 
-		$editable = $asset->attr('editable');
-
-		if ($write_access && $editable) {
+		if ($write_access) {
 
 			if ($enable_default) {
 
@@ -232,7 +232,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 				<?php
 			}//end else
 		}//end else
-		return TRUE;
+		return $write_access;
 
 	}//end paintValueInterface()
 
@@ -261,6 +261,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		} else {
 			if (!empty($_REQUEST[$prefix.'_terms_submitted'])) {
 				$new_terms = array_get_index($_REQUEST, $prefix.'_thes_term', Array());
+				log_dump($new_terms);
 				foreach ($new_terms as $one_term) {
 					if (empty($one_term['assetid'])) continue;
 					$term_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_term['assetid']);
@@ -279,8 +280,10 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 				if ($old_count != count($value)) {
 					$asset->_tmp['error'][] = translate('thesaurus_term_duplicate_removed');
 				}
+				log_dump($value);
 				$value = implode(',', $value);
 				$new_value_str = Metadata_Field::encodeValueString($value, Array());
+				log_dump($new_value_str);
 				return TRUE;
 			} else {
 				return FALSE;

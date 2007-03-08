@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.40 2007/03/05 22:22:53 hnguyen Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.41 2007/03/08 04:00:38 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -208,18 +208,19 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			}
 		}
 
+		$res = FALSE;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
 			$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
 			$edit_fns = $field->getEditFns();
-			if (!$edit_fns->paintInlineValueInterface($field, $o, (isset($values[$field->id])) ? $values[$field->id]['value'] : NULL, $write_access)) {
-				return FALSE;
+			if ($edit_fns->paintInlineValueInterface($field, $o, (isset($values[$field->id])) ? $values[$field->id]['value'] : NULL, $write_access)) {
+				$res = TRUE;
 			}
 		}
 		$o->closeSection();
 
-		return TRUE;
+		return $res;
 
 	}//end paintInlineValueInterface()
 

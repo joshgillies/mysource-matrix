@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.25 2007/02/18 21:39:02 tbarrett Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.26 2007/03/08 04:00:38 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,12 +46,14 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Paint the interface for filling in metadata values
 	*
-	* @param object		&$asset			the asset whose interface we are painting
+	* Returns true if a submitable interface has been printed
+	*
+	* @param object		&$asset			the metadata field asset whose interface we are painting
 	* @param object		&$o				the outputter class
-	* @param string		$value_str		the current value for this field in the asset (NOT $asset)
+	* @param string		$value_str		the current value for this field in the owning asset (NOT $asset)
 	*									NULL means that there is no current value set
-	* @param boolean	$write_access	does the current user have write access to the asset
-	*									that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param boolean	$write_access	whether to allow editing of this field
+	*									(typically depends on write access to owner and editability of field)
 	* @param boolean	$enable_default	Whether to show the 'use default' checkbox
 	*
 	* @return boolean
@@ -72,70 +74,65 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		$value_components = $asset->attr('value_components');
 		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 
-		// set field header to friendly_name if it is not empty
-		$field_name = $asset->attr('friendly_name');
-		if (!$field_name) $field_name = $asset->name;
-		if ($asset->attr('editable')) {
-			if ($write_access) {
-				$extras = ($is_default && $enable_default) ? 'disabled="disabled"' : '';
-				if ($asset->attr('multi_line')) {
-					text_area($prefix.'_value', $value, 45, 7, 0, $extras);
-				} else {
-					text_box($prefix.'_value', $value, 30, '', FALSE, $extras);
-				}
-				if ($enable_default) {
-					echo ' &nbsp; &nbsp; &nbsp; ';
-					check_box($prefix.'_default', '1', $is_default, 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.str_replace("'", "\'", $asset->attr('default')).'\'; } }');
-					label(translate('use_default'), $prefix.'_default');
-				}
+		if ($write_access) {
+			$extras = ($is_default && $enable_default) ? 'disabled="disabled"' : '';
+			if ($asset->attr('multi_line')) {
+				text_area($prefix.'_value', $value, 45, 7, 0, $extras);
 			} else {
-				echo $value;
-				if ($is_default) {
-					echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
-				}
+				text_box($prefix.'_value', $value, 30, '', FALSE, $extras);
 			}
+			if ($enable_default) {
+				echo ' &nbsp; &nbsp; &nbsp; ';
+				check_box($prefix.'_default', '1', $is_default, 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.str_replace("'", "\'", $asset->attr('default')).'\'; } }');
+				label(translate('use_default'), $prefix.'_default');
+			}
+		} else {
+			echo $value;
+			if ($is_default) {
+				echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
+			}
+		}
 
-			// now print value components
-			if (!empty($value_components)) {
-				echo '<br /><br />';
-				$num_per_row = 3;
-				$num_done = 0;
-				?>
-				<table class="sq-backend-table">
-					<tr>
-						<?php
-						foreach ($value_components as $vc_name => $vc_value) {
+		// now print value components
+		if (!empty($value_components)) {
+			echo '<br /><br />';
+			$num_per_row = 3;
+			$num_done = 0;
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<?php
+					foreach ($value_components as $vc_name => $vc_value) {
 
-							if ($num_done >= $num_per_row) {
-								$num_done = 0;
-								echo '</tr><tr>';
-							}
-
-							echo '<td width="150" valign="top" class="sq-backend-table-cell">';
-							echo '<b>'.$vc_name.'</b>';
-							echo '<br />';
-							if ($write_access) {
-								text_area($prefix.'_vc_value['.$vc_name.']', $vc_value, 30, 4);
-							} else {
-								echo $vc_value;
-							}
-							echo '</td>';
-
-							$num_done++;
+						if ($num_done >= $num_per_row) {
+							$num_done = 0;
+							echo '</tr><tr>';
 						}
-						if ($num_done && $num_done != $num_per_row) {
-							for ($i = ($num_per_row - $num_done); $i > 0; $i--) {
-								echo'<td width="150" class="sq-backend-table-cell">&nbsp;</td>';
-							}
+
+						echo '<td width="150" valign="top" class="sq-backend-table-cell">';
+						echo '<b>'.$vc_name.'</b>';
+						echo '<br />';
+						if ($write_access) {
+							text_area($prefix.'_vc_value['.$vc_name.']', $vc_value, 30, 4);
+						} else {
+							echo $vc_value;
 						}
-						?>
-					</tr>
-				</table>
-				<?php
-			}//end if
+						echo '</td>';
+
+						$num_done++;
+					}
+					if ($num_done && $num_done != $num_per_row) {
+						for ($i = ($num_per_row - $num_done); $i > 0; $i--) {
+							echo'<td width="150" class="sq-backend-table-cell">&nbsp;</td>';
+						}
+					}
+					?>
+				</tr>
+			</table>
+			<?php
 		}//end if
 
-		return TRUE;
+		return $write_access;
 
 	}//end paintValueInterface()
 

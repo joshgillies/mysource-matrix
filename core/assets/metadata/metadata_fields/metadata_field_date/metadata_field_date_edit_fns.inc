@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.37 2007/02/15 06:44:48 tbarrett Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.38 2007/03/08 04:00:37 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -228,12 +228,14 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Paint the interface for filling in metadata values
 	*
-	* @param object		&$asset			the asset whose interface we are painting
+	* Returns true if a submitable interface has been printed
+	*
+	* @param object		&$asset			the metadata field asset whose interface we are painting
 	* @param object		&$o				the outputter class
-	* @param string		$value_str		the current value for this field in the asset (NOT $asset)
+	* @param string		$value_str		the current value for this field in the owning asset (NOT $asset)
 	*									NULL means that there is no current value set
-	* @param boolean	$write_access	does the current user have write access to the asset
-	*									that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param boolean	$write_access	whether to allow editing of this field
+	*									(typically depends on write access to owner and editability of field)
 	* @param boolean	$enable_default	Whether to show the 'use default' checkbox
 	*
 	* @return boolean
@@ -278,7 +280,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 											'i'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
 										   );
 		}
-		if ($write_access && $asset->attr('editable')) {
+		if ($write_access) {
 
 			$field->printField();
 			if ($asset->attr('show_keywords')) {
@@ -320,7 +322,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 		}//end if
 
-		return TRUE;
+		return $write_access;
 
 	}//end paintValueInterface()
 

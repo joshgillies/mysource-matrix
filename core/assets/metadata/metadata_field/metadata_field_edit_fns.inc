@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.48 2007/02/22 05:46:41 emcdonald Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.49 2007/03/08 04:00:37 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -249,7 +249,6 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintInlineValueInterface(&$asset, &$o, $value_str, $write_access)
 	{
-
 		$complete = $this->requiredFieldsComplete($asset, $value_str);
 		// set field header to friendly_name if it is not empty
 		$field_name = $asset->attr('friendly_name');
@@ -264,7 +263,8 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		// use description as the note for this field
 		$o->openField($field_name, '', $asset->attr('description'));
-		$res = $this->paintValueInterface($asset, $o, $value_str, $write_access);
+		$writable = $write_access && $asset->attr('editable');
+		$res = $this->paintValueInterface($asset, $o, $value_str, $writable);
 		if (!$write_access && $asset->attr('required') && !$complete) {
 			echo '<b class="sq-backend-warning">['.strtoupper(translate('empty')).']</b>';
 		}

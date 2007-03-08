@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_multiple_text_edit_fns.inc,v 1.3 2007/02/12 01:08:54 tbarrett Exp $
+* $Id: metadata_field_multiple_text_edit_fns.inc,v 1.4 2007/03/08 04:00:37 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,12 +46,14 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Paint the interface for filling in metadata values
 	*
-	* @param object		&$asset			the asset whose interface we are painting
+	* Returns true if a submitable interface has been printed
+	*
+	* @param object		&$asset			the metadata field asset whose interface we are painting
 	* @param object		&$o				the outputter class
-	* @param string		$value_str		the current value for this field in the asset (NOT $asset)
+	* @param string		$value_str		the current value for this field in the owning asset (NOT $asset)
 	*									NULL means that there is no current value set
-	* @param boolean	$write_access	does the current user have write access to the asset
-	*									that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param boolean	$write_access	whether to allow editing of this field
+	*									(typically depends on write access to owner and editability of field)
 	* @param boolean	$enable_default	Whether to show the 'use default' checkbox
 	*
 	* @return boolean
@@ -88,7 +90,7 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		$attribute->value = implode($attribute->delimiter, $value);
 
 		// If we're OK to edit, get our attribute, and paint it
-		if ($write_access && $asset->attr('editable')) {
+		if ($write_access) {
 			if ($enable_default) {
 				echo '<span id="'.$prefix.'_field">';
 			}
@@ -122,7 +124,7 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 		}
 
-		return TRUE;
+		return $write_access;
 
 	}//end paintValueInterface()
 
