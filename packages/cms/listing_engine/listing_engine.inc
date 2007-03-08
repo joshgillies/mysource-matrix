@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.180.2.14 2007/02/26 00:07:48 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.180.2.15 2007/03/08 06:40:52 rhoward Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.180.2.14 $
+* @version $Revision: 1.180.2.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -343,8 +343,6 @@ class Listing_Engine extends Page
 		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => FALSE);
 		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 2,   'exclusive' => FALSE);
 		$page_links[SQ_LINK_TYPE_3]['bodycopy'] = Array('card' => 1,   'exclusive' => FALSE);
-		$page_links[SQ_LINK_TYPE_1]['austereo_auction']   = Array('card' => 'M', 'exclusive' => FALSE);
-		$page_links[SQ_LINK_TYPE_1]['austereo_raffle']   = Array('card' => 'M', 'exclusive' => FALSE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
