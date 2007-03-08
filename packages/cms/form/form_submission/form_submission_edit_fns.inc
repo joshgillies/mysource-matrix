@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.20 2007/01/25 04:50:42 arailean Exp $
+* $Id: form_submission_edit_fns.inc,v 1.21 2007/03/08 23:58:56 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -197,7 +197,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function processSubmissionDetails(&$asset, &$o, $prefix)
+	function processSubmissionAnswers(&$asset, &$o, $prefix)
 	{
 		$attributes = $asset->attr('attributes');
 		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($attributes['answers']), 'form', FALSE));
@@ -242,7 +242,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 			return TRUE;
 		}
 
-	}//end processSubmissionDetails()
+	}//end processSubmissionAnswers()
 
 
 }//end class
