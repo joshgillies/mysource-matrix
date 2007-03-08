@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.8.2.1 2007/02/15 05:23:53 tbarrett Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.8.2.2 2007/03/08 04:21:24 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -138,9 +138,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			echo '</ul>';
 		}
 
-		$editable = $asset->attr('editable');
-
-		if ($write_access && $editable) {
+		if ($write_access) {
 
 			if ($enable_default) {
 
@@ -230,7 +228,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 				<?php
 			}//end else
 		}//end else
-		return TRUE;
+		return $write_access;
 
 	}//end paintValueInterface()
 

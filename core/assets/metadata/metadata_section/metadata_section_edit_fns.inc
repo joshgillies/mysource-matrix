@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.36.2.2 2007/03/05 22:34:56 hnguyen Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.36.2.3 2007/03/08 04:21:24 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36.2.2 $
+* @version $Revision: 1.36.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -208,8 +208,8 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			}
 		}
 
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
 		$res = FALSE;
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
 			$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
@@ -220,7 +220,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		}
 		$o->closeSection();
 
-		return TRUE;
+		return $res;
 
 	}//end paintInlineValueInterface()
 

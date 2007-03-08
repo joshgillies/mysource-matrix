@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.28.2.1 2007/02/15 05:23:54 tbarrett Exp $
+* $Id: metadata.inc,v 1.28.2.2 2007/03/08 04:21:24 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.28.2.1 $
+* @version $Revision: 1.28.2.2 $
 * @package MySource_Matrix
 */
 
@@ -184,7 +184,6 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 						$o->closeField();
 					} else {
 						$write_access = $owner->writeAccess('metadata');
-						$print_commit_button = $write_access;
 
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) {
 							ob_start();
@@ -195,7 +194,9 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 							$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 							if (is_null($schema)) continue;
 							$edit_fns = $schema->getEditFns();
-							$edit_fns->paintInlineValueInterface($schema, $o, $values, $write_access);
+							if ($edit_fns->paintInlineValueInterface($schema, $o, $values, $write_access)) {
+								$print_commit_button = TRUE;
+							}
 						}
 
 						// if there is a keyword replacement for this, add it to the replacements

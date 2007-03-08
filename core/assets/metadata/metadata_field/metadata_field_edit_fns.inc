@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.43.2.1 2007/02/13 02:52:17 colivar Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.43.2.2 2007/03/08 04:21:23 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43.2.1 $
+* @version $Revision: 1.43.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -259,7 +259,8 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		// use description as the note for this field
 		$o->openField($field_name, '', $asset->attr('description'));
-		$res = $this->paintValueInterface($asset, $o, $value_str, $write_access);
+		$writable = $write_access && $asset->attr('editable');
+		$res = $this->paintValueInterface($asset, $o, $value_str, $writable);
 		$o->closeField();
 		return $res;
 

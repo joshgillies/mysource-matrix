@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.32.2.2 2007/02/15 05:23:53 tbarrett Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.32.2.3 2007/03/08 04:21:23 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.32.2.2 $
+* @version $Revision: 1.32.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,7 +83,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 		}
 		// If we're OK to edit, get our selection attribute, and paint it
-		if ($write_access && $asset->attr('editable')) {
+		if ($write_access) {
 			$selection = $asset->getSelectionAttribute();
 			$selection->value = $value;
 			if ($enable_default) {
@@ -93,7 +93,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				}
 				echo '<span id="'.$prefix.'_field">';
 			}
-			$selection->paint($prefix, !$write_access);
+			$selection->paint($prefix, FALSE);
 			if ($enable_default) echo '</span>';
 		} else {
 			if ((is_array($value) && empty($value)) || (is_string($value) && $value == '')) {
@@ -140,7 +140,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 		}
 
-		return TRUE;
+		return $write_access;
 
 	}//end paintValueInterface()
 

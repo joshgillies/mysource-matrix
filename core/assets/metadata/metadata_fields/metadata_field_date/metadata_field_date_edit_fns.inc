@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.33.2.1 2007/02/15 05:23:53 tbarrett Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.33.2.2 2007/03/08 04:21:23 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.33.2.1 $
+* @version $Revision: 1.33.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -355,7 +355,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 										's'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
 										'i'	=> 'onchange="document.getElementById(\''.$prefix.'_repkeys\').value = \'\'"',
 									   );
-		if ($write_access && $asset->attr('editable')) {
+		if ($write_access) {
 
 			$field->printField();
 			echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
@@ -395,7 +395,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 		}//end if
 
-		return TRUE;
+		return $write_access;
 
 	}//end paintValueInterface()
 
