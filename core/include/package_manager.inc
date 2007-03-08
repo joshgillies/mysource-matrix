@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.81 2007/03/07 23:45:44 tbarrett Exp $
+* $Id: package_manager.inc,v 1.82 2007/03/08 05:33:33 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -284,8 +284,6 @@ class Package_Manager extends MySource_Object
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
 				}
-
-				$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings($type_code);
 
 				// now just create an instance of it, and run update()
 				$management =& new $class($this);
