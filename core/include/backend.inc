@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.140.2.13 2007/01/31 03:34:03 rong Exp $
+* $Id: backend.inc,v 1.140.2.14 2007/03/08 05:04:39 mbrydon Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140.2.13 $
+* @version $Revision: 1.140.2.14 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -230,12 +230,11 @@ class Backend extends MySource_Object
 				$main_extras = '&assetid='.$url_asset->id.'&sq_from_frontend=1';
 			}
 		}
-		parse_str($_SERVER['QUERY_STRING'], $query_vars=Array());
-		if (!empty($query_vars)) {
-			// append additional user defined query string
-			foreach ($query_vars as $key => $value) {
-				$main_extras .= '&'.$key.'='.$value;
-			}
+		if (isset($_GET['limbo_assetid'])) {
+			$main_extras = '&limbo_assetid='.$_GET['limbo_assetid'];
+		}
+		if (isset($_GET['asset_ei_screen'])) {
+			$main_extras .= '&asset_ei_screen='.$_GET['asset_ei_screen'];
 		}
 		// the URL for the main frame is either a normal load or a redirection from
 		// a non-frameset URL to this frameset
@@ -1063,9 +1062,9 @@ class Backend extends MySource_Object
 		// and redirects the user to the frameset version if they are not
 		if (empty($_REQUEST['ignore_frames'])) {
 			// if limbo_assetid is set, pass the parameter
-			$limbo_assetid = (isset($_GET['limbo_assetid'])) ? 'limbo_assetid='.$_GET['limbo_assetid'].'&': '';
+			$limbo_assetid = (isset($_GET['limbo_assetid'])) ? 'limbo_assetid='.$_GET['limbo_assetid'].'&' : '';
 			// if the user enter the ei screen manually, we need to print the frames as well
-			$asset_ei_screen = (isset($_GET['asset_ei_screen'])) ? 'asset_ei_screen='.$_GET['asset_ei_screen'].'&SQ_BACKEND_PAGE=frames': '';
+			$asset_ei_screen = (isset($_GET['asset_ei_screen'])) ? 'asset_ei_screen='.$_GET['asset_ei_screen'].'&SQ_BACKEND_PAGE=frames' : '';
 			$extra = '/?'.$limbo_assetid.$asset_ei_screen;
 			$redirect_url = strip_url(current_url()).$extra;
 			$this->out->addOnLoad('if (!parent.frames["sq_header"]) { sq_redirect("'.$redirect_url.'"); }');
