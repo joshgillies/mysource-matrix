@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.127.2.1 2007/02/15 05:23:53 tbarrett Exp $
+* $Id: metadata_manager.inc,v 1.127.2.2 2007/03/08 03:07:02 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.127.2.1 $
+* @version $Revision: 1.127.2.2 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -430,8 +430,9 @@ class Metadata_Manager extends MySource_Object
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$fieldid_conds = Array('assetid = '.($db->quoteSmart((string)$assetid)));
 		foreach ($this->getSchemas($assetid, TRUE) as $schemaid) {
+			$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'metadata_schema');
 			$fieldid_conds[] = '(fieldid NOT IN (
-								'.implode(' ', $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($schemaid, 'metadata_field', FALSE, NULL, NULL, NULL, TRUE, FALSE)).'))';
+								'.implode(' ', $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($schema, 'metadata_field', FALSE, NULL, NULL, NULL, FALSE)).'))';
 		}
 		$sql = 'DELETE FROM sq_ast_mdata_val
 				WHERE 
