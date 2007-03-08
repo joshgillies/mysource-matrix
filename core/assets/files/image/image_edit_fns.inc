@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.50 2007/03/02 03:46:36 hnguyen Exp $
+* $Id: image_edit_fns.inc,v 1.51 2007/03/08 22:56:34 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -602,20 +602,22 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 		if (!SQ_TOOL_JPEG_TOOLKIT_ENABLED) return $meta;
 
-		define ('META_TOOLKIT_DIR', SQ_TOOL_JPEG_TOOLKIT_PATH);
+		if (!defined('META_TOOLKIT_DIR')) {
+			define ('META_TOOLKIT_DIR', SQ_TOOL_JPEG_TOOLKIT_PATH);
+		}
 
 		if (!file_exists(META_TOOLKIT_DIR.'/JPEG.php')) {
 			trigger_error('JPEG Metadata Toolkit Path is invalid', E_USER_WARNING);
 			return $meta;
 		}
 
-		include META_TOOLKIT_DIR.'/JPEG.php';
-		include META_TOOLKIT_DIR.'/JFIF.php';
-		include META_TOOLKIT_DIR.'/PictureInfo.php';
-		include META_TOOLKIT_DIR.'/XMP.php';
-		include META_TOOLKIT_DIR.'/Photoshop_IRB.php';
-		include META_TOOLKIT_DIR.'/EXIF.php';
-		include META_TOOLKIT_DIR.'/Photoshop_File_Info.php';
+		include_once META_TOOLKIT_DIR.'/JPEG.php';
+		include_once META_TOOLKIT_DIR.'/JFIF.php';
+		include_once META_TOOLKIT_DIR.'/PictureInfo.php';
+		include_once META_TOOLKIT_DIR.'/XMP.php';
+		include_once META_TOOLKIT_DIR.'/Photoshop_IRB.php';
+		include_once META_TOOLKIT_DIR.'/EXIF.php';
+		include_once META_TOOLKIT_DIR.'/Photoshop_File_Info.php';
 
 		// we start the buffer because the tool prints stuff to screen on error. nOObs
 		ob_start();
