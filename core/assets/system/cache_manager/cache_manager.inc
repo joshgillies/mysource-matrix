@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.55 2007/02/26 05:02:55 skim Exp $
+* $Id: cache_manager.inc,v 1.56 2007/03/08 00:03:55 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -510,7 +510,7 @@ class Cache_Manager extends Asset
 					$groups = array_keys($current_user->getGroups());
 					$userids = Array($db->quote($current_user->id));
 					foreach ($groups as $groupid) {
-						$userids[] = $db->quote($groupid);
+						$userids[] = $db->quote((string)$groupid);
 					}
 
 					// note that we dont use the cache in rollback view mode so we dont have
