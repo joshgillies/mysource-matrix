@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.589 2007/02/22 05:13:55 rhoward Exp $
+* $Id: asset.inc,v 1.590 2007/03/09 05:29:11 arailean Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.589 $
+* @version $Revision: 1.590 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -5090,7 +5090,7 @@ class Asset extends MySource_Object
 	* Returns it in '#RRGGBB' Hex form, and the colour corresponds
 	* to that seen in the asset map for statuses.
 	*
-	* @return boolean
+	* @return string
 	* @access public
 	*/
 	function getAssetStatusColourKeywordReplacement()
@@ -5098,6 +5098,35 @@ class Asset extends MySource_Object
 		return '#'.get_status_colour($this->status);
 
 	}//end getAssetStatusColourKeywordReplacement()
+
+
+	/**
+	* Replaces all keywords in a string
+	*
+	* This function shouldn't handle global keywords
+	*
+	* @param string	$string	containing keywords
+	*
+	* @return string
+	* @access public
+	*/
+	function replaceKeywordsInString($string)
+	{
+		$replacements = Array();
+		$keyword_list = extract_keywords($string);
+		if (empty($keyword_list) || !is_array($keyword_list)) {
+			return $string;
+		}
+
+		foreach ($keyword_list as $keyword) {
+			$replacements[$keyword] = $this->getKeywordReplacement($keyword);
+		}
+
+		replace_keywords($string, $replacements);
+
+		return $string;
+
+	}//end replaceKeywordsInString()
 
 
 }//end class
