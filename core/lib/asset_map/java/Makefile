@@ -9,7 +9,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: Makefile,v 1.7 2007/01/19 05:01:01 rong Exp $
+#* $Id: Makefile,v 1.8 2007/03/09 00:19:54 rong Exp $
 #*
 #*/
 
@@ -37,24 +37,29 @@ componentclassfiles = net/squiz/cuetree/*.class $(patsubst %,net/squiz/matrix/%/
 #    http://java.sun.com/j2se/1.4.2/docs/guide/plugin/developer_guide/rsa_signing.html
 #    http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/keytool.html
 #    Cerberus Ticket: #KVW-52908-317: Squiz - Code Signing Certificate
-simple:
+# note on java version
+#    This makefile works for java version 1.4
+#    On version 1.5, use the following to compile
+#      javac -Xlint:deprecation -Xlint:unchecked -classpath java40.jar $(componentsourcefiles)
+
+default:
 	cd src && javac -classpath java40.jar $(componentsourcefiles)
+
+# create and sign assetmap.jar
+simple: default
 	cd src && jar cvfm ../assetmap.jar ../simplemanifest $(componentclassfiles) META-INF
 	jarsigner -keystore SquizKeyStore assetmap.jar mykey
 	jarsigner -verify assetmap.jar
 
-
-# compiles the complexassetmap package
+# create and sign complexassetmap.jar
 complex: simple
 	cd src && jar cvfm ../complexassetmap.jar ../complexmanifest $(componentclassfiles) META-INF
 	jarsigner -keystore SquizKeyStore complexassetmap.jar mykey
 	jarsigner -verify complexassetmap.jar
 
-
 # get rid of the class files
 clean:
 	cd src && rm $(componentclassfiles)
-
 
 # generates the documentation
 doc:
