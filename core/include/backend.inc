@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.140.2.14 2007/03/08 05:04:39 mbrydon Exp $
+* $Id: backend.inc,v 1.140.2.15 2007/03/11 23:17:11 mbrydon Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140.2.14 $
+* @version $Revision: 1.140.2.15 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -241,7 +241,7 @@ class Backend extends MySource_Object
 		if (isset($_REQUEST['sq_redirect_url'])) {
 			$main_url = strip_url(urldecode($_REQUEST['sq_redirect_url']));
 		} else {
-			$main_url = $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main'.$main_extras;
+			$main_url = strip_url($_SERVER['PHP_SELF']).'?SQ_BACKEND_PAGE=main'.$main_extras;
 		}
 
 		$frame_urls = Array(
