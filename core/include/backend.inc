@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.159.2.10 2007/01/29 04:36:02 lwright Exp $
+* $Id: backend.inc,v 1.159.2.11 2007/03/11 23:16:32 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.159.2.10 $
+* @version $Revision: 1.159.2.11 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -243,7 +243,7 @@ class Backend extends MySource_Object
 			}
 		}
 
-		$main_url = $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main'.$main_extras;
+		$main_url = strip_url($_SERVER['PHP_SELF']).'?SQ_BACKEND_PAGE=main'.$main_extras;
 
 		$frame_urls = Array(
 						'header'	=> $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=header',
