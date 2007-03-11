@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.175 2007/02/26 23:48:28 lwright Exp $
+* $Id: backend.inc,v 1.176 2007/03/11 23:16:16 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.175 $
+* @version $Revision: 1.176 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -243,7 +243,7 @@ class Backend extends MySource_Object
 			}
 		}
 
-		$main_url = $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main'.$main_extras;
+		$main_url = strip_url($_SERVER['PHP_SELF']).'?SQ_BACKEND_PAGE=main'.$main_extras;
 
 		$frame_urls = Array(
 						'header'	=> $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=header',
@@ -538,21 +538,20 @@ class Backend extends MySource_Object
 
 									// remove
 									$this_detail[] = $name_detail.'<br/><em>'.str_replace("\r", '', str_replace("\n", '<br/>', $value)).'</em>';
-								}
-							}
-						}
+								}//end if
+							}//end foreach
+						}//end foreach
 
 						$result_list[] = Array(
-											'tag_line' => get_asset_tag_line($result_assetid, 'details'),
-											'detail'   => implode($this_detail, '<br/>'),
+											'tag_line'	=> get_asset_tag_line($result_assetid, 'details'),
+											'detail'	=> implode($this_detail, '<br/>'),
 										 );
-					}
-				}
+					}//end foreach
+				}//end else
 
 				$keyword_match_line = Array();
 
-				if (!empty($result_list))
-				{
+				if (!empty($result_list)) {
 					$results_per_page = min(count($result_list), $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE'));
 
 					if (count($result_list) > $results_per_page) {
@@ -567,7 +566,7 @@ class Backend extends MySource_Object
 					$i = 0;
 					$js_code .= 'with (parent.frames["sq_main"]) { current = 0; results_per_page = '.$results_per_page.'; keyword_search_results = [];';
 
-					foreach($result_list as $result) {
+					foreach ($result_list as $result) {
 						$i++;
 						if ($i <= $results_per_page) {
 							$this_line  = '<div><div id="sq-search-results-expand-'.$i.'" class="sq-search-results-expand-div"><a href="#" id="sq-search-results-expand-link-'.$i.'" class="sq-search-results-expand-link" onclick="if (this.innerHTML == \'+\') {document.getElementById(\'sq-search-results-detail-'.$i.'\').style.display = \'block\'; this.innerHTML = \'-\';} else {document.getElementById(\'sq-search-results-detail-'.$i.'\').style.display = \'none\'; this.innerHTML = \'+\';} return false;">+</a></div>';
@@ -588,7 +587,7 @@ class Backend extends MySource_Object
 				$html = $this->_getDHTMLMessage(translate('search_results'), $detail_lines, 'search-results');
 				$dhtml_messages['search_results'] = Array('html' => str_replace("\n", '', preg_replace('|<script.*</script>|U', '', $html)), 'width' => '300', 'timeout' => 0);
 
-			}//end if
+			}//end else
 		}//end if
 
 
@@ -1280,8 +1279,8 @@ class Backend extends MySource_Object
 		// and redirects the user to the frameset version if they are not
 		if (empty($_REQUEST['ignore_frames'])) {
 			// if hide_frames and limbo_assetid are set, pass the parameter
-			$hide_frames = (isset($_REQUEST['hide_frames']) && $_REQUEST['hide_frames']) ? 'hide_frames=1&': '';
-			$limbo_assetid = (isset($_GET['limbo_assetid'])) ? 'limbo_assetid='.$_GET['limbo_assetid'].'&': '';
+			$hide_frames = (isset($_REQUEST['hide_frames']) && $_REQUEST['hide_frames']) ? 'hide_frames=1&' : '';
+			$limbo_assetid = (isset($_GET['limbo_assetid'])) ? 'limbo_assetid='.$_GET['limbo_assetid'].'&' : '';
 			// if the user enter the ei screen manually, we need to print the frames as well
 			$asset_ei_screen = (isset($_GET['asset_ei_screen'])) ? 'asset_ei_screen='.$_GET['asset_ei_screen'] : '';
 			if (SQ_IN_LIMBO) {
@@ -1335,11 +1334,13 @@ class Backend extends MySource_Object
 	* sq-backend-[style name]-[component] where component is
 	* [table|heading|cell|body].
 	*
-	* @param string	$title	title of the popup
-	* @param mixed	$detail	(string|array) the detail part of the pop-up - if an
-	*						array then the popup will contain multiple rows
-	* @param string	$style	style of the popup
-	* @param string	$icon	icon to be displayed, inside Matrix's icon library
+	* @param string	$title			title of the popup
+	* @param mixed	$detail			(string|array) the detail part of the pop-up - if an
+	*								array then the popup will contain multiple rows
+	* @param string	$style			style of the popup
+	* @param string	$icon			icon to be displayed, inside Matrix's icon library
+	* @param int	$icon_width		width of icon in pixels
+	* @param int	$icon_height	height of icon in pixels
 	*
 	* @return string
 	* @access private
@@ -1361,7 +1362,7 @@ class Backend extends MySource_Object
 				</tr>
 			';
 
-		foreach($detail as $detail_line) {
+		foreach ($detail as $detail_line) {
 			$html .= '
 					<tr>
 						<td class="sq-backend-'.$style.'-body" colspan="2">'.$detail_line.'</td>
