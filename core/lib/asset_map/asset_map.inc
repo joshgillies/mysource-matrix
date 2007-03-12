@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.242 2007/03/07 04:37:30 tbarrett Exp $
+* $Id: asset_map.inc,v 1.243 2007/03/12 05:31:03 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.242 $
+* @version $Revision: 1.243 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -837,8 +837,8 @@ class Asset_Map
 
 			$attrs = Array(
 						'assetid'		=> urlencode($asset['assetid']),
-						'short_name'	=> $this->_convertCharset($asset['short_name']),
-						'name'			=> $this->_convertCharset($asset['name']),
+						'short_name'	=> $asset['short_name'],
+						'name'			=> $asset['name'],
 						'type_code'		=> $asset['type_code'],
 						'link_type'		=> $asset['link_type'],
 						'accessible'	=> $asset['accessible'],
@@ -854,7 +854,7 @@ class Asset_Map
 
 		// replace 'name' with the configured display name
 		$attrs['name'] = urlencode($this->_convertCharset($this->_getAssetDisplayName($attrs)));
-		if (isset($attrs['short_name'])) $attrs['short_name'] = urlencode($attrs['short_name']);
+		if (isset($attrs['short_name'])) $attrs['short_name'] = urlencode($this->_convertCharset($attrs['short_name']));
 
 		return $attrs;
 
