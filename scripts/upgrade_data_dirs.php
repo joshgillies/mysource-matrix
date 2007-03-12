@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_data_dirs.php,v 1.6.2.3 2007/02/01 21:53:13 skim Exp $
+* $Id: upgrade_data_dirs.php,v 1.6.2.4 2007/03/12 23:48:29 skim Exp $
 *
 */
 
 /**
 *
 * @author Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6.2.3 $
+* @version $Revision: 1.6.2.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -506,8 +506,8 @@ function _process_public_dir_lookup($base_dir, $curr_dir, $assetid)
 		$hash = get_asset_hash($assetid);
 
 		// Remove '__data' to include System Static URL
-		$old_public_url = '/assets/'.$curr_dir.'/'.$assetid;
-		$new_public_url = '/assets/'.$curr_dir.'/'.$hash.'/'.$assetid;
+		$old_public_url = '/assets/'.$curr_dir.'/'.$assetid.'/';
+		$new_public_url = '/assets/'.$curr_dir.'/'.$hash.'/'.$assetid.'/';
 
 		switch ($table) {
 			case 'sq_ast_lookup' :
