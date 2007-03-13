@@ -10,12 +10,12 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_edit_fns.inc,v 1.5 2006/12/07 05:26:30 bcaldwell Exp $
+* $Id: payment_gateway_edit_fns.inc,v 1.6 2007/03/13 05:08:13 arailean Exp $
 *
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 
 /**
 * Payment_Gateway_Edit_Fns
@@ -24,11 +24,11 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
-class Payment_Gateway_Edit_Fns extends Asset_Edit_Fns
+class Payment_Gateway_Edit_Fns extends Page_Edit_Fns
 {
 
 

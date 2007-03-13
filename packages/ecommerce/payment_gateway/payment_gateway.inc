@@ -10,12 +10,12 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway.inc,v 1.8 2007/01/08 03:27:18 emcdonald Exp $
+* $Id: payment_gateway.inc,v 1.9 2007/03/13 05:08:13 arailean Exp $
 *
 */
 
 check_ssv_licence();
-require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 
 /**
 * Payment_Gateway
@@ -24,11 +24,11 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
-class Payment_Gateway extends Asset
+class Payment_Gateway extends Page
 {
 
 
@@ -94,10 +94,11 @@ class Payment_Gateway extends Asset
 	*
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
+	* @see Asset::_getName()
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return (($short_name) ? $this->attr('short_name') : $this->attr('name'));
 
