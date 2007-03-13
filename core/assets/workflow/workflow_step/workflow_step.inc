@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step.inc,v 1.12 2006/12/05 05:50:00 bcaldwell Exp $
+* $Id: workflow_step.inc,v 1.13 2007/03/13 23:22:29 emcdonald Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,6 +58,10 @@ class Workflow_Step extends Folder
 				SQ_LINK_TYPE_1	=> Array(),
 				SQ_LINK_TYPE_2	=> Array(
 									'workflow_step_condition'	=> Array(
+																	'card'		=> 'M',
+																	'exclusive'	=> FALSE,
+																   ),
+									'workflow_step'				=> Array(
 																	'card'		=> 'M',
 																	'exclusive'	=> FALSE,
 																   ),
