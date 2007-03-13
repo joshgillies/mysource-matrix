@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.531.2.13 2007/03/08 03:06:09 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.531.2.14 2007/03/13 04:16:14 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.531.2.13 $
+* @version $Revision: 1.531.2.14 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7257,11 +7257,11 @@ class Asset_Manager extends MySource_Object
 		}
 		$union_from = ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
 		// if all shadow asset children should be returned
-		if ($direct_shadows_only) {
-			$union_where = 'sl.majorid = '.$db->quoteSmart($asset->id);
-		} else {
-			$union_where = "sl.majorid IN (SELECT DISTINCT l.minorid $from $where)";
+		$union_where = 'sl.majorid = '.$db->quoteSmart($asset->id);
+		if (!$direct_shadows_only) {
+			$union_where = '(('.$union_where.") or (sl.majorid IN (SELECT DISTINCT l.minorid $from $where)))";
 		}
+
 		$union_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
 
 		if (!empty($where) && (!empty($type_code) || !is_null($access) || !is_null($dependant))) {
