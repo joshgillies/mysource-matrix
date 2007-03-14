@@ -10,18 +10,20 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_form_submission_linking.php,v 1.1 2007/03/14 22:09:28 tbarrett Exp $
+* $Id: upgrade_form_submission_linking.php,v 1.2 2007/03/14 22:10:42 tbarrett Exp $
 *
 */
 
 /**
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
-if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+if ((php_sapi_name() != 'cli')) {
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+}
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
@@ -35,7 +37,7 @@ echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
 
 // check that the correct root password was entered
-$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
 	trigger_error("The root password entered was incorrect\n", E_USER_ERROR);
 }
@@ -48,7 +50,7 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-$am = &$GLOBALS['SQ_SYSTEM']->am;
+$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 $formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form', FALSE);
 foreach ($formids as $formid) {
