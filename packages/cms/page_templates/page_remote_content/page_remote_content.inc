@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.62 2007/02/16 00:58:46 arailean Exp $
+* $Id: page_remote_content.inc,v 1.63 2007/03/14 01:09:50 skim Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -217,8 +217,24 @@ class Page_Remote_Content extends Page
 
 			$content_type = array_get_index($_SERVER, 'CONTENT_TYPE', '');
 			if (strpos(strtolower($content_type), 'multipart/form-data') === FALSE) {
-				$post_data = file_get_contents('php://input');
-				$post_data = trim(str_replace(SQ_REMOTE_SOURCE.'='.urlencode($remote_source), '', $post_data));
+				$post_data = trim(file_get_contents('php://input'));
+
+				// NOTE that when we trim out SQ_REMOTE_SOURCE varible and value, we also need to
+				// remove '&' delimiter before or after if it exists.
+				$remote_source_str = SQ_REMOTE_SOURCE.'='.urlencode($remote_source);
+				$remote_source_str_len = strlen($remote_source_str);
+				if (($pos = strpos($post_data,  $remote_source_str)) !== FALSE) {
+					if ($pos == 0) {
+						// found at the beginning, trim one after
+						$post_data = substr($post_data, $remote_source_str_len + 1);
+					} else if ( ($pos + strlen($remote_source_str)) == strlen($post_data) ) {
+						// found at the end, trim one before
+						$post_data = substr($post_data, 0, strlen($post_data) - $remote_source_str_len - 1);
+					} else {
+						// found in the middle, trim one after
+						$post_data = substr($post_data, 0, $pos).substr($post_data, $pos + $remote_source_str_len + 1);
+					}
+				}
 				$post_is_encoded = TRUE;
 			} else {
 				// NOTE that this is not fully compatible with those systems
@@ -230,7 +246,6 @@ class Page_Remote_Content extends Page
 			}
 
 		}
-
 
 		// support custom post variables if they've been set
 		// NOTE: custom post variables are only sent on INITIAL request
