@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.18 2006/12/07 02:46:11 bcaldwell Exp $
+* $Id: lang_screen_details.xml,v 1.18.2.1 2007/03/14 23:36:00 skim Exp $
 *
 */
 -->
@@ -65,8 +65,8 @@
 			</function_call>
 		</field>
 		<field attribute="lineage_seperator">
-			<display_name>Lineage Seperator</display_name>
-			<note>Seperator to use when printing the lineage to a search result asset.</note>
+			<display_name>Lineage Separator</display_name>
+			<note>Separator to use when printing the lineage to a search result asset.</note>
 		</field>
 		<field attribute="root_in_lineage">
 			<display_name>Show root node in lineage</display_name>
