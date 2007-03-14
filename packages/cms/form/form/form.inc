@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.154 2007/03/07 02:32:19 tbarrett Exp $
+* $Id: form.inc,v 1.155 2007/03/14 22:08:05 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.154 $
+* @version $Revision: 1.155 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -77,6 +77,86 @@ class Form extends Asset
 		$this->Asset($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* For example, creating other child assets should be performed in this method
+	*
+	* @param array	&$link	information used to create the initial link<br/>
+	* <pre>
+	* Array (
+	*   'asset'        => [ref major asset to create link under],
+	*   'link_type'    => SQ_LINK_?,
+	*   'value'        => [link value],
+	*   'sort_order'   => [link sort order],
+	*   'is_dependant' => [0|1],
+	*   'is_exclusive' => [0|1],
+	* )
+	* </pre>
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!$this->_createSubmissionsFolder()) return FALSE;
+		return parent::_createAdditional($link);
+
+	}//end _createAdditional()
+
+
+	/**
+	* Create the folder for storing submissions
+	*
+	* @return boolean
+	* @access protected
+	*/
+	function _createSubmissionsFolder()
+	{
+		$existing = $this->_getSubmissionsFolder();
+		if (!empty($existing)) return TRUE;
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+		$folder =& new Folder();
+		$folder->setAttrValue('name', translate('submissions'));
+		$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'submissions_folder', 'is_dependant' => 1, 'is_exclusive' => 1);
+		if (!$folder->create($folder_link)) {
+			trigger_localised_error('CMS0070', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+
+		// Deny public read access to the submissions folder by default
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($folder->id, 'permissions')) {
+			return FALSE;
+		}
+		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($folder->id, $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'), SQ_PERMISSION_READ, 0, TRUE)) {
+			return FALSE;
+		}
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($folder->id, 'permissions');
+		return TRUE;
+
+	}//end _createSubmissionsFolder()
+
+
+	/**
+	* Get the submissions folder
+	*
+	* @return object
+	* @access protected
+	*/
+	function &_getSubmissionsFolder()
+	{
+		$res = NULL;
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'submissions_folder');
+		if (!empty($link)) {
+			$res =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'folder');
+		}
+		return $res;
+
+	}//end _getSubmissionsFolder()
 
 
 	/**
@@ -867,12 +947,6 @@ class Form extends Asset
 																'card'		=> '1',
 																'exclusive'	=> TRUE,
 															   ),
-										   ),
-						SQ_LINK_TYPE_3	=> Array(
-											'form_submission'	=> Array(
-																	'card'		=> 'M',
-																	'exclusive'	=> FALSE,
-																   ),
 										   ),
 					  );
 		return $page_links;
@@ -1741,7 +1815,13 @@ class Form extends Asset
 
 		// create the form submission asset
 		$submission =& new Form_Submission();
-		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'is_dependant' => 0, 'is_exclusive' => 0);
+		$submissions_folder =& $this->_getSubmissionsFolder();
+		if (is_null($submissions_folder)) {
+			trigger_localised_error('CMS0069', E_USER_WARNING);
+			$null = NULL;
+			return $null;
+		}
+		$copy_link  = Array('asset' => &$submissions_folder, 'link_type' => SQ_LINK_TYPE_3, 'is_dependant' => 0, 'is_exclusive' => 0);
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		if (!$submission->create($copy_link)) {
@@ -1750,7 +1830,6 @@ class Form extends Asset
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
-		$GLOBALS['SQ_SYSTEM']->am->setPermission($submission->id, $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'), SQ_PERMISSION_READ, 0, TRUE);
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();

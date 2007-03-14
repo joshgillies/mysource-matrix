@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.46 2007/01/17 03:08:42 emcdonald Exp $
+* $Id: form_management.inc,v 1.47 2007/03/14 22:08:05 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -318,6 +318,19 @@ class Form_Management extends Asset_Management
 
 			pre_echo('DONE');
 		}
+
+		if (version_compare($current_version, '0.10', '<')) {
+			pre_echo('UPGRADING FORM TO v0.10');
+			$formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form', FALSE);
+			foreach ($formids as $formid) {
+				$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($formid);
+				if (!$form->_createSubmissionsFolder()) {
+					trigger_error('Error creating submissions folder for Form #'.$formid, E_USER_WARNING);
+				}
+			}
+			pre_echo(count($formids).' FORMS UPDATED');
+		}
+
 
 		return $res;
 
