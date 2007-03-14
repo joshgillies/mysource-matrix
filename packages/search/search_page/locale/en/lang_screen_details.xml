@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.15.2.2 2006/08/25 06:42:47 skim Exp $
+* $Id: lang_screen_details.xml,v 1.15.2.3 2007/03/14 23:39:34 skim Exp $
 *
 */
 -->
@@ -66,7 +66,7 @@
 			</function_call>
 		</field>
 		<field attribute="lineage_seperator">
-			<display_name>Lineage Seperator</display_name>
+			<display_name>Lineage Separator</display_name>
 			<note>Seperator to use when printing the lineage to a search result asset.</note>
 		</field>
 		<field attribute="root_in_lineage">
