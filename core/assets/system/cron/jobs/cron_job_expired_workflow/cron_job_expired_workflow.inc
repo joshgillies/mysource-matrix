@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.17 2007/01/30 23:05:01 rong Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.18 2007/03/15 00:10:02 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -175,11 +175,13 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 				WHERE w.wflow IS NOT NULL
 					AND w.granted = '.$db->quote('1');
 		$rows = $db->getAll($sql);
+		//error_log(var_export($rows, TRUE));
 		assert_valid_db_result($rows);
 		$now = time();
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$last_run = $cm->attr('last_run');
 		foreach ($rows as $row) {
+			error_log('Looking at: '.$row['assetid']);
 			$workflow = unserialize($row['wflow']);
 			$schemaid = $row['schemaid'];
 
@@ -188,10 +190,11 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 
 			if (($step['started'] != 0) && ($step['expiry_time'] != 0)) {
 				$exp_time = $step['started'] + $step['expiry_time'];
-				if (($exp_time < $now) && ($exp_time > $last_run)) {
+				if ($exp_time < $now) {
 					// workflow step has expired since the last cron run
+					error_log('Escalated: '.$row['assetid']);
 					$this->_processExpiredWorkflowStep($row['assetid'], $row['name'], $workflow['schema_name'], $schemaid, $step);
-					break;
+					//break;
 				}
 			}
 
