@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.3 2006/12/06 00:35:31 emcdonald Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.4 2007/03/15 03:33:38 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,10 +57,11 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 	function paintDefault(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
-
 		$options = $asset->getOptions();
+		foreach ($options as $key => $value) {
+			hidden_field($prefix.'_old_options[]', $value, 'id='.$prefix.'_old_options['.$key.']');
+		}
 		$multiple = ($asset->attr('multiple')) ? TRUE : FALSE;
-
 		return combo_box($prefix.'_default', $options, $multiple, $asset->attr('default'));
 
 	}//end paintDefault()
@@ -79,11 +80,34 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 	function processDefault(&$asset, &$o, $prefix)
 	{
 		if (isset($_POST[$prefix.'_default'])) {
+
 			$default = $_POST[$prefix.'_default'];
 			if (!is_array($default)) $default = Array($default);
+
+			$old_options = array_get_index($_POST, $prefix.'_old_options', Array());
+
+			if (!empty($old_options)) {
+				$new_options = $asset->getOptions();
+				$new_values = Array();
+				foreach ($default as $str_key) {
+					$new_default_vals[] = $old_options[(int) $str_key];
+				}
+
+				$new_default = Array();
+				foreach ($new_default_vals as $val) {
+					if (($idx = array_search($val, $new_options)) !== FALSE) {
+						$new_default[] = $idx;
+					}
+				}
+				if (!empty($new_default)) {
+					$default = $new_default;
+				}
+			}
+
 			if (!$asset->setAttrValue('default', $default)) {
 				return FALSE;
 			}
+
 		}
 		return TRUE;
 
