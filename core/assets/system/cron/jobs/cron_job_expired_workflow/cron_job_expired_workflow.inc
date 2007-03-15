@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.21 2007/03/15 00:32:31 lwright Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.22 2007/03/15 23:55:58 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -188,9 +188,22 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 
 			if (($step['started'] != 0) && ($step['expiry_time'] != 0)) {
 				$exp_time = $step['started'] + $step['expiry_time'];
+
 				if ($exp_time < $now) {
 					// workflow step has expired since the last cron run
-					$this->_processExpiredWorkflowStep($row['assetid'], $row['name'], $workflow['schema_name'], $schemaid, $step);
+
+					if ($step['escalate']) {
+						// Escalate the job, at any time
+						if (!$wfm->escalateWorkflow($row['assetid'], $schemaid)) {
+							trigger_localised_error('CRON0052', E_USER_WARNING, $schemaid, $assetid);
+						}
+					} else {
+						// Send a stale message, but only if this is the first
+						// time the cron has run that the workflow has gone stale
+						if ($exp_time > $last_run) {
+							$this->_processExpiredWorkflowStep($row['assetid'], $row['name'], $workflow['schema_name'], $schemaid, $step);
+						}
+					}
 					//break;
 				}
 			}
@@ -203,7 +216,8 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 
 
 	/**
-	* Deal with a workflow step that has been running for longer than its expiry time
+	* Deal with a workflow step that has been running for longer than its expiry
+	* time, but should not be escalated
 	*
 	* To do this we find the administrators of the asset and send them a message
 	* explaining the situation.
@@ -219,6 +233,9 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	*/
 	function _processExpiredWorkflowStep($assetid, $asset_name, $schema_name, $schemaid, $step_data)
 	{
+		 if (Workflow_Manager::silentWorkflowParty($assetid)) {
+			 return;
+		 }
 		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$subject = 'Stale Workflow Step';
 		$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'workflow'), FALSE);
@@ -227,35 +244,29 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		$url = 'http://'.current($root_urls).'/'.$href;
 		$type = 'asset.workflow.stale';
 		$admins = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, SQ_PERMISSION_ADMIN, TRUE, FALSE, TRUE);
+		error_log(array_contents($admins));
 
 		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-		if ($step_data['escalate']) {
 
-			// ask the manager to escalate this workflow
+		$schema_workflows = $wfm->getSchemaWorkflows($assetid);
+		$workflow =& $schema_workflows[$schemaid];
 
-			if (!$wfm->escalateWorkflow($assetid, $schemaid)) {
-				trigger_localised_error('CRON0052', E_USER_WARNING, $schemaid, $assetid);
-			}
-		} else {
-			if (Workflow_Manager::silentWorkflowParty($assetid)) {
-				$schema_workflows = $wfm->getSchemaWorkflows($assetid);
-				$workflow =& $schema_workflows[$schemaid];
+		// don't automatically escalate, just notify admins
+		$msg_reps = Array(
+						'asset_name'	=> $asset_name,
+						'assetid'		=> $assetid,
+						'step_id'		=> implode('.', $workflow['current_step']),
+						'step_name'		=> $step_data['step_name'],
+						'schema'		=> $schema_name,
+						'started_time'	=> easy_datetime($step_data['started']),
+						'expiry_time'	=> easy_time_total($step_data['expiry_time']),
+						'workflow_url'	=> $url,
+					);
 
-				// don't automatically escalate, just notify admins
-				$msg_reps = Array(
-								'asset_name'	=> $asset_name,
-								'assetid'		=> $assetid,
-								'step_id'		=> implode('.', $workflow['current_step']),
-								'step_name'		=> $step_data['step_name'],
-								'schema'		=> $schema_name,
-								'started_time'	=> easy_datetime($step_data['started']),
-								'expiry_time'	=> easy_time_total($step_data['expiry_time']),
-								'workflow_url'	=> $url,
-							);
-				$msg = $ms->newMessage($admins, $type, $msg_reps);
-				$msg->send();
-			}
-		}
+		// If there are no admins, send it to system admins instead
+		if (empty($admins)) $admins = Array(0);
+		$msg = $ms->newMessage($admins, $type, $msg_reps);
+		$msg->send();
 
 	}//end _processExpiredWorkflowStep()
 
