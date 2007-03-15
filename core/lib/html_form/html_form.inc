@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.129 2007/02/15 01:16:05 tbarrett Exp $
+* $Id: html_form.inc,v 1.130 2007/03/15 00:33:22 tbarrett Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.129 $
+* @version $Revision: 1.130 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -757,7 +757,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 
 	$label = '';
 	if ($assetid) {
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
 		if (is_null($asset)) {
 			$assetid = 0;
 		} else {
