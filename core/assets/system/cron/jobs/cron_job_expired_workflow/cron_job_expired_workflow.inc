@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.18 2007/03/15 00:10:02 lwright Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.19 2007/03/15 00:11:02 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -244,22 +244,24 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 				trigger_localised_error('CRON0052', E_USER_WARNING, $schemaid, $assetid);
 			}
 		} else {
-			$schema_workflows = $wfm->getSchemaWorkflows($assetid);
-			$workflow =& $schema_workflows[$schemaid];
+			if (Workflow_Manager::silentWorkflowParty($assetid)) {
+				$schema_workflows = $wfm->getSchemaWorkflows($assetid);
+				$workflow =& $schema_workflows[$schemaid];
 
-			// don't automatically escalate, just notify admins
-			$msg_reps = Array(
-							'asset_name'	=> $asset_name,
-							'assetid'		=> $assetid,
-							'step_id'		=> implode('.', $workflow['current_step']),
-							'step_name'		=> $step_data['step_name'],
-							'schema'		=> $schema_name,
-							'started_time'	=> easy_datetime($step_data['started']),
-							'expiry_time'	=> easy_time_total($step_data['expiry_time']),
-							'workflow_url'	=> $url,
-						);
-			$msg = $ms->newMessage($admins, $type, $msg_reps);
-			$msg->send();
+				// don't automatically escalate, just notify admins
+				$msg_reps = Array(
+								'asset_name'	=> $asset_name,
+								'assetid'		=> $assetid,
+								'step_id'		=> implode('.', $workflow['current_step']),
+								'step_name'		=> $step_data['step_name'],
+								'schema'		=> $schema_name,
+								'started_time'	=> easy_datetime($step_data['started']),
+								'expiry_time'	=> easy_time_total($step_data['expiry_time']),
+								'workflow_url'	=> $url,
+							);
+				$msg = $ms->newMessage($admins, $type, $msg_reps);
+				$msg->send();
+			}
 		}
 
 	}//end _processExpiredWorkflowStep()
