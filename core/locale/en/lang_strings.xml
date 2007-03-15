@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.233 2007/03/05 01:04:45 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.234 2007/03/15 00:11:52 skim Exp $
 *
 */
 
@@ -590,7 +590,6 @@
 	<string source="cannot_change_property">Permission Denied to change this property</string>
 	<string source="default_namespace_definitions">Use default XML namespace definitions</string>
 	<string source="metadata_use_default_namespace_explanation">If your schema has one of the standard names - &lt;b&gt;AGLS&lt;/b&gt;, &lt;b&gt;DC&lt;/b&gt;, &lt;b&gt;EDNA&lt;/b&gt; - you can use a default namespace definition instead of entering the custom namespace and custom namespace URI into the fields below.</string>
-	<string source="metadata_hcl_explanation">You can use this section to define a namespace to be used for any Harvest Control List (HCL) page you have created using this metadata schema. If you are going to include this metadata schema on a HCL page, you &lt;b&gt;must&lt;/b&gt; define an XML namespace, because HCL page must be a well-formed XML document.</string>
 	<string source="cannot_change_namespace">You don't have permission to change namespace</string>
 	<string source="cannot_change_namespace_uri">You don't have permission to change namespace URI</string>
 	<string source="field_name">Field Name</string>
@@ -2191,24 +2190,24 @@ Are you sure you want to proceed?</string>
 
 	<string source="print_this_page">Print this Page</string>
 
-	<string source="date_format_default">yyyy-mm-dd hh:mm:ss</string> 	 
-	<string source="date_format_short">yyyy-mm-dd</string> 	 
-	<string source="date_format_readable">dd m yyyy h:mm[am pm]</string> 	 
-	<string source="date_format_readabledate">date only - dd M yyyy</string> 	 
-	<string source="date_format_readabletime">time only - h:mm[am pm]</string> 	 
-	<string source="date_format_iso8601">ISO8601 format</string> 	 
-	<string source="date_format_rfc2822">RFC2822 format</string> 	 
-	<string source="date_format_rfc2822-dateonly">RFC2822 format, date only</string> 	 
-	<string source="date_format_ical">iCalendar format</string> 	 
+	<string source="date_format_default">yyyy-mm-dd hh:mm:ss</string>
+	<string source="date_format_short">yyyy-mm-dd</string>
+	<string source="date_format_readable">dd m yyyy h:mm[am pm]</string>
+	<string source="date_format_readabledate">date only - dd M yyyy</string>
+	<string source="date_format_readabletime">time only - h:mm[am pm]</string>
+	<string source="date_format_iso8601">ISO8601 format</string>
+	<string source="date_format_rfc2822">RFC2822 format</string>
+	<string source="date_format_rfc2822-dateonly">RFC2822 format, date only</string>
+	<string source="date_format_ical">iCalendar format</string>
 
-	<!-- Future Status Trigger Actions --> 	 
-	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to:</string> 	 
-	<string source="trigger_action_future_status_cascade_all">and cascade the status change to all children of the asset</string> 	 
-	<string source="trigger_action_future_status_failure_conditions">NB. If a selected attribute is empty or not present, or the calculated value is in the past, no future status will be set</string> 	 
-	<string source="trigger_action_future_status_make_status_change_to">Add a cron job to change the asset's status to</string> 	 
-	<string source="trigger_action_future_status_explicit_exact">at exactly</string> 	 
-	<string source="trigger_action_future_status_explicit_interval">after the trigger was fired</string> 	 
-	<string source="trigger_action_future_status_attr_exact">at exactly the date and time stored in the attribute</string> 	 
+	<!-- Future Status Trigger Actions -->
+	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to:</string>
+	<string source="trigger_action_future_status_cascade_all">and cascade the status change to all children of the asset</string>
+	<string source="trigger_action_future_status_failure_conditions">NB. If a selected attribute is empty or not present, or the calculated value is in the past, no future status will be set</string>
+	<string source="trigger_action_future_status_make_status_change_to">Add a cron job to change the asset's status to</string>
+	<string source="trigger_action_future_status_explicit_exact">at exactly</string>
+	<string source="trigger_action_future_status_explicit_interval">after the trigger was fired</string>
+	<string source="trigger_action_future_status_attr_exact">at exactly the date and time stored in the attribute</string>
 	<string source="trigger_action_future_status_attr_interval">the date and time stored in the attribute</string>
 
 </strings>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.47 2007/03/08 04:00:38 tbarrett Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.48 2007/03/15 00:11:51 skim Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -372,8 +372,6 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if ($asset->writeAccess('')) {
-			$o->note(translate('metadata_hcl_explanation'));
-
 			check_box($prefix.'_default_ns');
 			label(translate('default_namespace_definitions'), $prefix.'_default_ns');
 			$o->note(translate('metadata_use_default_namespace_explanation'));
