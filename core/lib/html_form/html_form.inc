@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.120.2.1 2006/09/15 01:32:25 rhoward Exp $
+* $Id: html_form.inc,v 1.120.2.2 2007/03/15 04:09:00 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.120.2.1 $
+* @version $Revision: 1.120.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -765,7 +765,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 
 	$label = '';
 	if ($assetid) {
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
 		if (is_null($asset)) {
 			$assetid = 0;
 		} else {
