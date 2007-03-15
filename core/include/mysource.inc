@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.217 2007/02/19 01:55:57 tbarrett Exp $
+* $Id: mysource.inc,v 1.218 2007/03/15 03:11:32 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.217 $
+* @version $Revision: 1.218 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1301,6 +1301,7 @@ class MySource
 				unset($_SESSION['SQ_RETURN_TO_HTTP']);
 				$return_url = 'http://'.current_url(FALSE);
 			}
+			$return_url = replace_query_string_Vars(Array('SQ_ACTION' => NULL), $return_url);
 			require_once dirname(__FILE__).'/key_reminder.inc';
 			exit();
 		}
