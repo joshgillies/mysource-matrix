@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.44.2.1 2007/01/15 00:20:53 tbarrett Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.44.2.2 2007/03/15 00:32:37 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.44.2.1 $
+* @version $Revision: 1.44.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -323,7 +323,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				<?php
 
 				foreach ($locations as $locationid => $link_type) {
-					$location =& $GLOBALS['SQ_SYSTEM']->am->getAsset($locationid);
+					$location =& $GLOBALS['SQ_SYSTEM']->am->getAsset($locationid, '', TRUE);
 					if (is_null($location)) continue;
 					?>
 					<tr>
@@ -608,15 +608,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				$sets[$name]['locations'] = Array();
 				foreach ($new_options as $option) {
 					if (($new_loc_id = $option['assetid']) && (!in_array($new_loc_id, array_keys($sets[$name]['locations'])))) {
-						$sets[$name]['locations'][$new_loc_id] = ''; // we'll get the name in a sec
+						$sets[$name]['locations'][$new_loc_id] = ''; // this format exists for historical reasons
 					}
 				}
-			}
-
-			// get the names
-			$asset_infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($sets[$name]['locations']));
-			foreach ($asset_infos as $assetid => $asset_info) {
-				$sets[$name]['locations'][$assetid] = $asset_info['name'];
 			}
 
 			// update the other options

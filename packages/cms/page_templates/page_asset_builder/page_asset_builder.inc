@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.102.2.6 2007/02/14 00:32:45 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.102.2.7 2007/03/15 00:32:37 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.102.2.6 $
+* @version $Revision: 1.102.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -735,11 +735,21 @@ class Page_Asset_Builder extends Page
 	function getCreateLocations($create_type)
 	{
 		if (is_array($selected_locs = $this->getSelectedCreateLocations())) {
-			return $this->getFixedCreateLocations()
+			$res = $this->getFixedCreateLocations()
 				+ $selected_locs
 				+ $this->getRuleMatchCreateLocations($create_type)
 				+ $this->getAdditionalCreateLocations()
 				+ $this->getDynamicCreateLocations();
+
+			// make sure all the create locations actually exist
+			$details = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($res), Array(), TRUE, 'name');
+			foreach ($res as $i => $v) {
+				if (empty($details[$i])) {
+					unset($res[$i]);
+				}
+			}
+
+			return $res;
 		} else {
 			// failed to select some compulsory selectable locations
 			return FALSE;
@@ -927,7 +937,8 @@ class Page_Asset_Builder extends Page
 		//////////////////////////////////////////
 		foreach ($this->attr('create_location_optional') as $name => $data) {
 			$code_name = $this->_sanitiseLocationSetName($name);
-			$options = $data['locations'];
+			// the following line will remove any assets that no longer exist
+			$options = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($data['locations']), Array(), TRUE, 'name');
 			ob_start();
 				switch ($data['input_style']) {
 
