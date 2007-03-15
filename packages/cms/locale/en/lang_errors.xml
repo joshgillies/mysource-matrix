@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.16 2007/01/29 04:00:51 skim Exp $
+* $Id: lang_errors.xml,v 1.17 2007/03/15 00:58:25 tbarrett Exp $
 *
 */
 -->
@@ -199,4 +199,9 @@
 
 	<!-- listing engine cloning -->
 	<error code="CMS0068">Cannot complete the cloning. Group Formats folder was not properly created</error>
+
+	<error code="CMS0069">Cannot create form submission - submissions folder not found.  Upgrade may be required.</error>
+	<error code="CMS0070">Cannot create form - problem creating submissions folder</error>
+
+
 </errors>
