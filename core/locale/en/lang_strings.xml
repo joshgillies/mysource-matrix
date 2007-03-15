@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.146.2.13 2007/02/22 03:26:48 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.146.2.14 2007/03/15 00:14:04 skim Exp $
 *
 */
 
@@ -539,7 +539,6 @@
 	<string source="cannot_change_property">Permission Denied to change this property</string>
 	<string source="default_namespace_definitions">Use default XML namespace definitions</string>
 	<string source="metadata_use_default_namespace_explanation">If your schema has one of the standard names - &lt;b&gt;AGLS&lt;/b&gt;, &lt;b&gt;DC&lt;/b&gt;, &lt;b&gt;EDNA&lt;/b&gt; - you can use a default namespace definition instead of entering the custom namespace and custom namespace URI into the fields below.</string>
-	<string source="metadata_hcl_explanation">You can use this section to define a namespace to be used for any Harvest Control List (HCL) page you have created using this metadata schema. If you are going to include this metadata schema on a HCL page, you &lt;b&gt;must&lt;/b&gt; define an XML namespace, because HCL page must be a well-formed XML document.</string>
 	<string source="cannot_change_namespace">You don't have permission to change namespace</string>
 	<string source="cannot_change_namespace_uri">You don't have permission to change namespace URI</string>
 	<string source="field_name">Field Name</string>
