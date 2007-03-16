@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_numeric.inc,v 1.6 2006/12/06 00:35:29 emcdonald Exp $
+* $Id: form_question_rule_type_numeric.inc,v 1.7 2007/03/16 05:14:11 emcdonald Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,9 +50,11 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	/**
 	* Returns a list of operators for this rule type
 	*
+	* Returns an array in the format (mixed => string) of descriptions indexed by operator id (which can be
+	* anything, generally string or (int)0|1 for a boolean value)
+	*
+	* @return array
 	* @access public
-	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
-	*                                 anything, generally string or (int)0|1 for a boolean value)
 	*/
 	function getOperators()
 	{
@@ -67,27 +69,32 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	/**
 	* writes JavaScript code for client side validation
 	*
-	* @param object Form_Question	&$q_asset		reference to the question asset
-	* @param Array					$rule_data		the rule data being used
+	* @param object	&$q_asset	reference to the Form_Question asset
+	* @param array	$rule_data	the rule data being used
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function generateJSCode(&$q_asset, $rule_data)
 	{
 		// have we printed out the validation function yet?
 		// (since this is static across all class instances, this will work)
-		static $printed_fn = false;
+		static $printed_fn = FALSE;
 
 		$operator = array_get_index($rule_data, 'operator', 1);
 
-		// regex code - allow leading plus or minute, digits, decimal point
-		$regex_code = '/^[-+]?\d*\.?\d+$/';
+		if (!$q_asset->attr('is_required')) {
+			// regex code - allow empty or leading plus or minute, digits, decimal point
+			$regex_code = '/(^$)|(^[-+]?\d*\.?\d+$)/';
+		} else {
+			// regex code - allow leading plus or minute, digits, decimal point, but not empty
+			$regex_code = '/^[-+]?\d*\.?\d+$/';
+		}
 
 		ob_start();			// buffer this please
 
 			if (!$printed_fn) {
-				$printed_fn = true;
+				$printed_fn = TRUE;
 
 					?>
 					function sq_form_validate_numeric(answer)
@@ -125,12 +132,13 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	*
 	* Rule data is an array with the following fields:
 	* [operator] => operator to compare with (boolean: 1 or 0)
+	* return true only if rule succeeds
 	*
-	* @param mixed	$answer			the answer being passed to us
-	* @param string	$rule_data		the rule's data
+	* @param mixed	$answer		the answer being passed to us
+	* @param string	$rule_data	the rule's data
 	*
+	* @return boolean
 	* @access public
-	* @return boolean true only if rule succeeds
 	*/
 	function evaluate($answer, $rule_data)
 	{
@@ -145,16 +153,16 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	/**
 	* returns a description of this rule
 	*
-	* @param object Form_Question	&$q_asset	the question asset that failed
-	* @param array					$rule_data	the rule data
+	* @param object	&$q_asset	the Form_Question asset that failed
+	* @param array	$rule_data	the rule data
 	*
-	* @return string	the error message
+	* @return string
 	* @access public
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
 		$operator = array_get_index($rule_data, 'operator', 1);
-		$error_str = translate('core_form_rule_numeric_desc_'.($operator ? 'true' : 'false'), $q_asset->attr('name'));
+		$error_str = translate('core_form_rule_numeric_desc_'.($operator ? 'TRUE' : 'FALSE'), $q_asset->attr('name'));
 
 		return $error_str;
 
