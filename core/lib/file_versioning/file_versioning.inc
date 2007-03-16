@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.26 2006/02/09 23:14:56 lwright Exp $
+* $Id: file_versioning.inc,v 1.26.2.1 2007/03/16 02:35:54 tbarrett Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -216,9 +216,11 @@ class File_Versioning
 
 		$rep_file = $this->_dir.'/'.$info['path'].'/'.$info['filename'];
 
-		if (!$this->_validateFileVersion($rep_file, $info)) {
-			trigger_localised_error('FVER0027', E_USER_NOTICE, $info['path'], $info['filename'], $info['version']);
-			return FUDGE_FV_ERROR;
+		if (empty($info['removal'])) {
+			if (!$this->_validateFileVersion($rep_file, $info)) {
+				trigger_localised_error('FVER0027', E_USER_NOTICE, $info['path'], $info['filename'], $info['version']);
+				return FUDGE_FV_ERROR;
+			}
 		}
 
 		return $info;
