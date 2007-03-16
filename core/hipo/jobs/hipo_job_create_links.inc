@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.43.2.7 2007/02/22 01:44:59 tbarrett Exp $
+* $Id: hipo_job_create_links.inc,v 1.43.2.8 2007/03/16 01:28:28 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.43.2.7 $
+* @version $Revision: 1.43.2.8 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -242,8 +242,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		return parent::prepare();
 
 	}//end prepare()
-	
-	
+
+
 	/**
 	* Set up vars and database information that the HIPO will need to run
 	*
@@ -286,7 +286,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					$current = current($assets);
 					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					$trash_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash_folder->id, $asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
-					$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 + SQ_LINK_TYPE_2, '', TRUE, $current['linkid']);
+					$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2, '', TRUE, $current['linkid']);
 
 					if (!empty($trash_link)) $num_other_links--;
 					if (!$num_other_links) {
@@ -294,7 +294,17 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						// display them to the user
 						// note that we are also going to ask the major asset in the link
 						// to describe it so it makes sense to the user looking at it
-						$affected_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE, '', TRUE, 'minor');
+						$affected_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, '', TRUE, 'minor');
+
+						// We can't trust $affected_links to contain all TYPE_3|NOTICE
+						// links, as getLinks() also returns ALL shadow links. So weed
+						// out any links that aren't TYPE_3|NOTICE
+						foreach ($affected_links as $linkid => $affected_link) {
+							if (!($affected_link['link_type'] & (SQ_LINK_TYPE_3 | SQ_LINK_NOTICE))) {
+								unset($affected_links[$linkid]);
+							}
+						}
+
 						if (!empty($affected_links)) {
 							$this->_running_vars['affected_links'][$assetid] = $affected_links;
 
