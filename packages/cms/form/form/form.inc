@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.155 2007/03/14 22:08:05 tbarrett Exp $
+* $Id: form.inc,v 1.156 2007/03/18 23:20:34 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.155 $
+* @version $Revision: 1.156 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1126,6 +1126,37 @@ class Form extends Asset
 
 
 	/**
+	* Print 'Page Contents' Bodycopy context
+	*
+	* @return void
+	* @access public
+	*/
+	function printPageContentsBodycopy()
+	{
+		$this->printForm();
+
+	}//end printPageContentsBodycopy()
+
+
+	/**
+	* Print 'Thank You' Bodycopy context
+	*
+	* @return void
+	* @access public
+	*/
+	function printThankYouBodycopy()
+	{
+		// Make sure that the thank you bodycopy is always able to access the
+		// newly created submission in replicated database instances, by tying
+		// it all to db2
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$this->finishForm();
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+	}//end printThankYouBodycopy()
+
+
+	/**
 	* Prints the form to screen
 	*
 	* @param array	$replacements	a list of additional replacements that
@@ -1137,70 +1168,12 @@ class Form extends Asset
 	*/
 	function printForm($replacements=Array())
 	{
-		ob_start();
-			$this->includeContentFile('Standard');
-			$cf_output = ob_get_contents();
-		ob_end_clean();
 
 		$error = !empty($this->submission_errors);
 
-		if ($error) {
-			ob_start();
-				$this->printErrors();
-				$err_output = ob_get_contents();
-			ob_end_clean();
-			$err_msg = $this->attr('submission_errors_msg');
-		} else {
-			$err_output = '';
-			$err_msg = '';
-		}
-
 		$bodycopy =& $this->getBodycopy('Page Contents');
 
-		// if no title for the submit button is specified in the backend
-		// just use 'Submit'
-		$button_name = ($this->attr('submit_button')) ? $this->attr('submit_button') : translate('submit');
-
-		ob_start();
-			submit_button($this->getPrefix().'_submit', $button_name);
-			$submit_button = ob_get_contents();
-		ob_end_clean();
-
-		$reset_button_name = ($this->attr('reset_button')) ? $this->attr('reset_button') : translate('clear_form');
-
-		ob_start();
-			reset_button($this->getPrefix().'_reset', $reset_button_name);
-			$reset_button = ob_get_contents();
-		ob_end_clean();
-
-
-		ob_start();
-		security_key($this->attr('captcha_length'), $this->attr('captcha_length'), $this->attr('captcha_zoom'));
-		$captcha = ob_get_contents();
-		ob_end_clean();
-
-		ob_start();
-		security_key_image_box($this->attr('captcha_length'), $this->attr('captcha_zoom'));
-		$captcha_image = ob_get_contents();
-		ob_end_clean();
-
-		ob_start();
-		security_key_field($this->attr('captcha_length'));
-		$captcha_field = ob_get_contents();
-		ob_end_clean();
-
-		ob_start();
-		security_key_image_link($this->attr('captcha_link_text'));
-		$captcha_link = ob_get_contents();
-		ob_end_clean();
-
-
-		$replacements['form_captcha_image']  = &$captcha_image;
-		$replacements['form_captcha_field']  = &$captcha_field;
-		$replacements['form_captcha_link']  = &$captcha_link;
-		$replacements['form_captcha']  = &$captcha;
-
-
+		$content = '';
 
 		// check to see if the bodycopy attached to this form has any content
 		if ($this->attr('use_bodycopy_main') && $bodycopy && !$bodycopy->isEmpty()) {
@@ -1229,57 +1202,221 @@ class Form extends Asset
 				}
 			}
 
-			$replacements['form_contents'] = &$cf_output;
-			$replacements['form_errors']   = &$err_output;
-			$replacements['form_errors_message'] = &$err_msg;
-			$replacements['submit_button'] = &$submit_button;
-			$replacements['reset_button']  = &$reset_button;
-
-			// add global keywords
-			$keywords = $bodycopy->getKeywords();
-			foreach ($keywords as $word) {
-				if (!isset($replacements[$word])) {
-					$replacements[$word] = $this->getKeywordReplacement($word);
+			$keyword_list = $bodycopy->getKeywords();
+			if (!empty($keyword_list)) {
+				foreach ($keyword_list as $keyword) {
+					if (isset($replacements[$keyword])) continue;
+					$replacements[$keyword] = $this->_getKeywordReplacement($keyword);
 				}
 			}
 
-			ob_start();
-				$bodycopy->setKeywordReplacements($replacements);
-				$bodycopy->printBody();
-				$output = ob_get_contents();
-			ob_end_clean();
-
-			echo $output;
+			$bodycopy->setKeywordReplacements($replacements);
+			$bodycopy->printBody();
 
 		} else {
-			$output = $cf_output;
-
-			$output .= '<table width="'.$this->attr('form_width').'"><tr>';
-			$output .= '<td';
-			$output .= ($this->attr('question_col_width')) ? ' 	width="'.$this->attr('question_col_width').'">' : '>';
-			$output .='&nbsp;</td><td';
-			$output .= ($this->attr('answer_col_width')) ? ' 	width="'.$this->attr('answer_col_width').'">' 	: '>';
-			if ($this->attr('require_captcha')) {
-				ob_start();
-				security_key($this->attr('captcha_length'), $this->attr('captcha_length'), $this->attr('captcha_zoom'));
-				$captcha = ob_get_contents();
-				ob_end_clean();
-				$output .= $captcha;
+			$form_width = $this->attr('form_width');
+			if (!empty($form_width)) {
+				$form_width = ' width="'.$form_width.'"';
 			}
 
-			$output .= $submit_button;
-			$output .= $reset_button;
-
-			$output .= '</td></tr>';
-			if ($error) {
-				$output .= '<tr><td colspan="3">'.$err_output.'</td></tr>';
+			$question_width = $this->attr('question_col_width');
+			if (!empty($question_width)) {
+				$question_width = ' width="'.$question_width.'"';
 			}
-			$output .= '</table>';
 
-			echo $output;
-		}
+			$answer_width = $this->attr('answer_col_width');
+			if (!empty($answer_width)) {
+				$answer_width = ' width="'.$answer_width.'"';
+			}
+
+			// note: the HTML section below is using the keywords so that it's easier
+			// to move it to a bodycopy later (as a default value)
+			// that way we will not need 2 paths of processing
+			ob_start();
+			?>
+				%form_contents%<table <?php echo $form_width; ?>>
+				<tr>
+				<td <?php echo $question_width; ?>>&nbsp;</td>
+				<td <?php echo $answer_width; ?>>
+					<?php
+					if ($this->attr('require_captcha')) {
+						?>
+						%form_captcha%
+						<?php
+					}
+					?>
+					%submit_button%
+					%reset_button%
+				</td>
+				</tr>
+				<?php
+				if ($error) {
+					?>
+					<tr><td colspan="2">%form_errors%</td></tr>
+					<?php
+				}
+				?>
+				</table>
+			<?php
+			$content = ob_get_clean();
+
+			require_once SQ_FUDGE_PATH.'/general/text.inc';
+
+			$keyword_list = extract_keywords($content);
+			if (!empty($keyword_list)) {
+				foreach ($keyword_list as $keyword) {
+					if (isset($replacements[$keyword])) continue;
+					$replacements[$keyword] = $this->_getKeywordReplacement($keyword);
+				}
+				replace_keywords($content, $replacements);
+			}
+
+			echo $content;
+
+		}//end else
 
 	}//end printForm()
+
+
+	/**
+	* Form Contents keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormContentsKeywordReplacement()
+	{
+		ob_start();
+			$this->includeContentFile('Standard');
+		return ob_get_clean();
+
+	}//end getFormContentsKeywordReplacement()
+
+
+	/**
+	* Form Captcha keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaKeywordReplacement()
+	{
+		ob_start();
+			security_key($this->attr('captcha_length'), $this->attr('captcha_length'), $this->attr('captcha_zoom'));
+		return ob_get_clean();
+
+	}//end getFormCaptchaKeywordReplacement()
+
+
+	/**
+	* Form Captcha Image keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaImageKeywordReplacement()
+	{
+		ob_start();
+			security_key_image_box($this->attr('captcha_length'), $this->attr('captcha_zoom'));
+		return ob_get_clean();
+
+	}//end getFormCaptchaImageKeywordReplacement()
+
+
+	/**
+	* Form Captcha Field keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaFieldKeywordReplacement()
+	{
+		ob_start();
+			security_key_field($this->attr('captcha_length'));
+		return ob_get_clean();
+
+	}//end getFormCaptchaFieldKeywordReplacement()
+
+
+	/**
+	* Form Captcha Link keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaLinkKeywordReplacement()
+	{
+		ob_start();
+			security_key_image_link($this->attr('captcha_link_text'));
+		return ob_get_clean();
+
+	}//end getFormCaptchaLinkKeywordReplacement()
+
+
+	/**
+	* Form Errors keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormErrorsKeywordReplacement()
+	{
+		if (empty($this->submission_errors)) return '';
+
+		ob_start();
+			$this->printErrors();
+		return ob_get_clean();
+
+	}//end getFormErrorsKeywordReplacement()
+
+
+	/**
+	* Form Errors Message keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormErrorsMessageKeywordReplacement()
+	{
+		if (empty($this->submission_errors)) return '';
+
+		return $this->attr('submission_errors_msg');
+
+	}//end getFormErrorsMessageKeywordReplacement()
+
+
+	/**
+	* Submit Button keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getSubmitButtonKeywordReplacement()
+	{
+		$button_name = ($this->attr('submit_button')) ? $this->attr('submit_button') : translate('submit');
+
+		ob_start();
+			submit_button($this->getPrefix().'_submit', $button_name);
+		return ob_get_clean();
+
+	}//end getSubmitButtonKeywordReplacement()
+
+
+	/**
+	* Reset Button keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getResetButtonKeywordReplacement()
+	{
+		$button_name = ($this->attr('reset_button')) ? $this->attr('reset_button') : translate('reset');
+
+		ob_start();
+			submit_button($this->getPrefix().'_reset', $button_name);
+		return ob_get_clean();
+
+	}//end getResetButtonKeywordReplacement()
 
 
 	/**
@@ -1292,19 +1429,19 @@ class Form extends Asset
 	{
 		$prefix = $this->getPrefix();
 
-		// Make sure that the thank you bodycopy is always able to access the
-		// newly created submission in replicated database instances, by tying
-		// it all to db2
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		// check to see if the form has been submitted or not
-		if (isset($_POST[$prefix.'_submit']) && $this->processForm()) {
-			$this->finishForm();
-			return TRUE;
-		}
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		$form_processed = FALSE;
 
-		// nothing submitted yet, or there was an error
-		$this->printForm();
+		// check to see if the form has been submitted or not
+		if (isset($_POST[$prefix.'_submit'])) {
+			$form_processed = $this->processForm();
+		}
+
+		if ($form_processed) {
+			$this->printThankYouBodycopy();
+		} else {
+			$this->printPageContentsBodycopy();
+		}
+
 		return TRUE;
 
 	}//end printStandard()
@@ -1473,6 +1610,7 @@ class Form extends Asset
 		}
 
 		if ($ok) {
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			// save question values
 			for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
 				$question->saveValue();
@@ -1495,6 +1633,7 @@ class Form extends Asset
 				$this->submission_asset->setAttrValue('xml', $this->getXML());
 				$this->submission_asset->saveAttributes();
 			}
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}
 
 		return $ok;
@@ -1540,25 +1679,24 @@ class Form extends Asset
 		if ($this->attr('use_bodycopy_thank_you') && $tyb && !$tyb->isEmpty()) {
 
 			if ($this->attr('show_results')) {
+				$keyword_list = $tyb->getKeywords();
 
-				// add global keywords
-				$keywords = $tyb->getKeywords();
-				foreach ($keywords as $word) {
+				foreach ($keyword_list as $keyword) {
+					$lookup_keyword = $keyword;
 
 					// If form_info or form_summary, we need to make sure the
 					// HTML version gets printed
-					if (($word === 'form_info') || ($word == 'form_summary')) {
-						$replacements[$word] = $this->_getThankYouKeywordReplacement($word.'_html');
-					} else {
-						$replacements[$word] = $this->_getThankYouKeywordReplacement($word);
+					// Andrei: this is gay - for lazy users
+					if (($keyword === 'form_info') || ($keyword == 'form_summary')) {
+						$lookup_keyword = $keyword.'_html';
 					}
 
-					if (!isset($replacements[$word])) {
-						$replacements[$word] = $this->getKeywordReplacement($word);
-					}
+					$replacement = $this->_getThankYouKeywordReplacement($lookup_keyword);
+					$replacements[$keyword] = $replacement;
 				}
 
 				$tyb->setKeywordReplacements($replacements);
+
 			}//end if
 
 			$tyb->printBody();
@@ -1582,15 +1720,31 @@ class Form extends Asset
 	function printErrors()
 	{
 		if (!empty($this->submission_errors)) {
-			?><ul><?php
+			echo '<ul>';
 			foreach ($this->submission_errors as $error) {
-				?><li><?php echo $error ?></li><?php
+				echo '<li>';
+				echo $error;
+				echo '</li>';
 			}
-			?></ul><?php
+			echo '</ul>';
 		}
 		return TRUE;
 
 	}//end printErrors()
+
+
+	/**
+	* returns the submission asset
+	*
+	* @return object
+	* @access public
+	*/
+	function &getSubmissionAsset()
+	{
+		$submission =& $this->submission_asset;
+		return $submission;
+
+	}//end getSubmissionAsset()
 
 
 	/**
@@ -1601,9 +1755,12 @@ class Form extends Asset
 	*/
 	function getXML()
 	{
+		$submission = $this->getSubmissionAsset();
+		$submission_ip = $submission->getIP();
+
 		ob_start();
 		echo '<submission time="'.str_replace(' ','T',ts_iso8601(time())).'"';
-		echo ' ip="'.$this->submission_asset->getIP().'"';
+		echo ' ip="'.$submission_ip.'"';
 		if (!is_null($cur_user =& $GLOBALS['SQ_SYSTEM']->user)) {
 			echo ' user="'.$cur_user->id.'"';
 		}
@@ -1866,24 +2023,27 @@ class Form extends Asset
 		$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
 
-		$bodycopy_context_code = NULL;
+		$bodycopy_code = NULL;
 		foreach ($bodycopy_links as $link_info) {
 			if (isset($parents[$link_info['minorid']])) {
-				$bodycopy_context_code = $link_info['value'];
+				$bodycopy_code = $link_info['value'];
 				break;
 			}
 		}
 
-		if (is_null($bodycopy_context_code)) return;
+		if (is_null($bodycopy_code)) return;
 
-		// note: if the value on the link is "Thank You", the method providing the keywords should be _getThankYouContextKeywords
-		$keyword_provider_method = '_get'.str_replace(' ','',ucfirst($bodycopy_context_code)).'ContextKeywords';
+		$keywords = @$this->_tmp['keywords'][$bodycopy_code];
+		if (is_null($keywords) || !is_array($keywords)) {
+			$keywords = Array();
+			// note: if the value on the link is "Thank You", the method providing the keywords should be _getThankYouContextKeywords
+			$keyword_provider_method = '_get'.str_replace(' ','',ucfirst($bodycopy_code)).'BodycopyKeywords';
 
-		if (!method_exists($this, $keyword_provider_method)) {
-			return;
+			if (method_exists($this, $keyword_provider_method)) {
+				$keywords = $this->$keyword_provider_method();
+				$this->_tmp['keywords'][$bodycopy_code] = $keywords;
+			}
 		}
-
-		$keywords = $this->$keyword_provider_method();
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
@@ -1891,12 +2051,12 @@ class Form extends Asset
 
 
 	/**
-	* Get an array of keywords for Page Contents Context (bodycopy)
+	* Get an array of keywords for Page Contents Bodycopy
 	*
 	* @return array
 	* @access private
 	*/
-	function _getPageContentsContextKeywords()
+	function _getPageContentsBodycopyKeywords()
 	{
 		$questions = $this->getQuestions();
 		$sections =& $this->getSections();
@@ -1938,7 +2098,7 @@ class Form extends Asset
 
 		return $keywords;
 
-	}//end _getPageContentsContextKeywords()
+	}//end _getPageContentsBodycopyKeywords()
 
 
 	/**
@@ -1947,13 +2107,15 @@ class Form extends Asset
 	* @return array
 	* @access private
 	*/
-	function _getThankYouContextKeywords()
+	function _getThankYouBodycopyKeywords()
 	{
 		$questions = $this->getQuestions();
 		$sections =& $this->getSections();
 
 		$keywords['form_summary']               = translate('cms_form_submission_summary');
+		$keywords['form_summary_html']          = translate('cms_form_submission_summary').' (html)';
 		$keywords['form_info']                  = translate('cms_form_submission_info');
+		$keywords['form_info_html']             = translate('cms_form_submission_info').' (html)';
 		$keywords['form_submission_id']         = translate('cms_form_submission_id');
 		$keywords['form_submission_ip_address'] = translate('cms_form_submission_ip_address');
 		$keywords['form_submission_time']       = translate('cms_form_submission_time_format', translate('date_format_default'));
@@ -1984,7 +2146,7 @@ class Form extends Asset
 
 		return $keywords;
 
-	}//end _getThankYouContextKeywords()
+	}//end _getThankYouBodycopyKeywords()
 
 
 	/**
@@ -2425,66 +2587,72 @@ class Form extends Asset
 			$sections  =& $this->_tmp['keyword_cache']['sections'];
 
 			if (preg_match('|^section_title_(.*)|', $keyword, $matches)) {
-					// Section title keyword
-					// eg. %section_title_123%
+				// Section title keyword
+				// eg. %section_title_123%
 
-					$section_assetid = $matches[1];
-					$section_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid, 'form_section');
-					if (!empty($section_asset)) {
-						$replacement = $section_asset->attr('title');
-					}
+				$section_assetid = $matches[1];
+				$section_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid, 'form_section');
+				if (!empty($section_asset)) {
+					$replacement = $section_asset->attr('title');
+				}
 
 			} else if (preg_match('|^question_([^_]*)_([^_]*_)?q(.*)|', $keyword, $matches)) {
-					// Question name/note keywords, eg.
-					// %question_note_123_q4% ... note for q.4 from form/section
-					//                            with ID 123
-					// %question_name_q4% ....... name of q.4 from the form
+				// Question name/note keywords, eg.
+				// %question_note_123_q4% ... note for q.4 from form/section
+				//                            with ID 123
+				// %question_name_q4% ....... name of q.4 from the form
 
-					$question_keyword = $matches[1];
-					if (empty($matches[2])) {
-						// One asset ID
-						$section_assetid = $this->id;
-						$question_assetid = $matches[3];
-					} else {
-						$section_assetid = str_replace('_', '', $matches[2]);
-						$question_assetid = $matches[3];
+				$question_keyword = $matches[1];
+				if (empty($matches[2])) {
+					// One asset ID
+					$section_assetid = $this->id;
+					$question_assetid = $matches[3];
+				} else {
+					$section_assetid = str_replace('_', '', $matches[2]);
+					$question_assetid = $matches[3];
+				}
+
+				$question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid.':q'.$question_assetid);
+				if (!empty($question_asset)) {
+					switch ($question_keyword) {
+						case 'name':
+							$replacement = $question_asset->attr('name');
+						break;
+
+						case 'note':
+							$replacement = $question_asset->attr('note');
+						break;
 					}
-
-					$question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid.':q'.$question_assetid);
-					if (!empty($question_asset)) {
-						switch ($question_keyword) {
-							case 'name':
-								$replacement = $question_asset->attr('name');
-							break;
-
-							case 'note':
-								$replacement = $question_asset->attr('note');
-							break;
-						}
-					}
+				}
 
 			} else if (preg_match('|^response_(.*_)?q(.*)?|', $keyword, $matches)) {
-					// Question response keywords, eg.
-					// %response_123_q4% ... question 4 from form/section ID 123
-					// %response_q4% ....... question 4 from the form
+				// Question response keywords, eg.
+				// %response_123_q4% ... question 4 from form/section ID 123
+				// %response_q4% ....... question 4 from the form
 
-					if (empty($matches[1])) {
-						// One asset ID
-						$section_assetid = $this->id;
-						$question_assetid = $matches[2];
-					} else {
-						$section_assetid = str_replace('_', '', $matches[1]);
-						$question_assetid = $matches[2];
-					}
+				if (empty($matches[1])) {
+					// One asset ID
+					$section_assetid = $this->id;
+					$question_assetid = $matches[2];
+				} else {
+					$section_assetid = str_replace('_', '', $matches[1]);
+					$question_assetid = $matches[2];
+				}
 
-					$question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid.':q'.$question_assetid);
-					if (!empty($question_asset)) {
-						$replacement = $question_asset->getSummary();
-					}
+				$question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid.':q'.$question_assetid);
+				if (!empty($question_asset)) {
+					$replacement = $question_asset->getSummary();
+				}
 
 			}
 
 		}//end else - keyword list
+
+
+		// if replacement not found yet, see if it is not context specific
+		if ($replacement == '%'.$keyword.'%') {
+			$replacement = $this->getKeywordReplacement($keyword);
+		}
 
 		return $replacement;
 
