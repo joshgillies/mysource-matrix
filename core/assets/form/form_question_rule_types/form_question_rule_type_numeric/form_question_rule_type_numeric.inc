@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_numeric.inc,v 1.3 2005/10/07 00:01:25 lwright Exp $
+* $Id: form_question_rule_type_numeric.inc,v 1.3.4.1 2007/03/18 22:08:09 emcdonald Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -89,8 +89,13 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 
 		$operator = array_get_index($rule_data, 'operator', 1);
 
-		// regex code - allow leading plus or minute, digits, decimal point
-		$regex_code = '/^[-+]?\d*\.?\d+$/';
+		if (!$q_asset->attr('is_required')) {
+			// regex code - allow empty or leading plus or minute, digits, decimal point
+			$regex_code = '/(^$)|(^[-+]?\d*\.?\d+$)/';
+		} else {
+			// regex code - allow leading plus or minute, digits, decimal point, but not empty
+			$regex_code = '/^[-+]?\d*\.?\d+$/';
+		}
 
 		ob_start();			// buffer this please
 
