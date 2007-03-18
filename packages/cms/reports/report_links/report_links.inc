@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links.inc,v 1.9 2006/12/07 00:04:25 emcdonald Exp $
+* $Id: report_links.inc,v 1.9.2.1 2007/03/18 22:07:17 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -387,7 +387,7 @@ class Report_Links extends Report
 					if (!$link_details['valid']) {
 						if (!isset($asset_admins[$assetid])) {
 							// index admins id in array, so that we do not do that same work more than once
-							$asset_admins[$assetid] =  $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, SQ_PERMISSION_ADMIN, TRUE, FALSE, TRUE, FALSE, TRUE);
+							$asset_admins[$assetid] =  $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, SQ_PERMISSION_ADMIN, TRUE, FALSE, TRUE, FALSE, FALSE);
 						}
 						$msg_reps['link'] = $link_details['html'];
 						$msg_reps['description'] = $link_details['description'];
