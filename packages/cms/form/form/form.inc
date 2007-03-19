@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.156 2007/03/18 23:20:34 arailean Exp $
+* $Id: form.inc,v 1.157 2007/03/19 01:06:19 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.156 $
+* @version $Revision: 1.157 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -115,7 +115,7 @@ class Form extends Asset
 	*/
 	function _createSubmissionsFolder()
 	{
-		$existing = $this->_getSubmissionsFolder();
+		$existing =& $this->getSubmissionsFolder();
 		if (!empty($existing)) return TRUE;
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 		$folder =& new Folder();
@@ -145,9 +145,9 @@ class Form extends Asset
 	* Get the submissions folder
 	*
 	* @return object
-	* @access protected
+	* @access public
 	*/
-	function &_getSubmissionsFolder()
+	function &getSubmissionsFolder()
 	{
 		$res = NULL;
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'submissions_folder');
@@ -156,7 +156,7 @@ class Form extends Asset
 		}
 		return $res;
 
-	}//end _getSubmissionsFolder()
+	}//end getSubmissionsFolder()
 
 
 	/**
@@ -1972,7 +1972,7 @@ class Form extends Asset
 
 		// create the form submission asset
 		$submission =& new Form_Submission();
-		$submissions_folder =& $this->_getSubmissionsFolder();
+		$submissions_folder =& $this->getSubmissionsFolder();
 		if (is_null($submissions_folder)) {
 			trigger_localised_error('CMS0069', E_USER_WARNING);
 			$null = NULL;

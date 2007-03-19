@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.79 2007/03/19 00:44:39 tbarrett Exp $
+* $Id: form_email_edit_fns.inc,v 1.80 2007/03/19 01:06:19 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -160,7 +160,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 						ON l.minorid = a.assetid';
 
-		$sub_folder = $asset->_getSubmissionsFolder();
+		$sub_folder =& $asset->getSubmissionsFolder();
 		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).', '.$GLOBALS['SQ_SYSTEM']->db->quote($sub_folder->id).')
 					AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').'
 					AND a.created BETWEEN '.db_extras_todate($GLOBALS['SQ_SYSTEM']->db, $from_value).'
