@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.10 2006/12/06 00:04:01 bcaldwell Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.11 2007/03/19 04:57:21 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,8 +76,13 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 				case 'asset_attribute_serialise' :
 				case 'asset_attribute_parameter_map' :
 				case 'asset_attribute_email_format' :
-					// set $value to be the contents of the array
-					eval('$value = '.$value);
+					if (Trigger_Action_Set_Attribute_Value::_safeToEval($value)) {
+						// set $value to be the contents of the array
+						eval('$value = '.$value.';');
+					} else {
+						trigger_localised_error('TRIG0003', E_USER_WARNING);
+						return FALSE;
+					}
 				break;
 			}
 		}
@@ -99,6 +104,30 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 			   );
 
 	}//end execute()
+
+
+	/**
+	* Returns true if the passed string is safe to run through eval
+	*
+	* A string is safe if it contains only digits, quoted strings, the 'array' keyword and punctuation
+	*
+	* @param string	$str	The string to evaluate
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _safeToEval($str)
+	{
+		// first check the value contains only allowable components
+		$allowed_expressions = Array('array', '(', ')', '=>', ',', ';');
+		$reduced_value = str_replace($allowed_expressions, '', strtolower($str));
+		$reduced_value = preg_replace('/\d/', '', $reduced_value); // digits are ok
+		$reduced_value = preg_replace('/"([^"]*)"/', '', $reduced_value); // double-quoted strings are ok
+		$reduced_value = preg_replace("/'([^']*)'/", '', $reduced_value); // single-quoted strings are ok
+		$reduced_value = trim($reduced_value);
+		return empty($reduced_value);
+
+	}//end _safeToEval()
 
 
 	/**
@@ -196,12 +225,25 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 		$settings['attribute'] = array_get_index($request_data, 'attribute', '');
 		$settings['value'] = array_get_index($request_data, 'value', '');
 
-		// sanity checking
-		$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($settings['asset_type'], Array('name'));
-		$attribute = array_get_index($settings, 'attribute', '');
-		if ($attribute != '' && !in_array($attribute, $attrs)) {
-			// unset selected attribute if it is not found for the selected asset type
-			$settings['attribute'] = '';
+		if (!empty($settings['attribute']) && !empty($settings['asset_type'])) {
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($settings['asset_type']);
+			$dummy_asset =& new $settings['asset_type'];
+			$attr =& $dummy_asset->getAttribute($settings['attribute']);
+			if (is_null($attr)) {
+				// selected asset type does not have an attribute with the selected name, so reset
+				$settings['attribute'] = '';
+			}
+
+			switch (get_class($attr)) {
+				case 'asset_attribute_serialise' :
+				case 'asset_attribute_parameter_map' :
+				case 'asset_attribute_email_format' :
+					if (!Trigger_Action_Set_Attribute_Value::_safeToEval($settings['value'])) {
+						trigger_localised_error('TRIG0002', E_USER_NOTICE);
+						$settings['value'] = '';
+					}
+				break;
+			}
 		}
 
 		return FALSE;
