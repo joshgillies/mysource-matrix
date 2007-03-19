@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.61 2006/12/18 03:57:05 rong Exp $
+* $Id: bulk_mailer.inc,v 1.62 2007/03/19 02:45:10 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -703,9 +703,7 @@ class Bulk_Mailer
 				string_to_file($content, $job_path.'/cache/content_file.html');
 			}
 		}
-
 		$content = Bulk_Mailer::replaceContentKeywords($content, $replaceUser);
-
 		// Restore the old user again
 		$GLOBALS['SQ_SYSTEM']->setCurrentUser($current_user);
 
@@ -734,13 +732,18 @@ class Bulk_Mailer
 		foreach ($keywords as $word) {
 			if (0 === strpos($word, 'recipient_')) {
 				$user_keyword = substr($word, 10);
-				$keyword_replacements[$word] = $user->getKeywordReplacement($user_keyword);
+				$user_replacement = $user->getKeywordReplacement($user_keyword);
+				if ($user_replacement == "%$user_keyword%") {
+					// Unknown user keyword, do not replace
+					$keyword_replacements[$word] = "%$word%";
+				} else {
+					$keyword_replacements[$word] = $user_replacement;
+				}
 			} else {
 				$keyword_replacements[$word] = '';
 			}
 		}
 		replace_keywords($content, $keyword_replacements);
-
 		return $content;
 
 	}//end replaceContentKeywords()
