@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.157 2007/03/19 01:06:19 tbarrett Exp $
+* $Id: form.inc,v 1.158 2007/03/19 05:19:35 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.157 $
+* @version $Revision: 1.158 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1184,7 +1184,7 @@ class Form extends Asset
 				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 				$q_name = $q_asset->attr('name');
 				$replacements['question_field_'.$this->id.'_q'.$q_id] = $q_asset->getHtmlField();
-				$replacements['question_id_'.$question->id.'_q'.$q_id] = 'q'.$this->id.'_q'.$q_id;
+				$replacements['question_id_'.$this->id.'_q'.$q_id] = 'q'.$this->id.'_q'.$q_id;
 				$replacements['question_note_'.$this->id.'_q'.$q_id] = $q_asset->attr('note');
 				$replacements['question_label_'.$this->id.'_q'.$q_id] = $q_asset->getHtmlLabel();
 			}
