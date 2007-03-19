@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_management.inc,v 1.6 2007/02/20 03:51:55 arailean Exp $
+* $Id: form_ecommerce_management.inc,v 1.7 2007/03/19 01:05:41 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -41,30 +41,129 @@ class Form_Ecommerce_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-						'rules'					=> Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'serialise',
-													'default'	=> Array(),
-													'update_fn'	=> '',
-												   ),
-						'gateway_assetid'		=> Array(
-													'added'			=> '0.1',
-													'type'			=> 'assetid',
-													'default'		=> '',
-													'description'	=> 'Gateway Asset that will process the e-commerce transaction',
-												   ),
-						'confirm_button_name'	=> Array(
-													'added'			=> '0.1',
-													'type'			=> 'text',
-													'default'		=> 'Confirm and proceed to payment',
-													'description'	=> 'Name of the button for confirming the order',
-												   ),
-						'cancel_button_name'	=> Array(
-													'added'			=> '0.1',
-													'type'			=> 'text',
-													'default'		=> 'Go back to form',
-													'description'	=> 'Name of the button for cancellig the order',
-												   ),
+						'rules'						=> Array(
+														'added'		=> '0.0.1',
+														'type'		=> 'serialise',
+														'default'	=> Array(),
+														'update_fn'	=> '',
+													   ),
+						'gateway_assetid'			=> Array(
+														'added'			=> '0.1',
+														'type'			=> 'assetid',
+														'default'		=> '',
+														'description'	=> 'Gateway Asset that will process the e-commerce transaction',
+													   ),
+						'confirm_button_name'		=> Array(
+														'added'			=> '0.1',
+														'type'			=> 'text',
+														'default'		=> 'Confirm and proceed to payment',
+														'description'	=> 'Name of the button for confirming the order',
+													   ),
+						'cancel_button_name'		=> Array(
+														'added'			=> '0.1',
+														'type'			=> 'text',
+														'default'		=> 'Go back to form',
+														'description'	=> 'Name of the button for cancellig the order',
+													   ),
+						'tax_value'					=> Array(
+														'added'			=> '0.2',
+														'type'			=> 'int',
+														'default'		=> 0,
+														'parameters'	=> Array(
+																			'allow_empty'		=> FALSE,
+																			'allow_negative'	=> FALSE,
+																			'range_lower'		=> 0,
+																			'range_upper'		=> 100,
+																		   ),
+													   ),
+						'tax_name'					=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '',
+													   ),
+						'taxable_rules'				=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'serialise',
+														'default'	=> Array(),
+													   ),
+						'item_format'				=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '<div>%item_name% -- $%item_price%</div>',
+													   ),
+						'item_taxable_string'		=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '*',
+													   ),
+						'asset_price_source'		=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '',
+													   ),
+						'asset_taxable_source'		=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '',
+													   ),
+						'asset_name_source'			=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '%asset_name%',
+													   ),
+						'form_assets_format'		=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '%item_format%',
+													   ),
+						'form_assets_empty_str'		=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '',
+													   ),
+						'log_to_file'				=> Array(
+														'added'			=> '0.2',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+													   ),
+						'log_asset_item_format'		=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '',
+													   ),
+						'log_question_item_format'	=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '',
+													   ),
+						'log_item_block_format'		=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '',
+													   ),
+						'log_entry_format'			=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '',
+													   ),
+						'form_asset_format'			=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '<div>%item_name% -- $%item_price%</div>',
+													   ),
+						'form_asset_list_format'	=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '',
+													   ),
+						'item_request_var_name'		=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> 'add_to_order',
+													   ),
 					  );
 
 	}//end constructor

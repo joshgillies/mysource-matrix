@@ -1,0 +1,47 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_formatting.xml,v 1.1 2007/03/19 01:05:41 arailean Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="General" write_access="write:attributes" >
+		<field attribute="item_taxable_string">
+			<display_name>Taxable Item String</display_name>
+			<text width="40" height="1" />
+			<note>If the item is taxable, %taxable_item_string% keyword will contain this value. If item is not taxable, the value will be empty.</note>
+		</field>
+	</section>
+	<section name="Form View" write_access="write:attributes" >
+		<field attribute="form_asset_list_format">
+			<display_name>Asset List Format</display_name>
+			<text width="60" height="10" />
+		</field>
+		<field attribute="form_asset_format">
+			<display_name>Individual Asset Format</display_name>
+			<text width="60" height="4" />
+		</field>
+	</section>
+	<section name="Confirmation and Receipt View" write_access="write:attributes" >
+		<field attribute="form_assets_format">
+			<display_name>Form Assets Format</display_name>
+			<text width="60" height="10" />
+		</field>
+		<field attribute="item_format">
+			<display_name>Item Format</display_name>
+			<text width="60" height="10" />
+			<note>This specifies the formatting of each ecom item printed by the %order_item_list% keyword on the Confirmation and Receipt views. This format can use the following keywords: %item_name%, %item_price%, %taxable_item_string%</note>
+		</field>
+	</section>
+</contents>

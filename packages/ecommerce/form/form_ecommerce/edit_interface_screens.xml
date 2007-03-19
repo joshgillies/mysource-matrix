@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.4 2006/12/07 05:26:29 bcaldwell Exp $
+* $Id: edit_interface_screens.xml,v 1.5 2007/03/19 01:05:41 arailean Exp $
 *
 */
 -->
@@ -18,7 +18,7 @@
 <screens>
 	<screen code_name="ecommerce_rules" display_name="Ecommerce Rules" icon="web" force_unlock="0" />
 	<screen code_name="contents" display_name="Form Contents" icon="web" force_unlock="0" />
-	<screen code_name="recipient" display_name="Email Options" icon="web" />
-	<screen code_name="selective_emails" display_name="Selective Emails" icon="web"  force_unlock="0"  />
-	<screen code_name="log" display_name="Submission Logs" icon="web" force_unlock="0"  />
+	<screen code_name="email" display_name="Email Options" icon="web" />
+	<screen code_name="formatting" display_name="Display Formatting" force_unlock="0" limbo_access="0"  />
+	<screen code_name="order_logging" display_name="Order Logging" force_unlock="0" limbo_access="0"  />
 </screens>

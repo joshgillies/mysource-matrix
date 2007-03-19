@@ -10,16 +10,28 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_ecommerce_rules.xml,v 1.6 2007/03/19 01:05:41 arailean Exp $
+* $Id: edit_interface_screen_formatting.xml,v 1.1 2007/03/19 01:05:41 arailean Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Ecommerce Questions">
-		<function_call>
-			<paint_function   name="paintEcommerceQuestionLinks"   />
-			<process_function name="processEcommerceQuestionLinks" />
-		</function_call>
+	<section name="General" write_access="write:attributes" >
+		<field attribute="item_taxable_string">
+			<text width="20" height="1" />
+		</field>
+	</section>
+	<section name="Form View" write_access="write:attributes" >
+		<field attribute="form_asset_list_format">
+			<text width="60" height="10" />
+		</field>
+		<field attribute="form_asset_format">
+			<text width="60" height="4" />
+		</field>
+	</section>
+	<section name="Confirmation and Receipt View" write_access="write:attributes" >
+		<field attribute="item_format">
+			<text width="60" height="4" />
+		</field>
 	</section>
 </contents>

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2007/02/27 00:57:44 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2007/03/19 01:05:41 arailean Exp $
 *
 */
 -->
@@ -32,6 +32,28 @@
 	<section name="Payment Gateway">
 		<field write_access="write:attributes"  attribute="gateway_assetid">
 			<assetid type_codes="payment_gateway:D" />
+		</field>
+	</section>
+	<section name="Taxation" write_access="write:attributes">
+		<field attribute="tax_name">
+			<text width="10" height="1" />
+		</field>
+		<field attribute="tax_value">
+			<int width="3" />
+		</field>
+	</section>
+	<section name="Asset Purchase" write_access="write:attributes" >
+		<field attribute="item_request_var_name">
+			<text width="20" height="1" />
+		</field>
+		<field attribute="asset_price_source">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="asset_taxable_source">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="asset_name_source">
+			<text width="40" height="1" />
 		</field>
 	</section>
 	<section name="Generate Report">

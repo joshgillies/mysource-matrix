@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_edit_fns.inc,v 1.9 2006/12/07 05:26:29 bcaldwell Exp $
+* $Id: form_ecommerce_edit_fns.inc,v 1.10 2007/03/19 01:05:41 arailean Exp $
 *
 */
 
@@ -28,156 +28,155 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 {
 
+
+	/**
+	* Paint the bodycopy selection interface
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintUseBodycopy(&$asset, &$o, $prefix)
+	{
+		$bodycopies = $asset->_bodycopies;
+		foreach ($bodycopies as $one_bodycopy) {
+			echo $one_bodycopy;
+			echo '<br />';
+		}
+
+	}//end paintUseBodycopy()
+
+
+	/**
+	* Process the bodycopy selection interface
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processUseBodycopy(&$asset, &$o, $prefix)
+	{
+		return TRUE;
+
+	}//end processUseBodycopy()
+
+
 	/**
 	* Paint e-commerce rules selector
 	*
-	* @access public
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
 	* @return boolean
+	* @access public
 	*/
 	function paintEcommerceQuestionLinks(&$asset, &$o, $prefix)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$write_access = $asset->writeAccess('attributes');
 
-		// obtain a list of all the questions in this form
-		$all_questions = Array();
+		$o->openRaw();
 
-		$questions = $asset->attr('questions');
-		if (!empty($questions)) {
-			foreach ($questions as $q_id => $question) {
-				// if the type is allowed, add it to the list
-				if ($asset->_isAllowedQuestionType($question['question_type_code'])) {
-					$id = $asset->id.':q'.$q_id;
-					$all_questions[$id]['name'] = $question['attributes']['name'];
-					// determine if this question is in our list
-					if ($asset->_getEcommerceRule($id) !== false) {
-						$all_questions[$id]['selected'] = true;
-					} else {
-						$all_questions[$id]['selected'] = false;
+		echo '<table class="sq-backend-table">';
+		echo '<tr>';
+		echo '<th>Question Name</th>';
+		echo '<th>Ecom Enabled?</th>';
+		echo '<th>Is Taxable?</th>';
+		echo '<th>Options</th>';
+		echo '</tr>';
+
+		$all_form_questions = $asset->getAllQuestions();
+		$taxable_rules = $asset->attr('taxable_rules');
+
+		foreach ($all_form_questions as $q_id => $question_data) {
+			if (!$asset->_isAllowedQuestionType($question_data['question_type_code'])) {
+				continue;
+			}
+
+			$rule = $asset->_getEcommerceRule($q_id);
+			$ecom_enabled = ($rule !== FALSE);
+
+			echo '<tr>';
+			echo '<td>';
+			echo $question_data['attributes']['name'];
+			echo '</td>';
+			echo '<td>';
+			$ecom_enabled_prefix = $prefix.'_ecom_enabled['.$q_id.']';
+			check_box($ecom_enabled_prefix, $q_id, $ecom_enabled);
+			echo '</td>';
+			echo '<td>';
+			$taxable = array_get_index($taxable_rules, $q_id, FALSE);
+			$taxable_prefix = $prefix.'_taxable['.$q_id.']';
+			check_box($taxable_prefix, $q_id, $taxable);
+			echo '</td>';
+			echo '<td>';
+			if ($ecom_enabled) {
+				$question =& $am->getAsset($q_id);
+				if ($question->isSelection()) {
+					echo '<table class="sq-backend-table">';
+					$options = $question->getOptions();
+					$local_prefix = $prefix.'_ecom_rule['.$q_id.']';
+					foreach ($options as $key => $option_text) {
+						echo '<tr>';
+						$rule_value = array_get_index($rule, $key, 0);
+						echo '<td class="sq-backend-table-header" nowrap="nowrap">';
+						echo $option_text;
+						echo '</td>';
+						echo '<td class="sq-backend-table-cell" width="100%">';
+						text_box($local_prefix.'['.$key.']', $rule_value, 5);
+						echo '</td>';
+						echo '</tr>';
 					}
+					echo '</table>';
+				} else {
+					echo translate('ecom_form_numeric_field');
 				}
-			}
-		}
 
-		// now get the questions inside each of the sections
-		$sections = $asset->getSections();
-		foreach ($sections as $section) {
-			$questions = $section->attr('questions');
-			if (!empty($questions)) {
-				foreach ($questions as $q_id => $question) {
-					// if the type is allowed, add it to the list
-					if ($asset->_isAllowedQuestionType($question['question_type_code'])) {
-						$id = $section->id.':q'.$q_id;
-						$all_questions[$id]['name']  = $question['attributes']['name'];
-						// determine if this question is in our list
-						if ($asset->_getEcommerceRule($id) !== false) {
-							$all_questions[$id]['selected'] = true;
-						} else {
-							$all_questions[$id]['selected'] = false;
-						}
-					}
-				}
-			}
-		}
-
-		$rule_list_name   = $prefix.'_LIST';
-		$active_rule_name = $prefix.'_ACTIVE';
-
-		$datapath = sq_web_path('data').'/asset_types/form_ecommerce/files';
-
-		if ($write_access) {
-			$to_output =
-			'<script src="'.$datapath.'/lister.js"></script>'."\n".
-			'	<table border="0" cellpadding="0" cellspacing="0">'."\n".
-			'		<tr>'."\n".
-			'			<td>'."\n".
-			'				<select id="QuestionList" multiple="multiple" ondblclick="List.From2To();" style="width:200px;height:100px"></select>'."\n".
-			'			</td>'."\n".
-			'			<td>'."\n".
-			'				<input type="button" value="&raquo;" onclick="List.From2To();" />'."\n".
-			'				<br />'."\n".
-			'				<input type="button" value="&laquo;" onclick="List.To2From();" />'."\n".
-			'			</td>'."\n".
-			'			<td>'."\n".
-			'				<select multiple id="'.$active_rule_name.'" name="'.$active_rule_name.'" onblur="List.Clear();" ondblclick="List.To2From();" style="width:200px;height:100px"></select>'."\n".
-			'				<select multiple id="'.$rule_list_name.'[]" name="'.$rule_list_name.'[]" style="visibility:hidden;position:absolute;left:0px;top:0px;"></select>'."\n".
-			'			</td>'."\n".
-			'			<td>'."\n".
-			'				<input type="submit" value="'.translate('ecom_form_edit_selection').'" />'."\n".
-			'			</td>'."\n".
-			'		</tr>'."\n".
-			'	</table>'."\n".
-			'<input id="bull" type="hidden" value="&bull; " />'."\n".
-			'<script>'."\n".
-			'	var List = new Lister("QuestionList", "'.$active_rule_name.'", "'.$rule_list_name.'[]");'."\n";
-
-			foreach ($all_questions as $qid => $qattr)
-			{
-				$to_output .= '	List.addOption("'.$qid.'","'.$qattr['name'].'",'.(($qattr['selected'])?'true':'false').');'."\n";
-			}
-			$to_output .= '	List.process();</script>'."\n";
-		} else {
-			$to_output = '';
-			foreach ($all_questions as $qid => $qattr)
-			{
-				if ($qattr['selected']) $to_output .= $qattr['name']."<br />\n";
-			}
-		}
-
-		echo $to_output;
-
-		// select new rule to edit
-		$rule_fields_name = $prefix.'_FIELDS';
-		$rule_edited_name = $prefix.'_EDITED';
-
-		$edited_rule_id   = array_get_index($_REQUEST, $rule_edited_name, false);
-		$active_rule_id   = array_get_index($_REQUEST, $active_rule_name, $edited_rule_id);
-
-		if ($active_rule_id && (($rule = $asset->_getEcommerceRule($active_rule_id)) !== false)) {
-			$question = $am->getAsset($active_rule_id);
-			$edit_form = '<div>';
-			if ($question->isSelection()) {
-				$edit_form .= '<h3>'.translate('ecom_form_currency_for_question', $question->attr('name')).'</h3>';
-				$edit_form .= '<table class="sq-backend-table">';
-				$options = $question->getOptions();
-				foreach ($options as $key => $option_text) {
-					$rule_value = array_get_index($rule, $key, 0);
-					$edit_form .= '<tr>';
-					$edit_form .= '<td class="sq-backend-table-header" nowrap="nowrap">'.$option_text.'</td>';
-					$edit_form .= '<td class="sq-backend-table-cell" width="100%"><input type="text" name="'.$rule_fields_name.'['.$key.']" value="'.$rule_value.'" size="5" /></td>';
-					$edit_form .= '</tr>';
-				}
-				$edit_form .= '</table>';
-				$edit_form .= '<input type="hidden" name="'.$rule_edited_name.'" value="'.$active_rule_id.'" />';
+				$am->forgetAsset($question);
 			} else {
-				$edit_form = translate('ecom_form_numeric_field');
+				echo '<em style="color: grey;">E-commerce support for this question is not enabled</em>';
 			}
-			$edit_form .= '</div>';
+			echo '</td>';
+			echo '</tr>';
+		}//end foreach
 
-			echo $edit_form;
-		}
+		echo '</table>';
+
+		$o->closeRaw();
 
 		return $write_access;
 
 	}//end paintEcommerceQuestionLinks()
 
+
 	/**
-	* Assign setted rules to form's questions
+	* process e-commerce rules selector
 	*
-	* @access public
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
 	* @return boolean
+	* @access public
 	*/
 	function processEcommerceQuestionLinks(&$asset, &$o, $prefix)
 	{
 		// process the new rule list
-		$rule_list_name   = $prefix.'_LIST';
+		$rule_list_name   = $prefix.'_ecom_enabled';
 		$rule_list        = array_get_index($_REQUEST, $rule_list_name);
 
 		$new_rule_list = Array();
@@ -194,70 +193,88 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 				// add the rule to the new list
 				$new_rule_list[$id] = $new_rule;
 			}
-
 		}
 
-		// save the new rule list. this makes sure that unneeded rules are deleted
-		// because they are not copied over to the new list
 		$asset->setAttrValue('rules', $new_rule_list);
 
-		// commit changes to the rule
-		$rule_fields_name = $prefix.'_FIELDS';
-		$rule_fields  = array_get_index($_REQUEST, $rule_fields_name);
+		$rule_settings = array_get_index($_REQUEST, $prefix.'_ecom_rule', Array());
 
-		$rule_edited_name = $prefix.'_EDITED';
-		$rule_id = array_get_index($_REQUEST, $rule_edited_name);
+		foreach ($rule_settings as $q_id => $rule) {
+			$asset->_setEcommerceRule($q_id, $rule);
+		}
 
-		$asset->_setEcommerceRule($rule_id, $rule_fields);
+		$taxable = array_get_index($_REQUEST, $prefix.'_taxable', Array());
+		$asset->setAttrValue('taxable_rules', $taxable);
 
-		return true;
+		return TRUE;
 
 	}//end processEcommerceQuestionLinks()
 
 
-	 //temp draw-up just for future notice
-	 function paintExport(&$asset, &$o, $prefix)
-	 {
-		 if (!$asset->writeAccess('attributes')) return false;
-		 if (array_get_index($_POST, $prefix.'_export_switch', 0) == 1) $this->processExport($asset, $o, $prefix);
+	/**
+	* Paint export interface
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintExport(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return FALSE;
+		if (array_get_index($_POST, $prefix.'_export_switch', 0) == 1) {
+			$this->processExport($asset, $o, $prefix);
+		}
 
-		 //paint option goes here
-		 echo hidden_field($prefix.'_export_switch', '0');
+		// paint option goes here
+		echo hidden_field($prefix.'_export_switch', '0');
 
-		 echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
+		echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
 
-		 return true;
+		return TRUE;
 
-	 }//end paintExport()
+	}//end paintExport()
 
 
-	 function processExport(&$asset, &$o, $prefix)
-	 {
-		 if (!$_POST[$prefix.'_export_switch']) return true;
+	/**
+	* Process export interface
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processExport(&$asset, &$o, $prefix)
+	{
+		if (!$_POST[$prefix.'_export_switch']) return TRUE;
 
-		 //begin and populate order object
-		 header('Content-Type: application/xml');
+		// begin and populate order object
+		header('Content-Type: application/xml');
 
-		 // defining the file as attachment forces most browsers to offer it for download
-		 header('Content-Disposition: attachment; filename=order-summary-'.$asset->id.'.xml;');
+		// defining the file as attachment forces most browsers to offer it for download
+		header('Content-Disposition: attachment; filename=order-summary-'.$asset->id.'.xml;');
 
-		 echo '<orders>'."\n";
+		echo '<orders>'."\n";
 
-		 //get each order
-		 $children_id = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'order', false);
+		// get each order
+		$children_id = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'order', FALSE);
 
-		 foreach ($children_id as $child_id => $assettype) {
-			//retrieve asset with this id
+		foreach ($children_id as $child_id => $assettype) {
+			// retrieve asset with this id
 			echo "\t".'<order id="'.$child_id.'">'."\n";
 
-			//get this orders children
-			$order_lines = $GLOBALS['SQ_SYSTEM']->am->getChildren($child_id, 'order_line', false);
+			// get this orders children
+			$order_lines = $GLOBALS['SQ_SYSTEM']->am->getChildren($child_id, 'order_line', FALSE);
 
 			foreach ($order_lines as $line_id => $assettype) {
 
 				$child =& $GLOBALS['SQ_SYSTEM']->am->getAsset($line_id);
 
-				//extract name quantity price etc
+				// extract name quantity price etc
 				?>
 		<order_line id="<?php echo $child_id ?>">
 			<product id="<?php echo $child->attr('product_assetid'); ?>"></product>
@@ -269,14 +286,42 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 
 			echo "\t".'</order>'."\n";
 
-		 }
+		}
 
-		 echo '</orders>'."\n";
-		 exit(0);
+		echo '</orders>'."\n";
+		exit(0);
 
-		 return true;
+		return TRUE;
 
-	 }//end processExport()
+	}//end processExport()
+
+
+	/**
+	* Paint log file info interface
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLogFileInfo(&$asset, &$o, $prefix)
+	{
+		$log_file = $asset->_getLogFilePath();
+		if (is_readable($log_file)) {
+			$last_modified = filemtime($log_file);
+			$file_size = filesize($log_file);
+			echo 'Filename: <strong>'.$log_file.'</strong>';
+			echo '<br />';
+			echo 'Last Modified: <strong>'.date('r', $last_modified).'</strong>';
+			echo '<br />';
+			echo 'Size: <strong>'.$file_size.'</strong>B';
+		} else {
+			echo 'Log file does not exist';
+		}
+
+	}//end paintLogFileInfo()
 
 
 }//end class

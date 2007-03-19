@@ -1,0 +1,43 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_order_logging.xml,v 1.1 2007/03/19 01:05:41 arailean Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Log To File">
+		<field attribute="log_to_file">
+			<boolean true_text="enabled" false_text="disabled" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function	 name="paintLogFileInfo" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Log File Formatting" write_access="write:attributes" >
+		<field attribute="log_asset_item_format">
+			<text width="60" height="4" />
+		</field>
+		<field attribute="log_question_item_format">
+			<text width="60" height="4" />
+		</field>
+		<field attribute="log_item_block_format">
+			<text width="60" height="10" />
+		</field>
+		<field attribute="log_entry_format">
+			<text width="60" height="15" />
+		</field>
+	</section>
+</contents>

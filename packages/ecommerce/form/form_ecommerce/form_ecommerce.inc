@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.23 2007/01/08 03:27:17 emcdonald Exp $
+* $Id: form_ecommerce.inc,v 1.24 2007/03/19 01:05:41 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -42,7 +42,7 @@ class Form_Ecommerce extends Form_Email
 	* confirm view request index ($_REQUEST['view_name'])
 	* @var string
 	*/
-	var $confirm_view = 'confirm';
+	var $confirm_view = 'confirmation';
 
 	/**
 	* process view index
@@ -55,6 +55,12 @@ class Form_Ecommerce extends Form_Email
 	* @var string
 	*/
 	var $receipt_view = 'receipt';
+
+	/**
+	* list of bodycopies
+	* @var array
+	*/
+	var $_bodycopies = Array('Form', 'Confirmation', 'Receipt');
 
 
 	/**
@@ -71,15 +77,37 @@ class Form_Ecommerce extends Form_Email
 
 
 	/**
-		* Returns an array of all the permitted link type, the type asset and
-	 * the cardinality
-	 *
-	 * @see Asset::_getAllowLinks()
-	 * @access private
-	 */
+	* Creates the necessary bodycopies
+	*
+	* @param array	$link	link
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _createAdditional($link)
+	{
+		$result = TRUE;
+		foreach ($this->_bodycopies as $bodycopy) {
+			$result = $result && $this->createBodycopy($bodycopy);
+		}
+
+		return $result;
+
+	}//end _createAdditional()
+
+
+	/**
+	* Returns an array of all the permitted link type, the type asset and
+	* the cardinality
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
 	function _getAllowedLinks()
 	{
 		$order_links = parent::_getAllowedLinks();
+		$order_links[SQ_LINK_TYPE_2]['folder'] = Array('card' => 'M');
 		$order_links[SQ_LINK_TYPE_3]['order'] = Array('card' => 'M');
 		return $order_links;
 
@@ -89,10 +117,10 @@ class Form_Ecommerce extends Form_Email
 	/**
 	* Check if question type can be used for e-commerce
 	*
-	* @param string $type	question type code
+	* @param string	$type	question type code
 	*
+	* @return boolean
 	* @access public
-	* @return true
 	*/
 	function _isAllowedQuestionType($type='')
 	{
@@ -102,10 +130,10 @@ class Form_Ecommerce extends Form_Email
 			case('form_question_type_option_list'):
 			case('form_question_type_tickbox_list'):
 			case('form_question_type_tickbox_table'):
-				return true;
+				return TRUE;
 
 			default:
-				return false;
+				return FALSE;
 		}
 
 	}//end _isAllowedQuestionType()
@@ -114,16 +142,16 @@ class Form_Ecommerce extends Form_Email
 	/**
 	* Return question rule for e-commerce form
 	*
-	* @param string $name	question type code
+	* @param string	$name	question type code
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function _getEcommerceRule($name='')
 	{
 		// get e-commerce rules
 		$e_questions = $this->attr('rules');
-		$result = array_get_index($e_questions, $name, false);
+		$result = array_get_index($e_questions, $name, FALSE);
 		return $result;
 
 	}//end _getEcommerceRule()
@@ -132,22 +160,22 @@ class Form_Ecommerce extends Form_Email
 	/**
 	* Save one rule
 	*
-	* @param string $name	rule name - question id
-	* @param mixed $value	rule contents
+	* @param string	$name	rule name - question id
+	* @param mixed	$value	rule contents
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _setEcommerceRule($name, $value)
 	{
 		$rules = $this->attr('rules');
 
-		if (!isset($rules[$name])) return false;
+		if (!isset($rules[$name])) return FALSE;
 
 		$rules[$name] = $value;
 		$this->setAttrValue('rules', $rules);
 
-		return true;
+		return TRUE;
 
 	}//end _setEcommerceRule()
 
@@ -158,98 +186,416 @@ class Form_Ecommerce extends Form_Email
 	* This function determines what action to take next, based on the various
 	* request parameters and statuses of various actions
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function printStandard()
 	{
 		$prefix = $this->getPrefix();
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// check to see if the form has been submitted or not
+		$action = array_get_index($_REQUEST, $prefix.'_action');
 		if (isset($_REQUEST[$prefix.'_submit'])) {
-			$action = array_get_index($_REQUEST, $prefix.'_action', $this->confirm_view);
+			if ($this->processForm() && empty($action)) {
+				$action = $this->confirm_view;
+			}
+		}
 
-			// determine which view to display
-			switch ($action) {
+		$request_var_name = $this->attr('item_request_var_name');
+		if (empty($action) && isset($_REQUEST[$request_var_name])) {
+			$action = 'add_to_cart';
+		}
 
-				// receipt view: after the gateway has processed payment and redirected back to us
-				// here we need to display the receipt and do the logging, etc
-				case ($this->receipt_view):
-					// check for response from the payment gateway
-					$response = array_get_index($_SESSION, 'SQ_ECOM_RESPONSE', false);
-					if (!$response) {
-						// no response: we've either been here already - user has seen the receipt
-						// or someone has used an invalid url
-						break;
-					}
+		// determine which view to display
+		switch ($action) {
+			case ('add_to_cart'):
+				// MAYBE: Convert to parameter map
+				if ($request_var_name == '') break;
 
-					unset($_SESSION['SQ_ECOM_RESPONSE']);
-					$this->_tmp['GATEWAY_RESPONSE'] = $response;
+				$item = @$_REQUEST[$request_var_name];
+				if (is_null($item)) break;
 
-					// this function is reponsible for doing business logic related to finalizing the
-					// e-commerce transaction: e-mailing, logging and display
-					$this->_processReceipt();
+				$asset =& $am->getAsset($item);
+				if (!$this->_isPurchasableAsset($asset)) {
+					trigger_error('This item cannot be purchased', E_USER_NOTICE);
+					break;
+				}
+				$am->forgetAsset($asset);
 
-					// re-populate the active submissions
-					$this->repopulate();
-					$this->emailAndLog();
-					$this->finishForm();
-					return true;
+				// can only buy one of each item
+				$quantity = 1;
+				$item_count = array_get_index($_SESSION[$prefix]['items'], $item, 0);
+				if ($item_count && FALSE && '//TODO: Allow Multiple //This always fails') {
+					$item_count += $quantity;
+				} else {
+					$item_count = $quantity;
+				}
+				$_SESSION[$prefix]['items'][$item] = $item_count;
 
-				break;
+				header('Location: '.$this->getUrl());
+				return TRUE;
 
-				// confirm view: after the form has been filled out it needs
-				// to be processed and confirmation displayed
-				case ($this->confirm_view):
-				default:
+			break;
 
-					// check if there were errors in the input
-					if (!$this->processForm()) {
-						break; // re-display the form
-					} else {
 
-						// this function handles the business logic for preparing the order,
-						// displaying the confirmation and calling the gateway
-						$this->_processOrder();
+			// confirm view: after the form has been filled out it needs
+			// to be processed and confirmation displayed
+			case ($this->confirm_view):
+				// update order with ecom options
 
-						$this->finishForm();
-						return true;
-					}
-			}//end switch
+				$this->_makeOrder();
+				$this->_saveOrder();
+				// we prepare payment processing stuff here instead of in 'process' view
+				// because we might want to nest the payment gateway on this screen
+				// so we need all data to be available to it on this view
+				// side effect of this is that it makes the 'process' view unnecessary if the gateway is nested
+				$order = $this->_tmp['order'];
+				$action_name = $this->getPrefix().'_action';
 
-		}//end if
+				$_SESSION['SQ_ECOM_SUCCESS_URL'] = $this->getURL().'?'.$action_name.'='.$this->receipt_view;
+				$_SESSION['SQ_ECOM_CANCEL_URL'] = $this->getURL().'?'.$action_name.'='.$this->confirm_view;
+				$_SESSION['SQ_ECOM_REF_NO'] = session_id();
+				$_SESSION['SQ_ECOM_AMOUNT'] = $order['total'];
+
+				$this->printConfirmationView();
+				return TRUE;
+			break;
+
+
+			case ('process'):
+				// update the total just in case someone is trying to be tricky
+				$order = $this->_tmp['order'];
+				$_SESSION['SQ_ECOM_AMOUNT'] = $order['total'];
+
+				$gateway = $this->attr('gateway_assetid');
+				if (empty($gateway)) {
+					trigger_error('Payment Gateway not configured. Cannot proceed.', E_USER_NOTICE);
+					$this->printConfirmationView();
+					return TRUE;
+				}
+
+				$gateway = $this->attr('gateway_assetid');
+				$gateway_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($gateway);
+				$gateway_asset_url = $gateway_asset->getURL();
+
+				header('Location: '.$gateway_asset_url);
+				return TRUE;
+
+			break;
+
+
+			// receipt view: after the gateway has processed payment and redirected back to us
+			// here we need to display the receipt and do the logging, etc
+			case ($this->receipt_view):
+				// check for response from the payment gateway
+				$response = array_get_index($_SESSION, 'SQ_ECOM_RESPONSE', FALSE);
+				if (!$response) {
+					// no response: we've either been here already - user has seen the receipt
+					// or someone has used an invalid url
+					// we redirect because we don't want users being able to refresh the browser
+					header('Location: '.$this->getUrl());
+					return TRUE;
+				}
+
+				unset($_SESSION['SQ_ECOM_RESPONSE']);
+				$this->_tmp['GATEWAY_RESPONSE'] = $response;
+
+				// this function is reponsible for doing business logic related to finalizing the
+				// e-commerce transaction: e-mailing, logging and display
+				$order = $this->_readOrder($response['REFERENCE']);
+				$this->_deleteOrderFile($response['REFERENCE']);
+
+				$this->current_answers = $order['submission'];
+				// re-populate the active submissions
+				$this->repopulate();
+
+				// CREATE SUBMISSION
+				$this->_saveOrderAsset();
+
+				// log order to file
+				if ($this->attr('log_to_file')) {
+					$this->_logOrderToFile();
+				}
+
+				// send emails
+				$this->mailReceipt();
+				$this->mailRecipients();
+
+				$this->printReceiptView();
+
+				// clear the cart
+				$_SESSION[$prefix]['items'] = Array();
+
+				return TRUE;
+
+		}//end switch
+
 
 		// print the initial form
-		$this->printForm();
-		return true;
+		$this->printFormView();
+		return TRUE;
 
 	}//end printStandard()
 
 
 	/**
+	* Log Order To File
+	*
+	* @return void
+	* @access private
+	*/
+	function _logOrderToFile()
+	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		$asset_item_format = $this->attr('log_asset_item_format');
+		$question_item_format = $this->attr('log_question_item_format');
+		$item_block_format = $this->attr('log_item_block_format');
+		$log_entry_format = $this->attr('log_entry_format');
+
+		ob_start();
+		$asset_list = @$this->_tmp['order']['ecom_assets'];
+		if (empty($asset_list)) $asset_list = Array();
+		foreach ($asset_list as $id => $item) {
+			$asset =& $am->getAsset($id);
+			$item_string = $asset->replaceKeywordsInString($asset_item_format);
+			$replacements['item_name'] = $item['name'];
+			$replacements['item_price'] = $item['price'];
+			$replacements['item_id'] = $item['id'];
+			replace_keywords($item_string, $replacements);
+			echo $item_string;
+		}
+		$asset_item_list = ob_get_clean();
+		$item_block_replacements['asset_item_list'] = $asset_item_list;
+
+		ob_start();
+		$question_list = @$this->_tmp['order']['ecom_questions'];
+		if (empty($question_list)) $question_list = Array();
+		foreach ($question_list as $id => $item) {
+			$item_string = $question_item_format;
+			$replacements['item_name'] = $item['name'];
+			$replacements['item_price'] = $item['price'];
+			$replacements['item_id'] = $item['id'];
+			replace_keywords($item_string, $replacements);
+			echo $item_string;
+		}
+		$question_item_list = ob_get_clean();
+		$item_block_replacements['question_item_list'] = $question_item_list;
+
+		$item_block = '';
+		if (!empty($question_item_list) || !empty($asset_item_list)) {
+			$item_block = $item_block_format;
+			replace_keywords($item_block, $item_block_replacements);
+		}
+
+		$log_entry_string = $this->replaceKeywordsInString($log_entry_format);
+		$log_entry_replacements['item_block'] = $item_block;
+		replace_keywords($log_entry_string, $log_entry_replacements);
+
+		// write to log
+		$this->_log($log_entry_string);
+
+	}//end _logOrderToFile()
+
+
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printBody()
+	{
+		$this->printStandard();
+
+	}//end printBody()
+
+
+	/**
 	* Prints current form
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
-	function printForm()
+	function printFormView()
 	{
+		$prefix = $this->getPrefix();
+
+		$clientside = ($this->attr('use_client_side')) ? 'onsubmit="return beforeSubmit_'.$prefix.'(this);"' : '';
+
+		$form_action = $_SERVER['PHP_SELF'];
+
+		// Add the query string as well if it exists, so asset references with ?a=###
+		// submit back to themselves.
+		if (!empty($_SERVER['QUERY_STRING'])) {
+			$form_action .= '?'.$_SERVER['QUERY_STRING'];
+		}
+
+		ob_start();
+		if ($this->attr('use_client_side')) {
+			?><script type="text/javascript">
+			function beforeSubmit_<?php echo $prefix; ?>(form) {
+				var submission_errors = new Array();
+				i = 0;
+				<?php echo $this->generateJSCode(); ?>
+					if (submission_errors.length > 0) {
+					var errors_list = "<?php echo translate('cms_form_submission_errors'); ?>\n";
+					for(x in submission_errors) {
+						errors_list += submission_errors[x] + "\n";
+					}
+					alert(errors_list);
+					return false;
+				}
+				return true;
+			}
+			</script>
+		<?php
+		}
+		$javascript = ob_get_clean();
+
+
 		$order = $this->_readOrder();
 		if (!empty($order)) {
 			$this->_deleteOrderFile();
 			$this->current_answers = $order['submission'];
+			$this->repopulate();
 		}
 
-		parent::printForm();
+		$bodycopy =& $this->getBodycopy('Form');
 
-	}//end printForm()
+		if (is_null($bodycopy)) return '';
+
+		$replacements = $this->_getCommonFormKeywordReplacements();
+
+		$keyword_list = $bodycopy->getKeywords();
+		if (!empty($keyword_list)) {
+			foreach ($keyword_list as $keyword) {
+				if (isset($replacements[$keyword])) continue;
+				$replacements[$keyword] = $this->_getKeywordReplacement($keyword);
+			}
+		}
+
+		$bodycopy->setKeywordReplacements($replacements);
+
+
+		// all the output is here
+		echo '<form id="'.$prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$clientside.'>';
+		echo $javascript;
+		$bodycopy->printBody();
+		echo '</form>';
+
+	}//end printFormView()
+
+
+	/**
+	* Gets replacements for question keywords
+	*
+	* TODO: Move this into the local getKeywordReplacement function
+	*
+	* @return void
+	* @access public
+	*/
+	function _getCommonFormKeywordReplacements()
+	{
+		// check to see if the bodycopy attached to this form has any content
+		$questions = $this->getQuestions();
+		$sections =& $this->getSections();
+
+		foreach ($questions as $q_id => $question) {
+			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_name = $q_asset->attr('name');
+			$replacements['question_field_'.$this->id.'_q'.$q_id] = $q_asset->getHtmlField();
+			$replacements['question_id_'.$this->id.'_q'.$q_id] = 'q'.$this->id.'_q'.$q_id;
+			$replacements['question_note_'.$this->id.'_q'.$q_id] = $q_asset->attr('note');
+			$replacements['question_label_'.$this->id.'_q'.$q_id] = $q_asset->getHtmlLabel();
+		}
+
+		foreach ($sections as $section) {
+			$replacements['section_title_'.$section->id] = $section->attr('name');
+			$questions = $section->getQuestions();
+			foreach ($questions as $q_id => $question) {
+				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+				$q_name = $section->attr('name').': '.$q_asset->attr('name');
+				$replacements['question_field_'.$section->id.'_q'.$q_id] = $q_asset->getHtmlField();
+				$replacements['question_id_'.$section->id.'_q'.$q_id] = 'q'.$section->id.'_q'.$q_id;
+				$replacements['question_note_'.$section->id.'_q'.$q_id] = $q_asset->attr('note');
+				$replacements['question_label_'.$section->id.'_q'.$q_id] = $q_asset->getHtmlLabel();
+			}
+		}
+
+		return $replacements;
+
+	}//end _getCommonFormKeywordReplacements()
+
+
+	/**
+	* Get bodycopy by name
+	*
+	* @param string	$bodycopy	code of bodycopy to print
+	*
+	* @return array
+	* @access private
+	*/
+	function &getBodycopy($bodycopy)
+	{
+		if ($bodycopy == 'Page Contents') {
+			$bodycopy = 'Form';
+		} else if ($bodycopy == 'Thank You') {
+			$bodycopy = 'Confirmation';
+		}
+
+		$bodycopy_asset =& parent::getBodycopy($bodycopy);
+
+		return $bodycopy_asset;
+
+	}//end getBodycopy()
+
+
+	/**
+	* Get keywords for Form bodycopy
+	*
+	* @return array
+	* @access private
+	*/
+	function _getFormBodycopyKeywords()
+	{
+		return $this->_getPageContentsBodycopyKeywords();
+
+	}//end _getFormBodycopyKeywords()
+
+
+	/**
+	* Get keywords for Confirmation bodycopy
+	*
+	* @return array
+	* @access private
+	*/
+	function _getConfirmationBodycopyKeywords()
+	{
+		return $this->_getThankYouBodycopyKeywords();
+
+	}//end _getConfirmationBodycopyKeywords()
+
+
+	/**
+	* Get keywords for Receipt bodycopy
+	*
+	* @return array
+	* @access private
+	*/
+	function _getReceiptBodycopyKeywords()
+	{
+		return $this->_getThankYouBodycopyKeywords();
+
+	}//end _getReceiptBodycopyKeywords()
 
 
 	/**
 	* creates a new submission object
 	*
+	* @return object
 	* @access public
-	* @return object Order
 	*/
 	function &createSubmission()
 	{
@@ -259,37 +605,19 @@ class Form_Ecommerce extends Form_Email
 
 
 	/**
-	* Prepares the receipt data after payment processing
-	*
-	* @access private
-	* @return void
-	*/
-	function _processReceipt()
-	{
-		// get gateway's response
-		$response = array_get_index($this->_tmp, 'GATEWAY_RESPONSE', false);
-		if (!$response) return;
-
-		$order = $this->_readOrder($response['REFERENCE']);
-		$this->_deleteOrderFile($response['REFERENCE']);
-
-		$this->current_answers = $order['submission'];
-
-	}//end _processReceipt()
-
-
-	/**
 	* Makes Receipt Header
 	*
-	* @access public
+	* @param boolean	$as_html	whether to get HTML copy or note
+	*
 	* @return string
+	* @access public
 	*/
-	function _getReceiptHeader($as_html=true)
+	function _getReceiptHeader($as_html=TRUE)
 	{
 		$header = '';
 
 		// get response from the gateway
-		$response = array_get_index($this->_tmp, 'GATEWAY_RESPONSE', false);
+		$response = array_get_index($this->_tmp, 'GATEWAY_RESPONSE', FALSE);
 		if (!$response) return $header;
 
 		// today
@@ -332,96 +660,16 @@ class Form_Ecommerce extends Form_Email
 
 
 	/**
-	* Wrapper for parent's emailing an logging functions
-	*
-	* @access public
-	* @return void
-	*/
-	function emailAndLog()
-	{
-		parent::mailRecipients();
-		parent::mailReceipt();
-		parent::sendToFriends();
-		parent::runSelectiveEmails();
-
-	}//end emailAndLog()
-
-
-	/**
-	* Generates receipt and invites user to make a payment
-	*
-	* Prints to screen the result
-	*
-	* @access private
-	* @return void
-	*/
-	function _processOrder()
-	{
-		$gateway = $this->attr('gateway_assetid');
-
-		// check if there is anything to e-process
-		// and that gateway is specified
-		if ($this->_makeOrder() && !empty($gateway)) {
-			$order = $this->_tmp['order'];
-			$this->_saveOrder();
-
-			$action_name = $this->getPrefix().'_action';
-
-			// get own url. because the form cannot print itself, we have
-			// to determine the url of the parent page
-			$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'page_custom_form_ecommerce', false));
-			$parent_page_id  = array_pop($parents);
-			$parent_page     =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_page_id);
-			$parent_page_url = $parent_page->getURL();
-
-			// save some data to session for the gateway asset
-			$_SESSION['SQ_ECOM_BACK_URL']   = $parent_page_url.'?'.$action_name.'='.$this->receipt_view.'&'.$this->getPrefix().'_submit=true';
-			$_SESSION['SQ_ECOM_REF_NO']     = session_id();
-			$_SESSION['SQ_ECOM_AMOUNT']     = $order['total'];
-
-			$gateway_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($gateway);
-			$gateway_asset_url = $gateway_asset->getURL();
-
-			$confirm_button = $this->attr('confirm_button_name');
-			$cancel_button  = $this->attr('cancel_button_name');
-
-			echo '<br /><input type="button" value="'.$confirm_button.'" onclick="document.location.href=\''.$gateway_asset_url.'\'" /><input type="button" value="'.$cancel_button.'" onclick="document.location.href=\''.$_SERVER['PHP_SELF'].'\'">';
-
-			//if there is an ecommerce_cart, we want to produce an order
-			if (isset($_SESSION['sq_cart_contents'])) {
-				//create a new order and link to this asset
-				$this->createOrder();
-			}
-
-		} else {
-
-			//if there is an ecommerce_cart, we want to produce an order
-			if (isset($_SESSION['sq_cart_contents'])) {
-				//get the current order asset
-				$order =& $this->current_answers;
-
-				//add each orderline from the cart to this asset
-				$order->buildLinesFromCart($_SESSION['sq_cart_contents'], true);
-
-			}
-
-			// if there's nothing to process, treat input as a normal form
-			unset($this->_tmp['order']);
-			$this->emailAndLog();
-		}
-
-	}//end _processOrder()
-
-
-	/**
 	* Print Summary of the submission
 	*
 	* Overridden parent function to include the receipt information
 	*
-	* @access public
+	* @param boolean	$as_html	flag whether to print as HTML
+	*
 	* @return void
+	* @access public
 	*/
-	function printSummary($as_html=false)
+	function printSummary($as_html=FALSE)
 	{
 		echo $this->_getReceiptHeader($as_html);
 		echo $this->_getReceipt($as_html);
@@ -436,22 +684,125 @@ class Form_Ecommerce extends Form_Email
 
 
 	/**
-	 * creates a new Order object
-	 *
-	 * @access public
-	 * @return mixed (object Order|boolean)	The order object if created or
-	 *										false on fail
-	 */
+	* processes the form and returns TRUE or FALSE depending on whether form processed successfully
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processForm()
+	{
+		$ok = TRUE;
+		$this->submission_errors = Array();
+
+		// verify captcha
+		if ($this->attr('require_captcha') && !validate_security_key()) {
+			$this->submission_errors = array_merge($this->submission_errors, translate('security_key_incorrect'));
+			$ok = FALSE;
+		}
+		$questions =& $this->getAllQuestionAssets();
+		for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
+			$question->populate();
+			if (!$question->hasValidValue()) {
+				$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
+				$ok = FALSE;
+			}
+			$this->current_answers[$question->id] = $question->getValue();
+		}
+
+		return $ok;
+
+	}//end processForm()
+
+
+	/**
+	* Brings the submission asset up-to-date with the current state
+	*
+	* @return void
+	* @access public
+	*/
+	function _saveOrderAsset()
+	{
+		$questions =& $this->getAllQuestionAssets();
+
+		$order =& $this->getCurrentOrderAsset();
+		if (empty($order)) $order =& $this->createOrder();
+
+
+		$this->order =& $order;
+		$this->submission_asset =& $order;
+
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		// save question values
+		for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
+			$question->saveValue();
+
+			// If the question is sticky, stick the value then
+			if ($question->attr('sticky')) {
+				$question->stickValue($question->getValue());
+			}
+		}
+
+		// create the submission asset
+		for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
+			$order->setAnswer(key($questions), $question->getValue());
+			$order->setSummary(key($questions), $question->attr('name'), $question->getSummary());
+		}
+
+		$order->setIP($_SERVER['REMOTE_ADDR']);
+		$order->setAttrValue('complete', TRUE);
+		$order->setAttrValue('xml', $this->getXML());
+		$order->saveAttributes();
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+	}//end _saveOrderAsset()
+
+
+	/**
+	* creates a new Order object
+	*
+	* @return object
+	* @access public
+	*/
 	function &createOrder()
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		// search for a bodycopies folder and create one if there isn't one there
+		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'orders_folder');
+		if (empty($folder_link)) {
+
+			// create a folder for the bodycopies
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+			$folder =& new Folder();
+			$folder->setAttrValue('name', 'Orders');
+
+			$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'orders_folder', 'is_dependant' => 0, 'is_exclusive' => 1);
+
+			if (!$folder->create($folder_link)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				return FALSE;
+			}
+		} else {
+			// folder already exists, get the reference
+			$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
+		}
+
+
+		if (is_null($folder)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+
 		// create the Order asset
-		$order = new Order();
-		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+		$order =& new Order();
+		$copy_link  = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		$success = $order->create($copy_link);
@@ -461,7 +812,7 @@ class Form_Ecommerce extends Form_Email
 		if (!$success) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -474,13 +825,15 @@ class Form_Ecommerce extends Form_Email
 	/**
 	* Format reciept values into table for nice output
 	*
-	* @access private
+	* @param boolean	$as_html	whether to get HTML copy or note
+	*
 	* @return string
+	* @access private
 	*/
-	function _getReceipt($as_html=true)
+	function _getReceipt($as_html=TRUE)
 	{
 		$order = array_get_index($this->_tmp, 'order');
-		if (empty($order)) return false;
+		if (empty($order)) return FALSE;
 
 		if ($as_html) {
 			$receipt_fmt   = '<hr /><table class="sq_ecomTable">%s%s</table><hr />';
@@ -512,18 +865,50 @@ class Form_Ecommerce extends Form_Email
 	/**
 	* Generates order array, which contains all necessary information for payment processing
 	*
-	* @access private
 	* @return array
+	* @access private
 	*/
 	function _makeOrder()
 	{
 		$total = 0;
+		$taxable_total = 0;
 
 		$questions =& $this->getAllQuestionAssets();
 		$ecom_items = Array();
+		$taxable_items = Array();
+		$ecom_assets = Array();
+		$ecom_questions = Array();
 
-		foreach ($questions as $id => $question) {
-			if (($rule = $this->_getEcommerceRule($id)) !== false) {
+		// process the assets being purchased
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$assets_in_cart = $this->_getAssetItems();
+		foreach ($assets_in_cart as $asset_id => $count) {
+			$ecom_item['taxable'] = FALSE;
+			$asset =& $am->getAsset($asset_id);
+
+			$ecom_item['name']  = $this->_getPurchasableAssetName($asset);;
+			$ecom_item['price'] = $this->_getPurchasableAssetPrice($asset);
+			$ecom_item['id'] = $asset_id;
+
+			$is_taxable = $this->_isPurchasableAssetTaxable($asset);
+
+			if ($is_taxable) {
+				$taxable_items[$asset_id] = $ecom_item;
+				$taxable_total += $ecom_item['price'];
+				$ecom_item['taxable'] = TRUE;
+			}
+			$ecom_assets[$asset_id] = $ecom_item;
+			$ecom_items[$asset_id] = $ecom_item;
+			$total += $ecom_item['price'];
+			$am->forgetAsset($asset);
+		}
+
+		// now process the ecommerce questions
+		$taxable_rules = $this->attr('taxable_rules');
+
+		foreach ($questions as $q_id => $question) {
+			if (($rule = $this->_getEcommerceRule($q_id)) !== FALSE) {
+				$ecom_item['taxable'] = FALSE;
 				$question_title = $question->attr('name');
 				// if it is a selection question, we ask the question to
 				// tell us if an option was selected
@@ -532,36 +917,51 @@ class Form_Ecommerce extends Form_Email
 						if ($question->isSelected($option_id)) {
 							$ecom_item['name']  = $question_title.': '.$question->getOptionName($option_id);
 							$ecom_item['price'] = $price;
+							$ecom_item['id'] = $q_id;
 
-							$ecom_items[] = $ecom_item;
+							if (array_get_index($taxable_rules, $q_id, FALSE)) {
+								$taxable_items[$q_id] = $ecom_item;
+								$taxable_total += $ecom_item['price'];
+								$ecom_item['taxable'] = TRUE;
+							}
+							$ecom_items[$q_id] = $ecom_item;
+							$ecom_questions[$q_id] = $ecom_item;
 							$total += $ecom_item['price'];
 						}
 					}
+
 				} else {
 					// if it is not a question with options, we get the submission directly
 					// we assume that it is a numeric question
 					$ecom_item['name']  = $question_title;
-					$ecom_item['price'] = $this->current_answers[$id];
+					$ecom_item['price'] = $this->current_answers[$q_id];
+					$ecom_item['id'] = $q_id;
 
-					$ecom_items[] = $ecom_item;
+					if (array_get_index($taxable_rules, $q_id, FALSE)) {
+						$taxable_items[$q_id] = $ecom_item;
+						$taxable_total += $ecom_item['price'];
+						$ecom_item['taxable'] = TRUE;
+					}
+					$ecom_items[$q_id] = $ecom_item;
+					$ecom_questions[$q_id] = $ecom_item;
 					$total += $ecom_item['price'];
-				}
+				}//end if
 
-			}
-		}
+			}//end if
 
-		// proceed only if there is e-commerce value generated by this form
-		if (empty($ecom_items) || $total <= 0) {
-			return false;
-		}
+		}//end foreach
 
 		$order['items'] = $ecom_items;
+		$order['ecom_assets'] = $ecom_assets;
+		$order['ecom_questions'] = $ecom_questions;
+		$order['taxable_items'] = $taxable_items;
+		$order['taxable_total'] = $taxable_total;
 		$order['total'] = $total;
 		$order['submission'] = $this->current_answers;
 
 		$this->_tmp['order'] = $order;
 
-		return true;
+		return TRUE;
 
 	}//end _makeOrder()
 
@@ -569,8 +969,8 @@ class Form_Ecommerce extends Form_Email
 	/**
 	* Save order into file, to prevent losing information in case of session dying
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _saveOrder()
 	{
@@ -584,16 +984,16 @@ class Form_Ecommerce extends Form_Email
 	/**
 	* Read order from the file
 	*
-	* @param	$order_no	id of the saved file
+	* @param string	$order_no	id of the saved file
 	*
-	* @access private
 	* @return array
+	* @access private
 	*/
-	function _readOrder($order_no=false)
+	function _readOrder($order_no=FALSE)
 	{
 		$filename = $this->_getOrderFileName($order_no);
 		$order = file_to_string($filename);
-		if (!$order) return false;
+		if (!$order) return FALSE;
 		$this->_tmp['order'] = unserialize($order);
 		return $this->_tmp['order'];
 
@@ -603,17 +1003,17 @@ class Form_Ecommerce extends Form_Email
 	/**
 	* Delete file with order
 	*
-	* @param	$order_no	id of the saved file
+	* @param string	$order_no	id of the saved file
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	* @see _readOrder()
 	*/
-	function _deleteOrderFile($order_no=false)
+	function _deleteOrderFile($order_no=FALSE)
 	{
 		$filename = $this->_getOrderFileName($order_no);
 		unlink($filename);
-		return true;
+		return TRUE;
 
 	}//end _deleteOrderFile()
 
@@ -621,15 +1021,15 @@ class Form_Ecommerce extends Form_Email
 	/**
 	* Return file name for order file
 	*
-	* @param	$order_no	id of the saved file
+	* @param string	$order_no	id of the saved file
 	*
-	* @access private
 	* @return string
+	* @access private
 	* @see _saveOrder()
 	* @see _readOrder()
 	* @see _deleteOrderFile()
 	*/
-	function _getOrderFileName($order_no=false)
+	function _getOrderFileName($order_no=FALSE)
 	{
 		$order_path = $this->data_path.'/tmp_orders';
 
@@ -645,32 +1045,820 @@ class Form_Ecommerce extends Form_Email
 	}//end _getOrderFileName()
 
 
-	function mailRecipients()
+	/**
+	* Print Confirmation View
+	*
+	* @return void
+	* @access public
+	*/
+	function printConfirmationView()
 	{
-		return true;
+		$body =& $this->getBodycopy('Confirmation');
 
-	}//end mailRecipients()
+		$keyword_list = $body->getKeywords();
+		foreach ($keyword_list as $keyword) {
+			$replacements[$keyword] = $this->_getThankYouKeywordReplacement($keyword);
+		}
+
+		$body->setKeywordReplacements($replacements);
+		$body->printBody();
+
+	}//end printConfirmationView()
 
 
-	function mailReceipt()
+	/**
+	* Print receipt view
+	*
+	* @return void
+	* @access private
+	*/
+	function printReceiptView()
 	{
-		return true;
+		$body =& $this->getBodycopy('Receipt');
 
-	}//end mailReceipt()
+		$keyword_list = $body->getKeywords();
+		foreach ($keyword_list as $keyword) {
+			$replacements[$keyword] = $this->_getThankYouKeywordReplacement($keyword);
+		}
+
+		$body->setKeywordReplacements($replacements);
+		$body->printBody();
+
+	}//end printReceiptView()
 
 
-	function sendToFriends()
+	/**
+	* Get keywords for thank you bodycopy
+	*
+	* @return array
+	* @access private
+	*/
+	function _getThankYouBodycopyKeywords()
 	{
-		return true;
+		$keywords = parent::_getThankYouBodycopyKeywords();
 
-	}//end sendToFriends()
+		$keywords['confirm_text'] = 'Confirm and pay button text';
+		$keywords['cancel_text'] = 'Text Used on "Cancel" button';
+
+		$keywords['confirm_url'] = 'URL to Confirmation Screen';
+		$keywords['cancel_url'] = 'URL to Cancel Screen';
+
+		$keywords['order_item_count'] = 'Count of items being purchased';
+		$keywords['order_total'] = 'Total';
+		$keywords['order_total_excluding_tax'] = 'Total minus tax';
+		$keywords['order_total_tax'] = 'Total tax';
+		$keywords['order_taxable_total'] = 'Taxable total';
+		$keywords['order_taxable_item_count'] = 'Count of taxable items being purchased';
+		$keywords['order_item_list'] = 'List of items being purchased';
+
+		$keywords['tax_rate'] = 'Tax Rate';
+		$keywords['tax_name'] = 'Tax Name';
+
+		$keywords['taxable_item_string'] = 'String appended to the taxable items';
+
+		return $keywords;
+
+	}//end _getThankYouBodycopyKeywords()
 
 
-	function runSelectiveEmails()
+	/**
+	* Confirm Text keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getConfirmTextKeywordReplacement()
 	{
-		return true;
+		return $this->attr('confirm_button_name');
 
-	}//end runSelectiveEmails()
+	}//end getConfirmTextKeywordReplacement()
+
+
+	/**
+	* Cancel Text keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getCancelTextKeywordReplacement()
+	{
+		return $this->attr('cancel_button_name');
+
+	}//end getCancelTextKeywordReplacement()
+
+
+	/**
+	* Confirm URL keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getConfirmUrlKeywordReplacement()
+	{
+		$confrim_url = $this->getUrl();
+		$confrim_url .= '?'.$this->getPrefix().'_action=process';
+
+		return $confrim_url;
+
+	}//end getConfirmUrlKeywordReplacement()
+
+
+	/**
+	* Cancel URL keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getCancelUrlKeywordReplacement()
+	{
+		$cancel_url = $this->getUrl();
+
+		return $cancel_url;
+
+	}//end getCancelUrlKeywordReplacement()
+
+
+	/**
+	* Get parent page asset id
+	*
+	* @return string
+	* @access private
+	*/
+	function _getParentPageAssetId()
+	{
+		$parent_page_assetid = array_get_index($this->_tmp, 'parent_form_page_assetid');
+
+		if (is_null($parent_page_assetid)) {
+			$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'page_custom_form_ecommerce', FALSE));
+			$parent_page_assetid = array_pop($parents);
+			$this->_tmp['parent_form_page_assetid'] =& $parent_page_assetid;
+		}
+
+		return $parent_page_assetid;
+
+	}//end _getParentPageAssetId()
+
+
+	/**
+	* Get parent page asset
+	*
+	* @return object
+	* @access private
+	*/
+	function &_getParentPageAsset()
+	{
+		if (!isset($this->_tmp['parent_form_page_asset'])) {
+			$parent_page =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_getParentPageAssetId());
+			$this->_tmp['parent_form_page_asset'] =& $parent_page;
+		} else {
+			$parent_page =& $this->_tmp['parent_form_page_asset'];
+		}
+
+		return $parent_page;
+
+	}//end _getParentPageAsset()
+
+
+	/**
+	* Get URL
+	*
+	* Returns url to the parent page asset
+	*
+	* @return string
+	* @access private
+	*/
+	function getUrl()
+	{
+		$url = array_get_index($this->_tmp, 'current_url');
+
+		if (is_null($url)) {
+			$parent =& $this->_getParentPageAsset();
+			$url = $parent->getURL();
+
+			$this->_tmp['current_url'] = $url;
+		}
+
+		return $url;
+
+	}//end getUrl()
+
+
+	/**
+	* Order Item Count keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getOrderItemCountKeywordReplacement()
+	{
+		$item_count = 0;
+		if (isset($this->_tmp['order']['items'])) {
+			$item_count = count($this->_tmp['order']['items']);
+		}
+
+		return $item_count;
+
+	}//end getOrderItemCountKeywordReplacement()
+
+
+	/**
+	* Order Total keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getOrderTotalKeywordReplacement()
+	{
+		$total = $this->_getTotal();
+		$total = $this->_formatPriceAmount($total);
+
+		return $total;
+
+	}//end getOrderTotalKeywordReplacement()
+
+
+	/**
+	* Order Total Excluding Tax keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getOrderTotalExcludingTaxKeywordReplacement()
+	{
+		$total = $this->_getTotal();
+
+		$tax = $this->_getTaxTotal();
+		$total_no_tax = $total - $tax;
+		$total_no_tax = $this->_formatPriceAmount($total_no_tax);
+
+		return $total_no_tax;
+
+	}//end getOrderTotalExcludingTaxKeywordReplacement()
+
+
+	/**
+	* Order Total Tax keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getOrderTotalTaxKeywordReplacement()
+	{
+		$total_tax = $this->_formatPriceAmount($this->_getTaxTotal());
+
+		return $total_tax;
+
+	}//end getOrderTotalTaxKeywordReplacement()
+
+
+	/**
+	* Order Taxable Total keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getOrderTaxableTotalKeywordReplacement()
+	{
+		$taxable_total = $this->_formatPriceAmount($this->_getTaxableTotal());
+
+		return $taxable_total;
+
+	}//end getOrderTaxableTotalKeywordReplacement()
+
+
+	/**
+	* Order Taxable Item Count keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getOrderTaxableItemCountKeywordReplacement()
+	{
+		$taxable_count = 0;
+
+		if (isset($this->_tmp['order']['taxable_items'])) {
+			$taxable_count = count($this->_tmp['order']['taxable_items']);
+		}
+
+		return $taxable_count;
+
+	}//end getOrderTaxableItemCountKeywordReplacement()
+
+
+	/**
+	* Tax Rate keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTaxRateKeywordReplacement()
+	{
+		return $this->_getTaxRate();
+
+	}//end getTaxRateKeywordReplacement()
+
+
+	/**
+	* Tax Name keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTaxNameKeywordReplacement()
+	{
+		return $this->attr('tax_name');
+
+	}//end getTaxNameKeywordReplacement()
+
+
+	/**
+	* Order Item List keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getOrderItemListKeywordReplacement()
+	{
+		$item_format = $this->attr('item_format');
+		$keywords = extract_keywords($item_format);
+
+		ob_start();
+		foreach ($this->_getOrderItems() as $item) {
+			$item_line = $item_format;
+
+			$item_name = array_get_index($item, 'name', '--UNKNOWN ITEM NAME--');
+			$item_price = array_get_index($item, 'price', 0);
+			$item_id = array_get_index($item, 'id');
+			$is_taxable = array_get_index($item, 'taxable', FALSE);
+
+			$replacements['item_name'] = $item_name;
+			$replacements['item_price'] = $this->_formatPriceAmount($item_price);
+			$replacements['item_taxable_string'] = '';
+			if ($is_taxable) {
+				$replacements['taxable_item_string'] = $this->attr('item_taxable_string');
+			}
+			replace_keywords($item_line, $replacements);
+
+			echo $item_line;
+		}
+
+		return ob_get_clean();
+
+	}//end getOrderItemListKeywordReplacement()
+
+
+	/**
+	* Order Purchasable Asset List keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getOrderPurchasableAssetListKeywordReplacement()
+	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$assets_in_cart = $this->_getAssetItems();
+
+		$item_format = $this->attr('form_asset_format');
+
+		ob_start();
+		foreach ($assets_in_cart as $asset_id => $count) {
+			$asset =& $am->getAsset($asset_id);
+
+			$price = $this->_getPurchasableAssetPrice($asset);
+			$name = $this->_getPurchasableAssetName($asset);
+			$is_taxable = $this->_isPurchasableAssetTaxable($asset);
+
+			$replacements['item_name'] = $name;
+			$replacements['item_price'] = $this->_formatPriceAmount($price);
+			$replacements['item_taxable_string'] = '';
+			if ($is_taxable) {
+				$replacements['taxable_item_string'] = $this->attr('item_taxable_string');
+			}
+
+			// ask asset to replace any known keywords
+			$item_line = $asset->replaceKeywordsInString($item_format);
+			// replace those new keywords the asset doesn't know about
+			replace_keywords($item_line, $replacements);
+
+			echo $item_line;
+		}
+
+		return ob_get_clean();
+
+	}//end getOrderPurchasableAssetListKeywordReplacement()
+
+
+	/**
+	* Item List keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getItemListingKeywordReplacement()
+	{
+		$item_printout  = $this->getOrderPurchasableAssetListKeywordReplacement();
+		if (empty($item_printout)) {
+			return $this->attr('form_assets_empty_str');
+		}
+
+		$form_assets_format = $this->attr('form_asset_list_format');
+		$keywords['item_format'] = $item_printout;
+		replace_keywords($form_assets_format, $keywords);
+
+		return $form_assets_format;
+
+	}//end getItemListingKeywordReplacement()
+
+
+	/**
+	* Taxable Item String keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTaxableItemStringKeywordReplacement()
+	{
+		return $this->attr('item_taxable_string');
+
+	}//end getTaxableItemStringKeywordReplacement()
+
+
+	/**
+	* Transaction Number keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTransactionNumberKeywordReplacement()
+	{
+		return array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'TRANSACTION', '');
+
+	}//end getTransactionNumberKeywordReplacement()
+
+
+	/**
+	* Transaction Status keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTransactionStatusKeywordReplacement()
+	{
+		return array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'STATUS', '');
+
+	}//end getTransactionStatusKeywordReplacement()
+
+
+	/**
+	* Transaction Type keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTransactionTypeKeywordReplacement()
+	{
+		return array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'TYPE', '');
+
+	}//end getTransactionTypeKeywordReplacement()
+
+
+	/**
+	* Transaction Time keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTransactionTimeKeywordReplacement()
+	{
+		return array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'TIME', '');
+
+	}//end getTransactionTimeKeywordReplacement()
+
+
+	/**
+	* Order Number keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTransactionAmountKeywordReplacement()
+	{
+		return array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'AMOUNT', '');
+
+	}//end getTransactionAmountKeywordReplacement()
+
+
+	/**
+	* Order Number keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getOrderNumberKeywordReplacement()
+	{
+		$order = $this->getCurrentOrderAsset();
+		if (is_null($order)) return;
+
+		return $order->id;
+
+	}//end getOrderNumberKeywordReplacement()
+
+
+	/**
+	* Get the order asset
+	*
+	* @return object
+	* @access private
+	*/
+	function &getCurrentOrderAsset()
+	{
+		if (!empty($this->order)) {
+			$order =& $this->order;
+			return $order;
+		}
+
+		$order_id = @$_SESSION[$this->getPrefix()]['order_id'];
+		if (empty($order_id)) {
+			$order = NULL;
+			return $order;
+		}
+
+		$this->order =& $GLOBALS['SQ_SYSTEM']->am->getAsset($order_id);
+		$order =& $this->order;
+		return $order;
+
+	}//end getCurrentOrderAsset()
+
+
+	/**
+	* Get the list of assets on order
+	*
+	* @return string
+	* @access private
+	*/
+	function _getAssetItems()
+	{
+		$assets_in_cart = @$_SESSION[$this->getPrefix()]['items'];
+		if (is_null($assets_in_cart)) {
+			$assets_in_cart = Array();
+		}
+		return $assets_in_cart;
+
+	}//end _getAssetItems()
+
+
+	/**
+	* Get the total in current order
+	*
+	* @return string
+	* @access private
+	*/
+	function _getTotal()
+	{
+		$total = 0;
+
+		if (isset($this->_tmp['order']['total'])) {
+			$total = $this->_tmp['order']['total'];
+		}
+
+		return $total;
+
+	}//end _getTotal()
+
+
+	/**
+	* Get taxable total
+	*
+	* Part of total that inicludes tax
+	*
+	* @return string
+	* @access private
+	*/
+	function _getTaxableTotal()
+	{
+		$taxable_total = 0;
+
+		if (isset($this->_tmp['order']['taxable_total'])) {
+			$taxable_total = $this->_tmp['order']['taxable_total'];
+		}
+
+		return $taxable_total;
+
+	}//end _getTaxableTotal()
+
+
+	/**
+	* Get the current tax rate
+	*
+	* @return string
+	* @access private
+	*/
+	function _getTaxRate()
+	{
+		return $this->attr('tax_value');
+
+	}//end _getTaxRate()
+
+
+	/**
+	* Get the total tax amount in current state
+	*
+	* @return string
+	* @access private
+	*/
+	function _getTaxTotal()
+	{
+		$taxable_total = $this->_getTaxableTotal();
+
+		$tax_rate = $this->_getTaxRate();
+		$total_tax = $taxable_total * $tax_rate/(100 + $tax_rate);
+
+		return $total_tax;
+
+	}//end _getTaxTotal()
+
+
+	/**
+	* Get the itesm being ordered
+	*
+	* @return array
+	* @access private
+	*/
+	function _getOrderItems()
+	{
+		$items = @$this->_tmp['order']['items'];
+		if (is_null($items) || !is_array($items)) {
+			$items = Array();
+		}
+
+		return $items;
+
+	}//end _getOrderItems()
+
+
+	/**
+	* Get the price of purchasable asset
+	*
+	* @param object	&$asset	asset to check
+	*
+	* @return string
+	* @access private
+	*/
+	function _getPurchasableAssetPrice(&$asset)
+	{
+		$price_string = $this->attr('asset_price_source');
+		$price = $asset->replaceKeywordsInString($price_string);
+
+		if (!is_numeric($price)) $price = 0;
+
+		return $price;
+
+	}//end _getPurchasableAssetPrice()
+
+
+	/**
+	* Get the name of purchasable asset
+	*
+	* @param object	&$asset	asset to check
+	*
+	* @return string
+	* @access private
+	*/
+	function _getPurchasableAssetName(&$asset)
+	{
+		$name_string = $this->attr('asset_name_source');
+		$name = $asset->replaceKeywordsInString($name_string);
+
+		if ($name == '') {
+			$name = $asset->replaceKeywordsInString('%asset_name%');
+		}
+
+		return $name;
+
+	}//end _getPurchasableAssetName()
+
+
+	/**
+	* True if passed asset is purchasable
+	*
+	* @param object	&$asset	asset to check
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _isPurchasableAsset(&$asset)
+	{
+		$price_string = $this->attr('asset_price_source');
+		$price = $asset->replaceKeywordsInString($price_string);
+
+		return is_numeric($price);
+
+	}//end _isPurchasableAsset()
+
+
+	/**
+	* True if passed asset is taxable
+	*
+	* @param object	&$asset	asset to check
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _isPurchasableAssetTaxable(&$asset)
+	{
+		$tax_source_string = $this->attr('asset_taxable_source');
+		$tax_check_string = $asset->replaceKeywordsInString($tax_source_string);
+
+		return !($tax_check_string == '');
+
+	}//end _isPurchasableAssetTaxable()
+
+
+	/**
+	* Format price amount with 2 decimals
+	*
+	* @param string	$amount	amount to format
+	*
+	* @return string
+	* @access private
+	*/
+	function _formatPriceAmount($amount=0)
+	{
+		return sprintf('%01.2f', $amount);
+
+	}//end _formatPriceAmount()
+
+
+	/**
+	* True if passed item id is taxable
+	*
+	* @param string	$item_id	id of item to test
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _isItemTaxable($item_id)
+	{
+		$taxable = @$this->_tmp['order']['taxable_items'][$item_id];
+		return !is_null($taxable);
+
+	}//end _isItemTaxable()
+
+
+	/**
+	* Get the filename of log file
+	*
+	* @return string
+	* @access private
+	*/
+	function _getLogFileName()
+	{
+		return 'order.log';
+
+	}//end _getLogFileName()
+
+
+	/**
+	* Get the path to log file
+	* @param string	$string	string to log
+	*
+	* @return string
+	* @access private
+	*/
+	function _getLogFilePath()
+	{
+		return $this->data_path.'/'.$this->_getLogFileName();
+
+	}//end _getLogFilePath()
+
+
+	/**
+	* Writes a string to log file
+	*
+	* @param string	$string	string to log
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _log($string='')
+	{
+		$file = $this->_getLogFilePath();
+		if (!$file_pointer = fopen($file, 'a')) return FALSE;
+
+		$sucess = fputs($file_pointer, $string);
+		fclose($file_pointer);
+		if ($sucess === FALSE) {
+			trigger_error('Unable to write '.$file, E_USER_WARNING);
+			return FALSE;
+		}
+
+		$om = umask(0000);
+		chmod($file, 0664);
+		umask($om);
+
+		return TRUE;
+
+	}//end _log()
 
 
 }//end class
