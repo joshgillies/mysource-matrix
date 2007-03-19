@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.14 2007/01/08 03:27:18 emcdonald Exp $
+* $Id: payment_gateway_esec.inc,v 1.15 2007/03/19 00:53:51 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/esec_processor_integration_interface.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -35,62 +35,67 @@ class Payment_Gateway_Esec extends Payment_Gateway
 
 
 	/**
-	* basic output function. root of output process
+	* Basic output function. root of output process
 	*
-	* @access public
 	* @return void
+	* @access public
 	*/
 	function printBody()
 	{
 
-		$amount      = array_get_index($_SESSION,'SQ_ECOM_AMOUNT', 0);
+		$amount    = array_get_index($_SESSION,'SQ_ECOM_AMOUNT', 0);
 
-		$card_info = array_get_index($_REQUEST, $this->getPrefix().'_card', false);
-		$action    = array_get_index($_REQUEST, $this->getPrefix().'_action', false);
-		if ($action == 'Cancel' || empty($amount)) {
-			$this->goBackToCaller();
-		}
+		$card_info = array_get_index($_REQUEST, $this->getPrefix().'_card', FALSE);
+		$action    = array_get_index($_REQUEST, $this->getPrefix().'_action', FALSE);
+		if ($action == 'Cancel') {
+			$this->returnToCaller('CANCEL');
 
-		if ($card_info) {
+		} else if (empty($amount)) {
+			unset($_SESSION['SQ_ECOM_AMOUNT']);
+			$this->returnToCaller('SUCCESS');
+
+		} else if ($card_info) {
 			$_SESSION['SQ_ECOM_CARDINFO'] = $card_info;
 			if ($this->processPayment()) {
 				unset($_SESSION['SQ_ECOM_AMOUNT']);
-				$this->goBackToCaller();
+				$this->returnToCaller('SUCCESS');
 			}
-		}
 
-		echo $this->makeCreditCardForm();
+		} else {
+			echo $this->makeCreditCardForm();
+
+		}
 
 	}//end printBody()
 
 
 	/**
-	* makes form for entering credit card details
+	* Makes form for entering credit card details
 	*
-	* @access public
 	* @return string
+	* @access public
 	*/
 	function makeCreditCardForm()
 	{
 		$amount = array_get_index($_SESSION,'SQ_ECOM_AMOUNT', 0);
 
-		$Esec = new Esec_Processor_Integration_Interface();
+		$Esec =& new Esec_Processor_Integration_Interface();
 		$card_types = $Esec->getCardTypes();
 
 		// format the amount
 		$Esec->setAmount($amount);
 		$amount = $Esec->getAmount();
 
-		$card_info = array_get_index($_SESSION, 'SQ_ECOM_CARDINFO', false);
+		$card_info = array_get_index($_SESSION, 'SQ_ECOM_CARDINFO', FALSE);
 		if (!$card_info) {
 			$card_info = Array(
-					'name' => '',
-					'number' => '',
-					'ccv' => '',
-					'month' => '',
-					'year' => '',
-					'type' => '',
-			);
+							'name'		=> '',
+							'number'	=> '',
+							'ccv'		=> '',
+							'month'		=> '',
+							'year'		=> '',
+							'type'		=> '',
+						 );
 		}
 
 		$prefix = $this->getPrefix();
@@ -100,19 +105,19 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		// determine which card type is selected
 		$form_contents_select = '';
 		foreach ($card_types as $type) {
-			$selected = ($card_info['type'] == $type)?' selected="selected"':'';
+			$selected = ($card_info['type'] == $type) ? ' selected="selected"' : '';
 			$form_contents_select .= '<option value="'.$type.'"'.$selected.'>'.$type.'</option>';
 		}
 
 		// set variables for test mode
-		if ($this->attr('test_mode')){
+		if ($this->attr('test_mode')) {
 
 			$form_contents .= '<h2 style="color: white; background-color: grey; padding: 5px">TEST MODE</h2>';
 
 			$test_card_numbers = $Esec->getTestCardNumbers();
 			$card_number = '<select name="'.$card.'[number]">';
 			foreach ($test_card_numbers as $number => $label) {
-				$selected = ($card_info['number'] == $number)?' selected="selected"':'';
+				$selected = ($card_info['number'] == $number) ? ' selected="selected"' : '' ;
 				$card_number .= '<option value="'.$number.'"'.$selected.'>'.$number.'</option>';
 			}
 			$card_number .= '</select>';
@@ -121,13 +126,15 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		}
 
 		// check for errors
-		if (array_get_index($this->_tmp, 'is_error', false)) {
+		if (array_get_index($this->_tmp, 'is_error', FALSE)) {
 			$form_contents .= '<h2 style="color: red; ">Error '.$this->_tmp['error_message'].'</h2>';
 		}
 
 		$message = $this->attr('message');
 
 		$datapath = sq_web_path('data').'/asset_types/payment_gateway_esec/files';
+
+		$own_url = $this->getURL();
 
 		ob_start();
 		?>
@@ -136,7 +143,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 			var Loader = new Loader('<?php echo $card; ?>','#FFFFFF','Processing Transaction...','<?php echo $datapath; ?>/loader.gif');
 			Loader.print();
 		</script>
-		<form method="post" action="" onsubmit="Loader.show();">
+		<form method="post" action="<?php echo $own_url; ?>" onsubmit="Loader.show();">
 			<div><?php echo $message; ?></div>
 			<div style="background-color: #CCC; padding: 5px"><strong>$<?php echo $amount; ?></strong> Australian Dollars are about to be debited from your credit card</div>
 			<table cellpadding="5">
@@ -148,12 +155,16 @@ class Payment_Gateway_Esec extends Payment_Gateway
 					<td align="right">Number</td>
 					<td><?php echo $card_number; ?></td>
 				</tr>
-			<?php if ($this->attr('display_ccv')) { ?>
+				<?php
+				if ($this->attr('display_ccv')) {
+				?>
 				<tr>
 					<td  align="right">CCV</td>
 					<td><input name="<?php echo $card; ?>[ccv]" value="<?php echo $card_info['ccv'];?>" size='4' /> - from the back of your credit card</td>
 				</tr>
-			<?php } ?>
+				<?php
+				}
+				?>
 				<tr>
 					<td align="right">Expiry Date (MM/YY)</td>
 					<td><input name="<?php echo $card; ?>[month]" value="<?php echo $card_info['month'];?>" size="2" /> / <input name="<?php echo $card; ?>[year]" value="<?php echo $card_info['year'];?>" size="2" /></td>
@@ -182,10 +193,10 @@ class Payment_Gateway_Esec extends Payment_Gateway
 
 
 	/**
-	* process credit card details to gateway
+	* Process credit card details to gateway
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
 	function processPayment()
 	{
@@ -193,7 +204,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		$amount      = $_SESSION['SQ_ECOM_AMOUNT'];
 		$card_info   = $_SESSION['SQ_ECOM_CARDINFO'];
 
-		$Esec = new Esec_Processor_Integration_Interface();
+		$Esec =& new Esec_Processor_Integration_Interface();
 
 		$Esec->setAmount($amount);
 		$Esec->setReference($ref_no);
@@ -205,23 +216,21 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		$Esec->setCardExpiryYear($card_info['year']);
 		$Esec->setCardName($card_info['name']);
 
-		if ($this->attr('test_mode')){
-			$Esec->setTest();
-		}
+		if ($this->attr('test_mode')) $Esec->setTest();
 
 		$success = $Esec->process();
 
 		// process response
 		$response = $Esec->getResponse();
-		$_SESSION['SQ_ECOM_REF_NO']   = $response['REFERENCE'];
+		$_SESSION['SQ_ECOM_REF_NO'] = $response['REFERENCE'];
 
 		if (!$success) {
-			$this->_tmp['is_error']         = true;
+			$this->_tmp['is_error']         = TRUE;
 			$this->_tmp['error_message']    = $response['MESSAGE_CODE'].' '.$response['MESSAGE'];
 		} else {
 			$status = $Esec->explainStatus();
-			if ($this->attr('test_mode')){
-				$status = '*** TEST MODE (do not honour) *** : '.$status;
+			if ($this->attr('test_mode')) {
+				$status = '!!!ATTENTION!!! TEST MODE (transaction not performed) -- '.$status;
 			}
 
 			$response['STATUS'] = $status;
@@ -237,6 +246,8 @@ class Payment_Gateway_Esec extends Payment_Gateway
 				$cardno = '****-****-****-'.substr($card_info['number'],12);
 			}
 			$response['CARDNO'] = $cardno;
+			$response['TIME'] = date('r');
+			$response['AMOUNT'] = $amount;
 
 			$_SESSION['SQ_ECOM_RESPONSE']   = $response;
 		}
@@ -247,18 +258,37 @@ class Payment_Gateway_Esec extends Payment_Gateway
 
 
 	/**
-	* returns back to e-commerce form, which called gateway
+	* Returns back to e-commerce form, which called gateway
 	*
-	* @access public
+	* @param string	$state	state to return
+	*
 	* @return void
+	* @access public
 	*/
-	function goBackToCaller()
+	function returnToCaller($state='SUCCESS')
 	{
-		$back_url = array_get_index($_SESSION,'SQ_ECOM_BACK_URL', 'error');
-		echo('<script type="text/javascript">document.location.href = "'.$back_url.'";</script>');
-		exit;
+		$back_url = NULL;
 
-	}//end goBackToCaller()
+		if ($state == 'SUCCESS') {
+			$back_url = array_get_index($_SESSION, 'SQ_ECOM_SUCCESS_URL');
+			unset($_SESSION['SQ_ECOM_SUCCESS_URL']);
+
+		} else if ($state == 'CANCEL') {
+			$back_url = array_get_index($_SESSION, 'SQ_ECOM_CANCEL_URL');
+			unset($_SESSION['SQ_ECOM_CANCEL_URL']);
+		}
+
+		log_dump($back_url);
+
+		if (is_null($back_url)) {
+			trigger_error('Unknown caller reference');
+		} else {
+			header('Location: '.$back_url);
+			exit;
+		}
+
+	}//end returnToCaller()
+
 
 }//end class
 
