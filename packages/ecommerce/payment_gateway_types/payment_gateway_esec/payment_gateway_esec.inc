@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.15 2007/03/19 00:53:51 arailean Exp $
+* $Id: payment_gateway_esec.inc,v 1.16 2007/03/19 05:51:18 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/esec_processor_integration_interface.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -277,8 +277,6 @@ class Payment_Gateway_Esec extends Payment_Gateway
 			$back_url = array_get_index($_SESSION, 'SQ_ECOM_CANCEL_URL');
 			unset($_SESSION['SQ_ECOM_CANCEL_URL']);
 		}
-
-		log_dump($back_url);
 
 		if (is_null($back_url)) {
 			trigger_error('Unknown caller reference');
