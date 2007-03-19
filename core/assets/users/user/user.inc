@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.112 2006/12/20 01:47:08 tbarrett Exp $
+* $Id: user.inc,v 1.113 2007/03/19 23:38:56 mbrydon Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,10 +106,8 @@ class User extends Asset
 			return FALSE;
 		}
 
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
-			trigger_localised_error('CORE0014', E_USER_WARNING, $this->name);
-			return FALSE;
-		}
+		// Ensure that the current user can perform the following permissions change regardless of their own permissions on the parent
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 		// give the user admin access to him/herself
 		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $this->id, SQ_PERMISSION_ADMIN, TRUE)) {
@@ -117,10 +115,7 @@ class User extends Asset
 			return FALSE;
 		}
 
-		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
-			trigger_localised_error('CORE0013', E_USER_WARNING, $this->name);
-			return FALSE;
-		}
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 		$user_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
