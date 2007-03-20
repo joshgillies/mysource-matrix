@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2007/01/17 05:04:44 lwright Exp $
+* $Id: lang_strings.xml,v 1.4 2007/03/20 04:16:45 lwright Exp $
 *
 *
 * Search Package Localised Strings File
@@ -23,4 +23,7 @@
 	<string source="option_ldap_opt_referrals">Disallow Referrals</string>
 	<string source="ldap_not_available_line_1">The LDAP extension has not been enabled on this PHP installation.</string>
 	<string source="ldap_not_available_line_2">LDAP support needs to be compiled into/enabled in PHP, before the LDAP Bridge can work. For further information, please contact your system administrator.</string>
+	<string source="ldap_group_members_attribute">Group Members</string>
+	<string source="ldap_attributes_section_user">User Attributes</string>
+	<string source="ldap_attributes_section_group">Group Attributes</string>
 </strings>

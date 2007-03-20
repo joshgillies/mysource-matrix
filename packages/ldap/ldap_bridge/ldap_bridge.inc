@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.59 2007/01/16 05:59:24 rong Exp $
+* $Id: ldap_bridge.inc,v 1.60 2007/03/20 04:16:42 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -308,6 +308,7 @@ class LDAP_Bridge extends Asset
 		if (!($this->ldap_shdw_link_type & $link_types)) {
 			return Array();
 		}
+
 		if ($dependant || $exclusive) {
 			return Array();
 		}
@@ -384,19 +385,23 @@ class LDAP_Bridge extends Asset
 				$entries = NULL;
 
 				if ($assetid != $this->id) {
-					// if we are using Active Directory, we have to get the members of a group from the member
-					// attribute of the group instead of using tree searches
-					if ($this->attr('system_type') == 'activedirectory') {
-						$asset =& $this->getAsset($this->id.':'.$assetid);
-						if ($asset->type() == 'ldap_user_group' && in_array('group', $asset->vars['objectclass']) && isset($asset->vars['member'])) {
-							$members = $asset->vars['member'];
-							$entries = Array();
-							foreach ($members as $dn) {
-								$user =& $this->getAsset($this->id.':'.$dn);
-								$entries[$dn] = $user->vars;
-							}
+					$attr = $this->attr('attributes');
+					// If the group defines its own members, use the "Group Members" attribute to
+					// provide links to its members. Note that this is mandatory in Active Directory
+					// so if nothing is provided, the default "member" will be used.
+					if (($this->attr('system_type') == 'activedirectory') && empty($attr['gm'])) {
+						$attr['gm'] = 'member';
+					}
+					$asset =& $this->getAsset($this->id.':'.$assetid);
+					if ($asset->type() == 'ldap_user_group' && !empty($attr['gm']) && isset($asset->vars[$attr['gm']])) {
+						$members = $asset->vars[$attr['gm']];
+						$entries = Array();
+						foreach ($members as $dn) {
+							$user =& $this->getAsset($this->id.':'.$dn);
+							$entries[$dn] = $user->vars;
 						}
 					}
+					//}
 				}
 
 				if (is_null($entries)) {
@@ -429,6 +434,7 @@ class LDAP_Bridge extends Asset
 					$sort_by = (isset($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : '';
 
 					$result = $ldap->search($base_dn, $filter, $sort_by, FALSE);
+
 					if (!$result) {
 						$ldap->disconnect();
 						return Array();
@@ -603,10 +609,24 @@ class LDAP_Bridge extends Asset
 			$attrs = $this->attr('attributes');
 
 			$mo_groups = Array();
-			if (isset($data[$attrs['mo']])) {
+
+			if (isset($attrs['mo']) && isset($data[$attrs['mo']])) {
+				// User defines the groups it is a part of
 				$mo_groups = $data[$attrs['mo']];
 				if (!$mo_groups['count']) $mo_groups = Array();
 				unset($mo_groups['count']);
+			} else if (isset($attrs['gm'])) {
+				// Group defines its members
+				$base_dn = $this->attr('root_dn');
+				$result = $ldap->search($base_dn, '('.$attrs['gm'].'='.$assetid.')');
+				if ($result) {
+					$groups = $ldap->getEntries($result);
+					if (!$groups['count']) $mo_groups = Array();
+					unset($groups['count']);
+					foreach	($groups as $group_data) {
+						$mo_groups[] = $group_data['dn'];
+					}
+				}
 			}
 
 			// also add in groups based on our DN
@@ -684,6 +704,8 @@ class LDAP_Bridge extends Asset
 	{
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) $assetid = $id_parts[1];
+
+		error_log('getChildren:'.$assetid);
 
 		if ($assetid != $this->id) {
 			// if we are using Active Directory, the tree structure does not quite work the same

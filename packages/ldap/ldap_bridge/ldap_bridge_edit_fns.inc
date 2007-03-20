@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.24 2007/01/17 05:04:44 lwright Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.25 2007/03/20 04:16:42 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -205,28 +205,37 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 
 		$current = $asset->attr('attributes');
 		$required = Array(
-						'uid'	=> translate('ldap_user_id'),
-						'cn'	=> translate('ldap_common_name'),
-						'fn'	=> translate('ldap_first_name'),
-						'sn'	=> translate('ldap_last_name'),
-						'email'	=> translate('ldap_email_address'),
-						'mo'	=> translate('ldap_group_membership'),
-						'ou'	=> translate('ldap_group_name'),
+						'user'	=> Array(
+									'uid'	=> translate('ldap_user_id'),
+									'cn'	=> translate('ldap_common_name'),
+									'fn'	=> translate('ldap_first_name'),
+									'sn'	=> translate('ldap_last_name'),
+									'email'	=> translate('ldap_email_address'),
+								   ),
+						'group'	=> Array(
+									'mo'	=> translate('ldap_group_membership'),
+									'gm'	=> translate('ldap_group_members_attribute'),
+									'ou'	=> translate('ldap_group_name'),
+								   ),
 					);
 
 		if ($write_access) {
 			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		}
 
-		foreach ($required as $code => $name) {
-			$o->openField($name);
-				$default = (isset($current[$code])) ? $current[$code] : '';
-				if ($write_access) {
-					text_box($prefix.'_attributes['.$code.']', $default, 20);
-				} else {
-					echo $default;
-				}
-			$o->closeField();
+		foreach ($required as $section => $section_data) {
+			$o->openSection(translate('ldap_attributes_section_'.$section));
+			foreach ($section_data as $code => $name) {
+				$o->openField($name);
+					$default = (isset($current[$code])) ? $current[$code] : '';
+					if ($write_access) {
+						text_box($prefix.'_attributes['.$code.']', $default, 20);
+					} else {
+						echo $default;
+					}
+				$o->closeField();
+			}
+			$o->closeSection();
 		}
 
 		return $write_access;
