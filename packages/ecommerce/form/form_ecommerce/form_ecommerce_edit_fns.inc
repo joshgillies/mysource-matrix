@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_edit_fns.inc,v 1.10 2007/03/19 01:05:41 arailean Exp $
+* $Id: form_ecommerce_edit_fns.inc,v 1.11 2007/03/20 04:05:08 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -319,6 +319,8 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 			echo 'Size: <strong>'.$file_size.'</strong>B';
 		} else {
 			echo 'Log file does not exist';
+			echo '<br />';
+			echo 'Filename: '.$log_file;
 		}
 
 	}//end paintLogFileInfo()
