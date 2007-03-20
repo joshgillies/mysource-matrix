@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_release_lock.inc,v 1.3 2006/12/06 00:04:01 bcaldwell Exp $
+* $Id: trigger_action_release_lock.inc,v 1.4 2007/03/20 23:46:50 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,9 +60,23 @@ class Trigger_Action_Release_Lock extends Trigger_Action
 		}
 
 		// release all locks with the same source_lockid prefix
-		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($state['asset']->id, 'all')) {
-			return FALSE;
-		}
+		switch ($settings['release_type']) {
+			case 'on_asset':
+				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($state['asset']->id, 'all')) {
+					return FALSE;
+				}
+			break;
+
+			case 'held':
+				// This only works if you're a user
+				if (is_a($state['asset'], 'user')) {
+					$state['asset']->releaseUserLocks();
+				} else {
+					return FALSE;
+				}
+			break;
+
+		}//end switch
 
 		return Array(
 				'assetid'	=> $state['asset']->id,
@@ -75,7 +89,7 @@ class Trigger_Action_Release_Lock extends Trigger_Action
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
 	*
 	* @param array		$settings		settings that this condition saves in processInterface()
-	* @param string		$prefix			unique prefix
+	* @param string		$prefix		unique prefix
 	* @param boolean	$write_access	determines whether the interface is editable
 	*
 	* @return boolean
@@ -83,9 +97,63 @@ class Trigger_Action_Release_Lock extends Trigger_Action
 	*/
 	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
-		return 'Release all currently held locks on the asset that the action is executing on';
+		$interface = '';
+		$lock_type = array_get_index($settings, 'release_type', 'on_asset');
+
+		if (!$write_access) {
+			$form_element_extras = 'disabled="disabled"';
+		} else {
+			$form_element_extras = '';
+		}
+
+		ob_start();
+			echo '<ul style="margin: 0; list-style: none">';
+				echo '<li>';
+					echo radio_button($prefix.'[release_type]', 'on_asset', ($lock_type == 'on_asset'), '', $form_element_extras);
+					echo translate('trigger_action_release_lock_on_asset');
+				echo '</li>';
+				echo '<li>';
+					echo radio_button($prefix.'[release_type]', 'held', ($lock_type == 'held'), '', $form_element_extras);
+					echo translate('trigger_action_release_lock_held');
+				echo '</li>';
+			echo '</ul>';
+		$interface = ob_get_clean();
+
+		return $interface;
 
 	}//end getInterface()
+
+
+	/**
+	* Function that handles the conversion of interface to settings
+	* together with settings it is expected to populate the hash object
+	*
+	* @param array	&$settings		a container for any data the action might want to save
+	* @param string	$request_data	array of data corresponding to this action as
+	*								specified by the $prefix in getInterface.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processInterface(&$settings, $request_data)
+	{
+		$release_type = array_get_index($request_data, 'release_type', FALSE);
+		if (!$release_type) return 'Release type has not been specified';
+
+		$release_list = Array(
+							'on_asset'	=> 'Release Locks on Asset',
+							'held'		=> 'Release Locks Held by Asset',
+						);
+
+		// check if the status is valid
+		if (isset($release_list[$release_type])) {
+			$settings['release_type'] = $release_type;
+			return FALSE;
+		} else {
+			return 'Specified release type is invalid';
+		}
+
+	}//end processInterface()
 
 
 	/**
