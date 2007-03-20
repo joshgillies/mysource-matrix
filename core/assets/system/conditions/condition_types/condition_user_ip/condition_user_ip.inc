@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_ip.inc,v 1.7 2006/12/06 04:23:59 emcdonald Exp $
+* $Id: condition_user_ip.inc,v 1.8 2007/03/20 23:19:25 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/condition_user_ip_edit_fns.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,6 +61,9 @@ class Condition_User_IP extends Condition
 	function evaluate(&$asset, $condition_data)
 	{
 		if (!isset($condition_data['user_ip_ranges'])) {
+			return FALSE;
+		}
+		if (!isset($_SERVER['REMOTE_ADDR'])) {
 			return FALSE;
 		}
 
