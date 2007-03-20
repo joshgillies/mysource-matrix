@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.158 2007/03/19 05:19:35 arailean Exp $
+* $Id: form.inc,v 1.159 2007/03/20 00:53:48 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.158 $
+* @version $Revision: 1.159 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1266,7 +1266,7 @@ class Form extends Asset
 			if (!empty($keyword_list)) {
 				foreach ($keyword_list as $keyword) {
 					if (isset($replacements[$keyword])) continue;
-					$replacements[$keyword] = $this->_getKeywordReplacement($keyword);
+					$replacements[$keyword] = $this->getKeywordReplacement($keyword);
 				}
 				replace_keywords($content, $replacements);
 			}
