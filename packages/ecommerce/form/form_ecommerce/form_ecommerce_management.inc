@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_management.inc,v 1.7 2007/03/19 01:05:41 arailean Exp $
+* $Id: form_ecommerce_management.inc,v 1.8 2007/03/20 04:06:32 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -132,22 +132,22 @@ class Form_Ecommerce_Management extends Asset_Management
 						'log_asset_item_format'		=> Array(
 														'added'		=> '0.2',
 														'type'		=> 'text',
-														'default'	=> '',
+														'default'	=> '<asset><id>%asset_assetid%</id><price>%item_price%</price></asset>',
 													   ),
 						'log_question_item_format'	=> Array(
 														'added'		=> '0.2',
 														'type'		=> 'text',
-														'default'	=> '',
+														'default'	=> '<item><id>%item_id%</id><price>%item_price%</price></item>',
 													   ),
 						'log_item_block_format'		=> Array(
 														'added'		=> '0.2',
 														'type'		=> 'text',
-														'default'	=> '',
+														'default'	=> '%asset_item_list%'."\n".'%question_item_list%',
 													   ),
 						'log_entry_format'			=> Array(
 														'added'		=> '0.2',
 														'type'		=> 'text',
-														'default'	=> '',
+														'default'	=> '<order>%item_block%<id>%order_id%</id><other>%form_summary%</other>',
 													   ),
 						'form_asset_format'			=> Array(
 														'added'		=> '0.2',
@@ -167,21 +167,6 @@ class Form_Ecommerce_Management extends Asset_Management
 					  );
 
 	}//end constructor
-
-
-	/**
-	* Gets a list of all files
-	*
-	* @return array
-	* @access private
-	*/
-	function _getFileList()
-	{
-		return Array(
-				'files/lister.js',
-			   );
-
-	}//end _getFileList()
 
 
 	/**
