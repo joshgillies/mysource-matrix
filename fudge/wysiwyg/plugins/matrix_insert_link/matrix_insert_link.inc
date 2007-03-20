@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.42 2006/12/27 21:52:17 lwright Exp $
+* $Id: matrix_insert_link.inc,v 1.43 2007/03/20 00:37:41 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -75,8 +75,23 @@ class matrix_insert_link extends wysiwyg_plugin
 				var current_a = this.getClosest("a");
 
 				if (!current_a) return false;
-
 				var inside_html = current_a.innerHTML;
+				var selection =  editor.getSelectedHTML();
+				if (selection != '' && selection != inside_html) {
+					// Partial selection within the link tag
+					// will not work if selection partially includes other tags
+					// for example:
+					// <a href="example.com">partial <b>link</b> here</a>
+					// and user selects "partial <b>li" as the selection
+					var e = '(\<a [^\>]+>)(.*)' + '(' + selection + ')(.*)(</a>)';
+					var re = new RegExp(e, "i");
+					// turns into "<a>before</a> selection <a>after</a>"
+					var remove_tag = HTMLArea.getHTML(current_a, true).replace(re, "$1$2$5$3$1$4$5");
+					// Remove empty link tags
+					var e = '\<a [^\>]+></a>';
+					var re = new RegExp(e, "gi");
+					inside_html = remove_tag.replace(re, "");
+				}
 				var text = this._doc.createDocumentFragment();
 				var div = this._doc.createElement("div");
 				div.innerHTML = inside_html;
@@ -84,7 +99,6 @@ class matrix_insert_link extends wysiwyg_plugin
 					text.appendChild(div.firstChild);
 				}
 				current_a.parentNode.replaceChild(text, current_a);
-
 			}
 
 
@@ -415,6 +429,7 @@ class matrix_insert_link extends wysiwyg_plugin
 		<?php
 
 	}//end print_plugin_update_toolbar()
+
 
 }//end class
 
