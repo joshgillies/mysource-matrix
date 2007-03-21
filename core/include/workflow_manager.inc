@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.102 2007/02/18 23:34:44 rhoward Exp $
+* $Id: workflow_manager.inc,v 1.103 2007/03/21 03:40:31 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -960,7 +960,7 @@ class Workflow_Manager extends MySource_Object
 				// Are there actually no steps left?
 				if (empty($step)) continue;
 
-				if (!$step == $steps_before[$schemaid]) {
+				if (!($step == $steps_before[$schemaid])) {
 					$publishers = $this->whoCanPublish($asset->id, $schemaid);
 					// send internal messages to everyone in the next step who can now publish the asset
 					$msg = $ms->newMessage($publishers);
@@ -975,9 +975,9 @@ class Workflow_Manager extends MySource_Object
 									'user_name'				=> $user->name,
 									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 									'asset_name'			=> $asset->name,
-									'previous_step_id'		=> $steps_before[$schemaid],
+									'previous_step_id'		=> implode('.', $steps_before[$schemaid]),
 									'previous_step_name'	=> $previous_step_name,
-									'current_step_id'		=> $step,
+									'current_step_id'		=> implode('.', $step),
 									'current_step_name'		=> $current_step_name,
 									'workflow_url'			=> current_url().$asset->getBackendHref('workflow', FALSE),
 								);
