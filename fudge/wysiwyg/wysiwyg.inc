@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.67 2006/12/06 05:11:07 bcaldwell Exp $
+* $Id: wysiwyg.inc,v 1.67.2.1 2007/03/21 05:03:42 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.67.2.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1049,7 +1049,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 				// We want to replace actual entities in the html(like ©) with
 				// Their correct &bla; representations
 				HTMLArea.prototype.replace_entities = function(html_code) {
-return html_code;
+
 					var entities_array = {
 						160 : '&nbsp;',		// non-breaking space
 						161 : '&iexcl;',	// inverted exclamation mark

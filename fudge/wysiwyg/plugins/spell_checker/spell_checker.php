@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.php,v 1.9 2006/12/06 05:11:11 bcaldwell Exp $
+* $Id: spell_checker.php,v 1.9.2.1 2007/03/21 05:03:43 skim Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Spell Checker Popup for the WYSIWYG
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package MySource_Matrix
 */
 
@@ -74,6 +74,7 @@ header("Content-type: text/html; charset: utf-8");
 		</style>
 	</head>
 	<body onload="window.parent.finishedSpellChecking();" bgcolor="#FFFFFF">
+
 		<?php
 		$GLOBALS['spellerId'] = 0;
 		$GLOBALS['dict'] = 'en';
@@ -108,7 +109,7 @@ header("Content-type: text/html; charset: utf-8");
 		$parser->set_element_handler('openHandler', 'closeHandler');
 		$parser->set_data_handler('dataHandler');
 
-		$string_to_parse = stripslashes(utf8_decode($_POST['content']));
+		$string_to_parse = stripslashes($_POST['content']);
 
 		$parser->parse($string_to_parse);
 
