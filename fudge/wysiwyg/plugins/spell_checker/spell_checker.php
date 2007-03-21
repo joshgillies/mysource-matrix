@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.php,v 1.8 2004/12/06 14:39:54 brobertson Exp $
+* $Id: spell_checker.php,v 1.8.6.1 2007/03/21 05:04:23 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Spell Checker Popup for the WYSIWYG
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.6.1 $
 * @package MySource_Matrix
 */
 
@@ -116,7 +116,7 @@ header("Content-type: text/html; charset: utf-8");
 		$parser->set_element_handler('openHandler', 'closeHandler');
 		$parser->set_data_handler('dataHandler');
 
-		$string_to_parse = stripslashes(utf8_decode($_POST['content']));
+		$string_to_parse = stripslashes($_POST['content']);
 
 		$parser->parse($string_to_parse);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_parser.inc,v 1.11 2004/12/06 14:39:54 brobertson Exp $
+* $Id: spell_parser.inc,v 1.11.6.1 2007/03/21 05:04:23 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.6.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -102,7 +102,7 @@ Class Spell_Parser
 		}
 
 		if (!$check_spelling || pspell_check($GLOBALS['spellerid'], $word)) {
-			return utf8_encode(htmlspecialchars($match[1]).$match[2]);
+			return htmlspecialchars($match[1]).$match[2];
 		} else {
 			$retv = '<span class="HA-spellcheck-error">'.$word.'</span>';
 			$suggestions = pspell_suggest($GLOBALS['spellerid'], $word);
@@ -110,7 +110,7 @@ Class Spell_Parser
 
 			for ($i = 0; $i < count($suggestions); $i++) {
 
-				$retv .= utf8_encode(htmlspecialchars($suggestions[$i]));
+				$retv .= htmlspecialchars($suggestions[$i]);
 				if ($i != count($suggestions)) {
 					$retv .= ",";
 				}
