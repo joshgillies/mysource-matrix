@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_management.inc,v 1.8 2007/03/20 04:06:32 arailean Exp $
+* $Id: form_ecommerce_management.inc,v 1.9 2007/03/21 03:46:49 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -194,6 +194,42 @@ class Form_Ecommerce_Management extends Asset_Management
 			   );
 
 	}//end getEventList()
+
+
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		// first do things as normal
+		$res = parent::_upgrade($current_version);
+
+		if (version_compare($current_version, '0.2', '<')) {
+			pre_echo('UPGRADING Ecom FORM TO v0.2');
+			$assetid_list = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form_ecommerce', FALSE);
+			foreach ($assetid_list as $assetid) {
+				$ecom =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if (!$form->_createBodycopies()) {
+					trigger_error('Error creating bodycopies for Ecom Form #'.$assetid, E_USER_WARNING);
+				}
+
+				// move content from old bodycopies
+				// delete old bodycopies
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ecom);
+			}
+			pre_echo(count($assetid_list).' Ecom FORMS UPDATED');
+		}
+
+
+		return $res;
+
+	}//end _upgrade()
 
 
 }//end class
