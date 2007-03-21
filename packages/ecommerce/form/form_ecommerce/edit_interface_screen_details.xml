@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2007/03/19 01:05:41 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2007/03/21 05:53:54 arailean Exp $
 *
 */
 -->
@@ -43,25 +43,23 @@
 		</field>
 	</section>
 	<section name="Asset Purchase" write_access="write:attributes" >
-		<field attribute="item_request_var_name">
-			<text width="20" height="1" />
+		<field attribute="item_req_var">
+			<text width="60" height="1" />
+		</field>
+		<field attribute="item_quantity_req_var">
+			<text width="60" height="1" />
 		</field>
 		<field attribute="asset_price_source">
-			<text width="40" height="1" />
+			<text width="60" height="1" />
 		</field>
 		<field attribute="asset_taxable_source">
-			<text width="40" height="1" />
+			<text width="60" height="1" />
 		</field>
 		<field attribute="asset_name_source">
-			<text width="40" height="1" />
+			<text width="60" height="1" />
 		</field>
-	</section>
-	<section name="Generate Report">
-		<field>
-			<function_call>
-				<paint_function	 name="paintExport" />
-				<process_function name="processExport" />
-			</function_call>
+		<field attribute="asset_multiple_source">
+			<text width="60" height="1" />
 		</field>
 	</section>
 </contents>

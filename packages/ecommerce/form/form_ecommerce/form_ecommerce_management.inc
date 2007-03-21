@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_management.inc,v 1.9 2007/03/21 03:46:49 arailean Exp $
+* $Id: form_ecommerce_management.inc,v 1.10 2007/03/21 05:53:54 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -111,6 +111,11 @@ class Form_Ecommerce_Management extends Asset_Management
 														'type'		=> 'text',
 														'default'	=> '%asset_name%',
 													   ),
+						'asset_multiple_source'		=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '',
+													   ),
 						'form_assets_format'		=> Array(
 														'added'		=> '0.2',
 														'type'		=> 'text',
@@ -159,10 +164,15 @@ class Form_Ecommerce_Management extends Asset_Management
 														'type'		=> 'text',
 														'default'	=> '',
 													   ),
-						'item_request_var_name'		=> Array(
+						'item_req_var'				=> Array(
 														'added'		=> '0.2',
 														'type'		=> 'text',
-														'default'	=> 'add_to_order',
+														'default'	=> 'add_to_cart',
+													   ),
+						'item_quantity_req_var'		=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '',
 													   ),
 					  );
 

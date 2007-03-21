@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.26 2007/03/21 03:45:27 arailean Exp $
+* $Id: form_ecommerce.inc,v 1.27 2007/03/21 05:53:54 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -121,7 +121,6 @@ class Form_Ecommerce extends Form_Email
 	{
 		$order_links = parent::_getAllowedLinks();
 		$order_links[SQ_LINK_TYPE_2]['folder'] = Array('card' => 'M');
-		$order_links[SQ_LINK_TYPE_3]['order'] = Array('card' => 'M');
 		return $order_links;
 
 	}//end _getAllowedLinks()
@@ -223,7 +222,7 @@ class Form_Ecommerce extends Form_Email
 			}
 		}
 
-		$request_var_name = $this->attr('item_request_var_name');
+		$request_var_name = $this->attr('item_req_var');
 		if (empty($action) && isset($_REQUEST[$request_var_name])) {
 			$action = 'add_to_cart';
 		}
@@ -244,19 +243,10 @@ class Form_Ecommerce extends Form_Email
 				}
 				$am->forgetAsset($asset);
 
-/*
-				$quantity = 1;
-				$item_count = @array_get_index($_SESSION[$prefix]['items'], $item, 0);
-				if ($item_count && FALSE && '//TODO: Allow Multiple //This always fails') {
-					$item_count += $quantity;
-				} else {
-					$item_count = $quantity;
-				}
-*/
 				// can only buy one of each item
 				$quantity = 1;
 				if ($this->_isPurchasableAssetQuantityAllowed($asset)) {
-					$quantity = @$_REQUEST['quantity'];
+					$quantity = @$_REQUEST[$this->attr('item_quantity_req_var')];
 					if (!is_numeric($quantity) || $quantity <= 0) {
 						$quantity = 1;
 					}
@@ -564,7 +554,7 @@ class Form_Ecommerce extends Form_Email
 
 			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
 
-			switch($keyword_parts[1]) {
+			switch ($keyword_parts[1]) {
 				case 'id':
 					$value = 'q'.$keyword_parts[2].'_'.$keyword_parts[3];
 				break;
@@ -645,7 +635,7 @@ class Form_Ecommerce extends Form_Email
 		$all_questions = $this->getAllQuestionsCached();
 		return isset($all_questions[$question_id]);
 
-	}//end isAllowedQuestionId
+	}//end isAllowedQuestionId()
 
 
 	/**
@@ -1066,9 +1056,16 @@ class Form_Ecommerce extends Form_Email
 		foreach ($assets_in_cart as $asset_id => $count) {
 			$ecom_item['taxable'] = FALSE;
 			$asset =& $am->getAsset($asset_id);
+			$name = $this->_getPurchasableAssetName($asset);
+			$price = $this->_getPurchasableAssetPrice($asset);
 
-			$ecom_item['name']  = $this->_getPurchasableAssetName($asset);;
-			$ecom_item['price'] = $this->_getPurchasableAssetPrice($asset);
+			if ($count > 1) {
+				$name = $count.' x '.$name.' @'.$price;
+				$price = $price * $count;
+			}
+
+			$ecom_item['name'] = $name;
+			$ecom_item['price'] = $price;
 			$ecom_item['id'] = $asset_id;
 
 			$is_taxable = $this->_isPurchasableAssetTaxable($asset);
@@ -1609,6 +1606,11 @@ class Form_Ecommerce extends Form_Email
 			$name = $this->_getPurchasableAssetName($asset);
 			$is_taxable = $this->_isPurchasableAssetTaxable($asset);
 
+			if ($count > 1) {
+				$name = $count.' x '.$name.' @'.$price;
+				$price = $price * $count;
+			}
+
 			$replacements['item_name'] = $name;
 			$replacements['item_price'] = $this->_formatPriceAmount($price);
 			$replacements['item_taxable_string'] = '';
@@ -1950,9 +1952,27 @@ class Form_Ecommerce extends Form_Email
 		$tax_source_string = $this->attr('asset_taxable_source');
 		$tax_check_string = $asset->replaceKeywordsInString($tax_source_string);
 
-		return !($tax_check_string == '');
+		return $tax_check_string !== '';
 
 	}//end _isPurchasableAssetTaxable()
+
+
+	/**
+	* True if multiples of passed asset can be purchased
+	*
+	* @param object	&$asset	asset to check
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _isPurchasableAssetQuantityAllowed(&$asset)
+	{
+		$multiple_source_string = $this->attr('asset_multiple_source');
+		$check_string = $asset->replaceKeywordsInString($multiple_source_string);
+
+		return $check_string !== '';
+
+	}//end _isPurchasableAssetQuantityAllowed()
 
 
 	/**
