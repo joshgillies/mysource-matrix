@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.558 2007/03/08 03:10:23 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.559 2007/03/21 23:55:02 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.558 $
+* @version $Revision: 1.559 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1708,12 +1708,12 @@ class Asset_Manager extends MySource_Object
 		// components are cascaded from the new parent regardless of what permissions the
 		// current user has (to match creation and moving assets)
 
-		// If no $link is specified, just don't clone anything from the parent. 
+		// If no $link is specified, just don't clone anything from the parent.
 		if (!empty($link)) {
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
 				$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
 				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
-				
+
 				// remove content_tags from the array, if present; munge array, then give it to cloneComponents
 				$nonlink_parent_components = $parent_components;
 				foreach ($nonlink_parent_components as $idx => $component) {
@@ -1772,7 +1772,7 @@ class Asset_Manager extends MySource_Object
 		// as per above, cascade components from parent asset to new
 		// child, regardless of permission
 
-		// If no $link is specified, just don't clone anything from the parent. 
+		// If no $link is specified, just don't clone anything from the parent.
 		if (!empty($link)) {
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
 				$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
@@ -3287,10 +3287,11 @@ class Asset_Manager extends MySource_Object
 			$real_parents = Array();
 			// we also need the parents of the majorid from the shadow asset link table
 			foreach ($shdw_parentids as $parentid) {
-				$real_parents = $this->getParents($parentid, $type_code, $strict_type_code, $sort_by, $access);
+				$real_parents += $this->getParents($parentid, $type_code, $strict_type_code, $sort_by, $access);
 			}
 
 			$parents = $parents + $shdw_parents + $real_parents;
+
 			$this->forgetAsset($asset);
 			return $parents;
 		}//end if shadow asset
@@ -4182,7 +4183,7 @@ class Asset_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$result = $db->query($sql);
-		
+
 		assert_valid_db_result($result);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
