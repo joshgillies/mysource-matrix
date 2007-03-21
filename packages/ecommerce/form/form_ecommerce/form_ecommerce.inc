@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.25 2007/03/19 04:05:08 arailean Exp $
+* $Id: form_ecommerce.inc,v 1.26 2007/03/21 03:45:27 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -77,7 +77,7 @@ class Form_Ecommerce extends Form_Email
 
 
 	/**
-	* Creates the necessary bodycopies
+	* Do extra processing when creating
 	*
 	* @param array	$link	link
 	*
@@ -86,6 +86,19 @@ class Form_Ecommerce extends Form_Email
 	*/
 	function _createAdditional($link)
 	{
+		return $this->_createBodycopies();
+
+	}//end _createAdditional()
+
+
+	/**
+	* Creates the necessary bodycopies
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _createBodycopies()
+	{
 		$result = TRUE;
 		foreach ($this->_bodycopies as $bodycopy) {
 			$result = $result && $this->createBodycopy($bodycopy);
@@ -93,7 +106,7 @@ class Form_Ecommerce extends Form_Email
 
 		return $result;
 
-	}//end _createAdditional()
+	}//end _createBodycopies()
 
 
 	/**
@@ -191,6 +204,14 @@ class Form_Ecommerce extends Form_Email
 	*/
 	function printStandard()
 	{
+
+		// an order in this case is a state of this form which was saved in a file
+		$order = $this->_readOrder();
+		if (!empty($order)) {
+			$this->current_answers = $order['submission'];
+			$this->repopulate();
+		}
+
 		$prefix = $this->getPrefix();
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
@@ -223,15 +244,40 @@ class Form_Ecommerce extends Form_Email
 				}
 				$am->forgetAsset($asset);
 
-				// can only buy one of each item
+/*
 				$quantity = 1;
-				$item_count = array_get_index($_SESSION[$prefix]['items'], $item, 0);
+				$item_count = @array_get_index($_SESSION[$prefix]['items'], $item, 0);
 				if ($item_count && FALSE && '//TODO: Allow Multiple //This always fails') {
 					$item_count += $quantity;
 				} else {
 					$item_count = $quantity;
 				}
-				$_SESSION[$prefix]['items'][$item] = $item_count;
+*/
+				// can only buy one of each item
+				$quantity = 1;
+				if ($this->_isPurchasableAssetQuantityAllowed($asset)) {
+					$quantity = @$_REQUEST['quantity'];
+					if (!is_numeric($quantity) || $quantity <= 0) {
+						$quantity = 1;
+					}
+				}
+
+				$_SESSION[$prefix]['items'] = Array();
+				$_SESSION[$prefix]['items'][$item] = $quantity;
+
+				$this->_makeOrder();
+				$this->_saveOrder();
+
+				header('Location: '.$this->getUrl());
+				return TRUE;
+
+			break;
+
+			case ('empty_cart'):
+				$_SESSION[$prefix]['items'] = Array();
+
+				$this->_makeOrder();
+				$this->_saveOrder();
 
 				header('Location: '.$this->getUrl());
 				return TRUE;
@@ -260,14 +306,11 @@ class Form_Ecommerce extends Form_Email
 
 				$this->printConfirmationView();
 				return TRUE;
+
 			break;
 
 
 			case ('process'):
-				// update the total just in case someone is trying to be tricky
-				$order = $this->_tmp['order'];
-				$_SESSION['SQ_ECOM_AMOUNT'] = $order['total'];
-
 				$gateway = $this->attr('gateway_assetid');
 				if (empty($gateway)) {
 					trigger_error('Payment Gateway not configured. Cannot proceed.', E_USER_NOTICE);
@@ -389,7 +432,12 @@ class Form_Ecommerce extends Form_Email
 			replace_keywords($item_block, $item_block_replacements);
 		}
 
-		$log_entry_string = $this->replaceKeywordsInString($log_entry_format);
+		$log_entry_string = $log_entry_format;
+		$log_entry_keywords = extract_keywords($log_entry_format);
+		foreach ($log_entry_keywords as $keyword) {
+			$log_entry_replacements[$keyword] = $this->_getThankYouKeywordReplacement($keyword);
+		}
+
 		$log_entry_replacements['item_block'] = $item_block;
 		replace_keywords($log_entry_string, $log_entry_replacements);
 
@@ -456,25 +504,15 @@ class Form_Ecommerce extends Form_Email
 		}
 		$javascript = ob_get_clean();
 
-
-		$order = $this->_readOrder();
-		if (!empty($order)) {
-			$this->_deleteOrderFile();
-			$this->current_answers = $order['submission'];
-			$this->repopulate();
-		}
-
 		$bodycopy =& $this->getBodycopy('Form');
 
 		if (is_null($bodycopy)) return '';
-
-		$replacements = $this->_getCommonFormKeywordReplacements();
 
 		$keyword_list = $bodycopy->getKeywords();
 		if (!empty($keyword_list)) {
 			foreach ($keyword_list as $keyword) {
 				if (isset($replacements[$keyword])) continue;
-				$replacements[$keyword] = $this->_getKeywordReplacement($keyword);
+				$replacements[$keyword] = $this->getKeywordReplacement($keyword);
 			}
 		}
 
@@ -488,6 +526,147 @@ class Form_Ecommerce extends Form_Email
 		echo '</form>';
 
 	}//end printFormView()
+
+
+	/**
+	* Keyword replacement processor
+	*
+	* @param string	$keyword	keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getKeywordReplacement($keyword)
+	{
+		$value = NULL;
+		$unreplaced_value = '%'.$keyword.'%';
+
+		$keyword_parts = explode('_', $keyword);
+		if (empty($keyword_parts)) return $unreplaced_value;
+
+		$keyword_category = $keyword_parts[0];
+
+		if ($keyword_category == 'question') {
+
+			// keywords look like this:
+			// question_TYPE_BRIDGEID_qQUESTIONID
+			// where TYPE = id, label, field, note
+
+			if (count($keyword_parts) != 4) {
+				return $unreplaced_value;
+			}
+
+			$question_id = $keyword_parts[2].':'.$keyword_parts[3];
+
+			if (!$this->isAllowedQuestionId($question_id)) {
+				return $unreplaced_value;
+			}
+
+			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
+
+			switch($keyword_parts[1]) {
+				case 'id':
+					$value = 'q'.$keyword_parts[2].'_'.$keyword_parts[3];
+				break;
+
+				case 'label':
+					$value = $q_asset->getHtmlLabel();
+				break;
+
+				case 'field':
+					$value = $q_asset->getHtmlField();
+				break;
+
+				case 'note':
+					$value = $q_asset->attr('note');
+				break;
+
+				case 'response':
+					$value = $q_asset->getSummary();
+				break;
+
+				default:
+					$value = $unreplaced_value;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($q_asset);
+
+			return $value;
+
+		} else if ($keyword_category == 'response') {
+			if (count($keyword_parts) != 3) {
+				return $unreplaced_value;
+			}
+
+			$question_id = $keyword_parts[1].':'.$keyword_parts[2];
+			if (!$this->isAllowedQuestionId($question_id)) {
+				return $unreplaced_value;
+			}
+
+			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
+			$value = $q_asset->getSummary();
+			return $value;
+
+		} else if ($keyword_category == 'section') {
+			// section keyword looks like this:
+			// section_title_SECTIONID
+
+			if (count($keyword_parts) != 3) {
+				return $unreplaced_value;
+			}
+
+			if ($keyword_parts[1] == 'title') {
+				$section_id = $keyword_parts[2];
+				$section_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_id);
+				$value = $section_asset->attr('name');
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($section_asset);
+
+				return $value;
+			}
+		}
+
+		return parent::getKeywordReplacement($keyword);
+
+	}//end getKeywordReplacement()
+
+
+	/**
+	* Checks if a passed question ID belongs to this form
+	*
+	* Requires a full asset id
+	*
+	* @param string	$question_id	question id to check
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isAllowedQuestionId($question_id)
+	{
+		$all_questions = $this->getAllQuestionsCached();
+		return isset($all_questions[$question_id]);
+
+	}//end isAllowedQuestionId
+
+
+	/**
+	* Gets a list of all questions in the form (cached)
+	*
+	* Caches the output of getAllQuestions in tmp vars to avoid memory problems with arrays
+	*
+	* @return array
+	* @access public
+	*/
+	function &getAllQuestionsCached()
+	{
+		if (is_null(@$this->_tmp['all_questions'])) {
+			$this->_tmp['all_questions'] = $this->getAllQuestions();
+		}
+
+		$questions =& $this->_tmp['all_questions'];
+
+		return $questions;
+
+	}//end getAllQuestionsCached()
 
 
 	/**
