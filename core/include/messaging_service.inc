@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.57 2007/01/16 01:06:33 rong Exp $
+* $Id: messaging_service.inc,v 1.58 2007/03/21 05:19:56 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -722,6 +722,7 @@ class Messaging_Service extends MySource_Object
 
 					$body = implode("\n\n".str_repeat('-', 50)."\n\n", $bodies);
 					$mail =& Mail::factory('mail', "-f$from_email");
+					$mime =& new Mail_mime($crlf);
 
 					$hdrs = Array(
 								'From'		=> $from_string,
@@ -739,6 +740,8 @@ class Messaging_Service extends MySource_Object
 					$hdrs = $mime->headers($hdrs);
 
 					$mail->send($to_email, $hdrs, $body);
+					unset($mime);
+					unset($mail);
 				}
 			}//end foreach
 		}//end foreach
