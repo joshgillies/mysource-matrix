@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.62 2007/03/19 02:45:10 rong Exp $
+* $Id: bulk_mailer.inc,v 1.63 2007/03/21 03:21:16 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -344,7 +344,10 @@ class Bulk_Mailer
 				}
 
 				// format recipient count with grouped thousands
-				$msg_reps = Array('num_recip'	=> number_format($progress_info['total_count']));
+				$msg_reps = Array(
+								'num_recip'		=> number_format($progress_info['total_count']),
+								'num_problem'	=> number_format(count($progress_info['problematic'])),
+							);
 				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$message = $ms->newMessage(Array(), $message_type, $msg_reps);
 				$message->parameters['assetid'] = $job_id;
@@ -505,7 +508,6 @@ class Bulk_Mailer
 		$recipients = Array();
 		$recipients_query = Array();
 		$permission_denied = $am->getPermission($asset_to_send_id, SQ_PERMISSION_READ, FALSE, FALSE);
-
 		for ($recipients_expanded; NULL != ($recipient_id = key($recipients_expanded)); next($recipients_expanded)) {
 			if (!in_array($recipient_id, $permission_denied)) {
 				$recipient_id_parts = explode(':', $recipient_id);
@@ -514,17 +516,17 @@ class Bulk_Mailer
 					$recipients[$recipient->id] = $recipient->attr('email');
 					$am->forgetAsset($recipient);
 				} else {
-					$recipients_query[] = $db->quoteSmart($recipient_id);
+					$recipients_query[] = $db->quoteSmart((string) $recipient_id);
 				}
 			} else {
 				// read access denied for this recipient
 				$problematic_list[] = $recipient_id;
 			}
 		}
-
 		$query = Array();
 		if (!empty($recipients_query)) {
-			// Now, let's do one big-ass query to get all the email addresses of REAL assets
+			// Now, let's do one big query to get all the email addresses of REAL assets
+			// User assets without an email will be filtered out here
 			$sql = 'SELECT attr_val.assetid, attr_val.custom_val
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val attr_val
 					  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr attr
