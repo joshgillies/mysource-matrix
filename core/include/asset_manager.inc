@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.531.2.14 2007/03/13 04:16:14 lwright Exp $
+* $Id: asset_manager.inc,v 1.531.2.15 2007/03/21 23:56:18 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.531.2.14 $
+* @version $Revision: 1.531.2.15 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3153,7 +3153,7 @@ class Asset_Manager extends MySource_Object
 			$real_parents = Array();
 			// we also need the parents of the majorid from the shadow asset link table
 			foreach ($shdw_parentids as $parentid) {
-				$real_parents = $this->getParents($parentid, $type_code, $strict_type_code, $sort_by, $access);
+				$real_parents += $this->getParents($parentid, $type_code, $strict_type_code, $sort_by, $access);
 			}
 
 			$parents = $parents + $shdw_parents + $real_parents;
