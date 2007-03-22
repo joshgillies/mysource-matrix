@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.6 2006/12/07 00:04:25 emcdonald Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.7 2007/03/22 02:42:31 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,7 +57,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 	*/
 	function generateReport(&$job, &$step_data, $prefix)
 	{
-
+log_dump($job);
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$owner =& $am->getAsset($job->_running_vars['assetid'], 'report_asset_statuses');
@@ -124,8 +124,8 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		// generate XML contents
 		$contents = '<asset_list>'."\n";
 		foreach ($result as $values) {
-			$contents .= '<asset assetid="'.$values['assetid'].'" name="'.htmlSpecialChars($values['name']).'" type_code="'.$values['type_code'].'">'."\n";
-			$contents .= '	<status value="'.$values['status'].'" changed="'.$values['status_changed'].'" changed_userid="'.$values['status_changed_userid'].'" changed_user_name="'.$values['user_name'].'"/>'."\n";
+			$contents .= '<asset assetid="'.htmlSpecialChars($values['assetid']).'" name="'.htmlSpecialChars($values['name']).'" type_code="'.$values['type_code'].'">'."\n";
+			$contents .= '	<status value="'.$values['status'].'" changed="'.$values['status_changed'].'" changed_userid="'.htmlSpecialChars($values['status_changed_userid']).'" changed_user_name="'.htmlSpecialChars($values['user_name']).'"/>'."\n";
 			$contents .= '</asset>'."\n";
 		}
 		$contents .= '</asset_list>';
