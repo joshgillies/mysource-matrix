@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.60 2007/03/20 04:16:42 lwright Exp $
+* $Id: ldap_bridge.inc,v 1.61 2007/03/22 05:21:04 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -883,14 +883,15 @@ class LDAP_Bridge extends Asset
 	*									When TRUE fn returns all info about the permission in the form of
 	*									Array(userid => granted)
 	*									(NOTE: TRUE is only valid if $and_greater and
-										 *									$expand_groups are FALSE)
+	*									$expand_groups are FALSE)
 	*
 	* @return array
 	* @access public
 	*/
 	function getPermission($assetid, $permission, $granted=NULL, $and_greater=TRUE, $expand_groups=FALSE, $all_info=FALSE)
 	{
-		return Array();
+		// All users underneath this bridge inherit the permissions of the bridge
+		return $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $permission, $granted, $and_greater, $expand_groups, $all_info);
 
 	}//end getPermission()
 
