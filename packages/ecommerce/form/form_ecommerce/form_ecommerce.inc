@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.27 2007/03/21 05:53:54 arailean Exp $
+* $Id: form_ecommerce.inc,v 1.28 2007/03/22 05:59:44 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -205,18 +205,22 @@ class Form_Ecommerce extends Form_Email
 	{
 
 		// an order in this case is a state of this form which was saved in a file
-		$order = $this->_readOrder();
+		if (isset($_SESSION[$this->getPrefix()]['order'])) {
+			$order =& $_SESSION[$this->getPrefix()]['order'];
+		} else {
+			$order = $this->_readOrder();
+		}
+
 		if (!empty($order)) {
 			$this->current_answers = $order['submission'];
 			$this->repopulate();
 		}
 
-		$prefix = $this->getPrefix();
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// check to see if the form has been submitted or not
-		$action = array_get_index($_REQUEST, $prefix.'_action');
-		if (isset($_REQUEST[$prefix.'_submit'])) {
+		$action = array_get_index($_REQUEST, $this->getPrefix().'_action');
+		if (isset($_REQUEST[$this->getPrefix().'_submit'])) {
 			if ($this->processForm() && empty($action)) {
 				$action = $this->confirm_view;
 			}
@@ -233,30 +237,17 @@ class Form_Ecommerce extends Form_Email
 				// MAYBE: Convert to parameter map
 				if ($request_var_name == '') break;
 
-				$item = @$_REQUEST[$request_var_name];
-				if (is_null($item)) break;
+				$assetid = @$_REQUEST[$request_var_name];
+				if (is_null($assetid)) break;
 
-				$asset =& $am->getAsset($item);
-				if (!$this->_isPurchasableAsset($asset)) {
+				$quantity = @$_REQUEST[$this->attr('item_quantity_req_var')];
+
+				if (!$this->_addAssetItem($assetid, $quantity)) {
 					trigger_error('This item cannot be purchased', E_USER_NOTICE);
 					break;
 				}
-				$am->forgetAsset($asset);
-
-				// can only buy one of each item
-				$quantity = 1;
-				if ($this->_isPurchasableAssetQuantityAllowed($asset)) {
-					$quantity = @$_REQUEST[$this->attr('item_quantity_req_var')];
-					if (!is_numeric($quantity) || $quantity <= 0) {
-						$quantity = 1;
-					}
-				}
-
-				$_SESSION[$prefix]['items'] = Array();
-				$_SESSION[$prefix]['items'][$item] = $quantity;
 
 				$this->_makeOrder();
-				$this->_saveOrder();
 
 				header('Location: '.$this->getUrl());
 				return TRUE;
@@ -264,10 +255,8 @@ class Form_Ecommerce extends Form_Email
 			break;
 
 			case ('empty_cart'):
-				$_SESSION[$prefix]['items'] = Array();
-
+				$this->_clearAssetItems();
 				$this->_makeOrder();
-				$this->_saveOrder();
 
 				header('Location: '.$this->getUrl());
 				return TRUE;
@@ -286,7 +275,7 @@ class Form_Ecommerce extends Form_Email
 				// because we might want to nest the payment gateway on this screen
 				// so we need all data to be available to it on this view
 				// side effect of this is that it makes the 'process' view unnecessary if the gateway is nested
-				$order = $this->_tmp['order'];
+				$order = $_SESSION[$this->getPrefix()]['order'];
 				$action_name = $this->getPrefix().'_action';
 
 				$_SESSION['SQ_ECOM_SUCCESS_URL'] = $this->getURL().'?'.$action_name.'='.$this->receipt_view;
@@ -358,7 +347,8 @@ class Form_Ecommerce extends Form_Email
 				$this->printReceiptView();
 
 				// clear the cart
-				$_SESSION[$prefix]['items'] = Array();
+				$_SESSION[$this->getPrefix()]['items'] = Array();
+				$_SESSION[$this->getPrefix()]['order'] = Array();
 
 				return TRUE;
 
@@ -388,7 +378,8 @@ class Form_Ecommerce extends Form_Email
 		$log_entry_format = $this->attr('log_entry_format');
 
 		ob_start();
-		$asset_list = @$this->_tmp['order']['ecom_assets'];
+
+		$asset_list = @$_SESSION[$this->getPrefix()]['order']['ecom_assets'];
 		if (empty($asset_list)) $asset_list = Array();
 		foreach ($asset_list as $id => $item) {
 			$asset =& $am->getAsset($id);
@@ -403,7 +394,7 @@ class Form_Ecommerce extends Form_Email
 		$item_block_replacements['asset_item_list'] = $asset_item_list;
 
 		ob_start();
-		$question_list = @$this->_tmp['order']['ecom_questions'];
+		$question_list = @$_SESSION[$this->getPrefix()]['ecom_questions'];
 		if (empty($question_list)) $question_list = Array();
 		foreach ($question_list as $id => $item) {
 			$item_string = $question_item_format;
@@ -1003,7 +994,7 @@ class Form_Ecommerce extends Form_Email
 	*/
 	function _getReceipt($as_html=TRUE)
 	{
-		$order = array_get_index($this->_tmp, 'order');
+		$order = $_SESSION[$this->getPrefix()]['order'];
 		if (empty($order)) return FALSE;
 
 		if ($as_html) {
@@ -1058,13 +1049,13 @@ class Form_Ecommerce extends Form_Email
 			$asset =& $am->getAsset($asset_id);
 			$name = $this->_getPurchasableAssetName($asset);
 			$price = $this->_getPurchasableAssetPrice($asset);
-
 			if ($count > 1) {
 				$name = $count.' x '.$name.' @'.$price;
 				$price = $price * $count;
 			}
 
 			$ecom_item['name'] = $name;
+			$ecom_item['quantity'] = $count;
 			$ecom_item['price'] = $price;
 			$ecom_item['id'] = $asset_id;
 
@@ -1137,7 +1128,7 @@ class Form_Ecommerce extends Form_Email
 		$order['total'] = $total;
 		$order['submission'] = $this->current_answers;
 
-		$this->_tmp['order'] = $order;
+		$_SESSION[$this->getPrefix()]['order'] = $order;
 
 		return TRUE;
 
@@ -1153,7 +1144,8 @@ class Form_Ecommerce extends Form_Email
 	function _saveOrder()
 	{
 		$filename = $this->_getOrderFileName();
-		$order_contents = serialize($this->_tmp['order']);
+		$order = $_SESSION[$this->getPrefix()]['order'];
+		$order_contents = serialize($order);
 		return string_to_file($order_contents, $filename);
 
 	}//end _saveOrder()
@@ -1172,8 +1164,8 @@ class Form_Ecommerce extends Form_Email
 		$filename = $this->_getOrderFileName($order_no);
 		$order = file_to_string($filename);
 		if (!$order) return FALSE;
-		$this->_tmp['order'] = unserialize($order);
-		return $this->_tmp['order'];
+		$_SESSION[$this->getPrefix()]['order'] = unserialize($order);
+		return $_SESSION[$this->getPrefix()]['order'];
 
 	}//end _readOrder()
 
@@ -1430,8 +1422,9 @@ class Form_Ecommerce extends Form_Email
 	function getOrderItemCountKeywordReplacement()
 	{
 		$item_count = 0;
-		if (isset($this->_tmp['order']['items'])) {
-			$item_count = count($this->_tmp['order']['items']);
+
+		if (isset($_SESSION[$this->getPrefix()]['order']['items'])) {
+			$item_count = count($_SESSION[$this->getPrefix()]['order']['items']);
 		}
 
 		return $item_count;
@@ -1514,10 +1507,9 @@ class Form_Ecommerce extends Form_Email
 	{
 		$taxable_count = 0;
 
-		if (isset($this->_tmp['order']['taxable_items'])) {
-			$taxable_count = count($this->_tmp['order']['taxable_items']);
+		if (isset($_SESSION[$this->getPrefix()]['order']['taxable_items'])) {
+			$taxable_count = count($_SESSION[$this->getPrefix()]['order']['taxable_items']);
 		}
-
 		return $taxable_count;
 
 	}//end getOrderTaxableItemCountKeywordReplacement()
@@ -1781,13 +1773,64 @@ class Form_Ecommerce extends Form_Email
 	*/
 	function _getAssetItems()
 	{
-		$assets_in_cart = @$_SESSION[$this->getPrefix()]['items'];
+		$assets_in_cart = @$_SESSION[$this->getPrefix()]['assets'];
 		if (is_null($assets_in_cart)) {
 			$assets_in_cart = Array();
 		}
 		return $assets_in_cart;
 
 	}//end _getAssetItems()
+
+
+	/**
+	* Clear the list of assets on order
+	*
+	* @return string
+	* @access private
+	*/
+	function _clearAssetItems()
+	{
+		$_SESSION[$this->getPrefix()]['assets'] = Array();
+
+	}//end _clearAssetItems()
+
+
+	/**
+	* Adds an asset item to order
+	*
+	* @param string	$assetid	Asset ID to add
+	* @param int	$quantity	Quantity of asset to add
+	*
+	* @return string
+	* @access private
+	*/
+	function _addAssetItem($assetid, $quantity=1)
+	{
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) return FALSE;
+
+		if (!$this->_isPurchasableAsset($asset)) {
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			return FALSE;
+		}
+
+		// can only buy one of each item
+		if ($this->_isPurchasableAssetQuantityAllowed($asset)) {
+			if (!is_numeric($quantity) || $quantity <= 0) {
+				$quantity = 1;
+			}
+		} else {
+			$quantity = 1;
+		}
+
+		$_SESSION[$this->getPrefix()]['assets'] = Array();
+		$_SESSION[$this->getPrefix()]['assets'][$assetid] = $quantity;
+
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+
+		return TRUE;
+
+	}//end _addAssetItem()
 
 
 	/**
@@ -1800,10 +1843,9 @@ class Form_Ecommerce extends Form_Email
 	{
 		$total = 0;
 
-		if (isset($this->_tmp['order']['total'])) {
-			$total = $this->_tmp['order']['total'];
+		if (isset($_SESSION[$this->getPrefix()]['order']['total'])) {
+			$total = $_SESSION[$this->getPrefix()]['order']['total'];
 		}
-
 		return $total;
 
 	}//end _getTotal()
@@ -1821,10 +1863,9 @@ class Form_Ecommerce extends Form_Email
 	{
 		$taxable_total = 0;
 
-		if (isset($this->_tmp['order']['taxable_total'])) {
-			$taxable_total = $this->_tmp['order']['taxable_total'];
+		if (isset($_SESSION[$this->getPrefix()]['order']['taxable_total'])) {
+			$taxable_total = $_SESSION[$this->getPrefix()]['order']['taxable_total'];
 		}
-
 		return $taxable_total;
 
 	}//end _getTaxableTotal()
@@ -1869,7 +1910,8 @@ class Form_Ecommerce extends Form_Email
 	*/
 	function _getOrderItems()
 	{
-		$items = @$this->_tmp['order']['items'];
+
+		$items = @$_SESSION[$this->getPrefix()]['order']['items'];
 		if (is_null($items) || !is_array($items)) {
 			$items = Array();
 		}
@@ -2000,7 +2042,8 @@ class Form_Ecommerce extends Form_Email
 	*/
 	function _isItemTaxable($item_id)
 	{
-		$taxable = @$this->_tmp['order']['taxable_items'][$item_id];
+
+		$taxable = @$_SESSION[$this->getPrefix()]['order']['taxable_items'][$item_id];
 		return !is_null($taxable);
 
 	}//end _isItemTaxable()
