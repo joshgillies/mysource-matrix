@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image_edit_fns.inc,v 1.22 2006/12/18 05:09:53 arailean Exp $
+* $Id: design_area_custom_image_edit_fns.inc,v 1.23 2007/03/22 22:21:34 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -136,7 +136,7 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 			echo translate('core_design_area_custom_image_no_upload');
 		} else {
 		?>
-			<a href="<?php echo sq_web_path('data').'/assets/'.$asset->type().'/'.$asset->id.'/'.$image; ?>" target="_blank"><?php echo $image; ?></a>
+			<a href="<?php echo sq_web_path('data').'/assets/'.$asset->type().'/'.get_asset_hash($asset->id).'/'.$asset->id.'/'.$image; ?>" target="_blank"><?php echo $image; ?></a>
 		<?php
 		}
 		return TRUE;
