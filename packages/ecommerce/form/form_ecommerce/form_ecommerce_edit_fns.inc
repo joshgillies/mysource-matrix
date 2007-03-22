@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_edit_fns.inc,v 1.12 2007/03/21 03:33:17 arailean Exp $
+* $Id: form_ecommerce_edit_fns.inc,v 1.13 2007/03/22 05:53:42 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -48,6 +48,8 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 	*/
 	function paintBodycopyList(&$asset, &$o, $prefix)
 	{
+		$o->openRaw();
+
 		$bodycopies = $asset->_bodycopies;
 		foreach ($bodycopies as $one_bodycopy) {
 			$bodycopy_asset = $asset->getBodycopy($one_bodycopy);
@@ -56,7 +58,9 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 			echo '</div>';
 		}
 
-	}//end paintUseBodycopy()
+		$o->closeRaw();
+
+	}//end paintBodycopyList()
 
 
 	/**
