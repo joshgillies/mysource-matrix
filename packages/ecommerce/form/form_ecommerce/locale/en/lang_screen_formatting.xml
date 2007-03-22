@@ -10,20 +10,20 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_formatting.xml,v 1.2 2007/03/21 03:34:18 arailean Exp $
+* $Id: lang_screen_formatting.xml,v 1.3 2007/03/22 05:51:41 arailean Exp $
 *
 */
 -->
 
 <contents>
-	<section name="General" write_access="write:attributes" >
-		<field keyword="formatting_bodycopies">
-			<function_call>
-				<paint_function   name="paintBodycopyList"   />
-			</function_call>
-			<display_name>Bodycopies</display_name>
-			<note>Click the bodycopy name to jump to it's content editing screen.</note>
-		</field>
+	<section name="Bodycopies" write_access="write:attributes" >
+		<function_call>
+			<paint_function   name="paintBodycopyList"   />
+		</function_call>
+		<display_name>Bodycopies</display_name>
+		<note>Click the bodycopy name to jump to it's content editing screen.</note>
+	</section>
+	<section name="Global Strings" write_access="write:attributes" >
 		<field attribute="item_taxable_string">
 			<display_name>Taxable Item String</display_name>
 			<text width="40" height="1" />
