@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.32 2007/03/22 22:57:45 emcdonald Exp $
+* $Id: report_links_edit_fns.inc,v 1.33 2007/03/22 23:04:19 emcdonald Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1236,7 +1236,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 		if (!is_null($cron_mgr)) {
 			$rl_jobs = $cron_mgr->getJobs('cron_job_regenerate_report');
-			for ($k = 0; $k < count($rl_jobs); $k++) {
+			$job_count = count($rl_jobs);
+			for ($k = 0; $k < $job_count; $k++) {
 				// only include jobs for this link report asset
 				if ($rl_jobs[$k]->attr('asset') != $asset->id) {
 					unset($rl_jobs[$k]);
