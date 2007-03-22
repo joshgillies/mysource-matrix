@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.6.2.1 2007/03/22 02:38:25 rong Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.6.2.2 2007/03/22 02:44:15 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6.2.1 $
+* @version $Revision: 1.6.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,7 +57,6 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 	*/
 	function generateReport(&$job, &$step_data, $prefix)
 	{
-log_dump($job);
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$owner =& $am->getAsset($job->_running_vars['assetid'], 'report_asset_statuses');
