@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.235 2007/03/21 23:54:27 skim Exp $
+* $Id: lang_strings.xml,v 1.236 2007/03/22 23:29:24 skim Exp $
 *
 */
 
@@ -240,7 +240,6 @@
 	<string source="patches_available_to_install">Patches Available To Install</string>
 	<string source="path_to_antiword">Path to Antiword</string>
 	<string source="path_to_html_tidy">Path to HTML Tidy</string>
-	<string source="tidy_character_encoding">Enable Character Encoding</string>
 	<string source="path_to_pdftohtml">Path to pdftohtml</string>
 	<string source="permissions_threshold">Permissions Threshold</string>
 	<string source="permissions">Permissions</string>

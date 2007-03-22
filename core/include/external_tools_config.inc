@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.20 2007/03/21 23:54:26 skim Exp $
+* $Id: external_tools_config.inc,v 1.21 2007/03/22 23:29:23 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -40,7 +40,6 @@ class External_Tools_Config extends Config
 	*/
 	var $config_vars = Array(
 						'SQ_TOOL_HTML_TIDY_PATH'			=> Array('editable' => 1, 'default' => '/usr/bin/tidy'),
-						'SQ_TOOL_HTML_TIDY_CHAR_ENCODING'	=> Array('editable' => 1, 'default' => true),
 						'SQ_TOOL_HTML_TIDY_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_TOOL_PDFTOHTML_PATH'			=> Array('editable' => 1, 'default' => '/usr/bin/pdftohtml'),
 						'SQ_TOOL_PDFTOHTML_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
@@ -204,13 +203,6 @@ class External_Tools_Config extends Config
 				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'HTML Tidy'); ?></span><?php
 			} else if (!is_executable(SQ_TOOL_HTML_TIDY_PATH)) {
 				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_executable', 'HTML Tidy'); ?></span><?php
-			}
-
-			$o->openField(translate('tidy_character_encoding'));
-			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_TOOL_HTML_TIDY_CHAR_ENCODING]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_TOOL_HTML_TIDY_CHAR_ENCODING);
-			} else {
-				echo (SQ_TOOL_HTML_TIDY_CHAR_ENCODING) ? translate('yes') : translate('no');
 			}
 
 		$o->closeSection();
