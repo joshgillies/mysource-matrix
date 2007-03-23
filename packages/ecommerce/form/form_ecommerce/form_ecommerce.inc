@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.28 2007/03/22 05:59:44 arailean Exp $
+* $Id: form_ecommerce.inc,v 1.29 2007/03/23 03:57:21 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1711,7 +1711,7 @@ class Form_Ecommerce extends Form_Email
 
 
 	/**
-	* Order Number keyword replacement
+	* Transaction Amount keyword replacement
 	*
 	* @return string
 	* @access private
@@ -1721,6 +1721,19 @@ class Form_Ecommerce extends Form_Email
 		return array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'AMOUNT', '');
 
 	}//end getTransactionAmountKeywordReplacement()
+
+
+	/**
+	* Transaction Card Number keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTransactionCardNumberKeywordReplacement()
+	{
+		return array_get_index($this->_tmp['GATEWAY_RESPONSE'], 'CARDNO', '');
+
+	}//end getTransactionCardNumberKeywordReplacement()
 
 
 	/**
