@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.72 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: general_occasional.inc,v 1.73 2007/03/23 03:42:02 tbarrett Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix
 */
 
@@ -451,7 +451,10 @@ function openSocketConnection($url_parts, &$errno, &$errstr)
 	include_once(SQ_DATA_PATH.'/private/conf/proxy_authentication.inc');
 	$page_url = '';
 	if (is_array($url_parts)) {
-		$page_url = $url_parts['scheme'].'://'.$url_parts['host'].':'.$url_parts['port'].'/'.$url_parts['path'].$url_parts['query'];
+		if (!empty($url_parts['query']) && $url_parts['query'][0] != '?') {
+			$url_parts['query'] = '?'.$url_parts['query'];
+		}
+		$page_url = $url_parts['scheme'].'://'.$url_parts['host'].':'.$url_parts['port'].'/'.$url_parts['path'].array_get_index($url_parts, 'query', '');
 	} else {
 		$page_url = $url_parts;
 	}

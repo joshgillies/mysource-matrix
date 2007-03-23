@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.33 2007/03/22 23:04:19 emcdonald Exp $
+* $Id: report_links_edit_fns.inc,v 1.34 2007/03/23 03:42:45 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -322,10 +322,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			if (!empty($url_parts['query'])) {
 				$url_path .= '?'.$url_parts['query'];
 			}
-			$url_parts['query'] = $url_path;
 
 			require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
-
 			$socket = openSocketConnection($url_parts, $errno, $errstr);
 			if (!SQ_PA_ENABLED || !$socket) {
 				// if proxy authentication is not enabled, or fopen fails, do the old trick
