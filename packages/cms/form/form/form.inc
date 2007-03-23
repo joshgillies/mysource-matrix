@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.160 2007/03/23 05:31:37 rhoward Exp $
+* $Id: form.inc,v 1.161 2007/03/23 05:35:55 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.160 $
+* @version $Revision: 1.161 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -248,7 +248,7 @@ class Form extends Asset
 
 
 	/**
-	* Return all links that this asset has to other assets
+	* Return all links that this asset has to any shadow assets
 	*
 	* @param int			$assetid			id of the the $side_of_link asset
 	* @param int			$link_types			integer that can be the product of bitwise operations
@@ -314,6 +314,8 @@ class Form extends Asset
 							'form_section'	=> SQ_LINK_TYPE_2,
 						   );
 
+		// asset_manager will handle all the real links for us, but we need to determine sort order;
+		// get all the links, but don't add them to the links array
 		foreach ($real_type_codes as $real_type_code => $allowed_link_types) {
 			if ($type_code == '') {
 				// not fussed what we're getting, so return me
@@ -334,8 +336,6 @@ class Form extends Asset
 				assert_valid_db_result($type_links);
 
 				foreach (array_keys($type_links) as $key) {
-					$type_links[$key]['sort_order'] = $new_sort_order;
-					$links[] = $type_links[$key];
 					$new_sort_order++;
 				}
 			}
