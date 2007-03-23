@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.159 2007/03/20 00:53:48 arailean Exp $
+* $Id: form.inc,v 1.160 2007/03/23 05:31:37 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.159 $
+* @version $Revision: 1.160 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -944,7 +944,7 @@ class Form extends Asset
 																'exclusive'	=> FALSE,
 															   ),
 											'folder'		=> Array(
-																'card'		=> '1',
+																'card'		=> '2',
 																'exclusive'	=> TRUE,
 															   ),
 										   ),
