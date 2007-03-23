@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.17 2006/12/06 00:35:26 emcdonald Exp $
+* $Id: form_question.inc,v 1.18 2007/03/23 00:19:47 emcdonald Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1046,7 +1046,7 @@ class Form_Question extends Asset
 	function getHtmlLabel()
 	{
 		ob_start();
-		label($this->attr('name'), 'q'.$this->id);
+		label($this->attr('name'), 'q'.str_replace(':', '_', $this->id));
 		$label = ob_get_contents();
 		ob_end_clean();
 		return $label;
