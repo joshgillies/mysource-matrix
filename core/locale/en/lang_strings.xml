@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.237 2007/03/23 04:24:35 colivar Exp $
+* $Id: lang_strings.xml,v 1.238 2007/03/23 04:42:06 colivar Exp $
 *
 */
 
@@ -104,6 +104,8 @@
 	<string source="create_linking">Create Link</string>	
 	<string source="cron_manager_create_now_or_later">a future date and time. If no time is set, the new link will be created immediately else the cron manager will create the link at a future time</string>
 	<string source="cron_manager_delete_now_or_later">a future date and time. If no time is set, the selected link will be deleted immediately else the cron manager will delete the link at a future time</string>	 
+	<string source="cron_manager_future_not_available_create">a future date and time. This feature is not availabe for the current asset</string>
+	<string source="cron_manager_future_not_available_delete">a future date and time. This feature is not availabe for the current asset</string>
 	<string source="current_lock_status">Current Lock Status</string>
 	<string source="current_variety">Current Variety</string>
 	<string source="current">Current</string>

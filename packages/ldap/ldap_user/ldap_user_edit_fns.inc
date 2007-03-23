@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_edit_fns.inc,v 1.13 2006/12/07 01:02:09 bcaldwell Exp $
+* $Id: ldap_user_edit_fns.inc,v 1.14 2007/03/23 04:42:07 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -50,6 +50,11 @@ class Ldap_User_Edit_Fns extends User_Edit_Fns
 														'name'			=> 'Dependants',
 														'force_unlock'	=> TRUE,
 														'lock_type'		=> 'none',
+													   ),
+									'linking'		=> Array(
+														'name'			=> 'Linking',
+														'force_unlock'	=> TRUE,
+														'lock_type'		=> 'links',
 													   ),
 								);
 
