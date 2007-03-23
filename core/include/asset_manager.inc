@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.559 2007/03/21 23:55:02 lwright Exp $
+* $Id: asset_manager.inc,v 1.560 2007/03/23 01:16:12 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.559 $
+* @version $Revision: 1.560 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3265,16 +3265,23 @@ class Asset_Manager extends MySource_Object
 			if (!empty($type_code)) {
 				$sql .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
 						 ON sl.majorid = a.assetid ';
-				// we are cloning $type_code and using the clone instead
-				// this will prevent double quoting $type_code in the future
-				$type_code_clone = $type_code;
-				if (is_array($type_code_clone)) {
-					for (reset($type_code_clone); NULL !== ($key = key($type_code_clone)); next($type_code_clone)) {
-						$type_code_clone[$key] = $db->quoteSmart($type_code_clone[$key]);
+				$type_codes_quoted = Array();
+				$all_type_codes = is_array($type_code) ? $type_code : Array($type_code);
+				foreach ($all_type_codes as $tc) {
+					$type_codes_quoted[] = $db->quoteSmart($tc);
+				}
+				if (!$strict_type_code) {
+					foreach ($all_type_codes as $tc) {
+						$ancestors = $this->getTypeDescendants($tc);
+						foreach ($ancestors as $ancestor) {
+							$type_codes_quoted[] = $db->quoteSmart($ancestor);
+						}
 					}
-					$where .= ' AND a.type_code IN ('.implode(',', $type_code_clone).')';
+				}
+				if (count($type_codes_quoted) == 1) {
+					$where .= ' AND a.type_code = '.reset($type_codes_quoted);
 				} else {
-					$where .= ' AND a.type_code = '.$db->quoteSmart($type_code_clone);
+					$where .= ' AND a.type_code IN ('.implode(',', $type_codes_quoted).')';
 				}
 			}
 
