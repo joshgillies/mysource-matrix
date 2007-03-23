@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.236 2007/03/22 23:29:24 skim Exp $
+* $Id: lang_strings.xml,v 1.237 2007/03/23 04:24:35 colivar Exp $
 *
 */
 
@@ -101,6 +101,9 @@
 	<string source="current_hipo_jobs">Current HIPO Jobs</string>
 	<string source="orphaned_hipo_jobs">Orphaned HIPO Jobs</string>
 	<string source="current_linking">Current Linking</string>
+	<string source="create_linking">Create Link</string>	
+	<string source="cron_manager_create_now_or_later">a future date and time. If no time is set, the new link will be created immediately else the cron manager will create the link at a future time</string>
+	<string source="cron_manager_delete_now_or_later">a future date and time. If no time is set, the selected link will be deleted immediately else the cron manager will delete the link at a future time</string>	 
 	<string source="current_lock_status">Current Lock Status</string>
 	<string source="current_variety">Current Variety</string>
 	<string source="current">Current</string>
