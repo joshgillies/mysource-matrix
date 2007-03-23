@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.59 2007/02/18 23:35:12 rhoward Exp $
+* $Id: form_email.inc,v 1.60 2007/03/23 03:50:50 arailean Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -518,14 +518,14 @@ class Form_Email extends Form
 	*
 	* @param object	&$email_format_attr	(Asset_Attribute_Email_Format)
 	*									The email format to send off
-	* @param array	$additional_reps	(string => string)
-	*									Additional replacements for a certain
+	* @param array	$replacements		(string => string) Additional
+	*									replacements for a certain
 	*									email (eg. receipt address)
 	*
 	* @return void
 	* @access private
 	*/
-	function _sendEmail(&$email_format_attr, $additional_reps=Array())
+	function _sendEmail(&$email_format_attr, $replacements=Array())
 	{
 		$current_value = @unserialize($email_format_attr->value);
 
@@ -546,26 +546,23 @@ class Form_Email extends Form
 		$current_value['attachments'] = Array();
 		$current_value['attachments'] = $this->_getAttachments();
 
-		// Get list of replacements
-		$reps_list = array_merge(
-									retrieve_keywords_replacements($current_value['html_format']),
-									retrieve_keywords_replacements($current_value['text_format']),
-									retrieve_keywords_replacements(implode(', ', $current_value['to'])),
-									retrieve_keywords_replacements($current_value['from']),
-									retrieve_keywords_replacements($current_value['subject'])
-								);
+		$all_text = $current_value['html_format']
+					.' '.$current_value['text_format']
+					.' '.implode(', ', $current_value['to'])
+					.' '.$current_value['from']
+					.' '.$current_value['subject'];
 
-		$reps_list = array_unique($reps_list);
+		$all_keywords = extract_keywords($all_text);
 
-		// ...and find their replacements
-		foreach ($reps_list as $rep_name) {
-			$reps[$rep_name] = $this->_getThankYouKeywordReplacement($rep_name);
+		if (!is_array($replacements)) $replacements = Array();
+
+		foreach ($all_keywords as $keyword) {
+			if (isset($replacements[$keyword])) continue;
+			$replacements[$keyword] = $this->_getThankYouKeywordReplacement($keyword);
 		}
 
-		$reps = array_merge($reps, $additional_reps);
-
 		$email_format_attr->value = serialize($current_value);
-		$email_format_attr->sendMail($reps);
+		$email_format_attr->sendMail($replacements);
 
 	}//end _sendEmail()
 
