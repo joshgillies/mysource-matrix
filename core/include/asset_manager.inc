@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.560 2007/03/23 01:16:12 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.561 2007/03/23 03:20:36 rhoward Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.560 $
+* @version $Revision: 1.561 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1752,7 +1752,7 @@ class Asset_Manager extends MySource_Object
 		//// clone links ////
 
 		// we've created the asset, now link it to its new parent
-		$clone = $this->_cloneLink($clone, $link, $lock);
+		$clone = $this->_cloneLink($clone, $link, $lock, $source);
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1819,14 +1819,15 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Acquires a lock on an asset
 	*
-	* @param int	&$clone	the new clone
-	* @param string	&$link	the link object
-	* @param int	&$lock	the lock object
+	* @param object	&$clone		the new clone
+	* @param string	&$link		the link object
+	* @param array	&$lock		the lock object
+	* @param object	&$source	the source object the clone is based off
 	*
 	* @return mixed NULL|object
 	* @access public
 	*/
-	function &_cloneLink(&$clone, &$link, &$lock)
+	function &_cloneLink(&$clone, &$link, &$lock, &$source)
 	{
 		if (!empty($link)) {
 			// create the initial link
@@ -1842,11 +1843,17 @@ class Asset_Manager extends MySource_Object
 			}
 
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+				// is the original dependently linked? if so, look up the tree until we find the original's highest
+				// non-dependently-linked parent(s), adding all the assets we find as we go
+				$dependent_parents = Array();
+				if (!empty($source)) {
+					$dependent_parents = $this->getDependantParents($source->id);
+				}
+
 				// OK what we are going to do is make sure that the new parents lock is
 				// in the same chain as our current lock
 				$parent_lock = $this->getLockInfo($link['asset']->id, 'links');
-				if (empty($parent_lock) || $parent_lock['source_assetid'] != $lock['links']['source_assetid']) {
-
+				if (empty($parent_lock) || !in_array($parent_lock['source_assetid'], $dependent_parents)) { 
 					if (!empty($parent_lock)) {
 						if (!$this->releaseLock($link['asset']->id, 'links')) {
 							return $null;
@@ -1935,7 +1942,7 @@ class Asset_Manager extends MySource_Object
 			return $null;
 		}
 
-		// OK now that we are linked up let's our dependents
+		// OK now that we are linked up let's clone our dependents
 		if ($clone_dependents) {
 
 			$dependent_links = $this->getLinks($source->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'major', NULL, 1);
@@ -1994,8 +2001,8 @@ class Asset_Manager extends MySource_Object
 					}//end if
 
 					if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-					// lock the new clone in the same chain as we are locked
-					$lock = $this->getLockInfo($cloned_child->id,'all');
+						// lock the new clone in the same chain as we are locked
+						$lock = $this->getLockInfo($cloned_child->id, 'all');
 						if (!empty($lock)) {
 							if (!$this->releaseLock($cloned_child->id, 'all')) {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
