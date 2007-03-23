@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2007/03/21 05:53:54 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2007/03/23 03:58:39 arailean Exp $
 *
 */
 -->
@@ -19,14 +19,6 @@
 	<section name="Details">
 		<field write_access="write:attributes" attribute="name">
 			<text width="15" />
-		</field>
-	</section>
-	<section name="Confirmation Button Names" write_access="write:attributes" >
-		<field attribute="confirm_button_name">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="cancel_button_name">
-			<text width="35" height="1" />
 		</field>
 	</section>
 	<section name="Payment Gateway">

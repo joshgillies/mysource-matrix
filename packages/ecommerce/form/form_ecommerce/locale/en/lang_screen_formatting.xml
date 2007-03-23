@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_formatting.xml,v 1.3 2007/03/22 05:51:41 arailean Exp $
+* $Id: lang_screen_formatting.xml,v 1.4 2007/03/23 03:58:39 arailean Exp $
 *
 */
 -->
@@ -38,6 +38,16 @@
 		<field attribute="form_asset_format">
 			<display_name>Individual Asset Format</display_name>
 			<text width="60" height="4" />
+		</field>
+	</section>
+	<section name="Confirmation View">
+		<field attribute="confirm_button_name">
+			<display_name>Confirm Button</display_name>
+			<note>If you do not supply anything here, "Confirm and proceed to payment" will be used</note>
+		</field>
+		<field attribute="cancel_button_name">
+			<display_name>Cancel Button</display_name>
+			<note>If you do not supply anything here, "Go Back" will be used</note>
 		</field>
 	</section>
 	<section name="Confirmation and Receipt View" write_access="write:attributes" >

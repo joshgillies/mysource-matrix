@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2007/03/21 05:53:54 arailean Exp $
+* $Id: lang_screen_details.xml,v 1.6 2007/03/23 03:58:39 arailean Exp $
 *
 */
 -->
@@ -20,16 +20,6 @@
 		<field attribute="name">
 			<display_name>Name</display_name>
 			<note />
-		</field>
-	</section>
-	<section name="Confirmation Button Names">
-		<field attribute="confirm_button_name">
-			<display_name>Confirm Button</display_name>
-			<note>If you do not supply anything here, "Confirm and proceed to payment" will be used</note>
-		</field>
-		<field attribute="cancel_button_name">
-			<display_name>Cancel Button</display_name>
-			<note>If you do not supply anything here, "Go Back" will be used</note>
 		</field>
 	</section>
 	<section name="Payment Gateway">
