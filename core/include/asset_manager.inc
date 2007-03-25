@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.561 2007/03/23 03:20:36 rhoward Exp $
+* $Id: asset_manager.inc,v 1.562 2007/03/25 23:39:09 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.561 $
+* @version $Revision: 1.562 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -503,7 +503,7 @@ class Asset_Manager extends MySource_Object
 		if (empty($assetids)) return $shadow_results;
 
 		for (reset($assetids); NULL !== ($k = key($assetids)); next($assetids)) {
-			$assetids[$k] = $db->quote($assetids[$k]);
+			$assetids[$k] = $db->quote( (string) $assetids[$k]);
 		}
 		$where .= 'a.assetid IN ('.implode(', ', $assetids).')';
 
