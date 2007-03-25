@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.27.2.3 2007/03/22 23:19:12 emcdonald Exp $
+* $Id: report_links_edit_fns.inc,v 1.27.2.4 2007/03/25 23:42:26 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27.2.3 $
+* @version $Revision: 1.27.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -323,7 +323,6 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			if (!empty($url_parts['query'])) {
 				$url_path .= '?'.$url_parts['query'];
 			}
-			$url_parts['query'] = $url_path;
 
 			require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
 
