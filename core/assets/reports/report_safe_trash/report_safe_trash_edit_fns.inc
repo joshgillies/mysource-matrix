@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_safe_trash_edit_fns.inc,v 1.1 2007/01/08 03:08:09 lwright Exp $
+* $Id: report_safe_trash_edit_fns.inc,v 1.2 2007/03/26 06:10:39 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -247,7 +247,7 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 					echo 'NO ASSET FOUND';
 					return;
 				}
-
+				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 				?>
 				<table class="sq-backend-table">
 					<tr>
@@ -259,21 +259,21 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 					</tr>
 				<?php
 				foreach ($missing_fields as $assetid => $fields) {
-					$asset = NULL;
+					$asset_tmp = NULL;
 					if ($assetid) {
-						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
+						$asset_tmp =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
 					}
-					if (is_null($asset)) {
+					if (is_null($asset_tmp)) {
 						$asset_type = '';
 						$asset_string = 'Unknown asset #'.$assetid;
 						$asset_bg = 'FFFFFF';
 						$asset_status = '';
 					} else {
-						$asset_type = $asset->type();
-						$asset_bg = get_asset_status_icon($asset->status);
-						$asset_status = get_status_description($asset->status);
-						$asset_url = $asset->getBackendHref('metadata');
-						$asset_string = '<a href="'.$asset->getBackendHref('details').'" title="'.$asset->name.'">'.ellipsisize($asset->name, 40).'</a>';
+						$asset_type = $asset_tmp->type();
+						$asset_bg = get_asset_status_icon($asset_tmp->status);
+						$asset_status = get_status_description($asset_tmp->status);
+						$asset_url = $asset_tmp->getBackendHref('metadata');
+						$asset_string = '<a href="'.$asset_tmp->getBackendHref('details').'" title="'.$asset_tmp->name.'">'.ellipsisize($asset_tmp->name, 40).'</a>';
 					}
 
 					?>
@@ -281,16 +281,16 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 						<td class="sq-backend-table-cell" style="padding-right: 1px;">
 							<?php
 							if (!empty($asset_type)) {
-								echo get_asset_tag_line($asset->id, 'details');
+								echo get_asset_tag_line($asset_tmp->id, 'details');
 							}
 							?>
 						</td>
 						<td class="sq-backend-table-cell">
-							<?php echo easy_datetime((int)$missing_fields[$asset->id]['since']); ?>
+							<?php echo easy_datetime((int)$missing_fields[$asset_tmp->id]['since']); ?>
 						</td>
 						<td class="sq-backend-table-cell" style="padding-right: 1px;">
 						<?php
-						if ($asset->status >= SQ_STATUS_LIVE) {
+						if ($asset_tmp->status >= SQ_STATUS_LIVE) {
 							?>
 							<span class="sq-backend-warning">
 							<?php
@@ -298,7 +298,7 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 						?>
 						<?php echo $asset_bg; ?><?php echo $asset_status; ?>
 						<?php
-						if ($asset->status >= SQ_STATUS_LIVE) {
+						if ($asset_tmp->status >= SQ_STATUS_LIVE) {
 							?>
 							</span>
 							<?php
@@ -307,13 +307,13 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 						</td>
 						<td class="sq-backend-table-cell">
 							<?php
-							if (empty($missing_fields[$asset->id]['links'])) {
+							if (empty($missing_fields[$asset_tmp->id]['links'])) {
 								echo translate('none');
 							} else {
 								?>
 								<ul style="list-style-type: none; padding-left: 0; margin-left: 0;">
 								<?php
-								foreach ($missing_fields[$asset->id]['links'] as $linked_assetid) {
+								foreach ($missing_fields[$asset_tmp->id]['links'] as $linked_assetid) {
 									?>
 									<li class="sq-backend-warning"><?php echo get_asset_tag_line($linked_assetid, 'details'); ?></li>
 									<?php
@@ -326,13 +326,13 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 						</td>
 						<td class="sq-backend-table-cell">
 							<?php
-							if (empty($missing_fields[$asset->id]['children'])) {
+							if (empty($missing_fields[$asset_tmp->id]['children'])) {
 								echo translate('none');
 							} else {
 								?>
 								<ul style="list-style-type: none; padding-left: 0; margin-left: 0;">
 								<?php
-								foreach ($missing_fields[$asset->id]['children'] as $linked_assetid) {
+								foreach ($missing_fields[$asset_tmp->id]['children'] as $linked_assetid) {
 									?>
 									<li class="sq-backend-warning"><?php echo get_asset_tag_line($linked_assetid, 'details'); ?></li>
 									<?php
