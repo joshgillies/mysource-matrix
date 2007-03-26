@@ -10,11 +10,14 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_event_ecommerce_order_submitted.inc,v 1.3 2007/01/08 03:27:18 emcdonald Exp $
+* $Id: trigger_event_ecommerce_order_submitted.inc,v 1.4 2007/03/26 02:08:16 arailean Exp $
 *
 */
 
 check_ssv_licence();
+
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_event/trigger_event.inc';
+
 
 /**
 * Trigger Event Ecommerce Order Submitted
@@ -23,7 +26,7 @@ check_ssv_licence();
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
