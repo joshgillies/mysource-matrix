@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec_management.inc,v 1.8 2006/12/15 01:17:33 arailean Exp $
+* $Id: payment_gateway_esec_management.inc,v 1.9 2007/03/26 04:05:33 arailean Exp $
 *
 */
 
@@ -22,12 +22,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Payment_Gateway_Esec_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -42,53 +43,134 @@ class Payment_Gateway_Esec_Management extends Asset_Management
 											'type'			=> 'text',
 											'default'		=> '',
 											'description'	=> 'Gateway Merchant ID for the e-commerce transaction',
-										  ),
-
-						'test_mode' 	=> Array(
+										   ),
+						'test_mode'		=> Array(
 											'added'			=> '0.1',
 											'type'			=> 'boolean',
-											'default'		=> false,
+											'default'		=> FALSE,
 											'description'	=> 'Turn this ON for test mode',
 											'parameters'	=> Array(
-																'allow_empty' => false,
+																'allow_empty'	=> FALSE,
 															   ),
 										   ),
-
-						'message' 		=> Array(
-											'added'	=> '0.1',
+						'message'		=> Array(
+											'added'		=> '0.1',
 											'type'		=> 'wysiwyg',
 											'default'	=> '',
 										   ),
-
 						'display_ccv'	=> Array(
 											'added'			=> '0.2',
 											'type'			=> 'boolean',
-											'default'		=> false,
-											'description'   => 'Enables CCV field in the form',
+											'default'		=> FALSE,
+											'description'	=> 'Enables CCV field in the form',
 											'parameters'	=> Array(
-																'allow_empty' => false,
+																'allow_empty'	=> FALSE,
 															   ),
-										  ),
-
-		);
+										   ),
+						'submit_text'	=> Array(
+											'added'			=> '0.3',
+											'type'			=> 'text',
+											'default'		=> '   Pay   ',
+											'description'	=> 'Submit button text',
+										   ),
+						'reset_text'	=> Array(
+											'added'			=> '0.3',
+											'type'			=> 'text',
+											'default'		=> 'Reset',
+											'description'	=> 'Reset button text',
+										   ),
+						'cancel_text'	=> Array(
+											'added'			=> '0.3',
+											'type'			=> 'text',
+											'default'		=> 'Cancel',
+											'description'	=> 'Cancel button text',
+										   ),
+					  );
 
 	}//end constructor
 
 
 	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		// first do things as normal
+		$res = parent::_upgrade($current_version);
+
+		if (version_compare($current_version, '0.3', '<')) {
+			pre_echo('UPGRADING TO v0.3');
+			$assetid_list = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('payment_gateway_esec', FALSE);
+			$default_content = translate('default_bodycopy_content');
+			foreach ($assetid_list as $assetid) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$content = $default_content;
+				$message = $asset->attr('message');
+				if (!empty($message)) {
+					$content = '<div>'.$message.'</div>'.$content;
+				}
+
+				if (!$asset->_createBodycopy($content)) {
+					trigger_error('Error creating bodycopy for Gateway #'.$assetid, E_USER_WARNING);
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+			pre_echo(count($assetid_list).' UPDATED');
+		}
+
+
+		return $res;
+
+	}//end _upgrade()
+
+
+	/**
 	* Gets a list of all files
 	*
+	* @return array
 	* @access private
-	* @return array(string)
 	*/
 	function _getFileList()
 	{
 		return Array(
-			'files/loader.js',
-			'files/loader.gif',
-		);
+				'files/loader.js',
+				'files/loader.gif',
+			   );
 
 	}//end _getFileList()
+
+
+	/**
+	* Return an array with information about the events that this page is listening for
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'					=> 'requestKeywords',
+					'broadcast_type_code'			=> 'content_type',
+					'broadcast_strict_type_code'	=> FALSE,
+					'options'						=> Array(
+														'side_of_link'	=> 'major',
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
+														'is_dependant'	=> 1,
+														'value'			=> '',
+														'link_type'		=> SQ_LINK_TYPE_2,
+													   ),
+				),
+			   );
+
+	}//end getEventList()
 
 
 }//end class

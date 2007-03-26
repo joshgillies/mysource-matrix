@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2006/12/15 01:18:32 arailean Exp $
+* $Id: lang_screen_details.xml,v 1.5 2007/03/26 04:05:33 arailean Exp $
 *
 */
 -->
@@ -40,6 +40,15 @@
 		<field attribute="message">
 			<display_name>Message</display_name>
 			<note>This message will be displayed on the gateway upon redirect from the e-commerce page.</note>
+		</field>
+		<field attribute="submit_text">
+			<display_name>Submit Button Text</display_name>
+		</field>
+		<field attribute="reset_text">
+			<display_name>Reset Button Text</display_name>
+		</field>
+		<field attribute="cancel_text">
+			<display_name>Cancel Button Text</display_name>
 		</field>
 	</section>
 	<section name="Testing Mode">

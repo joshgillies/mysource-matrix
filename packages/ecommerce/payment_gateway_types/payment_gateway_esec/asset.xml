@@ -12,7 +12,7 @@
 * | that comprise this Module is prohibited. You may only use this     |
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* $Id: asset.xml,v 1.7 2007/03/19 00:51:52 arailean Exp $
+* $Id: asset.xml,v 1.8 2007/03/26 04:05:33 arailean Exp $
 *
 */
 -->
@@ -20,7 +20,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>ecommerce</package>
 	<type_code>payment_gateway_esec</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Payment Gateway - ESEC</name>
 	<description>Esec Payment Gateway</description>
 	<instantiable>yes</instantiable>

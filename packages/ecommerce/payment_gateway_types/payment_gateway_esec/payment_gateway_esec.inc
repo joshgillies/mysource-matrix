@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.16 2007/03/19 05:51:18 arailean Exp $
+* $Id: payment_gateway_esec.inc,v 1.17 2007/03/26 04:05:33 arailean Exp $
 *
 */
 
@@ -26,12 +26,145 @@ require_once dirname(__FILE__).'/esec_processor_integration_interface.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Payment_Gateway_Esec extends Payment_Gateway
 {
+
+
+	/**
+	* Esec integration interface instance
+	*
+	* @var object
+	*/
+	var $esec = NULL;
+
+
+	function Payment_Gateway_Esec($assetid=0)
+	{
+		$this->_esec =& new Esec_Processor_Integration_Interface();
+		$this->Payment_Gateway($assetid);
+
+	}//end constructor
+
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Standard pages create a bodycopy asset when they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return FALSE;
+
+		return $this->_createBodycopy();
+
+	}//end _createAdditional()
+
+
+	/**
+	* Create Bodycopy
+	*
+	* @param string	$default_content	default content to put into the bodycopy
+	*
+	* @return string
+	* @access private
+	*/
+	function _createBodycopy($default_content=NULL)
+	{
+		if (is_null($default_content)) {
+			$default_content = translate('default_bodycopy_content');
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+		$bodycopy =& new Bodycopy();
+		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+
+		$bodycopy->setAttrValue('name', 'Display Format');
+		$args = Array('content' => $default_content);
+		if ($bodycopy->create($copy_link, $args)) {
+			$child_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy->id, SQ_LINK_TYPE_2, 'bodycopy_div');
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($child_bodycopy['minorid'], 'attributes');
+			return TRUE;
+		}
+		return FALSE;
+
+	}//end _createBodycopy()
+
+
+	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowedLinks()
+	*/
+	function _getAllowedLinks()
+	{
+		$page_links = parent::_getAllowedLinks();
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 2,   'exclusive' => TRUE);
+		return $page_links;
+
+	}//end _getAllowedLinks()
+
+
+	/**
+	* Return the available keywords from the parents
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'keyword' => 'name',
+	* )
+	* </pre>
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableKeywords()
+	{
+		$keywords = parent::getAvailableKeywords();
+
+		$keywords['credit_card_number'] = 'Credit Card Number';
+		$keywords['credit_card_expiry_year'] = 'Credit Card Expiry Year';
+		$keywords['credit_card_expiry_month'] = 'Credit Card Expiry Month';
+		$keywords['credit_card_name'] = 'Name on card';
+		$keywords['credit_card_ccv'] = 'Credit Card CCV field';
+		$keywords['credit_card_type_selector'] = 'Credit Card Type Selector';
+		$keywords['submit_button'] = 'Submit Button';
+		$keywords['cancel_button'] = 'Cancel Button';
+		$keywords['reset_button'] = 'Reset Button';
+		$keywords['transaction_amount'] = 'Transaction Amount';
+		$keywords['processing_error'] = 'Processing Error (empty if no error)';
+
+		return $keywords;
+
+	}//end getAvailableKeywords()
+
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		$keywords = $this->getAvailableKeywords();
+		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+
+	}//end onRequestKeywords()
 
 
 	/**
@@ -62,11 +195,68 @@ class Payment_Gateway_Esec extends Payment_Gateway
 			}
 
 		} else {
-			echo $this->makeCreditCardForm();
+			$this->printBodycopy();
 
 		}
 
 	}//end printBody()
+
+
+	/**
+	* Prints the front-end interface for this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printBodycopy()
+	{
+		$bodycopy =& $this->getBodycopy();
+		if (is_null($bodycopy)) return;
+
+		$keywords = $bodycopy->getKeywords();
+		$replacements = Array();
+		foreach ($keywords as $word) {
+			$replacements[$word] = $this->getKeywordReplacement($word);
+		}
+		$bodycopy->setKeywordReplacements($replacements);
+
+		// OUTPUT HERE
+		$datapath = sq_web_path('data').'/asset_types/payment_gateway_esec/files';
+		$card = $this->getPrefix().'_card';
+
+		if ($this->attr('test_mode')) {
+			echo '<h2 class="gateway-test-mode" style="color: white; background-color: #C00; padding: 5px">TEST MODE</h2>';
+		}
+
+		?>
+		<script src="<?php echo $datapath; ?>/loader.js"></script>
+		<script>
+			var Loader = new Loader('<?php echo $card; ?>','#FFFFFF','Processing Transaction...','<?php echo $datapath; ?>/loader.gif');
+			Loader.print();
+		</script>
+		<form method="post" action="<?php echo $this->getURL(); ?>" onsubmit="Loader.show();">
+		<?php
+		$bodycopy->printBody();
+		echo '</form>';
+
+	}//end printBodycopy()
+
+
+	/**
+	* Return the bodycopy linked to this page
+	*
+	* @return object
+	* @access public
+	*/
+	function &getBodycopy()
+	{
+		$null = NULL;
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, '', 'major');
+		if (empty($link)) return $null;
+		$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		return $bodycopy;
+
+	}//end getBodycopy()
 
 
 	/**
@@ -286,6 +476,239 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		}
 
 	}//end returnToCaller()
+
+
+	/**
+	* Credit Card Number keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getCreditCardNumberKeywordReplacement()
+	{
+
+		$card_info = $this->_getCardInfo();
+		$prefix = $this->getPrefix();
+		$card = $prefix.'_card';
+
+		// set variables for test mode
+		if ($this->attr('test_mode')) {
+			$test_card_numbers = $this->_esec->getTestCardNumbers();
+			$card_number = '<select name="'.$card.'[number]">';
+			foreach ($test_card_numbers as $number => $label) {
+				$selected = ($card_info['number'] == $number) ? ' selected="selected"' : '' ;
+				$card_number .= '<option value="'.$number.'"'.$selected.'>'.$number.'</option>';
+			}
+			$card_number .= '</select>';
+		} else {
+			$card_number = '<input name="'.$card.'[number]" value="'.$card_info['number'].'" />';
+		}
+
+		return $card_number;
+
+	}//end getCreditCardNumberKeywordReplacement()
+
+
+	/**
+	* Credit Card Number keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getCreditCardNameKeywordReplacement()
+	{
+
+		$card_info = $this->_getCardInfo();
+		$card = $this->getPrefix().'_card';
+		$string = '<input name="'.$card.'[name]" value="'.$card_info['name'].'" />';
+		return $string;
+
+	}//end getCreditCardNameKeywordReplacement()
+
+
+	/**
+	* Credit Card Number keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getCreditCardCcvKeywordReplacement()
+	{
+
+		$card_info = $this->_getCardInfo();
+		$card = $this->getPrefix().'_card';
+		$string = '<input name="'.$card.'[ccv]" value="'.@$card_info['ccv'].'" size="4" />';
+		return $string;
+
+	}//end getCreditCardCcvKeywordReplacement()
+
+
+	/**
+	* Credit Card Number keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getCreditCardTypeSelectorKeywordReplacement()
+	{
+
+		$card_info = $this->_getCardInfo();
+		$card = $this->getPrefix().'_card';
+
+		$card_types = $this->_esec->getCardTypes();
+
+		ob_start();
+		echo '<select name="'.$card.'[type]">';
+		foreach ($card_types as $type) {
+			$selected = ($card_info['type'] == $type) ? ' selected="selected"' : '';
+			echo '<option value="'.$type.'"'.$selected.'>'.$type.'</option>';
+		}
+
+		echo '</select>';
+
+		return ob_get_clean();
+
+	}//end getCreditCardTypeSelectorKeywordReplacement()
+
+
+	/**
+	* Transaction Amount keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getTransactionAmountKeywordReplacement()
+	{
+		$amount = array_get_index($_SESSION,'SQ_ECOM_AMOUNT', 0);
+		$this->_esec->setAmount($amount);
+		$amount = $this->_esec->getAmount();
+
+		return $amount;
+
+	}//end getTransactionAmountKeywordReplacement()
+
+
+	/**
+	* Processing Error keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getProcessingErrorKeywordReplacement()
+	{
+		if (array_get_index($this->_tmp, 'is_error', FALSE)) {
+			return '<span class="payment-gateway-transaction-error">'.$this->_tmp['error_message'].'</span>';
+		}
+
+		return '';
+
+	}//end getProcessingErrorKeywordReplacement()
+
+
+	/**
+	* Credit Card Number keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getCreditCardExpiryYearKeywordReplacement()
+	{
+
+		$card_info = $this->_getCardInfo();
+		$card = $this->getPrefix().'_card';
+
+		$string = '<input name="'.$card.'[year]" value="'.$card_info['year'].'" size="2" />';
+		return $string;
+
+	}//end getCreditCardExpiryYearKeywordReplacement()
+
+
+	/**
+	* Credit Card Number keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getCreditCardExpiryMonthKeywordReplacement()
+	{
+
+		$card_info = $this->_getCardInfo();
+		$card = $this->getPrefix().'_card';
+
+		$string = '<input name="'.$card.'[month]" value="'.$card_info['month'].'" size="2" />';
+		return $string;
+
+	}//end getCreditCardExpiryMonthKeywordReplacement()
+
+
+	/**
+	* Credit Card Number keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getSubmitButtonKeywordReplacement()
+	{
+		$button_text = $this->attr('submit_text');
+		if (empty($button_text)) $button_text = 'Submit';
+		return '<input type="submit" value="'.$button_text.'" />';
+
+	}//end getSubmitButtonKeywordReplacement()
+
+
+	/**
+	* Credit Card Number keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getResetButtonKeywordReplacement()
+	{
+		$button_text = $this->attr('reset_text');
+		if (empty($button_text)) $button_text = 'Reset';
+		return '<input type="reset" value="'.$button_text.'" />';
+
+	}//end getResetButtonKeywordReplacement()
+
+
+	/**
+	* Credit Card Number keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getCancelButtonKeywordReplacement()
+	{
+		$button_text = $this->attr('cancel_text');
+		if (empty($button_text)) $button_text = 'Cancel';
+		return '<input type="submit" name="'.$this->getPrefix().'_action" value="'.$button_text.'" />';
+
+	}//end getCancelButtonKeywordReplacement()
+
+
+	/**
+	* Get Credit Card Info for current transaction
+	*
+	* @return string
+	* @access private
+	*/
+	function _getCardInfo()
+	{
+		$card_info = array_get_index($_SESSION, 'SQ_ECOM_CARDINFO', FALSE);
+		if (!$card_info) {
+			$card_info = Array(
+							'name'		=> '',
+							'number'	=> '',
+							'ccv'		=> '',
+							'month'		=> '',
+							'year'		=> '',
+							'type'		=> '',
+						 );
+		}
+
+		return $card_info;
+
+	}//end _getCardInfo()
 
 
 }//end class
