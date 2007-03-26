@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.176 2007/03/11 23:16:16 mbrydon Exp $
+* $Id: backend.inc,v 1.177 2007/03/26 01:46:23 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.176 $
+* @version $Revision: 1.177 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -578,11 +578,12 @@ class Backend extends MySource_Object
 						$js_code .= "\n".'keyword_search_results['.($i-1).'] = "'.addslashes(trim($result['tag_line'].'<br/><div id=\'sq-search-results-detail-'.((($i-1) % $results_per_page) + 1).'\' style=\'display:none\'>'.$result['detail'])).'</div>";';
 
 					}
+
+					$js_code .= '}';
+
 				}
 
 				$detail_lines[] = implode('', $keyword_match_line);
-
-				$js_code .= '}';
 
 				$html = $this->_getDHTMLMessage(translate('search_results'), $detail_lines, 'search-results');
 				$dhtml_messages['search_results'] = Array('html' => str_replace("\n", '', preg_replace('|<script.*</script>|U', '', $html)), 'width' => '300', 'timeout' => 0);
