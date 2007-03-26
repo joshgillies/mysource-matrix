@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.68.2.3 2006/10/16 22:59:52 bcaldwell Exp $
+* $Id: general_occasional.inc,v 1.68.2.4 2007/03/26 00:03:17 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.68.2.3 $
+* @version $Revision: 1.68.2.4 $
 * @package MySource_Matrix
 */
 
@@ -460,7 +460,14 @@ function openSocketConnection($url_parts, &$errno, &$errstr)
 	include_once(SQ_DATA_PATH.'/private/conf/proxy_authentication.inc');
 	$page_url = '';
 	if (is_array($url_parts)) {
-		$page_url = $url_parts['scheme'].'://'.$url_parts['host'].':'.$url_parts['port'].'/'.$url_parts['path'].$url_parts['query'];
+		if (!empty($url_parts['query']) && $url_parts['query'][0] != '?') {
+			$url_parts['query'] = '?'.$url_parts['query'];
+		}
+		if (!empty($url_parts['path']) && $url_parts['path'][0] != '/') {
+			$url_parts['path'] = '/'.$url_parths['path'];
+		}
+		$page_url = $url_parts['scheme'].'://'.$url_parts['host'].':'.$url_parts['port'].$url_parts['path'].array_get_index($url_parts, 'query', '');
+		log_dump($url_parts);
 	} else {
 		$page_url = $url_parts;
 	}

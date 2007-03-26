@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.16.2.9 2007/02/13 01:27:02 hnguyen Exp $
+* $Id: report_links_edit_fns.inc,v 1.16.2.10 2007/03/26 00:03:26 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16.2.9 $
+* @version $Revision: 1.16.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -306,7 +306,6 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			if (!empty($url_parts['query'])) {
 				$url_path .= '?'.$url_parts['query'];
 			}
-			$url_parts['query'] = $url_path;
 
 			require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
 			$socket = openSocketConnection($url_parts, $errno, $errstr);
