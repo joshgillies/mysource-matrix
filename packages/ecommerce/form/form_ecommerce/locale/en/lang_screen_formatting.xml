@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_formatting.xml,v 1.4 2007/03/23 03:58:39 arailean Exp $
+* $Id: lang_screen_formatting.xml,v 1.5 2007/03/26 02:09:28 arailean Exp $
 *
 */
 -->
@@ -34,10 +34,12 @@
 		<field attribute="form_asset_list_format">
 			<display_name>Asset List Format</display_name>
 			<text width="60" height="10" />
+			<note>Here you can use the %item_format% keyword, which will be used to paint one line for each asset in cart.</note>
 		</field>
 		<field attribute="form_asset_format">
 			<display_name>Individual Asset Format</display_name>
 			<text width="60" height="4" />
+			<note>This format will be used to print each asset in the cart. Keywords available here are %item_name%, %item_price% and %taxable_item_string as well as any keyword available on the asset in cart.</note>
 		</field>
 	</section>
 	<section name="Confirmation View">
