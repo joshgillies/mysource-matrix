@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.36 2007/02/21 22:43:42 tbarrett Exp $
+* $Id: bodycopy.inc,v 1.37 2007/03/27 02:17:40 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -315,12 +315,11 @@ class Bodycopy extends Asset
 
 				$notice_links = unserialize(file_to_string($this->data_path.'/.notice_links'));
 
-				foreach ($notice_links as $assetid) {
-					$href = $GLOBALS['SQ_SYSTEM']->am->getAssetHref($assetid);
-					if ($href == '') {
-						$href = "Javascript: alert(js_translate('link_not_exists'));";
+				$sq_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($notice_links));
+				for (reset($sq_asset_url_list); NULL !== ($minorid = key($sq_asset_url_list)); next($sq_asset_url_list)) {
+					if ($sq_asset_url_list[$minorid] == '') {
+						$sq_asset_url_list[$minorid] = './?a='.$minorid;
 					}
-					$sq_asset_url_list[$assetid] = $href;
 				}
 
 				ob_start();
