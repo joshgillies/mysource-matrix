@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.14 2007/02/28 04:49:04 emcdonald Exp $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.15 2007/03/27 00:56:01 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -195,7 +195,9 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 			}
 		}
 
-		echo '<b>Note</b> The current incomplete metadata report is shown below. You can regenerate this report on the details screen.';
+		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
+			echo '<b>Note</b> The current incomplete metadata report is shown below. You can regenerate this report on the details screen.';
+		}
 		$o->closeSection();
 
 		$o->openSection(translate('missing_metadata_fields'));
