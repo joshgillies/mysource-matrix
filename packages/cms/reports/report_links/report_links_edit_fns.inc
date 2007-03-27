@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.34 2007/03/23 03:42:45 tbarrett Exp $
+* $Id: report_links_edit_fns.inc,v 1.35 2007/03/27 00:51:24 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -432,7 +432,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 		// TODO: this translation has a 'note' prefix that is supposed to look like
 		//      a field header... could this be set up as a field?
-		echo translate('cms_report_links_current');
+		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
+			echo translate('cms_report_links_current');
+		}
 		$o->closeSection();
 
 		if ($display_options['internal_section'] == TRUE) {
