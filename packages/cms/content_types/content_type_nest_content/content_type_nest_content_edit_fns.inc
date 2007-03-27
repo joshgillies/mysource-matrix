@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.43 2006/12/07 00:04:16 emcdonald Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.43.2.1 2007/03/27 00:52:19 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -245,7 +245,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				// types can use the html
 
 				// if we dont have the frontend asset set just buffer nothing
-				if (!isset($GLOBALS['SQ_SYSTEM']->frontend_asset)) {
+				if (SQ_IN_LIMBO && !isset($GLOBALS['SQ_SYSTEM']->frontend_asset)) {
 					$html = '';
 				} else {
 					ob_start();
