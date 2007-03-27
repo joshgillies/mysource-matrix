@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_safe_trash_edit_fns.inc,v 1.2 2007/03/26 06:10:39 rong Exp $
+* $Id: report_safe_trash_edit_fns.inc,v 1.3 2007/03/27 01:12:35 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -238,7 +238,9 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 			}
 		}
 
-		echo '<b>Note</b> The current safe trash report is shown below. You can regenerate this report on the <a href="'.$asset->getBackendHref('details').'">details screen</a>.';
+		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
+			echo '<b>Note</b> The current safe trash report is shown below. You can regenerate this report on the <a href="'.$asset->getBackendHref('details').'">details screen</a>.';
+		}
 		$o->closeSection();
 
 		$o->openSection(translate('report_safe_trash_section_status'));
