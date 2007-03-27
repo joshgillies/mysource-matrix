@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter_edit_fns.inc,v 1.10 2006/12/06 02:59:54 emcdonald Exp $
+* $Id: report_asset_counter_edit_fns.inc,v 1.11 2007/03/27 00:58:05 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -185,7 +185,10 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 			}
 		}
 
-		echo '<strong>Asset Counts</strong>';
+		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
+			echo '<b>Note</b> The current asset counter report is shown below. You can regenerate this report on the details screen.';
+		}
+
 		$o->closeSection();
 
 		$o->openSection(translate('asset_type_counts'));
