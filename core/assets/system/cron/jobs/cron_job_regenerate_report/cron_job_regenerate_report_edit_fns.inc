@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_regenerate_report_edit_fns.inc,v 1.2 2006/12/06 04:24:01 emcdonald Exp $
+* $Id: cron_job_regenerate_report_edit_fns.inc,v 1.3 2007/03/27 00:52:50 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -92,16 +92,17 @@ class Cron_Job_Regenerate_Report_Edit_Fns extends Cron_Job_Edit_Fns
 	{
 		$cron_job =& new Cron_Job();
 		$edit_fns = $cron_job->getEditFns();
+
 		$when_oo = $edit_fns->_processWhenBox($cron_job, $o, $prefix);
+		if (!$when_oo) {
+			// nothing has been set, do not add a job
+			return FALSE;
+		}
 
 		if (   $_REQUEST[$prefix.'_when_interval_mins'] == '--'
 			&& $_REQUEST[$prefix.'_when_interval_hours'] == '--'
 			&& $_REQUEST[$prefix.'_when_interval_days'] == '-') {
 
-			if (!$when_oo) {
-				// nothing has been set, do not add a job
-				return FALSE;
-			}
 			// if repeat frequency is not set, this is a one off job
 			$asset->setAttrValue('type', 'one_off');
 			if (!$asset->setAttrValue('when', $when_oo)) {
