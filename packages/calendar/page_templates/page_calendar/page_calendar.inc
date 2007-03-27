@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.195.2.2 2007/01/17 00:04:37 lwright Exp $
+* $Id: page_calendar.inc,v 1.195.2.3 2007/03/27 01:45:52 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.195.2.2 $
+* @version $Revision: 1.195.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -819,7 +819,7 @@ class Page_Calendar extends Page
 			// don't print it again
 			for ($current_day = 1; $current_day <= $month_length; $current_day++) {
 				uasort($events[$current_day], Array('Calendar_Common', 'compareStartDates'));
-				$current_date = $year.'-'.$month.'-'.$current_day;
+				$current_date = sprintf('%04s-%02s-%02s', $year, $month, $current_day);
 				$_REQUEST['SQ_CALENDAR_DATE'] = $current_date;
 				foreach ($events[$current_day] as $event_id => $event_data) {
 					list($event_assetid, ) = explode(':', $event_id);
@@ -846,7 +846,7 @@ class Page_Calendar extends Page
 				if ($drill_down_view) {
 					echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&amp;SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
 				}
-				$current_date = $year.'-'.$month.'-'.$current_day;
+				$current_date = sprintf('%04s-%02s-%02s', $year, $month, $current_day);
 				$_REQUEST['SQ_CALENDAR_DATE'] = $current_date;
 				echo date('l jS', strtotime($current_date));
 				if ($drill_down_view) echo '</a>';
