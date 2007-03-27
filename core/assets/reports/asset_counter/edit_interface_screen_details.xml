@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2006/12/06 02:59:54 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2007/03/27 00:53:56 rong Exp $
 *
 */
 -->
@@ -33,7 +33,7 @@
 		</field>
 	</section>
 
-	<section name="Asset Types" write_access="write:attributes">
+	<section name="Asset Types" write_access="write:attributes" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function   name="paintCurrentAssetTypes"   />
@@ -48,7 +48,7 @@
 		</field>
 	</section>
 
-	<section name="Sorting" write_access="write:attributes">
+	<section name="Sorting" write_access="write:attributes" limbo_access="1">
 		<field attribute="sort_by">
 			<selection style="list" />
 		</field>
