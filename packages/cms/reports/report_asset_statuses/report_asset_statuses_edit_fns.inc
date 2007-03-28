@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.8 2007/03/22 02:44:34 rong Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.9 2007/03/28 03:48:51 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -271,10 +271,10 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 						<script type="text/javascript">sq_print_icon("<?php echo $type_icon; ?>", "16", "16", "");</script>
 					</td>
 					<td class="sq-backend-table-cell">
-						<?php echo $assetid; ?>
+						<?php echo htmlspecialchars($assetid); ?>
 					</td>
 					<td class="sq-backend-table-cell">
-						<?php echo $name; ?>
+						<?php echo htmlspecialchars($name); ?>
 					</td>
 					<td class="sq-backend-table-cell">
 						<?php echo get_asset_status_icon($status); ?><?php echo get_status_description($status); ?>
@@ -283,7 +283,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 						<?php echo $status_changed; ?>
 					</td>
 					<td class="sq-backend-table-cell">
-						<?php echo $status_changed_user_name; ?> [<?php echo $status_changed_userid; ?>]
+						<?php echo htmlspecialchars($status_changed_user_name); ?> [<?php echo htmlspecialchars($status_changed_userid); ?>]
 					</td>
 				</tr>
 			<?php
@@ -332,7 +332,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 			}
 		}
 
-	}
+	}//end paintSearchStatuses()
 
 
 	/**
@@ -353,7 +353,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 			$asset->setAttrValue('search_status', $new_statuses);
 		}
 
-	}
+	}//end processSearchStatuses()
 
 
 }//end class
