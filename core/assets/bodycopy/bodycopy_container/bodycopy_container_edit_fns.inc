@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.47 2006/12/05 05:39:48 emcdonald Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.48 2007/03/28 02:26:20 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -132,12 +132,38 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	{
 		if (!$asset->writeAccess('content')) {
 			if ($asset->readAccess()) {
+				$conflict_tags = Array(
+									'<form',
+									'</form',
+									'<input',
+									'<option',
+									'<select',
+									'<textarea',
+									'<button',
+									'<optgroup',
+									'<label',
+									'<fieldset',
+									'<legend',
+								 );
+				$conflict_tag_search_string = '~('.implode(')|(', $conflict_tags).')~i';
+
+				ob_start();
 				$this->paint($asset, TRUE);
+				$container_content = ob_get_clean();
+
+				if (preg_match($conflict_tag_search_string, $container_content)) {
+					$container_content = '<div style="padding: 1ex; margin-bottom: 1ex; border: solid 1px grey;"><strong>Container ID '.$asset->id.'</strong><div class="sq-backend-warning">'.translate('bodycopy_html_conflict_warning').'</div><hr /><pre>'.htmlentities($container_content).'</pre></div>';
+				}
+
+				echo $container_content;
+
+
 			} else {
 				echo '<span class="sq-backend-warning">You do not have access to view the contents of this container</span>';
 			}
 			return FALSE;
-		}
+		}//end if
+
 		return TRUE;
 
 	}//end paintContainer()
@@ -725,7 +751,6 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			</tr>
 		</table>
 		<?php
-
 		return TRUE;
 
 	}//end paintBodycopyContainer()
