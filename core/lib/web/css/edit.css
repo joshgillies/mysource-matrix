@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.76 2007/02/22 00:16:01 tbarrett Exp $
+* $Id: edit.css,v 1.77 2007/03/28 03:41:17 lwright Exp $
 *
 */
 
@@ -667,11 +667,11 @@ a.sq-search-results-expand-link {
 
 /* style for the information and asset finder in asset screen title */
 ul.info_asset_finder {
-  margin:1px 15px; 
+  margin:1px 15px;
   display:inline;
   padding:0;
   margin:0;
-} 
+}
 
 ul.info_asset_finder li {
   display:inline;
@@ -679,7 +679,7 @@ ul.info_asset_finder li {
   padding:0;
   color:#ffffff;
   font-size:1.1em;
-} 
+}
 
 * html ul.info_asset_finder {
    margin-left:5px;
@@ -710,4 +710,25 @@ ul.radio-list {
 }
 .enable-field-list li div input {
 	position: static;
+}
+
+#sq-commit-button-div {
+	border-top: 2px solid #848479;
+	padding: 0px;
+	text-align: right;
+	background-color: #F4F4EB;
+	margin-top: 10px;
+	width: 100%;
+
+	bottom: 0px;
+	position: fixed;
+	z-index: 2000;
+}
+
+#sq-commit-button-div #sq-commit-button-div-inside {
+	padding: 10px;
+}
+
+#sq-commit-button-spacer {
+	height: 10px;
 }

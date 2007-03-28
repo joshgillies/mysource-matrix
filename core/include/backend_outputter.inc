@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.147 2007/02/19 22:15:06 lwright Exp $
+* $Id: backend_outputter.inc,v 1.148 2007/03/28 03:41:17 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.147 $
+* @version $Revision: 1.148 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -961,6 +961,16 @@ class Backend_Outputter
 			foreach ($this->_css_includes as $file) {
 				$this->_paintCssInclude($file);
 			}
+
+			// Add IE6-specific styles if main frame AND "lock commit button to frame" preference turned on
+			if (($_GET['SQ_BACKEND_PAGE'] == 'main') && SQ_IN_BACKEND && $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_COMMIT_BUTTON_POS')) {
+			?>
+			<!--[if lte IE 7]>
+				<link href="<?php echo $this->filesPath('css/edit_ie6.css') ?>" type="text/css" rel="stylesheet" />
+			<![endif]-->
+			<?php
+			}
+
 			// first add the js translation files
 			foreach ($GLOBALS['SQ_SYSTEM']->lm->getJavascriptIncludes() as $js_include) {
 				$this->addJsInclude($js_include);
@@ -1020,6 +1030,16 @@ class Backend_Outputter
 
 					// let everyone know the document is loaded
 					SQ_DOCUMENT_LOADED = true;
+
+					// if IE
+					if (document.all) {
+						if (document.getElementById('sq-commit-button-div')) {
+							commit_div = document.getElementById('sq-commit-button-div');
+							if (commit_div.currentStyle && (commit_div.currentStyle.position == 'absolute')) {
+								document.body.style.paddingBottom = (commit_div.clientHeight + 2) + "px";
+							}
+						}
+					}
 
 				}//end page_on_load()
 
@@ -1106,7 +1126,8 @@ class Backend_Outputter
 		<div id="sq-search-wait-popup"><div id="sq-search-wait-popup-titlebar"><div id="sq-search-wait-popup-close">[ <a href="#" onclick="document.getElementById('sq-search-wait-popup').style.display = 'none'; return false;">x</a> ]</div><span id="sq-search-wait-popup-title">Search in Progress</span></div>
 			<div id="sq-search-wait-popup-details">Your search is being processed, please wait...</div>
 		</div>
-		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onsubmit="return form_on_submit();">
+		<form style="display: inline" action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onsubmit="return form_on_submit();">
+		<div id="sq-content">
 		<?php
 		hidden_field('process_form', '1');
 		foreach ($this->_hidden_fields as $name => $value) {
@@ -1372,6 +1393,7 @@ class Backend_Outputter
 	function _paintFooter()
 	{
 		?>
+		</div>
 		</form>
 		</body>
 		</html>
@@ -1494,14 +1516,27 @@ class Backend_Outputter
 		}
 		$release_lock = (int) $release_lock;
 		if ($include_section) {
-			$this->openSection(' ');
-			$this->openField('', 'commit');
+			// Lock commit button to bottom of frame if the preference is turned on AND we're in backend
+			if (SQ_IN_BACKEND && $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_COMMIT_BUTTON_POS')) {
+				$this->openRaw();
+				?></div><div id="sq-commit-button-spacer"></div><div id="sq-commit-button-div"><div id="sq-commit-button-div-inside"><?php
+			} else {
+				$this->openSection(' ');
+				$this->openField('', 'commit');
+			}
 		}
 		hidden_field('sq_lock_release', $release_lock);
 		normal_button('sq_commit_button', $value, 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; } ', 'accesskey="s"');
 		if ($include_section) {
-			$this->closeField();
-			$this->closeSection();
+			if (SQ_IN_BACKEND && $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_COMMIT_BUTTON_POS')) {
+				?></div></div>
+				<div>
+				<?php
+				$this->closeRaw();
+			} else {
+				$this->closeField();
+				$this->closeSection();
+			}
 		}
 
 	}//end commitButton()

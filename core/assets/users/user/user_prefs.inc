@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.9 2007/01/11 01:25:41 arailean Exp $
+* $Id: user_prefs.inc,v 1.10 2007/03/28 03:41:15 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
@@ -57,6 +57,12 @@ class User_Prefs extends Prefs
 														'name'			=> 'Width of Asset Map Frame',
 														'description'	=> 'Allows changing of asset map frame width',
 														'default'		=> 275,
+														'protected'		=> FALSE,
+													   ),
+						'SQ_USER_COMMIT_BUTTON_POS'	=> Array(
+														'name'			=> 'Commit Button Position',
+														'description'	=> '',
+														'default'		=> FALSE,
 														'protected'		=> FALSE,
 													   ),
 					 );
@@ -278,6 +284,33 @@ class User_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}//end if
 
+		if (is_null($pref) || $pref == 'SQ_USER_COMMIT_BUTTON_POS') {
+			if (is_null($pref)) $o->openField('Commit Button Position');
+			?>
+			<div class="sq-backend-table sq-backend-table-cell">
+			<?php
+				$options = Array(
+								FALSE	=> 'Bottom of page',
+								TRUE	=> 'Anchored to bottom of frame',
+							   );
+
+				$position = $this->pref_vars['SQ_USER_COMMIT_BUTTON_POS']['default'];
+				if ($have_lock && $is_admin) {
+					combo_box('prefs[SQ_USER_COMMIT_BUTTON_POS]', $options, FALSE, $position, 0, 'id="prefs_SQ_USER_COMMIT_BUTTON_POS"');
+					?><br/><?php
+					label('If set to "Anchored to bottom of frame", the Commit button will appear at the bottom of the frame and not scroll with the rest of the page. Note that this setting does not affect Simple Edit mode', 'prefs_SQ_USER_COMMIT_BUTTON_POS');
+				} else {
+					echo $options[$position].'<br/>';
+					echo('If set to "Anchored to bottom of frame", the Commit button will appear at the bottom of the frame and not scroll with the rest of the page. Note that this setting does not affect Simple Edit mode');
+				}
+			?>
+			<br />
+			</div>
+			<?php
+
+			if (is_null($pref)) $o->closeField();
+		}//end if
+
 
 		return TRUE;
 
@@ -338,11 +371,20 @@ class User_Prefs extends Prefs
 		}
 
 		if (is_null($pref) || $pref == 'SQ_USER_SAFE_TYPE3_TRASH') {
-			// update lineage pref
+			// safe trash pref
 			if (isset($_POST['prefs']['SQ_USER_SAFE_TYPE3_TRASH'])) {
 				$this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['default'] = $_POST['prefs']['SQ_USER_SAFE_TYPE3_TRASH'];
 			} else {
 				$this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['default'] = FALSE;
+			}
+		}
+
+		if (is_null($pref) || $pref == 'SQ_USER_COMMIT_BUTTON_POS') {
+			// commit button position pref
+			if (isset($_POST['prefs']['SQ_USER_COMMIT_BUTTON_POS'])) {
+				$this->pref_vars['SQ_USER_COMMIT_BUTTON_POS']['default'] = $_POST['prefs']['SQ_USER_COMMIT_BUTTON_POS'];
+			} else {
+				$this->pref_vars['SQ_USER_COMMIT_BUTTON_POS']['default'] = FALSE;
 			}
 		}
 
