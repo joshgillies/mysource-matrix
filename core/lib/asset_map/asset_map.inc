@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.243 2007/03/12 05:31:03 tbarrett Exp $
+* $Id: asset_map.inc,v 1.244 2007/03/28 23:02:19 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.243 $
+* @version $Revision: 1.244 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -511,9 +511,9 @@ class Asset_Map
 		$GLOBALS['SQ_OUTPUT_TYPE'] = 'xml';
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-
 		$input =& new XML_Tree('php://input');
 		$root  =& $input->getTreeFromFile();
+
 		if (PEAR::isError($root)) {
 			$this->_error('AMAP0001', $root->getMessage(), $root->getUserInfo());
 			return;
@@ -1667,6 +1667,24 @@ class Asset_Map
 
 		// process the re-ordering
 		foreach ($reordered_assets as $assetid => $link_info) {
+
+			// Check write access as appropriate
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+					$majwa = $old_parent->writeAccess('');
+					$minwa = $asset->writeAccess('');
+					if (!($majwa || $minwa)) {
+						$reordering_errors = translate('cannot_reorder_sig_link_no_perm_either', $asset->name, $asset->id, $old_parent->name, $old_parent->id);
+						$this->_error('AMAP0045', $reordering_errors);
+					} else if (!$majwa) {
+						$reordering_errors = translate('cannot_reorder_sig_link_no_perm_major', $asset->name, $asset->id, $old_parent->name, $old_parent->id);
+						$this->_error('AMAP0045', $reordering_errors);
+					} else if (!$minwa) {
+						$reordering_errors = translate('cannot_reorder_sig_link_no_perm_minor', $asset->name, $asset->id, $old_parent->name, $old_parent->id);
+						$this->_error('AMAP0045', $reordering_errors);
+					}
+					
+			}
+
 			if (!$GLOBALS['SQ_SYSTEM']->am->moveLinkPos($link_info['linkid'], $new_parent_pos)) {
 				return;
 			}
@@ -1681,6 +1699,7 @@ class Asset_Map
 								);
 			$output->insertChild(Array('responses'), $response_count++, $successTree);
 		}
+
 
 		// if we have only one asset. if we cant move it to the parent we dont continue further
 		if (count($assets) == 1) {

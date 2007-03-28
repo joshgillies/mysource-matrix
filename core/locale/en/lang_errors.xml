@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.85 2007/03/05 01:04:45 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.86 2007/03/28 23:02:19 colivar Exp $
 *
 */
 
@@ -622,6 +622,7 @@
 	<error code="AMAP0042">Unable to Create New Link, Link #%s not found</error>
 	<error code="AMAP0043">Unable to Create New Link, can't create a new link to the trash</error>
 	<error code="AMAP0044">Unable to Clone Asset, %s</error>
+	<error code="AMAP0045">Unable to Change Asset Position, %s</error>
 
 	<!-- FILE VERSIONING -->
 
