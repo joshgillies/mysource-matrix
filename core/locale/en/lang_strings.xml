@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.238 2007/03/23 04:42:06 colivar Exp $
+* $Id: lang_strings.xml,v 1.239 2007/03/28 05:54:19 arailean Exp $
 *
 */
 
@@ -101,9 +101,9 @@
 	<string source="current_hipo_jobs">Current HIPO Jobs</string>
 	<string source="orphaned_hipo_jobs">Orphaned HIPO Jobs</string>
 	<string source="current_linking">Current Linking</string>
-	<string source="create_linking">Create Link</string>	
+	<string source="create_linking">Create Link</string>
 	<string source="cron_manager_create_now_or_later">a future date and time. If no time is set, the new link will be created immediately else the cron manager will create the link at a future time</string>
-	<string source="cron_manager_delete_now_or_later">a future date and time. If no time is set, the selected link will be deleted immediately else the cron manager will delete the link at a future time</string>	 
+	<string source="cron_manager_delete_now_or_later">a future date and time. If no time is set, the selected link will be deleted immediately else the cron manager will delete the link at a future time</string>
 	<string source="cron_manager_future_not_available_create">a future date and time. This feature is not availabe for the current asset</string>
 	<string source="cron_manager_future_not_available_delete">a future date and time. This feature is not availabe for the current asset</string>
 	<string source="current_lock_status">Current Lock Status</string>
@@ -259,6 +259,7 @@
 	<string source="proxy_authentication_passed">Passed</string>
 	<string source="proxy_authentication_disabled">Disabled</string>
 	<string source="proxy_authentication_status">Proxy Authentication Status</string>
+	<string source="proxy_configuration_problem">Proxy Configuration Problem</string>
 	<string source="proxy_url_manipulation">Proxy URL Manipulation</string>
 	<string source="proxy_url_strip_port">Ignore Port Number</string>
 	<string source="proxy_url_strip_port_note">Useful if you access MySource Matrix using a specific port number (i.e. specified in the URL). If you choose to ignore port numbers, URLs printed by MySource Matrix will not contain the port number by which the system is being accessed.</string>
