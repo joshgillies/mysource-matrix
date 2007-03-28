@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.2 2006/12/20 23:57:03 rhoward Exp $
+* $Id: page_online_quiz.inc,v 1.3 2007/03/28 07:25:49 rhoward Exp $
 *
 */
 
@@ -60,7 +60,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -207,13 +207,16 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function _getDefaultBodycopyContent($bodycopy_code)
 	{
-		$bodycopy_content = parent::_getDefaultBodycopyContent($bodycopy_code);
-		if ($bodycopy_content) return $bodycopy_content;
-
 		$content = '';
 
 		switch ($bodycopy_code) {
 			// regular bodycopies
+			case 'page_contents':
+				$content  = '%asset_listing% %submit_button%';
+			break;
+			case 'no_results':
+				return '<p>'.translate('online_quiz_bodycopy_no_result_default').'</p>';
+			break;
 			case 'thank_you':
 				$content  = '<p>'.translate('online_quiz_bodycopy_thank_you_default').'</p>'."\n";
 				$content .= '%results_table_full%';
@@ -231,6 +234,10 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				$content .= '<div>%question_text%</div>'."\n";
 				$content .= '%response_form%';
 			break;
+		}
+
+		if (!$content) {
+			$content = parent::_getDefaultBodycopyContent($bodycopy_code);
 		}
 
 		return $content;
