@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_form_submission_linking.php,v 1.2 2007/03/14 22:10:42 tbarrett Exp $
+* $Id: upgrade_form_submission_linking.php,v 1.3 2007/03/28 04:31:11 lwright Exp $
 *
 */
 
 /**
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -56,7 +56,7 @@ $formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form', FALSE);
 foreach ($formids as $formid) {
 	$form =& $am->getAsset($formid);
 	pre_echo('Moving submissions for '.$form->name.' to submissions folder');
-	$submissions_folder =& $form->_getSubmissionsFolder();
+	$submissions_folder =& $form->getSubmissionsFolder();
 	if (is_null($submissions_folder)) {
 		trigger_error('Submissions folder not found for form #'.$formid.'; upgrade may be required', E_USER_ERROR);
 	}
