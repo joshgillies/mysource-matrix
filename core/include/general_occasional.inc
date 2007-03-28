@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.74 2007/03/23 05:45:18 tbarrett Exp $
+* $Id: general_occasional.inc,v 1.75 2007/03/28 05:21:42 arailean Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix
 */
 
@@ -443,10 +443,29 @@ function addProxyInfo(&$request_parameters, &$default_headers)
 * @param string			&$errno		Error number when proxy is used
 * @param string			&$errstr	Error string when proxy is used
 *
+* @deprecated
+* @return mixed object|boolean
+* @access public
+* @see open_socket_connection
+*/
+function openSocketConnection($url_parts, &$errno, &$errstr)
+{
+	return open_socket_connection($url_parts, $errno, $errstr);
+
+}//end openSocketConnection()
+
+
+/**
+* Open a socket connection to specified url. Returns connection resource
+*
+* @param array|string	$url_parts	Url to connect to. Can be a full url string or parse_url style array
+* @param string			&$errno		Error number when proxy is used
+* @param string			&$errstr	Error string when proxy is used
+*
 * @return mixed object|boolean
 * @access public
 */
-function openSocketConnection($url_parts, &$errno, &$errstr)
+function open_socket_connection($url_parts, &$errno, &$errstr)
 {
 	include_once(SQ_DATA_PATH.'/private/conf/proxy_authentication.inc');
 	$page_url = '';
@@ -478,7 +497,7 @@ function openSocketConnection($url_parts, &$errno, &$errstr)
 
 	return $con;
 
-}//end openSocketConnection()
+}//end open_socket_connection()
 
 
 ?>
