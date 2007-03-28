@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: proxy_authentication_config.inc,v 1.4 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: proxy_authentication_config.inc,v 1.5 2007/03/28 06:12:22 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Proxy_Authentication_Config extends Config
@@ -81,14 +81,16 @@ class Proxy_Authentication_Config extends Config
 			$o->openField(translate('proxy_authentication_status'));
 			if (SQ_PA_ENABLED) {
 				require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
-				$socket = openSocketConnection('http://matrix.squiz.net', $errno, $errstr);
-				if (!is_null($socket)) {
+				$socket = open_socket_connection('http://matrix.squiz.net', $errno, $errstr);
+				if ($socket !== FALSE && !is_null($socket)) {
 					$response = fread($socket, 128);
 					if (preg_match('|407 proxy authentication required|i', $response)) {
 						echo '<font color="red"><strong>'.translate('proxy_authentication_failed').'</strong></font>';
 					} else {
 						echo '<font color="green"><strong>'.translate('proxy_authentication_passed').'</strong></font>';
 					}
+				} else {
+					echo '<strong class="sq-backend-warning">'.translate('proxy_configuration_problem').'</font>';
 				}
 			} else {
 				echo '<strong>'.translate('proxy_authentication_disabled').'</font>';
