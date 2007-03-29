@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: format_font.inc,v 1.9 2006/12/06 05:11:08 bcaldwell Exp $
+* $Id: format_font.inc,v 1.9.2.1 2007/03/29 04:28:57 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to change font size, family, and style
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -126,9 +126,11 @@ class format_font extends wysiwyg_plugin
 		case "formatblock":
 			if (!text) {
 				if (!doc) break;
-				var value = ("" + doc.queryCommandValue(cmd)).toLowerCase();
+				var value = '';
+				try {
+					value = ("" + doc.queryCommandValue(cmd)).toLowerCase();
+				} catch (e) {}
 				if (!value) {
-					// FIXME: what do we do here?
 					break;
 				}
 				var options = this.config[i]; // HACK!!
