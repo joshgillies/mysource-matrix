@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.52.2.1 2006/11/23 00:18:35 lwright Exp $
+* $Id: design_area.inc,v 1.52.2.2 2007/03/29 23:58:42 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.52.2.1 $
+* @version $Revision: 1.52.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,7 +111,7 @@ class Design_Area extends Asset
 	function lockTypes()
 	{
 		$lock_types = parent::lockTypes();
-		$lock_types['parsing'] = ($lock_types['attributes'] | $lock_types['links']);
+		$lock_types['parsing'] = $lock_types['all'];
 		return $lock_types;
 
 	}//end lockTypes()
