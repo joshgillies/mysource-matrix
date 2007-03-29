@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2007/03/28 07:25:49 rhoward Exp $
+* $Id: lang_strings.xml,v 1.5 2007/03/29 05:00:40 rhoward Exp $
 *
 */
 -->
@@ -41,11 +41,11 @@
 <string source="online_quiz_results_header_question_num">#</string>
 <string source="online_quiz_results_header_assetid">Asset ID</string>
 <string source="online_quiz_results_header_question_text">Question</string>
-<string source="online_quiz_results_header_value">Answer</string>
+<string source="online_quiz_results_header_value">Your Answer</string>
 <string source="online_quiz_results_header_summary">Answer Text</string>
 <string source="online_quiz_results_header_correct_value">Correct Answer</string>
 <string source="online_quiz_results_header_correct_summary">Correct Answer Text</string>
-<string source="online_quiz_results_header_points">Score</string>
+<string source="online_quiz_results_header_points">Your Score</string>
 <string source="online_quiz_results_header_available_points">Maximum Score</string>
 <string source="online_quiz_results_header_total_points">Total Score</string>
 <string source="online_quiz_results_header_total_available_points">Total Maximum Score</string>
