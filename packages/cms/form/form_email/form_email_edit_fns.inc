@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.82 2007/03/29 00:59:06 tbarrett Exp $
+* $Id: form_email_edit_fns.inc,v 1.83 2007/03/29 02:13:58 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -124,6 +124,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function paintSubmissionList(&$asset, &$o, $prefix)
 	{
+		$write_access = $asset->writeAccess('links');
 		$expand_list = isset($_POST[$prefix.'_expand']) ? $_POST[$prefix.'_expand'] : Array();
 		$num_subs = 0;
 
@@ -322,9 +323,15 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				<th>
 					<input type="checkbox" name="<?php echo $prefix ?>_expand_all" value="" onclick="sq_set_check_all(this.form, '<?php echo $prefix ?>_expand[]', this.checked);"> <?php echo translate('expand_question') ?>
 				</th>
+			<?php
+			if ($write_access) {
+				?>
 				<th>
 					<input type="checkbox" name="<?php echo $prefix ?>_delete_all" value="" onclick="sq_set_check_all(this.form, '<?php echo $prefix ?>_delete[]', this.checked);"> <?php echo translate('delete_question') ?>
 				</th>
+				<?php
+			}
+			?>
 				<th>&nbsp;</th>
 			</tr>
 			<?php
@@ -372,9 +379,15 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					<td>
 						<input type="checkbox" name="<?php echo $prefix ?>_expand[]" value="<?php echo $assetid ?>" <?php if ($sub_expanded) echo ' checked="checked"'; ?> onclick="sq_test_check_all(this.form, '<?php echo $prefix ?>_expand[]', '<?php echo $prefix ?>_expand_all');">
 					</td>
+				<?php
+				if ($write_access) {
+					?>
 					<td>
 						<input type="checkbox" name="<?php echo $prefix ?>_delete[]" value="<?php echo $assetid ?>" onclick="sq_test_check_all(this.form, '<?php echo $prefix ?>_delete[]', '<?php echo $prefix ?>_delete_all');">
 					</td>
+					<?php
+				}
+				?>
 					<td>[ <a href="<?php echo $sub_asset->getBackendHref(); ?>"><?php echo translate('edit') ?></a> ]</td>
 				</tr>
 				<?php
