@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_url.inc,v 1.3 2006/12/06 00:08:53 bcaldwell Exp $
+* $Id: trigger_action_add_url.inc,v 1.4 2007/03/29 04:59:53 rhoward Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,6 +58,9 @@ class Trigger_Action_Add_Url extends Trigger_Action
 
 		// url not specified
 		if ($settings['url'] == '') return FALSE;
+
+		$settings['http'] = array_get_index($settings, 'http', 0);
+		$settings['https'] = array_get_index($settings, 'https', 0);
 
 		// protocols not specified
 		if (!$settings['http'] && !$settings['https']) {
