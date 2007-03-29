@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_log.xml,v 1.6 2007/01/19 04:46:13 arailean Exp $
+* $Id: edit_interface_screen_log.xml,v 1.7 2007/03/29 02:14:23 tbarrett Exp $
 *
 */
 -->
@@ -52,5 +52,4 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Info" />
 </contents>

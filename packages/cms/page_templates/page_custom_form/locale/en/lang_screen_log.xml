@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_log.xml,v 1.6 2007/01/19 04:46:13 arailean Exp $
+* $Id: lang_screen_log.xml,v 1.7 2007/03/29 02:14:24 tbarrett Exp $
 *
 */
 -->
@@ -58,8 +58,5 @@
 			</function_call>
 		</field>
 		<note>Select a date range to display - a summary of submissions in that time period will be displayed. To display the responses for a submission, check the Expand box for that submission and click Commit</note>
-	</section>
-	<section name="Info">
-		<note><![CDATA[Available Keywords for use in Simple Edit Layouts<ul><li>export <ul><li>download_date_range</li><li>download_format</li><li>download_button</li></ul></li><li>submissions <ul><li>submission_date_range</li><li>submission_count</li><li>submission_list</li></ul></li>]]></note>
 	</section>
 </contents>
