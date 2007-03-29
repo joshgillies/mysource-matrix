@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.81 2007/03/29 00:58:27 tbarrett Exp $
+* $Id: form_email_edit_fns.inc,v 1.82 2007/03/29 00:59:06 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -468,7 +468,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$submissions_folder =& $asset->getSubmissionsFolder();
 			$submission_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($submissions_folder->id, $delete_assetid, SQ_LINK_TYPE_3);
 			if (!$submission_link) {
-				trigger_error("Submission link not found");
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
