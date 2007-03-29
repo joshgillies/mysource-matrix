@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz_management.inc,v 1.2 2006/12/20 23:57:03 rhoward Exp $
+* $Id: page_online_quiz_management.inc,v 1.3 2007/03/29 01:58:10 rhoward Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -61,19 +61,6 @@ class Page_Online_Quiz_Management extends Asset_Management
 																							'number'	=> 'Standard',
 																							'grouped'	=> 'Custom Grouping',
 																						   ),
-																	   ),
-												   ),
-						// set up "statuses" to list live (and above) assets by default
-						'statuses'				=> Array(
-													'added'			=> '0.8',
-													'type'			=> 'serialise',
-													'description'	=> 'Statuses that are being listed.',
-													'default'		=> Array(
-																		0	=> SQ_STATUS_LIVE,
-																		1	=> SQ_STATUS_LIVE_APPROVAL,
-																		2	=> SQ_STATUS_EDITING,
-																		3	=> SQ_STATUS_EDITING_APPROVAL,
-																		4	=> SQ_STATUS_EDITING_APPROVED,
 																	   ),
 												   ),
 						'num_questions'			=> Array(

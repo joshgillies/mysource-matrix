@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.3 2007/03/28 07:25:49 rhoward Exp $
+* $Id: page_online_quiz.inc,v 1.4 2007/03/29 01:58:10 rhoward Exp $
 *
 */
 
@@ -60,7 +60,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -829,7 +829,12 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			if (empty($assets_to_list)) return Array();
 
 			// work out how many assets we need to list
-			$num_questions = ($this->attr('num_questions') > 0) ? $this->attr('num_questions') : count($assets_to_list);
+			$attr_num_questions = $this->attr('num_questions');
+			if ($attr_num_questions <= 0 || $attr_num_questions > count($assets_to_list)) {
+				$num_questions = count($assets_to_list);
+			} else {
+				$num_questions = $attr_num_questions;
+			}
 
 			// Randomize the order
 			// array_rand(array, 1) will produce a string instead of an array - compensate
@@ -2068,13 +2073,13 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 				if ($html) {
 					?>
-					<table class="<?php echo $css_class_prefix; ?>">
+					<table class="<?php echo $css_class_prefix; ?>" id="<?php echo $css_class_prefix.'-'.$this->id; ?>">
 					<tr>
 					<?php
 
 					$column_counter = 1;
 					foreach ($columns as $column => $column_name) {
-						?><th class="<?php echo $css_class_prefix.'_c'.$column_counter; ?>"><?php echo $column_name; ?></th><?php
+						?><th class="<?php echo $css_class_prefix.'-c'.$column_counter; ?>"><?php echo $column_name; ?></th><?php
 						$column_counter++;
 					}
 
@@ -2095,7 +2100,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 					foreach ($columns as $column => $column_name) {
 						$alignment_padding = '';
 						if ($html) {
-							?><td class="<?php echo $css_class_prefix.'_c'.$column_counter; ?> <?php echo $css_class_prefix.'_r'.$row_counter; ?>"><?php
+							?><td class="<?php echo $css_class_prefix.'-c'.$column_counter; ?> <?php echo $css_class_prefix.'-r'.$row_counter; ?>"><?php
 						} else {
 							// pad
 							echo $column_name;
