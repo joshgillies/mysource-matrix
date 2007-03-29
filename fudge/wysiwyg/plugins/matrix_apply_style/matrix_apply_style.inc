@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.12.2.3 2006/12/04 05:36:35 tbarrett Exp $
+* $Id: matrix_apply_style.inc,v 1.12.2.4 2007/03/29 04:38:50 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to apply a style from the effective design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12.2.3 $
+* @version $Revision: 1.12.2.4 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -196,9 +196,11 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 		case "formatblock":
 			if (!text) {
 				if (!doc) break;
-				var value = ("" + doc.queryCommandValue(cmd)).toLowerCase();
+				var value = '';
+				try {
+					value = ("" + doc.queryCommandValue(cmd)).toLowerCase();
+				} catch (e) {}
 				if (!value) {
-					// FIXME: what do we do here?
 					break;
 				}
 				btn.element.selectedIndex = 0;
