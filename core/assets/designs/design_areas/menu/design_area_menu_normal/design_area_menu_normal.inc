@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_normal.inc,v 1.19 2007/02/08 06:04:09 rong Exp $
+* $Id: design_area_menu_normal.inc,v 1.20 2007/03/29 00:32:00 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,29 +82,27 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 
 
 	/**
-	* Print code that actually results in HTML output to the browser for this design area
-	* This function is called at the AREA tag if print != no, and at the point of any PRINT
-	* tags that reference this area.
+	* Print code that initialises this design area and should always be printed in place of the AREA tag
 	*
-	* Modify the asset lineage if a root node is supplied so that we can
+	* We modify the asset lineage if a root node is supplied so that we can
 	* print the menu based on the root node instead of the default top level site asset
 	*
 	* @return void
 	* @access protected
 	*/
-	function _printPaintingCode()
+	function _printInitCode()
 	{
 		if ($this->attr('root_node') != 0 && $this->attr('level') == 0) {
 			echo '
 			<?php
 
 				$within_site = FALSE;
-				$lineage = Array();
+				$menu_'.$this->attr('id_name').'_lineage = Array();
 
 				// if the specified root node is within the current site
 				foreach ($ASSET_LINEAGE as $i => $asset_lineage) {
 					if ($asset_lineage[\'assetid\'] == '.$this->attr('root_node').') {
-						$lineage = array_slice($ASSET_LINEAGE, $i);
+						$menu_'.$this->attr('id_name').'_lineage = array_slice($ASSET_LINEAGE, $i);
 						$within_site = TRUE;
 						break;
 					}
@@ -121,38 +119,65 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 					if (!empty($root_lineage)) {
 						foreach ($root_lineage as $i => $info) {
 							if ($info[\'assetid\'] == '.$this->attr('root_node').') {
-								$lineage[0] = $root_lineage[$i];
+								$menu_'.$this->attr('id_name').'_lineage[0] = $root_lineage[$i];
 								break;
 							}
 						}
 					}
 				}
 
-				if (!empty($lineage)) {
+				if (!empty($menu_'.$this->attr('id_name').'_lineage)) {
 					$original_lineage = $ASSET_LINEAGE;
-					$ASSET_LINEAGE = $lineage;
+					$ASSET_LINEAGE = $menu_'.$this->attr('id_name').'_lineage;
 				}
 			?>';
 		}//end if
-		echo '
-			<?php
-			if (isset('.$this->_tmp['parent_assetid_name'].') && !empty($GLOBALS[\'MENU_DATA\']['.$this->_safeStringLiteral($this->attr('id_name')).']['.$this->_tmp['parent_assetid_name'].'])) {
-				?', '>
-		';
 
-		parent::_printPaintingCode();
-
-		echo '
-				<', '?php
-			}// end if subs '.$this->attr('id_name').'
-			?>
-		';
+		parent::_printInitCode();
 
 		if ($this->attr('root_node') != 0 && $this->attr('level') == 0) {
 			echo '
 			<?php
 				// restore the asset lineage so that other menus are not affected
-				if (!empty($lineage)) {
+				if (!empty($menu_'.$this->attr('id_name').'_lineage)) {
+					$ASSET_LINEAGE = $original_lineage;
+				}
+			?>';
+		}
+
+	}//end _printInitCode()
+
+
+	/**
+	* Print code that actually results in HTML output to the browser for this design area
+	* This function is called at the AREA tag if print != no, and at the point of any PRINT
+	* tags that reference this area.
+	*
+	* If a root node is supplied, we again modify the asset lineage, replacing it with the
+	* lineage generated in _printInitCode
+	*
+	* @return void
+	* @access protected
+	*/
+	function _printPaintingCode()
+	{
+		if ($this->attr('root_node') != 0 && $this->attr('level') == 0) {
+			echo '
+			<?php
+				if (!empty($menu_'.$this->attr('id_name').'_lineage)) {
+					$original_lineage = $ASSET_LINEAGE;
+					$ASSET_LINEAGE = $menu_'.$this->attr('id_name').'_lineage;
+				}
+			?>';
+		}//end if
+
+		parent::_printPaintingCode();
+
+		if ($this->attr('root_node') != 0 && $this->attr('level') == 0) {
+			echo '
+			<?php
+				// restore the asset lineage so that other menus are not affected
+				if (!empty($menu_'.$this->attr('id_name').'_lineage)) {
 					$ASSET_LINEAGE = $original_lineage;
 				}
 			?>';
