@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.12 2007/03/30 05:56:22 arailean Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.13 2007/03/30 06:00:32 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,6 +41,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 	* Array(
 	*       'attribute' => string // the attribute to modify
 	*       'value'     => string // the value to set
+	*       'value_map' => string // parameter map setting
 	*       );
 	* </PRE>
 	*
