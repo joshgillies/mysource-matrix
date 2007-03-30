@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tools.inc,v 1.10 2007/01/11 23:00:59 colivar Exp $
+* $Id: tools.inc,v 1.11 2007/03/30 05:44:04 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 class Tools extends MySource_Object
@@ -115,11 +115,7 @@ class Tools extends MySource_Object
             $o->setPageTitle('System Tools: '.$tool_info['name']);
 			call_user_func_array(Array($type_code, 'paintTool'), Array(&$o, $type_code));
 			$o->addHiddenField('committed_tool_type_code', $type_code);
-			$o->openSection('', 'commit');
-				$o->openField('', 'commit');
-					$o->commitButton();
-				$o->closeField();
-			$o->closeSection();
+			$o->commitButton();
 		}
 
 	}//end _paintTool()
