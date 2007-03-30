@@ -10,11 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.11 2007/03/19 04:57:21 tbarrett Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.12 2007/03/30 05:56:22 arailean Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
+require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 
 /**
 * Trigger_Action_Set_Attribute_Value
@@ -23,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,7 +66,19 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 
 		if (is_null($state['asset'])) return FALSE;
 
-		$value = $settings['value'];
+
+		$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
+		$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+		$param_map_value = $atr_parameter_map->getParameterValue('attribute_value');
+
+
+		// settings contains the 'fallback' static value.
+		if (!empty($param_map_value)) {
+			$value = $param_map_value;
+		} else {
+			$value = $settings['value'];
+		}
+
 
 		// handle serialised attributes
 		if (is_scalar($value)) {
@@ -170,6 +183,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 							$attr_options[$attr_name] = $attr_name;
 						}
 						combo_box($prefix.'[attribute]', $attr_options, FALSE, $attribute);
+
 					} else {
 						echo '<b>'.$attribute.'</b>';
 					}
@@ -186,6 +200,17 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 			} else {
 				echo '<b>'.$value.'</b>';
 			}
+
+			echo '<div>';
+			$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+			hidden_field($prefix.'[new_prefix]', $new_prefix);
+
+			$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
+			$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+
+			$atr_parameter_map->setParameter('attribute_value', 'Attribute Value');
+			echo $atr_parameter_map->paint($new_prefix.'_parameter_map');
+			echo '</div>';
 
 			$basic_part_3 = ob_get_contents();
 		ob_end_clean();
@@ -233,6 +258,14 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 				// selected asset type does not have an attribute with the selected name, so reset
 				$settings['attribute'] = '';
 			}
+
+			$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+			if ($new_prefix) {
+				$atr_parameter_map =& new Asset_Attribute_Parameter_Map();
+				$atr_parameter_map->process($new_prefix.'_parameter_map');
+				$settings['value_map'] = $atr_parameter_map->value;
+			}
+
 
 			switch (get_class($attr)) {
 				case 'asset_attribute_serialise' :
