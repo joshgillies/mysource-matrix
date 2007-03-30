@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.161 2007/03/23 05:35:55 rhoward Exp $
+* $Id: form.inc,v 1.162 2007/03/30 04:45:04 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.161 $
+* @version $Revision: 1.162 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -77,6 +77,23 @@ class Form extends Asset
 		$this->Asset($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Create this asset, setting attributes prior to creation
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @return mixed int|boolean
+	* @access public
+	*/
+	function create(&$link)
+	{
+		$this->setAttrValue('submission_errors_msg', translate('cms_form_error_msg_default'));
+
+		return parent::create($link);
+
+	}//end create()
 
 
 	/**
