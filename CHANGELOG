@@ -1,5 +1,48 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.12.3
+
+Complete Changelog
+-----------------------------------
+
+Core
+
+* Fixed bug #2111: Hipo process going nuts for the Structured Asset Report
+* Fixed bug #2123: Large number of 'Unable to find an Asset' error messages generated for pages containing images when under workflow
+* Fixed bug #2164: Asset tree loses encoding of asset names
+* Fixed bug #2179: Incomplete metadata report doesn't show all reported assets as children in asset map
+* Fixed bug #2187: Assigning an LDAP user to a role causes sq_vw_ast_role to fail
+* Fixed bug #2204: Unable to link metadata fields between sections
+* Fixed bug #2212: Errors from empty custom form datetime questions using 'allow blank'
+* Fixed bug #2218: Metadata field "use default" checkboxes still shown when field uneditable
+* Fixed bug #2220: Removing metadata schemas fails
+* Fixed bug #2232: Metadata Schema Details screen - Reference to HCL
+* Fixed bug #2234: Custom Form - default value on the select question
+* Fixed bug #2237: Warranty screen messes up workflow email URLs
+* Fixed bug #2243: Spell checker and WYSWYG corrupting content
+* Fixed bug #2245: Deleting an LDAP User from a Matrix group removes ALL links
+* Fixed bug #2247: LDAP Users lose permissions from inherited group membership
+* Fixed bug #2248: Progress workflow messages not sending
+* Fixed bug #2250: Messaging service not using correct subjects and possibly From: address
+* Fixed bug #2260: Design Area Custom Image does not reflect new data directory changes
+* Fixed bug #2263: Nest content on paint layout type format doesn't work when changed
+* Fixed bug #2265: Undefined variable in wysiwyg.inc
+* Fixed bug #2288: Releasing locks on Designs doesn't release all locks
+
+CMS
+
+* Fixed bug #2230: Asset Builder - Dangling Create Location (Asset Builder Page)
+* Fixed bug #2231: Asset Listing - "Seperator" spelt wrong (Asset Listing Page)
+* Fixed bug #2238: Link Report notifications not sent to Roles (Links Report)
+* Fixed bug #2258: Links Report Scheduled Future Regeneration output broken (Links Report)
+* Fixed bug #2268: Link Report generates the wrong URL (Links Report)
+
+Search
+
+* Fixed bug #2194: search min word error (Search Manager)
+
+
+
 VERSION 3.12.2
 
 Complete Changelog
@@ -45,6 +88,8 @@ Bulkmail
 * Fixed bug #2140: Bmail not showing %subscriptions_picker% output when Separator blank (Bulkmail Subscribe Page)
 * Fixed bug #2180: Bulkmail - Error when email is not valid (Bulkmail Subscribe Page)
 * Fixed bug #2188: Misleading message when public bulkmail user subscribes and enters unverified users folder (Bulkmail Subscribe Page)
+
+
 
 VERSION 3.12.1
 
