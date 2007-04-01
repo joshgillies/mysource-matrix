@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2007/02/09 03:46:25 arailean Exp $
+* $Id: lang_screen_details.xml,v 1.6 2007/04/01 23:22:31 tbarrett Exp $
 *
 */
 -->
@@ -50,6 +50,6 @@
 			<paint_function   name="paintActions" />
 			<process_function name="processActions" />
 		</function_call>
-		<note>Actions are performed in the order they are specified. If one action fails, the trigger will fail. Unless 'Ignore Permissions' is selected, the action is run as a user that caused the trigger to be executed (currently logged in user). This means that some actions might fail if they user doesn't have appropriate access privileges. To make sure that the actions are performed regardles of user's access rights, select 'Ignore Permissions'. Actions can be marked as 'Non-Critical' which means that if that action fails for any reason, the remaining actions will continue to run normally. If an action fails and it is required, then the system will try to undo all the previous actions in this trigger.</note>
+		<note>Actions are performed in the order they are specified. If one action fails, the trigger will fail. Unless 'Ignore Permissions' is selected, the action is run as a user that caused the trigger to be executed (currently logged in user). This means that some actions might fail if they user doesn't have appropriate access privileges. To make sure that the actions are performed regardless of user's access rights, select 'Ignore Permissions'. Actions can be marked as 'Non-Critical' which means that if that action fails for any reason, the remaining actions will continue to run normally. If an action fails and it is required, then the system will try to undo all the previous actions in this trigger.</note>
 	</section>
 </contents>
