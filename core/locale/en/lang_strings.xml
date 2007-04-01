@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.240 2007/03/28 23:02:19 colivar Exp $
+* $Id: lang_strings.xml,v 1.241 2007/04/01 22:49:45 tbarrett Exp $
 *
 */
 
@@ -1166,6 +1166,8 @@
 	<string source="trigger_create_design_customisation_usage">This trigger will create a design customisation of the design asset in which the trigger condition is matched.</string>
 	<string source="trigger_create_design_customisation_specify_name">Specify a name for the customisation</string>
 	<string source="trigger_create_design_customisation_select_keyword">Available keywords for naming</string>
+	<string source="trigger_action_release_lock_on_asset">Release lock on the asset that fired the trigger</string>
+	<string source="trigger_action_release_lock_held">Release all locks held by the current user</string>
 
 	<!-- common single word strings -->
 
