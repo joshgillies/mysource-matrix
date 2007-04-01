@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.86 2007/03/28 23:02:19 colivar Exp $
+* $Id: lang_errors.xml,v 1.87 2007/04/01 22:50:53 tbarrett Exp $
 *
 */
 
@@ -1732,5 +1732,9 @@ Full Node Contents :
 
 	<!--  User Inbox  -->
 	<error code="IBOX0001">The Number of emails per page must be an integer and at least 1</error>
+
+	<error code="TRIG0002">You have chosen to set the value of a non-scalar attribute, but the value you have supplied does not qualify to be evaluated as a PHP expression.  The only allowable components for these expressions are the 'array' keyword, single- and double-quoted strings, digits and necessary punctuation.  The value has not been saved.</error>
+
+	<error code="TRIG0003">The set-attribute trigger action is trying to set a non-scalar attribute to a scalar value; trigger execution aborted</error>
 
 </errors>
