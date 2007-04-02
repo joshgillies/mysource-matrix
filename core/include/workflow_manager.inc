@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.103 2007/03/21 03:40:31 lwright Exp $
+* $Id: workflow_manager.inc,v 1.104 2007/04/02 01:11:10 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1068,6 +1068,7 @@ class Workflow_Manager extends MySource_Object
 			$workflow['steps'] = Array();
 		}
 
+
 		$step_data =& $this->getCurrentStep($workflow);
 		for (reset($step_data['conditions']);
 				NULL !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
@@ -1566,7 +1567,7 @@ class Workflow_Manager extends MySource_Object
 
 		// if there are no escalation steps for the current step, we can't escalate to substeps, so defer to the next step
 		if (empty($current_step['escalation_steps'])) {
-			$current_step['completed'] = TRUE;
+			$current_step['completed'] = time();
 		}
 
 		// load the current step into the workflow
