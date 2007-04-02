@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.149 2007/04/02 00:06:28 colivar Exp $
+* $Id: backend_outputter.inc,v 1.149.2.1 2007/04/02 23:46:42 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.149 $
+* @version $Revision: 1.149.2.1 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1047,6 +1047,10 @@ class Backend_Outputter
 							if (commit_div.currentStyle && (commit_div.currentStyle.position == 'absolute')) {
 								document.body.style.paddingBottom = (commit_div.clientHeight + 2) + "px";
 							}
+						}
+					} else {
+						if (document.getElementById('sq-commit-button-div')) {
+							document.getElementById('sq-commit-button-spacer').style.height = (document.getElementById('sq-commit-button-div').clientHeight + 2) + "px";
 						}
 					}
 
