@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_edit_fns.inc,v 1.9 2007/02/28 23:53:14 emcdonald Exp $
+* $Id: structured_asset_info_edit_fns.inc,v 1.10 2007/04/02 22:43:17 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -867,10 +867,11 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 			trigger_localised_error('DCITA0001', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
 			return FALSE;
 		}
-		return TRUE;
 
 		// finish the page
 		echo '</table>';
+
+		return TRUE;
 
 	}//end paintReport()
 
