@@ -1,316 +1,216 @@
 MYSOURCE MATRIX CHANGELOG
 
-VERSION 3.12.0 RC1
+VERSION 3.14.0 RC1
 
 Featured Changes
 -----------------------------------
 
-Automatic Workflow Escalation
+Online Quiz Asset
 
-    This new feature allows a workflow process to automatically advance to the next step, or branch to an alternative set of steps, once the expiry time for that workflow step has lapsed. Escalation is applied on a step level, and escalation levels can be nested.
+	This new CMS package asset allows the creation of a online quiz, that displays a certain number of questions randomly selected from a pool of question assets (currently, only multiple-choice questions are available). Pagination of questions is possible, and users can also be prevented from re-taking the quiz. Definitions of question scoring are handled within the questions themselves.
 
 
-Default Bodycopy Content
+Comment Asset
 
-    Most assets in the CMS package (such as Asset Listing Page, Search Page, Asset Builder Page, etc) now contain default content in their bodycopies and other attributes, thus reducing the time and effort required to configure these assets in a basic way.
+	This is a new, lightweight News package asset that can be used for comments, containing a title and a comment field. A comment asset is based used in conjunction with a Paint Layout with a nested Asset Builder and Asset Listing (to create and list comments), turning an asset into a blog-type page that invites comments from users and/or the public. Comments can also be rated, defined by user preference settings.
 
 
-Errors Reported from Squiz Server
+Multiple Text Metadata Field Asset
 
-    HIPO jobs run on Squiz Server now check to see if the job has died on the Squiz Server, and reports any errors that were found.
+	This new Core package metadata field allows the storage of multiple arbitrary text values. It is filled on metadata screens using an Option List attribute, stored and indexed similar to a Selection metadata field, and is searched using a regular text box.
 
 
-Selective Purge of Trash
+Backend Search Now Available for WYSIWYG Popups
 
-    The trash now allows you to purge a certain sub-tree contained in the trash, instead of the whole trash itself. Note that an asset still will only be purged from the system if no links exist for that asset, including links elsewhere in the trash.
+	This feature extends the use of Backend Search to the Insert Link (all asset types), Insert Image (image assets only), and Embed Movie (file assets only - strict type check) WYSIWYG popups. Clicking on an asset's name will populate the main asset finder on the popup with the relevant data. Using "Find in Asset Map" will activate the popup's asset map.
 
 
-Safe Trash
+Automatic Safe Trash
 
-    This new feature adds an optional layer of protection to the trash, where assets or their children cannot be trashed if they are live, or have notice links to other assets.
+	If an asset cannot be trashed due to Safe Trash conditions, you can now set a Cron Job instead so that it can be trashed at the earliest safe opportunity. The Details screen of an asset notifies users that an asset is waiting to be trashed, as well as the safe trash condition(s) that are stopping it from being trashed.
 
 
-Require Secure Login Option
+Safe Trash Escalation Cron Job
 
-    This System Configuration option allows administrators to require logins to certain root URLs to come from a secure (HTTPS) connection. If an attempt to access a login screen is made from a non-secure connection, it will redirect to HTTPS to present the login screen, then return the user to a non-secure connection to display the page.
+	This new Cron Job runs on a daily basis at midnight (by default), and informs asset administrators that there are assets that are marked and waiting to be trashed. If the waiting is due to status, the admins of the asset itself are notified. If it is due other assets having TYPE_3 or NOTICE links to the marked asset, the admins of those assets will be notified.
 
 
-Hide Frames in Simple Edit Mode
+User Inbox Again Paginated
 
-    This new Simple Edit inferface option provides a middle ground between the full frames mode and "Ignore Frames" mode. This "Hide Frames" mode hides the top frame from view, and starts the asset map hidden (and will not be displayed until requested by an asset finder). However, both frames will still be printed, thus removing the pitfalls of "Ignore Frames" mode, where locks are not automatically refreshed while editing. This mode is triggered by the GET variable "hide_frames=1".
+	The User Inbox has been paginated again, to display 20 messages at a time by default. The number of messages displayed can be altered using a new User Preference.
 
 
-Authentication Redirects
+Re-order Pages Within Multiple Page Asset
 
-    This new Site asset feature allows MySource Matrix to redirect to another URL within the same site as an alternative to a login box. This may be useful if the second URL is intercepted by a proxy or Apache configuration that authenticates the user.
+	Pages within a Multiple Page asset can now be re-ordered, similar to how questions are re-ordered in a Custom Form. Please note that this process does re-assign web paths, so that the new first page is accessible with the "1" web path, the new second page with the "2" web path, and so on.
 
 
-Enhanced Backend Searching
+CAPTCHA Feature for Custom Form
 
-    If the Search Package is installed, the Quick Search box can, in addition to searching by asset ID or URL, perform a system-wide keyword search. Results appear in a drop-down message, and each result gives the option to provide more context to the results, get more information about the asset, or to find lineages in the asset map.
+	Custom Form assets now offer the ability to provide a CAPTCHA, similar to the Security Key system used in parts of the backend, that a user must enter before the form can be submitted. The length of the CAPTCHA is customisable.
 
 
-Search Manager Improvements for Oracle
+Whole of Custom Form Error Message
 
-    The Search Manager now takes advantage of Oracle's Text package for searching, as a result of separating optimised queries for PostgreSQL and Oracle. These improvements also allows more advanced queries to be handled on Oracle-based MySource Matrix systems, such as bracketed queries and improved AND/OR handling.
+	The Custom Form asset now has a customisable error message that is triggered when any of the fields raises a submission error. The message is customisable from the Contents screen of the Custom Form and is accessible through the %form_errors_message% keyword.
 
 
-Bulk File Upload Tool
+Sort Listing Groups by Metadata Field
 
-    This new tool gives access to the functionality of the current bulk upload CLI script to the backend of MySource Matrix. This tool can, depending on configuration, add files that have been pre-uploaded to the server, and/or handle files uploaded from the browser window.
+	Parent Asset groups in Listing Engine-type assets can now be sorted by Metadata Field. Select "Metadata Field" in the Sort By drop-down on the Asset Grouping screen, then an asset finder will appear allowing you to select the metadata field to sort by.
 
 
-Visual Difference
+IP Address in Custom Form Submission Logs
 
-    When a page is placed into Safe Edit, a "Show Diff" option will be added to the Preview screen of that asset, which will show deletions and insertions within the page when checked.
+	The IP address of the user that submitted a custom form will now be included in the data saved within a form submission. This can be accessed by viewing an individual form submission, or by exporting to CSV or XML. The IP address can be printed with the keyword %submission_ip_address%.
 
 
-Missing Metadata Now Blocks Asset Go-Live
+Asset Tag Line and "Find Me" in More Places
 
-    MySource Matrix will now enforce the missing metadata rule whether or not a workflow is applied from an asset. If any required metadata is missing, then a message will appear underneath the "Change Status" drop-down informing you that the asset cannot be made live.
+	The "more info" section at the top of Admin interface screens have been replaced with an asset tag line, which also allows the use of the "Find in Asset Map" feature without using the Linking screen. Also, the "moving to trash" warnings now use asset tag lines to the same effect.
 
 
-Thesaurus Appearance in Asset Map Switcher
+Asset Map Width User Preference
 
-    The Thesaurus can now be displayed in the asset map in two forms: a hierarchial format based on one or more relation types, or a "flat" format where all terms are displayed directly underneath the thesaurus in an "A-Z" order.
+	The default width of the Asset Map frame is now available as a user preference (SQ_USER_ASSET_MAP_WIDTH), which can be set from Global Preferences and customised on a User Group basis.
 
 
-Notes on Thesaurus Terms
+"Print This Page" Feature in Admin Interface
 
-    Thesaurus Terms can now handle non-relation data. This allows, for example, data such as Scope Notes (SN), as defined by thesaurus creation standards such as ANSI/NISO Z39.19 and ISO 2788, to be handled by MySource Matrix's thesaurus.
+	Admin interface pages now contain a "Print This Page" icon, that opens a new window with a "print-friendly" version of the frame and initiates the printing of that window.
 
 
-Automatic Reflection in Thesaurus
+Clean Commit Button in Simple Edit Layout
 
-    The Thesaurus asset can now handle reflection of relation types, so that a relation in one direction is reciprocated by an inverse relationship in the other direction. As a typical example, one can set up an automatic "narrower term/broader term" reflection.
+	A new keyword (%commit_button_clean%) has been added to Layouts to get the commit button to print without additional Backend Outputter clutter around it.
 
 
-Apache Configuration: Custom Asset Keywords in Request Notes
+HTTP Simple Authentication on RSS Feed
 
-    Request notes can now use custom keywords, instead of just keywords common to all assets. This allows keywords such as metadata values to be used for Request Notes.
+	With this option turned on (and public read access turned off), the RSS Feed will return a HTTP "401 Unauthorized" header to a user without read access. The user agent (be it a browser or feed reader) should offer the ability to log in with the name and password of a Matrix user with read access to the feed.
 
 
-New User Options for LDAP Bridge
+New Suffixes in WYSIWYG to Disable Certain Features
 
-    The LDAP Bridge now allows you to select whether the users generated should have backend access or not. In previous versions, all LDAP users behaved as Backend Users. A new LDAP Backend User asset has been introduced for this purpose. The current LDAP User asset has been changed to have the same access as the standard User asset (ie. no backend access).
+	If a keyword is normally used as %keyword% in a WYSIWYG: %keyword_disablekeywords% prevents a keyword's replacement from being further replaced by global keywords; %keyword_disableurls% disables rewriting of internal URLs (./?a=xxxx) into a full URL; %keyword_disableall% does both of these.
 
 
-Submission Asset ID in Custom Form Emails
+Password Rules Summary
 
-    The asset ID of a Custom Form submission, previously available only to the Thank You bodycopy, has now also been made available to emails sent out by the Custom Form. The keyword is %form_submission_id%, the same as used in the Thank You bodycopy.
+	A summary of password rules is now displayed on the Details screen of a user. This can be accessed in Simple Edit layouts using the keyword "%details-F_password_note%", and on the Password Change design area, using MySource_PRINT on the "password_rules_note" variable.
 
 
-Asset Remaps on Web Paths Screen
+Server Variable Selection for HTTP Authentication
 
-    The Web Paths screen now displays any remaps that may be applying to that asset, thus providing a fuller view of the URLs that point to that asset, whether provided by web paths or remaps. Users with Administrator permissions to the asset can add or remove remaps to the asset.
+	The HTTP Authentication Variable field on the System Configuration screen now displays a list of server variable names recognised by PHP. Clicking on a variable name will insert it into that field.
 
 
-Disable External Authentication Systems Switch
+Squid Option to Purge Trailing Slash Entries From Cache
 
-    This switch in the main.inc configuration file (SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS) allows systems other than Default Authentication to be temporarily disabled in the case of the source (whether LDAP or IPB) compromised or other issues.
+	The Squid cache usually caches entries with and without a trailing slash separately. Previously, MySource Matrix's Squid cache-purging tools only purged the version without a trailing slash (as per Matrix's URL rules). Now, a new user preference allows you to set whether to also purge the version of the URL with the trailing slash.
 
 
-Future Report Regeneration Cron Job
+Source-Agnostic Redirect URL Keyword
 
-    This new Cron Job, accessible from any Report asset, allows them to be regenerated a future time or a schedule. This Cron Job is considered to be 'long-running' - in other words, expected to take longer than the typical Cron interval - and will not cause the Cron Manager to deadlock if they are still running.
+	The new %redirect_url% keyword replaces two previous keywords that could only be used in certain situations (whether it referred to an asset or to an external URL). The %redirect_url% keyword will refer to the redirect URL, regardless of source. The previous keywords are deprecated but still available - the %referring_asset_*% keywords in particular remain useful if a user is being redirected to an asset.
 
 
-Broken Link Notification on Links Report
+Metadata Now Allows All Asset Keywords
 
-    The Links Report now has a "Report Broken Links?" attribute, which will send an internal message to users with Administrator permissions to an asset if broken links are found within it. A "Report Broken Links Now" button has also been added if the attribute is turned off, for manual checking. Checking for Broken Links can happen at most once for each report generation.
+	Previously, the Metadata system only allowed certain common keywords to be made available to metadata values. Now, any keyword not known by the Metadata Manager will be sent to the asset itself for replacement.
 
 
-New Global Keywords
+JPEG Data Extraction
 
-    Two new sets of global keywords have been added: %globals_asset_*% which refers to the current asset, and %globals_site_*% for current site.
+	This feature allows certain metadata embedded in some JPEG files to be printed. Currently, only data from the Dublic Core (dc) metadat set is available to keywords. (This feature requires an external tool, the PHP Metadata Toolkit [http://www.ozhiker.com/electronics/pjmt/] v0.11, to function.)
 
 
-Custom Form Accessibility Improvements
+Automatic Synonym Searching on Search Page
 
-    A new %question_label_*% field prints the question title surrounded by a LABEL tag containing the appropriate ID for that question's response field. Also, an optional Tab Index attribute has been added to control the tab order of a custom form.
+	When this feature is enabled on a search field, when no results are found on the search terms, the search will automatically be re-taken with the synonyms of the entry in that search field in place of the original entry.
 
 
-Persistent Cookie Manager in Remote Content
+Custom Form Submissions Folder
 
-    This new feature ensures that session cookies are only lost when the browser is closed when using Remote Content, rather than earlier.
+	Custom Forms now create a Submissions folder (underneath Form Contents) where all submissions are created in. This folder is initially denied public read access, but this can be changed if desired.
 
 
-Asset Sorting Tool
+Explicit Root Node in Normal Menu
 
-    This new system tool allows users to permanently re-order the immediate children of a specified parent asset by a standard asset field (eg. Asset ID, Last Updated Time, etc).
+	A root_node parameter has been added to the Normal Menu design area, allowing the menu to start from an explicit asset, rather than relative to the current asset. (The menu_level parameter must be set to "top" for this feature to work.)
 
 
-"Leave Empty" Option in Select Form Question
+Replacement Root Node Option in Site Map
 
-    This new attribute adds a new option to the Select form question that returns an empty string key value when the Custom Form is submitted. The text of the empty option is customisable.
+	Similar to the option provided in Asset Listing, Site Map now allows you to override the static root node with a value selected from a Parameter Map. The usual rules for dynamic root nodes apply (ie. a dynamic root node must be a child of a static one).
 
 
-Delete All Option for Form Questions
+Content_Attachment Design Variable
 
-    Custom Form and Form Sections now have a "Delete All" check-box that allows all questions to be deleted from a form at once.
+	Printing this variable will add a "Content-Disposition: attachment" header to the design, thereby forcing an asset to be offered for download. The file that will be offered for download is named the same as the asset being painted; an "extension" attribute specifies the file extension.
 
 
-"Root Node Logic" Option in Asset Listing
+Improvements to Simple Edit Layouts
 
-    This new option allows you to determine whether assets will be listed if they match at least one root node (as per previous behaviour), or if they match all of them.
+	More screens are now accessible to Simple Edit layouts. Most screens (both static and asset-specific) should now be available for use within Simple Edit layouts. Also, a new popup has been added to the Edit Contents screen of a Layout asset that will allow you to select an asset type and return all layout keywords that apply to that asset type.
 
 
-Usage Screen in Design/Paint Layouts
+Refresh Cache Cron Job
 
-    Designs and Paint Layouts now have a Usage screen that shows the top-level assets where it has been applied (in the case of Paint Layouts, where it has been applied to at least one URL), and the number of children underneath each. Design Customisations also contain a Usage screen.
-
-
-Asset Listing "Page List Without Unused Letters" Keyword
-
-    This new keyword (%page_list_without_unused%) is the same as the current %page_list% keyword, except that letters that are unused are not displayed, instead of being displayed unlinked.
-
-
-Parent Multiple Page Asset ID Keyword
-
-    This new keyword (%multiple_page_assetid%), added to the Multiple Page Page asset, is replaced with the asset ID of the parent Multiple Page asset. This keyword has also been added to Multiple Page assets themselves, however this is functionally equivalent to the %asset_assetid% keyword.
-
-
-Dynamic Keywords for Dates
-
-    Date keywords now allow custom formats to be specified, using the same format strings as used in PHP's date() function (eg. %event_start_datetime_d-M-Y% will return a date in the format "01-Sep-2006"). Note that this format cannot use spaces; multiple keywords can be used to replicate this behaviour, however.
-
-
-Metadata Field Keyword for Layouts
-
-    Individual Metadata Field assets can now be printed for editing in a layout by using the keyword %metadata-F_XXXX%, where "XXXX" is the asset ID of the Metadata Field to print.
-
-
-Customisable Asset Names in Asset Map
-
-    The System Configuration screen now allows modification of the format of the asset name in the Asset Map, using any keywords generally applicable to an asset.
-
-
-Upcoming Events List Page
-
-    This new Calendar asset type displays a set number of events, up to a maximum time in the future (eg. next 5 events or 2 weeks, whichever comes first). This is similar to a Rolling Calendar Page except that the main filter is the number of events, rather than number of time units into the future.
-
-
-User Assets in To: Email Field
-
-    The To: field in many email bodycopies now allow the selection of one or more user assets in addition to email addresses. This applies to email bodycopies in the following assets: Custom Form, Account Manager Page, and Password Reset Page.
-
-
-"Do Not Change Status" Option in Asset Builder Page
-
-    This new setting, found in the Create Status option, stops Asset Builder from attempting to change the status of the asset upon creation. This may be useful if you are using a trigger to conditionally set the status of an asset upon creation, as the trigger's change is usually wiped out by the Asset Builder's Create Status setting.
-
-
-Default Blank Parse File for Designs
-
-    Designs are now created with an empty parse file, thus avoiding the need to upload a parse file before being able to edit the design.
-
-
-Delete All System Cache Option
-
-    This new Cache Manager option will clear the entire MySource Matrix cache, regardless of other assets on the Clear Cache screen. This may be useful in some instances, however this should be used sparingly, especially on large systems.
-
-
-Set Status Trigger Action Improvements
-
-    This new setting affects assets that are controlled by a dependant parent. If this new setting is turned on, if the affected asset is a dependant child, the trigger action will set the status of the highest-level parent(s) the asset depends upon.
-
-
-Data Directory Restructure
-
-    Systems running on *nix systems and an Ext2/Ext3 filesystem normally cannot create more than 32,000 of a certain asset type, due to filesystem link count limitations. The data directory now uses a two-level hierarchy, where the first level is a hash of asset ID. The maximum number of directories, which defaults to 20 (thus providing a theoretical maximum of 640,000 assets), can be changed in the main.inc configuration file before the system is installed, or upgraded from previous versions.
-
-
-Memory Limits Now Configurable in main.inc
-
-    The maximum memory allocation for MySource Matrix and its Cron script are now configurable in main.inc, avoiding the need to configure it in the driver files themselves.
-
-
-Content Encoding Sent to HTML Tidy
-
-    The default backend content encoding is now sent to the HTML Tidy program as a command-line parameter, allowing the plugin to work properly on data encoded in formats other than the default ISO-8859-1 (Western European) format.
-
-
-Sliding Page List in Listing Engine Assets
-
-    A new keyword, %page_list_X% where "X" is a number, displays a page list containing a total of X pages. For example, %page_list_7% will show a seven-page list, which will typically consist of the current page and three pages either side.
-
-
-Uploaded File Type Restrictions
-
-    This new File asset preference allows you to further restrict the extensions of files users can upload.
-
-
-Maximum Pre-Uploaded File Size Option
-
-    This new System Configuration screen option allows you top specify a limit for files created in MySource Matrix using the "pre-uploaded file" method. The limit set for files uploaded through the browser no longer applies to pre-uploaded files.
-
-
-Structured File Import Tool Changes
-
-    The "Asset To Import Under" and "New Site" options in this tool are now independent. If both are selected, a new site will be created underneath the selected asset, rather than the root folder.
-
-
-Referral Asset in Send to a Friend Emails
-
-    Keywords of the form %referral_asset_*% can now be used to refer to the referring asset in Custom Form's Send to a Friend emails, where "*" is the tail of any keyword that normally applies to the asset (eg. %referral_asset_name%).
-
-
-Metadata Schemas Applied to Built Assets
-
-    Assets created in the Asset Builder Page asset can now have one or more Metadata Schemas automatically applied to it.
-
-
-Create Form Type Customisation in Asset Builder
-
-    There is now an option to customise the create form for an asset type, instead of using the default create form defined by the asset. Customising an asset type creates a Layout asset, where layout keywords, normally used for Simple Edit, can be used to customise the create form.
-
-
-Ignore Port Number in Proxy Config
-
-    When turned on, URLs generated by MySource Matrix will not include the port number used to access the system. This can be useful, for example, for a caching proxy that accesses the system using port other than port 80.
-
-
-Internal Message Purge Script
-
-    This new script allows you to delete internal messages matching a certain criteria from the system. The scope of messages to be deleted can be controlled by way of time, from/to user, type of message, and whether the message has been read and/or deleted by the recipient.
-
-
-CSV to HTML Tree Script
-
-    This script converts a CSV list into a HTML tree with each level represented by header (H1, H2, etc) tags. Each CSV record is a comma-separated list of heading levels (eg. "H1,H2,H3").
+	This new Cron Job can be set (from a new screen on the Cron Manager) to periodically refresh the public cache of an asset.
 
 
 Additional Changes and Bug Fixes
 -----------------------------------
 
-Core
-
-+ Can now change the number of lines to display in Log Manager
-+ Can now change HTTP Authentication variable name from Apache default of REMOTE_USER
-+ Current asset attributes now printable in designs, similar to how current user attributes are
-+ Strip Formatting feature of WYSIWYG can how handle soft hyphens
-+ Parameter Map attribute can now accept custom keywords from asset-based sources instead of just asset ID
-+ Parameter Map can now use Current Site as an asset-based source
-+ New trigger events for user login and logout
-+ Remap Manager now uses "301 Moved Permanently" HTTP status to redirect assets
-+ Trigger name is now mandatory
-+ WYSIWYG attributes now expand internal links to their proper URLs when printed using keywords
-+ Time of page generation now printed alongside date on Matrix comment added to front-end pages
-+ Cron Manager View Jobs screen is now paginated, showing 20 jobs at a time
-+ Add Bodycopy DIV interface now more consistent with the Edit DIV Properties pop-up
-+ New Access Permission trigger condition
-+ New Release Lock trigger action
-+ New URL Matches trigger condition
-+ New Simple Edit Accessed trigger event
-+ Clear Cache HIPO now has a freestyle threshold (defaults to 100 assets)
-+ Attribute Changed trigger condition now allows selection of non-user-creatable asset types
++ Incomplete required metadata on the Metadata screen is now more obvious
++ Trigger details screen: events section redesigned so it displays in four columns
++ New "User is System Admin" trigger condition, which returns TRUE if a user is effectively a System Administrator (ie. linked underneath System Administrators folder)
++ New "Current User Type" trigger condition
++ New "Set Workflow Schema" trigger action
++ New "Set Role" trigger action
++ New "Set Tag" trigger action
++ New "Create Design Customisation" trigger action
++ New "Replace File" trigger action, which replaces the contents of a File asset with another file stored on the server at a certain path
++ New "Reload User" trigger action, which reloads user details from external authentication variables if present
++ New "Add Asset ID Remap" trigger action, which creates a short-URL remap based on the ID of an asset
++ Set Attribute Value trigger action now uses a Parameter Map for setting the attribute value
++ Set Metadata Value trigger action now uses a Parameter Map to allow sourcing of a valid value from an asset or a request variable
++ Set Future Status trigger action can now set a future status for a certain time before/after one of the asset's datetime-type attributes
++ Attribute Value trigger condition now allows you to negate the logic, ie. return TRUE if attribute value is NOT what is specified
++ New Excel Document asset, which extends File but otherwise exists only for file-type grouping purposes
++ New PowerPoint Document asset, which extends File but otherwise exists only for file-type grouping purposes
++ Password Change design area now displays password rules violations as a system message, instead of as a MySource error
++ WYSIWYG: Bodycopy Container "Edit Properties" tooltip now displays whether container is live and publicly readable
++ Assertion exceptions now respect "file and line number" debug settings
++ Design/Design CSS assets (and their customisations) can now change their web paths after creation
++ Design CSS web path now based on name (and so should always end in .css)
++ Backend history section now displays on multiple lines rather than being cut off
++ Print and Cache options now added to the Asset Lineage Design Area's backend screen
++ Permissions screen now handles setting of multiple users/groups at a time
++ Additional keywords now available for thumbnail width, height and ALT text
++ Can now suppress date keyword drop-down in Metadata Date Field
++ New script that performs a search and replace of a certain attribute across certain specified assets
++ Create Asset import action now handles attribute setting at the same time as creation
 
 CMS
 
-+ Listing type assets result page GET variable changed so multiple nested asset listings don't conflict
-+ Remote Content Page now uses standard MySource Matrix warning messages
-+ Site Map now allows suppression of dependant assets
++ Listing Engine-type assets can now disable display of No Sorting and Random options on front-end keyword
++ Password Reset Page: "New Password" and "Confirm Password" text boxes can now be printed using separate keywords
 
-IPB Bridge
+LDAP
 
-+ New trigger actions for logging into IPB systems based on Matrix logins
++ LDAP Users now have a Release Locks button on their Details screen, like normal Users
+
+Calendar
+
++ Calendar Pages now have a "No Results" bodycopy, to be displayed if no events are scheduled for the appropriate time period
+
+Search
+
++ Backend Search now displays a "Search in Progress" message when submitted
++ Backend Search has a new user preference to limit the number of assets returned by a search
+
+Squid
+
++ Clear Squid Cache Tool now has a port preference that is added to the URL sent to Squid when clearing the cache
