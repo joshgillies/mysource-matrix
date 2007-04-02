@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.148 2007/03/28 03:41:17 lwright Exp $
+* $Id: backend_outputter.inc,v 1.149 2007/04/02 00:06:28 colivar Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.148 $
+* @version $Revision: 1.149 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -288,10 +288,19 @@ class Backend_Outputter
 
 	}//end setFormAnchor()
 
+
+	/**
+	 * Set the page title
+	 * @param $title the page title
+	 * @return void
+	 * @access private
+	 */
     function setPageTitle($title)
     {
       $this->_page_title = trim($title);
-    }
+
+    }//end setPageTitle()
+
 
 	/**
 	* Set the heading for page
@@ -963,7 +972,7 @@ class Backend_Outputter
 			}
 
 			// Add IE6-specific styles if main frame AND "lock commit button to frame" preference turned on
-			if (($_GET['SQ_BACKEND_PAGE'] == 'main') && SQ_IN_BACKEND && $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_COMMIT_BUTTON_POS')) {
+			if ((array_get_index($_GET, 'SQ_BACKEND_PAGE') == 'main') && SQ_IN_BACKEND && $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_COMMIT_BUTTON_POS')) {
 			?>
 			<!--[if lte IE 7]>
 				<link href="<?php echo $this->filesPath('css/edit_ie6.css') ?>" type="text/css" rel="stylesheet" />
@@ -1501,9 +1510,10 @@ class Backend_Outputter
 	/**
 	* Creates a standardised commit button
 	*
-	* @param string		$value			The caption of the commit button, defaults to the
-	*									Commit Button Text property or 'Commit' if not found
-	* @param boolean	$release_lock	whether the lock should be released
+	* @param string		$value				The caption of the commit button, defaults to the
+	*										Commit Button Text property or 'Commit' if not found
+	* @param boolean	$release_lock		whether the lock should be released
+	* @param boolean	$include_section	include the section
 	*
 	* @return void
 	* @access public
