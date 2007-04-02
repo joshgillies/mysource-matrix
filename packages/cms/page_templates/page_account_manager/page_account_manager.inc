@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.52 2007/01/16 02:52:58 lwright Exp $
+* $Id: page_account_manager.inc,v 1.53 2007/04/02 00:12:33 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -502,6 +502,11 @@ class Page_Account_Manager extends Page_Asset_Builder
 	/**
 	* Work out the create locations for a new asset
 	*
+	* Account manager replaces the create location list with its pending-accounts
+	* group when email validation is enabled, but it still checks the parent
+	* create locations to make sure there will be somewhere to move the user to
+	* after it's been validated.
+	*
 	* @param string	$create_type	the type of asset we are getting create locations for
 	*
 	* @return array
@@ -509,16 +514,18 @@ class Page_Account_Manager extends Page_Asset_Builder
 	*/
 	function getCreateLocations($create_type)
 	{
-		if ($this->attr('use_email_validation')) {
+		$locs = parent::getCreateLocations($create_type);
+		if ($this->attr('use_email_validation') && !empty($locs)) {
+			// Validation is enabled, and we have some 'real' create locations,
+			// so go ahead and create the asset in the pending-users group,
+			// as long as the group exists
+			$locs = Array();
 			$pending_groupid = $this->_getPendingAccountsGroupId();
 			if ($pending_groupid) {
-				return Array($pending_groupid => SQ_LINK_TYPE_1);
-			} else {
-				return Array();
+				$locs = Array($pending_groupid => SQ_LINK_TYPE_1);
 			}
-		} else {
-			return parent::getCreateLocations($create_type);
 		}
+		return $locs;
 
 	}//end getCreateLocations()
 
