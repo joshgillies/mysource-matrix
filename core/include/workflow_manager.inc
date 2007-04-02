@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.99.2.2 2007/03/21 03:43:16 lwright Exp $
+* $Id: workflow_manager.inc,v 1.99.2.3 2007/04/02 05:10:10 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.99.2.2 $
+* @version $Revision: 1.99.2.3 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1557,7 +1557,7 @@ class Workflow_Manager extends MySource_Object
 
 		// if there are no escalation steps for the current step, we can't escalate to substeps, so defer to the next step
 		if (empty($current_step['escalation_steps'])) {
-			$current_step['completed'] = TRUE;
+			$current_step['completed'] = time();
 		}
 
 		// load the current step into the workflow
