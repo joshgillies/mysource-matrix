@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.53 2007/04/02 00:12:33 tbarrett Exp $
+* $Id: page_account_manager.inc,v 1.54 2007/04/02 01:05:42 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -699,6 +699,11 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$create_locations = parent::getFixedCreateLocations()
 							+ parent::getRuleMatchCreateLocations($create_type, $user_attributes)
 							+ $selected_create_locations;
+
+		if (empty($create_locations)) {
+			trigger_localised_error('CMS0071', E_USER_WARNING);
+			return FALSE;
+		}
 
 		// set the install run level because we are creating an asset without being
 		// logged in - so any write access checks will fail

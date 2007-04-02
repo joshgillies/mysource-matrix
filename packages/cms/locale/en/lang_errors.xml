@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.17 2007/03/15 00:58:25 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.18 2007/04/02 01:05:42 tbarrett Exp $
 *
 */
 -->
@@ -202,6 +202,8 @@
 
 	<error code="CMS0069">Cannot create form submission - submissions folder not found.  Upgrade may be required.</error>
 	<error code="CMS0070">Cannot create form - problem creating submissions folder</error>
+
+	<error code="CMS0071">This user asset cannot be validated because no create locations to move it to have been found</error>
 
 
 </errors>
