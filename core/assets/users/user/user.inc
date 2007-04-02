@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.113 2007/03/19 23:38:56 mbrydon Exp $
+* $Id: user.inc,v 1.114 2007/04/02 00:08:08 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.113 $
+* @version $Revision: 1.114 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -465,7 +465,7 @@ class User extends Asset
 		}
 
 		if (!empty($res)) {
-			return translate('password_rules_intro').': <ul class="password-rules"><li>'.implode('</li><li>', $res).'</li></ul>';
+			return translate('password_rules_intro').'<ul class="password-rules"><li>'.implode('</li><li>', $res).'</li></ul>';
 		}
 		return '';
 
