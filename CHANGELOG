@@ -7,161 +7,179 @@ Featured Changes
 
 Online Quiz Asset
 
-	This new CMS package asset allows the creation of a online quiz, that displays a certain number of questions randomly selected from a pool of question assets (currently, only multiple-choice questions are available). Pagination of questions is possible, and users can also be prevented from re-taking the quiz. Definitions of question scoring are handled within the questions themselves.
+    This new CMS package asset allows the creation of a online quiz, that displays a certain number of questions randomly selected from a pool of question assets (currently, only multiple-choice questions are available). Pagination of questions is possible, and users can also be prevented from re-taking the quiz. Definitions of question scoring are handled within the questions themselves.
 
 
 Comment Asset
 
-	This is a new, lightweight News package asset that can be used for comments, containing a title and a comment field. A comment asset is based used in conjunction with a Paint Layout with a nested Asset Builder and Asset Listing (to create and list comments), turning an asset into a blog-type page that invites comments from users and/or the public. Comments can also be rated, defined by user preference settings.
+    This is a new, lightweight News package asset that can be used for comments, containing a title and a comment field. A comment asset is based used in conjunction with a Paint Layout with a nested Asset Builder and Asset Listing (to create and list comments), turning an asset into a blog-type page that invites comments from users and/or the public. Comments can also be rated, defined by user preference settings.
 
 
 Multiple Text Metadata Field Asset
 
-	This new Core package metadata field allows the storage of multiple arbitrary text values. It is filled on metadata screens using an Option List attribute, stored and indexed similar to a Selection metadata field, and is searched using a regular text box.
+    This new Core package metadata field allows the storage of multiple arbitrary text values. It is filled on metadata screens using an Option List attribute, stored and indexed similar to a Selection metadata field, and is searched using a regular text box.
+
+
+Ecommerce Form Improvements
+
+    The Ecommerce Form asset has undergone a near-complete re-write. Among the new features include the ability to specify a tax rate; an ability to buy any asset provided it exposes a source for price and taxability; bodycopies for Form, Confirmation and Receipt states; and logging orders to a file.
+
+
+Payment Gateway Now Customisable
+
+    The fixed interface for the Payment Gateway asset has been replaced with a bodycopy to allow full customisation of the payment gateway interface.
 
 
 Backend Search Now Available for WYSIWYG Popups
 
-	This feature extends the use of Backend Search to the Insert Link (all asset types), Insert Image (image assets only), and Embed Movie (file assets only - strict type check) WYSIWYG popups. Clicking on an asset's name will populate the main asset finder on the popup with the relevant data. Using "Find in Asset Map" will activate the popup's asset map.
+    This feature extends the use of Backend Search to the Insert Link (all asset types), Insert Image (image assets only), and Embed Movie (file assets only - strict type check) WYSIWYG popups. Clicking on an asset's name will populate the main asset finder on the popup with the relevant data. Using "Find in Asset Map" will activate the popup's asset map.
 
 
 Automatic Safe Trash
 
-	If an asset cannot be trashed due to Safe Trash conditions, you can now set a Cron Job instead so that it can be trashed at the earliest safe opportunity. The Details screen of an asset notifies users that an asset is waiting to be trashed, as well as the safe trash condition(s) that are stopping it from being trashed.
+    If an asset cannot be trashed due to Safe Trash conditions, you can now set a Cron Job instead so that it can be trashed at the earliest safe opportunity. The Details screen of an asset notifies users that an asset is waiting to be trashed, as well as the safe trash condition(s) that are stopping it from being trashed.
 
 
 Safe Trash Escalation Cron Job
 
-	This new Cron Job runs on a daily basis at midnight (by default), and informs asset administrators that there are assets that are marked and waiting to be trashed. If the waiting is due to status, the admins of the asset itself are notified. If it is due other assets having TYPE_3 or NOTICE links to the marked asset, the admins of those assets will be notified.
+    This new Cron Job runs on a daily basis at midnight (by default), and informs asset administrators that there are assets that are marked and waiting to be trashed. If the waiting is due to status, the admins of the asset itself are notified. If it is due other assets having TYPE_3 or NOTICE links to the marked asset, the admins of those assets will be notified.
 
 
 User Inbox Again Paginated
 
-	The User Inbox has been paginated again, to display 20 messages at a time by default. The number of messages displayed can be altered using a new User Preference.
+    The User Inbox has been paginated again, to display 20 messages at a time by default. The number of messages displayed can be altered using a new User Preference.
 
 
 Re-order Pages Within Multiple Page Asset
 
-	Pages within a Multiple Page asset can now be re-ordered, similar to how questions are re-ordered in a Custom Form. Please note that this process does re-assign web paths, so that the new first page is accessible with the "1" web path, the new second page with the "2" web path, and so on.
+    Pages within a Multiple Page asset can now be re-ordered, similar to how questions are re-ordered in a Custom Form. Please note that this process does re-assign web paths, so that the new first page is accessible with the "1" web path, the new second page with the "2" web path, and so on.
 
 
 CAPTCHA Feature for Custom Form
 
-	Custom Form assets now offer the ability to provide a CAPTCHA, similar to the Security Key system used in parts of the backend, that a user must enter before the form can be submitted. The length of the CAPTCHA is customisable.
+    Custom Form assets now offer the ability to provide a CAPTCHA, similar to the Security Key system used in parts of the backend, that a user must enter before the form can be submitted. The length of the CAPTCHA is customisable.
 
 
 Whole of Custom Form Error Message
 
-	The Custom Form asset now has a customisable error message that is triggered when any of the fields raises a submission error. The message is customisable from the Contents screen of the Custom Form and is accessible through the %form_errors_message% keyword.
+    The Custom Form asset now has a customisable error message that is triggered when any of the fields raises a submission error. The message is customisable from the Contents screen of the Custom Form and is accessible through the %form_errors_message% keyword.
 
 
 Sort Listing Groups by Metadata Field
 
-	Parent Asset groups in Listing Engine-type assets can now be sorted by Metadata Field. Select "Metadata Field" in the Sort By drop-down on the Asset Grouping screen, then an asset finder will appear allowing you to select the metadata field to sort by.
+    Parent Asset groups in Listing Engine-type assets can now be sorted by Metadata Field. Select "Metadata Field" in the Sort By drop-down on the Asset Grouping screen, then an asset finder will appear allowing you to select the metadata field to sort by.
 
 
 IP Address in Custom Form Submission Logs
 
-	The IP address of the user that submitted a custom form will now be included in the data saved within a form submission. This can be accessed by viewing an individual form submission, or by exporting to CSV or XML. The IP address can be printed with the keyword %submission_ip_address%.
+    The IP address of the user that submitted a custom form will now be included in the data saved within a form submission. This can be accessed by viewing an individual form submission, or by exporting to CSV or XML. The IP address can be printed with the keyword %submission_ip_address%.
 
 
 Asset Tag Line and "Find Me" in More Places
 
-	The "more info" section at the top of Admin interface screens have been replaced with an asset tag line, which also allows the use of the "Find in Asset Map" feature without using the Linking screen. Also, the "moving to trash" warnings now use asset tag lines to the same effect.
+    The "more info" section at the top of Admin interface screens have been replaced with an asset tag line, which also allows the use of the "Find in Asset Map" feature without using the Linking screen. Also, the "moving to trash" warnings now use asset tag lines to the same effect.
 
 
 Asset Map Width User Preference
 
-	The default width of the Asset Map frame is now available as a user preference (SQ_USER_ASSET_MAP_WIDTH), which can be set from Global Preferences and customised on a User Group basis.
+    The default width of the Asset Map frame is now available as a user preference (SQ_USER_ASSET_MAP_WIDTH), which can be set from Global Preferences and customised on a User Group basis.
 
 
 "Print This Page" Feature in Admin Interface
 
-	Admin interface pages now contain a "Print This Page" icon, that opens a new window with a "print-friendly" version of the frame and initiates the printing of that window.
+    Admin interface pages now contain a "Print This Page" icon, that opens a new window with a "print-friendly" version of the frame and initiates the printing of that window.
 
 
 Clean Commit Button in Simple Edit Layout
 
-	A new keyword (%commit_button_clean%) has been added to Layouts to get the commit button to print without additional Backend Outputter clutter around it.
+    A new keyword (%commit_button_clean%) has been added to Layouts to get the commit button to print without additional Backend Outputter clutter around it.
 
 
 HTTP Simple Authentication on RSS Feed
 
-	With this option turned on (and public read access turned off), the RSS Feed will return a HTTP "401 Unauthorized" header to a user without read access. The user agent (be it a browser or feed reader) should offer the ability to log in with the name and password of a Matrix user with read access to the feed.
+    With this option turned on (and public read access turned off), the RSS Feed will return a HTTP "401 Unauthorized" header to a user without read access. The user agent (be it a browser or feed reader) should offer the ability to log in with the name and password of a Matrix user with read access to the feed.
 
 
 New Suffixes in WYSIWYG to Disable Certain Features
 
-	If a keyword is normally used as %keyword% in a WYSIWYG: %keyword_disablekeywords% prevents a keyword's replacement from being further replaced by global keywords; %keyword_disableurls% disables rewriting of internal URLs (./?a=xxxx) into a full URL; %keyword_disableall% does both of these.
+    If a keyword is normally used as %keyword% in a WYSIWYG: %keyword_disablekeywords% prevents a keyword's replacement from being further replaced by global keywords; %keyword_disableurls% disables rewriting of internal URLs (./?a=xxxx) into a full URL; %keyword_disableall% does both of these.
 
 
 Password Rules Summary
 
-	A summary of password rules is now displayed on the Details screen of a user. This can be accessed in Simple Edit layouts using the keyword "%details-F_password_note%", and on the Password Change design area, using MySource_PRINT on the "password_rules_note" variable.
+    A summary of password rules is now displayed on the Details screen of a user. This can be accessed in Simple Edit layouts using the keyword "%details-F_password_note%", and on the Password Change design area, using MySource_PRINT on the "password_rules_note" variable.
 
 
 Server Variable Selection for HTTP Authentication
 
-	The HTTP Authentication Variable field on the System Configuration screen now displays a list of server variable names recognised by PHP. Clicking on a variable name will insert it into that field.
+    The HTTP Authentication Variable field on the System Configuration screen now displays a list of server variable names recognised by PHP. Clicking on a variable name will insert it into that field.
 
 
 Squid Option to Purge Trailing Slash Entries From Cache
 
-	The Squid cache usually caches entries with and without a trailing slash separately. Previously, MySource Matrix's Squid cache-purging tools only purged the version without a trailing slash (as per Matrix's URL rules). Now, a new user preference allows you to set whether to also purge the version of the URL with the trailing slash.
+    The Squid cache usually caches entries with and without a trailing slash separately. Previously, MySource Matrix's Squid cache-purging tools only purged the version without a trailing slash (as per Matrix's URL rules). Now, a new user preference allows you to set whether to also purge the version of the URL with the trailing slash.
 
 
 Source-Agnostic Redirect URL Keyword
 
-	The new %redirect_url% keyword replaces two previous keywords that could only be used in certain situations (whether it referred to an asset or to an external URL). The %redirect_url% keyword will refer to the redirect URL, regardless of source. The previous keywords are deprecated but still available - the %referring_asset_*% keywords in particular remain useful if a user is being redirected to an asset.
+    The new %redirect_url% keyword replaces two previous keywords that could only be used in certain situations (whether it referred to an asset or to an external URL). The %redirect_url% keyword will refer to the redirect URL, regardless of source. The previous keywords are deprecated but still available - the %referring_asset_*% keywords in particular remain useful if a user is being redirected to an asset.
 
 
 Metadata Now Allows All Asset Keywords
 
-	Previously, the Metadata system only allowed certain common keywords to be made available to metadata values. Now, any keyword not known by the Metadata Manager will be sent to the asset itself for replacement.
+    Previously, the Metadata system only allowed certain common keywords to be made available to metadata values. Now, any keyword not known by the Metadata Manager will be sent to the asset itself for replacement.
 
 
 JPEG Data Extraction
 
-	This feature allows certain metadata embedded in some JPEG files to be printed. Currently, only data from the Dublic Core (dc) metadat set is available to keywords. (This feature requires an external tool, the PHP Metadata Toolkit [http://www.ozhiker.com/electronics/pjmt/] v0.11, to function.)
+    This feature allows certain metadata embedded in some JPEG files to be printed. Currently, only data from the Dublic Core (dc) metadat set is available to keywords. (This feature requires an external tool, the PHP Metadata Toolkit [http://www.ozhiker.com/electronics/pjmt/] v0.11, to function.)
 
 
 Automatic Synonym Searching on Search Page
 
-	When this feature is enabled on a search field, when no results are found on the search terms, the search will automatically be re-taken with the synonyms of the entry in that search field in place of the original entry.
+    When this feature is enabled on a search field, when no results are found on the search terms, the search will automatically be re-taken with the synonyms of the entry in that search field in place of the original entry.
 
 
 Custom Form Submissions Folder
 
-	Custom Forms now create a Submissions folder (underneath Form Contents) where all submissions are created in. This folder is initially denied public read access, but this can be changed if desired.
+    Custom Forms now create a Submissions folder (underneath Form Contents) where all submissions are created in. This folder is initially denied public read access, but this can be changed if desired.
 
 
 Explicit Root Node in Normal Menu
 
-	A root_node parameter has been added to the Normal Menu design area, allowing the menu to start from an explicit asset, rather than relative to the current asset. (The menu_level parameter must be set to "top" for this feature to work.)
+    A root_node parameter has been added to the Normal Menu design area, allowing the menu to start from an explicit asset, rather than relative to the current asset. (The menu_level parameter must be set to "top" for this feature to work.)
 
 
 Replacement Root Node Option in Site Map
 
-	Similar to the option provided in Asset Listing, Site Map now allows you to override the static root node with a value selected from a Parameter Map. The usual rules for dynamic root nodes apply (ie. a dynamic root node must be a child of a static one).
+    Similar to the option provided in Asset Listing, Site Map now allows you to override the static root node with a value selected from a Parameter Map. The usual rules for dynamic root nodes apply (ie. a dynamic root node must be a child of a static one).
 
 
 Content_Attachment Design Variable
 
-	Printing this variable will add a "Content-Disposition: attachment" header to the design, thereby forcing an asset to be offered for download. The file that will be offered for download is named the same as the asset being painted; an "extension" attribute specifies the file extension.
+    Printing this variable will add a "Content-Disposition: attachment" header to the design, thereby forcing an asset to be offered for download. The file that will be offered for download is named the same as the asset being painted; an "extension" attribute specifies the file extension.
 
 
 Improvements to Simple Edit Layouts
 
-	More screens are now accessible to Simple Edit layouts. Most screens (both static and asset-specific) should now be available for use within Simple Edit layouts. Also, a new popup has been added to the Edit Contents screen of a Layout asset that will allow you to select an asset type and return all layout keywords that apply to that asset type.
+    More screens are now accessible to Simple Edit layouts. Most screens (both static and asset-specific) should now be available for use within Simple Edit layouts. Also, a new popup has been added to the Edit Contents screen of a Layout asset that will allow you to select an asset type and return all layout keywords that apply to that asset type.
 
 
 Refresh Cache Cron Job
 
-	This new Cron Job can be set (from a new screen on the Cron Manager) to periodically refresh the public cache of an asset.
+    This new Cron Job can be set (from a new screen on the Cron Manager) to periodically refresh the public cache of an asset.
+
+
+Anchor Commit Button to Frame
+
+    A new user preference (disabled by default) allows the Commit Button to be anchored to the bottom of the main frame, saving users from having to scroll to the bottom of the screen to find the Commit button.
+
 
 
 Additional Changes and Bug Fixes
 -----------------------------------
+
+Core
 
 + Incomplete required metadata on the Metadata screen is now more obvious
 + Trigger details screen: events section redesigned so it displays in four columns
@@ -192,6 +210,7 @@ Additional Changes and Bug Fixes
 + Can now suppress date keyword drop-down in Metadata Date Field
 + New script that performs a search and replace of a certain attribute across certain specified assets
 + Create Asset import action now handles attribute setting at the same time as creation
++ Report assets can now be previewed and simple-edited
 
 CMS
 
