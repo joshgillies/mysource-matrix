@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.54 2007/04/02 01:05:42 tbarrett Exp $
+* $Id: page_account_manager.inc,v 1.55 2007/04/03 23:05:40 amiller Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -173,8 +173,11 @@ class Page_Account_Manager extends Page_Asset_Builder
 	{
 		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
 		if ((!is_null($current_user) && !is_a($current_user, 'public_user')) && !SQ_IN_LIMBO) {
-			// this person is logged in - so redirect them to limbo where they can edit their details
-			$redirect_url = strip_url($this->getURL()).'/'.SQ_CONF_LIMBO_SUFFIX.'/?ignore_frames=1';
+
+			if ($this->attr('enter_edit_mode')) {
+				// this person is logged in - so redirect them to limbo where they can edit their details
+				$redirect_url = strip_url($this->getURL()).'/'.SQ_CONF_LIMBO_SUFFIX.'/?ignore_frames=1';
+			}
 
 			// BUT if they have just logged in via this page we might want to redirect them somewhere else...
 			if (isset($_REQUEST['SQ_LOGIN_ACCOUNT_MANAGER_STATE']) && $_REQUEST['SQ_LOGIN_ACCOUNT_MANAGER_STATE'] == 'create_login') {
@@ -184,8 +187,11 @@ class Page_Account_Manager extends Page_Asset_Builder
 					$redirect_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 					$redirect_url = $redirect_asset->getURL();
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($redirect_asset);
-				}
-			}
+				}//end if
+			}//end if
+		} //end if
+
+		if (isset($redirect_url)) {
 			header('Location: '.$redirect_url);
 			exit();
 		} else {

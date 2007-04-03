@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_management.inc,v 1.24 2006/12/07 00:04:19 emcdonald Exp $
+* $Id: page_account_manager_management.inc,v 1.25 2007/04/03 23:05:40 amiller Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -119,6 +119,15 @@ class Page_Account_Manager_Management extends Asset_Management
 													'type'		=> 'duration',
 													'default'	=> 0,
 												  );
+
+		$this->vars['enter_edit_mode']		= Array(
+												'added'			=> '0.6',
+												'type'			=> 'boolean',
+												'default'		=> TRUE,
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+											  );
 
 	}//end constructor
 

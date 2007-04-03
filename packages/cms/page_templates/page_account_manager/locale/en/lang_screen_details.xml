@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.9 2006/12/07 05:42:55 bcaldwell Exp $
+* $Id: lang_screen_details.xml,v 1.10 2007/04/03 23:05:40 amiller Exp $
 *
 */
 -->
@@ -50,6 +50,12 @@
 				<paint_function   name="paintSchemasToApply" />
 				<process_function name="processSchemasToApply" />
 			</function_call>
+		</field>
+		<field attribute="enter_edit_mode">
+			<display_name>Enter Simple Edit mode?</display_name>
+			<note>By default, the Account Manager automatically switches to Simple Edit mode when a user successfully logs in. This allows the user
+				to edit their details. If this is disabled, the automatic redirect will not occur and none of the editing keywords will work in the
+				Logged In bodycopy.</note>
 		</field>
 	</section>
 	<section name="Email Validation">
