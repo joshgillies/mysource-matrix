@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.33 2007/01/11 23:00:59 colivar Exp $
+* $Id: system_config_edit_interface.inc,v 1.33.2.1 2007/04/03 03:55:27 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.2.1 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -220,8 +220,10 @@ class System_Config_Edit_Interface extends MySource_Object
 						$expires_in = easy_time_total(($lock['expires'] - $now), true);
 						if (!$expires_in) $expires_in = '1 second';
 						$expires_in = translate('due_to_expire', $expires_in);
-						echo translate('release_lock', translate('release_lock_button'), translate('user_preferences'));
-						echo '<br />';
+						if ($have_lock) {
+							echo translate('release_lock', translate('release_lock_button'), translate('user_preferences'));
+							echo '<br />';
+						}
 						echo $expires_in;
 
 					} else {
