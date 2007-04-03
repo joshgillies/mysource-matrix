@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.99.2.3 2007/04/02 05:10:10 hnguyen Exp $
+* $Id: workflow_manager.inc,v 1.99.2.4 2007/04/03 04:07:41 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.99.2.3 $
+* @version $Revision: 1.99.2.4 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -894,6 +894,7 @@ class Workflow_Manager extends MySource_Object
 		for (reset($schema_workflows); NULL !== ($schemaid = key($schema_workflows)); next($schema_workflows)) {
 			if (!in_array($schemaid, $running_schemas)) continue;
 			$workflow =& $schema_workflows[$schemaid];
+			if ($workflow['complete'] == TRUE) continue;
 			if ($this->_recordPublish($workflow, $publisher, $assetid)) {
 				$new_workflow = serialize($workflow);
 
