@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.28 2006/06/30 05:58:16 tbarrett Exp $
+* $Id: config.inc,v 1.28.2.1 2007/04/03 03:56:53 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object
@@ -324,8 +324,10 @@ class Config extends MySource_Object
 							$expires_in = easy_time_total(($lock['expires'] - $now), true);
 							if (!$expires_in) $expires_in = '1 second';
 							$expires_in = translate('due_to_expire', $expires_in);
-							echo translate('release_lock', translate('release_lock_button'), translate('user_preferences')); 
-							echo '<br />';
+							if ($have_lock) {
+								echo translate('release_lock', translate('release_lock_button'), translate('user_preferences')); 
+								echo '<br />';
+							}
 							echo $expires_in; 
 
 						} else {
