@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.221 2007/03/08 06:23:28 rhoward Exp $
+* $Id: listing_engine.inc,v 1.222 2007/04/04 00:47:16 rhoward Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.221 $
+* @version $Revision: 1.222 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1127,13 +1127,18 @@ class Listing_Engine extends Page
 
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 			// Remove any sub-live assets unless we have effective read access to them
-			$may_have_sublives = FALSE;
-			foreach ($wanted_statuses as $status) {
-				if ($status < SQ_STATUS_LIVE) {
-					$may_have_sublives = TRUE;
-					break;
+			if (!empty($wanted_statuses)) {
+				$may_have_sublives = FALSE;
+				foreach ($wanted_statuses as $status) {
+					if ($status < SQ_STATUS_LIVE) {
+						$may_have_sublives = TRUE;
+						break;
+					}
 				}
+			} else {
+				$may_have_sublives = TRUE;
 			}
+
 			if ($may_have_sublives) {
 				$sub_live_assets = Array();
 				foreach ($status_matches as $assetid) {
@@ -1175,7 +1180,6 @@ class Listing_Engine extends Page
 				if (!in_array($i, $status_matches)) unset($todo[$i]);
 			}
 		}
-
 
 	}//end filterAssetStatuses()
 
