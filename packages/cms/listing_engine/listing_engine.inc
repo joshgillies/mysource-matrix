@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.202.2.6 2007/03/08 06:41:11 rhoward Exp $
+* $Id: listing_engine.inc,v 1.202.2.7 2007/04/04 01:39:17 rhoward Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.202.2.6 $
+* @version $Revision: 1.202.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1076,7 +1076,7 @@ class Listing_Engine extends Page
 		if (!empty($wanted_statuses) && (array_sum($wanted_statuses) != SQ_SC_STATUS_ALL)) {
 			// find which of the assets have the right statuses
 			foreach (array_unique(array_merge($real_assetids, $bridge_assetids)) as $assetid) {
-				$query_assetids[] = $db->quoteSmart((string)$assetid);
+				$query_assetids[] = $db->quoteSmart((string) $assetid);
 			}
 			$in_clauses = Array();
 			foreach (array_chunk($query_assetids, 999) as $chunk) {
@@ -1099,17 +1099,22 @@ class Listing_Engine extends Page
 
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 			// Remove any sub-live assets unless we have effective read access to them
-			$may_have_sublives = FALSE;
-			foreach ($wanted_statuses as $status) {
-				if ($status < SQ_STATUS_LIVE) {
-					$may_have_sublives = TRUE;
-					break;
+			if (!empty($wanted_statuses)) {
+				$may_have_sublives = FALSE;
+				foreach ($wanted_statuses as $status) {
+					if ($status < SQ_STATUS_LIVE) {
+						$may_have_sublives = TRUE;
+						break;
+					}
 				}
+			} else {
+				$may_have_sublives = TRUE;
 			}
+
 			if ($may_have_sublives) {
 				$sub_live_assets = Array();
 				foreach ($status_matches as $assetid) {
-					$query_assetids[] = $db->quoteSmart($assetid);
+					$query_assetids[] = $db->quoteSmart((string) $assetid);
 				}
 				$in_clauses = Array();
 				foreach (array_chunk($query_assetids, 999) as $chunk) {
@@ -1147,7 +1152,6 @@ class Listing_Engine extends Page
 				if (!in_array($i, $status_matches)) unset($todo[$i]);
 			}
 		}
-
 
 	}//end filterAssetStatuses()
 
