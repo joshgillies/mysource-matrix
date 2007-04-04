@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_assetid_remap.inc,v 1.1 2007/02/26 04:03:07 skim Exp $
+* $Id: trigger_action_add_assetid_remap.inc,v 1.2 2007/04/04 04:14:19 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -131,8 +131,8 @@ class Trigger_Action_Add_Assetid_Remap extends Trigger_Action
 				$quoted_old_urls[] = $db->quoteSmart($old_url);
 			}
 			$sql .= ' ('.implode(',', $quoted_old_urls).')';
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			$db_result = $db->query($sql);
+			assert_valid_db_result($db_result);
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -142,8 +142,8 @@ class Trigger_Action_Add_Assetid_Remap extends Trigger_Action
 
 			$rm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 			foreach ($mapped_tiny_urls as $old_url => $new_url) {
-				$result = $rm->addRemapURL($old_url, $new_url);
-				switch ($result) {
+				$remap_result = $rm->addRemapURL($old_url, $new_url);
+				switch ($remap_result) {
 					case 0:
 						trigger_error('CORE0271', E_USER_WARNING);
 					break;
