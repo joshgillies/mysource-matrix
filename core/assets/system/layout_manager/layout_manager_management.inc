@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager_management.inc,v 1.6 2006/12/06 04:40:08 emcdonald Exp $
+* $Id: layout_manager_management.inc,v 1.7 2007/04/04 05:52:27 amiller Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $ - 0.1
+* @version $Revision: 1.7 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,6 +44,14 @@ class Layout_Manager_Management extends Asset_Management
 										'added'		=> '0.0.1',
 										'type'		=> 'serialise',
 										'default'	=> Array(),
+									   ),
+						'edit_css'	=> Array(
+										'added'			=> '0.2',
+										'type'			=> 'boolean',
+										'default'		=> TRUE,
+										'parameters'	=> Array(
+															'allow_empty'	=> FALSE,
+														   ),
 									   ),
 					  );
 

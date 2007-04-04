@@ -10,11 +10,16 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2006/12/06 04:40:08 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2007/04/04 05:52:47 amiller Exp $
 *
 */
 -->
 <contents>
+	<section name="CSS Settings" write_access="write:attributes">
+		<field attribute="edit_css">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>
 	<section name="Edit Layouts">
 		<field read_access="write:" write_access="write:">
 			<function_call>
