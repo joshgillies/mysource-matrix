@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.29.2.3 2007/02/22 04:10:27 colivar Exp $
+* $Id: lang_strings.xml,v 1.29.2.4 2007/04/04 05:16:54 rong Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -131,6 +131,6 @@ Please click on the following link if you would like to proceed:
 	<string source="bm_email_empty">Email address was not provided</string>
 	<string source="bm_email_invalid">Email address provided is invalid</string>
 	<string source="bm_no_subscription_no_unsubscription">No subscription/unsubscription selected</string>
-	<string source="bm_username_invalid">Username probided is invalid</string>
+	<string source="bm_username_invalid">Username provided is invalid</string>
 
 </strings>
