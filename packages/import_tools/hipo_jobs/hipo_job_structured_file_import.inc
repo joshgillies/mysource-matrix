@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.15 2007/02/20 04:08:13 skim Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.16 2007/04/04 00:50:15 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -220,8 +220,8 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		$this->_running_vars['styles'] = Array();
 		$file_data = file_get_contents($this->_running_vars['import_file']);
 
-		$file_data = str_replace('<!--', '', $file_data);
-		$file_data = str_replace('-->', '', $file_data);
+		// Remove any HTML comment lines exist
+		$this->_removeHtmlComment($file_data);
 
 		preg_match_all('/<style[^>]*>([^<]*)<\/\s*style>/i', $file_data, $style_matches=Array());
 
@@ -240,6 +240,9 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		// This is needed, in case there are some style blocks inside the body, that we don't need
 		$file_data = str_replace($style_matches[0], '', $file_data);
 
+		// DOS newline
+		$file_data = str_replace("\r", "\n", $file_data);
+
 		// Extended Ascii
 		$file_data = str_replace(chr(145), '\'', $file_data);
 		$file_data = str_replace(chr(146), '\'', $file_data);
@@ -247,6 +250,10 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		$file_data = str_replace(chr(148), '"', $file_data);
 		$file_data = str_replace(chr(149), '-', $file_data);
 		$file_data = str_replace(chr(150), '-', $file_data);
+
+		$file_data = str_replace(chr(92), '\'', $file_data);
+		$file_data = str_replace(chr(97), 'a', $file_data);
+		$file_data = str_replace(chr(160), '&nbsp;', $file_data);
 
 		preg_match('/<body[^>]*>/i', $file_data, $body_start_match=Array(), PREG_OFFSET_CAPTURE);
 		preg_match('/<\/\s*body\s*>/i', $file_data, $body_end_match=Array(), PREG_OFFSET_CAPTURE);
@@ -275,6 +282,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 			$body = preg_replace('/lang=([a-z]+[a-z\d-]*)/i', 'lang="\\1"', $body);
 			$body = preg_replace('/align=[a-z]+\s/i', ' ', $body);
 			$body = preg_replace('/<[\/]?st1:[^>]+>/i', ' ', $body);
+
 			// Vector formats
 			$body = preg_replace('/<(\/)?v:shapetype[^>]*>/', '', $body);
 			$body = preg_replace('/<(\/)?v:shape[^>]*>/', '', $body);
@@ -284,6 +292,10 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 			$body = preg_replace('/<v:path[^>]*>/', '', $body);
 			$body = preg_replace('/<v:rect[^>]*>/', '', $body);
 			$body = preg_replace('/<v:line[^>]*>/', '', $body);
+
+			$body = preg_replace('/<(\/)?o:p[^>]*>/', '', $body);
+			$body = preg_replace('/<!\[if ![a-zA-Z !&]+\]>/', '', $body);
+			$body = str_replace('<![endif]>', '', $body);
 		}
 
 		// Run HTMLTIDY
@@ -913,6 +925,76 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		return TRUE;
 
 	}//end processAdditional()
+
+
+	/**
+	* It removes any HTML comment lines in HTML code except that
+	* they locates between <style> tags
+	*
+	* @param array	&$html	HTML to process
+	*
+	* @return string
+	* @access private
+	*/
+	function _removeHtmlComment(&$html)
+	{
+		preg_match_all('/<!--/', $html, $open_matches=Array(), PREG_OFFSET_CAPTURE);
+		preg_match_all('/-->/', $html, $close_matches=Array(), PREG_OFFSET_CAPTURE);
+
+		$comments = Array();
+		$prev_close_pos = 0;
+		if (count($open_matches[0]) == count($close_matches[0])) {
+
+			preg_match_all('/<style>/', $html, $style_open_matches=Array(), PREG_OFFSET_CAPTURE);
+			preg_match_all('/<\/style>/', $html, $style_close_matches=Array(), PREG_OFFSET_CAPTURE);
+			$style_pos = Array();
+			if (count($style_open_matches[0]) == count($style_close_matches[0])) {
+
+				for ($i = 0; $i < count($style_open_matches[0]); $i++) {
+					$style_pos[] = Array('o' => (int) $style_open_matches[0][$i][1], 'c' => (int) $style_close_matches[0][$i][1]);
+				}
+
+				$verified = TRUE;
+				for ($i = 0; $i < count($open_matches[0]); $i++) {
+					$open_pos = (int) $open_matches[0][$i][1];
+					$close_pos = (int) $close_matches[0][$i][1];
+
+					if (!$prev_close_pos) {
+						if ($open_pos > $close_pos) $verified = FALSE;
+					} else {
+						if (($open_pos > $close_pos) || ($prev_close_pos > $open_pos)) {
+							$verified = FALSE;
+						}
+					}
+					$prev_close_pos = $close_pos;
+				}
+				if ($verified) {
+					$open_matches = array_reverse($open_matches);
+					$close_matches = array_reverse($close_matches);
+					for ($i = 0; $i < count($open_matches[0]); $i++) {
+						$open_pos = (int) $open_matches[0][$i][1];
+						$close_pos = (int) $close_matches[0][$i][1];
+
+						foreach ($style_pos as $style_tag) {
+							if (($style_tag['o'] < $open_pos) && ($style_tag['c'] > $close_pos)) {
+								continue 2;
+							}
+						}
+
+						$str = substr($html, $open_pos, ($close_pos + 3 - $open_pos));
+						$comments[] = $str;
+					}
+				}
+			}//end if
+		}//end if
+
+		foreach ($comments as $comment) {
+			if (strpos($html, $comment) !== FALSE) {
+				$html = str_replace($comment, '', $html);
+			}
+		}
+
+	}//end _removeHtmlComment()
 
 
 	/**
