@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.87 2007/04/01 22:50:53 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.88 2007/04/04 01:27:47 rong Exp $
 *
 */
 
@@ -1101,7 +1101,7 @@ As specified by %5$s and will be deferred</error><!-- core/include/package_manag
 
 	<error code="SYS0191">Invalid message format for error log</error><!-- core/include/general.inc: -->
 
-	<error code="SYS0192">Link Already Exists</error><!-- core/include/asset_manager.inc: -->
+	<error code="SYS0192">Link already exists between "%1$s" and "%2$s"</error><!-- core/include/asset_manager.inc: -->
 
 	<error code="SYS0193">Locale code "%s" does not seem to be valid</error><!-- core/include/locale_manager.inc: -->
 

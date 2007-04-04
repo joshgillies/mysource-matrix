@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.562 2007/03/25 23:39:09 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.563 2007/04/04 01:27:47 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.562 $
+* @version $Revision: 1.563 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1853,7 +1853,7 @@ class Asset_Manager extends MySource_Object
 				// OK what we are going to do is make sure that the new parents lock is
 				// in the same chain as our current lock
 				$parent_lock = $this->getLockInfo($link['asset']->id, 'links');
-				if (empty($parent_lock) || !in_array($parent_lock['source_assetid'], $dependent_parents)) { 
+				if (empty($parent_lock) || !in_array($parent_lock['source_assetid'], $dependent_parents)) {
 					if (!empty($parent_lock)) {
 						if (!$this->releaseLock($link['asset']->id, 'links')) {
 							return $null;
@@ -4042,7 +4042,7 @@ class Asset_Manager extends MySource_Object
 				// The link we are creating already exists, so throw an error
 				// unless the major is the trash, in which case we just pretend we linked ok
 				if ($this->getSystemAssetid('trash_folder') != $major->id) {
-					trigger_localised_error('SYS0192', E_USER_WARNING);
+					trigger_localised_error('SYS0192', E_USER_WARNING, "$major->name (#$major->id)", "$minor->name (#$minor->id)");
 				}
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return $current_links[$i]['linkid'];
