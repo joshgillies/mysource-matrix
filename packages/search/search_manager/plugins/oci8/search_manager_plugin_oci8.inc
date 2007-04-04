@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.15 2007/02/28 22:27:53 skim Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.16 2007/04/04 02:21:06 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -242,14 +242,14 @@ class Search_Manager_Plugin_OCI8
 			break;
 
 			case 'metadata':
-				$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($attr_info['params']['assetid']);
+				$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 				$key_types = Array(
 								'metadata_field_select'		=> 'selection',
 								'metadata_field_thesaurus'	=> 'thesaurus',
 							 );
 				$key_type = array_get_index($key_types, get_class($metadata_field), 'text');
 				$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
-				$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['assetid']);
+				$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$data_source['params']['assetid']);
 			break;
 
 			case 'standard':
