@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.19 2007/01/09 03:23:37 rhoward Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.19.2.1 2007/04/05 00:13:41 skim Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -195,7 +195,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 		if (!empty($_POST[$prefix.'_new_name']) && $_POST[$prefix.'_new_data_source']['assetid'] != '0') {
 			$datasets        = $asset->attr('datasets');
 			$dataset_assetid = $_POST[$prefix.'_new_data_source']['assetid'];
-			
+
 			// get the first result, extract the field names from that
 			// otherwise, fall back on 'Not saved'
 			$axis_default_val  =  'Not saved';
@@ -242,7 +242,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 			// moved plot's settings in the next screen
 			$_POST[$prefix.'_plot_name'] = $index;
 			$_POST[$prefix.'_prev_plot_name'] = $index;
-		}
+		}//end if
 
 		if (!empty($datasets)) {
 			foreach ($datasets as $key => $dataset) {
@@ -288,17 +288,15 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	{
 		$plot_order = $asset->attr('plot_order');
 		$o->openField('Choose a plot');
-			$plot_name = '';
 
-			if (!empty($_POST[$prefix.'_plot_name'])) {
-				$plot_name = $_POST[$prefix.'_plot_name'];
-			}
+			$plot_name = isset($_POST[$prefix.'_plot_name']) ? $_POST[$prefix.'_plot_name'] : '0';
+
 			combo_box($prefix.'_plot_name', $plot_order, FALSE, $plot_name);
 			?>
 				<br /><b>Note</b>&nbsp;:&nbsp;If you choose a plot other than one displayed below and submit, then the current changes in the plot settings <b>WILL NOT</b> be applied,
 				i.e. If you want to submit the changes in the plot settings, <b>DO NOT</b> choose a new plot here
 			<?php
-			hidden_field($prefix.'_prev_plot_name', isset($_POST[$prefix.'_plot_name']) ? $_POST[$prefix.'_plot_name'] : '');
+			hidden_field($prefix.'_prev_plot_name', $plot_name);
 		$o->closeField();
 		return TRUE;
 
@@ -511,10 +509,9 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 			$plot_order = $asset->attr('plot_order');
 
 			$plot_not_deleted = isset($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
-			$first_plot_added = $_POST[$prefix.'_prev_plot_name'] == '';
-			$plot_changed = ($_POST[$prefix.'_plot_name'] != $_POST[$prefix.'_prev_plot_name']);
+			$plot_changed = ($_POST[$prefix.'_plot_name'] !== $_POST[$prefix.'_prev_plot_name']);
 
-			if (($first_plot_added || !$plot_changed) && $plot_not_deleted) {
+			if (!$plot_changed && $plot_not_deleted) {
 				$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
 				$datasets[$plot_name]['assetid'] = $_POST[$prefix.'_data_source']['assetid'];
 				$datasets[$plot_name]['settings']['display_name']	= $_POST[$prefix.'_display_name'];
@@ -567,7 +564,9 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 						$_POST[$prefix.'_prev_plot_name'] = $dest_index;
 					}
 				}//end if
-			}//end if
+			} else {
+				return FALSE;
+			}
 		}//end if
 
 		return TRUE;
@@ -755,10 +754,9 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 			$plot_order = $asset->attr('plot_order');
 
 			$plot_not_deleted = isset($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
-			$first_plot_added = $_POST[$prefix.'_prev_plot_name'] == '';
 			$plot_changed = ($_POST[$prefix.'_plot_name'] != $_POST[$prefix.'_prev_plot_name']);
 
-			if (($first_plot_added || !$plot_changed) && $plot_not_deleted) {
+			if (!$plot_changed && $plot_not_deleted) {
 				$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
 				$plot_type = $datasets[$plot_name]['settings']['graph_type'];
 				switch ($plot_type) {
@@ -948,9 +946,8 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 			$datasets = $asset->attr('datasets');
 			$plot_order = $asset->attr('plot_order');
 			$plot_not_deleted = @isset($datasets[$plot_order[intval($_POST[$prefix.'_plot_name'])]]);
-			$first_plot_added = $_POST[$prefix.'_prev_plot_name'] == '';
 			$plot_changed = ($_POST[$prefix.'_plot_name'] != $_POST[$prefix.'_prev_plot_name']);
-			if (($first_plot_added || !$plot_changed) && $plot_not_deleted) {
+			if (!$plot_changed && $plot_not_deleted) {
 				$plot_name = $plot_order[intval($_POST[$prefix.'_plot_name'])];
 				$datasets[$plot_name]['settings']['marker_type']				= $_POST[$prefix.'_marker_type'];
 				$datasets[$plot_name]['settings']['value_marker_type']			= $_POST[$prefix.'_value_marker_type'];
@@ -1138,6 +1135,57 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 
 
 //--        SHOW IFS        --//
+
+
+	/**
+	* Returns TRUE if the screen is in Add Mode
+	*
+	* @param object	&$asset	the graph asset
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function isAddMode(&$asset, $prefix)
+	{
+		return $this->_isMode($asset, $prefix, 'add');
+
+	}//end isAddMode()
+
+
+	/**
+	* Returns TRUE if the screen is in Edit Mode
+	*
+	* @param object	&$asset	the graph asset
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function isEditMode(&$asset, $prefix)
+	{
+		return $this->_isMode($asset, $prefix, 'edit') &&
+				$this->datasetNotEmpty($asset, $prefix);
+
+	}//end isEditMode()
+
+
+	/**
+	* Returns the current mode of plot screen
+	*
+	* @param object	&$asset	the graph asset
+	* @param string	$prefix	prefix for form elements
+	* @param string	$type	type of mode checking
+	*
+	* @return void
+	* @access public
+	*/
+	function _isMode(&$asset, $prefix, $type)
+	{
+		$mode = $asset->attr('mode');
+		return ($mode == $type);
+
+	}//end _isMode()
 
 
 	/**

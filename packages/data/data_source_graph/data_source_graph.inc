@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.26 2007/01/11 04:38:08 rhoward Exp $
+* $Id: data_source_graph.inc,v 1.26.2.1 2007/04/05 00:13:41 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -450,6 +450,11 @@ class Data_Source_Graph extends Image
 	*/
 	function getFinalGraph($to_file=FALSE)
 	{
+		// Turn off error level. PEAR Image package generates
+		// PHP 4 warning, which prevents printFroend() sending
+		// proper header information
+		$old_err_level = error_reporting(0);
+
 		$graph		=& $this->getNewGraph();
 		$datasets	= $this->attr('datasets');
 
@@ -604,6 +609,9 @@ class Data_Source_Graph extends Image
 			$graph->done();
 		}
 
+		// Restore error level
+		error_reporting($old_err_level);
+
 	}//end getFinalGraph()
 
 
@@ -639,6 +647,11 @@ class Data_Source_Graph extends Image
 	*/
 	function makePlotSettingsPreview($graph_info)
 	{
+		// Turn off error level. PEAR Image package generates
+		// PHP 4 warning, which prevents printFroend() sending
+		// proper header information
+		$old_err_level = error_reporting(0);
+
 		require_once 'Image/Graph.php';
 		$global_settings = $this->attr('global_settings');
 
@@ -690,6 +703,9 @@ class Data_Source_Graph extends Image
 
 		$graph->done();
 
+		// Restore error level
+		error_reporting($old_err_level);
+
 	}//end makePlotSettingsPreview()
 
 
@@ -706,6 +722,11 @@ class Data_Source_Graph extends Image
 	*/
 	function makeGlobalSettingsPreview($to_file=FALSE)
 	{
+		// Turn off error level. PEAR Image package generates
+		// PHP 4 warning, which prevents printFroend() sending
+		// proper header information
+		$old_err_level = error_reporting(0);
+
 		$graph =& $this->getNewGraph();
 		$sample_dataset =& Image_Graph::factory('random', Array(10, 2, 15, TRUE));
 
@@ -722,6 +743,9 @@ class Data_Source_Graph extends Image
 		} else {
 			$graph->done();
 		}
+
+		// Restore error level
+		error_reporting($old_err_level);
 
 	}//end makeGlobalSettingsPreview()
 
