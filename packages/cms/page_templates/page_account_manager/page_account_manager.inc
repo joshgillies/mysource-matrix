@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.44.2.3 2006/10/04 23:57:15 tbarrett Exp $
+* $Id: page_account_manager.inc,v 1.44.2.4 2007/04/05 04:13:33 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.44.2.3 $
+* @version $Revision: 1.44.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -479,16 +479,18 @@ class Page_Account_Manager extends Page_Asset_Builder
 	*/
 	function getCreateLocations($create_type)
 	{
-		if ($this->attr('use_email_validation')) {
+		$locs = parent::getCreateLocations($create_type);
+		if ($this->attr('use_email_validation') && !empty($locs)) {
+			// Validation is enabled, and we have some 'real' create locations,
+			// so go ahead and create the asset in the pending-users group,
+			// as long as the group exists
+			$locs = Array();
 			$pending_groupid = $this->_getPendingAccountsGroupId();
 			if ($pending_groupid) {
-				return Array($pending_groupid => SQ_LINK_TYPE_1);
-			} else {
-				return Array();
+				$locs = Array($pending_groupid => SQ_LINK_TYPE_1);
 			}
-		} else {
-			return parent::getCreateLocations($create_type);
 		}
+		return $locs;
 
 	}//end getCreateLocations()
 
@@ -651,6 +653,11 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$create_locations = parent::getFixedCreateLocations()
 							+ parent::getRuleMatchCreateLocations($create_type, $user_attributes)
 							+ $selected_create_locations;
+
+		if (empty($create_locations)) {
+			trigger_localised_error('CMS0071', E_USER_WARNING);
+			return FALSE;
+		}
 
 		// set the install run level because we are creating an asset without being
 		// logged in - so any write access checks will fail

@@ -12,7 +12,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.10.4.3 2007/01/29 04:33:07 skim Exp $
+* $Id: lang_errors.xml,v 1.10.4.4 2007/04/05 04:13:33 tbarrett Exp $
 *
 */
 -->
@@ -189,13 +189,16 @@
 	<error code="CMS0060">The number of columns for row %s must be at least 1. Resetting number of columns to 1.</error>
 	<error code="CMS0061">The number of columns for "all remaining rows" must be at least 1. Resetting number of columns to 1.</error>
 
-        <!-- page_remote_content connection errors -->
-        <error code="CMS0062">Could not decode URL</error>
-        <error code="CMS0063">Cannot connect to server while attempting to access "%1$s" - %2$s</error>
-        <error code="CMS0064">Error response %1$s from server while attempting to access "%2$s"</error>
-        <error code="CMS0065">Cannot encode URL hash - no URL supplied</error>
-        <error code="CMS0066">Error decoding URL hash - no URL found</error>
+	<!-- page_remote_content connection errors -->
+	<error code="CMS0062">Could not decode URL</error>
+	<error code="CMS0063">Cannot connect to server while attempting to access "%1$s" - %2$s</error>
+	<error code="CMS0064">Error response %1$s from server while attempting to access "%2$s"</error>
+	<error code="CMS0065">Cannot encode URL hash - no URL supplied</error>
+	<error code="CMS0066">Error decoding URL hash - no URL found</error>
 
 	<!-- listing engine cloning -->
 	<error code="CMS0068">Cannot complete the cloning. Group Formats folder was not properly created</error>
+
+	<error code="CMS0071">This user asset cannot be validated because no create locations to move it to have been found</error>
+
 </errors>
