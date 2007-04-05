@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_management.inc,v 1.9 2006/12/08 00:52:00 emcdonald Exp $
+* $Id: data_source_graph_management.inc,v 1.10 2007/04/05 00:13:19 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,6 +41,21 @@ class Data_Source_Graph_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
+						'mode'					=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'selection',
+													'default'		=> 'add',
+													'is_admin'		=> 0,
+													'parameters'	=> Array(
+																		'options'		=> Array(
+																							'add'	=> 'Add Plot',
+																							'edit'	=> 'Edit Plot',
+																						   ),
+																		'multiple'		=> FALSE,
+																		'allow_empty'	=> FALSE,
+																		'allow_other'	=> FALSE,
+																	   ),
+												   ),
 						'title'					=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'text',
