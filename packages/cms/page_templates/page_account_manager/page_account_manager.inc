@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.55 2007/04/03 23:05:40 amiller Exp $
+* $Id: page_account_manager.inc,v 1.56 2007/04/05 01:47:44 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -103,8 +103,9 @@ class Page_Account_Manager extends Page_Asset_Builder
 			foreach (Array('create_login', 'create_no_login') as $value) {
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, NULL, 'bodycopy', TRUE, $value);
 				if (empty($link)) {
-					trigger_error('BC NOT FOUND', E_USER_ERROR);
+					trigger_error('BC NOT FOUND', E_USER_WARNING);
 				}
+
 				$bc =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 				$bc->setAttrValue('name', $new_names[$value]);
 				$bc->saveAttributes();
@@ -717,7 +718,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
 			// link the user asset into the locations it is supposed to go
 			foreach ($create_locations as $link_parentid => $link_type) {
 				$link_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', TRUE);
