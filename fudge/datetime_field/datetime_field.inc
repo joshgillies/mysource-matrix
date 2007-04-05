@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.42 2006/12/27 23:30:01 tbarrett Exp $
+* $Id: datetime_field.inc,v 1.43 2007/04/05 04:00:47 mbrydon Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -251,7 +251,7 @@ class DateTime_Field
 			$diff[$diff_unit] = $this->getUnit($diff_unit, $max_array) - $this->getUnit($diff_unit, $min_array);
 		}
 
-		if ($allow_null && (!strlen($value) || $value == '--')) {
+		if ($allow_null && (!strlen($value) || $value == '--' || $value == '----')) {
 			$value = '';
 		} else if ($u != 'a') {
 			$value = (int) $value;
