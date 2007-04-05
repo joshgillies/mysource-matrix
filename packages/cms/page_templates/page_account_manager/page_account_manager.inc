@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.56 2007/04/05 01:47:44 tbarrett Exp $
+* $Id: page_account_manager.inc,v 1.57 2007/04/05 01:50:19 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -102,13 +102,11 @@ class Page_Account_Manager extends Page_Asset_Builder
 			}
 			foreach (Array('create_login', 'create_no_login') as $value) {
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, NULL, 'bodycopy', TRUE, $value);
-				if (empty($link)) {
-					trigger_error('BC NOT FOUND', E_USER_WARNING);
+				if (!empty($link)) {
+					$bc =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+					$bc->setAttrValue('name', $new_names[$value]);
+					$bc->saveAttributes();
 				}
-
-				$bc =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
-				$bc->setAttrValue('name', $new_names[$value]);
-				$bc->saveAttributes();
 			}
 		}
 
