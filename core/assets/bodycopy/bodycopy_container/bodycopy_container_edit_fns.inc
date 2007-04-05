@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.49 2007/04/05 05:55:26 tbarrett Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.50 2007/04/05 06:42:49 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -370,6 +370,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				if (empty($link_data['value'])) {
 					if (!in_array($link_data['minorid'], $replace_assetids)) {
 						if (!$asset->deleteLink($link_data['linkid'])) {
+							if ($run_level_changed) {
+								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+							}
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							return FALSE;
@@ -404,6 +407,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			}//end foreach
 
 			if (!$asset->setAttrValue('shadow_links', $shadow_links) || !$asset->saveAttributes()) {
+				if ($run_level_changed) {
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				}
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
