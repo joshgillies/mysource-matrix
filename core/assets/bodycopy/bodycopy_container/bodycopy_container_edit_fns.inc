@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.48 2007/03/28 02:26:20 arailean Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.48.2.1 2007/04/05 06:41:33 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.48.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -357,12 +357,22 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			// delete existing notice links that are no longer being used (only delete those without a link value)
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			$run_level_changed = FALSE;
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() - SQ_SECURITY_LOCKING);
+				$run_level_changed = TRUE;
+			}
+
 			foreach ($notice_links as $link_data) {
 				// if the link value doesn't indicate a thumbnail, or tag weighting, etc.
 				// NOTE: This needs to be refactored.
 				if (empty($link_data['value'])) {
 					if (!in_array($link_data['minorid'], $replace_assetids)) {
 						if (!$asset->deleteLink($link_data['linkid'])) {
+							if ($run_level_changed) {
+								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+							}
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							return FALSE;
@@ -397,9 +407,16 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			}//end foreach
 
 			if (!$asset->setAttrValue('shadow_links', $shadow_links) || !$asset->saveAttributes()) {
+				if ($run_level_changed) {
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				}
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
+			}
+
+			if ($run_level_changed) {
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 			}
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
