@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.14.2.1 2007/01/29 04:33:22 skim Exp $
+* $Id: lang_errors.xml,v 1.14.2.2 2007/04/05 03:57:12 tbarrett Exp $
 *
 */
 -->
@@ -197,4 +197,7 @@
 
 	<!-- listing engine cloning -->
 	<error code="CMS0068">Cannot complete the cloning. Group Formats folder was not properly created</error>
+
+	<error code="CMS0071">This user asset cannot be validated because no create locations to move it to have been found</error>
+
 </errors>
