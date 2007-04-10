@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.4 2007/01/08 03:25:04 emcdonald Exp $
+* $Id: page_upcoming_events_list.inc,v 1.5 2007/04/10 01:43:48 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -249,13 +249,23 @@ class Page_Upcoming_Events_List extends Page
 		}
 
 		$events = $this->_getEvents();
+
+		bam($events);
+
 		if ($somebody_doesnt_need_asset) {
-			$asset_infos = $am->getAssetInfo(array_keys($events));
+			$keys = Array();
+			foreach ($events as $key => $value) {
+				$key_assetid = strtok($key, ':');
+				$keys[$key_assetid] = $key_assetid;
+			}
+			$asset_infos = $am->getAssetInfo($keys);
+			bam($asset_infos);
 		}
 
 		$event_list = '';
 		$recurring_event_descendants = $am->getTypeDescendants('calendar_event_recurring', TRUE);
 		foreach ($events as $id => $event) {
+			$id = strtok($id, ':');
 			$replacements = Array();
 
 			$format_type = (in_array($event['type_code'], $recurring_event_descendants)) ? 'calendar_event_recurring' : 'calendar_event_single';
@@ -344,9 +354,9 @@ class Page_Upcoming_Events_List extends Page
 			$recur_result = $db->getAll($sql);
 			assert_valid_db_result($recur_result);
 			$recur_result = Calendar_Common::condenseResultTreeids($recur_result);
+			$recur_result = Calendar_Common::expandEventList($recur_result, date('Y-m-d', $start_ts), date('Y-m-d', $end_ts));
 
 			$new_events = $single_result + $recur_result;
-			$new_events = Calendar_Common::expandEventList($new_events, date('Y-m-d', $start_ts), date('Y-m-d', $end_ts));
 
 			Calendar_Common::processExceptions($new_events);
 
@@ -360,7 +370,8 @@ class Page_Upcoming_Events_List extends Page
 		$i = 0;
 		foreach ($all_events as $id => $event) {
 			if ($i >= $this->attr('num_events')) break;
-			$res[strtok($id, ':')] = $event;
+			//$res[strtok($id, ':')] = $event;
+			$res[$id] = $event;
 			$i++;
 		}
 		return $res;
