@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.5 2007/04/10 01:43:48 lwright Exp $
+* $Id: page_upcoming_events_list.inc,v 1.6 2007/04/10 01:53:31 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -250,8 +250,6 @@ class Page_Upcoming_Events_List extends Page
 
 		$events = $this->_getEvents();
 
-		bam($events);
-
 		if ($somebody_doesnt_need_asset) {
 			$keys = Array();
 			foreach ($events as $key => $value) {
@@ -259,7 +257,6 @@ class Page_Upcoming_Events_List extends Page
 				$keys[$key_assetid] = $key_assetid;
 			}
 			$asset_infos = $am->getAssetInfo($keys);
-			bam($asset_infos);
 		}
 
 		$event_list = '';
