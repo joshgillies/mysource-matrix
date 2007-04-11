@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_data_dirs.php,v 1.10 2007/03/12 23:48:45 skim Exp $
+* $Id: upgrade_data_dirs.php,v 1.10.2.1 2007/04/11 00:37:19 skim Exp $
 *
 */
 
 /**
 *
 * @author Scott Kim <skim@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -258,7 +258,6 @@ function process_file_versioning($base_dir, $curr_dir)
 			if (substr($assetid, 0, 1) == '0') continue;
 
 			$is_error = FALSE;
-
 			if (is_dir(SQ_SYSTEM_ROOT.$base_dir.'/'.$curr_dir.'/'.$assetid)) {
 
 				$hash = get_asset_hash($assetid);
@@ -278,7 +277,7 @@ function process_file_versioning($base_dir, $curr_dir)
 
 				// Process sq_file_vers_file table
 				$sql = 'SELECT
-							*
+							fileid, path, filename
 						FROM
 							sq_file_vers_file
 						WHERE
@@ -290,7 +289,7 @@ function process_file_versioning($base_dir, $curr_dir)
 					';
 				}
 
-				$result =& $db->getAssoc($sql);
+				$result =& $db->getAll($sql);
 				if (PEAR::isError($result)) {
 					print_log("[$old_file_vers_path :(] SELECT query failed. ".$result->getMessage(), 0, TRUE);
 					_generate_result_report();
@@ -300,9 +299,10 @@ function process_file_versioning($base_dir, $curr_dir)
 				if (empty($result)) {
 					print_log("[$old_file_vers_path :(] does not exist in sq_file_vers_file table.", 2);
 				} else {
-					foreach ($result as $fileid => $file_data) {
-						$file_path = $file_data[0];
-						$file_name = $file_data[1];
+					foreach ($result as $file_data) {
+						$fileid		= $file_data[0];
+						$file_path	= $file_data[1];
+						$file_name	= $file_data[2];
 
 						if ($db->phptype != 'oci8') {
 							$result =& $db->query('BEGIN');
@@ -365,14 +365,18 @@ function process_file_versioning($base_dir, $curr_dir)
 function fix_lookups($asset_type, $hash, $assetid)
 {
 	global $data_dirs, $skip_dirs, $log, $db, $count;
-	$sql = 'SELECT * FROM sq_ast_lookup WHERE assetid = '.$db->quoteSmart($assetid).';';
-	$result =& $db->getAssoc($sql);
+	$sql = 'SELECT url FROM sq_ast_lookup WHERE assetid = '.$db->quoteSmart($assetid).';';
+	$result =& $db->getAll($sql);
+	if (empty($result)) return;
+
 	$updated_url = Array();
-	foreach ($result as $url => $data) {
+	foreach ($result as $data) {
+		$url = $data[0];
 		if (($index = strpos($url, '/'.$assetid.'/')) !== FALSE) {
-			$old_hash = substr($url, $index - 4, 4);
-			if (($old_hash != $hash) && (preg_match('/\d{4}/', $old_hash))) {
-				$new_url = substr($url, 0, ($index - 4)).$hash.substr($url, $index);
+			$old_hash = substr($url, $index - 5, 6);
+
+			if ($old_hash != '/'.$hash.'/') {
+				$new_url = substr($url, 0, ($index)).'/'.$hash.substr($url, $index);
 
 				// Fix lookup table
 				$sql = 'UPDATE
@@ -404,33 +408,33 @@ function fix_lookups($asset_type, $hash, $assetid)
 			foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup_remap') as $table) {
 
 				if ($table == 'sq_ast_lookup_value') {
-					$sql = 'SELECT * FROM '.$table.' WHERE url = '.$db->quoteSmart($url).';';
+					$sql = 'SELECT url FROM '.$table.' WHERE url = '.$db->quoteSmart($url).';';
 				} else if ($table == 'sq_ast_lookup_remap') {
-					$sql = 'SELECT * FROM '.$table.' WHERE url LIKE '.$db->quoteSmart('%'.$url).';';
+					$sql = 'SELECT url FROM '.$table.' WHERE url LIKE '.$db->quoteSmart('%'.$url).';';
 				}
 
-				$result =& $db->getAssoc($sql);
+				$result =& $db->getAll($sql);
 				if (PEAR::isError($result)) {
 					echo "$sql\n";
 					print_log($result->getMessage(), 0, TRUE);
 				} else {
-					foreach ($result as $key => $data) {
-
+					foreach ($result as $data) {
+						$url = $data[0];
 						if ($table == 'sq_ast_lookup_value') {
 							$sql = 'UPDATE
 										'.$table.'
 									SET
 										url = '.$db->quoteSmart($new_url).'
 									WHERE
-										url = '.$db->quoteSmart($key);
+										url = '.$db->quoteSmart($url);
 						} else if ($table == 'sq_ast_lookup_remap') {
-							$new_url = str_replace($url, $new_url, $key);
+							$new_url = str_replace($url, $new_url, $url);
 							$sql = 'UPDATE
 										'.$table.'
 									SET
 										url = '.$db->quoteSmart($new_url).'
 									WHERE
-										url = '.$db->quoteSmart($key);
+										url = '.$db->quoteSmart($url);
 						}
 
 						if ($db->phptype != 'oci8') {
@@ -450,9 +454,9 @@ function fix_lookups($asset_type, $hash, $assetid)
 						}
 					}
 				}
-			}
-		}
 
+			}//end foreach lookup tables
+		}//end foreach updated_url
 	}//end if updated_url
 
 }//end fix_lookups()
@@ -501,7 +505,7 @@ function _process_public_dir_lookup($base_dir, $curr_dir, $assetid)
 	global $lookup_tables, $db, $count;
 
 	foreach ($lookup_tables as $table) {
-		$sql = 'SELECT * FROM '.$table.' WHERE url LIKE ';
+		$sql = 'SELECT url FROM '.$table.' WHERE url LIKE ';
 
 		$hash = get_asset_hash($assetid);
 
@@ -521,7 +525,8 @@ function _process_public_dir_lookup($base_dir, $curr_dir, $assetid)
 			break;
 		}
 
-		$result =& $db->getAssoc($sql, true);
+		$result =& $db->getAll($sql, TRUE);
+
 		if (PEAR::isError($result)) {
 			print_log($result->getMessage(), 0, TRUE);
 			_generate_result_report();
@@ -530,40 +535,41 @@ function _process_public_dir_lookup($base_dir, $curr_dir, $assetid)
 
 			if (!empty($result)) {
 
-				foreach ($result as $key => $data) {
+				foreach ($result as $urls) {
+					$url = $urls[0];
 					// Need to update lookup tables
 					switch ($table) {
 						case 'sq_ast_lookup' :
 						case 'sq_ast_lookup_value' :
-							$new_key = str_replace($old_public_url, $new_public_url, $key);
+							$new_url = str_replace($old_public_url, $new_public_url, $url);
 							$sql = 'UPDATE
 										'.$table.'
 									SET
-										url = '.$db->quoteSmart($new_key).'
+										url = '.$db->quoteSmart($new_url).'
 									WHERE
-										url = '.$db->quoteSmart($key);
+										url = '.$db->quoteSmart($url);
 
-							$new_key = str_replace($old_public_url, $new_public_url, $key);
+							$new_url = str_replace($old_public_url, $new_public_url, $url);
 						break;
 						case 'sq_ast_lookup_remap' :
-							if (strpos($key, $old_public_url) !== FALSE) {
-								$new_key = str_replace($old_public_url, $new_public_url, $key);
+							if (strpos($url, $old_public_url) !== FALSE) {
+								$new_url = str_replace($old_public_url, $new_public_url, $url);
 								$sql = 'UPDATE
 											'.$table.'
 										SET
-											url = '.$db->quoteSmart($new_key).'
+											url = '.$db->quoteSmart($new_url).'
 										WHERE
-											url = '.$db->quoteSmart($key);
-								$new_key = str_replace($old_public_url, $new_public_url, $key);
+											url = '.$db->quoteSmart($url);
+								$new_url = str_replace($old_public_url, $new_public_url, $url);
 							} else if (strpos($data[0], $old_public_url) !== FALSE) {
-								$new_key = str_replace($old_public_url, $new_public_url, $data[0]);
+								$new_url = str_replace($old_public_url, $new_public_url, $data[0]);
 								$sql = 'UPDATE
 											'.$table.'
 										SET
-											remap_url = '.$db->quoteSmart($new_key).'
+											remap_url = '.$db->quoteSmart($new_url).'
 										WHERE
 											remap_url = '.$db->quoteSmart($data[0]);
-								$new_key = str_replace($old_public_url, $new_public_url, $data[0]);
+								$new_url = str_replace($old_public_url, $new_public_url, $data[0]);
 							}
 						break;
 
@@ -705,7 +711,7 @@ function generate_report($with_result=FALSE)
 												sq_file_vers_file
 											WHERE
 												path = '.$db->quoteSmart($old_file_vers_path);
-									$result =& $db->getAssoc($sql);
+									$result =& $db->getAll($sql);
 									if (PEAR::isError($result)) {
 										print_log("[$old_file_vers_path :(] SELECT query failed. ".$result->getMessage(), 0, TRUE);
 										exit();
@@ -779,11 +785,12 @@ function _generate_result_report()
 
 	if (is_error()) {
 		echo "+-----------------------------------------------------+\n";
-		echo "| Problem occurred during the upgrade.!\n";
+		echo "| Inconsistency found during the upgrade\n";
 		echo "+-----------------------------------------------------+\n";
-		echo "| You can safely re-run the script, but please look at\n";
-		echo "| the error messages and ".SQ_SYSTEM_ROOT.'/data/upgrade_data_dir_log.txt'."file for \n";
-		echo "| more details\n";
+		echo "| Most of cases you can ignore this, however please check\n";
+		echo "| the frontend display to confirm the upgrade was done properly\n";
+		echo "| and check ".SQ_SYSTEM_ROOT."/data/upgrade_data_dir_log.txt\n";
+		echo "| file for  more details\n";
 		echo "+-----------------------------------------------------+\n";
 	} else {
 		echo "+-----------------------------------------------------+\n";
