@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.17 2007/02/21 21:57:52 colivar Exp $
+* $Id: page_user_group_manager.inc,v 1.18 2007/04/11 04:15:25 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -152,7 +152,7 @@ class Page_User_Group_Manager extends Page
 		// Process any operations. Deleting, New links etc.
 		$this->processForm();
 		?>
-			<form id="<?php echo $this->getPrefix(); ?>" method="post">
+			<form id="<?php echo $this->getPrefix(); ?>" action="<?php echo current_url(); ?>" method="post">
 			<input type="hidden" name="submitted" value="1" />
 		<?php
 		// Print the form and details again
