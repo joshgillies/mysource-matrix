@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.35 2006/12/05 05:43:12 bcaldwell Exp $
+* $Id: package_manager_core.inc,v 1.35.2.1 2007/04/11 00:04:14 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.2.1 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -207,26 +207,6 @@ class Package_Manager_Core extends Package_Manager
 		pre_echo('Public Access User Asset Id : '.$public_user->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('public_user', $public_user->id);
-
-		// we will also turn all 'zero' permissions into the public user's while we're at it
-		// THIS IS AN UPGRADE AND SHOULD BE REMOVED
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = 'UPDATE
-					sq_ast_perm
-				SET
-					userid	= '.$db->quoteSmart($public_user->id).'
-				WHERE
-					userid	= '.$db->quoteSmart(0);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $public_user;
 
