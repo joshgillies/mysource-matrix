@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.34 2006/12/07 00:04:24 emcdonald Exp $
+* $Id: page_whats_new.inc,v 1.34.2.1 2007/04/11 06:54:54 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.34.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -213,6 +213,7 @@ class Page_Whats_New extends Listing_Engine
 				// special case for A-Z listings because they require another field selected from the database
 				if ($group_by == 'letter') {
 					$query['select'] .= ', SUBSTR(a.'.$letter_sort_by.', 1, 1) AS first_letter';
+					$query['union_select'] .= ', NULL AS first_letter';
 				}
 
 				$new_kids = $db->getAssoc(implode(' ', $query));
