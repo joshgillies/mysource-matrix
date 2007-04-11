@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.591 2007/03/29 23:57:28 rong Exp $
+* $Id: asset.inc,v 1.592 2007/04/11 04:07:40 arailean Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.591 $
+* @version $Revision: 1.592 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -487,7 +487,9 @@ class Asset extends MySource_Object
 		// from the cascaded permissions of the parent (goodness knows why - you
 		// shouldn't be here in the first place!), add an explicit permission
 		if (!$this->writeAccess()) {
-			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), SQ_PERMISSION_WRITE, TRUE)) {
+			// note, if the user is unknown (NULL or 0), the permissions WILL NOT BE SET, and the creation will not fail
+			$current_user = $GLOBALS['SQ_SYSTEM']->currentUserId();
+			if (!empty($current_user) && !$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $current_user, SQ_PERMISSION_WRITE, TRUE)) {
 				return $this->_abortCreate();
 			}
 		}
