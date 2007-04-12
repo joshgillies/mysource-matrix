@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.18 2006/12/06 05:11:11 bcaldwell Exp $
+* $Id: table-editor.js,v 1.19 2007/04/12 06:29:01 tbarrett Exp $
 *
 */
 
@@ -1241,7 +1241,7 @@ TTable = function(name, rows, cols)
 					Cell.content	= cell.innerHTML;
 					Cell.th = (cell.tagName == "TH");
 					Cell.align		= (cell.align == "")?"left":cell.align;
-					Cell.valign		= (cell.valign + "" == "undefined")?"middle":cell.valign;
+					Cell.valign		= (cell.vAlign + "" == "undefined")?"middle":cell.vAlign;
 					Cell.colspan	= cell.colSpan;
 					Cell.rowspan	= cell.rowSpan;
 					Cell.abbr		= cell.abbr;
