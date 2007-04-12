@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.19 2007/04/12 06:29:01 tbarrett Exp $
+* $Id: table-editor.js,v 1.20 2007/04/12 07:11:14 tbarrett Exp $
 *
 */
 
@@ -166,7 +166,6 @@ TCell = function(parent)
 
 		document.getElementById("cell_a" + this.align).style.background = "#F00";
 		document.getElementById("cell_a" + this.valign).style.background = "#F00";
-
 		if (this.th) document.getElementById("THead").style.background = "#F00";
 		else document.getElementById("THead").style.background = "#FFF";
 
@@ -1241,7 +1240,7 @@ TTable = function(name, rows, cols)
 					Cell.content	= cell.innerHTML;
 					Cell.th = (cell.tagName == "TH");
 					Cell.align		= (cell.align == "")?"left":cell.align;
-					Cell.valign		= (cell.vAlign + "" == "undefined")?"middle":cell.vAlign;
+					Cell.valign		= (cell.vAlign + "" == "undefined" || cell.vAlign == '')?"middle":cell.vAlign;
 					Cell.colspan	= cell.colSpan;
 					Cell.rowspan	= cell.rowSpan;
 					Cell.abbr		= cell.abbr;
