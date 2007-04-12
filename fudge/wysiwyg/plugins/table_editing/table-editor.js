@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.17 2006/06/16 05:00:03 sdanis Exp $
+* $Id: table-editor.js,v 1.17.2.1 2007/04/12 06:53:08 tbarrett Exp $
 *
 */
 
@@ -1249,7 +1249,7 @@ TTable = function(name, rows, cols)
 					Cell.content	= cell.innerHTML;
 					Cell.th = (cell.tagName == "TH");
 					Cell.align		= (cell.align == "")?"left":cell.align;
-					Cell.valign		= (cell.valign + "" == "undefined")?"middle":cell.valign;
+					Cell.valign		= (cell.vAlign + "" == "undefined")?"middle":cell.vAlign;
 					Cell.colspan	= cell.colSpan;
 					Cell.rowspan	= cell.rowSpan;
 					Cell.abbr		= cell.abbr;
