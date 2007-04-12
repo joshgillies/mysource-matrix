@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.162 2007/03/30 04:45:04 mbrydon Exp $
+* $Id: form.inc,v 1.162.2.1 2007/04/12 01:22:07 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.162 $
+* @version $Revision: 1.162.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2156,8 +2156,8 @@ class Form extends Asset
 				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $q_asset->attr('name');
 				$keywords['response_'.$section->id.'_q'.$q_id]   = translate('cms_form_section_response', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
-				$keywords['question_name_'.$this->id.'_q'.$q_id] = translate('cms_form_section_q_name', ellipsisize($q_name,30));
-				$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_section_q_note', ellipsisize($q_name,30));
+				$keywords['question_name_'.$this->id.'_q'.$q_id] = translate('cms_form_section_q_name', $section->attr('name'), ellipsisize($q_name,30));
+				$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_section_q_note', $section->attr('name'), ellipsisize($q_name,30));
 			}
 		}
 
@@ -2642,7 +2642,7 @@ class Form extends Asset
 					}
 				}
 
-			} else if (preg_match('|^response_(.*_)?q(.*)?|', $keyword, $matches)) {
+			} else if (preg_match('|^response_([0-9]*_)?q([0-9]*)?|', $keyword, $matches)) {
 				// Question response keywords, eg.
 				// %response_123_q4% ... question 4 from form/section ID 123
 				// %response_q4% ....... question 4 from the form
