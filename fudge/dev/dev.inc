@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.30 2006/12/06 05:14:37 bcaldwell Exp $
+* $Id: dev.inc,v 1.31 2007/04/12 05:44:37 rhoward Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *     Generic functions that are useful for developers
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package Fudge
 * @subpackage dev
 */
@@ -162,31 +162,44 @@ function bam($x='BAM!', $max_depth=0, $style='')
 * Useful when you're bamming lots of stuff and it's hard to keep track of what's what, or
 * when you want your bam to have a low profile
 *
-* @param mixed	$contents	The thing to bam, can be almost any data type
-* @param string	$title		Title for the block (optional)
+* @param mixed		$contents		The thing to bam, can be almost any data type
+* @param string		$title			Title for the block (optional)
+* @param int		$max_depth		Max to print
+* @param boolean	$auto_expand	If true, the minibam table will be pre-expanded when printed
 *
 * @return void
 * @access public
+* @see pre_echo()
 */
-function minibam($contents, $title='BAM')
+function minibam($contents, $title='BAM', $max_depth=0, $auto_expand=FALSE)
 {
 	if (defined('SQ_DEBUG_HIDE_MINIBAM') && SQ_DEBUG_HIDE_MINIBAM) {
 		return;
 	}
 
-	$id = rawurlencode(strtolower($title)).'_'.microtime();
-	?>
-	<table border="1" cellspacing="0" cellpadding="2" style="background-color: #FFDDDD">
-		<tr>
-			<td style="cursor: pointer; cursor: hand; text-decoration: underline; font-weight: bold" onclick="elt = document.getElementById('<?php echo $id; ?>'); elt.style.display = (elt.style.display == 'none') ? '' : 'none';"><?php echo $title; ?></a></td>
-		</tr>
-		<tr>
-			<td id="<?php echo $id; ?>" style="display: none">
-				<?php pre_echo($contents); ?>
-			</td>
-		</tr>
-	</table>
-	<?php
+	if (php_sapi_name() == 'cli') {
+
+		echo "\n------------------------------------\n";
+		echo $title;
+		pre_echo($contents, $max_depth);
+		
+	} else {
+	
+		$id = rawurlencode(strtolower($title)).'_'.microtime();
+		?>
+		<table border="1" cellspacing="0" cellpadding="2" style="background-color: #FFDDDD">
+			<tr>
+				<td style="cursor: pointer; cursor: hand; text-decoration: underline; font-weight: bold" onclick="elt = document.getElementById('<?php echo $id; ?>'); elt.style.display = (elt.style.display == 'none') ? '' : 'none';"><?php echo $title; ?></a></td>
+			</tr>
+			<tr>
+				<td id="<?php echo $id; ?>" style="display: <?php echo ($auto_expand ? '' : 'none'); ?>">
+					<?php pre_echo($contents, $max_depth); ?>
+				</td>
+			</tr>
+		</table>
+		<?php
+		
+	}//end if (php_sapi_name())
 
 }//end minibam()
 
@@ -233,7 +246,7 @@ function pre_echo($x, $max_depth=0, $style='')
 
 
 /**
-* For optimisaiton, this little function lets you track down the slow bits.
+* For optimisation, this little function lets you track down the slow bits.
 *
 * @param string		$str	a comment that you want to have displayed with the speed result
 * @param boolean	$html	whether to print the value in html mode
