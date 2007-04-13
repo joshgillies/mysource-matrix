@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.186.2.7 2007/02/19 03:05:09 tbarrett Exp $
+* $Id: mysource.inc,v 1.186.2.8 2007/04/13 00:14:17 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.186.2.7 $
+* @version $Revision: 1.186.2.8 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1427,7 +1427,7 @@ class MySource
 	*/
 	function _logSecurityMsg($code, $extra_replacements=Array(), $failed_login=FALSE)
 	{
-		if ($this->userPublic() && !$failed_login) {
+		if ($this->userPublic($this->user) && !$failed_login) {
 			return;
 		}
 		$ms =& $this->getMessagingService();
