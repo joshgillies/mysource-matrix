@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.242 2007/04/01 23:05:01 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.243 2007/04/13 04:27:20 arailean Exp $
 *
 */
 
@@ -999,7 +999,6 @@
 	<string source="parent_to_create_under_is_missing">Parent to create under is missing</string>
 	<string source="link_type_missing">Link type is missing</string>
 	<string source="asset_type_not_specified">Asset type not specified</string>
-	<string source="trigger_create_file_required_attrs_warning">Note:  If the selected asset type has any required attributes, values for those attributes must be supplied here or the asset will not be created</string>
 	<string source="trigger_replace_file_type_warning">Note:  This trigger action will fail if the broadcasting asset is not a file asset or descendant thereof</string>
 
 	<string source="cannot_delete_inbox-user_link">You can't delete the link between a user and their inbox</string>
