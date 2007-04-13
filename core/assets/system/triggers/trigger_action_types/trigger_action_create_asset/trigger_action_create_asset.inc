@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_asset.inc,v 1.10.2.1 2007/04/13 04:29:36 arailean Exp $
+* $Id: trigger_action_create_asset.inc,v 1.10.2.2 2007/04/13 05:03:38 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10.2.1 $
+* @version $Revision: 1.10.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -297,7 +297,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 	function processInterface(&$settings, $request_data)
 	{
 		// make sure the parentid isn't blank
-		if (($request_data['parentid'] != 'current_asset') && empty($request_data['parentid']['assetid'])) {
+		if ((@$request_data['parentid'] != 'current_asset') && empty($request_data['parentid']['assetid'])) {
 			return translate('parent_to_create_under_is_missing');
 		}
 
