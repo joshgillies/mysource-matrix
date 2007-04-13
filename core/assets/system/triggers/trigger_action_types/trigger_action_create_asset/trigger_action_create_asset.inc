@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_asset.inc,v 1.10 2007/03/01 01:56:55 lwright Exp $
+* $Id: trigger_action_create_asset.inc,v 1.10.2.1 2007/04/13 04:29:36 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -276,7 +276,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 						'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
 						translate('trigger_new_asset_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).
 						'<br /><br /><b>'.translate('set_attributes').'</b><br />'.$attributes.'<br /><br />'.
-						'<span class="sq-backend-warning"><b>'.translate('can_only_create_assets_explanation').'</b></span>';
+						'<span class="sq-backend-warning"><b>'.translate('trigger_create_asset_required_attrs_warning').'</b></span>';
 
 		return $contents;
 
