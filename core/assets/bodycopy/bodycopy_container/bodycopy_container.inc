@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.35 2006/12/05 05:39:48 emcdonald Exp $
+* $Id: bodycopy_container.inc,v 1.35.4.1 2007/04/13 00:53:29 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -157,6 +157,8 @@ class Bodycopy_Container extends Asset
 			trigger_localised_error('CORE0047', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
+
+		$copy_usv = copy_file($this->data_path.'/content_file.php', $this->data_path.'/.sq_system/.content_file.php');
 
 		// save the current notice links
 		$replace_assetids = Array();
@@ -339,67 +341,94 @@ class Bodycopy_Container extends Asset
 	*/
 	function printBody($keyword_replacements=Array())
 	{
+
 		if (!$this->readAccess()) return;
 
-		if (!isset($this->_tmp['asset_url_list'])) {
+		if ($this->useSystemVersion()) {
+			if (file_exists($this->data_path.'/.content_file.php')) {
+				// create an array of urls that the content file is
+				// going to try and use to work out file urls, link hrefs etc
+				$sq_asset_url_list = Array();
 
-			// create an array of urls that the content file is
-			// going to try and use to work out file urls, link hrefs etc
+				$notice_links = unserialize(file_to_string($this->data_path.'/.notice_links'));
 
-			$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
-			$get_href_ids = $this->attr('shadow_links');
-
-			foreach ($notice_links as $link) {
-				$get_href_ids[] = $link['minorid'];
-			}
-
-			$this->_tmp['asset_url_list'] = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($get_href_ids));
-			for (reset($this->_tmp['asset_url_list']); NULL !== ($minorid = key($this->_tmp['asset_url_list'])); next($this->_tmp['asset_url_list'])) {
-				if ($this->_tmp['asset_url_list'][$minorid] == '') {
-					$this->_tmp['asset_url_list'][$minorid] = './?a='.$minorid;
+				$sq_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($notice_links));
+				for (reset($sq_asset_url_list); NULL !== ($minorid = key($sq_asset_url_list)); next($sq_asset_url_list)) {
+					if ($sq_asset_url_list[$minorid] == '') {
+						$sq_asset_url_list[$minorid] = './?a='.$minorid;
+					}
 				}
+
+				ob_start();
+					include($this->data_path.'/.content_file.php');
+					$content = ob_get_contents();
+				ob_end_clean();
+				replace_keywords($content, $this->keyword_replacements);
+
+				echo $content;
 			}
-
-		}
-
-		$sq_asset_url_list =& $this->_tmp['asset_url_list'];
-
-		if (SQ_ROLLBACK_VIEW) {
-			$edit = $this->getEditFns();
-			ob_start();
-				$edit->paint($this, FALSE, TRUE);
-				$output = ob_get_contents();
-			ob_end_clean();
-
-			// replace ./?a=xxx style links within the content
-			foreach ($sq_asset_url_list as $assetid => $href) {
-				if (strpos($assetid, ':') !== FALSE) {
-					$s = './?a='.$assetid.'$';
-					$output = str_replace($s, $href, $output);
-				} else {
-					$e = "(/?\./\\?a=$assetid)([^0-9:])";
-					$output = ereg_replace($e, $href.'\\2', $output);
-				}
-			}
-
-			// replace keywords in the content
-			replace_keywords($output, $keyword_replacements);
-
-			echo $output;
-			return;
-		}
-
-		if (!file_exists($this->data_path.'/content_file.php')) {
-			// generate the content file
-			$edit = $this->getEditFns();
-			$edit->generateContentFile($this);
-		}
-
-		if (!file_exists($this->data_path.'/content_file.php')) {
-			trigger_localised_error('CORE0009', E_USER_WARNING, $this->name);
 		} else {
-			include($this->data_path.'/content_file.php');
-		}
+
+			if (!isset($this->_tmp['asset_url_list'])) {
+
+				// create an array of urls that the content file is
+				// going to try and use to work out file urls, link hrefs etc
+
+				$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
+				$get_href_ids = $this->attr('shadow_links');
+
+				foreach ($notice_links as $link) {
+					$get_href_ids[] = $link['minorid'];
+				}
+
+				$this->_tmp['asset_url_list'] = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($get_href_ids));
+				for (reset($this->_tmp['asset_url_list']); NULL !== ($minorid = key($this->_tmp['asset_url_list'])); next($this->_tmp['asset_url_list'])) {
+					if ($this->_tmp['asset_url_list'][$minorid] == '') {
+						$this->_tmp['asset_url_list'][$minorid] = './?a='.$minorid;
+					}
+				}
+
+			}
+
+			$sq_asset_url_list =& $this->_tmp['asset_url_list'];
+
+			if (SQ_ROLLBACK_VIEW) {
+				$edit = $this->getEditFns();
+				ob_start();
+					$edit->paint($this, FALSE, TRUE);
+					$output = ob_get_contents();
+				ob_end_clean();
+
+				// replace ./?a=xxx style links within the content
+				foreach ($sq_asset_url_list as $assetid => $href) {
+					if (strpos($assetid, ':') !== FALSE) {
+						$s = './?a='.$assetid.'$';
+						$output = str_replace($s, $href, $output);
+					} else {
+						$e = "(/?\./\\?a=$assetid)([^0-9:])";
+						$output = ereg_replace($e, $href.'\\2', $output);
+					}
+				}
+
+				// replace keywords in the content
+				replace_keywords($output, $keyword_replacements);
+
+				echo $output;
+				return;
+			}
+
+			if (!file_exists($this->data_path.'/content_file.php')) {
+				// generate the content file
+				$edit = $this->getEditFns();
+				$edit->generateContentFile($this);
+			}
+
+			if (!file_exists($this->data_path.'/content_file.php')) {
+				trigger_localised_error('CORE0009', E_USER_WARNING, $this->name);
+			} else {
+				include($this->data_path.'/content_file.php');
+			}
+		}//end else
 
 	}//end printBody()
 

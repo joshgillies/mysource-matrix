@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.37 2007/03/27 02:17:40 colivar Exp $
+* $Id: bodycopy.inc,v 1.37.2.1 2007/04/13 00:53:29 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.37.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,67 +63,6 @@ class Bodycopy extends Asset
 		return $lock_types;
 
 	}//end lockTypes()
-
-
-	/**
-	* Save a copy of this asset at this point in time
-	*
-	* This copy gets used when the asset is live and the user does not have write access
-	*
-	* @return boolean
-	* @access public
-	*/
-	function saveSystemVersion()
-	{
-		if (!parent::saveSystemVersion()) return FALSE;
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-
-		// save a version of the bodycopy as it appears now
-		$output = $this->getRawBodycopyContent();
-
-		$replace_assetids = Array();
-
-		// gather the assetids that we are replacing - first shadow assets
-		$e = '|\./\?a=([0-9]+\:[^\$]+)\$|';
-		$matches = Array();
-		preg_match_all($e, $output, $matches);
-		if (!empty($matches)) {
-			$replace_assetids = array_merge($replace_assetids, $matches[1]);
-		}
-
-		// and then normal assets (but then what's 'normal' anymore? :-)
-		$e = '|\./\?a=([0-9]+)[^0-9\:]|';
-		$matches = Array();
-		preg_match_all($e, $output, $matches);
-		if (!empty($matches)) {
-			$replace_assetids = array_merge($replace_assetids, $matches[1]);
-		}
-
-		// replace all ./?a=xx:shadow$ links with php echo's
-		$e = '|\./\?a=([0-9]+\:[^\$]+)\$|';
-		$with = '<'.'?php echo $sq_asset_url_list[\'\\1\']; ?'.'>';
-		$output = preg_replace($e, $with, $output);
-
-		// replace all ./?a=xx links with php echo's
-		$e = '|\./\?a=([0-9]+)([^0-9\:])|';
-		$with = '<'.'?php echo $sq_asset_url_list[\\1]; ?'.'>\\2';
-		$output = preg_replace($e, $with, $output);
-
-		// save the contents of the bodycopy
-		if (!string_to_file($output, $this->data_path.'/.sq_system/.content_file.php')) {
-			trigger_localised_error('CORE0047', E_USER_WARNING, $this->name);
-			return FALSE;
-		}
-
-		// save the links we currently use (./?a=xx)
-		if (!string_to_file(serialize($replace_assetids), $this->data_path.'/.sq_system/.notice_links')) {
-			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
-			return FALSE;
-		}
-
-		return TRUE;
-
-	}//end saveSystemVersion()
 
 
 	/**
@@ -307,38 +246,15 @@ class Bodycopy extends Asset
 	*/
 	function printBody()
 	{
-		if ($this->useSystemVersion()) {
-			if (file_exists($this->data_path.'/.content_file.php')) {
-				// create an array of urls that the content file is
-				// going to try and use to work out file urls, link hrefs etc
-				$sq_asset_url_list = Array();
+		// Bodycopy no longer handles the use of system version file, such uses is now being handled by containers.
 
-				$notice_links = unserialize(file_to_string($this->data_path.'/.notice_links'));
+		// get all the containers linked to this bodycopy
+		$containers =& $this->getContainers();
 
-				$sq_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($notice_links));
-				for (reset($sq_asset_url_list); NULL !== ($minorid = key($sq_asset_url_list)); next($sq_asset_url_list)) {
-					if ($sq_asset_url_list[$minorid] == '') {
-						$sq_asset_url_list[$minorid] = './?a='.$minorid;
-					}
-				}
-
-				ob_start();
-					include($this->data_path.'/.content_file.php');
-					$content = ob_get_contents();
-				ob_end_clean();
-				replace_keywords($content, $this->keyword_replacements);
-
-				echo $content;
-			}
-		} else {
-			// get all the containers linked to this bodycopy
-			$containers =& $this->getContainers();
-
-			// paint each container
-			foreach (array_keys($containers) as $i) {
-				$container =& $containers[$i];
-				$container->printBody($this->keyword_replacements);
-			}
+		// paint each container
+		foreach (array_keys($containers) as $i) {
+			$container =& $containers[$i];
+			$container->printBody($this->keyword_replacements);
 		}
 
 		return TRUE;
