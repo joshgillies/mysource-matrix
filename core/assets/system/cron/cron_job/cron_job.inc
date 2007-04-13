@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.50 2006/12/06 04:23:59 emcdonald Exp $
+* $Id: cron_job.inc,v 1.51 2007/04/13 00:47:51 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -632,9 +632,9 @@ class Cron_Job extends Asset
 		$msg = $ms->newMessage();
 
 		$msg_reps = Array(
-						'cron_job_code'	=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'),
-						'cron_job_name'	=> $this->name,
-						'cron_job_when'	=> $this->readableWhen(),
+						'cron_type_code'	=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'),
+						'cron_job_name'		=> $this->name,
+						'cron_job_when'		=> $this->readableWhen(),
 					);
 
 		$msg->from = 0; // a system message
