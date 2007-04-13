@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2007/04/13 04:27:20 arailean Exp $
+* $Id: lang_strings.xml,v 1.2 2007/04/13 05:05:44 arailean Exp $
 *
 */
 
@@ -18,4 +18,5 @@
 
 <strings>
 	<string source="trigger_create_asset_required_attrs_warning">Note:  If the selected asset type has any required attributes, values for those attributes must be supplied here or the asset will not be created</string>
+	<string source="trigger_new_asset_basic">Create a new asset of type %1$s linked under %2$s&lt;br /&gt;using a %3$s link.</string>
 </strings>
