@@ -1,6 +1,4 @@
-
 spool drop.log
-ol drop.log
 set serveroutput on
 
 prompt drop all tables in the schema
