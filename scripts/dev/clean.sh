@@ -11,7 +11,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.7 2006/12/06 05:42:20 bcaldwell Exp $
+#* $Id: clean.sh,v 1.8 2007/04/16 06:56:20 lwright Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories
@@ -65,6 +65,12 @@ case "${DB_PHPTYPE}" in
 			args="${args} -p ${DB_PORT}";
 		fi
 		psql ${args} -d "${DB_DATABASE}" -c "\d" -t -q -A -X | awk -F\| '{ print "DROP " $3 " " $2 " CASCADE;" }' | psql ${args} -d "${DB_DATABASE}" -X -q
+	;;
+
+	"oci8")
+		args="${DB_USERNAME}/${DB_PASSWORD}@${DB_HOSTSPEC}";
+		echo ${args};
+		sqlplus -S "${args}" "@${SYSTEM_ROOT}/scripts/dev/oracle_drop.sql" "${DB_USERNAME}";
 	;;
 
 	*)
