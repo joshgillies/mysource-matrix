@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.243 2007/04/13 04:27:20 arailean Exp $
+* $Id: lang_strings.xml,v 1.244 2007/04/16 05:17:10 rong Exp $
 *
 */
 
@@ -570,7 +570,7 @@
 	<string source="assert_contains">expected %1$s but got %2$s</string>
 	<string source="assert_isset">expected value was NOT SET</string>
 	<string source="assert_isset_array">expected array index %s was NOT SET</string>
-	<string source="assert_object">passed object was not of type  %s</string>
+	<string source="assert_object">passed object was not of type %s</string>
 	<string source="assert_type">[%1$s] "%2$s" was not of type %3$s</string>
 	<string source="assert_assetid">[%1$s] "%2$s" is not a valid asset ID</string>
 
