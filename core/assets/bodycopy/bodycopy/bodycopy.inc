@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.38 2007/04/13 00:35:33 hnguyen Exp $
+* $Id: bodycopy.inc,v 1.39 2007/04/17 05:05:16 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -246,7 +246,7 @@ class Bodycopy extends Asset
 	*/
 	function printBody()
 	{
-		// Bodycopy no longer handles the use of system version file, such uses is now handled by containers.
+		// Bodycopy no longer handles the use of system version file, such uses is now being handled by containers.
 
 		// get all the containers linked to this bodycopy
 		$containers =& $this->getContainers();
