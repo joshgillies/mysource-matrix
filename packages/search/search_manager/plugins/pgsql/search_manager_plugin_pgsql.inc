@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.8 2007/04/04 02:21:07 lwright Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.9 2007/04/17 01:51:36 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -228,6 +228,7 @@ class Search_Manager_Plugin_PgSQL
 				$key_types = Array(
 								'metadata_field_select'		=> 'selection',
 								'metadata_field_thesaurus'	=> 'thesaurus',
+								'metadata_field_date'		=> 'datetime',
 							 );
 				$key_type = array_get_index($key_types, get_class($metadata_field), 'text');
 				$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
