@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.15.2.1 2007/04/04 03:48:54 lwright Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.15.2.2 2007/04/17 05:38:55 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.15.2.1 $
+* @version $Revision: 1.15.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -246,6 +246,7 @@ class Search_Manager_Plugin_OCI8
 				$key_types = Array(
 								'metadata_field_select'		=> 'selection',
 								'metadata_field_thesaurus'	=> 'thesaurus',
+								'metadata_field_date'		=> 'datetime',
 							 );
 				$key_type = array_get_index($key_types, get_class($metadata_field), 'text');
 				$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
