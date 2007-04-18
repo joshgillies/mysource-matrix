@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.15.2.2 2007/04/17 05:38:55 lwright Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.15.2.3 2007/04/18 00:45:44 rhoward Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.15.2.2 $
+* @version $Revision: 1.15.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -56,7 +56,6 @@ class Search_Manager_Plugin_OCI8
 				$contains_str = $this->_buildContainsQuery('ai.value', $search_term, $word_logic);
 				if (!$contains_str) return Array();
 				$base_query['where'][] = $contains_str;
-
 			break;
 
 			case 'asset_attrib':
@@ -811,18 +810,24 @@ class Search_Manager_Plugin_OCI8
 	* @param boolean	$return_stop_words	if TRUE stop words will be returned in the list
 	* @param boolean	$replace			if TRUE the words will be replaced with a #
 	*										for building generalization strings
+	* @param array		$ignore_chars		a list of characters that will be ignored and not added to the words array nor stripped from the $terms list
 	*
 	* @return array
 	* @access private
 	*/
-	function _getWords(&$terms, $remove_stop_words=FALSE, $return_stop_words=FALSE, $replace=FALSE)
+	function _getWords(&$terms, $remove_stop_words=FALSE, $return_stop_words=FALSE, $replace=FALSE, $ignore_chars=Array())
 	{
+		$preg_ignore_chars = Array();
+		foreach ($ignore_chars as $char) {
+			$preg_ignore_chars[] = preg_quote($char, '/');
+		}
+
 		// We need to not only match (or NOT match, rather) whitespace as word
 		// breaks, but also the operators themselves. When we replace with
 		// hashes we need to match the hash so it doesn't match with a previous
 		// one
 		$match_chars   = '[^\r\n\t \|\&\~]';
-		$replace_chars = '[^\r\n\t \|\&\~#]';
+		$replace_chars = '[^\r\n\t \|\&\~#'.implode('', $preg_ignore_chars).']';
 
 		// replace all words with #
 		if (preg_match_all('/('.$match_chars.'+)/', $terms, $words)) {
@@ -836,17 +841,19 @@ class Search_Manager_Plugin_OCI8
 			$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 			foreach ($words[1] as $word) {
-				if (!$sm->isWordIndexable($word)) {
-					if ($remove_stop_words) {
-						// remove non-indexable words
-						$terms = preg_replace('/'.$replace_chars.'+/', '', $terms, 1);
+				if (empty($ignore_chars) || !in_array($word, $ignore_chars)) {
+					if (!$sm->isWordIndexable($word)) {
+						if ($remove_stop_words) {
+							// remove non-indexable words
+							$terms = preg_replace('/'.$replace_chars.'+/', '', $terms, 1);
+						}
+						if (!$return_stop_words) continue;
 					}
-					if (!$return_stop_words) continue;
+					if ($replace) {
+						$terms = preg_replace('/'.$replace_chars.'+/', '#', $terms, 1);
+					}
+					$good_words[] = $word;
 				}
-				if ($replace) {
-					$terms = preg_replace('/'.$replace_chars.'+/', '#', $terms, 1);
-				}
-				$good_words[] = $word;
 			}
 			return $good_words;
 		}
@@ -875,6 +882,9 @@ class Search_Manager_Plugin_OCI8
 	*/
 	function _buildContainsQuery($column, $terms, $word_logic='AND', $score=1, $exact=FALSE)
 	{
+		$phrase_placeholder      = '@';
+		$preg_phrase_placeholder = preg_quote($phrase_placeholder, '/');
+
 		$exact_terms = $terms;
 		$terms = strtolower($terms);
 		// we can only process a string 255 chars or less with CONTAINS
@@ -888,7 +898,7 @@ class Search_Manager_Plugin_OCI8
 		// get the phrase matching terms and replace them so that
 		// we dont override them
 		if (preg_match_all('/"([^"]+)"/', $terms, $phrases)) {
-			$terms = preg_replace('/@/', '', $terms);
+			$terms = preg_replace('/'.$preg_phrase_placeholder.'/', '', $terms);
 
 			foreach ($phrases[1] as $phrase) {
 				// verify that this phrase does not have any illegal characters.
@@ -903,18 +913,19 @@ class Search_Manager_Plugin_OCI8
 					$replacement = ' ';
 				} else {
 					$good_phrases[] = $phrase;
-					$replacement = '@';
+					$replacement = $phrase_placeholder;
 				}
 				$terms = preg_replace('/"[^"]+"/', $replacement, $terms, 1);
 			}
 		}// end if match phrases
 
 		$terms = $this->_replaceOperators($terms);
-		$terms = preg_replace('/[^a-zA-Z0-9_\&\|\~\@\(\)\s]/', '&', $terms);
+		$terms = preg_replace('/[^a-zA-Z0-9_\&\|\~'.$preg_phrase_placeholder.'\(\)\s]/', '&', $terms);
 
 		// get the words from the terms string and replace them
 		// with #, and remove non-indexable words
-		$words = $this->_getWords($terms, TRUE, FALSE, TRUE);
+		// (make an exception for @, as it's our search phrase placeholder)
+		$words = $this->_getWords($terms, TRUE, FALSE, TRUE, Array($phrase_placeholder));
 
 		// remove spaces
 		$terms = preg_replace('/\s+/', '', $terms);
@@ -949,7 +960,7 @@ class Search_Manager_Plugin_OCI8
 
 		// re-replace the phrase matching terms
 		foreach ($good_phrases as $phrase) {
-			$terms = preg_replace('/@/', '{'.$phrase.'}', $terms, 1);
+			$terms = preg_replace('/'.$preg_phrase_placeholder.'/', '{'.$phrase.'}', $terms, 1);
 		}
 
 		// if there is nothing to search on
@@ -1133,7 +1144,7 @@ class Search_Manager_Plugin_OCI8
 	* External access to function that gets the list of search terms
 	* from the search string
 	*
-	* @param string	&$terms	the terms string
+	* @param string	$search_string	the terms string
 	*
 	* @return array
 	* @access private
@@ -1142,7 +1153,7 @@ class Search_Manager_Plugin_OCI8
 	{
 		return $this->_getWords($search_string);
 
-	}//end getWords();
+	}//end getWords()
 
 
 }//end class
