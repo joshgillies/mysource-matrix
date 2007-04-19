@@ -34,7 +34,7 @@ public class MatrixTabbedPane extends VerticalTabbedPane {
 						// bounds of a tab
 						if (indexAtLocation(evt.getX(), evt.getY()) == -1)
 							return;
-						
+
 						JPanel panel = new JPanel();
 						panel.setBackground(Color.WHITE);
 						JLabel tabsUndocked = new JLabel("", GUIUtilities.getAssetMapIcon("matrix_logo.png"), CENTER);
@@ -97,11 +97,19 @@ public class MatrixTabbedPane extends VerticalTabbedPane {
 		public void windowClosing(WindowEvent evt) {
 			UndockedView view = (UndockedView) evt.getComponent();
 			JComponent basicView = view.getViewComponent();
-			
+
 			JSplitPane splitPane = ((BasicView)basicView).getSplitPane();
 			splitPane.setDividerLocation(Integer.MAX_VALUE);
 
-			
+			for (int i = 0; i < getTabCount(); i++) {
+				// make the other disabled tab a basic view
+				// so that tabbedpane does not have problem to paint
+				if (isEnabledAt(i) == false && i != view.getIndex()) {
+					BasicView newView = new BasicView();
+					setComponentAt(i, newView);
+				}
+			}
+
 			setComponentAt(view.getIndex(), basicView);
 			setEnabledAt(view.getIndex(), true);
 			setSelectedIndex(view.getIndex());
@@ -112,7 +120,7 @@ public class MatrixTabbedPane extends VerticalTabbedPane {
 	protected class CueTransferHandler implements ChangeListener {
 
 		public void stateChanged(ChangeEvent evt) {
-			
+
 			try {
 				JTabbedPane pane = (JTabbedPane) evt.getSource();
 				BasicView view = (BasicView) pane.getComponentAt(pane.getSelectedIndex());
