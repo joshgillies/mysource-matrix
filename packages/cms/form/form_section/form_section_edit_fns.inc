@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.44 2006/02/15 03:27:17 lwright Exp $
+* $Id: form_section_edit_fns.inc,v 1.44.2.1 2007/04/19 23:17:51 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.44.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -392,7 +392,9 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		$sort_order = $asset->attr('sort_order');
 		if (empty($sort_order)) return;
 
-		$output = '<h3>'.$asset->attr('name').'</h3>';
+		$asset_name = $asset->attr('name');
+		escape_php($asset_name);
+		$output = '<h3>'.$asset_name.'</h3>';
 
 		$output .= '<table width="'.$asset->attr('section_width').'">';
 
@@ -404,7 +406,10 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			$output .= '<tr>';
 			$output .= '<td valign="top"';
 			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
-			$output .= $q->getVal('title');
+			$title   = $q->getVal('title');
+			escape_php($title);
+			$output .= $title;
+
 			if ($q->getVal('note')) {
 				$output .= '<br /><span style="font-size: <'.'?php echo $form_asset->attr("note_size") ?'.'>">'.$q->getVal('note').'</span>';
 			}
