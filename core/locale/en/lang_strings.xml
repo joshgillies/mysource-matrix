@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.201.2.8 2007/03/15 00:13:31 skim Exp $
+* $Id: lang_strings.xml,v 1.201.2.9 2007/04/19 06:01:19 lwright Exp $
 *
 */
 
@@ -2087,4 +2087,14 @@ Are you sure you want to proceed?</string>
 	<string source="licence_type_gpl"><![CDATA[GPL version not warranted]]></string>
 	<string source="licence_type_ssv_valid"><![CDATA[Squiz Supported Version warranty valid]]></string>
 	<string source="licence_type_ssv_expired"><![CDATA[Squiz Supported Version warranty <u>EXPIRED</u>]]></string>
+
+	<!-- Future Status Trigger Actions -->
+	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to:</string>
+	<string source="trigger_action_future_status_cascade_all">and cascade the status change to all children of the asset</string>
+	<string source="trigger_action_future_status_failure_conditions">NB. If a selected attribute is empty or not present, or the calculated value is in the past, no future status will be set</string>
+	<string source="trigger_action_future_status_make_status_change_to">Add a cron job to change the asset's status to</string>
+	<string source="trigger_action_future_status_explicit_exact">at exactly</string>
+	<string source="trigger_action_future_status_explicit_interval">after the trigger was fired</string>
+	<string source="trigger_action_future_status_attr_exact">at exactly the date and time stored in the attribute</string>
+	<string source="trigger_action_future_status_attr_interval">the date and time stored in the attribute</string>
 </strings>
