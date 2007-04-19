@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.72 2006/12/07 00:04:17 emcdonald Exp $
+* $Id: form_edit_fns.inc,v 1.72.4.1 2007/04/19 06:30:07 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.72.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -763,7 +763,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$output .= '<tr>';
 			$output .= '<td valign="top"';
 			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
-			$output .= $q->getHtmlLabel();
+			$label   = $q->getHtmlLabel();
+			escape_php($label);
+			$output .= $label;
 			if ($q->getVal('note')) {
 				$output .= '<br /><span style="font-size:'.($asset->attr('note_size') ? $asset->attr('note_size') : '80%').'">'.$q->getVal('note').'</span>';
 			}
