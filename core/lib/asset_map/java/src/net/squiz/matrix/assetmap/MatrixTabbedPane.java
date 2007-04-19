@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTabbedPane.java,v 1.5 2006/12/05 05:26:35 bcaldwell Exp $
+* $Id: MatrixTabbedPane.java,v 1.5.2.1 2007/04/19 06:54:43 rong Exp $
 *
 */
 
@@ -116,6 +116,14 @@ public class MatrixTabbedPane extends VerticalTabbedPane {
 			JSplitPane splitPane = ((BasicView)basicView).getSplitPane();
 			splitPane.setDividerLocation(Integer.MAX_VALUE);
 
+			for (int i = 0; i < getTabCount(); i++) {
+				// make the other disabled tab a basic view
+				// so that tabbedpane does not have problem to paint
+				if (isEnabledAt(i) == false && i != view.getIndex()) {
+					BasicView newView = new BasicView();
+					setComponentAt(i, newView);
+				}
+			}
 
 			setComponentAt(view.getIndex(), basicView);
 			setEnabledAt(view.getIndex(), true);
