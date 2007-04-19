@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.69 2006/03/29 03:40:56 sdanis Exp $
+* $Id: form_edit_fns.inc,v 1.69.2.1 2007/04/19 22:43:11 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.69.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -746,7 +746,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$output .= '<tr>';
 			$output .= '<td valign="top"';
 			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
-			$output .= $q->getVal('title');
+			$title   = $q->getVal('title');
+			escape_php($title);
+			$output .= $title;
 			if ($q->getVal('note')) {
 				$output .= '<br /><span style="font-size:'.($asset->attr('note_size') ? $asset->attr('note_size') : '80%').'">'.$q->getVal('note').'</span>';
 			}
