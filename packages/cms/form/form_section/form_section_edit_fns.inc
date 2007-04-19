@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.47 2006/12/07 00:04:18 emcdonald Exp $
+* $Id: form_section_edit_fns.inc,v 1.47.4.1 2007/04/19 23:18:38 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.47.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -405,7 +405,9 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		$sort_order = $asset->attr('sort_order');
 		if (empty($sort_order)) return;
 
-		$output = '<h3>'.$asset->attr('name').'</h3>';
+		$asset_name = $asset->attr('name');
+		escape_php($asset_name);
+		$output = '<h3>'.$asset_name.'</h3>';
 
 		$output .= '<table width="'.$asset->attr('section_width').'">';
 
@@ -417,7 +419,9 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			$output .= '<tr>';
 			$output .= '<td valign="top"';
 			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
-			$output .= $q->getHtmlLabel();
+			$label   = $q->getHtmlLabel();
+			escape_php($label);
+			$output .= $label;
 			if ($q->getVal('note')) {
 				$output .= '<br /><span style="font-size: <'.'?php echo $form_asset->attr("note_size") ?'.'>">'.$q->getVal('note').'</span>';
 			}
