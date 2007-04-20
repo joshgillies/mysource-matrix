@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.43 2006/06/19 01:03:46 lwright Exp $
+* $Id: form_management.inc,v 1.43.2.1 2007/04/20 01:45:54 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -269,8 +269,8 @@ class Form_Management extends Asset_Management
 			pre_echo('DONE');
 		}//end if
 
-		if (version_compare($current_version, '0.8', '<')) {
-			pre_echo('UPGRADING FORM TO v0.8');
+		if (version_compare($current_version, '0.8.1', '<')) {
+			pre_echo('UPGRADING FORM TO v0.8.1');
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('form', TRUE);
 			foreach ($descendants as $i => $desc) {
