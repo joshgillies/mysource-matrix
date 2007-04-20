@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.192.2.6 2007/01/24 23:22:47 tbarrett Exp $
+* $Id: search_page.inc,v 1.192.2.7 2007/04/20 04:23:26 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.192.2.6 $
+* @version $Revision: 1.192.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1284,13 +1284,14 @@ class Search_Page extends Listing_Engine
 	/**
 	* Returns the current search terms for the passed field
 	*
-	* @param string	$field_name	the name of the field to get the replacement for
-	* @param string	$sub_field	sub field
+	* @param string		$field_name	the name of the field to get the replacement for
+	* @param string		$sub_field	sub field
+	* @param boolean	$escape		if true, then escape the value to return using htmlspecialchars()
 	*
 	* @return string
 	* @access public
 	*/
-	function getSearchedFieldReplacement($field_name, $sub_field='')
+	function getSearchedFieldReplacement($field_name, $sub_field='', $escape=TRUE)
 	{
 		$query_var = $field_name.'_query_sis';
 		$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, '');
@@ -1313,9 +1314,10 @@ class Search_Page extends Listing_Engine
 								break;
 								case 'metadata_field_text' :
 								case 'metadata_field_thesaurus':
-									echo htmlspecialchars($query);
+									echo ($escape ? htmlspecialchars($query) : $query);
 								break;
 								case 'metadata_field_select' :
+									// NOTE: if the selection field allows multiple selections, then the selection cannot be paint()ed unescaped
 									$selection = $asset->getSelectionAttribute();
 									if (!empty($query)) $selection->setValue($query);
 									$selection->paint('queries_'.$query_var, TRUE);
@@ -1361,14 +1363,14 @@ class Search_Page extends Listing_Engine
 							$this->_printDateRangeDescription($query);
 						} else {
 							// just a standard text field
-							echo htmlspecialchars($query);
+							echo ($escape ? htmlspecialchars($query) : $query);
 						}
 					break;
 
 				}//end switch field type
 			} else {
 				// many (or zero) data sources for this field, so we'll assume it was just text
-				echo htmlspecialchars($query);
+				echo ($escape ? htmlspecialchars($query) : $query);
 			}
 
 			$replacement = ob_get_contents();
@@ -1788,7 +1790,7 @@ class Search_Page extends Listing_Engine
 						// spell-checking suggestions
 						$field_name = $matches[1];
 						if (isset($this->_tmp['search_suggestions'][$field_name])) {
-							$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name)), 'queries_'.$field_name.'_query='.urlencode($this->_tmp['search_suggestions'][$field_name]), $queries);
+							$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name, '', FALSE)), 'queries_'.$field_name.'_query='.urlencode($this->_tmp['search_suggestions'][$field_name]), $queries);
 							$spell_check_string = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.$current_result_page.'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($this->_tmp['search_suggestions'][$field_name]).'</a>';
 						} else {
 							$spell_check_string = '';
@@ -2230,10 +2232,32 @@ class Search_Page extends Listing_Engine
 
 					// loop over each word
 					foreach ($words as $word) {
+
+						// figure out quote positioning
+						preg_match_all('/"/', $word, $raw_positions, PREG_OFFSET_CAPTURE);
+						$quote_positions = Array();
+						if (!empty($raw_positions)) {
+							foreach ($raw_positions[0] as $position) {
+								$quote_positions[] = $position[1];
+							}
+						}
+
 						$suggestions = $sm->spellCheckWord($word);
 						if (!empty($suggestions)) {
 							$needs_suggestions = TRUE;
-							$suggestion_string[] = $suggestions[0];
+							$suggestion        = $suggestions[0];
+
+							foreach ($quote_positions as $position) {
+								// we can easily re-add quotes to the beginning and
+								// end of a word, but in the middle is a bit tricky
+								if ($position == 0) {
+									$suggestion = '"'.$suggestion;
+								} else if ($position == strlen($word) - 1) {
+									$suggestion = $suggestion.'"';
+								}
+							}
+
+							$suggestion_string[] = $suggestion;
 						} else {
 							$suggestion_string[] = $word;
 						}
