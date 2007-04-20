@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.48 2007/03/30 04:45:04 mbrydon Exp $
+* $Id: form_management.inc,v 1.49 2007/04/20 01:45:18 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -295,8 +295,8 @@ class Form_Management extends Asset_Management
 			pre_echo('DONE');
 		}//end if
 
-		if (version_compare($current_version, '0.8', '<')) {
-			pre_echo('UPGRADING FORM TO v0.8');
+		if (version_compare($current_version, '0.11', '<')) {
+			pre_echo('UPGRADING FORM TO v0.11');
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('form', TRUE);
 			foreach ($descendants as $i => $desc) {
@@ -330,7 +330,6 @@ class Form_Management extends Asset_Management
 			}
 			pre_echo(count($formids).' FORMS UPDATED');
 		}
-
 
 		return $res;
 

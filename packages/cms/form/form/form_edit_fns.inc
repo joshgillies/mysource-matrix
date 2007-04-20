@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.73 2007/04/19 06:30:17 hnguyen Exp $
+* $Id: form_edit_fns.inc,v 1.74 2007/04/20 01:45:18 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -476,7 +476,6 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		if ($type && $number) {
 
 			$am->includeAsset($type);
-
 			// create some questions
 			for ($i = 0; $i < $number; $i++) {
 				if (!$asset->attachQuestion($type)) return FALSE;
