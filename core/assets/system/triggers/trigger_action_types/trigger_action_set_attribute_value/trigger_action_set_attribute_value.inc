@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.13 2007/03/30 06:00:32 arailean Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.14 2007/04/23 05:19:47 rhoward Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -135,9 +135,20 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 		// first check the value contains only allowable components
 		$allowed_expressions = Array('array', '(', ')', '=>', ',', ';');
 		$reduced_value = str_replace($allowed_expressions, '', strtolower($str));
-		$reduced_value = preg_replace('/\d/', '', $reduced_value); // digits are ok
-		$reduced_value = preg_replace('/"([^"]*)"/', '', $reduced_value); // double-quoted strings are ok
-		$reduced_value = preg_replace("/'([^']*)'/", '', $reduced_value); // single-quoted strings are ok
+
+		// digits are ok
+		$reduced_value = preg_replace('/\d/', '', $reduced_value);
+
+		// check for TRUE/FALSE/NULL (dependent on no white space, so trim() the string first)
+		$reduced_value = trim($reduced_value);
+		$reduced_value = preg_replace('/(^|[^[:alnum:]])(TRUE|FALSE|NULL)([^[:alnum:]]|$)/i', '$1$3', $reduced_value);
+
+		// double-quoted strings are ok
+		$reduced_value = preg_replace('/"([^"]*)"/', '', $reduced_value);
+
+		// single-quoted strings are ok
+		$reduced_value = preg_replace("/'([^']*)'/", '', $reduced_value);
+
 		$reduced_value = trim($reduced_value);
 		return empty($reduced_value);
 
