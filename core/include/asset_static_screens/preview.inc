@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.21.2.1 2006/11/16 22:25:27 rong Exp $
+* $Id: preview.inc,v 1.21.2.2 2007/04/24 01:13:35 hnguyen Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.21.2.1 $
+* @version $Revision: 1.21.2.2 $
 * @package MySource_Matrix
 */
 
@@ -85,7 +85,7 @@ function paintPreview(&$owner, &$o, &$ei)
 
 	if (!empty($url_data)) {
 		$preview_urls = Array();
-		$preview_designs = Array('' => 'Default Frontend Design');
+		$preview_designs = Array('system::frontend' => 'Default Frontend Design');
 		$has_default_design = FALSE;
 
 		$contains_diff_domain = FALSE;
