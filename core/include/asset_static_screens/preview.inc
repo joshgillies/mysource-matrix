@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.24 2007/02/05 05:39:04 colivar Exp $
+* $Id: preview.inc,v 1.24.2.1 2007/04/24 00:57:32 hnguyen Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.2.1 $
 * @package MySource_Matrix
 */
 
@@ -78,7 +78,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 
 	if (!empty($url_data)) {
 		$preview_urls = Array();
-		$preview_designs = Array('' => 'Default Frontend Design');
+		$preview_designs = Array('system::frontend' => 'Default Frontend Design');
 		$has_default_design = FALSE;
 
 		$contains_diff_domain = FALSE;
