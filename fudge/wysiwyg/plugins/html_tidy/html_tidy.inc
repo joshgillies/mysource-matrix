@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.50 2007/03/22 23:29:26 skim Exp $
+* $Id: html_tidy.inc,v 1.51 2007/04/24 01:38:45 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -172,6 +172,11 @@ class HTML_Tidy extends Wysiwyg_Plugin
 							// Change old style HTML Tags to XHTML compliant self closing tags (singletons)
 							$html = preg_replace('|<br>|is', '<br />', $html);
 							$html = preg_replace('|<hr>|is', '<hr />', $html);
+
+							// HTML Tidy adds a new line character after <pre> and beofre </pre> tag
+							// which causes problem when the content is put back to WYSIWYG, replaced with a space
+							$html = preg_replace('|<pre>\n|is', '<pre>', $html);
+							$html = preg_replace('|\n</pre>|is', '</pre>', $html);
 						}
 						unset($tidy);
 					}
