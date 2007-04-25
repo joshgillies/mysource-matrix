@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_anchor.inc,v 1.12.2.2 2006/09/28 00:43:40 skim Exp $
+* $Id: matrix_insert_anchor.inc,v 1.12.2.3 2007/04/25 23:40:27 mbrydon Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.12.2.2 $
+* @version $Revision: 1.12.2.3 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -219,7 +219,10 @@ class matrix_insert_anchor extends wysiwyg_plugin
 									} else if (HTMLArea.is_ie) {
 										// somehow IE can not update the name attribute value in the wysiwyg
 										// this is just mysterious...
-										var e = '<A( id="' + current_a.getAttribute("name") + '"){0,1} name="' + current_a.getAttribute("name") + '">';
+
+										// Also some trickery to spot lack of quotes in IE for one-word attribute values
+										var e = '<A( id="?' + current_a.getAttribute("name") + '"?){0,1} name="?' + current_a.getAttribute("name") + '"?>';
+
 										var re = new RegExp(e, "gi");
 										var replacement = '<A id="' + param["name"] + '" name="' + param["name"] + '">' + visual_aid_tag;
 										current_a.parentNode.innerHTML = current_a.parentNode.innerHTML.replace(re, replacement);
