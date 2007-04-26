@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.13 2007/04/26 00:33:32 hnguyen Exp $
+* $Id: trigger_action_set_design.inc,v 1.14 2007/04/26 00:42:42 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -88,10 +88,6 @@ class Trigger_Action_Set_Design extends Trigger_Action
 		} else {
 			$design_final_name = $design_type;
 		}
-
-write_log("design final name " . $design_final_name);
-write_log("design type " . $design_type);
-write_log("design name " . $design_name);
 
 		// get all system_design::frontend links attached to the asset
 		$design_links = $am->getLinks($state['assetid'], SQ_LINK_NOTICE, 'design', FALSE, 'major', $design_final_name);
