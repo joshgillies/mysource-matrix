@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.220 2007/04/12 23:44:32 rong Exp $
+* $Id: mysource.inc,v 1.221 2007/04/26 04:53:47 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.220 $
+* @version $Revision: 1.221 $
 * @package MySource_Matrix
 */
 class MySource
@@ -408,6 +408,14 @@ class MySource
 							if (!is_null($page)) {
 								header('HTTP/1.0 404 Not Found');
 
+								// Send Cacheable Header based on Not Found page asset type
+								if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER) {
+									$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+									header('Pragma: cache');
+									$cache_expiry = $cm->getExpiry($page->type());
+									header('Cache-Control: max-age='.$cache_expiry.', public');
+								}
+
 								ob_start();
 									$site->paintAsset($page);
 								$content = ob_get_clean();
@@ -425,6 +433,15 @@ class MySource
 					// the remap manager to remap to its 404 page
 					if (!$rm->paintPageNotFoundRemap()) {
 						header('HTTP/1.0 404 Not Found');
+
+						// Send Cacheable Header based on cache manager default setting
+						if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER) {
+							$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+							header('Pragma: cache');
+							$cache_expiry = $cm->attr('expiry');
+							header('Cache-Control: max-age='.$cache_expiry.', public');
+						}
+
 						// last resort, display little green error
 						trigger_localised_error('SYS0218', E_USER_NOTICE, $protocol.'://'.$url);
 					}

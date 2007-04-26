@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.95 2007/02/25 23:11:49 mbrydon Exp $
+* $Id: system_config.inc,v 1.96 2007/04/26 04:53:47 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -69,6 +69,7 @@ class System_Config extends Config
 						'SQ_CONF_SEND_LAST_MODIFIED_HEADER'		=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_SEND_NOT_MODIFIED_HEADER'		=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_SEND_NO_CACHE_HEADER'			=> Array('editable' => 1, 'default' => '1'),
+						'SQ_CONF_SEND_404_CACHEABLE_HEADER'		=> Array('editable' => 1, 'default' => '1'),
 						'SQ_CONF_ERRORS_HIDE_FRONTEND'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'		=> Array('editable' => 1, 'default' => 'en'),
 						'SQ_CONF_DEFAULT_BACKEND_LOCALE'		=> Array('editable' => 1, 'default' => 'en_AU'),
@@ -820,7 +821,17 @@ class System_Config extends Config
 					echo (SQ_CONF_SEND_NO_CACHE_HEADER) ? translate('yes') : translate('no');
 				}
 				$o->note(translate('http_header_send_no_cache_header_field_note'));
-			
+			$o->closeField();
+
+			$o->openField(translate('http_header_send_404_cacheable_header_field'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_SEND_404_CACHEABLE_HEADER]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_SEND_404_CACHEABLE_HEADER);
+				} else {
+					echo (SQ_CONF_SEND_404_CACHEABLE_HEADER) ? translate('yes') : translate('no');
+				}
+				$o->note(translate('http_header_send_404_cacheable_header_field_note'));
+			$o->closeField();
+
 		$o->closeSection();
 
 		if ($write_access) $o->commitButton('', TRUE);

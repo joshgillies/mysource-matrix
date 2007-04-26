@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.245 2007/04/26 00:34:42 hnguyen Exp $
+* $Id: lang_strings.xml,v 1.246 2007/04/26 04:53:48 skim Exp $
 *
 */
 
@@ -2017,6 +2017,8 @@ Are you sure you want to proceed?</string>
 	<string source="http_header_conditional_note">Note: Only applicable to Live assets that are accessible by public users.</string>
 	<string source="http_header_send_no_cache_header_field">Send no-cache header for File assets</string>
 	<string source="http_header_send_no_cache_header_field_note">If enabled, the "no-cache" Cache-Control option will be sent when serving File asset types. This option can be used to resolve inline file display issues in Internet Explorer.</string>
+	<string source="http_header_send_404_cacheable_header_field">Send 404 Cacheable Header</string>
+	<string source="http_header_send_404_cacheable_header_field_note">If enabled, server will send cacheable Cache-Control and Pragma headers for 404 response to allow Proxy server to cache.</string>
 
 	<!-- Status Changes -->
 	<string source="status_change_place_under_construction">Place Under Construction</string>
