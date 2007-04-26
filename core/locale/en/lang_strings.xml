@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.244 2007/04/16 05:17:10 rong Exp $
+* $Id: lang_strings.xml,v 1.245 2007/04/26 00:34:42 hnguyen Exp $
 *
 */
 
@@ -1104,6 +1104,8 @@
 	<string source="trigger_set_attribute_value_serialise_note">You have selected a serialised attribute.  The value you set it to must be a valid PHP expression, for example "Array(1, 2, 4)"</string>
 
 	<string source="trigger_set_design_basic">Set the asset's design to: %s</string>
+	<string source="trigger_set_design_select_design_type">Type of design (Override existing or create new if not existed) </string>
+	<string source="trigger_set_design_set_user_design_name">Set User Defined design name</string>
 	<string source="trigger_set_status">Set the Asset's status to: %1$s&lt;br /&gt;%2$s Set status of dependent parents instead (eg. set the status of a bodycopy DIV's Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the status set normally).</string>
 	<string source="trigger_increment_version">Increment this component of the Asset's version number: %s</string>
 
