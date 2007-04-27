@@ -18,36 +18,37 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 /**
 * Trigger Action Set Index Page
 *
-* A trigger action that specify the index page of a site. 
+* A trigger action that specify the index page of a site.
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Action_Set_Index_Page extends Trigger_Action
 {
 
-    /**
-    * Execute this action
-    * Returns an array of data about what it did, or false on error
-    *
-    * The settings used by this action are in the form:
-    * <PRE>
-    * Array(
-    *       'index_page'	    				=> string   // whether to add or delete
-    *       ''
-    *       );
-    * </PRE>
-    *
-    * @param array  $settings   the stored settings for this action
-    * @param array  &$state     the state that describes the asset the action is executing on
-    *
-    * @return mixed array|boolean
+
+	/**
+	* Execute this action
+	* Returns an array of data about what it did, or false on error
+	*
+	* The settings used by this action are in the form:
+	* <PRE>
+	* Array(
+	*       'index_page'	    				=> string   // whether to add or delete
+	*       ''
+	*       );
+	* </PRE>
+	*
+	* @param array	$settings	the stored settings for this action
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
+	* @return mixed array|boolean
     * @access public
-    */
-    function execute($settings, &$state)
+	*/
+	function execute($settings, &$state)
     {
 
     	if (!isset($settings['index_page'])) return FALSE;
@@ -85,7 +86,6 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 		}
 
 		if ($success && !empty($selected_asset_id)) {
-			//$selected_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$field_name]['assetid']);
 			$selected_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($selected_asset_id);
 			if (!is_null($selected_asset)) {
 				$success = (bool) $state['asset']->createLink($selected_asset, SQ_LINK_NOTICE, $link_value);
@@ -105,16 +105,16 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 	}//end execute()
 
 
-   /**
-    * Get the HTML editing interface for this action. Returns the string instead of printing it
-    *
-    * @param array      $settings       settings that this condition saves in processInterface()
-    * @param string     $prefix         unique prefix
-    * @param boolean    $write_access   determines whether the interface is editable
-    *
-    * @return boolean
-    * @access public
-    */
+	/**
+	* Get the HTML editing interface for this action. Returns the string instead of printing it
+	*
+	* @param array		$settings		settings that this condition saves in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	determines whether the interface is editable
+	*
+	* @return boolean
+	* @access public
+	*/
     function getInterface($settings, $prefix, $write_access=FALSE)
     {
 
@@ -154,21 +154,21 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 		ob_end_clean();
 
 		return translate('trigger_set_index_page_basic', $basic_part_1);
+
 	}//end getInterface()
 
 
-
-    /**
-    * Handle the conversion of interface to settings
-    * together with settings it is expected to populate the hash object
-    *
-    * @param array  &$settings      a container for any data the action might want to save
-    * @param string $request_data   array of data corresponding to this action as specified
-    *                               by the $prefix in getInterface.
-    *
-    * @return boolean
-    * @access public
-    */
+	/**
+	* Handle the conversion of interface to settings
+	* together with settings it is expected to populate the hash object
+	*
+	* @param array	&$settings		a container for any data the action might want to save
+	* @param string	$request_data	array of data corresponding to this action as specified
+	*								by the $prefix in getInterface.
+	*
+	* @return boolean
+	* @access public
+	*/
     function processInterface(&$settings, $request_data)
     {
 
@@ -185,20 +185,21 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 	}//end processInterface()
 
 
-    /**
-    * Get the list of locks that the action needs to acquire before executing
-    *
-    * @param array  $settings   a container for any data the action might want to save
-    * @param array  &$state     the state that describes the asset the action is executing on
-    *
-    * @return array
-    * @access public
-    */
+	/**
+	* Get the list of locks that the action needs to acquire before executing
+	*
+	* @param array	$settings	a container for any data the action might want to save
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
+	* @return array
+	* @access public
+	*/
     function getLocks($settings, &$state)
     {
+
         return Array(
-                $state['assetid']   => Array('all'),
-               );
+				$state['assetid']	=> Array('all'),
+			   );
 
     }//end getLocks()
 
