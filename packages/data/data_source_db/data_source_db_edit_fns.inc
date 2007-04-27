@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.23 2006/12/28 23:53:46 lwright Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.24 2007/04/27 07:17:50 arailean Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -2229,6 +2229,216 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		return FALSE;
 
 	}//end multiTablesSelectedWithJoinsOrWriteAccess()
+
+
+	//-- Dynamic Data --//
+
+
+	/**
+	* Paint the dynamic data interface
+	*
+	* @param object	&$asset	The asset that might use the files
+	* @param string	&$o		Backend outputter
+	* @param string	$prefix	the prefix for this asset
+	*
+	* @return boolean
+	* @access protected
+	*/
+	function paintDynamicData(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$var_list = $asset->attr('dynamic_vars');
+
+		// MAYBE detect keywords in SQL and inject them into variables
+
+		$o->openRaw();
+
+		echo '<table class="sq-backend-table">';
+		echo '<tr>';
+		echo '<th>Name</th>';
+		echo '<th>Default Value</th>';
+		if ($write_access) {
+			echo '<th width="10%" align="right" style="border-left: dotted 1px grey;">Delete</th>';
+		}
+		echo '</tr>';
+		foreach ($var_list as $var => $value) {
+			$var_id = base64_encode($var);
+
+			echo '<tr>';
+			echo '<td>';
+			if ($write_access) {
+				text_box($prefix.'_var_name['.$var_id.']', urlencode($var));
+			} else {
+				echo urlencode($var);
+			}
+			echo '</td>';
+			echo '<td valign="top" align="left">';
+			if ($write_access) {
+				text_box($prefix.'_var_value['.$var_id.']', urlencode($value));
+			} else {
+				echo urlencode($value);
+			}
+			echo '</td>';
+			if ($write_access) {
+				echo '<td style="border-left: dotted 1px grey;">';
+				check_box($prefix.'_delete_var['.$var_id.']');
+				echo '</td>';
+			}
+			echo '</tr>';
+		}
+
+		if ($write_access) {
+			echo '<tr class="new-data-row">';
+			echo '<th colspan="3" align="left">';
+			echo '<em style="color:#666">Add New Variables Below</em>';
+			echo '</th>';
+			echo '</tr>';
+
+			echo '<tr class="new-data-row">';
+			echo '<td>';
+			text_box($prefix.'_new_dynamic_data_name[]', NULL);
+			echo '</td>';
+			echo '<td>';
+			text_box($prefix.'_new_dynamic_data_value[]', NULL);
+			echo '</td>';
+			echo '<td style="border-left: dotted 1px grey;">';
+			echo '</td>';
+			echo '</tr>';
+		}
+		echo '</table>';
+
+		$o->closeRaw();
+
+		$o->closeSection();
+
+		$o->openSection('Data Mappings');
+		$o->openRaw();
+		$map =& $asset->getAttribute('parameter_map');
+
+		$parameter_names = $map->getParameters();
+
+		foreach ($var_list as $var_name => $default) {
+			$map->setParameter($var_name, 'Variable: '.$var_name);
+		}
+
+		$map->paint($prefix.'_parameter_map', !$write_access);
+		$o->closeRaw();
+
+		return $write_access;
+
+	}//end paintDynamicData()
+
+
+	/**
+	* Process the dynamic data interface
+	*
+	* @param object	&$asset	The asset that might use the files
+	* @param string	&$o		Backend outputter
+	* @param string	$prefix	the prefix for this asset
+	*
+	* @return boolean
+	* @access protected
+	*/
+	function processDynamicData(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		if (!$write_access) return FALSE;
+
+		$to_delete = array_get_index($_REQUEST, $prefix.'_delete_var', Array());
+		$var_value = array_get_index($_REQUEST, $prefix.'_var_value', Array());
+		$var_name = array_get_index($_REQUEST, $prefix.'_var_name', Array());
+
+		$var_list = $asset->attr('dynamic_vars');
+
+		$map =& $asset->getAttribute('parameter_map');
+
+		$parameter_names = $map->getParameters();
+		foreach ($var_list as $name => $default) {
+			$map->setParameter($name, 'Variable: '.$name);
+		}
+
+		$map->process($prefix.'_parameter_map');
+
+		foreach ($var_value as $hash => $value) {
+			$name = base64_decode($hash);
+			if (isset($to_delete[$hash])) {
+				unset($var_list[$name]);
+				// also need to delete it from the PARAMETER MAP
+				if (in_array($name, $parameter_names)) {
+					$map->unsetParameter($name);
+				}
+
+				continue;
+			}
+
+			$var_list[$name] = $value;
+		}
+
+		$new_var_list = Array();
+		$rename_success = FALSE;
+
+		// now we rename variables
+		foreach ($var_name as $hash => $new_name) {
+			if (empty($new_name)) {
+				$rename_success = FALSE;
+				trigger_error('Variable name cannot be empty. No variables were renamed.', E_USER_NOTICE);
+				break;
+			}
+
+			$name = base64_decode($hash);
+
+			// skip the deleted vars
+			if (!isset($var_list[$name])) continue;
+
+			if (isset($new_var_list[$new_name])) {
+				$rename_success = FALSE;
+				trigger_error('Could not rename variables because of two or more names are the same', E_USER_NOTICE);
+				break;
+			}
+
+			if ($new_name != $name) {
+				if (in_array($name, $parameter_names)) {
+					$map->moveParameter($name, $new_name);
+				}
+				$rename_success = TRUE;
+			}
+
+			$new_var_list[$new_name] = $var_list[$name];
+		}
+
+
+		if ($rename_success) $var_list = $new_var_list;
+
+		$new_names = array_get_index($_REQUEST, $prefix.'_new_dynamic_data_name', Array());
+		if (!empty($new_names)) {
+
+			foreach ($new_names as $seq_number => $new_var_name) {
+
+				$new_var_value = array_get_index($_REQUEST[$prefix.'_new_dynamic_data_value'], $seq_number, '');
+				if (empty($new_var_name)) {
+					if (!empty($new_var_value)) {
+						trigger_error('New variable name cannot be empty', E_USER_WARNING);
+					}
+					continue;
+				}
+
+				if (isset($var_list[$new_var_name])) {
+					trigger_error('Variable Name: '.$new_var_name.' is already in use', E_USER_WARNING);
+					continue;
+				}
+
+				$var_list[$new_var_name] = $new_var_value;
+				$map->setParameter($new_var_name, 'Variable: '.$new_var_name);
+			}
+		}
+
+		$asset->setAttrValue('dynamic_vars', $var_list);
+		$asset->setAttrValue('parameter_map', unserialize($map->value));
+
+		return TRUE;
+
+	}//end processDynamicData()
 
 
 }//end class

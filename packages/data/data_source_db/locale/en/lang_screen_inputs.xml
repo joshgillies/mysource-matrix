@@ -10,13 +10,16 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.5 2007/04/27 07:17:50 arailean Exp $
+* $Id: lang_screen_inputs.xml,v 1.1 2007/04/27 07:17:50 arailean Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="query" display_name="Query Builder"     icon="create" lock_type="attributes" force_unlock="0" />
-	<screen code_name="paths" display_name="Web Paths"  icon="web" lock_type="lookups" />
-	<screen code_name="inputs" display_name="Dynamic Inputs" lock_type="attributes" force_unlock="0" />
-</screens>
+<contents>
+	<section name="Dynamic Variables" write_access="write:attributes">
+		<function_call>
+			<paint_function name="paintDynamicData" />
+			<process_function name="processDynamicData" />
+		</function_call>
+	</section>
+</contents>
