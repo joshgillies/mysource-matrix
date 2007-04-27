@@ -10,10 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.13 2006/12/05 05:53:09 emcdonald Exp $
+* $Id: data_source.inc,v 1.14 2007/04/27 06:43:37 arailean Exp $
 *
 */
 
+
+require_once SQ_INCLUDE_PATH.'/asset.inc';
+register_implementation('data_source', 'bridge');
 
 
 /**
@@ -23,12 +26,10 @@
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-	require_once SQ_INCLUDE_PATH.'/asset.inc';
-	register_implementation('data_source', 'bridge');
 class Data_Source extends Asset
 {
 
@@ -117,19 +118,56 @@ class Data_Source extends Asset
 	/**
 	* Returns an array of the result of query execution
 	*
+	* @param string	$result_id	the id to uniquely identify this result
+	*
+	* @return array
+	* @access public
+	*/
+	function getResultSet($result_id='')
+	{
+		return $this->getChachedResultSet($result_id);
+
+	}//end getResultSet()
+
+
+	/**
+	* Returns an array of the result of query execution
+	*
 	* @param string	$cache_key	the cache key for this entry
 	*
 	* @return array
 	* @access public
 	*/
-	function getResultSet($cache_key='')
+	function getChachedResultSet($cache_key='')
 	{
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$result = $cm->loadFromCache($this->id, $this->type(), $cache_key, FALSE);
+
+		// empty string means that the result was not serialised
+		// which means cache manager does not have an entry for this cache_key
+		if ($result == '') return FALSE;
+
 		$result = unserialize($result);
 		return $result;
 
-	}//end getResultSet()
+	}//end getChachedResultSet()
+
+
+	/**
+	* Accepts an array of info and saves it to cache
+	*
+	* @param array	$result		the result set that has to be cached
+	* @param string	$result_id	the id to uniquely identify this result
+	*
+	* @deprecated
+	* @return void
+	* @access public
+	*/
+	function setResultSet($result, $result_id='')
+	{
+		$this->cacheResultSet($result, $cache_key='');
+
+	}//end setResultSet()
 
 
 	/**
@@ -141,12 +179,12 @@ class Data_Source extends Asset
 	* @return void
 	* @access public
 	*/
-	function setResultSet($result, $cache_key='')
+	function cacheResultSet($result, $cache_key='')
 	{
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$r = $cm->saveToCache($this->id, $this->type(), $cache_key, serialize($result), FALSE);
 
-	}//end setResultSet()
+	}//end cacheResultSet()
 
 
 	/**
