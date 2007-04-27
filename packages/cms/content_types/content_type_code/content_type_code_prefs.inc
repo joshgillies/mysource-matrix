@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code_prefs.inc,v 1.4 2006/01/20 05:41:18 sdanis Exp $
+* $Id: content_type_code_prefs.inc,v 1.4.4.1 2007/04/27 04:40:27 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Raw HTML preferences
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.4.1 $
 * @package MySource_Matrix
 */
 class Content_Type_Code_Prefs extends Prefs
@@ -271,7 +271,7 @@ class Content_Type_Code_Prefs extends Prefs
 					if ($have_lock && $is_admin) {
 						check_box('SQ_CODE_show_line_numbers', '1', $line_prefs['use_line_numbers']);
 					} else {
-						echo ($line_prefs['use_line_numbers'] == TRUE) ? translate('yes') : translate('No');
+						echo ($line_prefs['use_line_numbers'] == TRUE) ? translate('yes') : translate('no');
 					}
 					?>
 					</td>
