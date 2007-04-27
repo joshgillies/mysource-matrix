@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_management.inc,v 1.9 2006/12/08 00:51:59 emcdonald Exp $
+* $Id: data_source_db_management.inc,v 1.10 2007/04/27 07:16:19 arailean Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -156,6 +156,19 @@ class Data_Source_DB_Management extends Asset_Management
 											'parameters'	=> Array(
 																'allow_empty'		=> TRUE,
 																'allow_negative'	=> FALSE,
+															   ),
+										   ),
+						'dynamic_vars'	=> Array(
+											'added'		=> '0.2',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										   ),
+						'parameter_map'	=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'parameter_map',
+											'default'		=> Array(),
+											'parameters'	=> Array(
+																'parameters'	=> Array(),
 															   ),
 										   ),
 					  );
