@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.22 2007/02/09 05:54:35 emcdonald Exp $
+* $Id: parameter_map.inc,v 1.23 2007/04/27 06:32:19 arailean Exp $
 *
 */
 
@@ -45,7 +45,7 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 * 			)
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -74,7 +74,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 
 
 	/**
-	* Prints the interface for filling in a value
+	* Adds a new parameter to the list of those available
 	*
 	* @param string	$code	Parameter code
 	* @param string	$label	Friendly name describing the parameter
@@ -87,6 +87,59 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 		$this->_params['parameters'][$code] = $label;
 
 	}//end setParameter()
+
+
+	/**
+	* Moves the parameters from one code to another
+	*
+	* @param string	$old_code	Old code
+	* @param string	$new_code	New code
+	*
+	* @return void
+	* @access public
+	*/
+	function moveParameter($old_code, $new_code)
+	{
+		if (!isset($this->_params['parameters'][$old_code])) {
+			return;
+		}
+
+		if (isset($this->_params['parameters'][$new_code])) {
+			trigger_error('Cannot Rename Parameter. Code conflict.', E_USER_WARNING);
+			return;
+		}
+
+
+		$this->_params['parameters'][$new_code] = $this->_params['parameters'][$old_code];
+		unset($this->_params['parameters'][$old_code]);
+
+		$value = unserialize($this->value);
+		if (isset($value[$old_code])) {
+			$value[$new_code] = $value[$old_code];
+			unset($value[$old_code]);
+			$this->value = serialize($value);
+		}
+
+	}//end moveParameter()
+
+
+	/**
+	* Removes a parameter from the list
+	*
+	* @param string	$code	Parameter code
+	*
+	* @return void
+	* @access public
+	*/
+	function unsetParameter($code)
+	{
+		$value = unserialize($this->value);
+		unset($this->_params['parameters'][$code]);
+		unset($value[$code]);
+		$this->value = serialize($value);
+		$this->processed = $this->setValue($value);
+
+	}//end unsetParameter()
 
 
 	/**
