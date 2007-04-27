@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.130 2007/03/15 00:33:22 tbarrett Exp $
+* $Id: html_form.inc,v 1.131 2007/04/27 06:20:22 arailean Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.131 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -155,7 +155,7 @@ function hidden_field($name, $value='', $extras='')
 * @return void
 * @access public
 */
-function text_box($name, $value, $size='', $max='', $hide_value=FALSE, $extras='')
+function text_box($name, $value='', $size='', $max='', $hide_value=FALSE, $extras='')
 {
 	$size = (int) $size;
 	$max  = (int) $max;
