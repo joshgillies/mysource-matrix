@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_url.inc,v 1.4 2007/03/29 04:59:53 rhoward Exp $
+* $Id: trigger_action_add_url.inc,v 1.5 2007/04/27 04:01:18 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,6 +53,8 @@ class Trigger_Action_Add_Url extends Trigger_Action
 	*/
 	function execute($settings, &$state)
 	{
+
+		$run_hipo = FALSE;
 		// check required settings
 		if (!isset($settings['url'])) return FALSE;
 
@@ -99,11 +101,87 @@ class Trigger_Action_Add_Url extends Trigger_Action
 					   );
 
 			// save a new url
-			if (!$state['asset']->saveWebURLs($urls)) return FALSE;
+			$old_urls = $state['asset']->getSiteURLs();
+			switch ($state['asset']->saveWebURLs($urls)) {
+				case 0:
+					return FALSE;
+				break;
+				case 2:
+					$run_hipo = TRUE;
+				break;
+			}
 
-			// update lookup for the asset
-			if (!$state['asset']->updateLookups()) return FALSE;
-		}
+
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		foreach ($urls as $urlid => $url_data) {
+			// Skip the new URL
+			if (!isset($old_urls[$urlid]) || $old_urls[$urlid]==$url_data) {
+				continue;
+			}
+
+			$run_hipo = TRUE;
+
+			// update the root url in the asset url table to the new url
+			$sql = 'UPDATE
+						sq_ast_url
+					SET
+							url = '.$db->quoteSmart(strip_url($urls[$urlid]['url'])).'
+					WHERE
+							urlid = '.$db->quoteSmart($urlid);
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+			// update any urls that use this url in the lookup and lookup value tables
+			foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup') as $tablename) {
+
+				// Skip if the url was not changed
+				if ($urls[$urlid]['url'] == $old_urls[$urlid]['url']) {
+					continue;
+				}
+				$sql = 'UPDATE
+							'.$tablename.'
+						SET
+							url = '.$db->quoteSmart($urls[$urlid]['url']).' || SUBSTR(url, '.strlen($old_urls[$urlid]['url']).' + 1)
+						WHERE
+							url LIKE '.$db->quoteSmart($old_urls[$urlid]['url'].'%');
+
+						if ($tablename == 'sq_ast_lookup') {
+							$sql .= ' AND root_urlid = '.$db->quoteSmart($urlid);
+						} else if ($tablename == 'sq_ast_lookup_value') {
+							$sql .= 'AND url IN (
+										SELECT
+											l.url
+										FROM
+											sq_ast_lookup l
+										INNER JOIN
+											sq_ast_lookup_value v ON l.url = v.url
+										WHERE
+											l.root_urlid = '.$db->quoteSmart($urlid).'
+									)';
+						}
+
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
+			}
+		}//end foreach
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		flush();
+
+		}//end if
+
+
+		if ($run_hipo) {
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$vars = Array('assetids' => Array($state['asset']->id));
+			$hh->freestyleHipo('hipo_job_update_lookups', $vars);
+		}//end if
 
 		return Array(
 				'assetid'	=> $state['asset']->id,
