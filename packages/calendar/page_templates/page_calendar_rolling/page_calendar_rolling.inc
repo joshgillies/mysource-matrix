@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.20 2007/01/30 00:15:28 lwright Exp $
+* $Id: page_calendar_rolling.inc,v 1.21 2007/04/27 00:20:06 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -145,7 +145,7 @@ class Page_Calendar_Rolling extends Page
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1, 'exclusive' => TRUE);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 2, 'exclusive' => TRUE);
 		return $page_links;
 
 	}//end _getAllowedLinks()
