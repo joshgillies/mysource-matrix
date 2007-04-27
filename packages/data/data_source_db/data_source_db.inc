@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.18 2007/03/05 05:39:40 tbarrett Exp $
+* $Id: data_source_db.inc,v 1.19 2007/04/27 07:19:04 arailean Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -93,32 +93,92 @@ class Data_Source_DB extends Data_Source
 	function &getResultSet()
 	{
 		$result = Array();
-		$sql = $this->attr('sql');
-		$sql = str_replace('<br />', ' ', $sql);
-		// if the query is already excuted then we get results from cache otherwise we execute the
-		// query (only if in execute mode or the cache manager returns aan empty string instead of an empty array)
-		$result = parent::getResultSet($this->attr('sql'));
-		if (empty($result)) {
-			if (isset($this->_tmp[$sql])) {
-				$result = $this->_tmp[$sql];
-			}
-			// use the sql query as the cache key of this cache entry
-			if (!empty($result)) {
-				$this->setResultSet($result, $this->attr('sql'));
-			}
-		}
-		$mode = $this->attr('mode');
-		if ($mode == 'execute') {
-			if (!empty($sql)) {
-				$result =& $this->_executeQuery($sql);
-				if ($result === FALSE) $result = Array();
-				$this->setResultSet($result, $this->attr('sql'));
-				$this->_tmp[$sql] = $result;
-			}
-		}
+
+		$query_string = $this->_getExecutableQueryString();
+		if (empty($query_string)) return $result;
+
+		// check the cache
+		$result = $this->getChachedResultSet($query_string);
+		if ($result !== FALSE) return $result;
+
+		if ($this->attr('mode') != 'execute') return $result;
+
+		$result =& $this->_executeQuery($query_string);
+		$this->cacheResultSet($result, $query_string);
+
 		return $result;
 
 	}//end getResultSet()
+
+
+	/**
+	* Get an executable query string
+	*
+	* The string returned is ready to execute, with all the
+	*
+	* @return string
+	* @access private
+	*/
+	function _getExecutableQueryString()
+	{
+		$query_string = @$this->_tmp['query_string'];
+		if (!is_null($query_string)) return $query_string;
+
+		$sql = $this->attr('sql');
+
+		$keyword_wrapper = '%%';
+		$keyword_pattern = '('.$keyword_wrapper.'([a-zA-Z_\-0-9\.]+)'.$keyword_wrapper.')';
+
+		// insert the dynamic parameters into the query
+		preg_match_all ('/'.$keyword_pattern.'/', $sql, $matches, PREG_PATTERN_ORDER);
+		if (empty($matches[1])) {
+			$this->_tmp['query_string'] = $sql;
+			return $this->_tmp['query_string'];
+		}
+
+		$raw_keywords =& $matches[1];
+		$keywords =& $matches[2];
+
+		$DB =& $this->connectToDB();
+		if ($DB === FALSE) return $sql;
+
+		foreach ($keywords as $keyword) {
+			$value = $this->getDynamicVariableValue($keyword);
+			$replacements[] = $DB->escapeSimple($value);
+			$patterns[] = '/('.$keyword_wrapper.$keyword.$keyword_wrapper.')/';
+		}
+
+		$sql = preg_replace($patterns, $replacements, $sql);
+
+		$this->_tmp['query_string'] = $sql;
+		return $this->_tmp['query_string'];
+
+	}//end _getExecutableQueryString()
+
+
+	/**
+	* Get a value of a dynamic variable
+	*
+	* @param string	$variable_name	Name of variable
+	*
+	* @return string
+	* @access public
+	*/
+	function getDynamicVariableValue($variable_name)
+	{
+		$dynamic_vars = $this->attr('dynamic_vars');
+		if (!isset($dynamic_vars[$variable_name])) return '';
+
+		$parameter_map =& $this->getAttribute('parameter_map');
+		$value = $parameter_map->getParameterValue($variable_name);
+
+		if (empty($value)) {
+			$value = array_get_index($dynamic_vars, $variable_name, '');
+		}
+
+		return $value;
+
+	}//end getDynamicVariableValue()
 
 
 	/**
@@ -126,28 +186,24 @@ class Data_Source_DB extends Data_Source
 	*
 	* @param string	$sql	the sql query to be executed
 	*
-	* @return boolean
+	* @return array
 	* @access public
 	*/
 	function &_executeQuery($sql)
 	{
 		$result = Array();
+
 		$dsn = $this->attr('dsn');
-		if (!empty($dsn)) {
-			$conn = $this->connectToDB();
-			if ($conn !== FALSE) {
-				$sql = trim($sql, ';');
-				$result =& $conn->getAll($sql);
-				$assert_result = assert_valid_db_result($result, 'Query execution failed : '.$sql, FALSE, FALSE);
-				if (!$assert_result) {
-					$empty = Array();
-					return $empty;
-				}
-			} else {
-				$false = FALSE;
-				return $false;
-			}
-		}
+		if (empty($dsn)) return $result;
+
+		$DB =& $this->connectToDB();
+		if ($DB === FALSE) return $result;
+
+		$sql = trim($sql, ';');
+		$result =& $DB->getAll($sql);
+		$assert_result = assert_valid_db_result($result, 'Query execution failed : '.$sql, FALSE, FALSE);
+		if (!$assert_result) $result = Array();
+
 		return $result;
 
 	}//end _executeQuery()
@@ -159,18 +215,25 @@ class Data_Source_DB extends Data_Source
 	* @return object
 	* @access public
 	*/
-	function connectToDB()
+	function &connectToDB()
 	{
-		$dsn = $this->attr('dsn');
-		if (!empty($dsn)) {
-			$conn =& DB::connect($dsn);
-			if (DB::isError($conn)) {
-				trigger_error($conn->message, E_USER_WARNING);
-				return FALSE;
-			}
-			$conn->setFetchMode(DB_FETCHMODE_ASSOC);
-			return $conn;
+		if (isset($this->_tmp['db_connection'])) {
+			return $this->_tmp['db_connection'];
 		}
+
+		$dsn = $this->attr('dsn');
+		if (empty($dsn)) return FALSE;
+
+		$conn =& DB::connect($dsn);
+		if (DB::isError($conn)) {
+			trigger_error($conn->message, E_USER_WARNING);
+			return FALSE;
+		}
+
+		$conn->setFetchMode(DB_FETCHMODE_ASSOC);
+		$this->_tmp['db_connection'] =& $conn;
+
+		return $this->_tmp['db_connection'];
 
 	}//end connectToDB()
 
