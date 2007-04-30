@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.83 2007/01/08 03:25:04 emcdonald Exp $
+* $Id: calendar_event_recurring.inc,v 1.84 2007/04/30 14:35:43 gnoel Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -766,7 +766,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			</tr>
 			<tr>
 				<td><b><?php echo translate('description'); ?></b></td>
-				<td><?php echo $this->getKeywordReplacement('asset_attribute_descrption'); ?></td>
+				<td><?php echo $this->getKeywordReplacement('asset_attribute_description'); ?></td>
 			</tr>
 		</table>
 		<?php
