@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.24 2007/04/27 07:17:50 arailean Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.25 2007/04/30 02:13:45 arailean Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1684,11 +1684,10 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		}
 
 		if ($wa) {
-			$sql = str_replace('<br />', ' ', $sql);
 			text_area($prefix.'_sql', $sql, 100, 25);
 		} else {
 			if (!empty($sql)) {
-				echo $sql;
+				echo nl2br($sql);
 				hidden_field($prefix.'_sql', $sql);
 			}
 		}
@@ -1797,7 +1796,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 					$sql .= ', '.$field['field'].' AS '.$field['alias'];
 				}
 			}
-			$sql .= '<br />FROM ';
+			$sql .= "\n ".'FROM ';
 
 			// if the user has joins then we cannot add the tables to the sql normally
 			// we have to check on the tables used for the joins and add the remaining normally and add then add the joins!
@@ -1817,10 +1816,10 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 						}
 					}
 					if ($index != 0) {
-						$sql .= ' ,<br />';
+						$sql .= ' , '."\n";
 					} else {
 
-						$sql .= '<br />'.implode(', ', $tab_array);
+						$sql .= "\n ".implode(', ', $tab_array);
 					}
 					$sql .= empty($tab_array) ? ' ' : ', ';
 					$sql .= $table[0].' '.$table['type'].' '.$table[1].' ON '.$join[0].' = '.$join[1];
@@ -1843,7 +1842,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 					continue;
 				}
 
-				$sql .= '<br />'.strtoupper(str_replace('_', ' ' ,$key));
+				$sql .= "\n ".strtoupper(str_replace('_', ' ' ,$key));
 
 				if ($key == 'group_by') {
 					$groups = Array();
@@ -1856,7 +1855,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 					$result = asort($groups);
 
 					foreach ($groups as $field => $priority) {
-						$sql .= '<br />'.$field.',';
+						$sql .= "\n ".$field.',';
 					}
 					$sql = substr($sql, 0, strlen($sql) - 1);
 					$this->group_by = $groups;
@@ -1865,7 +1864,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 				if ($key == 'where'|| $key == 'having') {
 					foreach ($value as $index => $val) {
-						$sql .= '<br />'.$val['field'].' ';
+						$sql .= "\n ".$val['field'].' ';
 						!empty($val['condition']) && !in_array($val['condition'], Array('Relation', 'Other')) ? $sql .= $val['condition'] : $sql .= '';
 						isset($val['operator']) ? $sql .= ' '.$val['operator'] : $sql .= '';
 						if (trim(array_get_index($val, 'value', '')) != '') {
@@ -1893,7 +1892,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				foreach ($temp as $key) {
 					$val = $new_value[$key];
 					if ($key != 1) $sql .= ', ';
-					$sql .= '<br />'.$val['field'].' '.$val['order'];
+					$sql .= "\n".' '.$val['field'].' '.$val['order'];
 				}
 
 			}//end foreach
@@ -2250,7 +2249,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 		$var_list = $asset->attr('dynamic_vars');
 
-		// MAYBE detect keywords in SQL and inject them into variables
+		// MAYBE: detect keywords in SQL and inject them into variables
 
 		$o->openRaw();
 
@@ -2310,6 +2309,8 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 		$o->closeRaw();
 
+		$o->sectionNote(translate('db_data_source_variable_section_note'));
+
 		$o->closeSection();
 
 		$o->openSection('Data Mappings');
@@ -2324,6 +2325,8 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 		$map->paint($prefix.'_parameter_map', !$write_access);
 		$o->closeRaw();
+
+		$o->sectionNote(translate('db_data_source_mappings_section_note'));
 
 		return $write_access;
 
@@ -2342,6 +2345,10 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function processDynamicData(&$asset, &$o, $prefix)
 	{
+
+		$var_name_pattern = '/^[a-zA-Z_\-0-9\.]+$/';
+
+
 		$write_access = $asset->writeAccess('attributes');
 		if (!$write_access) return FALSE;
 
@@ -2380,9 +2387,19 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 		// now we rename variables
 		foreach ($var_name as $hash => $new_name) {
+			$new_name = trim($new_name);
+
 			if (empty($new_name)) {
 				$rename_success = FALSE;
 				trigger_error('Variable name cannot be empty. No variables were renamed.', E_USER_NOTICE);
+				break;
+			}
+
+			// check new name against regex
+			$new_name_is_valid = preg_match($var_name_pattern, $new_name);
+			if (!$new_name_is_valid) {
+				$rename_success = FALSE;
+				trigger_error('Variable name ['.htmlentities($new_name).'] contains characters that are not allowed. Can only use letters (A-Za-z), digits(0-9), underscore (_), dash (-) and dot (.)', E_USER_NOTICE);
 				break;
 			}
 
@@ -2393,7 +2410,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 			if (isset($new_var_list[$new_name])) {
 				$rename_success = FALSE;
-				trigger_error('Could not rename variables because of two or more names are the same', E_USER_NOTICE);
+				trigger_error('Could not rename variables because variable name "'.htmlentities($new_name).'" already exists', E_USER_NOTICE);
 				break;
 			}
 
@@ -2414,6 +2431,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		if (!empty($new_names)) {
 
 			foreach ($new_names as $seq_number => $new_var_name) {
+				$new_var_name = trim($new_var_name);
 
 				$new_var_value = array_get_index($_REQUEST[$prefix.'_new_dynamic_data_value'], $seq_number, '');
 				if (empty($new_var_name)) {
@@ -2423,8 +2441,15 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 					continue;
 				}
 
+				// check new name against regex
+				$new_name_is_valid = preg_match($var_name_pattern, $new_var_name);
+				if (!$new_name_is_valid) {
+					trigger_error('Variable name "'.htmlentities($new_var_name).'" contains characters that are not allowed. Can only use letters (A-Za-z), digits(0-9), underscore (_), dash (-) and dot (.)', E_USER_NOTICE);
+					continue;
+				}
+
 				if (isset($var_list[$new_var_name])) {
-					trigger_error('Variable Name: '.$new_var_name.' is already in use', E_USER_WARNING);
+					trigger_error('Variable Name "'.htmlentities($new_var_name).'" is already in use', E_USER_WARNING);
 					continue;
 				}
 
