@@ -20,7 +20,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -28,5 +28,5 @@ class Trigger_Action_Set_Index_Page_Management extends Asset_Management
 {
 
 }//end class
-?>
 
+?>

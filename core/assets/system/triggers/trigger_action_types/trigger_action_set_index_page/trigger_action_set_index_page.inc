@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -205,4 +205,3 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 
 
 }//end class
-

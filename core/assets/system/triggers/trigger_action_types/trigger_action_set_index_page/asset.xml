@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-
 <!--
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
@@ -14,7 +13,6 @@
 *
 */
 -->
-
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <package>__core__</package>
     <type_code>trigger_action_set_index_page</type_code>

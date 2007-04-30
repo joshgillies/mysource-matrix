@@ -17,7 +17,7 @@
 * Trigger_Action_Set_Index_Page_Edit_Fns
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -27,4 +27,3 @@ class Trigger_Action_Set_Index_Page_Edit_Fns extends Trigger_Action_Edit_Fns
 }//end class
 
 ?>
-
