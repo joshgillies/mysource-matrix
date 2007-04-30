@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_import_bmail_user.inc,v 1.3 2006/12/07 05:55:57 bcaldwell Exp $
+* $Id: hipo_job_tool_import_bmail_user.inc,v 1.4 2007/04/30 01:53:43 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -163,28 +163,52 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 			// import one bmail user
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bulkmail_user');
 			$index = array_shift(array_keys($this->_running_vars['todo_asset_users']));
-
-			// create this user in the selected user group
 			$create_in =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['create_in_assetid']);
+			$name = $this->_running_vars['todo_asset_users'][$index]['name'];
+			$email = $this->_running_vars['todo_asset_users'][$index]['email'];
+
 			$user =& new Bulkmail_User();
-			$user->setAttrValue('name', $this->_running_vars['todo_asset_users'][$index]['name']);
-			$user->setAttrValue('email', $this->_running_vars['todo_asset_users'][$index]['email']);
-			$link = Array(
-						'asset'		=> $create_in,
-						'link_type'	=> SQ_LINK_TYPE_1,
-					);
-			// $user->processStatusChange(SQ_STATUS_LIVE, FALSE);
-			$status = $user->create($link);
+			$user->setAttrValue('name', $name);
+
+			// turn off error reporting if we are linking user with same address
+			if ($this->_running_vars['new_link']) {
+				$old_reporting = error_reporting(0);
+			}
+			$status = $user->setAttrValue('email', $email);
+			if ($this->_running_vars['new_link']) {
+				error_reporting($old_reporting);
+				if (!$status) {
+					// find the existing bmail user, and link here
+					$user =& $this->_getExistingBmailUser($email);
+					if ($name != $user->name) {
+						trigger_error("(Bulkmail User #$user->id) \"$name\" does not match existing name \"$user->name\"");
+						$step_data['message'] = "Skipping \"$user->name\" (#$user->id)";
+					} else {
+						$create_in->createLink($user, SQ_LINK_TYPE_1);
+						$step_data['message'] = "Linking \"$user->name\" (#$user->id)";
+					}
+				}
+			}
+
+			// create new user as usual
+			if ($status) {
+				$link = Array(
+							'asset'		=> $create_in,
+							'link_type'	=> SQ_LINK_TYPE_1,
+						);
+				$status = $user->create($link);
+			}
+			$step_data['message'] = translate('bm_importing_bmail_user', $email);
 
 			// add this user to the done array
-			$step_data['message'] = translate('bm_importing_bmail_user', $user->attr('email'));
-			$this->_running_vars['done_asset_users'][] = $user->attr('email');
+			$this->_running_vars['done_asset_users'][] = $email;
 
 			// clean up
 			unset($this->_running_vars['todo_asset_users'][$index]);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($create_in);
-		}
+
+		}//end if not empty todo
 
 		// update progress
 		if (empty($this->_running_vars['todo_asset_users'])) {
@@ -199,6 +223,40 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 		return TRUE;
 
 	}//end processImport()
+
+
+	/**
+	* Find existing bmail user with the same email address.
+	*
+	* Returns the bmail user or null if not found.
+	*
+	* @param string	$email	the email address we are finding
+	*
+	* @return mixed object|NULL
+	* @access private
+	*/
+	function &_getExistingBmailUser($email)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT
+					assetid
+				FROM sq_ast_attr_uniq_val uv
+					INNER JOIN sq_ast_attr oa ON uv.owning_attrid = oa.attrid
+					INNER JOIN sq_ast_attr a ON (oa.type_code = a.owning_type_code AND oa.name = a.name)
+			   WHERE uv.custom_val = '.$db->quoteSmart($email).'
+					AND a.name = '.$db->quoteSmart('email').'
+					AND a.type_code = '.$db->quoteSmart('bulkmail_user');
+		$assetid = $db->getOne($sql);
+		assert_valid_db_result($assetid);
+
+		$user = NULL;
+		if (!is_null($assetid)) {
+			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		}
+
+		return $user;
+
+	}//end _getExistingBmailUser()
 
 
 }//end class

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_import_bmail_user.inc,v 1.6 2007/04/16 23:48:46 rong Exp $
+* $Id: tool_import_bmail_user.inc,v 1.7 2007/04/30 01:53:43 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -72,6 +72,11 @@ class Tool_Import_Bmail_User extends Tool
 			$o->note(translate('bm_tool_import_bmail_user_create_in_note'));
 		$o->closeField();
 
+		$o->openField('');
+			check_box($type_code.'_new_link'); echo 'Link user with an existing email address?';
+			$o->note('The "email" attribute of a Bulkmail User is unique, so that the same user will not get multiple copies of the same mail out.<br />If an existing address is specified in the CSV file, the Bulkmail User will also be linked under the "Create Users in" folder, if this option is enabled.');
+		$o->closeField();
+
 		$o->closeSection();
 
 	}//end paintTool()
@@ -103,6 +108,7 @@ class Tool_Import_Bmail_User extends Tool
 		// set HIPO running_vars
 		$vars['file_info'] = $file_info;
 		$vars['create_in_assetid'] = $_REQUEST[$type_code.'_create_in_assetid']['assetid'];
+		$vars['new_link'] = (isset($_REQUEST[$type_code.'_new_link'])) ? $_REQUEST[$type_code.'_new_link'] : FALSE;
 
 		// run HIPO job
 		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
