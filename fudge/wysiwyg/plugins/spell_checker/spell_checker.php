@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.php,v 1.10 2007/03/21 05:02:31 skim Exp $
+* $Id: spell_checker.php,v 1.11 2007/05/01 04:19:07 rong Exp $
 *
 */
 
@@ -18,11 +18,11 @@
 * Spell Checker Popup for the WYSIWYG
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
-
-header("Content-type: text/html; charset: utf-8");
+include_once dirname(__FILE__).'/../../../../core/include/init.inc';
+header('Content-type: text/html; charset: utf-8');
 
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -76,20 +76,25 @@ header("Content-type: text/html; charset: utf-8");
 	<body onload="window.parent.finishedSpellChecking();" bgcolor="#FFFFFF">
 		<?php
 		$GLOBALS['spellerId'] = 0;
-		$GLOBALS['dict'] = 'en';
+		$GLOBALS['dict'] = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_WYSIWYG_SPELL_CHECKER_DICT');
 
 		// the user has asked to change the dictionary and re-check
+		// dictionary is now a global preference
+		/*
 		if (isset($_REQUEST['dictionary'])) {
 			if ($_REQUEST['dictionary'] != "") {
 				$GLOBALS['dict'] = $_REQUEST['dictionary'];
 			}
 		}
+		*/
 
-		# leave out the dicrtionary support for the moment
-		#if ($_REQUEST['init'] == 1) {
-		#	// don't put spaces between these as js is going to tokenize them up
-		#	echo "<div id='HA-spellcheck-dictionaries'>en,en_GB,en_US,en_CA,sv_SE,de_DE,pt_PT</div>";
-		#}
+		/*
+		// leave out the dicrtionary support for the moment
+		if ($_REQUEST['init'] == 1) {
+			// don't put spaces between these as js is going to tokenize them up
+			echo "<div id='HA-spellcheck-dictionaries'>en,en_GB,en_US,en_CA,sv_SE,de_DE,pt_PT</div>";
+		}
+		*/
 
 		if (get_magic_quotes_gpc()) {
 			foreach ($_REQUEST as $k => $v) {
@@ -97,10 +102,10 @@ header("Content-type: text/html; charset: utf-8");
 			}
 		}
 
-		require_once DIRNAME(__FILE__)."/spell_parser.inc";
-		require_once "XML/XML_HTMLSax.php";
+		require_once DIRNAME(__FILE__).'/spell_parser.inc';
+		require_once 'XML/XML_HTMLSax.php';
 
-		$handler = new Spell_Parser();
+		$handler =& new Spell_Parser();
 		$handler->setLanguage($GLOBALS['dict']);
 
 		$parser =& new XML_HTMLSax();

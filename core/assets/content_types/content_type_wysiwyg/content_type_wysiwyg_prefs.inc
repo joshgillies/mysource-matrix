@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.20 2007/01/05 05:28:38 hnguyen Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.21 2007/05/01 04:19:06 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -61,6 +61,12 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 																'name'			=> 'Thesaurus',
 																'description'	=> 'Which thesaurus asset you want to use when editing content, for example to provide keyword expansions',
 																'default'		=> 0,
+																'protected'		=> FALSE,
+															   ),
+						'SQ_WYSIWYG_SPELL_CHECKER_DICT'		=> Array (
+																'name'			=> 'Spell Checker Dictionary',
+																'description'	=> 'Which thesaurus asset you want to use when editing content, for example to provide keyword expansions',
+																'default'		=> 'en',
 																'protected'		=> FALSE,
 															   ),
 					 );
@@ -253,6 +259,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 					</tr>
 				</table>
 				<?php
+			if (is_null($pref)) $o->closeField();
 
 		}//end if show SQ_WYSIWYG_DISABLE_IMAGE_RESIZE
 
@@ -263,7 +270,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 			if ($have_lock && $is_admin) {
 				asset_finder('prefs[SQ_THESAURUS]', $this->pref_vars['SQ_THESAURUS']['default'], Array('thesaurus'=>'A'));
-				echo '<br /><i>'.translate('thesaurus_used_by_matrix_expand_keywords_plugin').'</i>';
+				$o->note(translate('thesaurus_used_by_matrix_expand_keywords_plugin'));
 			} else {
 				if (!$this->pref_vars['SQ_THESAURUS']['default']) {
 					echo '('.translate('none_selected').')';
@@ -272,7 +279,27 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 					echo $name.' (#'.$this->pref_vars['SQ_THESAURUS']['default'].')';
 				}
 			}
+			if (is_null($pref)) $o->closeField();
 		}//end if show SQ_THESAURUS
+
+		if ((is_null($pref) || $pref == 'SQ_WYSIWYG_SPELL_CHECKER_DICT')) {
+			if (is_null($pref)) {
+				$o->openField(translate('wysiwyg_spell_checker_pref_field'));
+			}
+
+			if ($have_lock && $is_admin) {
+				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+				$all_plugins = list_dirs(SQ_FUDGE_PATH.'/wysiwyg/plugins');
+
+				// if spell checker is not installed, disable this pref
+				$extra = (in_array('spell_checker', $all_plugins)) ? '' : 'disabled="disabled"';
+				text_box('prefs[SQ_WYSIWYG_SPELL_CHECKER_DICT]', $this->pref_vars['SQ_WYSIWYG_SPELL_CHECKER_DICT']['default'], 6, 6, FALSE, $extra);
+				$o->note(translate('wysiwyg_spell_checker_pref_note'));
+			} else {
+				echo $this->pref_vars['SQ_WYSIWYG_SPELL_CHECKER_DICT']['default'];
+			}
+			if (is_null($pref)) $o->closeField();
+		}//end if show SQ_WYSIWYG_SPELL_CHECKER_DICT
 
 		return TRUE;
 
@@ -353,6 +380,13 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			}
 		}
 
+		// SQ_WYSIWYG_SPELL_CHECKER_DICT
+		if (is_null($pref) || $pref == 'SQ_WYSIWYG_SPELL_CHECKER_DICT') {
+			if (isset($_POST['prefs']['SQ_WYSIWYG_SPELL_CHECKER_DICT'])) {
+				$this->pref_vars['SQ_WYSIWYG_SPELL_CHECKER_DICT']['default'] = $_POST['prefs']['SQ_WYSIWYG_SPELL_CHECKER_DICT'];
+			}
+		}
+
 		return TRUE;
 
 	}//end processBackend()
@@ -370,7 +404,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 	function mergePrefs($prefs1, $prefs2)
 	{
 		$merged_prefs = Array();
-		$pref_vars = Array('SQ_WYSIWYG_STYLE', 'SQ_WYSIWYG_PLUGINS', 'SQ_THESAURUS');
+		$pref_vars = Array('SQ_WYSIWYG_STYLE', 'SQ_WYSIWYG_PLUGINS', 'SQ_THESAURUS', 'SQ_WYSIWYG_SPELL_CHECKER_DICT');
 
 		foreach ($pref_vars as $var_name) {
 			if (isset($prefs1[$var_name]) && !isset($prefs2[$var_name])) {
@@ -400,6 +434,11 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 					case 'SQ_THESAURUS' :
 						// use the first thesaurus
 						$merged_prefs['SQ_THESAURUS']['default'] = $prefs1[$var_name]['default'];
+					break;
+
+					case 'SQ_WYSIWYG_SPELL_CHECKER_DICT' :
+						// use the user defined language dict
+						$merged_prefs['SQ_WYSIWYG_SPELL_CHECKER_DICT']['default'] = $prefs1[$var_name]['default'];
 					break;
 				}
 
