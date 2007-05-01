@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.64 2007/05/01 05:25:18 colivar Exp $
+* $Id: page_remote_content.inc,v 1.65 2007/05/01 22:35:17 colivar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -689,7 +689,6 @@ class Page_Remote_Content extends Page
 		foreach ($patterns as $pattern) {
 			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
 			$matches = array_merge($matches, $matches_local);
-			log_dump($matches);
 		}
 		// local cleanup
 		$matches_local = NULL;
