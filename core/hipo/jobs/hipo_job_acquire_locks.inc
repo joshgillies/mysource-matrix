@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.18 2006/12/05 05:39:09 bcaldwell Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.18.2.1 2007/05/01 05:49:49 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -302,7 +302,7 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 				foreach ($lock_types as $lock_type) {
 					$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, $lock_type, $parent_assetid, $this->_running_vars['forceably_acquire']);
 				}
-				$step_data['message'] = translate('hipo_acquire_lock', $asset->name);
+				$step_data['message'] = translate('hipo_acquire_lock', htmlentities($asset->name));
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {

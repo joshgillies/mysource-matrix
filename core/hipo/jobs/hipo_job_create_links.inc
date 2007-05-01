@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.43.2.8 2007/03/16 01:28:28 lwright Exp $
+* $Id: hipo_job_create_links.inc,v 1.43.2.9 2007/05/01 05:49:49 hnguyen Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.43.2.8 $
+* @version $Revision: 1.43.2.9 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -396,13 +396,13 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				}
 
 				$o->openField('&nbsp;');
-						echo '<p>'.translate('hipo_confirm_new_links', $new_parent->name).'</p>';
+						echo '<p>'.translate('hipo_confirm_new_links', htmlentities($new_parent->name)).'</p>';
 						echo '<ul>';
 						for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 							$current = current($assets);
 							$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current['parentid']);
-							echo '<li>"'.translate('hipo_from_under', $asset->name, $parent->name).'</li>';
+							echo '<li>"'.translate('hipo_from_under', htmlentities($asset->name), htmlentities($parent->name)).'</li>';
 						}
 						echo '</ul>';
 						echo '<p>'.translate('hipo_confirm_abort').'</p>';
@@ -441,11 +441,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				// and print them here to avoid confusion
 				if (!empty($reordered_assets)) {
 					$o->openField('&nbsp;');
-							echo '<p>'.translate('hipo_assets_not_require_move', $new_parent->name).'</p>';
+							echo '<p>'.translate('hipo_assets_not_require_move', htmlentities($new_parent->name)).'</p>';
 							echo '<ul>';
 							for (reset($reordered_assets); NULL !== ($assetid = key($reordered_assets)); next($reordered_assets)) {
 								$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-								echo '<li>"'.$asset->name.'".</li>';
+								echo '<li>"'.htmlentities($asset->name).'".</li>';
 							}
 							echo '</ul>';
 					$o->closeField();
@@ -496,13 +496,13 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						}
 
 					} else {
-						echo '<p>'.translate('hipo_confirm_move_under', $new_parent->name).'</p>';
+						echo '<p>'.translate('hipo_confirm_move_under', htmlentities($new_parent->name)).'</p>';
 						echo '<ul>';
 						for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 							$current = current($assets);
 							$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current['parentid']);
-							echo '<li>"'.translate('hipo_from_under', $asset->name, $parent->name).'</li>';
+							echo '<li>"'.translate('hipo_from_under', htmlentities($asset->name), htmlentities($parent->name)).'</li>';
 						}
 					}
 					echo '</ul>';
@@ -551,7 +551,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 									$trash_section_painted = TRUE;
 						}
 
-						echo $asset->name." (Id: #$asset->id)";
+						echo htmlentities($asset->name)." (Id: #$asset->id)";
 
 						$link_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id);
 
@@ -686,7 +686,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					}
 					if (!$rm->remapAllURLs($source_assetid, $remap_url)) {
 						$source_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
-						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_urls', $source_asset->name, remap_url).'</span>';
+						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_urls', htmlentities($source_asset->name), remap_url).'</span>';
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
 						return TRUE;
 					}
@@ -707,7 +707,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 							}
 							if (!$rm->remapAllURLs($source_assetid, ($dest_url_data['http'] ? 'http' : 'https').'://'.$dest_url_data['url'])) {
 								$source_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($source_assetid);
-								$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_urls', $source_asset->name, $dest_url_data['url']).'</span>';
+								$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_urls', htmlentities($source_asset->name), $dest_url_data['url']).'</span>';
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
 								return TRUE;
 							}
@@ -716,7 +716,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					case 0:
 						// Cannot remap, the target asset has no URLs
 						$remap_asset =&$GLOBALS['SQ_SYSTEM']->am->getAsset($dest_assetid);
-						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_links_without_destination_url', $remap_asset->name).'</span>';
+						$this->_tmp['message'] = '<span style="color: #FF0000;">'.translate('hipo_cannot_remap_links_without_destination_url', htmlentities($remap_asset->name)).'</span>';
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($remap_asset);
 						return TRUE;
 					break;
@@ -788,7 +788,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				return FALSE;
 			}
 
-			$step_data['message'] = 'Creating a link between "'.$asset->name.'" and "'.$new_parent->name.'".';
+			$step_data['message'] = 'Creating a link between "'.htmlentities($asset->name).'" and "'.htmlentities($new_parent->name).'".';
 
 			$linkid = $new_parent->createLink($asset, $value['link_type'], '', $this->_running_vars['to_parent_pos']);
 			if (!$linkid) {
@@ -919,7 +919,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						return FALSE;
 					}
 					$new_parent_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->_running_vars['to_parent_assetid']));
-					$step_data['message'] = translate('hipo_move', $asset->name, $new_parent_info[$this->_running_vars['to_parent_assetid']]['name']);
+					$step_data['message'] = translate('hipo_move', htmlentities($asset->name), htmlentities($new_parent_info[$this->_running_vars['to_parent_assetid']]['name']));
 
 					$this->_running_vars['to_parent_pos']++;
 				} else {
@@ -999,9 +999,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 				if (count($this->_running_vars['assets']) > 0) {
 					if ($this->_running_vars['link_action'] == 'move') {
-						$success_msg = translate('hipo_asset_move_successful', $parent->name);
+						$success_msg = translate('hipo_asset_move_successful', htmlentities($parent->name));
 					} else {
-						$success_msg = translate('hipo_asset_link_successful', $parent->name);
+						$success_msg = translate('hipo_asset_link_successful', htmlentities($parent->name));
 					}
 					echo '<p><b>'.$success_msg.'</b></p>';
 					echo '<ul>';
@@ -1014,8 +1014,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 				?>
 
-				<p><?php echo translate('hipo_permission_workflow_metadata_display', $parent->name); ?></p>
-				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_select', $parent->name); ?></p>
+				<p><?php echo translate('hipo_permission_workflow_metadata_display', htmlentities($parent->name)); ?></p>
+				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_select', htmlentities($parent->name)); ?></p>
 				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_none'); ?></p>
 				<?php
 				$ei =& $parent->getEI();

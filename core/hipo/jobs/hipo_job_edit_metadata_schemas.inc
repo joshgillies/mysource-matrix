@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.38.2.1 2007/02/01 23:32:00 skim Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.38.2.2 2007/05/01 05:49:49 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38.2.1 $
+* @version $Revision: 1.38.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -329,10 +329,10 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 						}
 					}
 
-					$step_data['message'] = translate('hipo_editing_metadata_schema', $asset->name);
+					$step_data['message'] = translate('hipo_editing_metadata_schema', htmlentities($asset->name));
 
 				} else {
-					$step_data['message'] = translate('hipo_skipping_metadata_schema', $asset->name);
+					$step_data['message'] = translate('hipo_skipping_metadata_schema', htmlentities($asset->name));
 
 				}//end if metadata screen exists
 

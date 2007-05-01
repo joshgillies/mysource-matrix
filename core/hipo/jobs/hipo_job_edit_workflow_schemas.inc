@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_workflow_schemas.inc,v 1.35 2006/12/05 05:39:09 bcaldwell Exp $
+* $Id: hipo_job_edit_workflow_schemas.inc,v 1.35.2.1 2007/05/01 05:49:49 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit workflow schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -326,7 +326,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 					}
 				}
 
-				$step_data['message'] = translate('hipo_edit_workflow_schema', $asset->name);
+				$step_data['message'] = translate('hipo_edit_workflow_schema', htmlentities($asset->name));
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {

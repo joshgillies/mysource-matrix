@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.58 2006/12/05 05:39:09 bcaldwell Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.58.2.1 2007/05/01 05:49:49 hnguyen Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.58.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -348,12 +348,12 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 						}
 					}
 
-					$step_data['message'] = translate('hipo_edit_permission', $asset->name);
+					$step_data['message'] = translate('hipo_edit_permission', htmlentities($asset->name));
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
 				} else {
 						// we do not have admin access
-						trigger_localised_error('SYS0111', E_USER_WARNING, $asset->name);
+						trigger_localised_error('SYS0111', E_USER_WARNING, htmlentities($asset->name));
 				}
 			} else {
 				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
