@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.63 2007/03/14 01:09:50 skim Exp $
+* $Id: page_remote_content.inc,v 1.64 2007/05/01 05:25:18 colivar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -245,7 +245,7 @@ class Page_Remote_Content extends Page
 				$post_data = $_POST;
 			}
 
-		}
+		}//end if
 
 		// support custom post variables if they've been set
 		// NOTE: custom post variables are only sent on INITIAL request
@@ -689,6 +689,7 @@ class Page_Remote_Content extends Page
 		foreach ($patterns as $pattern) {
 			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
 			$matches = array_merge($matches, $matches_local);
+			log_dump($matches);
 		}
 		// local cleanup
 		$matches_local = NULL;
@@ -724,7 +725,7 @@ class Page_Remote_Content extends Page
 
 		// PATTERNS for urls that might need to be rewritten to point back to remote content
 		// links and frames except mailto and javascript
-		$patterns[] = '/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*[\'"]?)\s*((?:(?![\#]|mailto|javascript))[^\'"> ]+)([\'"> ]?[^<]*>)/i';
+		$patterns[] = '/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*[\'"]?)\s*((?:(?![\#]|mailto|javascript))[^\'"> #]+)([\'"> ]?[^<]*>)/i';
 
 		// this pattern is a special case. we don't generally look at JavaScript
 		// because that is a whole new territory
