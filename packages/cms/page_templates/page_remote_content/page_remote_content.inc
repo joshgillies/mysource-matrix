@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.63 2007/03/14 01:09:50 skim Exp $
+* $Id: page_remote_content.inc,v 1.63.2.1 2007/05/01 22:40:18 colivar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.63.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -724,7 +724,7 @@ class Page_Remote_Content extends Page
 
 		// PATTERNS for urls that might need to be rewritten to point back to remote content
 		// links and frames except mailto and javascript
-		$patterns[] = '/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*[\'"]?)\s*((?:(?![\#]|mailto|javascript))[^\'"> ]+)([\'"> ]?[^<]*>)/i';
+		$patterns[] = '/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*[\'"]?)\s*((?:(?![\#]|mailto|javascript))[^\'"> #]+)([\'"> ]?[^<]*>)/i';
 
 		// this pattern is a special case. we don't generally look at JavaScript
 		// because that is a whole new territory
