@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.54 2007/01/29 23:07:17 rong Exp $
+* $Id: hipo_job_edit_status.inc,v 1.55 2007/05/01 05:45:40 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -393,7 +393,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 					} else {
 						$asset->processStatusChange($new_status, FALSE, FALSE);
 					}
-					$step_data['message'] = translate('hipo_edit_status', $asset->name);
+					$step_data['message'] = translate('hipo_edit_status', htmlentities($asset->name));
 
 					// this asset has dependants, so we are going to spawn another edit_status hipo
 					// to take care of processing them

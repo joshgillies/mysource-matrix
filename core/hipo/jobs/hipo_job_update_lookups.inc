@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.44 2006/12/15 03:43:01 rhoward Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.45 2007/05/01 05:45:40 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -292,7 +292,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 
 			if (!is_null($asset)) {
 				if (!$asset->updateLookups()) return FALSE;
-				$step_data['message'] = translate('hipo_updating_lookups_for', $asset->name);
+				$step_data['message'] = translate('hipo_updating_lookups_for', htmlentities($asset->name));
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_tags.inc,v 1.5 2006/12/05 05:39:09 bcaldwell Exp $
+* $Id: hipo_job_edit_tags.inc,v 1.6 2007/05/01 05:45:40 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit content tags
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -288,7 +288,7 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 						break;
 					}
 				}
-				$step_data['message'] = translate('hipo_editing_tags', $asset->name);
+				$step_data['message'] = translate('hipo_editing_tags', htmlentities($asset->name));
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
