@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.21 2007/03/22 23:29:23 skim Exp $
+* $Id: external_tools_config.inc,v 1.22 2007/05/01 06:04:17 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -48,6 +48,7 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_ANTIWORD_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_TOOL_JPEG_TOOLKIT_PATH'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_JPEG_TOOLKIT_ENABLED'		=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_SPELL_CHECKER_LANG'		=> Array('editable' => 1, 'default' => 'en'),
 					   );
 
 
@@ -203,6 +204,26 @@ class External_Tools_Config extends Config
 				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'HTML Tidy'); ?></span><?php
 			} else if (!is_executable(SQ_TOOL_HTML_TIDY_PATH)) {
 				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_executable', 'HTML Tidy'); ?></span><?php
+			}
+
+			$o->openField(translate('wysiwyg_spell_checker_pref_field'));
+			if ($write_access) {
+				// if spell checker is not installed, disable this pref
+				text_box($class.'[SQ_TOOL_SPELL_CHECKER_LANG]', SQ_TOOL_SPELL_CHECKER_LANG, 6, 6);
+				$o->note(translate('wysiwyg_spell_checker_pref_note'));
+			} else {
+				echo SQ_TOOL_SPELL_CHECKER_LANG;
+			}
+
+			if (!function_exists('pspell_suggest')) {
+				?><br /><span class="sq-backend-warning"><?php echo translate('wysiwyg_pspell_not_installed'); ?></span><?php
+			} else {
+				$old_reporting = error_reporting(0);
+					$status = pspell_new(SQ_TOOL_SPELL_CHECKER_LANG);
+				error_reporting($old_reporting);
+				if ($status === FALSE) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('wysiwyg_spell_checker_pref_error', SQ_TOOL_SPELL_CHECKER_LANG); ?></span><?php
+				}
 			}
 
 		$o->closeSection();

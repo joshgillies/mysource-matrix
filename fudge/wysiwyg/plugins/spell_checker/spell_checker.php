@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.php,v 1.11 2007/05/01 04:19:07 rong Exp $
+* $Id: spell_checker.php,v 1.12 2007/05/01 06:04:18 rong Exp $
 *
 */
 
@@ -18,10 +18,10 @@
 * Spell Checker Popup for the WYSIWYG
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
-include_once dirname(__FILE__).'/../../../../core/include/init.inc';
+include_once dirname(__FILE__).'/../../../../data/private/conf/tools.inc';
 header('Content-type: text/html; charset: utf-8');
 
 ?>
@@ -76,7 +76,7 @@ header('Content-type: text/html; charset: utf-8');
 	<body onload="window.parent.finishedSpellChecking();" bgcolor="#FFFFFF">
 		<?php
 		$GLOBALS['spellerId'] = 0;
-		$GLOBALS['dict'] = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_WYSIWYG_SPELL_CHECKER_DICT');
+		$GLOBALS['dict'] = SQ_TOOL_SPELL_CHECKER_LANG;
 
 		// the user has asked to change the dictionary and re-check
 		// dictionary is now a global preference

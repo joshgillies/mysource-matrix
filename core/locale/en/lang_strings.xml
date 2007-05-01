@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.248 2007/05/01 04:19:06 rong Exp $
+* $Id: lang_strings.xml,v 1.249 2007/05/01 06:04:17 rong Exp $
 *
 */
 
@@ -343,9 +343,10 @@
 	<string source="wysiwyg_htmltidy_status_wait">HTMLTidy has not been used to validate this content</string>
 	<string source="wysiwyg_htmltidy_status_pass">HTMLTidy has validated this content</string>
 	<string source="wysiwyg_htmltidy_status_fail">HTMLTidy failed to validate this content</string>
-	<string source="wysiwyg_pspell_not_installed">Pspell not installed</string>
+	<string source="wysiwyg_pspell_not_installed">Pspell is not installed</string>
 	<string source="wysiwyg_spell_checker_pref_field">Spell Checker Language</string>
 	<string source="wysiwyg_spell_checker_pref_note">Language code consists of the two letter ISO 639 language code and an optional two letter ISO 3166 country code after a dash or underscore</string>
+	<string source="wysiwyg_spell_checker_pref_error">Pspell couldn't open the dictionary, no word lists can be found for the language "%s"</string>
 	<string source="warning_-_moving_to_trash">Warning - Moving To Trash</string>
 	<string source="word_list">Word List</string>
 	<string source="word_list_note">New line separated list of words that are not allowed to be used as password</string>
