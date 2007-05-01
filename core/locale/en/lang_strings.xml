@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.242.2.1 2007/04/13 04:29:36 arailean Exp $
+* $Id: lang_strings.xml,v 1.242.2.2 2007/05/01 06:11:08 rong Exp $
 *
 */
 
@@ -343,7 +343,10 @@
 	<string source="wysiwyg_htmltidy_status_wait">HTMLTidy has not been used to validate this content</string>
 	<string source="wysiwyg_htmltidy_status_pass">HTMLTidy has validated this content</string>
 	<string source="wysiwyg_htmltidy_status_fail">HTMLTidy failed to validate this content</string>
-	<string source="wysiwyg_pspell_not_installed">Pspell not installed</string>
+	<string source="wysiwyg_pspell_not_installed">Pspell is not installed</string>
+	<string source="wysiwyg_spell_checker_pref_field">Spell Checker Language</string>
+	<string source="wysiwyg_spell_checker_pref_note">Language code consists of the two letter ISO 639 language code and an optional two letter ISO 3166 country code after a dash or underscore</string>
+	<string source="wysiwyg_spell_checker_pref_error">Pspell couldn't open the dictionary, no word lists can be found for the language "%s"</string>
 	<string source="warning_-_moving_to_trash">Warning - Moving To Trash</string>
 	<string source="word_list">Word List</string>
 	<string source="word_list_note">New line separated list of words that are not allowed to be used as password</string>
@@ -570,7 +573,7 @@
 	<string source="assert_contains">expected %1$s but got %2$s</string>
 	<string source="assert_isset">expected value was NOT SET</string>
 	<string source="assert_isset_array">expected array index %s was NOT SET</string>
-	<string source="assert_object">passed object was not of type  %s</string>
+	<string source="assert_object">passed object was not of type %s</string>
 	<string source="assert_type">[%1$s] "%2$s" was not of type %3$s</string>
 	<string source="assert_assetid">[%1$s] "%2$s" is not a valid asset ID</string>
 
@@ -1104,6 +1107,10 @@
 	<string source="trigger_set_attribute_value_serialise_note">You have selected a serialised attribute.  The value you set it to must be a valid PHP expression, for example "Array(1, 2, 4)"</string>
 
 	<string source="trigger_set_design_basic">Set the asset's design to: %s</string>
+	<string source="trigger_set_design_select_design_type">Type of design (Override existing or create new if not existed) </string>
+	<string source="trigger_set_design_set_user_design_name">Set User Defined design name</string>
+	<string source="trigger_set_index_page_basic">Set the index page to: %s</string>
+	<string source="trigger_set_index_page_select">Select the index page</string>
 	<string source="trigger_set_status">Set the Asset's status to: %1$s&lt;br /&gt;%2$s Set status of dependent parents instead (eg. set the status of a bodycopy DIV's Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the status set normally).</string>
 	<string source="trigger_increment_version">Increment this component of the Asset's version number: %s</string>
 
@@ -2015,6 +2022,8 @@ Are you sure you want to proceed?</string>
 	<string source="http_header_conditional_note">Note: Only applicable to Live assets that are accessible by public users.</string>
 	<string source="http_header_send_no_cache_header_field">Send no-cache header for File assets</string>
 	<string source="http_header_send_no_cache_header_field_note">If enabled, the "no-cache" Cache-Control option will be sent when serving File asset types. This option can be used to resolve inline file display issues in Internet Explorer.</string>
+	<string source="http_header_send_404_cacheable_header_field">Send 404 Cacheable Header</string>
+	<string source="http_header_send_404_cacheable_header_field_note">If enabled, server will send cacheable Cache-Control and Pragma headers for 404 response to allow Proxy server to cache.</string>
 
 	<!-- Status Changes -->
 	<string source="status_change_place_under_construction">Place Under Construction</string>
