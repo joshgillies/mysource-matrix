@@ -10,12 +10,13 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.147 2007/03/05 04:24:42 tbarrett Exp $
+* $Id: search_manager.inc,v 1.147.2.1 2007/05/01 06:33:39 rong Exp $
 *
 */
 
 check_ssv_licence();
 require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 
 /**
 * Search_Manager
@@ -24,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.147 $
+* @version $Revision: 1.147.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1853,7 +1854,7 @@ class Search_Manager extends Asset
 		}
 
 		if (is_null($final_results)) {
-			// If this is the case then we didn't find anything to actually search on.  Maybe no 
+			// If this is the case then we didn't find anything to actually search on.  Maybe no
 			// words were long enough.  Anyway, we should at least break the news in the correct format.
 			$final_results = Array();
 		}
@@ -2269,7 +2270,7 @@ class Search_Manager extends Asset
 	* @return array
 	* @access public
 	*/
-	function spellCheckWord($word, $language='en')
+	function spellCheckWord($word, $language=SQ_TOOL_SPELL_CHECKER_LANG)
 	{
 		if (!$this->spellCheckAvailable()) {
 			// spell check not available, bugger
