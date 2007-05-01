@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_management.inc,v 1.10 2007/03/21 05:53:54 arailean Exp $
+* $Id: form_ecommerce_management.inc,v 1.11 2007/05/01 00:25:56 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -224,7 +224,7 @@ class Form_Ecommerce_Management extends Asset_Management
 			$assetid_list = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form_ecommerce', FALSE);
 			foreach ($assetid_list as $assetid) {
 				$ecom =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if (!$form->_createBodycopies()) {
+				if (!$ecom->_createBodycopies()) {
 					trigger_error('Error creating bodycopies for Ecom Form #'.$assetid, E_USER_WARNING);
 				}
 
