@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.225.2.9 2007/03/07 05:25:15 tbarrett Exp $
+* $Id: asset_map.inc,v 1.225.2.10 2007/05/02 06:11:42 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.225.2.9 $
+* @version $Revision: 1.225.2.10 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -397,17 +397,33 @@ class Asset_Map
 
 					if (!empty($common_parentid)) {
 						$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($common_parentid);
-						$first_lineage = array_shift($lineages);
+
+						// Find the first SQ_SC_LINK_BACKEND_NAV, rather than simply getting it from the beginning
+						$first_lineage = Array();
+						if (!empty($lineages)) {
+							foreach ($lineages as $lineage) {
+								if ((int) $lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
+									$first_lineage = $lineage;
+									break;
+								}
+							}
+						}
+
 						if (!empty($first_lineage)) {
 							$lineage_assetids = array_keys($first_lineage['lineage']);
 							$lineage_assetids[] = $common_parentid;
 							$rootlineage = get_asset_lineage_sort_order($lineage_assetids);
+
+							// Initial Lineage Selection will be disabled if the Root Node is set for the user
+							// Simply asset map does not work for this option
+							$initial_selection_lineage = '';
 						}
 					}
 
-
-					// Initial lineage selection (i.e ..com/site1/blah/_admin will expand the lineage of that asset)
-					$initial_selection_lineage = $this->_getInitialLineageSelection($type);
+					if (empty($rootlineage)) {
+						// Initial lineage selection (i.e ..com/site1/blah/_admin will expand the lineage of that asset)
+						$initial_selection_lineage = $this->_getInitialLineageSelection($type);
+					}
 
 					$parameters = Array(
 									'parameter.backendsuffix'			=> SQ_CONF_BACKEND_SUFFIX,
@@ -521,6 +537,7 @@ class Asset_Map
 
 		$input =& new XML_Tree('php://input');
 		$root  =& $input->getTreeFromFile();
+
 		if (PEAR::isError($root)) {
 			$this->_error('AMAP0001', $root->getMessage(), $root->getUserInfo());
 			return;
@@ -1179,7 +1196,6 @@ class Asset_Map
 			$linkid = $node->attributes['linkid'];
 			$info = $this->_getAssetInfo(urldecode($assetid), urldecode($linkid));
 			$child =& $root->addChild('asset', '', $info);
-
 			$this->_getChildAssets($child, urldecode($assetid), FALSE, $start, $limit);
 		}
 
