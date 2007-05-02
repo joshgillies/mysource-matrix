@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.55 2007/01/30 00:15:27 lwright Exp $
+* $Id: calendar_common.inc,v 1.55.2.1 2007/05/02 23:42:05 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.55.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1123,9 +1123,27 @@ class Calendar_Common
 							$result_list[$assetid.':'.$i][$k] = $event[$k];
 						}
 
-						$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i],
-																Calendar_Common::getDateComponents($event_start_date.' +'.$difference.' days', 'start_date_'),
-																Calendar_Common::getDateComponents($event_end_date.' +'.$difference.' days', 'end_date_'));
+						$event_date_components = array_merge(
+													Calendar_Common::getDateComponents($event_start_date.' +'.$difference.' days','start_date_'),
+													Calendar_Common::getDateComponents($event_end_date.' +'.$difference.' days', 'end_date_')
+												 );
+
+						// If there is not a time specified, this event will be shown in the "all-day" row.
+  	                    // Null values need to be preserved for the time for this to occur
+  	                    $date_vars = Array(
+										'start_date_hours', 'start_date_minutes', 'start_date_seconds',
+										'end_date_hours', 'end_date_minutes', 'end_date_seconds',
+									 );
+						foreach ($date_vars as $date_var) {
+							if (is_null($event[$date_var])) {
+								$event_date_components[$date_var] = NULL;
+							}
+						}
+
+						$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i], $event_date_components);
+
+						// Free memory
+						$event_date_components = NULL;
 
 						$i++;
 					}
