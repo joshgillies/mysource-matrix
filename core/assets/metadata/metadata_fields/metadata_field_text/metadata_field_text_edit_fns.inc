@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.22.2.2 2007/03/08 04:21:24 tbarrett Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.22.2.3 2007/05/03 05:06:14 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.22.2.2 $
+* @version $Revision: 1.22.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,7 +81,10 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 			if ($enable_default) {
 				echo ' &nbsp; &nbsp; &nbsp; ';
-				check_box($prefix.'_default', '1', $is_default, 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.str_replace("'", "\'", $asset->attr('default')).'\'; } }');
+				$default_string = str_replace("'", "\'", $asset->attr('default'));
+				// get rid of javascript error 'unterminated string literal'. (bug 2386)
+				$default_string = str_replace(Array("\r\n", "\r", "\n"), '\n', $default_string);
+				check_box($prefix.'_default', '1', $is_default, 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.$default_string.'\'; } }');
 				label(translate('use_default'), $prefix.'_default');
 			}
 		} else {
