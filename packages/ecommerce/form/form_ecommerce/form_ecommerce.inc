@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.30 2007/03/29 06:40:39 arailean Exp $
+* $Id: form_ecommerce.inc,v 1.31 2007/05/03 00:43:01 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -488,7 +488,8 @@ class Form_Ecommerce extends Form_Email
 		$bodycopy =& $this->getBodycopy('Form');
 
 		if (is_null($bodycopy)) return '';
-
+	
+		$replacements = Array();	
 		$keyword_list = $bodycopy->getKeywords();
 		if (!empty($keyword_list)) {
 			foreach ($keyword_list as $keyword) {
