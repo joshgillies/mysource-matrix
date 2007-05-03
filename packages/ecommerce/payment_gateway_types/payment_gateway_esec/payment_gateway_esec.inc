@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.17 2007/03/26 04:05:33 arailean Exp $
+* $Id: payment_gateway_esec.inc,v 1.18 2007/05/03 23:03:13 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/esec_processor_integration_interface.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -193,11 +193,10 @@ class Payment_Gateway_Esec extends Payment_Gateway
 				unset($_SESSION['SQ_ECOM_AMOUNT']);
 				$this->returnToCaller('SUCCESS');
 			}
-
-		} else {
-			$this->printBodycopy();
-
 		}
+
+		$this->printBodycopy();
+
 
 	}//end printBody()
 
