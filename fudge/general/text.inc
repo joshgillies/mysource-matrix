@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.28.2.1 2007/03/04 23:10:09 skim Exp $
+* $Id: text.inc,v 1.28.2.2 2007/05/04 06:05:14 skim Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28.2.1 $
+* @version $Revision: 1.28.2.2 $
 * @package Fudge
 * @subpackage Text
 */
@@ -134,11 +134,9 @@ function get_word_counts($text, $split_regexp="/[\t\n\r ]+/", $word_match_regexp
 
 	$words = preg_split($split_regexp, $text);
 
-	$silent_chars = Array('.', ':', ';', ',', '!', '?', '\'', '"', '(', ')', '`', '~', '!', '@', '#', '$', '%', '^', '&', '*', '-', '_', '=', '+', '{', '}', '[', ']', '|', '\\', '<', '>', '/');
 	foreach ($words as $key => $word) {
-		$words[$key] = trim(str_replace($silent_chars, '', $word));
+		$words[$key] = trim(remove_silent_chars($word));
 	}
-
 
 	$word_counts = array_count_values($words);
 	foreach ($word_counts as $word => $count) {
@@ -150,6 +148,22 @@ function get_word_counts($text, $split_regexp="/[\t\n\r ]+/", $word_match_regexp
 	return $word_counts;
 
 }//end get_word_counts()
+
+
+/**
+* Remove a set of special characters from the given text.
+*
+* @param string	$text	text
+*
+* @return string
+* @access public
+*/
+function remove_silent_chars($text)
+{
+	$silent_chars = Array('.', ':', ';', ',', '!', '?', '\'', '"', '(', ')', '`', '~', '!', '@', '#', '$', '%', '^', '&', '*', '-', '_', '=', '+', '{', '}', '[', ']', '|', '\\', '<', '>', '/');
+	return str_replace($silent_chars, '', $text);
+
+}//end remove_silent_chars()
 
 
 /**
