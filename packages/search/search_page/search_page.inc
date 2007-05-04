@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.192.2.7 2007/04/20 04:23:26 rhoward Exp $
+* $Id: search_page.inc,v 1.192.2.8 2007/05/04 05:15:50 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.192.2.7 $
+* @version $Revision: 1.192.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1812,7 +1812,7 @@ class Search_Page extends Listing_Engine
 						$synonym_string = Array();
 						foreach (array_get_index($this->_tmp['search_synonyms'], $field_name, Array()) as $word => $synonyms) {
 							foreach ($synonyms as $synonym) {
-								$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name)), 'queries_'.$field_name.'_query='.urlencode($synonym), $queries);
+								$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name, '', FALSE)), 'queries_'.$field_name.'_query='.urlencode($synonym), $queries);
 								$synonym_string[] = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.$current_result_page.'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($synonym).'</a>';
 							}
 						}
