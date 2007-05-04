@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.115.2.9 2007/03/05 04:40:00 tbarrett Exp $
+* $Id: search_manager.inc,v 1.115.2.10 2007/05/04 06:05:47 skim Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.115.2.9 $
+* @version $Revision: 1.115.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1855,7 +1855,7 @@ class Search_Manager extends Asset
 				} else {
 					$data_source_results = NULL;
 					foreach ($field_details['words'] as $search_term) {
-						$term_results = $this->_processWordSearch($search_term, $data_source, $base_query);
+						$term_results = $this->_processWordSearch(remove_silent_chars($search_term), $data_source, $base_query);
 						$term_totals[$search_term] = array_get_index($term_totals, $search_term, 0) + count($term_results);
 						$data_source_results = $this->_combineResults($data_source_results, $term_results, $word_logic);
 					}
