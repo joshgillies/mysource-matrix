@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.33.2.2 2007/05/04 04:57:18 rhoward Exp $
+* $Id: thesaurus.inc,v 1.33.2.3 2007/05/04 05:05:24 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.33.2.2 $
+* @version $Revision: 1.33.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -740,6 +740,10 @@ class Thesaurus extends Asset
 	*/
 	function linkTerms($minorid, $majorid, $relid)
 	{
+		// note: the reflection integrity is not guaranteed
+		// as the result of the first _linkTerms is not
+		// rolled back if the second fails
+
 		$term_linkid = $this->_linkTerms($minorid, $majorid, $relid);
 
 		if (is_null($term_linkid)) {
