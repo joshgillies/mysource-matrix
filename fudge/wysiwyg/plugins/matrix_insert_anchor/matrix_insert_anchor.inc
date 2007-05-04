@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_anchor.inc,v 1.12.2.3 2007/04/25 23:40:27 mbrydon Exp $
+* $Id: matrix_insert_anchor.inc,v 1.12.2.4 2007/05/04 04:07:17 mbrydon Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.12.2.3 $
+* @version $Revision: 1.12.2.4 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -191,14 +191,37 @@ class matrix_insert_anchor extends wysiwyg_plugin
 					if (param["remove"] == "1") {
 						if (current_a != null) {
 							// remove this anchor tag
+							var current_html = current_a.innerHTML;
+							var anchor_inner_html = current_html;
+
+							// Brackets within the HTML must be quoted when in Visual Aid mode, so the anchor can be located
+							if (typeof(visual_aid_mode) != 'undefined' && visual_aid_mode) {
+								if (HTMLArea.is_gecko) {
+									current_html = current_html.replace(/\(/, "\\\(");
+									current_html = current_html.replace(/\)/, "\\\)");
+
+									// Remove the Visual Aid code including the anchor
+									anchor_inner_html = anchor_inner_html.replace(/<span id="wysiwyg-visual-aid-plugin-anchor".*<\/span>/, '');
+								} else if (HTMLArea.is_ie) {
+									var re = new RegExp("\\(", "ig");
+									current_html = current_html.replace(re, "\\\(");
+
+									re = new RegExp("\\)", "ig");
+									current_html = current_html.replace(re, "\\\)");
+
+									re = new RegExp("<span id=wysiwyg-visual-aid-plugin-anchor.*<\/span>", "ig");
+									anchor_inner_html = anchor_inner_html.replace(re, '');
+								}
+							}
+
 							var parent = current_a.parentNode;
 							if (HTMLArea.is_gecko) {
-								var e = '(<a.*name="' + param["name"] + '"[^>]*>)' + current_a.innerHTML + '</a>';
+								var e = '(<a.*name="' + param["name"] + '"[^>]*>)' + current_html + '</a>';
 							} else if (HTMLArea.is_ie) {
-								var e = '(<a.*name="' + param["name"] + '"[^>]*>)' + current_a.innerHTML + '</a>';
+								var e = '(<a.*name="?' + param["name"] + '"?[^>]*>)' + current_html + '</a>';
 							}
 							var re = new RegExp(e, "ig");
-							var new_html = parent.innerHTML.replace(re, current_a.innerHTML);
+							var new_html = parent.innerHTML.replace(re, anchor_inner_html);
 							parent.innerHTML = new_html;
 						}
 					} else {
