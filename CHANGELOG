@@ -1,5 +1,77 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.14.0
+
+Featured Changes
+-----------------------------------
+
+Spell Checker Language Selection
+
+	A new External Tools configuration option allows you to specify a language dictionary for the "pspell" module (which is used for spell checking in MySource Matrix) to use.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
+* Fixed bug #2239: Div remains Approved To Go Live when page under workflow made live
+* Fixed bug #2279: Asset with multiple workflow applied display error while a user is trying to approve the changes
+* Fixed bug #2308: Safe edit version of page not cached as public user
+* Fixed bug #2309: Locks on non-assets not displayed correctly
+* Fixed bug #2315: Backend user has access to Log Manager
+* Fixed bug #2319: Logout logs are not inserted into database
+* Fixed bug #2322: Asset Map doesn't dock properly when both maps have been undocked
+* Fixed bug #2323: Table Properties - Vertical alignment not working correctly
+* Fixed bug #2324: Commit button is in the way on the Selective Emails screen
+* Fixed bug #2333: Cron logging misformatted
+* Fixed bug #2336: Trigger Action Create Asset: string can_only_create_assets_explanation not found
+* Fixed bug #2341: Trigger Action Assign Metadata Schema: localisation string not found
+* Fixed bug #2355: Trigger Set Attribute Value misidentifies TRUE/FALSE/NULL as non-safe PHP code
+* Fixed bug #2356: Sessions, Preview and SQ_ACTION=set_design_name
+* Fixed bug #2359: Constant Button Design Area causes Fatal Error
+* Fixed bug #2361: WYSIWYG editor adds spaces between html tags
+* Fixed bug #2364: Editing of single-word WYSIWYG anchors does not work in IE6
+* Fixed bug #2367: Cannot remove anchors when using WYSIWYG visual aid mode
+* Fixed bug #2374: HIPO New Link dialog doesn't escape asset names
+* Fixed bug #2375: Source string for No not found for locale en_AU
+* Fixed bug #2384: User Group preference for Asset Map Root Asset does not work
+* Fixed bug #2386: Cannot edit metadata field when the default value has a return character
+
+CMS
+
+* Fixed bug #2274: Custom Form - Incorrect keywords causes the form to break (Custom Form)
+* Fixed bug #2291: Listing with no status filter shows assets that shouldn't be seen (Listing Engine)
+* Fixed bug #2314: Date 1970 appearing in Whats new when asset lock aquired (What's New Page)
+* Fixed bug #2321: MySource Error on the Whats New Page (What's New Page)
+* Fixed bug #2351: Form question and sections name, title allows php code value (Custom Form)
+* Fixed bug #2368: Remote Content should not hash the anchor part of a link (Remote Content Page)
+
+Search
+
+* Fixed bug #2271: %[term]_query_suggestions_message% creates incorrect link with phrase (Search Page)
+* Fixed bug #2325: Searching for phrase returns no result (Search Manager)
+* Fixed bug #2342: Metadata date searching doesn't work (Search Manager)
+* Fixed bug #2354: %[term]_query_synonyms% creates incorrect link with symbols in search string (Search Page)
+* Fixed bug #2388: Apostrophe Searching does not work (Search Manager)
+
+Calendar
+
+* Fixed bug #2317: Upcoming Events List - Recurring Events listed once / counted multiple times. (Upcoming Events List)
+* Fixed bug #2360: Cannot create Rolling Calendar page under Site (Rolling Calendar Page)
+* Fixed bug #2383: All-day Recurring Events do not show on Calendar Page week or day view (Calendar Page)
+
+Data
+
+* Fixed bug #2313: Datasouce Graph plot saves incorrect data (Data Source Graph)
+
+E-Commerce
+
+* Fixed bug #2382: E-Commerce Form upgrade fails with PHP error (E-Commerce Form)
+* Fixed bug #2387: E-Commerce Form frontend PHP notice (E-Commerce Form)
+
+
+
 VERSION 3.14.0 RC1
 
 Featured Changes
