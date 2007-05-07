@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.83 2007/03/29 02:13:58 tbarrett Exp $
+* $Id: form_email_edit_fns.inc,v 1.84 2007/05/07 04:44:11 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -687,6 +687,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$logs = Array();
 		$headers = Array('__time__' => translate('submission_time'), '__user__' => translate('cms_form_user_submitting'), '__ipaddress__' => translate('cms_form_ipaddress_submitting'));
 
+		$sub_folder =& $asset->getSubmissionsFolder();
 		$sql = 'SELECT
 					a.assetid, a.type_code, a.created, a.created_userid
 				FROM
@@ -694,7 +695,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 					ON l.minorid = a.assetid';
 
-		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).') AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').
+		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).', '.$GLOBALS['SQ_SYSTEM']->db->quote($sub_folder->id).') AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').
 			' AND a.created BETWEEN '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($from_ts)).' AND '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($to_ts));
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
@@ -782,6 +783,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		echo '<submissions>';
 
+		$sub_folder =& $asset->getSubmissionsFolder();
 		$sql = 'SELECT
 					a.assetid, a.type_code, a.created
 				FROM
@@ -790,7 +792,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 					ON l.minorid = a.assetid';
 
-		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).')
+		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).', '.$GLOBALS['SQ_SYSTEM']->db->quote($sub_folder->id).')
 					AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').'
 					AND a.created BETWEEN '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($from_ts)).'
 					AND '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($to_ts));
