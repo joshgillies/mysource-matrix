@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_management.inc,v 1.10 2007/04/27 07:16:19 arailean Exp $
+* $Id: data_source_db_management.inc,v 1.11 2007/05/07 07:50:39 skim Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -174,6 +174,48 @@ class Data_Source_DB_Management extends Asset_Management
 					  );
 
 	}//end constructor
+
+
+	/**
+	* Upgrade this asset to the most current version
+	*
+	* @param string	$current_version	The version this asset should be upgraded to
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		// Data_Source_Db does not store '<br />' string in 'sql' attribute anymore
+		if (version_compare($current_version,'0.3','<')) {
+
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('data_source_db', FALSE);
+
+			pre_echo('UPGRADING DATA SOURCE DB - FROM VERSION '.$current_version);
+
+			$upgraded_count = 0;
+			foreach ($children as $assetid) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$sql = $asset->attr('sql');
+				if (!$asset->setAttrValue('sql', str_replace('<br />', ' ', $sql))) {
+					trigger_localised_error('CMS0039', E_USER_WARNING, '0.3');
+				}
+				if (!$asset->saveAttributes()) {
+					trigger_localised_error('CMS0039', E_USER_WARNING, '0.3');
+				}
+				$upgraded_count++;
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+
+			pre_echo('Upgraded '.$upgraded_count.' DATA SOURCE DB assets to version 0.3');
+
+		}//end if version 0.3
+
+		return parent::_upgrade($current_version);
+
+	}//end _upgrade()
 
 
 }//end class

@@ -13,7 +13,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.4 2007/04/27 07:19:04 arailean Exp $
+* $Id: asset.xml,v 1.5 2007/05/07 07:50:39 skim Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>data</package>
 	<type_code>data_source_db</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>DB Data Source</name>
 	<description>This is used to establish connectivity with a DB</description>
 	<instantiable>yes</instantiable>
