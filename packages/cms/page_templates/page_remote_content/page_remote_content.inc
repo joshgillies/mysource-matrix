@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.66 2007/05/01 23:41:38 colivar Exp $
+* $Id: page_remote_content.inc,v 1.67 2007/05/08 17:19:08 gnoel Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -317,7 +317,7 @@ class Page_Remote_Content extends Page
 			addProxyInfo($request_parameters, $default_headers);
 
 			// we need a persistent cookie manager for this
-			$cookie_man =& new Persistent_Cookie_Manager();
+			$cookie_man =& $this->_getNewCookieManager();
 
 			$HTTP_Client =& new HTTP_Client($request_parameters, $default_headers, $cookie_man);
 			setcookie(SQ_REMOTE_SESSION_COOKIE_NAME, 1);
@@ -725,7 +725,7 @@ class Page_Remote_Content extends Page
 		// PATTERNS for urls that might need to be rewritten to point back to remote content
 		// links and frames except mailto and javascript
 		$patterns[] = '/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*[\'"]?)\s*((?:(?![\#]|mailto|javascript))[^\'"> #]+)([\'"> #]?[^<]*>)/i';
-		
+
 		// this pattern is a special case. we don't generally look at JavaScript
 		// because that is a whole new territory
 		// this one was added for compatibility with MySource v2 ecom module
@@ -1164,6 +1164,19 @@ class Page_Remote_Content extends Page
 		return FALSE;
 
 	}//end isUrlAllowed()
+
+
+	/**
+	* Return a reference to a new HTTP_Client_CookieManager
+	*
+	* @return object
+	* @access private
+	*/
+	function &_getNewCookieManager()
+	{
+		return new Persistent_Cookie_Manager();
+
+	}//end _getNewCookieManager()
 
 
 }//end class
