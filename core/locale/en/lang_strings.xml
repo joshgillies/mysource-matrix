@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.249 2007/05/01 06:04:17 rong Exp $
+* $Id: lang_strings.xml,v 1.250 2007/05/08 06:23:29 rong Exp $
 *
 */
 
@@ -1242,7 +1242,7 @@
 	<string source="layout">Layout</string>
 	<string source="rows">Rows</string>
 	<string source="columns">Columns</string>
-	<string source="ok">Ok</string>
+	<string source="ok" java="1">Ok</string>
 	<string source="custom">Custom</string>
 	<string source="sub">Sub</string>
 	<string source="or">Or</string>
