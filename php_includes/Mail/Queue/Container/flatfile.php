@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: flatfile.php,v 1.2 2006/12/11 04:24:11 bcaldwell Exp $
+* $Id: flatfile.php,v 1.3 2007/05/08 23:08:38 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once 'Mail/Queue/Container.php';
  *
  * @author   Nathan de Vries <ndvries@squiz.net>
  * @package  Mail_Queue
- * @version  $Revision: 1.2 $
+ * @version  $Revision: 1.3 $
  * @access   public
  */
 class Mail_Queue_Container_flatfile extends Mail_Queue_Container
@@ -151,8 +151,8 @@ class Mail_Queue_Container_flatfile extends Mail_Queue_Container
 		// uses user_id as the custom id of mail queue files
 		$header_array = unserialize($headers);
 		if (isset($header_array['custom_id'])) {
-			//$id = $header_array['custom_id'];
-			$id = md5(uniqid($header_array['custom_id']));
+			$custom_id = substr($header_array['custom_id'], 0, 113);
+			$id = md5(uniqid($custom_id));
 			unset($header_array['custom_id']);
 			$headers = serialize($header_array);
 		} else {
