@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.19 2007/02/25 23:06:46 tbarrett Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.20 2007/05/08 06:05:41 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -193,55 +193,23 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	*/
 	function getAvailableLocations()
 	{
-		$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($this->attr('root_node'));
-		$child_links = $all_child_links;
-
-		$search_tree = Array();
-		$asset_info_ids = Array();
-		$invalid = Array();
-
-		// weed out any unwanted entries
-		foreach ($all_child_links as $treeid => $data) {
-			// build an array of assetids as we go
-			$asset_info_ids[] = $data['assetid'];
-
-			if (!in_array($data['type_code'], Array('user_group'))) {
-				unset($child_links[$treeid]);
-				$invalid[] = $treeid;
-				continue;
-			}
-
-			if ($this->attr('structured_style')) {
-				foreach ($invalid as $banned) {
-					if (strlen($banned) > strlen($treeid)) continue;
-					if (substr($treeid, 0, strlen($banned)) == $banned) {
-						unset($child_links[$treeid]);
-						continue 1;
-					}
-				}
-			}
-		}
-
-		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_info_ids);
+		$locations = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->attr('root_node'), 'user_group');
 
 		// check if we have statuses we want to filter out
 		$statuses = $this->attr('statuses');
 		if (!empty($statuses)) {
-			foreach ($child_links as $treeid => $data) {
-				if (!in_array($asset_info[$data['assetid']]['status'], $statuses)) {
-					unset($child_links[$treeid]);
+			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($locations));
+			foreach ($asset_info as $assetid => $info) {
+				if (!in_array($info['status'], $statuses)) {
+					unset($locations[$assetid]);
 				}
 			}
 		}
 
-		$available_locations = Array();
-		foreach ($child_links as $child_link) {
-			$available_locations[] = $child_link['assetid'];
-		}
-
 		// if the root node is a user group and has the correct status, include it
+		$available_locations = array_keys($locations);
 		$root_node =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('root_node'));
-		if (is_a($root_node, 'user_group') && in_array($root_node->status, $statuses)) {
+		if (is_a($root_node, 'user_group') && (!empty($statuses) && in_array($root_node->status, $statuses))) {
 			$available_locations[] = $root_node->id;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_node);
