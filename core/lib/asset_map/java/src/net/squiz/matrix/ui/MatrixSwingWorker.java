@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: SwingWorker.java,v 1.2 2006/12/05 05:26:37 bcaldwell Exp $
+* $Id: MatrixSwingWorker.java,v 1.2 2007/05/08 02:28:37 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ import javax.swing.SwingUtilities;
  * You must now invoke start() on the SwingWorker after
  * creating it.
  */
-public abstract class SwingWorker {
+public abstract class MatrixSwingWorker {
     private Object value;  // see getValue(), setValue()
     private Thread thread;
 
@@ -113,7 +113,7 @@ public abstract class SwingWorker {
      * Start a thread that will call the <code>construct</code> method
      * and then exit.
      */
-    public SwingWorker() {
+    public MatrixSwingWorker() {
         final Runnable doFinished = new Runnable() {
            public void run() { finished(); }
         };

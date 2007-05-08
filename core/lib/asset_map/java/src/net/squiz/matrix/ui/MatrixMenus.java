@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixMenus.java,v 1.11 2007/01/23 01:18:50 skim Exp $
+* $Id: MatrixMenus.java,v 1.12 2007/05/08 02:28:37 rong Exp $
 *
 */
 
@@ -472,7 +472,7 @@ public class MatrixMenus implements MatrixConstants {
 						// in a thread
 						if (!type.isIconLoaded()) {
 							nextItem.setIcon(GUIUtilities.getAssetMapIcon(DEFAULT_ASSET_ICON));
-							SwingWorker worker = new SwingWorker() {
+							MatrixSwingWorker worker = new MatrixSwingWorker() {
 								public Object construct() {
 									Icon icon = type.getIcon();
 									nextItem.setIcon(icon);
