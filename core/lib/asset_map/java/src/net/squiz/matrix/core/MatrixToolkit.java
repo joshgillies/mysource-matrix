@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixToolkit.java,v 1.5 2006/12/05 05:26:36 bcaldwell Exp $
+* $Id: MatrixToolkit.java,v 1.5.2.1 2007/05/08 05:36:26 skim Exp $
 *
 */
 
@@ -113,6 +113,6 @@ public class MatrixToolkit {
 		String limitstr = "start=\""+start+"\" limit=\""+limit+"\"";
 
 		xml.append("<asset assetid=\"").append(
-				rawUrlEncode(assetid, false)).append("\" "+limitstr).append(" linkid=\""+linkid+"\" />");
+				rawUrlEncode(assetid, false)).append("\" "+limitstr).append(" linkid=\"").append(rawUrlEncode(linkid, false)).append("\" />");
 	}
 }
