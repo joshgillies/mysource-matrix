@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.44 2007/02/22 00:16:00 tbarrett Exp $
+* $Id: edit.js,v 1.45 2007/05/08 06:55:41 mbrydon Exp $
 *
 */
 
@@ -27,6 +27,13 @@ function switchEditingMode(contentDivID, editDivID, editor) {
 		// it is being shown - skip this otherwise
 		if (initialisedEditors[editor._uniqueID] == null) {
 			initialisedEditors[editor._uniqueID] = true;
+
+			// Handle unknown IE tags
+			if (HTMLArea.is_ie) {
+				// Create a dummy "abbr" element for the DOM
+				var dom_abbr = document.createElement('ABBR');
+			}
+
 			editor.generate();
 			//editor.updateToolbar(true);
 			setDesignMode = false;

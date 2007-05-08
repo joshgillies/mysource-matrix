@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_abbr.php,v 1.8 2006/12/06 05:11:09 bcaldwell Exp $
+* $Id: insert_abbr.php,v 1.9 2007/05/08 06:55:42 mbrydon Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Abbreviation Popup for the WYSIWYG
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 
@@ -57,9 +57,6 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
 
 		<script type="text/javascript">
-			var can_insert = true;
-			if (navigator.appName == "Microsoft Internet Explorer") { can_insert = false; }
-
 			function getFocus() {
 				setTimeout('self.focus()',100);
 			};
@@ -88,21 +85,14 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 			};
 
 			function buildForm() {
-				if (can_insert) {
-					document.write('<tr>');
-					document.write('<td class="label"><?php echo translate('abbreviation'); ?>:</td>');
-					document.write('<td colspan="3"><?php text_box('abbr', trim($_GET['abbr']), 40, 0);?></td>');
-					document.write('</tr>');
-					document.write('<tr>');
-					document.write('    <td class="label"><?php echo translate('definition'); ?>:</td>');
-					document.write('    <td colspan="3"><?php text_box('title', trim($_GET['title']), 40, 0);?></td>');
-					document.write('</tr>');
-				} else {
-					document.write('<tr>');
-					document.write('    <td colspan="4">Internet Explorer does not support automatically');
-					document.write('    inserting the Abbreviation tag. You may insert this tag manually in Source View mode.</td>');
-					document.write('</tr>');
-				}
+				document.write('<tr>');
+				document.write('<td class="label"><?php echo translate('abbreviation'); ?>:</td>');
+				document.write('<td colspan="3"><?php text_box('abbr', trim($_GET['abbr']), 40, 0);?></td>');
+				document.write('</tr>');
+				document.write('<tr>');
+				document.write('    <td class="label"><?php echo translate('definition'); ?>:</td>');
+				document.write('    <td colspan="3"><?php text_box('title', trim($_GET['title']), 40, 0);?></td>');
+				document.write('</tr>');
 			};
 
 		</script>
@@ -197,9 +187,7 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 			<div style="margin-top: 5px; margin-right: 5px; text-align: right;">
 				<hr />
 				<script type="text/javascript" language="javascript">
-				if (can_insert) {
 					document.write('<button type="button" name="ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>');
-				};
 				</script>
 				<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
 			</div>
