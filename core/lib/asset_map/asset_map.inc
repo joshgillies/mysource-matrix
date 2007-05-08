@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.244.2.1 2007/05/02 06:10:36 skim Exp $
+* $Id: asset_map.inc,v 1.244.2.2 2007/05/08 02:11:15 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.244.2.1 $
+* @version $Revision: 1.244.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -430,7 +430,7 @@ class Asset_Map
 									'parameter.url.baseurl'				=> $root_url,
 									'parameter.url.execurl'				=> $root_url.SQ_CONF_BACKEND_SUFFIX.'?SQ_ACTION=asset_map_request&SESSION_ID='.$_COOKIE['SQ_SYSTEM_SESSION'].'&SESSION_KEY='.$GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
 									'parameter.asset.limit'				=> SQ_CONF_ASSET_MAP_ASSET_LIMIT,
-									'parameter.java.supportedversion'	=> '1.4.2,1.5.0',
+									'parameter.java.supportedversion'	=> '1.4.2,1.5.0,1.6.0',
 									'parameter.java.sunurl'				=> 'http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80',
 									'parameter.rootlineage'				=> $rootlineage,
 									'parameter.initialselection'		=> $initial_selection_lineage,

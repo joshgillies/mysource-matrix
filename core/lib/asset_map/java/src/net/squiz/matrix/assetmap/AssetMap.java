@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.25 2006/12/05 05:26:35 bcaldwell Exp $
+* $Id: AssetMap.java,v 1.25.4.1 2007/05/08 02:11:18 rong Exp $
 *
 */
 
@@ -169,7 +169,7 @@ public class AssetMap extends JApplet implements InitialisationListener, KeyList
 		// get a swing worker to call init in AssetManager
 		// when it returns set the root node to all trees
 		MatrixStatusBar.setStatus(Matrix.translate("asset_map_status_bar_init"));
-		SwingWorker worker = new SwingWorker() {
+		MatrixSwingWorker worker = new MatrixSwingWorker() {
 			public Object construct() {
 				MatrixTreeNode root = null;
 				try {

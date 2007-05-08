@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetRefreshWorker.java,v 1.6 2006/12/05 05:26:37 bcaldwell Exp $
+* $Id: AssetRefreshWorker.java,v 1.6.4.1 2007/05/08 02:11:18 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ import java.io.IOException;
  *
  * @author Marc McIntyre <mmcintyre@squiz.net>
  */
-public class AssetRefreshWorker extends SwingWorker {
+public class AssetRefreshWorker extends MatrixSwingWorker {
 
 	private String[] assetids;
 	private MatrixTreeNode node;
@@ -77,10 +77,10 @@ public class AssetRefreshWorker extends SwingWorker {
 	 * GUI updates should be executed in the method. GUI updates should occur
 	 * in finished()
 	 * @return the object to get obtained by get()
-	 * @see SwingWorker.get()
-	 * @see SwingWorker.construct()
+	 * @see MatrixSwingWorker.get()
+	 * @see MatrixSwingWorker.construct()
 	 * @see finished()
-	 * @see SwingWorker.finished()
+	 * @see MatrixSwingWorker.finished()
 	 */
 	public Object construct() {
 		try {
@@ -93,7 +93,7 @@ public class AssetRefreshWorker extends SwingWorker {
 	/**
 	 * Called from the EventDispachThread once construct has completed.
 	 * @see construct()
-	 * @see SwingWorker.finished()
+	 * @see MatrixSwingWorker.finished()
 	 */
 	public void finished() {
 		Object get = get();
@@ -124,7 +124,7 @@ public class AssetRefreshWorker extends SwingWorker {
 
 	/**
 	 * Starts the worker.
-	 * @see SwingWorker.start()
+	 * @see MatrixSwingWorker.start()
 	 */
 	public void start() {
 		MatrixStatusBar.setStatus(getStatusBarWaitMessage());

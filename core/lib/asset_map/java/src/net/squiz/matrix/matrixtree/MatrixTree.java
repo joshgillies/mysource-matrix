@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTree.java,v 1.26 2006/12/05 05:26:36 bcaldwell Exp $
+* $Id: MatrixTree.java,v 1.26.4.1 2007/05/08 02:11:18 rong Exp $
 *
 */
 
@@ -40,6 +40,9 @@ import java.awt.image.*;
 import java.awt.geom.*;
 import java.awt.dnd.*;
 import java.awt.datatransfer.*;
+
+
+
 
 /**
  * The MatrixTree class is the main tree in the Matrix asset map.
@@ -1151,7 +1154,7 @@ public class MatrixTree extends CueTree
 	 * Removes the children of a given parent node
 	 *
 	 * @param parent
- 	 * @param incNavNodes if set to true next and previous nodes will be removed
+	 * @param incNavNodes if set to true next and previous nodes will be removed
 	 */
 	private void removeChildNodes(MatrixTreeNode parent) {
 		Object[] removedArray = new Object[parent.getChildCount()];
@@ -1971,12 +1974,52 @@ public class MatrixTree extends CueTree
 
 				TreePath path = getClosestPathForLocation(tree, mouseX, mouseY);
 				boolean isControl = isLocationInExpandControl(path, mouseX, mouseY);
-
 				if ((getPathForLocation(mouseX, mouseY) == null) && !isControl && !GUIUtilities.isRightMouseButton(evt))
 					clearSelection();
-				else
-					super.mouseReleased(evt);
+				else {
+					// copied from java 1.5 instead of using super.mouseReleased(evt)
+					// condition checking in BasicTreeUI$Handler.mouseReleased is broken in 1.6
+					if ((!evt.isConsumed())) {
+						handleSelection(evt);
+					}
+				}
 			}
+
+			// copied from java 1.5 source code
+			// drag-n-drop feature added in 1.6 breaks MatrixTree expansion and selection
+			void handleSelection(MouseEvent e) {
+				if(tree != null && tree.isEnabled()) {
+					if (isEditing(tree) && tree.getInvokesStopCellEditing() && !stopEditing(tree)) {
+						return;
+					}
+					if (tree.isRequestFocusEnabled()) {
+						tree.requestFocus();
+					}
+
+					TreePath path = getClosestPathForLocation(tree, e.getX(), e.getY());
+					if(path != null) {
+						Rectangle bounds = getPathBounds(tree, path);
+						if(e.getY() > (bounds.y + bounds.height)) {
+							return;
+						}
+
+						// Preferably checkForClickInExpandControl could take
+						// the Event to do this it self!
+						if(SwingUtilities.isLeftMouseButton(e))
+							checkForClickInExpandControl(path, e.getX(), e.getY());
+
+						int x = e.getX();
+
+						// Perhaps they clicked the cell itself. If so,
+						// select it.
+						if (x > bounds.x) {
+							if (x <= (bounds.x + bounds.width) && !startEditing(path, e)) {
+								selectPathForEvent(path, e);
+							}
+						}
+					}
+				}
+			}//end handleSelection
 
 		}//end class MatrixMouseListener
 	}//end class MatrixTreeUI

@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: InspectorGadget.java,v 1.6 2006/12/05 05:26:36 bcaldwell Exp $
+* $Id: InspectorGadget.java,v 1.6.4.1 2007/05/08 02:11:18 rong Exp $
 *
 */
 
@@ -541,7 +541,7 @@ public class InspectorGadget 	extends 	JTable
 
 		if (!node.getAsset().childrenLoaded()) {
 			MatrixStatusBar.setStatus("Loading children...");
-			SwingWorker worker = new SwingWorker() {
+			MatrixSwingWorker worker = new MatrixSwingWorker() {
 				public Object construct() {
 					try {
 						AssetManager.refreshAsset(node, "");
