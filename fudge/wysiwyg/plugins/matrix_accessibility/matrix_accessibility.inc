@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_accessibility.inc,v 1.11 2007/05/08 06:55:42 mbrydon Exp $
+* $Id: matrix_accessibility.inc,v 1.12 2007/05/09 00:16:43 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     Triple-A level accessibility tags (e.g. abbr and acronym)
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -169,10 +169,16 @@ class matrix_accessibility extends wysiwyg_plugin
 
 						var html = '<abbr title="' + param["title"] + '">' + inside_html + '</abbr>';
 
-						if (HTMLArea.is_gecko) {
-							editor.insertHTML(html, range);
-						} else if (HTMLArea.is_ie) {
-							range.pasteHTML(html);
+						// Update abbreviation if selected, otherwise create a new one
+						if (current_abbr) {
+							current_abbr.title = param["title"];
+							current_abbr.innerHTML = inside_html;
+						} else {
+							if (HTMLArea.is_gecko) {
+								editor.insertHTML(html, range);
+							} else if (HTMLArea.is_ie) {
+								range.pasteHTML(html);
+							}
 						}
 
 
