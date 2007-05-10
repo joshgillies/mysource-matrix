@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_asset_sorter.inc,v 1.3.2.1 2007/02/02 03:15:16 skim Exp $
+* $Id: tool_asset_sorter.inc,v 1.3.2.2 2007/05/10 04:52:16 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Provides a tool for making multiple clones of an asset
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3.2.1 $
+* @version $Revision: 1.3.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -122,7 +122,11 @@ class Tool_Asset_Sorter extends Tool
 		$linkids =  $db->getCol($sql);
 		assert_valid_db_result($linkids);
 
-		foreach (array_chunk($linkids, 500, TRUE) as $chunk) {
+		// There is a limit to CASE statement size in Oracle, that limits it to
+		// 127 WHEN-THEN pairs (in theory), so limit to 127 at a time on Oracle
+		$chunk_size = ($db->phptype == 'oci8') ? 127 : 500;
+
+		foreach (array_chunk($linkids, $chunk_size, TRUE) as $chunk) {
 			$cases = '';
 			foreach ($chunk as $i => $linkid) {
 				$cases .= 'WHEN (linkid = '.$linkid.') THEN '.$i.' ';
