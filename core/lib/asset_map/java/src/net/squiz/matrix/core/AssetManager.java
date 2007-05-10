@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetManager.java,v 1.7 2006/12/05 05:26:35 bcaldwell Exp $
+* $Id: AssetManager.java,v 1.8 2007/05/10 02:57:59 rong Exp $
 *
 */
 
@@ -22,6 +22,7 @@ import org.w3c.dom.*;
 import java.io.IOException;
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.tree.*;
 import net.squiz.matrix.ui.*;
 import net.squiz.matrix.assetmap.*;
 
@@ -174,10 +175,10 @@ public class AssetManager {
 		/*
 		 The XML structure that is processed by this method is as follows:
 		   <assets>                1
-		     <asset ...>           2
-		        <asset ...>        3
-		        <asset ...>        3
-		     </asset>              2
+			 <asset ...>           2
+				<asset ...>        3
+				<asset ...>        3
+			 </asset>              2
 		   </assets>               1
 		*/
 
@@ -391,12 +392,14 @@ public class AssetManager {
 	 * @param parent the parent asset of the xml element.
 	 */
 	public static void updateAsset(Element childElement, Asset parent) {
+
 		NodeList childNodes = (NodeList) childElement.getChildNodes();
 		parent.processAssetXML(childElement);
 
 		// create a set of linkids so that we can remove any nodes
 		// that are no longer children of this asset
 		List linkids = new ArrayList();
+		boolean hasShadowChild = false;
 
 		// assets in the xml are in the correct order. We dont use the sort
 		// order because notice links and type 3 links have a sort order, but
@@ -404,11 +407,16 @@ public class AssetManager {
 		int index = 0;
 
 		for (int i = 0; i < childNodes.getLength(); i++) {
+
 			if (!(childNodes.item(i) instanceof Element))
 				continue;
 			Element assetElement = (Element) childNodes.item(i);
 
+
 			String assetid = getIdFromElement(assetElement);
+			if (assetid.indexOf(":") != -1) {
+				hasShadowChild = true;
+			}
 			String linkid  = assetElement.getAttribute("linkid");
 			int linkType   = Integer.parseInt(assetElement.getAttribute("link_type"));
 			Asset asset    = loadAsset(assetid, assetElement, null, index);
@@ -433,6 +441,15 @@ public class AssetManager {
 					MatrixTreeNode node = (MatrixTreeNode) nodeIterator.next();
 					if (node != null) {
 						refreshAsset(node, "");
+					}
+					if (hasShadowChild) {
+						// bug2346: collapse and expand, as a refresh action
+						// for assets that implement bridge (e.g. form section)
+						TreePath tp = new TreePath(node.getPath());
+						if (MatrixTreeBus.getActiveTree().isExpanded(tp)) {
+							MatrixTreeBus.getActiveTree().collapsePath(tp);
+							MatrixTreeBus.getActiveTree().expandPath(tp);
+						}
 					}
 				}
 			} else {
