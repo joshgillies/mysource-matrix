@@ -10,13 +10,17 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: pre_session.php,v 1.6 2006/12/05 05:07:54 bcaldwell Exp $
+* $Id: pre_session.php,v 1.6.4.1 2007/05/11 06:53:56 rong Exp $
 *
 */
 
 if (!isset($_SESSION['PRIMARY_SESSIONID'])) {
 	reload_browser(true, $SQ_SITE_NETWORK);
 } else {
+	if (!is_file(SQ_CACHE_PATH.'/sess_'.$_SESSION['PRIMARY_SESSIONID'])) {
+		unset($_SESSION['PRIMARY_SESSIONID']);
+		reload_browser(false, $SQ_SITE_NETWORK);
+	}
 	$pri_session = $SQ_SITE_NETWORK->unserialiseSessionFile(SQ_CACHE_PATH.'/sess_'.$_SESSION['PRIMARY_SESSIONID']);
 	$pri_timestamp = (isset($pri_session['SQ_SESSION_TIMESTAMP'])) ? $pri_session['SQ_SESSION_TIMESTAMP'] : -1;
 	$sec_timestamp = (isset($_SESSION['SQ_SESSION_TIMESTAMP'])) ? $_SESSION['SQ_SESSION_TIMESTAMP'] : -1;
