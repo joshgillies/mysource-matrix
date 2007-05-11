@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.14 2007/04/27 06:43:37 arailean Exp $
+* $Id: data_source.inc,v 1.15 2007/05/11 06:55:28 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ register_implementation('data_source', 'bridge');
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -125,7 +125,7 @@ class Data_Source extends Asset
 	*/
 	function getResultSet($result_id='')
 	{
-		return $this->getChachedResultSet($result_id);
+		return $this->getCachedResultSet($result_id);
 
 	}//end getResultSet()
 
@@ -138,7 +138,7 @@ class Data_Source extends Asset
 	* @return array
 	* @access public
 	*/
-	function getChachedResultSet($cache_key='')
+	function getCachedResultSet($cache_key='')
 	{
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$result = $cm->loadFromCache($this->id, $this->type(), $cache_key, FALSE);

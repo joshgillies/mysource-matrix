@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.20 2007/05/11 06:10:06 arailean Exp $
+* $Id: data_source_db.inc,v 1.21 2007/05/11 06:55:29 arailean Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,7 +99,7 @@ class Data_Source_DB extends Data_Source
 
 		// check the cache
 		$hash = md5($query_string);
-		$result = $this->getChachedResultSet($hash);
+		$result = $this->getCachedResultSet($hash);
 		if ($result !== FALSE) return $result;
 
 		if ($this->attr('mode') != 'execute') return $result;
