@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.162.2.1 2007/04/12 01:22:07 tbarrett Exp $
+* $Id: form.inc,v 1.162.2.2 2007/05/11 01:39:50 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.162.2.1 $
+* @version $Revision: 1.162.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1082,6 +1082,118 @@ class Form extends Asset
 		return TRUE;
 
 	}//end cloneComponents()
+
+
+	/**
+	* Perform any additional processing required during the cloning of this asset
+	*
+	* This function is being called by asset_manager after the dependants of asset
+	* have been cloned.
+	*
+	* @param object	&$clone		the clone asset shell
+	* @param array	$components	the wanted components to clone eg.
+	*							Array(
+	*							'attributes',
+	*							'metadata_schemas',
+	*							'metadata',
+	*							'workflow',
+	*							'permissions',
+	*							'data',
+	*							);
+	*							or alternately
+	*							Array('all');
+	*
+	* @return boolean
+	* @access public
+	* @see asset::cloneComponentsAdditional()
+	*/
+    function cloneComponentsAdditional(&$clone, $components)
+    {
+
+        $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+        $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+        if (in_array('attributes', $components) || in_array('all', $components)) {
+            $GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
+
+            $section_links = $this->getSectionLinks();
+            $clone_section_links = $clone->getSectionLinks();
+
+            $originals_clones   = Array();
+            foreach ($section_links as $link) {
+                foreach ($clone_section_links as $cloned_link) {
+                    if ($cloned_link['sort_order'] == $link['sort_order']) {
+                        // Create a new array mapping original id and cloned id of sections.
+                        $originals_clones[]	= Array (
+												'original'	=> $link['minorid'],
+												'clone'		=> $cloned_link['minorid'],
+											  );
+                    }
+                }
+            }
+
+            // Might as well add this form and its clone to the list to do.
+            $originals_clones[]	= Array (
+									'original'	=> $this->id,
+									'clone'		=> $clone->id,
+								  );
+
+            // Now get all the bodycopies, and get their content types
+			$bodycopies	= Array (
+							'use_bodycopy_main'			=> 'Page Contents',
+							'use_bodycopy_thank_you'	=> 'Thank You',
+						  );
+            $replace_keywords = Array ( 'question_field', 'question_id', 'question_note', 'question_label', 'section_title');
+    		foreach ($bodycopies as $attribute => $bodycopy_name) {
+				$bodycopy = NULL;
+				$attr_value = $clone->attr($attribute);
+				if (!empty($attr_value)) {
+					$bodycopy =& $clone->getBodycopy($bodycopy_name);
+				}
+				if (!empty($bodycopy)) {
+					$containers =& $bodycopy->getContainers();
+					foreach ($containers as $container) {
+						$content_type =& $container->getContentType();
+						$old_html = $content_type->attr('html');
+						if (!empty($old_html)) {
+							$new_html = $content_type->attr('html');
+							foreach ($originals_clones as $original_clone) {
+								// Replace the old question id with the new question id
+								foreach ($replace_keywords as $keyword) {
+									if ($keyword == 'section_title') {
+										$new_html = str_replace($keyword.'_'.$original_clone['original'], $keyword.'_'.$original_clone['clone'], $new_html);
+									} else {
+										$new_html = str_replace($keyword.'_'.$original_clone['original'].'_q', $keyword.'_'.$original_clone['clone'].'_q', $new_html);
+									}
+								}//end foreach
+							}//end foreach
+
+							if (!$content_type->setAttrValue('html', $new_html)) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+								return FALSE;
+							}//end if
+
+							if (!$content_type->saveAttributes()) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+								return FALSE;
+							}//end if
+
+						}//end if
+					}//end foreach
+				}//end if
+            }//end foreach
+
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+        }//end if components
+
+        $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+        $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+        return TRUE;
+
+    }//end cloneComponentsAdditional()
 
 
 //--       BODYCOPIES       --//
