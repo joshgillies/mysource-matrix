@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.56 2007/05/02 23:35:35 mbrydon Exp $
+* $Id: calendar_common.inc,v 1.57 2007/05/11 04:44:36 skim Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -988,16 +988,21 @@ class Calendar_Common
 		$day_end_bits = explode(':', $day_end_time);
 		$day_end_dts = ($day_end_bits[0] * 60) + $day_end_bits[1];
 
+		$no_evt_end_date_ds			= is_null($event['end_date_ds']) || empty($event['end_date_ds']);
+		$no_evt_start_date_hours	= is_null($event['start_date_hours']) || empty($event['start_date_hours']);
+		$no_evt_end_date_hours		= is_null($event['end_date_hours']) || empty($event['end_date_hours']);
+		$no_evt_start_date_hours	= is_null($event['start_date_hours']) || empty($event['start_date_hours']);
+
 		$event_start_date = sprintf('%04d-%02d-%02d', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday']);
-		$event_end_date = is_null($event['end_date_ds']) ? NULL : sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
-		$event_start_dts = is_null($event['start_date_hours']) ? NULL : (($event['start_date_hours'] * 60) + $event['start_date_minutes']);
-		$event_end_dts = is_null($event['end_date_hours']) ? NULL : (($event['end_date_hours'] * 60) + $event['end_date_minutes']);
+		$event_end_date = $no_evt_end_date_ds ? NULL : sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
+		$event_start_dts = $no_evt_start_date_hours ? NULL : (($event['start_date_hours'] * 60) + $event['start_date_minutes']);
+		$event_end_dts = $no_evt_end_date_hours ? NULL : (($event['end_date_hours'] * 60) + $event['end_date_minutes']);
 
 		$event_start_date = sprintf('%04d-%02d-%02d %02d:%02d:00', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday'], $event['start_date_hours'], $event['start_date_minutes']);
-		$event_end_date = is_null($event['end_date_ds']) ? NULL : sprintf('%04d-%02d-%02d %02d:%02d:00', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday'], $event['end_date_hours'], $event['end_date_minutes']);
+		$event_end_date = $no_evt_end_date_ds ? NULL : sprintf('%04d-%02d-%02d %02d:%02d:00', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday'], $event['end_date_hours'], $event['end_date_minutes']);
 
 		// dispose of one case immediately
-		if (is_null($event['end_date_ds']) && !is_null($event['start_date_hours'])) {
+		if ($no_evt_end_date_ds && !$no_evt_start_date_hours) {
 			// this is a single point in time
 			if (($event_start_dts < $day_start_dts) || ($event_start_dts > $day_end_dts)) {
 				// it occurs too early or late in the day
@@ -1045,7 +1050,7 @@ class Calendar_Common
 			// days between occurrences
 			$difference = $next_occur_ds - $event['start_date_ds'];
 
-			if (!is_null($event['end_date_ds'])) {
+			if (!$no_evt_end_date_ds) {
 				// end date is specified
 				if ($event['start_date_ds'] != $event['end_date_ds']) {
 
@@ -1108,6 +1113,7 @@ class Calendar_Common
 					}
 
 				} else {
+
 					// fully-specified but falls within a single day
 					$start_time = gmmktime(0, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
 					$start_date = date('Y-m-d', $start_time);
@@ -1133,8 +1139,9 @@ class Calendar_Common
 										'start_date_hours', 'start_date_minutes', 'start_date_seconds',
 										'end_date_hours', 'end_date_minutes', 'end_date_seconds',
 									 );
+
 						foreach ($date_vars as $date_var) {
-							if (is_null($event[$date_var])) {
+							if (is_null($event[$date_var]) || empty($event[$date_var])) {
 								$event_date_components[$date_var] = NULL;
 							}
 						}
@@ -1147,7 +1154,9 @@ class Calendar_Common
 						$i++;
 					}
 				}//end else
+
 			} else {
+
 				// end date not specified, so it's either just a date or a point in time
 				$start_time = gmmktime(0, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
 				$start_date = date('Y-m-d', $start_time);
