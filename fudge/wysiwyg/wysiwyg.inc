@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.71 2007/03/21 05:02:29 skim Exp $
+* $Id: wysiwyg.inc,v 1.72 2007/05/11 05:50:29 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1308,6 +1308,15 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 			<?php $this->print_plugin_functions()?>
 
 			<?php $this->print_config()?>
+
+			<script type="text/javascript">
+				// Handle unknown IE tags
+				if (HTMLArea.is_ie) {
+					// Create a dummy "abbr" element for the DOM
+					var dom_abbr = document.createElement('ABBR');
+				}
+			</script>
+
 			<textarea id="<?php echo $this->name?>" name="<?php echo $this->name?>" <?php echo $this->textarea_extras?>><?php echo htmlentities($this->contents, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET); ?></textarea>
 
 			<script type="text/javascript">
