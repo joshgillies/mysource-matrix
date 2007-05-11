@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.19 2007/04/27 07:19:04 arailean Exp $
+* $Id: data_source_db.inc,v 1.20 2007/05/11 06:10:06 arailean Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,13 +98,20 @@ class Data_Source_DB extends Data_Source
 		if (empty($query_string)) return $result;
 
 		// check the cache
-		$result = $this->getChachedResultSet($query_string);
+		$hash = md5($query_string);
+		$result = $this->getChachedResultSet($hash);
 		if ($result !== FALSE) return $result;
 
 		if ($this->attr('mode') != 'execute') return $result;
 
+		if (isset($this->_tmp[$hash])) {
+			$result = unserialize($this->_tmp[$hash]);
+			return $result;
+		}
+
 		$result =& $this->_executeQuery($query_string);
 		$this->cacheResultSet($result, $query_string);
+		$this->_tmp[$hash] = serialize($result);
 
 		return $result;
 
@@ -200,9 +207,18 @@ class Data_Source_DB extends Data_Source
 		if ($DB === FALSE) return $result;
 
 		$sql = trim($sql, ';');
-		$result =& $DB->getAll($sql);
-		$assert_result = assert_valid_db_result($result, 'Query execution failed : '.$sql, FALSE, FALSE);
-		if (!$assert_result) $result = Array();
+		$db_result =& $DB->query($sql);
+		$assert_result = assert_valid_db_result($db_result, 'Query execution failed : '.$sql, FALSE, FALSE);
+		if (!$assert_result) return $result;
+
+		if (is_object($db_result) && ($db_result === DB_OK)) {
+			return $result;
+		}
+
+		while ($row =& $db_result->fetchRow()) {
+			$result[] = $row;
+		}
+		$db_result->free();
 
 		return $result;
 
