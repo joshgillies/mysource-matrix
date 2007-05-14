@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.149 2007/05/04 05:52:59 skim Exp $
+* $Id: search_manager.inc,v 1.150 2007/05/14 04:27:14 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.149 $
+* @version $Revision: 1.150 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1806,9 +1806,8 @@ class Search_Manager extends Asset
 					$data_source_results = $this->_processDateSearch($field_details['words'], $data_source, $base_query);
 				} else {
 					$data_source_results = NULL;
-
 					foreach ($field_details['words'] as $search_term) {
-						$term_results = $this->_processWordSearch(remove_silent_chars($search_term), $data_source, $base_query, $word_logic);
+						$term_results = $this->_processWordSearch(remove_silent_chars($search_term, strpos($GLOBALS['SQ_SYSTEM']->db->phptype, 'oci') !== FALSE ? TRUE : FALSE), $data_source, $base_query, $word_logic);
 
 						if (!isset($all_source_results[$search_term])) {
 							$all_source_results[$search_term] = Array();

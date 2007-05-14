@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.18 2007/04/18 00:42:13 rhoward Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.19 2007/05/14 04:27:14 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -826,8 +826,8 @@ class Search_Manager_Plugin_OCI8
 		// breaks, but also the operators themselves. When we replace with
 		// hashes we need to match the hash so it doesn't match with a previous
 		// one
-		$match_chars   = '[^\r\n\t \|\&\~]';
-		$replace_chars = '[^\r\n\t \|\&\~#'.implode('', $preg_ignore_chars).']';
+		$match_chars   = '[^\r\n\t \(\)\|\&\~]';
+		$replace_chars = '[^\r\n\t \(\)\|\&\~#'.implode('', $preg_ignore_chars).']';
 		//$replace_chars = '[^\r\n\t \|\&\~#]';
 
 		// replace all words with #
