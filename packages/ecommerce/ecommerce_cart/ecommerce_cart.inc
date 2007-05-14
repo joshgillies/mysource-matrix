@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.29 2007/01/08 05:46:20 emcdonald Exp $
+* $Id: ecommerce_cart.inc,v 1.30 2007/05/14 05:17:36 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -400,7 +400,7 @@ class Ecommerce_Cart extends Listing_Engine
 
 	/**
 	* Prints the individual asset in the asset list
-	*
+	* {description}
 	* This is being overridden to cache the results of each asset, and add
 	* the score and result number keyword replacements
 	*
@@ -431,7 +431,8 @@ class Ecommerce_Cart extends Listing_Engine
 		$element_replacements = Array(
 									'product_quantity'	=> $cart_contents[$assetid]['quantity'],
 								);
-
+		$sub_total = $cart_contents[$assetid]['quantity'] * $cart_contents[$assetid]['price'];
+		$element_replacements['product_total'] = $sub_total;
 		$element_contents = replace_keywords($element_contents, $element_replacements);
 
 		echo $element_contents;
@@ -456,6 +457,7 @@ class Ecommerce_Cart extends Listing_Engine
 		// cached out like this, then score and result number can be added later
 		return Array(
 				'product_quantity'	=> '%product_quantity%',
+				'product_total'		=> '%product_total%',
 			   );
 
 	}//end getExtendedAssetKeywordReplacements()
@@ -485,7 +487,12 @@ class Ecommerce_Cart extends Listing_Engine
 				}
 
 				if (isset($cart_contents[$assetid]['quantity'])) {
-					// we dont add the product if it is already in the cart
+					// we updated the quantity for the product
+					$amount = $cart_contents[$assetid]['quantity'];
+					if ($cart->updateItem($assetid, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $amount+$quantity))) {
+						$this->_tmp['cart_updated'] = TRUE;
+					}
+
 					continue;
 				}
 
@@ -646,6 +653,7 @@ class Ecommerce_Cart extends Listing_Engine
 
 		if (count($type_formats) > 0) {
 			$keywords['product_quantity'] = translate('ecom_cart_keyword_product_quantity');
+			$keywords['product_total'] = translate('ecom_cart_keyword_product_total');
 		}
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: product.inc,v 1.10 2007/01/08 05:46:20 emcdonald Exp $
+* $Id: product.inc,v 1.11 2007/05/14 05:17:36 colivar Exp $
 *
 */
 
@@ -24,13 +24,15 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * product class description here
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
-
+register_implementation('product', 'buyable');
 class Product extends Page
 {
+
+
 	/**
 	* Constructor
 	*
@@ -41,10 +43,10 @@ class Product extends Page
 	*/
 	function Product($assetid=0)
 	{
-		$this->_ser_attrs = true;
+		$this->_ser_attrs = TRUE;
 		$this->Page($assetid);
 
-	}//end Product()
+	}//end constructor
 
 
 	/**
@@ -52,8 +54,8 @@ class Product extends Page
 	*
 	* If the asset has no asset ID, this function just loads the default values for the asset type.
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _loadVars()
 	{
@@ -61,7 +63,7 @@ class Product extends Page
 		require_once SQ_PACKAGES_PATH.'/ecommerce/price/product_price.inc';
 		parent::_loadVars();
 
-	}// end _loadVars()
+	}//end _loadVars()
 
 
 	/**
@@ -70,21 +72,22 @@ class Product extends Page
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
 	*
 	* @see Asset::_getName()
+	*
 	* @return string
 	* @access private
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
-	}// end _getName()
+	}//end _getName()
 
 
 	/**
 	* Queue the setting of the value of an attribute
 	*
-	* @param string		$name	the name of the attribute
-	* @param string		$value	the new value of the attribute
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -93,18 +96,20 @@ class Product extends Page
 	*/
 	function setAttrValue($name, $value)
 	{
-		switch($name) {
+		switch ($name) {
 			case 'price' :
 				$price_obj = $this->attr('price_obj');
 				$price_obj->value = $value;
 				return $this->setAttrValue('price_obj', $price_obj);
-				break;
+			break;
 			case 'price_obj' :
-				if (!parent::setAttrValue($name, $value)) return false;
+				if (!parent::setAttrValue($name, $value)) return FALSE;
 				$price_obj = $this->attr('price_obj');
-				if (!parent::setAttrValue('price', $price_obj->value)) return false;
-				return true;
-				break;
+				if (!parent::setAttrValue('price', $price_obj->value)) {
+					return FALSE;
+				}
+				return TRUE;
+			break;
 			default :
 				return parent::setAttrValue($name, $value);
 		}
@@ -121,15 +126,13 @@ class Product extends Page
 	*/
 	function printFrontend()
 	{
-		//if we just submitted this form
-		if(!is_null($qty = array_get_index($_POST, 'quantity', null))) {
+		// if we just submitted this form
+		if (!is_null($qty = array_get_index($_POST, 'quantity', NULL))) {
 
 			if ($qty > 0) {
 				$this->processSelection();
-			}
-
-			//if form submitted but invalid quantity
-			else if($qty < 1 || !is_int($qty)) {
+			// if form submitted but invalid quantity
+			} else if ($qty < 1 || !is_int($qty)) {
 				// invalid selection - set flag here;
 			}
 		}
@@ -158,10 +161,11 @@ class Product extends Page
 
 	}//end printBody()
 
+
 	/**
-	* Handles finding which cart to add the order to
+	* Handles finding which cart to add the order to and return a boolean indicating success
 	*
-	* @return boolean	indicating success
+	* @return boolean
 	* @access public
 	*/
 	function processSelection()
@@ -169,26 +173,26 @@ class Product extends Page
 
 		$cart_assetid = $this->getActiveCartAssetid();
 
-		if ($cart_assetid === false) {
+		if ($cart_assetid === FALSE) {
 			trigger_localised_error('ECOM0011', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		if (!is_numeric($qty = $_POST['quantity'])) {
 			trigger_localised_error('ECOM0012', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
-		//get the cart asset
+		// get the cart asset
 		$cart =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cart_assetid);
 
-		//update item and quantity to cart
+		// update item and quantity to cart
 		if (isset($_SESSION['sq_cart_contents'][$this->id])) {
 			$cart->update($this->id, (int)$qty);
 		} else {
 			$cart->add($this->id, $this->attr('price'), (int)$qty);
 		}
-		return true;
+		return TRUE;
 
 	}//end processSelection()
 
@@ -196,17 +200,16 @@ class Product extends Page
 	/**
 	* Get the assetid of the active cart, depending on the current lineage
 	*
-	* @return mixed(string|boolean)	the assetid of the active cart or false
-	*								if nothing is found
+	* @return mixed {string|boolean}	the assetid of the active cart or false if nothing is found
 	* @access public
 	*/
 	function getActiveCartAssetid()
 	{
-		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'ecommerce_cart', false));
+		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'ecommerce_cart', FALSE));
 
 		switch (count($parents)) {
 			case 0:
-				return false;
+				return FALSE;
 			break;
 
 			case 1:
@@ -218,14 +221,14 @@ class Product extends Page
 				$lineage = array_reverse($GLOBALS['SQ_SYSTEM']->am->getLineageFromURL());
 
 				// return the first cart we find, ie. the one closest to us
-				foreach($lineage as $lineage_item) {
-					if (false !== ($index = array_search($lineage_item['assetid'], $parents))) {
+				foreach ($lineage as $lineage_item) {
+					if (FALSE !== ($index = array_search($lineage_item['assetid'], $parents))) {
 						return $parents[$index];
 					}
 				}
 
 				// can't find any of the carts!
-				return false;
+				return FALSE;
 
 			break;
 		}
@@ -248,10 +251,10 @@ class Product extends Page
 	*
 	* @param boolean $descriptions if TRUE descriptions will be included in the array
 	*
+	* @return array
 	* @access public
-	* @return Array(mixed)
 	*/
-	function getAssetKeywords($descriptions=false)
+	function getAssetKeywords($descriptions=FALSE)
 	{
 		$keywords = parent::getAssetKeywords($descriptions);
 
@@ -274,8 +277,8 @@ class Product extends Page
 
 			}
 
-			$images = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'image', false));
-			foreach($images as $image_assetid) {
+			$images = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'image', FALSE));
+			foreach ($images as $image_assetid) {
 				$keywords['image_'.$image_assetid]['value'] = '<img src="'.$GLOBALS['SQ_SYSTEM']->am->getAssetURL($image_assetid).'">';
 			}
 
@@ -284,7 +287,6 @@ class Product extends Page
 		return $keywords;
 
 	}//end getAssetKeywords()
-
 
 
 }//end class
