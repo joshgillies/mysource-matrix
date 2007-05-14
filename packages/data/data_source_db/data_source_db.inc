@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.21 2007/05/11 06:55:29 arailean Exp $
+* $Id: data_source_db.inc,v 1.22 2007/05/14 01:49:43 arailean Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -211,13 +211,14 @@ class Data_Source_DB extends Data_Source
 		$assert_result = assert_valid_db_result($db_result, 'Query execution failed : '.$sql, FALSE, FALSE);
 		if (!$assert_result) return $result;
 
-		if (is_object($db_result) && ($db_result === DB_OK)) {
+		if ($db_result === DB_OK) {
 			return $result;
 		}
 
 		while ($row =& $db_result->fetchRow()) {
 			$result[] = $row;
 		}
+
 		$db_result->free();
 
 		return $result;
