@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.40.2.1 2006/12/21 22:43:33 emcdonald Exp $
+* $Id: trigger_manager.inc,v 1.40.2.2 2007/05/14 00:01:06 skim Exp $
 *
 */
 
@@ -42,7 +42,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.40.2.1 $
+* @version $Revision: 1.40.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1049,7 +1049,13 @@ class Trigger_Manager extends Asset
 		// parent IDs
 		$parent_id_sql = 'parentid = '.$db->quoteSmart('-1');
 		if (!empty($parent_id_array)) {
-			$parent_id_sql .= ' OR parentid IN ('.implode(',', $parent_id_array).')';
+			for (reset($parent_id_array); NULL !== ($k = key($parent_id_array)); next($parent_id_array)) {
+				$parent_id_array[$k] = $db->quoteSmart((string) $parent_id_array[$k]);
+			}
+
+			foreach (array_chunk($parent_id_array, 200) as $chunk) {
+				$parent_id_sql .= ' OR parentid IN ('.implode(',', $chunk).')';
+			}
 		}
 
 		// parent types
