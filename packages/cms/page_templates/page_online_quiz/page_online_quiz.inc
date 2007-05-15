@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.4 2007/03/29 01:58:10 rhoward Exp $
+* $Id: page_online_quiz.inc,v 1.5 2007/05/15 04:35:08 mbrydon Exp $
 *
 */
 
@@ -60,7 +60,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -119,13 +119,14 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		$page_links = parent::_getAllowedLinks();
 
-		$page_links[SQ_LINK_TYPE_1]['folder']               = Array('card' => 'M');
-		$page_links[SQ_LINK_TYPE_1]['online_quiz_question'] = Array('card' => 'M');
-		$page_links[SQ_LINK_TYPE_2]['bodycopy']             = Array('card' => 'M');
-		$page_links[SQ_LINK_TYPE_3]['bodycopy']             = Array('card' => 'M');
-		$page_links[SQ_LINK_TYPE_2]['simple_form']          = Array('card' => 'M');
-		$page_links[SQ_LINK_TYPE_3]['simple_form']          = Array('card' => 'M');
-		$page_links[SQ_LINK_NOTICE]['user']                 = Array('card' => 'M');
+		$page_links[SQ_LINK_TYPE_1]['folder']						= Array('card' => 'M');
+		$page_links[SQ_LINK_TYPE_1]['online_quiz_question']			= Array('card' => 'M');
+		$page_links[SQ_LINK_TYPE_1]['online_quiz_question_group'] 	= Array('card' => 'M');
+		$page_links[SQ_LINK_TYPE_2]['bodycopy']             		= Array('card' => 'M');
+		$page_links[SQ_LINK_TYPE_3]['bodycopy']             		= Array('card' => 'M');
+		$page_links[SQ_LINK_TYPE_2]['simple_form']          		= Array('card' => 'M');
+		$page_links[SQ_LINK_TYPE_3]['simple_form']          		= Array('card' => 'M');
+		$page_links[SQ_LINK_NOTICE]['user']                 		= Array('card' => 'M');
 
 		return $page_links;
 
@@ -756,6 +757,24 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		// print the result_page as a hidden form, so that it shows up in $_REQUEST when the form is submitted by the pagination vars
 		$this->registerFormField('result_page');
 		hidden_field($this->id.'_result_page', '');
+
+		// Alrighty, if we're not using the %asset_listing% keyword, we have to make sure that the appropriate keywords are replaced, as Listing Engine will not do this for us
+		$page_contents_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
+		if (!empty($page_contents_link)) {
+			$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($page_contents_link['minorid'], $page_contents_link['minor_type_code']);
+
+			require_once SQ_FUDGE_PATH.'/general/text.inc';
+			$keywords = $format_bodycopy->getKeywords();
+		}
+
+		if (!in_array('asset_listing', $keywords)) {
+			$replacements = Array();
+			foreach ($keywords as $word) {
+				$replacements[$word] = $this->getKeywordReplacement($word);
+			}
+
+			$format_bodycopy->setKeywordReplacements($replacements);
+		}
 
 		parent::printContents();
 
@@ -1540,6 +1559,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		if (!empty($page_contents_link)) {
 			if (isset($parents[$page_contents_link['minorid']])) {
 				$vars['keywords'] += $this->_getContentsKeywords();
+				$vars['keywords'] += $this->_getQuestionKeywords();
 				return;
 			}
 		}
@@ -1706,6 +1726,28 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	}//end _getResultsKeywords()
 
 
+	/**
+	* Returns a list of keywords that can be used to print an Online Quiz Question asset
+	*
+	* @return array
+	* @access public
+	*/
+	function _getQuestionKeywords()
+	{
+		$keywords = Array();
+
+		// Obtain the available keywords for a quiz question
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('online_quiz_question');
+		$question  =& new Online_Quiz_Question();
+		$question_keywords = $question->getAvailableKeywords();
+		foreach ($question_keywords as $keyword => $description) {
+			$keywords['question_X_'.$keyword] = 'Question X: '.$description;
+		}
+
+		return $keywords;
+
+	}//end _getQuestionKeywords()
+
 //--        Keyword Replacements        --//
 
 
@@ -1749,6 +1791,20 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				// arg = user attribute
 				$arg          = $matches[2];
 				$keyword_stem = $matches[1];
+			}
+		}
+
+		if (preg_match('/^(question)_([0-9]*)_(.*)$/', $keyword, $matches)) {
+			if (isset($matches[1]) && isset($matches[2]) && isset($matches[3])) {
+				// Keyword match example: question_123_response_form becomes (question, 123, response_form)
+				$keyword_stem = $matches[1];
+				$asset_id     = $matches[2];
+				$attr         = $matches[3];
+
+				// Grab the question keyword
+				if (!empty($keyword_stem) && !empty($asset_id) && !empty($attr)) {
+					return $this->getQuestionKeywordReplacement($asset_id, $attr);
+				}
 			}
 		}
 
@@ -2358,6 +2414,29 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		return $this->getResultsTableSimpleKeywordReplacement(FALSE);
 
 	}//end getResultsTableSimpleTextKeywordReplacement()
+
+
+	/**
+	* Returns the keyword replacements for Question-based keywords
+	*
+	* @return array
+	* @access public
+	*/
+	function getQuestionKeywordReplacement($question_asset_id, $keyword) {
+		$replacement = '%question_'.$question_asset_id.'_'.$keyword.'%';
+
+		// Ensure that question keywords can only be retrieved from assets that are available for listing
+		$available_question_asset_ids = array_keys($this->getQuestions());
+		if (in_array($question_asset_id, $available_question_asset_ids)) {
+			$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id);
+			if (!is_null($question)) {
+				$replacement = $question->getKeywordReplacement($keyword);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
+			}
+		}
+
+		return $replacement;
+	}
 
 
 	/**
