@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.7.2.5 2007/04/17 05:39:36 lwright Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.7.2.6 2007/05/15 02:06:31 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7.2.5 $
+* @version $Revision: 1.7.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -825,13 +825,6 @@ class Search_Manager_Plugin_OCI8
 			$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 			foreach ($words[1] as $word) {
-				if (!$sm->isWordIndexable($word)) {
-					if ($remove_stop_words) {
-						// remove non-indexable words
-						$terms = preg_replace('/\w+/', '', $terms, 1);
-					}
-					if (!$return_stop_words) continue;
-				}
 				if ($replace) {
 					$terms = preg_replace('/\w+/', '#', $terms, 1);
 				}
