@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.31.2.2 2007/05/07 05:53:58 rhoward Exp $
+* $Id: text.inc,v 1.31.2.3 2007/05/15 02:01:02 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31.2.2 $
+* @version $Revision: 1.31.2.3 $
 * @package Fudge
 * @subpackage Text
 */
@@ -173,15 +173,21 @@ function get_word_counts($text, $split_regexp="/[\t\n\r ]+/", $word_match_regexp
 /**
 * Remove a set of special characters from the given text.
 *
-* @param string	$text	text
+* @param string     $text           text
+* @param boolean    $not_indexing   default is FALSE, used in indexing, when TRUE this function does not remove a number of characters.
 *
 * @return string
 * @access public
 */
-function remove_silent_chars($text)
+function remove_silent_chars($text, $not_indexing=FALSE)
 {
-	$silent_chars = Array('.', ':', ';', ',', '!', '?', '\'', '"', '(', ')', '`', '~', '!', '@', '#', '$', '%', '^', '&', '*', '-', '_', '=', '+', '{', '}', '[', ']', '|', '\\', '<', '>', '/');
-	return str_replace($silent_chars, '', $text);
+    $silent_chars = Array('.', ':', ';', ',', '!', '?', '\'', '"', '`', '!', '@', '#', '$', '^', '*', '-', '_', '=', '+', '{', '}', '[', ']', '\\', '<', '>', '/');
+    $oracle_search_operators = Array('(', ')', '~', '&', '|', '%');
+    if ($not_indexing == FALSE) {
+        $silent_chars = array_merge($silent_chars, $oracle_search_operators);
+    }
+
+    return str_replace($silent_chars, '', $text);
 
 }//end remove_silent_chars()
 
