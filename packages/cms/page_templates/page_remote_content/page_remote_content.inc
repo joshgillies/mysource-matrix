@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.67 2007/05/08 17:19:08 gnoel Exp $
+* $Id: page_remote_content.inc,v 1.68 2007/05/15 23:45:35 arailean Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1174,7 +1174,9 @@ class Page_Remote_Content extends Page
 	*/
 	function &_getNewCookieManager()
 	{
-		return new Persistent_Cookie_Manager();
+		$cookie_man =& new Persistent_Cookie_Manager();
+
+		return $cookie_man;
 
 	}//end _getNewCookieManager()
 
