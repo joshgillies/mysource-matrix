@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.18 2007/03/23 00:19:47 emcdonald Exp $
+* $Id: form_question.inc,v 1.18.2.1 2007/05/16 06:33:49 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -520,7 +520,7 @@ class Form_Question extends Asset
 	*/
 	function &addRule($rule_code, $operator, $value)
 	{
-		$rules =& $this->attr('rules');
+		$rules = $this->attr('rules');
 		$rules[] = Array('rule_code' => $rule_code, 'operator' => $operator, 'value' => $value);
 		$this->setAttrValue('rules', $rules);
 		$this->saveAttributes();
@@ -539,7 +539,7 @@ class Form_Question extends Asset
 	*/
 	function &removeRule(&$deleted_rule)
 	{
-		$rules =& $this->attr('rules');
+		$rules = $this->attr('rules');
 		$rules = array_diff($rules, $deleted_rule);
 		$this->setAttrValue('rules', $rules);
 		$this->saveAttributes();
@@ -652,11 +652,6 @@ class Form_Question extends Asset
 	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
 		if (is_null($answer)) $answer = $this->getValue();
-
-		// if the question is optional and answer is empty then dont check this rule
-		if (empty($answer) && !$this->attr('is_required')) {
-			return TRUE;
-		}
 
 		$rules = $this->getRules();
 		$ok = TRUE;						// We start as being all OK
