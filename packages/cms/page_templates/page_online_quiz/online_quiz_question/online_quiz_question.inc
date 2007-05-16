@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question.inc,v 1.3 2006/12/22 04:40:06 rhoward Exp $
+* $Id: online_quiz_question.inc,v 1.4 2007/05/16 04:49:51 mbrydon Exp $
 *
 */
 
@@ -33,7 +33,8 @@ define('SQ_ONLINE_QUIZ_QUESTION_SESSION_VAR', 'SQ_ONLINE_QUIZ');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @author  Mark Brydon <mbrydon@squiz.net>
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -158,7 +159,7 @@ class Online_Quiz_Question extends Asset
 	/**
 	* Returns the current user response
 	*
-	* @return mixed
+	* @return string
 	* @access public
 	*/
 	function getValue()
@@ -199,7 +200,7 @@ class Online_Quiz_Question extends Asset
 	/**
 	* Returns the correct response
 	*
-	* @return mixed
+	* @return string
 	* @access public
 	*/
 	function getCorrectValue()
@@ -212,7 +213,7 @@ class Online_Quiz_Question extends Asset
 	/**
 	* Returns the correct response in a human-readable format
 	*
-	* @return mixed
+	* @return string
 	* @access public
 	*/
 	function getCorrectSummary()
@@ -467,7 +468,7 @@ class Online_Quiz_Question extends Asset
 
 			$link_type =  ($enable_on_create ? SQ_LINK_TYPE_2 : SQ_LINK_TYPE_3);
 
-			$asset     =& new Bodycopy();
+			$asset =& new Bodycopy();
 			$copy_link =  Array(
 							'asset'			=> &$this,
 							'value'			=> 'question_text',
@@ -608,9 +609,10 @@ class Online_Quiz_Question extends Asset
 	{
 		$keywords = parent::getAvailableKeywords();
 
-		$keywords['question_text']    = translate('online_quiz_question_keyword_question_text');
-		$keywords['response_form']    = translate('online_quiz_question_keyword_response_form');
-		$keywords['available_points'] = translate('online_quiz_question_keyword_available_points');
+		$keywords['question_text']		= translate('online_quiz_question_keyword_question_text');
+		$keywords['response_form']		= translate('online_quiz_question_keyword_response_form');
+		$keywords['available_points']	= translate('online_quiz_question_keyword_available_points');
+		$keywords['question_number']	= translate('online_quiz_question_keyword_question_number');
 
 		return $keywords;
 
@@ -664,6 +666,19 @@ class Online_Quiz_Question extends Asset
 		return $this->getAvailablePoints();
 
 	}//end getAvailablePointsKeywordReplacement()
+
+
+	/**
+	* Get the replacement for the "question_number" keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getQuestionNumberKeywordReplacement()
+	{
+		return $this->getPosition();
+
+	}//end getQuestionNumberKeywordReplacement()
 
 
 }//end class

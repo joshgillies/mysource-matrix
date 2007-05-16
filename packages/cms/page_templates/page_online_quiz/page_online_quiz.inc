@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.5 2007/05/15 04:35:08 mbrydon Exp $
+* $Id: page_online_quiz.inc,v 1.6 2007/05/16 04:49:50 mbrydon Exp $
 *
 */
 
@@ -60,7 +60,8 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @author  Mark Brydon <mbrydon@squiz.net>
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -98,11 +99,12 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$this->Page_Asset_Listing($assetid);
 
 		$this->_bodycopies = Array(
-								'page_contents'	=> translate('cms_page_contents'),
-								'no_results'	=> translate('cms_page_contents_no_results'),
-								'thank_you'		=> translate('online_quiz_bodycopy_thank_you'),
-								'already_taken'	=> translate('online_quiz_bodycopy_already_taken'),
-								'user_details'	=> translate('online_quiz_bodycopy_user_details'),
+								'page_contents'			=> translate('cms_page_contents'),
+								'no_results'			=> translate('cms_page_contents_no_results'),
+								'thank_you'				=> translate('online_quiz_bodycopy_thank_you'),
+								'already_taken'			=> translate('online_quiz_bodycopy_already_taken'),
+								'user_details'			=> translate('online_quiz_bodycopy_user_details'),
+								'customised_results'	=> translate('online_quiz_bodycopy_customised_results'),
 							 );
 
 	}//end constructor
@@ -178,6 +180,9 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		if ($this->attr('after_submit_action') != 'thank_you') {
 			unset($bodycopies['thank_you']);
 		}
+		if (!$this->attr('customise_results')) {
+			unset($bodycopies['customised_results']);
+		}
 		if ($this->attr('can_retake')) {
 			unset($bodycopies['already_taken']);
 		}
@@ -229,6 +234,9 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			case 'already_taken':
 				$content = '<p>'.translate('online_quiz_bodycopy_already_taken_default').'</p>';
 			break;
+			case 'customised_results':
+				$content = '';
+			break;
 
 			// type formats
 			case 'online_quiz_question':
@@ -270,7 +278,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 			$link_type =  ($enable_on_create ? SQ_LINK_TYPE_2 : SQ_LINK_TYPE_3);
 
-			$asset     =& new Bodycopy();
+			$asset =& new Bodycopy();
 			$copy_link =  Array(
 							'asset'			=> &$this,
 							'value'			=> $bodycopy_code,
@@ -489,10 +497,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		if (empty($form_link)) {
 			// no bodycopy yet? If we're trying to set to disabled, then we don't
 			// need to do anything - if not then we need to create it
-			if ($enabled) {
-				if (!$this->createForm()) {
-					return FALSE;
-				}
+			if (($enabled) && (!$this->createForm())) {
+				return FALSE;
 			}
 		} else {
 			// set link type to either TYPE_2 if enabled or TYPE_3 if disabled
@@ -765,15 +771,17 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 			require_once SQ_FUDGE_PATH.'/general/text.inc';
 			$keywords = $format_bodycopy->getKeywords();
-		}
 
-		if (!in_array('asset_listing', $keywords)) {
-			$replacements = Array();
-			foreach ($keywords as $word) {
-				$replacements[$word] = $this->getKeywordReplacement($word);
+			if (!in_array('asset_listing', $keywords)) {
+				$replacements = Array();
+				foreach ($keywords as $word) {
+					$replacements[$word] = $this->getKeywordReplacement($word);
+				}
+
+				$format_bodycopy->setKeywordReplacements($replacements);
 			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($format_bodycopy);
 
-			$format_bodycopy->setKeywordReplacements($replacements);
 		}
 
 		parent::printContents();
@@ -834,6 +842,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function getQuestions($refresh=NULL)
 	{
+
 		// if $refresh is TRUE, pretend we have no questions to force the regeneration of questions
 		if ($refresh === TRUE) {
 			$questions = Array();
@@ -841,10 +850,15 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			$questions = $this->loadQuestions();
 		}
 
+		$assets_to_list = $this->getManuallyConfiguredQuestions();
+
 		// only refresh if $refresh is TRUE or NULL
 		if (empty($questions) && $refresh !== FALSE) {
 
-			$assets_to_list = parent::getAssetList();
+			if (empty($assets_to_list)) {
+				$assets_to_list = parent::getAssetList();
+			}
+
 			if (empty($assets_to_list)) return Array();
 
 			// work out how many assets we need to list
@@ -907,6 +921,58 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 
 	/**
+	* Checks whether the questions were supplied via an asset listing (by using the '%asset_listing%' keyword), or manually.
+	* If the questions were supplied manually, the asset IDs and types returned will consist of these assets instead of using the Listing Engine.
+	*
+	* @return array
+	* @access public
+	*/
+	function getManuallyConfiguredQuestions()
+	{
+		$assets_to_list = Array();
+
+		$page_contents_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
+		if (!empty($page_contents_link)) {
+			$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($page_contents_link['minorid'], $page_contents_link['minor_type_code']);
+			require_once SQ_FUDGE_PATH.'/general/text.inc';
+			$keywords = $format_bodycopy->getKeywords();
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($format_bodycopy);
+
+			// Question display was manually configured. These questions will be scored and tracked as available questions when the
+			// question response is shown (%question_X_response_form%)
+			if (!in_array('asset_listing', $keywords)) {
+				$replacements = Array();
+				foreach ($keywords as $keyword) {
+					if (preg_match('/^(question)_([0-9]*)_(response_form)$/', $keyword, $matches)) {
+						if (isset($matches[1]) && isset($matches[2]) && isset($matches[3])) {
+							// Add this question to a list of quiz questions
+							$question_asset_id = $matches[2];
+							$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id);
+
+							// Check again to ensure that it is a question
+							$question_type = $question->type();
+							if (preg_match('/^(online_quiz_question)_(.*)$/', $question_type, $matches)) {
+								if (isset($matches[1]) && isset($matches[2])) {
+									// Check permissions to this asset before listing (read permission must be there)
+									if ($question->readAccess(Array($GLOBALS['SQ_SYSTEM']->user->id))) {
+										$assets_to_list[$question_asset_id] = $question_type;
+									}
+								}
+							}
+
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
+						}
+					}
+				}
+			}
+		}
+
+		return $assets_to_list;
+
+	}//end getManuallyConfiguredQuestions()
+
+
+	/**
 	* Send the email containing the quiz results to the user
 	*
 	* @return boolean
@@ -920,6 +986,11 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		// make sure the proper version of the results table is used in the plaintext version of the email
 		$value['text_format'] =  str_replace('%results_table_full%',   '%results_table_full_text%',   $value['text_format']);
 		$value['text_format'] =  str_replace('%results_table_simple%', '%results_table_simple_text%', $value['text_format']);
+
+		if ($this->attr('customise_results')) {
+			$value['text_format'] =  str_replace('%results_customised%', '%results_customised%', $value['text_format']);
+		}
+
 		$email_attr->value    =  serialize($value);
 
 		$keywords = $email_attr->getKeywords();
@@ -1592,6 +1663,15 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			}
 		}
 
+		// Set keywords for the 'Customised Results' page
+		$customised_results_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'customised_results');
+		if (!empty($customised_results_link)) {
+			if (isset($parents[$customised_results_link['minorid']])) {
+				$vars['keywords'] = $this->_getQuestionResultKeywords();
+				return;
+			}
+		}
+
 		// type folder links
 		$folder =& $this->getFolder();
 		$type_formats = Array();
@@ -1717,9 +1797,9 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$keywords['results_table_simple'] = translate('online_quiz_keyword_results_table_simple');
 
 		// if the user has customised the results table, show the customise keyword as well
-		// if ($this->attr('customise_results')) {
-		// 	$keywords['results_customised'] = translate('online_quiz_question_keyword_results_customised');
-		// }
+		if ($this->attr('customise_results')) {
+		 	$keywords['results_customised'] = translate('online_quiz_keyword_results_customised');
+		 }
 
 		return $keywords;
 
@@ -1738,7 +1818,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		// Obtain the available keywords for a quiz question
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('online_quiz_question');
-		$question  =& new Online_Quiz_Question();
+		$question =& new Online_Quiz_Question();
 		$question_keywords = $question->getAvailableKeywords();
 		foreach ($question_keywords as $keyword => $description) {
 			$keywords['question_X_'.$keyword] = 'Question X: '.$description;
@@ -1747,6 +1827,41 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		return $keywords;
 
 	}//end _getQuestionKeywords()
+
+
+	/**
+	* Returns a list of keywords that can be used to print an Online Quiz Question asset and its score.
+	* The keywords available here are specific only to results, and do not contain inherited Question asset keywords
+	*
+	* @return array
+	* @access public
+	*/
+	function _getQuestionResultKeywords()
+	{
+		$keywords = Array();
+		$available_keywords = Array(
+								'question_number'	=> translate('online_quiz_results_header_question_num'),
+								'question_text'		=> translate('online_quiz_results_header_question_text'),
+								'value'				=> translate('online_quiz_results_header_value'),
+								'summary'			=> translate('online_quiz_results_header_summary'),
+								'correct_value'		=> translate('online_quiz_results_header_correct_value'),
+								'correct_summary'	=> translate('online_quiz_results_header_correct_summary'),
+								'points'			=> translate('online_quiz_results_header_points'),
+								'available_points'	=> translate('online_quiz_results_header_available_points'),
+							  );
+
+		foreach ($available_keywords as $keyword => $description) {
+			$keywords['result_X_'.$keyword] = 'Result for Question X: '.$description;
+		}
+
+		// And some more general keywords...
+		$keywords['quiz_total_points'] = 'Quiz: Total Points Obtained';
+		$keywords['quiz_total_available_points'] = 'Quiz: Maximum Total Points';
+
+		return $keywords;
+
+	}//end _getQuestionResultKeywords()
+
 
 //--        Keyword Replacements        --//
 
@@ -1804,6 +1919,21 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				// Grab the question keyword
 				if (!empty($keyword_stem) && !empty($asset_id) && !empty($attr)) {
 					return $this->getQuestionKeywordReplacement($asset_id, $attr);
+				}
+			}
+		}
+
+		// Question and result keywords for the "Customised Results" bodycopy
+		if (preg_match('/^(result)_([0-9]*)_(.*)$/', $keyword, $matches)) {
+			if (isset($matches[1]) && isset($matches[2]) && isset($matches[3])) {
+				// Keyword match example: result_123_answer becomes (result, 123, answer)
+				$keyword_stem = $matches[1];
+				$asset_id     = $matches[2];
+				$attr         = $matches[3];
+
+				// Grab the question result (answers etc.) keyword
+				if (!empty($keyword_stem) && !empty($asset_id) && !empty($attr)) {
+					return $this->getQuestionResultKeywordReplacement($asset_id, $attr);
 				}
 			}
 		}
@@ -2227,7 +2357,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 										echo str_replace("\n", "\n".$alignment_padding, array_get_index($question_results, $column));
 									}
 								break;
-							}
+							}//end switch
 
 						$cell_contents = ob_get_clean();
 						if ($html && !strlen($cell_contents)) {
@@ -2417,12 +2547,16 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 
 	/**
-	* Returns the keyword replacements for Question-based keywords
+	* Returns the keyword replacements for Question-based keywords (format: %question_X_keyword%)
+	*
+	* @param int	$question_asset_id	The asset ID of the question
+	* @param string	$keyword			The keyword to retrieve from the question
 	*
 	* @return array
 	* @access public
 	*/
-	function getQuestionKeywordReplacement($question_asset_id, $keyword) {
+	function getQuestionKeywordReplacement($question_asset_id, $keyword)
+	{
 		$replacement = '%question_'.$question_asset_id.'_'.$keyword.'%';
 
 		// Ensure that question keywords can only be retrieved from assets that are available for listing
@@ -2436,7 +2570,123 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		}
 
 		return $replacement;
-	}
+
+	}//end getQuestionKeywordReplacement()
+
+
+	/**
+	* Returns the keyword replacements for Question-based result keywords (format: %result_X_keyword%)
+	*
+	* @param int	$question_asset_id	The asset ID of the question
+	* @param string	$keyword			The keyword to retrieve from the question
+	*
+	* @return array
+	* @access public
+	*/
+	function getQuestionResultKeywordReplacement($question_asset_id, $keyword)
+	{
+		$replacement = '%result_'.$question_asset_id.'_'.$keyword.'%';
+
+		// Ensure that question keywords can only be retrieved from assets that are available for listing
+		$available_question_asset_ids = array_keys($this->getQuestions());
+		if (in_array($question_asset_id, $available_question_asset_ids)) {
+			$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id);
+			if (!is_null($question)) {
+				$question_results = $question->getResults();
+
+				// Some replacements are not provided in the question results, so we have to ask for these...
+				switch ($keyword) {
+					case 'question_number':	$replacement = $question->getPosition();
+					break;
+
+					case 'question_text':   $replacement = $question->getQuestionText();
+					break;
+
+					default:				if (isset($question_results[$keyword])) {
+												$replacement = $question_results[$keyword];
+											}
+					break;
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
+			}
+		}
+
+		return $replacement;
+
+	}//end getQuestionResultKeywordReplacement()
+
+
+	/**
+	* Returns the keyword replacement for the 'results_customised' keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getResultsCustomisedKeywordReplacement()
+	{
+		ob_start();
+			$this->printBodycopy('customised_results');
+		return ob_get_clean();
+
+	}//end getResultsCustomisedKeywordReplacement()
+
+
+	/**
+	* Returns the keyword replacement for the text equivalent of the 'results_customised' keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getResultsCustomisedTextKeywordReplacement()
+	{
+		$html = $this->getResultsCustomisedKeywordReplacement();
+
+		// Convert HTML <br> to newlines
+		$html = str_replace('<br>', "\n", $html);
+		return strip_tags($html);
+
+	}//end getResultsCustomisedTextKeywordReplacement()
+
+
+	/**
+	* Return the total points obtained by the current user for the quiz.
+	* This value is dependent on the questions displayed in the results if the
+	* results are customised.
+	*
+	* @return string
+	* @access public
+	*/
+	function getQuizTotalPointsKeywordReplacement()
+	{
+		$total_points = '';
+
+		$quiz_result = $this->getResults();
+		$total_points = $quiz_result['totals']['points'];
+
+		return $total_points;
+
+	}//end getQuizTotalPointsKeywordReplacement()
+
+
+	/**
+	* Return the total available points for the quiz.
+	* This value is dependent on the questions displayed in the results if the
+	* results are customised.
+	*
+	* @return string
+	* @access public
+	*/
+	function getQuizTotalAvailablePointsKeywordReplacement()
+	{
+		$total_points = '';
+
+		$quiz_result = $this->getResults();
+		$total_points = $quiz_result['totals']['available_points'];
+
+		return $total_points;
+
+	}//end getQuizTotalAvailablePointsKeywordReplacement()
 
 
 	/**

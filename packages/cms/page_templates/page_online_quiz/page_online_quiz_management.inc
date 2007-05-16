@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz_management.inc,v 1.3 2007/03/29 01:58:10 rhoward Exp $
+* $Id: page_online_quiz_management.inc,v 1.4 2007/05/16 04:49:50 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -115,6 +115,15 @@ class Page_Online_Quiz_Management extends Asset_Management
 													'type'			=> 'boolean',
 													'default'		=> TRUE,
 													'description'	=> 'Whether or not to warn with user with a JS popup when submitting if some answers are empty or invalid',
+													'parameters'	=> Array(
+																		'allow_empty'	=> FALSE,
+																	   ),
+												   ),
+						'customise_results'		=> Array(
+													'added'			=> '0.2',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'description'	=> 'Allow the results table which appears on the "Thank You" bodycopy to be customised',
 													'parameters'	=> Array(
 																		'allow_empty'	=> FALSE,
 																	   ),
