@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz_edit_fns.inc,v 1.3 2007/05/16 04:49:50 mbrydon Exp $
+* $Id: page_online_quiz_edit_fns.inc,v 1.4 2007/05/16 23:51:27 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -205,71 +205,6 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		return $write_access;
 
 	}//end paintCanRetake()
-
-
-	/**
-	* Process the interface for handling the 'customise_results' attribute
-	* and toggling the 'Customised Results' bodycopy
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintCustomiseResults(&$asset, &$o, $prefix)
-	{
-		$write_access = $asset->writeAccess('attributes') && $asset->writeAccess('links');
-
-		$attr =& $asset->getAttribute('customise_results');
-		$attr->setEditParam('true_text', translate('yes'));
-		$attr->setEditParam('false_text', translate('no'));
-		$attr->paint($prefix.'_'.$attr->id, !$write_access);
-
-		if ($attr->value == TRUE) {
-			$bodycopy =& $asset->getBodycopy('customised_results');
-			if (!is_null($bodycopy)) {
-				echo '<p>'.get_asset_tag_line($bodycopy->id, 'contents').'</p>';
-			}
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
-		}
-
-		return $write_access;
-
-	}//end paintCustomiseResults()
-
-
-	/**
-	* Process the interface for handling the 'customise_results' attribute
-	* and toggling the 'Customised Results' bodycopy
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processCustomiseResults(&$asset, &$o, $prefix)
-	{
-		$write_access = $asset->writeAccess('attributes') && $asset->writeAccess('links');
-
-		if ($write_access) {
-			$attr =& $asset->getAttribute('customise_results');
-			$attr->process($prefix.'_'.$attr->id);
-			if (!$attr->processed || !$asset->setAttrValue($attr->name, $attr->value)) {
-				// bail now if we can't process the attribute properly
-				return FALSE;
-			}
-
-			// If customisation of results is required, set up the 'Customised Results' bodycopy
-			$asset->setBodycopy('customised_results', $attr->value);
-		}
-
-		return $write_access;
-
-	}//end processCustomiseResults()
 
 
 	/**

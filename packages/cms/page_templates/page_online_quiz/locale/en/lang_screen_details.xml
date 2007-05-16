@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2007/05/16 04:49:50 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.6 2007/05/16 23:51:27 mbrydon Exp $
 *
 */
 -->
@@ -166,14 +166,6 @@
 			<function_call>
 				<paint_function   name="paintUseNoResultsBodycopy"   />
 				<process_function name="processUseNoResultsBodycopy" />
-			</function_call>
-		</field>
-		<field>
-			<display_name>Customise Results?</display_name>
-			<note>Determines whether or not the quiz results, shown in the &quot;Thank You&quot; bodycopy, can be customised. A &quot;Customised Results&quot; bodycopy will be available when this option is enabled.</note>
-			<function_call>
-				<paint_function   name="paintCustomiseResults"   />
-				<process_function name="processCustomiseResults" />
 			</function_call>
 		</field>
 	</section>

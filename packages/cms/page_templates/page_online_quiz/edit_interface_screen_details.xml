@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2007/05/16 04:49:50 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2007/05/16 23:51:27 mbrydon Exp $
 *
 */
 -->
@@ -118,12 +118,6 @@
 			<function_call>
 				<paint_function   name="paintUseNoResultsBodycopy"   />
 				<process_function name="processUseNoResultsBodycopy" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintCustomiseResults"   />
-				<process_function name="processCustomiseResults" />
 			</function_call>
 		</field>
 	</section>

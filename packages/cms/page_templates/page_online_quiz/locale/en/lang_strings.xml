@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.6 2007/05/16 04:49:50 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.7 2007/05/16 23:51:27 mbrydon Exp $
 *
 */
 -->
@@ -37,9 +37,6 @@
 <string source="online_quiz_bodycopy_user_details_default">Please fill out your details below:</string>
 <string source="online_quiz_bodycopy_already_taken_default">You've already taken this quiz, and cannot take it again.</string>
 <string source="online_quiz_bodycopy_no_result_default">There are no quiz questions to display.</string>
-<string source="online_quiz_bodycopy_customised_results">Results Bodycopy</string>
-<string source="online_quiz_bodycopy_customised_results_desc">This format defines the layout of the results table that appears on the 'Thank You' bodycopy.</string>
-<string source="online_quiz_keyword_results_customised">Customised Results</string>
 
 <string source="online_quiz_results_header_question_num">#</string>
 <string source="online_quiz_results_header_assetid">Asset ID</string>

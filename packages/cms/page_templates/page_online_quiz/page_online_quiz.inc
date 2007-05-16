@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.6 2007/05/16 04:49:50 mbrydon Exp $
+* $Id: page_online_quiz.inc,v 1.7 2007/05/16 23:51:27 mbrydon Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -104,7 +104,6 @@ class Page_Online_Quiz extends Page_Asset_Listing
 								'thank_you'				=> translate('online_quiz_bodycopy_thank_you'),
 								'already_taken'			=> translate('online_quiz_bodycopy_already_taken'),
 								'user_details'			=> translate('online_quiz_bodycopy_user_details'),
-								'customised_results'	=> translate('online_quiz_bodycopy_customised_results'),
 							 );
 
 	}//end constructor
@@ -180,9 +179,6 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		if ($this->attr('after_submit_action') != 'thank_you') {
 			unset($bodycopies['thank_you']);
 		}
-		if (!$this->attr('customise_results')) {
-			unset($bodycopies['customised_results']);
-		}
 		if ($this->attr('can_retake')) {
 			unset($bodycopies['already_taken']);
 		}
@@ -233,9 +229,6 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			break;
 			case 'already_taken':
 				$content = '<p>'.translate('online_quiz_bodycopy_already_taken_default').'</p>';
-			break;
-			case 'customised_results':
-				$content = '';
 			break;
 
 			// type formats
@@ -987,10 +980,6 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$value['text_format'] =  str_replace('%results_table_full%',   '%results_table_full_text%',   $value['text_format']);
 		$value['text_format'] =  str_replace('%results_table_simple%', '%results_table_simple_text%', $value['text_format']);
 
-		if ($this->attr('customise_results')) {
-			$value['text_format'] =  str_replace('%results_customised%', '%results_customised%', $value['text_format']);
-		}
-
 		$email_attr->value    =  serialize($value);
 
 		$keywords = $email_attr->getKeywords();
@@ -1641,6 +1630,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			if (isset($parents[$thank_you_link['minorid']])) {
 				$vars['keywords'] += $this->_getResultsKeywords();
 				$vars['keywords'] += $this->_getUserDetailsKeywords();
+				$vars['keywords'] += $this->_getQuestionResultKeywords();
 				return;
 			}
 		}
@@ -1659,15 +1649,6 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$user_details_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'already_taken');
 		if (!empty($user_details_link)) {
 			if (isset($parents[$user_details_link['minorid']])) {
-				return;
-			}
-		}
-
-		// Set keywords for the 'Customised Results' page
-		$customised_results_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'customised_results');
-		if (!empty($customised_results_link)) {
-			if (isset($parents[$customised_results_link['minorid']])) {
-				$vars['keywords'] = $this->_getQuestionResultKeywords();
 				return;
 			}
 		}
@@ -1796,11 +1777,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$keywords['results_table_full']   = translate('online_quiz_keyword_results_table_full');
 		$keywords['results_table_simple'] = translate('online_quiz_keyword_results_table_simple');
 
-		// if the user has customised the results table, show the customise keyword as well
-		if ($this->attr('customise_results')) {
-		 	$keywords['results_customised'] = translate('online_quiz_keyword_results_customised');
-		 }
-
+# Provide Question Keywords
+		
 		return $keywords;
 
 	}//end _getResultsKeywords()
@@ -1840,14 +1818,14 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		$keywords = Array();
 		$available_keywords = Array(
-								'question_number'	=> translate('online_quiz_results_header_question_num'),
-								'question_text'		=> translate('online_quiz_results_header_question_text'),
-								'value'				=> translate('online_quiz_results_header_value'),
-								'summary'			=> translate('online_quiz_results_header_summary'),
-								'correct_value'		=> translate('online_quiz_results_header_correct_value'),
-								'correct_summary'	=> translate('online_quiz_results_header_correct_summary'),
-								'points'			=> translate('online_quiz_results_header_points'),
-								'available_points'	=> translate('online_quiz_results_header_available_points'),
+								'question_number'		=> translate('online_quiz_results_header_question_num'),
+								'question_text'			=> translate('online_quiz_results_header_question_text'),
+								'answer'				=> translate('online_quiz_results_header_value'),
+								'answer_text'			=> translate('online_quiz_results_header_summary'),
+								'correct_answer'		=> translate('online_quiz_results_header_correct_value'),
+								'correct_answer_text'	=> translate('online_quiz_results_header_correct_summary'),
+								'points'				=> translate('online_quiz_results_header_points'),
+								'available_points'		=> translate('online_quiz_results_header_available_points'),
 							  );
 
 		foreach ($available_keywords as $keyword => $description) {
@@ -2595,17 +2573,35 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				$question_results = $question->getResults();
 
 				// Some replacements are not provided in the question results, so we have to ask for these...
+				$keyword_replaced = FALSE;
+
 				switch ($keyword) {
-					case 'question_number':	$replacement = $question->getPosition();
+					case 'question_number':		$replacement = $question->getPosition();
+												$keyword_replaced = TRUE;
 					break;
 
-					case 'question_text':   $replacement = $question->getQuestionText();
+					case 'question_text':   	$replacement = $question->getKeywordReplacement('question_text');
+												$keyword_replaced = TRUE;
 					break;
 
-					default:				if (isset($question_results[$keyword])) {
-												$replacement = $question_results[$keyword];
-											}
+					case 'answer':				$keyword = 'value';
 					break;
+
+					case 'answer_text':			$keyword = 'summary';
+					break;
+
+					case 'correct_answer':		$keyword = 'correct_value';
+					break;
+
+					case 'correct_answer_text':	$keyword = 'correct_summary';
+					break;
+				}
+
+				// This keyword is obtained from the results...
+				if (!$keyword_replaced) {
+					if (isset($question_results[$keyword])) {
+						$replacement = $question_results[$keyword];
+					}
 				}
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
@@ -2615,38 +2611,6 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		return $replacement;
 
 	}//end getQuestionResultKeywordReplacement()
-
-
-	/**
-	* Returns the keyword replacement for the 'results_customised' keyword
-	*
-	* @return string
-	* @access public
-	*/
-	function getResultsCustomisedKeywordReplacement()
-	{
-		ob_start();
-			$this->printBodycopy('customised_results');
-		return ob_get_clean();
-
-	}//end getResultsCustomisedKeywordReplacement()
-
-
-	/**
-	* Returns the keyword replacement for the text equivalent of the 'results_customised' keyword
-	*
-	* @return string
-	* @access public
-	*/
-	function getResultsCustomisedTextKeywordReplacement()
-	{
-		$html = $this->getResultsCustomisedKeywordReplacement();
-
-		// Convert HTML <br> to newlines
-		$html = str_replace('<br>', "\n", $html);
-		return strip_tags($html);
-
-	}//end getResultsCustomisedTextKeywordReplacement()
 
 
 	/**
