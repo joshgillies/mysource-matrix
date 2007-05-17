@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_numeric.inc,v 1.7 2007/03/16 05:14:11 emcdonald Exp $
+* $Id: form_question_rule_type_numeric.inc,v 1.7.2.1 2007/05/17 23:02:06 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -162,7 +162,7 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	function ruleDescription(&$q_asset, $rule_data)
 	{
 		$operator = array_get_index($rule_data, 'operator', 1);
-		$error_str = translate('core_form_rule_numeric_desc_'.($operator ? 'TRUE' : 'FALSE'), $q_asset->attr('name'));
+		$error_str = translate('core_form_rule_numeric_desc_'.($operator ? 'true' : 'false'), $q_asset->attr('name'));
 
 		return $error_str;
 
