@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.110 2007/01/29 23:19:34 skim Exp $
+* $Id: page_asset_listing.inc,v 1.110.2.1 2007/05/17 01:47:50 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.110 $
+* @version $Revision: 1.110.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -64,12 +64,7 @@ class Page_Asset_Listing extends Listing_Engine
 	*/
 	function getAssetList()
 	{
-		$assets_to_list = NULL;
 		$group_by = $this->attr('group_by');
-
-		// access
-		$list_permission = $this->attr('list_permission');
-		$list_effective  = $this->attr('list_effective');
 
 		$logic = $this->attr('all_root_nodes') ? 'AND' : 'OR';
 
@@ -89,6 +84,47 @@ class Page_Asset_Listing extends Listing_Engine
 		$root_asset_ids = $this->getRootNodes();
 
 		$sort_info = $this->getSortInfo();
+
+		$assets_to_list = $this->_getAssetList($group_by, $logic, $wanted_types, $root_asset_ids, $sort_info);
+
+		if ($group_by == 'number') {
+			$assets_to_list = $this->_getSortedAssetLists($assets_to_list, $sort_info);
+		}
+
+		return $assets_to_list;
+
+	}//end getAssetList()
+
+
+	/**
+	* Get the list of asset that should be printed without sorting
+	*
+	* The return array is in the form Array(assetid => type_code) unless we are grouping by letter,
+	* in which case the return array is
+	* <pre>
+	* Array(assetid => Array(
+	*						'type_code' => type_code,
+	*						'first_letter' => first_letter,
+	*						);
+	*		);
+	* </pre>
+	*
+	* @param string	$group_by			grouping option
+	* @param string	$logic				root nodes inclusion logic
+	* @param array	$wanted_types		an array of asset types to list
+	* @param array	$root_asset_ids		an array of root assetids
+	* @param array	$sort_info			sorting information as provided by getSortInfo()
+	*
+	* @return array
+	* @access protected
+	*/
+	function _getAssetList($group_by, $logic, $wanted_types, $root_asset_ids, $sort_info)
+	{
+		$assets_to_list = NULL;
+
+		// access
+		$list_permission = $this->attr('list_permission');
+		$list_effective  = $this->attr('list_effective');
 
 		// if we are showing an A-Z listing but the user has not selected a proper sort field,
 		// we will use the 'name' attribute of the asset to work out the listing
@@ -301,14 +337,26 @@ class Page_Asset_Listing extends Listing_Engine
 		}//end else subs_only
 
 		if (empty($assets_to_list)) return Array();
-
-		if ($group_by == 'number') {
-			$assets_to_list = $this->sortAssetList($assets_to_list, $sort_info);
-		}
-
 		return $assets_to_list;
 
-	}//end getAssetList()
+	}//end _getAssetList()
+
+
+	/**
+	* Sort the list of assets
+	*
+	* @param array	$asset_list	an array of assets to be sorted
+	* @param array	$sort_info	sorting information as provided by getSortInfo()
+	*
+	* @return array
+	* @access public
+	* @see Listing_Engine::getSortInfo()
+	*/
+	function _getSortedAssetLists($assets_to_list, $sort_info)
+	{
+		return parent::sortAssetList($assets_to_list, $sort_info);
+
+	}//end _getSortedAssetLists()
 
 
 	/**
