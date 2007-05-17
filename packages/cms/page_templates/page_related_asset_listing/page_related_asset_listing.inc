@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_related_asset_listing.inc,v 1.6 2006/12/07 00:04:23 emcdonald Exp $
+* $Id: page_related_asset_listing.inc,v 1.7 2007/05/17 01:50:22 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -64,9 +64,31 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 	*/
 	function getAssetList()
 	{
+		$assets_to_list = NULL;
+		$group_by = $this->attr('group_by');
 
-		// get all the assets that would be listed in a normal asset listing in this case
-		$unfiltered_assets_to_list = parent::getAssetList();
+		$logic = $this->attr('all_root_nodes') ? 'AND' : 'OR';
+
+		// this is the list of all type codes that we are going to show
+		// we pass this list to the getLinks and getChildren functions (below) to narrow
+		// the query down a bit
+		// if there are no types to list, we cant list anything
+		$wanted_types = $this->attr('types');
+		if (empty($wanted_types)) {
+			trigger_localised_error('CMS0019', E_USER_NOTICE);
+			return Array();
+		}
+
+		// get the root assets whose sub-assets/children we are displaying
+		// This may come from the parameter map, but the dynamic value must be a child of the static value
+		// if there are no root assets, we will use ourselves and print our children
+		$root_asset_ids = $this->getRootNodes();
+
+		$sort_info = $this->getSortInfo();
+
+		// get all the assets that would be listed in a normal asset listing in this case WITHOUT sorting
+		// Let's sort the result after tag filtering is done. Big performance improvement.
+		$unfiltered_assets_to_list = parent::_getAssetList($group_by, $logic, $wanted_types, $root_asset_ids, $sort_info);
 
 		// get all the assets related to any of the relators
 		$relator_ids = $this->getRelators();
@@ -82,6 +104,11 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 			if (!is_null($asset_to_list)) {
 				$assets_to_list[$related_id] = $asset_to_list;
 			}
+		}
+
+		// Sort the final result set
+		if ($group_by == 'number') {
+			$assets_to_list = parent::_getSortedAssetLists($assets_to_list, $sort_info);
 		}
 
 		return $assets_to_list;
