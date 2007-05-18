@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.48 2007/01/08 03:27:17 emcdonald Exp $
+* $Id: ecommerce_checkout.inc,v 1.49 2007/05/18 04:54:43 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -68,7 +68,7 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Returns a list of available contexts
 	*
-	* @return array		available contexts
+	* @return array
 	* @access private
 	*/
 	function _getAvailableContexts()
@@ -99,8 +99,8 @@ class Ecommerce_Checkout extends Page
 	function _getAllowedLinks()
 	{
 		$allowed_links = parent::_getAllowedLinks();
-		$allowed_links[SQ_LINK_NOTICE]['ecommerce_delivery_method'] = Array('card' => 'M', 'exclusive' => false);
-		$allowed_links[SQ_LINK_NOTICE]['ecommerce_order'] = Array('card' => 'M', 'exclusive' => false);
+		$allowed_links[SQ_LINK_NOTICE]['ecommerce_delivery_method'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed_links[SQ_LINK_NOTICE]['ecommerce_order'] = Array('card' => 'M', 'exclusive' => FALSE);
 
 		return $allowed_links;
 
@@ -112,10 +112,12 @@ class Ecommerce_Checkout extends Page
 	*
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
 	*
-	* @see Asset::_getName()
+	* @see	Asset::_getName()
+	*
+	* @return string
 	* @access private
 	*/
-	function _getName($short_name=false)
+	function _getName($short_name=FALSE)
 	{
 		return $short_name ? $this->attr('short_name') : $this->attr('name');
 
@@ -125,6 +127,7 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Called by the design to print the body of this asset
 	*
+	* @return void
 	* @access public
 	*/
 	function printBody()
@@ -144,7 +147,7 @@ class Ecommerce_Checkout extends Page
 
 		// print context
 		$this->_printContext();
-		if (array_get_index($this->_tmp, 'delete_all_orders_after_printing', false)) {
+		if (array_get_index($this->_tmp, 'delete_all_orders_after_printing', FALSE)) {
 
 			if (!isset($_SESSION['sq_local_cart_contents']['editing_order'])) {
 				// clear global cart
@@ -178,6 +181,7 @@ class Ecommerce_Checkout extends Page
 		// print_context
 
 		$order_id = array_get_index($_REQUEST, 'edit_order_id', 0);
+
 		if (!empty($order_id)) {
 			$order =& $GLOBALS['SQ_SYSTEM']->am->getAsset($order_id);
 
@@ -194,7 +198,7 @@ class Ecommerce_Checkout extends Page
 					$_SESSION['sq_local_cart_contents']['delivery_state']['last_context'] = 'checkout';
 
 					// set edit flag true
-					$_SESSION['sq_local_cart_contents']['editing_order'] = true;
+					$_SESSION['sq_local_cart_contents']['editing_order'] = TRUE;
 
 				} else {
 					echo 'This order is currently being edited';
@@ -226,11 +230,11 @@ class Ecommerce_Checkout extends Page
 
 				$local_cart_empty = empty($_SESSION['sq_local_cart_contents']['cart_contents']);
 
-				$need_update = false;
+				$need_update = FALSE;
 				if ($local_cart_empty) {
 					// if global is not empty, update
 					if ($global_cart->getCount() != 0) {
-						$need_update = true;
+						$need_update = TRUE;
 					}
 				} else {
 					// if global and local carts are different, update
@@ -238,7 +242,7 @@ class Ecommerce_Checkout extends Page
 					$local_cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 
 					if (strcmp($global_cart->hashCart(), $local_cart->hashCart()) != 0) {
-						$need_update = true;
+						$need_update = TRUE;
 					}
 				}
 
@@ -247,13 +251,13 @@ class Ecommerce_Checkout extends Page
 					$_SESSION['sq_local_cart_contents']['cart_contents'] = $global_cart->getCart();
 				}
 
-			}
+			}//end if
 			return;
 
-		}
+		}//end if
 
 		$action = key($request_action);
-		$success = true;
+		$success = TRUE;
 		switch ($action) {
 			case 'go_to_confirmation':
 				$delivery_method_id = array_get_index($_REQUEST, 'sq_delivery_method_id');
@@ -278,9 +282,9 @@ class Ecommerce_Checkout extends Page
 					$_SESSION['sq_local_cart_contents']['delivery_state']['cart_contents'] = $_SESSION['sq_local_cart_contents']['cart_contents'];
 					$delivery_method->setState($_SESSION['sq_local_cart_contents']['delivery_state']);
 
-					if (!$delivery_method->processInputInterface()){
+					if (!$delivery_method->processInputInterface()) {
 						$this->_tmp['delivery_method_errors'] = $delivery_method->getErrors();
-						$success = false;
+						$success = FALSE;
 					}
 
 
@@ -293,7 +297,7 @@ class Ecommerce_Checkout extends Page
 				// if cart is empty, there's no point in checking out
 				if ($success && empty($_SESSION['sq_local_cart_contents']['cart_contents'])) {
 					$this->_tmp['delivery_method_errors'][] = 'The ecommerce cart is empty, cannot checkout';
-					$success = false;
+					$success = FALSE;
 				}
 				if ($success) {
 					$this->print_context = 'confirmation';
@@ -302,7 +306,7 @@ class Ecommerce_Checkout extends Page
 				}
 
 				if (isset($_SESSION['sq_local_cart_contents']['editing_order'])) {
-					$_SESSION['sq_local_cart_contents']['editing_order'] = true;
+					$_SESSION['sq_local_cart_contents']['editing_order'] = TRUE;
 				}
 
 			break;
@@ -315,7 +319,7 @@ class Ecommerce_Checkout extends Page
 				// components should be processed here
 				// delivery processing
 				$delivery_method =& $this->_getActiveDeliveryMethod();
-				if (empty($delivery_method)){
+				if (empty($delivery_method)) {
 					$this->_tmp['delivery_method_errors'][] = 'Delivery method not found during the confirmation';
 					$this->print_context = 'failure';
 					break;
@@ -324,10 +328,9 @@ class Ecommerce_Checkout extends Page
 				if (isset($_SESSION['sq_local_cart_contents']['order_id'])) {
 					$order_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['order_id']);
 				}
-
 				if (empty($order_asset)) {
 					$order_asset =& $this->_createOrder($_SESSION['sq_local_cart_contents']['cart_contents']);
-					if (is_null($order_asset)){
+					if (is_null($order_asset)) {
 						$this->_tmp['delivery_method_errors'][] = 'Unable to create Ecommerce Order';
 						$this->print_context = 'failure';
 						break;
@@ -369,12 +372,12 @@ class Ecommerce_Checkout extends Page
 
 					// order processing successful!
 					$this->print_context = 'receipt';
-					$this->_tmp['delete_all_orders_after_printing'] = true;
+					$this->_tmp['delete_all_orders_after_printing'] = TRUE;
 					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_ecommerce_order_submitted', $order_asset);
 				}
 			break;
 
-		}
+		}//end switch
 
 		// set the last context we saw to this one
 		$_SESSION['sq_local_cart_contents']['delivery_state']['last_context'] = $this->print_context;
@@ -398,13 +401,13 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _printContext()
 	{
-		$bodycopy_folder_link  = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies');
+		$bodycopy_folder_link  = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies');
 		if (empty($bodycopy_folder_link)) {
 			trigger_localised_error('ECOM0017', E_USER_WARNING);
 			return;
 		}
 
-		$content_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy_folder_link['minorid'], SQ_LINK_TYPE_2, 'bodycopy', true, $this->print_context);
+		$content_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy_folder_link['minorid'], SQ_LINK_TYPE_2, 'bodycopy', TRUE, $this->print_context);
 		$content_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($content_bodycopy_link['minorid'], $content_bodycopy_link['minor_type_code']);
 		if (is_null($content_bodycopy)) {
 			trigger_localised_error('ECOM0018', E_USER_WARNING);
@@ -438,14 +441,14 @@ class Ecommerce_Checkout extends Page
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @access private
 	* @return boolean
+	* @access private
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!parent::_createAdditional($link)) return false;
+		if (!parent::_createAdditional($link)) return FALSE;
 
-		$success = true;
+		$success = TRUE;
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 
@@ -454,7 +457,7 @@ class Ecommerce_Checkout extends Page
 						'orders'		=> 'folder',
 					  );
 
-		$bodycopy_folder = null;
+		$bodycopy_folder = NULL;
 		foreach ($sub_assets as $link_value => $type) {
 			$asset =& new $type();
 			$copy_link = Array(
@@ -466,7 +469,7 @@ class Ecommerce_Checkout extends Page
 						 );
 
 			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $link_value)));
-			if (!$asset->create($copy_link)) $success = false;
+			if (!$asset->create($copy_link)) $success = FALSE;
 
 			if ($link_value == 'bodycopies') {
 				$bodycopy_folder = $asset;
@@ -507,24 +510,25 @@ class Ecommerce_Checkout extends Page
 
 	/**
 	* Perform any additional processing required during the creation of this asset
+	* will return a ecommerce order
 	*
 	* Create bopycopy and folder assets when they are created
 	*
-	* @param array	&$link	information used to create the initial link
+	* @param array	$cart_items	information used to create the initial link
 	*
+	* @return object
 	* @access private
-	* @return Ecommerce_Order
 	*/
 	function &_createOrder($cart_items)
 	{
 		// error flag
-		$success = true;
+		$success = TRUE;
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// create ecommerce order under orders folder
-		$order_folder_link  = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'orders');
-		if (empty($order_folder_link)) return null;
+		$order_folder_link  = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'orders');
+		if (empty($order_folder_link)) return NULL;
 		$order_folder_id = $order_folder_link['minorid'];
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -542,19 +546,19 @@ class Ecommerce_Checkout extends Page
 					  );
 
 		if (!$ecommerce_order->create($order_link)) {
-			$success = false;
+			$success = FALSE;
 		}
 
 		// add products from the session(cart) to ecommerce order
 		if ($success && !empty($cart_items)) {
 			$ecommerce_order->setAttrValue('products', $cart_items);
 		} else {
-			$success = false;
+			$success = FALSE;
 		}
 
 		// notice link from Checkout_Form to Ecommerce_Order
 		if ($success && ($am->createAssetLink($this, $ecommerce_order, SQ_LINK_NOTICE, 'checkout') == 0)) {
-			$success = false;
+			$success = FALSE;
 		}
 
 		// set order status
@@ -565,11 +569,11 @@ class Ecommerce_Checkout extends Page
 
 		// save attributes
 		if (!$am->acquireLock($ecommerce_order->id, 'attributes')) {
-			$success = false;
+			$success = FALSE;
 		}
 		if ($success) {
 			if (!$ecommerce_order->saveAttributes()) {
-				$success = false;
+				$success = FALSE;
 			}
 		}
 		$am->releaseLock($ecommerce_order->id, 'attributes');
@@ -580,7 +584,7 @@ class Ecommerce_Checkout extends Page
 		if (!$success) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return null;
+			return NULL;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -593,7 +597,7 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Get the asset IDs for all the linked delivery methods
 	*
-	* @return array	asset IDs
+	* @return array
 	* @access private
 	*/
 	function _getDeliveryAssetIds()
@@ -601,7 +605,7 @@ class Ecommerce_Checkout extends Page
 		if (!isset($this->_tmp['delivery_ids'])) {
 			$this->_tmp['delivery_ids'] = Array();
 
-			$delivery_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', false, 'major', 'delivery_method');
+			$delivery_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'delivery_method');
 			foreach ($delivery_links as $one_link) {
 				$this->_tmp['delivery_ids'][] = $one_link['minorid'];
 			}
@@ -642,7 +646,7 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _registerFormRequirement()
 	{
-		$this->_tmp['form_required'] = true;
+		$this->_tmp['form_required'] = TRUE;
 
 	}//end _registerFormRequirement()
 
@@ -658,7 +662,7 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _isFormRequired()
 	{
-		return array_get_index($this->_tmp, 'form_required', false);
+		return array_get_index($this->_tmp, 'form_required', FALSE);
 
 	}//end _isFormRequired()
 
@@ -668,12 +672,12 @@ class Ecommerce_Checkout extends Page
 	*
 	* Looks at the current state of the asset to determine the active delivery method asset
 	*
-	* @return Ecommerce_Delivery_Method
+	* @return object
 	* @access public
 	*/
 	function &_getActiveDeliveryMethod()
 	{
-		$delivery_method = null;
+		$delivery_method = NULL;
 
 		$delivery_method_id = $this->_getActiveDeliveryMethodId();
 		if (!is_null($delivery_method_id)) {
@@ -692,12 +696,12 @@ class Ecommerce_Checkout extends Page
 	*
 	* Looks at the current state of the asset to determine the active delivery method asset id
 	*
-	* @return Ecommerce_Delivery_Method
+	* @return int
 	* @access public
 	*/
 	function _getActiveDeliveryMethodId()
 	{
-		$delivery_method_id = null;
+		$delivery_method_id = NULL;
 
 		// TODO: this does not seem to be coming through...
 		return array_get_index($_SESSION['sq_local_cart_contents'], 'delivery_id');
@@ -721,21 +725,21 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Return a cart summary for the ecommer cart
 	*
-	* @param $html	if it's true, the summary string is wrapped by <pre> tags
+	* @param boolean $html	if it's true, the summary string is wrapped by <pre> tags
 	*
 	* @return string
 	* @access private
 	*/
-	function _getCartSummary($html=true)
+	function _getCartSummary($html=TRUE)
 	{
 		$cart =& new Ecommerce_Cart_Processor();
 		$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
+
 		ob_start();
 			if ($html) echo '<pre>';
 			echo $cart->printReceipt();
 			if ($html) echo '</pre>';
 		$cart_summary = ob_get_clean();
-
 		unset($cart);
 		return  $cart_summary;
 
@@ -783,15 +787,15 @@ class Ecommerce_Checkout extends Page
 					} else if (0 === strpos($keyword, 'asset_attribute_')) {
 						$attr_name = substr($keyword, strlen('asset_attribute_'));
 						if (array_key_exists($attr_name, $order->vars)) {
-							$attr = &$order->getAttribute($attr_name);
+							$attr =& $order->getAttribute($attr_name);
 							if (!$attr->is_admin) {
 								$replacement = $this->attr($attr_name);
 							}
 						}
 					} else {
-						$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						$dummy_array = Array($keyword);
-						$mm_keyword = $mm->generateKeywordReplacements($order, $dummy_array, false);
+						$mm_keyword = $mm->generateKeywordReplacements($order, $dummy_array, FALSE);
 						if (isset($mm_keyword[$keyword])) {
 							$replacement = $mm_keyword[$keyword];
 						}
@@ -803,7 +807,7 @@ class Ecommerce_Checkout extends Page
 			} else {
 				$replacement = '';
 			}
-		}
+		}//end else
 
 		return $replacement;
 
@@ -813,8 +817,8 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
+	* @param object &$broadcaster	$asset	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
 	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
@@ -828,7 +832,7 @@ class Ecommerce_Checkout extends Page
 			$vars['keywords'] = Array();
 		}
 
-		$bodycopy_folder_link  = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies');
+		$bodycopy_folder_link  = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies');
 		// not our bodycopy, just bail out
 		if (empty($bodycopy_folder_link)) {
 			return;
@@ -836,11 +840,11 @@ class Ecommerce_Checkout extends Page
 			$bodycopy_folder_id = $bodycopy_folder_link['minorid'];
 		}
 
-		$broadcaster_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
-		$content_bodycopy_value = null;
+		$broadcaster_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
+		$content_bodycopy_value = NULL;
 		foreach (array_keys($broadcaster_parents) as $bodycopy_id) {
 			$content_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($bodycopy_folder_id, $bodycopy_id);
-			if (!empty($content_bodycopy_link) && !empty($content_bodycopy_link['value'])){
+			if (!empty($content_bodycopy_link) && !empty($content_bodycopy_link['value'])) {
 				$bodycopy_context = $content_bodycopy_link['value'];
 				break;
 			}
@@ -865,8 +869,8 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Get keywords for 'Content' context
 	*
-	* @access private
 	* @return array
+	* @access private
 	*/
 	function _getCheckoutContextKeywords()
 	{
@@ -888,8 +892,8 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Get keywords for 'Confirmation' context
 	*
-	* @access private
 	* @return array
+	* @access private
 	*/
 	function _getConfirmationContextKeywords()
 	{
@@ -908,12 +912,13 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Get keywords for 'Receipt' context
 	*
-	* @access private
 	* @return array
+	* @access private
 	*/
 	function _getReceiptContextKeywords()
 	{
 		$keywords['receipt_summary']	= translate('ecom_checkout_keyword_receipt_summary');
+		$keywords['cart_summary']				= translate('ecom_checkout_keyword_cart_summary');
 
 		return $keywords;
 
@@ -923,8 +928,8 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Get keywords for 'Receipt' context
 	*
-	* @access private
 	* @return array
+	* @access private
 	*/
 	function _getFailureContextKeywords()
 	{
@@ -942,7 +947,7 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Get Keyword Replacement for 'delivery_selector' keyword
 	*
-	* @return string	replacement
+	* @return string
 	* @access public
 	*/
 	function getDeliverySelectorKeywordReplacement()
@@ -951,7 +956,7 @@ class Ecommerce_Checkout extends Page
 		$multiple_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($delivery_ids);
 
 
-		$selection_contents = Array(); //Array('' => '-- '.translate('ecom_checkout_select_delivery_method').' --');
+		$selection_contents = Array(); // Array('' => '-- '.translate('ecom_checkout_select_delivery_method').' --');
 		foreach ($multiple_asset_info as $assetid => $asset_info) {
 			$selection_contents[$assetid] = $asset_info['name'];
 		}
@@ -983,7 +988,7 @@ class Ecommerce_Checkout extends Page
 			</script>
 
 			<?php
-			combo_box('sq_delivery_method_id', $selection_contents, false, $active_delivery_method_id, 0, 'onchange="handleDeliverySelectChange(this)"');
+			combo_box('sq_delivery_method_id', $selection_contents, FALSE, $active_delivery_method_id, 0, 'onchange="handleDeliverySelectChange(this)"');
 
 		return ob_get_clean();
 
@@ -993,7 +998,7 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Get Keyword Replacement for 'delivery_interface' keyword
 	*
-	* @return string	replacement
+	* @return string
 	* @access public
 	*/
 	function getDeliveryInterfaceKeywordReplacement()
@@ -1032,7 +1037,7 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Get Keyword Replacement for 'confirm_order_button' keyword
 	*
-	* @return string	replacement
+	* @return string
 	* @access public
 	*/
 	function getConfirmOrderButtonKeywordReplacement()
@@ -1051,7 +1056,7 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Get Keyword Replacement for 'return_to_checkout_button' keyword
 	*
-	* @return string	replacement
+	* @return string
 	* @access public
 	*/
 	function getReturnToCheckoutButtonKeywordReplacement()
@@ -1069,7 +1074,7 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Get Keyword Replacement for 'go_to_confirmation_button' keyword
 	*
-	* @return string	replacement
+	* @return string
 	* @access public
 	*/
 	function getGoToConfirmationButtonKeywordReplacement()
@@ -1089,7 +1094,7 @@ class Ecommerce_Checkout extends Page
 	*
 	* Checkout Summary consists of
 	*
-	* @return string	replacement
+	* @return string
 	* @access public
 	*/
 	function getConfirmationSummaryKeywordReplacement()
@@ -1101,13 +1106,13 @@ class Ecommerce_Checkout extends Page
 			}
 		return ob_get_clean();
 
-	}//end getCheckoutSummaryKeywordReplacement()
+	}//end getConfirmationSummaryKeywordReplacement()
 
 
 	/**
 	* Get Keyword Replacement for 'receipt_summary' keyword
 	*
-	* @return string	replacement
+	* @return string
 	* @access public
 	*/
 	function getReceiptSummaryKeywordReplacement()
@@ -1125,12 +1130,12 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Get Keyword Replacement for 'cart_summary' keyword
 	*
-	* @return string	replacement
+	* @return string
 	* @access public
 	*/
 	function getCartSummaryKeywordReplacement()
 	{
-		return $this->_getCartSummary(true);
+		return $this->_getCartSummary(TRUE);
 
 	}//end getCartSummaryKeywordReplacement()
 
@@ -1138,7 +1143,7 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Get Keyword Replacement for 'error_messages' keyword
 	*
-	* @return string	replacement
+	* @return string
 	* @access public
 	*/
 	function getErrorMessagesKeywordReplacement()
@@ -1159,7 +1164,7 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Get Keyword Replacement for 'failure_message' keyword
 	*
-	* @return string	replacement
+	* @return string
 	* @access public
 	*/
 	function getFailureSummaryKeywordReplacement()
@@ -1202,7 +1207,6 @@ class Ecommerce_Checkout extends Page
 		return $cart->getCount();
 
 	}//end getItemsTotalCountKeywordReplacement()
-
 
 
 }//end class
