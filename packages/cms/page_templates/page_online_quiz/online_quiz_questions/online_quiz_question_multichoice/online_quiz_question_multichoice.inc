@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice.inc,v 1.2 2006/12/20 23:57:08 rhoward Exp $
+* $Id: online_quiz_question_multichoice.inc,v 1.3 2007/05/18 00:04:03 mbrydon Exp $
 *
 */
 
@@ -30,7 +30,8 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @author  Mark Brydon <mbrydon@squiz.net>
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -530,6 +531,31 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 		return ob_get_clean();
 
 	}//end getResponseFormKeywordReplacement()
+
+
+	/**
+	* Get the Response Supplement content for the selected option
+	*
+	* @return string
+	* @access public
+	*/
+	function getResponseSupplement() {
+		$response_supplement = '';
+		$option = Array();
+
+		$response_options = $this->attr('response_form');
+		$selected_option = $this->getValue();
+		if (isset($selected_option)) {
+			$option = $response_options[$selected_option];
+		}
+
+		if (isset($option['response_supplement'])) {
+			$response_supplement = $option['response_supplement'];
+		}
+
+		return $response_supplement;
+
+	}//end getResponseSupplement()
 
 
 }//end class

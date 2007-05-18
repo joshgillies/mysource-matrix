@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.7 2007/05/16 23:51:27 mbrydon Exp $
+* $Id: page_online_quiz.inc,v 1.8 2007/05/18 00:04:02 mbrydon Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1826,6 +1826,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 								'correct_answer_text'	=> translate('online_quiz_results_header_correct_summary'),
 								'points'				=> translate('online_quiz_results_header_points'),
 								'available_points'		=> translate('online_quiz_results_header_available_points'),
+								'response_supplement'	=> translate('online_quiz_results_response_supplement'),
 							  );
 
 		foreach ($available_keywords as $keyword => $description) {
@@ -2462,14 +2463,15 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	function getResultsTableFullKeywordReplacement($html=TRUE)
 	{
 		$columns = Array(
-					'question_num'		=> translate('online_quiz_results_header_question_num'),
-					'question_text'		=> translate('online_quiz_results_header_question_text'),
-					'value'				=> translate('online_quiz_results_header_value'),
-					'summary'			=> translate('online_quiz_results_header_summary'),
-					'correct_value'		=> translate('online_quiz_results_header_correct_value'),
-					'correct_summary'	=> translate('online_quiz_results_header_correct_summary'),
-					'points'			=> translate('online_quiz_results_header_points'),
-					'available_points'	=> translate('online_quiz_results_header_available_points'),
+					'question_num'			=> translate('online_quiz_results_header_question_num'),
+					'question_text'			=> translate('online_quiz_results_header_question_text'),
+					'value'					=> translate('online_quiz_results_header_value'),
+					'summary'				=> translate('online_quiz_results_header_summary'),
+					'correct_value'			=> translate('online_quiz_results_header_correct_value'),
+					'correct_summary'		=> translate('online_quiz_results_header_correct_summary'),
+					'points'				=> translate('online_quiz_results_header_points'),
+					'available_points'		=> translate('online_quiz_results_header_available_points'),
+					'response_supplement'	=> translate('online_quiz_results_header_available_points'),
 				   );
 		return $this->getResultsTableKeywordReplacement($columns, TRUE, $html);
 
@@ -2537,14 +2539,10 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		$replacement = '%question_'.$question_asset_id.'_'.$keyword.'%';
 
-		// Ensure that question keywords can only be retrieved from assets that are available for listing
-		$available_question_asset_ids = array_keys($this->getQuestions());
-		if (in_array($question_asset_id, $available_question_asset_ids)) {
-			$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id);
-			if (!is_null($question)) {
-				$replacement = $question->getKeywordReplacement($keyword);
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
-			}
+		$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id);
+		if (!is_null($question)) {
+			$replacement = $question->getKeywordReplacement($keyword);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
 		}
 
 		return $replacement;
@@ -2565,47 +2563,46 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		$replacement = '%result_'.$question_asset_id.'_'.$keyword.'%';
 
-		// Ensure that question keywords can only be retrieved from assets that are available for listing
-		$available_question_asset_ids = array_keys($this->getQuestions());
-		if (in_array($question_asset_id, $available_question_asset_ids)) {
-			$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id);
-			if (!is_null($question)) {
-				$question_results = $question->getResults();
+		$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id);
+		if (!is_null($question)) {
+			$question_results = $question->getResults();
 
-				// Some replacements are not provided in the question results, so we have to ask for these...
-				$keyword_replaced = FALSE;
+			// Some replacements are not provided in the question results, so we have to ask for these...
+			$keyword_replaced = FALSE;
 
-				switch ($keyword) {
-					case 'question_number':		$replacement = $question->getPosition();
-												$keyword_replaced = TRUE;
-					break;
+			switch ($keyword) {
+				case 'question_number':		$replacement = $question->getPosition();
+											$keyword_replaced = TRUE;
+				break;
 
-					case 'question_text':   	$replacement = $question->getKeywordReplacement('question_text');
-												$keyword_replaced = TRUE;
-					break;
+				case 'question_text':   	$replacement = $question->getKeywordReplacement('question_text');
+											$keyword_replaced = TRUE;
+				break;
 
-					case 'answer':				$keyword = 'value';
-					break;
+				case 'answer':				$keyword = 'value';
+				break;
 
-					case 'answer_text':			$keyword = 'summary';
-					break;
+				case 'answer_text':			$keyword = 'summary';
+				break;
 
-					case 'correct_answer':		$keyword = 'correct_value';
-					break;
+				case 'correct_answer':		$keyword = 'correct_value';
+				break;
 
-					case 'correct_answer_text':	$keyword = 'correct_summary';
-					break;
-				}
+				case 'correct_answer_text':	$keyword = 'correct_summary';
+				break;
 
-				// This keyword is obtained from the results...
-				if (!$keyword_replaced) {
-					if (isset($question_results[$keyword])) {
-						$replacement = $question_results[$keyword];
-					}
-				}
-
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
+				case 'response_supplement':	$replacement = $question->getResponseSupplement();
+				break;
 			}
+
+			// This keyword is obtained from the results...
+			if (!$keyword_replaced) {
+				if (isset($question_results[$keyword])) {
+					$replacement = $question_results[$keyword];
+				}
+			}
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
 		}
 
 		return $replacement;

@@ -10,12 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice_edit_fns.inc,v 1.2 2006/12/20 23:57:08 rhoward Exp $
+* $Id: online_quiz_question_multichoice_edit_fns.inc,v 1.3 2007/05/18 00:04:03 mbrydon Exp $
 *
 */
 
 
 require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_online_quiz/online_quiz_question/online_quiz_question_edit_fns.inc';
+require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 
 
 /**
@@ -25,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_online_quiz/online_quiz_
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,7 +82,6 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 					?>
 				</tr>
 				<?php
-
 				foreach ($options as $option_key => $option) {
 					?>
 					<tr>
@@ -134,7 +134,7 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 
 
 	/**
-	* Process the response form options
+	* Process the response form options. Response Supplements are also handled here when an option is created or deleted
 	*
 	* @param object	&$asset	the asset whose interface we are processing
 	* @param object	&$o		the outputter class
@@ -163,6 +163,11 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 					$text   = trim(array_get_index($option, 'text'));
 					$points = array_get_index($option, 'points', NULL);
 
+					$supplementary_html = '';
+					if (isset($_REQUEST[$prefix.'_supplement_'.$option_key])) {
+						$supplementary_html = $_REQUEST[$prefix.'_supplement_'.$option_key];
+					}
+
 					if (!empty($text) && !is_null($points)) {
 						if ($option_key_counter > ord('z')) {
 							$option_key_counter = ord('a');
@@ -171,10 +176,9 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 						// a, b, c... y, z, a2, b2,
 						$option_key = chr($option_key_counter).($option_key_rollover <= 1 ? '' : $option_key_rollover);
 
-						$options[$option_key] = Array(
-													'text'		=> $text,
-													'points'	=> (int)$points,
-												);
+						$options[$option_key]['text']	= $text;
+						$options[$option_key]['points']	= (int)$points;
+						$options[$option_key]['response_supplement']	= $supplementary_html;
 						$option_key_counter++;
 					}
 				}
@@ -191,9 +195,11 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 				$option_key = chr($option_key_counter).($option_key_rollover <= 1 ? '' : $option_key_rollover);
 
 				$options[$option_key] = Array(
-											'text'		=> $new_option,
-											'points'	=> 0,
+											'text'					=> $new_option,
+											'points'				=> 0,
+											'response_supplement'	=> '',
 										);
+
 				$option_key_counter++;
 			}
 
@@ -206,6 +212,81 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 		return FALSE;
 
 	}//end processResponseForm()
+
+
+	/**
+	* Paint the response form options
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintResponseSupplements(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$o->openField(translate('online_quiz_question_multichoice_options'));
+
+			$options = $asset->attr('response_form');
+
+			if (empty($options)) {
+				echo translate('online_quiz_question_multichoice_empty_options');
+			} else {
+
+				?>
+				<table class="sq-backend-table">
+				<tr>
+					<th><?php echo translate('online_quiz_question_multichoice_option'); ?></th>
+					<th><?php echo translate('online_quiz_question_multichoice_option_text'); ?></th>
+					<th><?php echo translate('online_quiz_question_multichoice_response_supplement'); ?></th>
+				</tr>
+				<?php
+
+				foreach ($options as $option_key => $option) {
+					?>
+					<tr>
+						<td><?php
+							echo $option_key;
+						?></td>
+
+						<td><?php
+							echo $option['text'];
+						?></td>
+
+						<td>
+							<table border="0" class="email-format-body">
+							<tr>
+								<td>
+									<?php
+									$wysiwyg_prefix = $prefix.'_supplement_'.$option_key;
+									$wysiwyg = new Asset_Attribute_WYSIWYG();
+									if (isset($option['response_supplement'])) {
+										$wysiwyg->value = $option['response_supplement'];
+									}
+									$wysiwyg->paint($wysiwyg_prefix, !$write_access);
+									?> 
+								</td>
+							</tr>
+							</table>
+						</td>
+					</tr>
+
+					<?php
+				}//end foreach ($options)
+
+				?>
+				</table>
+				<?php
+
+			}//end else empty($options)
+		$o->closeField();
+
+		return $write_access;
+
+	}//end paintResponseSupplements()
 
 
 }//end class

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.7 2007/05/16 23:51:27 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.8 2007/05/18 00:04:02 mbrydon Exp $
 *
 */
 -->
@@ -50,6 +50,7 @@
 <string source="online_quiz_results_header_total_points">Total Score</string>
 <string source="online_quiz_results_header_total_available_points">Total Maximum Score</string>
 <string source="online_quiz_results_header_totals">Totals</string>
+<string source="online_quiz_results_response_supplement">Response Supplement</string>
 
 <!-- A hack to make an empty column cell appear on all browsers -->
 <string source="online_quiz_results_empty_cell">&amp;nbsp;</string>
