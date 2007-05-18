@@ -1,0 +1,19 @@
+<contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="name">
+			<text width="35" height="1" />
+		</field>
+	</section>
+	<section name="Response Email" write_access="write:attributes">
+		<field attribute="email_sender">
+			<text width="30" />
+		</field>
+		<field attribute="field_email">
+			<text width="30" />
+		</field>
+		<field attribute="email_subject">
+			<text width="30" />
+		</field>
+	</section>
+</contents>
+

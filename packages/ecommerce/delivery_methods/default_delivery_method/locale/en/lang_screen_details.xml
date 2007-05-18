@@ -1,0 +1,22 @@
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Asset Name</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Response Email" write_access="write:attributes">
+		<field attribute="email_sender">
+			<display_name>From:</display_name>
+			<note/>
+		</field>
+		<field attribute="field_email">
+			<display_name>To:</display_name>
+			<note>If this field is empty, no email will be sent</note>
+		</field>
+		<field attribute="email_subject">
+			<display_name>Subject</display_name>
+			<note/>
+		</field>
+	</section>
+</contents>

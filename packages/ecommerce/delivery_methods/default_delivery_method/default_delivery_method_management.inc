@@ -1,0 +1,74 @@
+<?php
+require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+
+class Default_Delivery_Method_Management extends Asset_Management
+{
+
+
+    /**
+    * Constructor
+    *
+    * @param object Package_Manager &$pm    the relevant package manager
+    *
+    * @return void
+    * @access public
+    */
+    function Default_Delivery_Method_Management(&$pm)
+    {
+        $this->Asset_Management($pm);
+
+       		$this->vars = Array(
+							'field_email'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'text',
+												'description'	=> 'Email Address',
+												'default'		=> '',
+											   ),
+							'email_sender'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'text',
+												'description'	=> 'The email address of the sender',
+												'default'		=> '',
+											   ),
+							'email_subject'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'text',
+												'description'	=> 'The subject to put on the email to send to the customer',
+												'default'		=> 'Ecommerce Email Subject',
+											   ),
+						  );
+
+    }//end constructor
+
+
+    /**
+    * get the event list
+    *
+    * @return array
+    * @access public
+    */
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'					=> 'requestKeywords',
+					'broadcast_type_code'			=> 'content_type',
+					'broadcast_strict_type_code'	=> FALSE,
+					'options'						=> Array(
+														'side_of_link'	=> 'major',
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
+														'is_dependant'	=> 1,
+														'value'			=> '',
+														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+													   ),
+				),
+			   );
+
+	}//end getEventList()
+
+
+}//end class
+
+
+?>

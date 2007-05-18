@@ -1,0 +1,643 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +--------------------------------------------------------------------+
+*/
+
+require_once SQ_PACKAGES_PATH.'/ecommerce/delivery_methods/ecommerce_delivery_method/ecommerce_delivery_method.inc';
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
+require_once SQ_FUDGE_PATH.'/general/www.inc';
+require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
+require_once 'HTTP/Client.php';
+
+class Default_Delivery_Method extends Ecommerce_Delivery_Method
+{
+
+
+	function Default_Delivery_Method($assetid=0)
+	{
+		$this->Ecommerce_Delivery_Method($assetid);
+
+	}//end constructor
+
+
+	/**
+	* create the additional assets
+	*
+	* @param object	&$link	link
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return FALSE;
+
+		$sub_assets = Array(
+						'form'			=> Array(
+											'type_code'	=> 'simple_form',
+											'name'		=> 'Form Contents',
+											'link_type'	=> SQ_LINK_TYPE_2,
+											'exclusive'	=> FALSE,
+										   ),
+						'bodycopies'	=> Array(
+											'type_code'	=> 'folder',
+											'name'		=> 'Bodycopies',
+											'link_type'	=> SQ_LINK_TYPE_2,
+											'exclusive'	=> TRUE,
+										   ),
+					  );
+
+		$success = TRUE;
+		$bodycopy_folder = NULL;
+		foreach ($sub_assets as $link_value => $sub_asset) {
+			$asset_type = $sub_asset['type_code'];
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type);
+
+			$asset =& new $asset_type();
+			$copy_link = Array(
+							'asset'			=> &$this,
+							'value'			=> $link_value,
+							'link_type'		=> $sub_asset['link_type'],
+							'is_dependant'	=> 1,
+							'is_exclusive'	=> $sub_asset['exclusive'],
+						 );
+
+			$asset->setAttrValue('name', $sub_asset['name']);
+			$success = $asset->create($copy_link);
+
+			if ($link_value == 'bodycopies') {
+				$bodycopy_folder = $asset;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			unset($asset);
+
+			if (!$success) break;
+		}
+
+		// now create bodycopies
+		if ($success) {
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+			foreach ($this->getAvailableBodycopies() as $link_value => $bodycopy_name) {
+				$asset =& new Bodycopy();
+
+				$copy_link = Array(
+								'asset'			=> &$bodycopy_folder,
+								'value'			=> $link_value,
+								'link_type'		=> SQ_LINK_TYPE_2,
+								'is_dependant'	=> 1,
+								'is_exclusive'	=> 1,
+							 );
+
+				$asset->setAttrValue('name', $bodycopy_name);
+
+				$success = $asset->create($copy_link);
+				unset($asset);
+				if (!$success) break;
+			}
+		}
+
+		return TRUE;
+
+	}//end _createAdditional()
+
+
+	/**
+	* get confirmation summary
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getConfirmationSummary()
+	{
+		$bodycopy =& $this->getBodycopy('confirmation');
+
+		// get an array with all the values entered by the user
+		$form_values = unserialize($_SESSION['order_extra_information']);
+
+		// create the replacement keyword array
+		$keyword_remplacements = Array();
+
+		// get all the keywords from the bodycopy
+		$confirmation_keywords = $bodycopy->getKeywords();
+
+		// create the keyword replacements with values entered by the user
+		foreach ($confirmation_keywords as $keyword) {
+			$key_parts = split('_', $keyword);
+			if ((count($key_parts) == 2 ) && ($key_parts[0] == 'form')) {
+
+				$keyword_remplacements[$keyword] = $form_values[$key_parts[1]];
+			}
+		}
+		$bodycopy->setKeywordReplacements($keyword_remplacements);
+
+		ob_start();
+		$bodycopy->printBody();
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
+
+	}//end getConfirmationSummary()
+
+
+	/**
+	* get the keywords on request
+	*
+	* @param object	&$broadcaster	broadcaster
+	* @param array	$var			vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		$keywords = Array();
+
+		if (!is_array($vars['keywords'])) {
+			$vars['keywords'] = Array();
+		}
+
+		$bodycopy_folder_link  = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies');
+		// not our bodycopy, just bail out
+		if (empty($bodycopy_folder_link)) {
+			return;
+		} else {
+			$bodycopy_folder_id = $bodycopy_folder_link['minorid'];
+		}
+
+		$broadcaster_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
+		$content_bodycopy_value = NULL;
+		foreach (array_keys($broadcaster_parents) as $bodycopy_id) {
+			$content_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($bodycopy_folder_id, $bodycopy_id);
+			if (!empty($content_bodycopy_link) && !empty($content_bodycopy_link['value'])) {
+				$bodycopy_context = $content_bodycopy_link['value'];
+				break;
+			}
+		}
+
+		// check if the found bodycopy context is recognised
+		$contexts = $this->getAvailableBodycopies();
+		if (empty($bodycopy_context) || !isset($contexts[$bodycopy_context])) {
+			return;
+		}
+
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+
+		$context_kw_fn = '_get'.ucwords_no_space($bodycopy_context).'BodycopyKeywords';
+		if (method_exists($this, $context_kw_fn)) {
+			$vars['keywords'] = array_merge($vars['keywords'], $this->$context_kw_fn());
+		}
+
+	}//end onRequestKeywords()
+
+
+	/**
+	* Get the Confirmation keywords
+	*
+	* @return array
+	* @access public
+	*/
+	function _getConfirmationBodycopyKeywords()
+	{
+		$keywords = Array();
+		$form =& $this->getForm();
+
+		$question_values = $form->getQuestions();
+		foreach ($question_values as $key => $value) {
+			$key_parts = split( ':', $key);
+			$keywords['form_'.$key_parts[1]] = $value['name'].' ('.$key_parts[1].')';
+		}
+		return $keywords;
+
+	}//end _getConfirmationBodycopyKeywords()
+
+
+	/**
+	* Get the Success keywords
+	*
+	* @return array
+	* @access public
+	*/
+	function _getSuccessBodycopyKeywords()
+	{
+		$keywords = Array();
+		$form =& $this->getForm();
+
+		$question_values = $form->getQuestions();
+		foreach ($question_values as $key => $value) {
+			$key_parts = split( ':', $key);
+			$keywords['form_'.$key_parts[1]] = $value['name'].' ('.$key_parts[1].')';
+		}
+		return $keywords;
+
+	}//end _getSuccessBodycopyKeywords()
+
+
+	/**
+	* Get the Failure keywords
+	*
+	* @return array
+	* @access public
+	*/
+	function _getFailureBodycopyKeywords()
+	{
+		$keywords = Array();
+		$form =& $this->getForm();
+
+		$question_values = $form->getQuestions();
+		foreach ($question_values as $key => $value) {
+			$key_parts = split( ':', $key);
+			$keywords['form_'.$key_parts[1]] = $value['name'].' ('.$key_parts[1].')';
+		}
+		return $keywords;
+
+	}//end _getFailureBodycopyKeywords()
+
+
+	/**
+	* get allowed links
+	*
+	* @return array
+	* @access public
+	*/
+	function _getAllowedLinks()
+	{
+		$links = parent::_getAllowedLinks();
+		$links[SQ_LINK_TYPE_2] = Array(
+									'simple_form'	=> Array(
+														'card'		=> '1',
+														'exclusive'	=> FALSE,
+													   ),
+									'folder'		=> Array(
+														'card'		=> '1',
+														'exclusive'	=> TRUE,
+													   ),
+								 );
+
+		return $links;
+
+	}//end _getAllowedLinks()
+
+
+	/**
+	* Get the Receipt
+	*
+	* @param boolean $html if true means we are returning a html format
+	*
+	* @return string
+	* @access public
+	*/
+	function getReceipt($html=FALSE)
+	{
+		$form =& $this->getForm();
+
+		ob_start();
+		echo '<pre><ul>';
+
+		// get all question names
+		$form =& $this->getForm();
+		$question_values = $form->getQuestions();
+		$question_names = Array();
+		foreach ($question_values as $key => $value) {
+			$key_parts = split(':', $key);
+			$question_names[$key_parts[1]] = $value['name'];
+		}
+
+		// get the question values entered by the user
+		$question_value = unserialize($_SESSION['order_extra_information']);
+		foreach ($question_value as $key => $value) {
+			$tmp_name = $question_names[$key];
+			echo '<li>'.$tmp_name.' ('.$key.') : '.$value.'</li>';
+		}
+		echo '</ul></pre>';
+		$receipt = ob_get_contents();
+		ob_end_clean();
+
+		return $receipt;
+
+	}//end getReceipt()
+
+
+	/**
+	* get the receipt summary
+	*
+	* @return string
+	* @access public
+	*/
+	function getReceiptSummary()
+	{
+		$bodycopy =& $this->getBodycopy('success');
+
+		$bodycopy->setKeywordReplacements($this->_getReceiptKeywordReplacements());
+
+		// if the order id is not empty get the asset and get the form values entered from the user
+		if (!empty($this->state['transaction_id'])) {
+			$tmp_order =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->state['transaction_id']);
+
+			// get the keywords from the bodycopy and replace them with the values entered by the user
+			$keywords = $bodycopy->getKeywords();
+			$form_values = $tmp_order->attr('order_form_value');
+			$keyword_replacements = Array();
+			foreach ($keywords as $keyword) {
+				$key_parts = split('_', $keyword);
+				if ((count($key_parts) == 2) && ($key_parts[0] == 'form')) {
+					$keyword_replacements[$keyword] = $form_values[$key_parts[1]];
+				}
+			}
+			$bodycopy->setKeywordReplacements($keyword_replacements);
+
+		}
+
+
+		ob_start();
+		$bodycopy->printBody();
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
+
+	}//end getReceiptSummary()
+
+
+	/**
+	* get the receipt keyword replacement
+	*
+	* @return array
+	* @access public
+	*/
+	function _getReceiptKeywordReplacements()
+	{
+		$keywords = Array();
+		return $keywords;
+
+	}//end _getReceiptKeywordReplacements()
+
+
+	/**
+	* return the available bodycopies
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableBodycopies()
+	{
+		return Array(
+				'success'		=> 'Success',
+				'failure'		=> 'Failure',
+				'confirmation'	=> 'Confirmation',
+			   );
+
+	}//end getAvailableBodycopies()
+
+
+	/**
+	* get the input interface
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getInputInterface()
+	{
+		$interface = parent::getInputInterface();
+
+		$form =& $this->getForm();
+
+		ob_start();
+		$form->printBody(FALSE, FALSE);
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
+
+	}//end getInputInterface()
+
+
+	/**
+	* process the input interface
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processInputInterface()
+	{
+		$form =& $this->getForm();
+		$state = $this->getState();
+		$order_extra_info = Array();
+
+		// add the form values entered by the user in a session variable
+		$question_values = $form->getQuestions();
+		foreach ($question_values as $key => $value) {
+			$key_parts = split(':', $key);
+			$tmpValue = array_get_index($_REQUEST, "q$key", '');
+			$order_extra_info[$key_parts[1]] = $tmpValue;
+		}
+		$_SESSION['order_extra_information'] =  serialize($order_extra_info);
+
+		return TRUE;
+
+	}//end processInputInterface()
+
+
+	/**
+	* get the form of the delivery method
+	*
+	* @return object
+	* @access public
+	*/
+	function &getForm()
+	{
+		if (empty($this->_tmp['form'])) {
+			$this->_tmp['form'] = NULL;
+
+			$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'simple_form', TRUE, 'form');
+			if ($form_link) {
+				$this->_tmp['form'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], 'simple_form');
+			}
+		}
+
+		return $this->_tmp['form'];
+
+	}//end getForm()
+
+
+	/**
+	* get the state
+	*
+	* @return string
+	* @access public
+	*/
+	function getStatusMessage()
+	{
+		switch ($status) {
+			case 0:
+				return 'Processing';
+			break;
+
+			case 1:
+				return 'Sent to mail server';
+			break;
+
+			case 2:
+			default:
+				return 'Failed';
+			break;
+		}
+
+	}//end getStatusMessage()
+
+
+	/**
+	* get the state
+	*
+	* @return string
+	* @access public
+	*/
+	function validateState()
+	{
+		$state = $this->getState();
+		return TRUE;
+
+	}//end validateState()
+
+
+	/**
+	* get the failure summary
+	*
+	* @return string
+	* @access public
+	*/
+	function getFailureSummary()
+	{
+		$bodycopy =& $this->getBodycopy('failure');
+
+		ob_start();
+		$bodycopy->printBody();
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
+
+	}//end getFailureSummary()
+
+
+	/**
+	* return the internal receipt
+	*
+	* @param boolean	$html	true if it is a html format
+	*
+	* @return string
+	* @access public
+	*/
+	function getInternalReceipt($html=FALSE)
+	{
+		return '';
+
+	}//end getInternalReceipt()
+
+
+	/**
+	* get the bodycopy
+	*
+	* @param string	$name	name of the bodycopy
+	*
+	* @return object
+	* @access public
+	*/
+	function &getBodycopy($name='')
+	{
+		$null = NULL;
+		if (!$name) return $null;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies');
+		if (empty($folder_link)) return $null;
+
+		$folder =& $am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
+		if (is_null($folder)) return $null;
+
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name);
+		if (empty($bodycopy_link)) return $null;
+
+		$bodycopy =& $am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+
+		if (!empty($bodycopy)) return $bodycopy;
+
+		return NULL;
+
+	}//end getBodycopy()
+
+
+	/**
+	* This function process the delivery
+	*
+	* @param object	&$order	test
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processDelivery(&$order)
+	{
+
+		$this->state['transaction_id']  = $order->id;
+
+		$order->setOrderStatus(SQ_ECOM_ORDER_STATUS_PROCESSING, 'Pending');
+
+		// if an email address was setup we will send an email
+		$to = trim($this->attr('field_email'));
+		$from = trim($this->attr('email_sender'));
+		$subject = trim($this->attr('email_subject'));
+
+		// get the order summary from the cart
+		$cart =& new Ecommerce_Cart_Processor();
+		$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
+		$message = '<pre>';
+		ob_start();
+		$cart->printReceipt();
+		$message .= ob_get_contents();
+		ob_end_clean();
+		$message .= '</pre>';
+
+		// get the form summary
+		$message .= '<pre>'.$this->getReceipt(TRUE).'</pre>';
+
+		$success = FALSE;
+
+		// if an email address is specified
+		if (!empty($to)) {
+			// To send HTML mail, the Content-type header must be set
+			$headers  = 'MIME-Version: 1.0'."\r\n";
+			$headers .= 'Content-type: text/html; charset=iso-8859-1'."\r\n";
+
+			// Additional headers
+			if (!empty($from)) $headers .= 'From: '.$from."\r\n";
+
+			$success = mail($to, $subject, '<html><body>'.$message.'</body></html>', $headers);
+		} else {
+			$success = TRUE;
+		}
+
+		if ($success) {
+			$order->setOrderStatus(SQ_ECOM_ORDER_STATUS_SUCCESS);
+		} else {
+			$order->setOrderStatus(SQ_ECOM_ORDER_STATUS_FAILED);
+		}
+		$order->setAttrValue('order_form_value', unserialize($_SESSION['order_extra_information']));
+
+		return TRUE;
+
+
+	}//end processDelivery()
+
+
+}//end class
+?>
