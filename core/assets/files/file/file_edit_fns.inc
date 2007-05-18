@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.83 2007/03/05 00:01:40 tbarrett Exp $
+* $Id: file_edit_fns.inc,v 1.83.2.1 2007/05/18 06:05:41 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.83.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,7 +97,17 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			if ($info !== FALSE && !empty($info)) {
 				return FALSE;
 			}
-			$asset->setAttrValue('name', $_REQUEST[$prefix.'_filename']);
+
+			if ($asset->name != $_REQUEST[$prefix.'_filename']) {
+				$info = Array();
+				$info['name'] = $_REQUEST[$prefix.'_filename'];			// Asset new filename
+				$info['tmp_name'] = $asset->data_path.'/'.$asset->name;	// Source file new
+				$info['non_uploaded_file'] = TRUE;						// Specify that file is already uploaded.
+				$info['setting_filename'] = TRUE;						// Tell the function that we are in setting the file name process.
+				if (!$this->processFileUpload($asset, $o, $prefix, $info)) {
+					return TRUE;
+				}
+			}
 		}
 
 		return $process;
@@ -227,25 +237,29 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			// return on failed or no upload
 			if ($info === FALSE || empty($info)) {
 				return FALSE;
-			}
-		}
+			}//end if
+		}//end if
 
 		// make the info array look like a result from getExistingFile()
 		if (!isset($info['path'])) {
 			$info['path'] = array_get_index($info, 'tmp_name', '');
-		}
+		}//end if
 
 		if (!isset($info['filename'])) {
 			$info['filename'] = array_get_index($info, 'name', '');
-		}
+		}//end if
+
+		$setting_filename = FALSE;
+		if (isset($info['setting_filename'])) {
+			$setting_filename = array_get_index($info, 'setting_filename', FALSE);
+		}//end if
 
 		if (!$asset->validFile($info)) return FALSE;
-
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$name = current(make_valid_web_paths(Array($info['name'])));
 
-		// make sure the new web path is not already is use
+		// make sure the new web path is not already in use
 		if ($asset->name != $name) {
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', NULL, 'minor');
 			for ($i = 0; $i < count($parents); $i++) {
@@ -255,9 +269,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				if (!empty($bad_paths)) {
 					trigger_localised_error('CORE0055', E_USER_WARNING, $name);
 					return FALSE;
-				}
-			}
-		}
+				}//end if
+			}//end if
+		}//end if
 
 		// create the destination directory, if necessary (NOTE that checking is internal for this)
 		create_directory($asset->data_path);
@@ -267,42 +281,15 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		$existing = $asset->getExistingFile();
-		if ($asset->name != $name && !empty($existing)) {
-			// a new file with a new name means we need to remove the old
-			// one from the repository (NOTE that this doesnt actually 'remove' the
-			// files from the repository - just marks the branch as complete)
-			$result = $fv->remove($existing['path'], '');
-			if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
-				trigger_localised_error('CORE0042', E_USER_WARNING);
-				return FALSE;
-			}
 
-			// remove the old copy in the public directory (bug#1370)
-			if ($asset->usePublicPath()) {
-				$unrestricted = $asset->data_path_public.'/'.$existing['filename'];
-				if (file_exists($unrestricted)) {
-					$fv->clearOut($unrestricted);
-				}
-
-			}
-		}
-
-		// copy over the new uploaded file
-		if (is_uploaded_file($info['tmp_name'])) {
-			// a normal uploaded file
-			if (!move_uploaded_file($info['tmp_name'], $asset->data_path.'/'.$name)) {
-				trigger_localised_error('CORE0037', E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
-				return FALSE;
-			}
-		} else if (isset($info['non_uploaded_file']) && $info['non_uploaded_file'] === TRUE) {
-			// we have special permission to move a non-uploaded file
-			if (!copy($info['tmp_name'], $asset->data_path.'/'.$name)) {
-				trigger_localised_error('CORE0036', E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
-				return FALSE;
-			}
+		if ($setting_filename === TRUE) {
+			$this->getNewFile($asset, $name, $info);
+			$this->removeOldFile($asset, $existing, $fv);
 		} else {
-			trigger_localised_error('CORE0067', E_USER_ERROR);
-			return FALSE;
+			if ($asset->name != $name && !empty($existing)) {
+				$this->removeOldFile($asset, $existing, $fv);
+			}
+			$this->getNewFile($asset, $name, $info);
 		}
 
 		// if we are overwriting our current file with one that has the same name,
@@ -313,21 +300,21 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				if (!$fv->commit($asset->data_path.'/'.$name, '')) {
 					trigger_localised_error('CORE0034', E_USER_WARNING);
 					return FALSE;
-				}
-			}
+				}//end if
+			}//end if
 		} else {
 			// attempt to add the file to the repository
 			if (!$fv->add($asset->data_path_suffix, $asset->data_path.'/'.$name, '')) {
 				trigger_localised_error('CORE0026', E_USER_WARNING);
 				return FALSE;
-			}
-		}
+			}//end if
+		}//end else
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($asset->data_path_suffix.'/'.$name, $asset->data_path)) {
 			trigger_localised_error('CORE0032', E_USER_WARNING);
 			return FALSE;
-		}
+		}//end if
 
 		// set the name of the file to the newly uploaded one
 		$asset->_tmp['uploading_file'] = TRUE;
@@ -335,21 +322,21 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->saveAttributes()) {
 			trigger_localised_error('CORE0052', E_USER_WARNING);
 			return FALSE;
-		}
+		}//end if
 		$asset->_tmp['uploading_file'] = FALSE;
 
 		if (!$asset->saveWebPaths(Array($name))) {
 			trigger_localised_error('CORE0054', E_USER_WARNING);
 			return FALSE;
-		}
+		}//end if
 
 		if (SQ_IN_LIMBO && $name_changed && $redirect_in_limbo) {
 			// if we are in limbo and the name of the file has changed, the URL will also change
 			// so we need to redirect to the new limbo URL
 			if (!$asset->attr('allow_unrestricted')) {
 				$o->setRedirect(strip_url($asset->getUrl()).'/'.SQ_CONF_LIMBO_SUFFIX.'?redirect_header=1');
-			}
-		}
+			}//end if
+		}//end if
 
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($asset, 'ContentsUpdated');
@@ -455,6 +442,72 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		return $options;
 
 	}//end getPreuploadOptions()
+
+
+	/**
+	* Remove the old file of a file asset
+	*
+	* @param object	&$asset		the file asset we are in
+	* @param object &$existing	info about existing
+	* @param object	&$fv		the file versioning object
+	*
+	* @return void
+	* @access public
+	*/
+	function removeOldFile(&$asset, &$existing, &$fv)
+	{
+		// a new file with a new name means we need to remove the old
+		// one from the repository (NOTE that this doesnt actually 'remove' the
+		// files from the repository - just marks the branch as complete)
+		// If we are setting filename then don't remove the file yet
+		$result = $fv->remove($existing['path'], '');
+		if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
+			trigger_localised_error('CORE0042', E_USER_WARNING);
+			return FALSE;
+		}//end if
+
+		// remove the old copy in the public directory (bug#1370)
+		if ($asset->usePublicPath()) {
+			$unrestricted = $asset->data_path_public.'/'.$existing['filename'];
+			if (file_exists($unrestricted)) {
+				$fv->clearOut($unrestricted);
+			}//end if
+		}//end if
+
+	}//end removeOldFile()
+
+
+	/**
+	* Get the new file of a file asset
+	*
+	* @param object	&$asset	the file asset we are in
+	* @param object $name	the new name for the file asset
+	* @param object	&$info	the info array for the new file
+	*
+	* @return void
+	* @access public
+	*/
+	function getNewFile(&$asset, $name, &$info)
+	{
+		// copy over the new uploaded file
+		if (is_uploaded_file($info['tmp_name'])) {
+			// a normal uploaded file
+			if (!move_uploaded_file($info['tmp_name'], $asset->data_path.'/'.$name)) {
+				trigger_localised_error('CORE0037', E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
+				return FALSE;
+			}//end if
+		} else if (isset($info['non_uploaded_file']) && $info['non_uploaded_file'] === TRUE) {
+			// we have special permission to move a non-uploaded file
+			if (!copy($info['tmp_name'], $asset->data_path.'/'.$name)) {
+				trigger_localised_error('CORE0036', E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
+				return FALSE;
+			}//end if
+		} else {
+			trigger_localised_error('CORE0067', E_USER_ERROR);
+			return FALSE;
+		}
+
+	}//end getNewFile()
 
 
 	/**
