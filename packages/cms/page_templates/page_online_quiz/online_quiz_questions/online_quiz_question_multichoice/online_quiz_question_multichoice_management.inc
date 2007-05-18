@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice_management.inc,v 1.3 2007/05/18 00:04:03 mbrydon Exp $
+* $Id: online_quiz_question_multichoice_management.inc,v 1.4 2007/05/18 00:19:21 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,13 +76,14 @@ class Online_Quiz_Question_Multichoice_Management extends Asset_Management
 													'description'	=> 'The options that control the response form',
 												   ),
 					  );
+
 	}//end constructor
 
 
 	/**
 	* Upgrade
 	*
-	* @param string $current_version    the version of the asset that is currenly installed
+	* @param string	$current_version	the version of the asset that is currenly installed
 	*
 	* @return boolean
 	* @access public
@@ -100,7 +101,7 @@ class Online_Quiz_Question_Multichoice_Management extends Asset_Management
 				// Build the Response Supplements (option_value => response_supplement)
 				$question_options = $asset->attr('response_form');
 
-				foreach($question_options as $option_key => $option) {
+				foreach ($question_options as $option_key => $option) {
 					$question_options[$option_key]['response_supplement'] = '';
 				}
 
@@ -121,7 +122,7 @@ class Online_Quiz_Question_Multichoice_Management extends Asset_Management
 
 		return parent::_upgrade($current_version);
 
-	}// end _upgrade()
+	}//end _upgrade()
 
 
 }//end class

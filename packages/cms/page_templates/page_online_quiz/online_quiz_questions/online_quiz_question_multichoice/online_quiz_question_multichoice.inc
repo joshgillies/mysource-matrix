@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice.inc,v 1.3 2007/05/18 00:04:03 mbrydon Exp $
+* $Id: online_quiz_question_multichoice.inc,v 1.4 2007/05/18 00:19:21 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -233,7 +233,7 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 	* NOTE: Arrays of answers will stay in array format, with the exception
 	* that each element of the array will be rendered human-readable
 	*
-	* @return mixed
+	* @return string
 	* @access public
 	*/
 	function getSummary()
@@ -284,7 +284,7 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 	/**
 	* Returns the correct response
 	*
-	* @return mixed
+	* @return string
 	* @access public
 	*/
 	function getCorrectValue()
@@ -297,7 +297,7 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 	/**
 	* Returns the correct response in a human-readable format
 	*
-	* @return mixed
+	* @return string
 	* @access public
 	*/
 	function getCorrectSummary()
@@ -539,7 +539,8 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 	* @return string
 	* @access public
 	*/
-	function getResponseSupplement() {
+	function getResponseSupplement()
+	{
 		$response_supplement = '';
 		$option = Array();
 

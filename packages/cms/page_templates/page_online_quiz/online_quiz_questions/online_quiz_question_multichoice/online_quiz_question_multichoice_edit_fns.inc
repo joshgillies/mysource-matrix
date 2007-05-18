@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice_edit_fns.inc,v 1.3 2007/05/18 00:04:03 mbrydon Exp $
+* $Id: online_quiz_question_multichoice_edit_fns.inc,v 1.4 2007/05/18 00:19:21 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -262,7 +262,7 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 								<td>
 									<?php
 									$wysiwyg_prefix = $prefix.'_supplement_'.$option_key;
-									$wysiwyg = new Asset_Attribute_WYSIWYG();
+									$wysiwyg =& new Asset_Attribute_WYSIWYG();
 									if (isset($option['response_supplement'])) {
 										$wysiwyg->value = $option['response_supplement'];
 									}

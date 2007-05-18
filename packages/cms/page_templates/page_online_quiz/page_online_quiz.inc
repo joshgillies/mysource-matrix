@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.8 2007/05/18 00:04:02 mbrydon Exp $
+* $Id: page_online_quiz.inc,v 1.9 2007/05/18 00:19:21 mbrydon Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -99,11 +99,11 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$this->Page_Asset_Listing($assetid);
 
 		$this->_bodycopies = Array(
-								'page_contents'			=> translate('cms_page_contents'),
-								'no_results'			=> translate('cms_page_contents_no_results'),
-								'thank_you'				=> translate('online_quiz_bodycopy_thank_you'),
-								'already_taken'			=> translate('online_quiz_bodycopy_already_taken'),
-								'user_details'			=> translate('online_quiz_bodycopy_user_details'),
+								'page_contents'	=> translate('cms_page_contents'),
+								'no_results'	=> translate('cms_page_contents_no_results'),
+								'thank_you'		=> translate('online_quiz_bodycopy_thank_you'),
+								'already_taken'	=> translate('online_quiz_bodycopy_already_taken'),
+								'user_details'	=> translate('online_quiz_bodycopy_user_details'),
 							 );
 
 	}//end constructor
@@ -958,7 +958,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 					}
 				}
 			}
-		}
+		}//end if
 
 		return $assets_to_list;
 
@@ -1777,8 +1777,6 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$keywords['results_table_full']   = translate('online_quiz_keyword_results_table_full');
 		$keywords['results_table_simple'] = translate('online_quiz_keyword_results_table_simple');
 
-# Provide Question Keywords
-		
 		return $keywords;
 
 	}//end _getResultsKeywords()
@@ -2603,7 +2601,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			}
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
-		}
+		}//end if
 
 		return $replacement;
 
