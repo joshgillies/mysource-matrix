@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_group.inc,v 1.1 2007/05/15 03:39:42 mbrydon Exp $
+* $Id: online_quiz_question_group.inc,v 1.2 2007/05/20 23:45:47 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *	A group to house Online Quiz Questions
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -43,6 +43,7 @@ class Online_Quiz_Question_Group extends Folder
 	*/
 	function Online_Quiz_Question_Group($assetid=0)
 	{
+		$this->_ser_attrs = TRUE;
 		$this->Folder($assetid);
 
 	}//end constructor
@@ -81,6 +82,77 @@ class Online_Quiz_Question_Group extends Folder
 		return $page_links;
 
 	}//end _getAllowedLinks()
+
+
+	/**
+	* Returns a list of Online Quiz Question assets associated with this group
+	*
+	* @return array
+	* @access public
+	*/
+	function getQuestions()
+	{
+		$questions = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'online_quiz_question', FALSE);
+
+		return $questions;
+
+	}//end getQuestions()
+
+
+	/**
+	* Returns the Score Categories associated with this group
+	*
+	* @return array
+	* @access public
+	*/
+	function getScoreCategories()
+	{
+		return $this->attr('score_categories');
+
+	}//end getScoreCategories()
+
+
+	/**
+	* Returns the applicable Score Category for the score provided
+	*
+	* @param int	$score	A total score for the Question Group
+	*
+	* @return string
+	* @access public
+	*/
+	function getScoreCategoryForScore($score)
+	{
+		$score_category = NULL;
+		$score_categories = $this->getScoreCategories();
+
+		foreach ($score_categories as $key => $current_score_category) {
+			$min_score = $current_score_category['min_score'];
+			$max_score = $current_score_category['max_score'];
+
+			// Score categories can be open-ended or closed. Examples follow:
+			// Min score (empty), Max score = 10:	Score of 10 or lower
+			// Min score = 0, Max score = 10:		Any score 0 to 10 inclusive
+			// Min score = 1, Max score (empty):	Score of 1 or greater
+
+			if ((strlen($min_score) == 0) && (strlen($max_score) > 0) && ($score <= $max_score)) {
+				$score_category = $current_score_category;
+				break;
+			}
+
+			if ((strlen($min_score) == 0) && (strlen($max_score) == 0) && ($score >= $min_score) && ($score <= $max_score)) {
+				$score_category = $current_score_category;
+				break;
+			}
+
+			if ((strlen($min_score) > 0) && (strlen($max_score) == 0) && ($score >= $min_score)) {
+				$score_category = $current_score_category;
+				break;
+			}
+		}
+
+		return $score_category;
+
+	}//end getScoreCategoryForScore()
 
 
 }//end class

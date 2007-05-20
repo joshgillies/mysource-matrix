@@ -10,10 +10,17 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2007/05/15 03:39:42 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.2 2007/05/20 23:45:47 mbrydon Exp $
 *
 */
 -->
 
 <strings>
+	<string source="online_quiz_question_group_score_categories">Score Categories</string>
+	<string source="online_quiz_question_group_empty_score_categories">No score categories have been defined</string>
+	<string source="online_quiz_question_group_score_category">Score Category</string>
+	<string source="online_quiz_question_group_minimum_score">Minimum Score</string>
+	<string source="online_quiz_question_group_maximum_score">Maximum Score</string>
+	<string source="online_quiz_question_group_delete_category">Delete Category</string>
+	<string source="online_quiz_question_group_new_score_category">New Score Category</string>
 </strings>

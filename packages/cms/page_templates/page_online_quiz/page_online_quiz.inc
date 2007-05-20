@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.9 2007/05/18 00:19:21 mbrydon Exp $
+* $Id: page_online_quiz.inc,v 1.10 2007/05/20 23:45:47 mbrydon Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1631,6 +1631,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				$vars['keywords'] += $this->_getResultsKeywords();
 				$vars['keywords'] += $this->_getUserDetailsKeywords();
 				$vars['keywords'] += $this->_getQuestionResultKeywords();
+				$vars['keywords'] += $this->_getQuestionGroupResultKeywords();
 				return;
 			}
 		}
@@ -1827,17 +1828,35 @@ class Page_Online_Quiz extends Page_Asset_Listing
 								'response_supplement'	=> translate('online_quiz_results_response_supplement'),
 							  );
 
+		$locale_text = translate('online_quiz_results_question_x');
 		foreach ($available_keywords as $keyword => $description) {
-			$keywords['result_X_'.$keyword] = 'Result for Question X: '.$description;
+			$keywords['result_X_'.$keyword] = $locale_text.': '.$description;
 		}
 
 		// And some more general keywords...
-		$keywords['quiz_total_points'] = 'Quiz: Total Points Obtained';
-		$keywords['quiz_total_available_points'] = 'Quiz: Maximum Total Points';
+		$keywords['quiz_total_points'] = translate('online_quiz_results_quiz_total_points_obtained');
+		$keywords['quiz_total_available_points'] = translate('online_quiz_results_quiz_maximum_total_points');
 
 		return $keywords;
 
 	}//end _getQuestionResultKeywords()
+
+
+	/**
+	* Returns a list of keywords that can be used to print an Online Quiz Question asset and its score.
+	* The keywords available here are specific only to results, and do not contain inherited Question asset keywords
+	*
+	* @return array
+	* @access public
+	*/
+	function _getQuestionGroupResultKeywords()
+	{
+		$keywords = Array();
+		$keywords['question_group_X_score_category_name'] = translate('online_quiz_results_question_group_x').': '.translate('online_quiz_results_score_category_name');
+
+		return $keywords;
+
+	}//end _getQuestionGroupResultKeywords()
 
 
 //--        Keyword Replacements        --//
@@ -1900,7 +1919,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			}
 		}
 
-		// Question and result keywords for the "Customised Results" bodycopy
+		// Question and result keywords for the "Thank You" bodycopy
 		if (preg_match('/^(result)_([0-9]*)_(.*)$/', $keyword, $matches)) {
 			if (isset($matches[1]) && isset($matches[2]) && isset($matches[3])) {
 				// Keyword match example: result_123_answer becomes (result, 123, answer)
@@ -1911,6 +1930,20 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				// Grab the question result (answers etc.) keyword
 				if (!empty($keyword_stem) && !empty($asset_id) && !empty($attr)) {
 					return $this->getQuestionResultKeywordReplacement($asset_id, $attr);
+				}
+			}
+		}
+
+		// Question Group result keywords for the "Thank You" bodycopy
+		if (preg_match('/^(question_group)_([0-9]*)_(.*)$/', $keyword, $matches)) {
+			if (isset($matches[1]) && isset($matches[2]) && isset($matches[3])) {
+				$keyword_stem = $matches[1];
+				$asset_id     = $matches[2];
+				$attr         = $matches[3];
+
+				// Grab the question result (answers etc.) keyword
+				if (!empty($keyword_stem) && !empty($asset_id) && !empty($attr)) {
+					return $this->getQuestionGroupResultKeywordReplacement($asset_id, $attr);
 				}
 			}
 		}
@@ -2646,6 +2679,53 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		return $total_points;
 
 	}//end getQuizTotalAvailablePointsKeywordReplacement()
+
+
+	/**
+	* Returns the keyword replacements for Question Group-based result keywords (format: %question_group_X_keyword%)
+	*
+	* @param int	$question_group_asset_id	The asset ID of the question group
+	* @param string	$keyword					The keyword to retrieve from the question group
+	*
+	* @return string
+	* @access public
+	*/
+	function getQuestionGroupResultKeywordReplacement($question_group_asset_id, $keyword)
+	{
+		$replacement = '%question_group_'.$question_group_asset_id.'_'.$keyword.'%';
+
+		$question_group =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_group_asset_id);
+		if (!is_null($question_group)) {
+			$group_questions = array_keys($question_group->getQuestions());
+			$quiz_questions = array_keys($this->getQuestions());
+
+			// Add up the totals for the questions which have been asked
+			$questions_asked = array_intersect($quiz_questions, $group_questions);
+
+			// Free memory
+			$group_questions = NULL;
+			$quiz_questions = NULL;
+
+			$section_total = 0;
+			foreach ($questions_asked as $question_asset_id) {
+				$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id);
+				if (!is_null($question)) {
+					$section_total += $question->getPoints();
+				}
+			}
+
+			$score_category = $question_group->getScoreCategoryForScore($section_total);
+			if (!is_null($score_category)) {
+				switch ($keyword) {
+					case 'score_category_name':			$replacement = $score_category['name'];
+					break;
+				}
+			}
+		}
+
+		return $replacement;
+
+	}//end getQuestionGroupResultKeywordReplacement()
 
 
 	/**

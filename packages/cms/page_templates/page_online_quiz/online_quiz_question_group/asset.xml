@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2007/05/15 03:39:42 mbrydon Exp $
+* $Id: asset.xml,v 1.2 2007/05/20 23:45:47 mbrydon Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>online_quiz_question_group</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Online Quiz Question Group</name>
 	<description>A group to house Online Quiz Questions</description>
 	<instantiable>yes</instantiable>

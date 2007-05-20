@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_group_management.inc,v 1.1 2007/05/15 03:39:42 mbrydon Exp $
+* $Id: online_quiz_question_group_management.inc,v 1.2 2007/05/20 23:45:47 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -40,11 +40,17 @@ class Online_Quiz_Question_Group_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-						'name'	=> Array(
-									'added'		=> '0.1',
-									'type'		=> 'text',
-									'default'	=> '',
-								   ),
+						'name'				=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+											   ),
+						'score_categories'	=> Array(
+												'added'			=> '0.2',
+												'type'			=> 'serialise',
+												'default'		=> Array(),
+												'description'	=> 'Score-specific categories',
+											   ),
 					  );
 
 	}//end constructor
