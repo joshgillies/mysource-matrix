@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2007/05/18 00:04:03 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2007/05/21 05:00:01 mbrydon Exp $
 *
 */
 -->
@@ -33,7 +33,7 @@
 			<process_function name="processResponseForm" />
 		</function_call>
 	</section>
-	<section name="Response Supplements" write_access="write:attributes">
+	<section name="Response Form: Supplementary Content" write_access="write:attributes">
 		<function_call>
 			<paint_function   name="paintResponseSupplements"   />
 		</function_call>

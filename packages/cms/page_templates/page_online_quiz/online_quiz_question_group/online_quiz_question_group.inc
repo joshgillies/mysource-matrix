@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_group.inc,v 1.2 2007/05/20 23:45:47 mbrydon Exp $
+* $Id: online_quiz_question_group.inc,v 1.3 2007/05/21 05:00:00 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *	A group to house Online Quiz Questions
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -139,7 +139,7 @@ class Online_Quiz_Question_Group extends Folder
 				break;
 			}
 
-			if ((strlen($min_score) == 0) && (strlen($max_score) == 0) && ($score >= $min_score) && ($score <= $max_score)) {
+			if ((strlen($min_score) > 0) && (strlen($max_score) > 0) && ($score >= $min_score) && ($score <= $max_score)) {
 				$score_category = $current_score_category;
 				break;
 			}

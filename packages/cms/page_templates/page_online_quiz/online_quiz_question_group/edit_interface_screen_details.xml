@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2007/05/20 23:45:47 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2007/05/21 05:00:00 mbrydon Exp $
 *
 */
 -->
@@ -25,6 +25,11 @@
 		<function_call>
 			<paint_function   name="paintScoreCategories"   />
 			<process_function name="processScoreCategories" />
+		</function_call>
+	</section>
+	<section name="Score Categories: Supplementary Content" write_access="write:attributes">
+		<function_call>
+			<paint_function   name="paintScoreCategoriesContent"   />
 		</function_call>
 	</section>
 </contents>

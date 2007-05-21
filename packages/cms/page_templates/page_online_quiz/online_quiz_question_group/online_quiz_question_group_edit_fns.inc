@@ -10,22 +10,24 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_group_edit_fns.inc,v 1.2 2007/05/20 23:45:47 mbrydon Exp $
+* $Id: online_quiz_question_group_edit_fns.inc,v 1.3 2007/05/21 05:00:00 mbrydon Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
+require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 
 /**
 * Online Quiz Question Group
 *
 * Purpose
-*	A group to house Online Quiz Questions
+*	A group to house Online Quiz Questions. Provides score range categorisation and
+*   customisable responses for each category.
 *
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -158,7 +160,6 @@ class Online_Quiz_Question_Group_Edit_Fns extends Folder_Edit_Fns
 			$score_categories = Array();
 			$to_edit = array_get_index($_REQUEST, $prefix.'_score_category', Array());
 
-			// "number" the options from a-z
 			$option_key_counter  = 0;
 
 			foreach ($to_edit as $option_key => $option) {
@@ -167,11 +168,14 @@ class Online_Quiz_Question_Group_Edit_Fns extends Folder_Edit_Fns
 					$name      = trim(array_get_index($option, 'name'));
 					$min_score = array_get_index($option, 'min_score', NULL);
 					$max_score = array_get_index($option, 'max_score', NULL);
+					$content = $_REQUEST[$prefix.'_supplement_'.$option_key];
 
 					if (!empty($name)) {
 						$score_categories[$option_key_counter]['name']	= $name;
 						$score_categories[$option_key_counter]['min_score']	= '';
 						$score_categories[$option_key_counter]['max_score']	= '';
+						$score_categories[$option_key_counter]['content'] = $content;
+
 						if ($min_score != '') {
 							$score_categories[$option_key_counter]['min_score']	= (int)$min_score;
 						}
@@ -191,6 +195,7 @@ class Online_Quiz_Question_Group_Edit_Fns extends Folder_Edit_Fns
 															'name'		=> $new_score_category,
 															'min_score'	=> '',
 															'max_score'	=> '',
+															'content'	=> '',
 														 );
 
 				$option_key_counter++;
@@ -203,6 +208,76 @@ class Online_Quiz_Question_Group_Edit_Fns extends Folder_Edit_Fns
 		return $write_access;
 
 	}//end processScoreCategories()
+
+
+	/**
+	* Paint the response form options
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintScoreCategoriesContent(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$o->openField(translate('online_quiz_question_group_score_categories'));
+
+			$score_categories = $asset->getScoreCategories();
+
+			if (empty($score_categories)) {
+				echo translate('online_quiz_question_group_empty_score_categories');
+			} else {
+
+				?>
+				<table class="sq-backend-table">
+				<tr>
+					<th><?php echo translate('online_quiz_question_group_score_category'); ?></th>
+					<th><?php echo translate('online_quiz_question_group_supplementary_content'); ?></th>
+				</tr>
+				<?php
+
+				foreach ($score_categories as $option_key => $option) {
+					?>
+					<tr>
+						<td><?php
+							echo $option['name'];
+						?></td>
+
+						<td>
+							<table border="0" class="email-format-body">
+							<tr>
+								<td>
+									<?php
+									$wysiwyg_prefix = $prefix.'_supplement_'.$option_key;
+									$wysiwyg =& new Asset_Attribute_WYSIWYG();
+									if (isset($option['content'])) {
+										$wysiwyg->value = $option['content'];
+									}
+									$wysiwyg->paint($wysiwyg_prefix, !$write_access);
+									?> 
+								</td>
+							</tr>
+							</table>
+						</td>
+					</tr>
+
+					<?php
+				}//end foreach ($options)
+
+				?>
+				</table>
+				<?php
+
+			}//end else empty($options)
+		$o->closeField();
+
+		return $write_access;
+
+	}//end paintScoreCategoriesContent()
 
 
 }//end class

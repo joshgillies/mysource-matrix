@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.2 2007/05/20 23:45:47 mbrydon Exp $
+* $Id: asset.xml,v 1.3 2007/05/21 05:00:00 mbrydon Exp $
 *
 */
 -->
@@ -23,7 +23,7 @@
 	<type_code>online_quiz_question_group</type_code>
 	<version>0.2</version>
 	<name>Online Quiz Question Group</name>
-	<description>A group to house Online Quiz Questions</description>
+	<description>A group to house Online Quiz Questions. Provides score range categorisation and customisable responses for each category.</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>folder</parent_type>

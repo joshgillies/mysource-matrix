@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.10 2007/05/20 23:45:47 mbrydon Exp $
+* $Id: page_online_quiz.inc,v 1.11 2007/05/21 05:00:00 mbrydon Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1853,6 +1853,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		$keywords = Array();
 		$keywords['question_group_X_score_category_name'] = translate('online_quiz_results_question_group_x').': '.translate('online_quiz_results_score_category_name');
+		$keywords['question_group_X_score_category_supplement'] = translate('online_quiz_results_question_group_x').': '.translate('online_quiz_results_score_category_supplement');
 
 		return $keywords;
 
@@ -2718,6 +2719,9 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			if (!is_null($score_category)) {
 				switch ($keyword) {
 					case 'score_category_name':			$replacement = $score_category['name'];
+					break;
+
+					case 'score_category_supplement':	$replacement = $score_category['content'];
 					break;
 				}
 			}
