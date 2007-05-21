@@ -343,7 +343,7 @@ this Licence then DO NOT DOWNLOAD, INSTALL or USE the Software.
              by any Third Party.
          (c) all liability to You in contract for direct or consequential or
              indirect damages arising out of or in connection with the use or
-             inability o use the Software or Documentation including without
+             inability to use the Software or Documentation including without
              limitation, damages for loss of business profits or other pecuniary
              loss and damages suffered as a result of claims by any Third Party;
              and
