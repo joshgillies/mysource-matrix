@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz_edit_fns.inc,v 1.4 2007/05/16 23:51:27 mbrydon Exp $
+* $Id: page_online_quiz_edit_fns.inc,v 1.5 2007/05/21 06:35:48 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -172,6 +172,40 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		return $write_access;
 
 	}//end processAfterSubmitAction()
+
+
+	/**
+	* Process the interface for handling the 'after_submit_action' attribute
+	* and toggling the 'thank_you' bodycopy
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCanRetake(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes') && $asset->writeAccess('links');
+
+		if ($write_access) {
+			$attr =& $asset->getAttribute('can_retake');
+			$attr->process($prefix.'_'.$attr->id);
+			if (!$attr->processed || !$asset->setAttrValue($attr->name, $attr->value)) {
+				// bail now if we can't process the attribute properly
+				return FALSE;
+			}
+
+			// if form is selected, set up the thank_you bodycopy
+			// can_retake == TRUE means we don't need the "Already Taken" bodycopy
+			$enable_bodycopy = !($attr->value);
+			$asset->setBodycopy('already_taken', $enable_bodycopy);
+		}
+
+		return $write_access;
+
+	}//end processCanRetake()
 
 
 	/**
