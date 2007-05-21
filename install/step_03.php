@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.68 2007/01/12 02:59:46 emcdonald Exp $
+* $Id: step_03.php,v 1.68.2.1 2007/05/21 02:22:24 hnguyen Exp $
 *
 */
 
@@ -35,7 +35,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.68.2.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -68,7 +68,6 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error($err_msg, E_USER_ERROR);
 }
 
-
 // only use console stuff if we're running from the command line
 if ($cli) {
 	require_once 'Console/Getopt.php';
@@ -86,7 +85,12 @@ if ($cli) {
 	}
 }
 
-define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
+
+require_once $SYSTEM_ROOT.'/install/generate_install_key.php';
+if (!defined('SQ_SYSTEM_ROOT')) {
+	define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
+}
+
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 // get the list of functions used during install
