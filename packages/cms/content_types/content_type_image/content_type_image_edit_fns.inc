@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_edit_fns.inc,v 1.5 2006/12/07 00:04:16 emcdonald Exp $
+* $Id: content_type_image_edit_fns.inc,v 1.5.4.1 2007/05/21 01:38:21 rhoward Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -179,14 +179,10 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 
 				function <?php echo $prefix; ?>_change_caption(mode)
 				{
-					orig_elt = document.getElementById('<?php echo $prefix; ?>_caption_options_original');
-					alt_elt = document.getElementById('<?php echo $prefix; ?>_caption_options_alt');
 					var cap_box = document.getElementById('<?php echo $prefix; ?>_caption');
 					if (mode == 'original') {
-						alt_elt.checked = false;
 						cap_box.disabled = '';
 					} else {
-						orig_elt.checked = false;
 						cap_box.disabled = 'disabled';
 					}
 				}
@@ -210,11 +206,11 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 			<tr <?php echo (!$display_fields['caption_options']) ? 'style="display:none;"' : ''; ?>>
 				<td class="sq-backend-table-header" style="width: 250px;"><?php echo translate('caption'); ?>:</td>
 				<td class="sq-backend-table-cell">
-					<?php radio_button($prefix.'_caption_options_original', '1', !$current_settings['use_caption_attr'], $prefix.'_change_caption(\'original\');'); ?>
+					<?php radio_button($prefix.'_caption_options', '0', !$current_settings['use_caption_attr'], $prefix.'_change_caption(\'original\');'); ?>
 					<?php hidden_field($prefix.'_caption_hidden', $current_settings['caption']); ?>
 					<?php $disabled_val = $current_settings['use_caption_attr'] ? ' disabled="disabled"' : ''; ?>
 					<?php text_box($prefix.'_caption', $current_settings['caption'], '50', '0', FALSE, 'onchange="document.getElementById(\''.$prefix.'_caption_hidden\').value = document.getElementById(\''.$prefix.'_caption\').value;" '.$disabled_val); ?>
-					<?php radio_button($prefix.'_caption_options_alt', '1', $current_settings['use_caption_attr'], $prefix.'_change_caption(\'alt\');'); ?>
+					<?php radio_button($prefix.'_caption_options', '1', $current_settings['use_caption_attr'], $prefix.'_change_caption(\'alt\');'); ?>
 					<?php label('Use Image Caption Attribute', $prefix.'_caption[\'alt\']'); ?>
 				</td>
 			</tr>
@@ -298,7 +294,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 			$current_settings['height'] = isset($_POST[$prefix.'_height']) ? $_POST[$prefix.'_height'] : '400';
 			$current_settings['caption'] = isset($_POST[$prefix.'_caption_hidden']) ? $_POST[$prefix.'_caption_hidden'] : 'Caption';
 			$current_settings['fit_dimensions'] = isset($_POST[$prefix.'_fit']);
-			$current_settings['use_caption_attr'] = isset($_POST[$prefix.'_caption_options_alt']);
+			$current_settings['use_caption_attr'] = array_get_index($_POST, $prefix.'_caption_options', FALSE);
 			if (isset($_POST[$prefix.'_caption_position'])) {
 				$current_settings['caption_position'] = $_POST[$prefix.'_caption_position'];
 			} else {
