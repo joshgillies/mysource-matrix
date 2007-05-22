@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice.inc,v 1.4 2007/05/18 00:19:21 mbrydon Exp $
+* $Id: online_quiz_question_multichoice.inc,v 1.5 2007/05/22 00:51:19 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -490,6 +490,8 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 		$prefix = $this->getPrefix();
 
 		$options = $this->attr('response_form');
+		$use_html_options = $this->attr('use_html_options');
+
 		$value = $this->getValue();
 
 		ob_start();
@@ -518,13 +520,19 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 								if (!is_array($value)) $value = Array();
 								check_box($prefix.'_response['.$option_key.']', '1', (in_array($option_key, $value)), '', 'id="'.$prefix.'_response_'.$option_key.'"');
 							}
-							label(htmlentities($option['text']), $prefix.'_response['.$option_key.']');
+
+							if ($use_html_options) {
+								label($option['text'], $prefix.'_response['.$option_key.']');
+							} else {
+								label(htmlentities($option['text']), $prefix.'_response['.$option_key.']');
+							}
+
 							?></li><?php
 						}
 						?></ul><?php
 					break;
 				}//end switch (option_style)
-			}//end if (empty($options))
+			}//end else (empty($options))
 
 			?></div><?php
 

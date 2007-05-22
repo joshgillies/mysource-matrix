@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice_management.inc,v 1.4 2007/05/18 00:19:21 mbrydon Exp $
+* $Id: online_quiz_question_multichoice_management.inc,v 1.5 2007/05/22 00:51:19 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,6 +74,19 @@ class Online_Quiz_Question_Multichoice_Management extends Asset_Management
 																		'allow_empty'	=> FALSE,
 																	   ),
 													'description'	=> 'The options that control the response form',
+												   ),
+						'use_html_options'		=> Array(
+													'added'			=> '0.3',
+													'type'			=> 'selection',
+													'default'		=> '0',
+													'parameters'	=> Array(
+																		'options'	=> Array(
+																						'0'	=> 'No',
+																						'1'	=> 'Yes',
+																					   ),
+																	   ),
+													'multiple'		=> FALSE,
+													'allow_empty'	=> FALSE,
 												   ),
 					  );
 

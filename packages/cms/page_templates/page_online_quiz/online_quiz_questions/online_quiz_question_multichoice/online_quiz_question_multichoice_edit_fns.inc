@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice_edit_fns.inc,v 1.4 2007/05/18 00:19:21 mbrydon Exp $
+* $Id: online_quiz_question_multichoice_edit_fns.inc,v 1.5 2007/05/22 00:51:19 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,8 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @author  Mark Brydon <mbrydon@squiz.net>
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,6 +60,26 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 	{
 		$write_access = $asset->writeAccess('attributes');
 
+		$use_html_options = $asset->attr('use_html_options');
+
+		$o->openField(translate('online_quiz_question_multichoice_use_html_options_question'));
+			if ($write_access) {
+				$options = Array(
+							'0'	=> translate('no'),
+							'1'	=> translate('yes'),
+						   );
+
+				combo_box($prefix.'_question_use_html_options', $options, FALSE, Array($use_html_options));
+			} else {
+				if ($use_html_options) {
+					echo translate('yes');
+				} else {
+					echo translate('no');
+				}
+			}
+			$o->note(translate('online_quiz_question_multichoice_use_html_options_note'));
+		$o->closeField();
+
 		$o->openField(translate('online_quiz_question_multichoice_options'));
 
 			$options = $asset->attr('response_form');
@@ -90,10 +111,29 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 						?></td>
 
 						<td><?php
-							if ($write_access) {
-								text_box($prefix.'_options['.$option_key.'][text]', $option['text'], 60);
+							if ($use_html_options) {
+								?>
+								<table border="0" class="email-format-body">
+								<tr>
+									<td>
+										<?php
+										$wysiwyg_prefix = $prefix.'_options_text_wysiwyg_'.$option_key;
+										$wysiwyg =& new Asset_Attribute_WYSIWYG();
+										if (isset($option['text'])) {
+											$wysiwyg->value = $option['text'];
+										}
+										$wysiwyg->paint($wysiwyg_prefix, !$write_access);
+										?> 
+									</td>
+								</tr>
+								</table>
+								<?php
 							} else {
-								echo $option['text'];
+								if ($write_access) {
+									text_box($prefix.'_options['.$option_key.'][text]', $option['text'], 60);
+								} else {
+									echo $option['text'];
+								}
 							}
 						?></td>
 
@@ -149,6 +189,10 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 
 		if ($write_access) {
 
+			// Retrieve both the current setting of HTML options and that set by the form
+			$asset_use_html_options  = $asset->attr('use_html_options');
+			$new_use_html_options  = array_get_index($_POST, $prefix.'_question_use_html_options', NULL);
+
 			// delete & edit
 			$options = Array();
 			$to_edit = array_get_index($_REQUEST, $prefix.'_options', Array());
@@ -168,6 +212,13 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 						$supplementary_html = $_REQUEST[$prefix.'_supplement_'.$option_key];
 					}
 
+					// Ensure that the content is retained when setting HTML options (text to WYSIWYG) or disabling this option (WYSIWYG to text)
+					if (($new_use_html_options) || ($asset_use_html_options && !$new_use_html_options)) {
+						if (isset($_REQUEST[$prefix.'_options_text_wysiwyg_'.$option_key])) {
+							$text = $_REQUEST[$prefix.'_options_text_wysiwyg_'.$option_key];
+						}
+					}
+
 					if (!empty($text) && !is_null($points)) {
 						if ($option_key_counter > ord('z')) {
 							$option_key_counter = ord('a');
@@ -182,7 +233,7 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 						$option_key_counter++;
 					}
 				}
-			}
+			}//end foreach
 
 			// add
 			$new_option = trim(array_get_index($_REQUEST, $prefix.'_new_option'));
@@ -194,6 +245,11 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 				// a, b, c... y, z, a2, b2,
 				$option_key = chr($option_key_counter).($option_key_rollover <= 1 ? '' : $option_key_rollover);
 
+				// Change text to use entities if we are creating a new option
+				if ($new_use_html_options) {
+					$new_option = htmlentities($new_option);
+				}
+
 				$options[$option_key] = Array(
 											'text'					=> $new_option,
 											'points'				=> 0,
@@ -204,6 +260,7 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 			}
 
 			$asset->setAttrValue('response_form', $options);
+			$asset->setAttrValue('use_html_options', $new_use_html_options);
 
 			return TRUE;
 
@@ -228,6 +285,8 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 	{
 		$write_access = $asset->writeAccess('attributes');
 
+		$use_html_options = $asset->attr('use_html_options');
+
 		$o->openField(translate('online_quiz_question_multichoice_options'));
 
 			$options = $asset->attr('response_form');
@@ -240,7 +299,12 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 				<table class="sq-backend-table">
 				<tr>
 					<th><?php echo translate('online_quiz_question_multichoice_option'); ?></th>
-					<th><?php echo translate('online_quiz_question_multichoice_option_text'); ?></th>
+					<?php
+					if (!$use_html_options) {
+					?><th><?php echo translate('online_quiz_question_multichoice_option_text'); ?></th>
+					<?php
+					}
+					?>
 					<th><?php echo translate('online_quiz_question_multichoice_response_supplement'); ?></th>
 				</tr>
 				<?php
@@ -252,10 +316,14 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 							echo $option_key;
 						?></td>
 
-						<td><?php
-							echo $option['text'];
+						<?php
+						if (!$use_html_options) {
+						?><td><?php
+							echo htmlentities($option['text']);
 						?></td>
-
+						<?php
+						}
+						?>
 						<td>
 							<table border="0" class="email-format-body">
 							<tr>

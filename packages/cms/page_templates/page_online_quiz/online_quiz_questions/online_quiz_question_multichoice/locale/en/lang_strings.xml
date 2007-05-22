@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2007/05/18 00:04:03 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.5 2007/05/22 00:51:20 mbrydon Exp $
 *
 */
 -->
@@ -24,5 +24,8 @@
 <string source="online_quiz_question_multichoice_options">Question Options</string>
 <string source="online_quiz_question_multichoice_empty_options">There are currently no options for this question.</string>
 <string source="online_quiz_question_multichoice_new_option">New Option</string>
+
+<string source="online_quiz_question_multichoice_use_html_options_question">Use HTML for Question Option Text?</string>
+<string source="online_quiz_question_multichoice_use_html_options_note">When set to Yes, this option provides the ability to include HTML in the Option Text for each question.</string>
 
 </strings>
