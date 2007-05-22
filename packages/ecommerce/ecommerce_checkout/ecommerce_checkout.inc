@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.50 2007/05/22 03:44:53 colivar Exp $
+* $Id: ecommerce_checkout.inc,v 1.51 2007/05/22 06:36:07 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -345,7 +345,8 @@ class Ecommerce_Checkout extends Page
 				$_SESSION['sq_local_cart_contents']['delivery_state'] = $delivery_method->getState();
 
 				// set the order summary
-				$order_summary     = $this->_getCartSummary();
+				$order_summary	  = 'Order ID: '.$order_asset->id;
+				$order_summary    .= $this->_getCartSummary();
 				$order_summary    .= $delivery_method->getReceipt();
 				$internal_summary  = $delivery_method->getInternalReceipt();
 
@@ -738,6 +739,7 @@ class Ecommerce_Checkout extends Page
 
 		ob_start();
 			if ($html) echo '<pre>';
+
 			echo $cart->printReceipt($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0));
 			if ($html) echo '</pre>';
 		$cart_summary = ob_get_clean();
@@ -818,9 +820,8 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param object &$broadcaster	$asset	the asset that triggered the event
-	* @param array	$vars			the vars that get submitted by the broadcaster
-	*								we add keywords to the $vars['keywords'] array
+	* @param	object	&$broadcaster	$asset	the asset that triggered the event
+	* @param	array	$vars			the vars that get submitted by the broadcaster we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
 	* @access private

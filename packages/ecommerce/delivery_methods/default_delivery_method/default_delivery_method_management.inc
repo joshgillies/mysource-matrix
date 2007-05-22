@@ -5,19 +5,19 @@ class Default_Delivery_Method_Management extends Asset_Management
 {
 
 
-    /**
-    * Constructor
-    *
-    * @param object Package_Manager &$pm    the relevant package manager
-    *
-    * @return void
-    * @access public
-    */
-    function Default_Delivery_Method_Management(&$pm)
-    {
-        $this->Asset_Management($pm);
+	/**
+	* Constructor
+	*
+	* @param object Package_Manager &$pm    the relevant package manager
+	*
+	* @return void
+	* @access public
+	*/
+	function Default_Delivery_Method_Management(&$pm)
+	{
+		$this->Asset_Management($pm);
 
-       		$this->vars = Array(
+			$this->vars = Array(
 							'field_email'	=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'text',
@@ -34,19 +34,19 @@ class Default_Delivery_Method_Management extends Asset_Management
 												'added'			=> '0.1',
 												'type'			=> 'text',
 												'description'	=> 'The subject to put on the email to send to the customer',
-												'default'		=> 'Ecommerce Email Subject',
+												'default'		=> 'Ecommerce Email Subject - New Order ',
 											   ),
 						  );
 
-    }//end constructor
+	}//end constructor
 
 
-    /**
-    * get the event list
-    *
-    * @return array
-    * @access public
-    */
+	/**
+	* get the event list
+	*
+	* @return array
+	* @access public
+	*/
 	function getEventList()
 	{
 		return Array(

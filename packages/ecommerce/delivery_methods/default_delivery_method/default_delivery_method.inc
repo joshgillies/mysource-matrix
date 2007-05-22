@@ -336,6 +336,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	*/
 	function getReceiptSummary()
 	{
+		$transaction_id = 0;
 		$bodycopy =& $this->getBodycopy('success');
 
 		$bodycopy->setKeywordReplacements($this->_getReceiptKeywordReplacements());
@@ -343,7 +344,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		// if the order id is not empty get the asset and get the form values entered from the user
 		if (!empty($this->state['transaction_id'])) {
 			$tmp_order =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->state['transaction_id']);
-
+			$transaction_id = $this->state['transaction_id'];
 			// get the keywords from the bodycopy and replace them with the values entered by the user
 			$keywords = $bodycopy->getKeywords();
 			$form_values = $tmp_order->attr('order_form_value');
@@ -360,6 +361,9 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 
 
 		ob_start();
+		if (!empty($transaction_id)) {
+			echo '<p id="order_id"><span id="order_id_title">Order ID:</span> '.$transaction_id.'</p>';
+		}
 		$bodycopy->printBody();
 		$contents = ob_get_contents();
 		ob_end_clean();
@@ -433,7 +437,6 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$form =& $this->getForm();
 		$state = $this->getState();
 		$order_extra_info = Array();
-
 		// add the form values entered by the user in a session variable
 		$question_values = $form->getQuestions();
 		foreach ($question_values as $key => $value) {
@@ -443,9 +446,23 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		}
 		$_SESSION['order_extra_information'] =  serialize($order_extra_info);
 
-		return TRUE;
+		return $form->process();
 
 	}//end processInputInterface()
+
+
+	/**
+	* get the errors
+	*
+	* @return array
+	* @access public
+	*/
+	function getErrors()
+	{
+		$form =& $this->getForm();
+		return $form->getErrors();
+
+	}//end getErrors()
 
 
 	/**
@@ -597,13 +614,14 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		// if an email address was setup we will send an email
 		$to = trim($this->attr('field_email'));
 		$from = trim($this->attr('email_sender'));
-		$subject = trim($this->attr('email_subject'));
+		$subject = $this->attr('email_subject').$this->state['transaction_id'];
 
 		// get the order summary from the cart
 		$cart =& new Ecommerce_Cart_Processor();
 		$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 		$message = '<pre>';
 		ob_start();
+		echo 'Order ID: '.$this->state['transaction_id']."\n\n";
 		$cart->printReceipt($taxation_name, $taxation_rate);
 		$message .= ob_get_contents();
 		ob_end_clean();
