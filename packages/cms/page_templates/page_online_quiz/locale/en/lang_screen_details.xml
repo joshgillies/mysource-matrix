@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2007/05/16 23:51:27 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.7 2007/05/22 01:57:23 mbrydon Exp $
 *
 */
 -->
@@ -124,6 +124,14 @@
 			&lt;li&gt;%user_details_form_[formid]-[questionid]% - the value of the specified form question (eg. '%user_details_form_123-q1%' for question 'q1' belonging to form asset #123)&lt;/li&gt;
 			&lt;li&gt;%user_details_current_user_[keyword]% - In the same fashion as the standard %asset_[keyword]%; these keywords are replaced as per the standard keywords, with the exception being that the asset the value is being drawn from is the user taking the test.
 			&lt;br /&gt;Some example keywords: '%user_details_current_user_name%', '%user_details_current_user_attribute_first_name%', '%user_details_current_user_last_name%' or '%user_details_current_user_email'.&lt;/li&gt;
+			&lt;/ul&gt;
+			&lt;br /&gt;
+			Further detailed Question and Question Group result keywords are available, which can be used instead of the results table keywords. These keywords can be used to manually construct a results table. These keywords are available in the 'Thank You' bodycopy, examples of which are provided below:
+			&lt;ul&gt;
+			&lt;li&gt;%question_group_[assetid]_[keyword]% - Result details of a Question Group (keyword: score_category_name, score_category_supplement)&lt;/li&gt;
+			&lt;li&gt;%result_[assetid]_[keyword]% - Result details of a Question (keyword: answer_text, response_supplement etc.)&lt;/li&gt;
+			&lt;li&gt;%quiz_total_points% - The total points obtained for the Quiz&lt;/li&gt;
+			&lt;li&gt;%quiz_total_available_points% - The total points available (ie; maximum score) for the Quiz&lt;/li&gt;
 			&lt;/ul&gt;
 			&lt;br /&gt;
 			Note that a user taking this quiz will either be using their user details OR the form, which means keywords from both can be placed side-by-side with no chance of any ill effects, eg. in the To: field, this is perfectly legitimate: "%user_details_form_123-q1%%user_details_current_user_attribute_email%".
