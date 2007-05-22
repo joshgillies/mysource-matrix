@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.11 2007/05/21 05:00:00 mbrydon Exp $
+* $Id: page_online_quiz.inc,v 1.12 2007/05/22 05:41:21 mbrydon Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -979,6 +979,16 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		// make sure the proper version of the results table is used in the plaintext version of the email
 		$value['text_format'] =  str_replace('%results_table_full%',   '%results_table_full_text%',   $value['text_format']);
 		$value['text_format'] =  str_replace('%results_table_simple%', '%results_table_simple_text%', $value['text_format']);
+
+		// ...and for Question and Question Group result HTML-based keywords. Use a "_plain" suffix if the last bit is "_text" to avoid "%fred_text_text%"
+		$result_keywords = Array(
+							'question_text', 'answer_text', 'correct_answer_text',
+						   );
+		foreach ($result_keywords as $result_keyword) {
+			$value['text_format'] = preg_replace('/%(result)_([0-9]*)_('.$result_keyword.')%/', '%result_$2_$3_plain%', $value['text_format']);
+		}
+		$value['text_format'] = preg_replace('/%(result)_([0-9]*)_(response_supplement)%/', '%result_$2_$3_text%', $value['text_format']);
+		$value['text_format'] = preg_replace('/%(question_group)_([0-9]*)_(score_category_supplement)%/', '%question_group_$2_$3_text%', $value['text_format']);
 
 		$email_attr->value    =  serialize($value);
 
@@ -2603,27 +2613,45 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			$keyword_replaced = FALSE;
 
 			switch ($keyword) {
-				case 'question_number':		$replacement = $question->getPosition();
-											$keyword_replaced = TRUE;
+				case 'question_number':				$replacement = $question->getPosition();
+													$keyword_replaced = TRUE;
 				break;
 
-				case 'question_text':   	$replacement = $question->getKeywordReplacement('question_text');
-											$keyword_replaced = TRUE;
+				case 'question_text':   			$replacement = $question->getKeywordReplacement('question_text');
+													$keyword_replaced = TRUE;
 				break;
 
-				case 'answer':				$keyword = 'value';
+				case 'question_text_plain':			$replacement = strip_tags($question->getKeywordReplacement('question_text'));
+													$keyword_replaced = TRUE;
+
+				case 'answer':						$keyword = 'value';
 				break;
 
-				case 'answer_text':			$keyword = 'summary';
+				case 'answer_text':					$keyword = 'summary';
 				break;
 
-				case 'correct_answer':		$keyword = 'correct_value';
+				case 'answer_text_plain':			if (isset($question_results['summary'])) {
+														$replacement = strip_tags($question_results['summary']);
+														$keyword_replaced = TRUE;
+													}
 				break;
 
-				case 'correct_answer_text':	$keyword = 'correct_summary';
+				case 'correct_answer':				$keyword = 'correct_value';
 				break;
 
-				case 'response_supplement':	$replacement = $question->getResponseSupplement();
+				case 'correct_answer_text':			$keyword = 'correct_summary';
+				break;
+
+				case 'correct_answer_text_plain':	if (isset($question_results['correct_summary'])) {
+														$replacement = strip_tags($question_results['correct_summary']);
+														$keyword_replaced = TRUE;
+													}
+				break;
+
+				case 'response_supplement':			$replacement = $question->getResponseSupplement();
+				break;
+
+				case 'response_supplement_text':	$replacement = strip_tags($question->getResponseSupplement());
 				break;
 			}
 
@@ -2718,10 +2746,13 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			$score_category = $question_group->getScoreCategoryForScore($section_total);
 			if (!is_null($score_category)) {
 				switch ($keyword) {
-					case 'score_category_name':			$replacement = $score_category['name'];
+					case 'score_category_name':				$replacement = $score_category['name'];
 					break;
 
-					case 'score_category_supplement':	$replacement = $score_category['content'];
+					case 'score_category_supplement':		$replacement = $score_category['content'];
+					break;
+
+					case 'score_category_supplement_text':	$replacement = strip_tags($score_category['content']);
 					break;
 				}
 			}
