@@ -292,7 +292,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	/**
 	* Get the Receipt
 	*
-	* @param boolean $html if true means we are returning a html format
+	* @param	boolean	$html	if true means we are returning a html format
 	*
 	* @return string
 	* @access public
@@ -580,12 +580,14 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	/**
 	* This function process the delivery
 	*
-	* @param object	&$order	test
+	* @param object	&$order			test
+	* @param string	$taxation_name	Name of the tax
+	* @param float	$taxation_rate	tax value
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processDelivery(&$order)
+	function processDelivery(&$order, $taxation_name='GST', $taxation_rate=0.0)
 	{
 
 		$this->state['transaction_id']  = $order->id;
@@ -602,7 +604,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 		$message = '<pre>';
 		ob_start();
-		$cart->printReceipt();
+		$cart->printReceipt($taxation_name, $taxation_rate);
 		$message .= ob_get_contents();
 		ob_end_clean();
 		$message .= '</pre>';

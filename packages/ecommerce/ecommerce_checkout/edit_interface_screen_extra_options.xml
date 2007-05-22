@@ -10,13 +10,17 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.4 2007/05/22 03:44:53 colivar Exp $
+* $Id: edit_interface_screen_extra_options.xml,v 1.1 2007/05/22 03:44:53 colivar Exp $
 *
 */
 -->
-
-<screens>
-	<screen code_name="components" display_name="Processing Components" force_unlock="0" />
-	<screen code_name="formatting_options" display_name="Display Formatting Options" />
-	<screen code_name="extra_options" display_name="Display Extra Options" />
-</screens>
+<contents write_access="write:attributes">
+	<section name="Taxation">
+		<field attribute="taxation_name">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="taxation_rate">
+			<int width="3" />
+		</field>
+	</section>
+</contents>

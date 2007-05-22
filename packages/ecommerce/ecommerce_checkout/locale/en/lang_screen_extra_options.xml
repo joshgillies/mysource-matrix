@@ -1,0 +1,12 @@
+<contents>
+	<section name="Taxation">
+		<field attribute="taxation_name">
+			<display_name>Taxation Name:</display_name>
+			<note />
+		</field>
+		<field attribute="taxation_rate">
+			<display_name>Taxation Rate (%):</display_name>
+			<note />
+		</field>
+	</section>
+</contents>

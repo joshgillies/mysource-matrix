@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.8 2006/12/07 05:26:29 bcaldwell Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.9 2007/05/22 03:44:53 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -145,7 +145,8 @@ class Ecommerce_Cart_Processor
 	*	'assetid'	=> Array(
 	*					'quantity'	=> quantity,	// the number of items in the cart
 	*					'price'		=> value,		// the cost of the item at the time of purchase
-	*					'name'		=> name			// the name of the asset
+	*					'name'		=> name,		// the name of the asset
+	*					'taxable'	=> boolean		// if true we will add taxation
 	*				   ),
 	* )
 	* </pre>
@@ -168,10 +169,12 @@ class Ecommerce_Cart_Processor
 	/**
 	* Return the sum-total of all the items currently in this cart
 	*
+	* @param float	$taxation_cost	taxation cost contains the total cost of tax
+	*
 	* @return float
 	* @access public
 	*/
-	function getTotal()
+	function getTotal($taxation_cost=0.0)
 	{
 		$total = 0.00;
 		foreach ($this->cart as $assetid => $details) {
@@ -181,9 +184,34 @@ class Ecommerce_Cart_Processor
 			}
 		}
 
+		$total += $taxation_cost;
 		return $total;
 
 	}//end getTotal()
+
+
+	/**
+	*
+	* Return the sum of the taxation cost of all the items currently in this cart
+	*
+	* @param float	$taxation_rate	tax value
+	*
+	* @return float
+	* @access public
+	*/
+	function getTotalTax($taxation_rate=0.0)
+	{
+		$totalTax = 0.00;
+		foreach ($this->cart as $assetid => $details) {
+			// -1 == value not known
+			if (($details['price'] != -1) && ($details['taxable'])) {
+				$totalTax += $details['quantity'] * $details['price'] * $taxation_rate;
+			}
+		}
+
+		return $totalTax;
+
+	}//end getTotalTax()
 
 
 	/**
@@ -269,8 +297,18 @@ class Ecommerce_Cart_Processor
 				}
 
 				// only include a price if the object is a product
+				// only include taxable boolean if the object is a product
+				$taxable = FALSE;
 				if (is_a($asset, 'Product') || is_subclass_of($asset, 'Product')) {
 					$price = $asset->attr('price');
+
+					// get the taxable boolean
+					$tmp_price_obj = $asset->attr('price_obj');
+					if (!empty($tmp_price_obj) ) {
+						if ((!empty($tmp_price_obj->tax_inclusive)) && ($tmp_price_obj->tax_inclusive == 1)) {
+							$taxable = TRUE;
+						}
+					}
 				} else {
 					$price = -1;
 				}
@@ -279,12 +317,13 @@ class Ecommerce_Cart_Processor
 											'price'		=> $price,
 											'quantity'	=> 0,
 											'name'		=> $name,
+											'taxable'	=> $taxable,
 										);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			} else {
 				return FALSE;
 			}
-		}
+		}//end if
 
 		$this->cart[$assetid]['quantity'] += $quantity;
 
@@ -411,12 +450,16 @@ class Ecommerce_Cart_Processor
 
 
 	/**
+	*
 	* Prints out the contents of the Ecommerce Cart
+	*
+	* @param string	$taxation_name	name of tax
+	* @param int	$taxation_rate	tax value (0.1 is 10%, 0.2 is 20%)
 	*
 	* @return void
 	* @access public
 	*/
-	function printReceipt()
+	function printReceipt($taxation_name='GST', $taxation_rate=0)
 	{
 		if (empty($this->cart)) return;
 
@@ -426,8 +469,16 @@ class Ecommerce_Cart_Processor
 		// formatting preparation
 		foreach ($this->cart as $assetid => $details) {
 			// determine longest item name
-			if (strlen(array_get_index($details, 'name', '')) > $name_length) {
-				$name_length = strlen(array_get_index($details, 'name', ''));
+
+			$tmp_taxable = array_get_index($details, 'taxable', FALSE);
+			if (!$tmp_taxable) {
+				if (strlen(array_get_index($details, 'name', '')) > $name_length) {
+					$name_length = strlen(array_get_index($details, 'name', ''));
+				}
+			} else {
+				if (strlen(array_get_index($details, 'name', '').' ('.$taxation_name.')') > $name_length) {
+					$name_length = strlen(array_get_index($details, 'name', '').' ('.$taxation_name.')');
+				}
 			}
 
 			// determine whether all items have price
@@ -457,14 +508,20 @@ class Ecommerce_Cart_Processor
 		// print each row
 		foreach ($this->cart as $assetid => $details) {
 			$cost = array_get_index($details, 'price', 0);
+			$tax_cost = $cost * $taxation_rate;
+			$is_taxable = array_get_index($details, 'taxable', FALSE);
 			if ($cost < 0) {
 				$cost = '';
 			} else {
 				$cost = sprintf('$%.2f', $cost * array_get_index($details, 'quantity', 0));
+				$tax_cost = sprintf('$%.2f', $tax_cost * array_get_index($details, 'quantity', 0));
 			}
 
 			if ($has_price) {
 				printf($row_format, array_get_index($details, 'name', ''), array_get_index($details, 'quantity', 0), $cost);
+				if ($is_taxable) {
+					printf($row_format, array_get_index($details, 'name', '').' ('.$taxation_name.')', array_get_index($details, 'quantity', 0), $tax_cost);
+				}
 			} else {
 				printf($row_format, array_get_index($details, 'name', ''), array_get_index($details, 'quantity', 0));
 			}
@@ -476,7 +533,13 @@ class Ecommerce_Cart_Processor
 		$row_format = '%'.$name_length.'s %10s'.($has_price ? ' %10s' : '')."\n";
 
 		if ($has_price) {
+			$totalTax = $this->getTotalTax($taxation_rate);
 			echo sprintf($row_format, 'Total', $this->getCount(), sprintf('$%.2f', $this->getTotal()));
+			if ($totalTax > 0) {
+				echo sprintf($row_format, 'Total ('.$taxation_name.')', $this->getCount(), sprintf('$%.2f', $totalTax));
+				echo $break;
+				echo sprintf($row_format, 'Grand Total', $this->getCount(), sprintf('$%.2f', $this->getTotal($totalTax)));
+			}
 		} else {
 			echo sprintf($row_format, 'Total', $this->getCount());
 		}
