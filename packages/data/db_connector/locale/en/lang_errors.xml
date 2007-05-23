@@ -1,0 +1,25 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_errors.xml,v 1.1 2007/05/23 00:44:36 arailean Exp $
+*
+*/
+
+	xml error file
+	errors are added in the format:
+	PKGN0000 where PKGN is a 3-4 letter abbreviation of the package and 0000
+	is a number representing the number of this error(start at 1 and increment)
+-->
+
+<errors>
+	<!-- <error code="PKGN0001">Example Error #%s</error> -->
+</errors>
