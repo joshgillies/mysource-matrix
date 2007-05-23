@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2007/05/23 00:44:36 arailean Exp $
+* $Id: lang_screen_details.xml,v 1.2 2007/05/23 04:24:09 arailean Exp $
 *
 */
 -->
@@ -42,6 +42,15 @@
 			</function_call>
 			<display_name>OR Complete DSN</display_name>
 			<note>Please note that if you enter a DSN here then the fields in the Database Details section above will be ignored. To accept input from the other fields please leave this field empty.  Also note that passwords in the DSN will not be re-displayed after entry.</note>
+		</field>
+	</section>
+	<section name="Info">
+		<field>
+			<display_name>Connector Consumers</display_name>
+			<function_call>
+				<paint_function   name="paintUsageInfo"   />
+			</function_call>
+			<note>This is a list of all assets that use this connector.</note>
 		</field>
 	</section>
 </contents>

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_connector_edit_fns.inc,v 1.1 2007/05/23 00:44:36 arailean Exp $
+* $Id: db_connector_edit_fns.inc,v 1.2 2007/05/23 04:24:09 arailean Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *     Edit functions for DB Connector
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -52,9 +52,9 @@ class Db_Connector_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paints the interface for entering Data Source details
+	* Paints the interface for entering DB details
 	*
-	* @param object	&$asset	the Data_Source_DB asset
+	* @param object	&$asset	the asset
 	* @param object	&$o		the backend outputter
 	* @param string	$prefix	prefix for form elements
 	*
@@ -178,7 +178,7 @@ class Db_Connector_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface for entering Data Source details
 	*
-	* @param object	&$asset	the Data_Source_DB asset
+	* @param object	&$asset	the asset
 	* @param object	&$o		the backend outputter
 	* @param string	$prefix	prefix for form elements
 	*
@@ -215,7 +215,7 @@ class Db_Connector_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for entering DSN
 	*
-	* @param object	&$asset	the Data_Source_DB asset
+	* @param object	&$asset	the asset
 	* @param object	&$o		the backend outputter
 	* @param string	$prefix	prefix for form elements
 	*
@@ -227,6 +227,35 @@ class Db_Connector_Edit_Fns extends Asset_Edit_Fns
 		return TRUE;
 
 	}//end processDSNAlone()
+
+
+	/**
+	* Paint Usage information for this asset
+	*
+	* @param object	&$asset	the asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintUsageInfo(&$asset, &$o, $prefix)
+	{
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'minor', 'db_connector');
+
+		if (empty($links)) {
+			echo '<em style="color: blue;">'.translate('connector_not_used').'</em>';
+			return TRUE;
+		}
+
+		foreach ($links as $one_link) {
+			echo '<div>'.get_asset_tag_line($one_link['majorid']).'</div>';
+		}
+
+		return TRUE;
+
+
+	}//end paintUsageInfo()
 
 
 }//end class

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2007/05/23 00:44:36 arailean Exp $
+* $Id: lang_strings.xml,v 1.2 2007/05/23 04:24:09 arailean Exp $
 *
 *
 * Localised Strings File
@@ -23,6 +23,8 @@
 	<string source="host_name">Host Name</string>
 	<string source="password">Password</string>
 	<string source="alias"> Alias</string>
+
+	<string source="connector_not_used">This connector is not used by anything asset</string>
 
 	<string source="data_password_not_displayed">(Password not displayed)</string>
 </strings>
