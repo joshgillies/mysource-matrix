@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.15 2007/05/11 06:55:28 arailean Exp $
+* $Id: data_source.inc,v 1.16 2007/05/23 00:58:25 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ register_implementation('data_source', 'bridge');
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -472,25 +472,6 @@ class Data_Source extends Asset
 		return FALSE;
 
 	}//end deleteAssetLink()
-
-
-	/**
-	* Returns TRUE if the supplied assets can be linked in the specified way
-	*
-	* @param object	&$major		the major asset in the proposed link
-	* @param object	&$minor		the minor asset in the proposed link
-	* @param string	$link_type	the type of link that is proposed
-	* @param int	$exclusive	(0|1) whether this will be the only significant link
-	*							with $minor as the minor asset
-	*
-	* @return mixed boolean|string
-	* @access public
-	*/
-	function canCreateLink(&$major, &$minor, $link_type, $exclusive)
-	{
-		return FALSE;
-
-	}//end canCreateLink()
 
 
 	/**
