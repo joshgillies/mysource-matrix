@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_parse_designs.php,v 1.2 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: system_parse_designs.php,v 1.3 2007/05/23 23:39:35 rhoward Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Upgrade menu design areas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 ini_set('memory_limit', '-1');
@@ -31,6 +31,7 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	exit();
 }
 
+define('SQ_SYSTEM_ROOT', realpath($SYSTEM_ROOT));
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 // check that the correct root password was entered
@@ -45,7 +46,15 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 $fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
 
-$designs = &$GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design', true);
+$parse_asset_types = Array(
+						'design'		=> TRUE,
+						'design_css'	=> TRUE,
+					 );
+$designs = Array();
+foreach ($parse_asset_types as $type_code => $strict) {
+	$designs = array_merge($designs, $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($type_code, $strict));
+}
+
 bam($designs);
 
 foreach ($designs as $designid) {
@@ -72,7 +81,7 @@ foreach ($designs as $designid) {
 
 	printUpdateStatus('OK');
 
-	printName('Reparse design "'.$design->name.'"');
+	printName('Reparse '.$design->type().' "'.$design->name.'"');
 
 	$edit_fns = $design->getEditFns();
 	if (!$edit_fns->parseAndProcessFile($design)) {
