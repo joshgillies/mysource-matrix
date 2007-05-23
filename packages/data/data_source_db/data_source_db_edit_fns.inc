@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.25 2007/04/30 02:13:45 arailean Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.26 2007/05/23 00:52:34 arailean Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,7 +47,81 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	}//end constructor
 
 
-//--        DSN        --//
+	/**
+	* Paints the root node selection box
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintConnectorLink(&$asset, &$o, $prefix)
+	{
+		// get root links
+		$connector_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'db_connector', FALSE, 'db_connector');
+		$connector_asset_id = $connector_link['minorid'];
+
+		if ($asset->writeAccess('links')) {
+			asset_finder($prefix.'_connector_node', $connector_asset_id, Array('db_connector'=>'D'));
+		} else {
+			if (empty($connector_asset_id)) {
+				echo 'No connector selected';
+			} else {
+				echo get_asset_tag_line($connector_asset_id);
+			}
+		}
+		return TRUE;
+
+	}//end paintConnectorLink()
+
+
+	/**
+	* Paints the root node selection box
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processConnectorLink(&$asset, &$o, $prefix)
+	{
+		$new_connector_id = @$_REQUEST[$prefix.'_connector_node']['assetid'];
+		if (empty($new_connector_id)) return TRUE;
+
+		if (!$asset->writeAccess('links')) {
+			trigger_error('You do not have write access to change the connector link', E_USER_WARNING);
+			return FALSE;
+		}
+
+		$current_connector_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'db_connector', FALSE, 'db_connector');
+		$current_connector_asset_id = @$current_connector_link['minorid'];
+
+		if (!empty($current_connector_link)) {
+			if ($current_connector_asset_id === $new_connector_id) {
+				return TRUE;
+			} else {
+				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($current_connector_link['linkid']);
+			}
+		}
+
+		$new_connector_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_connector_id);
+		$result_id = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $new_connector_asset, SQ_LINK_NOTICE, 'db_connector');
+
+		if (empty($result_id)) {
+			trigger_error('Could not link the connector to this asset', E_USER_WARNING);
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end processConnectorLink()
+
+
+	//--        DSN        --//
 
 
 	/**
@@ -2422,7 +2496,8 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 			}
 
 			$new_var_list[$new_name] = $var_list[$name];
-		}
+
+		}//end foreach
 
 
 		if ($rename_success) $var_list = $new_var_list;

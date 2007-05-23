@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.22 2007/05/14 01:49:43 arailean Exp $
+* $Id: data_source_db.inc,v 1.23 2007/05/23 00:52:34 arailean Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,6 +46,36 @@ class Data_Source_DB extends Data_Source
 		$this->Data_Source($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Returns an array of all the permitted links type, the type asset and the cardinality
+	* In the form
+	*
+	*   Array('[link_type]' => Array('[type_code]' => Array('card' => [cardinality], 'exclusive' => [exclusive])));
+	* Where:
+	*   link_type   = SQ_LINK_TYPE_1|SQ_LINK_TYPE_2|SQ_LINK_TYPE_3|SQ_LINK_NOTICE
+	*   cardinality = [max number of links]|'M'
+	*   exclusive   = TRUE|FALSE
+	*
+	* @return array
+	* @access private
+	*/
+	function _getAllowedLinks()
+	{
+
+		// any link is allowed
+		$allowed_link['asset']['card'] = 'M';
+		$allowed_link['asset']['exclusive'] = FALSE;
+
+		$links[SQ_LINK_TYPE_1] = $allowed_link;
+		$links[SQ_LINK_TYPE_2] = $allowed_link;
+		$links[SQ_LINK_TYPE_3] = $allowed_link;
+		$links[SQ_LINK_NOTICE] = $allowed_link;
+
+		return $links;
+
+	}//end _getAllowedLinks()
 
 
 	/**
@@ -200,9 +230,6 @@ class Data_Source_DB extends Data_Source
 	{
 		$result = Array();
 
-		$dsn = $this->attr('dsn');
-		if (empty($dsn)) return $result;
-
 		$DB =& $this->connectToDB();
 		if ($DB === FALSE) return $result;
 
@@ -211,9 +238,7 @@ class Data_Source_DB extends Data_Source
 		$assert_result = assert_valid_db_result($db_result, 'Query execution failed : '.$sql, FALSE, FALSE);
 		if (!$assert_result) return $result;
 
-		if ($db_result === DB_OK) {
-			return $result;
-		}
+		if ($db_result === DB_OK) return $result;
 
 		while ($row =& $db_result->fetchRow()) {
 			$result[] = $row;
@@ -238,7 +263,7 @@ class Data_Source_DB extends Data_Source
 			return $this->_tmp['db_connection'];
 		}
 
-		$dsn = $this->attr('dsn');
+		$dsn = $this->getDSN();
 		if (empty($dsn)) return FALSE;
 
 		$conn =& DB::connect($dsn);
@@ -253,6 +278,56 @@ class Data_Source_DB extends Data_Source
 		return $this->_tmp['db_connection'];
 
 	}//end connectToDB()
+
+
+	/**
+	* Get the DSN for db connection
+	*
+	* @return string
+	* @access public
+	*/
+	function getDSN()
+	{
+		if (isset($this->_tmp['db_DSN'])) {
+			return $this->_tmp['db_DSN'];
+		}
+
+		$dsn = '';
+
+		$connector_asset =& $this->_getConnectorAsset();
+		if (!empty($connector_asset)) {
+			$dsn = $connector_asset->getDSN();
+		}
+
+		if (empty($dsn)) $dsn = $this->attr('dsn');
+
+		$this->_tmp['db_DSN'] = $dsn;
+
+		return $dsn;
+
+	}//end getDSN()
+
+
+	/**
+	* Get the connector asset
+	*
+	* @return object
+	* @access public
+	*/
+	function &_getConnectorAsset()
+	{
+		$connector_asset = NULL;
+
+		$connector_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'db_connector', FALSE, 'db_connector');
+		$connector_asset_id = $connector_link['minorid'];
+
+		if (!empty($connector_asset_id)) {
+			$connector_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($connector_asset_id);
+		}
+
+		return $connector_asset;
+
+	}//end _getConnectorAsset()
 
 
 }//end class

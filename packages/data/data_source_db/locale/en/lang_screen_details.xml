@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2006/12/08 00:51:59 emcdonald Exp $
+* $Id: lang_screen_details.xml,v 1.5 2007/05/23 00:52:35 arailean Exp $
 *
 */
 -->
@@ -21,6 +21,8 @@
 			<display_name>Name</display_name>
 			<note />
 		</field>
+	</section>
+	<section name="Connection Setup">
 		<field attribute="db_type">
 			<display_name>Database Type</display_name>
 			<note />
@@ -40,6 +42,16 @@
 			</function_call>
 			<display_name>OR Complete DSN</display_name>
 			<note>Please note that if you enter a DSN here then the fields in the Database Details section above will be ignored. To accept input from the other fields please leave this field empty.  Also note that passwords in the DSN will not be re-displayed after entry.</note>
+		</field>
+	</section>
+	<section name="Use a Connector Asset">
+		<field>
+			<function_call>
+				<paint_function   name="paintConnectorLink"   />
+				<process_function name="processConnectorLink" />
+			</function_call>
+			<display_name>DB Connector Asset</display_name>
+			<note>If a DB connector is selected, the settings in the 'Connection Setup' section (above) have no effect. DB Connector allows the DB settings to be reused on other DB Data Source assets.</note>
 		</field>
 	</section>
 </contents>
