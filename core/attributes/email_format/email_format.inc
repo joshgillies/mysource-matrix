@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.34 2006/12/05 05:42:30 bcaldwell Exp $
+* $Id: email_format.inc,v 1.34.2.1 2007/05/23 01:49:15 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.34.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -432,7 +432,10 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		$mail = Mail::factory('mail', "-f$from_addr");
 
-		$hdrs = Array('From' => $from, 'Subject' => $subject);
+		$hdrs = Array(
+					'From'			=> $from,
+					'Subject'		=> $subject,
+				);
 
 		foreach ($to as $to_email) {
 
@@ -454,7 +457,14 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			$mime->setHTMLBody($html_body);
 
 			// get() must be called before headers()
-			$body = $mime->get();
+			// set up the charsets, use matrix preferences
+			$params = Array(
+						'html_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+						'text_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+						'head_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+					  );
+			$body = $mime->get($params);
+
 			$hdrs = $mime->headers($hdrs);
 			$msg = $mail->send($to_email, $hdrs, $body);
 
