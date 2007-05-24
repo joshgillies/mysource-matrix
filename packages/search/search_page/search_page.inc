@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.192.2.8 2007/05/04 05:15:50 rhoward Exp $
+* $Id: search_page.inc,v 1.192.2.9 2007/05/24 00:28:56 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.192.2.8 $
+* @version $Revision: 1.192.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1658,7 +1658,10 @@ class Search_Page extends Listing_Engine
 
 		if (!is_array($asset_info)) $asset_info = Array();
 
-		$this->_tmp['asset_info'] = $asset_info;
+		// Important!!! Missing these values in the overridden Listing Engine type of asset
+		// will generate numerous notice errors when they try to group the result by asset type
+		$this->_tmp['assets_info'] = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($asset_info));
+		$this->_tmp['asset_urls'] = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($asset_info));
 
 		if ($results_per_page != 0) {
 			$total_pages = ceil(count($asset_info) / $results_per_page);
