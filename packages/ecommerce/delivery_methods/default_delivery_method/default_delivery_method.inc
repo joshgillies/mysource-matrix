@@ -611,11 +611,9 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$order->setOrderStatus(SQ_ECOM_ORDER_STATUS_PROCESSING, 'Pending');
 
 		$email_receipt_attr =& $this->getAttribute('receipt_emails_format');
-		$email_receipt_question =& $this->getAttribute('receipt_field');
 		$email_recipient_attr =& $this->getAttribute('recipient_emails_format');
 
 		$receipt_value = @unserialize($email_receipt_attr->value);
-		$receipt_question_value = @unserialize($email_receipt_question->value);
 		$recipient_value = @unserialize($email_recipient_attr->value);
 
 		// get all the keyword replacements

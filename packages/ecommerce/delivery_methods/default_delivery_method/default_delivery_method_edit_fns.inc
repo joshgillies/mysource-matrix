@@ -32,7 +32,6 @@ class Default_Delivery_Method_Edit_Fns extends Ecommerce_Delivery_Method_Edit_Fn
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		$assetid = $asset->attr('receipt_field');
 		if ($write_access) {
 			$tmp_form =& $asset->getForm();
 			$availableKeywords = $tmp_form->getQuestions();
