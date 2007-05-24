@@ -621,11 +621,11 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$keywords_to_replace = Array();
 
 		// get order id keyword replacements
-		$keywords_to_replace[] = '%order_id%';
+		$keywords_to_replace[] = 'order_id';
 		$keywords_replacements[] =  $this->state['transaction_id'];
 
 		// get keyword replacements for order receipt
-		$keywords_to_replace[] = '%order_receipt%';
+		$keywords_to_replace[] = 'order_receipt';
 
 		// get the order summary from the cart
 		$cart =& new Ecommerce_Cart_Processor();
@@ -643,11 +643,11 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$keywords_replacements[] =  $tmp_order_receipt_cart.$tmp_order_receipt_form;
 
 		// get keyword replacements for cart summary
-		$keywords_to_replace[] = '%cart_summary%';
+		$keywords_to_replace[] = 'cart_summary';
 		$keywords_replacements[] = $tmp_order_receipt_cart;
 
 		// get keyword replacements for form summary
-		$keywords_to_replace[] = '%form_summary%';
+		$keywords_to_replace[] = 'form_summary';
 		$keywords_replacements[] = $tmp_order_receipt_form;
 
 		// add replacements for form questions
@@ -656,7 +656,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$tmp_questions = $tmp_form->getQuestions();
 		foreach ($tmp_questions as $key => $value) {
 			$key_parts = split(':', $key);
-			$keywords_to_replace[] = '%response_'.$key_parts[1].'%';
+			$keywords_to_replace[] = 'response_'.$key_parts[1].'';
 			if (!empty($form_values[$key_parts[1]])) {
 				$keywords_replacements[] = $form_values[$key_parts[1]];
 			} else {
@@ -664,68 +664,17 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 			}
 		}
 
-		// if an email address was setup we will send an email (recipient)
+		// create the keyword replacement array
+		$send_mail_replacements = Array();
+		for ($i = 0; $i < count($keywords_to_replace); $i++) {
+				$send_mail_replacements = array_merge($send_mail_replacements, Array($keywords_to_replace[$i] => $keywords_replacements[$i]));
+		}
+
+		// send emails if we need to
+		$email_recipient_attr->sendMail($send_mail_replacements);
+		$email_receipt_attr->sendMail($send_mail_replacements);
+
 		$success = TRUE;
-		$to = '';
-		$from = '';
-		$subject = '';
-		$message = '';
-		if (!empty($recipient_value['to'])) {
-			foreach ($recipient_value['to'] as $key => $value) {
-				$to .= $value;
-				if ($key < (count($recipient_value['to']) - 1)) {
-					$to .=',';
-				}
-			}
-			$from = $recipient_value['from'];
-			$subject = $recipient_value['subject'];
-			$message = $recipient_value['html_format'];
-			$to = str_replace($keywords_to_replace, $keywords_replacements, $to);
-			$from = str_replace($keywords_to_replace, $keywords_replacements, $from);
-			$subject = str_replace($keywords_to_replace, $keywords_replacements, $subject);
-			$message = str_replace($keywords_to_replace, $keywords_replacements, $message);
-
-			// To send HTML mail, the Content-type header must be set
-			$headers  = 'MIME-Version: 1.0'."\r\n";
-			$headers .= 'Content-type: text/html; charset=iso-8859-1'."\r\n";
-
-			// Additional headers
-			if (!empty($from)) $headers .= 'From: '.$from."\r\n";
-
-			$success = $success && mail($to, $subject, '<html><body>'.$message.'</body></html>', $headers);
-
-		}
-
-		// if an email address was setup we will send an email (receipt)
-		$to = '';
-		$from = '';
-		$subject = '';
-		$message = '';
-		if (!empty($receipt_value['to'])) {
-			foreach ($receipt_value['to'] as $key => $value) {
-				$to .= $value;
-				if ($key < (count($receipt_value['to']) - 1)) {
-					$to .=',';
-				}
-			}
-			$from = $receipt_value['from'];
-			$subject = $receipt_value['subject'];
-			$message = $receipt_value['html_format'];
-			$to = str_replace($keywords_to_replace, $keywords_replacements, $to);
-			$from = str_replace($keywords_to_replace, $keywords_replacements, $from);
-			$subject = str_replace($keywords_to_replace, $keywords_replacements, $subject);
-			$message = str_replace($keywords_to_replace, $keywords_replacements, $message);
-
-			// To send HTML mail, the Content-type header must be set
-			$headers  = 'MIME-Version: 1.0'."\r\n";
-			$headers .= 'Content-type: text/html; charset=iso-8859-1'."\r\n";
-
-			// Additional headers
-			if (!empty($from)) $headers .= 'From: '.$from."\r\n";
-
-			$success = $success && mail($to, $subject, '<html><body>'.$message.'</body></html>', $headers);
-
-		}
 
 		if ($success) {
 			$order->setOrderStatus(SQ_ECOM_ORDER_STATUS_SUCCESS);

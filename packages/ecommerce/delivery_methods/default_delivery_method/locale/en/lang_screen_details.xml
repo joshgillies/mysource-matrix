@@ -27,7 +27,7 @@
 			</note>
 		</field>
 	</section>
-	<section name="available keywords" write_access="write:attributes">
+	<section name="Available Keywords" write_access="write:attributes">
 		<field>
 			<function_call>
 				<paint_function   name="paintAvailableKeywords"   />

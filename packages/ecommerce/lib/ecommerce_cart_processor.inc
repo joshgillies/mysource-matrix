@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.9 2007/05/22 03:44:53 colivar Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.10 2007/05/24 04:48:21 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -519,9 +519,6 @@ class Ecommerce_Cart_Processor
 
 			if ($has_price) {
 				printf($row_format, array_get_index($details, 'name', ''), array_get_index($details, 'quantity', 0), $cost);
-				if ($is_taxable) {
-					printf($row_format, array_get_index($details, 'name', '').' ('.$taxation_name.')', array_get_index($details, 'quantity', 0), $tax_cost);
-				}
 			} else {
 				printf($row_format, array_get_index($details, 'name', ''), array_get_index($details, 'quantity', 0));
 			}
