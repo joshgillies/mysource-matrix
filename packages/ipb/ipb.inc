@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.9 2007/01/11 05:37:25 amiller Exp $
+* $Id: ipb.inc,v 1.10 2007/05/24 04:07:39 skim Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package Fudge
 * @subpackage ipb
 */
@@ -102,7 +102,11 @@ class Ipb
 		// set URL
 		switch ($version) {
 			case '2_0_4' :
-				$this->ipb_url = $INFO['html_url'];
+				if (isset($INFO['html_url'])) {
+					$this->ipb_url = $INFO['html_url'];
+				} else if (isset($INFO['board_url'])) {
+					$this->ipb_url = $INFO['board_url'];
+				}
 			break;
 			case '2_1_3' :
 			case '2_2_1' :
@@ -117,7 +121,11 @@ class Ipb
 		switch ($version) {
 			case '2_0_4' :
 			case '2_1_3' :
-				$this->db =& new db_driver;
+				if (class_exists('db_driver')) {
+					$this->db =& new db_driver;
+				} else {
+					return FALSE;
+				}
 			break;
 			case '2_2_1' :
 				$driver = 'db_driver_'.$INFO['sql_driver'];
