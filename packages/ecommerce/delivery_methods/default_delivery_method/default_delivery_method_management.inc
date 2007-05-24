@@ -17,26 +17,18 @@ class Default_Delivery_Method_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-			$this->vars = Array(
-							'field_email'	=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'text',
-												'description'	=> 'Email Address',
-												'default'		=> '',
-											   ),
-							'email_sender'	=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'text',
-												'description'	=> 'The email address of the sender',
-												'default'		=> '',
-											   ),
-							'email_subject'	=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'text',
-												'description'	=> 'The subject to put on the email to send to the customer',
-												'default'		=> 'Ecommerce Email Subject - New Order ',
-											   ),
-						  );
+		$this->vars = Array(
+						'receipt_emails_format'		=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'email_format',
+														'default'	=> Array(),
+													   ),
+						'recipient_emails_format'	=> Array(
+														'added'		=> '0.2',
+														'type'		=> 'email_format',
+														'default'	=> Array(),
+													   ),
+					  );
 
 	}//end constructor
 

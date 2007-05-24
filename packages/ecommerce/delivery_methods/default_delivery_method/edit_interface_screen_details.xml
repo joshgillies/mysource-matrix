@@ -4,15 +4,22 @@
 			<text width="35" height="1" />
 		</field>
 	</section>
-	<section name="Response Email" write_access="write:attributes">
-		<field attribute="email_sender">
-			<text width="30" />
+	<section name="Recipient Email Options" write_access="write:attributes">
+		<field attribute="recipient_emails_format">
+			<email_format with_asset_finder="0" show_inc_attachments="0" />
 		</field>
-		<field attribute="field_email">
-			<text width="30" />
+	</section>
+	<section name="Receipt Email Options" write_access="write:attributes">
+		<field attribute="receipt_emails_format" write_access="write:attributes">
+			<email_format with_asset_finder="0" show_inc_attachments="0" />
 		</field>
-		<field attribute="email_subject">
-			<text width="30" />
+	</section>
+	<section name="available keywords" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function   name="paintAvailableKeywords"   />
+				<process_function name="processAvailableKeywords" />
+			</function_call>
 		</field>
 	</section>
 </contents>

@@ -1,22 +1,39 @@
 <contents>
-	<section name="Details">
+	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
 			<display_name>Asset Name</display_name>
 			<note />
 		</field>
 	</section>
-	<section name="Response Email" write_access="write:attributes">
-		<field attribute="email_sender">
-			<display_name>From:</display_name>
-			<note/>
-		</field>
-		<field attribute="field_email">
-			<display_name>To:</display_name>
-			<note>If this field is empty, no email will be sent</note>
-		</field>
-		<field attribute="email_subject">
-			<display_name>Subject</display_name>
-			<note/>
+	<section name="Recipient Email Options" write_access="write:attributes">
+		<field attribute="recipient_emails_format">
+			<display_name>Recipient Email Format</display_name>
+			<note>
+			&lt;ul&gt;
+			&lt;li&gt;If the 'To' field is empty then no Recipient e-mails will be sent.&lt;/li&gt;
+			&lt;li&gt;please use the Body in HTML mode (using the "toggle Email Format button" located on the upper left)&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
 		</field>
 	</section>
+	<section name="Receipt Email Options" write_access="write:attributes">
+		<field attribute="receipt_emails_format" write_access="write:attributes">
+			<display_name>Receipt Email Format</display_name>
+			<note>
+			&lt;ul&gt;
+			&lt;li&gt;If the 'To' field is empty then no Receipt e-mails will be sent.&lt;/li&gt;
+			&lt;li&gt;please use the Body in HTML mode (using the "toggle Email Format button" located on the upper left)&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
+		</field>
+	</section>
+	<section name="available keywords" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function   name="paintAvailableKeywords"   />
+				<process_function name="processAvailableKeywords" />
+			</function_call>
+		</field>
+	</section>
+
 </contents>

@@ -606,34 +606,87 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	*/
 	function processDelivery(&$order, $taxation_name='GST', $taxation_rate=0.0)
 	{
-
 		$this->state['transaction_id']  = $order->id;
 
 		$order->setOrderStatus(SQ_ECOM_ORDER_STATUS_PROCESSING, 'Pending');
 
-		// if an email address was setup we will send an email
-		$to = trim($this->attr('field_email'));
-		$from = trim($this->attr('email_sender'));
-		$subject = $this->attr('email_subject').$this->state['transaction_id'];
+		$email_receipt_attr =& $this->getAttribute('receipt_emails_format');
+		$email_receipt_question =& $this->getAttribute('receipt_field');
+		$email_recipient_attr =& $this->getAttribute('recipient_emails_format');
+
+		$receipt_value = @unserialize($email_receipt_attr->value);
+		$receipt_question_value = @unserialize($email_receipt_question->value);
+		$recipient_value = @unserialize($email_recipient_attr->value);
+
+		// get all the keyword replacements
+		$keywords_replacements = Array();
+		$keywords_to_replace = Array();
+
+		// get order id keyword replacements
+		$keywords_to_replace[] = '%order_id%';
+		$keywords_replacements[] =  $this->state['transaction_id'];
+
+		// get keyword replacements for order receipt
+		$keywords_to_replace[] = '%order_receipt%';
 
 		// get the order summary from the cart
 		$cart =& new Ecommerce_Cart_Processor();
 		$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
-		$message = '<pre>';
+		$tmp_order_receipt_cart = '<pre>';
 		ob_start();
 		echo 'Order ID: '.$this->state['transaction_id']."\n\n";
 		$cart->printReceipt($taxation_name, $taxation_rate);
-		$message .= ob_get_contents();
+		$tmp_order_receipt_cart .= ob_get_contents();
 		ob_end_clean();
-		$message .= '</pre>';
+		$tmp_order_receipt_cart .= '</pre>';
 
 		// get the form summary
-		$message .= '<pre>'.$this->getReceipt(TRUE).'</pre>';
+		$tmp_order_receipt_form = '<pre>'.$this->getReceipt(TRUE).'</pre>';
+		$keywords_replacements[] =  $tmp_order_receipt_cart.$tmp_order_receipt_form;
 
-		$success = FALSE;
+		// get keyword replacements for cart summary
+		$keywords_to_replace[] = '%cart_summary%';
+		$keywords_replacements[] = $tmp_order_receipt_cart;
 
-		// if an email address is specified
-		if (!empty($to)) {
+		// get keyword replacements for form summary
+		$keywords_to_replace[] = '%form_summary%';
+		$keywords_replacements[] = $tmp_order_receipt_form;
+
+		// add replacements for form questions
+		$form_values = unserialize($_SESSION['order_extra_information']);
+		$tmp_form =& $this->getForm();
+		$tmp_questions = $tmp_form->getQuestions();
+		foreach ($tmp_questions as $key => $value) {
+			$key_parts = split(':', $key);
+			$keywords_to_replace[] = '%response_'.$key_parts[1].'%';
+			if (!empty($form_values[$key_parts[1]])) {
+				$keywords_replacements[] = $form_values[$key_parts[1]];
+			} else {
+				$keywords_replacements[] = '';
+			}
+		}
+
+		// if an email address was setup we will send an email (recipient)
+		$success = TRUE;
+		$to = '';
+		$from = '';
+		$subject = '';
+		$message = '';
+		if (!empty($recipient_value['to'])) {
+			foreach ($recipient_value['to'] as $key => $value) {
+				$to .= $value;
+				if ($key < (count($recipient_value['to']) - 1)) {
+					$to .=',';
+				}
+			}
+			$from = $recipient_value['from'];
+			$subject = $recipient_value['subject'];
+			$message = $recipient_value['html_format'];
+			$to = str_replace($keywords_to_replace, $keywords_replacements, $to);
+			$from = str_replace($keywords_to_replace, $keywords_replacements, $from);
+			$subject = str_replace($keywords_to_replace, $keywords_replacements, $subject);
+			$message = str_replace($keywords_to_replace, $keywords_replacements, $message);
+
 			// To send HTML mail, the Content-type header must be set
 			$headers  = 'MIME-Version: 1.0'."\r\n";
 			$headers .= 'Content-type: text/html; charset=iso-8859-1'."\r\n";
@@ -641,9 +694,39 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 			// Additional headers
 			if (!empty($from)) $headers .= 'From: '.$from."\r\n";
 
-			$success = mail($to, $subject, '<html><body>'.$message.'</body></html>', $headers);
-		} else {
-			$success = TRUE;
+			$success = $success && mail($to, $subject, '<html><body>'.$message.'</body></html>', $headers);
+
+		}
+
+		// if an email address was setup we will send an email (receipt)
+		$to = '';
+		$from = '';
+		$subject = '';
+		$message = '';
+		if (!empty($receipt_value['to'])) {
+			foreach ($receipt_value['to'] as $key => $value) {
+				$to .= $value;
+				if ($key < (count($receipt_value['to']) - 1)) {
+					$to .=',';
+				}
+			}
+			$from = $receipt_value['from'];
+			$subject = $receipt_value['subject'];
+			$message = $receipt_value['html_format'];
+			$to = str_replace($keywords_to_replace, $keywords_replacements, $to);
+			$from = str_replace($keywords_to_replace, $keywords_replacements, $from);
+			$subject = str_replace($keywords_to_replace, $keywords_replacements, $subject);
+			$message = str_replace($keywords_to_replace, $keywords_replacements, $message);
+
+			// To send HTML mail, the Content-type header must be set
+			$headers  = 'MIME-Version: 1.0'."\r\n";
+			$headers .= 'Content-type: text/html; charset=iso-8859-1'."\r\n";
+
+			// Additional headers
+			if (!empty($from)) $headers .= 'From: '.$from."\r\n";
+
+			$success = $success && mail($to, $subject, '<html><body>'.$message.'</body></html>', $headers);
+
 		}
 
 		if ($success) {
@@ -654,7 +737,6 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$order->setAttrValue('order_form_value', unserialize($_SESSION['order_extra_information']));
 
 		return TRUE;
-
 
 	}//end processDelivery()
 
