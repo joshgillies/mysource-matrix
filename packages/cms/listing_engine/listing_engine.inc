@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.222 2007/04/04 00:47:16 rhoward Exp $
+* $Id: listing_engine.inc,v 1.223 2007/05/24 00:24:55 skim Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.222 $
+* @version $Revision: 1.223 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2861,7 +2861,7 @@ class Listing_Engine extends Page
 
 					case 'standard_asset':
 						if (!isset($this->_tmp['assets_info'][$current_parent])) {
-							$this->_tmp['assets_info'][$current_parentid] = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_parent));
+							$this->_tmp['assets_info'][$current_parent] = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_parent));
 						}
 						if (!empty($this->_tmp['assets_info'][$current_parent])) {
 							$asset_info = $this->_tmp['assets_info'][$current_parent];
