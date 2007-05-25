@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.5 2006/12/07 05:26:28 bcaldwell Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.6 2007/05/25 04:26:06 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -45,7 +45,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 	function paintDeliveryMethod(&$asset, &$o, $prefix)
 	{
 		// get delivery method links
-		$delivery_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', false, 'major', 'delivery_method');
+		$delivery_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'delivery_method');
 		$delivery_asset_ids = Array();
 		foreach ($delivery_links as $one_link) {
 			$delivery_asset_ids[$one_link['minorid']] = $one_link['minor_type_code'];
@@ -75,7 +75,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 			</table>
 			<?php
 		}
-		return true;
+		return TRUE;
 
 	}//end paintDeliveryMethod()
 
@@ -93,7 +93,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 	function processDeliveryMethod(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_delivery_methods'])) {
-			return false;
+			return FALSE;
 		}
 		$new_delivery_methods = $_POST[$prefix.'_delivery_methods'];
 		foreach ($new_delivery_methods as $new_delivery_method) {
@@ -101,17 +101,17 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		}
 
 		// get existing delivery method links
-		$delivery_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', false, 'major', 'delivery_method');
+		$delivery_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'delivery_method');
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$ok = true;
+		$ok = TRUE;
 
 		// lets delete the nodes that have been removed
 		foreach ($delivery_links as $delivery_link) {
 			if (!in_array($delivery_link['minorid'], $new_delivery_method_ids)) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($delivery_link['linkid'])) {
-					$ok = false;
+					$ok = FALSE;
 				}
 			}
 		}
@@ -126,9 +126,9 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 			}
 			// otherwise, create the appropriate notice link
 			if ($node['assetid'] != 0) {
-				$new_node = &$GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
+				$new_node =& $GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
 				if (!$asset->createLink($new_node, SQ_LINK_NOTICE, 'delivery_method')) {
-					$ok = false;
+					$ok = FALSE;
 					trigger_localised_error('CMS0016', E_USER_WARNING, $new_node->name, $new_node->id);
 					break;
 				}
@@ -204,10 +204,61 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 			}//end foreach
 
 			echo '</table>';
-		}
-		return true;
+		}//end if
+		return TRUE;
 
 	}//end paintContextScreens()
+
+
+	/**
+	* Paint Flat Charges
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintFlatCharges(&$asset, &$o, $prefix)
+	{
+
+		if ($asset->writeAccess('links')) {
+			$flat_charges = unserialize($asset->attr('flat_charge_assetid'));
+			multiple_asset_finder($prefix.'_flat_charge',$flat_charges, Array('product' => 'D'));
+		}
+		return TRUE;
+
+	}//end paintFlatCharges()
+
+
+	/**
+	* Process Flat Charges
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processFlatCharges(&$asset, &$o, $prefix)
+	{
+		if (!isset($_POST[$prefix.'_flat_charge'])) {
+			return FALSE;
+		}
+
+		$flat_charge_values =  $_POST[$prefix.'_flat_charge'];
+		$new_charge_values = Array();
+		foreach ($flat_charge_values as $value) {
+			if (($value['assetid'] != 0) && (!in_array($value['assetid'], $new_charge_values))) {
+				$new_charge_values[] =  $value['assetid'];
+			}
+		}
+		$asset->setAttrValue('flat_charge_assetid', $new_charge_values);
+		return TRUE;
+
+	}//end processFlatCharges()
 
 
 }//end class

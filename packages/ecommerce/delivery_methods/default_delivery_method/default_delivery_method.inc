@@ -600,11 +600,12 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	* @param object	&$order			test
 	* @param string	$taxation_name	Name of the tax
 	* @param float	$taxation_rate	tax value
+	* @param array	$flat_charges	Array('Charge Name' => 'Price')
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processDelivery(&$order, $taxation_name='GST', $taxation_rate=0.0)
+	function processDelivery(&$order, $taxation_name='GST', $taxation_rate=0.0, $flat_charges=Array())
 	{
 		$this->state['transaction_id']  = $order->id;
 
@@ -633,7 +634,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$tmp_order_receipt_cart = '<pre>';
 		ob_start();
 		echo 'Order ID: '.$this->state['transaction_id']."\n\n";
-		$cart->printReceipt($taxation_name, $taxation_rate);
+		$cart->printReceipt($taxation_name, $taxation_rate, $flat_charges);
 		$tmp_order_receipt_cart .= ob_get_contents();
 		ob_end_clean();
 		$tmp_order_receipt_cart .= '</pre>';

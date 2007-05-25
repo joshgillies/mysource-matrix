@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.51 2007/05/22 06:36:07 colivar Exp $
+* $Id: ecommerce_checkout.inc,v 1.52 2007/05/25 04:26:06 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -340,7 +340,7 @@ class Ecommerce_Checkout extends Page
 				$delivery_method->setState($_SESSION['sq_local_cart_contents']['delivery_state']);
 
 				// process the delivery and provide the tax name and tax rate
-				$delivery_processing_status = $delivery_method->processDelivery($order_asset, $this->attr('taxation_name'), $this->attr('taxation_rate')/100.0);
+				$delivery_processing_status = $delivery_method->processDelivery($order_asset, $this->attr('taxation_name'), $this->attr('taxation_rate')/100.0, $this->getFlatCharges());
 
 				$_SESSION['sq_local_cart_contents']['delivery_state'] = $delivery_method->getState();
 
@@ -725,9 +725,35 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
+	* It returns an Array of the Flat Charges Array ('name of the charge' => 'value of the charge')
+	*
+	* @return array
+	* @access public
+	*/
+	function getFlatCharges()
+	{
+		$flat_charges = unserialize($this->attr('flat_charge_assetid'));
+		$flat_charge_array = Array();
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+		foreach ($flat_charges as $charge_id) {
+			$tmp_charge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($charge_id);
+			$price = $tmp_charge->attr('price');
+			if ($price <= 0) $price = 0;
+
+			$flat_charge_array = array_merge($flat_charge_array, Array($tmp_charge->name => $price));
+		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		return $flat_charge_array;
+
+	}//end getFlatCharges()
+
+
+	/**
 	* Return a cart summary for the ecommer cart
 	*
-	* @param	boolean	$html	if it's true, the summary string is wrapped by <pre> tags
+	* @param	boolean	$html			if it's true, the summary string is wrapped by <pre> tags
 	*
 	* @return string
 	* @access private
@@ -740,7 +766,7 @@ class Ecommerce_Checkout extends Page
 		ob_start();
 			if ($html) echo '<pre>';
 
-			echo $cart->printReceipt($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0));
+			echo $cart->printReceipt($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges());
 			if ($html) echo '</pre>';
 		$cart_summary = ob_get_clean();
 		unset($cart);

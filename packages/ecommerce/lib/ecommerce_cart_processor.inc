@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.10 2007/05/24 04:48:21 colivar Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.11 2007/05/25 04:26:07 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -455,11 +455,12 @@ class Ecommerce_Cart_Processor
 	*
 	* @param string	$taxation_name	name of tax
 	* @param int	$taxation_rate	tax value (0.1 is 10%, 0.2 is 20%)
+	* @param array	$flat_charges	flat charges Array('Name' => 'Price')
 	*
 	* @return void
 	* @access public
 	*/
-	function printReceipt($taxation_name='GST', $taxation_rate=0)
+	function printReceipt($taxation_name='GST', $taxation_rate=0, $flat_charges=Array())
 	{
 		if (empty($this->cart)) return;
 
@@ -485,6 +486,16 @@ class Ecommerce_Cart_Processor
 			if (!$has_price && array_get_index($details, 'price', -1) != -1) {
 				$has_price = TRUE;
 			}
+		}
+
+		// calculate the longest item name and calculate the number of flat_charges
+		$flat_charges_total = 0.0;
+		foreach ($flat_charges as $name => $price) {
+			if (strlen($name) > $name_length) {
+				$name_length = strlen($name);
+			}
+			$flat_charges_total += $price;
+
 		}
 
 		// standard format for the receipt header and rows
@@ -532,10 +543,15 @@ class Ecommerce_Cart_Processor
 		if ($has_price) {
 			$totalTax = $this->getTotalTax($taxation_rate);
 			echo sprintf($row_format, 'Total', $this->getCount(), sprintf('$%.2f', $this->getTotal()));
-			if ($totalTax > 0) {
-				echo sprintf($row_format, 'Total ('.$taxation_name.')', $this->getCount(), sprintf('$%.2f', $totalTax));
+			if (($totalTax > 0) || ($flat_charges_total > 0.0)) {
+				if ($totalTax > 0) {
+					echo sprintf($row_format, 'Total ('.$taxation_name.')', $this->getCount(), sprintf('$%.2f', $totalTax));
+				}
+				foreach ($flat_charges as $name => $price) {
+					echo sprintf($row_format, $name, 1, sprintf('$%.2f', $price));
+				}
 				echo $break;
-				echo sprintf($row_format, 'Grand Total', $this->getCount(), sprintf('$%.2f', $this->getTotal($totalTax)));
+				echo sprintf($row_format, 'Grand Total', $this->getCount(), sprintf('$%.2f', $this->getTotal($totalTax)+$flat_charges_total));
 			}
 		} else {
 			echo sprintf($row_format, 'Total', $this->getCount());

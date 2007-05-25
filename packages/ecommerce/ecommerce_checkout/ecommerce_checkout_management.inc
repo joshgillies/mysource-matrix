@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_management.inc,v 1.4 2007/05/22 03:44:53 colivar Exp $
+* $Id: ecommerce_checkout_management.inc,v 1.5 2007/05/25 04:26:06 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -78,6 +78,18 @@ class Ecommerce_Checkout_Management extends Asset_Management
 															'range_upper'		=> 100,
 														   ),
 									   );
+
+		$this->vars['flat_charge_assetid'] = Array(
+												'added'		=> '0.3',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+											 );
+
+		$this->vars['tax_charge_assetid'] = Array(
+												'added'		=> '0.3',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+											);
 
 
 	}//end constructor

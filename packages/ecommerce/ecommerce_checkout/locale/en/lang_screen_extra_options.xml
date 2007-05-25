@@ -9,4 +9,14 @@
 			<note />
 		</field>
 	</section>
+	<section name="Flat Fees">
+		<field>
+			<display_name>List Of Flat Fees</display_name>
+			<note>To create a new fee, create a product asset and add it to the list above.</note>
+			<function_call>
+				<paint_function   name="paintFlatCharges"   />
+				<process_function name="processFlatCharges" />
+			</function_call>
+		</field>
+	</section>
 </contents>
