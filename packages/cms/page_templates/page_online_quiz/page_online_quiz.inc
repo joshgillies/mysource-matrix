@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.13 2007/05/25 02:09:10 mbrydon Exp $
+* $Id: page_online_quiz.inc,v 1.14 2007/05/25 05:14:26 mbrydon Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -984,7 +984,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		// ...and for Question and Question Group result HTML-based keywords. Use a "_plain" suffix if the last bit is "_text" to avoid "%fred_text_text%"
 		$result_keywords = Array(
-							'question_text', 'answer_text', 'correct_answer_text',
+							'question_text', 'answer_text', 'correct_answer_text', 'question_note',
 						   );
 		foreach ($result_keywords as $result_keyword) {
 			$value['text_format'] = preg_replace('/%(result)_([0-9]*)_('.$result_keyword.')%/', '%result_$2_$3_plain%', $value['text_format']);
@@ -1855,6 +1855,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 								'points'				=> translate('online_quiz_results_header_points'),
 								'available_points'		=> translate('online_quiz_results_header_available_points'),
 								'response_supplement'	=> translate('online_quiz_results_response_supplement'),
+								'question_note'			=> translate('online_quiz_results_question_note'),
 							  );
 
 		$locale_text = translate('online_quiz_results_question_x');
@@ -2642,6 +2643,15 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 				case 'question_text_plain':			$replacement = strip_tags($question->getKeywordReplacement('question_text'));
 													$keyword_replaced = TRUE;
+				break;
+
+				case 'question_note':				$replacement = $question->getQuestionNote();
+													$keyword_replaced = TRUE;
+				break;
+
+				case 'question_note_plain':			$replacement = strip_tags($question->getQuestionNote());
+													$keyword_replaced = TRUE;
+				break;
 
 				case 'answer':						$keyword = 'value';
 				break;

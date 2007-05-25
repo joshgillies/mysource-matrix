@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2007/05/16 04:49:51 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.5 2007/05/25 05:14:27 mbrydon Exp $
 *
 */
 -->
@@ -25,5 +25,6 @@
 <string source="online_quiz_question_keyword_question_text">Question Text</string>
 <string source="online_quiz_question_keyword_response_form">Response Form</string>
 <string source="online_quiz_question_keyword_available_points">Available Points</string>
+<string source="online_quiz_question_keyword_question_note">Question Note</string>
 
 </strings>

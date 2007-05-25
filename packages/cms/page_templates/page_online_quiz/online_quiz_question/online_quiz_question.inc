@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question.inc,v 1.4 2007/05/16 04:49:51 mbrydon Exp $
+* $Id: online_quiz_question.inc,v 1.5 2007/05/25 05:14:27 mbrydon Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_ONLINE_QUIZ_QUESTION_SESSION_VAR', 'SQ_ONLINE_QUIZ');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -270,6 +270,19 @@ class Online_Quiz_Question extends Asset
 		}
 
 	}//end getQuestionText()
+
+
+	/**
+	* Returns the Question Note associated with this question
+	*
+	* @return string
+	* @access public
+	*/
+	function getQuestionNote()
+	{
+		return $this->attr('question_note');
+
+	}//end getQuestionNote()
 
 
 	/**
@@ -613,6 +626,7 @@ class Online_Quiz_Question extends Asset
 		$keywords['response_form']		= translate('online_quiz_question_keyword_response_form');
 		$keywords['available_points']	= translate('online_quiz_question_keyword_available_points');
 		$keywords['question_number']	= translate('online_quiz_question_keyword_question_number');
+		$keywords['question_note']		= translate('online_quiz_question_keyword_question_note');
 
 		return $keywords;
 
@@ -679,6 +693,19 @@ class Online_Quiz_Question extends Asset
 		return $this->getPosition();
 
 	}//end getQuestionNumberKeywordReplacement()
+
+
+	/**
+	* Get the replacement for the "question_note" keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getQuestionNoteKeywordReplacement()
+	{
+		return $this->getQuestionNote();
+
+	}//end getQuestionNoteKeywordReplacement()
 
 
 }//end class

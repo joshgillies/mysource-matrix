@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2007/05/21 05:00:01 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2007/05/25 05:14:27 mbrydon Exp $
 *
 */
 -->
@@ -22,10 +22,15 @@
 		</field>
 	</section>
 	<section name="Question Text" write_access="write:menu">
-		<function_call>
-			<paint_function   name="paintQuestionText"   />
-			<process_function name="processQuestionText" />
-		</function_call>
+		<field>
+			<function_call>
+				<paint_function   name="paintQuestionText"   />
+				<process_function name="processQuestionText" />
+			</function_call>
+		</field>
+		<field attribute="question_note">
+			<wysiwyg style="div" width="100%" height="100" />
+		</field>
 	</section>
 	<section name="Response Form" write_access="write:attributes">
 		<function_call>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_management.inc,v 1.2 2006/12/20 23:57:06 rhoward Exp $
+* $Id: online_quiz_question_management.inc,v 1.3 2007/05/25 05:14:27 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,8 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @author  Mark Brydon <mbrydon@squiz.net>
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,6 +51,12 @@ class Online_Quiz_Question_Management extends Asset_Management
 											'type'			=> 'text',
 											'default'		=> '',
 											'description'	=> 'The question text printed if the question text bodycopy hasn\'t been customised',
+										   ),
+						'question_note'	=> Array(
+											'added'			=> '0.3',
+											'type'			=> 'wysiwyg',
+											'default'		=> '',
+											'description'	=> 'Supplementary information related to the question',
 										   ),
 					  );
 
