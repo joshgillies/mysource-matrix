@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_group_edit_fns.inc,v 1.3 2007/05/21 05:00:00 mbrydon Exp $
+* $Id: online_quiz_question_group_edit_fns.inc,v 1.4 2007/05/25 06:37:49 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -248,7 +248,7 @@ class Online_Quiz_Question_Group_Edit_Fns extends Folder_Edit_Fns
 						?></td>
 
 						<td>
-							<table border="0" class="email-format-body">
+							<table border="0" width="100%">
 							<tr>
 								<td>
 									<?php

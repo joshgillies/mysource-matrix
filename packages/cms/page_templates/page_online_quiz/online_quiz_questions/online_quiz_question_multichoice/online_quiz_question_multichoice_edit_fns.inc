@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice_edit_fns.inc,v 1.5 2007/05/22 00:51:19 mbrydon Exp $
+* $Id: online_quiz_question_multichoice_edit_fns.inc,v 1.6 2007/05/25 06:37:49 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,7 +113,7 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 						<td><?php
 							if ($use_html_options) {
 								?>
-								<table border="0" class="email-format-body">
+								<table border="0" width="100%">
 								<tr>
 									<td>
 										<?php
@@ -325,7 +325,7 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 						}
 						?>
 						<td>
-							<table border="0" class="email-format-body">
+							<table border="0" width="100%">
 							<tr>
 								<td>
 									<?php
