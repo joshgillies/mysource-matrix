@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.20 2006/12/06 00:35:32 emcdonald Exp $
+* $Id: simple_form.inc,v 1.21 2007/05/25 06:54:28 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -637,6 +637,7 @@ class Simple_Form extends Asset
 				$assetid = $this->id.':q'.$shadowid;
 				$name = 'q'.$assetid;
 				$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$q->populate();
 
 				// set the value and check whether it's valid
 				if (isset($_POST[$name])) $q->setValue($_POST[$name]);
@@ -673,8 +674,8 @@ class Simple_Form extends Asset
 				unset($s);
 			}
 
-			$this->_is_processed = true;
-		}
+			$this->_is_processed = TRUE;
+		}//end if
 
 		return empty($this->_errors);
 
@@ -1271,7 +1272,9 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 		$format_bodycopy =& $this->getFormatBodycopy(TRUE);
 
 		// default form action
-		if (empty($form_action)) $form_action = $_SERVER['PHP_SELF'];
+		if (empty($form_action)) {
+			$form_action = $_SERVER['PHP_SELF'];
+		}
 
 		if ($print_form_tags) {
 			if ($this->attr('client_side')) {

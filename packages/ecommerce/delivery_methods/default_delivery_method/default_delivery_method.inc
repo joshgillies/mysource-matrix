@@ -302,7 +302,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$form =& $this->getForm();
 
 		ob_start();
-		echo '<pre><ul>';
+		if ($html) echo '<pre><ul>';
 
 		// get all question names
 		$form =& $this->getForm();
@@ -317,9 +317,15 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$question_value = unserialize($_SESSION['order_extra_information']);
 		foreach ($question_value as $key => $value) {
 			$tmp_name = $question_names[$key];
-			echo '<li>'.$tmp_name.' ('.$key.') : '.$value.'</li>';
+			if ($html) {
+				echo '<li>'.$tmp_name.' ('.$key.') : '.$value.'</li>';
+			} else {
+				echo $tmp_name.' ('.$key.') : '.$value."\n";
+			}
 		}
-		echo '</ul></pre>';
+
+		if ($html) echo '</ul></pre>';
+
 		$receipt = ob_get_contents();
 		ob_end_clean();
 
@@ -641,12 +647,13 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$cart =& new Ecommerce_Cart_Processor();
 		$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 		$tmp_order_receipt_cart = '<pre>';
+		$tmp_order_receipt_cart_text = '';
 		ob_start();
 		echo 'Order ID: '.$this->state['transaction_id']."\n\n";
 		$cart->printReceipt($taxation_name, $taxation_rate, $flat_charges);
-		$tmp_order_receipt_cart .= ob_get_contents();
+		$tmp_order_receipt_cart_text .= ob_get_contents();
 		ob_end_clean();
-		$tmp_order_receipt_cart .= '</pre>';
+		$tmp_order_receipt_cart .= $tmp_order_receipt_cart_text.'</pre>';
 
 		// get the form summary
 		$tmp_order_receipt_form = '<pre>'.$this->getReceipt(TRUE).'</pre>';
@@ -656,9 +663,16 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$keywords_to_replace[] = 'cart_summary';
 		$keywords_replacements[] = $tmp_order_receipt_cart;
 
+		$keywords_to_replace[] = 'cart_summary_text';
+		$keywords_replacements[] = $tmp_order_receipt_cart_text;
+
 		// get keyword replacements for form summary
 		$keywords_to_replace[] = 'form_summary';
 		$keywords_replacements[] = $tmp_order_receipt_form;
+
+		$keywords_to_replace[] = 'form_summary_text';
+		$keywords_replacements[] = $this->getReceipt(FALSE);
+
 
 		// add replacements for form questions
 		$form_values = unserialize($_SESSION['order_extra_information']);

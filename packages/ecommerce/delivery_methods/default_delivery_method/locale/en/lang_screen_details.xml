@@ -11,7 +11,6 @@
 			<note>
 			&lt;ul&gt;
 			&lt;li&gt;If the 'To' field is empty then no Recipient e-mails will be sent.&lt;/li&gt;
-			&lt;li&gt;please use the Body in HTML mode (using the "toggle Email Format button" located on the upper left)&lt;/li&gt;
 			&lt;/ul&gt;
 			</note>
 		</field>
@@ -22,7 +21,6 @@
 			<note>
 			&lt;ul&gt;
 			&lt;li&gt;If the 'To' field is empty then no Receipt e-mails will be sent.&lt;/li&gt;
-			&lt;li&gt;please use the Body in HTML mode (using the "toggle Email Format button" located on the upper left)&lt;/li&gt;
 			&lt;/ul&gt;
 			</note>
 		</field>

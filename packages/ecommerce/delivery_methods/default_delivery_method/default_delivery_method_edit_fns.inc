@@ -45,7 +45,9 @@ class Default_Delivery_Method_Edit_Fns extends Ecommerce_Delivery_Method_Edit_Fn
 			}
 			echo '<tr><td>%order_receipt%</td><td>print the order receipt</td></tr>';
 			echo '<tr><td>%cart_summary%</td><td>print the cart summary</td></tr>';
+			echo '<tr><td>%cart_summary_text%</td><td>print the cart summary in a text format</td></tr>';
 			echo '<tr><td>%form_summary%</td><td>print the form summary</td></tr>';
+			echo '<tr><td>%form_summary_text%</td><td>print the form summary in a text format</td></tr>';
 			echo '<tr><td>%order_id%</td><td>print the order id</td></tr>';
 			echo '</table>';
 
