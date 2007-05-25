@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_log.xml,v 1.7 2007/03/29 02:14:23 tbarrett Exp $
+* $Id: edit_interface_screen_log.xml,v 1.7.2.1 2007/05/25 05:20:37 skim Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Export" write_access="write:attributes">
+	<section name="Export" write_access="write:attributes" show_if="hasAttributeWriteAccess">
 		<field keyword="download_date_range">
 			<function_call>
 				<paint_function   name="paintDownloadDateRange"   />

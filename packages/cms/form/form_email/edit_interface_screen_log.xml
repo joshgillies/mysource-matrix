@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_log.xml,v 1.12 2007/01/19 04:45:59 arailean Exp $
+* $Id: edit_interface_screen_log.xml,v 1.12.2.1 2007/05/25 05:20:37 skim Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
-	<section name="Export" write_access="write:attributes">
+	<section name="Export" write_access="write:attributes" show_if="hasAttributeWriteAccess">
 		<field keyword="download_date_range">
 			<function_call>
 				<paint_function   name="paintDownloadDateRange"   />
