@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2007/01/09 23:46:33 hnguyen Exp $
+* $Id: lang_strings.xml,v 1.5.2.1 2007/05/25 03:52:20 skim Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -50,4 +50,5 @@
 <string source="cms_form_date_range">Date Range</string>
 <string source="cms_form_submission_time">Submission Time</string>
 <string source="cms_form_submission_ip_address">Submission IP Address</string>
+<string source="cms_form_submission_lock_required">Please acquire the lock before exporting.</string>
 </strings>
