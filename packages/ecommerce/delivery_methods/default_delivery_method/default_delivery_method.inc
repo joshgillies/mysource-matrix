@@ -436,17 +436,26 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	{
 		$form =& $this->getForm();
 		$state = $this->getState();
-		$order_extra_info = Array();
+
+		$ok =  $form->process();
+
 		// add the form values entered by the user in a session variable
 		$question_values = $form->getQuestions();
+		$answers = $form->getAnswers();
+		$order_extra_info = Array();
 		foreach ($question_values as $key => $value) {
+			$tmp_value = '';
+			if (!empty($answers[$key]['summary'])) {
+				$tmp_value = $answers[$key]['summary'];
+			} else if (!empty($answers[$key]['value'])) {
+				$tmp_value = $answers[$key]['value'];
+			}
 			$key_parts = split(':', $key);
-			$tmpValue = array_get_index($_REQUEST, "q$key", '');
-			$order_extra_info[$key_parts[1]] = $tmpValue;
+			$order_extra_info[$key_parts[1]] = $tmp_value;
 		}
 		$_SESSION['order_extra_information'] =  serialize($order_extra_info);
 
-		return $form->process();
+		return $ok;
 
 	}//end processInputInterface()
 
