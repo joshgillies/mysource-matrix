@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_edit_fns.inc,v 1.19 2007/02/01 05:22:10 emcdonald Exp $
+* $Id: page_custom_form_edit_fns.inc,v 1.20 2007/05/25 05:25:40 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -296,6 +296,21 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 		}
 
 	}//end delegateToFormEditMethod()
+
+
+	/**
+	* Returns TRUE if the attribute lock is acquired
+	*
+	* @param object	&$asset			the asset whose interface we are painting
+	* @param object	&$o				the outputter class
+	*
+	* @return boolean
+	* @access public
+	*/
+	function hasAttributeWriteAccess(&$asset, &$o) {
+		return $asset->writeAccess('attributes');
+
+	}//end hasAttributeWriteAccess()
 
 
 }//end class
