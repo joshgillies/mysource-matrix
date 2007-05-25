@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.12 2007/05/22 05:41:21 mbrydon Exp $
+* $Id: page_online_quiz.inc,v 1.13 2007/05/25 02:09:10 mbrydon Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -699,9 +699,6 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			// set up the results for the thank you page and email later
 			$this->setResults($results);
 
-
-			// submissions need to be created here, omitted due to time constraints
-
 			// send the results off to the user
 			$this->sendResultsEmail();
 
@@ -835,7 +832,6 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function getQuestions($refresh=NULL)
 	{
-
 		// if $refresh is TRUE, pretend we have no questions to force the regeneration of questions
 		if ($refresh === TRUE) {
 			$questions = Array();
@@ -844,6 +840,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		}
 
 		$assets_to_list = $this->getManuallyConfiguredQuestions();
+		$manually_configured_questions = !empty($assets_to_list);
 
 		// only refresh if $refresh is TRUE or NULL
 		if (empty($questions) && $refresh !== FALSE) {
@@ -862,16 +859,21 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				$num_questions = $attr_num_questions;
 			}
 
-			// Randomize the order
-			// array_rand(array, 1) will produce a string instead of an array - compensate
-			$random_asset_list = Array();
-			$random_asset_list_keys = array_rand($assets_to_list, $num_questions);
-			if ($num_questions == 1) {
-				$random_asset_list_keys = Array($random_asset_list_keys);
-			}
-
-			foreach ($random_asset_list_keys as $key) {
-				$random_asset_list[$key] = $assets_to_list[$key];
+			// Don't randomise question display if we have set them up manually!
+			if ($manually_configured_questions) {
+				$random_asset_list =& $assets_to_list;
+			} else {
+				// Randomize the order
+				// array_rand(array, 1) will produce a string instead of an array - compensate
+				$random_asset_list = Array();
+				$random_asset_list_keys = array_rand($assets_to_list, $num_questions);
+				if ($num_questions == 1) {
+					$random_asset_list_keys = Array($random_asset_list_keys);
+				}
+	
+				foreach ($random_asset_list_keys as $key) {
+					$random_asset_list[$key] = $assets_to_list[$key];
+				}
 			}
 
 
@@ -1802,6 +1804,23 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	function _getQuestionKeywords()
 	{
 		$keywords = Array();
+
+		// Refresh the question list, if we are manually configuring the page's question content and adding/removing/editing this order.
+		// Only do this if the %asset_listing% keyword is missing from the Page Contents bodycopy.
+		$page_contents_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
+		if (!empty($page_contents_link)) {
+			$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($page_contents_link['minorid'], $page_contents_link['minor_type_code']);
+
+			require_once SQ_FUDGE_PATH.'/general/text.inc';
+			$keywords = $format_bodycopy->getKeywords();
+
+			if (!in_array('asset_listing', $keywords)) {
+				$form =& $this->getForm();
+				if (!is_null($form)) {
+					$questions = $form->getQuestions(TRUE);
+				}
+			}
+		}
 
 		// Obtain the available keywords for a quiz question
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('online_quiz_question');
