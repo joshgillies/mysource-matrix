@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.84 2007/05/07 04:44:11 skim Exp $
+* $Id: form_email_edit_fns.inc,v 1.85 2007/05/25 03:52:43 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -596,6 +596,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function paintDownloadButton(&$asset, &$o, $prefix)
 	{
+		if (!$asset->writeAccess('attributes')) {
+			$o->note(translate('cms_form_submission_lock_required'));
+			return FALSE;
+		}
 		// explanation for onClick for the Download button, there is some trickery involved here >:)
 		// - set export switch to 1 = "ON"
 		// - submit form (automatically sets SQ_FORM_SUBMITTED) - we're still here though, as the
