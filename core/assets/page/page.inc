@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page.inc,v 1.14 2007/05/20 23:37:28 colivar Exp $
+* $Id: page.inc,v 1.15 2007/05/27 22:34:18 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,13 +113,11 @@ class Page extends Asset
 		$allowed[SQ_LINK_TYPE_1]['file']   = Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed[SQ_LINK_TYPE_1]['folder'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed[SQ_LINK_TYPE_1]['data_source'] = Array('card' => 'M', 'exclusive' => FALSE);
-		$allowed[SQ_LINK_TYPE_1]['default_delivery_method'] = Array('card' => 'M', 'exclusive' => FALSE);
 
 		$allowed[SQ_LINK_TYPE_2]['page']   = Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed[SQ_LINK_TYPE_2]['file']   = Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed[SQ_LINK_TYPE_2]['folder'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$allowed[SQ_LINK_TYPE_2]['data_source'] = Array('card' => 'M', 'exclusive' => FALSE);
-		$allowed[SQ_LINK_TYPE_2]['default_delivery_method'] = Array('card' => 'M', 'exclusive' => FALSE);
 
 		$allowed[SQ_LINK_TYPE_3]['page'] = Array('card' => 'M', 'exclusive' => FALSE);
 
