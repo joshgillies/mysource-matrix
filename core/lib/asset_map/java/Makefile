@@ -9,7 +9,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: Makefile,v 1.5.2.2 2007/01/19 05:05:13 rong Exp $
+#* $Id: Makefile,v 1.5.2.3 2007/05/28 05:43:27 rong Exp $
 #*
 #*/
 
@@ -18,6 +18,8 @@
 # @author Marc McIntyre <mmcintyre@squiz.net>
 # @author Rayn Ong <rong@squiz.net>
 
+# we always compile with java version 1.4 to maintain compatibility
+javapath = /opt/java-1.4/bin
 
 # asset map component
 component = assetmap core debug inspector matrixtree plaf ui
@@ -37,25 +39,30 @@ componentclassfiles = net/squiz/cuetree/*.class $(patsubst %,net/squiz/matrix/%/
 #    http://java.sun.com/j2se/1.4.2/docs/guide/plugin/developer_guide/rsa_signing.html
 #    http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/keytool.html
 #    Cerberus Ticket: #KVW-52908-317: Squiz - Code Signing Certificate
-simple:
-	cd src && javac -classpath java40.jar $(componentsourcefiles)
-	cd src && jar cvfm ../assetmap.jar ../simplemanifest $(componentclassfiles) META-INF
-	jarsigner -keystore SquizKeyStore assetmap.jar mykey
-	jarsigner -verify assetmap.jar
+# note on java version
+#    This makefile works for java version 1.4
+#    On version 1.5, use the following to compile
+#      javac -Xlint:deprecation -Xlint:unchecked -classpath java40.jar $(componentsourcefiles)
 
+default:
+	cd src && $(javapath)/javac -classpath java40.jar $(componentsourcefiles)
 
-# compiles the complexassetmap package
+# create and sign assetmap.jar
+simple: default
+	cd src && $(javapath)/jar cvfm ../assetmap.jar ../simplemanifest $(componentclassfiles) META-INF
+	$(javapath)/jarsigner -keystore SquizKeyStore assetmap.jar mykey
+	$(javapath)/jarsigner -verify assetmap.jar
+
+# create and sign complexassetmap.jar
 complex: simple
-	cd src && jar cvfm ../complexassetmap.jar ../complexmanifest $(componentclassfiles) META-INF
-	jarsigner -keystore SquizKeyStore complexassetmap.jar mykey
-	jarsigner -verify complexassetmap.jar
-
+	cd src && $(javapath)/jar cvfm ../complexassetmap.jar ../complexmanifest $(componentclassfiles) META-INF
+	$(javapath)/jarsigner -keystore SquizKeyStore complexassetmap.jar mykey
+	$(javapath)/jarsigner -verify complexassetmap.jar
 
 # get rid of the class files
 clean:
 	cd src && rm $(componentclassfiles)
 
-
 # generates the documentation
 doc:
-	javadoc -d doc -sourcepath src $(componentpaths)
+	$(javapath)/javadoc -d doc -sourcepath src $(componentpaths)
