@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice_edit_fns.inc,v 1.6 2007/05/25 06:37:49 mbrydon Exp $
+* $Id: online_quiz_question_multichoice_edit_fns.inc,v 1.7 2007/05/29 23:33:33 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -164,7 +164,23 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 
 		if ($write_access) {
 			$o->openField(translate('online_quiz_question_multichoice_new_option'));
-					text_box($prefix.'_new_option', '', 60);
+			if ($use_html_options) {
+				?>
+				<table border="0" width="100%">
+				<tr>
+					<td>
+						<?php
+						$wysiwyg_prefix = $prefix.'_new_option';
+						$wysiwyg =& new Asset_Attribute_WYSIWYG();
+						$wysiwyg->paint($wysiwyg_prefix, !$write_access);
+						?> 
+					</td>
+				</tr>
+				</table>
+				<?php
+			} else {
+				text_box($prefix.'_new_option', '', 60);
+			}
 			$o->closeField();
 		}
 
@@ -246,7 +262,7 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 				$option_key = chr($option_key_counter).($option_key_rollover <= 1 ? '' : $option_key_rollover);
 
 				// Change text to use entities if we are creating a new option
-				if ($new_use_html_options) {
+				if ($new_use_html_options && !$asset_use_html_options) {
 					$new_option = htmlentities($new_option);
 				}
 
