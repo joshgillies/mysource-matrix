@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.95 2006/12/12 02:51:53 emcdonald Exp $
+* $Id: site.inc,v 1.96 2007/05/30 01:48:26 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -661,7 +661,14 @@ class Site extends Folder
 	*/
 	function initLimbo()
 	{
-		if (isset($_GET['limbo_assetid']) && $_GET['limbo_assetid'] == $this->id) {
+		// Check if there is a screen that site does not have, for example a content screen, then pass it on to index page to deal with it.
+		$has_screen = TRUE;
+		if (isset($_REQUEST['asset_ei_screen'])) {
+			$edit_fns =& $this->getEditFns();
+			$has_screen = isset($edit_fns->static_screens[$_REQUEST['asset_ei_screen']]) ? TRUE : FALSE;
+		}
+
+		if (isset($_GET['limbo_assetid']) && $_GET['limbo_assetid'] == $this->id && $has_screen) {
 			// print this site's limbo instead of the index page
 			parent::initLimbo();
 		} else {
