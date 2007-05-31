@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.19 2006/12/05 05:39:09 bcaldwell Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.20 2007/05/31 04:54:16 rong Exp $
 *
 */
 
@@ -25,12 +25,14 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    string           level         - 'single', 'dependants' or 'children'
 *    string|array     type_codes    - the type codes to clear
 *    boolean          delete_all    - whether to clear all system cache
+*    boolean          repopulate    - request the asset using CURL so that cache manager can recache it
+*                                     this option only comes from the clear matrix cache tool
 * </pre>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -163,6 +165,18 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 					'complete'		=> FALSE,
 					'message'		=> '',
 				),
+				Array(
+					'name'			=> 'Repopulating Cache',
+					'function_call'	=> Array(
+										'process_function'	=> 'processRepopulate',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> TRUE,
+					'allow_cancel'	=> TRUE,
+					'percent_done'	=> 0,
+					'complete'		=> FALSE,
+					'message'		=> '',
+				),
 			   );
 
 	}//end getInitialStepData()
@@ -211,6 +225,13 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 			}
 		}
 
+		// repopulate
+		while (!empty($this->_running_vars['todo_repopulate'])) {
+			if (!$this->processRepopulate($this->_steps[2], get_class($this))) {
+				return FALSE;
+			}
+		}
+
 		return TRUE;
 
 	}//end freestyle()
@@ -229,7 +250,7 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 			return FALSE;
 		}
 
-		if ($this->_running_vars['delete_all'] == 'no') {
+		if (isset($this->_running_vars['delete_all']) && $this->_running_vars['delete_all'] == 'no') {
 			// so we have an assetid to start with, make sure it is a valid assetid
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 			if (is_null($asset)) {
@@ -256,7 +277,7 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 			$this->_running_vars['delete_all'] = FALSE;
 			$this->_running_vars['total'] = count($this->_running_vars['todo_assetids']);
 
-		} else if ($this->_running_vars['delete_all'] == 'yes') {
+		} else if (isset($this->_running_vars['delete_all']) && $this->_running_vars['delete_all'] == 'yes') {
 			// empty todo_assetids, since we do clearAllCache in a single step
 			$this->_running_vars['todo_assetids'] = Array();
 			$this->_running_vars['delete_all'] = TRUE;
@@ -266,6 +287,14 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 		$this->_running_vars['done_assetids'] = Array();
 		$this->_running_vars['todo_filepaths'] = Array();
 		$this->_running_vars['done_filepaths'] = Array();
+
+		// note that this option only presents in tool
+		// and it does not work with 'delete_all' = yes
+		$this->_running_vars['todo_repopulate'] = Array();
+		$this->_running_vars['done_repopulate'] = Array();
+		if (isset($this->_running_vars['repopulate']) && $this->_running_vars['repopulate']) {
+			$this->_running_vars['todo_repopulate'] = $this->_running_vars['todo_assetids'];
+		}
 
 		return parent::prepare();
 
@@ -356,6 +385,67 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	}//end processClearCacheFile()
 
 
-}//end class
+	/**
+	* Repopulate the cache
+	*
+	* @param array	&$step_data	data the data for the steps
+	* @param string	$prefix		the unique prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRepopulate(&$step_data, $prefix)
+	{
+		if (!empty($this->_running_vars['todo_repopulate'])) {
+			$current_assetid = array_pop($this->_running_vars['todo_repopulate']);
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_assetid);
+			$urls_info = $asset->getURLs();
+			$urls = Array();
+			if (!empty($urls_info)) {
+				foreach ($urls_info as $url_info) {
+					if ($url_info['http'] == '1') {
+						$urls[] = 'http://'.$url_info['url'];
+					}
+					if ($url_info['https'] == '1') {
+						$urls[] = 'https://'.$url_info['url'];
+					}
+				}
+			}
 
+			// Re-generate the cache per URL
+			$headers = Array(
+						'Cache-Control: public',
+						'Pragma: cache',
+					   );
+			foreach ($urls as $url) {
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_URL, $url);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+				ob_start();
+					// grab URL and pass it to the browser
+					curl_exec($ch);
+				ob_end_clean();
+
+				curl_close($ch);
+			}
+
+			$this->_running_vars['done_repopulate'][] = $current_assetid;
+		}//end if
+
+		if (empty($this->_running_vars['todo_repopulate'])) {
+			$step_data['percent_done'] = 100;
+			$step_data['complete'] = TRUE;
+		} else {
+			$done = count($this->_running_vars['done_repopulate']);
+			$total = count($this->_running_vars['todo_repopulate']) + $done;
+			$step_data['percent_done'] = ($done / $total) * 100;
+			$step_data['complete'] = FALSE;
+		}
+		return TRUE;
+
+	}//end processRepopulate()
+
+
+}//end class
 ?>
