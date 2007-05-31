@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2007/05/16 23:51:27 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2007/05/31 06:47:47 mbrydon Exp $
 *
 */
 -->
@@ -38,6 +38,9 @@
 			</function_call>
 		</field>
 		<field attribute="clientside_validation">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="log_submissions">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>

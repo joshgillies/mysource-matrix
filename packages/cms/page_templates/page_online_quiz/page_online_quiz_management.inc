@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz_management.inc,v 1.5 2007/05/16 23:51:27 mbrydon Exp $
+* $Id: page_online_quiz_management.inc,v 1.6 2007/05/31 06:47:47 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -119,6 +119,15 @@ class Page_Online_Quiz_Management extends Asset_Management
 																		'allow_empty'	=> FALSE,
 																	   ),
 												   ),
+						'log_submissions'		=> Array(
+													'added'			=> '0.3',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'description'	=> 'When enabled, User Details and submitted Quiz results will be logged. These will then be available to export from the &quot;Submission Logs&quot; screen',
+													'parameters'	=> Array(
+																		'allow_empty'	=> FALSE,
+																	   ),
+												   ),
 					  );
 
 	}//end constructor
@@ -149,6 +158,36 @@ class Page_Online_Quiz_Management extends Asset_Management
 			   );
 
 	}//end getEventList()
+
+
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		$res = parent::_upgrade($current_version);
+
+		if (version_compare($current_version, '0.3', '<')) {
+			pre_echo('UPGRADING ONLINE QUIZ TO v0.3');
+			$quizids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_online_quiz', FALSE);
+			foreach ($quizids as $quizid) {
+				$quiz =& $GLOBALS['SQ_SYSTEM']->am->getAsset($quizid);
+				if (!$quiz->_createSubmissionsFolder()) {
+					trigger_error('Error creating submissions folder for Online Quiz #'.$quizid, E_USER_WARNING);
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($quiz);
+			}
+			pre_echo(count($quizids).' ONLINE QUIZ ASSETS UPDATED');
+		}
+
+		return $res;
+
+	}//end _upgrade()
 
 
 }//end class

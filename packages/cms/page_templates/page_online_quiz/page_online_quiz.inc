@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.14 2007/05/25 05:14:26 mbrydon Exp $
+* $Id: page_online_quiz.inc,v 1.15 2007/05/31 06:47:47 mbrydon Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -153,6 +153,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		// create the user_details form (to go with the matching bodycopy)
 		if (!$this->createForm()) return FALSE;
+		if (!$this->_createSubmissionsFolder()) return FALSE;
 
 		// create the type
 		return $this->createTypeFormat('online_quiz_question');
@@ -197,6 +198,96 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		return TRUE;
 
 	}//end _createBodycopies()
+
+
+	/**
+	* Create the folder for storing submissions
+	*
+	* @return boolean
+	* @access protected
+	*/
+	function _createSubmissionsFolder()
+	{
+		$existing =& $this->getSubmissionsFolder();
+		if (!empty($existing)) return TRUE;
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+		$folder =& new Folder();
+		$folder->setAttrValue('name', translate('submissions'));
+		$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'submissions_folder', 'is_dependant' => 1, 'is_exclusive' =>      1);
+		if (!$folder->create($folder_link)) {
+			trigger_localised_error('CMS0070', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+
+		// Deny public read access to the submissions folder by default
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($folder->id, 'permissions')) {
+			return FALSE;
+		}
+		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($folder->id, $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'), SQ_PERMISSION_READ, 0, TRUE)) {
+				return FALSE;
+		}
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($folder->id, 'permissions');
+		return TRUE;
+
+	}//end _createSubmissionsFolder()
+
+
+	/**
+	* Creates a new submission object
+	*
+	* @return object
+	* @access public
+	*/
+	function &createSubmission()
+	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('online_quiz_submission');
+
+		// create the form submission asset
+		$submission =& new Online_Quiz_Submission();
+		$submissions_folder =& $this->getSubmissionsFolder();
+		if (is_null($submissions_folder)) {
+			trigger_localised_error('CMS0069', E_USER_WARNING);
+			$null = NULL;
+			return $null;
+		}
+		$copy_link  = Array('asset' => &$submissions_folder, 'link_type' => SQ_LINK_TYPE_3, 'is_dependant' => 0, 'is_exclusive' => 0);
+
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+		if (!$submission->create($copy_link)) {
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return $submission;
+
+	}//end createSubmission()
+
+
+	/**
+	* Get the submissions folder
+	*
+	* @return object
+	* @access public
+	*/
+	function &getSubmissionsFolder()
+	{
+		$res = NULL;
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'submissions_folder');
+		if (!empty($link)) {
+			$res =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'folder');
+		}
+		return $res;
+
+	}//end getSubmissionsFolder()
 
 
 	/**
@@ -699,6 +790,42 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			// set up the results for the thank you page and email later
 			$this->setResults($results);
 
+			// Log the Quiz Submission if required. This comprises both the User Details Form and the Quiz responses.
+			if ($this->attr('log_submissions')) {
+				$submission_asset =& $this->createSubmission();
+
+				$user_details_form = $this->getForm();
+				$user_details_form_questions = $user_details_form->getQuestions();
+
+				$user_details = $this->getUserDetails();
+				$quiz_results = $this->getResults();
+				$question_results = $quiz_results['questions'];
+
+				// Log the answers given for each User Details question
+				foreach ($user_details as $question_id => $user_response) {
+					$question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
+					$submission_asset->setUserDetailsQuestion($question_id, $question_asset->getVal('title'));
+					$submission_asset->setUserDetailsAnswer($question_id, $user_response);
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question_asset);
+				}
+
+				foreach ($question_results as $question_position => $question_result) {
+					$question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_result['assetid']);
+
+					$question_text = strip_tags($question_asset->getQuestionText());
+					$question_result['correct_summary'] = trim(strip_tags($question_result['correct_summary']));
+					$question_result['summary'] = trim(strip_tags($question_result['summary']));
+
+					$submission_asset->setQuizQuestion($question_result['assetid'], trim($question_text));
+					$submission_asset->setQuizAnswer($question_result['assetid'], $question_result);
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question_asset);
+				}
+
+				$submission_asset->setIP($_SERVER['REMOTE_ADDR']);
+				$submission_asset->setAttrValue('complete', TRUE);
+				$submission_asset->saveAttributes();
+			}//end if
+
 			// send the results off to the user
 			$this->sendResultsEmail();
 
@@ -870,7 +997,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				if ($num_questions == 1) {
 					$random_asset_list_keys = Array($random_asset_list_keys);
 				}
-	
+
 				foreach ($random_asset_list_keys as $key) {
 					$random_asset_list[$key] = $assets_to_list[$key];
 				}
@@ -2682,7 +2809,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 				case 'response_supplement_text':	$replacement = strip_tags($question->getResponseSupplement());
 				break;
-			}
+			}//end switch
 
 			// This keyword is obtained from the results...
 			if (!$keyword_replaced) {
@@ -2785,7 +2912,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 					break;
 				}
 			}
-		}
+		}//end if
 
 		return $replacement;
 

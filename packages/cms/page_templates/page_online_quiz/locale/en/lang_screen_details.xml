@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2007/05/22 01:57:23 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.8 2007/05/31 06:47:47 mbrydon Exp $
 *
 */
 -->
@@ -47,6 +47,10 @@
 		<field attribute="clientside_validation">
 			<display_name>Use Client-side Validation?</display_name>
 			<note>Warns the user with a popup when they submit the quiz if some questions have invalid or empty answers.</note>
+		</field>
+		<field attribute="log_submissions">
+			<display_name>Log submissions?</display_name>
+			<note>When enabled, User Details and Quiz responses will be logged. These logs will then be available for export from the &quot;Submission Logs&quot; screen.</note>
 		</field>
 	</section>
 
