@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.88 2007/04/04 01:27:47 rong Exp $
+* $Id: lang_errors.xml,v 1.89 2007/05/31 04:53:34 rong Exp $
 *
 */
 
@@ -395,6 +395,7 @@
 
 	<error code="CRON0056">Failed to refresh the cache for (#%1$s), the HTTP request to URL, (%2$s), and the response code (%3$s) returned.</error>
 
+	<error code="CRON0057">Failed to run clear Matrix cache cron job.</error>
 
 	<!-- MAPS - MYSOURCE AUTOMATED PATCHING SYSTEM -->
 
