@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.63 2007/03/21 03:21:16 rong Exp $
+* $Id: bulk_mailer.inc,v 1.64 2007/05/31 06:45:42 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -488,21 +488,16 @@ class Bulk_Mailer
 		$problematic_list = Array();
 
 		foreach ($recipients as $recipient_id) {
-			// check for read permission (user/group) beforehand
-			if (!$asset_to_send->readAccess(Array($recipient_id))) {
-				$problematic_list[] = $recipient_id;
+			$recipient =& $am->getAsset($recipient_id);
+			if ($am->isTypeDecendant($recipient->type(), 'user_group')) {
+				// expand user group
+				$recipients_expanded += $am->getChildren($recipient->id, 'user', FALSE, FALSE);
+				$recipients_expanded += $am->getChildren($recipient->id, 'bulkmail_user', FALSE, FALSE);
 			} else {
-				$recipient =& $am->getAsset($recipient_id);
-				if ($am->isTypeDecendant($recipient->type(), 'user_group')) {
-					// expand user group
-					$recipients_expanded += $am->getChildren($recipient->id, 'user', FALSE, FALSE);
-					$recipients_expanded += $am->getChildren($recipient->id, 'bulkmail_user', FALSE, FALSE);
-				} else {
-					// add single recipient
-					$recipients_expanded[$recipient->id] = $recipient->type();
-				}
-				$am->forgetAsset($recipient);
+				// add single recipient
+				$recipients_expanded[$recipient->id] = $recipient->type();
 			}
+			$am->forgetAsset($recipient);
 		}
 
 		$recipients = Array();
