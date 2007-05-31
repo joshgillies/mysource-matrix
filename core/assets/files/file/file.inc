@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.143.2.1 2007/01/17 22:21:59 tbarrett Exp $
+* $Id: file.inc,v 1.143.2.2 2007/05/31 23:23:44 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.143.2.1 $
+* @version $Revision: 1.143.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1091,7 +1091,11 @@ class File extends Asset
 	{
 		// if we are in limbo, we want to show our editing interface and design
 		// instead of just sending our file over
-		if (SQ_IN_LIMBO) return parent::printFrontend();
+		// there is an exception to it: In Limbo, if we have ?a=<assetid> at the end of the URL
+		// and <assetid> value is different from the current asset assetid we are sending our file over
+		if (SQ_IN_LIMBO && !(isset($_REQUEST['a']) && $_REQUEST['a'] == $this->id)) {
+			return parent::printFrontend();
+		}
 
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
