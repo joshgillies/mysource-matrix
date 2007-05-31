@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.15 2007/05/31 06:47:47 mbrydon Exp $
+* $Id: page_online_quiz.inc,v 1.16 2007/05/31 23:25:30 mbrydon Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1073,7 +1073,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 							// Check again to ensure that it is a question
 							$question_type = $question->type();
-							if (preg_match('/^(online_quiz_question)_(.*)$/', $question_type, $matches)) {
+							if ($question_type == 'online_quiz_question_multichoice') {
 								if (isset($matches[1]) && isset($matches[2])) {
 									// Check permissions to this asset before listing (read permission must be there)
 									if ($question->readAccess(Array($GLOBALS['SQ_SYSTEM']->user->id))) {
@@ -2728,8 +2728,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		$replacement = '%question_'.$question_asset_id.'_'.$keyword.'%';
 
-		$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id);
-		if (!is_null($question)) {
+		$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id, 'online_quiz_question_multichoice');
+		if ((!is_null($question)) && ($question->readAccess(Array($GLOBALS['SQ_SYSTEM']->user->id)))) {
 			$replacement = $question->getKeywordReplacement($keyword);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
 		}
@@ -2752,8 +2752,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		$replacement = '%result_'.$question_asset_id.'_'.$keyword.'%';
 
-		$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id);
-		if (!is_null($question)) {
+		$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id, 'online_quiz_question_multichoice');
+		if ((!is_null($question)) && ($question->readAccess(Array($GLOBALS['SQ_SYSTEM']->user->id)))) {
 			$question_results = $question->getResults();
 
 			// Some replacements are not provided in the question results, so we have to ask for these...
@@ -2768,7 +2768,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 													$keyword_replaced = TRUE;
 				break;
 
-				case 'question_text_plain':			$replacement = strip_tags($question->getKeywordReplacement('question_text'));
+				case 'question_text_plain':			$replacement = trim(strip_tags($question->getKeywordReplacement('question_text')));
 													$keyword_replaced = TRUE;
 				break;
 
@@ -2776,7 +2776,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 													$keyword_replaced = TRUE;
 				break;
 
-				case 'question_note_plain':			$replacement = strip_tags($question->getQuestionNote());
+				case 'question_note_plain':			$replacement = trim(strip_tags($question->getQuestionNote()));
 													$keyword_replaced = TRUE;
 				break;
 
@@ -2787,7 +2787,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				break;
 
 				case 'answer_text_plain':			if (isset($question_results['summary'])) {
-														$replacement = strip_tags($question_results['summary']);
+														$replacement = trim(strip_tags($question_results['summary']));
 														$keyword_replaced = TRUE;
 													}
 				break;
@@ -2799,7 +2799,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				break;
 
 				case 'correct_answer_text_plain':	if (isset($question_results['correct_summary'])) {
-														$replacement = strip_tags($question_results['correct_summary']);
+														$replacement = trim(strip_tags($question_results['correct_summary']));
 														$keyword_replaced = TRUE;
 													}
 				break;
@@ -2807,7 +2807,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				case 'response_supplement':			$replacement = $question->getResponseSupplement();
 				break;
 
-				case 'response_supplement_text':	$replacement = strip_tags($question->getResponseSupplement());
+				case 'response_supplement_text':	$replacement = trim(strip_tags($question->getResponseSupplement()));
 				break;
 			}//end switch
 
@@ -2879,8 +2879,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		$replacement = '%question_group_'.$question_group_asset_id.'_'.$keyword.'%';
 
-		$question_group =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_group_asset_id);
-		if (!is_null($question_group)) {
+		$question_group =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_group_asset_id, 'online_quiz_question_group');
+		if ((!is_null($question_group)) && ($question_group->readAccess(Array($GLOBALS['SQ_SYSTEM']->user->id)))) {
 			$group_questions = array_keys($question_group->getQuestions());
 			$quiz_questions = array_keys($this->getQuestions());
 
