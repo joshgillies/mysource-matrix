@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.30.2.1 2007/05/03 00:47:40 mbrydon Exp $
+* $Id: form_ecommerce.inc,v 1.30.2.2 2007/06/01 06:15:23 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.30.2.1 $
+* @version $Revision: 1.30.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -79,14 +79,14 @@ class Form_Ecommerce extends Form_Email
 	/**
 	* Do extra processing when creating
 	*
-	* @param array	$link	link
+	* @param array	&$link	link
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional($link)
+	function _createAdditional(&$link)
 	{
-		return $this->_createBodycopies();
+		return $this->_createBodycopies() && parent::_createAdditional($link);
 
 	}//end _createAdditional()
 
@@ -1246,6 +1246,7 @@ class Form_Ecommerce extends Form_Email
 	function printReceiptView()
 	{
 		$body =& $this->getBodycopy('Receipt');
+		$replacements = Array();
 
 		$keyword_list = $body->getKeywords();
 		foreach ($keyword_list as $keyword) {

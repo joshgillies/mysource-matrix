@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_form_submission_linking.php,v 1.3 2007/03/28 04:31:11 lwright Exp $
+* $Id: upgrade_form_submission_linking.php,v 1.3.2.1 2007/06/01 06:14:39 colivar Exp $
 *
 */
 
 /**
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -52,10 +52,33 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 $am =& $GLOBALS['SQ_SYSTEM']->am;
 
+$ecommerce_formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form_ecommerce', FALSE);
+// There is a problem with ecommerce forms not having submissions folder
+// so let's create a submission folder for any ecommerce form with no submissions folder
+foreach ($ecommerce_formids as $ecom_formid) {
+	$form =& $am->getAsset($ecom_formid);
+
+	// if the asset is in the trash, skip that asset
+	if ($am->assetInTrash($ecom_formid)) continue;
+
+	$submissions_folder =& $form->getSubmissionsFolder();
+	if (empty($submissions_folder)) {
+		pre_echo('Create Submissions folder for Form '.$form->name.' ('.$form->id.'). An upgrade may be required for ecommerce form assets');
+		if (!$form->_createSubmissionsFolder()) {
+			trigger_error('Could not create the Submissions folder for form #'.$formid, E_USER_ERROR);
+		}
+	}
+}
+
+
 $formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form', FALSE);
 foreach ($formids as $formid) {
 	$form =& $am->getAsset($formid);
-	pre_echo('Moving submissions for '.$form->name.' to submissions folder');
+
+	// if the asset is in the trash, skip that asset
+	if ($am->assetInTrash($formid)) continue;
+
+	pre_echo('Moving submissions for '.$form->name.' ('.$form->id.') to submissions folder');
 	$submissions_folder =& $form->getSubmissionsFolder();
 	if (is_null($submissions_folder)) {
 		trigger_error('Submissions folder not found for form #'.$formid.'; upgrade may be required', E_USER_ERROR);
