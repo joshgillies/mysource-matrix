@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.38 2006/12/05 23:14:14 emcdonald Exp $
+* $Id: image_variety.inc,v 1.38.2.1 2007/06/01 00:13:20 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -690,7 +690,11 @@ class Image_Variety extends Asset
 	{
 		// if we are in limbo, we want to show our editing interface and design
 		// instead of just sending our file over
-		if (SQ_IN_LIMBO) return parent::printFrontend();
+		// there is an exception to it: In Limbo, if we have ?a=<assetid> at the end of the URL
+		// and <assetid> value is different from the current asset assetid we are sending our file over
+		if (SQ_IN_LIMBO && !(isset($_REQUEST['a']) && $_REQUEST['a'] == $this->id)) {
+			return parent::printFrontend();
+		}
 
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
