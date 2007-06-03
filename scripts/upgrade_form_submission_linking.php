@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_form_submission_linking.php,v 1.3.2.1 2007/06/01 06:14:39 colivar Exp $
+* $Id: upgrade_form_submission_linking.php,v 1.3.2.2 2007/06/03 22:53:27 colivar Exp $
 *
 */
 
 /**
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3.2.1 $
+* @version $Revision: 1.3.2.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -52,14 +52,14 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 $am =& $GLOBALS['SQ_SYSTEM']->am;
 
+$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+
 $ecommerce_formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form_ecommerce', FALSE);
 // There is a problem with ecommerce forms not having submissions folder
 // so let's create a submission folder for any ecommerce form with no submissions folder
 foreach ($ecommerce_formids as $ecom_formid) {
 	$form =& $am->getAsset($ecom_formid);
-
-	// if the asset is in the trash, skip that asset
-	if ($am->assetInTrash($ecom_formid)) continue;
 
 	$submissions_folder =& $form->getSubmissionsFolder();
 	if (empty($submissions_folder)) {
@@ -75,9 +75,6 @@ $formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form', FALSE);
 foreach ($formids as $formid) {
 	$form =& $am->getAsset($formid);
 
-	// if the asset is in the trash, skip that asset
-	if ($am->assetInTrash($formid)) continue;
-
 	pre_echo('Moving submissions for '.$form->name.' ('.$form->id.') to submissions folder');
 	$submissions_folder =& $form->getSubmissionsFolder();
 	if (is_null($submissions_folder)) {
@@ -88,5 +85,7 @@ foreach ($formids as $formid) {
 		$am->moveLink($link['linkid'], $submissions_folder->id, $link['link_type'], $link['sort_order']);
 	}
 }
+
+$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
