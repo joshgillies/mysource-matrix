@@ -1,5 +1,48 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.12.5
+
+Featured Changes
+-----------------------------------
+
+Java 6 Compatibility for Asset Map
+
+    Issues with the Asset Map relating to incompatibilities with the the Java SE 6 runtime have been addressed. The Asset Map has been tested with, and should run under Java 6 from this version onwards.
+
+
+Search Manager Options Ignored on Oracle Systems
+
+    Due to the method used to index Oracle systems for searching, the options for white, noise, and short words are not used for indexing. These words will now no longer be stripped from query terms sent from the Search Page.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
+* Install: step_03.php script now generates install key
+* Fixed bug #2346: Custom form questions not displaying when > asset map limit per set
+* Fixed bug #2348: Standard Page Javascript Code Crashes
+* Fixed bug #2376: Ampersand in LDAP group names causes XML parse error
+* Fixed bug #2393: Changing the title field of an existing abbreviation in WYSIWYG generates a new element
+* Fixed bug #2394: Changing the title field of an existing acronym in WYSIWYG generates a new element
+* Fixed bug #2400: Server-side validation for Selection Limit broken
+* Fixed bug #2408: Special characters from word come out as garbage when fed into a feedback form
+* Fixed bug #2423: Simple edit: Error when using ?a=<assetid>
+
+CMS
+
+* Performance improvements for Related Asset Listing
+* Fixed bug #2391: When cloning Custom Form, keywords in bodycopies are not changed to be new form section asset id (Custom Form)
+* Fixed bug #2410: Asset name linked and asset lineage linked has different URL with listing engine (Listing Engine)
+* Fixed bug #2416: Group by asset type generates notice errors (Listing Engine)
+
+Bulkmail
+
+* Fixed bug #2430: Problematic Recipient Error (even with correct read access) (Bulk Mailer Library)
+
+
+
 VERSION 3.12.4
 
 Complete Changelog
