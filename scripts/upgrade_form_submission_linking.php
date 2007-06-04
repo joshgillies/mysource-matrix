@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_form_submission_linking.php,v 1.5 2007/06/03 22:58:43 colivar Exp $
+* $Id: upgrade_form_submission_linking.php,v 1.6 2007/06/04 00:11:56 colivar Exp $
 *
 */
 
 /**
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -55,23 +55,12 @@ $am =& $GLOBALS['SQ_SYSTEM']->am;
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 $ecommerce_formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form_ecommerce', FALSE);
-// There is a problem with ecommerce forms not having submissions folder
-// so let's create a submission folder for any ecommerce form with no submissions folder
-foreach ($ecommerce_formids as $ecom_formid) {
-	$form =& $am->getAsset($ecom_formid);
-
-	$submissions_folder =& $form->getSubmissionsFolder();
-	if (empty($submissions_folder)) {
-		pre_echo('Create Submissions folder for Form '.$form->name.' ('.$form->id.'). An upgrade may be required for ecommerce form assets');
-		if (!$form->_createSubmissionsFolder()) {
-			trigger_error('Could not create the Submissions folder for form #'.$formid, E_USER_ERROR);
-		}
-	}
-}
 
 $formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form', FALSE);
 foreach ($formids as $formid) {
 	$form =& $am->getAsset($formid);
+
+	if (in_array($formid, $ecommerce_formids)) continue;
 
 	pre_echo('Moving submissions for '.$form->name.' ('.$form->id.') to submissions folder');
 	$submissions_folder =& $form->getSubmissionsFolder();
