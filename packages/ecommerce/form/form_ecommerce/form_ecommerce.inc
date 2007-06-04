@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.33 2007/06/04 00:11:57 colivar Exp $
+* $Id: form_ecommerce.inc,v 1.34 2007/06/04 00:30:55 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -951,6 +951,16 @@ class Form_Ecommerce extends Form_Email
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
+
+			// Deny public read access to the order folder by default
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($folder->id, 'permissions')) {
+				return FALSE;
+			}
+			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($folder->id, $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'), SQ_PERMISSION_READ, 0, TRUE)) {
+				return FALSE;
+			}
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($folder->id, 'permissions');
+
 		} else {
 			// folder already exists, get the reference
 			$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
