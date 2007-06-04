@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2006/12/05 22:56:41 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9.4.1 2007/06/04 04:39:55 rong Exp $
 *
 */
 -->
@@ -37,7 +37,10 @@
 	</section>
 	<section name="Static Caching" write_access="write:attributes">
 		<field attribute="cache_css">
-			<boolean true_text="yes" false_text="no"/>
+			<boolean true_text="on" false_text="off"/>
+		</field>
+		<field attribute="strip_whitespace">
+			<boolean true_text="on" false_text="off"/>
 		</field>
 	</section>
 	<section name="Associated Files" write_access="write:parsing" read_access="write:">
