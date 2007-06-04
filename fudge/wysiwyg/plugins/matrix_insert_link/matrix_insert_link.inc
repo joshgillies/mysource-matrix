@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.43 2007/03/20 00:37:41 rong Exp $
+* $Id: matrix_insert_link.inc,v 1.44 2007/06/04 07:21:20 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -40,7 +40,7 @@ class matrix_insert_link extends wysiwyg_plugin
 	* Adds the insert and remove link buttons to this plugin
 	*
 	* @returns object Insert_Link
-	* @access  public
+	* @access public
 	*/
 	function matrix_insert_link(&$wysiwyg)
 	{
@@ -56,8 +56,8 @@ class matrix_insert_link extends wysiwyg_plugin
 	* A URL must be entered for the image you want to insert. Alt text must
 	* also be entered before the image will be inserted.
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
 	function paint_generic()
 	{
@@ -77,6 +77,22 @@ class matrix_insert_link extends wysiwyg_plugin
 				if (!current_a) return false;
 				var inside_html = current_a.innerHTML;
 				var selection =  editor.getSelectedHTML();
+
+				// Remove surrounding anchor tag from selected HTML for comparison
+				if (HTMLArea.is_ie) {
+					// Remove anchor start and end
+					var e = '^<a[^>]*>';
+					var re = new RegExp(e, "i");
+					selection = selection.replace(re, "");
+					e = '</a>$';
+					re = new RegExp(e, "i");
+					selection = selection.replace(re, "");
+					// Remove newlines from anchor HTML so we can perform a meaningful comparison
+					e = '\r\n';
+					re = new RegExp(e, "i");
+					selection = selection.replace(re, "");
+				}
+
 				if (selection != '' && selection != inside_html) {
 					// Partial selection within the link tag
 					// will not work if selection partially includes other tags
@@ -376,8 +392,8 @@ class matrix_insert_link extends wysiwyg_plugin
 	/**
 	* Prints shortcuts for the buttons
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
 	function print_plugin_shortcuts()
 	{
@@ -394,8 +410,8 @@ class matrix_insert_link extends wysiwyg_plugin
 	/**
 	* Call the insert image function when the button is clicked
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
 	function print_plugin_button_click()
 	{
@@ -414,8 +430,8 @@ class matrix_insert_link extends wysiwyg_plugin
 	/**
 	* Disable the toolbar when the popup is open
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
 	function print_plugin_update_toolbar()
 	{
