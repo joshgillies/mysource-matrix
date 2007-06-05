@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.20 2007/04/12 07:11:14 tbarrett Exp $
+* $Id: table-editor.js,v 1.21 2007/06/05 23:51:37 rong Exp $
 *
 */
 
@@ -434,8 +434,8 @@ TTable = function(name, rows, cols)
 	this.toString = function()
 	{
 		var out = '<table id="js_' + this.id + '"';
-		if (this.cellPadding != "") out += '" cellpadding="' + this.cellPadding + '"';
-		if (this.cellSpacing != "") out += '" cellspacing="' + this.cellSpacing + '"';
+		if (this.cellSpacing != "" || this.cellSpacing == 0) out += '" cellspacing="' + this.cellSpacing + '"';
+		if (this.cellPadding != "" || this.cellPadding == 0) out += '" cellpadding="' + this.cellPadding + '"';
 		if (this.className != null) out += ' class="' + this.className + '"';
 		if (this.htmlwidth != "") out += ' width=' + this.htmlwidth;
 		if (this.htmlborder != null) out += ' border=' + this.htmlborder;
@@ -460,8 +460,8 @@ TTable = function(name, rows, cols)
 	this.Export = function()
 	{
 		var out = '<table id="' + this.id +'"';
-		if (this.cellPadding != "") out += '" cellpadding="' + this.cellPadding + '"';
-		if (this.cellSpacing != "") out += '" cellspacing="' + this.cellSpacing + '"';
+		if (this.cellSpacing != "" || this.cellSpacing == 0) out += '" cellspacing="' + this.cellSpacing + '"';
+		if (this.cellPadding != "" || this.cellPadding == 0) out += '" cellpadding="' + this.cellPadding + '"';
 		if (this.className != null) out += ' class="' + this.className + '"';
 		if (this.htmlwidth != "") out += ' width=' + this.htmlwidth;
 		if (this.htmlborder != null) out += ' border=' + this.htmlborder;
