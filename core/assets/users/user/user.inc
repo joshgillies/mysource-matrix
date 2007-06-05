@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.114 2007/04/02 00:08:08 tbarrett Exp $
+* $Id: user.inc,v 1.115 2007/06/05 00:41:37 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.114 $
+* @version $Revision: 1.115 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -589,6 +589,22 @@ class User extends Asset
 		return TRUE;
 
 	}//end canLogin()
+
+
+	/**
+	* Check if this user can access the backend interface
+	*
+	* This will be disabled by default for a standard user, and enabled for
+	* users who are allowed backend access (eg. backend user).
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canAccessBackend()
+	{
+		return FALSE;
+
+	}//end canAccessBackend()
 
 
 	/**

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: accept_file_upload.php,v 1.9 2006/12/05 05:05:25 bcaldwell Exp $
+* $Id: accept_file_upload.php,v 1.10 2007/06/05 00:41:38 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Script to accept HTTP uploads and save them to the temp dir
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -28,7 +28,7 @@ if ((!is_array($_FILES)) || empty($_FILES)) exit();
 require_once dirname(dirname(dirname(__FILE__))).'/include/init.inc';
 
 // kick out the wrong types of people
-if (empty($GLOBALS['SQ_SYSTEM']->user) || !is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) {
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend()) {
 	trigger_localised_error('SYS0028', E_USER_ERROR);
 	exit();
 }

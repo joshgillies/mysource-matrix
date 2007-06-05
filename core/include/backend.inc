@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.177 2007/03/26 01:46:23 lwright Exp $
+* $Id: backend.inc,v 1.178 2007/06/05 00:41:38 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.177 $
+* @version $Revision: 1.178 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -114,8 +114,8 @@ class Backend extends MySource_Object
 			}
 		} else {
 			// we are not looking at any asset in particular - probably just trying to get into the
-			// backend to do some editing - so gota be a backend user
-			if (!is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) {
+			// backend to do some editing - so need a user with backend access
+			if (!$GLOBALS['SQ_SYSTEM']->user->canAccessBackend()) {
 				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', translate('must_be_backend_user'));
 				return;
 			}

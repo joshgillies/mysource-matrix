@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.221 2007/04/26 04:53:47 skim Exp $
+* $Id: mysource.inc,v 1.222 2007/06/05 00:41:38 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.221 $
+* @version $Revision: 1.222 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1639,8 +1639,9 @@ class MySource
 	/**
 	* Does the passed/current user have effective system administrator access?
 	*
-	* To have system administrator access you must be a backend_user or above, and
-	* be a member of the system administrators group
+	* To have system administrator access you must be a user with backend access
+	* (in default authentication, this translates to a Backend User or above),
+	* and be a member of the system administrators group
 	*
 	* @param object	$user	the user object you want to test for sysadmin access
 	*
@@ -1651,7 +1652,7 @@ class MySource
 	{
 		if (is_null($user)) return $this->_user_is_sys_admin;
 		if (!$user->id) return FALSE;
-		if (!is_a($user, 'backend_user')) return FALSE;
+		if (!$user->canAccessBackend()) return FALSE;
 
 		// now make sure that the user is in the system administrators group
 		$sys_admin_group =& $this->am->getSystemAsset('system_user_group');

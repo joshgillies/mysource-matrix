@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.592 2007/04/11 04:07:40 arailean Exp $
+* $Id: asset.inc,v 1.593 2007/06/05 00:41:38 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.592 $
+* @version $Revision: 1.593 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3632,7 +3632,7 @@ class Asset extends MySource_Object
 	*/
 	function backendAccess()
 	{
-		return is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user');
+		return $GLOBALS['SQ_SYSTEM']->user->canAccessBackend();
 
 	}//end backendAccess()
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_user.inc,v 1.11 2006/12/05 06:04:31 bcaldwell Exp $
+* $Id: backend_user.inc,v 1.12 2007/06/05 00:41:37 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,6 +44,22 @@ class Backend_User extends User
 		$this->User($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Check if this user can access the backend interface
+	*
+	* This will be disabled by default for a standard user, and enabled for
+	* users who are allowed backend access (eg. backend user).
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canAccessBackend()
+	{
+		return TRUE;
+
+	}//end canAccessBackend()
 
 
 }//end class
