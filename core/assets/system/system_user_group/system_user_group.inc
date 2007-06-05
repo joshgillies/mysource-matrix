@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_user_group.inc,v 1.32 2006/12/06 00:15:34 bcaldwell Exp $
+* $Id: system_user_group.inc,v 1.33 2007/06/05 01:14:15 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -185,24 +185,16 @@ class System_User_Group extends User_Group
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(
-									'system_user'	=> Array(
-														'card'		=> 'M',
-														'exclusive'	=> FALSE,
-													   ),
-									'backend_user'	=> Array(
-														'card'		=> 'M',
-														'exclusive'	=> FALSE,
-													   ),
+									'user'	=> Array(
+												'card'		=> 'M',
+												'exclusive'	=> FALSE,
+											   ),
 								   ),
 				SQ_LINK_TYPE_2	=> Array(
-									'system_user'	=> Array(
-														'card'		=> 'M',
-														'exclusive'	=> FALSE,
-													   ),
-									'backend_user'	=> Array(
-														'card'		=> 'M',
-														'exclusive'	=> FALSE,
-													   ),
+									'user'	=> Array(
+												'card'		=> 'M',
+												'exclusive'	=> FALSE,
+											   ),
 								   ),
 				SQ_LINK_TYPE_3	=> Array(),
 				SQ_LINK_NOTICE	=> Array(),
