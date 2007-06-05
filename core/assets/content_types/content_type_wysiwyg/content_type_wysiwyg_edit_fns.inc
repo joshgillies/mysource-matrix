@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.38 2006/12/05 05:48:39 emcdonald Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.39 2007/06/05 23:49:40 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -296,16 +296,17 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		} else {
 
 			$status = $asset->attr('htmltidy_status');
+			$status_msg = translate('wysiwyg_htmltidy_status_wait');
 			$image_filename = 'htmltidy_'.$status;
 			switch ($status) {
-				case 'wait':
-					$status_msg = translate('wysiwyg_htmltidy_status_wait');
-				break;
 				case 'pass':
 					$status_msg = translate('wysiwyg_htmltidy_status_pass');
 				break;
 				case 'fail':
 					$status_msg = translate('wysiwyg_htmltidy_status_fail');
+				break;
+				case 'wait':
+					$status_msg = translate('wysiwyg_htmltidy_status_wait');
 				break;
 			}//end switch
 			Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', $status_msg, $image_filename, '[HTMLTidy Status]');
