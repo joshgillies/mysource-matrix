@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.95.2.2 2007/05/31 01:43:10 hnguyen Exp $
+* $Id: site.inc,v 1.95.2.3 2007/06/05 04:56:14 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.95.2.2 $
+* @version $Revision: 1.95.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -671,6 +671,7 @@ class Site extends Folder
 				return;
 			}
 
+			$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('limbo_assetid', $index_page->id, TRUE);
 			$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('assetid', $index_page->id);
 			$GLOBALS['SQ_SYSTEM']->backend->out->addHiddenField('backend_assetid', $index_page->id);
 			$index_page->initLimbo();
