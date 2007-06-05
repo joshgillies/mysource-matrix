@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_submission_management.inc,v 1.1 2007/05/31 06:47:48 mbrydon Exp $
+* $Id: online_quiz_submission_management.inc,v 1.2 2007/06/05 07:04:13 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -68,6 +68,18 @@ class Online_Quiz_Submission_Management extends Asset_Management
 														'type'			=> 'serialise',
 														'default'		=> Array(),
 														'description'	=> 'array with keys "answers" and "summary"',
+													   ),
+						'attributes'				=> Array(
+														'added'         => '0.0.1',
+														'type'          => 'serialise',
+														'default'       => Array(),
+														'description'   => 'array with keys "answers" and "summary"',
+													   ),
+						'complete'					=> Array(
+														'added'         => '0.0.1',
+														'type'          => 'boolean',
+														'default'       => FALSE,
+														'description'   => 'A historical artifact; always true',
 													   ),
 					  );
 
