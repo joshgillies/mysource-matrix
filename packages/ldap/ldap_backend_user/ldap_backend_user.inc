@@ -10,12 +10,12 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_backend_user.inc,v 1.3 2007/01/08 04:00:22 emcdonald Exp $
+* $Id: ldap_backend_user.inc,v 1.4 2007/06/05 02:07:57 lwright Exp $
 *
 */
 
 check_ssv_licence();
-require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
+require_once SQ_PACKAGES_PATH.'/ldap/ldap_user/ldap_user.inc';
 
 /**
 * Ldap_Backend_User
@@ -24,11 +24,11 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
-class Ldap_Backend_User extends Backend_User
+class Ldap_Backend_User extends Ldap_User
 {
 
 	/**
@@ -48,33 +48,9 @@ class Ldap_Backend_User extends Backend_User
 	*/
 	function Ldap_Backend_User($ldapid=0, $data=Array())
 	{
-		$this->_ser_attrs = TRUE;
-		$this->_loadVars();
-
-		if (!$ldapid || empty($data)) {
-			return;
-		}
-
-		$ldap_bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($ldapid, 'ldap_bridge');
-		if (is_null($ldap_bridge)) return;
-
-		$ldap_bridge->initUser($this, $data);
+		$this->Ldap_User($ldapid, $data);
 
 	}//end constructor
-
-
-	/**
-	* Returns an array of all the permitted link type, the type asset and the cardinality
-	*
-	* @return array
-	* @access private
-	* @see Asset::_getAllowLinks()
-	*/
-	function _getAllowedLinks()
-	{
-		return Array();
-
-	}//end _getAllowedLinks()
 
 
 	/**
@@ -94,53 +70,19 @@ class Ldap_Backend_User extends Backend_User
 
 
 	/**
-	* Check if this user can log in
+	* Check if this user can access the backend interface
 	*
-	* Note that this is not for backend logins only, it applys to all logins
+	* This will be disabled by default for a standard user, and enabled for
+	* users who are allowed backend access (eg. backend user).
 	*
 	* @return boolean
 	* @access public
 	*/
-	function canLogin()
+	function canAccessBackend()
 	{
 		return TRUE;
 
-	}//end canLogin()
-
-
-	/**
-	* Called by the design to print the body of this asset
-	*
-	* @return void
-	* @access public
-	*/
-	function printBody()
-	{
-		$info = $this->vars;
-		if (empty($info)) return;
-
-		if (!$this->_ldapid) return Array();
-		$ldap_bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_ldapid, 'ldap_bridge');
-		if (is_null($ldap_bridge)) return Array();
-
-		$null = NULL;
-		$ldap_bridge->paintUserDetails($info, $null);
-
-	}//end printBody()
-
-
-	/**
-	* Returns NULL as LDAP users do not have a workspace
-	*
-	* @return object
-	* @access public
-	*/
-	function &getWorkspace()
-	{
-		$null = NULL;
-		return $null;
-
-	}//end getWorkspace()
+	}//end canAccessBackend()
 
 
 }//end class
