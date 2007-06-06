@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.42 2006/12/06 05:14:24 bcaldwell Exp $
+* $Id: file_system.inc,v 1.43 2007/06/06 01:11:39 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package Fudge
 * @subpackage General
 */
@@ -64,9 +64,9 @@ function is_image($filename)
 		case 'jpeg' :
 		case 'gif'  :
 		case 'png'  :
-			return true;
+			return TRUE;
 		default :
-			return false;
+			return FALSE;
 	} //end switch
 
 }//end is_image()
@@ -82,7 +82,7 @@ function is_image($filename)
 */
 function file_to_string($filename)
 {
-	if (!is_readable($filename)) return false;
+	if (!is_readable($filename)) return FALSE;
 	return file_get_contents($filename);
 
 }//end file_to_string()
@@ -100,25 +100,25 @@ function file_to_string($filename)
 function string_to_file($string, $filename)
 {
 	if (!is_string($filename) || empty($filename)) {
-		return false;
+		return FALSE;
 	}
 
-	//this function writes into the files only in the existing directories
-	//if directory doe snot exist then it returns false
+	// this function writes into the files only in the existing directories
+	// if directory doe snot exist then it returns false
 
-	if (!is_dir(dirname($filename))) return false;
+	if (!is_dir(dirname($filename))) return FALSE;
 
 	$tmp_filename = tempnam(dirname($filename), __FUNCTION__);
 	if (!$f = fopen($tmp_filename, 'wb')) {
 		trigger_error('Unable to open temporary file ('.$tmp_filename.') for writing, unable to write '.$filename, E_USER_WARNING);
-		return false;
+		return FALSE;
 	}
 	$s = fputs($f, $string);
 	fclose($f);
-	if ($s === false) {
+	if ($s === FALSE) {
 		trigger_error('Unable to write '.$filename, E_USER_WARNING);
 		unlink($tmp_filename);
-		return false;
+		return FALSE;
 	}
 
 	$om = umask(0000);
@@ -135,10 +135,10 @@ function string_to_file($string, $filename)
 	}
 
 	if (rename($tmp_filename, $filename)) {
-		return true;
+		return TRUE;
 	} else {
 		unlink($tmp_filename);
-		return false;
+		return FALSE;
 	}
 
 }//end string_to_file()
@@ -157,8 +157,8 @@ function string_to_file($string, $filename)
 */
 function array_to_file($value, $var_name, $filename)
 {
-	if (!is_array($value)) return false;
-	$string = '<?php $'.$var_name.' = '.var_export($value, true).'; ?>';
+	if (!is_array($value)) return FALSE;
+	$string = '<?php $'.$var_name.' = '.var_export($value, TRUE).'; ?>';
 	return string_to_file($string, $filename);
 
 }//end array_to_file()
@@ -200,7 +200,7 @@ function easy_filesize($size)
 function increment_filename($name,$spacer='')
 {
 	require_once dirname(__FILE__).'/../general/general.inc';
-	if (strpos($name,'.') !== false) {
+	if (strpos($name,'.') !== FALSE) {
 		$ext = get_file_type($name);
 		return increment_name(substr($name,0,-strlen($ext)-1),$spacer).'.'.$ext;
 	} else {
@@ -221,11 +221,11 @@ function increment_filename($name,$spacer='')
 * @return array
 * @access public
 */
-function list_files($dir, $fullpath=false)
+function list_files($dir, $fullpath=FALSE)
 {
-	if (!$dir) return false;
+	if (!$dir) return FALSE;
 	if (is_dir($dir)) {
-		$restrict = false;
+		$restrict = FALSE;
 	} else {
 		$restrict = basename(str_replace('*','',$dir)); // if we pass in *.inc, check for .inc
 		$dir = dirname($dir);
@@ -235,7 +235,7 @@ function list_files($dir, $fullpath=false)
 
 	$files = Array();
 	if ($handle = opendir($dir)) {
-		while (($file = readdir($handle)) !== false) {
+		while (($file = readdir($handle)) !== FALSE) {
 			if ($file == '.' || $file == '..') {
 				continue;
 			}
@@ -261,23 +261,30 @@ function list_files($dir, $fullpath=false)
 * @param string		$dir			the directory you want to list sub directories for
 * @param boolean	$fullpath		whether to return the full path to the direcotry or just the names themselves
 * @param array		$ignore_list	list of directories which will be ignored
+* @param boolean	$recursive		if true the function will recursively find every subfolders and $fullpath will return
 *
 * @return array
 * @access public
 */
-function list_dirs($dir, $fullpath=false, $ignore_list=Array())
+function list_dirs($dir, $fullpath=FALSE, $ignore_list=Array(), $recursive=FALSE)
 {
 	if (!is_dir($dir)) return Array();
+
+	// if recursive we will be using fullpath
+	if ($recursive) $fullpath = TRUE;
 
 	array_push($ignore_list, '.', '..');
 
 	$dirs = Array();
 	if ($handle = opendir($dir)) {
-		while (($subdir = readdir($handle)) !== false) {
+		while (($subdir = readdir($handle)) !== FALSE) {
 			if (!is_dir($dir.'/'.$subdir) || in_array($subdir, $ignore_list)) {
 				continue;
 			}
 			$dirs[] = ($fullpath) ? $dir.'/'.$subdir : $subdir;
+			if ($recursive) {
+				$dirs = array_merge($dirs, list_dirs($dir.'/'.$subdir, $fullpath, $ignore_list, TRUE));
+			}
 		}
 		closedir($handle);
 	}
@@ -299,7 +306,7 @@ function list_dirs($dir, $fullpath=false, $ignore_list=Array())
 function create_directory($path)
 {
 	if ((!is_string($path) &&(!is_int($path))) || empty($path)) {
-		return false;
+		return FALSE;
 	}
 	$branches = explode('/', $path);
 	$trunk = '';
@@ -310,12 +317,12 @@ function create_directory($path)
 		if (!mkdir(substr($trunk,0,-1), 0775)) {
 			trigger_error('Unable to create directory: '.$trunk, E_USER_WARNING);
 			clearstatcache();
-			return false;
+			return FALSE;
 		}
 	}
 	umask($old_umask);
 	clearstatcache();
-	return true;
+	return TRUE;
 
 }//end create_directory()
 
@@ -334,20 +341,20 @@ function delete_directory($path)
 	if (!is_dir($path)) {
 		trigger_error($path.' is not a directory (for deletion).', E_USER_WARNING);
 		clearstatcache();
-		return false;
+		return FALSE;
 	}
 	if (clear_directory($path)) {
 		if (rmdir($path)) {
 			clearstatcache();
-			return true;
+			return TRUE;
 		} else {
 			trigger_error('Unable to delete dir: '.$path, E_USER_WARNING);
 			clearstatcache();
-			return false;
+			return FALSE;
 		}
 	}
 	clearstatcache();
-	return false;
+	return FALSE;
 
 }//end delete_directory()
 
@@ -366,10 +373,10 @@ function clear_directory($path)
 	if (!is_dir($path)) {
 		trigger_error($path.' is not a directory (for clearing).');
 		clearstatcache();
-		return false;
+		return FALSE;
 	}
 	$dir = opendir($path);
-	while (false !== ($filename = readdir($dir))) {
+	while (FALSE !== ($filename = readdir($dir))) {
 		if ($filename == '.' || $filename == '..') {
 			continue;
 		}
@@ -380,13 +387,13 @@ function clear_directory($path)
 			if (!unlink($filename)) {
 				trigger_error('Unable to delete: '.$filename, E_USER_WARNING);
 				clearstatcache();
-				return false;
+				return FALSE;
 			}
 		}
 	}
 	closedir($dir);
 	clearstatcache();
-	return true;
+	return TRUE;
 
 }//end clear_directory()
 
@@ -407,23 +414,23 @@ function copy_directory($path, $new_path)
 	if (!is_dir($path)) {
 		trigger_error($path.' is not a directory (for copying.)');
 		clearstatcache();
-		return false;
+		return FALSE;
 	}
 	if (file_exists($new_path)) {
 		if (!is_dir($new_path)) {
 			trigger_error($new_path.' exists but is not a directory (for copying into).');
 			clearstatcache();
-			return false;
+			return FALSE;
 		}
 	} else {
 		if (!create_directory($new_path)) {
 			clearstatcache();
-			return false;
+			return FALSE;
 		}
 	}
 	// Copy the contents
 	$dir = opendir($path);
-	while (false !== ($filename = readdir($dir))) {
+	while (FALSE !== ($filename = readdir($dir))) {
 		if ($filename == '.' || $filename == '..') {
 			continue;
 		}
@@ -431,19 +438,19 @@ function copy_directory($path, $new_path)
 		if (is_dir($full_filename)) {
 			if (!copy_directory($full_filename, $new_path.'/'.$filename)) {
 				clearstatcache();
-				return false;
+				return FALSE;
 			}
 		} else {
 			if (!copy($full_filename, $new_path.'/'.$filename)) {
 				trigger_error('Unable to copy: '.$full_filename.' --> '.$new_path.'/'.$filename);
 				clearstatcache();
-				return false;
+				return FALSE;
 			}
 		}
 	}
 	closedir($dir);
 	clearstatcache();
-	return true;
+	return TRUE;
 
 }//end copy_directory()
 
@@ -459,10 +466,10 @@ function copy_directory($path, $new_path)
 */
 function copy_file($from, $to)
 {
-	if (!create_directory(dirname($to))) return false;
+	if (!create_directory(dirname($to))) return FALSE;
 
-	if (!copy($from, $to)) return false;
-	return true;
+	if (!copy($from, $to)) return FALSE;
+	return TRUE;
 
 }//end copy_file()
 
@@ -478,9 +485,9 @@ function copy_file($from, $to)
 */
 function move_file($from, $to)
 {
-	if (!copy_file($from, $to)) return false;
-	if (!unlink($from)) return false;
-	return true;
+	if (!copy_file($from, $to)) return FALSE;
+	if (!unlink($from)) return FALSE;
+	return TRUE;
 
 }//end move_file()
 
@@ -506,28 +513,28 @@ function get_last_lines_from_file($filepath, $max_lines=10, $line_ending="\n")
 	}
 
 	$result = Array();
-	$max_lines = is_int($max_lines)?$max_lines:10;
+	$max_lines = is_int($max_lines) ? $max_lines : 10;
 
 	if (!file_exists($filepath) || !is_readable($filepath)) {
-		return false;
+		return FALSE;
 	}
 
-	if (!$handle = fopen($filepath, 'r')) return false;
+	if (!$handle = fopen($filepath, 'r')) return FALSE;
 
 	// move pointer before the last character
 	fseek($handle, -1, SEEK_END);
 	$pos = ftell($handle);
-	if ($pos === false) return false;
+	if ($pos === FASE) return FALSE;
 
 	$chars = 0;
-	$current_word = null;
+	$current_word = NULL;
 	$lines = Array();
 	$line_count = 0;
-	$ok = true;
+	$ok = TRUE;
 
 	do {
 		$char = fgetc($handle);
-		if (0 != fseek($handle, -2, SEEK_CUR)) $ok = false;
+		if (0 != fseek($handle, -2, SEEK_CUR)) $ok = FALSE;
 
 		if ($char == $line_ending) {
 			if (is_null($current_word)) {
@@ -535,11 +542,11 @@ function get_last_lines_from_file($filepath, $max_lines=10, $line_ending="\n")
 			} else {
 				array_unshift($lines, $current_word);
 				$line_count++;
-				$current_word = null;
+				$current_word = NULL;
 			}
 
-		} else if ($char === false) {
-			$ok = false;
+		} else if ($char === FALSE) {
+			$ok = FALSE;
 			continue;
 
 		} else {
