@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.223 2007/06/06 01:32:19 hnguyen Exp $
+* $Id: mysource.inc,v 1.224 2007/06/06 01:35:27 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.223 $
+* @version $Revision: 1.224 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1029,6 +1029,10 @@ class MySource
 				// if this person is already logged in, don't bother trying again because
 				// we will only be giving them an incorrect login key error
 				if (!is_null($this->user) && $login_username == $this->user->attr('username')) {
+                    if (SQ_IN_LOGIN) {
+                        $current_url = current_url(TRUE,TRUE);
+                        do_redirect($current_url);
+                    }
 					return;
 				}
 
