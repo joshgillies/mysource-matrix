@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.js,v 1.19 2007/01/18 00:44:56 tbarrett Exp $
+* $Id: general.js,v 1.20 2007/06/06 05:35:21 rong Exp $
 *
 */
 
@@ -278,9 +278,9 @@ function sq_print_icon(path, width, height, alt) {
 function fixIcons(blankSrc)
 {
 	var ieVersion = 0;
-	regex = new RegExp("MSIE ([0-9.]*)");
-	if (m = (regex.exec(navigator.userAgent))) {
-		ieVersion = parseFloat(m[1]);
+	if (navigator.appVersion.indexOf("MSIE")!=-1){
+		temp = navigator.appVersion.split("MSIE");
+		ieVersion = parseFloat(temp[1]);
 	}
 	if ((ieVersion >= 5.5) && (ieVersion < 7)) {
 		var images = document.getElementsByTagName('IMG');
