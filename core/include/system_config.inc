@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.96 2007/04/26 04:53:47 skim Exp $
+* $Id: system_config.inc,v 1.97 2007/06/06 01:32:19 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -43,6 +43,7 @@ class System_Config extends Config
 						'SQ_CONF_PEAR_PATH'						=> Array('editable' => 0, 'default' => ''),
 						'SQ_CONF_BACKEND_SUFFIX'				=> Array('editable' => 1, 'default' => '_admin'),
 						'SQ_CONF_LIMBO_SUFFIX'					=> Array('editable' => 1, 'default' => '_edit'),
+						'SQ_CONF_LOGIN_SUFFIX'					=> Array('editable' => 1, 'default' => '_login'),
 						'SQ_CONF_NOCACHE_SUFFIX'				=> Array('editable' => 1, 'default' => '_nocache'),
 						'SQ_CONF_ASSET_TREE_BASE'				=> Array('editable' => 0, 'default' => 64),
 						'SQ_CONF_ASSET_TREE_SIZE'				=> Array('editable' => 0, 'default' =>  4),
@@ -157,6 +158,7 @@ class System_Config extends Config
 					unset($vars['SQ_CONF_ERRORS_HIDE_FRONTEND']);
 					unset($vars['SQ_CONF_BACKEND_SUFFIX']);
 					unset($vars['SQ_CONF_LIMBO_SUFFIX']);
+					unset($vars['SQ_CONF_LOGIN_SUFFIX']);
 					unset($vars['SQ_CONF_ROLLBACK_ENABLED']);
 					unset($vars['SQ_CONF_WEB_MEMORY_LIMIT']);
 					unset($vars['SQ_CONF_CRON_MEMORY_LIMIT']);
@@ -368,6 +370,13 @@ class System_Config extends Config
 				text_box($class.'[SQ_CONF_LIMBO_SUFFIX]', SQ_CONF_LIMBO_SUFFIX, 15);
 			} else {
 				echo nl2br(SQ_CONF_LIMBO_SUFFIX);
+			}
+
+			$o->openField(translate('system_login_suffix'));
+			if ($write_access) {
+				text_box($class.'[SQ_CONF_LOGIN_SUFFIX]', SQ_CONF_LOGIN_SUFFIX, 15);
+			} else {
+				echo nl2br(SQ_CONF_LOGIN_SUFFIX);
 			}
 
 			$o->openField(translate('system_nocache_suffix'));

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.222 2007/06/05 00:41:38 lwright Exp $
+* $Id: mysource.inc,v 1.223 2007/06/06 01:32:19 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.222 $
+* @version $Revision: 1.223 $
 * @package MySource_Matrix
 */
 class MySource
@@ -354,6 +354,9 @@ class MySource
 			} else {
 				$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
 			}
+
+		} else if (SQ_IN_LOGIN){
+			$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
 
 		} else {
 			// we are on the frontend
@@ -723,7 +726,6 @@ class MySource
 			<?php
 			return;
 		}
-
 		if ((current_protocol() == 'http') && (SQ_CONF_FORCE_SECURE_LOGIN_URLS != '')) {
 			// check if we require secure login for this root URL
 			$current_url = current_url(FALSE, TRUE);
@@ -743,7 +745,6 @@ class MySource
 				do_redirect('https://'.current_url(FALSE)); // exits
 			}
 		}//end if http
-
 		$GLOBALS['SQ_LOGIN_FORM'] = Array('paint' => 'login', 'heading' => $heading, 'msg' => $msg);
 
 		if (empty($_GET['FORCE_BACKUP_LOGIN'])) {
@@ -1330,6 +1331,11 @@ class MySource
 			do_redirect('http://'.current_url(FALSE)); // exits
 		}
 
+		if (SQ_IN_LOGIN) {
+			$current_url = current_url(TRUE, TRUE);
+			do_redirect($current_url);
+		}
+
 		return TRUE;
 
 	}//end loginUser()
@@ -1444,6 +1450,8 @@ class MySource
 	*/
 	function generateLoginKey($force_new_key=FALSE)
 	{
+
+		if (isset($_SESSION['SQ_LOGIN_KEY']))
 		require_once SQ_FUDGE_PATH.'/general/general.inc';
 
 		if ($force_new_key || empty($_SESSION['SQ_LOGIN_KEY'])) {
@@ -2652,6 +2660,7 @@ class MySource
 		$current_url = current_url(FALSE, FALSE);
 		$current_protocol = current_protocol();
 		$root_url = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
+
 
 		$sql = 'SELECT
 					auth_urlid

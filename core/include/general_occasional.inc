@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.75 2007/03/28 05:21:42 arailean Exp $
+* $Id: general_occasional.inc,v 1.76 2007/06/06 01:32:19 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix
 */
 
@@ -321,7 +321,7 @@ function make_valid_web_paths($paths)
 		$path = trim($path);
 
 		// get rid of paths that are the same as the backend suffix
-		if ($path == SQ_CONF_BACKEND_SUFFIX || $path == SQ_CONF_LIMBO_SUFFIX || $path == SQ_CONF_NOCACHE_SUFFIX) {
+		if ($path == SQ_CONF_BACKEND_SUFFIX || $path == SQ_CONF_LIMBO_SUFFIX || $path == SQ_CONF_LOGIN_SUFFIX || $path == SQ_CONF_NOCACHE_SUFFIX) {
 			trigger_localised_error('SYS0114', E_USER_WARNING, $path);
 			continue;
 		}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.98 2007/01/08 03:04:50 lwright Exp $
+* $Id: init.inc,v 1.99 2007/06/06 01:32:19 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix
 */
 
@@ -93,6 +93,9 @@ define('SQ_IN_BACKEND', $in_backend);
 $in_limbo = (trim(SQ_CONF_LIMBO_SUFFIX) != '') && (basename($_SERVER['PHP_SELF']) == SQ_CONF_LIMBO_SUFFIX);
 define('SQ_IN_LIMBO', $in_limbo);
 
+// nice little boolean to use for testing whether we happen to be in login interface or not
+$in_login = (trim(SQ_CONF_LOGIN_SUFFIX) != '') && (basename($_SERVER['PHP_SELF']) == SQ_CONF_LOGIN_SUFFIX);
+define('SQ_IN_LOGIN', $in_login);
 
 // make sure there is a trailing slash if we are in the backend
 if (SQ_IN_BACKEND && substr($_SERVER['PHP_SELF'], -1) != '/') {

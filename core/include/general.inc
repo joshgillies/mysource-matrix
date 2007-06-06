@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.172 2007/02/26 05:02:58 skim Exp $
+* $Id: general.inc,v 1.173 2007/06/06 01:32:19 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.172 $
+* @version $Revision: 1.173 $
 * @package MySource_Matrix
 */
 
@@ -40,6 +40,11 @@
 * @return void
 * @access public
 */
+
+
+
+
+
 function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -411,6 +416,11 @@ function sq_web_path($path='base')
 			$paths[$path] = (SQ_IN_LIMBO) ? '.'  : ((preg_match('/index.php$/', current_url())) ? './index.php' : '.').'/'.SQ_CONF_LIMBO_SUFFIX;
 		break;
 
+		case 'login' :
+			// preg bit is a check for the people who are using symlinked versions
+			$paths[$path] = (SQ_IN_LOGIN) ? '.'  : ((preg_match('/index.php$/', current_url())) ? './index.php' : '.').'/'.SQ_CONF_LOGIN_SUFFIX;
+		break;
+
 		case 'root_url'  :
 			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 			$current_url = strip_url(current_url(FALSE, TRUE));
@@ -584,9 +594,10 @@ function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE)
 		$url = (($inc_protocol) ? current_protocol().'://' : '').$host.$_SERVER['PHP_SELF'];
 
 		// if we are in the backend remove the suffix
-		if ($strip_backend_suffix && (SQ_IN_BACKEND || SQ_IN_LIMBO)) {
+		if ($strip_backend_suffix && (SQ_IN_BACKEND || SQ_IN_LIMBO || SQ_IN_LOGIN)) {
 			$url = preg_replace('/'.SQ_CONF_BACKEND_SUFFIX.'\/?$/', '', $url);
 			$url = preg_replace('/'.SQ_CONF_LIMBO_SUFFIX.'\/?$/', '', $url);
+			$url = preg_replace('/'.SQ_CONF_LOGIN_SUFFIX.'\/?$/', '', $url);
 		}
 		$url = preg_replace('/'.SQ_CONF_NOCACHE_SUFFIX.'\/?$/', '', $url);
 	}
@@ -619,6 +630,7 @@ function clean_url($url)
 				'__data',
 				'__lib',
 				'__fudge',
+				SQ_CONF_LOGIN_SUFFIX,
 				SQ_CONF_LIMBO_SUFFIX,
 				SQ_CONF_BACKEND_SUFFIX,
 				SQ_CONF_NOCACHE_SUFFIX,
