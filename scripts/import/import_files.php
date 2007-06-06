@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_files.php,v 1.9 2007/06/06 01:11:38 colivar Exp $
+* $Id: import_files.php,v 1.10 2007/06/06 06:55:54 colivar Exp $
 *
 */
 
@@ -20,9 +20,15 @@
 * uploading files to, e.g. import/20, import/24 (where 20 and 24 are the
 * asset IDs of the target parents. Each file found in those directory's will
 * be linked appropriately.
-* 
+*
 * if a third argument is provided the whole folder and its children (files and sub folders)
 * will be imported into the matrix system.
+*
+*************************************************************************************************************************
+* = IMPORTANT: by DEFAULT unrestricted Access is set to FALSE                                                           *
+*if you need to upload the files with unrestricted access set to true you will need to add a fourth argument equal to 1 *
+*************************************************************************************************************************
+*
 * The name of the folders will be used to create matrix asset
 * (i.e.: The file and folder structure you want to import can be:
 * folders_to_import
@@ -32,21 +38,24 @@
 * 		|				|- another_picture.jpg
 * 		|- file1.pdf
 * 		|- another_document.doc
-* 
+*
 * The exact same structure will be created into matrix)
-* 
-* 
-* USAGE: 
+*
+*
+* USAGE:
 * php scripts/import/import_files.php  . folders_to_import 66
-* or 
+* or
+* php scripts/import/import_files.php  . folders_to_import 66 1
+* or
 * php scripts/import/import_files.php  . folders_to_import
-* 
+*
 * first argument matrix root folder
 * second argument folder to import
 * third argument matrix asset id where you want to import the folders and files
+* fourth argument is equals to 1 allow unrestricted access will be set to be true
 *
 * @author Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -65,6 +74,8 @@ if (empty($import_home_dir) || !is_dir($import_home_dir)) {
 }
 
 $matrix_root_assetid = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : 0;
+
+$allow_unrestricted_access = (isset($_SERVER['argv'][4]) && ($_SERVER['argv'][4] == 1)) ? TRUE : FALSE;
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -225,6 +236,7 @@ foreach ($import_dirs as $import_dir) {
 		$new_file = new $new_asset_type();
 		$new_file->_tmp['uploading_file'] = TRUE;
 		$new_file->setAttrValue('name', $filename);
+		$new_file->setAttrValue('allow_unrestricted', $allow_unrestricted_access);
 
 		if (!$new_file->create($import_link, $temp_info)) {
 			trigger_error('Failed to import '.$new_asset_type.' '.$filename, E_USER_WARNING);
