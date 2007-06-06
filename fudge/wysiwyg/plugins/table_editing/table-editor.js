@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.18.4.4 2007/06/06 00:25:20 rong Exp $
+* $Id: table-editor.js,v 1.18.4.5 2007/06/06 05:50:17 rong Exp $
 *
 */
 
@@ -953,7 +953,7 @@ TTable = function(name, rows, cols)
 			temp.cells.push(Cell);
 		}
 		this.matrix.push(temp);
-		for (i = this.matrix.length - 2;i>this.r;i--) {
+		for (var i = this.matrix.length - 2;i>this.r;i--) {
 			this.matrix[i + 1] = this.matrix[i];
 			this.matrix[i + 1].row = i + 1;
 		}
