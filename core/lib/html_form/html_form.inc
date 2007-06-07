@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.131 2007/04/27 06:20:22 arailean Exp $
+* $Id: html_form.inc,v 1.132 2007/06/07 04:18:42 arailean Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.132 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1452,6 +1452,47 @@ function draw_tree($tree, &$all_child_links, &$output_tree, $branch='', $level=0
 	}
 
 }//end draw_tree()
+
+
+/**
+* Paints a dropdown of keywords and inserts a selected one into text
+*
+* NOTE: Keywords must contain the enclosing characters like % signs
+*
+* @param array	$keywords	Keywords to insert in 'keyword'=>'value' format
+* @param string	$target_id	Id of element to insert keyword into
+* @param string	$self_id	Id to assign to the keyword selector dropdown
+* @param string	$prompt		Text prompt asking users to select a keyword
+*
+* @return void
+* @access public
+*/
+function keyword_selector($keywords, $target_id, $self_id=NULL, $prompt=NULL)
+{
+	static $internal_id = 0;
+	if (is_null($self_id)) {
+		$internal_id++;
+		$self_id = 'sq_keyword_selector_'.$internal_id;
+	}
+
+	if (empty($prompt)) {
+		$prompt = '-- '.translate('insert_keyword').' --';
+	}
+
+	?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script>
+	<select id="<?php echo $self_id; ?>" onchange="insert_text(this.value, '<?php echo $target_id; ?>', this.selectedIndex=0)">
+		<option value=""><?php echo $prompt; ?></option>
+	<?php
+	foreach ($keywords as $kw => $name) {
+		?>
+		<option value="<?php echo htmlentities($kw); ?>"><?php echo htmlentities($name); ?></option>
+		<?php
+	}
+	?>
+	</select>
+	<?php
+
+}//end keyword_selector()
 
 
 ?>

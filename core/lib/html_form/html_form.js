@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.48 2006/12/05 05:11:15 bcaldwell Exp $
+* $Id: html_form.js,v 1.49 2007/06/07 04:18:42 arailean Exp $
 *
 */
 
@@ -745,3 +745,43 @@ function clearLastCheckbox(elt)
 		checkbox.click();
 	}
 }
+
+
+/**
+* Insert given text into element specified by to_id at current curosr position
+*
+* @param object	text	text to insert
+* @param string	to_id	id of the element to insert keyword into
+*
+*/
+function insert_text(text, to_id)
+{
+	if (text.length == 0) return;
+
+	var myField = document.getElementById(to_id);
+
+	var rememberScroll = myField.scrollTop;
+	if (document.selection) {
+		// IE
+		myField.focus();
+		var rng = document.selection.createRange();
+		rng.colapse;
+		rng.text = text;
+	} else if (myField.selectionStart || myField.selectionStart == '0') {
+		// Moz
+		var startPos = myField.selectionStart;
+		var endPos = myField.selectionEnd;
+		myField.value = myField.value.substring(0, startPos)
+						+ text
+						+ myField.value.substring(endPos, myField.value.length);
+		myField.focus();
+		myField.selectionStart = startPos + text.length;
+		myField.selectionEnd = startPos + text.length;
+	} else {
+		// Others
+		myField.value += text;
+	}
+	myField.scrollTop = rememberScroll;
+
+}//end insertText()
+
