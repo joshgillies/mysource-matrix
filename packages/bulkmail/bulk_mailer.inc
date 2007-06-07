@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.60.2.2 2007/05/31 06:47:39 rong Exp $
+* $Id: bulk_mailer.inc,v 1.60.2.3 2007/06/07 10:24:32 gnoel Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.60.2.2 $
+* @version $Revision: 1.60.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -517,24 +517,26 @@ class Bulk_Mailer
 			}
 		}
 
-		$query = Array();
 		if (!empty($recipients_query)) {
-			// Now, let's do one big-ass query to get all the email addresses of REAL assets
-			$sql = 'SELECT attr_val.assetid, attr_val.custom_val
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val attr_val
-					  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr attr
-						ON (attr_val.attrid = attr.attrid)
-					WHERE attr.name = \'email\'
-					AND attr_val.assetid IN ('.implode(',', $recipients_query).')';
+			// Now, let's do one big query to get all the email addresses of REAL assets
+			$chunk_size = 250;
+			foreach (array_chunk($recipients_query, $chunk_size) as $recipients_query_chunk) {
+				$sql = 'SELECT attr_val.assetid, attr_val.custom_val
+						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val attr_val
+						  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr attr
+							ON (attr_val.attrid = attr.attrid)
+						WHERE attr.name = \'email\'
+						AND attr_val.assetid IN ('.implode(',', $recipients_query_chunk).')';
 
-			$query = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql);
-			assert_valid_db_result($query);
+				$query_chunk = $db->getAssoc($sql);
+				assert_valid_db_result($query_chunk);
+				$recipients += $query_chunk;
+			}
 		}
-
-		$recipients += $query;
 
 		$result['recipient'] = $recipients;
 		$result['problematic'] = $problematic_list;
+
 		return $result;
 
 	}//end getAllRecipients()
