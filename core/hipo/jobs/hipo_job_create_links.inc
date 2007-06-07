@@ -10,31 +10,33 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.53 2007/05/01 05:45:40 hnguyen Exp $
+* $Id: hipo_job_create_links.inc,v 1.54 2007/06/07 01:32:11 rhoward Exp $
 *
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 
 /**
-* Highly Intensive Processing Object (HIPO) to edit asset permissions
+* Highly Intensive Processing Object (HIPO) to create links
 *
 * <pre>
 * Initial Running Vars :
-*    int    assetid             -  the assetid with whose children we are going to attempt to lock
-*    Array  permission_changes  -  the values that we are trying to set for our children, in the form :
-*                                  $changes = Array([perm] => Array (
-*                                                                       Array(
-*                                                                           'granted'         => $granted,
-*                                                                           'userid'          => $userid,
-*                                                                           'previous_access' => NULL,
-*                                                                      ),
-*                                                   ),
+* 	Array	assets		- the assets to move / create links to
+* 							$assets = Array(
+* 										[assetid]	=> Array (
+* 														0	=> Array(
+* 																'linkid'	=> string, (optional)
+* 																'link_type'	=> int,
+* 																'parentid'	=> string,
+* 															   ),
+* 													   ),
+* 									  )
+*	string	link_action	- what to do with the passed assets; can be either 'move' or 'create'
 * </pre>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -237,8 +239,34 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	*/
 	function prepare()
 	{
+		log_dump($this->_running_vars);
+		if (empty($this->_running_vars['assets'])) {
+			trigger_localised_error('HIPO0026', E_USER_WARNING);
+			return '';
+		}
+		if (!isset($this->_running_vars['to_parent_assetid'])) {
+			trigger_localised_error('HIPO0025', E_USER_WARNING);
+			return '';
+		}
+		if (!isset($this->_running_vars['to_parent_pos'])) {
+			trigger_localised_error('HIPO0024', E_USER_WARNING);
+			return '';
+		}
+
+		$this->_running_vars['assets_children'] = Array();
+
 		// an array of assetids that are not supposed to be trashed when Safe-Trash = Yes
 		$this->_running_vars['do_not_trash'] = Array();
+
+		// for the sake of backwards compatibility, allow for a single link to be specified for an asset instead of an array of links
+		// transform any asset link info given in the old format
+		for (reset($this->_running_vars['assets']); NULL !== ($assetid = key($this->_running_vars['assets'])); next($this->_running_vars['assets'])) {
+			$links = current($this->_running_vars['assets']);
+			if (isset($links['linkid']) || isset($links['link_type']) || isset($links['parentid'])) {
+				$this->_running_vars['assets'][$assetid] = Array($links);
+			}
+		}
+
 		return parent::prepare();
 
 	}//end prepare()
@@ -256,19 +284,6 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	*/
 	function initialise($source_code_name=NULL)
 	{
-		if (empty($this->_running_vars['assets'])) {
-			trigger_localised_error('HIPO0026', E_USER_WARNING);
-			return '';
-		}
-		if (!isset($this->_running_vars['to_parent_assetid'])) {
-			trigger_localised_error('HIPO0025', E_USER_WARNING);
-			return '';
-		}
-		if (!isset($this->_running_vars['to_parent_pos'])) {
-			trigger_localised_error('HIPO0024', E_USER_WARNING);
-			return '';
-		}
-
 		// get a list of links that will be affected by this change
 		if ($this->_running_vars['link_action'] == 'move') {
 			$new_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
@@ -283,63 +298,67 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				// any link to the trash folder because even if this asset is already in the trash,
 				// we should warn about deleting it
 				for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
-					$current = current($assets);
-					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					$trash_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash_folder->id, $asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
-					$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2, '', TRUE, $current['linkid']);
+					$links = current($assets);
 
-					if (!empty($trash_link)) $num_other_links--;
-					if (!$num_other_links) {
-						// now lets get all the other links this asset has in the system and
-						// display them to the user
-						// note that we are also going to ask the major asset in the link
-						// to describe it so it makes sense to the user looking at it
-						$affected_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, '', TRUE, 'minor');
-						$safe_trash_cron_job = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, 'cron_job_attempt_safe_trash', TRUE, 'minor');
+					for (reset($links); NULL !== ($link_idx = key($links)); next($links)) {
+						$current = current($links);
 
-						// We can't trust $affected_links to contain all TYPE_3|NOTICE
-						// links, as getLinks() also returns ALL shadow links. So weed
-						// out any links that aren't TYPE_3|NOTICE
-						foreach ($affected_links as $linkid => $affected_link) {
-							if (!($affected_link['link_type'] & (SQ_LINK_TYPE_3 | SQ_LINK_NOTICE))) {
-								unset($affected_links[$linkid]);
-							}
-						}
+						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$trash_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash_folder->id, $asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
+						$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2, '', TRUE, $current['linkid']);
 
-						// We can't use array_diff() because it does a string comparison
-						// ("Array" == "Array".... ooh nasty). So we will trawl through the
-						// array to find the cron job and pluck it out
-						if (!empty($safe_trash_cron_job)) {
-							foreach (array_keys($affected_links) as $affected_link_key) {
-								if ($affected_links[$affected_link_key]['linkid'] == $safe_trash_cron_job[0]['linkid']) {
-									unset($affected_links[$affected_link_key]);
-									break;
+						if (!empty($trash_link)) $num_other_links--;
+						if (!$num_other_links) {
+							// now lets get all the other links this asset has in the system and
+							// display them to the user
+							// note that we are also going to ask the major asset in the link
+							// to describe it so it makes sense to the user looking at it
+							$affected_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, '', TRUE, 'minor');
+							$safe_trash_cron_job = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, 'cron_job_attempt_safe_trash', TRUE, 'minor');
+
+							// We can't trust $affected_links to contain all TYPE_3|NOTICE
+							// links, as getLinks() also returns ALL shadow links. So weed
+							// out any links that aren't TYPE_3|NOTICE
+							foreach ($affected_links as $linkid => $affected_link) {
+								if (!($affected_link['link_type'] & (SQ_LINK_TYPE_3 | SQ_LINK_NOTICE))) {
+									unset($affected_links[$linkid]);
 								}
 							}
-						}
 
-						if (!empty($affected_links)) {
-							$this->_running_vars['affected_links'][$assetid] = $affected_links;
-						}
+							// We can't use array_diff() because it does a string comparison
+							// ("Array" == "Array".... ooh nasty). So we will trawl through the
+							// array to find the cron job and pluck it out
+							if (!empty($safe_trash_cron_job)) {
+								foreach (array_keys($affected_links) as $affected_link_key) {
+									if ($affected_links[$affected_link_key]['linkid'] == $safe_trash_cron_job[0]['linkid']) {
+										unset($affected_links[$affected_link_key]);
+										break;
+									}
+								}
+							}
 
-					}//end if !$num_other_links
+							if (!empty($affected_links)) {
+								$this->_running_vars['affected_links'][$assetid] = $affected_links;
+							}
 
-					// if we can't Safe-Trash for any reason whatsoever, then
-					// let them know
-					if ($safe_trash) {
-						$trash_errors = $GLOBALS['SQ_SYSTEM']->am->canSafeTrashAsset($assetid, $current['linkid'], FALSE);
-						if ($trash_errors) {
-							$this->_running_vars['do_not_trash'][$assetid] = $trash_errors;
-							$this->_running_vars['do_not_trash'][$assetid]['name'] = $asset->name;
+						}//end if !$num_other_links
+
+						// if we can't Safe-Trash for any reason whatsoever, then
+						// let them know
+						if ($safe_trash) {
+							$trash_errors = $GLOBALS['SQ_SYSTEM']->am->canSafeTrashAsset($assetid, $current['linkid'], FALSE);
+							if ($trash_errors) {
+								$this->_running_vars['do_not_trash'][$assetid] = $trash_errors;
+								$this->_running_vars['do_not_trash'][$assetid]['name'] = $asset->name;
+							}
 						}
-					}
-				}//end for
+					}//end for ($links)
+				}//end for ($assets)
 
 			}//end if the assets have been moved to the trash
 		}//end if action = move
 
 		$this->_running_vars['can_skip_cascade'] = TRUE;
-		$this->_running_vars['assets_children'] = Array();
 
 		return parent::initialise($source_code_name);
 
@@ -383,8 +402,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 							$current = current($assets);
-							$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current['parentid']);
-							echo '<li>"'.translate('hipo_from_under', htmlentities($asset->name), htmlentities($parent->name)).'</li>';
+							foreach ($current as $link) {
+								$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['parentid']);
+								echo '<li>"'.translate('hipo_from_under', htmlentities($asset->name), htmlentities($parent->name)).'</li>';
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
+							}
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 						}
 						echo '</ul>';
 						echo '<p>'.translate('hipo_confirm_abort').'</p>';
@@ -411,6 +434,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 							for (reset($reordered_assets); NULL !== ($assetid = key($reordered_assets)); next($reordered_assets)) {
 								$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 								echo '<li>"'.htmlentities($asset->name).'".</li>';
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 							}
 							echo '</ul>';
 					$o->closeField();
@@ -430,8 +454,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 					for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						$current = current($assets);
-						$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current['parentid']);
-						echo '<li>'.translate('hipo_from_under', htmlentities($asset->name), htmlentities($parent->name)).'</li>';
+						foreach ($current as $link) {
+							$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['parentid']);
+							echo '<li>'.translate('hipo_from_under', htmlentities($asset->name), htmlentities($parent->name)).'</li>';
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
+						}
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					}
 					echo '</ul>';
 					$o->closeField();
@@ -802,7 +830,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				$dest_url_data = $this->_running_vars['remap_choices'][(int)$_POST[$prefix.'_chosen_remap_url']];
 				$remap_url = ($dest_url_data['http'] ? 'http' : 'https').'://'.$dest_url_data['url'];
 				$rm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-				foreach ($this->_running_vars['assets'] as $source_assetid => $info) {
+				foreach ($this->_running_vars['assets'] as $source_assetid => $links) {
 					if (isset($this->_running_vars['do_not_trash'][$source_assetid])) {
 						continue;
 					}
@@ -823,7 +851,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						// Target asset has exactly one URL - do the remap straight away
 						$dest_url_data = reset($dest_urls);
 						$rm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-						foreach ($this->_running_vars['assets'] as $source_assetid => $info) {
+						foreach ($this->_running_vars['assets'] as $source_assetid => $links) {
 							if (isset($this->_running_vars['do_not_trash'][$source_assetid])) {
 								continue;
 							}
@@ -888,12 +916,25 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		if (!isset($this->_running_vars['process_create_links'])) {
 			$this->_running_vars['process_create_links'] = $this->_running_vars['assets'];
 		}
+		if (!isset($this->_running_vars['done_links'])) {
+			$this->_running_vars['done_links'] = Array();
+		}
 
-		$assets = $this->_running_vars['process_create_links'];
+		if (!isset($this->_running_vars['link_count'])) {
+			$link_count = 0;
+			foreach ($this->_running_vars['assets'] as $assetid => $links) {
+				$link_count += count($links);
+			}
+			$this->_running_vars['link_count'] = $link_count;
+		}
+
+		$assets  = $this->_running_vars['process_create_links'];
 		$assetid = key($assets);
-		$value = reset($assets);
+		$links   = reset($assets);
 
-		unset($this->_running_vars['process_create_links'][$assetid]);
+		$value    = reset($links);
+		$link_idx = key($links);
+		unset($this->_running_vars['process_create_links'][$assetid][$link_idx]);
 
 		if ($this->_running_vars['link_action'] == 'create') {
 
@@ -918,6 +959,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$step_data['message'] = 'Creating a link between "'.htmlentities($asset->name).'" and "'.htmlentities($new_parent->name).'".';
 
 			$linkid = $new_parent->createLink($asset, $value['link_type'], '', $this->_running_vars['to_parent_pos']);
+
 			if (!$linkid) {
 				trigger_localised_error('HIPO0021', E_USER_WARNING, $asset->name, $new_parent->name);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -968,7 +1010,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				// anywhere, so there's no point running update lookups over
 				// the children
 				if (!isset($this->_running_vars['do_not_trash'][$assetid])) {
-						$this->_running_vars['assets_children'] = array_merge($this->_running_vars['assets_children'], array_keys($children));
+					$this->_running_vars['assets_children'] = array_merge($this->_running_vars['assets_children'], array_keys($children));
 				}
 
 				// delete links in which the minor is being deleted
@@ -1095,10 +1137,13 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 		}//end if create
 
-		$this->_running_vars['done_assetids'][] = $assetid;
+		if (empty($this->_running_vars['process_create_links'][$assetid])) {
+			unset($this->_running_vars['process_create_links'][$assetid]);
+			$this->_running_vars['done_links'][] = $assetid;
+		}
 
 		if (empty($this->_running_vars['process_create_links'])) {
-			unset($this->_running_vars['done_assetids']);
+			unset($this->_running_vars['done_links']);
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;
 
@@ -1112,7 +1157,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			}
 
 		} else {
-			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / count($this->_running_vars['assets'])) * 100;
+			$step_data['percent_done'] = (count($this->_running_vars['done_links']) / count($this->_running_vars['link_count'])) * 100;
 			$step_data['complete']     = FALSE;
 		}
 
@@ -1545,8 +1590,10 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 		$refreshids = Array();
 
-		foreach ($this->_running_vars['assets'] as $asset_details) {
-			$refreshids[] = $asset_details['parentid'];
+		foreach ($this->_running_vars['assets'] as $links) {
+			foreach ($links as $link) {
+				$refreshids[] = $link['parentid'];
+			}
 		}
 		$refreshids = array_unique($refreshids);
 
@@ -1594,14 +1641,19 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		$this->_running_vars['can_skip_cascade'] = FALSE;
 
 		// process confirmation
-		if (!$this->processCreateLinks($step_data, '')) {
+		$result = TRUE;
+		while ($result && !array_get_index($step_data, 'complete')) {
+			$result = $this->processCreateLinks($step_data, '');
+		}
+		if (!$result) {
 			$this->_addError('creating links failed');
 			return FALSE;
 		}
 
 		// update lookups
 		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assetids' => Array(key($this->_running_vars['assets'])));
+		$vars = Array('assetids' => array_keys($this->_running_vars['assets']));
+
 		$lookup_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
 		if (!empty($lookup_errors)) {
 			$this->_addError('hipo_job_update_lookups failed');
