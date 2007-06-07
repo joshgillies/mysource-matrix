@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.26 2007/05/23 00:52:34 arailean Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.27 2007/06/07 04:22:11 arailean Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1758,7 +1758,14 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		}
 
 		if ($wa) {
-			text_area($prefix.'_sql', $sql, 100, 25);
+			$dynamic_vars = $asset->attr('dynamic_vars');
+			if (!empty($dynamic_vars)) {
+				foreach ($dynamic_vars as $var => $value) {
+					$keywords['%%'.$var.'%%'] = $var;
+				}
+				keyword_selector($keywords, $prefix.'_sql');
+			}
+			text_area($prefix.'_sql', $sql, 100, 25, 0, 'style="width: 100%; height: 15em; font-family: monospace; display: block"');
 		} else {
 			if (!empty($sql)) {
 				echo nl2br($sql);
