@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.127.2.2 2007/03/08 03:07:02 tbarrett Exp $
+* $Id: metadata_manager.inc,v 1.127.2.3 2007/06/07 04:45:32 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.127.2.2 $
+* @version $Revision: 1.127.2.3 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -55,6 +55,10 @@ class Metadata_Manager extends MySource_Object
 	{
 		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) return TRUE;
+
+		// if this asset does not allow the user to set metadata values then
+		// its okay to assume that we dont need check if schema is complete
+		if (!$this->allowsMetadata($assetid)) return TRUE;
 
 		$schemas = $this->getSchemas($asset->id, TRUE);
 		if (empty($schemas)) return TRUE;
@@ -435,7 +439,7 @@ class Metadata_Manager extends MySource_Object
 								'.implode(' ', $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($schema, 'metadata_field', FALSE, NULL, NULL, NULL, FALSE)).'))';
 		}
 		$sql = 'DELETE FROM sq_ast_mdata_val
-				WHERE 
+				WHERE
 					'.implode("\n\tAND ", $fieldid_conds);
 		$res = $db->query($sql);
 		assert_valid_db_result($res);
