@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.19 2007/02/16 06:34:59 colivar Exp $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.20 2007/06/07 05:03:20 rhoward Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -533,9 +533,10 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor_asset->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'minor');
 				$link_options = Array();
 
+				$_assets[$minor_asset->id] = Array();
+
 				// loop through all the links and add them to the hipo herder
 				foreach ($links as $link) {
-
 					// if the linkid is empty it means that it is a wrong link or a link to and bridge and shadow asset
 					if (empty($link['linkid'])) continue;
 
@@ -549,23 +550,26 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 					// this array contains the link information to move to the trash
 					// parentid contains the old parent id
-					$_assets[$minor_asset->id] = Array(
+					$_assets[$minor_asset->id][] = Array(
 													'linkid'	=> $link_info['linkid'],
 													'link_type'	=> $link_info['link_type'],
 													'parentid'	=> $link_info['majorid'],
-												 );
+												   );
 
-					// this array will be given to the hipo
-					$hipo_var = Array(
+				}//end foreach
+
+				if (!empty($_assets[$minor_asset->id])) {
+					// gathered links, now give them to the HIPO
+					$hipo_vars = Array(
 									'link_action'		=> 'move',
 									'to_parent_assetid'	=> $trash_folder->id,
 									'to_parent_pos'		=> 1,
 									'assets'			=> $_assets,
-								);
+								 );
 
 
 					// add the job to the hipo queue
-					$hh->queueHipo('hipo_job_create_links', $hipo_var);
+					$hh->queueHipo('hipo_job_create_links', $hipo_vars);
 
 					// check for any HIPOs that have been queued
 					$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
@@ -574,9 +578,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 					// if the hipo URL is not empty redirect to the hipo
 					if (!empty($url)) $o->setRedirect($url);
-
-
-				}//end foreach
+				}
 
 				// once all the jobs have been added to the queue
 
