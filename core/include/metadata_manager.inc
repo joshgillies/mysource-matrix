@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.140 2007/03/08 03:20:51 tbarrett Exp $
+* $Id: metadata_manager.inc,v 1.141 2007/06/07 04:39:45 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.140 $
+* @version $Revision: 1.141 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -55,6 +55,10 @@ class Metadata_Manager extends MySource_Object
 	{
 		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) return TRUE;
+
+		// if this asset does not allow the user to set metadata values then
+		// its okay to assume that we dont need check if schema is complete
+		if (!$this->allowsMetadata($assetid)) return TRUE;
 
 		$schemas = $this->getSchemas($asset->id, TRUE);
 		if (empty($schemas)) return TRUE;
