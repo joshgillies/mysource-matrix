@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_edit_fns.inc,v 1.15 2006/12/07 00:04:16 emcdonald Exp $
+* $Id: content_type_raw_html_edit_fns.inc,v 1.16 2007/06/07 04:37:22 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,45 +57,23 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			$size = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_RAW_HTML_SIZE');
 			$html = $asset->attr('html');
-			$this->_paintKeywordInserter($asset, $prefix);
+
+			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+			$keywords = Array();
+			$prepared_keywords = Array();
+			$keyword_vars = Array('keywords' => &$keywords);
+			$em->broadcastEvent($asset, 'requestKeywords', $keyword_vars);
+			if (!empty($keywords)) {
+				foreach ($keywords as $key => $name) {
+					$prepared_keywords['%'.$key.'%'] = $name;
+				}
+				keyword_selector($prepared_keywords, $prefix.'_html');
+			}
 			text_area($prefix.'_html', $html, '', '', 0, 'style="width: '.$size['width'].'; height: '.$size['height'].'; font-family: monospace; display: block"');
 		}
 		return TRUE;
 
 	}//end paintBackend()
-
-
-	/**
-	* Paint the keyword-insert dropdown box
-	*
-	* @param object	&$asset	the raw html content type object
-	* @param string	$prefix	prefix for form elements
-	*
-	* @return void
-	* @access private
-	*/
-	function _paintKeywordInserter(&$asset, $prefix)
-	{
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$keywords = Array();
-		$keyword_vars = Array('keywords' => &$keywords);
-		$em->broadcastEvent($asset, 'requestKeywords', $keyword_vars);
-		if (empty($keywords)) return;
-		?>
-		<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/content_type_raw_html/js/raw_html_insert_keyword.js"></script>
-		<select id="<?php echo $prefix; ?>_keyword_inserter" onchange="insertKeyword('<?php echo $prefix; ?>')">
-			<option value="">-- <?php echo translate('insert_keyword') ?> --</option>
-		<?php
-		foreach ($keywords as $keyword => $name) {
-			?>
-			<option value="%<?php echo $keyword; ?>%"><?php echo $name; ?></option>
-			<?php
-		}
-		?>
-		</select>
-		<?php
-
-	}//end _paintKeywordInserter()
 
 
 	/**
