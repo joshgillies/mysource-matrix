@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.178 2007/06/05 00:41:38 lwright Exp $
+* $Id: backend.inc,v 1.179 2007/06/07 00:16:15 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.178 $
+* @version $Revision: 1.179 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -445,6 +445,7 @@ class Backend extends MySource_Object
 				$url_match = TRUE;
 			}
 
+			$result_list = Array();
 			if (!is_null($searched_asset)) {
 				$this->out->addOnLoad('
 					if (parent.frames["sq_main"]) {
@@ -581,12 +582,11 @@ class Backend extends MySource_Object
 
 					$js_code .= '}';
 
-				}
+					$detail_lines[] = implode('', $keyword_match_line);
 
-				$detail_lines[] = implode('', $keyword_match_line);
-
-				$html = $this->_getDHTMLMessage(translate('search_results'), $detail_lines, 'search-results');
-				$dhtml_messages['search_results'] = Array('html' => str_replace("\n", '', preg_replace('|<script.*</script>|U', '', $html)), 'width' => '300', 'timeout' => 0);
+					$html = $this->_getDHTMLMessage(translate('search_results'), $detail_lines, 'search-results');
+					$dhtml_messages['search_results'] = Array('html' => str_replace("\n", '', preg_replace('|<script.*</script>|U', '', $html)), 'width' => '300', 'timeout' => 0);
+				}//end if
 
 			}//end else
 		}//end if
