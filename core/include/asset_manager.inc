@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.564 2007/06/07 00:29:15 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.565 2007/06/07 01:54:50 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.564 $
+* @version $Revision: 1.565 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5838,8 +5838,11 @@ class Asset_Manager extends MySource_Object
 			$asset =& $this->getAsset($real_assetid);
 
 			if (!is_null($asset)) {
-
-				$ret_val = $GLOBALS['SQ_SYSTEM']->am->getPermission($real_assetid, $permission, $granted, $and_greater, $expand_groups, $all_info);
+				if (method_exists($asset, 'getPermission')) {
+					$ret_val = $asset->getPermission($assetid, $permission, $granted, $and_greater, $expand_groups, $all_info);
+				} else {
+					$ret_val = $GLOBALS['SQ_SYSTEM']->am->getPermission($real_assetid, $permission, $granted, $and_greater, $expand_groups, $all_info);
+				}
 				$this->forgetAsset($asset);
 
 				return $ret_val;
