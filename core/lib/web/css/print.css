@@ -9,24 +9,23 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: print.css,v 1.1 2007/01/11 03:15:34 tbarrett Exp $
+* $Id: print.css,v 1.1.2.1 2007/06/08 02:04:45 hnguyen Exp $
 *
 */
 
-/* MAIN BODY STYLES */
-
-body {
-	background-color: #312839; 
-	background-image: url('../images/icons/asset_map/matrix_logo.gif');
-	background-position: 10px 5px;
-	margin-top: 30px;
-	background-repeat: no-repeat;
+/* Matrix Logo for Print preview */
+div#matrix-print-logo {
+    background-color: #312839;
+    background-image: url('../images/icons/asset_map/matrix_logo.gif');
+    background-position: 10px 5px;
+    background-repeat: no-repeat;
+    height: 30px;
 }
 
 /* HEADING STYLES */
 
 table.sq-backend-main-headings {
-	margin-bottom: 6px;
+	margin-bottom: 0px;
 }
 
 body form {
