@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.45 2007/03/07 22:38:08 tbarrett Exp $
+* $Id: db_install.inc,v 1.46 2007/06/08 04:40:35 skim Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -711,6 +711,7 @@ function install_stored_relations($relations, $package=NULL, $verbose=TRUE)
 		foreach ($root->children as $sql_element) {
 			$element_names[] = array_get_index($sql_element->attributes, 'display_name', '<Unknown Element>');
 			$sql = trim(xml_entity_decode($sql_element->content));
+
 			if (!empty($sql)) {
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
@@ -745,7 +746,8 @@ function xml_entity_decode($string)
 	$string = str_replace('&#42;', '*', $string);
 	$string = str_replace('&#92;', '\\', $string);
 	$string = str_replace('&#126;', '~', $string);
-
+	$string = str_replace('&#96;', '`', $string);
+	$string = str_replace('&#94;', '^', $string);
 	return $string;
 
 }//end xml_entity_decode()

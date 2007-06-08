@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.18 2007/01/08 04:00:57 emcdonald Exp $
+* $Id: search_list.inc,v 1.19 2007/06/08 04:40:39 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -71,10 +71,11 @@ class Search_List extends Listing_Engine
 	* The return array is in the form Array(assetid => type_code) unless we are grouping by letter,
 	* in which case the return array is
 	* <pre>
-	* Array(assetid => Array(
-	*						'type_code' => type_code,
-	*						'firt_letter' => first_letter,
-	*						);
+	* Array(word => Array(
+	*					'type_code' => '',
+	*					'firt_letter' => first_letter,
+	*					'num_values' => hit counts,
+	*				);
 	*		);
 	* </pre>
 	*
@@ -90,73 +91,17 @@ class Search_List extends Listing_Engine
 		}
 		if (is_null($search_page)) return Array();
 
-		// get information about the search field
-		$search_page_fields = $search_page->attr('fields');
-		$search_field_name = $this->attr('search_field');
-		if (empty($search_page_fields) || empty($search_field_name)) {
-			// if search field has not been setup properly
-			return Array();
-		}
-		$search_field = $search_page_fields[$search_field_name];
-
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
-		$search_info = $search_page->populateBaseSearchInfo();
-		$query_comps = $sm->constructBaseSearchQuery($search_info);
+		$plugin =& $sm->_getDBPlugin();
+		$children = $plugin->getSearchListAssets($this, $search_page);
 
-		array_unshift($query_comps['from'], 'sq_sch_idx ai'); // need to have this first to avoid SQL error
-		$query_comps['where'][] = 'ai.assetid = a.assetid';
-		$query_comps['select'][] = 'ai.value';
-		$query_comps['select'][] = 'ai.assetid';
-		$query_comps['select'][] = 'SUBSTR(ai.value, 1, 1) AS first_letter';
-
-		$data_source_comps = Array();
-
-		foreach ($search_field['data_sources'] as $data_source) {
-			switch ($data_source['type']) {
-				case 'asset_attrib' :
-					$type_code = $data_source['params']['asset_type'];
-					$attrid = $data_source['params']['attrid'];
-
-					$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($attrid));
-					$name = $attr_info[$attrid]['name'];
-					$data_source_comps[] = 'ai.component = '.$db->quote('attr:'.$name);
-				break;
-				case 'metadata' :
-					$assetid = $data_source['params']['assetid'];
-					$data_source_comps[] = 'ai.component = '.$db->quote('metadata:'.$assetid);
-				break;
-				case 'standard' :
-					$param_field = $data_source['params']['field'];
-					$data_source_comps[] = 'ai.component = '.$db->quoteSmart('__'.$param_field.'__');
-				break;
-
-				default :
-					return Array();
-				break;
-			}
-		}
-
-		if (!empty($data_source_comps)) {
-			$query_comps['where'][] = '('.implode(') OR (', $data_source_comps).')';
-		}
-
-		$query_comps['group_by'][] = 'ai.value';
-		$query_comps['group_by'][] = 'ai.assetid';
-		$sql = implode_sql($query_comps);
-
-		$results = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_DEFAULT, TRUE);
-		assert_valid_db_result($results);
-
-		$children = Array();
-		foreach ($results as $word => $word_data) {
-			$children[$word]['num_values'] = count($word_data);
-			$base_data = array_pop($word_data);
-			$children[$word]['first_letter'] = $base_data['first_letter'];
-			$children[$word]['type_code'] = NULL;
-		}
+		// See printContents() in Listing Engine. It needs to set this flag to by-pass
+		// certain asset info caching since the format of returning array is not the same as
+		// the parent.
+		$this->_tmp['no_asset_info_url_cache'] = TRUE;
 
 		$this->_tmp['search_terms'] = $children;
+
 		return $children;
 
 	}//end getAssetList()

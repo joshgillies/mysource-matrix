@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.20 2007/05/15 01:35:40 hnguyen Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.21 2007/06/08 04:40:40 skim Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -118,7 +118,7 @@ class Search_Manager_Plugin_OCI8
 
 		}//end switch
 		$sql = implode_sql($base_query);
-
+bam($sql);
 		if (count($base_query['select']) > 2) {
 			$result = $db->getAll($sql);
 		} else {
@@ -1147,6 +1147,101 @@ class Search_Manager_Plugin_OCI8
 		return $this->_getWords($search_string);
 
 	}//end getWords()
+
+
+	/**
+	* Get the list of assets to be printed in Search List Page
+	*
+	* @param object	$search_list	the reference to Search List Page asset
+	* @param object	$search_page	the reference to Search Page asset
+	*
+	* @return array
+	* @access public
+	*/
+	function getSearchListAssets(&$search_list, &$search_page)
+	{
+		// get information about the search field
+		$search_page_fields = $search_page->attr('fields');
+		$search_field_name = $search_list->attr('search_field');
+		if (empty($search_page_fields) || empty($search_field_name)) {
+			// if search field has not been setup properly
+			return Array();
+		}
+		$search_field = $search_page_fields[$search_field_name];
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+		$search_info = $search_page->populateBaseSearchInfo();
+		$query_comps = $sm->constructBaseSearchQuery($search_info);
+
+		array_unshift($query_comps['from'], 'sq_sch_idx ai'); // need to have this first to avoid SQL error
+		$query_comps['where'][] = 'ai.assetid = a.assetid';
+		$query_comps['select'][] = 'ai.assetid';
+
+		$data_source_comps = Array();
+		$data_source_comps_values = Array();
+
+		foreach ($search_field['data_sources'] as $data_source) {
+			switch ($data_source['type']) {
+				case 'asset_attrib' :
+					$type_code = $data_source['params']['asset_type'];
+					$attrid = $data_source['params']['attrid'];
+
+					$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($attrid));
+					$name = $attr_info[$attrid]['name'];
+					$data_source_comps[] = 'ai.component = '.$db->quote('attr:'.$name);
+					$data_source_comps_values[] = $db->quote('attr:'.$name);
+				break;
+				case 'metadata' :
+					$assetid = $data_source['params']['assetid'];
+					$data_source_comps[] = 'ai.component = '.$db->quote('metadata:'.$assetid);
+					$data_source_comps_values[] = $db->quote('metadata:'.$assetid);
+				break;
+				case 'standard' :
+					$param_field = $data_source['params']['field'];
+					$data_source_comps[] = 'ai.component = '.$db->quoteSmart('__'.$param_field.'__');
+					$data_source_comps_values[] = $db->quoteSmart('__'.$param_field.'__');
+				break;
+
+				default :
+					return Array();
+				break;
+			}
+		}
+
+		if (!empty($data_source_comps)) {
+			$query_comps['where'][] = '('.implode(') OR (', $data_source_comps).')';
+		}
+
+		$noise_words	= array_keys($sm->attr('noise_word_list'));
+		$white_words	= array_keys($sm->attr('white_word_list'));
+		$where_cond = '('.implode(') AND (',$query_comps['where']).')';
+
+		$min_length		= $sm->attr('min_word_length');
+		$noise_words_str = '"'.implode('", "', $noise_words).'"';
+		$white_words_str = '"'.implode('", "', $white_words).'"';
+		$sql =	'SELECT * FROM table(
+					sq_search_pkg.get_search_list(\''.
+						str_replace('\'', '"', $where_cond).'\', \''.
+						$min_length.'\', \''.
+						$noise_words_str.'\', \''.
+						$white_words_str.'\'))';
+
+		$results = $db->getAll($sql);
+		assert_valid_db_result($results);
+		$children = Array();
+		if (!empty($results)) {
+			foreach ($results as $ele) {
+				$children[$ele['word']] = Array(
+											'num_values'	=> $ele['hits'],
+											'first_letter'	=> $ele['word']{0},
+											'type_code'		=> '',
+										  );
+			}
+		}
+		return $children;
+
+	}//end getSearchListAssets()
 
 
 }//end class

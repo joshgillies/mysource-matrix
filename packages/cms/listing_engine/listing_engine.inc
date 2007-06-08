@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.224 2007/05/29 01:16:48 hnguyen Exp $
+* $Id: listing_engine.inc,v 1.225 2007/06/08 04:40:37 skim Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.224 $
+* @version $Revision: 1.225 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -640,8 +640,12 @@ class Listing_Engine extends Page
 			return;
 		}
 
-		$this->_tmp['assets_info']    = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($children));
-		$this->_tmp['asset_urls'] = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($children));
+		// this flag can be set if getAssetList() function returns different format of array.
+		// you can find the example in Search List. Also see getAssetList()'s comment
+		if (!isset($this->_tmp['no_asset_info_url_cache'])) {
+			$this->_tmp['assets_info']    = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($children));
+			$this->_tmp['asset_urls']     = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($children));
+		}
 
 		// the list is sorted and positions set, now we can split to groups
 		if ($this->attr('group_by') == 'grouped') {
