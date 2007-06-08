@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.46 2007/05/11 05:48:12 mbrydon Exp $
+* $Id: edit.js,v 1.47 2007/06/08 01:59:43 hnguyen Exp $
 *
 */
 
@@ -518,7 +518,7 @@ function pagePrint()
 
 function showPrintPopup()
 {
-	var args = 'width='+(self.screen.availWidth/2)+',height='+parseInt(self.screen.availHeight*0.8)+',status=0,location=0,menubar=0,directories=0,scrollbars=1';
+	var args = 'width='+(self.screen.availWidth/2)+',height='+parseInt(self.screen.availHeight*0.8)+',status=0,location=0,menubar=0,directories=0,scrollbars=1,resizable=1';
 	var urlSuffix = '&ignore_frames=1&print_view=1';
 	var urlBase = self.location.href;
 	if (urlBase.indexOf('&assetid=') == -1) {
