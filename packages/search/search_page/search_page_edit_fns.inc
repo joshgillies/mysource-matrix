@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.73 2007/03/05 05:31:32 tbarrett Exp $
+* $Id: search_page_edit_fns.inc,v 1.73.2.1 2007/06/08 00:45:04 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.73.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -821,7 +821,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php translate('name'); ?></th>
+				<th><?php echo translate('name'); ?></th>
 				<th style="width: 35ex"><?php echo translate('statuses'); ?></th>
 				<th style="width: 60ex"><?php echo translate('root_node'); ?></th>
 			<?php
