@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.151 2007/04/20 06:49:35 hnguyen Exp $
+* $Id: backend_outputter.inc,v 1.152 2007/06/08 01:48:50 hnguyen Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.151 $
+* @version $Revision: 1.152 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1140,6 +1140,14 @@ class Backend_Outputter
 			<div id="sq-search-wait-popup-details">Your search is being processed, please wait...</div>
 		</div>
 		<form style="display: inline" action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onsubmit="return form_on_submit();">
+		<?php
+			if (!empty($_REQUEST['print_view'])) {
+				?>
+				<div id="matrix-print-logo">
+				</div>
+				<?php
+			}
+		?>
 		<div id="sq-content">
 		<?php
 		hidden_field('process_form', '1');
