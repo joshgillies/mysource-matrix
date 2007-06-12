@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.54 2007/06/12 00:42:52 rong Exp $
+* $Id: form_section.inc,v 1.55 2007/06/12 04:31:22 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -131,6 +131,25 @@ class Form_Section extends Asset
 		return $asset;
 
 	}//end getAsset()
+
+
+	/**
+	* Bugfix #2461: always compress the index of 'sort_order'
+	*
+	* @param string	$name	the name of the attribute whose value you want to get
+	*
+	* @return mixed string|NULL
+	* @access public
+	*/
+	function attr($name)
+	{
+		if ($name == 'sort_order') {
+			return array_values(parent::attr($name));
+		} else {
+			return parent::attr($name);
+		}
+
+	}//end attr()
 
 
 	/**

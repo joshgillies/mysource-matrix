@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.74 2007/04/20 01:45:18 hnguyen Exp $
+* $Id: form_edit_fns.inc,v 1.75 2007/06/12 04:31:22 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -319,12 +319,10 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		// use array_merge() here so that the assets get re-ordered without
 		if (isset($_POST[$prefix.'_order']['reorder'])) {
-			$asset->setAttrValue('sort_order', array_merge($_POST[$prefix.'_order']['reorder']));
+			$asset->setAttrValue('sort_order', $_POST[$prefix.'_order']['reorder']);
 			$asset->saveAttributes();
 		}
-
 
 		// regen the content file
 		$asset->_updated();
@@ -465,7 +463,6 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	{
 		$type   = (isset($_POST['question_type'])) ? $_POST['question_type'] : '';
 		$number = (isset($_POST['num_questions'])) ? $_POST['num_questions'] : '';
-
 		// get the number of questions in the system allready
 		// so when we create the new ones,  we can give them an
 		// appropriate name

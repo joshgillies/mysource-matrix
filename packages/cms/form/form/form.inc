@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.166 2007/06/12 00:42:52 rong Exp $
+* $Id: form.inc,v 1.167 2007/06/12 04:31:21 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.166 $
+* @version $Revision: 1.167 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -77,6 +77,25 @@ class Form extends Asset
 		$this->Asset($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Bugfix #2461: always compress the index of 'sort_order'
+	*
+	* @param string	$name	the name of the attribute whose value you want to get
+	*
+	* @return mixed string|NULL
+	* @access public
+	*/
+	function attr($name)
+	{
+		if ($name == 'sort_order') {
+			return array_values(parent::attr($name));
+		} else {
+			return parent::attr($name);
+		}
+
+	}//end attr()
 
 
 	/**
@@ -884,9 +903,7 @@ class Form extends Asset
 		// unset the question
 		unset($question);
 
-		// array_values() that there is no 'gap' between indexes,
-		// for javascript reordering to work correctly
-		$this->setAttrValue('sort_order', array_values($sort_order));
+		$this->setAttrValue('sort_order', $sort_order);
 
 		if (!$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
