@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.55 2007/06/12 04:31:22 rong Exp $
+* $Id: form_section.inc,v 1.56 2007/06/12 04:37:41 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -718,9 +718,7 @@ class Form_Section extends Asset
 		// unset the question
 		unset($question);
 
-		// array_values() that there is no 'gap' between indexes,
-		// for javascript reordering to work correctly
-		$this->setAttrValue('sort_order', array_values($sort_order));
+		$this->setAttrValue('sort_order', $sort_order);
 
 		if (!$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
