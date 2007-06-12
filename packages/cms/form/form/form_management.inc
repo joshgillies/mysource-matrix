@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.50 2007/06/12 00:42:52 rong Exp $
+* $Id: form_management.inc,v 1.51 2007/06/12 05:18:24 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -327,28 +327,6 @@ class Form_Management extends Asset_Management
 				if (!$form->_createSubmissionsFolder()) {
 					trigger_error('Error creating submissions folder for Form #'.$formid, E_USER_WARNING);
 				}
-			}
-			pre_echo(count($formids).' FORMS UPDATED');
-		}
-
-		// get rid of the 'gaps' in sort order indexes when we delete a question
-		// so that javascript reordering will not complain about missing object
-		if (version_compare($current_version, '0.12', '<')) {
-			pre_echo('UPGRADING FORM TO v0.12');
-			$formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form', FALSE);
-			foreach ($formids as $formid) {
-				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-				$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($formid);
-				$sort_order = $form->attr('sort_order');
-				$form->setAttrValue('sort_order', array_values($sort_order));
-				if (!$form->saveAttributes()) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					trigger_error('Unable to update sort_order for Form #'.$formid, E_USER_WARNING);
-				}
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			}
 			pre_echo(count($formids).' FORMS UPDATED');
 		}

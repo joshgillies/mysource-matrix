@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.56 2007/06/12 04:37:41 rong Exp $
+* $Id: form_section.inc,v 1.57 2007/06/12 05:18:24 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -131,25 +131,6 @@ class Form_Section extends Asset
 		return $asset;
 
 	}//end getAsset()
-
-
-	/**
-	* Bugfix #2461: always compress the index of 'sort_order'
-	*
-	* @param string	$name	the name of the attribute whose value you want to get
-	*
-	* @return mixed string|NULL
-	* @access public
-	*/
-	function attr($name)
-	{
-		if ($name == 'sort_order') {
-			return array_values(parent::attr($name));
-		} else {
-			return parent::attr($name);
-		}
-
-	}//end attr()
 
 
 	/**
@@ -674,6 +655,7 @@ class Form_Section extends Asset
 		}
 		$sort_order[$new_index] = $this->id.':q'.$new_key;
 		$this->setAttrValue('sort_order', $sort_order);
+
 		if (!$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
