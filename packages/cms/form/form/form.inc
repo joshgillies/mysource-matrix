@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.165 2007/05/11 01:31:43 hnguyen Exp $
+* $Id: form.inc,v 1.166 2007/06/12 00:42:52 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.165 $
+* @version $Revision: 1.166 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -884,7 +884,9 @@ class Form extends Asset
 		// unset the question
 		unset($question);
 
-		$this->setAttrValue('sort_order', $sort_order);
+		// array_values() that there is no 'gap' between indexes,
+		// for javascript reordering to work correctly
+		$this->setAttrValue('sort_order', array_values($sort_order));
 
 		if (!$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1109,13 +1111,13 @@ class Form extends Asset
 	* @access public
 	* @see asset::cloneComponentsAdditional()
 	*/
-    function cloneComponentsAdditional(&$clone, $components)
+	function cloneComponentsAdditional(&$clone, $components)
 	{
 
-        $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-        $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-        if (in_array('attributes', $components) || in_array('all', $components)) {
+		if (in_array('attributes', $components) || in_array('all', $components)) {
 			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
 
 
@@ -1190,11 +1192,11 @@ class Form extends Asset
 
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-        }//end if components
+		}//end if components
 
-        $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-        $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-        return TRUE;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return TRUE;
 
 	}//end cloneComponentsAdditional()
 

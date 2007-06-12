@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.53 2007/02/18 23:35:13 rhoward Exp $
+* $Id: form_section.inc,v 1.54 2007/06/12 00:42:52 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -655,7 +655,6 @@ class Form_Section extends Asset
 		}
 		$sort_order[$new_index] = $this->id.':q'.$new_key;
 		$this->setAttrValue('sort_order', $sort_order);
-
 		if (!$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -700,7 +699,9 @@ class Form_Section extends Asset
 		// unset the question
 		unset($question);
 
-		$this->setAttrValue('sort_order', $sort_order);
+		// array_values() that there is no 'gap' between indexes,
+		// for javascript reordering to work correctly
+		$this->setAttrValue('sort_order', array_values($sort_order));
 
 		if (!$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
