@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.224 2007/06/06 01:35:27 hnguyen Exp $
+* $Id: mysource.inc,v 1.225 2007/06/12 00:40:27 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.224 $
+* @version $Revision: 1.225 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1269,7 +1269,6 @@ class MySource
 
 		if (!$this->setCurrentUser($user)) return FALSE;
 
-
 		$old_session_id = session_id();
 		// regenerate the session id to protect against session fixation attacks
 		session_regenerate_id();
@@ -1455,7 +1454,6 @@ class MySource
 	function generateLoginKey($force_new_key=FALSE)
 	{
 
-		if (isset($_SESSION['SQ_LOGIN_KEY']))
 		require_once SQ_FUDGE_PATH.'/general/general.inc';
 
 		if ($force_new_key || empty($_SESSION['SQ_LOGIN_KEY'])) {
