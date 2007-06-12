@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.95 2007/02/25 23:11:49 mbrydon Exp $
+* $Id: system_config.inc,v 1.95.2.1 2007/06/12 01:19:56 amiller Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.95.2.1 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -89,6 +89,7 @@ class System_Config extends Config
 						'SQ_CONF_FORCE_SECURE_LOGIN_URLS'		=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_WEB_MEMORY_LIMIT'				=> Array('editable' => 1, 'default' => 16),
 						'SQ_CONF_CRON_MEMORY_LIMIT'				=> Array('editable' => 1, 'default' => 16),
+						'SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH'	=> Array('editable' => 1, 'default' => FALSE),
 					   );
 
 	/**
@@ -614,6 +615,14 @@ class System_Config extends Config
 				echo (SQ_CONF_ENABLE_EXTERNAL_AUTH_SYSTEMS) ? translate('yes') : translate('no');
 			}
 			$o->note(translate('enable_external_auth_systems_note'));
+
+			$o->openField(translate('choose_session_save_path'));
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH]', Array('1' => translate('true'), '0' => translate('false')), FALSE, SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH);
+			} else {
+				echo (SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH) ? translate('true') : translate('false');
+			}
+			$o->note(translate('choose_session_save_path_note', session_save_path()));
 
 		$o->closeSection();
 

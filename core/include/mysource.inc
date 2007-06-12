@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.219.2.1 2007/04/12 23:53:48 rong Exp $
+* $Id: mysource.inc,v 1.219.2.2 2007/06/12 01:19:47 amiller Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.219.2.1 $
+* @version $Revision: 1.219.2.2 $
 * @package MySource_Matrix
 */
 class MySource
@@ -246,7 +246,9 @@ class MySource
 
 			session_set_cookie_params(0, $path, $domain);
 			session_name('SQ_SYSTEM_SESSION');
-			session_save_path(SQ_SYSTEM_ROOT.'/cache');
+			if (!SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH) {
+				session_save_path(SQ_SYSTEM_ROOT.'/cache');
+			}
 			ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME);
 
 			$session_set = FALSE;
