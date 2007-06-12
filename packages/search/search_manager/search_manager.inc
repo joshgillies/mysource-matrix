@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.147.2.3 2007/05/15 02:01:03 hnguyen Exp $
+* $Id: search_manager.inc,v 1.147.2.4 2007/06/12 00:29:45 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.147.2.3 $
+* @version $Revision: 1.147.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -593,6 +593,8 @@ class Search_Manager extends Asset
 			// we don't want to index any tags so strip them
 
 			$contents = strtolower($asset->getContent());
+error_log('############# CONTENTS');
+error_log(print_r($contents, TRUE));
 			// strip tags and replace with whitespace so as to preserve word boundaries
 			$contents = preg_replace('/<\/?[^>]+>/i', ' ', $contents);
 
@@ -600,6 +602,8 @@ class Search_Manager extends Asset
 				$index_content = $plugin->splitIndexableContent($contents, $type_code, 'text', '__contents__', $weightings['__contents__']);
 			}
 		}
+error_log('############# INDEX CONTENT');
+error_log(print_r($index_content, TRUE));
 
 		return $index_content;
 
@@ -1653,7 +1657,6 @@ class Search_Manager extends Asset
 
 	/**
 	* Processes a search request
-	*
 	* Formulates search query and returns the results
 	*
 	* Each search request is logged to the 'search' log in the format:
@@ -1668,7 +1671,7 @@ class Search_Manager extends Asset
 	* </PRE>
 	* This array will be in the 'data' section of the log entry (to be accessed via the log manager)
 	*
-	* @param array	$search_info	an array of search settings in the form
+	* @param array		$search_info		an array of search settings in the form
 	* <pre>
 	* 'requester'	=> ID of asset that requested the search
 	* 'asset_types'	=> Array of type code => whether to inherit
@@ -2669,7 +2672,8 @@ class Search_Manager extends Asset
 	* @return array
 	* @access public
 	*/
-	function getCondensedResults($results) {
+	function getCondensedResults($results)
+	{
 		$searched_results = Array();
 
 		// transform the array into a better working format
@@ -2725,6 +2729,13 @@ class Search_Manager extends Asset
 					// asset contents containing search string
 					case preg_match('/contents/', $content_type) > 0:
 						$asset_contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
+
+						// If there is no editable contents for the asset, see if the content was generated (eg; for PDF files)
+						if (!$asset_contents) {
+							$asset_contents = Array(
+												$asset_id	=> $asset->getContent(),
+											  );
+						}
 
 						foreach ($asset_contents as $contents_id => $contents_value) {
 
