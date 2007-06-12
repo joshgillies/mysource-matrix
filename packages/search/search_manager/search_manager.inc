@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.147.2.4 2007/06/12 00:29:45 mbrydon Exp $
+* $Id: search_manager.inc,v 1.147.2.5 2007/06/12 01:06:11 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.147.2.4 $
+* @version $Revision: 1.147.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -593,8 +593,6 @@ class Search_Manager extends Asset
 			// we don't want to index any tags so strip them
 
 			$contents = strtolower($asset->getContent());
-error_log('############# CONTENTS');
-error_log(print_r($contents, TRUE));
 			// strip tags and replace with whitespace so as to preserve word boundaries
 			$contents = preg_replace('/<\/?[^>]+>/i', ' ', $contents);
 
@@ -602,8 +600,6 @@ error_log(print_r($contents, TRUE));
 				$index_content = $plugin->splitIndexableContent($contents, $type_code, 'text', '__contents__', $weightings['__contents__']);
 			}
 		}
-error_log('############# INDEX CONTENT');
-error_log(print_r($index_content, TRUE));
 
 		return $index_content;
 
