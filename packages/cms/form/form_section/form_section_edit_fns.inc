@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.47.2.1 2007/04/19 23:19:35 hnguyen Exp $
+* $Id: form_section_edit_fns.inc,v 1.47.2.2 2007/06/12 05:44:01 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.47.2.1 $
+* @version $Revision: 1.47.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -267,10 +267,14 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 				$asset->deleteQuestion($question);
 				unset($_POST[$prefix.'_order']['reorder'][$sort_order]);
 			}
+			// bugfix 2461: make sure there is not 'gap' between question index
+			$asset->setAttrValue('sort_order', array_values($asset->attr('sort_order')));
+			$asset->saveAttributes();
 		}
 
+		// use array_values() here so that the assets get re-ordered without
 		if (isset($_POST[$prefix.'_order']['reorder'])) {
-			$asset->setAttrValue('sort_order', $_POST[$prefix.'_order']['reorder']);
+			$asset->setAttrValue('sort_order', array_values($_POST[$prefix.'_order']['reorder']));
 			$asset->saveAttributes();
 		}
 

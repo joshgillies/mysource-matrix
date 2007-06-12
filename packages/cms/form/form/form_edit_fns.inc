@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.72.2.1 2007/04/19 06:29:49 hnguyen Exp $
+* $Id: form_edit_fns.inc,v 1.72.2.2 2007/06/12 05:44:01 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.72.2.1 $
+* @version $Revision: 1.72.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -317,14 +317,16 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				$asset->deleteQuestion($question);
 				unset($_POST[$prefix.'_order']['reorder'][$sort_order]);
 			}
-		}
-
-		// use array_merge() here so that the assets get re-ordered without
-		if (isset($_POST[$prefix.'_order']['reorder'])) {
-			$asset->setAttrValue('sort_order', array_merge($_POST[$prefix.'_order']['reorder']));
+			// bugfix 2461: make sure there is not 'gap' between question index
+			$asset->setAttrValue('sort_order', array_values($asset->attr('sort_order')));
 			$asset->saveAttributes();
 		}
 
+		// use array_values() here so that the assets get re-ordered without
+		if (isset($_POST[$prefix.'_order']['reorder'])) {
+			$asset->setAttrValue('sort_order', array_values($_POST[$prefix.'_order']['reorder']));
+			$asset->saveAttributes();
+		}
 
 		// regen the content file
 		$asset->_updated();
@@ -465,7 +467,6 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	{
 		$type   = (isset($_POST['question_type'])) ? $_POST['question_type'] : '';
 		$number = (isset($_POST['num_questions'])) ? $_POST['num_questions'] : '';
-
 		// get the number of questions in the system allready
 		// so when we create the new ones,  we can give them an
 		// appropriate name
@@ -476,7 +477,6 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		if ($type && $number) {
 
 			$am->includeAsset($type);
-
 			// create some questions
 			for ($i = 0; $i < $number; $i++) {
 				if (!$asset->attachQuestion($type)) return FALSE;
@@ -645,6 +645,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		// if there are any tags left that haven't been replaced,
 		// we want to strip them out
 		$output = preg_replace('/%[^<>%]+%/', '', $output);
+
 		create_directory($asset->data_path);
 		return string_to_file($output, $asset->data_path.'/content_file.php');
 
@@ -762,7 +763,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$output .= '<tr>';
 			$output .= '<td valign="top"';
 			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
-			$label 	 = $q->getHtmlLabel();
+			$label   = $q->getHtmlLabel();
 			escape_php($label);
 			$output .= $label;
 			if ($q->getVal('note')) {
