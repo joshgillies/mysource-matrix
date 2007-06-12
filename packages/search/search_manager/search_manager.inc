@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.131.2.10 2007/05/04 06:05:16 skim Exp $
+* $Id: search_manager.inc,v 1.131.2.11 2007/06/12 00:29:29 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.131.2.10 $
+* @version $Revision: 1.131.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1651,7 +1651,6 @@ class Search_Manager extends Asset
 
 	/**
 	* Processes a search request
-	*
 	* Formulates search query and returns the results
 	*
 	* Each search request is logged to the 'search' log in the format:
@@ -1666,7 +1665,7 @@ class Search_Manager extends Asset
 	* </PRE>
 	* This array will be in the 'data' section of the log entry (to be accessed via the log manager)
 	*
-	* @param array	$search_info	an array of search settings in the form
+	* @param array		$search_info		an array of search settings in the form
 	* <pre>
 	* 'requester'	=> ID of asset that requested the search
 	* 'asset_types'	=> Array of type code => whether to inherit
@@ -1862,7 +1861,7 @@ class Search_Manager extends Asset
 		}
 
 		if (is_null($final_results)) {
-			// If this is the case then we didn't find anything to actually search on.  Maybe no 
+			// If this is the case then we didn't find anything to actually search on.  Maybe no
 			// words were long enough.  Anyway, we should at least break the news in the correct format.
 			$final_results = Array();
 		}
@@ -2420,7 +2419,7 @@ class Search_Manager extends Asset
 						)';
 			$query['having'][] = 'MIN(p.granted) <> 0';
 			$query['group_by'][] = 'a.assetid';
-		}
+		}//end if
 
 		// STATUS RESTRICTIONS
 		if (!empty($search_info['statuses'])) {
@@ -2694,6 +2693,13 @@ class Search_Manager extends Asset
 					// asset contents containing search string
 					case preg_match('/contents/', $content_type) > 0:
 						$asset_contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
+
+						// If there is no editable contents for the asset, see if the content was generated (eg; for PDF files)
+						if (!$asset_contents) {
+							$asset_contents = Array(
+												$asset_id	=> $asset->getContent(),
+											  );
+						}
 
 						foreach ($asset_contents as $contents_id => $contents_value) {
 
