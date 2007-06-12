@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question.inc,v 1.5 2007/05/25 05:14:27 mbrydon Exp $
+* $Id: online_quiz_question.inc,v 1.6 2007/06/12 07:00:00 mbrydon Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_ONLINE_QUIZ_QUESTION_SESSION_VAR', 'SQ_ONLINE_QUIZ');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -280,7 +280,17 @@ class Online_Quiz_Question extends Asset
 	*/
 	function getQuestionNote()
 	{
-		return $this->attr('question_note');
+		$question_note = $this->attr('question_note');
+
+		// replace internal links to pages and images with their full URLs
+		$matches = Array();
+		preg_match_all('|\./\?a=([0-9]+)|', $question_note, $matches);
+		$urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($matches[1]));
+		foreach ($urls as $assetid => $url) {
+			$question_note = preg_replace('|\./\?a='.$assetid.'([^0-9])|', $url.'\\1', $question_note);
+		}
+
+		return $question_note;
 
 	}//end getQuestionNote()
 

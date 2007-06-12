@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice.inc,v 1.5 2007/05/22 00:51:19 mbrydon Exp $
+* $Id: online_quiz_question_multichoice.inc,v 1.6 2007/06/12 07:00:00 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -522,6 +522,13 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 							}
 
 							if ($use_html_options) {
+								$matches = Array();
+								preg_match_all('|\./\?a=([0-9]+)|', $option['text'], $matches);
+								$urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($matches[1]));
+								foreach ($urls as $assetid => $url) {
+									$option['text'] = preg_replace('|\./\?a='.$assetid.'([^0-9])|', $url.'\\1', $option['text']);
+								}
+
 								label($option['text'], $prefix.'_response['.$option_key.']');
 							} else {
 								label(htmlentities($option['text']), $prefix.'_response['.$option_key.']');
@@ -560,6 +567,14 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 
 		if (isset($option['response_supplement'])) {
 			$response_supplement = $option['response_supplement'];
+
+			// replace internal links to pages and images with their full URLs
+			$matches = Array();
+			preg_match_all('|\./\?a=([0-9]+)|', $response_supplement, $matches);
+			$urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($matches[1]));
+			foreach ($urls as $assetid => $url) {
+				$response_supplement = preg_replace('|\./\?a='.$assetid.'([^0-9])|', $url.'\\1', $response_supplement);
+			}
 		}
 
 		return $response_supplement;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.16 2007/05/31 23:25:30 mbrydon Exp $
+* $Id: page_online_quiz.inc,v 1.17 2007/06/12 07:00:00 mbrydon Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2906,6 +2906,14 @@ class Page_Online_Quiz extends Page_Asset_Listing
 					break;
 
 					case 'score_category_supplement':		$replacement = $score_category['content'];
+
+															// replace internal links to pages and images with their full URLs
+															$matches = Array();
+															preg_match_all('|\./\?a=([0-9]+)|', $replacement, $matches);
+															$urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($matches[1]));
+															foreach ($urls as $assetid => $url) {
+																$replacement = preg_replace('|\./\?a='.$assetid.'([^0-9])|', $url.'\\1', $replacement);
+															}
 					break;
 
 					case 'score_category_supplement_text':	$replacement = strip_tags($score_category['content']);
