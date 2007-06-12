@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.95.2.1 2007/06/12 01:19:56 amiller Exp $
+* $Id: system_config.inc,v 1.95.2.2 2007/06/12 07:07:42 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.95.2.1 $
+* @version $Revision: 1.95.2.2 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -65,10 +65,10 @@ class System_Config extends Config
 						'SQ_CONF_LOCK_LENGTH'					=> Array('editable' => 1, 'default' => 600),
 						'SQ_CONF_ASSET_MAP_ASSET_LIMIT'			=> Array('editable' => 1, 'default' => 50),
 						'SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME'	=> Array('editable' => 1, 'default' => '%asset_short_name%'),
-						'SQ_CONF_SEND_CACHEABLE_HEADER'			=> Array('editable' => 1, 'default' => '1'),
+						'SQ_CONF_SEND_CACHEABLE_HEADER'			=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_SEND_LAST_MODIFIED_HEADER'		=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_SEND_NOT_MODIFIED_HEADER'		=> Array('editable' => 1, 'default' => '0'),
-						'SQ_CONF_SEND_NO_CACHE_HEADER'			=> Array('editable' => 1, 'default' => '1'),
+						'SQ_CONF_SEND_NO_CACHE_HEADER'			=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_ERRORS_HIDE_FRONTEND'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'		=> Array('editable' => 1, 'default' => 'en'),
 						'SQ_CONF_DEFAULT_BACKEND_LOCALE'		=> Array('editable' => 1, 'default' => 'en_AU'),
