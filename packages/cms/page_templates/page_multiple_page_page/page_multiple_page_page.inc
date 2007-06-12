@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page_page.inc,v 1.13 2006/12/07 00:04:21 emcdonald Exp $
+* $Id: page_multiple_page_page.inc,v 1.13.2.1 2007/06/12 00:40:59 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -215,6 +215,75 @@ class Page_Multiple_Page_Page extends Bodycopy
 		return $replacement;
 
 	}//end getKeywordReplacement()
+
+
+	/**
+	* Get replacements for keywords that are specific to this asset
+	*
+	* @param array	$keywords	the keywords to get replacements for
+	*
+	* @return array
+	* @access public
+	* @see Asset::getCustomKeywordReplacements()
+	*/
+	function getCustomKeywordReplacements($keywords)
+	{
+		if (!is_array($keywords) || empty($keywords)) {
+			return Array();
+		}
+		$print_commit_button = FALSE;
+
+		$replacements = Array();
+		foreach ($keywords as $keyword) {
+			switch ($keyword) {
+				case 'contents' :
+					$edit =& $this->getEditFns();
+					ob_start();
+						if ($edit->paintBodycopy($this, $GLOBALS['SQ_SYSTEM']->backend->out, $this->getPrefix())) {
+							$print_commit_button = TRUE;
+						}
+						$replacements[$keyword] = ob_get_contents();
+					ob_end_clean();
+				break;
+
+				default:
+					$replacements[$keyword] = '';
+				break;
+			}//end switch
+		}//end foreach
+
+		return Array('replacements' => $replacements, 'print_commit_button' => $print_commit_button);
+
+	}//end getCustomKeywordReplacements()
+
+
+	/**
+	* Process anything that was previously printed for a custom keyword
+	*
+	* @param array	$keywords	the keywords that were originally printed
+	*
+	* @return boolean
+	* @access public
+	* @see Asset::processCustomKeywords()
+	*/
+	function processCustomKeywords($keywords)
+	{
+		if (!is_array($keywords) || empty($keywords)) {
+			return Array();
+		}
+
+		foreach ($keywords as $keyword) {
+			switch ($keyword) {
+				case 'contents' :
+					$edit =& $this->getEditFns();
+					$edit->processBodycopy($this, $GLOBALS['SQ_SYSTEM']->backend->out, $this->getPrefix());
+				break;
+			}
+		}
+
+		return TRUE;
+
+	}//end processCustomKeywords()
 
 
 }//end class
