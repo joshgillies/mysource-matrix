@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.25 2007/01/17 03:08:42 emcdonald Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.26 2007/06/13 06:56:54 hnguyen Exp $
 *
 */
 -->
 
 <contents>
 	<section name="Questions (not attached to a section)">
-		<field>
+		<field write_access="write:menu">
 			<function_call>
 				<paint_function   name="paintQuestionLinks"   />
 				<process_function name="processQuestionLinks" />
