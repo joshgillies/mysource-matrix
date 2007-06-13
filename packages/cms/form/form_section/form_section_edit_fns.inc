@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.47.2.2 2007/06/12 05:44:01 rong Exp $
+* $Id: form_section_edit_fns.inc,v 1.47.2.3 2007/06/13 04:03:27 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.47.2.2 $
+* @version $Revision: 1.47.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -261,23 +261,21 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	{
 		$prefix = $asset->getPrefix();
 
-		if (isset($_POST[$prefix.'_order']['delete'])) {
-			foreach (array_keys($_POST[$prefix.'_order']['delete']) as $sort_order) {
-				$question = $asset->getQuestionByOrder($sort_order);
-				$asset->deleteQuestion($question);
-				unset($_POST[$prefix.'_order']['reorder'][$sort_order]);
-			}
-			// bugfix 2461: make sure there is not 'gap' between question index
-			$asset->setAttrValue('sort_order', array_values($asset->attr('sort_order')));
-			$asset->saveAttributes();
-		}
-
 		// use array_values() here so that the assets get re-ordered without
 		if (isset($_POST[$prefix.'_order']['reorder'])) {
 			$asset->setAttrValue('sort_order', array_values($_POST[$prefix.'_order']['reorder']));
 			$asset->saveAttributes();
 		}
 
+		if (isset($_POST[$prefix.'_order']['delete'])) {
+			foreach (array_keys($_POST[$prefix.'_order']['delete']) as $sort_order) {
+				$question = $asset->getQuestionByOrder($sort_order);
+				$asset->deleteQuestion($question);
+			}
+			// bugfix 2461: make sure there is not 'gap' between question index
+			$asset->setAttrValue('sort_order', array_values($asset->attr('sort_order')));
+			$asset->saveAttributes();
+		}
 
 		// regen the content file
 		$asset->_updated();
