@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.34.2.1 2007/04/11 06:54:54 arailean Exp $
+* $Id: page_whats_new.inc,v 1.34.2.2 2007/06/13 06:44:06 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34.2.1 $
+* @version $Revision: 1.34.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -167,7 +167,7 @@ class Page_Whats_New extends Listing_Engine
 			$links = Array();
 
 			foreach ($root_asset_ids as $root_asset_id) {
-				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), FALSE, 'major', NULL, NULL, NULL, $letter_sort_by, SQ_PERMISSION_READ);
+				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, 'major', NULL, NULL, NULL, $letter_sort_by, SQ_PERMISSION_READ);
 
 				// Replace references to asset table with ones to the view
 				$where = str_replace('a.'.$field, 'l.'.$field, $where);
