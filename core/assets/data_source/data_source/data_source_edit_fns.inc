@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_edit_fns.inc,v 1.5 2006/12/05 05:53:09 emcdonald Exp $
+* $Id: data_source_edit_fns.inc,v 1.6 2007/06/13 01:48:03 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,7 +113,7 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 			return;
 		}
 		$keywords = $shadow_asset->getAvailableKeywords();
-		$wa = $asset->writeAccess('attributes');
+		$write_access = $asset->writeAccess('attributes');
 		?>
 		<table class="sq-backend-table">
 			<tr>
@@ -124,11 +124,11 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 			foreach ($keywords as $key => $desc) {
 				// all the keywords other than the shadow asset name are to be displayed for the user to choose the
 				// keywords or a combination of keywords and strings to set the shadow asset name
-				if ($key == 'data_source_record_set_shadow_asset_name') {
+				if ($key == 'data_source_record_set_shadow_asset_name' || $key == 'ds__shadow_asset_name') {
 					unset($keywords[$key]);
 					continue;
 				} else {
-					if (strpos($key, 'data_source_record_set') === FALSE) {
+					if (strpos($key, 'data_source_record_set') === FALSE && strpos($key, 'ds__') === FALSE) {
 						unset($keywords[$key]);
 						continue;
 					}
@@ -143,11 +143,8 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 		?>
 		</table>
 		<?php
-		if ($wa) {
-			return TRUE;
-		} else {
-			return FALSE;
-		}
+
+		return $write_access;
 
 	}//end paintKeywords()
 
@@ -181,11 +178,7 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 	function resultSetExists(&$asset, $prefix)
 	{
 		$result = $asset->getResultSet();
-		if (empty($result)) {
-			return FALSE;
-		} else {
-			return TRUE;
-		}
+		return !empty($result);
 
 	}//end resultSetExists()
 
