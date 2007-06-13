@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set.inc,v 1.9 2006/12/05 05:53:09 emcdonald Exp $
+* $Id: data_source_record_set.inc,v 1.10 2007/06/13 01:46:59 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -74,15 +74,7 @@ class Data_Source_Record_Set extends Asset
 		}
 		// if the name has keywords in it then we get the string with replacements
 		if (!empty($data['shadow_asset_name'])) {
-			$name = $data['shadow_asset_name'];
-			require_once SQ_FUDGE_PATH.'/general/text.inc';
-			$keywords = retrieve_keywords_replacements($name);
-			$replacements = Array();
-			foreach ($keywords as $key) {
-				$replacements[$key] = $this->getKeywordReplacement($key);
-			}
-			$name_string = replace_keywords($name, $replacements);
-			$this->name = $name_string;
+			$this->name = $this->replaceKeywordsInString($data['shadow_asset_name']);
 		} else {
 			if (isset($data['title'])) {
 				$this->name = $data['title'];
@@ -153,8 +145,11 @@ class Data_Source_Record_Set extends Asset
 		$keywords['asset_name'] = translate('record_set_name');
 		$keywords['asset_short_name'] = translate('record_set_short_name');
 		$keywords['asset_data_source_id'] = translate('data_source_id');
+
+		$attr_string = translate('record_set_attribute');
 		foreach ($columns as $column) {
-			$keywords['data_source_record_set_'.$column] = translate('record_set_attribute').' : '.$column;
+			$keywords['data_source_record_set_'.$column] = $attr_string.' : '.$column;
+			$keywords['ds__'.$column] = $attr_string.' : '.$column;
 		}
 		return $keywords;
 
@@ -174,11 +169,11 @@ class Data_Source_Record_Set extends Asset
 		$replacement = NULL;
 		if (strpos($keyword, 'data_source_record_set_') !== FALSE) {
 			$keyword = substr($keyword, strlen('data_source_record_set_'));
-			if (isset($this->vars[$keyword])) {
-				$replacement = $this->vars[$keyword];
-			} else {
-				$replacement = '';
-			}
+			$replacement = array_get_index($this->vars, $keyword, '');
+		} else if (strpos($keyword, 'ds__') !== FALSE) {
+			// this does the same thing as 'data_source_record_set_' but is much shorter
+			$keyword = substr($keyword, strlen('ds__'));
+			$replacement = array_get_index($this->vars, $keyword, '');
 		} else if (strpos($keyword, 'asset_') !== FALSE) {
 			$key = substr($keyword, strlen('asset_'));
 			switch ($key) {
