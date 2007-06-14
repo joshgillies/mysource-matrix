@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.30.2.2 2007/01/08 05:23:53 emcdonald Exp $
+* $Id: bulkmail_job.inc,v 1.30.2.3 2007/06/14 03:18:52 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.30.2.2 $
+* @version $Revision: 1.30.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -105,12 +105,8 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 
 		// generate content as pre-selected user
 		$data_dir = $post_office->data_path.'/.data/'.$this->id;
-		$content_id = $this->attr('content_id');
-		$content_gen_as = $this->attr('content_gen_as');
-		$content_design = $this->attr('content_design');
-		$content_layout = $this->attr('content_layout');
 		require_once SQ_PACKAGES_PATH.'/bulkmail/bulk_mailer.inc';
-		$content = Bulk_Mailer::generateContent($content_id, $content_gen_as, $content_design, $content_layout, $data_dir);
+		$content = Bulk_Mailer::generateContent($details_info, $data_dir);
 
 		// get header details, required and normal headers
 		$use_post_office_header = $this->attr('use_post_office_header');
@@ -128,7 +124,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$keywords = retrieve_keywords_replacements($subject);
 		$replacements = Array();
-		$content_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($content_id);
+		$content_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_id']);
 		foreach ($keywords as $word) {
 			$replacements[$word] = $content_asset->getKeywordReplacement($word);
 		}
@@ -144,8 +140,9 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			$header_details['subject'] .= ' (Preview)';
 		}
 
+		// set $crlf to "\n" since we are sending the content using PEAR Mail
 		$mime =& new Mail_mime("\n");
-		$mime->setHtmlBody($content);
+		$mime->setHTMLBody($content);
 		$body = @$mime->get();
 		$headers = @$mime->headers($header_details);
 		$status = $mail_object->send($recipient, $headers, $body);
