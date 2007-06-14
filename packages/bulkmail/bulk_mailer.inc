@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.66 2007/06/14 02:44:06 tbarrett Exp $
+* $Id: bulk_mailer.inc,v 1.67 2007/06/14 02:46:41 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -291,7 +291,6 @@ class Bulk_Mailer
 							$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $user);
 							// only queue the mail if we can generate content
 							$problematic = (empty($content)) ? TRUE : FALSE;
-							if ($problematic) error_log("Problem for $user_id because content was blank");
 							if (!$problematic) {
 								$mime->setHTMLBody($content);
 								$body = @$mime->get();
@@ -407,7 +406,6 @@ class Bulk_Mailer
 		}
 
 		if ($problematic) {
-			error_log("Marking $user_id as problematic");
 			$progress_info['total_count']--;
 			$progress_info['problematic'][] = $user_id;
 		} else {
@@ -517,7 +515,6 @@ class Bulk_Mailer
 				}
 			} else {
 				// read access denied for this recipient
-				error_log("Adding $recipient_id to problematic list");
 				$problematic_list[] = $recipient_id;
 			}
 		}
@@ -747,7 +744,6 @@ class Bulk_Mailer
 				$design =& $am->getAsset($design_id);
 				$design->paint($page);
 			} else if ($design_id) {
-				error_log("design_id is $design_id");
 				$design =& $am->getAsset($design_id);
 				$design->paint($page);
 			} else if ($layout_id) {
