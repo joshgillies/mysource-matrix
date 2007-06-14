@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.43 2007/06/06 01:11:39 colivar Exp $
+* $Id: file_system.inc,v 1.44 2007/06/14 05:00:01 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package Fudge
 * @subpackage General
 */
@@ -524,7 +524,7 @@ function get_last_lines_from_file($filepath, $max_lines=10, $line_ending="\n")
 	// move pointer before the last character
 	fseek($handle, -1, SEEK_END);
 	$pos = ftell($handle);
-	if ($pos === FASE) return FALSE;
+	if ($pos === FALSE) return FALSE;
 
 	$chars = 0;
 	$current_word = NULL;
