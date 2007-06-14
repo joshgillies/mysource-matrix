@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.js,v 1.13 2006/12/14 01:58:10 tbarrett Exp $
+* $Id: js_calendar.js,v 1.13.2.1 2007/06/14 22:48:18 colivar Exp $
 *
 */
 
@@ -416,9 +416,9 @@ function c_output()
 {
 	var dt = new Date();
 	var td = new Date();
+	dt.setDate(1);
 	dt.setMonth(this.month);
 	dt.setYear(this.year);
-	dt.setDate(1);
 
 	var is_week_set  = this.onWeekClick  != null;
 	var is_day_set   = this.onDayClick   != null;
