@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.12 2006/12/07 05:55:57 bcaldwell Exp $
+* $Id: lang_errors.xml,v 1.13 2007/06/14 02:41:46 tbarrett Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -36,4 +36,6 @@
 	<error code="BML0015">No days were selected.</error>
 
 	<error code="BML0016">Cannot send the verification email</error>
+
+	<error code="BML0017">Could not change to the correct user for content generation</error>
 </errors>
