@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.131.2.11 2007/06/12 00:29:29 mbrydon Exp $
+* $Id: search_manager.inc,v 1.131.2.12 2007/06/14 05:17:34 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.131.2.11 $
+* @version $Revision: 1.131.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2697,7 +2697,7 @@ class Search_Manager extends Asset
 						// If there is no editable contents for the asset, see if the content was generated (eg; for PDF files)
 						if (!$asset_contents) {
 							$asset_contents = Array(
-												$asset_id	=> $asset->getContent(),
+												$assetid	=> $asset->getContent(),
 											  );
 						}
 
