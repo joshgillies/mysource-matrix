@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.65 2007/06/06 15:13:14 gnoel Exp $
+* $Id: bulk_mailer.inc,v 1.66 2007/06/14 02:44:06 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -286,11 +286,12 @@ class Bulk_Mailer
 						// fork since we cannot call printFrontend multiple times
 						$pid = $this->fork();
 						if (!$pid) {
-							$content = $this->generateContent($details['content_id'], $details['content_gen_as'], $details['content_design'], $details['content_layout'], $job_path, $user_id);
+							$content = $this->generateContent($details, $job_path, $user_id);
 							$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
 							$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $user);
 							// only queue the mail if we can generate content
 							$problematic = (empty($content)) ? TRUE : FALSE;
+							if ($problematic) error_log("Problem for $user_id because content was blank");
 							if (!$problematic) {
 								$mime->setHTMLBody($content);
 								$body = @$mime->get();
@@ -406,6 +407,7 @@ class Bulk_Mailer
 		}
 
 		if ($problematic) {
+			error_log("Marking $user_id as problematic");
 			$progress_info['total_count']--;
 			$progress_info['problematic'][] = $user_id;
 		} else {
@@ -515,32 +517,29 @@ class Bulk_Mailer
 				}
 			} else {
 				// read access denied for this recipient
+				error_log("Adding $recipient_id to problematic list");
 				$problematic_list[] = $recipient_id;
 			}
 		}
-
+		$query = Array();
 		if (!empty($recipients_query)) {
 			// Now, let's do one big query to get all the email addresses of REAL assets
 			// User assets without an email will be filtered out here
-			$chunk_size = 250;
-			foreach (array_chunk($recipients_query, $chunk_size) as $recipients_query_chunk) {
-				$sql = 'SELECT attr_val.assetid, attr_val.custom_val
-						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val attr_val
-						  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr attr
-							ON (attr_val.attrid = attr.attrid)
-						WHERE attr.name = \'email\'
-						AND attr_val.assetid IN ('.implode(',', $recipients_query_chunk).')';
+			$sql = 'SELECT attr_val.assetid, attr_val.custom_val
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val attr_val
+					  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr attr
+						ON (attr_val.attrid = attr.attrid)
+					WHERE attr.name = \'email\'
+					AND attr_val.assetid IN ('.implode(',', $recipients_query).')';
 
-				$query_chunk = $db->getAssoc($sql);
-
-				assert_valid_db_result($query_chunk);
-				$recipients += $query_chunk;
-			}
+			$query = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql);
+			assert_valid_db_result($query);
 		}
+
+		$recipients += $query;
 
 		$result['recipient'] = $recipients;
 		$result['problematic'] = $problematic_list;
-
 		return $result;
 
 	}//end getAllRecipients()
@@ -640,77 +639,128 @@ class Bulk_Mailer
 	* Used in previewing mail and sending actual bmail (use each user or one user)
 	* Pre-selected user is used when we cannot login bulkmail_users
 	*
-	* @param int	$content_id		the assetid of the content page
-	* @param string	$content_gen_as	the content generation type, use each user or use one user
-	* @param int	$content_design	the assetid of the effective design
-	* @param int	$content_layout	the assetid of the effective layout
+	* Can be called statically (eg from bulkmail_job)
+	*
+	* @param array	$job_details	Details of the job
 	* @param string	$job_path		path to the effective job data dir
-	* @param int	$recipient_id	the recipient of this email, zero is for preview mail
+	* @param int	$recipient_id	the recipient of this email, empty is for preview mail
 	*
 	* @return string
 	* @access public
 	*/
-	function generateContent($content_id, $content_gen_as, $content_design, $content_layout, $job_path, $recipient_id=NULL)
+	function generateContent($job_details, $job_path, $recipient_id=NULL)
 	{
-		// Get the user before we change it
-		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
-
 		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$generateUser =& $am->getAsset($content_gen_as);
-		$replaceUser =& $generateUser;
 
-		$cache = TRUE;
-		if (is_null($recipient_id)) {
-			$replaceUser =& $current_user;
-			$cache = FALSE;
-		} else if ($recipient_id) {
-			$replaceUser =& $am->getAsset($recipient_id);
-			if (!is_a($replaceUser, 'Bulkmail_User')) {
-				$generateUser =& $replaceUser;
-			}
+		if (!empty($recipient_id)) {
+			$recipient =& $am->getAsset($recipient_id);
+		} else {
+			$recipient =& $GLOBALS['SQ_SYSTEM']->user;
 		}
 
-		if (is_null($generateUser) || is_null($replaceUser)) {
+		if (($job_details['content_gen'] == 'one_user') || (is_a($recipient, 'bulkmail_user'))) {
+
+			// Same content for everyone, apart from recipient keywords.
+			// First try the cache, unless we're previewing
+
+			if ((file_exists($job_path.'/cache/content_file.html')) && !empty($recipient_id)) {
+
+				$content = file_to_string($job_path.'/cache/content_file.html');
+
+			} else {
+
+				// Log in as generator
+				$generator_user =& $am->getAsset($job_details['content_gen_as']);
+				if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($generator_user)) {
+					trigger_localised_error('BML0017', E_USER_WARNING); // localise
+					return '';
+				}
+
+				// Do the actual generation
+				$content = Bulk_Mailer::generateRawContent($job_details);
+
+				// Log out generator
+				$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
+
+				// Save to cache, unless previewing
+				if (!empty($recipient_id)) {
+					string_to_file($content, $job_path.'/cache/content_file.html');
+				}
+
+
+			}//end else file doesn't exist or recipient empty
+
+		} else {
+
+			// We are generating content on a per-recipient basis
+
+			// Make the recipient the current user, unless we are previewing (empty recipient id)
+			// in which case the current user is already the recipient
+			if (!empty($recipient_id)) {
+				if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($recipient)) {
+					trigger_localised_error('BML0017', E_USER_WARNING);
+					return '';
+				}
+			}
+
+			// Do the actual generation
+			$content = Bulk_Mailer::generateRawContent($job_details);
+
+			// If we logged in the recipient, log them out again
+			if (!empty($recipient_id)) {
+				$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
+			}
+
+		}
+
+		return Bulk_Mailer::replaceContentKeywords($content, $recipient);
+
+	}//end generateContent()
+
+
+	/**
+	* Generate the raw content to be sent, ignoring user switching and recpient keyword replacement
+	*
+	* @param object	&$page	The asset whose content is to be sent
+	* @param int	$design_id	The ID of the design to use when generating the content
+	* @param int	$layout_id	The ID of the paint layout to use when generating the content
+	*
+	* @return string
+	* @access private
+	* @static
+	*/
+	function generateRawContent($details)
+	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$page =& $am->getAsset($details['content_id']);
+		if (empty($page)) {
 			return '';
 		}
 
-		if ((file_exists($job_path.'/cache/content_file.html')) && ($content_gen_as == $generateUser->id)) {
-			$content = file_to_string($job_path.'/cache/content_file.html');
-		} else {
-			if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($generateUser)) {
-				return '';
+		$design_id = array_get_index($details, 'content_design');
+		$layout_id = array_get_index($details, 'content_layout');
+
+		ob_start();
+			// generate content based on design and paint layout supplied
+			if ($design_id && $layout_id) {
+				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $layout_id);
+				$design =& $am->getAsset($design_id);
+				$design->paint($page);
+			} else if ($design_id) {
+				error_log("design_id is $design_id");
+				$design =& $am->getAsset($design_id);
+				$design->paint($page);
+			} else if ($layout_id) {
+				$layout =& $am->getAsset($layout_id);
+				$layout->paint($page);
+			} else {
+				@$page->printFrontend();
 			}
-			$page =& $am->getAsset($content_id);
-
-			ob_start();
-				// generate content based on design and paint layout supplied
-				if ($content_design && $content_layout) {
-					$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $content_layout);
-					$design =& $am->getAsset($content_design);
-					$design->paint($page);
-				} else if ($content_design) {
-					$design =& $am->getAsset($content_design);
-					$design->paint($page);
-				} else if ($content_layout) {
-					$layout =& $am->getAsset($content_layout);
-					$layout->paint($page);
-				} else {
-					@$page->printFrontend();
-				}
-				$content = ob_get_contents();
-			ob_end_clean();
-
-			if (($content_gen_as == $generateUser->id) && !$cache) {
-				string_to_file($content, $job_path.'/cache/content_file.html');
-			}
-		}
-		$content = Bulk_Mailer::replaceContentKeywords($content, $replaceUser);
-		// Restore the old user again
-		$GLOBALS['SQ_SYSTEM']->setCurrentUser($current_user);
-
+			$content = ob_get_contents();
+		ob_end_clean();
 		return $content;
 
-	}//end generateContent()
+	}//end generateRawContent()
 
 
 	/**
