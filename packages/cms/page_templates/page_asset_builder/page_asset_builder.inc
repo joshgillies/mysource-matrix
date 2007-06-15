@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.111 2007/03/15 00:58:52 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.111.2.1 2007/06/15 05:10:45 colivar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.111 $
+* @version $Revision: 1.111.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -972,7 +972,7 @@ class Page_Asset_Builder extends Page
 							$i = 0;
 							foreach ($data['locations'] as $id => $name) {
 								check_box($code_name."[$i]", $id, $checked);
-								echo '&nbsp;'.$name.'<br />';
+								echo '&nbsp;'.str_replace(' ', '&nbsp;',$options[$id]).'<br />';
 								$checked = FALSE;
 								$i++;
 							}
@@ -980,7 +980,7 @@ class Page_Asset_Builder extends Page
 							$checked = !$data['allow_empty'];
 							foreach ($data['locations'] as $id => $name) {
 								radio_button($code_name, $id, $checked);
-								echo '&nbsp;'.$name.'<br />';
+								echo '&nbsp;'.str_replace(' ', '&nbsp;',$options[$id]).'<br />';
 								$checked = FALSE;
 							}
 						}
