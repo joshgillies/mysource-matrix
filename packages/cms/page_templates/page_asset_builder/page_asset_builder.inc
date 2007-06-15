@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.111 2007/03/15 00:58:52 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.112 2007/06/15 05:10:10 colivar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.111 $
+* @version $Revision: 1.112 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -922,6 +922,7 @@ class Page_Asset_Builder extends Page
 	*/
 	function _loadCreateReplacements()
 	{
+
 		  ///////////////////////////
 		 // CREATE INVITE KEYWORD //
 		///////////////////////////
@@ -937,10 +938,10 @@ class Page_Asset_Builder extends Page
 		//////////////////////////////////////////
 		foreach ($this->attr('create_location_optional') as $name => $data) {
 			$code_name = $this->_sanitiseLocationSetName($name);
-			
+
 			// the following line will remove any assets that no longer exist
 			$options = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($data['locations']), Array(), TRUE, 'name');
-			
+
 			if (!$this->attr('allow_public_user')) {
 				$remaining_options = Array();
 				$user_groups = $GLOBALS['SQ_SYSTEM']->user->getUserGroups();
@@ -956,7 +957,6 @@ class Page_Asset_Builder extends Page
 			}
 			ob_start();
 				switch ($data['input_style']) {
-
 					case 'dropdown':
 						if ($data['allow_empty'] && !$data['allow_multiple']) {
 							$options = Array(''=>'') + $options;
@@ -972,15 +972,16 @@ class Page_Asset_Builder extends Page
 							$i = 0;
 							foreach ($data['locations'] as $id => $name) {
 								check_box($code_name."[$i]", $id, $checked);
-								echo '&nbsp;'.$name.'<br />';
+								echo '&nbsp;'.str_replace(' ', '&nbsp;',$options[$id]).'<br />';
 								$checked = FALSE;
 								$i++;
 							}
 						} else {
 							$checked = !$data['allow_empty'];
+
 							foreach ($data['locations'] as $id => $name) {
 								radio_button($code_name, $id, $checked);
-								echo '&nbsp;'.$name.'<br />';
+								echo '&nbsp;'.str_replace(' ', '&nbsp;',$options[$id]).'<br />';
 								$checked = FALSE;
 							}
 						}
