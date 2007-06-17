@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.77 2007/03/05 02:26:18 tbarrett Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.77.2.1 2007/06/17 23:46:10 mbrydon Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.77.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3413,10 +3413,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 								if (isset($asset_info[$options['root_node']]['name'])) {
 									echo get_asset_tag_line($options['root_node']);
 								} else {
-									echo translate('core_no_selectes_root_node');
+									echo translate('core_no_selected_root_node');
 								}
 							} else {
-								echo translate('core_no_selectes_root_node');
+								echo translate('core_no_selected_root_node');
 							}
 						}
 					?>
