@@ -19,7 +19,7 @@
 
 		$o->openSection('Keyword List for Simple Edit Keywords');
 
-		$tyle_list = Array();
+		$type_list = Array();
 		$asset_type_list = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes();
 		foreach ($asset_type_list as $key => $value) {
 			if ($value['instantiable'] == 1) {
