@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.37 2007/05/04 04:14:35 rhoward Exp $
+* $Id: thesaurus.inc,v 1.38 2007/06/18 23:49:33 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -2450,7 +2450,7 @@ class Thesaurus extends Asset
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT termid, thesid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'new_thes_term ';
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'thes_term ';
 
 		// single asset id
 		if (!$is_array) {
