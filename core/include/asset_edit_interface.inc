@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.322 2007/02/20 03:35:06 colivar Exp $
+* $Id: asset_edit_interface.inc,v 1.323 2007/06/18 02:05:09 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322 $
+* @version $Revision: 1.323 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -2577,9 +2577,19 @@ class Asset_Edit_Interface extends MySource_Object
 			if (strtolower($current_screen) != 'contents') {
 			   $o->openSection($current_screen_name.' screen'.' <span class="screen_kw">(%'.str_replace(' ', '_', strtolower($current_screen)).'-%)</span>');
 			} else {
-				$o->openSection($current_screen_name.' screen'.' <span class="screen_kw">(%__custom-'.str_replace(' ', '_', strtolower($current_screen)).'%)</span>');
-				$o->closeSection();
-				continue;
+				if ($asset_type == 'page_standard') {
+					$o->openSection($current_screen_name.' screen'.' <span class="screen_kw">(%__custom-'.str_replace(' ', '_', strtolower($current_screen)).'%)</span>');
+					$o->closeSection();
+					continue;
+				} else {
+					// list of asset types that should not get this limbo keyword
+					$filter_list = Array('image');
+					if (!in_array($asset_type, $filter_list)) {
+						$o->openSection($current_screen_name.' screen'.' <span class="screen_kw">(%'.str_replace(' ', '_', strtolower($current_screen)).'-%)</span>');
+					} else {
+						continue;
+					}
+				}
 			}
 
 			foreach ($section_array as $tmp_section => $tmp_fields) {
