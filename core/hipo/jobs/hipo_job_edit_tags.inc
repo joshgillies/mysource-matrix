@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_tags.inc,v 1.6 2007/05/01 05:45:40 hnguyen Exp $
+* $Id: hipo_job_edit_tags.inc,v 1.7 2007/06/19 04:29:47 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit content tags
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -272,14 +272,19 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 
 			if (!is_null($asset)) {
 				foreach ($this->_running_vars['tag_changes'] as $tag_data) {
+					if (!is_array($tag_data['tag_id'])) {
+						$tag_data['tag_id'] = Array($tag_data['tag_id']);
+					}
 					switch ($tag_data['action']) {
 						case 'add':
-							// if this asset is already tagged with this tag, update the weight
-							$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $tag_data['tag_id'], SQ_LINK_NOTICE);
-							if (empty($link)) {
-								$tag_manager->setTag($asset->id, $tag_data['tag_id'], $tag_data['weight']);
-							} else {
-								$tag_manager->setTagWeight($link['linkid'], $tag_data['weight']);
+							foreach ($tag_data['tag_id'] as $tag_data_id) {
+								// if this asset is already tagged with this tag, update the weight
+								$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $tag_data_id, SQ_LINK_NOTICE);
+								if (empty($link)) {
+									$tag_manager->setTag($asset->id, $tag_data_id, $tag_data['weight']);
+								} else {
+									$tag_manager->setTagWeight($link['linkid'], $tag_data['weight']);
+								}
 							}
 						break;
 

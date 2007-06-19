@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.89 2007/05/31 04:53:34 rong Exp $
+* $Id: lang_errors.xml,v 1.90 2007/06/19 04:29:47 rong Exp $
 *
 */
 
@@ -1710,7 +1710,11 @@ Full Node Contents :
 
 	<error code="CORE0276">File %s does not exist or is not readable</error>
 
-	<!-- Trigger Actio Add Remap -->
+	<!-- Tagging -->
+	<error code="CORE0277">Unable to remove tag %1$s from %2$s, link does not exist</error>
+	<error code="CORE0278">Unable to remove tag %1$s from %2$s, link #%3$s cannot be deleted</error>
+
+	<!-- Trigger Action Add Remap -->
 	<error code="CORE0271">Adding remap entry failed in Trigger Action Add Remap</error>
 	<error code="CORE0272">%s is already remapped, Trigger Action Add Remap failed</error>
 	<error code="CORE0273">The report could not be exported as another error has occurred. Please check previous error messages.</error>
