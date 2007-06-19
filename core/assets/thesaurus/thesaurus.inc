@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.39 2007/06/19 04:28:06 rong Exp $
+* $Id: thesaurus.inc,v 1.40 2007/06/19 05:17:18 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1946,12 +1946,20 @@ class Thesaurus extends Asset
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=TRUE, $sort_by=NULL)
+	function getChildren($assetid, $type_code='thesaurus_term', $strict_type_code=TRUE, $dependant=TRUE, $sort_by=NULL)
 	{
 		$result = Array();
+		$id_parts = explode(':', $assetid);
 		if ($type_code == 'thesaurus_term' || (is_array($type_code) && in_array('thesaurus_term', $type_code))) {
 			// will return all terms, regardless of what param you pass in
-			$terms = $this->getAllTerms();
+			$terms = Array();
+			if (isset($id_parts[1]) && $id_parts[0] == $this->id) {
+				// if we are only looking for children terms underneath a term
+				$terms = $this->getChildTerms($id_parts[1]);
+			} else {
+				$terms = $this->getAllTerms();
+			}
+
 			foreach ($terms as $term_info) {
 				$result[$this->id.':'.$term_info['termid']] = 'thesaurus_term';
 			}
