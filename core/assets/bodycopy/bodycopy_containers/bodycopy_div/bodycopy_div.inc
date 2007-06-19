@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div.inc,v 1.17 2006/12/05 05:45:17 emcdonald Exp $
+* $Id: bodycopy_div.inc,v 1.18 2007/06/19 06:59:57 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,7 +98,7 @@ class Bodycopy_Div extends Bodycopy_Container
 		}
 
 		if ($lock_status == 1) {
-			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'atttributes')) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes')) {
 				return FALSE;
 			}
 		}
