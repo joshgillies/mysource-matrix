@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.54 2007/06/07 01:32:11 rhoward Exp $
+* $Id: hipo_job_create_links.inc,v 1.55 2007/06/19 07:12:15 rhoward Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -239,7 +239,6 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	*/
 	function prepare()
 	{
-		log_dump($this->_running_vars);
 		if (empty($this->_running_vars['assets'])) {
 			trigger_localised_error('HIPO0026', E_USER_WARNING);
 			return '';
@@ -930,6 +929,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 		$assets  = $this->_running_vars['process_create_links'];
 		$assetid = key($assets);
+		$asset   =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		$links   = reset($assets);
 
 		$value    = reset($links);
@@ -947,8 +947,6 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				return FALSE;
 			}
 
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-
 			if (is_null($asset)) {
 				trigger_localised_error('HIPO0022', E_USER_WARNING, $assetid);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -956,12 +954,27 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				return FALSE;
 			}
 
+			// disallow multiple significant links between the same parent and child
+			// NOTE: failing this will mean that further links (valid or not) will not be processed, in the same
+			// manner as when the new link from $new_parent => $asset isn't created properly (see below)
+			$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+			if ($new_parent->id != $trash_folder->id) {
+				if (($value['link_type'] & SQ_SC_LINK_SIGNIFICANT) && $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($new_parent->id, $asset->id, SQ_SC_LINK_SIGNIFICANT)) {
+					$to_parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
+					trigger_localised_error('SYS0329', E_USER_WARNING, $asset->name, $asset->id, $to_parent_asset->name, $to_parent_asset->id);
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($to_parent_asset);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return FALSE;
+				}
+			}
+
 			$step_data['message'] = 'Creating a link between "'.htmlentities($asset->name).'" and "'.htmlentities($new_parent->name).'".';
 
 			$linkid = $new_parent->createLink($asset, $value['link_type'], '', $this->_running_vars['to_parent_pos']);
 
 			if (!$linkid) {
-				trigger_localised_error('HIPO0021', E_USER_WARNING, $asset->name, $new_parent->name);
+				trigger_localised_error('HIPO0021', E_USER_WARNING, htmlentities($asset->name), htmlentities($new_parent->name));
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
@@ -1000,7 +1013,6 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 				$moving_to_trash = TRUE;
 
-
 				$id_parts = explode(':', $assetid);
 				if (isset($id_parts[1])) $bridge_id = $id_parts[0];
 
@@ -1024,13 +1036,13 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				}
 			}//end if moving to trash
 
+
 			// if we are moving a shadow asset to the trash, the bridge is responsible for deletion of links
 			// and determining whether the shadow asset itself should be deleted
 			// NOTE: a shadow asset CANNOT be linked to the Trash, therefore it (or the link) must be deleted
 			if ($moving_to_trash && !is_null($bridge_id)) {
 
 				$link  = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $assetid, 'minor');
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid']);
 
 				// if the major of this link contains no colon, and is not a bridge, then it's a real asset
 				// with a shadow asset linked underneath, so get the asset manager to handle this delete
@@ -1068,6 +1080,22 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 				// if we are not moving to trash, or this asset is safe to trash, proceed
 				if ($not_to_trash || $safe_to_trash) {
+
+					$link            = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $value['parentid']);
+					$new_parent_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->_running_vars['to_parent_assetid']));
+
+					// disallow multiple significant links between the same parent and child (outside the trash)
+					// NOTE: failing this will mean that further links (valid or not) will not be processed, in the same
+					// manner as when moving the link fails (see below)
+					if ($not_to_trash) {
+						if (($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) && $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->_running_vars['to_parent_assetid'], $asset->id, SQ_SC_LINK_SIGNIFICANT)) {
+							trigger_localised_error('SYS0329', E_USER_WARNING, $asset->name, $asset->id, $new_parent_info[$this->_running_vars['to_parent_assetid']]['name'], $this->_running_vars['to_parent_assetid']);
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							return FALSE;
+						}
+					}
+
 					// if parent and current asset settings are the same then skip the cascades screen
 					if ($this->_running_vars['can_skip_cascade']) {
 						if (!$this->_canSkipCascadeSteps($assetid, $this->_running_vars['to_parent_assetid'])) {
@@ -1075,7 +1103,6 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						}
 					}
 
-					$link   = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $value['parentid']);
 					$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($value['linkid'], $this->_running_vars['to_parent_assetid'], $link['link_type'], $this->_running_vars['to_parent_pos']);
 					if (!$linkid) {
 						trigger_localised_error('HIPO0020', E_USER_WARNING, $assetid, $this->_running_vars['to_parent_assetid']);
@@ -1093,12 +1120,13 @@ class HIPO_Job_Create_Links extends HIPO_Job
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;
 					}
-					$new_parent_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->_running_vars['to_parent_assetid']));
+
 					$step_data['message'] = translate('hipo_move', htmlentities($asset->name), htmlentities($new_parent_info[$this->_running_vars['to_parent_assetid']]['name']));
 
 					$this->_running_vars['to_parent_pos']++;
+
 				} else {
-					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
 					// If we are marking for deletion, then do so
 					if (!$safe_to_trash) {
 						$cron_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
@@ -1157,7 +1185,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			}
 
 		} else {
-			$step_data['percent_done'] = (count($this->_running_vars['done_links']) / count($this->_running_vars['link_count'])) * 100;
+			$step_data['percent_done'] = ((count($this->_running_vars['done_links']) * 100) / $this->_running_vars['link_count']);
 			$step_data['complete']     = FALSE;
 		}
 

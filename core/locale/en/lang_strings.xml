@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.253 2007/06/12 01:03:13 amiller Exp $
+* $Id: lang_strings.xml,v 1.254 2007/06/19 07:12:15 rhoward Exp $
 *
 */
 
@@ -2118,6 +2118,7 @@ Are you sure you want to proceed?</string>
 	<string source="cannot_reorder_sig_link_no_perm_minor">Cannot reorder asset "%1$s" (# %2$s) under "%3$s" (# %4$s) - no write permission for "%1$s"</string>
 	<string source="cannot_create_link_paths_in_use">Cannot create link from "%1$s" (# %2$s) to "%3$s" (# %4$s), path(s) %5$s already in use by one of the children of "%1$s"</string>
 	<string source="cannot_create_link_exclusive_link">Asset "%1$s" (# %2$s) cannot be linked to "%3$s" (# %4$s), it is exclusively linked to "%5$s" (# %6$s)</string>
+	<string source="cannot_create_link_existing_significant_link">Asset "%1$s" (#%2$s) cannot be linked to "%3$s" (#%4$s), a significant link already exists between these assets</string>
 	<string source="database_error">Database Error</string>
 	<string source="major_is_not_asset">Variable passed in major asset parameter is not an asset object</string>
 	<string source="minor_is_not_asset">Variable passed in minor asset parameter is not an asset object</string>

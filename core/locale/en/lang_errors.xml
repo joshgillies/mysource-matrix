@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.90 2007/06/19 04:29:47 rong Exp $
+* $Id: lang_errors.xml,v 1.91 2007/06/19 07:12:15 rhoward Exp $
 *
 */
 
@@ -1388,6 +1388,9 @@ Full Node Contents %3$s</error>
 	<error code="SYS0315">System Default email address has not been set.</error>
 	<error code="SYS0316">System Tech email address has not been set.</error>
 	<error code="SYS0317">Neither the System Default nor Tech email addresses have been set.</error>
+
+	<error code="SYS0329">Asset "%1$s" (#%2$s) cannot be linked to "%3$s" (#%4$s), a significant link already exists between these assets</error>
+
 
 
 	<!-- CORE ASSETS -->
