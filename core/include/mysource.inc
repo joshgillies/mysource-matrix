@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.205.2.14 2007/04/13 00:01:44 rong Exp $
+* $Id: mysource.inc,v 1.205.2.15 2007/06/19 23:53:07 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.205.2.14 $
+* @version $Revision: 1.205.2.15 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1249,6 +1249,7 @@ class MySource
 		// when logging in we wipe the previous session file
 		$sess_filename = session_save_path().'/sess_'.$old_session_id;
 		@unlink($sess_filename);
+		$this->_updateSessionCookie();
 
 		$_SESSION['userid'] = $user->id;
 		$_SESSION['user_type_code'] = $user->type();
