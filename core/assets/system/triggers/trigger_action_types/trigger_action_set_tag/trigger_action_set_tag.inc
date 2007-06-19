@@ -10,12 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_tag.inc,v 1.3 2007/02/16 04:57:26 rhoward Exp $
+* $Id: trigger_action_set_tag.inc,v 1.4 2007/06/19 04:31:35 rong Exp $
 *
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 
 /**
 * Trigger Action Set Tag
@@ -24,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,6 +47,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 	* 		'action'			=> string,	// whether to add or delete
 	* 		'cascade'			=> boolean,	// cascade tag changes to children?
 	* 		'manual_cascade'	=> boolean,	// manually cascade the changes instead (mutually exclusive with 'cascade')
+	* 		'value_map'			=> serialised array // if a dynamic param is set, extract tag id from here
 	* );
 	* </pre>
 	*
@@ -68,24 +70,42 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 			}
 		}
 
-		// if tagid is not set or incorrect, fall back on 'thesaurusid' and 'term_name'
+		// note that tagid can be an assetid or an array of ids
 		$tagid = 0;
-		if (!empty($settings['tagid']) && $GLOBALS['SQ_SYSTEM']->am->assetExists($settings['tagid'])) {
-			$tagid = $settings['tagid'];
+		// see if the tag id is set in the parameter map
+		$value_map = array_get_index($settings, 'value_map', serialize(Array()));
+		$param_map_attr =& new Asset_Attribute_Parameter_Map(0, $value_map);
+		$param_map_value = $param_map_attr->getParameterValue('tag_id');
+		if (!empty($param_map_value)) {
+			$tmp_ids = explode(',', $param_map_value);
+			$tagid = Array();
+			foreach ($tmp_ids as $tmp_id) {
+				if ($GLOBALS['SQ_SYSTEM']->am->assetExists($tmp_id)) {
+					// only add valid tag id to the array
+					$tagid[] = $tmp_id;
+				} else {
+					trigger_localised_error('SYS0087', E_USER_WARNING, $tmp_id);
+				}
+			}
 		} else {
-			// use the thesaurusid / term_name combo instead
-			if (!empty($settings['thesaurusid'])) {
-				$thesaurus =& $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['thesaurusid']);
-				if (!is_null($thesaurus)) {
-					$termid = $thesaurus->getTermIdByName($settings['term_name']);
-					if (!empty($termid)) {
-						$tagid = $thesaurus->id.':'.$termid;
+			// if none is set in the param map,
+			// use the normal tag id chosen by the asset finder
+			if (!empty($settings['tagid']) && $GLOBALS['SQ_SYSTEM']->am->assetExists($settings['tagid'])) {
+				$tagid = $settings['tagid'];
+			} else {
+				// use the thesaurusid / term_name combo instead
+				if (!empty($settings['thesaurusid'])) {
+					$thesaurus =& $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['thesaurusid']);
+					if (!is_null($thesaurus)) {
+						$termid = $thesaurus->getTermIdByName($settings['term_name']);
+						if (!empty($termid)) {
+							$tagid = $thesaurus->id.':'.$termid;
+						}
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($thesaurus);
 					}
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($thesaurus);
 				}
 			}
 		}
-
 		if (empty($tagid)) return FALSE;
 
 		$action = array_get_index($settings, 'action', 'add');
@@ -306,6 +326,16 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 			echo '<br /><br />'.$cascade_part;
 			echo '<br />'.$manual_cascade_part;
 
+			// prints the parameter map to accept dynamic values
+			if ($write_access) {
+				// attribute friendly prefix
+				$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+				hidden_field($prefix.'[new_prefix]', $new_prefix);
+				$param_map_value = array_get_index($settings, 'value_map', serialize(Array()));
+				$param_map_attr =& new Asset_Attribute_Parameter_Map(0, $param_map_value);
+				$param_map_attr->setParameter('tag_id', 'Tag ID');
+				echo $param_map_attr->paint($new_prefix.'_parameter_map');
+			}
 			$contents = ob_get_contents();
 		ob_end_clean();
 
@@ -340,6 +370,14 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 
 		$settings['cascade']        = (bool) array_get_index($request_data, 'cascade', FALSE);
 		$settings['manual_cascade'] = (bool) array_get_index($request_data, 'manual_cascade', FALSE);
+
+		// parameter map to accept dynamic value
+		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+		if ($new_prefix) {
+			$param_map_attr =& new Asset_Attribute_Parameter_Map();
+			$param_map_attr->process($new_prefix.'_parameter_map');
+			$settings['value_map'] = $param_map_attr->value;
+		}
 
 		return FALSE;
 
