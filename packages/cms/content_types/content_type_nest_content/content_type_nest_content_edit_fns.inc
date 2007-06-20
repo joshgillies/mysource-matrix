@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.44 2007/03/26 23:38:57 arailean Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.45 2007/06/20 04:59:58 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -56,6 +56,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		if ($asset->writeAccess('links') && $asset->writeAccess('attributes')) {
 			$nested_asset =& $this->_getNestedAsset($asset);
+			$paint_with = $asset->attr('paint_with');
+			$arbitrary_paint_layout =& $this->_getArbitraryPaintLayout($asset);
 			$asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
 			if (empty($asset_link)) {
 				$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
@@ -68,10 +70,20 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 						<td class="sq-backend-table-cell-alt"><b><?php echo translate('cms_ct_nest_content_currently_nesting', $nested_asset->attr('name')) ?></b></td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_nested_assetid', $nested_asset->id, Array('page' => 'D')); ?></td>
+						<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_nested_assetid', $nested_asset->id, Array('asset' => 'D')); ?></td>
 					</tr>
 					<tr>
 						<td class="sq-backend-table-cell"><b><a href="<?php echo $asset_link; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('cms_ct_nest_content_click_to_preview') ?></a></b></td>
+					</tr>
+					<tr>
+						<td class="sq-backend-table-cell-alt"><b>Paint this asset:</b></td>
+					</tr>
+					<tr>
+						<td class="sq-backend-table-cell">
+						<input name="<?php echo $prefix; ?>_paint_with" type="radio" value="raw"<?php if ($paint_with == 'raw') { ?> checked="checked"<?php } ?>> Raw (no Paint Layout)<br/>
+						<input name="<?php echo $prefix; ?>_paint_with" type="radio" value="default"<?php if ($paint_with == 'default') { ?> checked="checked"<?php } ?>> Using default Paint Layout (based on lookup rules)<br/>
+						<input name="<?php echo $prefix; ?>_paint_with" type="radio" value="arbitrary"<?php if ($paint_with == 'arbitrary') { ?> checked="checked"<?php } ?>> Using an arbitrary Paint Layout: <?php asset_finder($prefix.'_paint_with_layout', $arbitrary_paint_layout->id, Array('paint_layout_page' => 'D')); ?><br/>
+						</td>
 					</tr>
 				</table>
 				<?php
@@ -82,7 +94,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 						<td class="sq-backend-table-cell-alt"><b><?php echo translate('cms_ct_nest_content_no_page_selected'); ?></b></td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_nested_assetid', '', Array('page' => 'D')); ?></td>
+						<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_nested_assetid', '', Array('asset' => 'D')); ?></td>
 					</tr>
 				</table>
 				<?php
@@ -148,7 +160,43 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 			// Ask the asset to do its thing
 			ob_start();
-				$nested_asset->printBody();
+				switch ($this->attr('paint_with')) {
+					case 'raw':
+						// Raw - just paint it
+						$nested_asset->printBody();
+					break;
+
+					case 'default':
+						// Default Rules - use the "normal" method of determining
+						// which paint layout gets used
+						$nested_asset->printBodyWithPaintLayout();
+					break;
+
+					case 'arbitrary':
+						// Get the arbitary paint layout; if there is none set,
+						// paint it raw, otherwise paint it with the arbitrary layout
+						$arbitrary_paint_layout =& $this->_getArbitraryPaintLayout($asset);
+						if (empty($arbitrary_paint_layout)) {
+
+							$nested_asset->printBody();
+						} else {
+							// we have found the paint layout to use... we might need to fool the system
+							// into thinking we are printing the frontend of that asset
+							$switched_frontend = FALSE;
+							if ($GLOBALS['SQ_SYSTEM']->frontend_asset->id !== $this->id) {
+								$current_frontend_asset =& $GLOBALS['SQ_SYSTEM']->frontend_asset;
+								$GLOBALS['SQ_SYSTEM']->frontend_asset =& $nested_asset;
+								$switched_frontend = TRUE;
+							}
+							$arbitrary_paint_layout->paint($nested_asset);
+
+							if ($switched_frontend) {
+								$GLOBALS['SQ_SYSTEM']->frontend_asset =& $current_frontend_asset;
+							}
+						}
+					break;
+				}//end switch
+
 				$asset_contents = ob_get_contents();
 			ob_end_clean();
 
@@ -188,7 +236,41 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		if (!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key])) {
 			$GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key] = 1;
 			$nested_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid, '', TRUE);
-			if ($nested_asset->id && $nested_asset->readAccess()) $nested_asset->printBody();
+			if ($nested_asset->id && $nested_asset->readAccess()) {
+				<?php
+				switch ($asset->attr('paint_with')) {
+					case 'raw':
+						?>$nested_asset->printBody();<?php
+					break;
+
+					case 'default':
+						?>$nested_asset->printBodyWithPaintLayout();<?php
+					break;
+
+					case 'arbitrary':
+						$arbitrary_paint_layout =& $this->_getArbitraryPaintLayout($asset);
+						if (empty($arbitrary_paint_layout)) {
+							?>$nested_asset->printBody();<?php
+						} else {
+							?>
+							$arbitrary_paint_layout =& $GLOBALS['SQ_SYSTEM']->am->getAsset(<?php echo $arbitrary_paint_layout->id ?>);
+							$switched_frontend = FALSE;
+							if ($GLOBALS['SQ_SYSTEM']->frontend_asset->id !== $this->id) {
+								$current_frontend_asset =& $GLOBALS['SQ_SYSTEM']->frontend_asset;
+								$GLOBALS['SQ_SYSTEM']->frontend_asset =& $nested_asset;
+								$switched_frontend = TRUE;
+							}
+							$arbitrary_paint_layout->paint($nested_asset);
+
+							if ($switched_frontend) {
+								$GLOBALS['SQ_SYSTEM']->frontend_asset =& $current_frontend_asset;
+							}
+							<?php
+						}
+					break;
+				}//end switch
+				?>
+			}
 			unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key]);
 		} else {
 			echo '<font color="red"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br />'.translate('cms_ct_nest_content_recursion_body').'</b></font>';
@@ -212,9 +294,48 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function processBackend($link, &$asset, $prefix)
 	{
+		$ok = FALSE;
+
 		$nested_asset =& $this->_getNestedAsset($asset);
 		$current_assetid = (!is_null($nested_asset)) ? $nested_asset->id : 0;
-		$assetid = (isset($_POST[$prefix.'_nested_assetid']['assetid'])) ? (int)$_POST[$prefix.'_nested_assetid']['assetid'] : 0;
+
+		$arbitrary_paint_layout =& $this->_getArbitraryPaintLayout($asset);
+		$current_apl_assetid = (!is_null($arbitrary_paint_layout)) ? $arbitrary_paint_layout->id : 0;
+
+		$assetid = (isset($_POST[$prefix.'_nested_assetid']['assetid'])) ? $_POST[$prefix.'_nested_assetid']['assetid'] : 0;
+		$paint_with = array_get_index($_POST, $prefix.'_paint_with', 'raw');
+		$paint_with_assetid = (isset($_POST[$prefix.'_paint_with_layout']['assetid'])) ? $_POST[$prefix.'_paint_with_layout']['assetid'] : 0;
+
+		if ($paint_with_assetid && ($paint_with == 'arbitrary')) {
+			if ($current_apl_assetid) {
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', TRUE, 'paint_with_layout');
+				if (!$asset->deleteLink($link['linkid'])) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return FALSE;
+				}
+			}
+
+			// create a NOTICE link for delete notification
+			$arbitrary_paint_layout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($paint_with_assetid);
+			if (!$asset->createLink($arbitrary_paint_layout, SQ_LINK_NOTICE, 'paint_with_layout')) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return FALSE;
+			}
+
+			$asset->linksUpdated();
+
+		}
+
+		if ($paint_with != $asset->attr('paint_with')) {
+			$asset->setAttrValue('paint_with', $paint_with);
+
+			if (!$asset->saveAttributes()) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return FALSE;
+			}
+
+			$ok = TRUE;
+		}
 
 		if ($assetid) {
 
@@ -266,15 +387,16 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return TRUE;
+				$ok = TRUE;
 
 			}//end if
 
 		} else if ($current_assetid) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', TRUE, 'nested_asset');
-			return $asset->deleteLink($link['linkid']);
+			$ok = $asset->deleteLink($link['linkid']);
 		}
-		return FALSE;
+
+		return $ok;
 
 	}//end processBackend()
 
@@ -299,6 +421,28 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		return $nested_asset;
 
 	}//end _getNestedAsset()
+
+
+	/**
+	* Get a reference to the asset the content type is nesting
+	*
+	* @param object	&$asset	the nest content content type object
+	*
+	* @return mixed object|NULL
+	* @access private
+	*/
+	function &_getArbitraryPaintLayout(&$asset)
+	{
+		$paint_layout = NULL;
+
+		$paint_layout_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', TRUE, 'paint_with_layout');
+		if (!empty($paint_layout_link)) {
+			$paint_layout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($paint_layout_link['minorid'], $paint_layout_link['minor_type_code'], TRUE);
+		}
+
+		return $paint_layout;
+
+	}//end _getArbitraryPaintLayout()
 
 
 }//end class
