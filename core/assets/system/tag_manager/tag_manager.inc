@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.8 2007/06/19 04:29:47 rong Exp $
+* $Id: tag_manager.inc,v 1.9 2007/06/20 01:24:00 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends Asset
@@ -314,8 +314,10 @@ class Tag_Manager extends Asset
 
 			// see if the asset is already tagged with this tag
 			$tag_links = $this->getTagLinks($assetid);
+			$already_tagged = FALSE;
 			foreach ($tag_links as $link) {
 				if ($tagid == $link['minorid']) {
+					$already_tagged = TRUE;
 					if ($weight == $link['value']) {
 						// already tagged with the same weighting
 						continue;
@@ -328,8 +330,10 @@ class Tag_Manager extends Asset
 				}
 			}//end foreach existing tag link
 
-			if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $new_tag_object, SQ_LINK_NOTICE, $weight)) {
-				$has_error = TRUE;
+			if (!$already_tagged) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $new_tag_object, SQ_LINK_NOTICE, $weight)) {
+					$has_error = TRUE;
+				}
 			}
 
 		}//end foreach tag id
