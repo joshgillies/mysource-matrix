@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.23 2007/01/08 04:00:57 emcdonald Exp $
+* $Id: tool_search_replace.inc,v 1.24 2007/06/21 23:19:12 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -140,7 +140,7 @@ class Tool_Search_Replace extends Tool
 			return FALSE;
 		}
 
-		if (!isset($_REQUEST[$type_code.'_root_assetid']) && !isset($_REQUEST[$type_code.'_root_folder'])) {
+		if (empty($_REQUEST[$type_code.'_root_assetid']['assetid']) && !isset($_REQUEST[$type_code.'_root_folder'])) {
 			trigger_localised_error('SCH0005', E_USER_NOTICE);
 			return FALSE;
 		}
@@ -256,7 +256,7 @@ class Tool_Search_Replace extends Tool
 						$asset_contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
 
 						foreach ($asset_contents as $contents_id => $contents_value) {
-							if (preg_match("/".htmlentities($search_string)."/i", $contents_value) || preg_match("/".($search_string)."/i", $contents_value)) {
+							if (preg_match('/'.htmlentities($search_string).'/i', $contents_value) || preg_match('/'.($search_string).'/i', $contents_value)) {
 								$formatted_results[$assetid]['contents'][$contents_id] = $contents_value;
 							}
 						}
