@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.44.2.1 2007/04/20 01:45:44 hnguyen Exp $
+* $Id: form_management.inc,v 1.44.2.2 2007/06/21 06:51:54 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.44.2.1 $
+* @version $Revision: 1.44.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -290,6 +290,26 @@ class Form_Management extends Asset_Management
 			}
 
 			pre_echo('DONE');
+		}
+
+		// attribute clean up, following bugfix #2461 and #2462
+		if (version_compare($current_version, '0.8.2', '<')) {
+			$formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form', FALSE);
+			foreach ($formids as $formid) {
+				$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($formid);
+				// remove questions that are not present in the sort order array
+				$sort_order = $form->attr('sort_order');
+				$questions = $form->attr('questions');
+				$new_questions = Array();
+				foreach ($sort_order as $shadowid) {
+					$id_parts = explode(':q', $shadowid);
+					$new_questions[$id_parts[1]] = $questions[$id_parts[1]];
+				}
+				$form->setAttrValue('questions', $new_questions);
+				$form->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($form);
+			}
+			pre_echo(count($formids).' FORMS UPDATED');
 		}
 
 		return $res;

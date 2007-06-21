@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_management.inc,v 1.15.2.1 2007/04/20 01:45:44 hnguyen Exp $
+* $Id: form_section_management.inc,v 1.15.2.2 2007/06/21 06:51:54 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15.2.1 $
+* @version $Revision: 1.15.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -80,57 +80,76 @@ class Form_Section_Management extends Asset_Management
 		}//end constructor
 
 
-    /**
-    * Upgrade
-    *
-    * @param string $current_version    the version of the asset that is currenly installed
-    *
-    * @return boolean
-    * @access public
-    */
-    function _upgrade($current_version)
-    {
-        if (!parent::_upgrade($current_version)) return FALSE;
+	/**
+	* Upgrade
+	*
+	* @param string $current_version    the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		if (!parent::_upgrade($current_version)) return FALSE;
 
-        $asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
+		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
 
-        if (version_compare($current_version, '0.6', '<')) {
-            // version 0.3 -> 0.5 (0.4 was a botched version)
-            // escaping of "<?php", "<?", etc. now happens in content_type::paint(), but we need to
-            // regenerate each bodycopy_container's content file so that we catch any nasties that might
-            // already be present that we need to get rid of.
-            // ignore cases where <?php has already been escaped to &lt;?php
-            pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.6');
-            // get all 'bodycopy_container' assets (or their descendants)
+		if (version_compare($current_version, '0.6', '<')) {
+			// version 0.3 -> 0.5 (0.4 was a botched version)
+			// escaping of "<?php", "<?", etc. now happens in content_type::paint(), but we need to
+			// regenerate each bodycopy_container's content file so that we catch any nasties that might
+			// already be present that we need to get rid of.
+			// ignore cases where <?php has already been escaped to &lt;?php
+			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.6');
+			// get all 'bodycopy_container' assets (or their descendants)
 
-            $form_sections = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetIds($this->getAssetType(), FALSE);
+			$form_sections = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetIds($this->getAssetType(), FALSE);
 
-            pre_echo('Upgrading '.count($form_sections).' assets...');
-            foreach ($form_sections as $assetid) {
-                $form_section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			pre_echo('Upgrading '.count($form_sections).' assets...');
+			foreach ($form_sections as $assetid) {
+				$form_section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
-                // reasonably critical upgrade - report any assets that didn't make it
-                if (is_null($form_section)) {
-                    pre_echo('Could get asset #'.$assetid);
-                    continue;
-                }
+				// reasonably critical upgrade - report any assets that didn't make it
+				if (is_null($form_section)) {
+					pre_echo('Could get asset #'.$assetid);
+					continue;
+				}
 
-                // regenerate the bodycopy_container's content file
-                $form_section_edit_fns =& $form_section->getEditFns();
-                if (!$form_section_edit_fns->generateContentFile($form_section)) {
-                    pre_echo('Could not generate content file for asset #'.$assetid);
-                }
+				// regenerate the bodycopy_container's content file
+				$form_section_edit_fns =& $form_section->getEditFns();
+				if (!$form_section_edit_fns->generateContentFile($form_section)) {
+					pre_echo('Could not generate content file for asset #'.$assetid);
+				}
 
-                unset($form_section_edit_fns);
-                $GLOBALS['SQ_SYSTEM']->am->forgetAsset($form_section);
-            }
-            pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.6');
+				unset($form_section_edit_fns);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($form_section);
+			}
+			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.6');
 
-        }//end version 0.5 upgrade
+		}//end version 0.5 upgrade
 
-        return TRUE;
+		// attribute clean up following bugfix #2461 and #2462
+		if (version_compare($current_version, '0.6.1', '<')) {
+			$form_section_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
+			foreach ($form_section_ids as $id) {
+				$form_section_ =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+				// remove questions that are not present in the sort order array
+				$sort_order = $form_section_->attr('sort_order');
+				$questions = $form_section_->attr('questions');
+				$new_questions = Array();
+				foreach ($sort_order as $shadowid) {
+					$id_parts = explode(':q', $shadowid);
+					$new_questions[$id_parts[1]] = $questions[$id_parts[1]];
+				}
+				$form_section_->setAttrValue('questions', $new_questions);
+				$form_section_->saveAttributes();
+			}
+			pre_echo(count($form_section_ids).' FORM_SECTIONS UPDATED');
+		}
 
-    }//end _upgrade()
+		return TRUE;
+
+	}//end _upgrade()
 
 
 }//end class
