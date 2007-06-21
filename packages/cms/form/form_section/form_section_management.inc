@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_management.inc,v 1.18 2007/06/12 05:18:24 rong Exp $
+* $Id: form_section_management.inc,v 1.19 2007/06/21 06:35:11 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -128,6 +128,25 @@ class Form_Section_Management extends Asset_Management
 			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.6');
 
 		}//end version 0.5 upgrade
+
+		// attribute clean up following bugfix #2461 and #2462
+		if (version_compare($current_version, '0.7', '<')) {
+			$form_section_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
+			foreach ($form_section_ids as $id) {
+				$form_section_ =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+				// remove questions that are not present in the sort order array
+				$sort_order = $form_section_->attr('sort_order');
+				$questions = $form_section_->attr('questions');
+				$new_questions = Array();
+				foreach ($sort_order as $shadowid) {
+					$id_parts = explode(':q', $shadowid);
+					$new_questions[$id_parts[1]] = $questions[$id_parts[1]];
+				}
+				$form_section_->setAttrValue('questions', $new_questions);
+				$form_section_->saveAttributes();
+			}
+			pre_echo(count($form_section_ids).' FORM_SECTIONS UPDATED');
+		}
 
 		return TRUE;
 
