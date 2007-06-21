@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.565 2007/06/07 01:54:50 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.566 2007/06/21 06:20:28 skim Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.565 $
+* @version $Revision: 1.566 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4242,14 +4242,15 @@ class Asset_Manager extends MySource_Object
 				if ($existing_treeid != '-') {
 
 					$sql .= ' WHERE
-								ct.treeid LIKE '.$db->quoteSmart($existing_treeid.'%').'
-							AND	ct.treeid > '.$db->quoteSmart($existing_treeid).'
-							AND	LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE);
+								ct.treeid LIKE '.$db->quoteSmart($existing_treeid.'%');
+					if (!empty($existing_treeid)) {
+						$sql .= ' AND ct.treeid > '.$db->quoteSmart($existing_treeid);
+					}
+					$sql .= ' AND LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE);
 				} else {
 					$sql .= ' WHERE LENGTH(ct.treeid) = '.SQ_CONF_ASSET_TREE_SIZE;
 				}
 				$sql .= ' AND linkid > 0 ORDER BY treeid DESC';
-
 				$sql = $db->modifyLimitQuery($sql, 0, 1);
 				$last_treeid = $db->getOne($sql);
 				assert_valid_db_result($last_treeid);
@@ -4258,7 +4259,6 @@ class Asset_Manager extends MySource_Object
 
 				// if we couldn't find any treeids on this branch, then we can just
 				// do a straight inert and break the loop as we are done
-
 				if (empty($last_treeid)) {
 					$sql = 'asset_link_treeid_convert('.$db->quoteSmart('0').', '.$db->quoteSmart('1').', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
 					$free_treeid = db_get_function_result($db, $sql);
