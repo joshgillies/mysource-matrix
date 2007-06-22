@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.29 2007/02/07 06:16:02 arailean Exp $
+* $Id: www.inc,v 1.30 2007/06/22 07:01:49 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package Fudge
 * @subpackage General
 */
@@ -112,10 +112,10 @@ function valid_email($e)
 	// dot character cannot be the first or last character in the local-part.
 	$local_middle = $local.'.\w';
 
-	if (preg_match('/^[a-zA-Z]+(([\'\,\.\- ][a-zA-Z ])?[a-zA-Z]*)*\s+<(['.$local.']['.$local_middle.']*['.$local.']@[\da-zA-Z][-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})>$/', $e)) {
+	if (preg_match('/^[a-zA-Z]+(([\'\,\.\- ][a-zA-Z ])?[a-zA-Z]*)*\s+<(['.$local.'](['.$local_middle.']*['.$local.']){0,1}@[\da-zA-Z][-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})>$/', $e)) {
 		// matches email with display name, for example, 'Someone <some.one@squiz.net>'
 		return TRUE;
-	} else if (preg_match('/^(['.$local.']['.$local_middle.'\']*['.$local.']@[\da-zA-Z][\'-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})$/', $e)) {
+	} else if (preg_match('/^(['.$local.'](['.$local_middle.'\']*['.$local.']){0,1}@[\da-zA-Z][\'-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})$/', $e)) {
 		// matches normal email address
 		return TRUE;
 	} else {
