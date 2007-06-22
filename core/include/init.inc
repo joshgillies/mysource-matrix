@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.99 2007/06/06 01:32:19 hnguyen Exp $
+* $Id: init.inc,v 1.100 2007/06/22 06:50:27 arailean Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix
 */
 
@@ -182,6 +182,10 @@ define('SQ_SECURITY_TRIGGERS',           128); // enable triggering/event system
 define('SQ_RUN_LEVEL_OPEN',     0); // no security
 define('SQ_RUN_LEVEL_FORCED', 236); // DATA_VALIDATION, PASSWORD_VALIDATION, INTEGRITY, STATUS_INTEGRITY and TRIGGERS
 define('SQ_RUN_LEVEL_SECURE', 255); // full security
+
+
+// this is where parameter map and trigger actions will store session variables
+define('SQ_SESSION_SANDBOX_INDEX', '__SQ_SESSION_SANDBOX');
 
 
 // load assertion functions, for integrated testing
