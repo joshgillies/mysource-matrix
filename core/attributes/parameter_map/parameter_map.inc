@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.23 2007/04/27 06:32:19 arailean Exp $
+* $Id: parameter_map.inc,v 1.24 2007/06/22 07:03:51 arailean Exp $
 *
 */
 
@@ -45,7 +45,7 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 * 			)
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -389,6 +389,14 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 					}
 				break;
 
+				// this is for storing data in session
+				// note that it is stored in a particular part of global session variable
+				case 'SESSION':
+					if (!empty($rule['index']) && isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$rule['index']])) {
+						return $_SESSION[SQ_SESSION_SANDBOX_INDEX][$rule['index']];
+					}
+				break;
+
 				case 'ASSET':
 				case 'USER':
 				case 'CURRENT_SITE':
@@ -489,6 +497,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 		return Array(
 				'GET'			=> 'GET '.translate('variable_name'),
 				'POST'			=> 'POST '.translate('variable_name'),
+				'SESSION'		=> 'SESSION '.translate('variable_name'),
 				'ASSET'			=> translate('current_asset'),
 				'USER'			=> translate('current_user'),
 				'CURRENT_SITE'	=> translate('current_site'),
