@@ -1,0 +1,41 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1 2007/06/22 05:45:51 tbarrett Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Name</display_name>
+			<note></note>
+		</field>
+		<field attribute="data_url">
+			<display_name>Data URL</display_name>
+			<note></note>
+		</field>
+		<field attribute="refresh_time">
+			<display_name>Refresh Time</display_name>
+			<note>The bridge will refresh its data file from the data URL above if the data file is older than the duration set here</note>
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintUserTypeChooser" />
+				<paint_function name="processUserTypeChooser" />
+			</function_call>
+			<display_name>User Type</display_name>
+			<note>Choose the asset type that the bridge should expose under the groups</note>
+		</field>
+	</section>
+</contents>

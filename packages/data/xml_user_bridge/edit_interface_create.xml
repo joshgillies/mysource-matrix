@@ -1,0 +1,36 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_create.xml,v 1.1 2007/06/22 05:45:50 tbarrett Exp $
+*
+*/
+-->
+
+<contents screen="details">
+	<section name="Details" write_access="write:attributes">
+		<field attribute="name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="data_url">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="refresh_time">
+			<duration />
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintUserTypeChooser" />
+				<paint_function name="processUserTypeChooser" />
+			</function_call>
+		</field>
+	</section>
+</contents>
