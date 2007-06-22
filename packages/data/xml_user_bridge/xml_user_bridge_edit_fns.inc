@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_user_bridge_edit_fns.inc,v 1.1 2007/06/22 05:45:51 tbarrett Exp $
+* $Id: xml_user_bridge_edit_fns.inc,v 1.2 2007/06/22 06:43:29 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * Functions to handle backend interface for this asset type
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -100,6 +100,27 @@ class xml_user_bridge_Edit_Fns extends Bridge_Edit_Fns
 		return FALSE;
 
 	}//end processUserTypeChooser()
+
+
+	/**
+	* Paint the interface for choosing a type of user asset to use
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintXMLFormat(&$asset, &$o, $prefix)
+	{
+		$o->openField('');
+		?>
+		<p>The required format for the source XML file is shown in <a href="<?php echo sq_web_path('data'); ?>/asset_types/xml_user_bridge/files/user_bridge_example.xml">this example file</a>.  The attributes of the 'user' node must include 'id' and may include any of the attributes of the asset type selected above</p>
+		<?php
+		$o->closeField();
+
+	}//end paintXMLFormat()
 
 
 }//end class

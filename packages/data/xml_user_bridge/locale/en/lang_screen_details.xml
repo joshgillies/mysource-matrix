@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2007/06/22 05:45:51 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.2 2007/06/22 06:43:30 tbarrett Exp $
 *
 */
 -->
@@ -37,5 +37,10 @@
 			<display_name>User Type</display_name>
 			<note>Choose the asset type that the bridge should expose under the groups</note>
 		</field>
+	</section>
+	<section name="XML Format" write_access="write:attributes">
+		<function_call>
+			<paint_function name="paintXMLFormat" />
+		</function_call>
 	</section>
 </contents>

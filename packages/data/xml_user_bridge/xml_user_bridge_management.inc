@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_user_bridge_management.inc,v 1.1 2007/06/22 05:45:51 tbarrett Exp $
+* $Id: xml_user_bridge_management.inc,v 1.2 2007/06/22 06:43:29 tbarrett Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -67,6 +67,21 @@ class XML_User_Bridge_Management extends Asset_Management
 
 
 	}//end constructor
+
+
+	/**
+	* Gets a list of all files that the asset wants web accessable
+	*
+	* @return array
+	* @access private
+	*/
+	function _getFileList()
+	{
+		return Array(
+				'files/user_bridge_example.xml',
+			   );
+
+	}//end _getFileList()
 
 
 }//end class
