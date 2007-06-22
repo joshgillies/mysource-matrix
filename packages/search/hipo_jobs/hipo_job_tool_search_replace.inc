@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.11 2007/03/05 00:09:51 skim Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.11.2.1 2007/06/22 00:27:38 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -547,9 +547,10 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 				$this->skipStep(5);
 				$this->skipStep(7);
 			}
-			$step_data['percent_done'] = 100;
-			$step_data['complete'] = TRUE;
 		}//end else
+
+		$step_data['percent_done'] = 100;
+		$step_data['complete'] = TRUE;
 
 		return TRUE;
 
