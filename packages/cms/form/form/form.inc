@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.162.2.2 2007/05/11 01:39:50 hnguyen Exp $
+* $Id: form.inc,v 1.162.2.3 2007/06/22 04:06:46 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.162.2.2 $
+* @version $Revision: 1.162.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1619,11 +1619,19 @@ class Form extends Asset
 			// folder already exists, get the reference
 			$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
 		}
-		if (is_null($folder)) return FALSE;
+		if (is_null($folder)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
 
 		// and see whether this bodycopy already exists
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name);
-		if (!empty($bodycopy_link)) return TRUE;
+		if (!empty($bodycopy_link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return TRUE;
+		}
 
 		// bodycopy doesn't exist, so create it willya
 		// create a link to the folder so we can put the bodycopies in it
