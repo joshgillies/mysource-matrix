@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_connector_edit_fns.inc,v 1.2 2007/05/23 04:24:09 arailean Exp $
+* $Id: db_connector_edit_fns.inc,v 1.3 2007/06/25 01:39:05 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *     Edit functions for DB Connector
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -244,7 +244,7 @@ class Db_Connector_Edit_Fns extends Asset_Edit_Fns
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'minor', 'db_connector');
 
 		if (empty($links)) {
-			echo '<em style="color: blue;">'.translate('connector_not_used').'</em>';
+			echo '<span class="sq-backend-warning">'.translate('connector_not_used').'</span>';
 			return TRUE;
 		}
 
