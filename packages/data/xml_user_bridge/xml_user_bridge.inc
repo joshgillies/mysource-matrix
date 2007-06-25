@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_user_bridge.inc,v 1.1 2007/06/22 05:45:51 tbarrett Exp $
+* $Id: xml_user_bridge.inc,v 1.2 2007/06/25 01:58:25 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * 	Exposes shadow user assets representing the data in an XML file
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -529,6 +529,33 @@ class XML_User_Bridge extends Bridge
 		return (is_array($assetids)) ? $res : $res[$assetids];
 
 	}//end assetExists()
+
+
+	/**
+	* Returns an array of all user or user_group assets that have the passed permission for the passed asset
+	*
+	* @param int		$assetid		the assetid for asset whose permissions to get
+	* @param string		$permission		the permission code you are getting
+	* @param boolean	$granted		type of Access : null = all, true = granted, false = denied
+	* @param boolean	$and_greater	get effective permission (eg read access = read
+	*									or write or admin)
+	* @param boolean	$expand_groups	expand user groups so only user ids get returned
+	*									(NOTE: only valid if $all_info is false)
+	* @param boolean	$all_info		when false fn just returns an array of userids for
+	*									those that have permission
+	*									When true fn returns all info about the permission in the form of
+	*									Array(userid => granted)
+	*									(NOTE: TRUE is only valid if $and_greater and
+	*									$expand_groups are false)
+	*
+	* @return array
+	* @access public
+	*/
+	function getPermission($assetid, $permission, $granted=null, $and_greater=true, $expand_groups=false, $all_info=false)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $permission, $granted, $and_greater, $expand_groups, $all_info);
+
+	}//end getPermission()
 
 
 }//end class
