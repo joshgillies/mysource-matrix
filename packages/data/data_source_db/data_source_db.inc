@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.23 2007/05/23 00:52:34 arailean Exp $
+* $Id: data_source_db.inc,v 1.24 2007/06/25 01:38:34 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -232,7 +232,6 @@ class Data_Source_DB extends Data_Source
 
 		$DB =& $this->connectToDB();
 		if ($DB === FALSE) return $result;
-
 		$sql = trim($sql, ';');
 		$db_result =& $DB->query($sql);
 		$assert_result = assert_valid_db_result($db_result, 'Query execution failed : '.$sql, FALSE, FALSE);
@@ -259,17 +258,19 @@ class Data_Source_DB extends Data_Source
 	*/
 	function &connectToDB()
 	{
+		$false = FALSE;
+
 		if (isset($this->_tmp['db_connection'])) {
 			return $this->_tmp['db_connection'];
 		}
 
 		$dsn = $this->getDSN();
-		if (empty($dsn)) return FALSE;
+		if (empty($dsn)) return $false;
 
 		$conn =& DB::connect($dsn);
 		if (DB::isError($conn)) {
 			trigger_error($conn->message, E_USER_WARNING);
-			return FALSE;
+			return $false;
 		}
 
 		$conn->setFetchMode(DB_FETCHMODE_ASSOC);
