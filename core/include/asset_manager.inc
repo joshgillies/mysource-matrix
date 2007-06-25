@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.562.2.2 2007/06/07 01:58:44 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.562.2.3 2007/06/25 03:51:14 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.562.2.2 $
+* @version $Revision: 1.562.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -871,10 +871,13 @@ class Asset_Manager extends MySource_Object
 			$sub_sql .= ' AND (type_code = '.$db->quote($asset_type).' OR owning_type_code = '.$db->quote($asset_type).')';
 		}
 		$sql = 'SELECT assetid, custom_val
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val
-				WHERE attrid IN ('.$sub_sql.')
-					AND '.$in;
-		$custom_vals = $db->getAssoc($sql);
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val';
+
+		$where = 'attrid IN ('.$sub_sql.') AND '.$in;
+
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+		$custom_vals = $db->getAssoc($sql.$where);
 		assert_valid_db_result($custom_vals);
 
 		// Combine the two
