@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2007/06/22 06:43:29 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2007/06/25 01:19:50 tbarrett Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 			<text width="30" height="1" />
 		</field>
 		<field attribute="data_url">
-			<url width="30" height="1" />
+			<url width="30" height="1" protocols="http,https" />
 		</field>
 		<field attribute="refresh_time">
 			<duration biggest_units="days" smallest_units="seconds" />
