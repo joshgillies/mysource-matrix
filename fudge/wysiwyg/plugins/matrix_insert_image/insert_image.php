@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.44 2006/12/27 21:52:17 lwright Exp $
+* $Id: insert_image.php,v 1.44.2.1 2007/06/26 01:38:51 colivar Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.44.2.1 $
 * @package MySource_Matrix
 */
 
@@ -149,8 +149,11 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			}
 
 		function newImg(div, url, width, height) {
-			var limit = 160;
-			var scalar = 1;
+			var limit = 160.0;
+			var scalar = 1.0;
+			// convert width and height into a float format
+			width = parseFloat(width);
+			height = parseFloat(height);
 			var img = document.getElementById('preview_image');
 			img.height = 0;
 			img.width = 0;
@@ -159,6 +162,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			img.onload = function() { doStatus()};
 
 			if( width > limit || height > limit) {
+			    
 				if (width > height) {
 					scalar = limit / width;
 				} else {
@@ -166,8 +170,8 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				}
 			}
 
-			img.width = width * scalar;
-			img.height = height * scalar;
+			img.width = parseInt(Math.ceil(width * scalar));
+			img.height = parseInt(Math.ceil(height * scalar));
 
 			div.appendChild(img);
 
