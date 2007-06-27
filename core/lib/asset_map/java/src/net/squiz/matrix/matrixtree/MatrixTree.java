@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTree.java,v 1.26.4.1 2007/05/08 02:11:18 rong Exp $
+* $Id: MatrixTree.java,v 1.26.4.2 2007/06/27 23:38:02 mbrydon Exp $
 *
 */
 
@@ -690,6 +690,33 @@ public class MatrixTree extends CueTree
 		MatrixTreeNode[] sourceNodes = new MatrixTreeNode[sourcePaths.length];
 		for (int i = 0; i < sourcePaths.length; i++) {
 			sourceNodes[i] = (MatrixTreeNode) sourcePaths[i].getLastPathComponent();
+		}
+
+		// Ensure that nodes to be moved are sorted by "sort order"
+
+		// Bubble Sort
+		if (sourceNodes.length > 1) {
+			int numSorted = 1;
+			while (numSorted > 0) {
+				numSorted = 0;
+				for (int i = 0; i < sourceNodes.length; i++) {
+					if (i+1 < sourceNodes.length) {
+						MatrixTreeNode firstTreeNode = sourceNodes[i];
+						MatrixTreeNode nextTreeNode = sourceNodes[i+1];
+
+						// Get the sort order of the selected items
+						int firstSortOrder = firstTreeNode.getSortOrder();
+						int nextSortOrder = nextTreeNode.getSortOrder();
+
+						// Swap elements if they are the wrong way around
+						if (nextSortOrder < firstSortOrder) {
+							sourceNodes[i] = nextTreeNode;
+							sourceNodes[i+1] = firstTreeNode;
+							numSorted++;
+						}
+					}
+				}
+			}
 		}
 
 		JPopupMenu newLinkMenu = getNewLinkMenu(
