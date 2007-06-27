@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.246 2007/05/08 02:28:36 rong Exp $
+* $Id: asset_map.inc,v 1.247 2007/06/27 23:53:28 rhoward Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.246 $
+* @version $Revision: 1.247 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -71,7 +71,7 @@ class Asset_Map
 					$this->embedAssetMap('complex', '224');
 				?>
 				</td>
-				</tr>
+			</tr>
 		</table>
 		<?php
 
@@ -1619,7 +1619,6 @@ class Asset_Map
 	*/
 	function _moveAssets($input)
 	{
-
 		$output =& new XML_Tree();
 		$output->addRoot('responses');
 		$response_count = 0;
@@ -1671,12 +1670,17 @@ class Asset_Map
 													'linkid'		=> $link['linkid'],
 													'sort_order'	=> $link['sort_order'],
 													'parentid'		=> $old_parent->id,
-												);
+												  );
 			} else {
-				$assets[$asset->id] = Array(
-										'linkid'	=> $link['linkid'],
-										'parentid'	=> $old_parent->id,
-									  );
+				// account for multiple links to the same asset being moved
+				// it'll likely result in an error if we're moving to anywhere but the trash, however
+				if (!isset($assets[$asset->id])) {
+					$assets[$asset->id] = Array();
+				}
+				$assets[$asset->id][] = Array(
+											'linkid'	=> $link['linkid'],
+											'parentid'	=> $old_parent->id,
+										);
 			}
 
 		}//end foreach
@@ -1717,8 +1721,8 @@ class Asset_Map
 		}
 
 
-		// if we have only one asset. if we cant move it to the parent we dont continue further
-		if (count($assets) == 1) {
+		// if we have only one link, and we cant move it to the parent we dont continue further
+		if (count($assets) == 1 && count(reset($assets)) == 1) {
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->children[0]->attributes['assetid']);
 			$old_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode($input->root->children[0]->attributes['parentid']));
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($input->root->children[0]->attributes['linkid']);
