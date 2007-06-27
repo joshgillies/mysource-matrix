@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css_management.inc,v 1.7 2007/06/27 02:00:54 hnguyen Exp $
+* $Id: design_area_linked_css_management.inc,v 1.8 2007/06/27 06:17:19 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -92,8 +92,8 @@ class Design_Area_Linked_Css_Management extends Asset_Management
 
         $asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
 
-        if (version_compare($current_version, '0.2', '<')) {
-
+        //if (version_compare($current_version, '0.2', '<')) {
+		if (0) {
         	pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.2');
             // get all 'design_area_linked_css' assets (or their descendants)
 
