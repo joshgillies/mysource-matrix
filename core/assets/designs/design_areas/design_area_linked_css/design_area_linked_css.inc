@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css.inc,v 1.19 2007/06/25 01:57:05 hnguyen Exp $
+* $Id: design_area_linked_css.inc,v 1.20 2007/06/27 02:01:48 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * Allows you to link to a CSS file or customisation from a standard design
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -155,7 +155,7 @@ class Design_Area_Linked_Css extends Design_Area
 		$linked_css_'.$this->attr('id_name').'_url = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetURL('.$cache_file_assetid.');
 		$caching	= $GLOBALS[\'SQ_SYSTEM\']->am->getAttributeValuesByName(\'cache_css\',\'design_css\',Array('.$css_assetid.'));
 
-		if (empty($linked_css_'.$this->attr('id_name').'_url) || $caching[\''.$css_assetid.'\'] == 0) {
+		if (empty($linked_css_'.$this->attr('id_name').'_url) || (isset($caching[\''.$css_assetid.'\']) &&  $caching[\''.$css_assetid.'\'] == 0)) {
 			$linked_css_'.$this->attr('id_name').'_url = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetURL('.$css_assetid.');
 		}
 		if (!empty($linked_css_'.$this->attr('id_name').'_url)) {
