@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_management.inc,v 1.3 2006/12/06 00:11:16 bcaldwell Exp $
+* $Id: trigger_management.inc,v 1.4 2007/06/28 02:19:42 rong Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * Trigger_Management
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,6 +47,9 @@ class Trigger_Management extends Asset_Management
 											'type'			=> 'text',
 											'default'		=> '',
 											'description'	=> 'A description of the trigger',
+											'parameters'	=> Array(
+																'max_length'	=> 255,
+															   ),
 										   ),
 						'events'		=> Array(
 											'added'			=> '0.1',
