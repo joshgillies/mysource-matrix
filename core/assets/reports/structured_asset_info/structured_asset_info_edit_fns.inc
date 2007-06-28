@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_edit_fns.inc,v 1.10 2007/04/02 22:43:17 rong Exp $
+* $Id: structured_asset_info_edit_fns.inc,v 1.11 2007/06/28 05:35:34 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -511,6 +511,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 			$root_id = array_get_index($root_link,'minorid');
 			if (!$root_id) {
 				trigger_localised_error('RPRT0004', E_USER_WARNING);
+				return FALSE;
 			}
 
 			$child_links = $am->getLinks($root_id, SQ_SC_LINK_BACKEND_NAV);
