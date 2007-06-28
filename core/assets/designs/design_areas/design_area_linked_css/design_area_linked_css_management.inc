@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css_management.inc,v 1.6.4.2 2007/06/27 06:16:53 hnguyen Exp $
+* $Id: design_area_linked_css_management.inc,v 1.6.4.3 2007/06/28 00:39:53 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6.4.2 $
+* @version $Revision: 1.6.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,61 +76,6 @@ class Design_Area_Linked_Css_Management extends Asset_Management
 							   );
 
 	}//end constructor
-
-
-    /**
-    * Upgrade
-    *
-    * @param string	$current_version	the version of the asset that is currenly installed
-	*
-	* @return boolean
-    * @access public
-    */
-    function _upgrade($current_version)
-    {
-        if (!parent::_upgrade($current_version)) return FALSE;
-
-        $asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
-
-        //if (version_compare($current_version, '0.2', '<')) {
-		if (0) {
-        	pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.2');
-            // get all 'design_area_linked_css' assets (or their descendants)
-
-            // Upgrade code - Should regenerate and update the design file for all design with linked_css design area.
-
-            $linked_css_design_areas = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetIds($this->getAssetType(), FALSE);
-            pre_echo('Upgrading '.count($linked_css_design_areas).' assets...');
-
-            // Try to regenerate all the design through each of the linkedcss da.
-            foreach ($linked_css_design_areas as $assetid) {
-            	$linked_css_da =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-
-                if (is_null($linked_css_da)) {
-                    pre_echo('Could not get asset #'.$assetid);
-                    continue;
-                }//end if
-
-                // Get the design that this linked_css da is used.
-                $designs =& $linked_css_da->getDesigns();
-                foreach ($designs as $design) {
-                	// regenerate the design file
-                	$design->generateDesignFile(FALSE);
-                	$design->_updateCustomisations();
-                }//end foreach
-
-				unset($designs);
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($linked_css_da);
-
-            }//end foreach
-
-            pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.2');
-
-        }//end if version 0.1 upgrade
-
-        return TRUE;
-
-    }//end _upgrade()
 
 
 }//end class
