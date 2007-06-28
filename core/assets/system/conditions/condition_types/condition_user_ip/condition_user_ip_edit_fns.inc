@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_ip_edit_fns.inc,v 1.9 2006/12/06 04:23:59 emcdonald Exp $
+* $Id: condition_user_ip_edit_fns.inc,v 1.10 2007/06/28 06:38:19 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/condition_user_ip.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -201,7 +201,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 					$condition_data['default_grant'] = $_POST[$prefix]['default_grant'];
 					return $condition_data;
 				} else {
-					trigger_error('CORE0249', E_USER_WARNING);
+					trigger_localised_error('CORE0249', E_USER_WARNING);
 				}
 			}
 		}
@@ -229,7 +229,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 				// of the other kind of rule
 				$this_row['grant'] = !$this_row['grant'];
 				if (in_array($this_row, $ip_ranges)) {
-					trigger_error('CORE0250', E_USER_WARNING, $this_row['ip_address'], $this_row['subnet']);
+					trigger_localised_error('CORE0250', E_USER_WARNING, $this_row['ip_address'], $this_row['subnet']);
 					continue;
 				}
 
@@ -240,7 +240,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 					$this_row['grant'] = $post_data['grant'];
 					$ip_ranges[] = $this_row;
 				} else {
-					trigger_error('CORE0248', E_USER_WARNING, $this_row['ip_address'], $this_row['subnet']);
+					trigger_localised_error('CORE0248', E_USER_WARNING, $this_row['ip_address'], $this_row['subnet']);
 				}
 			}//end if
 		}//end foreach
@@ -654,13 +654,13 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 			// complain, then ignore it
 			$ip_range_field['grant'] = !$ip_range_field['grant'];
 			if (in_array($ip_range_field, $ip_ranges)) {
-				trigger_error('CORE0250', E_USER_WARNING, $ip_range_field['ip_address'], $ip_range_field['subnet']);
+				trigger_localised_error('CORE0250', E_USER_WARNING, $ip_range_field['ip_address'], $ip_range_field['subnet']);
 				continue;
 			}
 
 			// is it a valid combination?
 			if (!Condition_User_IP_Edit_Fns::_doesIPBeginSubnet($ip_range_field['ip_address'], $ip_range_field['subnet'])) {
-				trigger_error('CORE0248', E_USER_WARNING, $ip_range_field['ip_address'], $ip_range_field['subnet']);
+				trigger_localised_error('CORE0248', E_USER_WARNING, $ip_range_field['ip_address'], $ip_range_field['subnet']);
 				continue;
 			}
 
