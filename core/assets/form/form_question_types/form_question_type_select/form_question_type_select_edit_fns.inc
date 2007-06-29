@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.3.2.1 2007/03/15 03:34:05 skim Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.3.2.2 2007/06/29 00:48:47 rhoward Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3.2.1 $
+* @version $Revision: 1.3.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,7 +59,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		$options = $asset->getOptions();
 		foreach ($options as $key => $value) {
-			hidden_field($prefix.'_old_options[]', $value, 'id='.$prefix.'_old_options['.$key.']');
+			hidden_field($prefix.'_old_options['.$key.']', $value, 'id='.$prefix.'_old_options['.$key.']');
 		}
 		$multiple = ($asset->attr('multiple')) ? TRUE : FALSE;
 		return combo_box($prefix.'_default', $options, $multiple, $asset->attr('default'));
@@ -90,7 +90,11 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 				$new_options = $asset->getOptions();
 				$new_values = Array();
 				foreach ($default as $str_key) {
-					$new_default_vals[] = $old_options[(int) $str_key];
+					// neaten up any numeric keys passing through
+					if (is_numeric($str_key)) {
+						$str_key = (int) $str_key;
+					}
+					$new_default_vals[] = $old_options[$str_key];
 				}
 
 				$new_default = Array();
@@ -108,7 +112,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 				return FALSE;
 			}
 
-		}
+		}//end if (isset($_POST[$prefix.'_default']))
 		return TRUE;
 
 	}//end processDefault()
