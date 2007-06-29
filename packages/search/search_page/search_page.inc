@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.192.2.9 2007/05/24 00:28:56 skim Exp $
+* $Id: search_page.inc,v 1.192.2.10 2007/06/29 04:11:23 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.192.2.9 $
+* @version $Revision: 1.192.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1013,7 +1013,10 @@ class Search_Page extends Listing_Engine
 		$query_var = $field_name.'_query';
 		$fields = $this->attr('fields');
 		if (!isset($fields[$field_name])) return;
-		$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, '');
+		$query = '';
+		if (isset($_SESSION['SQ_LAST_SEARCH'][$this->id])) {
+			$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, '');
+		}
 		$read_only = FALSE;
 
 		ob_start();
