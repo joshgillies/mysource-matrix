@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.205 2007/05/24 00:24:57 skim Exp $
+* $Id: search_page.inc,v 1.206 2007/06/29 04:11:41 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.205 $
+* @version $Revision: 1.206 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1014,7 +1014,10 @@ class Search_Page extends Listing_Engine
 		$fields = $this->attr('fields');
 		if (!isset($fields[$field_name])) return;
 		$this->registerFormField('queries_'.$query_var.'%');
-		$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, '');
+		$query = '';
+		if (isset($_SESSION['SQ_LAST_SEARCH'][$this->id])) {
+			$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, '');
+		}
 		$read_only = FALSE;
 
 		ob_start();
@@ -2339,7 +2342,7 @@ class Search_Page extends Listing_Engine
 					}
 				}
 
-			}
+			}//end if
 
 			return $search_results;
 
@@ -2472,7 +2475,6 @@ class Search_Page extends Listing_Engine
 
 
 		if ($mode == 'sis') {
-
 			$last_search = $_SESSION['SQ_LAST_SEARCH'][$this->id];
 
 			foreach ($queries as $field_name => $value) {
