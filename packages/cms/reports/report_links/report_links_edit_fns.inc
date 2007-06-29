@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.27.2.4 2007/03/25 23:42:26 tbarrett Exp $
+* $Id: report_links_edit_fns.inc,v 1.27.2.5 2007/06/29 06:16:40 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27.2.4 $
+* @version $Revision: 1.27.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -254,7 +254,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			} else {
 			// otherwise lets traul the contents for a matching anchor
 				foreach ($contents as $content) {
-					if (preg_match('/<a\s+(name|id)="#?'.$link[2].'"(\s+(name|id)="#?'.$link[2].'")?>/', $content, $matches)) {
+					if (preg_match('/<a\s+(name|id)="#?'.$link[2].'"(\s+(name|id)="#?'.$link[2].'")?(\s+href="[^"]+")?>/', $content, $matches)) {
 						$anchorExists = TRUE;
 						break;
 					}
