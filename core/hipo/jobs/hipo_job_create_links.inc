@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.52.2.2 2007/06/07 05:54:54 rhoward Exp $
+* $Id: hipo_job_create_links.inc,v 1.52.2.3 2007/06/29 01:59:29 rhoward Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.52.2.2 $
+* @version $Revision: 1.52.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1159,7 +1159,7 @@ log_dump();
 			}
 
 		} else {
-			$step_data['percent_done'] = (count($this->_running_vars['done_links']) / count($this->_running_vars['link_count'])) * 100;
+			$step_data['percent_done'] = ((count($this->_running_vars['done_links']) * 100) / $this->_running_vars['link_count']);
 			$step_data['complete']     = FALSE;
 		}
 
