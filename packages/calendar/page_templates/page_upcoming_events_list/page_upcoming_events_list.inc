@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.7 2007/07/02 00:51:01 mbrydon Exp $
+* $Id: page_upcoming_events_list.inc,v 1.8 2007/07/02 06:29:04 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -296,7 +296,7 @@ class Page_Upcoming_Events_List extends Page
 						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 					}
 					// get all the metadata keywords for this asset
-					$metadata_values = $mm->getMetadataFieldValues($id, $metadata_keywords);
+					$metadata_values = $mm->getMetadataFieldValues($id, $metadata_keywords[$event['type_code']]);
 
 					foreach ($metadata_values as $field => $value) {
 						$replacements['asset_metadata_'.$field] = $value;
@@ -368,7 +368,6 @@ class Page_Upcoming_Events_List extends Page
 		$i = 0;
 		foreach ($all_events as $id => $event) {
 			if ($i >= $this->attr('num_events')) break;
-			//$res[strtok($id, ':')] = $event;
 			$res[$id] = $event;
 			$i++;
 		}
