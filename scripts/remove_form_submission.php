@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_form_submission.php,v 1.2.2.2 2007/06/21 02:11:30 rong Exp $
+* $Id: remove_form_submission.php,v 1.2.2.3 2007/07/02 05:41:23 rong Exp $
 *
 */
 
@@ -27,12 +27,14 @@
 *		Require Matrix version 3.14 or newer
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.2.2.2 $
+* @version $Revision: 1.2.2.3 $
 * @package MySource_Matrix
 */
 
 error_reporting(E_ALL);
-if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+if ((php_sapi_name() != 'cli')) {
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+}
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
@@ -91,7 +93,7 @@ $sql = 'SELECT
 			JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
 			JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 			ON l.minorid = a.assetid';
-//$where = 'l.majorid IN ('.$db->quote($asset->id).', '.$db->quote($sub_folder->id).')
+// $where = 'l.majorid IN ('.$db->quote($asset->id).', '.$db->quote($sub_folder->id).')
 $where = 'l.majorid = '.$db->quote($form->id).'
 		AND i.inhd_type_code = '.$db->quote('form_submission').'
 		AND a.created BETWEEN '.db_extras_todate($db, $from_value).'
@@ -109,20 +111,31 @@ if (empty($assetids)) {
 echo 'Found '.count($assetids)." form submission(s) for '$asset->name' (#$assetid)\n(Date range: $from_value to $to_value)\n";
 
 // quote the assetids to be used in the IN clause
-// if you have more than 1000 assets, Oracle db will complain
-$assetids_list = '('.implode(', ', $assetids).')';
-$in = ' (';
-for ($i=0; $i<count($assetids); $i++) {
-	$in .= $db->quoteSmart( (string) $assetids[$i] ).(($i == count($assetids) - 1) ? ')' : ',');
+foreach ($assetids as $key => $assetid) {
+	$assetids[$key] = $db->quoteSmart((String)$assetid);
 }
+
+// break up the assets into chunks of 1000 so that oracle does not complain
+$assetid_in = Array();
+foreach (array_chunk($assetids, 999) as $chunk) {
+	$assetid_in[] = ' assetid IN ('.implode(', ', $chunk).')';
+}
+$in1 = '('.implode(' OR ', $assetid_in).')';
+
+$minorid_in = Array();
+foreach (array_chunk($assetids, 999) as $chunk) {
+	$minorid_in[] = ' minorid IN ('.implode(', ', $chunk).')';
+}
+$in2 = '('.implode(' OR ', $minorid_in).')';
+
 
 // start removing entries from the database
 echo "Removing assets ...\n";
-$res = $db->query('DELETE FROM sq_ast WHERE assetid IN '.$in);
+$res = $db->query('DELETE FROM sq_ast WHERE '.$in1);
 assert_valid_db_result($res);
 
 echo "\tUpdating link table...\n";
-$res = $db->query('DELETE FROM sq_ast_lnk WHERE minorid IN '.$in);
+$res = $db->query('DELETE FROM sq_ast_lnk WHERE '.$in2);
 assert_valid_db_result($res);
 
 echo "\tUpdating link tree table ...\n";
@@ -130,7 +143,7 @@ $res = $db->query('DELETE FROM sq_ast_lnk_tree WHERE linkid NOT IN (SELECT linki
 assert_valid_db_result($res);
 
 echo "\tUpdating attribute value table ...\n";
-$res = $db->query('DELETE FROM sq_ast_attr_val WHERE assetid IN '.$in);
+$res = $db->query('DELETE FROM sq_ast_attr_val WHERE '.$in1);
 assert_valid_db_result($res);
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
