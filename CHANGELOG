@@ -13,6 +13,10 @@ Remove Form Submissions Script
 Additional Changes and Bug Fixes
 -----------------------------------
 
+Core
+
+- Structured Asset Info Report now requires a root node; whole-of-system searching has been removed
+* Send Cacheable Header options are now disabled by default
 * Fixed bug #2414: Default simple edit interface acting weird
 * Fixed bug #2427: Dates in calendar displaying incorrectly
 * Fixed bug #2429: CSS File inconsistencies
