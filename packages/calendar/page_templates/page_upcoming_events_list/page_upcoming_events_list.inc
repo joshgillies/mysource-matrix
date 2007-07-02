@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.6 2007/04/10 01:53:31 lwright Exp $
+* $Id: page_upcoming_events_list.inc,v 1.7 2007/07/02 00:51:01 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -261,6 +261,7 @@ class Page_Upcoming_Events_List extends Page
 
 		$event_list = '';
 		$recurring_event_descendants = $am->getTypeDescendants('calendar_event_recurring', TRUE);
+		$mm = NULL;
 		foreach ($events as $id => $event) {
 			$id = strtok($id, ':');
 			$replacements = Array();
