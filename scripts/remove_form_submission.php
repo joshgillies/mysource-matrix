@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_form_submission.php,v 1.1.2.1 2007/06/21 01:35:48 rong Exp $
+* $Id: remove_form_submission.php,v 1.1.2.2 2007/07/02 05:50:18 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *		Require Matrix version 3.14 or newer
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.1.2.1 $
+* @version $Revision: 1.1.2.2 $
 * @package MySource_Matrix
 */
 
@@ -106,20 +106,30 @@ if (empty($assetids)) {
 echo 'Found '.count($assetids)." form submission(s) for '$asset->name' (#$assetid)\n(Date range: $from_value to $to_value)\n";
 
 // quote the assetids to be used in the IN clause
-// if you have more than 1000 assets, Oracle db will complain
-$assetids_list = '('.implode(', ', $assetids).')';
-$in = ' (';
-for ($i=0; $i<count($assetids); $i++) {
-	$in .= $db->quoteSmart( (string) $assetids[$i] ).(($i == count($assetids) - 1) ? ')' : ',');
+foreach ($assetids as $key => $assetid) {
+	$assetids[$key] = $db->quoteSmart((String)$assetid);
 }
+
+// break up the assets into chunks of 1000 so that oracle does not complain
+$assetid_in = Array();
+foreach (array_chunk($assetids, 999) as $chunk) {
+	$assetid_in[] = ' assetid IN ('.implode(', ', $chunk).')';
+}
+$in1 = '('.implode(' OR ', $assetid_in).')';
+
+$minorid_in = Array();
+foreach (array_chunk($assetids, 999) as $chunk) {
+	$minorid_in[] = ' minorid IN ('.implode(', ', $chunk).')';
+}
+$in2 = '('.implode(' OR ', $minorid_in).')';
 
 // start removing entries from the database
 echo "Removing assets ...\n";
-$res = $db->query('DELETE FROM sq_ast WHERE assetid IN '.$in);
+$res = $db->query('DELETE FROM sq_ast WHERE '.$in1);
 assert_valid_db_result($res);
 
 echo "\tUpdating link table...\n";
-$res = $db->query('DELETE FROM sq_ast_lnk WHERE minorid IN '.$in);
+$res = $db->query('DELETE FROM sq_ast_lnk WHERE '.$in2);
 assert_valid_db_result($res);
 
 echo "\tUpdating link tree table ...\n";
@@ -127,7 +137,7 @@ $res = $db->query('DELETE FROM sq_ast_lnk_tree WHERE linkid NOT IN (SELECT linki
 assert_valid_db_result($res);
 
 echo "\tUpdating attribute value table ...\n";
-$res = $db->query('DELETE FROM sq_ast_attr_val WHERE assetid IN '.$in);
+$res = $db->query('DELETE FROM sq_ast_attr_val WHERE '.$in1);
 assert_valid_db_result($res);
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
