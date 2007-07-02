@@ -1,8 +1,73 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.14.2
+
+Featured Changes
+-----------------------------------
+
+Selection of Session Filepath
+
+	A new system configuration option allows you to choose whether or not to use the default PHP session file save path (as specified in the php.ini configuration file), or let Matrix set it to the cache folder of the Matrix system. The former may be required when using shared storage, ie. with multiple Matrix servers, while the latter is required for site networks to operate.
+
+
+Remove Form Submissions Script
+
+	This new script allows you to delete all form submission assets underneath a custom form between two dates.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+* Fixed bug #2414: Default simple edit interface acting weird
+* Fixed bug #2426: Multiple pop ups in quick search for failed search
+* Fixed bug #2427: Dates in calendar displaying incorrectly
+* Fixed bug #2428: The Print this Page screen is purple
+* Fixed bug #2429: CSS File inconsistencies
+* Fixed bug #2433: Fatal error when forcibly acquiring locks on Custom Form's Page Content Bodycopy
+* Fixed bug #2440: Table WYSIWYG won't accept cellspacing equaling 0
+* Fixed bug #2441: Removing a WYSIWYG link by selection does not always work in IE
+* Fixed bug #2453: WYSIWYG table properties plugin blanking row
+* Fixed bug #2458: Link integrity is compromised if an asset is doubly linked to its parent
+* Fixed bug #2459: Asset Map only moves first link when one or more links to the same asset are selected
+* Fixed bug #2467: Parent Domains not working in IE
+* Fixed bug #2473: Set tag trigger action gives a red DB error
+* Fixed bug #2474: When in rollback, Linked Design CSS assets always use their cached version, even when caching is turned off
+* Fixed bug #2477: Asset map orders assets incorrectly when reordering multiple assets
+* Fixed bug #2478: Email address with single-character username is rejected
+* Fixed bug #2483: Insert image/link/movie popup needs scrollbar
+* Fixed bug #2485: Can't Select 'Default' Country other than Afghanistan
+* Fixed bug #2486: Moving assets HIPO goes over 100%
+
+CMS
+
+* Fixed bug #2419: Simple edit of multiple page pages not working correctly, %__custom-contents% (Multiple Page Page)
+* Fixed bug #2456: Incomplete metadata check prevent status change for assets without a metadata screen (What's New Page)
+* Fixed bug #2461: Unable to move questions in a custom form (Custom Form)
+* Fixed bug #2462: Custom form question is displayed in asset map but not in Form Contents screen of Form or Form section (Custom Form)
+* Fixed bug #2465: Whats New page doesn't use link type setting (What's New Page)
+* Fixed bug #2466: Unable to delete or reorder question under Form with Link + Attribute lock acquired (Custom Form)
+* Fixed bug #2468: Asset builder selectable create locations don't show labels next to radio button formatting in bodycopy (Asset Builder Page)
+* Fixed bug #2471: Missing source string "core_no_selectes_root_node" in Asset Listing (Listing Engine)
+* Fixed bug #2494: Link reports generates warnings on valid named anchor tags (Links Report)
+
+Search
+
+* Fixed bug #2452: Search Categories - Non descriptive backend field (Search Page)
+* Fixed bug #2460: Invalid argument supplied for foreach() (Search Manager)
+* Fixed bug #2475: Global Search and Replace dies when no search location selected (Global Search and Replace Tool)
+* Fixed bug #2476: HIPO Job for search and replace dies when no options are selected (Global Search and Replace HIPO Job)
+* Fixed bug #2493: Undefined Index SQ_LAST_SEARCH (Search Page)
+
+Bulkmail
+
+* Fixed bug #2454: Bulkmail - fails with large quantity of users (Bulk Mailer)
+* Fixed bug #2457: "Generation method" setting not respected in bulkmail job (Bulk Mailer)
+
+
+
 VERSION 3.14.1
 
-Complete Changelog
+Featured Changes
 -----------------------------------
 
 Java 6 Compatibility for Asset Map
