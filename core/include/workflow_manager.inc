@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.99.2.4 2007/04/03 04:07:41 hnguyen Exp $
+* $Id: workflow_manager.inc,v 1.99.2.5 2007/07/03 04:39:52 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.99.2.4 $
+* @version $Revision: 1.99.2.5 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1057,78 +1057,78 @@ class Workflow_Manager extends MySource_Object
 		if (empty($workflow['steps'])) {
 			$workflow_updated = TRUE;
 			$workflow['steps'] = Array();
-		}
+		} else {
+			$step_data =& $this->getCurrentStep($workflow);
 
-		$step_data =& $this->getCurrentStep($workflow);
+			for (reset($step_data['conditions']);
+					NULL !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
 
-		for (reset($step_data['conditions']);
-				NULL !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
+				$cond_data =& $step_data['conditions'][$pub];
+				// work out who can publish this condition
+				$can_publish = Array();
+				$publisher =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+				if ($publisher->id) {
+					$asset_class = get_class($publisher);
 
-			$cond_data =& $step_data['conditions'][$pub];
-			// work out who can publish this condition
-			$can_publish = Array();
-			$publisher =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
-			if ($publisher->id) {
-				$asset_class = get_class($publisher);
+					// Note that the order of IF statements is important, because roles are
+					// a descendent of groups but should be treated differently
+					if ($am->isTypeDecendant($asset_class, 'user')) {
+						$can_publish[] = $publisher->id;
+					} else if ($am->isTypeDecendant($asset_class, 'role')) {
+						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, FALSE, TRUE);
+						foreach ($roles as $roleid => $userids) {
+							foreach ($userids as $userid) {
+								if ($userid == '0') continue;
+								$can_publish[] = $userid;
+							}
+						}
+					} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
+						$can_publish = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($publisher->id, Array('user'), FALSE, NULL, NULL, NULL, NULL, NULL, FALSE));
+					}
+				}
 
-				// Note that the order of IF statements is important, because roles are
-				// a descendent of groups but should be treated differently
-				if ($am->isTypeDecendant($asset_class, 'user')) {
-					$can_publish[] = $publisher->id;
-				} else if ($am->isTypeDecendant($asset_class, 'role')) {
-					$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, FALSE, TRUE);
-					foreach ($roles as $roleid => $userids) {
-						foreach ($userids as $userid) {
-							if ($userid == '0') continue;
-							$can_publish[] = $userid;
+				if (in_array($publisherid, $can_publish)) {
+					if (!isset($cond_data['published_by'])) {
+						$cond_data['published_by'] = Array();
+					}
+					// if the publisherid has not already published
+					if (!isset($cond_data['published_by'][$publisherid])) {
+						$cond_data['published_by'][$publisherid] = time();
+						$workflow_updated = TRUE;
+					}
+				}
+			}//end for
+
+			if ($workflow_updated) {
+				// load the current step into the workflow
+				$this->_loadCurrentStep($workflow);
+
+				// if the current step returns nothing, workflow is complete
+				if ($workflow['current_step'] === Array()) {
+					$workflow['complete'] = TRUE;
+					// mark the last step as completed
+					$num_steps = count($workflow['steps']);
+					if ($num_steps > 0) {
+						$workflow['steps'][$num_steps]['completed'] = time();
+					}
+				} else {
+					$current_step =& $this->getCurrentStep($workflow);
+					if (!$current_step['started']) {
+						$current_step['started'] = time();
+					}
+					// if this is not the first step in this workflow,
+					$last_key = end(array_keys($workflow['current_step']));
+					if ($workflow['current_step'][$last_key] > 1) {
+						$previous_step_address = $workflow['current_step'];
+						$previous_step_address[$last_key]--;
+						$previous_step =& $this->getCurrentStep($workflow, $previous_step_address);
+						if (!$previous_step['completed']) {
+							$previous_step['completed'] = time();
 						}
 					}
-				} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
-					$can_publish = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($publisher->id, Array('user'), FALSE, NULL, NULL, NULL, NULL, NULL, FALSE));
 				}
 			}
-
-			if (in_array($publisherid, $can_publish)) {
-				if (!isset($cond_data['published_by'])) {
-					$cond_data['published_by'] = Array();
-				}
-				// if the publisherid has not already published
-				if (!isset($cond_data['published_by'][$publisherid])) {
-					$cond_data['published_by'][$publisherid] = time();
-					$workflow_updated = TRUE;
-				}
-			}
-		}//end for
-
-		if ($workflow_updated) {
-			// load the current step into the workflow
-			$this->_loadCurrentStep($workflow);
-
-			// if the current step returns nothing, workflow is complete
-			if ($workflow['current_step'] === Array()) {
-				$workflow['complete'] = TRUE;
-				// mark the last step as completed
-				$num_steps = count($workflow['steps']);
-				if ($num_steps > 0) {
-					$workflow['steps'][$num_steps]['completed'] = time();
-				}
-			} else {
-				$current_step =& $this->getCurrentStep($workflow);
-				if (!$current_step['started']) {
-					$current_step['started'] = time();
-				}
-				// if this is not the first step in this workflow,
-				$last_key = end(array_keys($workflow['current_step']));
-				if ($workflow['current_step'][$last_key] > 1) {
-					$previous_step_address = $workflow['current_step'];
-					$previous_step_address[$last_key]--;
-					$previous_step =& $this->getCurrentStep($workflow, $previous_step_address);
-					if (!$previous_step['completed']) {
-						$previous_step['completed'] = time();
-					}
-				}
-			}
-		}
+		}//end else
 
 		return $workflow_updated;
 
