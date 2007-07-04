@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.15.2.4 2007/05/15 01:54:17 hnguyen Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.15.2.5 2007/07/04 23:25:51 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.15.2.4 $
+* @version $Revision: 1.15.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -118,7 +118,6 @@ class Search_Manager_Plugin_OCI8
 
 		}//end switch
 		$sql = implode_sql($base_query);
-
 		if (count($base_query['select']) > 2) {
 			$result = $db->getAll($sql);
 		} else {
@@ -742,15 +741,15 @@ class Search_Manager_Plugin_OCI8
 		$op = ($word_logic == 'OR') ? '|' : '&';
 
 		$replacements = Array(
-							'/(#)+(#)+/U'					=> '\1'.$op.'\2',	// 1
-							'/(@)+(@)+/U'					=> '\1'.$op.'\2',	// 1
-							'/(\)+)([^\&\|\~\@\#])*(\()/U'	=> '\1'.$op.'\3',	// 2
-							'/(\))(#)/'						=> '\1'.$op.'\2',	// 3
-							'/(#)(\()/'						=> '\1'.$op.'\2',	// 3
-							'/(\))(@)/'						=> '\1'.$op.'\2',	// 4
-							'/(@)(\()/'						=> '\1'.$op.'\2',	// 4
-							'/(#)(@)/'						=> '\1'.$op.'\2',	// 5
-							'/(@)(#)/'						=> '\1'.$op.'\2',	// 5
+							'/(#)+(#)+/U'					=> '\1'.$op.'\2',
+							'/(@)+(@)+/U'					=> '\1'.$op.'\2',
+							'/(\)+)([^\&\|\~\@\#])*(\()/U'	=> '\1'.$op.'\3',
+							'/(\))(#)/'						=> '\1'.$op.'\2',
+							'/(#)(\()/'						=> '\1'.$op.'\2',
+							'/(\))(@)/'						=> '\1'.$op.'\2',
+							'/(@)(\()/'						=> '\1'.$op.'\2',
+							'/(#)(@)/'						=> '\1'.$op.'\2',
+							'/(@)(#)/'						=> '\1'.$op.'\2',
 						);
 		$terms = preg_replace(array_keys($replacements), $replacements, $terms);
 
@@ -1044,7 +1043,8 @@ class Search_Manager_Plugin_OCI8
 			while (!$term_string_built && !empty($words)) {
 				$recent_term =array_pop($words);
 				if (strlen($terms.$recent_term) < 200) {
-					$escaped_term = $this->_escapeContainReservedWords($recent_term);
+					$escaped_term = $this->_escapeContainReservedChars($recent_term);
+					$escaped_term = $this->_escapeContainReservedWords($escaped_term);
 					$terms .= empty($terms) ? $escaped_term : '|'.$escaped_term;
 				} else {
 					array_push($words, $recent_term);
@@ -1131,6 +1131,27 @@ class Search_Manager_Plugin_OCI8
 		}
 
 	}//end _escapeContainReservedWords()
+
+
+	/**
+	* Returns words with reserved characters escaped for used within "contains" queries.
+	*
+	* @param string	$word	the word to be escaped
+	*
+	* @return string
+	* @access private
+	*/
+	function _escapeContainReservedChars($word)
+	{
+		$reserved_chars = Array('\\',',','?','&','=','-',';','~','|','$','!','>','*','%','_','(',')','[',']','{','}');
+		$escaped_chars = Array('\\\\','\,','\?','\&','\=','\-','\;','\~','\|','\$','\!','\>','\*','\%','\_','\(','\)','\[','\]','\{','\}');
+
+		$escaped_word = str_replace($reserved_chars, $escaped_chars, $word);
+
+		return $escaped_word;
+
+
+	}//end _escapeContainReservedChars()
 
 
 	/**
