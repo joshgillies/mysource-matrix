@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.567 2007/06/25 02:01:27 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.568 2007/07/04 06:03:26 arailean Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.567 $
+* @version $Revision: 1.568 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2970,6 +2970,12 @@ class Asset_Manager extends MySource_Object
 				return $links;
 			}
 
+			$shadow_links = Array();
+
+			if (implements_interface($asset, 'bridge')) {
+				$shadow_links = $asset->getAllChildLinks($assetid, $link_type);
+			}
+
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			$where = 'l.minorid = '.$db->quote($assetid);
@@ -3023,7 +3029,7 @@ class Asset_Manager extends MySource_Object
 				}
 			}//end for
 
-			$this->_tmp['child_links'][$assetid] = $child_links;
+			$this->_tmp['child_links'][$assetid] = $child_links + $shadow_links;
 
 		}//end if
 
