@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.112 2007/06/15 05:10:10 colivar Exp $
+* $Id: page_asset_builder.inc,v 1.113 2007/07/04 06:12:44 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -579,7 +579,7 @@ class Page_Asset_Builder extends Page
 				} else {
 					// if it's valid, add it to the list
 					if (in_array($_POST[$code_name], array_keys($details['locations']))) {
-						$all_selected_locations[(int)$_POST[$code_name]] = (int)$details['link_type'];
+						$all_selected_locations[$_POST[$code_name]] = (int)$details['link_type'];
 					}
 				}
 			} else if (!$details['allow_empty']) {
