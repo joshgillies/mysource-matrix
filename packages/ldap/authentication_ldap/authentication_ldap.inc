@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.16 2007/01/08 04:00:22 emcdonald Exp $
+* $Id: authentication_ldap.inc,v 1.17 2007/07/04 05:15:03 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -101,8 +101,21 @@ class Authentication_LDAP extends Authentication
 				$success = @$ldap->connectAsUser($user->attr('dn'), $password);
 
 				if ($success) {
-					// user found with username and password supplied
-					unset($_SESSION['user_login_attempts']);
+					// ldap user found with username and password supplied
+					if ($this->attr('log_in_as') == 'local') {
+						// If we are logging in as a local user, we will ask
+						// Default Auth to merely locate a user for us
+						$auth_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('authentication_default');
+						if (count($auth_assetids) > 0) {
+							$auth_default =& $GLOBALS['SQ_SYSTEM']->am->getAsset($auth_assetids[0]);
+						}
+
+						$user =& $auth_default->locateUser($username);
+					}
+
+					if (!is_null($user)) {
+						unset($_SESSION['user_login_attempts']);
+					}
 					return $user;
 				}
 			}
