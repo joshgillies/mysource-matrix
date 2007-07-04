@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_matrix_cache.inc,v 1.1 2007/05/31 04:53:34 rong Exp $
+* $Id: tool_clear_matrix_cache.inc,v 1.2 2007/07/04 06:38:45 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Tool to clear Matrix cache, and to schedule a clear cache cron job
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -298,7 +298,7 @@ class Tool_Clear_Matrix_Cache extends Tool
 							'delete_all'	=> 'no',
 							'repopulate'	=> $repopulate,
 						);
-				$hh->queueHipo('hipo_job_clear_cache', $vars);
+				$hh->queueHipo('hipo_job_clear_cache', $vars, $_SERVER['REQUEST_URI'].'&tool_type_code=tool_clear_matrix_cache');
 				$url = $hh->runQueuedJobs();
 				if (!empty($url)) $o->setRedirect($url);
 			}
