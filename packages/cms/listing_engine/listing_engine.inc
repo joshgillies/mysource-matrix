@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.225 2007/06/08 04:40:37 skim Exp $
+* $Id: listing_engine.inc,v 1.226 2007/07/04 06:19:19 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.225 $
+* @version $Revision: 1.226 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2098,6 +2098,29 @@ class Listing_Engine extends Page
 		// if the asset is a shadow asset  then get the keywords separately
 		if ($is_shadow) {
 			$keywords = $this->_getShadowAssetKeywordReplacements($assetid, $bc_keywords);
+
+			// Body with paint layout applied, if any (inherited from the
+			// listing engine asset, usually)
+			if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
+				ob_start();
+					if ($assetid != $this->id) {
+						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$asset->printBodyWithPaintLayout();
+					}
+					$keywords['asset_contents'] = ob_get_contents();
+				ob_end_clean();
+
+			}
+
+			// %asset_contents_raw% will print the asset's body WITHOUT a
+			// paint layout
+			if (preg_match('|%asset_contents_raw%|is', $bodycopy->getRawBodycopyContent())) {
+				ob_start();
+					if ($asset->id != $this->id) $asset->printBody();
+					$keywords['asset_contents_raw'] = ob_get_contents();
+				ob_end_clean();
+
+			}
 		} else {
 			$this_needs_asset = FALSE;
 			foreach ($bc_keywords as $keyword) {
@@ -2884,7 +2907,7 @@ class Listing_Engine extends Page
 	{
 		$root_nodes = $this->getRootNodes(FALSE);
 
-		if (empty($root_nodes) || ($this->attr('direction') == 'up')) {
+		if (empty($root_nodes) || (strpos($child_assetid, ':') !== FALSE) || ($this->attr('direction') == 'up')) {
 			$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($child_assetid, $this->attr('link_types'), '', TRUE, 'minor');
 			$parent_link_assetids = Array();
 			foreach ($parent_links as $parent_link) {
