@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: run.php,v 1.21 2006/12/05 05:39:50 bcaldwell Exp $
+* $Id: run.php,v 1.22 2007/07/05 01:23:02 rhoward Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The one file through which everything runs
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 
@@ -29,6 +29,9 @@ if (isset($_SERVER['argv'][1])) {
 } else {
 	define('SQ_SYSTEM_ROOT', dirname(dirname(dirname(__FILE__))));
 }
+
+// let everything know that this is a cron run
+define('SQ_IN_CRON', 1);
 
 require_once SQ_SYSTEM_ROOT.'/core/include/init.inc';
 ini_set('memory_limit', SQ_CONF_CRON_MEMORY_LIMIT.'M');
