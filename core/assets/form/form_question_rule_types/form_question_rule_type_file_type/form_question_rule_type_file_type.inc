@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type.inc,v 1.5 2006/12/06 00:35:28 emcdonald Exp $
+* $Id: form_question_rule_type_file_type.inc,v 1.6 2007/07/05 23:58:05 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -128,7 +128,12 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 			$extension = substr($answer, strrpos($answer, '.') + 1);
 		}
 
-		$valid = (strpos(strtolower($comparison), strtolower($extension)) !== false) ? 1 : 0;
+		// If the extension is empty, return as invalid, otherwise strpos will not take empty argument. 
+		if (empty($extension) && !empty($comparison)) {
+			$valid = 0;
+		} else {
+			$valid = (strpos(strtolower($comparison), strtolower($extension)) !== false) ? 1 : 0;
+		}
 
 		return ($valid == $operator);
 
