@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.98 2007/01/08 03:04:50 lwright Exp $
+* $Id: init.inc,v 1.98.2.1 2007/07/05 01:23:07 rhoward Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.98.2.1 $
 * @package MySource_Matrix
 */
 
@@ -93,6 +93,10 @@ define('SQ_IN_BACKEND', $in_backend);
 $in_limbo = (trim(SQ_CONF_LIMBO_SUFFIX) != '') && (basename($_SERVER['PHP_SELF']) == SQ_CONF_LIMBO_SUFFIX);
 define('SQ_IN_LIMBO', $in_limbo);
 
+// boolean to use for testing whether we're running cron scripts
+if (!defined('SQ_IN_CRON')) {
+	define('SQ_IN_CRON', FALSE);
+}
 
 // make sure there is a trailing slash if we are in the backend
 if (SQ_IN_BACKEND && substr($_SERVER['PHP_SELF'], -1) != '/') {
@@ -189,6 +193,11 @@ require_once SQ_INCLUDE_PATH.'/assertions.inc';
 require_once SQ_INCLUDE_PATH.'/general.inc';
 ini_set('display_errors', 1); // we'll manage whether to display the errors or not in the error_handler
 set_error_handler('sq_error_handler');
+
+// turn off error reporting on the front end (errors are still caught and displayed/hidden by the error handler)
+if (!(SQ_IN_BACKEND | SQ_IN_LIMBO | SQ_IN_CRON) & SQ_CONF_ERRORS_HIDE_FRONTEND) {
+	ini_set('display_errors', 0);
+}
 
 
 // if there is magic quotes, strip them out
