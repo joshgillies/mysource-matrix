@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard_edit_fns.inc,v 1.8 2006/12/06 02:53:10 emcdonald Exp $
+* $Id: page_standard_edit_fns.inc,v 1.9 2007/07/09 06:56:37 rhoward Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,7 +57,10 @@ class Page_Standard_Edit_Fns extends Page_Edit_Fns
 	{
 		// get the bodycopy attached to us
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', NULL, '1', '1');
-		$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
+		$bodycopy = NULL;
+		if (!empty($bodycopy_link)) {
+			$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
+		}
 		if (is_null($bodycopy)) {
 			trigger_localised_error('CORE0016', E_USER_ERROR, $asset->name);
 			return FALSE;
