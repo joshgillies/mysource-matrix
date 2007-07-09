@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.23 2006/12/28 03:37:32 tbarrett Exp $
+* $Id: assertions.inc,v 1.24 2007/07/09 04:34:18 hnguyen Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 
@@ -452,14 +452,14 @@ function assert_valid_assetid($assetids, $msg='', $silent=false, $fatal=true)
 	foreach ($assetid_array as $one_id) {
 		$valid = false;
 
-		$current_id = $one_id;
-
 		if (empty($one_id)) break;
 
 		// valid asset IDs are INTs or STRINGs
 		if (!is_int($one_id) && !is_string($one_id)) {
 			break;
 		}
+
+		$current_id = $one_id;
 
 		// must compare the converted int as string values because a non-numeric string will
 		// convert to int(0) which compares TRUE with said non-numeric string - therefore it will
