@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.568 2007/07/04 06:03:26 arailean Exp $
+* $Id: asset_manager.inc,v 1.569 2007/07/09 01:46:56 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.568 $
+* @version $Revision: 1.569 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2314,6 +2314,12 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLockTypes($assetid, $lock_type)
 	{
+
+		// If the lock_type is not a string (invalid), just return an empty array.
+		if (!is_string($lock_type) || empty($lock_type)) {
+			return Array();
+		}//end if
+
 		if (!isset($this->_tmp['lock_types'][$assetid])) {
 			$asset =& $this->getAsset($assetid);
 			assert_not_null($asset);
