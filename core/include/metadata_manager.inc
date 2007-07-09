@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.141 2007/06/07 04:39:45 rong Exp $
+* $Id: metadata_manager.inc,v 1.142 2007/07/09 01:16:18 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.141 $
+* @version $Revision: 1.142 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1423,26 +1423,47 @@ class Metadata_Manager extends MySource_Object
 	*
 	* Because this value is for displaying on the front end, use the default value if required
 	*
-	* @param string		$assetid		The ID of the asset that we want the
-	*									metadata value of
-	* @param string		$field_assetid	The field that we wish to check
-	* @param boolean	$mute_errors	Set TRUE to mute errors that occur when
-	*									the asset (specified in $assetid) does
-	*									not have a schema applied to it
+	* @param string		$assetid				The ID of the asset that we want the
+	*											metadata value of
+	* @param string		$field_assetid			The field that we wish to check
+	* @param boolean	$mute_errors			Set TRUE to mute errors that occur when
+	*											the asset (specified in $assetid) does
+	*											not have a schema applied to it
+	* @param boolean	$replace_nested_keyword	Set TRUE to replace nested keywords. If FALSE the function may return the value of the metadata field that contains keywords
 	*
 	* @return array
 	* @access public
 	*/
-	function getMetadataValueByAssetid($assetid, $field_assetid, $mute_errors=FALSE)
+	function getMetadataValueByAssetid($assetid, $field_assetid, $mute_errors=FALSE, $replace_nested_keyword=FALSE)
 	{
 		$value = $this->getMetadataInterfaceValueByAssetid($assetid, $field_assetid, $mute_errors);
 
 		if (is_null($value)) {
 			// not set - need the default value
-			return $this->getMetadataFieldDefaultValue($field_assetid);
-		} else {
-			return $value;
+			$value = $this->getMetadataFieldDefaultValue($field_assetid);
 		}
+
+		// sometimes there are nested keywords in the value of the metadata field
+		// We are asked to replace these nested keywords
+		if ($replace_nested_keyword) {
+
+			// get the metadata value from the generated metadata.php file
+			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$asset =& $am->getAsset($assetid);
+			$_metadata_filename = $asset->data_path.'/metadata.php';
+
+			// if the file exists then retrieve the value of the metadata field
+			if (file_exists($_metadata_filename)) {
+				// include the file but must not display anything
+				ob_start();
+				include $_metadata_filename;
+				ob_end_clean();
+
+				$field_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($field_assetid), 'metadata_field', FALSE, 'name');
+				$value = $metadata_values[$field_names[$field_assetid]];
+			}
+		}
+		return $value;
 
 	}//end getMetadataValueByAssetid()
 

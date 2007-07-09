@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.226 2007/07/04 06:19:19 lwright Exp $
+* $Id: listing_engine.inc,v 1.227 2007/07/09 01:16:19 bshkara Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.226 $
+* @version $Revision: 1.227 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -953,7 +953,7 @@ class Listing_Engine extends Page
 			}
 
 			foreach ($asset_list as $assetid => $type) {
-				$meta_field_val = $mm->getMetadataValueByAssetid($assetid,$fieldid,TRUE);
+				$meta_field_val = $mm->getMetadataValueByAssetid($assetid,$fieldid,TRUE,TRUE);
 				$field_value = $field_default_val;
 
 				if (isset($meta_field_val)) {
@@ -2777,7 +2777,7 @@ class Listing_Engine extends Page
 
 							$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_parent);
 							if (!is_null($parent_asset)) {
-								$value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, TRUE);
+								$value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, TRUE, TRUE);
 								$value = $metadata_field->getMetadataValue($parent_asset, $value);
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($current_parent->id);
 							}
@@ -3039,7 +3039,7 @@ class Listing_Engine extends Page
 						}//end if
 						$group_order = Array();
 						foreach ($results as $key => $arrayInfo) {
-							$group_order[$key] = $mm->getMetadataValueByAssetid($key, $sorting_metadata_field_id, TRUE);
+							$group_order[$key] = $mm->getMetadataValueByAssetid($key, $sorting_metadata_field_id, TRUE, TRUE);
 						}//end foreach
 					}//end if
 				} else {
