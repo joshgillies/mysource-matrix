@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.569 2007/07/09 01:46:56 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.570 2007/07/09 04:55:58 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.569 $
+* @version $Revision: 1.570 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -907,6 +907,15 @@ class Asset_Manager extends MySource_Object
 	function &getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
 		$this->_get_asset_history[] = $assetid;
+
+		// This function is supposed to take in an assetid of type int or string only, array of assetids should not be accepted.
+		if (is_array($assetid)) {
+			$msg = translate('assert_assetid', gettype($assetid), '');
+			trigger_exception($msg, FALSE, TRUE);
+			$asset = NULL;
+			return $asset;
+		}//end if
+
 		assert_valid_assetid($assetid);
 		$asset =& $this->_asset_cache->get($assetid);
 		if (!empty($asset) && !empty($type_code)) {
@@ -2967,7 +2976,6 @@ class Asset_Manager extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		if (!isset($this->_tmp['child_links'][$assetid])) {
-
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
 				$asset =& $this->getAsset($id_parts[0]);
@@ -2976,8 +2984,9 @@ class Asset_Manager extends MySource_Object
 				return $links;
 			}
 
+			// So it is not a shadow asset, but it could be a bridge
+			$asset =& $this->getAsset($assetid);
 			$shadow_links = Array();
-
 			if (implements_interface($asset, 'bridge')) {
 				$shadow_links = $asset->getAllChildLinks($assetid, $link_type);
 			}
