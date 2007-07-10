@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.570 2007/07/09 04:55:58 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.571 2007/07/10 05:15:26 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.570 $
+* @version $Revision: 1.571 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2074,8 +2074,9 @@ class Asset_Manager extends MySource_Object
 			return FALSE;
 		}
 
-		$asset =& $this->getAsset($assetid);
-		assert_not_null($asset);
+		$asset =& $this->getAsset($assetid);	
+		// Instead of throwing a fatal error, we just return false here, getAsset has already given a warning if the asset does not exists.
+		if (is_null($asset)) return FALSE;
 
 		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE);
 
@@ -2331,7 +2332,8 @@ class Asset_Manager extends MySource_Object
 
 		if (!isset($this->_tmp['lock_types'][$assetid])) {
 			$asset =& $this->getAsset($assetid);
-			assert_not_null($asset);
+			// If the asset is null, just return an empty array, throwing fatal error is a bit over done. 
+			if (is_null($asset)) return Array();
 			$this->_tmp['lock_types'][$assetid] = $asset->lockTypes();
 		}
 
