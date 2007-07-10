@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.130 2007/03/20 02:33:13 rong Exp $
+* $Id: design.inc,v 1.131 2007/07/10 01:58:38 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.131 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -890,7 +890,7 @@ echo '/*
 	*
 	* @param boolean	$do_customisations	Generate design files for any customisations
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	function generateDesignFile($do_customisations=TRUE)
@@ -962,6 +962,8 @@ echo '/*
 			}
 		}
 
+		return TRUE;	
+
 	}//end generateDesignFile()
 
 
@@ -1011,7 +1013,7 @@ echo '/*
 	*
 	* @param string	$str	The parse file contents
 	*
-	* @return void
+	* @return boolean
 	* @access private
 	*/
 	function _writeDesignFile($str)
@@ -1021,7 +1023,9 @@ echo '/*
 		create_directory($this->data_path);
 		$file = $this->data_path.'/design_file.php';
 		$new_file = !file_exists($file);
-		if (!string_to_file($str, $file)) return FALSE;
+		if (!string_to_file($str, $file)) {
+			return FALSE;
+		}
 
 		//// FILE VERSIONING ////
 
@@ -1049,6 +1053,8 @@ echo '/*
 			trigger_localised_error('CORE0031', E_USER_WARNING);
 			return FALSE;
 		}
+
+		return TRUE;
 
 	}//end _writeDesignFile()
 
