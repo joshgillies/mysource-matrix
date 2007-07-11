@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.201 2007/03/27 01:39:22 lwright Exp $
+* $Id: page_calendar.inc,v 1.202 2007/07/11 06:55:23 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.201 $
+* @version $Revision: 1.202 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -917,6 +917,11 @@ class Page_Calendar extends Page
             $events_array = $raw_events;
 			$events = $this->groupMonthEventsByDay($raw_events, $year, $month);
 			$month_length = days_in_month($month, $year);
+			$day_heading_format = 'l jS';
+			$heading_formats = $this->attr('view_heading_formats');
+			if (isset($heading_formats['month_day']) && !empty($heading_formats['month_day'])) {
+				$day_heading_format = $heading_formats['month_day'];
+			}
 			for ($current_day = 1; $current_day <= $month_length; $current_day++) {
 				uasort($events[$current_day], Array('Calendar_Common', 'compareStartDates'));
 				echo '<h3>';
@@ -925,7 +930,7 @@ class Page_Calendar extends Page
 				}
 				$current_date = sprintf('%04s-%02s-%02s', $year, $month, $current_day);
 				$_REQUEST['SQ_CALENDAR_DATE'] = $current_date;
-				echo date('l jS', strtotime($current_date));
+				echo date($day_heading_format, strtotime($current_date));
 				if ($drill_down_view) echo '</a>';
 				echo '</h3>';
 				if ($list_entry_types['month'] == 'title') {
@@ -1178,11 +1183,16 @@ class Page_Calendar extends Page
 			$raw_events = $this->getWeekEvents($date);
             $events_array = $raw_events;
 			$events = $this->groupWeekEventsByDay($raw_events, $date);
+			$day_heading_format = 'l jS';
+			$heading_formats = $this->attr('view_heading_formats');
+			if (isset($heading_formats['week_day']) && !empty($heading_formats['week_day'])) {
+				$day_heading_format = $heading_formats['week_day'];
+			}
 			foreach ($events as $day_date => $day_events) {
 				$_REQUEST['SQ_CALENDAR_DATE'] = $day_date;
 				uasort($events[$day_date], Array('Calendar_Common', 'compareStartDates'));
 				echo '<h3>'.(($enabled_views['day']) ? '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.$day_date.'"">' : '');
-				echo date('l jS', strtotime($day_date));
+				echo date($day_heading_format, strtotime($day_date));
 				echo (($enabled_views['day']) ? '</a>' : '').'</h3>';
 				if ($list_entry_types['week'] == 'title') {
 					echo $this->_getTitleList($events[$day_date], $enabled_views['event']);

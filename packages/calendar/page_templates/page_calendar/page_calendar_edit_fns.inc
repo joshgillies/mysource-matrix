@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.38 2006/12/07 05:51:51 bcaldwell Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.39 2007/07/11 06:55:23 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -663,6 +663,74 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
+	* Paint the interface that lets you specify the date format for the days shown in the month view
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintMonthDayHeadingFormat(&$asset, &$o, $prefix)
+	{
+		return $this->_paintHeadingFormat('month', 'day', $asset, $o, $prefix);
+
+	}//end paintMonthDayHeadingFormat()
+
+
+	/**
+	* Process the interface that lets you specify the date format for the days shown in the month view
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processMonthDayHeadingFormat(&$asset, &$o, $prefix)
+	{
+		return $this->_processHeadingFormat('month', 'day', $asset, $o, $prefix);
+
+	}//end processMonthDayHeadingFormat()
+
+
+	/**
+	* Paint the interface that lets you specify the date format for the days shown in the week view
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintWeekDayHeadingFormat(&$asset, &$o, $prefix)
+	{
+		return $this->_paintHeadingFormat('week', 'day', $asset, $o, $prefix);
+
+	}//end paintWeekDayHeadingFormat()
+
+
+	/**
+	* Process the interface that lets you specify the date format for the days shown in the week view
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processWeekDayHeadingFormat(&$asset, &$o, $prefix)
+	{
+		return $this->_processHeadingFormat('week', 'day', $asset, $o, $prefix);
+
+	}//end processWeekDayHeadingFormat()
+
+
+	/**
 	* Paint the interface that lets you specify the date format for the year view's title
 	*
 	* @param object	&$asset	the asset whose interface we are painting
@@ -744,6 +812,60 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 		}
 
 	}//end _processTitleFormat()
+
+
+	/**
+	* Generic function to paint the interface for specifying a view's heading format
+	*
+	* @param string	$view			the view this is the interface for
+	* @param string	$time_period	the time period used (eg; 'day' for day heading)
+	* @param object	&$asset			the asset whose interface we are painting
+	* @param object	&$o				the outputter class
+	* @param string	$prefix			prefix for the form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _paintHeadingFormat($view, $time_period, &$asset, &$o, $prefix)
+	{
+		$heading_index = $view.'_'.$time_period;
+		$heading_formats = $asset->attr('view_heading_formats');
+		if ($asset->writeAccess('attributes')) {
+			text_box($prefix.'_heading_format_'.$heading_index, $heading_formats[$heading_index]);
+			?><div class="sq-backend-smallprint"><?php echo translate('cal_page_paint_heading_format', 'http://au.php.net/manual/en/function.date.php'); ?><?php
+		} else {
+			echo $heading_formats[$heading_index].'  ("'.date($heading_formats[$heading_index], ((($view == 'week') && (date('D') != 'Mon')) ? strtotime('last Monday') : time())).'")';
+		}
+		return TRUE;
+
+	}//end _paintHeadingFormat()
+
+
+	/**
+	* Generic function to process the interface for specifying a view's heading format
+	*
+	* @param string	$view			the view this is the interface for
+	* @param string	$time_period	the time period used (eg; 'day' for day heading)
+	* @param object	&$asset			the asset whose interface we are painting
+	* @param object	&$o				the outputter class
+	* @param string	$prefix			prefix for the form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _processHeadingFormat($view, $time_period, &$asset, &$o, $prefix)
+	{
+		$heading_index = $view.'_'.$time_period;
+		if (isset($_POST[$prefix.'_heading_format_'.$heading_index])) {
+			$heading_formats = $asset->attr('view_heading_formats');
+			$heading_formats[$heading_index] = $_POST[$prefix.'_heading_format_'.$heading_index];
+			$asset->setAttrValue('view_heading_formats', $heading_formats);
+			return TRUE;
+		} else {
+			return FALSE;
+		}
+
+	}//end _processHeadingFormat()
 
 
 	/**

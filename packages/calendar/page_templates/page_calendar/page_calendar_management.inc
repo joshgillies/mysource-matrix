@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.54 2007/01/16 01:13:55 colivar Exp $
+* $Id: page_calendar_management.inc,v 1.55 2007/07/11 06:55:23 mbrydon Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -193,6 +193,16 @@ class Page_Calendar_Management extends Asset_Management
 																'week'	=> '\W\e\e\k \o\f l j F Y',
 																'day'	=> 'jS F Y',
 																'event'	=> 't',
+															   ),
+											);
+
+		// Date	format for calendar	heading titles
+		$this->vars['view_heading_formats'] = Array(
+												'added'		=> '0.8',
+												'type'		=> 'serialise',
+												'default'	=> Array(
+																'month_day'	=> 'l jS',
+																'week_day'	=> 'l jS',
 															   ),
 											);
 

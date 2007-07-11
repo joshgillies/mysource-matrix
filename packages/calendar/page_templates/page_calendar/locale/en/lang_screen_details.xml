@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.9 2007/01/29 23:57:13 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.10 2007/07/11 06:55:23 mbrydon Exp $
 *
 */
 -->
@@ -115,6 +115,14 @@
 				<process_function name="processMonthTitleFormat" />
 			</function_call>
 		</field>
+		<field>
+			<display_name>Day Heading Format</display_name>
+			<note>This setting is applicable only when the month view is displayed with day headings.</note>
+			<function_call>
+				<paint_function name="paintMonthDayHeadingFormat" />
+				<process_function name="processMonthDayHeadingFormat" />
+			</function_call>
+		</field>
 		<field attribute="month_view_event_label_format">
 			<display_name>Event Label Format</display_name>
 			<note>This setting applies only when month view is shown in calendar-table or simple-list format.  All keywords for an event asset can be used in this format value.</note>
@@ -140,6 +148,14 @@
 			<function_call>
 				<paint_function name="paintWeekTitleFormat" />
 				<process_function name="processWeekTitleFormat" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Day Heading Format</display_name>
+			<note>This setting is applicable only when the week view is displayed with day headings.</note>
+			<function_call>
+				<paint_function name="paintWeekDayHeadingFormat" />
+				<process_function name="processWeekDayHeadingFormat" />
 			</function_call>
 		</field>
 		<field attribute="week_view_event_label_format">
