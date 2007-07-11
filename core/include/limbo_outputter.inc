@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.35 2007/04/04 05:52:10 amiller Exp $
+* $Id: limbo_outputter.inc,v 1.36 2007/07/11 01:43:04 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -160,9 +160,9 @@ class Limbo_Outputter extends Backend_Outputter
 		// Let's get Layout Manager to see if we should output the edit.css file
 		$lm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
 		if ($lm->attr('edit_css')) {
-			$this->addCssInclude($this->filesPath('css/edit.css'));
+			$this->addCssInclude($this->filesPath('css/limbo.css'));
 		}
-		
+
 		foreach ($this->_css_includes as $file) {
 			$this->_paintCssInclude($file);
 		}
