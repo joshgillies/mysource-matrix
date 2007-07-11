@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.76 2007/02/18 23:34:54 rhoward Exp $
+* $Id: calendar_event.inc,v 1.77 2007/07/11 06:45:36 mbrydon Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -182,6 +182,8 @@ class Calendar_Event extends Asset
 		$our_keywords[] = 'event_end_time_12h'; // = 'End time (12 hour)';
 		$our_keywords[] = 'event_start_time_24h'; // = 'Start time (24 hour)';
 		$our_keywords[] = 'event_end_time_24h'; // = 'End time (24 hour)';
+		$our_keywords[] = 'event_short_start_time'; // = 'Short start time (12 hour)';
+		$our_keywords[] = 'event_short_end_time'; // = 'Short end time (12 hour)';
 		$our_keywords[] = 'event_start_time_ical'; // = 'Start time (iCalendar)';
 		$our_keywords[] = 'event_end_time_ical'; // = 'End time (iCalendar)';
 		$our_keywords[] = 'event_datetime_summary'; // = 'Friendly description of event dates and times';
@@ -834,6 +836,20 @@ class Calendar_Event extends Asset
 				return $end_date_not_set ? '' : date('h:i a', iso8601_ts($this->attr('end_date')));
 			case 'event_end_time_24h':
 				return $end_date_not_set ? '' : date('H:i', iso8601_ts($this->attr('end_date')));
+			case 'event_short_start_time':
+				$mins = date('i', iso8601_ts($this->attr('start_date')));
+				if ($mins == '00') {
+					return date('g a', iso8601_ts($this->attr('start_date')));
+				} else {
+					return date('g:i a', iso8601_ts($this->attr('start_date')));
+				}
+			case 'event_short_end_time':
+				$mins = date('i', iso8601_ts($this->attr('end_date')));
+				if ($mins == '00') {
+					return date('g a', iso8601_ts($this->attr('end_date')));
+				} else {
+					return date('g:i a', iso8601_ts($this->attr('end_date')));
+				}
 			case 'event_end_time_ical':
 				return $end_date_not_set ? '' : date('Ymd\THis', iso8601_ts($this->attr('end_date')));
 			case 'event_start_datetime':
