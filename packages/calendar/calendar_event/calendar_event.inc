@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.77 2007/07/11 06:45:36 mbrydon Exp $
+* $Id: calendar_event.inc,v 1.78 2007/07/11 23:07:59 mbrydon Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -839,16 +839,16 @@ class Calendar_Event extends Asset
 			case 'event_short_start_time':
 				$mins = date('i', iso8601_ts($this->attr('start_date')));
 				if ($mins == '00') {
-					return date('g a', iso8601_ts($this->attr('start_date')));
+					return date('ga', iso8601_ts($this->attr('start_date')));
 				} else {
-					return date('g:i a', iso8601_ts($this->attr('start_date')));
+					return date('g:ia', iso8601_ts($this->attr('start_date')));
 				}
 			case 'event_short_end_time':
 				$mins = date('i', iso8601_ts($this->attr('end_date')));
 				if ($mins == '00') {
-					return date('g a', iso8601_ts($this->attr('end_date')));
+					return date('ga', iso8601_ts($this->attr('end_date')));
 				} else {
-					return date('g:i a', iso8601_ts($this->attr('end_date')));
+					return date('g:ia', iso8601_ts($this->attr('end_date')));
 				}
 			case 'event_end_time_ical':
 				return $end_date_not_set ? '' : date('Ymd\THis', iso8601_ts($this->attr('end_date')));
