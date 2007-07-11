@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.61 2007/03/22 05:21:04 lwright Exp $
+* $Id: ldap_bridge.inc,v 1.62 2007/07/11 05:12:01 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -117,7 +117,17 @@ class LDAP_Bridge extends Asset
 			ldap_set_option($ldap->ptr, constant($option), $value);
 		}
 
-		if (!$ldap->bind($this->attr('bind_dn'), $this->attr('password'))) {
+		$bind_dn = $this->attr('bind_dn');
+
+		// If the bind DN is empty, anonymous access is assumed, and the
+		// password supplied will be ignored
+		if (empty($bind_dn)) {
+			$password = '';
+		} else {
+			$password = $this->attr('password');
+		}
+
+		if (!$ldap->bind($bind_dn, $password)) {
 			return NULL;
 		}
 		return $ldap;
