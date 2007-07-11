@@ -10,19 +10,19 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.10 2007/06/08 04:40:41 skim Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.11 2007/07/11 00:03:23 lwright Exp $
 *
 */
 
 
 /**
-* Search_Manager_Plugin_OCI8
+* Search_Manager_Plugin_PgSQL
 *
 * Handles of certain low-level search functions, optimised for a
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -80,8 +80,9 @@ class Search_Manager_Plugin_PgSQL
 			case 'metadata':
 				$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 				$key_types = Array(
-								'metadata_field_select'		=> 'selection',
-								'metadata_field_thesaurus'	=> 'thesaurus',
+								'metadata_field_select'			=> 'selection',
+								'metadata_field_multiple_text'	=> 'selection',
+								'metadata_field_thesaurus'		=> 'thesaurus',
 							 );
 				$key_type = array_get_index($key_types, get_class($metadata_field), 'text');
 				$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
