@@ -1,0 +1,136 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: content_type_snippet_prefs.inc,v 1.1 2007/07/12 01:13:12 rong Exp $
+*
+*/
+
+
+require_once SQ_LIB_PATH.'/config/prefs.inc';
+
+/**
+* Content_Type_Snippet_Prefs
+*
+* Purpose
+*
+*    Snippet root node preference
+*
+* @author  Rayn Ong <rong@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix
+*/
+class Content_Type_Snippet_Prefs extends Prefs
+{
+	var $pref_vars = Array(
+						'SQ_SNIPPET_ROOT'	=> Array(
+												'name'			=> 'Snippet Root Node',
+												'description'	=> 'Allows you to specify the root node of where all snippets are located',
+												'default'		=> '',
+												'protected'		=> FALSE,
+											   ),
+					 );
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function Content_Type_Snippet_Prefs($pref_file='')
+	{
+		$this->Prefs($pref_file);
+
+	}//end constructor
+
+
+	/**
+	* Paints the backend interface to edit preferences
+	*
+	* @param object		&$o			reference to the backend outputter object
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to paint
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintBackend(&$o, $have_lock, $pref=NULL)
+	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+
+		// print the asset finder for admin to set snippet root node
+		if (is_null($pref) || $pref == 'SQ_SNIPPET_ROOT') {
+			if (is_null($pref)) {
+				$o->openField('Snippet Root Node');
+			}
+			?>
+			<div class="sq-backend-table sq-backend-table-cell">
+			<?php
+
+			if ($have_lock && $is_admin) {
+				if (isset($this->pref_vars['SQ_SNIPPET_ROOT']['default'])) {
+					$asset_map_settings = $this->pref_vars['SQ_SNIPPET_ROOT']['default'];
+				} else {
+					$asset_map_settings = '';
+				}
+				asset_finder('prefs[SQ_SNIPPET_ROOT]', $asset_map_settings);
+			} else {
+				if (!empty($this->pref_vars['SQ_SNIPPET_ROOT']['default'])) {
+					echo get_asset_tag_line($this->pref_vars['SQ_SNIPPET_ROOT']['default']);
+				} else {
+					echo translate('root_folder');
+				}
+			}
+			?>
+			<br /><br />
+			<?php
+			echo 'All content type under this asset will be available in the snippet content type dropdown';
+			?>
+			</div>
+			<?php
+
+			if (is_null($pref)) $o->closeField();
+		}//end if
+
+		return TRUE;
+
+	}//end paintBackend()
+
+
+	/**
+	* Processes the backend interface to edit preferences
+	*
+	* @param object		&$o			reference to the backend outputter object
+	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
+	* @param string		$pref		a particular preference to process
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processBackend(&$o, $have_lock, $pref=NULL)
+	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		if (!$is_admin) return FALSE;
+		if (is_null($pref) || $pref == 'SQ_SNIPPET_ROOT') {
+			// update snippet root node pref
+			if (isset($_POST['prefs']['SQ_SNIPPET_ROOT'])) {
+				$this->pref_vars['SQ_SNIPPET_ROOT']['default'] = $_POST['prefs']['SQ_SNIPPET_ROOT']['assetid'];
+			}
+		}
+
+		return TRUE;
+
+	}//end processBackend()
+
+
+}//end class
+?>
