@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_js_calendar_navigator.inc,v 1.15 2007/01/08 03:25:04 emcdonald Exp $
+* $Id: design_area_js_calendar_navigator.inc,v 1.16 2007/07/12 04:32:51 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -68,9 +68,6 @@ class Design_Area_JS_Calendar_Navigator extends Design_Area
 		foreach ($page_links as $link) {
 			$page_ids[substr($link['value'], 0, -5)] = $link['minorid'];
 		}
-		log_dump($page_ids);
-		log_dump($page_links);
-		error_log(var_export($page_ids, 1));
 
 		$open_php = '<'.'?'.'php';
 		$close_php = '?'.'>';
