@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.14 2006/12/07 21:42:32 tbarrett Exp $
+* $Id: page_link_manager.inc,v 1.14.4.1 2007/07/13 04:33:52 rhoward Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -409,8 +409,9 @@ class Page_Link_Manager extends Page_Asset_Listing
 				}
 			}
 
-
-			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+			// keep forced, but make sure we have link integrity turned on
+			$run_level = SQ_RUN_LEVEL_FORCED | SQ_SECURITY_LINK_INTEGRITY;
+			$GLOBALS['SQ_SYSTEM']->setRunLevel($run_level);
 				$done = $this->processMinorLinks($managed_asset->id, $asset_links, $new_links, $this->attr('link_type'));
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
