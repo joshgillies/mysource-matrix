@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.54 2007/04/02 01:05:42 tbarrett Exp $
+* $Id: page_account_manager.inc,v 1.54.2.1 2007/07/13 02:14:55 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.54.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1078,6 +1078,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		}
 
 		$vars['keywords'] = array_merge($vars['keywords'], $this->_getSelectableLocationKeywords());
+		$vars['keywords'] = array_merge($vars['keywords'], $this->_getDynamicLocationKeywords());
 
 	}//end onRequestKeywords()
 
