@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.33 2007/06/14 02:44:06 tbarrett Exp $
+* $Id: bulkmail_job.inc,v 1.34 2007/07/13 06:52:40 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -134,6 +134,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$subject = Bulk_Mailer::replaceContentKeywords($subject, $GLOBALS['SQ_SYSTEM']->user);
 
 		$header_details['subject'] = $subject;
+		$header_details['To'] = $recipient; //FR: 2515
 
 		// add 'Preview' to the subject header for preview mails
 		if (!empty($header_details['subject'])) {

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.67 2007/06/14 02:46:41 tbarrett Exp $
+* $Id: bulk_mailer.inc,v 1.68 2007/07/13 06:52:40 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -296,6 +296,7 @@ class Bulk_Mailer
 								$body = @$mime->get();
 								// pass in custom_id as extra header details, for queue file naming
 								$header_details['custom_id'] = $user_id;
+								$header_details['To'] = $email; // FR: 2515
 								$headers = @$mime->headers($header_details);
 								$mail_id = $mail_queue->put('', $email, $headers, $body);
 							}
