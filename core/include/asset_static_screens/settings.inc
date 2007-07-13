@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.41 2007/02/02 03:45:17 colivar Exp $
+* $Id: settings.inc,v 1.42 2007/07/13 06:00:13 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 */
 
@@ -508,7 +508,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 								text_box($prefix.'_designs['.$design_name.'][name]', '', 20, 30);
 							$o->closeField();
 						} else {
-							$o->openRaw(); 
+							$o->openRaw();
 							hidden_field($prefix.'_designs['.$design_name.'][name]', $design_name);
 							$o->closeRaw();
 
@@ -801,6 +801,7 @@ function processSettings(&$owner, &$o, &$ei)
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$designs_ok = TRUE;
 		$designs_changed = FALSE;
+		$update_design_cascade	= FALSE;
 
 		foreach ($_POST[$prefix.'_designs'] as $design_name => $design_data) {
 
@@ -850,6 +851,7 @@ function processSettings(&$owner, &$o, &$ei)
 						break;
 					}
 				}
+				$update_design_cascade	= TRUE;
 			}
 
 			// same with the overrides
@@ -884,22 +886,29 @@ function processSettings(&$owner, &$o, &$ei)
 
 		if ($designs_ok) {
 			if ($designs_changed) {
-				$assets_affected_lookups[] = $owner->id;
-			}
+				// Only do update lookup HIPO when the current design (NOT override) is updated.
+				if ($update_design_cascade == TRUE) {
+					$assets_affected_lookups[] = $owner->id;
+				}//end if
+			}//end if
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		}
+		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end if
 
+	// Update look up for this asset and its children
 	if (!empty($assets_affected_lookups)) {
 		//// START HIPO PROCESSING ////
 		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetids' => array_unique($assets_affected_lookups));
 		$hh->queueHipo('hipo_job_update_lookups', $vars);
 		////  END HIPO PROCESSING  ////
-	}// endif
+	} else if ($update_design_cascade == FALSE) {
+		// Run the update lookup code only for this owner asset if the override design is changed.
+		if (!$owner->updateLookups()) return FALSE;
+	}
 
 	return TRUE;
 
