@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.24 2007/06/25 01:38:34 lwright Exp $
+* $Id: data_source_db.inc,v 1.25 2007/07/13 01:50:57 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -122,28 +122,33 @@ class Data_Source_DB extends Data_Source
 	*/
 	function &getResultSet()
 	{
-		$result = Array();
+		if ($this->attr('mode') == 'execute') {
+			$query_string = $this->_getExecutableQueryString();
+			if (!empty($query_string)) {
+				$hash = md5($query_string);
 
-		$query_string = $this->_getExecutableQueryString();
-		if (empty($query_string)) return $result;
+				// Check the local cache
+				if (!isset($this->_tmp[$hash])) {
 
-		// check the cache
-		$hash = md5($query_string);
-		$result = $this->getCachedResultSet($hash);
-		if ($result !== FALSE) return $result;
+					// Check the system cache
+					$result = $this->getCachedResultSet($hash);
+					if ($result !== FALSE) {
+						$this->_tmp[$hash] = $result;
+					} else {
+						// Not cached at all, so hit the DB
+						$this->_tmp[$hash] =& $this->_executeQuery($query_string);
+						$this->cacheResultSet($this->_tmp[$hash], $hash);
+					}
+				}
 
-		if ($this->attr('mode') != 'execute') return $result;
 
-		if (isset($this->_tmp[$hash])) {
-			$result = unserialize($this->_tmp[$hash]);
-			return $result;
+				return $this->_tmp[$hash];
+			}
 		}
 
-		$result =& $this->_executeQuery($query_string);
-		$this->cacheResultSet($result, $query_string);
-		$this->_tmp[$hash] = serialize($result);
-
-		return $result;
+		// Fall-through failure case
+		$res = Array();
+		return $res;
 
 	}//end getResultSet()
 
