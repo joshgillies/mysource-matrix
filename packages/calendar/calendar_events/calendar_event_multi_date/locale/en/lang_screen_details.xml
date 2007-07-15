@@ -1,0 +1,37 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1 2007/07/15 23:15:38 mbrydon Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
+		</field>
+		<field attribute="short_date">
+			<display_name>Date Summary</display_name>
+			<note />
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintDates" />
+				<process_function name="processDates" />
+			</function_call>
+			<display_name>Instances</display_name>
+			<note />
+		</field>
+	</section>
+</contents>
