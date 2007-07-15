@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.84 2007/04/30 14:35:43 gnoel Exp $
+* $Id: calendar_event_recurring.inc,v 1.85 2007/07/15 23:03:55 mbrydon Exp $
 *
 */
 
@@ -28,12 +28,13 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
 class Calendar_Event_Recurring extends Calendar_Event
 {
+	var $parent_links = Array();
 
 
 	/**
@@ -47,6 +48,23 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$this->Calendar_Event($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Load the asset represented by the passed asset ID
+	*
+	* @param int	$assetid	the asset ID to be loaded
+	*
+	* @return void
+	* @access public
+	*/
+	function load($assetid)
+	{
+		parent::load($assetid);
+
+		$this->parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_ALL, 'calendar_event_multi_date', FALSE, 'minor');
+
+	}//end load()
 
 
 	/**
@@ -910,7 +928,22 @@ class Calendar_Event_Recurring extends Calendar_Event
 					}
 					return $res;
 				}
-				return parent::getKeywordReplacement($keyword);
+
+				$replacement = parent::getKeywordReplacement($keyword);
+				$empty_replacement = (((string)$replacement) == '%'.$keyword.'%');
+
+				// If we have not found an appropriate replacement, ask the parent, if it is a Calendar Multi Date Event asset
+				if ($empty_replacement && (count($this->parent_links) > 0)) {
+					// Only expecting one relevant link
+					$parent_link = reset($this->parent_links);
+
+					$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid']);
+					$replacement = $parent_asset->getKeywordReplacement($keyword);
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_asset);
+				}
+
+				return $replacement;
+
 		}//end switch
 
 	}//end getKeywordReplacement()

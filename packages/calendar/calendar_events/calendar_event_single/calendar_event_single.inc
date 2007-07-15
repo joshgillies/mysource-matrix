@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_single.inc,v 1.18 2007/01/08 03:25:04 emcdonald Exp $
+* $Id: calendar_event_single.inc,v 1.19 2007/07/15 23:03:48 mbrydon Exp $
 *
 */
 
@@ -26,12 +26,13 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
 class Calendar_Event_Single extends Calendar_Event
 {
+	var $parent_links = Array();
 
 
 	/**
@@ -45,6 +46,23 @@ class Calendar_Event_Single extends Calendar_Event
 		$this->Calendar_Event($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Load the asset represented by the passed asset ID
+	*
+	* @param int	$assetid	the asset ID to be loaded
+	*
+	* @return void
+	* @access public
+	*/
+	function load($assetid)
+	{
+		parent::load($assetid);
+
+		$this->parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_ALL, 'calendar_event_multi_date', FALSE, 'minor');
+
+	}//end load()
 
 
 	/**
@@ -134,7 +152,41 @@ class Calendar_Event_Single extends Calendar_Event
 		</table>
 		<?php
 
-	}//end printBody()
+	}//end printBody2()
+
+
+	/**
+	* Get bodycopy keyword replacement
+	*
+	* Provides a mechanism for providing keyword replacement functions by
+	* looking up the function named 'getKeywordNameKeywordReplacement'
+	* so an asset wishing to add support for 'best_ever' custom keyword
+	* should implement a function getBestEverKeywordReplacement()
+	* which returns a replacement string
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getKeywordReplacement($keyword)
+	{
+		$replacement = parent::getKeywordReplacement($keyword);
+		$empty_replacement = (((string)$replacement) == '%'.$keyword.'%');
+
+		// If we have not found an appropriate replacement, ask the parent, if it is a Calendar Multi Date Event asset
+		if ($empty_replacement && (count($this->parent_links) > 0)) {
+			// Only expecting one relevant link
+			$parent_link = reset($this->parent_links);
+
+			$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid']);
+			$replacement = $parent_asset->getKeywordReplacement($keyword);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_asset);
+		}
+
+		return $replacement;
+
+	}//end getKeywordReplacement()
 
 
 }//end class
