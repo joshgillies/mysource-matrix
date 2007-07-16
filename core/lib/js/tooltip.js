@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tooltip.js,v 1.15 2007/02/16 01:30:32 tbarrett Exp $
+* $Id: tooltip.js,v 1.16 2007/07/16 05:37:49 lwright Exp $
 *
 */
 
@@ -21,8 +21,8 @@
 */
 function ToolTip()
 {
-	this.normal_font	= "10px Tahoma,Arial";
-	this.title_font		= "bold 12px Tahoma,Arial";
+	this.normal_font	= "100% Tahoma,Arial";
+	this.title_font		= "bold 120% Tahoma,Arial";
 	this.title_align	= "left";
 	this.normal_bg		= "#F4F4EB";
 	this.title_bg		= "#594165";
@@ -53,8 +53,7 @@ function tt_print()
 	if (!document.getElementById("ToolBox"))
 	{
 		output = '<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;top:-200px;left:-110px;width:10px; height:30px;progid:DXImageTransform.Microsoft.Alpha(style=0, opacity=0)" src="about:blank"></iframe>';
-		output += '<table cellspacing="0" cellpadding="0" border="0" id="ToolBox" style="font:' + this.normal_font +
-				 ';border:' + this.border +
+		output += '<table cellspacing="0" cellpadding="0" border="0" id="ToolBox" style="border:' + this.border +
 				 ';color:' + this.normal_color +
 				 ';background:' + this.normal_bg +
 				 ';position:absolute;top:0px;left:0px;z-index: 1000;visibility:hidden;filter:progid:DXImageTransform.Microsoft.Fade(duration=0.5)"><tr><td id="ToolBoxTitle" style="padding:0px"></td></tr><tr><td id="ToolBoxContent" style="padding:2px"></td></tr></table>';
@@ -194,6 +193,9 @@ function tt_paint(top, left, text, title, close_button)
 		document.getElementById("ToolBoxTitle").style.background = this.title_bg;
 		document.getElementById("ToolBoxTitle").style.color = this.title_color;
 		document.getElementById("ToolBoxTitle").style.padding = "2px";
+
+		document.getElementById("ToolBoxContent").style.font = this.normal_font;
+
 		if (typeof(title) != "undefined") document.getElementById("ToolBoxTitle").innerHTML = unescape(title);
 
 		if (closeElement = document.getElementById("ToolBoxClose")) {
