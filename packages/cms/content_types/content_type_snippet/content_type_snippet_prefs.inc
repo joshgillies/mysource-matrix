@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_snippet_prefs.inc,v 1.1 2007/07/12 01:13:12 rong Exp $
+* $Id: content_type_snippet_prefs.inc,v 1.2 2007/07/16 06:01:21 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Snippet root node preference
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Content_Type_Snippet_Prefs extends Prefs
@@ -72,7 +72,7 @@ class Content_Type_Snippet_Prefs extends Prefs
 				$o->openField('Snippet Root Node');
 			}
 			?>
-			<div class="sq-backend-table sq-backend-table-cell">
+
 			<?php
 
 			if ($have_lock && $is_admin) {
@@ -90,11 +90,9 @@ class Content_Type_Snippet_Prefs extends Prefs
 				}
 			}
 			?>
-			<br /><br />
 			<?php
-			echo 'All content type under this asset will be available in the snippet content type dropdown';
+			$o->note(translate('cms_ct_snippet_pref_note'));
 			?>
-			</div>
 			<?php
 
 			if (is_null($pref)) $o->closeField();
