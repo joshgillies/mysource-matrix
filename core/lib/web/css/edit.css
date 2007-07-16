@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.79 2007/07/11 23:23:38 lwright Exp $
+* $Id: edit.css,v 1.80 2007/07/16 06:00:14 lwright Exp $
 *
 */
 
@@ -79,6 +79,7 @@ table.sq-backend-main-headings td.sq-backend-heading-icon {
 	color:				#FFFFFF;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	padding:			0px;
+	font-size:			82%;
 	border-bottom:		1px solid #342939;
 }
 
@@ -191,7 +192,7 @@ td.sq-backend-commit {
 .sq-backend-fineprint {
 	color:				green;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	font-size:			62%;
+	font-size:			91%;
 }
 
 .sq-backend-smallprint ul {
