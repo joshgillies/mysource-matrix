@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.31 2007/05/01 05:45:40 hnguyen Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.32 2007/07/16 15:54:55 gnoel Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -203,6 +203,9 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 			$this->_running_vars['todo_assetids'] = array_merge($this->_running_vars['todo_assetids'], $mm->getSchemaAssets($schemaid, TRUE));
 		}
 
+		// remove duplicates
+		$this->_running_vars['todo_assetids'] = array_values(array_unique($this->_running_vars['todo_assetids']));
+		
 		// if nothing to do, bail out
 		if (empty($this->_running_vars['todo_assetids'])) {
 			return FALSE;
