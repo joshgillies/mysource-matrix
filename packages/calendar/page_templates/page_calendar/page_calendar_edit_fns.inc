@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.39 2007/07/11 06:55:23 mbrydon Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.40 2007/07/17 04:58:04 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -780,7 +780,7 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 		$title_formats = $asset->attr('view_title_formats');
 		if ($asset->writeAccess('attributes')) {
 			text_box($prefix.'_title_format_'.$view, $title_formats[$view]);
-			?><div class="sq-backend-smallprint"><?php echo translate('cal_page_paint_title_format', 'http://au.php.net/manual/en/function.date.php'); ?><?php
+			?><div class="sq-backend-smallprint"><?php echo translate('cal_page_paint_title_format', 'http://au.php.net/manual/en/function.date.php'); ?></div><?php
 		} else {
 			echo $title_formats[$view].'  ("'.date($title_formats[$view], ((($view == 'week') && (date('D') != 'Mon')) ? strtotime('last Monday') : time())).'")';
 		}
