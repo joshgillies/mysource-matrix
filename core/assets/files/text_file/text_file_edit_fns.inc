@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text_file_edit_fns.inc,v 1.4 2006/12/05 23:14:14 emcdonald Exp $
+* $Id: text_file_edit_fns.inc,v 1.5 2007/07/17 01:14:26 lwright Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 * Text_File_Edit_Fns
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,7 +59,7 @@ class Text_File_Edit_Fns extends File_Edit_Fns
 		}
 
 		if ($asset->writeAccess('attributes')) {
-			text_area($prefix.'_new_file', $str, 0, 0, 0, 'style="font-family: monospace; white-space: pre; width: 99%; height: 480px"');
+			text_area($prefix.'_new_file', $str, 0, 0, 0, 'style="font-family: \'Courier New\', Courier, monospace; white-space: pre; width: 99%; height: 480px"');
 			return TRUE;
 		} else {
 			echo '<pre>', htmlspecialchars($str), '</pre>';

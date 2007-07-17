@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code_edit_fns.inc,v 1.9 2006/12/07 00:04:16 emcdonald Exp $
+* $Id: content_type_code_edit_fns.inc,v 1.10 2007/07/17 01:14:27 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -59,7 +59,7 @@ class Content_Type_Code_Edit_Fns extends Content_Type_Edit_Fns
 			$html = $asset->attr('edit_content');
 			$html = str_replace('&lt;?php', '<?php', $html);
 			$html = str_replace('&lt;script', '<script', $html);
-			text_area($prefix.'_html', $html, '', '', 0, 'style="width: '.$size['width'].'; height: '.$size['height'].'; font-family: monospace; display: block"');
+			text_area($prefix.'_html', $html, '', '', 0, 'style="width: '.$size['width'].'; height: '.$size['height'].'; font-family: \'Courier New\', Courier, monospace; display: block"');
 			$line_number_prefs = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_CODE_EDITOR_LINE_NUMBERS');
 			$current_line_settings = $asset->attr('line_numbers');
 			foreach ($current_line_settings as $name => $value) {

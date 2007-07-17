@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.23 2006/12/06 04:40:08 emcdonald Exp $
+* $Id: log_manager.inc,v 1.24 2007/07/17 01:14:26 lwright Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -681,7 +681,7 @@ class Log_Manager extends Asset
 								'.translate('user').':&nbsp;<strong>'.$d_line['user'].'</strong>&nbsp;('.$d_line['userid'].')<br />
 								'.translate('level').':&nbsp;<strong>'.$error_type_name.'</strong><br />
 							</td>
-							<td><span style="font-family: monospace;">'.$message.'</span></td>
+							<td><span style="font-family: \'Courier New\', Courier, monospace;">'.$message.'</span></td>
 						</tr>';
 					} else {
 						$line = htmlspecialchars($line);
@@ -691,7 +691,7 @@ class Log_Manager extends Asset
 							<td style="color: red; background-color: #eef; text-align: right;">
 								<strong>'.translate('raw_entry').':</strong>
 							</td>
-							<td><span style="font-family: monospace;">'.$line.'<span></td>
+							<td><span style="font-family: \'Courier New\', Courier, monospace;">'.$line.'<span></td>
 						</tr>';
 					}
 
