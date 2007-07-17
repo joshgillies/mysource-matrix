@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.48 2006/12/05 22:56:41 emcdonald Exp $
+* $Id: design_customisation.inc,v 1.48.4.1 2007/07/17 00:29:39 rhoward Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.48.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -348,9 +348,8 @@ class Design_Customisation extends Design
 
 	/**
 	* Updates this customisation from our parent,
-	* ie. Updates our contents array and the contents arrays for any customised but NOT specialised design areas
+	* ie. Updates our contents array and the contents arrays for any customised design areas
 	*     No need to do the uncustomised design areas because they would be done by our parent
-	*     No need to do the specialised design areas because, bugger ya, you specialised them so you're on your own
 	*
 	* @param object	&$parent	the parent design for this customisation
 	*
@@ -396,7 +395,7 @@ class Design_Customisation extends Design
 			$this->createLink($da, SQ_LINK_TYPE_3, $id_name, NULL, '1');
 		}//end foreach
 
-		//// THIRD, let's update the customised, but not specialised, design areas ////
+		//// THIRD, let's update the customised design areas ////
 
 		$links = $this->getCustomisedAreas();
 		foreach ($links as $link) {
