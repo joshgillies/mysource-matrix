@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.8 2007/07/02 06:29:04 mbrydon Exp $
+* $Id: page_upcoming_events_list.inc,v 1.9 2007/07/17 06:33:58 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -316,6 +316,48 @@ class Page_Upcoming_Events_List extends Page
 
 
 	/**
+	* Get Event Root nodes if specified
+	*
+	* @return array
+	* @access private
+	*/
+	function _getEventRootNodeIds()
+	{
+		$parameter_map =& $this->getAttribute('parameter_map');
+		$raw_dynamic_root_nodes = $parameter_map->getParameterValue('replacement_root_node');
+		if (!empty($raw_dynamic_root_nodes)) {
+			$dynamic_root_nodes = Array();
+			// note that dynamic roots can be supplied as an array of asset ids or
+			// as a comma delimited string of asset ids
+			if (!is_array($raw_dynamic_root_nodes)) {
+				$raw_dynamic_root_nodes = explode(',', $raw_dynamic_root_nodes);
+			}
+
+			$original_root_ids = array_keys($this->attr('root_nodes'));
+			foreach ($raw_dynamic_root_nodes as $dynamic_root) {
+				if (!strlen($dynamic_root)) continue;
+				// Check to see if the dynamic parameter specified is a child of one of the root
+				// nodes. If so, use the dynamic parameter as the root node; otherwise return an error.
+				$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
+				$matching_root_ids = array_intersect(array_keys($dynamic_parents), $original_root_ids);
+				if (empty($matching_root_ids)) {
+					trigger_localised_error('CMS0020', E_USER_WARNING, $dynamic_root);
+				} else {
+					$dynamic_root_nodes[$dynamic_root] = 1;
+				}
+			}
+
+			if (!empty($dynamic_root_nodes)) {
+				return $dynamic_root_nodes;
+			}
+
+		}//end if
+		return Array();
+
+	}//end _getEventRootNodeIds()
+
+
+	/**
 	* Get the events that should be displayed in this calendar page
 	* Returns: (array (assetid => array ( details )))
 	*
@@ -326,7 +368,10 @@ class Page_Upcoming_Events_List extends Page
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		// build sql to restrict the tree locations
-		$root_nodes = $this->attr('root_nodes');
+		$root_nodes = $this->_getEventRootNodeIds();
+		if (empty($root_nodes)) {
+			$root_nodes = $this->attr('root_nodes');
+		}
 		if (empty($root_nodes)) {
 			trigger_localised_error('CAL0028', E_USER_WARNING);
 			return Array();
