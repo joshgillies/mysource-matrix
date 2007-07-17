@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.80 2007/07/16 06:00:14 lwright Exp $
+* $Id: edit.css,v 1.81 2007/07/17 01:17:09 lwright Exp $
 *
 */
 
@@ -458,6 +458,10 @@ td.sq-backend-lock-table-cell-alt {
 	font-weight:		bold;
 }
 
+a.sq-backend-new-message-heading {
+	font-size: 			100%;
+}
+
 .sq-backend-new-message-body {
 	color:				#342939;
 	font-weight:		normal;
@@ -484,6 +488,10 @@ td.sq-backend-lock-table-cell-alt {
 	padding:			4px;
 	text-decoration:	none;
 	font-weight:		bold;
+}
+
+a.sq-backend-search-results-heading {
+	font-size: 			100%;
 }
 
 .sq-backend-search-results-heading {
@@ -521,6 +529,10 @@ td.sq-backend-lock-table-cell-alt {
 	font-weight:		bold;
 }
 
+a.sq-backend-popups-blocked-heading {
+	font-size: 			100%;
+}
+
 .sq-backend-popups-blocked-body, .sq-backend-popups-blocked-cell {
 	font-weight:		900;
 	font-size:			62%;
@@ -544,6 +556,10 @@ td.sq-backend-lock-table-cell-alt {
 	padding:			4px;
 	text-decoration:	none;
 	font-weight:		bold;
+}
+
+a.sq-backend-search-failed-heading {
+	font-size: 			100%;
 }
 
 .sq-backend-search-failed-body {
@@ -604,7 +620,7 @@ a.sq-search-results-expand-link {
 	top:				0px;
 	left:				0px;
 	height:				10px;
-	font-size:			87%;
+	font-size:			127%;
 	margin-top:			5px;
 	font-weight: 		bold;
 	text-decoration:	none;
