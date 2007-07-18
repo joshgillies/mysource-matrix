@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.87 2007/07/18 04:23:37 bshkara Exp $
+* $Id: hipo_herder.inc,v 1.88 2007/07/18 04:35:46 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1164,18 +1164,13 @@ class HIPO_Herder extends MySource_Object
 	*/
 	function getJobsForUser($userid)
 	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT code_name, job_type, last_updated
 				FROM sq_hipo_job
 				WHERE userid = '.$db->quote($userid);
 		$jobsforuser = $db->getAll($sql);
 
-		if (!assert_valid_db_result($jobsforuser)) return '';
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		if (!assert_valid_db_result($jobsforuser)) return Array();
 
 		// now get the percentage done for each job code we have
 		for ($i = 0; $i < count($jobsforuser); $i++) {
