@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.254 2007/06/19 07:12:15 rhoward Exp $
+* $Id: lang_strings.xml,v 1.255 2007/07/18 04:23:37 bshkara Exp $
 *
 */
 
@@ -488,7 +488,8 @@
 	<string source="new_messages">New Messages</string>
 	<string source="new_messages_count">"%1$s" has %2$s new message(s)</string>
 
-
+	<string source="hipo_jobs_stalled">Stalled HIPO job(s)</string>
+	<string source="hipo_jobs_count">"%1$s" has %2$d stalled HIPO job(s)</string>
 
 	<string source="show_file_and_line_errors">Show File and Line number in error messages</string>
 	<string source="show_stack_trace_errors">Show Stack Trace in error messages</string>

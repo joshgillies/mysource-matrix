@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.179 2007/06/07 00:16:15 mbrydon Exp $
+* $Id: backend.inc,v 1.180 2007/07/18 04:23:37 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.179 $
+* @version $Revision: 1.180 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -604,7 +604,28 @@ class Backend extends MySource_Object
 				$dhtml_messages['popups_blocked'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
 			}
 
+			  /////////////////////////////////
+			 //  HIPO STALLED JOBS MESSAGE  //
+			/////////////////////////////////
 
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$alljobs = $hh->getJobsForUser($GLOBALS['SQ_SYSTEM']->user->id);
+
+			// determine how many jobs have been running for more than 5 minutes
+			$stalledjobs = 0;
+			$now = time();
+			for ($i = 0; $i < count($alljobs); $i++) {
+				$job_last_updated = $alljobs[$i]['last_updated'];
+				$job_last_updated_timestamp = strtotime($job_last_updated);
+				if (($now - $job_last_updated_timestamp) >= 300) {
+					$stalledjobs++;
+				}
+			}
+
+			if ($stalledjobs != 0) {
+				$html = $this->_getDHTMLMessage(translate('hipo_jobs_stalled'), translate('hipo_jobs_count', $GLOBALS['SQ_SYSTEM']->user->name, $stalledjobs), 'new-message', 'stop', 32, 32);
+				$dhtml_messages['hipo_jobs_stalled'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
+			}
 			  //////////////////////////////
 			 //  INTERNAL MESSAGE POPUP  //
 			//////////////////////////////

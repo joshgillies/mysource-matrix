@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.86 2007/04/03 03:59:15 mbrydon Exp $
+* $Id: hipo_herder.inc,v 1.87 2007/07/18 04:23:37 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1152,6 +1152,39 @@ class HIPO_Herder extends MySource_Object
 		if ($have_lock) $o->commitButton('', TRUE);
 
 	}//end paintBackend()
+
+
+	/**
+	* Gets the jobs with percentage done for specified user
+	*
+	* @param int	$userid	the user id
+	*
+	* @return array
+	* @access public
+	*/
+	function getJobsForUser($userid)
+	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT code_name, job_type, last_updated
+				FROM sq_hipo_job
+				WHERE userid = '.$db->quote($userid);
+		$jobsforuser = $db->getAll($sql);
+
+		if (!assert_valid_db_result($jobsforuser)) return '';
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		// now get the percentage done for each job code we have
+		for ($i = 0; $i < count($jobsforuser); $i++) {
+			$source_job =& $this->getJob($jobsforuser[$i]['code_name']);
+			$jobsforuser[$i]['percent_done'] = $source_job->percentDone();
+		}
+		return $jobsforuser;
+
+	}//end getJobsForUser()
 
 
 }//end class
