@@ -1,0 +1,35 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_formats.xml,v 1.1 2007/07/19 02:29:01 mbrydon Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Default Formats" limbo_access="0">
+		<field>
+			<function_call>
+				<paint_function   name="paintDefaultFormatLinks"   />
+				<process_function name="processDefaultFormatLinks" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Customised Asset Type Formats" write_access="write:links" limbo_access="0">
+		<field>
+			<function_call>
+				<paint_function   name="paintTypeFormats"   />
+				<process_function name="processTypeFormats" />
+			</function_call>
+		</field>
+	</section>
+</contents>

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.21 2007/04/27 00:20:06 mbrydon Exp $
+* $Id: page_calendar_rolling.inc,v 1.22 2007/07/19 02:29:01 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -87,6 +87,7 @@ class Page_Calendar_Rolling extends Page
 
 		$link = Array(
 					'asset'			=> &$this,
+					'value'			=> 'type_formats',
 					'link_type'		=> SQ_LINK_TYPE_2,
 					'is_dependant'	=> 1,
 					'is_exclusive'	=> 1,
@@ -109,7 +110,9 @@ class Page_Calendar_Rolling extends Page
 								);
 			$format_bc =& new Bodycopy();
 			$format_bc->setAttrValue('name', $am->getTypeInfo($event_type, 'name').' Format');
-			if (!$format_bc->create($tf_link, $content)) return FALSE;
+			if (!$format_bc->create($tf_link, $content)) {
+				return FALSE;
+			}
 			$format_bc = NULL;
 		}
 
@@ -173,10 +176,9 @@ class Page_Calendar_Rolling extends Page
 		$broadcaster_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id);
 
 		// check if the broadcaster is in the type formats folder
-		$tf_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, '', 'major', TRUE);
-		$tf_folder_id = $tf_folder_link['minorid'];
-		if (isset($broadcaster_parents[$tf_folder_id])) {
-			$tf_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($tf_folder_id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major');
+		$tf_folder =& $this->getFolder('type_formats');
+		if (isset($broadcaster_parents[$tf_folder->id])) {
+			$tf_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($tf_folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major');
 			$tf_bcs = Array();
 			foreach ($tf_links as $link) {
 				$tf_bcs[$link['minorid']] = $link['value'];
@@ -393,6 +395,8 @@ class Page_Calendar_Rolling extends Page
 		$event_list = '';
 		$recurring_event_descendants = $am->getTypeDescendants('calendar_event_recurring', TRUE);
 		$mm = NULL;
+
+
 		foreach ($events_by_time_unit as $unit_count => $events_by_date) {
 
 			// get all the events for this time_unit (day/week/month), stuff them into $event_list
@@ -403,7 +407,10 @@ class Page_Calendar_Rolling extends Page
 				// loop through the events for this date
 				foreach ($events as $id => $event) {
 
-					$format_type = (in_array($event['type_code'], $recurring_event_descendants)) ? 'calendar_event_recurring' : 'calendar_event_single';
+					// We should be able to handle our own event types from here on in (Single Calendar Events, Recurring Calendar Events, and those that inherit from these)
+					$format_type = (in_array($event['type_code'], $recurring_event_descendants)) ? 'calendar_event_recurring    ' : $event['type_code'];
+
+					if (!isset($type_formats[$format_type])) continue;
 
 					// get asset keywords
 					if ($needs_asset[$format_type]) {
@@ -543,9 +550,9 @@ class Page_Calendar_Rolling extends Page
 	* Get the events that should be displayed in this calendar page
 	* Returns: (date => array (assetid => array ( details )))
 	*
-	* @param int	$time		The time to use as a point of reference when calculating start_date and end_date - if the latter two variables are set, $time goes unused
 	* @param string	$start_date	Start date
 	* @param string	$end_date	End date
+	* @param int	$time		The time to use as a point of reference when calculating start_date and end_date - if the latter two variables are set, $time goes unused
 	*
 	* @return array
 	* @access protected
@@ -553,9 +560,7 @@ class Page_Calendar_Rolling extends Page
 	function _getEvents($start_date=NULL, $end_date=NULL, $time=NULL)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		if (is_null($time)) {
-			$time = time();
-		}
+		if (is_null($time)) $time = time();
 		if (is_null($start_date)) {
 			$unit = $this->attr('time_unit');
 			$from = $this->attr('duration_from');
@@ -626,6 +631,56 @@ class Page_Calendar_Rolling extends Page
 		return $res;
 
 	}//end _getEvents()
+
+
+	/**
+	* Get a list of all formats of a certain type
+	*
+	* The results of this function are cached for the length of the script execution
+	*
+	* @param string	$type	the value on the link for the formats folder
+	*
+	* @return array
+	* @access public
+	*/
+	function getFormats($type='type_formats')
+	{
+		if (!isset($this->_tmp['formats'][$type])) {
+			$folder =& $this->getFolder($type);
+			$format_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE);
+			if (empty($format_links)) return Array();
+
+			$formats = Array();
+			foreach ($format_links as $link_data) {
+				$formats[$link_data['minorid']] = $link_data['value'];
+			}
+			$this->_tmp['formats'][$type] = $formats;
+		}
+		return $this->_tmp['formats'][$type];
+
+	}//end getFormats()
+
+
+	/**
+	* Return a reference to a folder linked to this asset determined by the passed in value on the link
+	*
+	* @param string	$type	the value on the link for this folder
+	*
+	* @return object
+	* @access public
+	*/
+	function &getFolder($type='type_formats')
+	{
+		$null = NULL;
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, $type);
+		if (empty($link)) return $null;
+
+		$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		if (is_null($folder)) return $null;
+
+		return $folder;
+
+	}//end getFolder()
 
 
 }//end class

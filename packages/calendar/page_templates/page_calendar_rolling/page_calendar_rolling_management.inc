@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling_management.inc,v 1.8 2006/12/18 00:53:43 tbarrett Exp $
+* $Id: page_calendar_rolling_management.inc,v 1.9 2007/07/19 02:29:02 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -94,6 +94,14 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 						'root_nodes'	=> Array(
 											'type'		=> 'serialise',
 											'default'	=> Array(),
+										   ),
+						'types'			=> Array(
+											'added'		=> '0.4',
+											'type'		=> 'serialise',
+											'default'	=> Array(
+															'calendar_event_single'		=> 0,
+															'calendar_event_recurring'	=> 0,
+														   ),
 										   ),
 					  );
 
@@ -238,11 +246,31 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 			// unfortunate but necessary flag to tell the restricted-period
 			// calendar page to upgrade itself too
 			$GLOBALS['ROLLING_CAL_PAGE_UPGRADED_TO_03'] = 1;
-			
+
 			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION 0.2');
 
 		}//end if - upgrade to version 0.3
 
+		if (version_compare($current_version, '0.4', '<')) {
+			// version 0.3 -> 0.4
+			pre_echo('STARTING '.$asset_name.' UPGRADE - FROM VERSION '.$current_version);
+
+			// Give the "Type Formats" folder link a name
+			$pages = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
+			foreach ($pages as $assetid => $type_code) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				if (is_null($asset)) continue;
+
+				$tf_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($assetid, SQ_LINK_TYPE_2, 'folder', TRUE, '', 'major', TRUE);
+				if ($tf_folder_link['value'] != 'type_formats') {
+					$GLOBALS['SQ_SYSTEM']->am->updateLink($tf_folder_link['linkid'], SQ_LINK_TYPE_2, 'type_formats');
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+
+			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION 0.3');
+		}
 
 		return TRUE;
 

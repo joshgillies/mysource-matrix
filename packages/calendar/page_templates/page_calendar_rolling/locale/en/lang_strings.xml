@@ -1,0 +1,23 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2007/07/19 02:29:02 mbrydon Exp $
+*
+*/
+-->
+
+<strings>
+	<string source="calendar_rolling_page_contents_desc">This format defines the layout of the page. Ensure you use the %%event_list%% keyword to include the list of events on the page.</string>
+	<string source="calendar_rolling_time_formats_desc">This format defines the display of date/time details on this page.</string>
+	<string source="calendar_rolling_new_type_format">New Type Format:</string>
+	<string source="calendar_rolling_no_type_formats">There are no custom type formats defined</string>
+</strings>
