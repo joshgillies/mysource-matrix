@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.9 2007/07/17 06:33:58 mbrydon Exp $
+* $Id: page_upcoming_events_list.inc,v 1.10 2007/07/19 06:54:09 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -63,18 +63,19 @@ class Page_Upcoming_Events_List extends Page
 		if (!parent::_createAdditional($link)) return FALSE;
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		// create a page contents bodycopy
 		$am->includeAsset('bodycopy');
 		$page_contents_bc =& new Bodycopy();
 		$page_contents_bc->setAttrValue('name', 'Page Contents');
+		$link = Array('asset' => &$this, 'value' => 'page_contents', 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		if (!$page_contents_bc->create($link)) return FALSE;
 
 		// create a type formats folder
 		$am->includeAsset('folder');
 		$type_formats_folder =& new Folder();
 		$type_formats_folder->setAttrValue('name', 'Type Formats');
+		$link = Array('asset' => &$this, 'value' => 'type_formats', 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		if (!$type_formats_folder->create($link)) return FALSE;
 
 		// create type format bodycopies
@@ -123,11 +124,10 @@ class Page_Upcoming_Events_List extends Page
 		if (!isset($vars['keywords'])) {
 			$vars['keywords'] = Array();
 		}
-		$tf_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, '', 'major', TRUE);
-		$tf_folder_id = $tf_folder_link['minorid'];
+		$tf_folder =& $this->getFolder('type_formats');
 		$broadcaster_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id);
-		if (isset($broadcaster_parents[$tf_folder_id])) {
-			$tf_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($tf_folder_id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major');
+		if (isset($broadcaster_parents[$tf_folder->id])) {
+			$tf_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($tf_folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major');
 			$tf_bcs = Array();
 			foreach ($tf_links as $link) {
 				$tf_bcs[$link['minorid']] = $link['value'];
@@ -250,6 +250,85 @@ class Page_Upcoming_Events_List extends Page
 
 		$events = $this->_getEvents();
 
+		// Process multi-date events
+		// Obtain the bodycopy types we have customised
+		$tf_folder =& $this->getFolder('type_formats');
+		$tf_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($tf_folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major');
+		$tf_bcs = Array();
+		$types_available = Array();
+		foreach ($tf_links as $link) {
+			$type = $link['value'];
+			$tf_bcs[] = $type;
+			$parent_types = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type, FALSE);
+			foreach ($parent_types as $parent_type) {
+				$types_available[$parent_type][] = $type;
+			}
+		}
+
+		$multi_date_events = Array();
+		$multi_date_types = Array('calendar_event_multi_date');
+		if (isset($types_available['calendar_event_multi_date'])) {
+			foreach ($types_available['calendar_event_multi_date'] as $multi_date_type) {
+				$multi_date_types[] = $multi_date_type;
+			}
+		}
+
+		foreach ($events as $event) {
+			$event_type_code = $event['type_code'];
+			if (($event_type_code == 'calendar_event_single') || ($event_type_code == 'calendar_event_recurring')) {
+				$event_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($event['assetid'], $multi_date_types);
+				foreach ($event_parents as $parent_id => $event_parent) {
+					if (!isset($multi_date_events[$parent_id])) {
+						 $multi_date_events[$parent_id] = 1;
+					}
+				}
+			}
+		}
+
+		$event_list = '';
+		$mm = NULL;
+
+		// Print one instance of each Multi-Date Event
+		foreach ($multi_date_events as $multi_date_event_id => $value_set) {
+			$asset =& $am->getAsset($multi_date_event_id);
+
+			$type_code = $asset->type();
+			$format_type = $asset->type();
+
+			foreach ($required_keywords[$format_type] as $keyword) {
+				if ($keyword == 'asset_contents') {
+					ob_start();
+						$asset->printBody();
+						$replacements[$keyword] = ob_get_contents();
+					ob_end_clean();
+				} else {
+					$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+				}
+			}
+
+			// get metadata keywords
+			if (!empty($metadata_keywords[$type_code])) {
+				if (!empty($metadata_keywords)) {
+					if (is_null($mm)) {
+						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+					}
+					// get all the metadata keywords for this asset
+					$metadata_values = $mm->getMetadataFieldValues($id, $metadata_keywords[$type_code]);
+
+					foreach ($metadata_values as $field => $value) {
+						$replacements['asset_metadata_'.$field] = $value;
+					}
+				}
+			}
+
+			$entry = $type_formats[$format_type];
+			replace_keywords($entry, $replacements);
+			$event_list .= $entry;
+
+		}//end foreach
+		// End multi-date event processing
+
+
 		if ($somebody_doesnt_need_asset) {
 			$keys = Array();
 			foreach ($events as $key => $value) {
@@ -259,14 +338,15 @@ class Page_Upcoming_Events_List extends Page
 			$asset_infos = $am->getAssetInfo($keys);
 		}
 
-		$event_list = '';
 		$recurring_event_descendants = $am->getTypeDescendants('calendar_event_recurring', TRUE);
-		$mm = NULL;
 		foreach ($events as $id => $event) {
 			$id = strtok($id, ':');
 			$replacements = Array();
 
 			$format_type = (in_array($event['type_code'], $recurring_event_descendants)) ? 'calendar_event_recurring' : 'calendar_event_single';
+
+			// Only print events if we have a Type Format available
+			if (!isset($types_available[$format_type])) continue;
 
 			// get asset keywords
 			if ($needs_asset[$format_type]) {
@@ -385,6 +465,9 @@ class Page_Upcoming_Events_List extends Page
 
 			$end_ts = strtotime('+'.$this->attr('num_events').' days', $start_ts);
 
+			$single_result = Array();
+			$recur_result = Array();
+
 			// get the single events
 			$date_sql = '(cd.start_date_ts BETWEEN '.$db->quote($start_ts).' AND '.$db->quote($end_ts).') OR (cd.start_date_ts < '.$db->quote($start_ts).' AND cd.end_date_ts >= '.$db->quote($start_ts).')';
 			$sql = Calendar_Common::getSingleEventQueryBase(array_keys($root_nodes)).' AND ('.$date_sql.')';
@@ -400,7 +483,6 @@ class Page_Upcoming_Events_List extends Page
 			$recur_result = Calendar_Common::expandEventList($recur_result, date('Y-m-d', $start_ts), date('Y-m-d', $end_ts));
 
 			$new_events = $single_result + $recur_result;
-
 			Calendar_Common::processExceptions($new_events);
 
 			$all_events += $new_events;
@@ -419,6 +501,56 @@ class Page_Upcoming_Events_List extends Page
 		return $res;
 
 	}//end _getEvents()
+
+
+	/**
+	* Get a list of all formats of a certain type
+	*
+	* The results of this function are cached for the length of the script execution
+	*
+	* @param string	$type	the value on the link for the formats folder
+	*
+	* @return array
+	* @access public
+	*/
+	function getFormats($type='type_formats')
+	{
+		if (!isset($this->_tmp['formats'][$type])) {
+			$folder =& $this->getFolder($type);
+			$format_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE);
+			if (empty($format_links)) return Array();
+
+			$formats = Array();
+			foreach ($format_links as $link_data) {
+				$formats[$link_data['minorid']] = $link_data['value'];
+			}
+			$this->_tmp['formats'][$type] = $formats;
+		}
+		return $this->_tmp['formats'][$type];
+
+	}//end getFormats()
+
+
+	/**
+	* Return a reference to a folder linked to this asset determined by the passed in value on the link
+	*
+	* @param string	$type	the value on the link for this folder
+	*
+	* @return object
+	* @access public
+	*/
+	function &getFolder($type='type_formats')
+	{
+		$null = NULL;
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, $type);
+		if (empty($link)) return $null;
+
+		$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		if (is_null($folder)) return $null;
+
+		return $folder;
+
+	}//end getFolder()
 
 
 }//end class

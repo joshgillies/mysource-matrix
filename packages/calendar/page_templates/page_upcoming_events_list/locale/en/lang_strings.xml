@@ -1,0 +1,22 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2007/07/19 06:54:09 mbrydon Exp $
+*
+*/
+-->
+
+<strings>
+	<string source="calendar_upcoming_events_page_contents_desc">This format defines the layout of the page. Ensure you use the %%event_list%% keyword to include the list of events on the page.</string>
+	<string source="calendar_upcoming_events_new_type_format">New Type Format:</string>
+	<string source="calendar_upcoming_events_no_type_formats">There are no custom type formats defined</string>
+</strings>
