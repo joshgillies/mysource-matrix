@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.227 2007/06/19 07:05:11 hnguyen Exp $
+* $Id: mysource.inc,v 1.228 2007/07/19 04:11:11 lmarchese Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.227 $
+* @version $Revision: 1.228 $
 * @package MySource_Matrix
 */
 class MySource
@@ -357,7 +357,7 @@ class MySource
 				$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
 			}
 
-		} else if (SQ_IN_LOGIN){
+		} else if (SQ_IN_LOGIN) {
 			$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
 
 		} else {
@@ -1087,6 +1087,22 @@ class MySource
 				$for_real = ($this->user && !is_a($this->user, 'public_user'));
 				$old_user =& $this->user;
 				$this->_logSecurityMsg('system.security.logout.manual');
+				$stalled_hipo_array = Array();
+				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+				$stalled_hipo_array = $hh->getJobsForUser($current_userid);
+				if (SQ_IN_BACKEND && !empty($stalled_hipo_array)) {
+					$return_url = current_protocol().'://'.current_url(FALSE);
+
+					// We need to handle the 'return to HTTP' stuff here in any case
+					if (!$_SESSION['user_is_public'] && array_get_index($_SESSION, 'SQ_RETURN_TO_HTTP')) {
+						unset($_SESSION['SQ_RETURN_TO_HTTP']);
+						$return_url = 'http://'.current_url(FALSE);
+					}
+					$return_url = replace_query_string_vars(Array('SQ_ACTION' => NULL), $return_url);
+					require_once dirname(__FILE__).'/hipo_reminder.inc';
+					exit();
+				}
 				$this->_clearSession();
 				$this->_loginPublicUser();
 				$this->generateLoginKey(TRUE);
@@ -1094,7 +1110,17 @@ class MySource
 					$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
 				}
 			break;
-
+			case 'real_logout' :
+				$for_real = ($this->user && !is_a($this->user, 'public_user'));
+				$old_user =& $this->user;
+				$this->_logSecurityMsg('system.security.logout.manual');
+				$this->_clearSession();
+				$this->_loginPublicUser();
+				$this->generateLoginKey(TRUE);
+				if ($for_real) {
+					$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
+				}
+			break;
 			case 'send_security_key' :
 				require_once SQ_FUDGE_PATH.'/general/general.inc';
 				$vars =& $_SESSION['SQ_SYSTEM_SECURITY_KEY'];
@@ -1107,7 +1133,6 @@ class MySource
 				security_key_image($vars['key'], $vars['width'], $vars['height'], $vars['bg_colour'], $vars['text_colour'], $vars['border_colour'], $vars['zoom']);
 				exit(1);
 			break;
-
 			case 'rollback_view_start' :
 				$_SESSION['sq_rollback_view'] = Array();
 
@@ -2165,12 +2190,12 @@ class MySource
 		// and look for the fn with the odd number of calls
 		// cat trans.log | awk '{ print $3 }' | sort | uniq -c # number of calls in a fn
 		// cat trans.log | awk '{ print $5 }' | sort | uniq -c # total number of each type of call
-		#$bt = debug_backtrace();
-		#if (isset($bt[1])) {
-		#	error_log ($this->_db_conns[$this->_db_stack[count($this->_db_stack) - 1]]->connection.' TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
-		#} else {
-		#	error_log ($this->_db_conns[$this->_db_stack[count($this->_db_stack) - 1]]->connection.' TRANS : '.$bt[0]['file'].'::'.$bt[0]['line'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
-		#}
+		// $bt = debug_backtrace();
+		// if (isset($bt[1])) {
+		// error_log ($this->_db_conns[$this->_db_stack[count($this->_db_stack) - 1]]->connection.' TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
+		// } else {
+		// error_log ($this->_db_conns[$this->_db_stack[count($this->_db_stack) - 1]]->connection.' TRANS : '.$bt[0]['file'].'::'.$bt[0]['line'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
+		// }
 
 		switch (strtolower($type)) {
 			case 'begin':
@@ -2647,7 +2672,6 @@ class MySource
 
 	/**
 	* Sees if an auth redirect is available, and then redirects if there is
-	*
 	* The redirect will be attempted on the same protocol (HTTP or HTTPS) that
 	* the original request was made on. If the URL being redirected to does not
 	* support the current protocol, it will use the protocol it can use instead.
