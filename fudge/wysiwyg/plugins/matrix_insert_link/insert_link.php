@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.39 2006/12/27 21:52:17 lwright Exp $
+* $Id: insert_link.php,v 1.40 2007/07/20 04:11:05 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 
@@ -26,14 +26,15 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 
-$url_protocol_options = Array(
-							''			=> '',
-							'http://'	=> 'http://',
-							'https://'	=> 'https://',
-							'mailto:'	=> 'mailto:',
-							'ftp://'	=> 'ftp://',
-							'rtsp://'	=> 'rtsp://',
-						);
+// URL protocol options
+$pref = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_WYSIWYG_LINK_TYPES');
+
+$url_protocol_options = Array('' => '');
+$url_protocol_combo_box = Array('' => '');
+foreach ($pref as $pref_el) {
+	$url_protocol_options[$pref_el['type']]   = $pref_el['template'];
+	$url_protocol_combo_box[$pref_el['type']] = $pref_el['type'];
+}
 
 $new_window_bool_options = Array(
 							'toolbar'		=> 'Show Tool Bar',
@@ -118,10 +119,39 @@ if (!isset($_GET['new_window'])) {
 				__dlg_init("matrixInsertLink");
 				enable_new_window(document.main_form, <?php echo $_GET['new_window']?>);
 
-				var e = '^(.+:\/\/?)?([^#]*)(#(.*))?$';
-				var re = new RegExp(e, '');
-				var results = re.exec('<?php echo $_GET['url']?>');
-				setUrl(results[1], results[2]);
+				var patterns = {<?php
+					$url_protocol_options_sorted = $url_protocol_options;
+					uasort($url_protocol_options_sorted, create_function('$a,$b', 'return strlen($b) - strlen($a);'));
+
+					foreach ($url_protocol_options_sorted as $label => $pattern) {
+						$pattern_array[] = '\''.addslashes($label).'\': \''.str_replace('%%link%%', '([^#]*)', addslashes($pattern)).'\'';
+					}
+
+					echo implode($pattern_array, ', ');
+				?>};
+
+				// loop through each pattern
+				for (label in patterns) {
+					e = patterns[label];
+					// Add hash
+					e = '^' + e + '(#(.*))?$';
+					var re = new RegExp(e, '');
+					var results = re.exec('<?php echo $_GET['url']?>');
+
+					if (results) {
+						break;
+					}
+				}
+
+				if (results) {
+					setUrl(label, results[1]);
+				} else {
+					setUrl('', '<?php echo $_GET['url']?>');
+				}
+				//var e = '^(.+:\/\/?)?([^#]*)(#(.*))?$';
+				//var re = new RegExp(e, '');
+				//var results = re.exec('<?php echo $_GET['url']?>');
+				//setUrl(results[1], results[2]);
 			};
 
 			function onOK() {
@@ -134,7 +164,19 @@ if (!isset($_GET['new_window'])) {
 				if ((form_element_value(f.url_link) == '') && (form_element_value(f.anchor) != '')) {
 				  param["url"]         = '#' + form_element_value(f.anchor);
 				} else {
-				  param["url"]         = form_element_value(f.url_protocol) + form_element_value(f.url_link) + (form_element_value(f.anchor) == '' ? '' : '#' + form_element_value(f.anchor));
+					var patterns = {<?php
+					foreach ($url_protocol_options as $label => $pattern) {
+						$pattern_array[] = '\''.addslashes($label).'\': \''.addslashes($pattern).'\'';
+					}
+
+					echo implode($pattern_array, ', ');
+				?>};
+					if (form_element_value(f.url_protocol) == '') {
+						param["url"] = form_element_value(f.url_link)
+					} else {
+						param["url"] = patterns[form_element_value(f.url_protocol)].replace('%%link%%', form_element_value(f.url_link));
+					}
+					param["url"] += (form_element_value(f.anchor) == '' ? '' : '#' + form_element_value(f.anchor));
 				}
 				param["status_text"] = form_element_value(f.status_text);
 				param["link_title"] = form_element_value(f.link_title);
@@ -447,7 +489,8 @@ if (!isset($_GET['new_window'])) {
 													<table style="width:100%">
 														<tr>
 															<td class="label"><?php echo translate('protocol'); ?>:</td>
-															<td><?php  combo_box('url_protocol', $url_protocol_options, $_GET['protocol'], 'style="font-family: courier new; font-size: 11px;"'); ?></td>
+															<td><?php
+															combo_box('url_protocol', $url_protocol_combo_box, $_GET['protocol'], 'style="font-family: courier new; font-size: 11px;"'); ?></td>
 															<td class="label"><?php echo translate('link'); ?>:</td>
 															<td><?php text_box('url_link', $_GET['url'], 40, 0)?></td>
 														</tr>

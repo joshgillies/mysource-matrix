@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.22 2007/05/01 06:03:31 rong Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.23 2007/07/20 04:11:04 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -61,6 +61,33 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 																'name'			=> 'Thesaurus',
 																'description'	=> 'Which thesaurus asset you want to use when editing content, for example to provide keyword expansions',
 																'default'		=> 0,
+																'protected'		=> FALSE,
+															   ),
+						'SQ_WYSIWYG_LINK_TYPES'				=> Array(
+																'name'			=> 'Link Type Templates',
+																'description'	=> 'List of link types to be used in the Insert Link popup',
+																'default'		=> Array(
+																					0	=> Array(
+																							'type'		=> 'http://',
+																							'template'	=> 'http://%%link%%',
+																						   ),
+																					1	=> Array(
+																							'type'		=> 'https://',
+																							'template'	=> 'https://%%link%%',
+																						   ),
+																					2	=> Array(
+																							'type'		=> 'mailto:',
+																							'template'	=> 'mailto:%%link%%',
+																						   ),
+																					3	=> Array(
+																							'type'		=> 'ftp://',
+																							'template'	=> 'ftp://%%link%%',
+																						   ),
+																					4	=> Array(
+																							'type'		=> 'rtsp://',
+																							'template'	=> 'rtsp://%%link%%',
+																						   ),
+																				   ),
 																'protected'		=> FALSE,
 															   ),
 					 );
@@ -276,6 +303,90 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}//end if show SQ_THESAURUS
 
+		if (is_null($pref) || $pref == 'SQ_WYSIWYG_LINK_TYPES') {
+			$pref_var =& $this->pref_vars['SQ_WYSIWYG_LINK_TYPES'];
+
+			if (is_null($pref)) {
+				$o->openField(translate('core_ct_wysiwyg_link_type_templates'));
+			}
+
+			if ($have_lock && $is_admin) {
+
+				?><table class="sq-backend-table" style="width:auto">
+				<tr>
+					<th>Link Type</th>
+					<th>Template</th>
+					<th><?php echo translate('delete_question') ?></th>
+				</tr><?php
+				foreach ($pref_var['default'] as $key => $item) {
+					// The first four items (http, https, mailto, ftp) cannot be altered
+					if ($key >= 4) {
+						?><tr><?php
+						?><td><?php text_box('prefs[SQ_WYSIWYG_LINK_TYPES][default]['.$key.'][type]',     $item['type'],     10) ?></td><?php
+						?><td><?php text_box('prefs[SQ_WYSIWYG_LINK_TYPES][default]['.$key.'][template]', $item['template'], 50) ?></td><?php
+						?><td><?php check_box('prefs[SQ_WYSIWYG_LINK_TYPES][default]['.$key.'][delete]', 1, FALSE, 'document.getElementById("prefs[SQ_WYSIWYG_LINK_TYPES][default]['.$key.'][type]").disabled = document.getElementById("prefs[SQ_WYSIWYG_LINK_TYPES][default]['.$key.'][template]").disabled = this.checked') ?></td><?php
+						?></tr><?php
+					} else {
+						?><tr><?php
+						?><td><?php hidden_field('prefs[SQ_WYSIWYG_LINK_TYPES][default]['.$key.'][type]',     $item['type']);     echo $item['type']     ?></td><?php
+						?><td><?php hidden_field('prefs[SQ_WYSIWYG_LINK_TYPES][default]['.$key.'][template]', $item['template']); echo $item['template'] ?></td><?php
+						?><td></td><?php
+						?></tr><?php
+					}
+				}
+				?>
+				<tr>
+				<td><a href="#" id="prefs[SQ_WYSIWYG_LINK_TYPES][add]" onclick="sq_wysiwyg_link_types_addAnother(this.parentNode.parentNode); return false;">Add another...</a></td>
+				</tr>
+				</table>
+				<script type="text/javascript">
+				sq_wysiwyg_link_types_nextIndex = <?php echo (int)count($pref_var['default']); ?>;
+				function sq_wysiwyg_link_types_addAnother(node) {
+					var parent = node.parentNode;
+
+					// create a new row
+					tr = document.createElement('tr');
+
+					// build the cells
+					td1 = document.createElement('td');
+					td1.innerHTML = '<input type="text" name="prefs[SQ_WYSIWYG_LINK_TYPES][default][' + sq_wysiwyg_link_types_nextIndex + '][type]" value="" size="10" />';
+					td2 = document.createElement('td');
+					td2.innerHTML = '<input type="text" name="prefs[SQ_WYSIWYG_LINK_TYPES][default][' + sq_wysiwyg_link_types_nextIndex + '][template]" value=""  size="50" />';
+					td3 = document.createElement('td');
+					td3.innerHTML = '<em>new</em>';
+
+					// Now put them all together
+					tr.appendChild(td1);
+					tr.appendChild(td2);
+					tr.appendChild(td3);
+					parent.insertBefore(tr, node);
+
+					// Go to next index
+					sq_wysiwyg_link_types_nextIndex++;
+				}
+				</script>
+				<?php
+
+			} else {
+
+				?><table class="sq-backend-table" style="width:auto">
+				<tr>
+					<th>Link Type</th>
+					<th>Template</th>
+				</tr><?php
+				foreach ($pref_var['default'] as $item) {
+					?><tr><?php
+					?><td><?php echo $item['type']     ?></td><?php
+					?><td><?php echo $item['template'] ?></td><?php
+					?></tr><?php
+				}
+				?></table><?php
+			}
+
+			$o->note(translate('core_ct_wysiwyg_link_type_templates_note'));
+			if (is_null($pref)) $o->closeField();
+		}
+
 		return TRUE;
 
 	}//end paintBackend()
@@ -352,6 +463,32 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		if (is_null($pref) || $pref == 'SQ_THESAURUS') {
 			if (isset($_POST['prefs']['SQ_THESAURUS'])) {
 				$this->pref_vars['SQ_THESAURUS']['default'] = $_POST['prefs']['SQ_THESAURUS']['assetid'];
+			}
+		}
+
+		// WYSIWYG LINK TYPE TEMPLATES
+		if (is_null($pref) || $pref == 'SQ_WYSIWYG_LINK_TYPES') {
+			if (isset($_POST['prefs']['SQ_WYSIWYG_LINK_TYPES'])) {
+				// Get what we have been given
+				$this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default'] = $_POST['prefs']['SQ_WYSIWYG_LINK_TYPES']['default'];
+
+				foreach ($this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default'] as $key => $value) {
+					// Get rid of indexes we don't need, as a cleansing measure
+					$allowed_sub_keys = Array('type', 'template', 'delete');
+					foreach ($value as $sub_key) {
+						if (!in_array($sub_key, $allowed_sub_keys)) {
+							unset($this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default'][$key][$sub_key]);
+						}
+					}
+
+					// If we are set to delete a row, then delete the lot of it
+					if (array_get_index($value, 'delete', FALSE)) {
+						unset($this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default'][$key]);
+					}
+
+					// Then re-order the rest so that we start from zero again
+					$this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default'] = array_values($this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['default']);
+				}
 			}
 		}
 
