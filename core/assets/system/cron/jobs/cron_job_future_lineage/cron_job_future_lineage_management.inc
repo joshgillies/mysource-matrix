@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_management.inc,v 1.9 2006/12/06 04:24:01 emcdonald Exp $
+* $Id: cron_job_future_lineage_management.inc,v 1.10 2007/07/20 00:22:18 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,6 +60,18 @@ class Cron_Job_Future_Lineage_Management extends Asset_Management
 												'type'			=> 'serialise',
 												'default'		=> Array(),
 												'description'	=> 'The link information similar in form to what is passed to Asset::create(), minus the "asset" element',
+											   ),
+						'asset_type'		=> Array(
+												'added'			=> '0.4',
+												'type'			=> 'text',
+												'default'		=> '',
+												'description'	=> '',
+											   ),
+						'attribute'			=> Array(
+												'added'			=> '0.4',
+												'type'			=> 'text',
+												'default'		=> '',
+												'description'	=> '',
 											   ),
 					  );
 

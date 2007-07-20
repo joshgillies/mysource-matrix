@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_lineage.inc,v 1.5 2006/12/06 00:02:01 bcaldwell Exp $
+* $Id: trigger_action_set_future_lineage.inc,v 1.6 2007/07/20 00:22:18 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,6 +41,8 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 	* Array(
 	* 		'major_assetid'	=> int, // the new parent of the asset when the cron job runs
 	* 		'when'   		=> int, // the time/date to set the cron job to
+	*		'asset_type'	=> string,
+	*		'attribute'		=> string,
 	* 		);
 	* </PRE>
 	*
@@ -77,7 +79,14 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		$link_info = $fs->attr('link_info');
 		$link_info['link_type'] = $settings['link_type'];
 
-		$fs->setAttrValue('when', $settings['when']);
+		// Calculate one-off date/time from asset if it was dynamically supplied
+		if (!empty($settings['attribute']) && !empty($settings['asset_type']) && is_a($state['asset'], $settings['asset_type'])) {
+			$attr =& $state['asset']->getAttribute($settings['attribute']);
+			$fs->setAttrValue('when', 'OO='.$attr->value);
+		} else {
+			$fs->setAttrValue('when', $settings['when']);
+		}
+
 		$fs->setAttrValue('link_info', $link_info);
 		$fs->setAttrValue('delete_link_all', $settings['delete_link_all']);
 
@@ -161,6 +170,42 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		// Use the cron job edit functions to paint the 'when' box.
 		ob_start();
 			$temporary_edit_fns->_paintWhenBox($temporary_cron_job, $this, $munge_prefix, $settings['when']);
+
+			echo '<br />or by the date/time value from the ';
+			$selected_type = array_get_index($settings, 'asset_type', '');
+			if ($write_access) {
+				asset_type_chooser($prefix.'[asset_type]', FALSE, Array($selected_type), TRUE);
+			} else {
+				echo '<b>'.$selected_type.'</b>';
+			}
+			echo ' attribute ';
+
+			if ($selected_type == '') {
+				echo '<b>['.translate('asset_type_not_selected').']</b';
+			} else {
+				$attribute = array_get_index($settings, 'attribute', '');
+				$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($selected_type);
+				if (empty($attrs)) {
+					echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
+				} else {
+					if ($write_access) {
+						$attr_options = Array();
+						foreach ($attrs as $attr_name => $attr_type) {
+							if ($attr_type == 'datetime') {
+								$attr_options[$attr_name] = $attr_name;
+							}
+						}
+						if (count($attr_options) > 0) {
+							combo_box($prefix.'[attribute]', $attr_options, FALSE, $attribute);
+						} else {
+							echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
+						}
+					} else {
+						echo '<b>'.$attribute.'</b>';
+					}
+				}
+			}
+
 		$output['at'] = ob_get_clean();
 
 		// Remember our munge-iness.
@@ -209,6 +254,23 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		$edit_fns = $fs->getEditFns();
 
 		$settings['when'] = $edit_fns->_processWhenBox($fs, $this, $munge_prefix);
+
+		$type_code = array_get_index($request_data, 'asset_type', FALSE);
+		if ($type_code) {
+			$settings['asset_type'] = $type_code;
+			$settings['attribute'] = array_get_index($request_data, 'attribute', '');
+
+			if (!empty($settings['attribute']) && !empty($settings['asset_type'])) {
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($settings['asset_type']);
+				$dummy_asset =& new $settings['asset_type'];
+				$attr =& $dummy_asset->getAttribute($settings['attribute']);
+				if (is_null($attr) || (get_class($attr) != 'asset_attribute_datetime')) {
+					// selected asset type does not have an attribute with the selected name, so reset
+					$settings['attribute'] = '';
+				}
+			}
+		}
+
 		$settings['prefix'] = $munge_prefix;
 
 		$settings['link_type'] = $link_type;
