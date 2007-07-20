@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.45 2007/06/20 04:59:58 lwright Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.46 2007/07/20 07:38:38 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -226,10 +226,9 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 		$nested_assetid = '<?php echo $nested_asset->id; ?>';
 		$nested_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid);
+		$asset_cache_key = $nested_assetid;
 		if (method_exists($nested_asset, '_getCacheKey')) {
-			$asset_cache_key = $nested_asset->_getCacheKey();
-		} else {
-			$asset_cache_key = (string) $nested_asset->id;
+			$asset_cache_key .= $nested_asset->_getCacheKey();
 		}
 
 		if (!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'])) $GLOBALS['SQ_NEST_CONTENT_PAINTED'] = Array();
