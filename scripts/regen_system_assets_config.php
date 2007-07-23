@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: regen_system_assets_config.php,v 1.7 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: regen_system_assets_config.php,v 1.8 2007/07/23 06:51:31 rhoward Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * that get updated and need this file generated
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -47,7 +47,9 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 // re-generate the System Config to make sure that we get any new defines that may have been issued
 require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
-$sys_asset_cfg = new System_Asset_Config();
-$sys_asset_cfg->save(Array(), true);
+$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+	$sys_asset_cfg = new System_Asset_Config();
+	$sys_asset_cfg->save(Array(), true);
+$GLOBALS['SQ_SYSTEM']->restoreRunLevel(SQ_RUN_LEVEL_FORCED);
 
 ?>
