@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.20 2007/05/08 06:05:41 rong Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.21 2007/07/23 06:49:14 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -365,7 +365,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	function processPublicUserForm()
 	{
 		$email_address = array_get_index($_REQUEST, $this->getPrefix().'_email_address', '');
-		$user_name = array_get_index($_REQUEST, $this->getPrefix().'_user_name', '');
+		$user_name = htmlspecialchars(array_get_index($_REQUEST, $this->getPrefix().'_user_name', ''));
 		if (empty($email_address)) {
 			if (isset($_REQUEST[$this->getPrefix().'_email_address'])) {
 				$this->errors[] = translate('bm_email_empty');
@@ -375,7 +375,6 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 
 		$subscriptions = array_get_index($_REQUEST, $this->getPrefix().'_subscriptions', Array());
 		$unsubscriptions = array_get_index($_REQUEST, $this->getPrefix().'_unsubscriptions', Array());
-
 
 		// if the values are not passed as an array, force it into an array
 		if (!is_array($subscriptions)) {
