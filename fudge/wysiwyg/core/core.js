@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.33 2006/12/06 05:11:07 bcaldwell Exp $
+* $Id: core.js,v 1.33.2.1 2007/07/23 05:51:04 mbrydon Exp $
 *
 */
 
@@ -297,15 +297,32 @@ HTMLArea.prototype.insertHTML = function(html, range) {
 		var sel = this._getSelection();
 		var range = this._createRange(sel);
 		var node = range.startContainer;
-		if (!HTMLArea.is_ie) {
-			if (node.tagName == 'HTML') {
-				return false;
-			}
-		}
 	}
 	if (HTMLArea.is_ie) {
 		range.pasteHTML(html);
 	} else {
+		// Check whether we are just inside the HTML tag - if so we should really after HTML and inside the BODY tag
+		var sel = this._getSelection();
+		var rangeCheck = this._createRange(sel);
+		var node = rangeCheck.startContainer;
+
+		if (node.tagName == 'HTML') {
+			node = node.firstChild;
+
+			// If the HEAD element is found, we should be just one away from the BODY tag
+			if (node.tagName == 'HEAD') {
+				node = node.nextSibling;
+			}
+
+			// Set our insertion point to the start of the BODY tag
+			if (node.tagName == 'BODY') {
+				range.setEnd(node, 0);
+				range.setStart(node, 0);
+			} else {
+				return false;
+			}
+		}
+
 		// construct a new document fragment with the given HTML
 		var fragment = this._doc.createDocumentFragment();
 		var div = this._doc.createElement("div");
