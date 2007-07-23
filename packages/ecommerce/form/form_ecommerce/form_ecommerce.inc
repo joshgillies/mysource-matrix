@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.34 2007/06/04 00:30:55 colivar Exp $
+* $Id: form_ecommerce.inc,v 1.35 2007/07/23 00:08:38 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -280,7 +280,26 @@ class Form_Ecommerce extends Form_Email
 
 				$_SESSION['SQ_ECOM_SUCCESS_URL'] = $this->getURL().'?'.$action_name.'='.$this->receipt_view;
 				$_SESSION['SQ_ECOM_CANCEL_URL'] = $this->getURL().'?'.$action_name.'='.$this->confirm_view;
-				$_SESSION['SQ_ECOM_REF_NO'] = session_id();
+				$_SESSION['SQ_ECOM_REF_NO'] = md5(session_id().time());
+
+				// if the custom reference id attribtue is not empty it means
+				// that we need a customised reference id
+				$new_reference_id = $this->attr('custom_reference_id');
+				if (!empty($new_reference_id)) {
+					$new_reference_replacements = Array();
+					$new_reference_keywords = extract_keywords($new_reference_id);
+					foreach ($new_reference_keywords as $keyword) {
+						$new_reference_replacements[$keyword] = $this->_getThankYouKeywordReplacement($keyword);
+					}
+
+					$new_reference_replacements['session_id'] = session_id();
+					$new_reference_replacements['current_time'] = time();
+
+					replace_keywords($new_reference_id, $new_reference_replacements);
+					// replace_global_keywords($new_reference_id);
+					$_SESSION['SQ_ECOM_REF_NO'] = $new_reference_id;
+				}
+
 				$_SESSION['SQ_ECOM_AMOUNT'] = $order['total'];
 
 				$this->printConfirmationView();
@@ -325,8 +344,8 @@ class Form_Ecommerce extends Form_Email
 
 				// this function is reponsible for doing business logic related to finalizing the
 				// e-commerce transaction: e-mailing, logging and display
-				$order = $this->_readOrder($response['REFERENCE']);
-				$this->_deleteOrderFile($response['REFERENCE']);
+				$order = $this->_readOrder();
+				$this->_deleteOrderFile();
 
 				$this->current_answers = $order['submission'];
 				// re-populate the active submissions
@@ -1165,14 +1184,12 @@ class Form_Ecommerce extends Form_Email
 	/**
 	* Read order from the file
 	*
-	* @param string	$order_no	id of the saved file
-	*
 	* @return array
 	* @access private
 	*/
-	function _readOrder($order_no=FALSE)
+	function _readOrder()
 	{
-		$filename = $this->_getOrderFileName($order_no);
+		$filename = $this->_getOrderFileName();
 		$order = file_to_string($filename);
 		if (!$order) return FALSE;
 		$_SESSION[$this->getPrefix()]['order'] = unserialize($order);
@@ -1184,15 +1201,13 @@ class Form_Ecommerce extends Form_Email
 	/**
 	* Delete file with order
 	*
-	* @param string	$order_no	id of the saved file
-	*
 	* @return boolean
 	* @access private
 	* @see _readOrder()
 	*/
-	function _deleteOrderFile($order_no=FALSE)
+	function _deleteOrderFile()
 	{
-		$filename = $this->_getOrderFileName($order_no);
+		$filename = $this->_getOrderFileName();
 		unlink($filename);
 		return TRUE;
 

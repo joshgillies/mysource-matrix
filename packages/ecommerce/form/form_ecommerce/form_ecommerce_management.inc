@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_management.inc,v 1.11 2007/05/01 00:25:56 mbrydon Exp $
+* $Id: form_ecommerce_management.inc,v 1.12 2007/07/23 00:08:38 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -171,6 +171,11 @@ class Form_Ecommerce_Management extends Asset_Management
 													   ),
 						'item_quantity_req_var'		=> Array(
 														'added'		=> '0.2',
+														'type'		=> 'text',
+														'default'	=> '',
+													   ),
+						'custom_reference_id'		=> Array(
+														'added'		=> '0.3',
 														'type'		=> 'text',
 														'default'	=> '',
 													   ),
