@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.47 2007/07/23 03:40:46 arailean Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.48 2007/07/24 05:46:30 arailean Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -275,7 +275,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			echo '<font color="red"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br />'.translate('cms_ct_nest_content_recursion_body').'</b></font>';
 		}
 
-<?php echo '?'.'>';
+		<?php echo "\n".'?'.'>';
 
 	}//end paintGenerated()
 
