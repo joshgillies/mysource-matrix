@@ -10,16 +10,16 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_old_cron_jobs.php,v 1.3 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: remove_old_cron_jobs.php,v 1.4 2007/07/24 01:42:03 rhoward Exp $
 *
 */
 
 /**
-* Finds and links orphaned assets (ie. ones with no links to them, ie. ones without links where they are
-* the minor) underneath a specified asset id, preferably a folder
+* Script to remove cron jobs more than a week out of date.  Useful when they've
+* piled up so much that you can't delete them manually and can't run the cron script
 *
-* @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @author  Tom Barrett <tbarrett@squiz.net>
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
