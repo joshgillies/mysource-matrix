@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.54.2.1 2007/07/13 02:14:55 rong Exp $
+* $Id: page_account_manager.inc,v 1.54.2.2 2007/07/24 04:27:47 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.54.2.1 $
+* @version $Revision: 1.54.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1159,7 +1159,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	{
 		ob_start();
 			text_box($this->getPrefix().'_resend_validation_username', '',20);
-			submit_button('', $this->attr('resend_validation_button'), 'document.getElementById(\''.$this->id.'ASSET_BUILDER_ACTION\').value = \'resend_validation\';');
+			submit_button('', $this->attr('resend_validation_button'), 'document.getElementById(\''.$this->id.'_ASSET_BUILDER_ACTION\').value = \'resend_validation\';');
 		return ob_get_clean();
 
 	}//end getReSendValidationFormKeywordReplacement()
