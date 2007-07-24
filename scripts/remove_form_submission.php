@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_form_submission.php,v 1.3 2007/07/02 05:54:23 rong Exp $
+* $Id: remove_form_submission.php,v 1.4 2007/07/24 03:44:11 rong Exp $
 *
 */
 
@@ -22,12 +22,11 @@
 *	(b) created between 'from_date 00:00:00' and 'to_date 23:59:59'
 * 3. remove assets permanently from database
 *
-* Note: Does not work on Oracle DB
-* 		Make sure that no one is editing any form submission asset
-*		Require Matrix version 3.14 or newer
+*		Make sure that no one is editing any form submission asset
+*		Require Matrix version 3.12 or newer
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
