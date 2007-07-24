@@ -10,15 +10,15 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_parse_designs.php,v 1.3 2007/05/23 23:39:35 rhoward Exp $
+* $Id: system_parse_designs.php,v 1.4 2007/07/24 02:14:36 rhoward Exp $
 *
 */
 
 /**
-* Upgrade menu design areas
+* Reparses all of the designs in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 ini_set('memory_limit', '-1');
