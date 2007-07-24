@@ -10,15 +10,15 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_parse_design.php,v 1.6 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: system_parse_design.php,v 1.6.2.1 2007/07/24 02:14:16 rhoward Exp $
 *
 */
 
 /**
-* Upgrade menu design areas
+* Reparses a specified design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
