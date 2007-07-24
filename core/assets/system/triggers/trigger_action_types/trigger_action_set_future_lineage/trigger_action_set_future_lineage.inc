@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_lineage.inc,v 1.6 2007/07/20 00:22:18 mbrydon Exp $
+* $Id: trigger_action_set_future_lineage.inc,v 1.7 2007/07/24 23:33:49 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,7 +82,32 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		// Calculate one-off date/time from asset if it was dynamically supplied
 		if (!empty($settings['attribute']) && !empty($settings['asset_type']) && is_a($state['asset'], $settings['asset_type'])) {
 			$attr =& $state['asset']->getAttribute($settings['attribute']);
-			$fs->setAttrValue('when', 'OO='.$attr->value);
+
+			// Perform some validation on the supplied date/time value
+			$datetime = $attr->value;
+
+			// If the time is not set, assume midnight so the job will run on the first cron run of the day
+			$time = substr($datetime, 10);
+			if ($time == ' --:--:--') {
+            	$time = ' 00:00:00';
+				$datetime = substr($datetime, 0, 10).$time;
+			}
+
+			$timestamp = mktime(
+							(int) substr($time,0,2),
+							(int) substr($time,3,2),
+							(int) substr($time,6,2),
+							(int) substr($datetime,5,2),
+							(int) substr($datetime,8,2),
+							(int) substr($datetime,0,4)
+						 );
+			$parsed_datetime = date('Y-m-d H:i:s', $timestamp);
+			if (strcmp($parsed_datetime, $datetime) != 0) {
+				trigger_localised_error('SYS0311', E_USER_NOTICE, $datetime);
+			}
+
+			// Set a one-off job to run based on the supplied attribute value
+			$fs->setAttrValue('when', 'OO='.$parsed_datetime);
 		} else {
 			$fs->setAttrValue('when', $settings['when']);
 		}
