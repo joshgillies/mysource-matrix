@@ -1,0 +1,21 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2007/07/25 23:05:01 lwright Exp $
+*
+*/
+-->
+
+<strings>
+	<string source="core_ct_wysiwyg_link_type_templates">Protocol Templates</string>
+	<string source="core_ct_wysiwyg_link_type_templates_note">This preference allows you to customise the templates used for protocols (or link types) displayed on the Insert Link pop-up. The keyword <![CDATA[<b>%%%%link%%%%</b>]]> is replaced by the <![CDATA[<b>Link</b>]]> field in the Insert Link pop-up - this can appear anywhere in the string, allowing you to make 'pseudo-protocols' that expand to a link in a certain format. The 'http', 'https', 'mailto' and 'ftp' protocols are core to the system, and cannot be deleted or modified.</string>
+</strings>
