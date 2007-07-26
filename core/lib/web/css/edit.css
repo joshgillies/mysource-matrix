@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.81 2007/07/17 01:17:09 lwright Exp $
+* $Id: edit.css,v 1.82 2007/07/26 06:58:06 lwright Exp $
 *
 */
 
@@ -358,6 +358,10 @@ table.sq-backend-section-table td table.sq-backend-section-table-inner {
 
 .sq-backend-table-cell, .sq-backend-table tr td {
 	background-color:	#F5F5F5;
+}
+
+div.sq-backend-table-cell {
+	font-size:			91%;
 }
 
 .sq-backend-table-cell-alt, .sq-backend-table tr.alt td {

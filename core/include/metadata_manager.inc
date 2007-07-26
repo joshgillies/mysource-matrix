@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.142 2007/07/09 01:16:18 bshkara Exp $
+* $Id: metadata_manager.inc,v 1.143 2007/07/26 06:58:06 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.142 $
+* @version $Revision: 1.143 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -622,10 +622,10 @@ class Metadata_Manager extends MySource_Object
 		// else return all the values
 		if (!empty($field_names)) {
 			foreach ($field_names as $key => $value) {
-				if (isset($metadata_values[$value])) {
-					$field_values[$value] = $metadata_values[$value];
-				} else if (isset($metadata_values[str_replace('_', ' ', $value)])) {
-					$field_values[$value] = $metadata_values[str_replace('_', ' ',$value)];
+				if (isset($metadata_values[$value]['value'])) {
+					$field_values[$value] = $metadata_values[$value]['value'];
+				} else if (isset($metadata_values[str_replace('_', ' ', $value)]['value'])) {
+					$field_values[$value] = $metadata_values[str_replace('_', ' ',$value)]['value'];
 				} else {
 					$field_values[$value] = '';
 				}
@@ -859,7 +859,7 @@ class Metadata_Manager extends MySource_Object
 				echo '/* 1 */', "\n";
 				echo '$metadata_replacements = Array();'."\n";
 				foreach ($keywords as $keyword) {
-					echo '$metadata_replacements["'.$keyword.'"] = $metadata_asset->getKeywordReplacement("'.$keyword.'");'."\n";
+					echo '$metadata_replacements["'.addslashes($keyword).'"] = $metadata_asset->getKeywordReplacement("'.addslashes($keyword).'");'."\n";
 				}
 				echo '/* 2 */', "\n";
 				replace_keywords($tag_values, $replacements);
@@ -934,12 +934,25 @@ class Metadata_Manager extends MySource_Object
 			echo '$metadata_values = Array('."\n";
 			foreach ($tag_values as $n => $v) {
 				$n = $this->escapeMetadata($n, TRUE);
-				$v = str_replace("'", "\'", stripslashes($v));
-
+				Metadata_Field::decodeValueString($v, $v2, $vc);
+				$v2 = addslashes($this->escapeMetadata($v2));
+				
 				// unescape metadata_replacements
 				// leave metadata_values for later - unescape them at runtime
-				$v = preg_replace('/%([^%\' ]+)%/', '\'.$metadata_replacements["\1"].\'', $v);
-				echo "'$n' => '$v',\n";
+				$v2 = preg_replace('/%([^%\' ]+)%/', '\'.$metadata_replacements["\1"].\'', $v2);
+				echo "'$n' => Array('value' => '$v2', 'components' => Array(";
+					
+				// Value components
+				if (!empty($vc)) {
+					foreach ($vc as $vc_key => $vc_value) {
+						$vc_key   = $this->escapeMetadata($vc_key, TRUE);
+						$vc_value = $this->escapeMetadata($vc_value, TRUE);
+						echo "'$vc_key' => '".addslashes($vc_value)."', ";
+					}
+				}
+				
+				// Close the array
+				echo ")),\n";
 			}
 			echo ");\n\n";
 
@@ -1460,7 +1473,7 @@ class Metadata_Manager extends MySource_Object
 				ob_end_clean();
 
 				$field_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($field_assetid), 'metadata_field', FALSE, 'name');
-				$value = $metadata_values[$field_names[$field_assetid]];
+				$value = $metadata_values[$field_names[$field_assetid]]['value'];
 			}
 		}
 		return $value;
@@ -1622,7 +1635,7 @@ class Metadata_Manager extends MySource_Object
 			$value = str_replace("'", "\'", $value);
 		}
 
-		// escape only html-specific chars for the moment
+		// escape only html-specific chars for the moment		
 		$value = htmlspecialchars($value);
 
 		// escape everything else (chars > 126)

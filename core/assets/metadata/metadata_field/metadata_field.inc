@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.27 2006/12/06 01:07:34 emcdonald Exp $
+* $Id: metadata_field.inc,v 1.28 2007/07/26 06:58:05 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -234,7 +234,7 @@ class Metadata_Field extends Asset
 		// First escape % characters
 		$str = str_replace('%', '%'.ord('%').'%', $str);
 		// Next change \ escaped characters to ^d^ where d is the character's ascii code
-		$str = preg_replace('/\\\\(.)/e', '"%".ord("\\1")."%"', $str);
+		$str = preg_replace('/\\\\([;=\\\\])/e', '"%".ord("\\1")."%"', $str);
 
 		$value = '';
 		$check_component = !empty($components);
