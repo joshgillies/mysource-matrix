@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.143 2007/07/26 06:58:06 lwright Exp $
+* $Id: metadata_manager.inc,v 1.144 2007/07/26 23:34:28 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.143 $
+* @version $Revision: 1.144 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -933,24 +933,24 @@ class Metadata_Manager extends MySource_Object
 			// print the values, to be referenced by the meta tags later
 			echo '$metadata_values = Array('."\n";
 			foreach ($tag_values as $n => $v) {
-				$n = $this->escapeMetadata($n, TRUE);
+				$n = addslashes($this->escapeMetadata($n, TRUE));
 				Metadata_Field::decodeValueString($v, $v2, $vc);
 				$v2 = addslashes($this->escapeMetadata($v2));
-				
+
 				// unescape metadata_replacements
 				// leave metadata_values for later - unescape them at runtime
 				$v2 = preg_replace('/%([^%\' ]+)%/', '\'.$metadata_replacements["\1"].\'', $v2);
 				echo "'$n' => Array('value' => '$v2', 'components' => Array(";
-					
+
 				// Value components
 				if (!empty($vc)) {
 					foreach ($vc as $vc_key => $vc_value) {
-						$vc_key   = $this->escapeMetadata($vc_key, TRUE);
-						$vc_value = $this->escapeMetadata($vc_value, TRUE);
-						echo "'$vc_key' => '".addslashes($vc_value)."', ";
+						$vc_key   = addslashes($this->escapeMetadata($vc_key, TRUE));
+						$vc_value = addslashes($this->escapeMetadata($vc_value, TRUE));
+						echo "'$vc_key' => '".$vc_value."', ";
 					}
 				}
-				
+
 				// Close the array
 				echo ")),\n";
 			}
@@ -1635,7 +1635,7 @@ class Metadata_Manager extends MySource_Object
 			$value = str_replace("'", "\'", $value);
 		}
 
-		// escape only html-specific chars for the moment		
+		// escape only html-specific chars for the moment
 		$value = htmlspecialchars($value);
 
 		// escape everything else (chars > 126)
