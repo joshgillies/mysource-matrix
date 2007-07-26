@@ -13,7 +13,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.8 2006/12/07 01:03:19 bcaldwell Exp $
+* $Id: asset.xml,v 1.9 2007/07/26 23:59:51 bshkara Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>ldap</package>
 	<type_code>ldap_bridge</type_code>
-	<version>0.4</version>
+	<version>0.5</version>
 	<name>LDAP Bridge</name>
 	<description>Provides a bridge between the MySource system and an LDAP directory</description>
 	<instantiable>yes</instantiable>

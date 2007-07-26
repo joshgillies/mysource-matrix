@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.62 2007/07/11 05:12:01 lwright Exp $
+* $Id: ldap_bridge.inc,v 1.63 2007/07/26 23:59:51 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -116,6 +116,9 @@ class LDAP_Bridge extends Asset
 		foreach ($this->attr('ldap_options') as $option => $value) {
 			ldap_set_option($ldap->ptr, constant($option), $value);
 		}
+
+		// alias dereferencing setting here
+		ldap_set_option($ldap->ptr, LDAP_OPT_DEREF, constant($this->attr('aliases')));
 
 		$bind_dn = $this->attr('bind_dn');
 
@@ -411,7 +414,7 @@ class LDAP_Bridge extends Asset
 							$entries[$dn] = $user->vars;
 						}
 					}
-					//}
+					// }
 				}
 
 				if (is_null($entries)) {

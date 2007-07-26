@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2007/07/11 05:12:01 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.8 2007/07/26 23:59:51 bshkara Exp $
 *
 */
 -->
@@ -45,6 +45,10 @@
 				<paint_function   name="paintConnectionOptions"   />
 				<process_function name="processConnectionOptions" />
 			</function_call>
+		</field>
+		<field attribute="aliases">
+			<display_name>Aliases</display_name>
+			<note>Alternate rules for following server aliases</note>
 		</field>
 		<field attribute="host">
 			<display_name>Host</display_name>

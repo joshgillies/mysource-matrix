@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2007/01/17 05:04:44 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2007/07/26 23:59:51 bshkara Exp $
 *
 */
 -->
@@ -39,6 +39,9 @@
 				<paint_function   name="paintConnectionOptions"   />
 				<process_function name="processConnectionOptions" />
 			</function_call>
+		</field>
+		<field attribute="aliases">
+			<selection style="list" />
 		</field>
 		<field attribute="host">
 			<text width="30" height="1" />

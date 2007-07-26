@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_management.inc,v 1.12 2006/12/07 01:03:19 bcaldwell Exp $
+* $Id: ldap_bridge_management.inc,v 1.13 2007/07/26 23:59:51 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -87,6 +87,21 @@ class LDAP_Bridge_Management extends Asset_Management
 												'added'		=> '0.3',
 												'type'		=> 'serialise',
 												'default'	=> Array(),
+											   ),
+						'aliases'			=> Array(
+												'added'			=> '0.5',
+												'type'			=> 'selection',
+												'default'		=> 'LDAP_DEREF_NEVER',
+												'parameters'	=> Array(
+																	'options'		=> Array(
+																						'LDAP_DEREF_NEVER'		=> 'Never dereferenced',
+																						'LDAP_DEREF_SEARCHING'	=> 'Dereferenced during search',
+																						'LDAP_DEREF_FINDING'	=> 'Dereferenced when locating the base object',
+																						'LDAP_DEREF_ALWAYS'		=> 'Dereferenced always',
+																					   ),
+																	'multiple'		=> FALSE,
+																	'allow_empty'	=> FALSE,
+																   ),
 											   ),
 						'attributes'		=> Array(
 												'added'		=> '0.1',
