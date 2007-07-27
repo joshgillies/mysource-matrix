@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.144 2007/07/26 23:34:28 lwright Exp $
+* $Id: metadata_manager.inc,v 1.145 2007/07/27 05:33:38 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.144 $
+* @version $Revision: 1.145 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -622,10 +622,10 @@ class Metadata_Manager extends MySource_Object
 		// else return all the values
 		if (!empty($field_names)) {
 			foreach ($field_names as $key => $value) {
-				if (isset($metadata_values[$value]['value'])) {
-					$field_values[$value] = $metadata_values[$value]['value'];
-				} else if (isset($metadata_values[str_replace('_', ' ', $value)]['value'])) {
-					$field_values[$value] = $metadata_values[str_replace('_', ' ',$value)]['value'];
+				if (isset($metadata_values[$value])) {
+					$field_values[$value] = $metadata_values[$value];
+				} else if (isset($metadata_values[str_replace('_', ' ', $value)])) {
+					$field_values[$value] = $metadata_values[str_replace('_', ' ',$value)];
 				} else {
 					$field_values[$value] = '';
 				}
@@ -940,7 +940,18 @@ class Metadata_Manager extends MySource_Object
 				// unescape metadata_replacements
 				// leave metadata_values for later - unescape them at runtime
 				$v2 = preg_replace('/%([^%\' ]+)%/', '\'.$metadata_replacements["\1"].\'', $v2);
-				echo "'$n' => Array('value' => '$v2', 'components' => Array(";
+				echo "'$n' => '$v2',\n";
+			}
+			echo ");\n\n";
+
+			// print the value components, to be referenced by the meta tags later
+			echo '$metadata_value_components = Array('."\n";
+			foreach ($tag_values as $n => $v) {
+				$vc = Array();
+				$n = addslashes($this->escapeMetadata($n, TRUE));
+				Metadata_Field::decodeValueString($v, $v2, $vc);
+
+				echo "'$n' => Array(";
 
 				// Value components
 				if (!empty($vc)) {
@@ -952,7 +963,7 @@ class Metadata_Manager extends MySource_Object
 				}
 
 				// Close the array
-				echo ")),\n";
+				echo "),\n";
 			}
 			echo ");\n\n";
 
@@ -1473,7 +1484,7 @@ class Metadata_Manager extends MySource_Object
 				ob_end_clean();
 
 				$field_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($field_assetid), 'metadata_field', FALSE, 'name');
-				$value = $metadata_values[$field_names[$field_assetid]]['value'];
+				$value = $metadata_values[$field_names[$field_assetid]];
 			}
 		}
 		return $value;
