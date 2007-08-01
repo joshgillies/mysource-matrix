@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.40 2007/06/19 05:17:18 rong Exp $
+* $Id: thesaurus.inc,v 1.41 2007/08/01 23:33:56 lmarchese Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1356,6 +1356,10 @@ class Thesaurus extends Asset
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
+		$sql = 'DELETE FROM sq_shdw_ast_lnk WHERE minorid LIKE '.$db->quoteSmart($this->id.':%');
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
@@ -1766,7 +1770,6 @@ class Thesaurus extends Asset
 	*/
 	function getLink($assetid, $link_type=NULL, $type_code='', $strict_type_code=TRUE, $value=NULL, $side_of_link='major', $exclusive=NULL)
 	{
-		log_dump();
 		return Array();
 
 	}//end getLink()
@@ -2307,6 +2310,10 @@ class Thesaurus extends Asset
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
+		$sql = 'DELETE FROM sq_shdw_ast_lnk WHERE minorid = '.$db->quoteSmart($this->id.':'.$termid);
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
@@ -2404,7 +2411,7 @@ class Thesaurus extends Asset
 	*/
 	function moveLink($linkid, $to_parentid, $link_type, $to_parent_pos)
 	{
-		log_dump();
+		//log_dump();
 
 	}//end moveLink()
 
