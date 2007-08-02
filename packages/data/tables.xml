@@ -37,9 +37,6 @@
 			</keys>
 			<indexes>
 				<index>
-					<column name="assetid" />
-				</index>
-				<index>
 					<column name="hitcount" />
 				</index>
 			</indexes>
