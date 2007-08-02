@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.33.2.4 2007/06/19 00:20:02 rong Exp $
+* $Id: thesaurus.inc,v 1.33.2.5 2007/08/02 00:01:48 lmarchese Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.33.2.4 $
+* @version $Revision: 1.33.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1360,6 +1360,10 @@ class Thesaurus extends Asset
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
+		$sql = 'DELETE FROM sq_shdw_ast_lnk WHERE minorid LIKE '.$db->quoteSmart($this->id.':%');
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
@@ -2290,6 +2294,10 @@ class Thesaurus extends Asset
 				thesid = '.$db->quoteSmart($this->id).'
 		';
 
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		$sql = 'DELETE FROM sq_shdw_ast_lnk WHERE minorid = '.$db->quoteSmart($this->id.':'.$termid);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
