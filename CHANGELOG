@@ -1,5 +1,41 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.14.3
+
+Complete Changelog
+-----------------------------------
+
+Core
+
+* Fixed bug #2484: Inserting image as first action when editing a WYSIWYG content type fails
+* Fixed bug #2499: Fatal Errors appear on front-end
+* Fixed bug #2503: Apply empty (no step) workflow lead to error when viewing details screen in backend.
+* Fixed bug #2510: Removing an "Override" design fires Update Lookups HIPO
+* Fixed bug #2518: CSS File asset throwing MySource Warning on parse
+* Fixed bug #2549: Purged thesaurus/thesaurus term, setting permission on a tagged asset cause error
+
+CMS
+
+* Fixed bug #2506: Asset Listing sort by metadata with %metadata_field_XXX% (Listing Engine)
+* Fixed bug #2507: Acct Manager - Dynamic Create Locations (Account Manager Page)
+* Fixed bug #2511: Link Manager creates orphan assets (Link Manager Page)
+* Fixed bug #2533: Email Validation cannot be sent from Account Manager when requested (Account Manager Page)
+
+Calendar
+
+* Fixed bug #2500: Undefined variable on Upcoming Events List frontend (Upcoming Events Page)
+* Fixed bug #2502: Undefined offset PHP Notices on Upcoming Events frontend (Upcoming Events Page)
+
+Search
+
+* Fixed bug #2496: Tag Suggestions throws error with Oracle (Search Manager)
+
+LDAP
+
+* Password field is now ignored when Bind DN is blank, implying anonymous bind (LDAP Bridge)
+
+
+
 VERSION 3.14.2
 
 Featured Changes
