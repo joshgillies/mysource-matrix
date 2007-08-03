@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.72 2007/05/11 05:50:29 mbrydon Exp $
+* $Id: wysiwyg.inc,v 1.73 2007/08/03 02:13:25 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -826,6 +826,18 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							// Inside a list Item, let the browser handle it.
 							if ( this.isElem(startBlock,'li') || this.isElem(endBlock,'li') ) return;
 
+							// if line starts with a header
+							var isInsideHeader = this.isElem(startBlock, 'h1') || this.isElem(startBlock, 'h2') || this.isElem(startBlock, 'h3') || this.isElem(startBlock, 'h4') || this.isElem(startBlock, 'h5') || this.isElem(startBlock, 'h6');
+							var headerType = null;
+							if (isInsideHeader) {
+								if (this.isElem(startBlock, 'h1')) headerType = 'h1';
+								else if (this.isElem(startBlock, 'h2')) headerType = 'h2';
+								else if (this.isElem(startBlock, 'h3')) headerType = 'h3';
+								else if (this.isElem(startBlock, 'h4')) headerType = 'h4';
+								else if (this.isElem(startBlock, 'h5')) headerType = 'h5';
+								else if (this.isElem(startBlock, 'h6')) headerType = 'h6';
+							}
+
 							if ( this.isElem(startBlock,'p') ) {
 								for ( var i=0; i < startBlock.attributes.length; i++ ) {
 									leftParagraphAttributes[ startBlock.attributes[i].nodeName ] = startBlock.attributes[i].nodeValue;
@@ -846,8 +858,27 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 								choppingEnd = choppingEnd.nextSibling ? choppingEnd.nextSibling : choppingEnd.parentNode;
 
 							// Set up new paragraphs
-							var leftParagraph = this._doc.createElement('p');
-							var rightParagraph = this._doc.createElement('p');
+							var leftParagraph = null;
+							var rightParagraph = null;
+
+							// this element will be used if u r in a header
+							var newParagraph = null;
+
+							if (!isInsideHeader) {
+								// if we are not inside a heading keep the original behaviour
+								leftParagraph = this._doc.createElement('p');
+								rightParagraph = this._doc.createElement('p');
+							} else {
+								if (headerType != null) {
+									// create two paragraph with the header
+									leftParagraph = this._doc.createElement(headerType);
+									rightParagraph = this._doc.createElement(headerType);
+								} else {
+									// error headerType should not be null!
+								}
+
+								newParagraph = this._doc.createElement('p')
+							}
 
 							for ( var attrName in leftParagraphAttributes ) {
 								var thisAttr = this._doc.createAttribute(attrName);
@@ -874,48 +905,86 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 
 							// containsData is true if there is data in the paragraph,
 							//if false, insert a non-breaking space
+							var isLeftParagraphEmpty = false;
 							var containsData = false;
 							containsData = this.traverseChildrenNodes(leftParagraph, this.containsText);
-							if ( containsData != true ) this.insertDeepLeft(leftParagraph, '&nbsp;');
+							if ( containsData != true ) {
+								this.insertDeepLeft(leftParagraph, '&nbsp;');
+								isLeftParagraphEmpty = true;
+							}
 
 							// containsData is true if there is data in the paragraph,
 							//if false, insert a non-breaking space
+							var isRightParagraphEmpty = false;
 							containsData = false;
 							containsData = this.traverseChildrenNodes(rightParagraph, this.containsText);
-							if ( containsData != true ) this.insertDeepLeft(rightParagraph, '&nbsp;');
+							if ( containsData != true ) {
+								this.insertDeepLeft(rightParagraph, '&nbsp;');
+								isRightParagraphEmpty = true;
+							}
 
 							// Get the range of everything to be replaced
 							var fullRange = this._doc.createRange();
-							//if no previous sibling, and parent is a paragraph, set start of range before parent, so it will be removed.
-							//otherwise set to original start range
-							if ( !choppingStart.previousSibling && this.isElem(choppingStart.parentNode,'p') ) {
-								fullRange.setStartBefore(choppingStart.parentNode);
-							} else {
-								fullRange.setStart(leftRange.startContainer, leftRange.startOffset);
-							}
 
-							if ( !choppingEnd.nextSibling && this.isElem(choppingEnd.parentNode,'p') ) {
-								fullRange.setEndAfter(choppingEnd.parentNode);
+							if (!isInsideHeader) {
+								//if no previous sibling, and parent is a paragraph, set start of range before parent, so it will be removed.
+								//otherwise set to original start range
+								if ( !choppingStart.previousSibling && this.isElem(choppingStart.parentNode,'p') ) {
+									fullRange.setStartBefore(choppingStart.parentNode);
+								} else {
+									fullRange.setStart(leftRange.startContainer, leftRange.startOffset);
+								}
+
+								if ( !choppingEnd.nextSibling && this.isElem(choppingEnd.parentNode,'p') ) {
+									fullRange.setEndAfter(choppingEnd.parentNode);
+								} else {
+									fullRange.setEnd(rightRange.endContainer, rightRange.endOffset);
+								}
 							} else {
-								fullRange.setEnd(rightRange.endContainer, rightRange.endOffset);
+								// if we are inside a header we will chop the whole line
+								// and replace it with 3 new lines.
+								// - first line will from starting to the cursor position of the old line
+								// - second line will an empty p tag
+								// - third line will be from the cursor position to the ending of the old line
+								fullRange.setStartBefore(choppingStart.parentNode);
+								fullRange.setEndAfter(choppingEnd.parentNode);
 							}
 
 							//remove data from range and insert new paragraphs
 							fullRange.deleteContents();
-							fullRange.insertNode(rightParagraph);
-							fullRange.insertNode(leftParagraph);
 
-							if ( rightParagraph.firstChild ) {
-								while ( this.inArray(rightParagraph.firstChild && rightParagraph.firstChild.nodeName.toLowerCase(), this.inline_tags) ) rightParagraph = rightParagraph.firstChild;
-									if ( rightParagraph.firstChild && rightParagraph.firstChild.nodeType == 3 ) rightParagraph = rightParagraph.firstChild;	// and text, if they've got it
+							if (isInsideHeader) {
+								// add the rightParagraph
+								if (!isRightParagraphEmpty) fullRange.insertNode(rightParagraph);
+								// add a space in the new paragraph
+								newParagraph.appendChild(document.createTextNode(""+'\u0020'));
+								fullRange.insertNode(newParagraph);
+								// add the rightParagraph
+								if (!isLeftParagraphEmpty) fullRange.insertNode(leftParagraph);
 
-							// Set the selection to the start of the new paragraph (right)
+								// set the selection to the start of the new paragraph (new)
 								var cursorRange = this._doc.createRange();
-								cursorRange.setStart(rightParagraph,0);
+								cursorRange.setStart(newParagraph,0);
 								cursorRange.collapse(true);
 								sel = this._iframe.contentWindow.getSelection();
 								sel.removeAllRanges();
 								sel.addRange(cursorRange);
+							} else {
+								// we keep the old behaviour
+								fullRange.insertNode(rightParagraph);
+								fullRange.insertNode(leftParagraph);
+								if ( rightParagraph.firstChild ) {
+									while ( this.inArray(rightParagraph.firstChild && rightParagraph.firstChild.nodeName.toLowerCase(), this.inline_tags) ) rightParagraph = rightParagraph.firstChild;
+										if ( rightParagraph.firstChild && rightParagraph.firstChild.nodeType == 3 ) rightParagraph = rightParagraph.firstChild;	// and text, if they've got it
+
+								// Set the selection to the start of the new paragraph (right)
+									var cursorRange = this._doc.createRange();
+									cursorRange.setStart(rightParagraph,0);
+									cursorRange.collapse(true);
+									sel = this._iframe.contentWindow.getSelection();
+									sel.removeAllRanges();
+									sel.addRange(cursorRange);
+								}
 							}
 
 				// Stop event to prevent no IE browsers adding the <br>
