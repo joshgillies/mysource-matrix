@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_static_screen_settings.xml,v 1.2 2006/12/06 00:35:26 emcdonald Exp $
+* $Id: lang_static_screen_settings.xml,v 1.2.2.1 2007/08/07 23:01:30 hnguyen Exp $
 *
 */
 -->
@@ -39,7 +39,7 @@
 	<section name="SSL">
 		<field code="force_secure">
 			<display_name>Force Secure</display_name>
-			<note>Force that this asset can only be viewed through an Secure (SSL) connection</note>
+			<note>Force that this asset can only be viewed through a Secure (SSL) connection</note>
 		</field>
 	</section>
 	<section name="Designs">
