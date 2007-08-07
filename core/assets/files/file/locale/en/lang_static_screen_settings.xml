@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_static_screen_settings.xml,v 1.2 2006/12/05 23:14:13 emcdonald Exp $
+* $Id: lang_static_screen_settings.xml,v 1.2.2.1 2007/08/07 23:51:02 hnguyen Exp $
 *
 */
 -->
@@ -40,7 +40,7 @@
 		<field code="force_secure">
 			<display_name>Force Secure</display_name>
 			<note>
-				Force that this asset can only be viewed through an Secure (SSL) connection&lt;br /&gt;
+				Force that this asset can only be viewed through a Secure (SSL) connection&lt;br /&gt;
 				&lt;b&gt;NOTE: Force Secure has no real effect for files that have public access set as a permission&lt;/b&gt;
 			</note>
 		</field>
