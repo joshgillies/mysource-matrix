@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.71.2.1 2007/02/20 05:53:10 hnguyen Exp $
+* $Id: internal_message.inc,v 1.71.2.2 2007/08/07 05:22:17 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71.2.1 $
+* @version $Revision: 1.71.2.2 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -348,7 +348,7 @@ class Internal_Message extends MySource_Object
 
 					// can't come up with a To: email address - bail for this address
 					if (empty($to_email)) {
-						trigger_localised_error('SYS0317', E_USER_WARNING);
+						// We want to skip this user.
 						continue;
 					}
 
