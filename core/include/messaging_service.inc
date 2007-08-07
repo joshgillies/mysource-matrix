@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.58 2007/03/21 05:19:56 lwright Exp $
+* $Id: messaging_service.inc,v 1.59 2007/08/07 05:19:33 hnguyen Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -705,7 +705,7 @@ class Messaging_Service extends MySource_Object
 
 					// can't come up with a To: email address - bail for this address
 					if (empty($to_email)) {
-						trigger_localised_error('SYS0317', E_USER_WARNING);
+						// We want to skip this user
 						continue;
 					}
 
