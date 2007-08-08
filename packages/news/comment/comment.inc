@@ -10,16 +10,23 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment.inc,v 1.16 2007/02/02 05:21:37 arailean Exp $
+* $Id: comment.inc,v 1.16.2.1 2007/08/08 02:03:44 colivar Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 
+if (!defined('SQ_COMMENT_HTML_ALLOW')) {
+	define ('SQ_COMMENT_HTML_ALLOW',	0);
+}
 
-define ('SQ_COMMENT_HTML_ALLOW',	0);
-define ('SQ_COMMENT_HTML_ESCAPE',	1);
-define ('SQ_COMMENT_HTML_STRIP',	2);
+if (!defined('SQ_COMMENT_HTML_ESCAPE')) {
+	define ('SQ_COMMENT_HTML_ESCAPE',	1);
+}
+
+if (!defined('SQ_COMMENT_HTML_STRIP')) {
+	define ('SQ_COMMENT_HTML_STRIP',	2);
+}
 
 /**
 * Comment
@@ -28,7 +35,7 @@ define ('SQ_COMMENT_HTML_STRIP',	2);
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
