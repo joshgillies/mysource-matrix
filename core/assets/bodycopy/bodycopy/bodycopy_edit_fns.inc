@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.43 2007/01/17 22:00:05 tbarrett Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.44 2007/08/08 06:08:29 lmarchese Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,6 +47,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		unset($this->static_screens['metadata']);
 		unset($this->static_screens['linking']);
 		unset($this->static_screens['settings']);
+		unset($this->static_screens['tagging']);
 
 	}//end constructor
 
