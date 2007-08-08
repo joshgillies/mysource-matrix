@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page.inc,v 1.22 2007/01/15 06:15:53 hnguyen Exp $
+* $Id: page_multiple_page.inc,v 1.23 2007/08/08 10:22:14 gnoel Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -199,8 +199,6 @@ class Page_Multiple_Page extends Page
 	*/
 	function getNumberofPages()
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2|SQ_LINK_TYPE_1, 'page_multiple_page_page', TRUE);
 		return count($this->getPageLinks());
 
 	}//end getNumberofPages()
@@ -275,15 +273,13 @@ class Page_Multiple_Page extends Page
 	*/
 	function linksUpdated()
 	{
-		$AM = $GLOBALS['SQ_SYSTEM']->am;
-
-		$AM->acquireLock($this->id, 'attributes', 0, TRUE);
 		// This is bugging out so we can delay the updating of our web paths
-		if (isset($this->_tmp['deleting_links']) && $this->_tmp['deleting_links'] == TRUE) {
+		if (!empty($this->_tmp['deleting_links'])) {
 			return TRUE;
 		}
 		$current_children = array_flip($this->attr('current_page_ids'));
 
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// Work out new ordering and web paths
 		$new_page_children = Array();
@@ -291,47 +287,67 @@ class Page_Multiple_Page extends Page
 		$new_paths = Array();
 		foreach ($page_links as $data) {
 			$new_page_children[] = $data['minorid'];
-			$page =& $AM->getAsset($data['minorid']);
+			$page =& $am->getAsset($data['minorid']);
 			unset($current_children[$data['minorid']]);
-			$paths = $page->getWebPaths();
-			$new_paths[strval(intval($data['sort_order']) + 1)] = &$page;
+			$new_paths[$data['minorid']] = $this->getPageNewWebpaths($page, strval(intval($data['sort_order']) + 1));
 			if (!empty($this->_tmp['no_sort_order_paths'])) {
-				if ($this->_tmp['no_sort_order_paths']) {
-					$page->saveWebPaths(Array());
-				}
+				$page->saveWebPaths(Array());
 			}
+			$am->forgetAsset($page);
 		}
-
 
 		// whatever is left in current_children now are the deleted children
 		foreach (array_keys($current_children) as $id) {
-			$asset_to_delete_paths_from =& $AM->getAsset($id);
+			$asset_to_delete_paths_from =& $am->getAsset($id);
 			if (!is_null($asset_to_delete_paths_from)) {
 				$asset_to_delete_paths_from->saveWebPaths(Array());
+				$am->forgetAsset($asset_to_delete_paths_from);
 			}
-			$AM->forgetAsset($asset_to_delete_paths_from);
 		}
 
 		parent::linksUpdated();
 
-		$debug_new_paths = Array();
-		foreach ($new_paths as $path => $asset) {
-			$debug_new_paths[$asset->id] = $path;
-		}
-
 		if (!empty($this->_tmp['no_sort_order_paths'])) {
-			if ($this->_tmp['no_sort_order_paths']) {
-				foreach ($new_paths as $path => $asset) {
-					$asset->saveWebPaths(Array($path));
-					$AM->forgetAsset($asset);
+			foreach ($new_paths as $pageid => $new_webpaths) {
+				$page =& $am->getAsset($pageid, '', TRUE);
+				if (!empty($page)) {
+					$page->saveWebPaths($new_webpaths);
+					$am->forgetAsset($page);
 				}
 			}
 		}
 
 		// This will store all current pages,
+		$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() - SQ_SECURITY_PERMISSIONS - SQ_SECURITY_LOCKING);
 		$this->setAttrValue('current_page_ids', $new_page_children);
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 	}//end linksUpdated()
+
+
+	/**
+	* Return the new webpaths for a page under this asset
+	* It will remove all numeric paths and if there are no paths left it will set it to $order
+	*
+	* @param object	&$page	a reference to an asset
+	* @param int	$order	a number
+	*
+	* @return array
+	* @access protected
+	*/
+	function getPageNewWebpaths(&$page, $order)
+	{
+		$webpaths = $page->getWebPaths();
+
+		foreach ($webpaths as $idx => $webpath) {
+			if (is_numeric($webpath)) unset($webpaths[$idx]);
+		}
+
+		if (empty($webpaths)) $webpaths = Array($order);
+
+		return $webpaths;
+
+	}//end getPageNewWebpaths()
 
 
 	/**
@@ -389,6 +405,10 @@ class Page_Multiple_Page extends Page
 
 
 	/**
+	* Return the index (1-based) of the Multiple Page Page corresponding to the current URL
+	* If the current URL is the Multiple Page itself, return 1
+	* Return 0 if no match found
+	*
 	* Analyses the current URL, and works out what page we need to find.
 	* This comes in handy when we need to perform functions without having the
 	* printbody() or printPage() functions called, like Paint Layout keywords
@@ -398,28 +418,23 @@ class Page_Multiple_Page extends Page
 	*/
 	function getCurrentPageId()
 	{
-		$url = $_SERVER['REQUEST_URI'];
-		if (strpos ($url, '?') !== FALSE) {
-			$url = substr($url, 0, strpos($url, '?'));
-		}
-		$url = rtrim($url, '/');
-
-		// remove no cache suffix
-		$url = str_replace('/'.SQ_CONF_NOCACHE_SUFFIX, '', $url);
-
-		$stub = $url;
-		if (strrpos($url, '/') !== FALSE) {
-			$stub = substr($url, strrpos($url, '/') + 1);
-		}
-		$all_paths = $this->getWebPaths();
-		foreach ($all_paths as $path) {
-			if ($path == $stub) {
-				// this must be the base url, so we need the first page
-				$stub = '1';
-				break;
+		if (!isset($this->_tmp['current_page_id'])) {
+			$this->_tmp['current_page_id'] = 0;
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
+			if (!empty($asset)) {
+				if ($asset->id == $this->id) {
+					// this is the Multiple Page Asset itself, so we need the first page
+					$this->_tmp['current_page_id'] = 1;
+				} else {
+					$links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->id, $asset->id, SQ_LINK_TYPE_2|SQ_LINK_TYPE_1, NULL, 'major', TRUE);
+					if (!empty($links) && $links[0]['minorid']) {
+						$this->_tmp['current_page_id'] = $links[0]['sort_order'] + 1;
+					}
+				}
 			}
 		}
-		return $stub;
+
+		return $this->_tmp['current_page_id'];
 
 	}//end getCurrentPageId()
 
