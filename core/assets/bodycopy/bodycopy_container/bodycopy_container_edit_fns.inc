@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.50 2007/04/05 06:42:49 tbarrett Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.51 2007/08/08 06:10:26 lmarchese Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,7 +44,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		unset($this->static_screens['metadataSchemas']);
 		unset($this->static_screens['metadata']);
 		unset($this->static_screens['settings']);
-
+		unset($this->static_screens['tagging']);
 	}//end constructor
 
 
