@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_prefs.inc,v 1.5 2007/02/02 05:21:37 arailean Exp $
+* $Id: comment_prefs.inc,v 1.6 2007/08/08 02:04:13 colivar Exp $
 *
 */
 
@@ -41,7 +41,7 @@ if (!defined('SQ_COMMENT_HTML_STRIP')) {
 *    Looks after the creation the Comment Preferences
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Comment_Prefs extends Prefs
@@ -190,17 +190,24 @@ class Comment_Prefs extends Prefs
 	*/
 	function paintBackend(&$o, $have_lock, $pref=NULL)
 	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		$print_sub_title = TRUE;
+		if (!is_null($pref)) $print_sub_title = FALSE;
+
 		$prefs = array_keys($this->pref_vars);
 		if (!is_null($pref) && in_array($pref, array_keys($this->pref_vars))) {
 			$prefs = Array($pref);
 		}
 
-		foreach ($prefs as $pref) {
-			$fn = 'paint'.str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($pref)))).'Backend';
+		foreach ($prefs as $pref_value) {
+			$fn = 'paint'.str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($pref_value)))).'Backend';
 			if (!method_exists($this, $fn)) continue;
 
 			// call individual paint function for each pref
-			$this->$fn($o, $have_lock, $pref);
+			if (is_null($pref) || $pref == $pref_value) {
+				$this->$fn($o, $have_lock, $pref_value, $print_sub_title, $is_root, $is_admin);
+			}
 		}
 
 	}//end paintBackend()
@@ -209,19 +216,23 @@ class Comment_Prefs extends Prefs
 	/**
 	* Paints the interface for configuring the size of the comment input box
 	*
-	* @param object		&$o			reference to the backend outputter instance
-	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
-	* @param string		$pref		a particular preference to process
+	* @param object		&$o					reference to the backend outputter instance
+	* @param boolean	$have_lock			do we have the lock to edit these preferences or not
+	* @param string		$pref_name			a particular preference to paint
+	* @param string		$print_sub_title	if TRUE print the sub title
+	* @param boolean	$is_root			are we the root user?
+	* @param boolean	$is_admin			are we an admin user?
 	*
 	* @return void
 	* @access public
 	*/
-	function paintSqCommentInputSizeBackend(&$o, $have_lock, $pref)
+	function paintSqCommentInputSizeBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-
-		$o->openField(translate('comment_pref_input_size'));
+		if ($print_sub_title) {
+			$o->openField(translate('comment_pref_input_size'));
+		} else {
+			$o->openField('&nbsp;');
+		}
 
 			$comment_size = $this->pref_vars['SQ_COMMENT_INPUT_SIZE']['default'];
 
@@ -231,7 +242,7 @@ class Comment_Prefs extends Prefs
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
 					if ($have_lock && $is_admin) {
-						$this->css_dimension_width->paint($pref.'_width', $have_lock, $comment_size['width']);
+						$this->css_dimension_width->paint($pref_name.'_width', $have_lock, $comment_size['width']);
 					} else {
 						echo $comment_size['width'];
 					}
@@ -243,7 +254,7 @@ class Comment_Prefs extends Prefs
 					<td class="sq-backend-table-cell" style="width: 100%;">
 					<?php
 					if ($have_lock && $is_admin) {
-						$this->css_dimension_height->paint($pref.'_height', $have_lock, $comment_size['height']);
+						$this->css_dimension_height->paint($pref_name.'_height', $have_lock, $comment_size['height']);
 					} else {
 						echo $comment_size['height'];
 					}
@@ -252,7 +263,7 @@ class Comment_Prefs extends Prefs
 				</tr>
 			</table><?php
 
-		$o->closeField();
+			$o->closeField();
 
 	}//end paintSqCommentInputSizeBackend()
 
@@ -260,25 +271,29 @@ class Comment_Prefs extends Prefs
 	/**
 	* Paints the interface for configuring the maximum comment length
 	*
-	* @param object		&$o			reference to the backend outputter instance
-	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
-	* @param string		$pref		a particular preference to process
+	* @param object		&$o					reference to the backend outputter instance
+	* @param boolean	$have_lock			do we have the lock to edit these preferences or not
+	* @param string		$pref_name			a particular preference to paint
+	* @param string		$print_sub_title	if TRUE print the sub title
+	* @param boolean	$is_root			are we the root user?
+	* @param boolean	$is_admin			are we an admin user?
 	*
 	* @return void
 	* @access public
 	*/
-	function paintSqCommentMaxLengthBackend(&$o, $have_lock, $pref)
+	function paintSqCommentMaxLengthBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-
-		$o->openField(translate('comment_pref_max_length'));
+		if ($print_sub_title) {
+			$o->openField(translate('comment_pref_max_length'));
+		} else {
+			$o->openField('&nbsp;');
+		}
 
 			$comment_length = $this->pref_vars['SQ_COMMENT_MAX_LENGTH']['default'];
 
 			if ($have_lock && $is_admin) {
 				$this->int_max_length->value = $comment_length;
-				$this->int_max_length->paint($pref.'_max_length', !$have_lock);
+				$this->int_max_length->paint($pref_name.'_max_length', !$have_lock);
 			} else {
 				echo $comment_length;
 			}
@@ -292,28 +307,32 @@ class Comment_Prefs extends Prefs
 	/**
 	* Paints the interface for allowing HTML in comments
 	*
-	* @param object		&$o			reference to the backend outputter instance
-	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
-	* @param string		$pref		a particular preference to process
+	* @param object		&$o					reference to the backend outputter instance
+	* @param boolean	$have_lock			do we have the lock to edit these preferences or not
+	* @param string		$pref_name			a particular preference to paint
+	* @param string		$print_sub_title	if TRUE print the sub title
+	* @param boolean	$is_root			are we the root user?
+	* @param boolean	$is_admin			are we an admin user?
 	*
 	* @return void
 	* @access public
 	*/
-	function paintSqCommentHtmlConfBackend(&$o, $have_lock, $pref)
+	function paintSqCommentHtmlConfBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		if ($print_sub_title) {
+			$o->openField(translate('comment_pref_html_conf_label'));
+		} else {
+			$o->openField('&nbsp;');
+		}
 
-		$o->openField(translate('comment_pref_html_conf_label'));
-
-			$current_conf = $this->pref_vars[$pref]['default'];
+			$current_conf = $this->pref_vars[$pref_name]['default'];
 
 			$readonly = !($have_lock && $is_admin);
 
 			if ($readonly) {
 				echo array_get_index($this->html_conf_options, $current_conf);
 			} else {
-				combo_box($pref, $this->html_conf_options, FALSE, $current_conf);
+				combo_box($pref_name, $this->html_conf_options, FALSE, $current_conf);
 			}
 
 		$o->closeField();
@@ -324,26 +343,30 @@ class Comment_Prefs extends Prefs
 	/**
 	* Paints the interface for allowing HTML in comments
 	*
-	* @param object		&$o			reference to the backend outputter instance
-	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
-	* @param string		$pref		a particular preference to process
+	* @param object		&$o					reference to the backend outputter instance
+	* @param boolean	$have_lock			do we have the lock to edit these preferences or not
+	* @param string		$pref_name			a particular preference to paint
+	* @param string		$print_sub_title	if TRUE print the sub title
+	* @param boolean	$is_root			are we the root user?
+	* @param boolean	$is_admin			are we an admin user?
 	*
 	* @return void
 	* @access public
 	*/
-	function paintSqCommentMaxRatingBackend(&$o, $have_lock, $pref)
+	function paintSqCommentMaxRatingBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		if ($print_sub_title) {
+			$o->openField($this->pref_vars[$pref_name]['name']);
+		} else {
+			$o->openField('&nbsp;');
+		}
 
-		$o->openField($this->pref_vars[$pref]['name']);
-
-		$max_rating = $this->pref_vars[$pref]['default'];
+		$max_rating = $this->pref_vars[$pref_name]['default'];
 
 		$readonly = !($have_lock && $is_admin);
 
 		$this->int_max_rating->value = $max_rating;
-		$this->int_max_rating->paint($pref, $readonly);
+		$this->int_max_rating->paint($pref_name, $readonly);
 
 		$o->closeField();
 
@@ -362,6 +385,12 @@ class Comment_Prefs extends Prefs
 	*/
 	function processBackend(&$o, $have_lock, $pref=NULL)
 	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		if (!$is_admin || !$have_lock) {
+			return FALSE;
+		}
+
 		$prefs = array_keys($this->pref_vars);
 		if (!is_null($pref) && in_array($pref, array_keys($this->pref_vars))) {
 			$prefs = Array($pref);
@@ -374,7 +403,9 @@ class Comment_Prefs extends Prefs
 			if (!method_exists($this, $fn)) continue;
 
 			// call individual process function for each pref
-			if (!$this->$fn($o, $have_lock, $pref)) $res = FALSE;
+			if (!$this->$fn($o, $have_lock, $pref, $is_root, $is_admin)) {
+				$res = FALSE;
+			}
 		}
 		return $res;
 
@@ -387,17 +418,14 @@ class Comment_Prefs extends Prefs
 	* @param object		&$o			reference to the backend outputter instance
 	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
 	* @param string		$pref		a particular preference to process
+	* @param boolean	$is_root	are we the root user?
+	* @param boolean	$is_admin	are we an admin user?
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processSqCommentInputSizeBackend(&$o, $have_lock, $pref)
+	function processSqCommentInputSizeBackend(&$o, $have_lock, $pref, $is_root, $is_admin)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (!$is_admin || !$have_lock) {
-			return FALSE;
-		}
 
 		if (isset($_POST[$pref.'_width']) && isset($_POST[$pref.'_height'])) {
 			// process css attributes
@@ -420,18 +448,14 @@ class Comment_Prefs extends Prefs
 	* @param object		&$o			reference to the backend outputter instance
 	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
 	* @param string		$pref		a particular preference to process
+	* @param boolean	$is_root	are we the root user?
+	* @param boolean	$is_admin	are we an admin user?
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processSqCommentMaxLengthBackend(&$o, $have_lock, $pref)
+	function processSqCommentMaxLengthBackend(&$o, $have_lock, $pref, $is_root, $is_admin)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (!$is_admin || !$have_lock) {
-			return FALSE;
-		}
-
 		if (isset($_POST[$pref.'_max_length'])) {
 
 			$this->int_max_length->process($pref.'_max_length');
@@ -450,18 +474,14 @@ class Comment_Prefs extends Prefs
 	* @param object		&$o			reference to the backend outputter instance
 	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
 	* @param string		$pref		a particular preference to process
+	* @param boolean	$is_root	are we the root user?
+	* @param boolean	$is_admin	are we an admin user?
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processSqCommentHtmlConfBackend(&$o, $have_lock, $pref)
+	function processSqCommentHtmlConfBackend(&$o, $have_lock, $pref, $is_root, $is_admin)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (!$is_admin || !$have_lock) {
-			return FALSE;
-		}
-
 		$new_setting = array_get_index($_POST, $pref);
 
 		if (!is_null($new_setting)) {
@@ -480,22 +500,16 @@ class Comment_Prefs extends Prefs
 	* @param object		&$o			reference to the backend outputter instance
 	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
 	* @param string		$pref		a particular preference to process
+	* @param boolean	$is_root	are we the root user?
+	* @param boolean	$is_admin	are we an admin user?
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processSqCommentMaxRatingBackend(&$o, $have_lock, $pref)
+	function processSqCommentMaxRatingBackend(&$o, $have_lock, $pref, $is_root, $is_admin)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (!$is_admin || !$have_lock) {
-			return FALSE;
-		}
-
 		$this->int_max_rating->process($pref);
-		if (!$this->int_max_rating->processed) {
-			return FALSE;
-		}
+		if (!$this->int_max_rating->processed) return FALSE;
 
 		$this->pref_vars[$pref]['default'] = $this->int_max_rating->value;
 
@@ -507,21 +521,25 @@ class Comment_Prefs extends Prefs
 	/**
 	* Paints the interface for configuring the maximum comment length
 	*
-	* @param object		&$o			reference to the backend outputter instance
-	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
-	* @param string		$pref		a particular preference to process
+	* @param object		&$o					reference to the backend outputter instance
+	* @param boolean	$have_lock			do we have the lock to edit these preferences or not
+	* @param string		$pref_name			a particular preference to paint
+	* @param string		$print_sub_title	if TRUE print the sub title
+	* @param boolean	$is_root			are we the root user?
+	* @param boolean	$is_admin			are we an admin user?
 	*
 	* @return void
 	* @access public
 	*/
-	function paintSqCommentImgRatedBackend(&$o, $have_lock, $pref)
+	function paintSqCommentImgRatedBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		if ($print_sub_title) {
+			$o->openField($this->pref_vars[$pref_name]['name']);
+		} else {
+			$o->openField('&nbsp;');
+		}
 
-		$o->openField($this->pref_vars[$pref]['name']);
-
-		$current_setting = $this->pref_vars[$pref]['default'];
+		$current_setting = $this->pref_vars[$pref_name]['default'];
 
 		$read_only = !($have_lock && $is_admin);
 
@@ -538,11 +556,11 @@ class Comment_Prefs extends Prefs
 
 		$url = $this->url_processor;
 		$url->value = $current_setting;
-		$url->paint($pref, $read_only);
+		$url->paint($pref_name, $read_only);
 
 
 		if (!$read_only) {
-			$o->note($this->pref_vars[$pref]['description']);
+			$o->note($this->pref_vars[$pref_name]['description']);
 			$o->note('Empty means default');
 		}
 
@@ -557,18 +575,14 @@ class Comment_Prefs extends Prefs
 	* @param object		&$o			reference to the backend outputter instance
 	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
 	* @param string		$pref		a particular preference to process
+	* @param boolean	$is_root	are we the root user?
+	* @param boolean	$is_admin	are we an admin user?
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processSqCommentImgRatedBackend(&$o, $have_lock, $pref)
+	function processSqCommentImgRatedBackend(&$o, $have_lock, $pref, $is_root, $is_admin)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (!$is_admin || !$have_lock) {
-			return FALSE;
-		}
-
 		$url = $this->url_processor;
 
 		$url->process($pref);
@@ -578,27 +592,31 @@ class Comment_Prefs extends Prefs
 
 		return TRUE;
 
-	}//end processSqCommentMaxRatingBackend()
+	}//end processSqCommentImgRatedBackend()
 
 
 	/**
 	* Paints the interface for configuring the maximum comment length
 	*
-	* @param object		&$o			reference to the backend outputter instance
-	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
-	* @param string		$pref		a particular preference to process
+	* @param object		&$o					reference to the backend outputter instance
+	* @param boolean	$have_lock			do we have the lock to edit these preferences or not
+	* @param string		$pref_name			a particular preference to paint
+	* @param string		$print_sub_title	if TRUE print the sub title
+	* @param boolean	$is_root			are we the root user?
+	* @param boolean	$is_admin			are we an admin user?
 	*
 	* @return void
 	* @access public
 	*/
-	function paintSqCommentImgBlankBackend(&$o, $have_lock, $pref)
+	function paintSqCommentImgBlankBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		if ($print_sub_title) {
+			$o->openField($this->pref_vars[$pref_name]['name']);
+		} else {
+			$o->openField('&nbsp;');
+		}
 
-		$o->openField($this->pref_vars[$pref]['name']);
-
-		$current_setting = $this->pref_vars[$pref]['default'];
+		$current_setting = $this->pref_vars[$pref_name]['default'];
 
 		$read_only = !($have_lock && $is_admin);
 
@@ -615,10 +633,10 @@ class Comment_Prefs extends Prefs
 
 		$url = $this->url_processor;
 		$url->value = $current_setting;
-		$url->paint($pref, $read_only);
+		$url->paint($pref_name, $read_only);
 
 		if (!$read_only) {
-			$o->note($this->pref_vars[$pref]['description']);
+			$o->note($this->pref_vars[$pref_name]['description']);
 			$o->note('Empty means default');
 		}
 
@@ -632,20 +650,15 @@ class Comment_Prefs extends Prefs
 	*
 	* @param object		&$o			reference to the backend outputter instance
 	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
-	* @param string		$pref		a particular preference to process
+	* @param boolean	$pref		a particular preference to process
+	* @param boolean	$is_root	are we the root user?
+	* @param boolean	$is_admin	are we an admin user?
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processSqCommentImgBlankBackend(&$o, $have_lock, $pref)
+	function processSqCommentImgBlankBackend(&$o, $have_lock, $pref, $is_root, $is_admin)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (!$is_admin || !$have_lock) {
-			return FALSE;
-		}
-
-
 		$url = $this->url_processor;
 
 		$url->process($pref);
