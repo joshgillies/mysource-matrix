@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.32 2006/12/05 05:50:00 bcaldwell Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.32.4.1 2007/08/08 23:10:34 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -153,11 +153,11 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 							?>
 							<table class="sq-backend-table">
 								<tr>
-									<td class="sq-backend-table-header"><b><?php echo 'step name'; ?></b></td>
-									<td align="center" width="150" class="sq-backend-table-header"><b><?php echo 'edit steps'; ?></b></td>
+									<td class="sq-backend-table-header"><b><?php echo translate('step_name'); ?></b></td>
+									<td align="center" width="150" class="sq-backend-table-header"><b><?php echo translate('edit_step'); ?></b></td>
 									<?php
 									if ($write_access) {
-										?><td align="center" width="70" class="sq-backend-table-header"><b><?php echo'delete_step'; ?></b></td><?php
+										?><td align="center" width="70" class="sq-backend-table-header"><b><?php echo translate('delete_question'); ?></b></td><?php
 									}
 									?>
 								</tr>
@@ -168,7 +168,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 								?>
 								<tr>
 									<td align="left" class="sq-backend-table-cell"><?php echo get_asset_tag_line($field->id);?></td>
-									<td align="center" class="sq-backend-table-cell">[ <a href="<?php echo $asset_href[$field->id];?>"><?php echo 'edit step' ?></a> ]</td>
+									<td align="left" class="sq-backend-table-cell">[ <a href="<?php echo $asset_href[$field->id];?>"><?php echo translate('edit_step'); ?></a> ]</td>
 								<?php
 								if ($write_access) {
 									?><td align="center" class="sq-backend-table-cell"><?php
