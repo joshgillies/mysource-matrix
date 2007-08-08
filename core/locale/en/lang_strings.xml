@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.201.2.9 2007/04/19 06:01:19 lwright Exp $
+* $Id: lang_strings.xml,v 1.201.2.10 2007/08/08 23:13:28 hnguyen Exp $
 *
 */
 
@@ -272,6 +272,8 @@
 	<string source="status_changed_date">Status Changed Date</string>
 	<string source="step_duration">Step Duration</string>
 	<string source="step_logic">Step Logic</string>
+    <string source="step_name">Step Name</string>
+    <string source="edit_step">Edit Step</string>
 	<string source="submissions">Submissions</string>
 	<string source="system_backend_suffix">System Backend Suffix</string>
 	<string source="system">System</string>
