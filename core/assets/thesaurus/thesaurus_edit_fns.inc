@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.13 2006/12/12 01:01:24 arailean Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.14 2007/08/08 06:12:08 lmarchese Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,8 +38,9 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	*
 	*/
 	function Thesaurus_Edit_Fns()
-	{
+	{	
 		$this->Asset_Edit_Fns();
+		unset($this->static_screens['tagging']);
 
 	}//end constructor
 
