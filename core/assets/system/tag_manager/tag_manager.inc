@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.9 2007/06/20 01:24:00 rong Exp $
+* $Id: tag_manager.inc,v 1.10 2007/08/08 06:00:31 lmarchese Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends Asset
@@ -280,6 +280,24 @@ class Tag_Manager extends Asset
 
 
 	/**
+	* Check if is set the tagging static screen for the assetID passed as param
+	*
+	* @param int	$assetid	the ID of the asset to check
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isSetTaggingScreen($assetid)
+	{
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset((int) $assetid);
+		if (is_null($asset)) return TRUE;
+		$edit_fns =& $asset->getEditFns();
+		return isset($edit_fns->static_screens['tagging']);
+
+	}//end isSetTaggingScreen()
+	
+	
+	/**
 	* Tag an asset
 	*
 	* @param string		$assetid	the ID of the asset to tag
@@ -291,53 +309,59 @@ class Tag_Manager extends Asset
 	*/
 	function setTag($assetid, $tagids, $weight)
 	{
-		if (!is_array($tagids)) $tagids = Array($tagids);
-
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		if (is_null($asset)) return 0;
-
 		$has_error = FALSE;
-		foreach ($tagids as $tagid) {
-			if (!$this->isFromTaggingThesaurus($tagid)) {
-				// this tag is not in the required thesaurus
-				trigger_localised_error('CORE0274', E_USER_WARNING);
-				$has_error = TRUE;
-				continue;
-			}
-
-			$new_tag_object =& $GLOBALS['SQ_SYSTEM']->am->getAsset($tagid);
-			if (is_null($new_tag_object)) {
-				trigger_localised_error('SYS0087', E_USER_WARNING, $tagid);
-				$has_error = TRUE;
-				continue;
-			}
-
-			// see if the asset is already tagged with this tag
-			$tag_links = $this->getTagLinks($assetid);
-			$already_tagged = FALSE;
-			foreach ($tag_links as $link) {
-				if ($tagid == $link['minorid']) {
-					$already_tagged = TRUE;
-					if ($weight == $link['value']) {
-						// already tagged with the same weighting
-						continue;
-					} else {
-						// already tagged, but with a different weighting; scream and shout
-						trigger_localised_error('CORE0275', E_USER_WARNING, $assetid, $weight);
+		
+		if ($this->isSetTaggingScreen($assetid)) {
+			
+			if (!is_array($tagids)) $tagids = Array($tagids);
+	
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if (is_null($asset)) return 0;
+	
+			
+			foreach ($tagids as $tagid) {
+				if (!$this->isFromTaggingThesaurus($tagid)) {
+					// this tag is not in the required thesaurus
+					trigger_localised_error('CORE0274', E_USER_WARNING);
+					$has_error = TRUE;
+					continue;
+				}
+	
+				$new_tag_object =& $GLOBALS['SQ_SYSTEM']->am->getAsset($tagid);
+				if (is_null($new_tag_object)) {
+					trigger_localised_error('SYS0087', E_USER_WARNING, $tagid);
+					$has_error = TRUE;
+					continue;
+				}
+	
+				// see if the asset is already tagged with this tag
+				$tag_links = $this->getTagLinks($assetid);
+				$already_tagged = FALSE;
+				foreach ($tag_links as $link) {
+					if ($tagid == $link['minorid']) {
+						$already_tagged = TRUE;
+						if ($weight == $link['value']) {
+							// already tagged with the same weighting
+							continue;
+						} else {
+							// already tagged, but with a different weighting; scream and shout
+							trigger_localised_error('CORE0275', E_USER_WARNING, $assetid, $weight);
+							$has_error = TRUE;
+							break;
+						}
+					}
+				}//end foreach existing tag link
+				
+				if (!$already_tagged) {
+					if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $new_tag_object, SQ_LINK_NOTICE, $weight)) {
 						$has_error = TRUE;
-						break;
 					}
 				}
-			}//end foreach existing tag link
+	
+			}//end foreach tag id
 
-			if (!$already_tagged) {
-				if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $new_tag_object, SQ_LINK_NOTICE, $weight)) {
-					$has_error = TRUE;
-				}
-			}
-
-		}//end foreach tag id
-
+		}
+		
 		return ($has_error) ? 0 : 1;
 
 	}//end setTag()
@@ -354,22 +378,27 @@ class Tag_Manager extends Asset
 	*/
 	function deleteTag($assetid, $tagids)
 	{
-		if (!is_array($tagids)) $tagids = Array($tagids);
-
 		$has_error = FALSE;
-		foreach ($tagids as $tag) {
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($assetid, $tag, SQ_LINK_NOTICE);
-			if (empty($link)) {
-				trigger_localised_error('CORE0277', E_USER_WARNING, $tag, $assetid);
-				$has_error = TRUE;
-				continue;
-			}
-			if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'])) {
-				trigger_localised_error('CORE0278', E_USER_WARNING, $tag, $assetid, $link['linkid']);
-				$has_error = TRUE;
+		
+		if ($this->isSetTaggingScreen($assetid)) {
+		
+			if (!is_array($tagids)) $tagids = Array($tagids);
+		
+			foreach ($tagids as $tag) {
+				
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($assetid, $tag, SQ_LINK_NOTICE);
+				if (empty($link)) {
+					trigger_localised_error('CORE0277', E_USER_WARNING, $tag, $assetid);
+					$has_error = TRUE;
+					continue;
+				}
+				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'])) {
+					trigger_localised_error('CORE0278', E_USER_WARNING, $tag, $assetid, $link['linkid']);
+					$has_error = TRUE;
+				}
 			}
 		}
-
+		
 		return ($has_error) ? 0 : 1;
 
 	}//end deleteTag()
