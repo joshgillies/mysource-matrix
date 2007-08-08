@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_edit_fns.inc,v 1.13 2006/12/05 05:48:39 emcdonald Exp $
+* $Id: content_type_edit_fns.inc,v 1.14 2007/08/08 06:11:28 lmarchese Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,6 +47,7 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 		unset($this->static_screens['linking']);
 		unset($this->static_screens['settings']);
 		unset($this->static_screens['history']);
+		unset($this->static_screens['tagging']);	
 
 	}//end constructor
 
