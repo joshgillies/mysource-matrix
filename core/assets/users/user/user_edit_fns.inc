@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.33 2006/12/20 01:46:11 tbarrett Exp $
+* $Id: user_edit_fns.inc,v 1.33.4.1 2007/08/09 06:25:45 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -163,7 +163,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 								echo translate($restriction['name'].'_'.($restriction['match'] ? 'true' : 'false'));
 							}
 							echo '<br />';
-							call_user_func(Array($edit_fns_classname, 'paintEditInterface'), $restriction['condition_data'], $o, $condition_prefix, $admin_access);
+							call_user_func(Array($edit_fns_classname, 'paintEditInterface'), $restriction['condition_data'], $o, $condition_prefix, $admin_access, Array());
 							?>
 						</td>
 					<?php
