@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if_edit_fns.inc,v 1.13 2006/12/05 22:42:14 emcdonald Exp $
+* $Id: design_area_show_if_edit_fns.inc,v 1.13.4.1 2007/08/09 06:26:32 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -182,7 +182,7 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 		echo translate('condition_'.$asset->attr('condition').'_true');
 		$edit_fns_classname = 'condition_'.$asset->attr('condition').'_edit_fns';
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('condition_'.$asset->attr('condition'), TRUE);
-		call_user_func(Array($edit_fns_classname, 'paintEditInterface'), $asset->attr('condition_data'), $o, $prefix.'_condition', $asset->writeAccess('attributes'));
+		call_user_func(Array($edit_fns_classname, 'paintEditInterface'), $asset->attr('condition_data'), $o, $prefix.'_condition', $asset->writeAccess('attributes'), Array());
 
 	}//end paintConditionDetails()
 
