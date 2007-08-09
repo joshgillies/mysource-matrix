@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.31 2007/03/16 03:06:37 tbarrett Exp $
+* $Id: file_versioning.inc,v 1.32 2007/08/09 05:46:02 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -589,7 +589,9 @@ class File_Versioning
 	*
 	* @param string		$rep_file	the path to the file in the repository
 	* @param string		$version	Check out this version of the file (null means latest version)
-	* @param string		$date		Check out the file as it was at this date (null means latest version) - doesn't override $version
+	* @param string		$date		Check out the file as it was at this date (null means latest version) -
+	*								Doesn't override $version\
+	*								Format is unix timestamp
 	*
 	* @return mixed array|int
 	* @access private
@@ -623,7 +625,7 @@ class File_Versioning
 						  AND to_date IS NULL';
 				$nice_date = ts_iso8601(time());
 			} else {
-
+				$nice_date = ts_iso8601($date);
 				$date = $db->quote(ts_iso8601($date));
 				if ($db->phptype == 'oci8') {
 					$date = 'TO_DATE('.$date.', '.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
@@ -636,14 +638,13 @@ class File_Versioning
 						  AND from_date <= '.$date.'
 						  AND (to_date IS NULL OR to_date > '.$date.')
 						ORDER BY version DESC';
-				$nice_date = ts_iso8601($date);
 			}//end if
 
 			$ver_info = $db->getRow($sql);
 			assert_valid_db_result($ver_info);
 
 			if (empty($ver_info)) {
-				trigger_localised_error('FVER0006', E_USER_NOTICE, $rep_file);
+				trigger_localised_error('FVER0006', E_USER_NOTICE, $rep_file, $nice_date);
 				$this->_releaseFile($info['fileid']);
 				return false;
 			}
