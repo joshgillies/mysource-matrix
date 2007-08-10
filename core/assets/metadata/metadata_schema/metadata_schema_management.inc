@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_management.inc,v 1.17 2006/12/06 01:07:36 emcdonald Exp $
+* $Id: metadata_schema_management.inc,v 1.17.4.1 2007/08/10 06:36:35 lmarchese Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,16 +41,6 @@ class Metadata_Schema_Management extends Asset_Management
 
 		$this->vars = Array(
 						'name'		=> Array(
-										'added'		=> '0.1',
-										'type'		=> 'text',
-										'default'	=> '',
-									   ),
-						'namespace'	=> Array(
-										'added'		=> '0.1',
-										'type'		=> 'text',
-										'default'	=> '',
-									   ),
-						'nsurl'		=> Array(
 										'added'		=> '0.1',
 										'type'		=> 'text',
 										'default'	=> '',
