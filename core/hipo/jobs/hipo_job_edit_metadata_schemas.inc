@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.43 2007/08/10 01:49:40 lmarchese Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.44 2007/08/10 01:58:27 lmarchese Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -254,7 +254,6 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
 			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
-			$GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'metadata');
 			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
