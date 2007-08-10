@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.15 2006/12/06 01:07:36 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.16 2007/08/10 06:14:25 lmarchese Exp $
 *
 */
 -->
@@ -42,26 +42,6 @@
 			<function_call>
 				<paint_function   name="paintRegenerate"   />
 				<process_function name="processRegenerate" />
-			</function_call>
-		</field>
-	</section>
-	<section name="XML Namespace Settings" read_access="write:" write_access="write:">
-		<field>
-			<function_call>
-				<paint_function   name="paintDefaultXMLns"   />
-				<process_function name="processDefaultXMLns" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintNamespace"   />
-				<process_function name="processNamespace" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintNsURL"   />
-				<process_function name="processNsURL" />
 			</function_call>
 		</field>
 	</section>
