@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_roles.inc,v 1.5 2007/05/01 05:45:40 hnguyen Exp $
+* $Id: hipo_job_edit_roles.inc,v 1.6 2007/08/10 01:49:40 lmarchese Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -95,18 +95,6 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_acquiring_role_locks'),
-					'hipo_job'		=> Array(
-										'init_details_function'	=> 'getLockAssetDetails',
-									   ),
-					'running_mode'	=> 'server',
-					'auto_step'		=> TRUE,
-					'allow_cancel'	=> TRUE,
-					'percent_done'	=> 0,
-					'complete'		=> FALSE,
-					'message'		=> '',
-				),
-				Array(
 					'name'			=> translate('hipo_updating_roles'),
 					'function_call'	=> Array(
 										'process_function'	=> 'processRoles',
@@ -117,18 +105,6 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 					'percent_done'	=> 0,
 					'complete'		=> FALSE,
 					'message'		=> FALSE,
-				),
-				Array(
-					'name'			=> translate('hipo_releasing_role_locks'),
-					'function_call'	=> Array(
-										'process_function'	=> 'releaseLocks',
-									   ),
-					'running_mode'	=> 'server',
-					'auto_step'		=> TRUE,
-					'allow_cancel'	=> FALSE,
-					'percent_done'	=> 0,
-					'complete'		=> FALSE,
-					'message'		=> '',
 				),
 			   );
 
@@ -162,16 +138,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 	function freestyle()
 	{
 		while (!empty($this->_running_vars['todo_assetids'])) {
-			$id = key($this->_running_vars['todo_assetids']);
-			$result = $GLOBALS['SQ_SYSTEM']->am->acquireLock($id, 'roles');
-			if ($result) {
-				if (!$this->processRoles($this->_steps[1], get_class($this))) {
-					return FALSE;
-				}
-				if ($result == 1) {
-					$result = $GLOBALS['SQ_SYSTEM']->am->releaseLock($id, 'roles');
-				}
-			} else {
+			if (!$this->processRoles($this->_steps[0], get_class($this))) {
 				return FALSE;
 			}
 		}
@@ -241,29 +208,34 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
-				// check we can change roles, otherwise silently pass by
-				if ($asset->adminAccess('roles')) {
-					foreach ($this->_running_vars['role_changes'] as $action => $action_data) {
-						foreach ($action_data as $roleid => $userids) {
-							foreach ($userids as $userid) {
-								switch ($action) {
-									case 'add':
-										$GLOBALS['SQ_SYSTEM']->am->setRole($asset->id, $roleid, $userid);
-									break;
-									case 'delete':
-										$GLOBALS['SQ_SYSTEM']->am->deleteRole($asset->id, $roleid, $userid);
-									break;
+				// check we can acquire lock and change roles, otherwise silently pass by
+				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'roles')) {
+ 					if ($asset->adminAccess('roles')) {
+						foreach ($this->_running_vars['role_changes'] as $action => $action_data) {
+							foreach ($action_data as $roleid => $userids) {
+								foreach ($userids as $userid) {
+									switch ($action) {
+										case 'add':
+											$GLOBALS['SQ_SYSTEM']->am->setRole($asset->id, $roleid, $userid);
+										break;
+										case 'delete':
+											$GLOBALS['SQ_SYSTEM']->am->deleteRole($asset->id, $roleid, $userid);
+										break;
+									}
 								}
 							}
 						}
+						$step_data['message'] = translate('hipo_edit_role', htmlentities($asset->name));
+						$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'roles');
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+						unset($asset);
+					} else {
+						// we do not have admin access
+						trigger_localised_error('SYS0313', E_USER_WARNING, $asset->name);
 					}
-
-					$step_data['message'] = translate('hipo_edit_role', htmlentities($asset->name));
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-					unset($asset);
 				} else {
-					// we do not have admin access
-					trigger_localised_error('SYS0313', E_USER_WARNING, $asset->name);
+					// we do not acquire lock
+					trigger_localised_error('SYS0100', E_USER_WARNING, $asset->name);
 				}
 			} else {
 				$step_data['message'] = translate('hipo_skipping_asset', $assetid);

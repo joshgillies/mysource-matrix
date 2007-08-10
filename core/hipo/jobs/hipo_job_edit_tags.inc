@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_tags.inc,v 1.7 2007/06/19 04:29:47 rong Exp $
+* $Id: hipo_job_edit_tags.inc,v 1.8 2007/08/10 01:49:40 lmarchese Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit content tags
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -127,18 +127,6 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_acquiring_locks'),
-					'hipo_job'		=> Array(
-										'init_details_function'	=> 'getLockAssetDetails',
-									   ),
-					'running_mode'	=> 'server',
-					'auto_step'		=> TRUE,
-					'allow_cancel'	=> TRUE,
-					'percent_done'	=> 0,
-					'complete'		=> FALSE,
-					'message'		=> '',
-				),
-				Array(
 					'name'			=> translate('hipo_updating_tags'),
 					'function_call'	=> Array(
 										'process_function'	=> 'processTags',
@@ -146,18 +134,6 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 					'running_mode'	=> 'server',
 					'auto_step'		=> TRUE,
 					'allow_cancel'	=> TRUE,
-					'percent_done'	=> 0,
-					'complete'		=> FALSE,
-					'message'		=> '',
-				),
-				Array(
-					'name'			=> translate('hipo_releasing_locks'),
-					'function_call'	=> Array(
-										'process_function'	=> 'releaseLocks',
-									   ),
-					'running_mode'	=> 'server',
-					'auto_step'		=> TRUE,
-					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
 					'complete'		=> FALSE,
 					'message'		=> '',
@@ -271,32 +247,37 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
-				foreach ($this->_running_vars['tag_changes'] as $tag_data) {
-					if (!is_array($tag_data['tag_id'])) {
-						$tag_data['tag_id'] = Array($tag_data['tag_id']);
-					}
-					switch ($tag_data['action']) {
-						case 'add':
-							foreach ($tag_data['tag_id'] as $tag_data_id) {
-								// if this asset is already tagged with this tag, update the weight
-								$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $tag_data_id, SQ_LINK_NOTICE);
-								if (empty($link)) {
-									$tag_manager->setTag($asset->id, $tag_data_id, $tag_data['weight']);
-								} else {
-									$tag_manager->setTagWeight($link['linkid'], $tag_data['weight']);
+				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'links')) {
+					foreach ($this->_running_vars['tag_changes'] as $tag_data) {
+						if (!is_array($tag_data['tag_id'])) {
+							$tag_data['tag_id'] = Array($tag_data['tag_id']);
+						}
+						switch ($tag_data['action']) {
+							case 'add':
+								foreach ($tag_data['tag_id'] as $tag_data_id) {
+									// if this asset is already tagged with this tag, update the weight
+									$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $tag_data_id, SQ_LINK_NOTICE);
+									if (empty($link)) {
+										$tag_manager->setTag($asset->id, $tag_data_id, $tag_data['weight']);
+									} else {
+										$tag_manager->setTagWeight($link['linkid'], $tag_data['weight']);
+									}
 								}
-							}
-						break;
+							break;
 
-						case 'delete':
-							$tag_manager->deleteTag($asset->id, $tag_data['tag_id']);
-						break;
+							case 'delete':
+								$tag_manager->deleteTag($asset->id, $tag_data['tag_id']);
+							break;
+						}
 					}
+					$step_data['message'] = translate('hipo_editing_tags', htmlentities($asset->name));
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'links');
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+					unset($asset);
+				} else {
+					// we do not acquire lock
+					trigger_localised_error('SYS0100', E_USER_WARNING, $asset->name);
 				}
-				$step_data['message'] = translate('hipo_editing_tags', htmlentities($asset->name));
-
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-				unset($asset);
 			} else {
 				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
 				$this->_addError(translate('hipo_cannot_edit_tags', $assetid));

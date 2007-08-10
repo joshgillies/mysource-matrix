@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.42 2007/05/01 05:45:40 hnguyen Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.43 2007/08/10 01:49:40 lmarchese Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -127,18 +127,6 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_acquiring_metadata_locks'),
-					'hipo_job'		=> Array(
-										'init_details_function'	=> 'getLockAssetDetails',
-									   ),
-					'running_mode'	=> 'server',
-					'auto_step'		=> TRUE,
-					'allow_cancel'	=> TRUE,
-					'percent_done'	=> 0,
-					'complete'		=> FALSE,
-					'message'		=> '',
-				),
-				Array(
 					'name'			=> translate('hipo_updating_metadata_schemas'),
 					'function_call'	=> Array(
 										'process_function'	=> 'processSchemas',
@@ -146,18 +134,6 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 					'running_mode'	=> 'server',
 					'auto_step'		=> TRUE,
 					'allow_cancel'	=> TRUE,
-					'percent_done'	=> 0,
-					'complete'		=> FALSE,
-					'message'		=> '',
-				),
-				Array(
-					'name'			=> translate('hipo_releasing_metadata_locks'),
-					'function_call'	=> Array(
-										'process_function'	=> 'releaseLocks',
-									   ),
-					'running_mode'	=> 'server',
-					'auto_step'		=> TRUE,
-					'allow_cancel'	=> FALSE,
 					'percent_done'	=> 0,
 					'complete'		=> FALSE,
 					'message'		=> '',
@@ -195,18 +171,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	*/
 	function freestyle()
 	{
-		reset($this->_running_vars['todo_assetids']);
 		while (!empty($this->_running_vars['todo_assetids'])) {
-			$id = key($this->_running_vars['todo_assetids']);
-			$result = $GLOBALS['SQ_SYSTEM']->am->acquireLock($id, 'metadata');
-			if ($result) {
-				if (!$this->processSchemas($this->_steps[1], get_class($this))) {
-					return FALSE;
-				}
-				if ($result == 1) {
-					$result = $GLOBALS['SQ_SYSTEM']->am->releaseLock($id, 'metadata');
-				}
-			} else {
+			if (!$this->processSchemas($this->_steps[0], get_class($this))) {
 				return FALSE;
 			}
 		}
@@ -288,68 +254,74 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
 			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
+			$GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'metadata');
 			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 			if (!is_null($asset)) {
-
-				foreach ($this->_running_vars['schema_changes'] as $set_data) {
-					if ($set_data['schemaid']) {
-						$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($set_data['schemaid']);
-						if (is_null($schema)) {
-							$schema_name = 'Unknown Schema';
+				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'metadata')) {
+					foreach ($this->_running_vars['schema_changes'] as $set_data) {
+						if ($set_data['schemaid']) {
+							$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($set_data['schemaid']);
+							if (is_null($schema)) {
+								$schema_name = 'Unknown Schema';
+							} else {
+								$schema_name = $schema->name;
+							}
 						} else {
-							$schema_name = $schema->name;
-						}
-					} else {
-						continue;
-					}
-
-					$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-
-					if ($set_data['previous_access'] === NULL) {
-						// to edit this schema, there must not currently be a schema set
-						// at all - either grant OR deny - for this asset
-						$schemas = $mm->getSchemas($asset->id, $set_data['granted']);
-						if (isset($schemas[$set_data['schemaid']])) {
-							$new_access     = ($set_data['granted']) ? translate('apply') : translate('deny');
-							$current_access = ($schemas[$set_data['schemaid']]) ? translate('applied') : translate('denied');
-							$this->_addError(translate('hipo_cannot_modify_schema', $new_access, $schema_name, $asset->name, $current_access), TRUE);
 							continue;
 						}
-					} else {
-						// we need to have a schema set and the access level be the same
-						$schemas = $mm->getSchemas($asset->id);
-						if (!isset($schemas[$set_data['schemaid']])) {
-							continue;
-						} else if ($schemas[$set_data['schemaid']] != $set_data['previous_access']) {
-							$new_access     = ($set_data['previous_access']) ? translate('revoke')  : translate('apply');
-							$current_access = ($set_data['previous_access']) ? translate('applied') : translate('denied');
-							$this->_addError(translate('hipo_cannot_modify_schema', $new_access, $schema_name, $asset->name, $current_access), TRUE);
-							continue;
+
+						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+
+						if ($set_data['previous_access'] === NULL) {
+							// to edit this schema, there must not currently be a schema set
+							// at all - either grant OR deny - for this asset
+							$schemas = $mm->getSchemas($asset->id, $set_data['granted']);
+							if (isset($schemas[$set_data['schemaid']])) {
+								$new_access     = ($set_data['granted']) ? translate('apply') : translate('deny');
+								$current_access = ($schemas[$set_data['schemaid']]) ? translate('applied') : translate('denied');
+								$this->_addError(translate('hipo_cannot_modify_schema', $new_access, $schema_name, $asset->name, $current_access), TRUE);
+								continue;
+							}
+						} else {
+							// we need to have a schema set and the access level be the same
+							$schemas = $mm->getSchemas($asset->id);
+							if (!isset($schemas[$set_data['schemaid']])) {
+								continue;
+							} else if ($schemas[$set_data['schemaid']] != $set_data['previous_access']) {
+								$new_access     = ($set_data['previous_access']) ? translate('revoke')  : translate('apply');
+								$current_access = ($set_data['previous_access']) ? translate('applied') : translate('denied');
+								$this->_addError(translate('hipo_cannot_modify_schema', $new_access, $schema_name, $asset->name, $current_access), TRUE);
+								continue;
+							}
 						}
-					}
 
-					switch ($set_data['granted']) {
-						case -1 :
-							// delete a schema
-							$mm->deleteSchema($asset->id, $set_data['schemaid']);
-						break;
+						switch ($set_data['granted']) {
+							case -1 :
+								// delete a schema
+								$mm->deleteSchema($asset->id, $set_data['schemaid']);
+							break;
 
-						case 0  :
-						case 1  :
-							// apply a schema
-							$mm->setSchema($asset->id, $set_data['schemaid'], $set_data['granted']);
-						break;
-					}
-				}//end foreach
+							case 0  :
+							case 1  :
+								// apply a schema
+								$mm->setSchema($asset->id, $set_data['schemaid'], $set_data['granted']);
+							break;
+						}
+					}//end foreach
 
-				$step_data['message'] = translate('hipo_editing_metadata_schema', htmlentities($asset->name));
+					$step_data['message'] = translate('hipo_editing_metadata_schema', htmlentities($asset->name));
 
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-				unset($asset);
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'metadata');
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+					unset($asset);
+				} else {
+					// we do not acquire lock
+					trigger_localised_error('SYS0100', E_USER_WARNING, $asset->name);
+				}
 			} else {
 				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
 				$this->_addError(translate('hipo_cannot_edit_schema', $assetid));
