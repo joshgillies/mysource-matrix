@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.44.2.3 2007/03/15 00:13:32 skim Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.44.2.4 2007/08/10 06:36:02 lmarchese Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44.2.3 $
+* @version $Revision: 1.44.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -347,181 +347,6 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		return TRUE;
 
 	}//end generateMetadata()
-
-
-	/**
-	* Displays the checkbox saying that a default XML namespace definition shouild be used
-	*
-	* @param object	&$asset	asset being painted
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the html doc element name
-	*
-	* @return boolean
-	* @access private
-	*/
-	function paintDefaultXMLns(&$asset, &$o, $prefix)
-	{
-		// need to have write access to make any changes
-		if ($asset->writeAccess('')) {
-			check_box($prefix.'_default_ns');
-			label(translate('default_namespace_definitions'), $prefix.'_default_ns');
-			$o->note(translate('metadata_use_default_namespace_explanation'));
-		} else {
-			$o->note(translate('cannot_change_property'));
-
-		}
-		return TRUE;
-
-	}//end paintDefaultXMLns()
-
-
-	/**
-	* Checks if client wants to use default XML namespace definition
-	*
-	* @param object	&$asset	asset being painted
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the html doc element name
-	*
-	* @return boolean
-	* @access private
-	*/
-	function processDefaultXMLns(&$asset, &$o, $prefix)
-	{
-		// need to have write access to make any changes
-		if (!$asset->writeAccess('')) return FALSE;
-
-		if (isset($_POST[$prefix.'_default_ns']) && $_POST[$prefix.'_default_ns']) {
-
-			$schema_name = strtolower($asset -> attr('name')); // getting schema name
-
-			if ($schema_name == 'agls') {
-				$asset -> setAttrValue('namespace', 'xmlns:agls');
-				$asset -> setAttrValue('nsurl', 'http://www.naa.gov.au/recordkeeping/gov_online/agls/1.2');
-			} else if ($schema_name == 'dc') {
-				$asset -> setAttrValue('namespace', 'xmlns:dc');
-				$asset -> setAttrValue('nsurl', 'http://purl.org/dc/elements/1.1/');
-			} else if ($schema_name == 'edna') {
-				$asset -> setAttrValue('namespace', 'xmlns:edna');
-				$asset -> setAttrValue('nsurl', 'http://www.edna.edu.au/metadata/v1.1');
-			}
-
-		}
-
-		return TRUE;
-
-	}//end processDefaultXMLns()
-
-
-	/**
-	* Displays the textbox containing namespace, accepts input from user
-	*
-	* @param object	&$asset	asset being painted
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the html doc element name
-	*
-	* @return boolean
-	* @access private
-	*/
-	function paintNamespace(&$asset, &$o, $prefix)
-	{
-		// need to have write access to make any changes
-		if ($asset->writeAccess('')) {
-
-			$namespace = $asset->attr('namespace');
-
-			if (!isset($namespace)) {
-				text_box($prefix.'_namespace', '', 15);
-			} else {
-				text_box($prefix.'_namespace', $asset->attr('namespace'), 15);
-			}
-
-		} else {
-			$o->note(translate('cannot_change_namespace'));
-		}
-		return TRUE;
-
-	}//end paintNamespace()
-
-
-	/**
-	* Processes any values submitted via namespace textbox. If checkbox above
-	* is checked, exit function because we will store default values instead.
-	*
-	* @param object	&$asset	asset being painted
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the html doc element name
-	*
-	* @return void
-	* @access private
-	*/
-	function processNamespace(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('')) return FALSE;
-		if (isset($_POST[$prefix.'_default_ns']) && $_POST[$prefix.'_default_ns']) {
-			return FALSE;
-		}
-
-		if (isset($_POST[$prefix.'_namespace'])) {
-				$asset -> setAttrValue('namespace', $_POST[$prefix.'_namespace']);
-		}
-
-	}//end processNamespace()
-
-
-	/**
-	* Displays textbox with XML namespace URI
-	*
-	* @param object	&$asset	asset being painted
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the html doc element name
-	*
-	* @return boolean
-	* @access private
-	*/
-	function paintNsURL(&$asset, &$o, $prefix)
-	{
-		// need to have write access to make any changes
-		if ($asset->writeAccess('')) {
-
-			$nsurl = $asset->attr('nsurl');
-
-			if (!isset($nsurl)) {
-				text_box($prefix.'_nsurl', '', 80);
-			} else {
-				text_box($prefix.'_nsurl', $asset->attr('nsurl'), 80);
-			}
-
-		} else {
-			$o->note(translate('cannot_change_namespace_uri'));
-		}
-		return TRUE;
-
-	}//end paintNsURL()
-
-
-	/**
-	* Stores the value in Namespace URI textbox if user
-	* doesn't want to use default values
-	*
-	* @param object	&$asset	asset being painted
-	* @param object	&$o		some mysterious object
-	* @param string	$prefix	prefix for the html doc element name
-	*
-	* @return void
-	* @access private
-	*/
-	function processNsURL(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('')) return FALSE;
-		if (isset($_POST[$prefix.'_default_ns']) && $_POST[$prefix.'_default_ns']) {
-			return FALSE;
-		}
-
-		if (isset($_POST[$prefix.'_nsurl'])) {
-				$asset -> setAttrValue('nsurl', $_POST[$prefix.'_nsurl']);
-		}
-
-	}//end processNsURL()
 
 
 }//end class
