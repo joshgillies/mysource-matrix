@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.6 2007/01/16 01:13:55 colivar Exp $
+* $Id: lang_errors.xml,v 1.7 2007/08/13 23:37:19 hnguyen Exp $
 *
 */
 
@@ -202,4 +202,6 @@
 	<error code="CAL0061">Suitable bodycopy not fournt to print the event of %s</error>
 
 	<error code="CAL0062">Could not link the contents to the no results bodycopy</error>
+
+	<error code="CAL0063">Lastest date to show for Restricted Period Calendar Page #%s has not been set.</error>
 </errors>
