@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_restricted.inc,v 1.6 2007/01/08 03:25:04 emcdonald Exp $
+* $Id: page_calendar_restricted.inc,v 1.7 2007/08/13 23:36:20 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/page_templates/page_calendar_rolling/pa
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -158,6 +158,25 @@ class Page_Calendar_Restricted extends Page_Calendar_Rolling
 		return Array($display_date, $last_date);
 
 	}//end _getDisplayDates()
+
+
+    /**
+    * Called by the design to print the body of this asset
+    *
+    * @return void
+    * @access public
+    */
+    function printBody()
+    {	
+		$end_date = substr($this->attr('end_date'), 0, 10);
+		if ($end_date == '----------') {
+			trigger_localised_error('CAL0063', E_USER_WARNING, $this->id);
+			return;
+		}
+		parent::printBody();
+
+    }//end printBody()
+
 
 
 }//end class
