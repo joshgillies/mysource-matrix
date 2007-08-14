@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.16 2007/01/08 04:00:22 emcdonald Exp $
+* $Id: authentication_ldap.inc,v 1.16.2.1 2007/08/14 01:59:57 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -82,7 +82,12 @@ class Authentication_LDAP extends Authentication
 			// we do the search instead of binding directly as the user because ldap->connect_as_user requires
 			// the full dn as the first arg and doing it this way doesn't limit you to having all the users in the
 			// same organisational unit in the ldap directory
-			$result = $ldap->search($bridge->attr('root_dn'),'('.$attrs['uid'].'='.$username.')');
+			if (trim($bridge->attr('auth_dn')) !== '') {
+				$auth_base_dn = $bridge->attr('auth_dn');				
+			} else {
+				$auth_base_dn = $bridge->attr('root_dn');				
+			}
+			$result = $ldap->search($auth_base_dn,'('.$attrs['uid'].'='.$username.')');
 			if (!$result) continue;
 
 			$entry = $ldap->getEntries($result);
