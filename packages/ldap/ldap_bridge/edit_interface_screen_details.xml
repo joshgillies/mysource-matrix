@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.11 2007/07/26 23:59:51 bshkara Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11.2.1 2007/08/14 01:43:55 lwright Exp $
 *
 */
 -->
@@ -54,10 +54,13 @@
 		</field>
 		<field attribute="bind_dn">
 			<text width="40" height="1" />
-		</field>
+		</field>		
 		<field attribute="password">
 			<password width="15" min_length="1" />
 		</field>
+		<field attribute="auth_dn">
+			<text width="40" height="1" />
+		</field>		
 	</section>
 	<section name="LDAP Not Available" write_access="admin:attributes" show_if="ldapNotAvailable">
 		<field>

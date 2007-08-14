@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_management.inc,v 1.13 2007/07/26 23:59:51 bshkara Exp $
+* $Id: ldap_bridge_management.inc,v 1.13.2.1 2007/08/14 01:43:55 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -61,6 +61,11 @@ class LDAP_Bridge_Management extends Asset_Management
 												'default'	=> '',
 											   ),
 						'bind_dn'			=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+											   ),
+						'auth_dn'			=> Array(
 												'added'		=> '0.1',
 												'type'		=> 'text',
 												'default'	=> '',
