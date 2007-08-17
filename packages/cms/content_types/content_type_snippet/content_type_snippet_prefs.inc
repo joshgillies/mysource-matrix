@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_snippet_prefs.inc,v 1.2 2007/07/16 06:01:21 lwright Exp $
+* $Id: content_type_snippet_prefs.inc,v 1.3 2007/08/17 03:42:32 nbhradwaj Exp $
 *
 */
 
@@ -25,14 +25,14 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Snippet root node preference
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Content_Type_Snippet_Prefs extends Prefs
 {
 	var $pref_vars = Array(
 						'SQ_SNIPPET_ROOT'	=> Array(
-												'name'			=> 'Snippet Root Node',
+												'name'			=> 'snippet_root_node',
 												'description'	=> 'Allows you to specify the root node of where all snippets are located',
 												'default'		=> '',
 												'protected'		=> FALSE,
@@ -69,7 +69,7 @@ class Content_Type_Snippet_Prefs extends Prefs
 		// print the asset finder for admin to set snippet root node
 		if (is_null($pref) || $pref == 'SQ_SNIPPET_ROOT') {
 			if (is_null($pref)) {
-				$o->openField('Snippet Root Node');
+				$o->openField(translate($this->pref_vars['SQ_SNIPPET_ROOT']['name']));
 			}
 			?>
 

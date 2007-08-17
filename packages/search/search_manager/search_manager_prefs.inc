@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_prefs.inc,v 1.4 2007/01/16 04:09:09 lwright Exp $
+* $Id: search_manager_prefs.inc,v 1.5 2007/08/17 03:42:36 nbhradwaj Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the Search Manager preferences
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Search_Manager_Prefs extends Prefs
@@ -33,13 +33,13 @@ class Search_Manager_Prefs extends Prefs
 
 	var $pref_vars = Array (
 						'SQ_SEARCH_BACKEND_PAGE_SIZE'		=> Array(
-																'name'			=> 'Backend Search Page Size',
+																'name'			=> 'sch_pref_backend_page_size',
 																'description'	=> 'Set how many results are displayed to a page when a keyword search is performed from the Quick Search box',
 																'default'		=> 5,
 																'protected'		=> FALSE,
 															   ),
 						'SQ_SEARCH_BACKEND_RESULT_LIMIT'	=> Array(
-																'name'			=> 'Backend Search Result Limit',
+																'name'			=> 'sch_pref_backend_result_limit',
 																'description'	=> 'The maximum number of results displayed in backend search (0 = no limit)',
 																'default'		=> 0,
 																'protected'		=> FALSE,
@@ -74,7 +74,7 @@ class Search_Manager_Prefs extends Prefs
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (is_null($pref) || $pref == 'SQ_SEARCH_BACKEND_PAGE_SIZE') {
 			if (is_null($pref)) {
-				$o->openField(translate('sch_pref_backend_page_size'));
+				$o->openField(translate($this->pref_vars['SQ_SEARCH_BACKEND_PAGE_SIZE']['name']));
 			}
 
 			if ($have_lock && $is_admin) {
@@ -90,7 +90,7 @@ class Search_Manager_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_SEARCH_BACKEND_RESULT_LIMIT') {
 			if (is_null($pref)) {
-				$o->openField(translate('sch_pref_backend_result_limit'));
+				$o->openField(translate($this->pref_vars['SQ_SEARCH_BACKEND_RESULT_LIMIT']['name']));
 			}
 
 			if ($have_lock && $is_admin) {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_prefs.inc,v 1.4 2006/12/05 05:39:49 emcdonald Exp $
+* $Id: bodycopy_container_prefs.inc,v 1.5 2007/08/17 03:42:27 nbhradwaj Exp $
 *
 */
 
@@ -25,14 +25,14 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Bodycopy_Container_Prefs extends Prefs
 {
 	var $pref_vars = Array(
 						'SQ_DEFAULT_CONTENT_TYPE'	=> Array(
-														'name'			=> 'Default Content Type',
+														'name'			=> 'default_content_type',
 														'description'	=> 'When bodycopy containers are created they will have this content type by default',
 														'default'		=> 'content_type_wysiwyg',
 														'protected'		=> FALSE,
@@ -68,7 +68,7 @@ class Bodycopy_Container_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_DEFAULT_CONTENT_TYPE') {
 			if (is_null($pref)) {
-				$o->openField(translate('default_content_type'));
+				$o->openField(translate($this->pref_vars['SQ_DEFAULT_CONTENT_TYPE']['name']));
 			}
 
 				$default_content_type = $this->pref_vars['SQ_DEFAULT_CONTENT_TYPE']['default'];

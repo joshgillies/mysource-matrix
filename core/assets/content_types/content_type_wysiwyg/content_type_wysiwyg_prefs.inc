@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.23 2007/07/20 04:11:04 lwright Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.24 2007/08/17 03:42:27 nbhradwaj Exp $
 *
 */
 
@@ -25,14 +25,14 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
 {
 	var $pref_vars = Array(
 						'SQ_WYSIWYG_STYLE'					=> Array(
-																'name'			=> 'WYSIWYG Style',
+																'name'			=> 'wysiwyg_style',
 																'description'	=> 'This preference allows you to change the style and size of the WYSIWYG editor',
 																'default'		=> Array(
 																					'body_type'	=> 'div',
@@ -46,25 +46,25 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 																'protected'		=> FALSE,
 															   ),
 						'SQ_WYSIWYG_PLUGINS'				=> Array(
-																'name'			=> 'WYSIWYG Plugins',
+																'name'			=> 'wysiwyg_plugins',
 																'description'	=> 'This preference allows you to select which features of the WYSIWYG editor you would like make available while editing',
 																'default'		=> 'all',
 																'protected'		=> FALSE,
 															   ),
 						'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE'	=> Array(
-																'name'			=> 'WYSIWYG Disable Image Resizing',
+																'name'			=> 'wysiwyg_disable_image_resize',
 																'description'	=> 'This preference allows you to select whether to disable the image resizing functionality in WYSIWYG',
 																'default'		=> 'no',
 																'protected'		=> FALSE,
 															   ),
 						'SQ_THESAURUS'						=> Array (
-																'name'			=> 'Thesaurus',
+																'name'			=> 'thesaurus',
 																'description'	=> 'Which thesaurus asset you want to use when editing content, for example to provide keyword expansions',
 																'default'		=> 0,
 																'protected'		=> FALSE,
 															   ),
 						'SQ_WYSIWYG_LINK_TYPES'				=> Array(
-																'name'			=> 'Link Type Templates',
+																'name'			=> 'core_ct_wysiwyg_link_type_templates',
 																'description'	=> 'List of link types to be used in the Insert Link popup',
 																'default'		=> Array(
 																					0	=> Array(
@@ -121,7 +121,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_STYLE') {
 			if (is_null($pref)) {
-				$o->openField(translate('wysiwyg_style'));
+				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_STYLE']['name']));
 			}
 
 				$wysiwyg_style = $this->pref_vars['SQ_WYSIWYG_STYLE']['default'];
@@ -204,7 +204,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_PLUGINS') {
 			if (is_null($pref)) {
-				$o->openField(translate('wysiwyg_plugins'));
+				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_PLUGINS']['name']));
 			}
 
 			$plugins = Array();
@@ -257,7 +257,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE') {
 			if (is_null($pref)) {
-				$o->openField(translate('wysiwyg_disable_image_resize'));
+				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['name']));
 			}
 				$wysiwyg_disable_image_resize = $this->pref_vars['SQ_WYSIWYG_DISABLE_IMAGE_RESIZE']['default'];
 				?>
@@ -286,7 +286,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		if ($GLOBALS['SQ_SYSTEM']->am->installed('thesaurus') && (is_null($pref) || $pref == 'SQ_THESAURUS')) {
 			if (is_null($pref)) {
-				$o->openField(translate('thesaurus'));
+				$o->openField(translate($this->pref_vars['SQ_THESAURUS']['name']));
 			}
 
 			if ($have_lock && $is_admin) {
@@ -307,7 +307,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			$pref_var =& $this->pref_vars['SQ_WYSIWYG_LINK_TYPES'];
 
 			if (is_null($pref)) {
-				$o->openField(translate('core_ct_wysiwyg_link_type_templates'));
+				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_LINK_TYPES']['name']));
 			}
 
 			if ($have_lock && $is_admin) {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code_prefs.inc,v 1.6 2007/04/27 04:49:41 mbrydon Exp $
+* $Id: content_type_code_prefs.inc,v 1.7 2007/08/17 03:42:31 nbhradwaj Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Raw HTML preferences
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Content_Type_Code_Prefs extends Prefs
@@ -34,13 +34,13 @@ class Content_Type_Code_Prefs extends Prefs
 
 	var $pref_vars = Array (
 						'SQ_CODE_EDITOR_SIZE'			=> Array(
-															'name'			=> 'Raw HTML Size',
+															'name'			=> 'code_editor_size',
 															'description'	=> 'This preference allows you to change the size of the Raw HTML editor',
 															'default'		=> Array('width' => '400', 'height' => '400'),
 															'protected'		=> FALSE,
 														   ),
 						'SQ_CODE_EDITOR_HTML_CLASSES'	=> Array(
-															'name'			=> 'HTML Classes to display',
+															'name'			=> 'html_code_classes',
 															'description'	=> 'Changes the CSS classes used to display the code of Highlighted HTML',
 															'default'		=> Array(
 																				'attribute_names'	=> 'html_attribute',
@@ -52,7 +52,7 @@ class Content_Type_Code_Prefs extends Prefs
 															'protected'		=> FALSE,
 														   ),
 						'SQ_CODE_EDITOR_PHP_CLASSES'	=> Array(
-															'name'			=> 'PHP Classes to display',
+															'name'			=> 'php_code_classes',
 															'description'	=> 'Changes the CSS classes used to display the code of Highlighted PHP',
 															'default'		=> Array(
 																				'background'	=> 'php_background',
@@ -65,7 +65,7 @@ class Content_Type_Code_Prefs extends Prefs
 															'protected'		=> FALSE,
 														   ),
 						'SQ_CODE_EDITOR_JS_CLASSES'		=> Array(
-															'name'			=> 'Javascript Classes to display',
+															'name'			=> 'javascript_code_classes',
 															'description'	=> 'Changes the CSS classes used to display the code of Highlighted Javascript',
 															'default'		=> Array(
 																				'reserved'	=> 'js_reserved',
@@ -78,7 +78,7 @@ class Content_Type_Code_Prefs extends Prefs
 															'protected'		=> FALSE,
 														   ),
 						'SQ_CODE_EDITOR_LINE_NUMBERS'	=> Array(
-															'name'			=> 'Line Number Options',
+															'name'			=> 'line_numbers',
 															'description'	=> 'Whether to use line numbers, and what options to use',
 															'default'		=> Array(
 																				'use_line_numbers'	=> FALSE,
@@ -124,7 +124,7 @@ class Content_Type_Code_Prefs extends Prefs
 		// Width and Height
 		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_SIZE') {
 			if (is_null($pref)) {
-				$o->openField(translate('code_editor_size'));
+				$o->openField(translate($this->pref_vars['SQ_CODE_EDITOR_SIZE']['name']));
 			}
 				$code_editor_size = $this->pref_vars['SQ_CODE_EDITOR_SIZE']['default'];
 				?>
@@ -160,7 +160,7 @@ class Content_Type_Code_Prefs extends Prefs
 
 		// Classes
 		if (is_null($pref)) {
-			$o->openField(translate('html_code_classes'));
+			$o->openField(translate($this->pref_vars['SQ_CODE_EDITOR_HTML_CLASSES']['name']));
 		}
 		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_HTML_CLASSES') {
 			$html_classes = $this->pref_vars['SQ_CODE_EDITOR_HTML_CLASSES']['default'];
@@ -191,7 +191,7 @@ class Content_Type_Code_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}
 		if (is_null($pref)) {
-			$o->openField(translate('php_code_classes'));
+			$o->openField(translate($this->pref_vars['SQ_CODE_EDITOR_PHP_CLASSES']['name']));
 		}
 
 		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_PHP_CLASSES') {
@@ -223,7 +223,7 @@ class Content_Type_Code_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}
 		if (is_null($pref)) {
-			$o->openField(translate('javascript_code_classes'));
+			$o->openField(translate($this->pref_vars['SQ_CODE_EDITOR_JS_CLASSES']['name']));
 		}
 		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_JS_CLASSES') {
 			$js_classes = $this->pref_vars['SQ_CODE_EDITOR_JS_CLASSES']['default'];
@@ -255,7 +255,7 @@ class Content_Type_Code_Prefs extends Prefs
 
 		// Line Numbers
 		if (is_null($pref)) {
-			$o->openField(translate('line_numbers'));
+			$o->openField(translate($this->pref_vars['SQ_CODE_EDITOR_LINE_NUMBERS']['name']));
 		}
 		if (is_null($pref) || $pref == 'SQ_CODE_EDITOR_LINE_NUMBERS') {
 			$line_prefs = $this->pref_vars['SQ_CODE_EDITOR_LINE_NUMBERS']['default'];

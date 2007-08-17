@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_prefs.inc,v 1.6 2007/08/08 02:04:13 colivar Exp $
+* $Id: comment_prefs.inc,v 1.7 2007/08/17 03:42:35 nbhradwaj Exp $
 *
 */
 
@@ -41,7 +41,7 @@ if (!defined('SQ_COMMENT_HTML_STRIP')) {
 *    Looks after the creation the Comment Preferences
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Comment_Prefs extends Prefs
@@ -56,7 +56,7 @@ class Comment_Prefs extends Prefs
 	*/
 	var $pref_vars = Array(
 						'SQ_COMMENT_INPUT_SIZE'	=> Array(
-													'name'			=> 'Comment Input Box Size',
+													'name'			=> 'comment_pref_input_size',
 													'description'	=> 'This preference allows you to change the size of the Comment Input Box',
 													'default'		=> Array(
 																		'width'		=> '300px',
@@ -65,31 +65,31 @@ class Comment_Prefs extends Prefs
 													'protected'		=> FALSE,
 												   ),
 						'SQ_COMMENT_MAX_LENGTH'	=> Array(
-													'name'			=> 'Comment Maximum Length',
+													'name'			=> 'comment_pref_max_length',
 													'description'	=> 'This preferences allows you to set the maximum number of characters that can be entered in the Comment Input Box',
 													'default'		=> 0,
 													'protected'		=> FALSE,
 												   ),
 						'SQ_COMMENT_HTML_CONF'	=> Array(
-													'name'			=> 'HTML Treatment in comments',
+													'name'			=> 'comment_pref_html_conf_label',
 													'description'	=> 'Determines whether HTML is allowed, escaped or removed',
 													'default'		=> 0,
 													'protected'		=> FALSE,
 												   ),
 						'SQ_COMMENT_MAX_RATING'	=> Array(
-													'name'			=> 'Maximum Rating',
+													'name'			=> 'maximum_rating',
 													'description'	=> 'This preference sets the upper bound for ratings',
 													'default'		=> 5,
 													'protected'		=> FALSE,
 												   ),
 						'SQ_COMMENT_IMG_RATED'	=> Array(
-													'name'			=> 'Rated Image',
+													'name'			=> 'rated_image',
 													'description'	=> 'Rated Image to be used instead of the default',
 													'default'		=> NULL,
 													'protected'		=> FALSE,
 												   ),
 						'SQ_COMMENT_IMG_BLANK'	=> Array(
-													'name'			=> 'Blank Image',
+													'name'			=> 'blank_image',
 													'description'	=> 'Blank Image to be used instead of the default',
 													'default'		=> NULL,
 													'protected'		=> FALSE,
@@ -229,7 +229,7 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentInputSizeBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
 		if ($print_sub_title) {
-			$o->openField(translate('comment_pref_input_size'));
+			$o->openField(translate($this->pref_vars['SQ_COMMENT_INPUT_SIZE']['name']));
 		} else {
 			$o->openField('&nbsp;');
 		}
@@ -284,7 +284,7 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentMaxLengthBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
 		if ($print_sub_title) {
-			$o->openField(translate('comment_pref_max_length'));
+			$o->openField(translate($this->pref_vars['SQ_COMMENT_MAX_LENGTH']['name']));
 		} else {
 			$o->openField('&nbsp;');
 		}
@@ -320,7 +320,7 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentHtmlConfBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
 		if ($print_sub_title) {
-			$o->openField(translate('comment_pref_html_conf_label'));
+			$o->openField(translate($this->pref_vars[$pref_name]['name']));
 		} else {
 			$o->openField('&nbsp;');
 		}
@@ -356,7 +356,7 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentMaxRatingBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
 		if ($print_sub_title) {
-			$o->openField($this->pref_vars[$pref_name]['name']);
+			$o->openField(translate($this->pref_vars[$pref_name]['name']));
 		} else {
 			$o->openField('&nbsp;');
 		}
@@ -534,7 +534,7 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentImgRatedBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
 		if ($print_sub_title) {
-			$o->openField($this->pref_vars[$pref_name]['name']);
+			$o->openField(translate($this->pref_vars[$pref_name]['name']));
 		} else {
 			$o->openField('&nbsp;');
 		}
@@ -611,7 +611,7 @@ class Comment_Prefs extends Prefs
 	function paintSqCommentImgBlankBackend(&$o, $have_lock, $pref_name, $print_sub_title, $is_root, $is_admin)
 	{
 		if ($print_sub_title) {
-			$o->openField($this->pref_vars[$pref_name]['name']);
+			$o->openField(translate($this->pref_vars[$pref_name]['name']));
 		} else {
 			$o->openField('&nbsp;');
 		}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_prefs.inc,v 1.12 2006/12/07 04:16:49 skim Exp $
+* $Id: content_type_raw_html_prefs.inc,v 1.13 2007/08/17 03:42:32 nbhradwaj Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Raw HTML preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class Content_Type_Raw_HTML_Prefs extends Prefs
@@ -34,7 +34,7 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 
 	var $pref_vars = Array (
 						'SQ_RAW_HTML_SIZE'	=> Array(
-												'name'			=> 'Raw HTML Size',
+												'name'			=> 'cms_ct_raw_html_pref_editor_size',
 												'description'	=> 'This preference allows you to change the size of the Raw HTML editor',
 												'default'		=> Array('width' => '70em', 'height' => '20em'),
 												'protected'		=> FALSE,
@@ -73,7 +73,7 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (is_null($pref) || $pref == 'SQ_RAW_HTML_SIZE') {
 			if (is_null($pref)) {
-				$o->openField(translate('cms_ct_raw_html_pref_editor_size'));
+				$o->openField(translate($this->pref_vars['SQ_RAW_HTML_SIZE']['name']));
 			}
 				$html_size = $this->pref_vars['SQ_RAW_HTML_SIZE']['default'];
 				?>

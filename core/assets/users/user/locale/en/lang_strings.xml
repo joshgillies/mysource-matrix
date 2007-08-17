@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.9 2006/12/20 01:47:08 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.10 2007/08/17 03:42:27 nbhradwaj Exp $
 *
 */
 -->
@@ -35,4 +35,7 @@
 	<string source="release_locks">Release Held Locks</string>
 	<string source="release_locks_note">Releasing all locks will delete any editing changes that this user has not yet committed.</string>
 	<string source="password_validation_error">The supplied password is not valid: %s</string>
+	<string source="safe_trash">Safe Trash</string>
+	<string source="asset_map_width">Asset Map Width</string>
+	<string source="commit_button_position">Commit Button Position</string>
 </strings>

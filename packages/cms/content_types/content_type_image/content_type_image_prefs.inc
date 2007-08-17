@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_prefs.inc,v 1.5 2006/12/07 04:16:48 skim Exp $
+* $Id: content_type_image_prefs.inc,v 1.6 2007/08/17 03:42:32 nbhradwaj Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Image Content Type Preferences
 *
 * @author  Darren McKee <dmckee@squiz.net
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Content_Type_Image_Prefs extends Prefs
@@ -34,7 +34,7 @@ class Content_Type_Image_Prefs extends Prefs
 
 	var $pref_vars = Array (
 						'SQ_CONTENT_TYPE_IMAGE_DEFAULTS'	=> Array(
-																'name'			=> 'Image Content Options',
+																'name'			=> 'image_defaults_title',
 																'description'	=> 'This preference allows you to change the default values',
 																'default'		=> Array(
 																					'caption'				=> 'Caption',
@@ -49,7 +49,7 @@ class Content_Type_Image_Prefs extends Prefs
 																'protected'		=> FALSE,
 															   ),
 						'SQ_CONTENT_TYPE_IMAGE_FIELDS'		=> Array(
-																'name'			=> 'Image Content Options',
+																'name'			=> 'image_fields_title',
 																'description'	=> 'This preference allows you to specify which fields are displayed',
 																'default'		=> Array(
 																					'caption_options'	=> TRUE,
@@ -60,7 +60,7 @@ class Content_Type_Image_Prefs extends Prefs
 																'protected'		=> FALSE,
 															   ),
 						'SQ_CONTENT_TYPE_IMAGE_CLASSES'		=> Array(
-																'name'			=> 'Image Content Classes',
+																'name'			=> 'image_css_classes',
 																'description'	=> 'This preference allows you to specify how the image is displayed',
 																'default'		=> Array(
 																					'surrounding_container'	=> 'image_table',
@@ -71,7 +71,7 @@ class Content_Type_Image_Prefs extends Prefs
 																'protected'		=> FALSE,
 															   ),
 						'SQ_CONTENT_TYPE_IMAGE_PREVIEW'		=> Array(
-																'name'			=> 'Image Content Classes',
+																'name'			=> 'image_preview_css_classes',
 																'description'	=> 'This preference allows you to specify how the image is displayed',
 																'default'		=> Array(
 																					'surrounding_container'	=> 'preview_container',
@@ -115,7 +115,7 @@ class Content_Type_Image_Prefs extends Prefs
 		$cross = '<img src="'.sq_web_path('lib').'/web/images/cross.gif" alt="Yes" />';
 		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_DEFAULTS') {
 			if (is_null($pref)) {
-				$o->openField(translate('image_defaults_title'));
+				$o->openField(translate($this->pref_vars['SQ_CONTENT_TYPE_IMAGE_DEFAULTS']['name']));
 			}
 				$value_defaults = $this->pref_vars['SQ_CONTENT_TYPE_IMAGE_DEFAULTS']['default'];
 				?>
@@ -226,7 +226,7 @@ class Content_Type_Image_Prefs extends Prefs
 		}//end if
 		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_FIELDS') {
 			if (is_null($pref)) {
-				$o->openField(translate('image_fields_title'));
+				$o->openField(translate($this->pref_vars['SQ_CONTENT_TYPE_IMAGE_FIELDS']['name']));
 			}
 			$fields = $this->pref_vars['SQ_CONTENT_TYPE_IMAGE_FIELDS']['default'];
 			?>
@@ -259,7 +259,7 @@ class Content_Type_Image_Prefs extends Prefs
 		if (is_null($pref)) $o->closeField();
 		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_CLASSES') {
 			if (is_null($pref)) {
-				$o->openField(translate('image_css_classes'));
+				$o->openField(translate($this->pref_vars['SQ_CONTENT_TYPE_IMAGE_CLASSES']['name']));
 			}
 			$classes = $this->pref_vars['SQ_CONTENT_TYPE_IMAGE_CLASSES']['default'];
 			?>
@@ -289,7 +289,7 @@ class Content_Type_Image_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_CONTENT_TYPE_IMAGE_PREVIEW') {
 			if (is_null($pref)) {
-				$o->openField(translate('image_preview_css_classes'));
+				$o->openField(translate($this->pref_vars['SQ_CONTENT_TYPE_IMAGE_PREVIEW']['name']));
 			}
 			$classes = $this->pref_vars['SQ_CONTENT_TYPE_IMAGE_PREVIEW']['default'];
 			?>

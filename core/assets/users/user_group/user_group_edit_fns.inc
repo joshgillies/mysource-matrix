@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.36 2006/12/05 06:04:33 bcaldwell Exp $
+* $Id: user_group_edit_fns.inc,v 1.37 2007/08/17 03:42:27 nbhradwaj Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -378,7 +378,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				$prefs =& new $pref_name($pref_file_path);
 
 				foreach ($pref_vars as $var_name => $var_data) {
-					$o->openField($var_data['name']);
+					$o->openField(translate($var_data['name']));
 						if (isset($custom_preferences[$type_code][$var_name])) {
 							echo '<p>'.translate('preference_currently_customised');
 							if ($write_access) {

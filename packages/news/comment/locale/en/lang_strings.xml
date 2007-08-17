@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2006/12/20 23:54:44 arailean Exp $
+* $Id: lang_strings.xml,v 1.2 2007/08/17 03:42:35 nbhradwaj Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -20,4 +20,7 @@
 <string source="news_comment_title">Comment Title</string>
 <string source="news_comment_body">Comment Body</string>
 <string source="news_comment_max_length">Number of allowed characters in comment body</string>
+<string source="maximum_rating">Maximum Rating</string>
+<string source="rated_image">Rated Image</string>
+<string source="blank_image">Blank Image</string>
 </strings>

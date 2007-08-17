@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.256 2007/08/08 23:00:53 hnguyen Exp $
+* $Id: lang_strings.xml,v 1.257 2007/08/17 03:42:28 nbhradwaj Exp $
 *
 */
 
@@ -196,15 +196,7 @@
 	<string source="lookups_updating_threshold">Lookups Updating Threshold</string>
 	<string source="manage_passwd_rules">Manage Password Rules</string>
 	<string source="manually_cascade_permissions">Manually Cascade Permissions?</string>
-	<string source="match_condition">Match Condition</string>
-	<string source="max_file_upload">Max File Upload</string>
-	<string source="preuploaded_max_file_upload">Pre-uploaded Max File Size</string>
-
-	<string source="allowed_file_extensions_to_upload">Allowed File Extensions to Upload</string>
-	<string source="allowed_file_extensions_note">Type the allowed file extensions with comma separated. For example: jpg,png,txt,mov</string>
-	<string source="allowed_file_extensions_not_specified">No file type restriction.</string>
-	<string source="allowed_file_extensions_list">Allowed extension%1$s</string>
-
+	<string source="match_condition">Match Condition</string>	
 	<string source="metadata_regeneration_threshold">Metadata Regeneration Threshold</string>
 	<string source="metadata_schemas">Metadata Schemas</string>
 	<string source="metadata_schema">Metadata Schema</string>

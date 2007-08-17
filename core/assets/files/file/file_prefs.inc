@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_prefs.inc,v 1.14 2006/12/07 04:17:53 skim Exp $
+* $Id: file_prefs.inc,v 1.15 2007/08/17 03:42:27 nbhradwaj Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 class File_Prefs extends Prefs
@@ -33,31 +33,31 @@ class File_Prefs extends Prefs
 
 	var $pref_vars = Array(
 						'SQ_FILE_MAX_SIZE'					=> Array(
-																'name'			=> 'Max File Size',
+																'name'			=> 'max_file_upload',
 																'description'	=> 'This preference allows you to change the maximum size of files that can be uploaded',
 																'default'		=> 0,
 																'protected'		=> FALSE,
 															   ),
 						'SQ_FILE_PREUPLOADED_MAX_SIZE'		=> Array(
-																'name'			=> 'Pre-uploaded Max File Size',
+																'name'			=> 'preuploaded_max_file_upload',
 																'description'	=> 'This preference allows you to change the maximum size of files that can be created from pre-uploaded ones',
 																'default'		=> 0,
 																'protected'		=> FALSE,
 															   ),
 						'SQ_FILE_ALLOW_NO_EXTENSION'		=> Array(
-																'name'			=> 'Allowed File with No Extension',
+																'name'			=> 'allow_file_with_no_extension',
 																'description'	=> 'This preference allows you to use file with no extension.',
 																'default'		=> '',
 																'protected'		=> FALSE,
 															   ),
 						'SQ_FILE_ALLOWED_TYPES'				=> Array(
-																'name'			=> 'Allowed File Types',
+																'name'			=> 'allowed_file_extensions_to_upload',
 																'description'	=> 'This preference allows you to restrict the allowed types of files to upload',
 																'default'		=> '',
 																'protected'		=> FALSE,
 															   ),
 						'SQ_FILE_ALLOWED_PREUPLOADED_TYPES'	=> Array(
-																'name'			=> 'Allowed File Types for Pre-uploaded files',
+																'name'			=> 'allowed_file_extentions_for_pre_uploaded_files',
 																'description'	=> 'This preference allows you to restrict the allowed types of pre-uploaded files',
 																'default'		=> '',
 																'protected'		=> FALSE,
@@ -121,7 +121,7 @@ class File_Prefs extends Prefs
 		// Max File Size Upload
 		if (is_null($pref) || $pref == 'SQ_FILE_MAX_SIZE') {
 			if (is_null($pref)) {
-				$o->openField(translate('max_file_upload'));
+				$o->openField(translate( $this->pref_vars['SQ_FILE_MAX_SIZE']['name']));
 			}
 
 			if ($have_lock && $is_admin) {
@@ -151,7 +151,7 @@ class File_Prefs extends Prefs
 		// Max Pre-uploaded File Size
 		if (is_null($pref) || $pref == 'SQ_FILE_PREUPLOADED_MAX_SIZE') {
 			if (is_null($pref)) {
-				$o->openField(translate('preuploaded_max_file_upload'));
+				$o->openField(translate($this->pref_vars['SQ_FILE_PREUPLOADED_MAX_SIZE']['name']));
 			}
 
 			if ($have_lock && $is_admin) {
@@ -176,7 +176,7 @@ class File_Prefs extends Prefs
 		// Allow No Extension
 		if (is_null($pref) || $pref == 'SQ_FILE_ALLOW_NO_EXTENSION') {
 			if (is_null($pref)) {
-				$o->openField('Allow File with No Extension');
+				$o->openField(translate($this->pref_vars['SQ_FILE_ALLOW_NO_EXTENSION']['name']));
 			}
 
 			$value = $this->pref_vars['SQ_FILE_ALLOW_NO_EXTENSION']['default'];
@@ -192,7 +192,7 @@ class File_Prefs extends Prefs
 		// Allowed File Extensions
 		if (is_null($pref) || $pref == 'SQ_FILE_ALLOWED_TYPES') {
 			if (is_null($pref)) {
-				$o->openField(translate('allowed_file_extensions_to_upload'));
+				$o->openField(translate($this->pref_vars['SQ_FILE_ALLOWED_TYPES']['name']));
 			}
 
 			if ($have_lock && $is_admin) {
@@ -219,7 +219,7 @@ class File_Prefs extends Prefs
 		// Allowed File Extensions for Pre-uploaded
 		if (is_null($pref) || $pref == 'SQ_FILE_ALLOWED_PREUPLOADED_TYPES') {
 			if (is_null($pref)) {
-				$o->openField('Allowed File Extensions for Pre-Uploaded files');
+				$o->openField(translate($this->pref_vars['SQ_FILE_ALLOWED_PREUPLOADED_TYPES']['name']));
 			}
 
 			if ($have_lock && $is_admin) {

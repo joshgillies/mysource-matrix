@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_structure_tree_prefs.inc,v 1.6 2006/12/07 04:16:54 skim Exp $
+* $Id: content_type_structure_tree_prefs.inc,v 1.7 2007/08/17 03:42:32 nbhradwaj Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Structure Tree
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Content_Type_Structure_Tree_Prefs extends Prefs
@@ -34,7 +34,7 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 
 	var $pref_vars = Array (
 						'SQ_STRUCTURE_TREE_FORMATTING'		=> Array(
-																'name'			=> 'Structure Tree Format Options',
+																'name'			=> 'structure_tree_title',
 																'description'	=> 'This preference allows you to change the text options that are displayed',
 																'default'		=> Array(
 																					'bold'			=> TRUE,
@@ -47,7 +47,7 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 																'protected'		=> FALSE,
 															   ),
 						'SQ_STRUCTURE_TREE_NODE_CLASSES'	=> Array(
-																'name'			=> 'Structure Tree CSS Class',
+																'name'			=> 'tree_class_title',
 																'description'	=> 'This preference allows you to change the class used for each Node',
 																'default'		=> Array(
 																					'node_text'		=> 'tree_node_text',
@@ -85,7 +85,7 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (is_null($pref) || $pref == 'SQ_STRUCTURE_TREE_FORMATTING') {
 			if (is_null($pref)) {
-				$o->openField(translate('structure_tree_title'));
+				$o->openField(translate($this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['name']));
 			}
 				$format_options = $this->pref_vars['SQ_STRUCTURE_TREE_FORMATTING']['default'];
 				?>
@@ -184,7 +184,7 @@ class Content_Type_Structure_Tree_Prefs extends Prefs
 		}//end if
 		if (is_null($pref) || $pref == 'SQ_STRUCTURE_TREE_NODE_CLASSES') {
 			if (is_null($pref)) {
-				$o->openField(translate('tree_class_title'));
+				$o->openField(translate($this->pref_vars['SQ_STRUCTURE_TREE_NODE_CLASSES']['name']));
 			}
 				$classes = $this->pref_vars['SQ_STRUCTURE_TREE_NODE_CLASSES']['default'];
 				?>

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_prefs.inc,v 1.1 2007/01/21 22:36:33 colivar Exp $
+* $Id: inbox_prefs.inc,v 1.2 2007/08/17 03:42:27 nbhradwaj Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the Inbox preferences
 *
 * @author  Christophe Olivar <colivar@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Inbox_Prefs extends Prefs
@@ -33,7 +33,7 @@ class Inbox_Prefs extends Prefs
 
 	var $pref_vars = Array (
 						'SQ_INBOX_MAIL_PER_PAGE'	=> Array(
-														'name'			=> 'Number of Emails per Page',
+														'name'			=> 'inbox_pref_backend_mail_per_page',
 														'description'	=> 'You can specify the number of emails per page',
 														'default'		=> 20,
 														'protected'		=> FALSE,
@@ -69,7 +69,7 @@ class Inbox_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_INBOX_MAIL_PER_PAGE') {
 			if (is_null($pref)) {
-				$o->openField(translate('inbox_pref_backend_mail_per_page'));
+				$o->openField(translate($this->pref_vars['SQ_INBOX_MAIL_PER_PAGE']['name']));
 			}
 
 			if ($have_lock && $is_admin) {

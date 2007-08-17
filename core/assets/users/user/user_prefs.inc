@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.10 2007/03/28 03:41:15 lwright Exp $
+* $Id: user_prefs.inc,v 1.11 2007/08/17 03:42:27 nbhradwaj Exp $
 *
 */
 
@@ -29,38 +29,38 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
 {
 	var $pref_vars = Array (
 						'SQ_USER_SESSION_PREFS'		=> Array(
-														'name'			=> 'Session Expiry Rules',
+														'name'			=> 'user_prefs_session_settings_header',
 														'description'	=> 'This preference allows you to change the session settings for this user group',
 														'default'		=> Array('persist' => '0', 'timeout' => '0', 'max_length' => '0'),
 														'protected'		=> FALSE,
 													   ),
 						'SQ_USER_ASSET_MAP_LINEAGE'	=> Array(
-														'name'			=> 'Asset Map Root Asset',
+														'name'			=> 'user_prefs_asset_map_root_asset_header',
 														'description'	=> 'This preference allows you to change the root node that is displated in the Asset Map',
 														'default'		=> '',
 														'protected'		=> FALSE,
 													   ),
 						'SQ_USER_SAFE_TYPE3_TRASH'	=> Array(
-														'name'			=> 'Safe Trash',
+														'name'			=> 'safe_trash',
 														'description'	=> 'This preference allows you to prohibit the deletion of an asset until all notice links are removed',
 														'default'		=> FALSE,
 														'protected'		=> FALSE,
 													   ),
 						'SQ_USER_ASSET_MAP_WIDTH'	=> Array(
-														'name'			=> 'Width of Asset Map Frame',
+														'name'			=> 'asset_map_width',
 														'description'	=> 'Allows changing of asset map frame width',
 														'default'		=> 275,
 														'protected'		=> FALSE,
 													   ),
 						'SQ_USER_COMMIT_BUTTON_POS'	=> Array(
-														'name'			=> 'Commit Button Position',
+														'name'			=> 'commit_button_position',
 														'description'	=> '',
 														'default'		=> FALSE,
 														'protected'		=> FALSE,
@@ -105,7 +105,7 @@ class User_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_USER_SESSION_PREFS') {
 			if (is_null($pref)) {
-				$o->openField(translate('user_prefs_session_settings_header'));
+				$o->openField(translate($this->pref_vars['SQ_USER_SESSION_PREFS']['name']));
 			}
 			$session_settings = $this->pref_vars['SQ_USER_SESSION_PREFS']['default'];
 			?>
@@ -199,7 +199,7 @@ class User_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_LINEAGE') {
 			if (is_null($pref)) {
-				$o->openField(translate('user_prefs_asset_map_root_asset_header'));
+				$o->openField(translate($this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['name']));
 			}
 			?>
 			<div class="sq-backend-table sq-backend-table-cell">
@@ -232,7 +232,7 @@ class User_Prefs extends Prefs
 		}//end if
 
 		if (is_null($pref) || $pref == 'SQ_USER_SAFE_TYPE3_TRASH') {
-			if (is_null($pref)) $o->openField('Safe Trash');
+		if (is_null($pref)) $o->openField(translate($this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['name']));
 			?>
 			<div class="sq-backend-table sq-backend-table-cell">
 			<?php
@@ -254,7 +254,7 @@ class User_Prefs extends Prefs
 
 
 		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_WIDTH') {
-			if (is_null($pref)) $o->openField('Asset Map Width');
+			if (is_null($pref)) $o->openField(translate($this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['name']));
 			?>
 			<div class="sq-backend-table sq-backend-table-cell">
 			<?php
@@ -285,7 +285,7 @@ class User_Prefs extends Prefs
 		}//end if
 
 		if (is_null($pref) || $pref == 'SQ_USER_COMMIT_BUTTON_POS') {
-			if (is_null($pref)) $o->openField('Commit Button Position');
+			if (is_null($pref)) $o->openField(translate($this->pref_vars['SQ_USER_COMMIT_BUTTON_POS']['name']));
 			?>
 			<div class="sq-backend-table sq-backend-table-cell">
 			<?php

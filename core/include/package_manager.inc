@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.82 2007/03/08 05:33:33 tbarrett Exp $
+* $Id: package_manager.inc,v 1.83 2007/08/17 03:42:28 nbhradwaj Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -740,11 +740,15 @@ class Package_Manager extends MySource_Object
 			if (class_exists($class)) {
 				$prefs =& new $class();
 				if (!isset($preferences[$type_code])) {
-					$preferences[$type_code] = $prefs->pref_vars;
+					$preferences[$type_code] = $prefs->pref_vars;							
 				} else {
 					foreach ($preferences[$type_code] as $var => $data) {
 						if (!isset($prefs->pref_vars[$var])) {
 							unset($preferences[$type_code][$var]);
+						} else {
+							if ($preferences[$type_code][$var]['name'] != $prefs->pref_vars[$var]['name']) {
+								($preferences[$type_code][$var]['name'] = $prefs->pref_vars[$var]['name']);
+							}
 						}
 					}
 					foreach ($prefs->pref_vars as $var => $data) {
