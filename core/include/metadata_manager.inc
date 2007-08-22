@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.145 2007/07/27 05:33:38 lwright Exp $
+* $Id: metadata_manager.inc,v 1.146 2007/08/22 02:06:41 lmarchese Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.145 $
+* @version $Revision: 1.146 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1460,12 +1460,7 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function getMetadataValueByAssetid($assetid, $field_assetid, $mute_errors=FALSE, $replace_nested_keyword=FALSE)
 	{
-		$value = $this->getMetadataInterfaceValueByAssetid($assetid, $field_assetid, $mute_errors);
-
-		if (is_null($value)) {
-			// not set - need the default value
-			$value = $this->getMetadataFieldDefaultValue($field_assetid);
-		}
+		$value = '';
 
 		// sometimes there are nested keywords in the value of the metadata field
 		// We are asked to replace these nested keywords
@@ -1484,9 +1479,20 @@ class Metadata_Manager extends MySource_Object
 				ob_end_clean();
 
 				$field_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($field_assetid), 'metadata_field', FALSE, 'name');
+
 				$value = $metadata_values[$field_names[$field_assetid]];
 			}
 		}
+
+		if ($value === '') {
+			$value = $this->getMetadataInterfaceValueByAssetid($assetid, $field_assetid, $mute_errors);
+
+			if (is_null($value)) {
+				// not set - need the default value
+				$value = $this->getMetadataFieldDefaultValue($field_assetid);
+			}
+		}
+
 		return $value;
 
 	}//end getMetadataValueByAssetid()
