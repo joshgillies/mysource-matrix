@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.48 2007/07/24 05:46:30 arailean Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.49 2007/08/23 07:10:26 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -141,11 +141,12 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			// Check for recursion
 			// We use the cache key where available to distinguish differently-behaving
 			// copies of the same asset (Bug Fix #1601)
+
+			$asset_cache_key = $nested_asset->id;
 			if (method_exists($nested_asset, '_getCacheKey')) {
-				$asset_cache_key = $nested_asset->_getCacheKey();
-			} else {
-				$asset_cache_key = (string) $nested_asset->id;
+				$asset_cache_key .= $nested_asset->_getCacheKey();
 			}
+			
 			if (isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key])) {
 				unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key]);
 				echo '<span class="sq-backend-warning"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br/>'.translate('cms_ct_nest_content_recursion_body').'</b></span>';
