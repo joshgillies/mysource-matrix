@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_upgrade_lookup_system.php,v 1.1 2007/08/23 04:17:43 bshkara Exp $
+* $Id: system_upgrade_lookup_system.php,v 1.2 2007/08/23 22:49:41 bshkara Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Upgrade sq_ast_lookup_value for use by the new lookup system
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -100,6 +100,31 @@ if (!assert_valid_db_result($result)) {
 
 // Make depth column not null
 $sql = 'ALTER table sq_ast_lookup_value ALTER COLUMN depth SET NOT NULL';
+$result = $db->query($sql);
+if (!assert_valid_db_result($result)) {
+	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+	exit(1);
+}
+
+// Modify rollback table
+// Drop inhd column
+$sql = 'ALTER table sq_rb_ast_lookup_value DROP COLUMN inhd';
+$result = $db->query($sql);
+if (!assert_valid_db_result($result)) {
+	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+	exit(1);
+}
+
+// Add depth column
+$sql = 'ALTER table sq_rb_ast_lookup_value ADD COLUMN depth integer';
+$result = $db->query($sql);
+if (!assert_valid_db_result($result)) {
+	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+	exit(1);
+}
+
+// Create index for depth column
+$sql = 'CREATE INDEX sq_rb_ast_lookup_value_depth ON sq_rb_ast_lookup_value (depth)';
 $result = $db->query($sql);
 if (!assert_valid_db_result($result)) {
 	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
