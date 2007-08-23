@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.44 2007/03/26 23:38:57 arailean Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.44.2.1 2007/08/23 06:44:08 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.44.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -129,11 +129,10 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			// Check for recursion
 			// We use the cache key where available to distinguish differently-behaving
 			// copies of the same asset (Bug Fix #1601)
+			$asset_cache_key = $nested_assetid;
 			if (method_exists($nested_asset, '_getCacheKey')) {
-				$asset_cache_key = $nested_asset->_getCacheKey();
-			} else {
-				$asset_cache_key = (string) $nested_asset->id;
-			}
+				$asset_cache_key .= $nested_asset->_getCacheKey();
+			} 
 			if (isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key])) {
 				unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key]);
 				echo '<span class="sq-backend-warning"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br/>'.translate('cms_ct_nest_content_recursion_body').'</b></span>';
@@ -178,11 +177,11 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 		$nested_assetid = '<?php echo $nested_asset->id; ?>';
 		$nested_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid);
+		$asset_cache_key = $nested_asset->id;
 		if (method_exists($nested_asset, '_getCacheKey')) {
-			$asset_cache_key = $nested_asset->_getCacheKey();
-		} else {
-			$asset_cache_key = (string) $nested_asset->id;
+			$asset_cache_key .= $nested_asset->_getCacheKey();
 		}
+		
 
 		if (!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'])) $GLOBALS['SQ_NEST_CONTENT_PAINTED'] = Array();
 		if (!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key])) {
