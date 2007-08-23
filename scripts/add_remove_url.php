@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -69,7 +69,7 @@ Protocol to be used
 New URL
 An existing URL of the site\n
 Make sure you have all you information you need before Proceeding\n");
-	
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$http = -1;
@@ -152,12 +152,12 @@ Make sure you have all you information you need before Proceeding\n");
 		$urls = $asset->getURLs();
 		foreach ($urls as $url_info) {
 			$site_urls[] = $url_info['url'];
-		}	
+		}
 		if (!in_array($existing_url, $site_urls)) {
 			echo "The existing URL does not belong to the site with id: $assetid \n";
 			exit(0);
-		}		
-	
+		}
+
 		$sql_check_existing_url = 'SELECT urlid FROM sq_ast_url WHERE url LIKE '.$db->quoteSmart($existing_url).';';
 		$existing_urlid = $db->getOne($sql_check_existing_url);
 		assert_valid_db_result($existing_urlid);
@@ -205,8 +205,8 @@ Make sure you have all you information you need before Proceeding\n");
 		.$db->quoteSmart($new_urlid)
 		.');';
 
-		$sql_update_sq_ast_lookup_value = 'INSERT INTO sq_ast_lookup_value (url, name, value, inhd)
-										SELECT replace(url, '.$db->quoteSmart($existing_url).', '.$db->quoteSmart($new_url).'), name, value, inhd
+		$sql_update_sq_ast_lookup_value = 'INSERT INTO sq_ast_lookup_value (url, name, value, depth)
+										SELECT replace(url, '.$db->quoteSmart($existing_url).', '.$db->quoteSmart($new_url).'), name, value, depth
 											FROM sq_ast_lookup_value
 											WHERE url in (SELECT url FROM sq_ast_lookup WHERE root_urlid = '.$db->quoteSmart($existing_urlid).');';
 
@@ -234,7 +234,7 @@ Make sure you have all you information you need before Proceeding\n");
 		// We have done updating regular asset, now we will update the publically served file assets.
 
 		if ($update_file_public_live_assets) {
-			// Now we have to chop out the system root Url from the "existing" Url. 
+			// Now we have to chop out the system root Url from the "existing" Url.
 			$absolute_root = '';
 			$relative_root = '';
 			foreach ($root_urls	as $url) {
@@ -242,7 +242,7 @@ Make sure you have all you information you need before Proceeding\n");
 					$relative_root = $url;
 				}
 				if ($existing_url == $url) {
-					$absolute_root = $url; 
+					$absolute_root = $url;
 					break;
 				}
 			}
@@ -256,10 +256,10 @@ Make sure you have all you information you need before Proceeding\n");
 					$relative_new_root = $url;
 				}
 				if ($new_url == $url) {
-					$absolute_new_root = $url; 
+					$absolute_new_root = $url;
 					break;
 				}
-			}	
+			}
 			$new_url_public = (empty($absolute_new_root)) ? $relative_new_root : $absolute_new_root;
 
 			// Do we have any file need to be updated?
@@ -302,7 +302,7 @@ Make sure you have all you information you need before Proceeding\n");
 			echo 'The provided URL : '.$remove_url.' does not exist';
 			exit(0);
 		}
-	
+
 		// Before we do any of the processing, lets grab all the FILE assets that are LIVE, and have PUBLIC READ ACCESS.
 		$asset_types_list = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetTypeHierarchy('file'));
 		$asset_types_list[] = 'file';
@@ -319,7 +319,7 @@ Make sure you have all you information you need before Proceeding\n");
 			}//end if
 			// Else just ignore this asset
 		}//end foreach
-	
+
 
 		if (!empty($children_to_update)) {
 			$in_clauses = Array();
@@ -332,7 +332,7 @@ Make sure you have all you information you need before Proceeding\n");
 			$root_urls = Array();
 			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 
-			// Now we have to chop out the system root Url from the "existing" Url. 
+			// Now we have to chop out the system root Url from the "existing" Url.
 			$absolute_root_remove = '';
 			$relative_root_remove = '';
 			foreach ($root_urls	as $url) {
@@ -340,7 +340,7 @@ Make sure you have all you information you need before Proceeding\n");
 					$relative_root_remove = $url;
 				}
 				if ($remove_url == $url) {
-					$absolute_root_remove = $url; 
+					$absolute_root_remove = $url;
 					break;
 				}
 			}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.98 2007/06/05 04:11:08 hnguyen Exp $
+* $Id: site.inc,v 1.99 2007/08/23 04:17:42 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -385,8 +385,7 @@ class Site extends Folder
 			$this->_tmp['deleting_site'] = FALSE;
 		}
 
-		// Remove all the old URLs
-
+		// Remove all the old Design
 		$sql = 'DELETE FROM
 					sq_ast_lookup_value
 				WHERE
@@ -394,6 +393,28 @@ class Site extends Folder
 						(
 							SELECT
 								url
+							FROM
+								sq_ast_lookup l
+							WHERE
+								assetid = '.$db->quoteSmart($this->id).'
+						) ';
+					if ($this->_tmp['deleting_site'] == TRUE) {
+						$sql .= 'AND (name LIKE '.$db->quoteSmart('design::%').' OR name LIKE '.$db->quoteSmart('paint_layout::%').')';
+					} else {
+						$sql .= 'AND	name LIKE '.$db->quoteSmart('design::%');
+					}
+
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		// Remove all the overriden old Design
+		$sql = 'DELETE FROM
+					sq_ast_lookup_value
+				WHERE
+					url IN
+						(
+							SELECT
+								url || \'/\'
 							FROM
 								sq_ast_lookup l
 							WHERE
@@ -424,11 +445,12 @@ class Site extends Folder
 			}
 		}
 
+		$our_designs_override = Array();
 		// look for overrides and overwrite the array in these places
 		foreach ($our_design_links as $link) {
 			if (preg_match('/^override::design::(system|user)::(.*)$/', $link['value'])) {
 				$name = preg_replace('/^override::(.*)$/', '$1', $link['value']);
-				$our_designs[$name] = $link['minorid'];
+				$our_designs_override[$name] = $link['minorid'];
 			}
 		}
 
@@ -436,6 +458,10 @@ class Site extends Folder
 
 		// if we have urls then do some url inserting
 		for (reset($urls); NULL !== ($urlid = key($urls)); next($urls)) {
+
+			// calculate the depth of the url
+			$exploded_url = explode('/', $urls[$urlid]['url']);
+			$site_depth = count($exploded_url)-1;
 
 			$sql = 'INSERT INTO
 						sq_ast_lookup
@@ -465,19 +491,43 @@ class Site extends Folder
 								url,
 								name,
 								value,
-								inhd
+								depth
 							)
 							VALUES
 							(
 								'.$db->quoteSmart($urls[$urlid]['url']).',
 								'.$db->quoteSmart($name).',
 								'.$db->quoteSmart($designid).',
-								'.$db->quoteSmart('0').'
+								'.$db->quoteSmart($site_depth).'
 							)';
 
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
 			}
+
+			// add in the ast lookup value table the overriden design
+			foreach ($our_designs_override as $name => $designid) {
+				$sql = 'INSERT INTO
+							sq_ast_lookup_value
+							(
+								url,
+								name,
+								value,
+								depth
+							)
+							VALUES
+							(
+								'.$db->quoteSmart($urls[$urlid]['url'].'/').',
+								'.$db->quoteSmart($name).',
+								'.$db->quoteSmart($designid).',
+								'.$db->quoteSmart($site_depth+1).'
+							)';
+
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
+			}
+
+
 		}//end for urls
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');

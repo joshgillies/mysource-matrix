@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.40 2007/06/01 00:07:52 colivar Exp $
+* $Id: image_variety.inc,v 1.41 2007/08/23 04:17:41 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -483,25 +483,6 @@ class Image_Variety extends Asset
 		unset($this->_tmp['href']);
 
 		// Remove all the old URLs
-
-		// design lookups
-		$sql = 'DELETE FROM
-					sq_ast_lookup_value
-				WHERE
-					url IN
-						(
-							SELECT
-								url
-							FROM
-								sq_ast_lookup l
-							WHERE
-								assetid = '.$db->quoteSmart($this->id).'
-						)
-					AND	(name LIKE '.$db->quoteSmart('design::%').'
-						OR name LIKE '.$db->quoteSmart('paint_layout::%').')';
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
 
 		$sql = 'DELETE FROM
 					sq_ast_lookup

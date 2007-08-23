@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.149 2007/05/31 23:08:39 colivar Exp $
+* $Id: file.inc,v 1.150 2007/08/23 04:17:41 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.149 $
+* @version $Revision: 1.150 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -611,25 +611,6 @@ class File extends Asset
 		unset($this->_tmp['lookups']);
 		unset($this->_tmp['url']);
 		unset($this->_tmp['href']);
-
-		// design lookups
-		$sql = 'DELETE FROM
-					sq_ast_lookup_value
-				WHERE
-					url IN
-						(
-							SELECT
-								url
-							FROM
-								sq_ast_lookup l
-							WHERE
-								assetid = '.$db->quoteSmart($this->id).'
-						)
-					AND	(name LIKE '.$db->quoteSmart('design::%').'
-						OR name LIKE '.$db->quoteSmart('paint_layout::%').')';
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
 
 		$sql = 'DELETE FROM
 					sq_ast_lookup

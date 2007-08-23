@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.42 2007/07/13 06:00:13 hnguyen Exp $
+* $Id: settings.inc,v 1.43 2007/08/23 04:17:42 bshkara Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 */
 
@@ -886,7 +886,6 @@ function processSettings(&$owner, &$o, &$ei)
 
 		if ($designs_ok) {
 			if ($designs_changed) {
-				// Only do update lookup HIPO when the current design (NOT override) is updated.
 				if ($update_design_cascade == TRUE) {
 					$assets_affected_lookups[] = $owner->id;
 				}//end if
@@ -898,18 +897,8 @@ function processSettings(&$owner, &$o, &$ei)
 
 	}//end if
 
-	// Update look up for this asset and its children
-	if (!empty($assets_affected_lookups)) {
-		//// START HIPO PROCESSING ////
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assetids' => array_unique($assets_affected_lookups));
-		$hh->queueHipo('hipo_job_update_lookups', $vars);
-		////  END HIPO PROCESSING  ////
-	} else if ($update_design_cascade == FALSE) {
-		// Run the update lookup code only for this owner asset if the override design is changed.
-		if (!$owner->updateLookups()) return FALSE;
-	}
-
+	// Run the update lookup code only for this owner asset if the override design is changed.
+	if (!$owner->updateLookups()) return FALSE;
 	return TRUE;
 
 }//end processSettings()

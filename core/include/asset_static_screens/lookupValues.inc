@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookupValues.inc,v 1.12 2007/02/05 05:39:05 colivar Exp $
+* $Id: lookupValues.inc,v 1.13 2007/08/23 04:17:42 bshkara Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 
@@ -42,7 +42,7 @@ function paintLookupValues(&$owner, &$o, &$ei, $keywords=NULL)
 
 	$prefix = $owner->getPrefix();
 	$lookups = $owner->getLookups('url');
-	$lookup_values = $owner->getLookupValues();
+	$lookup_values = $owner->getLookupValues(TRUE);
 
 	$am =& $GLOBALS['SQ_SYSTEM']->am;
 
@@ -154,10 +154,6 @@ function processLookupValues(&$owner, &$o, &$ei)
 	}
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-	$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-	$vars = Array('assetids' => Array($owner->id));
-	$hh->queueHipo('hipo_job_update_lookups', $vars);
 
 	return TRUE;
 

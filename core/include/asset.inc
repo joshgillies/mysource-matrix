@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.593 2007/06/05 00:41:38 lwright Exp $
+* $Id: asset.inc,v 1.594 2007/08/23 04:17:42 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.593 $
+* @version $Revision: 1.594 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4558,12 +4558,15 @@ class Asset extends MySource_Object
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
+			// Sort ascending so the override designs overwrite the array index for the normal design in the while loop below
 			$sql = 'SELECT l.url, lv.name, lv.value as designid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON ((l.url LIKE lv.url || \'/%\')
+							OR (l.url = lv.url)
+							OR (l.url || \'/\' = lv.url))
 					';
 			$where = 'l.assetid = '.$db->quote($this->id).'
-					  AND lv.name LIKE '.$db->quote('design::%');
+					  AND lv.name LIKE '.$db->quote('design::%').' ORDER BY lv.depth ASC';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 
@@ -4576,6 +4579,7 @@ class Asset extends MySource_Object
 				}
 				$this->_tmp['design_lookups'][$row['url']][$row['name']] = $row['designid'];
 			}
+
 			$result->free();
 
 		}// end if
@@ -4597,26 +4601,42 @@ class Asset extends MySource_Object
 	* )
 	* </PRE>
 	*
-	* @param mixed		$inherited		it takes a mixed argument, boolean or NULL
-	*									include inherited values (NULL = don't care, TRUE = Yes, FALSE = no)
-	* @param string		$prefix			a prefix to search for in the name field of ast_lookup_value
-	* @param boolean	$like_search	TRUE = LIKE $prefix, FALSE = NOT LIKE $prefix
+	* @param mixed		$inherited					it takes a mixed argument, boolean or NULL
+	* 												NULL = FALSE = return only values which exist in the lookup value table
+	* 												TRUE = return parents and children
+	* @param string		$prefix						a prefix to search for in the name field of ast_lookup_value
+	* @param boolean	$like_search				TRUE = LIKE $prefix, FALSE = NOT LIKE $prefix
+	* @param boolean	$ignore_override_designs	TRUE = ignore URLs with '/' appended to the end, i.e. URLs with override designs
+	* 												applied
+	* 												FALSE = return the URL with all its current design information, i.e. the fact
+	* 												that a URL has an override design applied will be transparent
 	*
 	* @return array
 	* @access public
 	*/
-	function getLookupValues($inherited=NULL, $prefix='', $like_search=TRUE)
+	function getLookupValues($inherited=NULL, $prefix='', $like_search=TRUE, $ignore_override_designs=FALSE)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT l.url, lv.name, lv.value, lv.inhd
+		// Return all values in sq_lookup_value, i.e. the parents
+		// Called by updateLookups()
+		// 'inhd' column no longer exists.  Legacy value kept because other classes depend on seeing 'inhd'.
+		$sql_default = 'SELECT l.url, lv.name, lv.value, \'0\' as inhd
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON (l.url = lv.url)
 				';
+
+		$include_override = ' OR (l.url || \'/\' = lv.url)';
+
 		$where = 'l.assetid = '.$db->quote($this->id);
-		if (!is_null($inherited)) {
-			$where .= ' AND lv.inhd = '.$db->quote((int) $inherited);
-		}
+
+		// Return all rows which are children, i.e. they inherit
+		// Called by lookupValues.inc to draw the lookup settings screen
+		$sql_inherited = 'SELECT l.url, lv.name, lv.value, \'1\' as inhd
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON (l.url LIKE lv.url || \'/%\')
+				';
+
 		if ($prefix != '') {
 			$where .= ' AND lv.name '.((!$like_search) ? 'NOT' : '').' LIKE '.$db->quote('design::%');
 		}
@@ -4624,7 +4644,15 @@ class Asset extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 
-		$result = $db->query($sql.$where);
+		if (!is_null($inherited) && $inherited) {
+			$result = $db->query($sql_inherited.$include_override.$where.' UNION '.$sql_default.$where);
+		}
+		elseif ($ignore_override_designs) {
+			$result = $db->query($sql_default.$where);
+		}
+		else {
+			$result = $db->query($sql_default.$include_override.$where);
+		}
 		assert_valid_db_result($result);
 
 		$ret_val = Array();
@@ -4727,7 +4755,21 @@ class Asset extends MySource_Object
 		}
 
 		if (!empty($current_urls)) {
+			// delete rows which have normal designs applied
+			$sql = 'DELETE FROM
+						sq_ast_lookup_value
+					WHERE
+						url IN ('.implode(',', $current_urls).')';
 
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+			// delete rows which have override designs applied
+			for ($i=0; $i<count($current_urls); $i++) {
+				$current_urls[$i] = str_replace('\'', '', $current_urls[$i]);
+				$current_urls[$i] .= '/';
+				$current_urls[$i] = $db->quoteSmart($current_urls[$i]);
+			}
 			$sql = 'DELETE FROM
 						sq_ast_lookup_value
 					WHERE
@@ -4756,18 +4798,17 @@ class Asset extends MySource_Object
 				if (preg_match('/^design::(system|user)::.*$/', $link['value'])) {
 					$our_designs[$link['value']] = Array(
 													'value'	=> $link['minorid'],
-													'inhd'	=> '0',
 												   );
 				}
 			}
 
 			// override designs take priority over normal, inheritable designs
+			$override_designs = Array();
 			foreach ($our_design_links as $link) {
 				if (preg_match('/^override::design::(system|user)::.*$/', $link['value'])) {
 					$name = preg_replace('/^override::(.*)$/', '$1', $link['value']);
-					$our_designs[$name] = Array(
+					$override_designs[$name] = Array(
 											'value'	=> $link['minorid'],
-											'inhd'	=> '0',
 										  );
 				}
 			}
@@ -4836,6 +4877,7 @@ class Asset extends MySource_Object
 						$new_url_assetids[] = $this->id;
 
 						$lookup_values = Array();
+						$override_lookup_values = Array();
 
 						foreach ($tmp_old_urls as $tmp_old_url) {
 							if ($tmp_old_url['url'] == $new_url) {
@@ -4859,8 +4901,7 @@ class Asset extends MySource_Object
 												sq_ast_lookup_value
 											WHERE
 												url LIKE '.$db->quote($tmp_old_url['url'].'%').' AND
-												name LIKE '.$db->quote('paint_layout::%').' AND
-												inhd = 0';
+												name LIKE '.$db->quote('paint_layout::%');
 									$applied_layout = $db->getCol($sql);
 									assert_valid_db_result($applied_layout);
 
@@ -4884,28 +4925,13 @@ class Asset extends MySource_Object
 						foreach ($our_designs as $name => $data) {
 							$lookup_values[$name] = $data;
 						}
-
-						// get any of our parent's lookup values that we haven't overridden
-						if (!empty($parent_lookup_values[$parent_urls[$j]['url']])) {
-							foreach ($parent_lookup_values[$parent_urls[$j]['url']] as $name => $value_data) {
-								if (isset($lookup_values[$name])) continue;
-
-								if (preg_match('/^design::(system|user)::.*$/', $name)) {
-									$inherited_lookup_value = $GLOBALS['SQ_SYSTEM']->am->getInheritedDesignValueFromURL($parent_urls[$j]['url'], $name);
-									if (!empty($inherited_lookup_value)) {
-										$lookup_values[$name] = Array(
-																	'value'	=> $inherited_lookup_value['designid'],
-																	'inhd'	=> '1',
-																);
-									}
-								} else {
-									$lookup_values[$name] = Array(
-																'value'	=> $value_data['value'],
-																'inhd'	=> '1',
-															);
-								}
-							}
+						foreach ($override_designs as $name => $data) {
+							$override_lookup_values[$name] = $data;
 						}
+
+						// calculate the depth of the url
+						$exploded_url = explode('/', $new_url);
+						$page_depth = count($exploded_url)-1;
 
 						foreach ($lookup_values as $name => $data) {
 							$sql = 'SELECT
@@ -4927,23 +4953,67 @@ class Asset extends MySource_Object
 												url,
 												name,
 												value,
-												inhd
+												depth
 											)
 											VALUES
 											(
 												'.$db->quoteSmart($new_url).',
 												'.$db->quoteSmart($name).',
 												'.$db->quoteSmart($data['value']).',
-												'.$db->quoteSmart($data['inhd']).'
+												'.$db->quoteSmart($page_depth).'
 											)';
 							} else {
 								$sql = 'UPDATE
 											sq_ast_lookup_value
 										SET
 											value = '.$db->quoteSmart($data['value']).',
-											inhd = '.$db->quoteSmart($data['inhd']).'
 										WHERE
 											url = '.$db->quoteSmart($new_url).'
+											AND name = '.$db->quoteSmart($name);
+							}
+
+							$result = $db->query($sql);
+							assert_valid_db_result($result);
+
+						}//end foreach
+
+						// For override designs
+						foreach ($override_lookup_values as $name => $data) {
+							$sql = 'SELECT
+										url
+									FROM
+										sq_ast_lookup_value
+									WHERE
+										url = '.$db->quoteSmart($new_url.'/').'
+										AND name = '.$db->quoteSmart($name);
+							$result = $db->getRow($sql);
+							assert_valid_db_result($result);
+
+							// if the lookup value already exists, re-use it (this could happen
+							// when a file changes back from a __data url)
+							if (empty($result)) {
+								$sql = 'INSERT INTO
+											sq_ast_lookup_value
+											(
+												url,
+												name,
+												value,
+												depth
+											)
+											VALUES
+											(
+												'.$db->quoteSmart($new_url.'/').',
+												'.$db->quoteSmart($name).',
+												'.$db->quoteSmart($data['value']).',
+												'.$db->quoteSmart($page_depth+1).'
+											)';
+							} else {
+								$sql = 'UPDATE
+											sq_ast_lookup_value
+										SET
+											value = '.$db->quoteSmart($data['value']).',
+										WHERE
+											url = '.$db->quoteSmart($new_url.'/').'
 											AND name = '.$db->quoteSmart($name);
 							}
 
@@ -5006,13 +5076,9 @@ class Asset extends MySource_Object
 	*							"[url]" => array (
 	*								"[name]" => array (
 	*									"value" => "[value]",
-	*									"inhd" => "[inherited]",
 	*								),
 	*							),
 	* </pre>
-	*						NOTE: 'inhd' is ignored - it exists only because it makes it
-	*						easier to just modify the return value of Asset::getLookupValues()
-	*						all values in this array will be saved with inhd set to 0 (FALSE)
 	*
 	* @return boolean
 	* @access public
@@ -5050,6 +5116,10 @@ class Asset extends MySource_Object
 			if (!in_array($url, $lookups)) continue;
 			if (empty($values_data)) continue;
 
+			// calculate the depth of the url
+			$exploded_url = explode('/', $url);
+			$page_depth = count($exploded_url)-1;
+
 			foreach ($values_data as $value_name => $value_data) {
 
 				$sql = 'INSERT INTO
@@ -5058,14 +5128,14 @@ class Asset extends MySource_Object
 								url,
 								name,
 								value,
-								inhd
+								depth
 							)
 							VALUES
 							(
 								'.$db->quoteSmart($url).',
 								'.$db->quoteSmart($value_name).',
 								'.$db->quoteSmart($value_data['value']).',
-								'.$db->quoteSmart('0').'
+								'.$db->quoteSmart($page_depth).'
 							)';
 
 				$result = $db->query($sql);

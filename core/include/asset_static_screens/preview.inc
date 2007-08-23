@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.25 2007/04/24 00:51:36 hnguyen Exp $
+* $Id: preview.inc,v 1.26 2007/08/23 04:17:42 bshkara Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 
@@ -40,7 +40,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	$sql = 'SELECT l.url, l.http, l.https, lv.name
 			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-					LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url';
+					LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url OR (l.url || \'/\' = lv.url)';
 
 	$where = 'assetid = '.$db->quote($owner->id).'
 			  AND name LIKE '.$db->quote('design::%');

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_url.inc,v 1.5 2007/04/27 04:01:18 hnguyen Exp $
+* $Id: trigger_action_add_url.inc,v 1.6 2007/08/23 04:17:42 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,7 +53,6 @@ class Trigger_Action_Add_Url extends Trigger_Action
 	*/
 	function execute($settings, &$state)
 	{
-
 		$run_hipo = FALSE;
 		// check required settings
 		if (!isset($settings['url'])) return FALSE;
@@ -147,7 +146,7 @@ class Trigger_Action_Add_Url extends Trigger_Action
 						SET
 							url = '.$db->quoteSmart($urls[$urlid]['url']).' || SUBSTR(url, '.strlen($old_urls[$urlid]['url']).' + 1)
 						WHERE
-							url LIKE '.$db->quoteSmart($old_urls[$urlid]['url'].'%');
+							url LIKE '.$db->quoteSmart($old_urls[$urlid]['url'].'%').' OR url LIKE '.$db->quoteSmart($old_urls[$urlid]['url'].'%/');
 
 						if ($tablename == 'sq_ast_lookup') {
 							$sql .= ' AND root_urlid = '.$db->quoteSmart($urlid);
@@ -158,7 +157,7 @@ class Trigger_Action_Add_Url extends Trigger_Action
 										FROM
 											sq_ast_lookup l
 										INNER JOIN
-											sq_ast_lookup_value v ON l.url = v.url
+											sq_ast_lookup_value v ON l.url = v.url OR (l.url || \'/\' = v.url)
 										WHERE
 											l.root_urlid = '.$db->quoteSmart($urlid).'
 									)';

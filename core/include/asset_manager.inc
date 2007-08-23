@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.571 2007/07/10 05:15:26 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.572 2007/08/23 04:17:42 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.571 $
+* @version $Revision: 1.572 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2074,7 +2074,7 @@ class Asset_Manager extends MySource_Object
 			return FALSE;
 		}
 
-		$asset =& $this->getAsset($assetid);	
+		$asset =& $this->getAsset($assetid);
 		// Instead of throwing a fatal error, we just return false here, getAsset has already given a warning if the asset does not exists.
 		if (is_null($asset)) return FALSE;
 
@@ -2332,7 +2332,7 @@ class Asset_Manager extends MySource_Object
 
 		if (!isset($this->_tmp['lock_types'][$assetid])) {
 			$asset =& $this->getAsset($assetid);
-			// If the asset is null, just return an empty array, throwing fatal error is a bit over done. 
+			// If the asset is null, just return an empty array, throwing fatal error is a bit over done.
 			if (is_null($asset)) return Array();
 			$this->_tmp['lock_types'][$assetid] = $asset->lockTypes();
 		}
@@ -6830,10 +6830,15 @@ class Asset_Manager extends MySource_Object
 		$sql = 'SELECT lv.value as designid, a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
+						OR (l.url || \'/\' = lv.url)
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON lv.value = a.assetid
 				';
-		$where ='lv.url = '.$db->quote($url).'
-				   AND lv.name = '.$db->quote($design_name);
+		$where = 'lv.name = \''.$design_name.'\' AND '.
+					'(('.$db->quote($url).' = lv.url)
+						OR (('.$db->quote($url).' LIKE lv.url || \'/%\')
+						AND ('.$db->quote($url).' NOT LIKE lv.url || \'%/$\'))
+						OR (('.$db->quote($url.'/').' = lv.url)))
+						ORDER BY depth DESC';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
@@ -6905,8 +6910,10 @@ class Asset_Manager extends MySource_Object
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
 				';
 
-		$where ='l.url = '.$db->quote($url).'
-				   AND lv.name = '.$db->quote($value_name);
+		$where = 'lv.name = '.$db->quote($value_name).'
+					AND (('.$db->quote($url).' LIKE l.url || \'/%\')
+					OR l.url = '.$db->quote($url).')
+					ORDER BY depth DESC';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$sql .= $where;

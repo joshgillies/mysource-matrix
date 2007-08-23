@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.47 2007/01/18 00:24:02 tbarrett Exp $
+* $Id: tables.xml,v 1.48 2007/08/23 04:17:41 bshkara Exp $
 *
 */
 -->
@@ -814,8 +814,8 @@
 					<default />
 					<description />
 				</column>
-				<column name="inhd" allow_null="0">
-					<type>CHAR(1)</type>
+				<column name="depth" allow_null="0">
+					<type>INT</type>
 					<type_variations />
 					<default />
 					<description />
@@ -830,6 +830,9 @@
 			<indexes>
 				<index>
 					<column name="value" />
+				</index>
+				<index>
+					<column name="depth" />
 				</index>
 			</indexes>
 		</table>

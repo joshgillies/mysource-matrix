@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.30 2007/02/07 23:22:45 tbarrett Exp $
+* $Id: remap_manager.inc,v 1.31 2007/08/23 04:17:42 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -183,7 +183,7 @@ class Remap_Manager extends Asset
 			trigger_localised_error('CORE0093', E_USER_WARNING);
 			return 0;
 		}
-		
+
 		$old_url = strip_url($old_url);
 		$new_url = strip_url($new_url);
 
@@ -486,15 +486,17 @@ class Remap_Manager extends Asset
 		if (is_null($asset)) return $null;
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		// get original design or inherited design if no override design
 		$sql = 'SELECT lv.value as designid, a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON ((l.url = lv.url) OR (l.url || \'/\' = lv.url))
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON lv.value = a.assetid
 				';
 		$where = 'l.assetid  = '.$db->quote($asset->id).'
 					AND lv.name = '.$db->quote('design::system::frontend');
 		if (!is_null($url)) {
-			$where .= ' AND lv.url  LIKE '.$db->quote($url.'%');
+			$where .= ' AND lv.url  LIKE '.$db->quote($url.'%').' ORDER BY depth DESC';
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');

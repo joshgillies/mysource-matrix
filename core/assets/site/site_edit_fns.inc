@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.64 2006/12/12 02:55:23 emcdonald Exp $
+* $Id: site_edit_fns.inc,v 1.65 2007/08/23 04:17:42 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -240,11 +240,12 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the Backend Outputter object
 	* @param string	$prefix	prefix for the form element
+	* @param bool	$updatelookups	TRUE = run HIPO job as normal, FALSE = don't run HIPO job
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processURLs(&$asset, &$o, $prefix)
+	function processURLs(&$asset, &$o, $prefix, $updatelookups=TRUE)
 	{
 		if (empty($_POST[$prefix.'_urls'])) return FALSE;
 
@@ -298,7 +299,6 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 			// update any urls that use this url in the lookup and lookup value tables
 			foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup') as $tablename) {
-
 				// Skip if the url was not changed
 				if ($urls[$urlid]['url'] == $old_urls[$urlid]['url']) {
 					continue;
@@ -308,23 +308,22 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 						SET
 							url = '.$db->quoteSmart($urls[$urlid]['url']).' || SUBSTR(url, '.strlen($old_urls[$urlid]['url']).' + 1)
 						WHERE
-							url LIKE '.$db->quoteSmart($old_urls[$urlid]['url'].'%');
+							(url LIKE '.$db->quoteSmart($old_urls[$urlid]['url'].'%').' OR url LIKE '.$db->quoteSmart($old_urls[$urlid]['url'].'%/').')';
 
 						if ($tablename == 'sq_ast_lookup') {
 							$sql .= ' AND root_urlid = '.$db->quoteSmart($urlid);
 						} else if ($tablename == 'sq_ast_lookup_value') {
-							$sql .= 'AND url IN (
+							$sql .= ' AND url IN (
 										SELECT
 											l.url
 										FROM
 											sq_ast_lookup l
 										INNER JOIN
-											sq_ast_lookup_value v ON l.url = v.url
+											sq_ast_lookup_value v ON ((l.url = v.url) OR (l.url || \'/\' = v.url))
 										WHERE
 											l.root_urlid = '.$db->quoteSmart($urlid).'
 									)';
 						}
-
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
 			}
@@ -336,7 +335,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		flush();
 
 		//// START HIPO PROCESSING ////
-		if ($run_hipo) {
+		if ($run_hipo && $updatelookups) {
 			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetids' => Array($asset->id));
 			$hh->queueHipo('hipo_job_update_lookups', $vars);

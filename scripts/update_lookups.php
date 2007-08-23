@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: update_lookups.php,v 1.3 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: update_lookups.php,v 1.4 2007/08/23 04:17:43 bshkara Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * quicker
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -115,7 +115,7 @@ foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup') as $tablename) {
 							FROM
 								sq_ast_lookup l
 							INNER JOIN
-								sq_ast_lookup_value v ON l.url = v.url
+								sq_ast_lookup_value v ON ((l.url = v.url) OR (l.url || \'/\' = v.url))
 							WHERE
 								l.root_urlid = '.$db->quoteSmart($from_urlid).'
 						)';
