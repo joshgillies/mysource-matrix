@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_management.inc,v 1.12.2.1 2007/08/23 07:07:40 hnguyen Exp $
+* $Id: content_type_nest_content_management.inc,v 1.12.2.2 2007/08/23 23:03:10 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12.2.1 $
+* @version $Revision: 1.12.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -63,8 +63,8 @@ class Content_Type_Nest_Content_Management extends Asset_Management
         $asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
 
         if (version_compare($current_version, '0.3', '<') &&
-			version_compare($current_version, '0.1', '<=') &&
-			version_compare($current_version, '0.2', '>=') ) {
+			(version_compare($current_version, '0.1', '<=') ||
+			version_compare($current_version, '0.2', '>=')) ) {
             pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.3');
 
             // get all 'bodycopy_container' assets (or their descendants)
