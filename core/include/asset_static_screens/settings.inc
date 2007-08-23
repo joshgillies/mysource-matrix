@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.43 2007/08/23 04:17:42 bshkara Exp $
+* $Id: settings.inc,v 1.44 2007/08/23 23:13:36 bshkara Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 */
 
@@ -897,7 +897,6 @@ function processSettings(&$owner, &$o, &$ei)
 
 	}//end if
 
-	// Run the update lookup code only for this owner asset if the override design is changed.
 	if (!$owner->updateLookups()) return FALSE;
 	return TRUE;
 
