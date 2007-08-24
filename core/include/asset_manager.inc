@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.531.2.18 2007/06/28 00:32:26 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.531.2.19 2007/08/24 00:35:48 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.531.2.18 $
+* @version $Revision: 1.531.2.19 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2536,16 +2536,18 @@ class Asset_Manager extends MySource_Object
 						$link = Array();
 						$asset =& $this->getAsset($major_shadow_parts['bridgeid']);
 						if (!is_null($asset)) {
-							$link = $asset->getLinkByAsset($majorid, $minorid, $link_types, $value, $side_of_link, $force_array, $dependant, $exclusive);
+							// Always force an array in this case, and merge it in
+							$link = $asset->getLinkByAsset($majorid, $minorid, $link_types, $value, $side_of_link, TRUE, $dependant, $exclusive);
 							$this->forgetAsset($asset);
 						}
-						$shadow_links[] = $link;
+						$shadow_links = array_merge($shadow_links, $link);
 					} else {
 						if (!empty($minor_shadow_parts)) {
 							// minor is shadow asset, look at the shadow link table
 							// instead of the regular link table
-							$link = $this->getShadowLinkByAsset($majorid, $minorid, $link_types, $value, $side_of_link, $force_array, $dependant, $exclusive);
-							$shadow_links[] = $link;
+							// Always force an array, and merge it in
+							$link = $this->getShadowLinkByAsset($majorid, $minorid, $link_types, $value, $side_of_link, TRUE, $dependant, $exclusive);
+							$shadow_links = array_merge($shadow_links, $link);
 						}
 					}
 
