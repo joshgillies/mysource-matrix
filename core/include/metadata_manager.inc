@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.127.2.3 2007/06/07 04:45:32 rong Exp $
+* $Id: metadata_manager.inc,v 1.127.2.4 2007/08/24 04:41:03 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.127.2.3 $
+* @version $Revision: 1.127.2.4 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1012,16 +1012,18 @@ class Metadata_Manager extends MySource_Object
 						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_asset->'.substr($keyword,6).';'."\n";
 					break;
 
+					// version cases: if the version is undefined (eg. shadow assets), then make it expand
+					// something that would result in all version components returning a blank
 					case 'asset_version_major'    :
-						echo 'list($metadata_replacements['.var_export($keyword, 1).'],,) = explode(\'.\',$metadata_asset->version);'."\n";
+						echo 'list($metadata_replacements['.var_export($keyword, 1).'],,) = explode(\'.\',empty($metadata_asset->version) ? \'..\' : $metadata_asset->version);'."\n";
 					break;
 
 					case 'asset_version_minor'    :
-						echo 'list(,$metadata_replacements['.var_export($keyword, 1).'],) = explode(\'.\',$metadata_asset->version);'."\n";
+						echo 'list(,$metadata_replacements['.var_export($keyword, 1).'],) = explode(\'.\',empty($metadata_asset->version) ? \'..\' : $metadata_asset->version);'."\n";
 					break;
 
 					case 'asset_version_micro'    :
-						echo 'list(,,$metadata_replacements['.var_export($keyword, 1).']) = explode(\'.\',$metadata_asset->version);'."\n";
+						echo 'list(,,$metadata_replacements['.var_export($keyword, 1).']) = explode(\'.\',empty($metadata_asset->version) ? \'..\' : $metadata_asset->version);'."\n";
 					break;
 
 					case 'asset_url' :
