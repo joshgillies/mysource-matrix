@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item.inc,v 1.17 2007/01/22 01:18:23 tbarrett Exp $
+* $Id: news_item.inc,v 1.17.2.1 2007/08/27 05:30:07 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -83,7 +83,10 @@ class News_Item extends Page
 	*/
 	function &getLinkAsset()
 	{
-		if ($this->id == 0) return null;
+		if ($this->id == 0) {
+			$null = NULL;
+			return $null;
+		}
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', true, 'link_asset');
 		if (empty($link)) {
