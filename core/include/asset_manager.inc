@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.573 2007/08/24 00:32:10 lwright Exp $
+* $Id: asset_manager.inc,v 1.574 2007/08/27 01:31:47 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.573 $
+* @version $Revision: 1.574 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6839,14 +6839,16 @@ class Asset_Manager extends MySource_Object
 					'(('.$db->quote($url).' = lv.url)
 						OR (('.$db->quote($url).' LIKE lv.url || \'/%\')
 						AND ('.$db->quote($url).' NOT LIKE lv.url || \'%/$\'))
-						OR (('.$db->quote($url.'/').' = lv.url)))
-						ORDER BY depth DESC';
+						OR (('.$db->quote($url.'/').' = lv.url)))';
+
+		$order_by = ' ORDER BY depth DESC';
+
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql .= $where;
 
-		$result = $db->getRow($sql);
+		$result = $db->getRow($sql.$order_by);
 		assert_valid_db_result($result);
 		return $result;
 
@@ -6914,13 +6916,15 @@ class Asset_Manager extends MySource_Object
 
 		$where = 'lv.name = '.$db->quote($value_name).'
 					AND (('.$db->quote($url).' LIKE l.url || \'/%\')
-					OR l.url = '.$db->quote($url).')
-					ORDER BY depth DESC';
+					OR l.url = '.$db->quote($url).')';
+
+		$order_by = ' ORDER BY depth DESC';
+
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$sql .= $where;
 
-		$result = $db->getOne($sql);
+		$result = $db->getOne($sql.$order_by);
 		assert_valid_db_result($result);
 		return $result;
 

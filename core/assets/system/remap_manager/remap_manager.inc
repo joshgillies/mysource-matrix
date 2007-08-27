@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.31 2007/08/23 04:17:42 bshkara Exp $
+* $Id: remap_manager.inc,v 1.32 2007/08/27 01:31:47 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -496,13 +496,14 @@ class Remap_Manager extends Asset
 		$where = 'l.assetid  = '.$db->quote($asset->id).'
 					AND lv.name = '.$db->quote('design::system::frontend');
 		if (!is_null($url)) {
-			$where .= ' AND lv.url  LIKE '.$db->quote($url.'%').' ORDER BY depth DESC';
+			$where .= ' AND lv.url  LIKE '.$db->quote($url.'%');
 		}
 
+		$order_by = ' ORDER BY depth DESC';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql .= $where;
+		$sql .= $where.$order_by;
 		$sql = $db->modifyLimitQuery($sql, 0, 1);
 
 		$result = $db->getRow($sql);

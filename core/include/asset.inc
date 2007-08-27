@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.594 2007/08/23 04:17:42 bshkara Exp $
+* $Id: asset.inc,v 1.595 2007/08/27 01:31:47 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.594 $
+* @version $Revision: 1.595 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4566,11 +4566,13 @@ class Asset extends MySource_Object
 							OR (l.url || \'/\' = lv.url))
 					';
 			$where = 'l.assetid = '.$db->quote($this->id).'
-					  AND lv.name LIKE '.$db->quote('design::%').' ORDER BY lv.depth ASC';
+					  AND lv.name LIKE '.$db->quote('design::%');
+
+			$order_by = ' ORDER BY lv.depth ASC';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 
-			$result = $db->query($sql.$where);
+			$result = $db->query($sql.$where.$order_by);
 			assert_valid_db_result($result);
 
 			while (NULL !== ($row = $result->fetchRow())) {
