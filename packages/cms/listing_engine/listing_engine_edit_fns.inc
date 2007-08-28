@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.78 2007/06/17 23:45:13 mbrydon Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.78.2.1 2007/08/28 23:44:32 lmarchese Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.78.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1648,6 +1648,57 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
+	* Paints the inteface for choosing a sort by raw or presentation value
+	*
+	* @param object &$asset asset being painted
+	* @param object &$o             backend outputter
+	* @param string $prefix prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintMetadataSortType(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$sort_by = $asset->attr('metadata_sort_type');
+
+		$option = Array(
+					'raw'			=> 'Raw Value',
+					'presentation'	=> 'Presentation Value',
+					);
+
+		if ($write_access) {
+			combo_box($prefix.'_metadata_sort_type', $option, FALSE, $sort_by);
+		} else {
+			echo ($sort_by == 'raw')? 'Raw Value':'Presentation Value';
+		}
+
+		return $write_access;
+
+	}//end paintMetadataSortType()
+
+
+	/**
+	* Processes the sort by raw/presentation value option
+	*
+	* @param object &$asset asset being painted
+	* @param object &$o             backend outputter
+	* @param string $prefix prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processMetadataSortType(&$asset, &$o, $prefix)
+	{
+		// check to see if the default has changed
+		if (isset($_POST[$prefix.'_metadata_sort_type'])) {
+			return $asset->setAttrValue('metadata_sort_type', $_POST[$prefix.'_metadata_sort_type']);
+		}
+		return FALSE;
+
+	}//end processMetadataSortType()
+
+	/**
 	* Paints the inteface for choosing a default sort by field
 	*
 	* @param object	&$asset	asset being painted
@@ -2311,6 +2362,21 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			$o->note(translate('cms_listing_group_metadata_field_note'));
 		$o->closeField();
 
+		$o->openField(translate('cms_listing_default_metadata_sort_type'));
+			$sort_by = array_get_index($group_by_option, 'metadata_sort_type', 'raw');
+			$option = Array(
+						'raw'			=> translate('cms_listing_raw_value'),
+						'presentation'	=> translate('cms_listing_presentation_value'),
+					  );
+	
+			if ($write_access) {
+				combo_box($prefix.'[metadata_sort_type]', $option, FALSE, $sort_by);
+			} else {
+				echo ($sort_by == 'raw')? translate('cms_listing_raw_value'):translate('cms_listing_presentation_value');
+			}
+			$o->note(translate('cms_listing_default_metadata_sort_type_note'));
+		$o->closeField();
+
 		return $write_access;
 
 	}//end paintGroupByMetadata()
@@ -2343,7 +2409,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		} else {
 			$group_by_option['max_children'] = $posted_option['max_children'];
 		}
-
+		if (isset($posted_option['metadata_sort_type'])) {
+			$group_by_option['metadata_sort_type'] = $posted_option['metadata_sort_type'];
+		}
 		return TRUE;
 
 	}//end processGroupByMetadata()
@@ -2514,6 +2582,24 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		$o->closeField();
 
+		if (isset($group_by_option['sort_by']) && $group_by_option['sort_by'] == 'sorting_metadata_field') {
+			$o->openField(translate('cms_listing_default_metadata_sort_type'));
+				$sort_by = array_get_index($group_by_option, 'metadata_sort_type', 'raw');
+				$option = Array(
+							'raw'			=> translate('cms_listing_raw_value'),
+							'presentation'	=> translate('cms_listing_presentation_value'),
+						);
+
+				if ($write_access) {
+					combo_box($prefix.'[metadata_sort_type]', $option, FALSE, $sort_by);
+				} else {
+					echo ($sort_by == 'raw')? translate('cms_listing_raw_value'):translate('cms_listing_presentation_value');
+				}
+
+				$o->note(translate('cms_listing_default_metadata_sort_type_note'));
+			$o->closeField();
+		}
+
 		return $write_access;
 
 	}//end paintGroupByParentAsset()
@@ -2549,13 +2635,16 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 
 			if (isset($posted_option['sorting_metadata_field'])) {
-			$group_by_option['sorting_metadata_field'] = $posted_option['sorting_metadata_field']['assetid'];
+				$group_by_option['sorting_metadata_field'] = $posted_option['sorting_metadata_field']['assetid'];
 			}
 
 			$group_by_option['direct_parent_only'] = array_get_index($posted_option, 'direct_parent_only', FALSE);
 			$group_by_option['sort_by']		= $posted_option['sort_by'];
 			$group_by_option['sort_order']	= $posted_option['sort_order'];
 
+			if (isset($posted_option['metadata_sort_type'])) {
+				$group_by_option['metadata_sort_type'] = $posted_option['metadata_sort_type'];
+			}
 			if (empty($posted_option['max_children'])) {
 				$group_by_option['max_children'] = NULL;
 			} else {
