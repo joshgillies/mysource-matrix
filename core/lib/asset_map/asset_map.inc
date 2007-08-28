@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.247 2007/06/27 23:53:28 rhoward Exp $
+* $Id: asset_map.inc,v 1.248 2007/08/28 00:50:57 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.247 $
+* @version $Revision: 1.248 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -159,6 +159,8 @@ class Asset_Map
 	/**
 	* Gets the current assets lineage from the url
 	*
+	* Bugfix #2588: filter out invisible links from the sort order for correct group (set) expansion
+	*
 	* @param string	$type	Asset Map Type (i.e. simple)
 	*
 	* @return string
@@ -206,6 +208,16 @@ class Asset_Map
 
 				$sort_order = $db->getOne($sql);
 				assert_valid_db_result($sort_order);
+
+				// adjust real sort order for links that are not visible on nav
+				$sql = 'SELECT count(*) FROM sq_ast_lnk
+						WHERE majorid = '.$db->quoteSmart($previd).'
+								AND sort_order <'.$db->quoteSmart($sort_order).'
+								AND link_type > 2';
+				$count = $db->getOne($sql);
+				assert_valid_db_result($count);
+				if ($count > 0) $sort_order = $sort_order - $count;
+
 				$sort_orders .= $sort_order.'|';
 
 			}//end for
@@ -270,7 +282,7 @@ class Asset_Map
 					$currentid = $assetid;
 
 					$sql = 'SELECT l.sort_order FROM sq_ast_lnk l
-					WHERE l.majorid = '.$db->quoteSmart($previd).'
+							WHERE l.majorid = '.$db->quoteSmart($previd).'
 									AND l.minorid = '.$db->quoteSmart($currentid);
 					$sort_order = $db->getOne($sql);
 					assert_valid_db_result($sort_order);
@@ -870,7 +882,9 @@ class Asset_Map
 
 		// replace 'name' with the configured display name
 		$attrs['name'] = urlencode($this->_convertCharset($this->_getAssetDisplayName($attrs)));
-		if (isset($attrs['short_name'])) $attrs['short_name'] = urlencode($this->_convertCharset($attrs['short_name']));
+		if (isset($attrs['short_name'])) {
+			$attrs['short_name'] = urlencode($this->_convertCharset($attrs['short_name']));
+		}
 
 		return $attrs;
 
@@ -1167,7 +1181,7 @@ class Asset_Map
 	/**
 	* Generates the name that should label an asset in the asset map from the string in the config and asset names and id
 	*
-	* @param string	$asset		Array of info about the asset
+	* @param string	$asset	Array of info about the asset
 	*
 	* @return void
 	* @access private
@@ -1670,7 +1684,7 @@ class Asset_Map
 													'linkid'		=> $link['linkid'],
 													'sort_order'	=> $link['sort_order'],
 													'parentid'		=> $old_parent->id,
-												  );
+												);
 			} else {
 				// account for multiple links to the same asset being moved
 				// it'll likely result in an error if we're moving to anywhere but the trash, however
@@ -1718,8 +1732,7 @@ class Asset_Map
 												 )
 								);
 			$output->insertChild(Array('responses'), $response_count++, $successTree);
-		}
-
+		}//end foreach
 
 		// if we have only one link, and we cant move it to the parent we dont continue further
 		if (count($assets) == 1 && count(reset($assets)) == 1) {
