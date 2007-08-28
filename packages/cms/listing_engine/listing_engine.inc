@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.227 2007/07/09 01:16:19 bshkara Exp $
+* $Id: listing_engine.inc,v 1.228 2007/08/28 06:25:24 lmarchese Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.227 $
+* @version $Revision: 1.228 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -673,6 +673,7 @@ class Listing_Engine extends Page
 
 		if ($result_page <= 0) $result_page = 1;
 
+		
 		// get our page chunk here
 		$todo =& $this->getChunk($children, $replacements, $keywords, $result_page, $num_per_page);
 
@@ -945,15 +946,19 @@ class Listing_Engine extends Page
 			if (isset($sort_info['field'])) {
 				$fieldid = $sort_info['field'];
 			}
-
 			if ($fieldid) {
 				$field_default_val = $mm->getMetadataFieldDefaultValue($fieldid);
 			} else {
 				$field_default_val = '';
 			}
-
+			
+			$presentation_value = FALSE;
+			if ($this->attr('metadata_sort_type') == 'presentation') {
+				$presentation_value = TRUE;
+			}
+			
 			foreach ($asset_list as $assetid => $type) {
-				$meta_field_val = $mm->getMetadataValueByAssetid($assetid,$fieldid,TRUE,TRUE);
+				$meta_field_val = $mm->getMetadataValueByAssetid($assetid,$fieldid,TRUE,$presentation_value);
 				$field_value = $field_default_val;
 
 				if (isset($meta_field_val)) {
@@ -1375,6 +1380,8 @@ class Listing_Engine extends Page
 		if (is_null($group_by)) {
 			$group_by = $this->attr('group_by');
 		}
+
+
 
 		$page_list_keywords = Array();
 		foreach ($keywords as $keyword) {
@@ -2768,17 +2775,24 @@ class Listing_Engine extends Page
 						if (!empty($metadata_field_id)) {
 							$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
 						}
+
+						$presentation_value = FALSE;
+						if (!empty($group_level['metadata_sort_type'])) {
+							if ($group_level['metadata_sort_type'] === 'presentation') {
+								$presentation_value = TRUE;
+							}
+						}
+
 						$value = '';
 						if (!is_null($metadata_field)) {
 							// get the metadata manager if we haven't already
 							if (!isset($mm)) {
 								$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 							}
-
+							
 							$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_parent);
 							if (!is_null($parent_asset)) {
-								$value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, TRUE, TRUE);
-								$value = $metadata_field->getMetadataValue($parent_asset, $value);
+								$value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, TRUE, $presentation_value);
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($current_parent->id);
 							}
 						}
@@ -2834,6 +2848,7 @@ class Listing_Engine extends Page
 		}//end foreach on group level
 
 		$results = Array();
+		
 		$group_keys = array_keys($group_levels);
 
 
@@ -2846,6 +2861,7 @@ class Listing_Engine extends Page
 				$base =& $base[$key];
 			}
 			$base[$group_data['assetid']] = $assetids[$group_data['assetid']];
+			
 		}
 
 		$this->limitAssetsRecursively($results, $limit_array);
@@ -3038,14 +3054,23 @@ class Listing_Engine extends Page
 							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						}//end if
 						$group_order = Array();
+
+						$presentation_value = FALSE;
+						if (!empty($group_type['metadata_sort_type'])) {
+							if ($group_type['metadata_sort_type'] === 'presentation') {
+								$presentation_value = TRUE;
+							}
+						}
+
 						foreach ($results as $key => $arrayInfo) {
-							$group_order[$key] = $mm->getMetadataValueByAssetid($key, $sorting_metadata_field_id, TRUE, TRUE);
+							$group_order[$key] = $mm->getMetadataValueByAssetid($key, $sorting_metadata_field_id, TRUE, $presentation_value);
 						}//end foreach
 					}//end if
 				} else {
 					$group_order = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($results), 'asset', FALSE,array_get_index($group_type, 'sort_by', 'assetid'));
 
 				}//end else
+
 				if (array_get_index($group_type, 'sort_order', 'asc') == 'asc') {
 					asort($group_order);
 				} else {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_sorting.xml,v 1.4 2006/12/28 00:30:53 tbarrett Exp $
+* $Id: lang_screen_sorting.xml,v 1.5 2007/08/28 06:25:24 lmarchese Exp $
 *
 */
 -->
@@ -48,6 +48,14 @@
 			</function_call>
 			<display_name>Default Sort-by Option</display_name>
 			<note>This sorting option will be used by default, and will be the default value of the sort-by selector.</note>
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintMetadataSortType" />
+				<process_function name="processMetadataSortType" />
+			</function_call>
+			<display_name>Default Metadata Sort Type</display_name>
+			<note>To sort by the raw metadata value entered on the metadata screen, select Raw Value. To sort by the value displayed on the frontend, select Presentation Value. Sorting by Raw Value will perform the sort before keywords are replaced and presentation formats are applied.</note>
 		</field>
 		<field>
 			<function_call>
