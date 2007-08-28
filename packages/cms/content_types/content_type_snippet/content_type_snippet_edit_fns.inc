@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_snippet_edit_fns.inc,v 1.1 2007/07/12 01:13:12 rong Exp $
+* $Id: content_type_snippet_edit_fns.inc,v 1.2 2007/08/28 03:14:43 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -59,10 +59,10 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 	function paint(&$asset, $editing=FALSE, $generating=FALSE)
 	{
 		$snippet_asset =& $asset->getCurrentSnippet();
-		if (!is_null($snippet_asset)) {
-			if ($generating) {
-				$this->paintGenerated($asset, $snippet_asset);
-			} else {
+		if ($generating) {
+			$this->paintGenerated($asset, $snippet_asset);
+		} else {
+			if (!is_null($snippet_asset)) {
 				$snippet_asset->printBody();
 			}
 		}
@@ -84,13 +84,15 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 	function paintGenerated(&$asset, &$snippet_asset)
 	{
 		// this is used when generating content_file.php
+		echo '<'.'?php'."\n";
 		if (!is_null($snippet_asset)) {
-			echo '<'.'?php'."\n";?>
+			?>
 			$snippet_assetid = '<?php echo $snippet_asset->id; ?>';
 			$snippet_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($snippet_assetid);
 			$snippet_asset->printBody();
-			<?php echo '?'.'>'."\n";
+			<?php
 		}
+		echo '?'.'>'."\n";
 
 	}//end paintGenerated()
 
@@ -138,7 +140,7 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 						 );
 			$dropdown = Array(0 => '--');
 			foreach ($snippets as $id => $info) {
-				$dropdown[$id] = $info['name'];
+				$dropdown[$id] = $id.': '.$info['name'];
 				// print the content for quick switching later
 				hidden_field($prefix.'_hidden_source_'.$id, nl2br(htmlspecialchars($info['content'])));
 				hidden_field($prefix.'_hidden_html_'.$id, $info['content']);

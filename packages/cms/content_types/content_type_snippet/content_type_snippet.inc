@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_snippet.inc,v 1.1 2007/07/12 01:13:12 rong Exp $
+* $Id: content_type_snippet.inc,v 1.2 2007/08/28 03:14:43 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -64,6 +64,26 @@ class Content_Type_Snippet extends Content_Type
 			   );
 
 	}//end _getAllowedLinks()
+
+
+	/**
+	* Allow any required processesing to occur when any link is updated for the asset
+	*
+	* @return void
+	* @access protected
+	*/
+	function linksUpdated()
+	{
+		// update content.php file once snippet notice link has been deleted
+		$bc_container_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE, 'minor');
+		log_dump($bc_container_link);
+		if (!empty($bc_container_link)) {
+			$container =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bc_container_link[0]['majorid']);
+			$edit_fns = $container->getEditFns();
+			$edit_fns->generateContentFile($container);
+		}
+
+	}//end linksUpdated()
 
 
 	/**
