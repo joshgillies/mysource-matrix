@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.239.2.5 2007/05/08 02:33:40 rong Exp $
+* $Id: asset_map.inc,v 1.239.2.6 2007/08/28 01:14:49 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.239.2.5 $
+* @version $Revision: 1.239.2.6 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -206,6 +206,16 @@ class Asset_Map
 
 				$sort_order = $db->getOne($sql);
 				assert_valid_db_result($sort_order);
+
+				// adjust real sort order for links that are not visible on nav
+				$sql = 'SELECT count(*) FROM sq_ast_lnk
+						WHERE majorid = '.$db->quoteSmart($previd).'
+								AND sort_order <'.$db->quoteSmart($sort_order).'
+								AND link_type > 2';
+				$count = $db->getOne($sql);
+				assert_valid_db_result($count);
+				if ($count > 0) $sort_order = $sort_order - $count;
+
 				$sort_orders .= $sort_order.'|';
 
 			}//end for
