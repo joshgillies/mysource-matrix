@@ -11,7 +11,7 @@
 * +--------------------------------------------------------------------+
 *
 *
-* $Id: key_reminder.inc,v 1.4 2007/03/15 03:11:32 tbarrett Exp $
+* $Id: key_reminder.inc,v 1.5 2007/08/29 03:55:55 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * Purpose
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 ?>
@@ -33,7 +33,7 @@
 		<link rel="stylesheet" href="<?php echo sq_web_path('lib').'/web/css/key_reminder.css' ?>" type="text/css" />
 	</head>
 	<body>
-		<form method="post" action="<?php echo $return_url ?>">
+		<form method="post" action="<?php echo htmlentities($return_url); ?>">
 		<div class="key-reminder">
 			<h1><?php echo sq_get_icon(sq_web_path('lib').'/web/images/icons/header/system_config.png', 20, 20, 'Key icon', '', 'align="absmiddle"') ?> Invalid Warranty Key</h1>
 			<div class="key-reminder-body">

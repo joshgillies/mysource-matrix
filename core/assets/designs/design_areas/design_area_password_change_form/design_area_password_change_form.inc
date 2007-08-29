@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_password_change_form.inc,v 1.6 2006/12/20 01:43:20 tbarrett Exp $
+* $Id: design_area_password_change_form.inc,v 1.7 2007/08/29 03:55:55 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,7 +77,7 @@ class Design_Area_Password_Change_Form extends Design_Area
 
 				$qry_str_extra = '';
 				if ($this->attr('forward_www_vars')) {
-					$qry_str_extra = '&amp;<'.'?php echo preg_replace(\'/SQ_ACTION=[^\&]+\&?/\', \'\', $_SERVER[\'QUERY_STRING\']); ?'.'>';
+					$qry_str_extra = '&amp;<'.'?php echo htmlentities(preg_replace(\'/SQ_ACTION=[^\&]+\&?/\', \'\', $_SERVER[\'QUERY_STRING\'])); ?'.'>';
 				}
 
 				// open change password form
