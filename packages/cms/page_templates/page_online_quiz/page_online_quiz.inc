@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.17 2007/06/12 07:00:00 mbrydon Exp $
+* $Id: page_online_quiz.inc,v 1.17.2.1 2007/08/29 05:00:44 lwright Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1673,7 +1673,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		// - submits the form
 		$link_js    =  ' onClick="document.getElementById(\''.$this->id.'_result_page\').value=\'%s\'; '
 					  .'frm=document.getElementById(\''.$this->getPrefix().'\'); '
-					  .'frm.action=\''.replace_query_string_vars(Array($this->id.'_result_page' => NULL)).'\'; '
+					  .'frm.action=\''.htmlentities(replace_query_string_vars(Array($this->id.'_result_page' => NULL))).'\'; '
 					  .'frm.submit(); return false;" ';
 
 		// we have the luxury of assuming that #_result_page will always exist if a link is present
@@ -1692,7 +1692,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 			// sub the destination page into the javascript
 			$dest_page = $matches[4];
-			$replacements['next_page'] = $matches[1].$url.$matches[5].sprintf($link_js, $dest_page).$matches[6];
+			$replacements['next_page'] = $matches[1].htmlentities($url).$matches[5].sprintf($link_js, $dest_page).$matches[6];
 		}
 
 		// previous_page keyword
@@ -1704,7 +1704,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 			// sub the destination page into the javascript
 			$dest_page = $matches[4];
-			$replacements['previous_page'] = $matches[1].$url.$matches[5].sprintf($link_js, $dest_page).$matches[6];
+			$replacements['previous_page'] = $matches[1].htmlentities($url).$matches[5].sprintf($link_js, $dest_page).$matches[6];
 		}
 
 
