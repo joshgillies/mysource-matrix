@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.24 2006/12/05 22:42:13 emcdonald Exp $
+* $Id: design_area_login_form.inc,v 1.24.2.1 2007/08/29 06:44:08 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -87,7 +87,7 @@ class Design_Area_Login_Form extends Design_Area
 
 				$qry_str_extra = '';
 				if ($this->attr('forward_www_vars')) {
-					$qry_str_extra = '&amp;<'.'?php echo preg_replace(\'/SQ_ACTION=[^\&]+\&?/\', \'\', $_SERVER[\'QUERY_STRING\']); ?'.'>';
+					$qry_str_extra = '&amp;<'.'?php echo htmlentities(preg_replace(\'/SQ_ACTION=[^\&]+\&?/\', \'\', $_SERVER[\'QUERY_STRING\'])); ?'.'>';
 				}
 
 				// open login form

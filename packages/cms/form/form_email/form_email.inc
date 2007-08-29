@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.56 2006/12/07 00:04:18 emcdonald Exp $
+* $Id: form_email.inc,v 1.56.2.1 2007/08/29 06:44:13 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.56.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -72,7 +72,7 @@ class Form_Email extends Form
 	{
 		$prefix = $this->getPrefix();
 		$referer = (isset($_SERVER['HTTP_REFERER'])) ? $_SERVER['HTTP_REFERER'] : '';
-		?><div><input type="hidden" name="<?php echo $prefix; ?>_referral_url" value="<?php echo $referer; ?>" /></div><?php
+		?><div><input type="hidden" name="<?php echo $prefix; ?>_referral_url" value="<?php echo htmlentities($referer); ?>" /></div><?php
 		return parent::printStandard();
 
 	}//end printStandard()
