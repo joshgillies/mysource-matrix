@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.111.2.1 2007/06/15 05:10:45 colivar Exp $
+* $Id: page_asset_builder.inc,v 1.111.2.2 2007/08/29 05:59:42 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.111.2.1 $
+* @version $Revision: 1.111.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -302,7 +302,7 @@ class Page_Asset_Builder extends Page
 	{
 		$submission_url = $this->attr('submit_to_page_url') ? replace_query_string_vars(Array(), $this->getURL()) : replace_query_string_vars(Array());
 		?>
-		<form id="<?php echo $this->getPrefix() ?>" method="post" action="<?php echo $submission_url; ?>" enctype="multipart/form-data" onsubmit="return form_on_submit()">
+		<form id="<?php echo $this->getPrefix() ?>" method="post" action="<?php echo htmlentities($submission_url); ?>" enctype="multipart/form-data" onsubmit="return form_on_submit()">
 			<?php
 			hidden_field($this->id.'_ASSET_BUILDER_ACTION', $this->_default_state);
 			$parameter_map =& $this->getAttribute('parameter_map');

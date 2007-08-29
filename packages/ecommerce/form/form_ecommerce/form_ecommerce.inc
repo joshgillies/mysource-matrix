@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.30.2.4 2007/06/04 00:30:46 colivar Exp $
+* $Id: form_ecommerce.inc,v 1.30.2.5 2007/08/29 05:59:44 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.30.2.4 $
+* @version $Revision: 1.30.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -459,7 +459,7 @@ class Form_Ecommerce extends Form_Email
 		// Add the query string as well if it exists, so asset references with ?a=###
 		// submit back to themselves.
 		if (!empty($_SERVER['QUERY_STRING'])) {
-			$form_action .= '?'.$_SERVER['QUERY_STRING'];
+			$form_action .= '?'.htmlentities($_SERVER['QUERY_STRING']);
 		}
 
 		ob_start();
