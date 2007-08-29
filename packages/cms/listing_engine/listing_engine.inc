@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.221.2.4 2007/07/09 01:26:31 bshkara Exp $
+* $Id: listing_engine.inc,v 1.221.2.5 2007/08/29 00:37:49 lmarchese Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.221.2.4 $
+* @version $Revision: 1.221.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -948,8 +948,14 @@ class Listing_Engine extends Page
 				$field_default_val = '';
 			}
 
+			$presentation_value = FALSE;
+			if ($this->attr('metadata_sort_type') == 'presentation') {
+				$presentation_value = TRUE;
+			}
+
 			foreach ($asset_list as $assetid => $type) {
-				$meta_field_val = $mm->getMetadataValueByAssetid($assetid,$fieldid,TRUE, TRUE);
+				$meta_field_val = $mm->getMetadataValueByAssetid($assetid,$fieldid,TRUE,$presentation_value);
+				
 				$field_value = $field_default_val;
 
 				if (isset($meta_field_val)) {
@@ -2741,6 +2747,12 @@ class Listing_Engine extends Page
 						if (!empty($metadata_field_id)) {
 							$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
 						}
+						$presentation_value = FALSE;
+						if (!empty($group_level['metadata_sort_type'])) {
+							if ($group_level['metadata_sort_type'] === 'presentation') {
+								$presentation_value = TRUE;
+							}
+						}
 						$value = '';
 						if (!is_null($metadata_field)) {
 							// get the metadata manager if we haven't already
@@ -2750,8 +2762,7 @@ class Listing_Engine extends Page
 
 							$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_parent);
 							if (!is_null($parent_asset)) {
-								$value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, TRUE, TRUE);
-								$value = $metadata_field->getMetadataValue($parent_asset, $value);
+								$value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, TRUE, $presentation_value);
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($current_parent->id);
 							}
 						}
@@ -3011,8 +3022,16 @@ class Listing_Engine extends Page
 							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						}//end if
 						$group_order = Array();
+
+						$presentation_value = FALSE;
+						if (!empty($group_type['metadata_sort_type'])) {
+							if ($group_type['metadata_sort_type'] === 'presentation') {
+								$presentation_value = TRUE;
+							}
+						}
+
 						foreach ($results as $key => $arrayInfo) {
-							$group_order[$key] = $mm->getMetadataValueByAssetid($key, $sorting_metadata_field_id, TRUE, TRUE);
+							$group_order[$key] = $mm->getMetadataValueByAssetid($key, $sorting_metadata_field_id, TRUE, $presentation_value);
 						}//end foreach
 					}//end if
 				} else {

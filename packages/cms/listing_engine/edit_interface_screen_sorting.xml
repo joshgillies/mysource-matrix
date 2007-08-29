@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_sorting.xml,v 1.6 2007/02/20 03:35:07 colivar Exp $
+* $Id: edit_interface_screen_sorting.xml,v 1.6.2.1 2007/08/29 00:37:49 lmarchese Exp $
 *
 */
 -->
@@ -41,6 +41,12 @@
 			<function_call>
 				<paint_function name="paintDefaultSortByOption" />
 				<process_function name="processDefaultSortByOption" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintMetadataSortType" />
+				<process_function name="processMetadataSortType" />
 			</function_call>
 		</field>
 		<field>

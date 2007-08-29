@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.33 2007/01/16 00:41:34 bcaldwell Exp $
+* $Id: lang_strings.xml,v 1.33.2.1 2007/08/29 00:37:49 lmarchese Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -136,5 +136,9 @@
 <string source="cms_listing_access_effective">Effective</string>
 <string source="cms_listing_access_effective_permission">Effective %1$s</string>
 <string source="cms_listing_access_include_effective">Include effective permissions</string>
+<string source="cms_listing_default_metadata_sort_type">Default Metadata Sort Type</string>
+<string source="cms_listing_default_metadata_sort_type_note">To sort by the raw metadata value entered on the metadata screen, select Raw Value. To sort by the value displayed on the frontend, select Presentation Value. Sorting by Raw Value will perform the sort before keywords are replaced and presentation formats are applied.</string>
+<string source="cms_listing_raw_value">Raw Value</string>
+<string source="cms_listing_presentation_value">Presentation Value</string>
 
 </strings>
