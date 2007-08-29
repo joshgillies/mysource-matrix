@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.170 2007/06/22 04:06:54 colivar Exp $
+* $Id: form.inc,v 1.171 2007/08/29 03:49:20 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.170 $
+* @version $Revision: 1.171 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1219,7 +1219,7 @@ class Form extends Asset
 		// Add the query string as well if it exists, so asset references with ?a=###
 		// submit back to themselves.
 		if (!empty($_SERVER['QUERY_STRING'])) {
-			$form_action .= '?'.$_SERVER['QUERY_STRING'];
+			$form_action .= '?'.htmlentities($_SERVER['QUERY_STRING']);
 		}
 
 		ob_start();
