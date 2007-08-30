@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.45 2007/08/23 04:17:41 bshkara Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.46 2007/08/30 01:58:07 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,27 +75,21 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-			// get override design
 			$sql = 'SELECT value
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
-			$where = '    url = '.$db->quote($url.'/').'
-					  AND name LIKE '.$db->quote('design::%');
+
+			$where = 'name LIKE '.$db->quote('design::%').' AND
+						(('.$db->quote($url).' = url)
+						OR (('.$db->quote($url).' LIKE url || \'/%\')
+						AND ('.$db->quote($url).' NOT LIKE url || \'%/$\'))
+						OR (('.$db->quote($url.'/').' = url)))';
+
+			$order_by = ' ORDER BY depth DESC';
+
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			$designid = $db->getOne($sql.$where);
+			$designid = $db->getOne($sql.$where.$order_by);
 			assert_valid_db_result($designid);
-
-			// get current or inherited design if there is no override design
-			if (empty($designid)) {
-				$sql = 'SELECT value
-						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
-				$where = '    url = '.$db->quote($url).'
-						  AND name LIKE '.$db->quote('design::%');
-				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
-				$designid = $db->getOne($sql.$where);
-				assert_valid_db_result($designid);
-			}
 
 			if ($designid) {
 				$design =& $am->getAsset($designid);
