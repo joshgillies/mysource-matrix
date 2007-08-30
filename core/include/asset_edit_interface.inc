@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.323 2007/06/18 02:05:09 rong Exp $
+* $Id: asset_edit_interface.inc,v 1.323.2.1 2007/08/30 23:07:22 bshkara Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.323 $
+* @version $Revision: 1.323.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -143,6 +143,94 @@ class Asset_Edit_Interface extends MySource_Object
 		return $this->_screens;
 
 	}//end getScreens()
+
+
+	/**
+	* Sets the preview url and returns the closest parent id which is used in paint() only
+	*
+	* @param object	&$owner	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	*
+	* @return int
+	* @access private
+	*/
+	function _determinePreviewUrl(&$owner, &$o)
+	{
+		// get the asset tree lineage
+		$asset_path = Array();
+		if (isset($_REQUEST['sq_asset_path'])) {
+			// asset map sends comma-separated assetids indicating the path
+			$matches = preg_split('|,([0-9]+:?),?|', ($_REQUEST['sq_asset_path']), 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+			for (reset($matches); NULL !== ($k = key($matches)); next($matches)) {
+				// if a match ends with the shadow id seperator, the next match
+				// is actually part of this match
+				if (substr($matches[$k], -1) == ':') {
+					$asset_path[] = $matches[$k].$matches[$k+1];
+					next($matches);
+					continue;
+				}
+
+				$asset_path[] = $matches[$k];
+			}
+		} else {
+			if (SQ_IN_LIMBO) {
+				$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL();
+				foreach ($url_lineage as $asset_info) {
+					$asset_path[] = $asset_info['assetid'];
+				}
+			} else {
+				// asset map didn't send one (e.g initial matrix loading)
+				// pretend it did by making a singleton set of the owner
+				if ($owner->id) $asset_path[] = $owner->id;
+			}
+		}
+
+		$o->addFormActionGetVar('sq_asset_path', implode(',', $asset_path), TRUE);
+
+		$preview_url = '';
+		$closest_parentid = $owner->id;
+
+		foreach ($asset_path as $assetid) {
+			if ($assetid != $owner->id) {
+				$ancestor =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			} else {
+				$ancestor =& $owner;
+			}
+
+			if (is_null($ancestor)) {
+				$preview_url = '';
+				break;
+			}
+
+			$paths = $ancestor->getWebPaths();
+			if (!empty($paths)) $closest_parentid = $assetid;
+
+			if ($preview_url == '') {
+				// we need a base url
+				$url = $ancestor->getUrl();
+				if (!empty($url)) {
+					$preview_url = $ancestor->getUrl();
+					$closest_parentid = $assetid;
+				}
+			} else {
+				// we have a base url, but we need the appropriate paths
+				if (empty($paths)) {
+					// no path defined from here onwards - just use what we've got so far
+					break;
+				} else {
+					$preview_url .= '/'.array_shift($paths);
+				}
+			}
+		}//end foreach
+		$o->addHiddenField('sq_preview_url', $preview_url);
+
+		// store this preview url into the global vars so that any other asset
+		// can use it as a way to know the content we are in
+		$GLOBALS['sq_preview_url'] = $preview_url;
+
+		return $closest_parentid;
+
+	}//end _determinePreviewUrl()
 
 
 	/**
@@ -513,77 +601,9 @@ class Asset_Edit_Interface extends MySource_Object
 		  ///////////////////
 		 //  PREVIEW URL  //
 		///////////////////
-		// get the asset tree lineage
-		$asset_path = Array();
-		if (isset($_REQUEST['sq_asset_path'])) {
-			// asset map sends comma-separated assetids indicating the path
-			$matches = preg_split('|,([0-9]+:?),?|', ($_REQUEST['sq_asset_path']), 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-			for (reset($matches); NULL !== ($k = key($matches)); next($matches)) {
-				// if a match ends with the shadow id seperator, the next match
-				// is actually part of this match
-				if (substr($matches[$k], -1) == ':') {
-					$asset_path[] = $matches[$k].$matches[$k+1];
-					next($matches);
-					continue;
-				}
-
-				$asset_path[] = $matches[$k];
-			}
-		} else {
-			if (SQ_IN_LIMBO) {
-				$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL();
-				foreach ($url_lineage as $asset_info) {
-					$asset_path[] = $asset_info['assetid'];
-				}
-			} else {
-				// asset map didn't send one (e.g initial matrix loading)
-				// pretend it did by making a singleton set of the owner
-				if ($owner->id) $asset_path[] = $owner->id;
-			}
-		}
-
-		$o->addFormActionGetVar('sq_asset_path', implode(',', $asset_path), TRUE);
-
-		$preview_url = '';
-		$closest_parentid = $owner->id;
-
-		foreach ($asset_path as $assetid) {
-			if ($assetid != $owner->id) {
-				$ancestor =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			} else {
-				$ancestor =& $owner;
-			}
-
-			if (is_null($ancestor)) {
-				$preview_url = '';
-				break;
-			}
-
-			$paths = $ancestor->getWebPaths();
-			if (!empty($paths)) $closest_parentid = $assetid;
-
-			if ($preview_url == '') {
-				// we need a base url
-				$url = $ancestor->getUrl();
-				if (!empty($url)) {
-					$preview_url = $ancestor->getUrl();
-					$closest_parentid = $assetid;
-				}
-			} else {
-				// we have a base url, but we need the appropriate paths
-				if (empty($paths)) {
-					// no path defined from here onwards - just use what we've got so far
-					break;
-				} else {
-					$preview_url .= '/'.array_shift($paths);
-				}
-			}
-		}//end foreach
-		$o->addHiddenField('sq_preview_url', $preview_url);
-
-		// store this preview url into the global vars so that any other asset
-		// can use it as a way to know the content we are in
-		$GLOBALS['sq_preview_url'] = $preview_url;
+		// determine and set the preview url, and return the closest parent id to be used below
+		// in determining the page headings
+		$closest_parentid = $this->_determinePreviewUrl($owner, $o);
 
 
 		  ////////////////
@@ -1665,6 +1685,10 @@ class Asset_Edit_Interface extends MySource_Object
 	*/
 	function process(&$owner, &$o, $creating)
 	{
+		// determine and set the preview url
+		// we don't care about the returned value, it's not used here
+		$this->_determinePreviewUrl($owner, $o);
+
 		$current_screen = (empty($_REQUEST['asset_ei_screen'])) ? 'details' : $_REQUEST['asset_ei_screen'];
 		return $this->processInline($owner, $o, $creating, $current_screen);
 
