@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.43 2007/01/17 22:00:05 tbarrett Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.43.2.1 2007/08/30 04:36:24 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,21 +52,16 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paint the interface for creating containers in the bodycopy
+	* Save the ids of all css files attached to this url to be used by the wysiwyg editor later on
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the Backend_Outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param object	&$o	the Backend_Outputter class
 	*
-	* @return boolean
-	* @access public
+	* @return void
+	* @access private
 	*/
-	function paintBodycopy(&$asset, &$o, $prefix)
+	function _saveCssIds(&$o)
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$write_access = $asset->writeAccess('content');
-		// variable to determine whether or not to allow commit
-		$print_commit_button = $write_access;
 
 		if (isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
 			$url = $GLOBALS['sq_preview_url'];
@@ -101,6 +96,29 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		} else {
 			$o->note(translate('bodycopy_asset_has_no_preview'));
 		}
+
+	}//end _saveCssIds()
+
+
+	/**
+	* Paint the interface for creating containers in the bodycopy
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the Backend_Outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintBodycopy(&$asset, &$o, $prefix)
+	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$write_access = $asset->writeAccess('content');
+		// variable to determine whether or not to allow commit
+		$print_commit_button = $write_access;
+
+		// save css ids into global var
+		$this->_saveCssIds($o);
 
 		// get all the containers linked to this bodycopy
 		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
@@ -332,6 +350,9 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		$updated = FALSE;
+
+		// save css ids into global var
+		$this->_saveCssIds($o);
 
 		// do some thing for the first time we process a bodycopy on this page
 		if (empty($this->_tmp['update_initialised'])) {
