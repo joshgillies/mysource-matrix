@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.53 2007/08/30 01:58:07 bshkara Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.54 2007/08/30 04:22:12 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,6 +45,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		unset($this->static_screens['metadata']);
 		unset($this->static_screens['settings']);
 		unset($this->static_screens['tagging']);
+
 	}//end constructor
 
 
@@ -448,6 +449,62 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
+	* Save the ids of all css files attached to this url to be used by the wysiwyg editor later on
+	*
+	* @param object	&$o	the Backend_Outputter class
+	*
+	* @return mixed array|NULL
+	* @access private
+	*/
+	function _saveCssIds(&$o)
+	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		$url = $GLOBALS['sq_preview_url'];
+		$url = preg_replace('|^http[s]?://|', '', $url);
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT value
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
+
+		$where = 'name LIKE '.$db->quote('design::%').' AND
+					(('.$db->quote($url).' = url)
+					OR (('.$db->quote($url).' LIKE url || \'/%\')
+					AND ('.$db->quote($url).' NOT LIKE url || \'%/$\'))
+					OR (('.$db->quote($url.'/').' = url)))';
+
+		$order_by = ' ORDER BY depth DESC';
+
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+		$designid = $db->getOne($sql.$where.$order_by);
+		assert_valid_db_result($designid);
+
+		if ($designid) {
+			if (!SQ_IN_LIMBO) {
+				$design =& $am->getAsset($designid);
+				$stylesheets = $design->getStylesheets();
+
+				// save the ids of all the css files into a global var so the wysiwyg style
+				// drop down plugin can access this information without another querey
+				// we can also limit the stylesheets that are available to it here if we want
+				$GLOBALS['sq_bodycopy_cssids'] = array_keys($stylesheets);
+
+				$css_urls = $am->getAssetURL($GLOBALS['sq_bodycopy_cssids']);
+
+				$am->forgetAsset($design);
+				unset($design);
+
+				return $css_urls;
+			}
+		}
+		return NULL;
+
+	}//end _saveCssIds()
+
+
+	/**
 	* When this bodycopycontainer is painted on its own without being a part
 	* of the 'contents' of a bodycopy, draw the editing info by itself. Most of
 	* the code is directly taken from the Bodycopy_Edit_Fns class as the
@@ -468,38 +525,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		// if there's a preview url set for this asset, get the design info for
 		// it.
 		if (isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
-			$url = $GLOBALS['sq_preview_url'];
-			$url = preg_replace('|^http[s]?://|', '', $url);
-
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-			$sql = 'SELECT value
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
-
-			$where = 'name LIKE '.$db->quote('design::%').' AND
-						(('.$db->quote($url).' = url)
-						OR (('.$db->quote($url).' LIKE url || \'/%\')
-						AND ('.$db->quote($url).' NOT LIKE url || \'%/$\'))
-						OR (('.$db->quote($url.'/').' = url)))';
-
-			$order_by = ' ORDER BY depth DESC';
-
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
-			$designid = $db->getOne($sql.$where.$order_by);
-			assert_valid_db_result($designid);
-
-			if ($designid) {
-				if (!SQ_IN_LIMBO) {
-					$design =& $am->getAsset($designid);
-					$stylesheets = $design->getStylesheets();
-
-					// save the ids of all the css files into a global var so the wysiwyg style
-					// drop down plugin can access this information without another querey
-					// we can also limit the stylesheets that are available to it here if we want
-					$GLOBALS['sq_bodycopy_cssids'] = array_keys($stylesheets);
-
-					$css_urls = $am->getAssetURL($GLOBALS['sq_bodycopy_cssids']);
+			// save css ids into global var
+			$css_urls = $this->_saveCssIds($o);
+			if (!is_null($css_urls)) {
 					?>
 					<style type="text/css">
 						/* import styles from the design for this asset */
@@ -510,9 +538,6 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 						?>
 					</style>
 					<?php
-					$am->forgetAsset($design);
-					unset($design);
-				}
 			} else {
 				?>
 				<p class="sq-backend-notice"><b>NOTE:</b> This asset does not have a design applied to it for the URL currently being edited [<b><?php echo $GLOBALS['sq_preview_url']; ?></b>]. No style information is available to use for content editing.</p>
@@ -795,6 +820,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processBodycopyContainer(&$asset, &$o, $prefix)
 	{
+		// save css ids into global var
+		// we don't care about the return value here
+		$this->_saveCssIds($o);
+
 		$updated = FALSE;
 		$bc_action = (empty($_POST['bodycopy_action'])) ? ''      : $_POST['bodycopy_action'];
 		$bc_name   = (empty($_POST['bodycopy_name']))   ? ''      : $_POST['bodycopy_name'];
