@@ -1,5 +1,32 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.14.4
+
+Complete Changelog
+-----------------------------------
+
+Core
+
+* Fixed bug #2128: WYSIWYG Editor can't handle &deg; from "Special Characters"
+* Fixed bug #2567: Keyword Regexp Condition Problem
+* Fixed bug #2568: Headings for the Escalation Steps in a Workflow Schema
+* Fixed bug #2572: Wording for the SSL section on the settings screen
+* Fixed bug #2573: Remove the XML Namespace Settings from the Metadata Schema
+* Fixed bug #2586: WYSIWYG design styles lost on commit
+* Fixed bug #2588: Asset Map boundary error
+* Fixed bug #2589: Asset_Manager:::getLinkByAsset() function returns odd results with shadow assets and force_array=TRUE
+
+CMS
+
+* Fixed bug #2580: Assets listed by metadata_date incorrectly (Listing Engine)
+* Fixed bug #2581: Related Listing nested content recursion warning (Related Asset Listing)
+
+News
+
+* Fixed bug #2551: Comment Preferences layout inconsistent (Comment)
+
+
+
 VERSION 3.14.3
 
 Complete Changelog
