@@ -7,6 +7,7 @@ Complete Changelog
 
 Core
 
++ New Add/Remove URL script, allowing a URL to be added/removed from a Site asset from the command line
 * Fixed bug #2128: WYSIWYG Editor can't handle &deg; from "Special Characters"
 * Fixed bug #2567: Keyword Regexp Condition Problem
 * Fixed bug #2568: Headings for the Escalation Steps in a Workflow Schema
