@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.229 2007/09/03 01:26:04 bshkara Exp $
+* $Id: mysource.inc,v 1.230 2007/09/03 01:27:19 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.229 $
+* @version $Revision: 1.230 $
 * @package MySource_Matrix
 */
 class MySource
@@ -202,7 +202,7 @@ class MySource
 	* @access public
 	*/
 	function init()
-	{//log_dump(var_export($_REQUEST, true));
+	{
 		$this->changeDatabaseConnection('db');
 
 		// initialise the asset manager as we are going to need it pretty much everywhere
