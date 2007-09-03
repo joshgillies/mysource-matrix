@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.180 2007/07/18 04:23:37 bshkara Exp $
+* $Id: backend.inc,v 1.181 2007/09/03 01:26:04 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.180 $
+* @version $Revision: 1.181 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -1102,7 +1102,8 @@ class Backend extends MySource_Object
 					<?php
 					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 					$asset_map =& new Asset_Map();
-					$asset_map->embedAssetMap('simple', '275');
+					$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
+					$asset_map->embedAssetMap('simple', $am_width);
 					?>
 				</div>
 			<?php
@@ -1233,20 +1234,21 @@ class Backend extends MySource_Object
 			var clickSize = 50;
 			var fset = top.document.getElementById('main_frameset');
 			hidden = <?php var_export(SQ_IN_LIMBO); ?>;
+			<?php $am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH') + 5; ?>
 
 			function toggleFrame() {
 				if (hidden == false) {
-					if (fset.cols == "280,10,*") {
+					if (fset.cols == "<?php echo $am_width; ?>,10,*") {
 						fset.cols = "0,10,*";
-					} else if (fset.cols == "280,0,*") {
+					} else if (fset.cols == "<?php echo $am_width; ?>,0,*") {
 						fset.cols = "0,0,*";
 					}
 					hidden = true;
 				} else {
 					if (fset.cols == "0,10,*") {
-						fset.cols = "280,10,*";
+						fset.cols = "<?php echo $am_width; ?>,10,*";
 					} else if (fset.cols == "0,0,*") {
-						fset.cols = "280,0,*";
+						fset.cols = "<?php echo $am_width; ?>,0,*";
 					}
 					hidden = false;
 				}
