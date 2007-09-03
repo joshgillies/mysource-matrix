@@ -2,11 +2,20 @@ MYSOURCE MATRIX CHANGELOG
 
 VERSION 3.14.4
 
-Complete Changelog
+Featured Changes
+-----------------------------------
+
+Alternate Base DN for LDAP Authentication
+
+    If this advanced setting is filled in, an alternate Base Distinguishing Name (DN) will be used by the LDAP Authentication system for finding a user to authenticate. If left blank, the normal Base DN will be used for this purpose.
+
+
+Additional Changes and Bug Fixes
 -----------------------------------
 
 Core
 
++ New Add/Remove URL script, allowing a URL to be added/removed from a Site asset from the command line
 * Fixed bug #2128: WYSIWYG Editor can't handle &deg; from "Special Characters"
 * Fixed bug #2567: Keyword Regexp Condition Problem
 * Fixed bug #2568: Headings for the Escalation Steps in a Workflow Schema
