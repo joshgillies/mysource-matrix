@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_url_matches.inc,v 1.4 2007/02/14 23:59:09 emcdonald Exp $
+* $Id: trigger_condition_url_matches.inc,v 1.4.4.1 2007/09/04 23:52:44 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,15 +67,16 @@ class Trigger_Condition_URL_Matches extends Trigger_Condition
 		}
 
 		// see if the pattern occurs in the current url
-		$matches = strpos($_SERVER['REQUEST_URI'], $settings['pattern']);
-		// check the condition
-		if ($settings['match'] && $matches) {
-			return TRUE;
-		} else if (!$settings['match'] && !$matches) {
-			return TRUE;
-		} else {
-			return FALSE;
+		if (isset($_SERVER['REQUEST_URI'])) {
+			$matches = strpos($_SERVER['REQUEST_URI'], $settings['pattern']);
+			// check the condition
+			if ($settings['match'] && $matches) {
+				return TRUE;
+			} else if (!$settings['match'] && !$matches) {
+				return TRUE;
+			}
 		}
+		return FALSE;
 
 	}//end evaluate()
 
@@ -111,6 +112,7 @@ class Trigger_Condition_URL_Matches extends Trigger_Condition
 				echo ' Must be in URL<br>';
 				radio_button($prefix.'[match]', '0', !$match, NULL, $form_element_extras);
 				echo ' Must not be in URL<br>';
+				echo 'Note: this condition only checks the query string ($_SERVER["REQUEST_URI"]) part of the URL';
 			} else {
 				$match_str = ($match) ? 'must be in URL' : 'must not be in URL';
 				echo "\"$pattern\" $match_str .";
