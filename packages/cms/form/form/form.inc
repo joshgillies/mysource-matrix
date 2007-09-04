@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.171 2007/08/29 03:49:20 lwright Exp $
+* $Id: form.inc,v 1.172 2007/09/04 06:28:22 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.171 $
+* @version $Revision: 1.172 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1819,7 +1819,8 @@ class Form extends Asset
 		if ($this->attr('use_bodycopy_thank_you') && $tyb && !$tyb->isEmpty()) {
 
 			if ($this->attr('show_results')) {
-				$keyword_list = $tyb->getKeywords();
+                $keyword_list = $tyb->getKeywords();
+                $replacements = Array();
 
 				foreach ($keyword_list as $keyword) {
 					$lookup_keyword = $keyword;
