@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_url_matches.inc,v 1.5 2007/09/04 23:40:50 rong Exp $
+* $Id: trigger_condition_url_matches.inc,v 1.6 2007/09/04 23:51:17 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -112,6 +112,7 @@ class Trigger_Condition_URL_Matches extends Trigger_Condition
 				echo ' Must be in URL<br>';
 				radio_button($prefix.'[match]', '0', !$match, NULL, $form_element_extras);
 				echo ' Must not be in URL<br>';
+				echo 'Note: this condition only checks the query string ($_SERVER["REQUEST_URI"]) part of the URL';
 			} else {
 				$match_str = ($match) ? 'must be in URL' : 'must not be in URL';
 				echo "\"$pattern\" $match_str .";
