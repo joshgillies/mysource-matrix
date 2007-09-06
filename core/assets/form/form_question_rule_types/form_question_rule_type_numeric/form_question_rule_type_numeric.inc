@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_numeric.inc,v 1.7.2.1 2007/05/17 23:02:06 skim Exp $
+* $Id: form_question_rule_type_numeric.inc,v 1.7.2.2 2007/09/06 00:54:06 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7.2.1 $
+* @version $Revision: 1.7.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,45 +79,72 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	{
 		// have we printed out the validation function yet?
 		// (since this is static across all class instances, this will work)
-		static $printed_fn = FALSE;
+		static $printed_fn_required = FALSE;
+		static $printed_fn_not_required = FALSE;
 
 		$operator = array_get_index($rule_data, 'operator', 1);
 
-		if (!$q_asset->attr('is_required')) {
-			// regex code - allow empty or leading plus or minute, digits, decimal point
-			$regex_code = '/(^$)|(^[-+]?\d*\.?\d+$)/';
-		} else {
-			// regex code - allow leading plus or minute, digits, decimal point, but not empty
-			$regex_code = '/^[-+]?\d*\.?\d+$/';
-		}
+        // regex code - allow empty or leading plus or minute, digits, decimal point
+        $regex_code_not_required = '/(^$)|(^[-+]?\d*\.?\d+$)/';
+        // regex code - allow leading plus or minute, digits, decimal point, but not empty
+        $regex_code_required = '/^[-+]?\d*\.?\d+$/';
 
 		ob_start();			// buffer this please
 
-			if (!$printed_fn) {
-				$printed_fn = TRUE;
+            // output js function for *required* validation
+			if (!$printed_fn_required && $q_asset->attr('is_required')) {
+				$printed_fn_required = TRUE;
 
 					?>
-					function sq_form_validate_numeric(answer)
+					function sq_form_validate_numeric_required(answer)
 					{
 						answer.replace(/,/, "");
-						return answer.match(<?php echo $regex_code ?>);
+						return answer.match(<?php echo $regex_code_required ?>);
 
-					}//end sq_form_validate_numeric()
+					}//end sq_form_validate_numeric_required()
+					<?php
+            // output js function for validation where field is not required to be filled
+            } else if (!$printed_fn_not_required) {
+				$printed_fn_not_required = TRUE;
+
+					?>
+					function sq_form_validate_numeric_not_required(answer)
+					{
+						answer.replace(/,/, "");
+						return answer.match(<?php echo $regex_code_not_required ?>);
+
+                    }//end sq_form_validate_numeric_not_required()
+
 					<?php
 
-			}
+            }
 
-			?>
-				if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_numeric(form.elements["q<?php echo $q_asset->id; ?>"].value)) {
-					submission_errors[submission_errors.length] = "<?php
-						if (empty($rule_data['custom_text'])) {
-							echo addslashes($this->defaultError($q_asset, $rule_data));
-						} else {
-							echo addslashes($rule_data['custom_text']);
-						}
-					?>";
-				}
-			<?php
+            // generate calls to the above 2 functions
+            // if this field is required
+            if ($q_asset->attr('is_required')) {
+                	?>
+                    if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_numeric_required(form.elements["q<?php echo $q_asset->id; ?>"].value)) {
+                        submission_errors[submission_errors.length] = "<?php
+                            if (empty($rule_data['custom_text'])) {
+                                echo addslashes($this->defaultError($q_asset, $rule_data));
+                            } else {
+                                echo addslashes($rule_data['custom_text']);
+                            }
+                        ?>";
+                    } <?php
+            // if this field is not required
+			} else if (!$q_asset->attr('is_required')) {
+           			?> 
+                    if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_numeric_not_required(form.elements["q<?php echo $q_asset->id; ?>"].value)) {
+                        submission_errors[submission_errors.length] = "<?php
+                            if (empty($rule_data['custom_text'])) {
+                                echo addslashes($this->defaultError($q_asset, $rule_data));
+                            } else {
+                                echo addslashes($rule_data['custom_text']);
+                            }
+                        ?>";
+                    } <?php
+            }
 
 		$contents = ob_get_contents();
 		ob_end_clean();
