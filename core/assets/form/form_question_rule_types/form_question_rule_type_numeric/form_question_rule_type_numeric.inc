@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_numeric.inc,v 1.9 2007/09/06 00:17:59 bshkara Exp $
+* $Id: form_question_rule_type_numeric.inc,v 1.10 2007/09/06 00:44:58 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -121,8 +121,8 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 
             // generate calls to the above 2 functions
             // if this field is required
-            if ($q_asset->attr('is_required')) { ?>
-                
+            if ($q_asset->attr('is_required')) {
+                 	?>
                     if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_numeric_required(form.elements["q<?php echo $q_asset->id; ?>"].value)) {
                         submission_errors[submission_errors.length] = "<?php
                             if (empty($rule_data['custom_text'])) {
@@ -133,8 +133,8 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
                         ?>";
                     } <?php
             // if this field is not required
-            } else if (!$q_asset->attr('is_required')) { ?>
-            
+            } else if (!$q_asset->attr('is_required')) {
+             		?>
                     if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_numeric_not_required(form.elements["q<?php echo $q_asset->id; ?>"].value)) {
                         submission_errors[submission_errors.length] = "<?php
                             if (empty($rule_data['custom_text'])) {
