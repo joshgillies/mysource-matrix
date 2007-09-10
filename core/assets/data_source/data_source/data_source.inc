@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.16 2007/05/23 00:58:25 arailean Exp $
+* $Id: data_source.inc,v 1.17 2007/09/10 06:10:23 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ register_implementation('data_source', 'bridge');
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -150,7 +150,7 @@ class Data_Source extends Asset
 		$result = unserialize($result);
 		return $result;
 
-	}//end getChachedResultSet()
+	}//end getCachedResultSet()
 
 
 	/**
@@ -520,6 +520,10 @@ class Data_Source extends Asset
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
 	{
+		if (!($link_types & SQ_LINK_TYPE_1)) {
+            return Array();
+        }
+
 		if (!is_array($type_code)) {
 			if (empty($type_code)) {
 				$type_code = Array();
