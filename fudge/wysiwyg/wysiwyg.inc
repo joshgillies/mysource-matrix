@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.73 2007/08/03 02:13:25 colivar Exp $
+* $Id: wysiwyg.inc,v 1.74 2007/09/12 03:38:51 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1154,70 +1154,70 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 						189 : '&frac12;',	// fraction 1/2
 						190 : '&frac34;',	// fraction 3/4
 						191 : '&iquest;',	// inverted question mark
-						//192 : '&Agrave;',	// capital A grave
-						//193 : '&Aacute;',	// capital A acute
-						//194 : '&Acirc;',	// capital A circumflex
-						//195 : '&Atilde;',	// capital A tilde
-						//196 : '&Auml;',	// capital A dieresis or umlaut
-						//197 : '&Aring;',	// capital A ring
+						192 : '&Agrave;',	// capital A grave
+						193 : '&Aacute;',	// capital A acute
+						194 : '&Acirc;',	// capital A circumflex
+						195 : '&Atilde;',	// capital A tilde
+						196 : '&Auml;',	// capital A dieresis or umlaut
+						197 : '&Aring;',	// capital A ring
 						198 : '&AElig;',	// capital AE ligature
-						//199 : '&Ccedil;',	// capital C cedilla
-						//200 : '&Egrave;',	// capital E grave
-						//201 : '&Eacute;',	// capital E acute
-						//202 : '&Ecirc;',	// capital E circumflex
-						//203 : '&Euml;',	// capital E dieresis or umlaut
-						//204 : '&Igrave;',	// capital I grave
-						//205 : '&Iacute;',	// capital I acute
-						//206 : '&Icirc;',	// capital I circumflex
-						//207 : '&Iuml;',	// capital I dieresis or umlaut
+						199 : '&Ccedil;',	// capital C cedilla
+						200 : '&Egrave;',	// capital E grave
+						201 : '&Eacute;',	// capital E acute
+						202 : '&Ecirc;',	// capital E circumflex
+						203 : '&Euml;',	// capital E dieresis or umlaut
+						204 : '&Igrave;',	// capital I grave
+						205 : '&Iacute;',	// capital I acute
+						206 : '&Icirc;',	// capital I circumflex
+						207 : '&Iuml;',	// capital I dieresis or umlaut
 						208 : '&ETH;',		// capital ETH
-						//209 : '&Ntilde;',	// capital N tilde
-						//210 : '&Ograve;',	// capital O grave
-						//211 : '&Oacute;',	// capital O acute
-						//212 : '&Ocirc;',	// capital O circumflex
-						//213 : '&Otilde;',	// capital O tilde
-						//214 : '&Ouml;',	// capital O dieresis or umlaut
-						//215 : '&times;',	// multiplication sign
-						//216 : '&Oslash;',	// capital O slash
-						//217 : '&Ugrave;',	// capital U grave
-						//218 : '&Uacute;',	// capital U acute
-						//219 : '&Ucirc;',	// capital U circumflex
-						//220 : '&Uuml;',	// capital U dieresis or umlaut
-						//221 : '&Yacute;',	// capital Y acute
+						209 : '&Ntilde;',	// capital N tilde
+						210 : '&Ograve;',	// capital O grave
+						211 : '&Oacute;',	// capital O acute
+						212 : '&Ocirc;',	// capital O circumflex
+						213 : '&Otilde;',	// capital O tilde
+						214 : '&Ouml;',	// capital O dieresis or umlaut
+						215 : '&times;',	// multiplication sign
+						216 : '&Oslash;',	// capital O slash
+						217 : '&Ugrave;',	// capital U grave
+						218 : '&Uacute;',	// capital U acute
+						219 : '&Ucirc;',	// capital U circumflex
+						220 : '&Uuml;',	// capital U dieresis or umlaut
+						221 : '&Yacute;',	// capital Y acute
 						222 : '&THORN;',	// capital THORN
 						223 : '&szlig;',	// small sharp s, sz ligature
-						//224 : '&agrave;',	// small a grave
-						//225 : '&aacute;',	// small a acute
-						//226 : '&acirc;',	// small a circumflex
-						//227 : '&atilde;',	// small a tilde
-						//228 : '&auml;',	// small a dieresis or umlaut
-						//229 : '&aring;',	// small a ring
+						224 : '&agrave;',	// small a grave
+						225 : '&aacute;',	// small a acute
+						226 : '&acirc;',	// small a circumflex
+						227 : '&atilde;',	// small a tilde
+						228 : '&auml;',	// small a dieresis or umlaut
+						229 : '&aring;',	// small a ring
 						230 : '&aelig;',	// small ae ligature
-						//231 : '&ccedil;',	// small c cedilla
-						//232 : '&egrave;',	// small e grave
-						//233 : '&eacute;',	// small e acute
-						//234 : '&ecirc;',	// small e circumflex
-						//235 : '&euml;',	// small e dieresis or umlaut
-						//236 : '&igrave;',	// small i grave
-						//237 : '&iacute;',	// small i acute
-						//238 : '&icirc;',	// small i circumflex
-						//239 : '&iuml;',	// small i dieresis or umlaut
+						231 : '&ccedil;',	// small c cedilla
+						232 : '&egrave;',	// small e grave
+						233 : '&eacute;',	// small e acute
+						234 : '&ecirc;',	// small e circumflex
+						235 : '&euml;',	// small e dieresis or umlaut
+						236 : '&igrave;',	// small i grave
+						237 : '&iacute;',	// small i acute
+						238 : '&icirc;',	// small i circumflex
+						239 : '&iuml;',	// small i dieresis or umlaut
 						240 : '&eth;',		// small eth
-						//241 : '&ntilde;',	// small n tilde
-						//242 : '&ograve;',	// small o grave
-						//243 : '&oacute;',	// small o acute
-						//244 : '&ocirc;',	// small o circumflex
-						//245 : '&otilde;',	// small o tilde
-						//246 : '&ouml;',	// small o dieresis or umlaut
+						241 : '&ntilde;',	// small n tilde
+						242 : '&ograve;',	// small o grave
+						243 : '&oacute;',	// small o acute
+						244 : '&ocirc;',	// small o circumflex
+						245 : '&otilde;',	// small o tilde
+						246 : '&ouml;',	// small o dieresis or umlaut
 						247 : '&divide;',	// division sign
-						//248 : '&oslash;',	// small o slash
-						//249 : '&ugrave;',	// small u grave
-						//250 : '&uacute;',	// small u acute
-						//251 : '&ucirc;',	// small u circumflex
-						//252 : '&uuml;',	// small u dieresis or umlaut
-						//253 : '&yacute;',	// small y acute
+						248 : '&oslash;',	// small o slash
+						249 : '&ugrave;',	// small u grave
+						250 : '&uacute;',	// small u acute
+						251 : '&ucirc;',	// small u circumflex
+						252 : '&uuml;',	// small u dieresis or umlaut
+						253 : '&yacute;',	// small y acute
 						254 : '&thorn;',	// small thorn
-						//255 : '&yuml;',	// small y dieresis or umlaut
+						255 : '&yuml;',	// small y dieresis or umlaut
 						402 : '&fnof;',		// small italic f, function of, florin
 						913 : '&Alpha;',	// capital Alhpa
 						914 : '&Beta;',		// capital Beta
@@ -1347,6 +1347,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 					var html_length = html_code.length;
 					var new_html = '';
 					for(var i = 0; i < html_length; i++) {
+
 						code = html_code.charCodeAt(i);
 						entity = entities_array[code];
 						if (entity && entity != '') {
