@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.574 2007/08/27 01:31:47 bshkara Exp $
+* $Id: asset_manager.inc,v 1.575 2007/09/12 04:44:29 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.574 $
+* @version $Revision: 1.575 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7961,6 +7961,35 @@ class Asset_Manager extends MySource_Object
 		return $this->_asset_cache->getForgottenItemsReport();
 
 	}//end getForgottenItemsReport()
+
+
+	/**
+	* isDependant function: check if an asset is linked dependantly somewhere
+	*
+	* @param string	$assetid	The id of the asset that we are checking for
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isDependant($assetid)
+	{
+		assert_valid_assetid($assetid);
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$assetid = (string) $assetid;
+		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk';
+		$sql .= ' WHERE minorid = \''.$assetid.'\' AND is_dependant = 1';
+		$links_result = $db->getRow($sql);
+		assert_valid_db_result($links_result);
+
+		// If there is no row, that means it is not a dependant
+		if (!empty($links_result)) {
+			return TRUE;
+		} else {
+			return FALSE;
+		}
+
+	}//end isDependant()
 
 
 }//end class
