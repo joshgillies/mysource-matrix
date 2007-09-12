@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.15 2007/07/13 04:27:11 rhoward Exp $
+* $Id: page_link_manager.inc,v 1.16 2007/09/12 01:35:21 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -89,7 +89,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 	/**
 	* Get the default content for a bodycopy
 	*
-	* @param string	$value	The code name for the bodycopy
+	* @param string	$bodycopy_code	The code name for the bodycopy
 	*
 	* @return string
 	* @access private
@@ -106,7 +106,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 		}
 		return parent::_getDefaultBodycopyContent($bodycopy_code);
 
-	}//end _getDefaultBodycopyContent();
+	}//end _getDefaultBodycopyContent()
 
 
 	/**
@@ -291,7 +291,6 @@ class Page_Link_Manager extends Page_Asset_Listing
 		// Tie the process and following paint together using db2 in order to
 		// avoid possible replication slowdown on db1
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-
 		$this->processAssetSelections();
 		parent::printBody();
 
@@ -407,7 +406,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 						unset($asset_links[$assetid]);
 					}
 				}
-			}
+			}//end if
 
 			// keep forced, but make sure we have link integrity turned on
 			$run_level = SQ_RUN_LEVEL_FORCED | SQ_SECURITY_LINK_INTEGRITY;
@@ -422,6 +421,9 @@ class Page_Link_Manager extends Page_Asset_Listing
 
 			$this->generateMessages($done);
 		}//end if
+
+		// update the lookups of the managed asset
+		$managed_asset->updateLookups();
 
 		return TRUE;
 
