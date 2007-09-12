@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.42 2007/09/12 04:38:11 hnguyen Exp $
+* $Id: thesaurus.inc,v 1.43 2007/09/12 04:40:51 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -2025,7 +2025,7 @@ class Thesaurus extends Asset
 			// cannot link a term to a thesaurus
 			// terms can only be linked to themselves
 			// this term already exists; its appearance as the top term is controlled by the 'hierarchy' set of options
-			trigger_error('Cannot link term to thesaurus. Term already exists in thesaurus. Its appearance as a top-level term is governed by the HIERARCHY options of the thesaurus and cannot be forced.', E_USER_WARNING);
+			trigger_error('Cannot link term to thesaurus. Term already exists in thesaurus. Its appearance as a top-level term is governed by the HIERARCHY options of the thesaurus and cannot be forced.', E_USER_ERROR);
 			return 0;
 		}
 
