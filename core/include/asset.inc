@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.593 2007/06/05 00:41:38 lwright Exp $
+* $Id: asset.inc,v 1.593.2.1 2007/09/12 05:41:05 lmarchese Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.593 $
+* @version $Revision: 1.593.2.1 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3360,6 +3360,12 @@ class Asset extends MySource_Object
 			$replacement = $this->$func_name();
 		} else if (strcmp('asset_assetid', $keyword) == 0) {
 			$replacement = $this->id;
+		} else if (strcmp('asset_name', $keyword) == 0) {
+			$replacement = $this->name;
+			$replacement = str_replace('&', '&amp;', $replacement);
+		} else if (strcmp('asset_short_name', $keyword) == 0) {
+			$replacement = $this->short_name;
+			$replacement = str_replace('&', '&amp;', $replacement);
 		} else if (strcmp('asset_type', $keyword) == 0) {
 			$replacement = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 		} else if (0 === strpos($keyword, 'asset_attribute_')) {
