@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.43 2007/01/30 23:05:01 rong Exp $
+* $Id: asset_status_under_construction.inc,v 1.44 2007/09/12 04:36:44 hnguyen Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -95,9 +95,13 @@ class Asset_Status_Under_Construction extends Asset_Status
 			if (empty($schemas)) {
 				// no workflow defined, so any admin can make this live
 				if ($this->owner->adminAccess('')) {
-					if (!isset($this->_tmp['metadata_complete'])) {
-						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-						$this->_tmp['metadata_complete'] = $mm->requiredFieldsComplete($this->owner->id);
+					if (!$GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id)) {
+						if (!isset($this->_tmp['metadata_complete'])) {
+							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+							$this->_tmp['metadata_complete'] = $mm->requiredFieldsComplete($this->owner->id);
+						}
+					} else {
+							$this->_tmp['metadata_complete'] = TRUE;
 					}
 					if ($this->_tmp['metadata_complete']) {
 						$statii[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
@@ -111,7 +115,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 				// we also need to check what if all the required metadata fields are completed
 				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				if ($mm->allowsMetadata($this->owner->id)) {
-					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
+					$m_complete = $mm->requiredFieldsComplete($this->owner->id) || $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
 
 					if ($wf_complete && $m_complete) {
 						$statii[SQ_STATUS_APPROVED] = translate('status_change_approve');

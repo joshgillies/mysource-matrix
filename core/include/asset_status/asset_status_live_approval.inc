@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.43 2007/01/30 23:05:01 rong Exp $
+* $Id: asset_status_live_approval.inc,v 1.44 2007/09/12 04:36:44 hnguyen Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                   there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live_Approval extends Asset_Status
@@ -103,8 +103,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 				// we also need to check what if all the required metadata fields are completed
 				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				if ($mm->allowsMetadata($this->owner->id)) {
-					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
-
+					$m_complete = ($mm->requiredFieldsComplete($this->owner->id) || $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id));
 					if ($wf_complete && $m_complete) {
 						$statii[SQ_STATUS_LIVE] = translate('status_change_approve_and_make_live');
 					} else if (in_array($userid, $publishers)) {
