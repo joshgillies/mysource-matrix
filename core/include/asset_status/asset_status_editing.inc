@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.37 2007/01/30 23:05:01 rong Exp $
+* $Id: asset_status_editing.inc,v 1.37.4.1 2007/09/13 05:12:50 hnguyen Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.37.4.1 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -91,8 +91,7 @@ class Asset_Status_Editing extends Asset_Status
 		} else {
 			// workflow is not currently running for this asset
 			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			if ($mm->allowsMetadata($this->owner->id)) {
-
+			if ($mm->allowsMetadata($this->owner->id) && !$GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id)) {
 				if ($mm->requiredFieldsComplete($this->owner->id)) {
 					// metadata is complete
 					$schemas = $wfm->getSchemas($this->owner->id, true);

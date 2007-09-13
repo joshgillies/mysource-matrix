@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.47 2007/01/18 00:24:02 tbarrett Exp $
+* $Id: tables.xml,v 1.47.4.1 2007/09/13 05:15:39 hnguyen Exp $
 *
 */
 -->
@@ -273,6 +273,9 @@
 				<index>
 					<column name="link_type" />
 				</index>
+                <index>
+                    <column name="is_dependant" />
+                </index>
 			</indexes>
 		</table>
 		<table name="shdw_ast_lnk" require_rollback="1">
