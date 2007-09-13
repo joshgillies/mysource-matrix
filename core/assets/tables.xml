@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.47 2007/01/18 00:24:02 tbarrett Exp $
+* $Id: tables.xml,v 1.47.2.1 2007/09/13 06:06:33 hnguyen Exp $
 *
 */
 -->
@@ -272,6 +272,9 @@
 				</index>
 				<index>
 					<column name="link_type" />
+				</index>
+				<index>
+					<column name="is_dependant" />
 				</index>
 			</indexes>
 		</table>

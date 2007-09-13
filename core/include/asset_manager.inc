@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.562.2.4 2007/08/24 00:35:31 lwright Exp $
+* $Id: asset_manager.inc,v 1.562.2.5 2007/09/13 06:05:32 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.562.2.4 $
+* @version $Revision: 1.562.2.5 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1856,7 +1856,7 @@ class Asset_Manager extends MySource_Object
 				// OK what we are going to do is make sure that the new parents lock is
 				// in the same chain as our current lock
 				$parent_lock = $this->getLockInfo($link['asset']->id, 'links');
-				if (empty($parent_lock) || !in_array($parent_lock['source_assetid'], $dependent_parents)) { 
+				if (empty($parent_lock) || !in_array($parent_lock['source_assetid'], $dependent_parents)) {
 					if (!empty($parent_lock)) {
 						if (!$this->releaseLock($link['asset']->id, 'links')) {
 							return $null;
@@ -7929,6 +7929,35 @@ class Asset_Manager extends MySource_Object
 		return $this->_asset_cache->getForgottenItemsReport();
 
 	}//end getForgottenItemsReport()
+
+
+	/**
+	* isDependant function: check if an asset is linked dependantly somewhere
+	*
+	* @param string	$assetid	The id of the asset that we are checking for
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isDependant($assetid)
+	{
+		assert_valid_assetid($assetid);
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$assetid = (string) $assetid;
+		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk';
+		$sql .= ' WHERE minorid = \''.$assetid.'\' AND is_dependant = 1';
+		$links_result = $db->getRow($sql);
+		assert_valid_db_result($links_result);
+
+		// If there is no row, that means it is not a dependant
+		if (!empty($links_result)) {
+			return TRUE;
+		} else {
+			return FALSE;
+		}
+
+	}//end isDependant()
 
 
 }//end class
