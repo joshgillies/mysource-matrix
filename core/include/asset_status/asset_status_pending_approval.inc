@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_pending_approval.inc,v 1.40 2007/09/12 04:36:44 hnguyen Exp $
+* $Id: asset_status_pending_approval.inc,v 1.41 2007/09/13 04:51:03 hnguyen Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 */
 class Asset_Status_Pending_Approval extends Asset_Status
@@ -191,7 +191,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 				// admin that is trying to approve because metadata is now complete.
 				// the result is that this workflow process may already be complete
 				$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				$m_complete = !$mm->allowsMetadata($this->owner->id) || $mm->requiredFieldsComplete($this->owner->id);
+				$m_complete = !$mm->allowsMetadata($this->owner->id) || $mm->requiredFieldsComplete($this->owner->id) || $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
 
 				if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_SC_STATUS_ALL_APPROVED)) {
 					if (!$wfm->completeWorkflow($this->owner->id)) {
