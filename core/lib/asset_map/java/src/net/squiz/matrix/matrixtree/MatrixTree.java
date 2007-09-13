@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTree.java,v 1.28 2007/06/27 23:38:13 mbrydon Exp $
+* $Id: MatrixTree.java,v 1.29 2007/09/13 23:40:17 colivar Exp $
 *
 */
 
@@ -692,9 +692,9 @@ public class MatrixTree extends CueTree
 		for (int i = 0; i < sourcePaths.length; i++) {
 			sourceNodes[i] = (MatrixTreeNode) sourcePaths[i].getLastPathComponent();
 		}
-		
+
 		// Ensure that nodes to be moved are sorted by "sort order"
-	
+
 		// Bubble Sort
 		if (sourceNodes.length > 1) {
 			int numSorted = 1;
@@ -754,13 +754,16 @@ public class MatrixTree extends CueTree
 		if (multipleMoveType != null) {
 			TreePath[] sourcePaths = evt.getSourcePaths();
 			MatrixTreeNode[] sourceNodes = new MatrixTreeNode[sourcePaths.length];
+			for (int i = 0; i < sourcePaths.length; i++) {
+				sourceNodes[i] = (MatrixTreeNode) sourcePaths[i].getLastPathComponent();
+			}
 
 			MatrixTreeNode parent = (MatrixTreeNode) evt.getParentPath().getLastPathComponent();
 			fireCreateLink(multipleMoveType, sourceNodes, parent, evt.getIndex(), evt.getPrevIndex());
 			multipleMoveType = null;
 		} else {
 			moveGestureCompleted(evt);
-		
+
 
 		}
 	}
