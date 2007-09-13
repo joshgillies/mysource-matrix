@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_server_variable.inc,v 1.5 2006/12/06 04:23:58 emcdonald Exp $
+* $Id: condition_server_variable.inc,v 1.6 2007/09/13 00:40:00 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,7 +62,7 @@ class Condition_Server_Variable extends Condition
 		}
 		$server_var_index = $condition_data['server_variable'];
 		$server_var_match = $condition_data['server_variable_match'];
-		$matches = preg_match('|'.$server_var_match.'|i', $_SERVER[$server_var_index]);
+		$matches = preg_match('/'.$server_var_match.'/i', $_SERVER[$server_var_index]);
 		return ($matches > 0);
 
 	}//end evaluate()
