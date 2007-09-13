@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.104.2.2 2007/07/03 04:39:19 mbrydon Exp $
+* $Id: workflow_manager.inc,v 1.104.2.3 2007/09/13 01:44:38 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.104.2.2 $
+* @version $Revision: 1.104.2.3 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -496,11 +496,33 @@ class Workflow_Manager extends MySource_Object
 				$condition =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cond_id, 'workflow_step_condition');
 				if (is_null($condition)) continue;
 				if ($condition->attr('notify')) {
-					// the user or group in this condition wants to be notified
-					$notify[] = $condition->attr('userid');
+					// check if this is a roleid rather than a user_groupid or userid
+					$role = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, $condition->attr('userid'));
+					if (!empty($role)) {
+						$roleid = array_keys($role);
+						$roleid = $roleid[0];
+						// this is a roleid so get the userids in the role
+						foreach ($role as $key => $value) {
+							if (in_array(0, $value)) {
+								// get all userids and include users which are globally applied under this role
+								$role_userids = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, $roleid, NULL, FALSE, TRUE, TRUE, TRUE);
+							} else {
+								// get all userids and disregard globally applied users under this role
+								$role_userids = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, $roleid, NULL, FALSE, FALSE, TRUE, TRUE);
+							}
+						}
+						foreach ($role_userids as $roleid => $userids) {
+							for ($i=0;$i<count($userids);$i++) {
+								$notify[] = $userids[$i];
+							}
+						}
+					} else {
+						// the user or group in this condition wants to be notified
+						$notify[] = $condition->attr('userid');
+					}
 				}
-			}
-		}
+			}//end foreach
+		}//end foreach
 
 		if (!empty($notify)) {
 			$notify = array_unique($notify);
