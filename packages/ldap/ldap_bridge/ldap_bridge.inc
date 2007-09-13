@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.61.2.1 2007/07/11 05:12:25 lwright Exp $
+* $Id: ldap_bridge.inc,v 1.61.2.2 2007/09/13 05:22:50 lmarchese Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61.2.1 $
+* @version $Revision: 1.61.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -1248,6 +1248,52 @@ class LDAP_Bridge extends Asset
 		return 0;
 
 	}//end createAssetLink()
+
+
+	/**
+	* Delete Asset
+	*
+	* @param boolean	$release_lock	TRUE, to release lock
+	*
+	* @return boolean
+	* @access public
+	*/
+	function delete($release_lock)
+	{
+		if (parent::delete($release_lock)) {
+			$this->_deleteStoredContents();
+			return TRUE;
+		}
+	
+		return FALSE;
+	
+	}//end delete()
+	
+	
+	/**
+	* Deletes the contents of the database for this LDAP
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _deleteStoredContents()
+	{
+	
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+	
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+	
+		$sql = 'DELETE FROM sq_shdw_ast_lnk WHERE minorid LIKE '.$db->quoteSmart($this->id.':%');
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+	
+		return TRUE;
+	
+	}//end _deleteStoredContents()
 
 
 	/**
