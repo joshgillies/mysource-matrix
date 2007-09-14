@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.38 2007/03/08 04:00:37 tbarrett Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.38.4.1 2007/09/14 06:52:38 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -385,10 +385,6 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	function generateMetadata(&$asset, $value_str, &$tag_value, &$keywords)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
-
-		$frontend_option = $asset->attr('frontend');
-		// if we aren't printing this on the frontend then don't print anything
-		if ($frontend_option == 'hide') return TRUE;
 
 		$is_default = FALSE;
 
