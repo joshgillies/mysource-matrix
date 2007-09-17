@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.11 2007/08/17 03:42:27 nbhradwaj Exp $
+* $Id: user_prefs.inc,v 1.12 2007/09/17 04:26:30 amiller Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
@@ -62,6 +62,12 @@ class User_Prefs extends Prefs
 						'SQ_USER_COMMIT_BUTTON_POS'	=> Array(
 														'name'			=> 'commit_button_position',
 														'description'	=> '',
+														'default'		=> FALSE,
+														'protected'		=> FALSE,
+													   ),
+						'SQ_USER_LIMBO_HIDE_FRAMES'	=> Array(
+														'name'			=> 'user_prefs_limbo_hide_frames',
+														'description'	=> 'This preference determines whether or not the default frames are painted in Simple Edit',
 														'default'		=> FALSE,
 														'protected'		=> FALSE,
 													   ),
@@ -310,6 +316,31 @@ class User_Prefs extends Prefs
 
 			if (is_null($pref)) $o->closeField();
 		}//end if
+		
+		if (is_null($pref) || $pref == 'SQ_USER_LIMBO_HIDE_FRAMES') {
+			if (is_null($pref)) $o->openField(translate($this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['name']));
+			?>
+			<div class="sq-backend-table sq-backend-table-cell">
+			<?php
+				$options = Array(
+								FALSE	=> 'Do not hide frames',
+								TRUE	=> 'Hide frames',
+								);
+				$hide_frames = $this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['default'];
+				if ($have_lock && $is_admin) {
+					combo_box('prefs[SQ_USER_LIMBO_HIDE_FRAMES]', $options, FALSE, $hide_frames, 0, 'id="prefs_SQ_USER_LIMBO_HIDE_FRAMES"');
+					?><br/><?php
+					label('If set to "Do not hide frames", MySource Matrix will paint the default Simple Edit Interface which includes the header bar and Asset Map resizing frame.', 'prefs_SQ_USER_LIMBO_HIDE_FRAMES');
+				} else {
+					echo $options[$hide_frames].'<br/>';
+					echo('If set to "Do not hide frames", MySource Matrix will paint the default Simple Edit Interface which includes the header bar and Asset Map resizing frame');
+				}
+			?>
+			<br />
+			</div>
+			<?php
+		
+		}//end if
 
 
 		return TRUE;
@@ -396,6 +427,15 @@ class User_Prefs extends Prefs
 			} else {
 				trigger_localised_error('CORE0270', E_USER_NOTICE);
 				$this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'] = $this->int_am_frame_width_default;
+			}
+		}
+		
+		if (is_null($pref) || $pref == 'SQ_USER_LIMBO_HIDE_FRAMES') {
+			// hide frames in limbo  pref
+			if (isset($_POST['prefs']['SQ_USER_LIMBO_HIDE_FRAMES'])) {
+				$this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['default'] = $_POST['prefs']['SQ_USER_LIMBO_HIDE_FRAMES'];
+			} else {
+				$this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['default'] = FALSE;
 			}
 		}
 

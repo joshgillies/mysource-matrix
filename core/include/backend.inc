@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.181 2007/09/03 01:26:04 bshkara Exp $
+* $Id: backend.inc,v 1.182 2007/09/17 04:26:52 amiller Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.181 $
+* @version $Revision: 1.182 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -252,7 +252,14 @@ class Backend extends MySource_Object
 						'resizer'	=> $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=resizer',
 					  );
 		$limbo_hipo = SQ_IN_LIMBO && (strpos($main_url, 'SQ_ACTION=hipo') !== FALSE);
-		$limbo_hide_frames = SQ_IN_LIMBO && (isset($_GET['hide_frames']) && $_GET['hide_frames']);
+
+		// Get the preference for whether or not to hide frames in Simple Edit
+		$limbo_hide_frames = SQ_IN_LIMBO && $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_LIMBO_HIDE_FRAMES');
+
+		// then, override the preference with the URL option
+		if (isset($_GET['hide_frames'])) {
+			$limbo_hide_frames = $limbo_hide_frames && $_GET['hide_frames'];
+		}//end if
 
 		// Give the page the appropriate title based on whether we are in limbo or backend
 		if (SQ_IN_LIMBO) {

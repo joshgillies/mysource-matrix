@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.10 2007/08/17 03:42:27 nbhradwaj Exp $
+* $Id: lang_strings.xml,v 1.11 2007/09/17 04:26:39 amiller Exp $
 *
 */
 -->
@@ -29,6 +29,7 @@
 	<string source="user_prefs_session_settings_header">Session Expiry Rules</string>
 	<string source="user_prefs_asset_map_root_asset_header">Asset Map Root Asset</string>
 	<string source="user_prefs_asset_map_root_asset_explanation">The asset that will be displayed as the Asset Map's root node</string>
+	<string source="user_prefs_limbo_hide_frames">Hide frames in the Simple Edit Interface?</string>
 	<string source="end_user_session">End the user's session</string>
 	<string source="user_held_locks">%s currently holds %d Locks.</string>
 	<string source="current_locks">Current Locks</string>
