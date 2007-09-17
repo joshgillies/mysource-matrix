@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.6 2006/12/06 01:07:34 emcdonald Exp $
+* $Id: asset.xml,v 1.7 2007/09/17 06:52:25 amiller Exp $
 *
 */
 -->
@@ -22,8 +22,8 @@
 	<package>__core__</package>
 	<type_code>layout</type_code>
 	<version>0.1</version>
-	<name>Layout</name>
-	<description>Layouts are used to customise the look and feel of asset's frontends</description>
+	<name>Simple Edit Layout</name>
+	<description>Simple Edit Layouts are used to customise the look and feel of asset's simple edit interface</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system_user</allowed_access>
 	<parent_type>bodycopy</parent_type>
