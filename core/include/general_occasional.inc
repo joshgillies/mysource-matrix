@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.76 2007/06/06 01:32:19 hnguyen Exp $
+* $Id: general_occasional.inc,v 1.77 2007/09/17 06:45:28 amiller Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 */
 
@@ -177,6 +177,26 @@ function get_status_description($status)
 	return $status_object->getDescription();
 
 }//end get_status_description()
+
+
+/**
+* Returns an value for the provided status description
+*
+* @param string	$status_description			the description for which to return a status value
+*
+* @return array
+* @access private
+*/
+function get_status_value($description)
+{
+	foreach (get_constant_values('SQ_STATUS_') as $status_value) {
+		if (strtolower(get_status_description($status_value)) == strtolower($description)) {
+			return $status_value;
+		}
+	}//end foreach
+
+}//end get_status_value()
+
 
 
 /**
