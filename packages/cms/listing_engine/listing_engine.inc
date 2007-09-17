@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.221.2.5 2007/08/29 00:37:49 lmarchese Exp $
+* $Id: listing_engine.inc,v 1.221.2.6 2007/09/17 04:51:36 nbhradwaj Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.221.2.5 $
+* @version $Revision: 1.221.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -847,6 +847,11 @@ class Listing_Engine extends Page
 	*/
 	function sortAssetList($asset_list, $sort_info)
 	{
+		// If the option to sort is No sorting, just return the asset list here and don't do any sorting
+		if (isset($sort_info['name']) && $sort_info['name'] == 'No Sorting') {
+			return $asset_list;	
+		}//end if
+		
 		if (count($asset_list) == 1 || empty($sort_info)) {
 			return $asset_list;
 		}
