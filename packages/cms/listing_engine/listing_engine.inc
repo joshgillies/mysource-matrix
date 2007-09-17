@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.227.2.1 2007/08/28 23:44:32 lmarchese Exp $
+* $Id: listing_engine.inc,v 1.227.2.2 2007/09/17 05:40:26 nbhradwaj Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.227.2.1 $
+* @version $Revision: 1.227.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -851,6 +851,11 @@ class Listing_Engine extends Page
 	*/
 	function sortAssetList($asset_list, $sort_info)
 	{
+		// If the option to sort is No sorting, just return the asset list here and don't do any sorting
+		if (isset($sort_info['name']) && $sort_info['name'] == 'No Sorting') {
+			return $asset_list;	
+		}//end if
+		
 		if (count($asset_list) == 1 || empty($sort_info)) {
 			return $asset_list;
 		}
@@ -875,12 +880,11 @@ class Listing_Engine extends Page
 
 		// default to a numeric sort until we are proven otherwise
 		$sort_numeric = TRUE;
-
+		
 		// check and prepare sorting data
 		$is_sort_by_attribute = ($sort_info['type'] == 'asset_attrib');
 		$is_sort_by_field     = ($sort_info['type'] == 'field');
 		$is_sort_by_metadata     = ($sort_info['type'] == 'metadata');
-
 		$sort_params =& $sort_info['params'];
 		$assetids = array_keys($asset_list);
 		if ($is_sort_by_attribute) {
@@ -988,7 +992,6 @@ class Listing_Engine extends Page
 
 				if ($sort_field != 'assetid') $sort_numeric = FALSE;
 			} else {
-
 				if ($reverse_sort) {
 					return array_reverse($asset_list, TRUE);
 				}
