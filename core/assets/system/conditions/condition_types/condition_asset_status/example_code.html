@@ -1,0 +1,59 @@
+<!--
+ +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+ | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+ | ACN 084 670 600                                                    |
+ +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+ | IMPORTANT: Your use of this Software is subject to the terms of    |
+ | the Licence provided in the file licence.txt. If you cannot find   |
+ | this file please contact Squiz (www.squiz.net) so we may provide   |
+ | you a copy.                                                        |
+ +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+	Example design code for condition_asset_status
+	which allows you to compare the current asset against a list of status
+	values or descriptions:
+	
+	1: archived
+	2: under construction
+	4: pending approval
+	8: approved to go live
+	16: live
+	32: up for review
+	64: safe editing
+	128: safe editing pending approval
+	256: safe editing approved to go live
+	
+	Avi Miller <avi.miller@squiz.net>
+-->
+
+<!-- Example using values to show a non-live asset -->
+
+<mysource_area id_name="Not_Live_Yet" design_area="show_if">
+
+	<mysource_set name="condition" value="asset_status"/>
+	<MySource_SET name="condition_status" value="1, 2, 4, 8" />
+
+	<mysource_then>
+		Asset has no Live content.
+	</mysource_then>
+	<mysource_else>
+		Asset has Live content.
+	</mysource_else>
+
+</mysource_area>
+
+<!-- Example using description to find assets in workflow -->
+
+<mysource_area id_name="In_Workflow" design_area="show_if">
+
+	<mysource_set name="condition" value="asset_status"/>
+	<MySource_SET name="condition_status" value="Pending Approval, Up for Review, Safe Edit Pending Approval" />
+
+	<mysource_then>
+		Asset is currently pending approval
+	</mysource_then>
+	<mysource_else>
+		Asset is not currently in workflow
+	</mysource_else>
+
+</mysource_area>
+
