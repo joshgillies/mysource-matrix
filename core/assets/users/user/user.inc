@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.114 2007/04/02 00:08:08 tbarrett Exp $
+* $Id: user.inc,v 1.114.2.1 2007/09/17 00:19:32 bshkara Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.114 $
+* @version $Revision: 1.114.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -366,7 +366,9 @@ class User extends Asset
 				$bit = preg_replace('/\[([^\]]*)\]$/', '', $bit); // remove error code
 				$msgs .= '<li>'.$bit.'</li>';
 			}
-			$GLOBALS['SQ_SYSTEM']->addMessage(translate('password_validation_error', '<ul>'.$msgs.'</ul>'));
+			if (!empty($errors)) {
+				$GLOBALS['SQ_SYSTEM']->addMessage(translate('password_validation_error', '<ul>'.$msgs.'</ul>'));
+			}
 		} else {
 			foreach ($errors as $error) {
 				$code = array_shift($error);
