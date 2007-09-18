@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.44 2007/08/23 23:13:36 bshkara Exp $
+* $Id: settings.inc,v 1.45 2007/09/18 01:17:17 colivar Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 */
 
@@ -793,7 +793,7 @@ function processSettings(&$owner, &$o, &$ei)
 		}
 	}
 
-
+	$update_design_cascade  = FALSE;
 	///// FRONTEND AND LOGIN DESIGN CHANGES ////
 	if (!empty($_POST[$prefix.'_designs']) && $owner->writeAccess('links')) {
 
@@ -801,7 +801,6 @@ function processSettings(&$owner, &$o, &$ei)
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$designs_ok = TRUE;
 		$designs_changed = FALSE;
-		$update_design_cascade	= FALSE;
 
 		foreach ($_POST[$prefix.'_designs'] as $design_name => $design_data) {
 
