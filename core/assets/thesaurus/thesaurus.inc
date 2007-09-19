@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.43 2007/09/12 04:40:51 hnguyen Exp $
+* $Id: thesaurus.inc,v 1.44 2007/09/19 05:23:33 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -866,7 +866,7 @@ class Thesaurus extends Asset
 		// if the new name is being used by another term, do not update
 		// updating the name if it is used by another term is hard as we don't know what to do with the children
 		// do we merge this term's children with the others' or do we only use our children or theirs?
-		if ($this->isTerm($name)) {
+		if ($this->isTerm($name, $termid)) {
 			trigger_localised_error('CORE0239', E_USER_WARNING);
 			return FALSE;
 		}
@@ -1250,12 +1250,13 @@ class Thesaurus extends Asset
 	/**
 	* Check whether supplied string is a term in this thesaurus
 	*
-	* @param string	$term	Term
+	* @param string	$term	term name
+	* @param int	$termid term id
 	*
 	* @return boolean
 	* @access public
 	*/
-	function isTerm($term=NULL)
+	function isTerm($term=NULL, $termid=0)
 	{
 		if (is_null($term)) return FALSE;
 
@@ -1272,6 +1273,9 @@ class Thesaurus extends Asset
 				AND
 				thesid = '.$db->quoteSmart($this->id).'
 		';
+		if ($termid != 0) {
+			$sql .= 	' AND termid <> '.$db->quoteSmart($termid);
+		}
 		$result = $db->getOne($sql);
 
 		assert_valid_db_result($result);
@@ -1359,7 +1363,7 @@ class Thesaurus extends Asset
 		$sql = 'DELETE FROM sq_shdw_ast_lnk WHERE minorid LIKE '.$db->quoteSmart($this->id.':%');
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
