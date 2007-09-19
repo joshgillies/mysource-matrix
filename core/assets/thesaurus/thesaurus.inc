@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.36.2.3 2007/08/02 00:09:37 lmarchese Exp $
+* $Id: thesaurus.inc,v 1.36.2.4 2007/09/19 05:42:48 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.36.2.3 $
+* @version $Revision: 1.36.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -866,7 +866,7 @@ class Thesaurus extends Asset
 		// if the new name is being used by another term, do not update
 		// updating the name if it is used by another term is hard as we don't know what to do with the children
 		// do we merge this term's children with the others' or do we only use our children or theirs?
-		if ($this->isTerm($name)) {
+		if ($this->isTerm($name, $termid)) {
 			trigger_localised_error('CORE0239', E_USER_WARNING);
 			return FALSE;
 		}
@@ -1250,12 +1250,13 @@ class Thesaurus extends Asset
 	/**
 	* Check whether supplied string is a term in this thesaurus
 	*
-	* @param string	$term	Term
+	* @param string	$term	term name
+	* @param int	$termid term id
 	*
 	* @return boolean
 	* @access public
 	*/
-	function isTerm($term=NULL)
+	function isTerm($term=NULL, $termid=0)
 	{
 		if (is_null($term)) return FALSE;
 
@@ -1272,6 +1273,9 @@ class Thesaurus extends Asset
 				AND
 				thesid = '.$db->quoteSmart($this->id).'
 		';
+		if ($termid != 0) {
+			$sql .= ' AND termid <> '.$db->quoteSmart($termid);
+		}
 		$result = $db->getOne($sql);
 
 		assert_valid_db_result($result);
@@ -1770,7 +1774,6 @@ class Thesaurus extends Asset
 	*/
 	function getLink($assetid, $link_type=NULL, $type_code='', $strict_type_code=TRUE, $value=NULL, $side_of_link='major', $exclusive=NULL)
 	{
-		log_dump();
 		return Array();
 
 	}//end getLink()
@@ -2395,7 +2398,6 @@ class Thesaurus extends Asset
 	*/
 	function moveLink($linkid, $to_parentid, $link_type, $to_parent_pos)
 	{
-		log_dump();
 
 	}//end moveLink()
 
