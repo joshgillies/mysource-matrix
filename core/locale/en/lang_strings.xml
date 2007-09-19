@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.242.2.4 2007/08/08 23:06:33 hnguyen Exp $
+* $Id: lang_strings.xml,v 1.242.2.5 2007/09/19 04:17:08 rong Exp $
 *
 */
 
@@ -287,8 +287,8 @@
 	<string source="status_changed_date">Status Changed Date</string>
 	<string source="step_duration">Step Duration</string>
 	<string source="step_logic">Step Logic</string>
-   	<string source="step_name">Step Name</string>
-    <string source="edit_step">Edit Step</string>
+	<string source="step_name">Step Name</string>
+	<string source="edit_step">Edit Step</string>
 	<string source="submissions">Submissions</string>
 	<string source="system_backend_suffix">System Backend Suffix</string>
 	<string source="system">System</string>
@@ -428,6 +428,7 @@
 	<string source="cron_excluded_not_specified">There are no blackout periods</string>
 	<string source="cron_job_regenerate_report_at">Regenerate this report at </string>
 	<string source="cron_job_regenerate_report_repeat"> and repeat this process every </string>
+	<string source="cron_job_refresh_cache_at">Refresh cache at </string>
 
 	<string source="scheduled_future_status_change">Scheduled Future Status Changes</string>
 	<string source="locking_editing">Locking / Editing</string>

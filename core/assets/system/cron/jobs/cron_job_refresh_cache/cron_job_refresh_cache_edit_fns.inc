@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_refresh_cache_edit_fns.inc,v 1.1 2007/02/26 05:02:57 skim Exp $
+* $Id: cron_job_refresh_cache_edit_fns.inc,v 1.1.2.1 2007/09/19 04:17:08 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,7 +78,7 @@ class Cron_Job_Refresh_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 					// paint the start time using a one off job's edit fns
 					$cron_job =& new Cron_Job();
 					$edit_fns = $cron_job->getEditFns();
-					echo translate('cron_job_regenerate_report_at');
+					echo translate('cron_job_refresh_cache_at');
 					$edit_fns->_paintWhenBox($cron_job, $o, $prefix);
 
 					// paint the repeat frequency using repeating time interval job's edit fns
