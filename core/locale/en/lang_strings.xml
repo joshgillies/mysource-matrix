@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.257 2007/08/17 03:42:28 nbhradwaj Exp $
+* $Id: lang_strings.xml,v 1.258 2007/09/19 03:41:07 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@
 
 	<string source="enable_external_auth_systems">Enable External Authentication Systems</string>
 	<string source="enable_external_auth_systems_note">Set this to 'No' to only allow users with accounts in the default matrix user system, rather than LDAP, IPB etc.</string>
-	
+
 	<string source="choose_session_save_path">Use Default PHP session file save path</string>
 	<string source="choose_session_save_path_note">Using the default PHP session file may be required for system with multiple servers using shared file storage. However, enabling this option will prevent Site Network assets from operating correctly. &lt;strong&gt;This option should only be changed by advanced users: if you change this option all users who are currently logged in will be immediately logged out of their session.&lt;/strong&gt; &lt;br /&gt;The current session file save path is: &lt;strong&gt;%s&lt;/strong&gt;</string>
 
@@ -196,7 +196,7 @@
 	<string source="lookups_updating_threshold">Lookups Updating Threshold</string>
 	<string source="manage_passwd_rules">Manage Password Rules</string>
 	<string source="manually_cascade_permissions">Manually Cascade Permissions?</string>
-	<string source="match_condition">Match Condition</string>	
+	<string source="match_condition">Match Condition</string>
 	<string source="metadata_regeneration_threshold">Metadata Regeneration Threshold</string>
 	<string source="metadata_schemas">Metadata Schemas</string>
 	<string source="metadata_schema">Metadata Schema</string>
@@ -421,6 +421,7 @@
 	<string source="cron_excluded_not_specified">There are no blackout periods</string>
 	<string source="cron_job_regenerate_report_at">Regenerate this report at </string>
 	<string source="cron_job_regenerate_report_repeat"> and repeat this process every </string>
+	<string source="cron_job_refresh_cache_at">Refresh cache at </string>
 
 	<string source="scheduled_future_status_change">Scheduled Future Status Changes</string>
 	<string source="locking_editing">Locking / Editing</string>
