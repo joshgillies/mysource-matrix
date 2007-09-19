@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.31.2.3 2007/05/15 02:01:02 hnguyen Exp $
+* $Id: text.inc,v 1.31.2.4 2007/09/19 23:17:12 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31.2.3 $
+* @version $Revision: 1.31.2.4 $
 * @package Fudge
 * @subpackage Text
 */
@@ -120,7 +120,7 @@ function extract_keywords($text, $additional='')
 {
 	$matches = Array();
 	$additional = preg_replace('|(.)|', '\\\\\1', $additional);
-	preg_match_all ('/%([a-zA-Z_\-0-9\.'.$additional.']+)%/', $text, $matches, PREG_PATTERN_ORDER);
+	preg_match_all ('/%([a-zA-Z_\-0-9\.:'.$additional.']+)%/', $text, $matches, PREG_PATTERN_ORDER);
 	return (count($matches)) ? $matches[1] : Array();
 
 }//end extract_keywords()
@@ -173,8 +173,8 @@ function get_word_counts($text, $split_regexp="/[\t\n\r ]+/", $word_match_regexp
 /**
 * Remove a set of special characters from the given text.
 *
-* @param string     $text           text
-* @param boolean    $not_indexing   default is FALSE, used in indexing, when TRUE this function does not remove a number of characters.
+* @param string		$text			text
+* @param boolean	$not_indexing	default is FALSE, used in indexing, when TRUE this function does not remove a number of characters.
 *
 * @return string
 * @access public
