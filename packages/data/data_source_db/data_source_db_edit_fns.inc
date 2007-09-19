@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.29 2007/07/17 01:14:28 lwright Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.30 2007/09/19 22:48:11 colivar Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,7 +90,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	function processConnectorLink(&$asset, &$o, $prefix)
 	{
 		$new_connector_id = @$_REQUEST[$prefix.'_connector_node']['assetid'];
-		if (empty($new_connector_id)) return TRUE;
 
 		if (!$asset->writeAccess('links')) {
 			trigger_error('You do not have write access to change the connector link', E_USER_WARNING);
@@ -101,10 +100,18 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		$current_connector_asset_id = @$current_connector_link['minorid'];
 
 		if (!empty($current_connector_link)) {
-			if ($current_connector_asset_id === $new_connector_id) {
+			// if the new connector id is not null and is equal to the current
+			// connector asset id then return
+			if ((!empty($new_connector_id)) && ($current_connector_asset_id === $new_connector_id)) {
 				return TRUE;
 			} else {
+				// else means that we want to create a new link or we want to
+				// clear the link
 				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($current_connector_link['linkid']);
+
+				// if the new connector id is empty means we want to clear the
+				// link we got nothing else to do so return TRUE
+				if (empty($new_connector_id)) return TRUE;
 			}
 		}
 
