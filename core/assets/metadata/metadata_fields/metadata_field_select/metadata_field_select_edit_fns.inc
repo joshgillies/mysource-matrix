@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.36 2007/03/08 04:00:38 tbarrett Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.36.4.1 2007/09/20 05:00:38 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -300,7 +300,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		// now get the new submitted values (if any) and add them to array
-		if (!empty($_POST[$prefix.'_new_key']) && !empty($_POST[$prefix.'_new_val'])) {
+		if (strlen(trim($_POST[$prefix.'_new_key']))>0 && strlen(trim($_POST[$prefix.'_new_val']))>0) {
 			$new_select_key  = trim($_POST[$prefix.'_new_key']);
 			$new_select_val  = trim($_POST[$prefix.'_new_val']);
 			$select_options[$new_select_key] = $new_select_val;
