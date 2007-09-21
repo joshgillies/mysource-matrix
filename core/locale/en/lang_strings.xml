@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.258 2007/09/19 03:41:07 rong Exp $
+* $Id: lang_strings.xml,v 1.259 2007/09/21 02:07:01 amiller Exp $
 *
 */
 
@@ -52,6 +52,10 @@
 	<string source="http_login_var_show_server_var" js="1">Show Server Variables</string>
 	<string source="http_login_var_hide_server_var" js="1">Hide Server Variables</string>
 	<string source="http_login_var_list_header">Server Variables</string>
+	
+	<string source="enable_http_authentication">Enable HTTP Authentication</string>
+	<string source="enable_http_authentication_note">If this option is enabled, MySource Matrix will generate an HTTP Authentication dialog box instead of painting the applied login design. This will allow external tools to login to MySource Matrix by appending USE_HTTP_LOGIN=1 to the URL..</string>
+	
 	<string source="applies_to">Applies To</string>
 	<string source="asset_date_search_fields">Asset Date Search Fields</string>
 	<string source="assetid">Assetid</string>
@@ -934,6 +938,8 @@
 	<string source="condition_keyword_regexp_false">The following keyword does not match the specified pattern</string>
 	<string source="condition_logical_true">The following combination of keywords evaluates to True</string>
 	<string source="condition_logical_false">The following combination of keywords evaluates to False</string>
+	<string source="condition_asset_status_true">The current asset is in the following status</string>
+	<string source="condition_asset_status_false">The current asset is not in the following status</string>
 
 	<!-- User IP Condition -->
 	<string source="network_ip_address">Network IP Address</string>
@@ -968,7 +974,6 @@
 	<string source="condition_user_type_list">User Types</string>
 	<string source="condition_user_type_true">The current user has been matched</string>
 	<string source="condition_user_type_false">The current user has not been matched</string>
-
 
 
 	<string source="no_logs_found">No Logs Found</string>
