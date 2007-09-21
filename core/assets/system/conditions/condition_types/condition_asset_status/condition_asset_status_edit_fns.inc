@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_asset_status_edit_fns.inc,v 1.1 2007/09/17 06:46:24 amiller Exp $
+* $Id: condition_asset_status_edit_fns.inc,v 1.2 2007/09/21 04:38:37 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,26 +58,33 @@ class Condition_Asset_Status_Edit_Fns extends Condition_Edit_Fns
 	*/
 	function paintEditInterface(&$condition_data, &$o, $prefix, $write_access)
 	{
+
 		foreach (get_constant_values('SQ_STATUS_') as $status_value) {
 			$statii[$status_value] = get_status_description($status_value);
 		}//end foreach
 
-		if (!is_array($condition_data['status'])) {
-			$selected_statii = explode(',', $condition_data['status']);
-			
-			foreach ($selected_statii as $key => $status) {
-				if (!is_numeric($status)) {
-					$selected_statii[$key] = get_status_value(trim($status));
-				}//end if
-
-			}//end foreach
-			
+		if (!isset($condition_data['status'])) {
+			$selected_statii = Array();
 		} else {
-			$selected_statii = $condition_data['status'];
-		}//end if
-		
 
-			
+			if (!is_array($condition_data['status'])) {
+				$selected_statii = explode(',', $condition_data['status']);
+
+				foreach ($selected_statii as $key => $status) {
+					if (!is_numeric($status)) {
+						$selected_statii[$key] = get_status_value(trim($status));
+					}//end if
+
+				}//end foreach
+
+			} else {
+				$selected_statii = $condition_data['status'];
+			}//end if
+
+		}
+
+
+
 		?>
 		<table style="width: auto" class="no-borders">
 			<tr>
@@ -94,7 +101,7 @@ class Condition_Asset_Status_Edit_Fns extends Condition_Edit_Fns
 					?>
 				</td>
 			</tr>
-			
+
 		</table>
 		<?php
 
@@ -112,7 +119,8 @@ class Condition_Asset_Status_Edit_Fns extends Condition_Edit_Fns
 	*/
 	function processEditInterface(&$o, $prefix)
 	{
-	
+		if (!isset($_POST[$prefix])) return Array();
+
 		$results = Array(
 					'status'		=> implode(',', $_POST[$prefix]['status']),
 				   );
