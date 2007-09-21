@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.248 2007/08/28 00:50:57 rong Exp $
+* $Id: asset_map.inc,v 1.249 2007/09/21 05:45:14 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.248 $
+* @version $Revision: 1.249 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -274,12 +274,10 @@ class Asset_Map
 				foreach ($asset_link_lineage[$cur_lineage_num]['lineage'] as $assetid => $asset_name) {
 
 					if ($i == $num_site_parents + 1) break;
-					if ($i == 0) {
-						$previd = 1;
-					} else {
-						$previd = $currentid;
-					}
-					$currentid = $assetid;
+
+					$currentid = (string) $assetid;
+					$previd = $currentid;
+					if ($i == 0) $previd = '1';
 
 					$sql = 'SELECT l.sort_order FROM sq_ast_lnk l
 							WHERE l.majorid = '.$db->quoteSmart($previd).'
