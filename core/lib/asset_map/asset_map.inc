@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.247.2.1 2007/08/28 00:55:51 rong Exp $
+* $Id: asset_map.inc,v 1.247.2.2 2007/09/21 05:39:53 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.247.2.1 $
+* @version $Revision: 1.247.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -272,15 +272,14 @@ class Asset_Map
 				// Add sort order but do not join with lookup table
 				$i = 0;
 				foreach ($asset_link_lineage[$cur_lineage_num]['lineage'] as $assetid => $asset_name) {
-
 					if ($i == $num_site_parents + 1) break;
+					
+					$currentid = (string) $assetid;
+					$previd = $currentid;
 					if ($i == 0) {
-						$previd = 1;
-					} else {
-						$previd = $currentid;
+						$previd = '1';
 					}
-					$currentid = $assetid;
-
+					
 					$sql = 'SELECT l.sort_order FROM sq_ast_lnk l
 							WHERE l.majorid = '.$db->quoteSmart($previd).'
 									AND l.minorid = '.$db->quoteSmart($currentid);
