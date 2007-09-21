@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.14 2007/03/01 02:01:09 lwright Exp $
+* $Id: thesaurus_term.inc,v 1.14.4.1 2007/09/21 00:14:24 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -318,7 +318,13 @@ class Thesaurus_Term extends Asset
 	*/
 	function canCreateLink(&$minor, $link_type, $exclusive)
 	{
-		return TRUE;
+		$create_link = FALSE;
+
+		if (is_a($minor, 'thesaurus_term') && ($exclusive == 0)) {
+			$create_link = (($link_type == SQ_LINK_TYPE_1) || ($link_type == SQ_LINK_TYPE_2));
+		}
+
+		return $create_link;
 
 	}//end canCreateLink()
 
