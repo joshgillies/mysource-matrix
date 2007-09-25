@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.575 2007/09/12 04:44:29 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.576 2007/09/25 23:51:31 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.575 $
+* @version $Revision: 1.576 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7428,10 +7428,6 @@ class Asset_Manager extends MySource_Object
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = l.minorid';
 
-				// join to roles table
-				$from .= '
-					LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid';
-
 				// get user and group ids
 				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 				$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
@@ -7442,7 +7438,13 @@ class Asset_Manager extends MySource_Object
 				}
 
 				$userids_str = implode(',', $userids);
-				$userid_cond = ' AND (p.userid IN ('.$userids_str.') OR r.userid IN ('.$userids_str.'))';
+				$userid_cond = ' AND (p.userid IN ('.$userids_str.'))';
+				// join to roles table
+				$from .= '
+					LEFT JOIN (SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role WHERE userid IN
+					('.$userids_str.')) r on p.userid = r.roleid';
+
+
 				$where .= $userid_cond.'
 					AND (
 						(p.permission = '.$db->quote($access).' AND (
@@ -7458,6 +7460,7 @@ class Asset_Manager extends MySource_Object
 				$where .= ')';
 				$having .= 'HAVING MIN(p.granted) <> 0';
 				$group_by .= ', p.assetid';
+
 			}//end if
 
 		}//end if access is not null
