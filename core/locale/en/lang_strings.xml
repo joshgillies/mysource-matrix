@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.255.2.2 2007/09/19 03:49:13 rong Exp $
+* $Id: lang_strings.xml,v 1.255.2.3 2007/09/25 04:56:51 nbhradwaj Exp $
 *
 */
 
@@ -1008,6 +1008,7 @@
 	<string source="triggers_advanced_user_options">Optional items for Advanced users</string>
 	<string source="use_link_value">Use the link value</string>
 	<string source="parent_to_create_under_is_missing">Parent to create under is missing</string>
+	<string source="trigger_action_create_file_asset_file_path_not_set">File Path is not set</string>
 	<string source="link_type_missing">Link type is missing</string>
 	<string source="asset_type_not_specified">Asset type not specified</string>
 	<string source="trigger_replace_file_type_warning">Note:  This trigger action will fail if the broadcasting asset is not a file asset or descendant thereof</string>

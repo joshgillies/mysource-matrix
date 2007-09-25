@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_file_asset.inc,v 1.5 2007/03/05 00:47:29 tbarrett Exp $
+* $Id: trigger_action_create_file_asset.inc,v 1.5.4.1 2007/09/25 04:55:02 nbhradwaj Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -341,6 +341,10 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 		// make sure the parentid isn't blank
 		if (($request_data['parent_type'] != 'broadcaster') && empty($request_data['parentid']['assetid'])) {
 			return translate('parent_to_create_under_is_missing');
+		}
+
+		if (!isset($request_data['file_path'])) {
+			return translate('trigger_action_create_file_asset_file_path_not_set');
 		}
 
 		$link_type_list = get_link_type_names();
