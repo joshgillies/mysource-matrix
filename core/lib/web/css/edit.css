@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.83 2007/07/26 06:58:45 lwright Exp $
+* $Id: edit.css,v 1.84 2007/09/25 01:00:20 nbhradwaj Exp $
 *
 */
 
@@ -642,7 +642,7 @@ a.sq-search-results-expand-link {
 .sq-search-results-entry {
 	margin-top:		5px;
 	text-indent:	-38px;
-	padding-left:	50px;
+	margin-left:	50px;
 }
 
 .sq-search-results-detail {
