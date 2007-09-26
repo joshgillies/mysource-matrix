@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.65 2007/08/23 04:17:42 bshkara Exp $
+* $Id: site_edit_fns.inc,v 1.66 2007/09/26 00:12:59 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -237,10 +237,10 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Processes the URLs posted from the paintURLs fn above
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for the form element
-	* @param bool	$updatelookups	TRUE = run HIPO job as normal, FALSE = don't run HIPO job
+	* @param object		&$asset			the asset whose interface we are painting
+	* @param object		&$o				the Backend Outputter object
+	* @param string		$prefix			prefix for the form element
+	* @param boolean	$updatelookups	TRUE = run HIPO job as normal, FALSE = don't run HIPO job
 	*
 	* @return boolean
 	* @access public
@@ -633,19 +633,29 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			trigger_localised_error('CORE0269', E_USER_WARNING);
 			return FALSE;
 		} else {
+			// determine if there are any new or deleted urls, we are only interested in the deleted ones
+			if (isset($_POST[$prefix.'_urls'])) {
+				$processed_urls = $_POST[$prefix.'_urls'];
+				$current_urls = $asset->getSiteURLs();
+				$diff_urls = array_values(array_diff(array_keys($processed_urls), array_keys($current_urls)));
+			}
+
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// save them
 			foreach (array_keys($changed_urlids) as $urlid) {
-				$sql = 'UPDATE
-							sq_ast_url
-						SET
-							auth_urlid = '.$db->quote($urls[$urlid]).'
-						WHERE
-							urlid = '.$db->quote($urlid);
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+				if (isset($diff_urls) && !in_array($urls[$urlid], $diff_urls)) {
+					$sql = 'UPDATE
+								sq_ast_url
+							SET
+								auth_urlid = '.$db->quote($urls[$urlid]).'
+							WHERE
+								urlid = '.$db->quote($urlid);
+					$result = $db->query($sql);
+					assert_valid_db_result($result);
+				}
 			}
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
