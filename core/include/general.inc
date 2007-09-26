@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.172 2007/02/26 05:02:58 skim Exp $
+* $Id: general.inc,v 1.172.2.1 2007/09/26 04:20:23 lmarchese Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.172 $
+* @version $Revision: 1.172.2.1 $
 * @package MySource_Matrix
 */
 
@@ -1530,9 +1530,22 @@ function replace_global_keywords(&$text)
 				}
 				if (0 === strpos($keyword, 'globals_asset_')) {
 					$asset_keyword = 'asset_'.substr($keyword, 14);
-					$asset_replacement = $GLOBALS['SQ_SYSTEM']->frontend_asset->getKeywordReplacement($asset_keyword);
-					if ($asset_replacement != "%$asset_keyword%") {
-						$replacements[$keyword] = $asset_replacement;
+					preg_match('|(.*):([0-9]+)$|',$asset_keyword,$matches);
+
+					if (empty($matches[2])) {
+						$asset_replacement = $GLOBALS['SQ_SYSTEM']->frontend_asset->getKeywordReplacement($asset_keyword);
+						if ($asset_replacement != "%$asset_keyword%") {
+							$replacements[$keyword] = $asset_replacement;
+						}
+					} else {
+						$asset_exist = $GLOBALS['SQ_SYSTEM']->am->assetExists($matches[2]);
+						if($asset_exist === TRUE) {
+							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
+							$asset_replacement = $asset->getKeywordReplacement($matches[1]);
+							if ($asset_replacement != "%$matches[1]%") {
+								$replacements[$keyword] = $asset_replacement;
+							}
+						}
 					}
 				}
 			}//end if is global keyword
