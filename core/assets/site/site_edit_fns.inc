@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.64 2006/12/12 02:55:23 emcdonald Exp $
+* $Id: site_edit_fns.inc,v 1.64.4.1 2007/09/26 00:32:34 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.64.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -562,7 +562,6 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			$o->closeSection();
 
 		}
-
 		return $write_access;
 
 	}//end paintAuthURLs()
@@ -634,19 +633,28 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			trigger_localised_error('CORE0269', E_USER_WARNING);
 			return FALSE;
 		} else {
+			// determine if there are any new or deleted urls, we are only interested in the deleted ones
+			if (isset($_POST[$prefix.'_urls'])) {
+				$processed_urls = $_POST[$prefix.'_urls'];
+				$current_urls = $asset->getSiteURLs();
+				$diff_urls = array_values(array_diff(array_keys($processed_urls), array_keys($current_urls)));
+			}
+
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-			// save them
 			foreach (array_keys($changed_urlids) as $urlid) {
-				$sql = 'UPDATE
-							sq_ast_url
-						SET
-							auth_urlid = '.$db->quote($urls[$urlid]).'
-						WHERE
-							urlid = '.$db->quote($urlid);
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+				if (isset($diff_urls) && !in_array($urls[$urlid], $diff_urls)) {
+					$sql = 'UPDATE
+								sq_ast_url
+							SET
+								auth_urlid = '.$db->quote($urls[$urlid]).'
+							WHERE
+								urlid = '.$db->quote($urlid);
+					$result = $db->query($sql);
+					assert_valid_db_result($result);
+				}
 			}
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
