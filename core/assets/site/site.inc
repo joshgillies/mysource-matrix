@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.95.2.3 2007/06/05 04:56:14 hnguyen Exp $
+* $Id: site.inc,v 1.95.2.4 2007/09/26 00:42:32 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.95.2.3 $
+* @version $Revision: 1.95.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -327,6 +327,17 @@ class Site extends Folder
 						sq_ast_url
 					WHERE
 						 urlid = '.$db->quote($urlid);
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+			// remove corresponding authentication redirects
+			$sql = 'UPDATE
+						sq_ast_url
+					SET
+						auth_urlid = NULL
+					WHERE
+						auth_urlid = '.$db->quoteSmart($urlid);
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
