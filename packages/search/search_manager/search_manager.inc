@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.147.2.6 2007/06/14 05:16:02 mbrydon Exp $
+* $Id: search_manager.inc,v 1.147.2.7 2007/09/26 03:20:08 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.147.2.6 $
+* @version $Revision: 1.147.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1015,7 +1015,8 @@ class Search_Manager extends Asset
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		if (in_array('all', $vars)) {
-			$fieldids = $mm->getMetadataFields($mm->getSchemas($assetid));
+			$schema_ids = array_keys($mm->getSchemas($assetid));
+			$fieldids = $mm->getMetadataFields($schema_ids);
 		} else if (in_array('schemaid', array_keys($vars))) {
 			$fieldids = $mm->getMetadataFields($vars['schemaid'], TRUE);
 		} else {
@@ -1805,7 +1806,6 @@ class Search_Manager extends Asset
 					$data_source_results = $this->_processDateSearch($field_details['words'], $data_source, $base_query);
 				} else {
 					$data_source_results = NULL;
-
 					foreach ($field_details['words'] as $search_term) {
 						$term_results = $this->_processWordSearch(remove_silent_chars($search_term, strpos($GLOBALS['SQ_SYSTEM']->db->phptype, 'oci') !== FALSE ? TRUE : FALSE), $data_source, $base_query, $word_logic);
 
