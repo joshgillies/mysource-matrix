@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.152 2007/06/14 05:16:59 mbrydon Exp $
+* $Id: search_manager.inc,v 1.152.2.1 2007/09/26 03:19:07 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.152 $
+* @version $Revision: 1.152.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1015,7 +1015,8 @@ class Search_Manager extends Asset
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		if (in_array('all', $vars)) {
-			$fieldids = $mm->getMetadataFields($mm->getSchemas($assetid));
+			$schema_ids = array_keys($mm->getSchemas($assetid));
+			$fieldids = $mm->getMetadataFields($schema_ids);
 		} else if (in_array('schemaid', array_keys($vars))) {
 			$fieldids = $mm->getMetadataFields($vars['schemaid'], TRUE);
 		} else {
