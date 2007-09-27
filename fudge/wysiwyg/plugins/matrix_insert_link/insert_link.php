@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.39 2006/12/27 21:52:17 lwright Exp $
+* $Id: insert_link.php,v 1.39.2.1 2007/09/27 05:37:32 bshkara Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.39.2.1 $
 * @package MySource_Matrix
 */
 
@@ -560,7 +560,7 @@ if (!isset($_GET['new_window'])) {
 
 		<script type="text/javascript"><!--
 			var current = 1;
-			var results_per_page = <?php echo $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE'); ?>;
+			var results_per_page = <?php echo $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE') !== FALSE ? $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE') : 5; ?>;
 			var total_results = 0;
 
 			function jump_to_search_results(page) {

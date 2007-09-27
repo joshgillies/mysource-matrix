@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.219.2.3 2007/06/19 23:34:56 hnguyen Exp $
+* $Id: mysource.inc,v 1.219.2.4 2007/09/27 05:37:31 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.219.2.3 $
+* @version $Revision: 1.219.2.4 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1749,10 +1749,12 @@ class MySource
 		if (is_null($asset_type)) {
 			return $user_prefs[$this->user->id];
 		} else {
-			if (is_null($pref)) {
+			if (is_null($pref) && isset($user_prefs[$this->user->id][$asset_type])) {
 				return $user_prefs[$this->user->id][$asset_type];
-			} else {
+			} else if (isset($user_prefs[$this->user->id][$asset_type][$pref])) {
 				return $user_prefs[$this->user->id][$asset_type][$pref];
+			} else {
+				return FALSE;
 			}
 		}
 
