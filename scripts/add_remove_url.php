@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.4.2 $
+* @version $Revision: 1.1.4.3 $
 * @package MySource_Matrix
 */
 
@@ -355,7 +355,7 @@ Make sure you have all you information you need before Proceeding\n");
 		// Find all other root_urlid that look like $remove_url.'%', we don't want to remove those.
 		$sql_get_sub_url_root_urlid = 'SELECT url FROM sq_ast_url WHERE
 											url NOT LIKE '.$db->quoteSmart($remove_url).' AND
-											url LIKE '.$db->quoteSmart($remove_url.'%').';';
+											url LIKE '.$db->quoteSmart($remove_url.'%').'';
 
 		$avoid_urls	= $db->getAll($sql_get_sub_url_root_urlid);
 		assert_valid_db_result($avoid_urls);
@@ -365,10 +365,10 @@ Make sure you have all you information you need before Proceeding\n");
 			$sql_update_sq_ast_lookup_value .= ' AND url NOT LIKE ' . $db->quoteSmart($data['url'].'%');
 		}
 
-		$sql_update_sq_ast_lookup			= 'DELETE FROM sq_ast_lookup WHERE root_urlid = '.$db->quoteSmart($remove_urlid).' AND url like '.$db->quoteSmart($remove_url.'%').';';
+		$sql_update_sq_ast_lookup			= 'DELETE FROM sq_ast_lookup WHERE root_urlid = '.$db->quoteSmart($remove_urlid).' AND url like '.$db->quoteSmart($remove_url.'%').'';
 
 
-		$sql_update_sq_ast_url				= 'DELETE FROM sq_ast_url WHERE urlid = '.$db->quoteSmart($remove_urlid).' AND url like '.$db->quoteSmart($remove_url).';';
+		$sql_update_sq_ast_url				= 'DELETE FROM sq_ast_url WHERE urlid = '.$db->quoteSmart($remove_urlid).' AND url like '.$db->quoteSmart($remove_url).'';
 
 		foreach ($avoid_urls as $index => $data) {
 			$sql_update_sq_ast_lookup_public	.= ' AND url NOT LIKE ' . $db->quoteSmart($data['url'].'%');
