@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.23 2007/07/04 23:22:53 mbrydon Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.24 2007/09/27 07:04:39 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -368,7 +368,7 @@ class Search_Manager_Plugin_OCI8
 												sq_ast_lnk l INNER JOIN sq_ast_lnk_tree t ON l.linkid = t.linkid
 											WHERE
 													a.assetid = l.minorid
-											AND t.treeid LIKE '.$db->quoteSmart($treeid.'%').'
+											AND substr(t.treeid, 1, '.strlen($treeid).') = '.$db->quoteSmart($treeid).'
 										)';
 				}
 			} else {
@@ -381,7 +381,7 @@ class Search_Manager_Plugin_OCI8
 
 				$treeids_where = Array();
 				foreach ($root_treeids as $treeid) {
-							$treeids_where[] = 't.treeid LIKE '.$db->quoteSmart($treeid.'%');
+							$treeids_where[] = 'substr(t.treeid, 1, '.strlen($treeid).') = '.$db->quoteSmart($treeid);
 				}
 				$sql .= '('.implode(' OR ', $treeids_where).')';
 				$query['where'][] = $sql.')';
