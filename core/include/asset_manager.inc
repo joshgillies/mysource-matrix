@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.576 2007/09/25 23:51:31 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.577 2007/09/27 02:25:40 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.576 $
+* @version $Revision: 1.577 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2953,6 +2953,7 @@ class Asset_Manager extends MySource_Object
 		if (!empty($query_assetids)) {
 			// we couldnt palm the request off, so we better do it ourselves
 			$query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access, $effective);
+			//bam("QUERY : " . implode(' ', $query));
 			if (!empty($query)) {
 				$db =& $GLOBALS['SQ_SYSTEM']->db;
 				$result = $db->getAssoc(implode(' ', $query), FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
@@ -7438,7 +7439,8 @@ class Asset_Manager extends MySource_Object
 				}
 
 				$userids_str = implode(',', $userids);
-				$userid_cond = ' AND (p.userid IN ('.$userids_str.'))';
+				//$userid_cond = ' AND (p.userid IN ('.$userids_str.'))';
+				$userid_cond = ' AND (p.userid IN ('.$userids_str.') OR r.userid IN ('.$userids_str.'))';
 				// join to roles table
 				$from .= '
 					LEFT JOIN (SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role WHERE userid IN
