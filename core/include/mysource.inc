@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.231 2007/09/21 02:06:04 amiller Exp $
+* $Id: mysource.inc,v 1.232 2007/09/27 05:51:17 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.231 $
+* @version $Revision: 1.232 $
 * @package MySource_Matrix
 */
 class MySource
@@ -748,13 +748,13 @@ class MySource
 			}
 		}//end if http
 		$GLOBALS['SQ_LOGIN_FORM'] = Array('paint' => 'login', 'heading' => $heading, 'msg' => $msg);
-		
+
 		// let's try do this via HTTP authentication
 		if (SQ_CONF_ENABLE_HTTP_LOGIN && !empty($_GET['USE_HTTP_LOGIN']) && !isset($_SERVER['PHP_AUTH_USER'])) {
 			header('WWW-Authenticate: Basic realm="MySource Matrix"');
 			header('HTTP/1.0 401 Unauthorized');
 		}
-		
+
 		if (empty($_GET['FORCE_BACKUP_LOGIN'])) {
 
 			$current_asset =& $this->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
@@ -1109,11 +1109,11 @@ class MySource
 					require_once dirname(__FILE__).'/hipo_reminder.inc';
 					exit();
 				}
-				
+
 				// clear PHP authentication
 				if (isset($_SERVER['PHP_AUTH_USER'])) { unset($_SERVER['PHP_AUTH_USER']); }
 				if (isset($_SERVER['PHP_AUTH_PW'])) { unset ($_SERVER['PHP_AUTH_PW']); }
-				
+
 				$this->_clearSession();
 				$this->_loginPublicUser();
 				$this->generateLoginKey(TRUE);
@@ -1286,11 +1286,11 @@ class MySource
 			$user =& $system->authenticateUser($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
 			if (!is_null($user)) return $this->loginUser($user);
 		}
-		
+
 		// clear the PHP_AUTH_USER / PASS if authentication failed
 		unset($_SERVER['PHP_AUTH_USER']);
 		unset($_SERVER['PHP_AUTH_PW']);
-		
+
 		return;
 
 	}//end _authenticateHttpUser()
@@ -1820,10 +1820,12 @@ class MySource
 		if (is_null($asset_type)) {
 			return $user_prefs[$this->user->id];
 		} else {
-			if (is_null($pref)) {
+			if (is_null($pref) && isset($user_prefs[$this->user->id][$asset_type])) {
 				return $user_prefs[$this->user->id][$asset_type];
-			} else {
+			} else if (isset($user_prefs[$this->user->id][$asset_type][$pref])) {
 				return $user_prefs[$this->user->id][$asset_type][$pref];
+			} else {
+				return FALSE;
 			}
 		}
 

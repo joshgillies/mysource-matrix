@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.27 2006/12/27 21:52:17 lwright Exp $
+* $Id: embed_movie.php,v 1.28 2007/09/27 05:51:19 bshkara Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 
@@ -472,7 +472,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 
 		<script type="text/javascript"><!--
 			var current = 1;
-			var results_per_page = <?php echo $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE'); ?>;
+			var results_per_page = <?php echo $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE') !== FALSE ? $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE') : 5; ?>;
 			var total_results = 0;
 
 			function jump_to_search_results(page) {
