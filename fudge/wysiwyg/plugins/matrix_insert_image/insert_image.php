@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.45 2007/06/26 01:39:42 colivar Exp $
+* $Id: insert_image.php,v 1.45.2.1 2007/09/27 05:17:39 bshkara Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.45.2.1 $
 * @package MySource_Matrix
 */
 
@@ -40,7 +40,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 		<title>Insert Image</title>
 
 		<?php
-		//add required js translation files, as we are using asset finder
+		// add required js translation files, as we are using asset finder
 		$include_list = Array(sq_web_path('lib').'/js/translation.js');
 
 		$locales = $GLOBALS['SQ_SYSTEM']->lm->getCumulativeLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
@@ -655,7 +655,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 
 		<script type="text/javascript"><!--
 			var current = 1;
-			var results_per_page = <?php echo $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE'); ?>;
+			var results_per_page = <?php echo $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE') !== FALSE ? $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE') : 5; ?>;
 			var total_results = 0;
 
 			function jump_to_search_results(page) {
