@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.33.4.1 2007/08/28 23:44:32 lmarchese Exp $
+* $Id: lang_strings.xml,v 1.33.4.2 2007/10/01 23:41:27 bshkara Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -115,7 +115,7 @@
 <string source="cms_no_root_selected">No Root Node Selected</string>
 <string source="cms_listing_no_asset_types_selected">No asset types have been selected</string>
 <string source="cms_listing_edit_group_format">Edit Group Format</string>
-<string source="cms_listing_no_status_selected">No statuses are selected. Only LIVE assets will be listed.</string>
+<string source="cms_listing_no_status_selected">No statuses are selected. Only assets for which the user has sufficient read permissions will be listed.</string>
 <string source="cms_listing_sort_by_metadata">Sort By Metadata Field</string>
 <string source="cms_listing_new_sort_by_metadata">New Sort By Metadata Field</string>
 <string source="cms_listing_no_metadata_sort_options">There are no sort by metadata field options</string>

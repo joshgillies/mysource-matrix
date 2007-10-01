@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.14 2007/01/16 00:41:34 bcaldwell Exp $
+* $Id: lang_screen_details.xml,v 1.14.4.1 2007/10/01 23:41:27 bshkara Exp $
 *
 */
 -->
@@ -37,7 +37,7 @@
 		</field>
 		<field>
 			<display_name>Asset Statuses to List</display_name>
-			<note>Assets will only be shown if their status is listed here</note>
+			<note>Asset statuses listed here will be shown, however if no assets are selected all assets to which the current user has read permissions will be shown</note>
 			<function_call>
 				<paint_function   name="paintStatus" />
 				<process_function name="processStatus" />
