@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.579 2007/09/27 07:04:38 colivar Exp $
+* $Id: asset_manager.inc,v 1.580 2007/10/02 01:53:41 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.579 $
+* @version $Revision: 1.580 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3317,9 +3317,11 @@ class Asset_Manager extends MySource_Object
 				} else {
 					$where .= ' AND a.type_code IN ('.implode(',', $type_codes_quoted).')';
 				}
+
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			}
 
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'sl');
 
 			$shdw_parentids = $db->getCol($sql.$where);
 			assert_valid_db_result($shdw_parentids);
