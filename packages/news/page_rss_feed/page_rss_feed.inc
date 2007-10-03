@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.17.4.1 2007/10/03 00:28:56 lmarchese Exp $
+* $Id: page_rss_feed.inc,v 1.17.4.2 2007/10/03 01:11:20 lmarchese Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.17.4.1 $
+* @version $Revision: 1.17.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -286,10 +286,9 @@ class Page_RSS_Feed extends Page
 						if (!empty($num_assets_as_items)) {
 							if ($index >= $num_assets_as_items) break;
 						}
-						$asset = null;
 						if (strcasecmp($type, $asset_type) == 0) {
 							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-							if ($asset && is_a($asset, $asset_type)) {
+							if (!is_null($asset) && is_a($asset, $asset_type)) {
 								foreach ($keywords as $tag => $keyword) {
 									// if the user enters multiple keywords or some text along with keywords then
 									// we need to pick the keywords and insert the replacements in the entered text.
@@ -332,7 +331,6 @@ class Page_RSS_Feed extends Page
 						}//end if type and asset_type are equal
 					}//end foreach assets_to_list
 				}//end foreach items
-
 
 				$no_errors = $this->validateItems($new_items);
 				if (!$no_errors) return;
