@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.15 2007/09/21 04:13:55 mbrydon Exp $
+* $Id: thesaurus_term.inc,v 1.16 2007/10/03 00:01:27 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -237,6 +237,12 @@ class Thesaurus_Term extends Asset
 
 		$name = $this->attr('name');
 
+		// If the name is updated, we are going to update the name of this object so when it broadcasts an 
+		// even, the new name is used instead. In particular it is 
+		if ($this->name != $this->attr('name'))	{
+			$this->name = $name;
+		}//end if
+
 		$success = $this->_thesaurus->updateTerm($this->_termid, $name);//, $notes);
 
 		if ($success) {
@@ -255,7 +261,6 @@ class Thesaurus_Term extends Asset
 			}
 
 			unset($this->_tmp['vars_set']);
-
 			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'AssetUpdate', Array('name'));
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_attributes_saved', $this);
