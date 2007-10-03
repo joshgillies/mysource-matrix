@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.323.2.1 2007/08/30 23:07:22 bshkara Exp $
+* $Id: asset_edit_interface.inc,v 1.323.2.2 2007/10/03 01:10:58 bshkara Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.323.2.1 $
+* @version $Revision: 1.323.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -2596,7 +2596,9 @@ class Asset_Edit_Interface extends MySource_Object
 			// the dependant and format screens have some problems with the links displayed
 			// therefore we dont display dependants and format screens keywords
 			// until they are fixed
+			// submission logs screen also does not work
 			if ($current_screen == 'formats') continue;
+			if ($current_screen == 'log') continue;
 
 			if (strtolower($current_screen) != 'contents') {
 			   $o->openSection($current_screen_name.' screen'.' <span class="screen_kw">(%'.str_replace(' ', '_', strtolower($current_screen)).'-%)</span>');
