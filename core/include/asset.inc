@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.591.2.3 2007/09/27 06:45:48 rong Exp $
+* $Id: asset.inc,v 1.591.2.4 2007/10/03 06:06:02 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.591.2.3 $
+* @version $Revision: 1.591.2.4 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3388,16 +3388,16 @@ class Asset extends MySource_Object
 			}
 		} else if (substr($keyword, 0, 15) == 'asset_metadata_') {
 			$metadata_keyword = substr($keyword, 15);
-			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$spaced_metadata_keyword = str_replace('_', ' ', $metadata_keyword);
-			$mm_replacements = Array();
-			$mm_replacements[$metadata_keyword] = $this->getKeywordReplacement($metadata_keyword);
-			$mm_replacements[$spaced_metadata_keyword] = $this->getKeywordReplacement($spaced_metadata_keyword);
-			//$mm_replacements = $mm->getMetadataFieldValues($this->id, Array($metadata_keyword, $spaced_metadata_keyword));
-			if (isset($mm_replacements[$metadata_keyword])) {
-				$replacement = $mm_replacements[$metadata_keyword];
-			} else if (isset($mm_replacements[$spaced_metadata_keyword])) {
-				$replacement = $mm_replacements[$spaced_metadata_keyword];
+			if (!isset($this->_tmp['mm_replacements'])) {
+				// generate all metadata keywords in one go
+				$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$this->_tmp['mm_replacements'] = $mm->getMetadataFieldValues($this->id);
+			}
+			if (isset($this->_tmp['mm_replacements'][$metadata_keyword])) {
+				$replacement = $this->_tmp['mm_replacements'][$metadata_keyword];
+			} else if (isset($this->_tmp['mm_replacements'][$spaced_metadata_keyword])) {
+				$replacement = $this->_tmp['mm_replacements'][$spaced_metadata_keyword];
 			}
 		} else {
 			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
