@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.14.4.1 2007/09/21 00:14:24 mbrydon Exp $
+* $Id: thesaurus_term.inc,v 1.14.4.2 2007/10/03 01:44:14 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14.4.1 $
+* @version $Revision: 1.14.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -236,6 +236,12 @@ class Thesaurus_Term extends Asset
 		if (empty($this->_thesaurus)) return TRUE;
 
 		$name = $this->attr('name');
+
+        // If the name is updated, we are going to update the name of this object so when it broadcasts an
+        // even, the new name is used instead. In particular it is
+        if ($this->name != $this->attr('name')) {
+            $this->name = $name;
+        }//end if
 
 		$success = $this->_thesaurus->updateTerm($this->_termid, $name);//, $notes);
 
