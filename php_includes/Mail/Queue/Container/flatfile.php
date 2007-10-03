@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: flatfile.php,v 1.3 2007/05/08 23:08:38 rong Exp $
+* $Id: flatfile.php,v 1.3.2.1 2007/10/03 03:10:02 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once 'Mail/Queue/Container.php';
  *
  * @author   Nathan de Vries <ndvries@squiz.net>
  * @package  Mail_Queue
- * @version  $Revision: 1.3 $
+ * @version  $Revision: 1.3.2.1 $
  * @access   public
  */
 class Mail_Queue_Container_flatfile extends Mail_Queue_Container
@@ -148,6 +148,14 @@ class Mail_Queue_Container_flatfile extends Mail_Queue_Container
 	function put($time_to_send, $id_user, $ip, $sender,
 				$recipient, $headers, $body, $delete_after_send=true)
 	{
+		// accommodate changes made to PEAR Mail_Queue v 1.2.1
+		$to = $recipient;
+		if (method_exists($this, '_isSerialized')) {
+			if ($this->_isSerialized($recipient)) {
+				$to = unserialize($recipient);
+			}
+		}
+
 		// uses user_id as the custom id of mail queue files
 		$header_array = unserialize($headers);
 		if (isset($header_array['custom_id'])) {
@@ -165,7 +173,7 @@ class Mail_Queue_Container_flatfile extends Mail_Queue_Container
 					'id_user'			=> $id_user,
 					'ip'				=> $ip,
 					'sender'			=> $sender,
-					'recipient'			=> $recipient,
+					'recipient'			=> $to,
 					'headers'			=> $headers,
 					'body'				=> $body,
 					'delete_after_send'	=> $delete_after_send,
