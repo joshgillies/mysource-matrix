@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.17 2007/01/18 22:13:01 lwright Exp $
+* $Id: page_rss_feed.inc,v 1.18 2007/10/03 01:17:22 lmarchese Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -285,10 +285,9 @@ class Page_RSS_Feed extends Page
 						if (!empty($num_assets_as_items)) {
 							if ($index >= $num_assets_as_items) break;
 						}
-						$asset = null;
 						if (strcasecmp($type, $asset_type) == 0) {
 							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-							if ($asset && is_a($asset, $asset_type)) {
+							if (!is_null($asset) && is_a($asset, $asset_type)) {
 								foreach ($keywords as $tag => $keyword) {
 									// if the user enters multiple keywords or some text along with keywords then
 									// we need to pick the keywords and insert the replacements in the entered text.
@@ -416,7 +415,12 @@ class Page_RSS_Feed extends Page
 		foreach ($channel as $tag => $value) {
 			if (strpos($tag, '_') !== FALSE) {
 				$sub_tag = explode('_', $tag);
-				$new_channel[$sub_tag[0]]['SUBTAGS'][$sub_tag[1]] = $value;
+				if ($sub_tag[0] == 'link.href') { // case link.href_text
+					$link_href_tag = explode('.', $sub_tag[0]);
+					$new_channel[$link_href_tag[0]]['ATTRIBUTES'][$link_href_tag[1]] = $value;
+				} else {
+					$new_channel[$sub_tag[0]]['SUBTAGS'][$sub_tag[1]] = $value;
+				}
 			} else if (strpos($tag, '.') !== FALSE) {
 				if ($tag == 'link.href') {
 					if (assert_valid_assetid($value, '', TRUE, FALSE)) {
@@ -435,7 +439,7 @@ class Page_RSS_Feed extends Page
 					if ($rss_type == 'rss_2.0') {
 						$value = date('D, j M Y H:i:s T', $timestamp);
 					} else if ($rss_type == 'atom_1.0') {
-						$value = date('Y-m-j', $timestamp).'T'.date('H:i:s', $timestamp).'Z';
+						$value = date('Y-m-d', $timestamp).'T'.date('H:i:s', $timestamp).'Z';
 					}
 				} else {
 					if ($tag == 'link') {
