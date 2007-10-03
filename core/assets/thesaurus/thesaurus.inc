@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.44 2007/09/19 05:23:33 rong Exp $
+* $Id: thesaurus.inc,v 1.45 2007/10/03 01:39:12 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1658,8 +1658,6 @@ class Thesaurus extends Asset
 	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=TRUE, $field='')
 	{
 		$info_array = Array();
-
-		return $info_array;
 
 		foreach ($assetids as $id) {
 			$id_parts = explode(':', $id);
