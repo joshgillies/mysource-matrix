@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.63.2.3 2007/10/04 04:14:42 bshkara Exp $
+* $Id: page_remote_content.inc,v 1.63.2.4 2007/10/04 04:22:28 bshkara Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.63.2.3 $
+* @version $Revision: 1.63.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -219,7 +219,7 @@ class Page_Remote_Content extends Page
 			// request to the same location.  Refer to: http://pear.php.net/bugs/bug.php?id=1854
 			// Setting this constant means that HTTP_Client will follow common browser behaviour
 			// rather than RFC 2616 which means: always do a GET request on a 301 redirect.
-			define('HTTP_CLIENT_QUIRK_MODE', true);
+			define('HTTP_CLIENT_QUIRK_MODE', TRUE);
 
 			$content_type = array_get_index($_SERVER, 'CONTENT_TYPE', '');
 			if (strpos(strtolower($content_type), 'multipart/form-data') === FALSE) {
@@ -251,7 +251,7 @@ class Page_Remote_Content extends Page
 				$post_data = $_POST;
 			}
 
-		}
+		}//end if
 
 		// support custom post variables if they've been set
 		// NOTE: custom post variables are only sent on INITIAL request
