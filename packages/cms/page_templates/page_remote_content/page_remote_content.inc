@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.69 2007/07/06 04:24:38 hnguyen Exp $
+* $Id: page_remote_content.inc,v 1.69.2.1 2007/10/04 04:18:28 bshkara Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.69.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -214,6 +214,12 @@ class Page_Remote_Content extends Page
 
 		if ($is_post) {
 			unset($_POST[SQ_REMOTE_SOURCE]);
+
+			// Set this so that HTTP_Client does not respond to a 301 redirect with another POST
+			// request to the same location.  Refer to: http://pear.php.net/bugs/bug.php?id=1854
+			// Setting this constant means that HTTP_Client will follow common browser behaviour
+			// rather than RFC 2616 which means: always do a GET request on a 301 redirect.
+			define('HTTP_CLIENT_QUIRK_MODE', TRUE);
 
 			$content_type = array_get_index($_SERVER, 'CONTENT_TYPE', '');
 			if (strpos(strtolower($content_type), 'multipart/form-data') === FALSE) {
