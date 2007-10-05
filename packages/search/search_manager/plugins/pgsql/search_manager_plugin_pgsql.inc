@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.11 2007/07/11 00:03:23 lwright Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.12 2007/10/05 03:48:44 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -420,7 +420,7 @@ class Search_Manager_Plugin_PgSQL
 			$inherited_types = Array();
 			$normal_types = Array();
 			for (reset($search_info['asset_types']); NULL !== ($i = key($search_info['asset_types'])); next($search_info['asset_types'])) {
-				if ($search_info['asset_types'][$i]) {
+				if ($search_info['asset_types'][$i] == 1) {
 					$inherited_types[] = $db->quote($i);
 				} else {
 					$normal_types[] = $db->quote($i);
@@ -428,18 +428,23 @@ class Search_Manager_Plugin_PgSQL
 			}
 
 			$type_code_cond = Array();
+
+			// if we have inherited types and/or normal types
 			if (!empty($inherited_types)) {
 				$type_code_cond[] = 'inhd_type_code IN ('.implode(', ', $inherited_types).')';
+				if (!empty($normal_types)) {
+					$type_code_cond[] = 'type_code IN ('.implode(', ', $normal_types).')';
+				}
+				$type_code_cond = implode(' OR ', $type_code_cond);
+				$query['where'][] = 'a.type_code IN (
+											SELECT type_code
+											FROM sq_ast_typ_inhd
+											WHERE '.$type_code_cond.'
+										)';
+			} else {
+				// if we only got normal type instead we are not using the subquery
+				$query['where'][] = 'a.type_code IN ('.implode(', ', $normal_types).')';
 			}
-			if (!empty($normal_types)) {
-				$type_code_cond[] = 'type_code IN ('.implode(', ', $normal_types).')';
-			}
-			$type_code_cond = implode(' OR ', $type_code_cond);
-			$query['where'][] = 'a.type_code IN (
-									SELECT type_code
-									FROM sq_ast_typ_inhd
-									WHERE '.$type_code_cond.'
-								)';
 		}
 
 		return $query;
@@ -625,7 +630,7 @@ class Search_Manager_Plugin_PgSQL
 	* External access to function that gets the list of search terms
 	* from the search string
 	*
-	* @param string	&$terms	the terms string
+	* @param string	$search_string	the terms string
 	*
 	* @return array
 	* @access private
@@ -634,14 +639,14 @@ class Search_Manager_Plugin_PgSQL
 	{
 		return preg_split("|\s|", $search_string);
 
-	}//end getWords();
+	}//end getWords()
 
 
 	/**
 	* Get the list of assets to be printed in Search List Page
 	*
-	* @param object	$search_list	the reference to Search List Page asset
-	* @param object	$search_page	the reference to Search Page asset
+	* @param object	&$search_list	the reference to Search List Page asset
+	* @param object	&$search_page	the reference to Search Page asset
 	*
 	* @return array
 	* @access public

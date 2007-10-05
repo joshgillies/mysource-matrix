@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.25 2007/10/05 03:48:44 colivar Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.26 2007/10/05 03:53:20 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -421,7 +421,7 @@ class Search_Manager_Plugin_OCI8
 			$inherited_types = Array();
 			$normal_types = Array();
 			for (reset($search_info['asset_types']); NULL !== ($i = key($search_info['asset_types'])); next($search_info['asset_types'])) {
-				if ($search_info['asset_types'][$i]) {
+				if ($search_info['asset_types'][$i] == 1) {
 					$inherited_types[] = $db->quote($i);
 				} else {
 					$normal_types[] = $db->quote($i);

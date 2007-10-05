@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.153 2007/09/26 03:08:10 rong Exp $
+* $Id: search_manager.inc,v 1.154 2007/10/05 03:48:44 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.153 $
+* @version $Revision: 1.154 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2446,7 +2446,7 @@ class Search_Manager extends Asset
 			$inherited_types = Array();
 			$normal_types = Array();
 			for (reset($search_info['asset_types']); NULL !== ($i = key($search_info['asset_types'])); next($search_info['asset_types'])) {
-				if ($search_info['asset_types'][$i]) {
+				if ($search_info['asset_types'][$i] == 1) {
 					$inherited_types[] = $db->quote($i);
 				} else {
 					$normal_types[] = $db->quote($i);
@@ -2454,18 +2454,24 @@ class Search_Manager extends Asset
 			}
 
 			$type_code_cond = Array();
+
+			// if we have inherited types and/or normal types
 			if (!empty($inherited_types)) {
 				$type_code_cond[] = 'inhd_type_code IN ('.implode(', ', $inherited_types).')';
+				if (!empty($normal_types)) {
+					$type_code_cond[] = 'type_code IN ('.implode(', ', $normal_types).')';
+				}
+				$type_code_cond = implode(' OR ', $type_code_cond);
+				$query['where'][] = 'a.type_code IN (
+											SELECT type_code
+											FROM sq_ast_typ_inhd
+											WHERE '.$type_code_cond.'
+										)';
+			} else {
+				// if we only got normal type instead we are not using the subquery
+				$query['where'][] = 'a.type_code IN ('.implode(', ', $normal_types).')';
 			}
-			if (!empty($normal_types)) {
-				$type_code_cond[] = 'type_code IN ('.implode(', ', $normal_types).')';
-			}
-			$type_code_cond = implode(' OR ', $type_code_cond);
-			$query['where'][] = 'a.type_code IN (
-									SELECT type_code
-									FROM sq_ast_typ_inhd
-									WHERE '.$type_code_cond.'
-								)';
+
 		}
 
 		return $query;
