@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.24 2007/09/27 07:04:39 colivar Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.25 2007/10/05 03:48:44 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -429,19 +429,25 @@ class Search_Manager_Plugin_OCI8
 			}
 
 			$type_code_cond = Array();
+			// if we have inherited types and/or normal types
 			if (!empty($inherited_types)) {
 				$type_code_cond[] = 'inhd_type_code IN ('.implode(', ', $inherited_types).')';
+				if (!empty($normal_types)) {
+					$type_code_cond[] = 'type_code IN ('.implode(', ', $normal_types).')';
+				}
+				$type_code_cond = implode(' OR ', $type_code_cond);
+				$query['where'][] = 'a.type_code IN (
+											SELECT type_code
+											FROM sq_ast_typ_inhd
+											WHERE '.$type_code_cond.'
+										)';
+			} else {
+				// if we only got normal type instead we are not using the subquery
+				$query['where'][] = 'a.type_code IN ('.implode(', ', $normal_types).')';
 			}
-			if (!empty($normal_types)) {
-				$type_code_cond[] = 'type_code IN ('.implode(', ', $normal_types).')';
-			}
-			$type_code_cond = implode(' OR ', $type_code_cond);
-			$query['where'][] = 'a.type_code IN (
-									SELECT type_code
-									FROM sq_ast_typ_inhd
-									WHERE '.$type_code_cond.'
-								)';
 		}
+
+		return $query;
 
 	}//end constructBaseSearchQuery()
 
