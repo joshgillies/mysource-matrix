@@ -1,5 +1,66 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.16.1
+
+Featured Changes
+-----------------------------------
+
+Global Asset-Specific Keywords
+
+    The global keywords system now allows any keyword for a specific asset to be specified, using a keyword of the format: %globals_keyword_name:assetid% (where "keyword_name" is the keyword you wish to use, and "assetid" is the asset you wish to reference).
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
+* Fixed bug #2595: Can't make type formats, group format and position formats on asset listings live
+* Fixed bug #2597: You cannot hide the asset map once you have changed its width
+* Fixed bug #2605: Tag suggestion not working
+* Fixed bug #2611: %asset_name% does not convert & to &amp;
+* Fixed bug #2614: Moving/Linking/Cloning multiple assets does no work with right click
+* Fixed bug #2615: Link Manager - unable to login / does not update web paths
+* Fixed bug #2618: Wrong JS validation function generated for numeric fields sometimes
+* Fixed bug #2620: Notify when live email not sent using roles
+* Fixed bug #2625: HTML tidy parameter typo
+* Fixed bug #2633: Error in preg_match statement
+* Fixed bug #2635: Password Change design area difficulties
+* Fixed bug #2636: Workflow email link incorrect
+* Fixed bug #2644: Backend Quick Search returns a blank screen in Internet Explorer 7
+* Fixed bug #2647: Wording on the Refresh Cache screen
+* Fixed bug #2649: Unable to change case of thesaurus term
+* Fixed bug #2653: Can't use 0 for a value in a metadata select field option
+* Fixed bug #2654: Asset Link can be created from any asset type to Thesaurus Term
+* Fixed bug #2659: Trigger Action Clear Matrix Cache clear cache for all assets even while it should clear cache for a single asset
+* Fixed bug #2661: Authentication Redirects being deleted on the URLs screen
+* Fixed bug #2662: Source string error on Create File Asset trigger action
+* Fixed bug #2663: SQL error thrown when viewing History View of an asset in rollback
+* Fixed bug #2664: Cant enter HTML into metadata fields
+* Fixed bug #2666: Deleting a URL does not delete its corresponding redirect
+* Fixed bug #2667: Source string error for the Set Role Trigger action
+* Fixed bug #2669: Reindex asset w/ denied metadata schema throws error
+* Fixed bug #2671: GPL edition exposes JavaScript in WYSIWYG pop-ups
+
+CMS
+
+* Fixed bug #2610: Custom form produces "Undefined variable: replacements" notice on frontend (Custom Form)
+* Fixed bug #2623: Bug with 3.14.0 asset sorting options (Asset Listing)
+
+News
+
+* Fixed bug #2676: Atom feed does not validate (RSS Feed)
+
+LDAP
+
+* Fixed bug #2613: Delete LDAP bridge doesnt delete shadow link (LDAP Bridge)
+
+Data
+
+* Fixed bug #2646: Can't remove DB Connector selection on DB Data Source (DB Data Source)
+
+
+
 VERSION 3.16.0
 
 Featured Changes
