@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.18 2006/12/05 05:45:17 emcdonald Exp $
+* $Id: bodycopy_table_cell.inc,v 1.19 2007/10/08 23:23:21 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -128,7 +128,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 
 
 	/**
-	* Delete this bastard
+	* Delete this table cell
 	*
 	* @param object	&$table	the table object
 	*
