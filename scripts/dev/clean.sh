@@ -11,7 +11,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.8 2007/04/16 06:56:20 lwright Exp $
+#* $Id: clean.sh,v 1.8.2.1 2007/10/08 01:51:48 bshkara Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories
@@ -82,6 +82,8 @@ esac
 php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_02.php" "${SYSTEM_ROOT}"
 if [ "$?" == "0" ]; then
 	php -d output_buffering=0 "${SYSTEM_ROOT}/install/compile_locale.php" "${SYSTEM_ROOT}" "--locale=en"
+	php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
+	# again to ensure that all type descendants are able to be found
 	php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
 fi
 
