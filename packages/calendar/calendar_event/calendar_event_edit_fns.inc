@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.42 2006/12/13 22:59:36 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.42.2.1 2007/10/10 23:58:28 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.42.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -101,8 +101,8 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 					<input type="radio" value="duration" id="<?php echo $prefix; ?>_duration_enabled" name="<?php echo $prefix; ?>_end_type" <?php if (!$asset->id) echo 'checked="checked"'; ?> <?php echo $end_disabled_code; ?> /> <?php echo strtolower(translate('for')); ?>
 				</td>
 				<td colspan="2" class="sq-backend-data" style="white-space: nowrap">
-					<?php text_box($prefix.'_duration', $duration, 2, 0, 0, 'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');"  onblur="updateDurationValues(\''.$prefix.'\')" '.$end_disabled_code);
-					combo_box($prefix.'_duration_units', Array('i' => translate('minutes'), 'h' => translate('hours'), 'd' => translate('days')), FALSE, $duration_units, 0,  'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');" onblur="updateDurationValues(\''.$prefix.'\')" '.$end_disabled_code); ?>
+					<?php text_box($prefix.'_duration', $duration, 2, 0, 0, 'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');"  onblur="updateDurationValuesByPrefix(\''.$prefix.'\')" '.$end_disabled_code);
+					combo_box($prefix.'_duration_units', Array('i' => translate('minutes'), 'h' => translate('hours'), 'd' => translate('days')), FALSE, $duration_units, 0,  'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');" onblur="updateDurationValuesByPrefix(\''.$prefix.'\')" '.$end_disabled_code); ?>
 				</td>
 			</tr>
 			<tr>
