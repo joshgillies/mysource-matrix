@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.84 2007/05/18 05:47:58 hnguyen Exp $
+* $Id: file_edit_fns.inc,v 1.84.2.1 2007/10/10 01:15:20 lmarchese Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.84.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -146,14 +146,26 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				<?php
 			}
 		}
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		$options = $this->getPreuploadOptions($asset);
+		echo '<div id="'.$prefix.'_file_pre_upload" style="display:none;">';
+		combo_box($prefix.'_server_file', Array(''=>'')+$options, FALSE, Array());
+		echo '&nbsp;&nbsp;';
+		normal_button($prefix.'_simple_upload_button', translate('core_upload_new_file_button'),		 'document.getElementById(\''.$prefix.'_file_pre_upload\').style.display=\'none\';
+		document.getElementById(\''.$prefix.'_choose_server_file_button\').parentNode.style.display=\'\'; document.getElementById(\''.$prefix.'_server_file\').value = \'\'');
+		echo '</div>';
 
 		if ($asset->writeAccess('attributes')) {
+			echo '<div id="'.$prefix.'_file_upload">';
 			file_upload($prefix);
 			if ($this->havePreUploadedFiles($asset, $prefix)) {
 				echo '&nbsp;&nbsp;';
-				normal_button($prefix.'_choose_server_file_button', translate('core_upload_server_file_button'), 'this.parentNode.parentNode.style.display=\'none\';			 document.getElementById(\''.$prefix.'_simple_upload_button\').parentNode.parentNode.style.display=\'\'');
+				normal_button($prefix.'_choose_server_file_button', translate('core_upload_server_file_button'),
+				'document.getElementById(\''.$prefix.'_file_upload\').style.display=\'none\'; 
+				document.getElementById(\''.$prefix.'_simple_upload_button\').parentNode.style.display=\'\'');
 			}
 		}
+
 		$this->printExistingFileInfo($asset);
 		if ($asset->writeAccess('attributes')) {
 			$max_size = strtolower($GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE'));
@@ -192,12 +204,36 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			if (!empty($asset->allowed_extensions)) {
 				$o->note(translate('core_only_upload_files_of_type', make_readable_list($asset->allowed_extensions, strtolower(translate('and')))));
 			}
+			echo '</div>';
 		}//end if
 
 		return TRUE;
 
-	}//end paintFileUpload()
 
+	}
+
+
+	/**
+	* Processes the interface for uploading a file
+	*
+	* @param object		&$asset				the file asset
+	* @param object		&$o					the Backend Outputter object
+	* @param string		$prefix				prefix for form elements
+	* @param array		$info				info about the uploaded file
+	* @param boolean	$redirect_in_limbo	redirect when the file name changes in limbo
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processFileUpload_preUpload(&$asset, &$o, $prefix, $info=Array(), $redirect_in_limbo=TRUE) {
+		//log_dump($_POST);
+		if (isset($_POST[$prefix.'_server_file']) && empty($_POST[$prefix.'_server_file'])){
+			$this->processFileUpload($asset, $o, $prefix, $info);
+		} else {
+			$this->processFileChooser($asset, $o, $prefix);
+		}
+		return FALSE;
+	}
 
 	/**
 	* Processes the interface for uploading a file
@@ -344,28 +380,6 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		return $asset->_updated();
 
 	}//end processFileUpload()
-
-
-	/**
-	* Paint the interface for selecting a pre-uploaded file to use in this asset
-	*
-	* @param object	&$asset	the file asset
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintFileChooser(&$asset, &$o, $prefix)
-	{
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$options = $this->getPreuploadOptions($asset);
-		combo_box($prefix.'_server_file', Array(''=>'')+$options, FALSE, Array());
-		echo '&nbsp;&nbsp;';
-		normal_button($prefix.'_simple_upload_button', translate('core_upload_new_file_button'), 'this.parentNode.parentNode.style.display=\'none\';			 document.getElementById(\''.$prefix.'_choose_server_file_button\').parentNode.parentNode.style.display=\'\'; document.getElementById(\''.$prefix.'_server_file\').value = \'\'');
-		return TRUE;
-
-	}//end paintFileChooser()
 
 
 	/**

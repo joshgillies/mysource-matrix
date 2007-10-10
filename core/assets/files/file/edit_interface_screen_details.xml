@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.20 2007/01/15 00:02:47 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.20.4.1 2007/10/10 01:15:20 lmarchese Exp $
 *
 */
 -->
@@ -28,14 +28,8 @@
 		</field>
 		<field keyword="file_upload">
 			<function_call>
-				<paint_function   name="paintFileUpload"   />
-				<process_function name="processFileUpload" />
-			</function_call>
-		</field>
-		<field hidden="hidden" show_if="havePreUploadedFiles">
-			<function_call>
-				<paint_function   name="paintFileChooser"   />
-				<process_function name="processFileChooser" />
+				<paint_function   name="paintFileUpload" />
+				<process_function name="processFileUpload_preUpload" />
 			</function_call>
 		</field>
 		<field attribute="allow_unrestricted">
