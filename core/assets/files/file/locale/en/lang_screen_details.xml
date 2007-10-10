@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4.6.1 2007/10/10 01:15:20 lmarchese Exp $
+* $Id: lang_screen_details.xml,v 1.4.6.2 2007/10/10 01:23:28 lmarchese Exp $
 *
 */
 -->
@@ -38,7 +38,7 @@
 			<note />
 			<function_call>
 				<paint_function   name="paintFileUpload" />
-				<process_function name="processFileUpload_preUpload" />
+				<process_function name="processFileUploadPreUpload" />
 			</function_call>
 		</field>
 	</section>
