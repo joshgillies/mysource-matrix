@@ -9,7 +9,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: date_chooser.js,v 1.15 2006/12/07 05:51:49 bcaldwell Exp $
+* $Id: date_chooser.js,v 1.16 2007/10/10 23:58:50 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@ var oldField = null;
 function processEndDateBlur(elt, prefix)
 {
 	if (fieldGroupBlurred(elt)) {
-		updateDurationValues(prefix);
+		updateDurationValuesByPrefix(prefix);
 		updateStartDate(prefix);
 	}
 
@@ -58,7 +58,7 @@ function updateStartDate(name)
 }//end updateStartDate()
 
 
-function updateDurationValues(prefix)
+function updateDurationValuesByPrefix(prefix)
 {
 	if (isChecked(prefix + '_start_time_enabled')) {
 		d = new Date(document.getElementById(prefix + '_start_year').value, document.getElementById(prefix + '_start_month').value-1, document.getElementById(prefix + '_start_day').value, ((parseInt(document.getElementById(prefix + '_start_hours').value)%12) + (12 * document.getElementById(prefix + '_start_is_pm').value)) % 24, document.getElementById(prefix + '_start_minutes').value, 0);
@@ -130,7 +130,7 @@ function updateDurationValues(prefix)
 
 	}
 
-}//end updateDurationValues()
+}//end updateDurationValuesByPrefix()
 
 
 function processEndClick(box, prefix)
