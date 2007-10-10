@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.17.4.1 2007/05/15 05:51:31 hnguyen Exp $
+* $Id: edit_interface_screen_details.xml,v 1.17.4.2 2007/10/10 02:08:26 lmarchese Exp $
 *
 */
 -->
@@ -29,14 +29,7 @@
 		<field>
 			<function_call>
 				<paint_function   name="paintFileUpload"   />
-				<process_function name="processFileUpload" />
-			</function_call>
-		</field>
-		<field hidden="hidden" show_if="havePreUploadedFiles">
-			<display_name>Choose Pre-Uploaded File</display_name>
-			<function_call>
-				<paint_function   name="paintFileChooser"   />
-				<process_function name="processFileChooser" />
+				<process_function name="processFileUploadPreUpload" />
 			</function_call>
 		</field>
         <field hidden="hidden">
