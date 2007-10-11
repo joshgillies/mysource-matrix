@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.19.4.1 2007/10/04 22:48:45 hnguyen Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.19.4.2 2007/10/11 04:45:03 hnguyen Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.19.4.1 $
+* @version $Revision: 1.19.4.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -285,7 +285,7 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	{
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
-		if ($this->_running_vars['delete_all'] != 'no') {
+		if ($this->_running_vars['delete_all'] === 'yes' || $this->_running_vars['delete_all'] === TRUE) {
 			// get all unique filepaths, and clear all system cache
 			$this->_running_vars['todo_filepaths'] = $cm->getAllFilePaths();
 			$cm->clearAllCache();
