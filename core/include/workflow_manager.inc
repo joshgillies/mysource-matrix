@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.104.2.3 2007/09/13 01:44:38 bshkara Exp $
+* $Id: workflow_manager.inc,v 1.104.2.4 2007/10/11 03:56:21 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.104.2.3 $
+* @version $Revision: 1.104.2.4 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1616,6 +1616,10 @@ class Workflow_Manager extends MySource_Object
 							'expiry_time'	=> easy_time_total($current_step['expiry_time']),
 							'workflow_url'	=> $url,
 						);
+
+			// If there are no admins, send it to system admins instead
+			if (empty($admins)) $admins = Array(0);
+
 			$msg = $ms->newMessage($admins, $type, $msg_reps);
 			$msg->send();
 
