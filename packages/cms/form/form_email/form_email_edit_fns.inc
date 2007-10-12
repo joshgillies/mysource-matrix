@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.86 2007/05/25 05:25:40 skim Exp $
+* $Id: form_email_edit_fns.inc,v 1.87 2007/10/12 03:40:50 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -407,8 +407,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 									foreach ($elements as $element) {
 										$i++;
 										?>
-										<th><?php echo $element['name'] ?>:</th>
-										<td><?php echo htmlspecialchars($element['answer']); ?></td>
+										<th width="10%"><?php echo $element['name'] ?>:</th>
+										<td width="40%"><?php echo htmlspecialchars($element['answer']); ?></td>
 										<?php
 										if (($i < count($elements)) && ($i % 2 == 0)) {
 											?>
