@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.15 2007/03/08 03:15:15 emcdonald Exp $
+* $Id: form_question_type_datetime.inc,v 1.15.4.1 2007/10/12 02:36:03 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -278,35 +278,60 @@ class Form_Question_Type_Datetime extends Form_Question
 		list($val['y'], $val['m'], $val['d']) = sscanf($date, '%04s-%02s-%02s');
 		list($val['h'], $val['i'], $val['s']) = sscanf($time, '%02s:%02s:%02s');
 
+		$matches = Array();
+		$new_format = $this->attr('print_format');
+
+		$required_fields = $this->attr('null');
+
 		// if blank, then fill date up (using bits and pieces from the date
 		// 2000-01-01 00:00:00 - year 2000 so leap year dates appear properly)
+		$non_empty_date = TRUE;
+
 		foreach ($val as $val_key => $val_time) {
-			if (preg_match('|^-*$|', $val[$val_key])) {
+			$preg_match_result = preg_match('|^-*$|', $val[$val_key]);
+			if ($required_fields[$val_key] != '1' || !$preg_match_result) {
+				$non_empty_date = FALSE;	
+			}//end if
+	
+			if ($preg_match_result) {
 				switch ($val_key) {
 					case 'y':
+						// If Year is allowed empty,  set new_format to [empty],xx,xx
+						if ($required_fields[$val_key] == 1) {
+							$new_format = $this->replaceDateFormat($new_format, $val_key);
+						}
 						$val[$val_key] = 2000;
 					break;
 
 					case 'm':
+						// If Month is allowed empty, set new_format to xxxx,[empty],xx
 					case 'd':
+						// If Date is allowed empty,  set new_format to xxxx,xx,[empty]
+						if ($required_fields[$val_key] == 1) {
+							$new_format = $this->replaceDateFormat($new_format, $val_key);
+						}
 						$val[$val_key] = 1;
 					break;
 
 					case 'h':
 					case 'i':
 					case 's':
+						if ($required_fields[$val_key] == 1) {	
+							$new_format = $this->replaceDateFormat($new_format, $val_key);
+						}
 						$val[$val_key] = 0;
 					break;
 				}
-			}
-		}
+			}//end if preg_match_result
+		}//end foreach
+
+		// If all six date fields is allow blank and they are blank, then return blank string.
+		if ($non_empty_date === TRUE) return '';
 
 		// Extra operation is required to handle UNIX Timestamp issues of mktime() function.
 		// Simply we don't want to pass the year to caculate the UNIX timestamp
-		$matches = Array();
-		$new_format = $this->attr('print_format');
-		preg_match_all('/y|Y/', $new_format, $matches, PREG_OFFSET_CAPTURE);
 
+		preg_match_all('/y|Y/', $new_format, $matches, PREG_OFFSET_CAPTURE);
 		if (!empty($matches)) {
 			$matches = array_reverse(array_pop($matches));
 			foreach ($matches as $match) {
@@ -323,6 +348,35 @@ class Form_Question_Type_Datetime extends Form_Question
 		return ($circa ? 'circa ' : '').date($new_format, $temp_date);
 
 	}//end getSummary()
+
+
+	/**
+	* If this function is called, it will replace the format of a date element (y,m,d,h,i,s) with blank string
+	* It is only used when a date element is allowed blank and was submitted with blank value.
+	*
+	* @return string
+	* @return public
+	*/
+	function replaceDateFormat($original_format, $element)
+	{	
+		$replacement_mapping = Array (
+								'y'	=> Array ('y', 'Y'),
+								'm'	=> Array ('m', 'n'),
+								'd' => Array ('d', 'j'),
+								'h'	=> Array ('h', 'H', 'g', 'G'),
+								'i' => Array ('i'),
+								's'	=> Array ('s'),
+							   );
+		// Replace with blank string
+		if (isset($replacement_mapping[$element])) {
+			foreach ($replacement_mapping[$element] as $replace_string) {
+				$original_format = str_replace($replace_string, '', $original_format);
+			}//end foreach
+		}//end if
+
+		return $original_format;
+		
+	}//end replaceDateFormat()
 
 
 	/**
@@ -385,7 +439,7 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		$val .= '-';
 
-		if (strpos($show, 'm') === FALSE) {
+		if ((isset($_POST[$name.'value']['m']) && empty($_POST[$name.'value']['m'])) || strpos($show, 'm') === FALSE) {
 			$val .= '--';
 		} else {
 			$val .= str_pad($_POST[$name.'value']['m'], 2, '0', STR_PAD_LEFT);
@@ -393,7 +447,7 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		$val .= '-';
 
-		if (strpos($show, 'd') === FALSE) {
+		if ((isset($_POST[$name.'value']['d']) && empty($_POST[$name.'value']['d'])) || strpos($show, 'd') === FALSE) {
 			$val .= '--';
 		} else {
 			$val .= str_pad($_POST[$name.'value']['d'], 2, '0', STR_PAD_LEFT);
@@ -401,7 +455,7 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		$val .= ' ';
 
-		if (strpos($show, 'h') === FALSE) {
+		if ((isset($_POST[$name.'value']['h']) && empty($_POST[$name.'value']['h'])) || strpos($show, 'h') === FALSE) {
 			$val .= '--';
 		} else {
 			$val .= str_pad($_POST[$name.'value']['h'], 2, '0', STR_PAD_LEFT);
@@ -409,7 +463,7 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		$val .= ':';
 
-		if (strpos($show, 'i') === FALSE) {
+		if ((isset($_POST[$name.'value']['i']) && empty($_POST[$name.'value']['i'])) || strpos($show, 'i') === FALSE) {
 			$val .= '--';
 		} else {
 			$val .= str_pad($_POST[$name.'value']['i'], 2, '0', STR_PAD_LEFT);
@@ -417,7 +471,7 @@ class Form_Question_Type_Datetime extends Form_Question
 
 		$val .= ':';
 
-		if (strpos($show, 's') === FALSE) {
+		if ((isset($_POST[$name.'value']['s']) && empty($_POST[$name.'value']['s'])) || strpos($show, 's') === FALSE) {
 			$val .= '--';
 		} else {
 			$val .= str_pad($_POST[$name.'value']['s'], 2, '0', STR_PAD_LEFT);
