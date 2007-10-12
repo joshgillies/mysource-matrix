@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.326 2007/10/09 00:45:11 bshkara Exp $
+* $Id: asset_edit_interface.inc,v 1.327 2007/10/12 06:18:20 bshkara Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.326 $
+* @version $Revision: 1.327 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1230,6 +1230,10 @@ class Asset_Edit_Interface extends MySource_Object
 			// call the function to paint it
 			if (isset($this->_edit_fns->static_screens[$screen]) || (($screen == 'metadataschemas') && (isset($this->_edit_fns->static_screens['metadataSchemas']))) || (($screen == 'lookupvalues') && (isset($this->_edit_fns->static_screens['lookupValues']))) ) {
 				$static_keywords = (isset($keywords['screens'][$screen])) ? $keywords['screens'][$screen] : NULL;
+				// for situations where there are keywords from a static screen like 'metadata' and the commit_button keyword is used
+				if (!is_null($static_keywords)) {
+					$print_commit_button = TRUE;
+				}
 				if (!is_null($static_keywords) || $entire_screen) {
 					if (is_null($static_keywords)) {
 						$static_keywords = Array();
