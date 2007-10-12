@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.598 2007/10/03 06:02:19 rong Exp $
+* $Id: asset.inc,v 1.599 2007/10/12 01:09:19 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.598 $
+* @version $Revision: 1.599 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4593,7 +4593,7 @@ class Asset extends MySource_Object
 
 			$result->free();
 
-		}// end if
+		}//end if
 
 		return $this->_tmp['design_lookups'];
 
@@ -4632,7 +4632,7 @@ class Asset extends MySource_Object
 		// Return all values in sq_lookup_value, i.e. the parents
 		// Called by updateLookups()
 		// 'inhd' column no longer exists.  Legacy value kept because other classes depend on seeing 'inhd'.
-		$sql_default = 'SELECT l.url, lv.name, lv.value, \'0\' as inhd
+		$sql_default = 'SELECT l.url, lv.name, lv.value, \'0\' as inhd, lv.depth
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON (l.url = lv.url)
 				';
@@ -4643,7 +4643,7 @@ class Asset extends MySource_Object
 
 		// Return all rows which are children, i.e. they inherit
 		// Called by lookupValues.inc to draw the lookup settings screen
-		$sql_inherited = 'SELECT l.url, lv.name, lv.value, \'1\' as inhd
+		$sql_inherited = 'SELECT l.url, lv.name, lv.value, \'1\' as inhd, lv.depth
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON (l.url LIKE lv.url || \'/%\')
 				';
@@ -4655,13 +4655,13 @@ class Asset extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 
+		$sql_order_by = ' ORDER BY depth ASC ';
+
 		if (!is_null($inherited) && $inherited) {
-			$result = $db->query($sql_inherited.$include_override.$where.' UNION '.$sql_default.$where);
-		}
-		elseif ($ignore_override_designs) {
+			$result = $db->query($sql_inherited.$include_override.$where.' UNION '.$sql_default.$where.$sql_order_by);
+		} else if ($ignore_override_designs) {
 			$result = $db->query($sql_default.$where);
-		}
-		else {
+		} else {
 			$result = $db->query($sql_default.$include_override.$where);
 		}
 		assert_valid_db_result($result);
@@ -4796,7 +4796,7 @@ class Asset extends MySource_Object
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
-		}
+		}//end if
 
 		// if we have paths then do some url inserting
 		if (!empty($paths)) {
@@ -4819,8 +4819,8 @@ class Asset extends MySource_Object
 				if (preg_match('/^override::design::(system|user)::.*$/', $link['value'])) {
 					$name = preg_replace('/^override::(.*)$/', '$1', $link['value']);
 					$override_designs[$name] = Array(
-											'value'	=> $link['minorid'],
-										  );
+												'value'	=> $link['minorid'],
+											   );
 				}
 			}
 			unset($link);
