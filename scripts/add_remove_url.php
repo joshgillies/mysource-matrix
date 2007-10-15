@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.6.3 $
+* @version $Revision: 1.1.6.4 $
 * @package MySource_Matrix
 */
 
@@ -69,7 +69,7 @@ Protocol to be used
 New URL
 An existing URL of the site\n
 Make sure you have all you information you need before Proceeding\n");
-	
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$http = -1;
@@ -152,12 +152,12 @@ Make sure you have all you information you need before Proceeding\n");
 		$urls = $asset->getURLs();
 		foreach ($urls as $url_info) {
 			$site_urls[] = $url_info['url'];
-		}	
+		}
 		if (!in_array($existing_url, $site_urls)) {
 			echo "The existing URL does not belong to the site with id: $assetid \n";
 			exit(0);
-		}		
-	
+		}
+
 		$sql_check_existing_url = 'SELECT urlid FROM sq_ast_url WHERE url LIKE '.$db->quoteSmart($existing_url).';';
 		$existing_urlid = $db->getOne($sql_check_existing_url);
 		assert_valid_db_result($existing_urlid);
@@ -234,7 +234,7 @@ Make sure you have all you information you need before Proceeding\n");
 		// We have done updating regular asset, now we will update the publically served file assets.
 
 		if ($update_file_public_live_assets) {
-			// Now we have to chop out the system root Url from the "existing" Url. 
+			// Now we have to chop out the system root Url from the "existing" Url.
 			$absolute_root = '';
 			$relative_root = '';
 			foreach ($root_urls	as $url) {
@@ -242,7 +242,7 @@ Make sure you have all you information you need before Proceeding\n");
 					$relative_root = $url;
 				}
 				if ($existing_url == $url) {
-					$absolute_root = $url; 
+					$absolute_root = $url;
 					break;
 				}
 			}
@@ -256,10 +256,10 @@ Make sure you have all you information you need before Proceeding\n");
 					$relative_new_root = $url;
 				}
 				if ($new_url == $url) {
-					$absolute_new_root = $url; 
+					$absolute_new_root = $url;
 					break;
 				}
-			}	
+			}
 			$new_url_public = (empty($absolute_new_root)) ? $relative_new_root : $absolute_new_root;
 
 			// Do we have any file need to be updated?
@@ -268,13 +268,20 @@ Make sure you have all you information you need before Proceeding\n");
 				foreach (array_chunk($children_to_update, 999) as $chunk) {
 					$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
 				}
-				$where = '('.implode(' OR ', $in_clauses).')';
 
-				$sql_update_sq_ast_lookup_public_file = 'INSERT INTO sq_ast_lookup (http, https, assetid, url, root_urlid)
-															SELECT http, https, assetid, replace(url, '.$db->quoteSmart($existing_url_public).','.$db->quoteSmart($new_url_public).'), 0
-															FROM sq_ast_lookup WHERE root_urlid = 0 AND '. $where;
-				bam($sql_update_sq_ast_lookup_public_file);
-				$result_update_sq_ast_lookup_public_file = $db->query($sql_update_sq_ast_lookup_public_file);
+				$count = 1;
+				$num_children_to_update = count($children_to_update);
+				foreach ($in_clauses as $condition) {
+					$sql_update_sq_ast_lookup_public_file = 'INSERT INTO sq_ast_lookup (http, https, assetid, url, root_urlid)
+																SELECT http, https, assetid, replace(url, '.$db->quoteSmart($existing_url_public).','.$db->quoteSmart($new_url_public).'), 0
+																FROM sq_ast_lookup WHERE root_urlid = 0 AND '. $condition. ' AND url like '.$db->quoteSmart($existing_url_public.'%');
+
+					bam($sql_update_sq_ast_lookup_public_file);
+					$result_update_sq_ast_lookup_public_file = $db->query($sql_update_sq_ast_lookup_public_file);
+					echo "\n Finished Updating ".(($count*1000 > $num_children_to_update) ? $num_children_to_update : $count*1000) ." files out of ".$num_children_to_update;
+					$count++;
+				}//end foreach
+	
 			}
 		}
 
@@ -302,7 +309,7 @@ Make sure you have all you information you need before Proceeding\n");
 			echo 'The provided URL : '.$remove_url.' does not exist';
 			exit(0);
 		}
-	
+
 		// Before we do any of the processing, lets grab all the FILE assets that are LIVE, and have PUBLIC READ ACCESS.
 		$asset_types_list = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetTypeHierarchy('file'));
 		$asset_types_list[] = 'file';
@@ -319,20 +326,19 @@ Make sure you have all you information you need before Proceeding\n");
 			}//end if
 			// Else just ignore this asset
 		}//end foreach
-	
+
 
 		if (!empty($children_to_update)) {
 			$in_clauses = Array();
 			foreach (array_chunk($children_to_update, 999) as $chunk) {
 				$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
 			}
-			$where = '('.implode(' OR ', $in_clauses).')';
 
 			require_once $SYSTEM_ROOT.'/data/private/conf/main.inc';
 			$root_urls = Array();
 			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 
-			// Now we have to chop out the system root Url from the "existing" Url. 
+			// Now we have to chop out the system root Url from the "existing" Url.
 			$absolute_root_remove = '';
 			$relative_root_remove = '';
 			foreach ($root_urls	as $url) {
@@ -340,16 +346,29 @@ Make sure you have all you information you need before Proceeding\n");
 					$relative_root_remove = $url;
 				}
 				if ($remove_url == $url) {
-					$absolute_root_remove = $url; 
+					$absolute_root_remove = $url;
 					break;
 				}
 			}
 
 			$remove_url_public = (empty($absolute_root_remove)) ? $relative_root_remove : $absolute_root_remove;
 
-			$sql_update_sq_ast_lookup_public	= 'DELETE FROM sq_ast_lookup WHERE root_urlid = 0 AND url LIKE '.$db->quoteSmart($remove_url_public.'%').' AND url LIKE \'%/__data/%\'';
-			$sql_update_sq_ast_lookup_public	.= ' AND '.$where;
-		}
+			$count = 1;
+			$num_children_to_update = count($children_to_update);
+			foreach ($in_clauses as $condition) {
+
+				$sql_update_sq_ast_lookup_public	= 'DELETE FROM sq_ast_lookup WHERE root_urlid = 0 AND url LIKE '.$db->quoteSmart($remove_url_public.'%').' AND url LIKE \'%/__data/%\'';
+				$sql_update_sq_ast_lookup_public	.= ' AND '.$condition;
+
+				bam($sql_update_sq_ast_lookup_public);
+				$result_lookup_public	= $db->query($sql_update_sq_ast_lookup_public);
+				assert_valid_db_result($result_lookup_public);
+
+				echo "\n Finished deleting ".(($count*1000 > $num_children_to_update) ? $num_children_to_update : $count*1000) ." files out of ".$num_children_to_update;
+				$count++;
+			}//end foreach
+
+		}//end if
 
 
 		// Find all other root_urlid that look like $remove_url.'%', we don't want to remove those.
@@ -381,10 +400,6 @@ Make sure you have all you information you need before Proceeding\n");
 		assert_valid_db_result($result_lookup_value);
 
 		// 2. Remove entries in sq_ast_lookup
-		if (!empty($children_to_update)) {
-			$result_lookup_public	= $db->query($sql_update_sq_ast_lookup_public);
-			assert_valid_db_result($result_lookup_public);
-		}
 		$result_lookup			= $db->query($sql_update_sq_ast_lookup);
 		assert_valid_db_result($result_lookup);
 
@@ -399,7 +414,6 @@ Make sure you have all you information you need before Proceeding\n");
 		bam($sql_update_sq_ast_url);
 		bam($sql_update_sq_ast_lookup_value);
 		bam($sql_update_sq_ast_lookup);
-		bam($sql_update_sq_ast_lookup_public);
 
 	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
