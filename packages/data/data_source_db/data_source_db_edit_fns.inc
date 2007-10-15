@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.30 2007/09/19 22:48:11 colivar Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.31 2007/10/15 06:45:40 nbhradwaj Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,16 +111,19 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 				// if the new connector id is empty means we want to clear the
 				// link we got nothing else to do so return TRUE
-				if (empty($new_connector_id)) return TRUE;
+				if (empty($new_connector_id))return TRUE;
 			}
 		}
 
-		$new_connector_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_connector_id);
-		$result_id = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $new_connector_asset, SQ_LINK_NOTICE, 'db_connector');
+		if (!empty($new_connector_id)) {
+			$new_connector_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_connector_id);
+			$result_id = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $new_connector_asset, SQ_LINK_NOTICE, 'db_connector');
 
-		if (empty($result_id)) {
+			if (empty($result_id)) {
 			trigger_error('Could not link the connector to this asset', E_USER_WARNING);
 			return FALSE;
+		}
+
 		}
 
 		return TRUE;
