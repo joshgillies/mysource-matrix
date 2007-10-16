@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.581 2007/10/04 05:14:47 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.582 2007/10/16 22:54:58 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.581 $
+* @version $Revision: 1.582 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7582,15 +7582,8 @@ class Asset_Manager extends MySource_Object
 							 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
 							 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid
 					';
-			// We are optimizing the query for oracle using substr instead of like
-			$where = '';
-			if ($db->phptype == 'oci8') {
-				$where = 'substr(t.treeid, 1, '.strlen($treeid).') = '.$db->quote($treeid);
-			} else {
-				$where = 't.treeid LIKE '.$db->quote($treeid.'%');
-			}
-			$where .= '
-						AND t.treeid > '.$db->quote($treeid);
+			$where = 't.treeid LIKE '.$db->quote($treeid.'%').'
+						 AND t.treeid > '.$db->quote($treeid);
 
 			if (!is_null($min_depth) && !is_null($max_depth)) {
 				if ($min_depth < $max_depth) {
