@@ -10,18 +10,22 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: purge_trash.php,v 1.1 2007/04/23 04:03:27 rong Exp $
+* $Id: purge_trash.php,v 1.2 2007/10/16 07:57:50 rong Exp $
 *
 */
 
 /**
 * Use this script to clear the trash
 *
-* Usage: php scripts/purge_trash.php [SYSTEM ROOT]
+* Usage: php scripts/purge_trash.php [SYSTEM ROOT] [PURGE_ROOTNODE]
 * Runs a Freestyle HIPO that purges all assets from the trash
 * Best suited to be run at a scheduled time by cron or similar.
 *
-* @version $Revision: 1.1 $
+* Added: optional argument PURGE_ROOTNODE,
+*        all assets underneath this rootnode (inclusive) will be purged from the trash folder.
+*        useful when the system runs out of memory when purging all assets
+*
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -46,7 +50,7 @@ echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
 
 // check that the correct root password was entered
-$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
 	echo "ERROR: The root password entered was incorrect\n";
 	exit();
@@ -56,14 +60,36 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
 }
 
-$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 $vars = Array();
+
+// if a second argument is supplied
+$purge_rootnode = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : 0;
+if (!empty($purge_rootnode)) {
+	// do some checking to make sure there is a link to the trash folder
+	$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	$sql = 'select
+				linkid
+			from
+				sq_ast_lnk
+			where
+				minorid = '.$db->quoteSmart($purge_rootnode).'
+				and
+				majorid = '.$db->quoteSmart($trash_folder->id);
+	$linkid = $db->getOne($sql);
+	assert_valid_db_result($linkid);
+	if (!empty($linkid)) {
+		// purge trash hipo will know what to do
+		$vars['purge_root_linkid'] = $linkid;
+	}
+}
+
+$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 $errors = $hh->freestyleHipo('hipo_job_purge_trash', $vars);
 if (count($errors)) {
-	echo print_r($errors, true);
+	echo print_r($errors, TRUE);
 } else {
 	echo "\npurge_trash.php: Completed.\n";
 }
 
 ?>
-
