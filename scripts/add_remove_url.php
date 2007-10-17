@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.4.4 $
+* @version $Revision: 1.1.4.5 $
 * @package MySource_Matrix
 */
 
@@ -45,6 +45,7 @@ if (!$root_user->comparePassword($root_password)) {
     echo "ERROR: The root password entered was incorrect\n";
     exit();
 }
+$GLOBALS['SQ_SYSTEM']->am->setCurrentUser($root_user);
 
 echo "\n";
 
@@ -416,6 +417,7 @@ Make sure you have all you information you need before Proceeding\n");
 		bam($sql_update_sq_ast_lookup);
 
 	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+	$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 
 	exit(0);
 
