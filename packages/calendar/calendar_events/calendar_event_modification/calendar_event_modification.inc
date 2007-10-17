@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.22 2007/01/08 03:25:04 emcdonald Exp $
+* $Id: calendar_event_modification.inc,v 1.22.4.1 2007/10/17 01:47:55 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.22.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -67,7 +67,7 @@ class Calendar_Event_Modification extends Calendar_Event
 
 		$parent =& $link['asset'];
 		if ($parent->type() != 'calendar_event_recurring') {
-			trigger_localised_error('CAL0050', E_USER_ERROR);
+			trigger_localised_error('CAL0052', E_USER_ERROR);
 			return FALSE;
 		}
 
