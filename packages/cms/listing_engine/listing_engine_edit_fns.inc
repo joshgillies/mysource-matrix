@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.78.2.1 2007/08/28 23:44:32 lmarchese Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.78.2.2 2007/10/18 05:51:06 nbhradwaj Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.78.2.1 $
+* @version $Revision: 1.78.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1130,7 +1130,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					<tr>
 						<th><?php echo translate('display_name'); ?></th>
 						<td><?php text_box($prefix.'_new[name]', ''); ?></td>
-					</tr>
+					</tr>        
 				</table>
 				<?php
 			$o->closeField();
@@ -1426,7 +1426,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						?>
 						<td>
 							<?php
-							check_box($prefix.'_current['.$id.'][remove]', '');
+							check_box($prefix.'_current['.$id.'][remove]', '1');
 							?>
 						</td>
 						<?php
