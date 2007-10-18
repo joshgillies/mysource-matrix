@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.244.2.5 2007/09/21 05:36:37 mbrydon Exp $
+* $Id: asset_map.inc,v 1.244.2.6 2007/10/18 23:22:10 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.244.2.5 $
+* @version $Revision: 1.244.2.6 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -275,12 +275,10 @@ class Asset_Map
 
 					if ($i == $num_site_parents + 1) break;
 					
-					$currentid = (string) $assetid;
-					$previd = $currentid;
-					if ($i == 0) {
-						$previd = '1';
-					}
-					
+					$previd = (string) $currentid;
+					if ($i == 0) $previd = '1';
+					$currentid = $assetid;
+										
 					$sql = 'SELECT l.sort_order FROM sq_ast_lnk l
 							WHERE l.majorid = '.$db->quoteSmart($previd).'
 									AND l.minorid = '.$db->quoteSmart($currentid);
