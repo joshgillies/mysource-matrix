@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.113.2.1 2007/08/29 05:00:44 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.113.2.2 2007/10/18 06:03:25 bshkara Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.113.2.1 $
+* @version $Revision: 1.113.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -949,7 +949,11 @@ class Page_Asset_Builder extends Page
 				$user_groups[] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 				foreach ($options as $key => $value) {
 					$allowed_user_groups = $GLOBALS['SQ_SYSTEM']->am->getPermission($key,SQ_PERMISSION_WRITE,TRUE);
+					// getPermission does not return root or sysadmin users so we will have to add the options ourselves
+					// NOTE: root and sysadmin users are allowed to do anything unless _checkPermissionAccess is overridden
 					if (array_intersect($user_groups,$allowed_user_groups)) {
+						$remaining_options[$key] = $value;
+					} else if (($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin())) {
 						$remaining_options[$key] = $value;
 					}
 				}
