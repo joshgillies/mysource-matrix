@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_edit_fns.inc,v 1.17 2006/12/05 22:42:11 emcdonald Exp $
+* $Id: design_area_asset_lineage_edit_fns.inc,v 1.18 2007/10/18 00:01:21 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -160,7 +160,13 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 	function processExcludedTypes(&$asset, &$o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			return $asset->setAttrValue('unwanted_asset_types', $_POST[$prefix.'_excluded_types']);
+			// bug #2712: asset chooser returns an array of empty strings
+			// instead of an empty array
+			$exclude_list = Array();
+			foreach ($_POST[$prefix.'_excluded_types'] as $type) {
+				if ($type != '') $exclude_list[] = $type;
+			}
+			return $asset->setAttrValue('unwanted_asset_types', $exclude_list);
 		} else {
 			return FALSE;
 		}
