@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.66.2.8 2005/07/28 06:29:57 gsherwood Exp $
+* $Id: search_page.inc,v 1.66.2.9 2007/10/19 04:58:50 hnguyen Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66.2.8 $ - 1.0
+* @version $Revision: 1.66.2.9 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -285,8 +285,8 @@ class Search_Page extends Page
 		// get the corresponding bodycopy attached to us
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 
-		$current_result_page = array_get_index($_REQUEST, 'current_result_page', 0);
-		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('results_per_page'));
+		$current_result_page = (int) array_get_index($_REQUEST, 'current_result_page', 0);
+		$results_per_page    = (int) array_get_index($_REQUEST, 'results_per_page', $this->attr('results_per_page'));
 
 		?>
 		<form name="search_form" method="get" action="<?php echo htmlspecialchars(replace_query_string_vars(Array())); ?>">
