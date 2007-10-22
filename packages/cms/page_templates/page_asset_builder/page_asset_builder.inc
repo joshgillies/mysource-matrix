@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.115 2007/10/18 05:56:40 bshkara Exp $
+* $Id: page_asset_builder.inc,v 1.116 2007/10/22 02:24:58 nbhradwaj Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.115 $
+* @version $Revision: 1.116 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -459,7 +459,11 @@ class Page_Asset_Builder extends Page
 						// make sure text attributes dont have javascripts etc
 						foreach ($new_asset->vars as $attr_name => $attr_info) {
 							if ($attr_info['type'] == 'text') {
-								$new_asset->setAttrValue($attr_name, htmlspecialchars($attr_info['value']));
+								if ($attr_name == 'name' || $attr_name == 'short_name') {
+									$new_asset->setAttrValue($attr_name, htmlspecialchars($attr_info['value'], ENT_NOQUOTES));
+								} else {
+									$new_asset->setAttrValue($attr_name, htmlspecialchars($attr_info['value']));
+								}
 							}
 						}
 						$new_asset->saveAttributes();
