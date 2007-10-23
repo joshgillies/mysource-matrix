@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 * 
-* $Id: rtf_file.inc,v 1.1 2007/10/15 05:51:27 bshkara Exp $
+* $Id: rtf_file.inc,v 1.2 2007/10/23 03:35:15 bshkara Exp $
 *
 */
 
@@ -24,12 +24,19 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Rtf_File extends File
 {
+
+
+	/**
+	* All allowed extension for an rtf file
+	* @var Array(string)
+	*/
+	var $allowed_extensions = Array('rtf');
 
 
     /**
