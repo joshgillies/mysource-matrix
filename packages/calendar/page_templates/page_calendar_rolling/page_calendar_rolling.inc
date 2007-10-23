@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.22 2007/07/19 02:29:01 mbrydon Exp $
+* $Id: page_calendar_rolling.inc,v 1.23 2007/10/23 01:46:48 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -579,7 +579,7 @@ class Page_Calendar_Rolling extends Page
 			$start_date = $from_dates['start'];
 			$end_date   = $to_dates['end'];
 		}
-		$length = (iso8601_ts($end_date) - iso8601_ts($start_date)) / (60 * 60 * 24);
+		$length = round((iso8601_ts($end_date) - iso8601_ts($start_date)) / (60 * 60 * 24));
 
 		// build sql to restrict the tree locations
 		$root_nodes = $this->attr('root_nodes');
