@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.16 2007/05/23 00:58:25 arailean Exp $
+* $Id: data_source.inc,v 1.16.2.1 2007/10/23 01:20:40 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ register_implementation('data_source', 'bridge');
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -271,10 +271,12 @@ class Data_Source extends Asset
 			$keywords = $asset->getAvailableKeywords();
 			// if a sort field is specified then return only that field value else return all of the fields
 			if (!empty($field)) {
-				if (isset($asset->{$field})) {
+				if ($field === 'type_code') {
+					$info[$assetid] = $asset->type();
+				} else if (isset($asset->{$field})) {
 					$info[$assetid] = $asset->{$field};
 				} else {
-					trigger_error('Invalid sort field for the asset type Data Source Record Ste', E_USER_ERROR);
+					trigger_error('Invalid sort field for the asset type Data Source Record Set', E_USER_ERROR);
 				}
 			} else {
 				$info[$assetid] = Array(
