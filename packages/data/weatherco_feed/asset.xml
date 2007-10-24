@@ -13,7 +13,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2007/10/24 05:46:29 bshkara Exp $
+* $Id: asset.xml,v 1.2 2007/10/24 05:56:03 bshkara Exp $
 *
 */
 -->
@@ -29,7 +29,7 @@
     <parent_type>data_source_xml</parent_type>
     <requirements>
         <requirement type="asset">
-            <code>data_source</code>
+            <code>data_source_xml</code>
             <version>0.1</version>
         </requirement>
     </requirements>
