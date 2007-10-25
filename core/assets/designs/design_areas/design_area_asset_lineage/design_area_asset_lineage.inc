@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.16 2006/12/05 22:42:11 emcdonald Exp $
+* $Id: design_area_asset_lineage.inc,v 1.17 2007/10/25 06:55:46 lmarchese Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,7 +45,6 @@ class Design_Area_Asset_Lineage extends Design_Area
 	*/
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
 	{
-
 		switch ($var) {
 			case 'assetid' :
 				echo '<', '?php echo $ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'assetid\']; ?', '>';
@@ -80,11 +79,25 @@ class Design_Area_Asset_Lineage extends Design_Area
 	{
 		switch (array_get_index($element, 'operation')) {
 			case 'asset' :
+				// Make lineage working with ?a=xxx
+				echo '<?php
+				if ( isset($_GET[\'a\']) && $_GET[\'a\'] == $GLOBALS[\'SQ_SYSTEM\']->frontend_asset->id){
+					$last_ele_index = count($ASSET_LINEAGE) - 1;
+					$ASSET_LINEAGE[] = array (
+										\'url\' => $ASSET_LINEAGE[$last_ele_index][\'url\'].\'?a=\'.$GLOBALS[\'SQ_SYSTEM\']->frontend_asset->id,
+										\'assetid\' => $GLOBALS[\'SQ_SYSTEM\']->frontend_asset->id,
+										\'name\' => $GLOBALS[\'SQ_SYSTEM\']->frontend_asset->name,
+										\'short_name\' => $GLOBALS[\'SQ_SYSTEM\']->frontend_asset->short_name,
+										\'type_code\' => get_class($GLOBALS[\'SQ_SYSTEM\']->frontend_asset),
+										\'protocol\' => $ASSET_LINEAGE[$last_ele_index][\'protocol\'],
+										\'link_type\' => $ASSET_LINEAGE[$last_ele_index][\'link_type\'],
+									);
+				}
+				?>';
 
 				// because the page lineage array contains the site index, all we need to do to have or not have
 				// the home link is start the loop at a different position
 				$start_index = ($this->attr('prefix_with_home_link')) ? 0 : 1;
-
 
 				$total = 'count($ASSET_LINEAGE)';
 				// because the page lineage array contains the current page, all we need to do to have or not have
