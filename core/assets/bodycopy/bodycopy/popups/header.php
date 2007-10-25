@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: header.php,v 1.7 2006/12/05 05:34:15 emcdonald Exp $
+* $Id: header.php,v 1.7.6.1 2007/10/25 23:45:27 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,8 @@
 
 		/* fieldset styles */
 		fieldset {
-			padding: 0px 10px 5px 5px;
+			width: 90%;
+			padding: 0px 5px 5px 5px;
 			border-color: #725B7D;
 		}
 
@@ -65,7 +66,7 @@
 		/* form and form fields */
 		form { padding: 0px; margin: 0px; }
 
-		select, input, button {
+		select, input, button, textarea {
 			font: 11px Tahoma,Verdana,sans-serif;
 		}
 

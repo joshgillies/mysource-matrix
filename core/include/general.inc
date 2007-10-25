@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.173.2.1 2007/09/26 04:21:07 lmarchese Exp $
+* $Id: general.inc,v 1.173.2.2 2007/10/25 23:45:27 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.173.2.1 $
+* @version $Revision: 1.173.2.2 $
 * @package MySource_Matrix
 */
 
@@ -1532,7 +1532,6 @@ function replace_global_keywords(&$text)
 					}
 					if (!empty($site_assetid)) {
 						$site =& $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
-
 						$site_keyword = 'asset_'.substr($keyword, 13);
 						$site_replacement = $site->getKeywordReplacement($site_keyword);
 						if ($site_replacement != "%$site_keyword%") {
@@ -1556,6 +1555,28 @@ function replace_global_keywords(&$text)
 							$asset_replacement = $asset->getKeywordReplacement($matches[1]);
 							if ($asset_replacement != "%$matches[1]%") {
 								$replacements[$keyword] = $asset_replacement;
+							}
+						}
+					}
+				}
+				if (0 === strpos($keyword, 'globals_snippet_')) {
+					$replacements[$keyword] = '';
+					if ($GLOBALS['SQ_SYSTEM']->am->installed('content_type_snippet')) {
+						$snippet_info = explode('_', $keyword);
+						if (is_numeric($snippet_info[2])) {
+							// is this snippet id valid and current?
+							$all_snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords(TRUE);
+							if (in_array($snippet_info[2], array_keys($all_snippets))) {
+								$snippet_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($snippet_info[2]);
+								if (!is_null($snippet_asset)) {
+									// printBody will handle the permission
+									ob_start();
+										$snippet_asset->printBody();
+										$replacement = ob_get_contents();
+									ob_end_clean();
+									$GLOBALS['SQ_SYSTEM']->am->forgetAsset($snippet_asset);
+									$replacements[$keyword] = $replacement;
+								}
 							}
 						}
 					}

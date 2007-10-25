@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.571.2.4 2007/10/04 05:13:32 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.571.2.5 2007/10/25 23:45:27 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.571.2.4 $
+* @version $Revision: 1.571.2.5 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7983,6 +7983,87 @@ class Asset_Manager extends MySource_Object
 	}//end isDependant()
 
 
-}//end class
+	/**
+	* Returns an array of global snippet keywords that are available to the current user
+	*
+	* @param boolean	$more_info	returns description if this is true
+	* @return array
+	* @access public
+	*/
+	function getSnippetKeywords($more_info=FALSE)
+	{
+		if (!$this->installed('content_type_snippet')) {
+			return Array();
+		}
+		$rootid = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_snippet', 'SQ_SNIPPET_ROOT');
+		if (empty($rootid)) {
+			// snippet root preference not set
+			return Array();
+		}
 
+		$containers = $this->getChildren($rootid, 'bodycopy_container', FALSE);
+		if (empty($containers)) {
+			// no container found under the specified snippet root
+			return Array();
+		}
+
+		// rearrange the snippets according to asset map sort order
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$majorids = Array();
+		$bodycopies = $this->getChildren($rootid, 'bodycopy', TRUE);
+		foreach ($bodycopies as $assetid => $type_code) {
+			$majorids[] = $db->quoteSmart((string)$assetid);
+		}
+		$minorids = Array();
+		foreach ($containers as $assetid => $type_code) {
+			$minorids[] = $db->quoteSmart((string)$assetid);
+		}
+		$sql = 'select
+					minorid
+				from
+					sq_ast_lnk
+				where
+					minorid in ('.implode(',', $minorids).') and
+					majorid in ('.implode(',', $majorids).')
+				group by
+					majorid, sort_order, minorid
+				order by
+					majorid, sort_order';
+		$results = $db->getCol($sql);
+		assert_valid_db_result($results);
+
+		// generate list of snippet name and content
+		$keywords = Array();
+		foreach ($results as $id) {
+			$container =& $this->getAsset($id);
+			if (is_null($container)) continue;
+			// only list what the current user has access to
+			if ($container->readAccess()) {
+				if (method_exists($container, 'getContentType')) {
+					$content_type =& $container->getContentType();
+					if ($content_type->type() == 'content_type_snippet') {
+						// exclude all snippet content type
+						continue;
+					}
+					unset($content_type);
+				}
+				$safe_name = make_valid_web_paths(Array($container->name));
+				if ($more_info) {
+					$keywords[$id] = Array(
+										'name'		=> $container->name,
+										'safe_name'	=> $safe_name[0],
+										'attr'		=> $container->attr('attributes'),
+									 );
+				} else {
+					$keywords['globals_snippet_'.$id.'_'.$safe_name[0]] = "Snippet $id: $container->name";
+				}
+			}
+		}//end foreach container
+
+		return $keywords;
+
+	}//end getSnippetKeywords()
+
+
+}//end class
 ?>

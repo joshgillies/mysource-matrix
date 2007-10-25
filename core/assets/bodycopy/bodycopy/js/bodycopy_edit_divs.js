@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_divs.js,v 1.10 2006/12/05 05:34:15 emcdonald Exp $
+* $Id: bodycopy_edit_divs.js,v 1.10.6.1 2007/10/25 23:45:27 rong Exp $
 *
 */
 
@@ -19,7 +19,7 @@ function bodycopy_insert_div(bodycopy_name, divid, before) {
 	bodycopy_current_edit["data"]["containerid"]    = divid;
 	bodycopy_current_edit["data"]["container_type"] = 'div';
 	bodycopy_current_edit["data"]["before"]         = before;
-	bodycopy_show_popup("insert_div.php", 300, 250);
+	bodycopy_show_popup("insert_div.php", 300, 280);
 }// end bodycopy_insert_div()
 
 function bodycopy_save_insert_div(attributes) {
@@ -46,7 +46,7 @@ function bodycopy_edit_div_properties(bodycopy_name, divid, can_delete) {
 	if (data != null) {
 		bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
 	}
-	bodycopy_show_popup("edit_div_props.php", 320, 350);
+	bodycopy_show_popup("edit_div_props.php", 320, 440);
 }// end bodycopy_edit_div_properties()
 
 function bodycopy_save_div_properties(attributes) {

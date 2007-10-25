@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.20 2006/12/05 05:34:15 emcdonald Exp $
+* $Id: edit_div_props.php,v 1.20.6.1 2007/10/25 23:45:27 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,7 +40,8 @@ include(dirname(__FILE__).'/header.php');
 		var f = document.main_form;
 
 		f.identifier.value = (data['identifier'] == null) ? "" : data['identifier'];
-		f.css_class.value  = (data['css_class'] == null)  ? "" : data['css_class'];
+		f.desc.value       = (data['desc']       == null) ? "" : data['desc'];
+		f.css_class.value  = (data['css_class']  == null) ? "" : data['css_class'];
 
 		f.divid.value = owner.bodycopy_current_edit["data"]["divid"];
 		f.bodycopy_name.value = owner.bodycopy_current_edit["bodycopy_name"];
@@ -73,6 +74,7 @@ include(dirname(__FILE__).'/header.php');
 	function popup_save(f) {
 		var data = new Object();
 		data["identifier"]       = owner.form_element_value(f.identifier);
+		data["desc"]             = owner.form_element_value(f.desc);
 		data["css_class"]        = owner.form_element_value(f.css_class);
 		data["layout_type"]      = owner.form_element_value(f.layout_type);
 		data["content_type"]     = owner.form_element_value(f.content_type);
@@ -83,11 +85,7 @@ include(dirname(__FILE__).'/header.php');
 </script>
 
 <div class="title">
-	<table border="0" cellspacing="0" cellpadding="0"  width="100%">
-		<tr>
-			<td class="title" align="left"><?php echo translate('div_properties'); ?></td>
-		</tr>
-	</table>
+	<?php echo translate('div_properties'); ?>
 </div>
 <script type="text/javascript">
 if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementById('sq_edit_div_props_delete').innerHTML = '&nbsp;'; }
@@ -103,7 +101,11 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 			<table style="width:100%">
 				<tr>
 					<td class="label"><?php echo translate('name'); ?>:</td>
-					<td><input type="text" name="identifier" value="" size="15"></td>
+					<td><input type="text" name="identifier" value="" size="25"></td>
+				</tr>
+				<tr>
+					<td class="label"><?php echo translate('description'); ?>:</td>
+					<td><textarea name="desc" rows="3" size="25" value=""></textarea></td>
 				</tr>
 			</table>
 		</fieldset>

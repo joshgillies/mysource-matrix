@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.39 2007/06/05 23:49:40 rong Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.39.2.1 2007/10/25 23:45:27 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.39.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,7 +117,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$wysiwyg->close_group();
 
 			$wysiwyg->open_group();
-				if ($iap || in_array('matrix_apply_style', $ap)) {
+			if ($iap || in_array('matrix_apply_style', $ap)) {
 					$wysiwyg->add_plugin('matrix_apply_style');
 				}
 			$wysiwyg->close_group();
@@ -131,6 +131,16 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 				$keyword_replace->keyword_tag = '%';
 				$keyword_replace->keywords = $keywords;
 			}
+
+			// snippet global keyword dropdown
+			$snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords();
+			if (($iap || in_array('snippet_keyword_replace', $ap)) && !empty($snippets)) {
+				$wysiwyg->add_plugin('snippet_keyword_replace');
+				$snippet_keyword_replace =& $wysiwyg->get_plugin('snippet_keyword_replace');
+				$snippet_keyword_replace->keyword_tag = '%';
+				$snippet_keyword_replace->keywords = $snippets;
+			}
+
 			if ($iap || in_array('history', $ap)) {
 				$wysiwyg->add_plugin('history');
 			}

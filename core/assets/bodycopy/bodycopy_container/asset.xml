@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.10 2006/12/05 05:39:48 emcdonald Exp $
+* $Id: asset.xml,v 1.10.6.1 2007/10/25 23:45:27 rong Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>__core__</package>
 	<type_code>bodycopy_container</type_code>
-	<version>0.5</version>
+	<version>0.6</version>
 	<name>Bodycopy Container</name>
 	<description>BodyCopy Container Object, a base class to hold bodycopy content</description>
 	<instantiable>yes</instantiable>
