@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.54 2007/08/30 04:22:12 bshkara Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.55 2007/10/25 23:23:17 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,6 +67,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		if (empty($attributes[$name])) $attributes[$name] = '';
 		if ($attributes[$name] == $value) return FALSE;
 		$attributes[$name] = $value;
+
 		return TRUE;
 
 	}//end setAttribute()
@@ -202,6 +203,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 						}
 					} else {
 						if ($this->setAttribute($attributes, $name, $value)) {
+							if ($name == 'desc') {
+								// update description attr when desc property field gets updated
+								$asset->setAttrValue('description', $value);
+							}
 							$attributes_updated = TRUE;
 						}
 					}
@@ -218,6 +223,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 						}
 					} else {
 						if ($this->setAttribute($attributes, $name, $value)) {
+							if ($name == 'desc') {
+								// update description attr when desc property field gets updated
+								$asset->setAttrValue('description', $value);
+							}
 							$attributes_updated = TRUE;
 						}
 					}
@@ -852,6 +861,62 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	}//end processBodycopyContainer()
 
 
-}//end class
+	/**
+	* Paint the description attribute as a text area on the details screen
+	*
+	* @param object	&$asset	the container whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return void
+	* @access public
+	*/
+	function paintDescription(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			text_area($prefix.'_description', $asset->attr('description'), 20, 3);
 
+		} else {
+			// read only
+			echo nl2br(htmlspecialchars($asset->attr('description')));
+		}
+		return TRUE;
+
+	}//end paintDescription()
+
+
+	/**
+	* Process the description text area attribute on the details screen
+	*
+	* @param object	&$asset	the container whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return void
+	* @access public
+	*/
+	function processDescription(&$asset, &$o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_description']) && !empty($_POST[$prefix.'_description'])) {
+			if ($asset->writeAccess('attributes')) {
+				$value = $_REQUEST[$prefix.'_description'];
+				$asset->setAttrValue('description', $value);
+				// also updated the properties array
+				$attributes = $asset->attr('attributes');
+				$attributes['desc'] = $value;
+				$asset->setAttrValue('attributes', $attributes);
+				if (!$asset->saveAttributes()) {
+					trigger_localised_error('CORE0121', E_USER_WARNING, $asset->name, $asset->id);
+					return FALSE;
+				}
+			} else {
+				return FALSE;
+			}
+		}
+		return TRUE;
+
+	}//end processDescription()
+
+
+}//end class
 ?>

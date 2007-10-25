@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_tables.js,v 1.10 2006/12/05 05:34:15 emcdonald Exp $
+* $Id: bodycopy_edit_tables.js,v 1.11 2007/10/25 23:23:03 rong Exp $
 *
 */
 
@@ -47,7 +47,7 @@ function bodycopy_edit_table_properties(bodycopy_name, tableid, can_delete) {
 	if (data != null) {
 		bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
 	}
-	bodycopy_show_popup("edit_table_props.php", 320, 400);
+	bodycopy_show_popup("edit_table_props.php", 380, 500);
 }// end bodycopy_edit_table_properties()
 
 function bodycopy_save_table_properties(attributes) {

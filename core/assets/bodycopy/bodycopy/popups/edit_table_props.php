@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_props.php,v 1.12 2007/01/22 23:02:57 rong Exp $
+* $Id: edit_table_props.php,v 1.13 2007/10/25 23:23:03 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,6 +43,7 @@ include(dirname(__FILE__).'/header.php');
 		f.bgcolor.value		= (data['bgcolor']	  == null) ? "" : data['bgcolor'];
 		//f.background.value	= (data['background'] == null) ? "" : data['background'];
 		f.identifier.value	= (data['identifier'] == null) ? "" : data['identifier'];
+		f.desc.value		= (data['desc']       == null) ? "" : data['desc'];
 		owner.highlight_combo_value(f.align,	   data['align']);
 		owner.highlight_combo_value(f.border,	   data['border']);
 		owner.highlight_combo_value(f.cellspacing, data['cellspacing']);
@@ -58,6 +59,7 @@ include(dirname(__FILE__).'/header.php');
 	function popup_save(f) {
 		var data = new Object();
 		data["identifier"]		 = owner.form_element_value(f.identifier);
+		data["desc"]			 = owner.form_element_value(f.desc);
 		data["width"]			 = owner.form_element_value(f.width);
 		data["height"]			 = owner.form_element_value(f.height);
 		data["bgcolor"]			 = owner.form_element_value(f.bgcolor);
@@ -91,7 +93,11 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 			<table style="width:100%">
 				<tr>
 					<td class="label"><?php echo translate('name'); ?>:</td>
-					<td><input type="text" name="identifier" value="" size="15"></td>
+					<td><input type="text" name="identifier" value="" size="20"></td>
+				</tr>
+				<tr>
+					<td class="label"><?php echo translate('description'); ?>:</td>
+					<td><textarea name="desc" rows="3" size="20" value=""></textarea></td>
 				</tr>
 			</table>
 		</fieldset>
@@ -99,9 +105,9 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td>
-			<table width="100%" cellspacing="0" cellpadding="0">
+			<table width="90%" cellspacing="0" cellpadding="0">
 				<tr>
-					<td valign="top" width="50%">
+					<td valign="top" width="45%">
 						<fieldset>
 						<legend><b><?php echo translate('layout'); ?></b></legend>
 						<table style="width:100%">
@@ -128,7 +134,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 						</fieldset>
 					</td>
 					<td>&nbsp;</td>
-					<td valign="top" width="50%">
+					<td valign="top" width="45%">
 						<fieldset>
 						<legend><b><?php echo translate('spacing_and_padding'); ?></b></legend>
 						<table style="width:100%">
@@ -243,7 +249,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td>
-		<div style="text-align: right;">
+		<div style="text-align: center;">
 		<button type="button" name="ok" onClick="javascript: popup_save(this.form)"><?php echo translate('ok'); ?></button>
 		&nbsp;
 		<button type="button" name="cancel" onClick="javascript: popup_close();"><?php echo translate('cancel'); ?></button>
