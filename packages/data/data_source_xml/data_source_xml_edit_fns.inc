@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml_edit_fns.inc,v 1.1.2.2 2007/10/24 06:03:13 bshkara Exp $
+* $Id: data_source_xml_edit_fns.inc,v 1.1.2.3 2007/10/26 04:59:50 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -167,8 +167,8 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('keyword');?></th>
-				<th><?php echo translate('description');?></th>
+				<th><?php echo translate('tag');?></th>
+				<th><?php echo translate('attributes');?></th>
 			</tr>
 			<?php
 			for ($i=0; $i<count($tags); $i++) {
