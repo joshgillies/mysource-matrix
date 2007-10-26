@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.31 2007/02/16 06:34:59 colivar Exp $
+* $Id: linking.inc,v 1.32 2007/10/26 04:13:22 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 
@@ -80,7 +80,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 		$assetid_keys = array_slice($assetid_keys, $link_offset, $num_per_page);
 		// Chunk Norris this query because the IN part will bomb with >1000
 		// assets on Oracle
-		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid
+		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid, cl.value
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
 					 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
@@ -104,7 +104,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 		$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
 
 		assert_valid_db_result($result);
-	}//end 
+	}//end else
 
 	foreach ($asset_links as $link_data) {
 		$link_info[$link_data['majorid']][] = $link_data;
@@ -122,6 +122,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 
 			$link_type = $link_data['link_type'];
 			$linkid = $link_data['linkid'];
+			$link_value = $link_data['value'];
 
 			// work out if the user can change the link types
 			// the arg $allow_edit must be set to TRUE to try the write access test
@@ -172,6 +173,15 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 					<td style="text-align: center;">
 						<?php echo $majorid; ?>
 					</td>
+					<td style="text-align: center;">
+						<?php
+						if (!$can_edit) {
+							echo $link_value;
+						} else {
+							text_box($prefix.'_link_value['.$linkid.']', html_entity_decode($link_value), 15, FALSE);
+						}
+						?>
+					</td>
 					<td><?php echo $asset_lineage; ?></td>
 				</tr>
 				<?php
@@ -206,7 +216,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 			</style>
 		<table class="sq-backend-table">
 		<tr>
-			<td class="sq-linking-header-header" colspan="5"><b><?php
+			<td class="sq-linking-header-header" colspan="6"><b><?php
 				hidden_field($prefix.'_link_offset', $link_offset);
 				if ($link_offset > 0) {
 					?><a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
@@ -273,6 +283,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('link_id'); ?></th>
 				<th style="text-align: center;" width="10%"><?php echo translate('link_type'); ?></th>
 				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('assetid'); ?></th>
+				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('value'); ?></th>
 				<th width="70"><?php echo translate('lineage'); ?></th>
 			</tr>
 			<?php
@@ -405,6 +416,7 @@ function processLinking(&$owner, &$o, &$ei)
 	$done_something = FALSE;
 	$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 
+	// process link_type changes
 	foreach ($asset_links as $link) {
 		if (!isset($_POST[$prefix.'_link_type'][$link['linkid']])) {
 			continue;
@@ -412,6 +424,21 @@ function processLinking(&$owner, &$o, &$ei)
 		$new_type = $_POST[$prefix.'_link_type'][$link['linkid']];
 		if ($link['link_type'] == $new_type) continue;
 		if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], $new_type)) {
+			continue;
+		}
+		$done_something = TRUE;
+	}
+
+	// process link_value changes
+	foreach ($asset_links as $link) {
+		if (!isset($_POST[$prefix.'_link_value'][$link['linkid']])) {
+			continue;
+		}
+		$new_value = $_POST[$prefix.'_link_value'][$link['linkid']];
+		if (html_entity_decode($link['value']) == $new_value) {
+			continue;
+		}
+		if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], NULL, htmlentities($new_value))) {
 			continue;
 		}
 		$done_something = TRUE;
