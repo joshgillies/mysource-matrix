@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.74 2007/08/07 05:18:26 hnguyen Exp $
+* $Id: internal_message.inc,v 1.75 2007/10/29 22:02:47 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -186,7 +186,7 @@ class Internal_Message extends MySource_Object
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -207,20 +207,23 @@ class Internal_Message extends MySource_Object
 					)
 					VALUES
 					(
-						?,
-						?,
-						?,
-						?,
-						?,
-						?,
-						?,
-						?,
-						'.db_extras_prepare_todate($db).',
-						?
+						:msgid,
+						:userto,
+						:userfrom,
+						:subject,
+						:body,
+						:type,
+						:priority,
+						:status,
+						:sent,
+						:parameters
 					)';
 
-		$prepared = $db->prepare($sql);
-		assert_valid_db_result($prepared);
+		try {
+			$prepared = $db->prepare($sql);
+		} catch (DALException $e) {
+			throw new Exception('Prepared internal message statement failed: '.$e->getMessage());
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
@@ -236,7 +239,7 @@ class Internal_Message extends MySource_Object
 
 			$tagline_reg = '|<SQ_MSG_TAGLINE[^>]*?>(.*?)</SQ_MSG_TAGLINE>|';
 			if (preg_match($tagline_reg, $log_line, $matches)) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[1]);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[1]);
 				$log_line = preg_replace($tagline_reg, $asset->name.' (#'.$asset->id.')', $log_line);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
@@ -274,28 +277,27 @@ class Internal_Message extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// log a message for the system so it is not deleted
-			$messageid = $db->nextId('sq_internal_msg');
-			assert_valid_db_result($messageid);
+			// TODO: this wil be replaced in the queries.xml with a seqNextVal()
+			// call replacing the addition of the explicit sequence value
+			$messageid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_internal_msg_seq\')');
 
 			$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $this->body);
 
-			$values = Array(
-						$messageid,
-						0,
-						$this->from,
-						(empty($this->subject) ? $lm->getInternalMessageSubject($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE) : $this->subject),
-						(empty($this->body) ? $lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE) : $this->body),
-						$this->type,
-						$this->priority,
-						$this->status,
-						$this->sent,
-						'YYYY-MM-DD HH24:MI:SS',
-						$param_string,
-					  );
-
-			$result = $db->execute($prepared, $values);
-
-			assert_valid_db_result($result);
+			try {
+				$prepared->bindValue(':msgid',      $messageid,      PDO::PARAM_INT);
+				$prepared->bindValue(':userto',     0,               PDO::PARAM_STR);
+				$prepared->bindValue(':userfrom',   $this->from,     PDO::PARAM_STR);
+				$prepared->bindValue(':subject',    (empty($this->subject) ? $lm->getInternalMessageSubject($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE) : $this->subject), PDO::PARAM_STR);
+				$prepared->bindValue(':body',       (empty($this->body) ? $lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE) : $this->body), PDO::PARAM_STR);
+				$prepared->bindValue(':type',       $this->type,     PDO::PARAM_STR);
+				$prepared->bindValue(':priority',   $this->priority, PDO::PARAM_INT);
+				$prepared->bindValue(':status',     $this->status,   PDO::PARAM_STR);
+				$prepared->bindValue(':sent',       $this->sent,     PDO::PARAM_STR);
+				$prepared->bindValue(':parameters', $param_string,   PDO::PARAM_STR);
+				DAL::execPdoQuery($prepared);
+			} catch (Exception $e) {
+				throw new Exception('Creation of internal message failed due to database error: '.$e->getMessage());
+			}
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
@@ -314,8 +316,8 @@ class Internal_Message extends MySource_Object
 
 			// new line is \n
 			$crlf = "\n";
-			$mime =& new Mail_mime($crlf);
-			$mail =& Mail::factory('mail', "-f$from_email");
+			$mime = new Mail_mime($crlf);
+			$mail = Mail::factory('mail', "-f$from_email");
 
 			// send each user a message - via email and into their internal message inbox
 			foreach ($send_to as $userid) {
@@ -361,7 +363,7 @@ class Internal_Message extends MySource_Object
 
 					$tagline_reg = '|<SQ_MSG_TAGLINE[^>]*?>(.*?)</SQ_MSG_TAGLINE>|';
 					if (preg_match($tagline_reg, $log_body, $matches)) {
-						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[1]);
+						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[1]);
 						$log_body = preg_replace($tagline_reg, $asset->name.' (#'.$asset->id.')', $log_body);
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					}
@@ -390,21 +392,23 @@ class Internal_Message extends MySource_Object
 					// log the internal message to the DB
 					$messageid = $db->nextId('sq_internal_msg');
 					assert_valid_db_result($messageid);
-					$values = Array(
-								$messageid,
-								$userid,
-								$this->from,
-								$subject,
-								$log_body,
-								$this->type,
-								$this->priority,
-								$this->status,
-								$this->sent,
-								'YYYY-MM-DD HH24:MI:SS', // for the todate prepare statement
-								$param_string,
-							  );
-					$result = $db->execute($prepared, $values);
-					assert_valid_db_result($result);
+
+					try {
+						$prepared->bindValue(':msgid',      $messageid,      PDO::PARAM_INT);
+						$prepared->bindValue(':userto',     $userid,         PDO::PARAM_STR);
+						$prepared->bindValue(':userfrom',   $this->from,     PDO::PARAM_STR);
+						$prepared->bindValue(':subject',    $subject,        PDO::PARAM_STR);
+						$prepared->bindValue(':body',       $log_body,       PDO::PARAM_STR);
+						$prepared->bindValue(':type',       $this->type,     PDO::PARAM_STR);
+						$prepared->bindValue(':priority',   $this->priority, PDO::PARAM_INT);
+						$prepared->bindValue(':status',     $this->status,   PDO::PARAM_STR);
+						$prepared->bindValue(':sent',       $this->sent,     PDO::PARAM_STR);
+						$prepared->bindValue(':parameters', $param_string,   PDO::PARAM_STR);
+						DAL::execPdoQuery($prepared, $values);
+					} catch (Exception $e) {
+						throw new Exception('Creation of internal message failed due to database error: '.$e->getMessage());
+					}
+
 					if ($send_mail) {
 						// send an email as well
 						require_once SQ_FUDGE_PATH.'/general/www.inc';
@@ -417,7 +421,7 @@ class Internal_Message extends MySource_Object
 
 						$tagline_reg = '|<SQ_MSG_TAGLINE[^>]*?>(.*?)</SQ_MSG_TAGLINE>|';
 						if (preg_match($tagline_reg, $log_body, $matches)) {
-							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[1]);
+							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[1]);
 							$log_body = preg_replace($tagline_reg, $asset->name.' (#'.$asset->id.')', $log_body);
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 						}
@@ -431,9 +435,6 @@ class Internal_Message extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		}//end if sending message via email
-
-		$free_res = $db->freePrepared($prepared);
-		assert_valid_db_result($free_res);
 
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
@@ -509,7 +510,7 @@ class Internal_Message extends MySource_Object
 	function formatBody(&$user, $isInternalMessage=FALSE)
 	{
 		$tmpReplacements = $this->replacements;
-		$lm =& $GLOBALS['SQ_SYSTEM']->lm;
+		$lm = $GLOBALS['SQ_SYSTEM']->lm;
 
 		// If it is an internal message, check if the messages are of workflow related.
 		if ($isInternalMessage == TRUE) {
