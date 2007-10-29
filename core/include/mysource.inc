@@ -10,14 +10,20 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.232 2007/09/27 05:51:17 bshkara Exp $
+* $Id: mysource.inc,v 1.233 2007/10/29 22:08:10 lwright Exp $
 *
 */
 
-require_once 'DB.php';
+//require_once 'DB.php';
+require_once SQ_LIB_PATH.'/MatrixDAL/MatrixDAL.inc';
+require_once SQ_LIB_PATH.'/Exceptions/MatrixErrorException.inc';
+
 require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
 require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
+
+// include the system version setttings
+require_once SQ_INCLUDE_PATH.'/version.inc';
 
 /**
 * MySource
@@ -26,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.232 $
+* @version $Revision: 1.233 $
 * @package MySource_Matrix
 */
 class MySource
@@ -36,7 +42,7 @@ class MySource
 	*
 	* @var object DB
 	*/
-	var $db;
+	public $db;
 
 	/**
 	* Holds all open DB objects
@@ -44,7 +50,7 @@ class MySource
 	* @var array
 	* @see changeDatabaseConnection(), restoreDatabaseConnection()
 	*/
-	var $_db_conns = Array();
+	protected $_db_conns = Array();
 
 	/**
 	* The stack for DB connections
@@ -52,7 +58,7 @@ class MySource
 	* @var array
 	* @see changeDatabaseConnection(), restoreDatabaseConnection()
 	*/
-	var $_db_stack = Array();
+	protected $_db_stack = Array();
 
 
 	/**
@@ -61,109 +67,109 @@ class MySource
 	* @var array
 	* @see setRunLevel(), restoreRunLevel()
 	*/
-	var $_run_level_stack = Array();
+	protected $_run_level_stack = Array();
 
 	/**
 	* The current Backend object
 	*
 	* @var object Backend
 	*/
-	var $backend;
+	public $backend;
 
 	/**
 	* @var object Asset_Manager
 	*/
-	var $am;
+	public $am;
 
 	/**
 	* @var object Transaction_Manager
 	*/
-	var $tm;
+	protected $tm;
 
 	/**
 	* @var object Messaging_Service
 	*/
-	var $ms;
+	protected $ms;
 
 	/**
 	* @var object Metadata_Manager
 	*/
-	var $mm;
+	protected $mm;
 
 	/**
 	* @var object HIPO_Herder
 	*/
-	var $hh;
+	protected $hh;
 
 	/**
 	* @var object Workflow_Manager
 	*/
-	var $wm;
+	protected $wm;
 
 	/**
 	* @var object File_Versioning
 	*/
-	var $fv;
+	protected $fv;
 
 	/**
 	* @var object Event_Manager
 	*/
-	var $em;
+	protected $em;
 
 	/**
 	* @var object Tag_Manager
 	*/
-	var $tag_manager;
+	protected $tag_manager;
 
 	/**
 	* @var object Locale_Manager
 	*/
-	var $lm;
+	public $lm;
 
 	/**
 	* @var object Trigger_Manager
 	*/
-	var $trigger_manager;
+	protected $trigger_manager;
 
 	/**
 	* @var object Log_Manager
 	*/
-	var $log_manager;
+	protected $log_manager;
 
 	/**
 	* The logged in user
 	*
 	* @var object User
 	*/
-	var $user = NULL;
+	public $user = NULL;
 
 	/**
 	* The object of the (main) asset being printed on the frontend
 	*
 	* @var object Asset
 	*/
-	var $frontend_asset;
+	public $frontend_asset;
 
 	/**
 	* Whether the logged in user is the root user or not
 	*
 	* @var boolean
 	*/
-	var $_user_is_root = FALSE;
+	protected $_user_is_root = FALSE;
 
 	/**
 	* Whether the logged in user is a system admin or not
 	*
 	* @var boolean
 	*/
-	var $_user_is_sys_admin = FALSE;
+	protected $_user_is_sys_admin = FALSE;
 
 	/**
 	* Whether the person using the system is a logged in user or not
 	*
 	* @var boolean
 	*/
-	var $_user_is_public = TRUE;
+	protected $_user_is_public = TRUE;
 
 
 	/**
@@ -171,7 +177,7 @@ class MySource
 	*
 	* @var array(string)
 	*/
-	var $_msgs;
+	protected $_msgs;
 
 
 	/**
@@ -179,14 +185,14 @@ class MySource
 	*
 	* @var array(string)
 	*/
-	var $_global_defines;
+	protected $_global_defines;
 
 
 	/**
 	* Constructor
 	*
 	*/
-	function MySource()
+	function __construct()
 	{
 
 	}//end constructor
@@ -201,15 +207,15 @@ class MySource
 	* @return void
 	* @access public
 	*/
-	function init()
+	public function init()
 	{
 		$this->changeDatabaseConnection('db');
 
 		// initialise the asset manager as we are going to need it pretty much everywhere
-		$this->am =& new Asset_Manager();
+		$this->am = new Asset_Manager();
 
 		// Same with the locale manager; translations will be all around us
-		$this->lm =& new Locale_Manager();
+		$this->lm = new Locale_Manager();
 
 		$this->lm->setCurrentLocale(SQ_CONF_DEFAULT_BACKEND_LOCALE);
 
@@ -336,10 +342,10 @@ class MySource
 	* @return void
 	* @access public
 	*/
-	function start()
+	public function start()
 	{
 		// if the user is Up For Review, prompt the user to change password
-		$require_password_change = ($this->user && !is_a($this->user, 'public_user') && $this->user->status == SQ_STATUS_LIVE_APPROVAL);
+		$require_password_change = ($this->user && !($this->user instanceof Public_User) && $this->user->status == SQ_STATUS_LIVE_APPROVAL);
 
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
 
@@ -348,9 +354,9 @@ class MySource
 				exit();
 			}
 
-			if ($this->user && !is_a($this->user, 'public_user')) {
+			if ($this->user && !($this->user instanceof Public_User)) {
 				require_once SQ_INCLUDE_PATH.'/backend.inc';
-				$backend =& new Backend();
+				$backend = new Backend();
 				$this->backend =& $backend;
 				$backend->paint();
 			} else {
@@ -462,7 +468,7 @@ class MySource
 			// buffer the content and do keyword replacement
 			ob_start();
 				// caching is enabled and asset is readable by public user, send HTTP headers
-				if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user')
+				if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
 					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER) {
 					$this->_sendHTTPHeaders($asset);
 				} else {
@@ -483,7 +489,7 @@ class MySource
 
 		$this->_setApacheNotes();
 
-		$this->db->disconnect();
+		//$this->db->disconnect();
 
 	}//end start()
 
@@ -494,7 +500,7 @@ class MySource
 	* @return void
 	* @access private
 	*/
-	function _setApacheNotes()
+	protected function _setApacheNotes()
 	{
 		include SQ_DATA_PATH.'/private/conf/apache.inc';
 		foreach ($request_notes as $note_name => $note_info) {
@@ -526,7 +532,7 @@ class MySource
 	* @return void
 	* @access private
 	*/
-	function _sendHTTPHeaders(&$asset)
+	protected function _sendHTTPHeaders(&$asset)
 	{
 		header('Pragma: cache');
 
@@ -602,7 +608,7 @@ class MySource
 	* @return void
 	* @access private
 	*/
-	function _replaceKeyword(&$content, $additional_replacements=Array())
+	protected function _replaceKeyword(&$content, $additional_replacements=Array())
 	{
 		// Replace any global keywords first
 		replace_global_keywords($content);
@@ -639,7 +645,7 @@ class MySource
 	* @return void
 	* @access public
 	*/
-	function setGlobalDefine($index, $value)
+	public function setGlobalDefine($index, $value)
 	{
 		if (!empty($index)) {
 			$this->_global_defines[$index] = $value;
@@ -656,7 +662,7 @@ class MySource
 	* @return void
 	* @access public
 	*/
-	function unsetGlobalDefine($index)
+	public function unsetGlobalDefine($index)
 	{
 		unset($this->_global_defines[$index]);
 
@@ -672,7 +678,7 @@ class MySource
 	* @return mixed int|float|string|boolean|array|object|void|NULL
 	* @access public
 	*/
-	function getGlobalDefine($index, $default=NULL)
+	public function getGlobalDefine($index, $default=NULL)
 	{
 		if (!is_array($this->_global_defines)) return $default;
 		return $this->isGlobalDefineSet($index) ? $this->_global_defines[$index] : $default;
@@ -688,7 +694,7 @@ class MySource
 	* @return boolean
 	* @access public
 	*/
-	function isGlobalDefineSet($index)
+	public function isGlobalDefineSet($index)
 	{
 		return (isset($this->_global_defines[$index])) ? TRUE : FALSE;
 
@@ -707,7 +713,7 @@ class MySource
 	* @return void
 	* @access public
 	*/
-	function paintLogin($heading, $msg)
+	public function paintLogin($heading, $msg)
 	{
 		// Attempt to perform an auth redirect. If there is one, then the script
 		// will terminate inside the do_redirect() function and redirect. If
@@ -799,7 +805,7 @@ class MySource
 	* @return void
 	* @access public
 	*/
-	function paintPasswordChange($heading, $msg)
+	public function paintPasswordChange($heading, $msg)
 	{
 		$db =& $this->db;
 
@@ -846,7 +852,7 @@ class MySource
 	* @return void
 	* @access public
 	*/
-	function setupUser()
+	public function setupUser()
 	{
 		if (!SQ_CONF_ALLOW_IP_CHANGE && isset($_SESSION['remote_addr']) && ($_SESSION['remote_addr'] != $_SERVER['REMOTE_ADDR'])) {
 			// IP address has changed and we don't allow that
@@ -963,7 +969,7 @@ class MySource
 	* @return void
 	* @access private
 	*/
-	function _processGlobalActions()
+	protected function _processGlobalActions()
 	{
 		switch ($_REQUEST['SQ_ACTION']) {
 			case 'password_change' :
@@ -996,7 +1002,7 @@ class MySource
 					return;
 				}
 
-				if ($this->user && !is_a($this->user, 'public_user')) {
+				if ($this->user && !($this->user instanceof Public_User)) {
 					// logged in, and the password is correct. change the password
 					if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
 						$run_level_changed = TRUE;
@@ -1090,7 +1096,7 @@ class MySource
 				// deliberately don't have a break here so if the
 				// login fails we make sure that we're logged out
 			case 'logout' :
-				$for_real = ($this->user && !is_a($this->user, 'public_user'));
+				$for_real = ($this->user && !($this->user instanceof Public_User));
 				$old_user =& $this->user;
 				$this->_logSecurityMsg('system.security.logout.manual');
 				$stalled_hipo_array = Array();
@@ -1122,7 +1128,7 @@ class MySource
 				}
 			break;
 			case 'real_logout' :
-				$for_real = ($this->user && !is_a($this->user, 'public_user'));
+				$for_real = ($this->user && !($this->user instanceof Public_User));
 				$old_user =& $this->user;
 				$this->_logSecurityMsg('system.security.logout.manual');
 				$this->_clearSession();
@@ -1193,7 +1199,7 @@ class MySource
 
 			case 'asset_map_request' :
 				require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-				$asset_map =& new Asset_Map();
+				$asset_map = new Asset_Map();
 				$asset_map->process($this->backend);
 				exit(1);
 			break;
@@ -1212,9 +1218,9 @@ class MySource
 	* @return void
 	* @access public
 	*/
-	function _loginPublicUser()
+	protected function _loginPublicUser()
 	{
-		if (empty($this->user) || !is_a($this->user, 'public_user')) {
+		if (empty($this->user) || !($this->user instanceof Public_User)) {
 			$this->user =& $this->getPublicUser();
 			$_SESSION['user_is_root']      = $this->_user_is_root      = FALSE;
 			$_SESSION['user_is_sys_admin'] = $this->_user_is_sys_admin = FALSE;
@@ -1230,7 +1236,7 @@ class MySource
 	* @return void
 	* @access public
 	*/
-	function _loginHttpAuthenticatedUser()
+	protected function _loginHttpAuthenticatedUser()
 	{
 		if (array_get_index($_REQUEST, 'SQ_ACTION')) return;
 		$http_username = array_get_index($_SERVER, SQ_CONF_HTTP_LOGIN_VAR);
@@ -1264,7 +1270,7 @@ class MySource
 	* @return void
 	* @access public
 	*/
-	function _authenticateHttpUser()
+	protected function _authenticateHttpUser()
 	{
 		if (array_get_index($_REQUEST, 'SQ_ACTION')) return;
 
@@ -1306,7 +1312,7 @@ class MySource
 	* @return void
 	* @access public
 	*/
-	function loginUser(&$user)
+	public function loginUser(&$user)
 	{
 		if (is_null($user)) return FALSE;
 
@@ -1399,9 +1405,9 @@ class MySource
 	* @return boolean
 	* @access public
 	*/
-	function setCurrentUser(&$user)
+	public function setCurrentUser(&$user)
 	{
-		if (!is_a($user, 'user')) {
+		if (!($user instanceof User)) {
 			trigger_localised_error('SYS0171', E_USER_WARNING);
 			return FALSE;
 		}
@@ -1434,7 +1440,7 @@ class MySource
 	* @return boolean
 	* @access public
 	*/
-	function restoreCurrentUser()
+	public function restoreCurrentUser()
 	{
 		if (empty($this->_tmp['current_user_cache'])) {
 			$user = NULL;
@@ -1471,7 +1477,7 @@ class MySource
 	* @return string
 	* @access public
 	*/
-	function getUniqueSessionKey()
+	public function getUniqueSessionKey()
 	{
 		$key =  $_SESSION['userid'].
 				$_SESSION['user_type_code'].
@@ -1495,7 +1501,7 @@ class MySource
 	* @return string
 	* @access public
 	*/
-	function generateLoginKey($force_new_key=FALSE)
+	public function generateLoginKey($force_new_key=FALSE)
 	{
 
 		require_once SQ_FUDGE_PATH.'/general/general.inc';
@@ -1515,7 +1521,7 @@ class MySource
 	* @return string
 	* @access public
 	*/
-	function loginKey()
+	public function loginKey()
 	{
 		return (isset($_SESSION['SQ_LOGIN_KEY'])) ? $_SESSION['SQ_LOGIN_KEY'] : '';
 
@@ -1530,7 +1536,7 @@ class MySource
 	* @return void
 	* @access public
 	*/
-	function _updateSessionCookie()
+	protected function _updateSessionCookie()
 	{
 		$session_id = session_id();
 		if (empty($session_id)) return FALSE;
@@ -1583,7 +1589,7 @@ class MySource
 	* @return void
 	* @access private
 	*/
-	function _clearSession()
+	protected function _clearSession()
 	{
 		foreach (array_keys($_SESSION) as $key) {
 			if ($key == 'SQ_RETURN_TO_HTTP') continue;
@@ -1606,7 +1612,7 @@ class MySource
 	* @return void
 	* @access private
 	*/
-	function _logSecurityMsg($code, $extra_replacements=Array(), $failed_login=FALSE)
+	protected function _logSecurityMsg($code, $extra_replacements=Array(), $failed_login=FALSE)
 	{
 		if ($this->userPublic($this->user) && !$failed_login) {
 			return;
@@ -1632,7 +1638,7 @@ class MySource
 	* @return boolean
 	* @access public
 	*/
-	function currentUser($user)
+	public function currentUser($user)
 	{
 		return ($this->user && $this->user->id == $user->id);
 
@@ -1645,7 +1651,7 @@ class MySource
 	* @return mixed int|string
 	* @access public
 	*/
-	function currentUserId()
+	public function currentUserId()
 	{
 		if ($this->user) {
 			return $this->user->id;
@@ -1664,7 +1670,7 @@ class MySource
 	* @return string
 	* @access public
 	*/
-	function &getPublicUser()
+	public function &getPublicUser()
 	{
 		$public_user =& $this->am->getSystemAsset('public_user');
 		return $public_user;
@@ -1680,7 +1686,7 @@ class MySource
 	* @return boolean
 	* @access public
 	*/
-	function userRoot($user=NULL)
+	public function userRoot($user=NULL)
 	{
 		if (is_null($user)) return $this->_user_is_root;
 		if (!$user->id) return FALSE;
@@ -1702,7 +1708,7 @@ class MySource
 	* @return boolean
 	* @access public
 	*/
-	function userSystemAdmin($user=NULL)
+	public function userSystemAdmin($user=NULL)
 	{
 		if (is_null($user)) return $this->_user_is_sys_admin;
 		if (!$user->id) return FALSE;
@@ -1727,7 +1733,7 @@ class MySource
 	* @return boolean
 	* @access public
 	*/
-	function userPublic($user=NULL)
+	public function userPublic($user=NULL)
 	{
 		if (is_null($user)) return $this->_user_is_public;
 		if (!$user->id) return FALSE;
@@ -1747,7 +1753,7 @@ class MySource
 	* @return mixed array|string|boolean
 	* @access public
 	*/
-	function getUserPrefs($asset_type=NULL, $pref=NULL, $value_only=TRUE)
+	public function getUserPrefs($asset_type=NULL, $pref=NULL, $value_only=TRUE)
 	{
 		if (!is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) {
 			return FALSE;
@@ -1843,11 +1849,11 @@ class MySource
 	* @return object
 	* @access public
 	*/
-	function &getMessagingService()
+	public function &getMessagingService()
 	{
 		if (!isset($this->ms) || get_class($this->ms) != 'messaging_service') {
 			require_once SQ_INCLUDE_PATH.'/messaging_service.inc';
-			$this->ms =& new Messaging_Service();
+			$this->ms = new Messaging_Service();
 		}
 		return $this->ms;
 
@@ -1862,11 +1868,11 @@ class MySource
 	* @return object
 	* @access public
 	*/
-	function &getFileVersioning()
+	public function &getFileVersioning()
 	{
 		if (!isset($this->fv) || get_class($this->fv) != 'file_versioning') {
 			require_once SQ_LIB_PATH.'/file_versioning/file_versioning.inc';
-			$this->fv =& new File_Versioning(SQ_DATA_PATH.'/file_repository');
+			$this->fv = new File_Versioning(SQ_DATA_PATH.'/file_repository');
 		}
 		return $this->fv;
 
@@ -1881,11 +1887,11 @@ class MySource
 	* @return object
 	* @access public
 	*/
-	function &getHipoHerder()
+	public function &getHipoHerder()
 	{
 		if (!isset($this->hh) || get_class($this->hh) != 'hipo_herder') {
 			require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_herder.inc';
-			$this->hh =& new Hipo_Herder();
+			$this->hh = new Hipo_Herder();
 		}
 		return $this->hh;
 
@@ -1900,11 +1906,11 @@ class MySource
 	* @return object
 	* @access public
 	*/
-	function &getMetadataManager()
+	public function &getMetadataManager()
 	{
 		if (!isset($this->mm) || get_class($this->mm) != 'metadata_manager') {
 			require_once SQ_INCLUDE_PATH.'/metadata_manager.inc';
-			$this->mm =& new Metadata_Manager();
+			$this->mm = new Metadata_Manager();
 		}
 		return $this->mm;
 
@@ -1923,7 +1929,7 @@ class MySource
 	{
 		if (!isset($this->wm) || get_class($this->wm) != 'workflow_manager') {
 			require_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-			$this->wm =& new Workflow_Manager();
+			$this->wm = new Workflow_Manager();
 		}
 		return $this->wm;
 
@@ -1942,7 +1948,7 @@ class MySource
 	{
 		if (!isset($this->em) || get_class($this->em) != 'event_manager') {
 			require_once SQ_INCLUDE_PATH.'/event_manager.inc';
-			$this->em =& new Event_Manager();
+			$this->em = new Event_Manager();
 		}
 		return $this->em;
 
@@ -1961,7 +1967,7 @@ class MySource
 	{
 		$am =& $this->am;
 		if ((!isset($this->tag_manager) || (get_class($this->tag_manager) != 'tag_manager')) && $am->isSystemAssetType('tag_manager')) {
-			$this->tag_manager = &$am->getSystemAsset('tag_manager');
+			$this->tag_manager = $am->getSystemAsset('tag_manager');
 		}
 		return $this->tag_manager;
 
@@ -1979,8 +1985,8 @@ class MySource
 	function &getTriggerManager()
 	{
 		$am =& $this->am;
-		if ((!isset($this->trigger_manager) || ($am->installed('trigger_manager') && !is_a($this->trigger_manager,'trigger_manager'))) && $am->isSystemAssetType('trigger_manager')) {
-			$this->trigger_manager = &$am->getSystemAsset('trigger_manager');
+		if ((!isset($this->trigger_manager) || ($am->installed('trigger_manager') && !($this->trigger_manager instanceof Trigger_Manager))) && $am->isSystemAssetType('trigger_manager')) {
+			$this->trigger_manager = $am->getSystemAsset('trigger_manager');
 		}
 
 		return $this->trigger_manager;
@@ -1998,7 +2004,7 @@ class MySource
 	{
 		$am =& $this->am;
 		if ((!isset($this->log_manager) || (get_class($this->log_manager) != 'log_manager')) && $am->isSystemAssetType('log_manager')) {
-			$this->log_manager = &$am->getSystemAsset('log_manager');
+			$this->log_manager = $am->getSystemAsset('log_manager');
 		}
 
 		// this is a bypass to allow logging while Log Manager asset has not been installed yet
@@ -2140,7 +2146,33 @@ class MySource
 
 		if (empty($this->_db_conns[$conn])) {
 
-			$this->_db_conns[$conn] = DB::connect($dsn);
+			$dsn_array = Array(
+							'DSN' 	=> $dsn,
+							'type'	=> 'pgsql',
+						 );
+
+			try {
+				// TODO: parse DSN
+				$this->_db_conns[$conn] = DAL::dbConnect($dsn_array, $conn);
+				$db = DAL::getDb($conn);
+
+				// Turn off auto-commit, and ensure column names are
+				// returned in lowercase (important for Oracle)
+				if ($dsn_array['type'] === 'oci') {
+					$db->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
+				}
+
+				// Ensure that no conversion is done to empty strings and NULLs
+				$db->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_NATURAL);
+
+				// Return field names in lowercase
+				$db->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+
+			} catch (Exception $e) {
+				throw new Exception('Could not create database connection: '.$e->getMessage());
+			}
+
+			/*$this->_db_conns[$conn] = DB::connect($dsn);
 
 			if (DB::isError($this->_db_conns[$conn])) {
 				if (!SQ_PHP_CLI) {
@@ -2158,10 +2190,10 @@ class MySource
 				$this->_db_conns[$conn]->setOption('portability', DB_PORTABILITY_ALL);
 			}
 			$this->_db_conns[$conn]->autoCommit(FALSE);
+			*/
 		}
 
-		array_push($this->_db_stack, $conn);
-		$this->db =& $this->_db_conns[$conn];
+		DAL::changeDb($conn);
 
 	}//end changeDatabaseConnection()
 
@@ -2174,15 +2206,7 @@ class MySource
 	*/
 	function restoreDatabaseConnection()
 	{
-		$old_conn = array_pop($this->_db_stack);
-
-		if (empty($this->_db_stack)) {
-			unset($this->db);
-			$this->db = NULL;
-		} else {
-			$conn = $this->_db_stack[count($this->_db_stack) - 1];
-			$this->db =& $this->_db_conns[$conn];
-		}
+		DAL::restoreDb();
 
 	}//end restoreDatabaseConnection()
 
@@ -2200,9 +2224,9 @@ class MySource
 	*/
 	function doTransaction($type)
 	{
-		if (!isset($this->tm) || get_class($this->tm) != 'transaction_manager') {
+		if (!isset($this->tm) || get_class($this->tm) != 'Transaction_Manager') {
 			require_once SQ_INCLUDE_PATH.'/transaction_manager.inc';
-			$this->tm =& new Transaction_Manager();
+			$this->tm = new Transaction_Manager();
 		}
 		// Use this when there is a transaction problem to create a log and then run this from the cmd line
 		// and look for the fn with the odd number of calls
@@ -2215,13 +2239,15 @@ class MySource
 		// error_log ($this->_db_conns[$this->_db_stack[count($this->_db_stack) - 1]]->connection.' TRANS : '.$bt[0]['file'].'::'.$bt[0]['line'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
 		// }
 
+		$current_db = DAL::getCurrentDbId();
+
 		switch (strtolower($type)) {
 			case 'begin':
-				return $this->tm->begin($this->_db_conns[$this->_db_stack[count($this->_db_stack) - 1]]);
+				return $this->tm->begin($current_db);
 			case 'commit':
-				return $this->tm->commit($this->_db_conns[$this->_db_stack[count($this->_db_stack) - 1]]);
+				return $this->tm->commit($current_db);
 			case 'rollback':
-				return $this->tm->rollback($this->_db_conns[$this->_db_stack[count($this->_db_stack) - 1]]);
+				return $this->tm->rollback($current_db);
 		}
 
 	}//end doTransaction()
@@ -2378,24 +2404,35 @@ class MySource
 			$expires = ts_iso8601($expires);
 		}
 
-		$expires = $this->db->quote($expires);
-		if ($this->db->phptype == 'oci8') {
+		//$expires = $this->db->quote($expires);
+		if (DAL::getDbType() == 'oci') {
 			$expires = 'TO_DATE('.$expires.', '.$this->db->quote('YYYY-MM-DD HH24:MI:SS').')';
 		}
 
 		$this->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = DAL::getDb();
 
 		$sql = 'INSERT INTO sq_lock
 				(lockid, source_lockid, userid, expires)
 				VALUES
-				('.$this->db->quote($lockid).','.$this->db->quote($source_lockid).','.$this->db->quote($this->currentUserid()).','.$expires.')';
-		$result = $this->db->query($sql);
-		if (!assert_valid_db_result($result, '', TRUE, FALSE)) {
+				(:lockid, :source_lockid, :userid, :expires)';
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':lockid',        $lockid);
+			$query->bindValue(':source_lockid', $source_lockid);
+			$query->bindValue(':userid',        $this->currentUserId());
+			$query->bindValue(':expires',       $expires);
+			DAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			// Rather than throwing our own exception, keep the previous format
+			// of returning an error message for now
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return 'Database Error';
+			return 'due to database error: '.$e->getMessage();
 		}
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$this->restoreDatabaseConnection();
 		return TRUE;
@@ -2418,16 +2455,23 @@ class MySource
 
 		$this->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = DAL::getDb();
 
 		$sql = 'DELETE FROM sq_lock
-				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
+			WHERE source_lockid = :source_lockid';
 
-		$result = $this->db->query($sql);
-		if (!assert_valid_db_result($result, '', TRUE, FALSE)) {
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':source_lockid', $current_lock['source_lockid']);
+			$result = DAL::executePdoAll($query);
+		} catch (Exception $e) {
+			// Rather than throwing our own exception, keep the previous format
+			// of returning an error message for now
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return 'Database Error';
+			return 'due to database error: '.$e->getMessage();
 		}
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		$this->restoreDatabaseConnection();
@@ -2452,6 +2496,8 @@ class MySource
 	*/
 	function updateLock($lockid, $expires=0)
 	{
+		$db = DAL::getDb();
+
 		$current_lock = $this->getLockInfo($lockid);
 		if (empty($current_lock) || empty($current_lock['expires'])) {
 			return TRUE;
@@ -2466,14 +2512,20 @@ class MySource
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'UPDATE sq_lock
-				   SET expires = '.$this->db->quote($expires).'
-				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
+				   SET expires = :expires
+				   WHERE source_lockid = :source_lockid';
 
-		$result = $this->db->query($sql);
-		if (!assert_valid_db_result($result, '', TRUE, FALSE)) {
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':expires',       $expires);
+			$query->bindValue(':source_lockid', $current_lock['source_lockid']);
+			$result = DAL::executePdoAll($query);
+		} catch (Exception $e) {
+			// Rather than throwing our own exception, keep the previous format
+			// of returning an error message for now
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return 'Database Error';
+			return 'due to database error: '.$e->getMessage();
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -2496,11 +2548,22 @@ class MySource
 	function getLockInfo($lockid, $full_chain=FALSE, $check_expires=TRUE)
 	{
 		$this->changeDatabaseConnection('db3');
+		$db = DAL::getDb();
+
 		$sql = 'SELECT lockid, source_lockid, userid, expires
 				FROM sq_lock
-				WHERE lockid = '.$this->db->quote($lockid);
-		$result = $this->db->getRow($sql);
-		assert_valid_db_result($result);
+				WHERE lockid = :lockid';
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':lockid', $lockid);
+			$result = DAL::executePdoAll($query);
+			if (!empty($result)) {
+				$result = $result[0];
+			}
+		} catch (Exception $e) {
+			throw new Exception('Unable to get lock information for lock ID "'.$lockid.'" due to database error: '.$e->getMessage());
+		}
 
 		if (!empty($result)) {
 			$result['expires'] = empty($result['expires']) ? NULL : iso8601_ts($result['expires']);
@@ -2517,10 +2580,17 @@ class MySource
 				$result['chained_assets'] = Array();
 				$sql = 'SELECT lockid, source_lockid, userid, expires
 						FROM sq_lock
-						WHERE source_lockid = '.$this->db->quote($result['source_lockid']).'
-						  AND lockid <> '.$this->db->quote($lockid);
-				$chain = $this->db->getAll($sql);
-				assert_valid_db_result($chain);
+						WHERE source_lockid = :source_lockid
+							AND lockid <> :lockid';
+
+				try {
+					$query = $db->prepare($sql);
+					$query->bindValue(':source_lockid', $result['source_lockid']);
+					$query->bindValue(':lockid', $lockid);
+					$chain = DAL::executePdoAll($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to get lock chain information for source lock ID "'.$result['source_lockid'].'" due to database error: '.$e->getMessage());
+				}
 
 				foreach ($chain as $lock_row) {
 					$lock_row['expires'] = (empty($lock_row['expires'])) ? NULL : iso8601_ts($lock_row['expires']);
@@ -2631,9 +2701,12 @@ class MySource
 	*/
 	function getInstalledPackages()
 	{
-		$sql = 'SELECT code_name, version, name, description FROM sq_pkg';
-		$packages = $this->db->getAll($sql);
-		assert_valid_db_result($packages);
+		try {
+			$packages = MatrixDAL::executeAll('core', 'getInstalledPackages');
+		} catch (DALException $e) {
+			throw new Exception ('Could not get installed packages list due to database error: '.$e->getMessage());
+		}
+
 		return $packages;
 
 	}//end getInstalledPackages()
@@ -2708,27 +2781,14 @@ class MySource
 		$current_protocol = current_protocol();
 		$root_url = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
 
+		$bind_vars = Array(
+						'urlid' => $root_url['urlid'],
+					 );
+		$result = MatrixDAL::executeAll('core', 'getAuthRedirect', $bind_vars);
 
-		$sql = 'SELECT
-					auth_urlid
-				FROM
-					sq_ast_url
-				WHERE
-					urlid = '.$db->quote($root_url['urlid']);
-		$auth_urlid = $db->getOne($sql);
-		assert_valid_db_result($auth_urlid);
-
-		// If there is no auth URL ID, return FALSE
-		if (empty($auth_urlid)) return FALSE;
-
-		$sql = 'SELECT
-					url, http, https
-				FROM
-					sq_ast_url
-				WHERE
-					urlid = '.$db->quote($auth_urlid);
-		$new_root_url = $db->getRow($sql);
-		assert_valid_db_result($new_root_url);
+		if (empty($result)) return FALSE;
+		$new_root_url = $result[0];
+		unset($result);
 
 		// If the protocol is valid, then use the same protocol, otherwise
 		// use the one that is available
