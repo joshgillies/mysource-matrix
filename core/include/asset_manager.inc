@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.584 2007/10/29 00:43:22 colivar Exp $
+* $Id: asset_manager.inc,v 1.585 2007/10/29 22:20:54 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.584 $
+* @version $Revision: 1.585 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -84,7 +84,7 @@ class Asset_Manager extends MySource_Object
 		$this->_loadAssetTypes();
 
 		require_once SQ_INCLUDE_PATH.'/asset_cache.inc';
-		$this->_asset_cache =& new Asset_Cache();
+		$this->_asset_cache = new Asset_Cache();
 		$this->_asset_cache->setSizeRules((php_sapi_name() == 'cli') ? SQ_CONF_ASSET_CACHE_SIZE_CLI : SQ_CONF_ASSET_CACHE_SIZE_WEB);
 
 	}//end constructor
@@ -134,7 +134,7 @@ class Asset_Manager extends MySource_Object
 	{
 		$asset_types = Array();
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation, description, lvl
 				FROM sq_ast_typ';
 
@@ -146,13 +146,10 @@ class Asset_Manager extends MySource_Object
 			$where .= (($where) ? ' AND' : ' WHERE').' allowed_access != '.$db->quote('system');
 		}
 
-		$result = $db->query($sql.$where);
-		assert_valid_db_result($result);
-
-		while (NULL !== ($row = $result->fetchRow())) {
+		$rows = DAL::executeSqlAll($sql.$where);
+		foreach ($rows as $row) {
 			$asset_types[$row['type_code']] = $row;
 		}
-		$result->free();
 
 		return $asset_types;
 
@@ -171,27 +168,31 @@ class Asset_Manager extends MySource_Object
 	*/
 	function refreshAssetType($type_code)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation, description, lvl
 				FROM sq_ast_typ
-				WHERE type_code = '.$db->quote($type_code);
-		$result = $db->getRow($sql);
-		assert_valid_db_result($result);
+				WHERE type_code = :type_code';
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
+			$result = DAL::executePdoAll($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get information for type code "'.$type_code.'" due to database error: '.$e->getMessage());
+		}
 
 		if (empty($result)) {
 			trigger_localised_error('SYS0085', E_USER_WARNING, $type_code);
 			return;
 		} else {
-			$this->_asset_types[$result['type_code']] = $result;
+			$this->_asset_types[$result[0]['type_code']] = $result[0];
 		}
 
 		$parents = Array($type_code);
 		$tmp_type_code = $type_code;
 		while ($this->_asset_types[$tmp_type_code]['parent_type'] != 'asset') {
 			// this should NEVER happen, if it does DIE
-			assert_isset($this->_asset_types[$this->_asset_types[$tmp_type_code]['parent_type']], 'Asset "'.$this->_asset_types[$tmp_type_code]['parent_type'].'" is not installed on the system,<br/>'
-							.'therefore we cannot get the parent type of Asset "'.$tmp_type_code.'".<br/>'
-							.'Check that you got the Asset_Manager by reference');
+			assert_isset($this->_asset_types[$this->_asset_types[$tmp_type_code]['parent_type']], 'Unable to get the parent of asset type "'.$this->_asset_types[$tmp_type_code]['parent_type'].'" as this asset is not installed');
 
 			$tmp_type_code = $this->_asset_types[$tmp_type_code]['parent_type'];
 			$parents[] = $tmp_type_code;
@@ -200,9 +201,14 @@ class Asset_Manager extends MySource_Object
 
 		$sql = 'SELECT inhd_type_code
 				FROM sq_ast_typ_inhd
-				WHERE type_code = '.$db->quote($type_code);
-		$db_parents = $db->getCol($sql);
-		assert_valid_db_result($db_parents);
+				WHERE type_code = :type_code';
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
+			$db_parents = DAL::executePdoAssoc($query, 0);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get inheritance information for type code "'.$type_code.'" due to database error: '.$e->getMessage());
+		}
 
 		$inserts = array_diff($parents, $db_parents);
 		$deletes = array_diff($db_parents, $parents);
@@ -211,7 +217,7 @@ class Asset_Manager extends MySource_Object
 		$type_code_level = (int) $this->getTypeInfo($type_code, 'lvl');
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		foreach ($inserts as $inherited_type_code) {
@@ -219,29 +225,58 @@ class Asset_Manager extends MySource_Object
 			$sql = 'INSERT INTO sq_ast_typ_inhd
 					(inhd_type_code, type_code, inhd_type_code_lvl, type_code_lvl)
 					VALUES
-					('.$db->quote($inherited_type_code).', '.$db->quote($type_code).',
-					'.$db->quote($inherited_type_code_level).', '.$db->quote($type_code_level).')';
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+					(:inhd_type_code, :type_code, :inhd_level, :level)';
+
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':type_code',      $type_code,                 PDO::PARAM_STR);
+				$query->bindValue(':inhd_type_code', $inherited_type_code,       PDO::PARAM_STR);
+				$query->bindValue(':level',          $type_code_level,           PDO::PARAM_INT);
+				$query->bindValue(':inhd_level',     $inherited_type_code_level, PDO::PARAM_INT);
+				DAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to insert inheritance information for type code "'.$type_code.'" due to database error: '.$e->getMessage());
+			}
 		}
 
 		foreach ($deletes as $inherited_type_code) {
-			$sql = 'DELETE FROM sq_ast_typ_inhd
-					WHERE inhd_type_code = '.$db->quote($inherited_type_code).'
-					  AND type_code = '.$db->quote($type_code);
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			$sql = 'DELETE FROM
+						sq_ast_typ_inhd
+					WHERE
+						inhd_type_code = :inhd_type_code
+						AND type_code = :type_code';
+
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':type_code',      $type_code,           PDO::PARAM_STR);
+				$query->bindValue(':inhd_type_code', $inherited_type_code, PDO::PARAM_STR);
+				DAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete inheritance information for type code "'.$type_code.'" due to database error: '.$e->getMessage());
+			}
 		}
 
 		foreach ($updates as $inherited_type_code) {
 			$inherited_type_code_level = ($inherited_type_code == 'asset') ? 0 : (int) $this->getTypeInfo($inherited_type_code, 'lvl');
-			$sql = 'UPDATE sq_ast_typ_inhd
-					SET inhd_type_code_lvl = '.$db->quote($inherited_type_code_level).',
-						type_code_lvl = '.$db->quote($type_code_level).'
-					WHERE inhd_type_code = '.$db->quote($inherited_type_code).'
-					  AND type_code = '.$db->quote($type_code);
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			$sql = 'UPDATE
+						sq_ast_typ_inhd
+					SET
+						inhd_type_code_lvl = :inhd_level,
+						type_code_lvl = :level
+					WHERE
+						inhd_type_code = :inhd_type_code
+						AND type_code = :type_code';
+
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':type_code',      $type_code,                 PDO::PARAM_STR);
+				$query->bindValue(':inhd_type_code', $inherited_type_code,       PDO::PARAM_STR);
+				$query->bindValue(':level',          $type_code_level,           PDO::PARAM_INT);
+				$query->bindValue(':inhd_level',     $inherited_type_code_level, PDO::PARAM_INT);
+				DAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to update inheritance information for type code "'.$type_code.'" due to database error: '.$e->getMessage());
+			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -306,38 +341,44 @@ class Asset_Manager extends MySource_Object
 				}
 			}
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 
 			if (is_array($type_code)) {
-				for (reset($type_code); NULL !== ($key = key($type_code)); next($type_code)) {
-					$type_code[$key] = $db->quoteSmart($type_code[$key]);
-				}
-				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
+				$type_code_cond = 'IN (:type_code)';
 			} else {
-				$type_code_cond = ' = '.$db->quoteSmart($type_code);
+				$type_code_cond = ' = :type_code';
 			}
 
 			// if they have not specified any fields, then we want to select *
 			if ($field == '') {
-				$field = 'type_code, version, name, description, instantiable, allowed_access, parent_type, lvl, dir, customisation';
+				$field_list = 'type_code, version, name, description, instantiable, allowed_access, parent_type, lvl, dir, customisation';
 			} else {
-				$field = 'type_code, '.$field;
+				$field_list = 'type_code, '.$field;
 			}
 
 			$sql = 'SELECT
-						'.$field.'
+						'.$field_list.'
 					FROM
 						sq_ast_typ
 					WHERE
 						type_code '.$type_code_cond;
 
-			$result = $db->getAssoc($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue('type_code', $type_code);
+				$result = DAL::executePdoGroupedAssoc($query);
+			} catch (Exception $e) {
+				if (is_array($type_code)) {
+					throw new Exception('Unable to get type info for multiple type codes due to database error: '.$e->getMessage());
+				} else {
+					throw new Exception('Unable to get type info for type code "'.$type_code.'" due to database error: '.$e->getMessage());
+				}
+			}
 
 			if (!is_array($type_code) && !empty($field)) {
-				return $result[$type_code];
+				return $result[$type_code][0][$field];
 			}
-			return $result;
+			return $result[$type_code][0];
 
 		} else {
 			// else we should have our own store of asset types
@@ -396,7 +437,7 @@ class Asset_Manager extends MySource_Object
 		$type_codes = Array();
 		$allowed_access = trim($allowed_access);
 		if (!empty($allowed_access)) {
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 			$sql = 'SELECT type_code
 					FROM sq_ast_typ
 					WHERE allowed_access = '.$db->quote($allowed_access);
@@ -465,7 +506,7 @@ class Asset_Manager extends MySource_Object
 		assert_type($type_code, 'array');
 		if (empty($assetids)) return Array();
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$where = '';
 
 		$shadowids = Array();
@@ -600,19 +641,25 @@ class Asset_Manager extends MySource_Object
 
 		if ($query_db || !isset($this->_asset_types[$type_code]['ancestor_types'])) {
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 			$sql = 'SELECT
 						inhd_type_code
 					FROM
 						sq_ast_typ_inhd
 					WHERE
-						type_code = '.$db->quote($type_code).'
+						type_code = :type_code
 					AND	inhd_type_code <> type_code
 						'.(($include_asset) ? '' : ' AND inhd_type_code <> '.$db->quote('asset')).'
 					ORDER BY inhd_type_code_lvl DESC';
 
-			$result = $db->getCol($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
+				$result = DAL::executePdoAssoc($query, 0);
+			} catch (Exception $e) {
+				throw new Exception('Unable to load type descendants of asset type "'.$type_code.'" due to database error: '.$e->getMessage());
+			}
+
 			return $result;
 
 		} else {
@@ -637,7 +684,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getTypeDescendants($type_code, $include_passed=FALSE)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$type_code_cond = '';
 		if (is_array($type_code)) {
@@ -655,13 +702,19 @@ class Asset_Manager extends MySource_Object
 			$type_code_cond = '= '.$db->quote($type_code);
 		}
 
-		$result = $db->getCol('SELECT type_code
+		$sql = 'SELECT type_code
 								FROM sq_ast_typ_inhd
 								WHERE inhd_type_code '.$type_code_cond.'
 								'.(($include_passed) ? '' : '  AND type_code <> inhd_type_code').'
-								ORDER BY inhd_type_code, type_code_lvl ASC'
-								);
-		assert_valid_db_result($result);
+								ORDER BY inhd_type_code, type_code_lvl ASC';
+
+		try {
+			// TODO: using plain SQL execution here - this would be changed to
+			// passing an array to DAL for type codes when queries.xml baking works
+			$result = DAL::executeSqlAssoc($sql, 0);
+		} catch (Exception $e) {
+			throw new Exception('Unable to load type descendants of asset type "'.$type_code.'" due to database error: '.$e->getMessage());
+		}
 
 		return $result;
 
@@ -736,7 +789,7 @@ class Asset_Manager extends MySource_Object
 		assert_type($attrids, 'array');
 		if (empty($attrids)) return Array();
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		for ($i = 0; $i < count($attrids); $i++) {
 			$attrids[$i] = $db->quote($attrids[$i]);
@@ -782,7 +835,9 @@ class Asset_Manager extends MySource_Object
 			$this->_attributes[$attrid]['count']  = 0;
 
 			include_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
-			$this->_attributes[$attrid]['object'] = Asset_Attribute::loadAttribute($attrid);
+			$base_attr = new Asset_Attribute();
+			$this->_attributes[$attrid]['object'] = $base_attr->loadAttribute($attrid);
+			unset($base_attr);
 			if (empty($this->_attributes[$attrid]['object']->id)) {
 				$this->_attributes[$attrid]['object'] = NULL;
 			}
@@ -808,19 +863,28 @@ class Asset_Manager extends MySource_Object
 	{
 		if (!is_string($type_code)) return Array();
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 
 		$sql = 'SELECT '.implode(', ', $details).' FROM sq_ast_attr
-				WHERE type_code = '.$db->quote($type_code);
+			WHERE type_code = :type_code';
 
-		if (count($details) > 1) {
-			$result = $db->getAssoc($sql);
-		} else {
-			$result = $db->getCol($sql);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':type_code', $type_code);
+
+			if (count($details) > 1) {
+				$result_x = DAL::executePdoGroupedAssoc($query);
+				$result = Array();
+				foreach ($result_x as $key => $row) {
+					$result[$key] = $row[0];
+				}
+			} else {
+				$result = DAL::executePdoAssoc($query, 0);
+			}
+		} catch (Exception $e) {
+			throw new Exception('Unable to get asset info due to database error: '.$e->getMessage());
 		}
-
-		assert_valid_db_result($result);
 
 		return $result;
 
@@ -846,7 +910,7 @@ class Asset_Manager extends MySource_Object
 	function getAttributeValuesByName($attr_name, $asset_type, $assetids)
 	{
 		if (empty($assetids)) return Array();
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		// IN clause fix - assetids were not being treated as strings
 		$in = 'assetid IN (';
@@ -948,10 +1012,10 @@ class Asset_Manager extends MySource_Object
 			} else {
 
 				if (empty($type_code)) {
-					$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($assetid);
+					$where = 'assetid = \''.$assetid.'\'';
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-					$type_code = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'ast '.$where);
-					assert_valid_db_result($type_code);
+					$type_code = DAL::executeSqlOne('SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'ast '.$where);
+
 				}
 
 				if (empty($type_code)) {
@@ -968,7 +1032,7 @@ class Asset_Manager extends MySource_Object
 						if ($mute_errors) {
 							$asset = @new $type_code($assetid);
 						} else {
-							$asset =& new $type_code($assetid);
+							$asset = new $type_code($assetid);
 						}
 						if (empty($asset->id)) $asset = NULL;
 					}
@@ -1038,7 +1102,7 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$sql = 'SELECT assetid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast ';
 
@@ -1095,7 +1159,7 @@ class Asset_Manager extends MySource_Object
 	function rememberAsset(&$obj)
 	{
 		// wrong class or no id, cya
-		if (!is_object($obj) || !is_a($obj, 'asset') || !$obj->id) {
+		if (!is_object($obj) || !($obj instanceof Asset) || !$obj->id) {
 			return;
 		}
 
@@ -1122,7 +1186,7 @@ class Asset_Manager extends MySource_Object
 	function forgetAsset(&$obj, $force_clean=FALSE)
 	{
 		// wrong class or no id, cya
-		if (!is_object($obj) || !is_a($obj, 'asset') || !$obj->id) {
+		if (!is_object($obj) || !($obj instanceof Asset) || !$obj->id) {
 			return;
 		}
 
@@ -1174,7 +1238,7 @@ class Asset_Manager extends MySource_Object
 	function _reloadSystemAssetList()
 	{
 		require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
-		$sys_asset_cfg =& new System_Asset_Config();
+		$sys_asset_cfg = new System_Asset_Config();
 		// include the system asset config file
 		if (!file_exists($sys_asset_cfg->config_file)) {
 			// we called this too early
@@ -1325,7 +1389,7 @@ class Asset_Manager extends MySource_Object
 		}
 		if (empty($assetids)) return Array();
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$shadowids = Array();
 		$normalids = Array();
@@ -1378,7 +1442,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		for ($i = 0; $i < count($assetids); $i++) {
-			$assetids[$i] = $db->quoteSmart((string) $assetids[$i]);
+			$assetids[$i] = '\''.(string) $assetids[$i].'\'';
 		}
 
 		// break up the assets into chunks of 1000 so that oracle does not complain
@@ -1425,8 +1489,16 @@ class Asset_Manager extends MySource_Object
 				'.$where.'
 				ORDER BY a.assetid';
 
-		$result = $db->getAssoc($sql);
-		assert_valid_db_result($result);
+		try {
+			$result_x = DAL::executeSqlGroupedAssoc($sql);
+			$result = Array();
+			foreach	($result_x as $key => $row) {
+				$result[$key] = $row[0];
+			}
+			unset($result_x);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get asset info due to database error: '.$e->getMessage());
+		}
 
 		// add the shadow assets info
 		$result += $shadow_results;
@@ -1473,15 +1545,15 @@ class Asset_Manager extends MySource_Object
 	function getTypeAssetids($type_code, $strict=TRUE, $include_type=FALSE)
 	{
 		if (!is_string($type_code)) return Array();
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		if ($strict) {
-			$where = 'type_code = '.$db->quote($type_code);
+			$where = 'type_code = :type_code';
 		} else {
 			$where = 'type_code IN (
 									SELECT type_code
 									FROM sq_ast_typ_inhd
-									WHERE inhd_type_code = '.$db->quote($type_code).'
+									WHERE inhd_type_code = :type_code
 									)';
 		}
 
@@ -1489,13 +1561,22 @@ class Asset_Manager extends MySource_Object
 		$sql = 'SELECT assetid'.(($include_type) ? ', type_code' : '').'
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast '.$where;
 
-		if ($include_type) {
-			$result = $db->getAssoc($sql);
-		} else {
-			$result = $db->getCol($sql);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':type_code', $type_code);
+			if ($include_type) {
+				//$result = $db->getAssoc($sql);
+				$result_x = DAL::executePdoGroupedAssoc($query);
+				$result = Array();
+				foreach ($result_x as $key => $row) {
+					$result[$key] = $row[0];
+				}
+			} else {
+				$result = DAL::executePdoAssoc($query, 0);
+			}
+		} catch (Exception $e) {
+			throw $e;
 		}
-
-		assert_valid_db_result($result);
 
 		return $result;
 
@@ -1638,7 +1719,7 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
@@ -2403,20 +2484,20 @@ class Asset_Manager extends MySource_Object
 
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
 						l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 
-		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid);
+		$where = 'l.'.$side_of_link.'id = \''.$assetid.'\'';
 
 		if (!is_null($link_type)) {
 			$where .= '
-				  AND l.link_type = '.$db->quote($link_type);
+				  AND l.link_type = \''.$link_type.'\'';
 		}
 
 		if (!is_null($exclusive)) {
-			$where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
+			$where .= ' AND l.is_exclusive = \''.(($exclusive) ? '1' : '0').'\'';
 		}
 
 		if ($type_code) {
@@ -2424,11 +2505,11 @@ class Asset_Manager extends MySource_Object
 			$type_code_cond = '';
 			if (is_array($type_code)) {
 				for (reset($type_code); NULL !== ($i = key($type_code)); next($type_code)) {
-					$type_code[$i] = $db->quote($type_code[$i]);
+					$type_code[$i] = '\''.$type_code[$i].'\'';
 				}
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
-				$type_code_cond = '= '.$db->quote($type_code);
+				$type_code_cond = '= \''.$type_code.'\'';
 			}
 
 			if ($strict_type_code) {
@@ -2443,7 +2524,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (!is_null($value)) {
-			$where .= ' AND (l.value = '.$db->quote($value);
+			$where .= ' AND (l.value = \''.$value.'\'';
 			if ($value == '') $where .= ' OR l.value IS NULL';
 			$where .= ')';
 		}
@@ -2453,8 +2534,8 @@ class Asset_Manager extends MySource_Object
 
 		$sql .= $where.' ORDER BY l.sort_order';
 
-		$result = $db->getRow($sql);
-		assert_valid_db_result($result);
+		$result = DAL::executeSqlAll($sql);
+		if (!empty($result)) $result = $result[0];
 
 		return $result;
 
@@ -2492,7 +2573,7 @@ class Asset_Manager extends MySource_Object
 
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk l';
 
@@ -2550,7 +2631,7 @@ class Asset_Manager extends MySource_Object
 			return $link;
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$sql = 'SELECT  l.linkid, l.value, l.link_type, l.sort_order, l.is_dependant, l.is_exclusive, ';
 		$where = 'l.linkid = '.$db->quote((int) $linkid);
@@ -2715,7 +2796,7 @@ class Asset_Manager extends MySource_Object
 		// we have only
 		if (!empty($other_assetid)) {
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 
 			$prepared_otherids = Array();
 			foreach ($other_assetid as $id) {
@@ -2880,7 +2961,7 @@ class Asset_Manager extends MySource_Object
 				// we also need the links to real assets for this shadow asset
 				// if we are looking up the tree
 				if (($side_of_link == 'minor') && !$exclusive && !$dependant) {
-					$db =& $GLOBALS['SQ_SYSTEM']->db;
+					$db = DAL::getDb();
 					$sql = 'SELECT
 								l.linkid,
 								l.majorid,
@@ -2954,9 +3035,8 @@ class Asset_Manager extends MySource_Object
 			// we couldnt palm the request off, so we better do it ourselves
 			$query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access, $effective);
 			if (!empty($query)) {
-				$db =& $GLOBALS['SQ_SYSTEM']->db;
-				$result = $db->getAssoc(implode(' ', $query), FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
-				assert_valid_db_result($result);
+				$db = DAL::getDb();
+				$result = DAL::executeSqlGroupedAssoc(implode(' ', $query));
 				$links = $this->arrayMerge($result,$links);
 			}
 		}
@@ -2995,7 +3075,7 @@ class Asset_Manager extends MySource_Object
 				$shadow_links = $asset->getAllChildLinks($assetid, $link_type);
 			}
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 
 			$where = 'l.minorid = '.$db->quote($assetid);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
@@ -3077,7 +3157,7 @@ class Asset_Manager extends MySource_Object
 
 		$link_lineages = Array();
 		$assetids = Array();
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 		if (is_array($fields)) {
@@ -3168,7 +3248,7 @@ class Asset_Manager extends MySource_Object
 		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_lineage_treeids('.$db->quoteSmart((string) $assetid).', '.
 		$db->quoteSmart((int) SQ_CONF_ASSET_TREE_SIZE).')';
 
-		if ($db->phptype == 'oci8') {
+		if (DAL::getDbType() === 'oci') {
 			$in_sql = 'SELECT * FROM table('.$in_sql.')';
 		} else {
 			$in_sql = 'SELECT * FROM '.$in_sql;
@@ -3289,7 +3369,7 @@ class Asset_Manager extends MySource_Object
 				$parents = $asset->getParents($assetid, $type_code, $strict_type_code);
 			}
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 			$sql = 'SELECT
 						sl.majorid
 					FROM
@@ -3342,8 +3422,12 @@ class Asset_Manager extends MySource_Object
 
 		$query = $this->generateGetParentsQuery($assetid, $type_code, $strict_type_code, $sort_by, $access, $effective, $min_height, $max_height, $link_value_wanted);
 		if (empty($query)) return Array();
-		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
-		assert_valid_db_result($result);
+		$result_x = DAL::executeSqlGroupedAssoc(implode(' ', $query));
+		$result = Array();
+		foreach	($result_x as $key => $row) {
+			$result[$key] = $row[0];
+		}
+		unset($result_x);
 
 		$parents = Array();
 		foreach ($result as $assetid => $asset_info) {
@@ -3611,7 +3695,7 @@ class Asset_Manager extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		// Stuff that is only needed once per design file
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$assetids  = Array();
 		$majorids_str = '';
@@ -3768,7 +3852,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAssetTreeids($assetid, $link_type=NULL)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		if (is_array($assetid)) {
 			$assetids_set = Array();
@@ -3824,7 +3908,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLinkTreeid($linkid)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		if (is_array($linkid)) {
 			$sql = 'SELECT linkid, treeid
@@ -3874,26 +3958,25 @@ class Asset_Manager extends MySource_Object
 		// lets say "Are you kidding?"
 		if ($assetid == $trash->id) return FALSE;
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		// we need to work out the treeid of the trash
-		$sub_sql = 'SELECT (t.treeid || '.$db->quote('%').')
+		$sub_sql = 'SELECT (t.treeid || \'%\')
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 					  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid ';
-		$sub_where = 'l.minorid = '.$db->quote($trash->id);
+		$sub_where = 'l.minorid = \''.$trash->id.'\'';
 		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
 		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
 		$sub_sql .= $sub_where;
-		$sub_sql = $db->modifyLimitQuery($sub_sql, 0, 1);
+		$sub_sql .= ' LIMIT 1'; // TODO
 
 		$sql   = 'SELECT COUNT(*)
 				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid';
-		$where = 'l.minorid = '.$db->quote($assetid).'
+		$where = 'l.minorid = \''.$assetid.'\'
 				  AND t.treeid '.(($exclusively) ? 'NOT ' : '').'LIKE ('.$sub_sql.')';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$result = $db->getOne($sql.$where);
-		assert_valid_db_result($result);
+		$result = MatrixDAL::executeSqlOne($sql.$where);
 
 		if ($exclusively) {
 			return ($result == 0);
@@ -3944,7 +4027,7 @@ class Asset_Manager extends MySource_Object
 			return $results;
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$extra_table = '';
 		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid);
@@ -4050,7 +4133,7 @@ class Asset_Manager extends MySource_Object
 
 		// Use Master DB since we are going to change stuff
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		// Can't link to the new parent if it is only in the trash
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
@@ -4105,7 +4188,7 @@ class Asset_Manager extends MySource_Object
 
 		// Change to DB to deal with the link tables
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDB();
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
@@ -4118,20 +4201,26 @@ class Asset_Manager extends MySource_Object
 						FROM
 							sq_ast_lnk
 						WHERE
-							minorid = '.$db->quoteSmart($minor->id);
+							minorid = :minorid';
 
 			$sql = 'SELECT
 						COUNT(DISTINCT ct.linkid)
 					FROM sq_ast_lnk_tree pt,
 						sq_ast_lnk_tree ct INNER JOIN sq_ast_lnk cl ON ct.linkid = cl.linkid
 					WHERE
-							ct.treeid LIKE (pt.treeid || '.$db->quoteSmart('%').')
+							ct.treeid LIKE (pt.treeid || \'%\')
 						AND	ct.treeid >= pt.treeid
 						AND	pt.linkid IN ('.$sub_sql.')
-						AND	cl.minorid = '.$db->quoteSmart($major->id);
+						AND	cl.minorid = :majorid';
 
-			$moving_under = $db->getOne($sql);
-			assert_valid_db_result($moving_under);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':majorid', $major->id);
+				$query->bindValue(':minorid', $minor->id);
+				$moving_under = DAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to determine if minor asset "'.$minor->name.'" (#'.$minor->id.') in new link is being linked underneath itself, due to database error: '.$e->getMessage());
+			}
 
 			if ($moving_under) {
 				trigger_localised_error('CORE0114', E_USER_WARNING, $minor->name, $minor->id, $major->name, $major->id);
@@ -4147,11 +4236,17 @@ class Asset_Manager extends MySource_Object
 							sq_ast_lnk_tree t
 							INNER JOIN sq_ast_lnk l ON t.linkid = l.linkid
 						WHERE
-							l.minorid = '.$db->quoteSmart($major->id);
+							l.minorid = :minorid';
 
-			$sql = $db->modifyLimitQuery($sql, 0, 1);
-			$existing_treeid = $db->getOne($sql);
-			assert_valid_db_result($existing_treeid);
+			try {
+				$sql .= ' LIMIT 1';	// TODO: will be set in queries.xml instead
+				$query = $db->prepare($sql);
+				$query->bindValue(':minorid', $major->id);
+				$existing_treeid = DAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to determine if major asset "'.$major->name.'" (#'.$major->id.') in new link is linked somewhere else, due to database error: '.$e->getMessage());
+			}
+
 			$existing_treeid = (string) $existing_treeid;
 
 			// if we aren't linked anywhere we can't be linked to, sorry
@@ -4171,17 +4266,26 @@ class Asset_Manager extends MySource_Object
 				FROM
 					sq_ast_lnk
 				WHERE
-					majorid = '.$db->quoteSmart($major->id);
-		$row = $db->getRow($sql);
-		assert_valid_db_result($row);
+					majorid = :majorid';
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':majorid', $major->id);
+			$result = DAL::executePdoAll($query);
+			$row = $result[0];
+			unset($result);
+		} catch (Exception $e) {
+			throw new Exception('Unable to determine sort order range for new link between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
+		}
+
 		$max = ($row['count'] > 0) ? (int) $row['max'] + 1 : 0;
 		if (is_null($sort_order) || (int) $sort_order > (int) $max || (int) $sort_order < 0) {
 			$sort_order = (int) $max;
 		}
 
 		// Get Link ID
-		$linkid = $db->nextId('sq_ast_lnk');
-		assert_valid_db_result($linkid);
+		// TODO: temporary; remove and replace with seqNextVal() in queries.xml
+		$linkid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_lnk_seq\')');
 
 		// Update sort order for other children of the new parent
 		$sql = 'UPDATE
@@ -4189,13 +4293,19 @@ class Asset_Manager extends MySource_Object
 				SET
 					sort_order = sort_order + 1
 				WHERE
-						majorid		= '.$db->quoteSmart($major->id).'
-					AND	sort_order	>= '.$db->quoteSmart($sort_order);
+						majorid			=  :majorid
+						AND	sort_order	>= :sort_order';
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		try {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$query = $db->prepare($sql);
+			$query->bindValue(':majorid', $major->id);
+			$query->bindValue(':sort_order', $sort_order);
+			DAL::execPdoQuery($query);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} catch (Exception $e) {
+			throw new Exception('Unable to shift sort orders of children of "'.$major->name.'" (#'.$major->id.') up one, due to database error: '.$e->getMessage());
+		}
 
 		// We insert into the link table first to preserve referential integrity
 		$sql = 'INSERT INTO
@@ -4214,23 +4324,36 @@ class Asset_Manager extends MySource_Object
 					)
 					VALUES
 					(
-						'.$db->quoteSmart($linkid).',
-						'.$db->quoteSmart($major->id).',
-						'.$db->quoteSmart($minor->id).',
-						'.$db->quoteSmart($link_type).',
-						'.$db->quoteSmart($value).',
-						'.$db->quoteSmart($sort_order).',
-						'.$db->quoteSmart((($dependant) ? '1' : '0')).',
-						'.$db->quoteSmart((($exclusive) ? '1' : '0')).',
-						'.db_extras_todate($db, ts_iso8601(time())).',
-						'.$db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserId()).'
+						:linkid,
+						:majorid,
+						:minorid,
+						:link_type,
+						:value,
+						:sort_order,
+						:dependant,
+						:exclusive,
+						:updated,
+						:updated_userid
 					)';
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$result = $db->query($sql);
-
-		assert_valid_db_result($result);
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		try {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$query = $db->prepare($sql);
+			$query->bindValue(':linkid', $linkid);
+			$query->bindValue(':majorid', $major->id);
+			$query->bindValue(':minorid', $minor->id);
+			$query->bindValue(':link_type', $link_type);
+			$query->bindValue(':value', $value);
+			$query->bindValue(':sort_order', $sort_order);
+			$query->bindValue(':dependant', (($dependant) ? '1' : '0'));
+			$query->bindValue(':exclusive', (($exclusive) ? '1' : '0'));
+			$query->bindValue(':updated', ts_iso8601(time()));
+			$query->bindValue(':updated_userid', $GLOBALS['SQ_SYSTEM']->currentUserId());
+			DAL::execPdoQuery($query);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} catch (Exception $e) {
+			throw new Exception('Unable to add new link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
+		}
 
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
 			// This is a significant link, so do stuff with the tree
@@ -4244,11 +4367,22 @@ class Asset_Manager extends MySource_Object
 							sq_ast_lnk_tree t
 							INNER JOIN sq_ast_lnk l ON t.linkid = l.linkid
 						WHERE
-							l.minorid = '.$db->quoteSmart($minor->id);
+							l.minorid = :minorid';
 
-			$sql = $db->modifyLimitQuery($sql, 0, 1);
-			$minor_tree = $db->getRow($sql);
-			assert_valid_db_result($minor_tree);
+			try {
+				$sql .= ' LIMIT 1';	// TODO: temp until queries.xml
+				$query = $db->prepare($sql);
+				$query->bindValue(':minorid', $minor->id);
+				$result = DAL::executePdoAll($query);
+				if (empty($result)) {
+					$minor_tree = Array();
+				} else {
+					$minor_tree = $result[0];
+				}
+				unset($result);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get existing child tree information of "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
+			}
 
 			if (empty($minor_tree)) {
 				$minor_tree = Array('treeid' => '', 'num_kids' => 0);
@@ -4273,26 +4407,38 @@ class Asset_Manager extends MySource_Object
 				if ($existing_treeid != '-') {
 
 					$sql .= ' WHERE
-								ct.treeid LIKE '.$db->quoteSmart($existing_treeid.'%');
+						ct.treeid LIKE :existing_treeid_wildcard';
 					if (!empty($existing_treeid)) {
-						$sql .= ' AND ct.treeid > '.$db->quoteSmart($existing_treeid);
+						$sql .= ' AND ct.treeid > :existing_treeid';
 					}
-					$sql .= ' AND LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE);
+					$sql .= ' AND LENGTH(ct.treeid) = :length';
 				} else {
-					$sql .= ' WHERE LENGTH(ct.treeid) = '.SQ_CONF_ASSET_TREE_SIZE;
+					$sql .= ' WHERE LENGTH(ct.treeid) = :length';
 				}
 				$sql .= ' AND linkid > 0 ORDER BY treeid DESC';
-				$sql = $db->modifyLimitQuery($sql, 0, 1);
-				$last_treeid = $db->getOne($sql);
-				assert_valid_db_result($last_treeid);
+
+				try {
+					$sql .= ' LIMIT 1';	// TODO: temp until queries.xml
+					$query = $db->prepare($sql);
+					$query->bindValue(':existing_treeid_wildcard', $existing_treeid.'%');
+					$query->bindValue(':existing_treeid', $existing_treeid);
+					if ($existing_treeid != '-') {
+						$query->bindValue(':length', strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE);
+					} else {
+						$query->bindValue(':length', SQ_CONF_ASSET_TREE_SIZE);
+					}
+					$last_treeid = DAL::executePdoOne($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to get tree data due to database error: '.$e->getMessage());
+				}
 
 				$treeid = ($existing_treeid == '-') ? '' : $existing_treeid;
 
 				// if we couldn't find any treeids on this branch, then we can just
 				// do a straight inert and break the loop as we are done
 				if (empty($last_treeid)) {
-					$sql = 'asset_link_treeid_convert('.$db->quoteSmart('0').', '.$db->quoteSmart('1').', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
-					$free_treeid = db_get_function_result($db, $sql);
+					$sql = 'asset_link_treeid_convert(\'0\', \'1\', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
+					$free_treeid = db_get_function_result(DAL::getDbType(), $sql);
 
 					$new_treeid = ($existing_treeid == '-') ? $free_treeid : $existing_treeid.$free_treeid;
 
@@ -4305,15 +4451,22 @@ class Asset_Manager extends MySource_Object
 								)
 								VALUES
 								(
-									'.$db->quoteSmart($new_treeid).',
-									'.$linkid.',
-									0
+									:treeid,
+									:linkid,
+									:num_kids
 								)';
 
-					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-					$result = $db->query($sql);
-					assert_valid_db_result($result);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					try {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+						$query = $db->prepare($sql);
+						$query->bindValue(':treeid', $new_treeid);
+						$query->bindValue(':linkid', $linkid);
+						$query->bindValue(':num_kids', 0);
+						DAL::execPdoQuery($query);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					} catch (Exception $e) {
+						throw new Exception('Unable to add new tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
+					}
 
 					break;
 
@@ -4322,10 +4475,10 @@ class Asset_Manager extends MySource_Object
 				// otherwise we could find a treeid on this branch, so increment it
 				// to get a free childid that we can use for our new link
 				$sql = 'asset_link_treeid_convert('.$db->quoteSmart($last_treeid).', '.$db->quoteSmart('0').', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
-				$child_num = db_get_function_result($db, $sql);
+				$child_num = db_get_function_result(DAL::getDbType(), $sql);
 
 				$sql = 'asset_link_treeid_convert('.$db->quoteSmart((string) ($child_num + 1)).', '.$db->quoteSmart('1').', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
-				$free_treeid = db_get_function_result($db, $sql);
+				$free_treeid = db_get_function_result(DAL::getDbType(), $sql);
 
 				// we want to try and reserve a treeid for us that we have just converted
 				// from the last treeid on the branch. So what we are doing here is inserting
@@ -4338,20 +4491,27 @@ class Asset_Manager extends MySource_Object
 							sq_ast_lnk_tree
 							(
 								treeid,
-								num_kids,
-								linkid
+								linkid,
+								num_kids
 							)
 							VALUES
 							(
-								'.$db->quoteSmart($treeid.$free_treeid.':'.$linkid).',
-								0,
-								0
+								:treeid,
+								:linkid,
+								:num_kids
 							)';
 
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				try {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					$query = $db->prepare($sql);
+					$query->bindValue(':treeid', $treeid.$free_treeid.':'.$linkid);
+					$query->bindValue(':linkid', 0);
+					$query->bindValue(':num_kids', 0);
+					DAL::execPdoQuery($query);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				} catch (Exception $e) {
+					throw new Exception('Unable to reserve new tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
+				}
 
 				// now try to select the last treeid from this branch , ordering
 				// by treeid. If a process got in before us, we will select it as
@@ -4362,13 +4522,18 @@ class Asset_Manager extends MySource_Object
 						FROM
 							sq_ast_lnk_tree
 						WHERE
-							(treeid LIKE '.$db->quoteSmart($treeid.$free_treeid.':%').'
-						OR	treeid = '.$db->quoteSmart($treeid.$free_treeid).')
+							(treeid LIKE :treeid_wildcard OR treeid = :treeid)
 						AND	num_kids = 0 ORDER BY treeid DESC';
 
-				$sql = $db->modifyLimitQuery($sql, 0, 1);
-				$found_treeid = $db->getOne($sql);
-				assert_valid_db_result($found_treeid);
+				try {
+					$sql .= ' LIMIT 1';	// TODO: temp until queries.xml
+					$query = $db->prepare($sql);
+					$query->bindValue(':treeid_wildcard', $treeid.$free_treeid.':%');
+					$query->bindValue(':treeid', $treeid.$free_treeid);
+					$found_treeid = DAL::executePdoOne($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to get tree data due to database error: '.$e->getMessage());
+				}
 
 				if ($found_treeid == $treeid.$free_treeid.':'.$linkid) {
 
@@ -4380,9 +4545,9 @@ class Asset_Manager extends MySource_Object
 					$sql = 'UPDATE
 								sq_ast_lnk_tree
 							SET
-								linkid = -'.$linkid.'
+								linkid = :linkid
 							WHERE
-								treeid LIKE '.$db->quoteSmart($treeid.$free_treeid.':%').'
+								treeid LIKE :treeid_wildcard
 							AND
 								linkid = 0
 							AND NOT EXISTS(
@@ -4391,19 +4556,28 @@ class Asset_Manager extends MySource_Object
 								FROM
 									sq_ast_lnk_tree
 								WHERE
-									(treeid LIKE '.$db->quoteSmart($treeid.$free_treeid.':%').'
-								OR	treeid = '.$db->quoteSmart($treeid.$free_treeid).')
+									(treeid LIKE :treeid_wildcard_1
+								OR	treeid = :treeid)
 								AND linkid <> 0)';
 
-					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-					$result = $db->query($sql);
-					assert_valid_db_result($result);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-					$aff_rows = $db->affectedRows();
-					assert_valid_db_result($aff_rows);
+					try {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+						$query = $db->prepare($sql);
+						// The negative link ID is correct; we will replace with
+						// a positive version if we've drawn a winning tree ID
+						$query->bindValue(':linkid', -$linkid);
+						$query->bindValue(':treeid_wildcard', $treeid.$free_treeid.':%');
+						$query->bindValue(':treeid_wildcard_1', $treeid.$free_treeid.':%');
+						$query->bindValue(':treeid', $treeid.$free_treeid);
+						DAL::execPdoQuery($query);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					} catch (Exception $e) {
+						throw new Exception('Unable to attempt to win tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
+					}
 
-					// if we could update the linkid to our linkid
-					// then we have won this treeid
+					// Get the number of affected rows - if the update to our
+					// link ID worked, then we've won this tree ID
+					$aff_rows = $query->rowCount();
 					if ($aff_rows != 0) {
 						$requires_update = TRUE;
 						break;
@@ -4415,12 +4589,17 @@ class Asset_Manager extends MySource_Object
 				$sql = 'DELETE FROM
 							sq_ast_lnk_tree
 						WHERE
-							treeid = '.$db->quoteSmart($treeid.$free_treeid.':'.$linkid);
+						treeid = :treeid';
 
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				try {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					$query = $db->prepare($sql);
+					$query->bindValue(':linkid', $treeid.$free_treeid.':'.$linkid);
+					DAL::execPdoQuery($query);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				} catch (Exception $e) {
+					throw new Exception('Unable to attempt to drop lost tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
+				}
 
 				$i++;
 			// only try to do this 50 times. this will only be exceeded if the number
@@ -4437,17 +4616,25 @@ class Asset_Manager extends MySource_Object
 				$sql = 'UPDATE
 							sq_ast_lnk_tree
 						SET
-							treeid = '.$db->quoteSmart($treeid.$free_treeid).',
-							linkid = '.$linkid.'
+							treeid = :treeid,
+							linkid = :linkid
 						WHERE
-							treeid = '.$db->quoteSmart($treeid.$free_treeid.':'.$linkid);
+						treeid = :old_treeid';
 
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				try {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					$query = $db->prepare($sql);
+					// The negative link ID is correct; we will replace with
+					// a positive version if we've drawn a winning tree ID
+					$query->bindValue(':treeid',     $treeid.$free_treeid);
+					$query->bindValue(':linkid',     $linkid);
+					$query->bindValue(':old_treeid', $treeid.$free_treeid.':'.$linkid);
+					DAL::execPdoQuery($query);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				} catch (Exception $e) {
+					throw new Exception('Unable to attempt to update won tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
+				}
 			}
-
 
 			// if we don't have any existing tree entries then
 			// we are the root folder, so do a simple insert
@@ -4455,29 +4642,43 @@ class Asset_Manager extends MySource_Object
 				$sql = 'UPDATE
 							sq_ast_lnk_tree
 						SET
-							linkid   = '.$db->quoteSmart($linkid).',
-							num_kids = '.$db->quoteSmart($minor_tree['num_kids']).'
+							linkid   = :linkid,
+							num_kids = :num_kids
 						WHERE
-							treeid = '.$db->quoteSmart($free_treeid);
+							treeid = :treeid';
 
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				try {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					$query = $db->prepare($sql);
+					$query->bindValue(':linkid',   $linkid);
+					$query->bindValue(':num_kids', $minor_tree['num_kids']);
+					$query->bindValue(':treeid',   $free_treeid);
+					DAL::execPdoQuery($query);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				} catch (Exception $e) {
+					throw new Exception('Unable to update top-level tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
+				}
 
 			} else {
 				$sql = 'UPDATE
 							sq_ast_lnk_tree
 						SET
-							linkid   = '.$db->quoteSmart($linkid).',
-							num_kids = '.$db->quoteSmart($minor_tree['num_kids']).'
+							linkid   = :linkid,
+							num_kids = :num_kids
 						WHERE
-							treeid = '.$db->quoteSmart($existing_treeid.$free_treeid);
+							treeid = :treeid';
 
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				try {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					$query = $db->prepare($sql);
+					$query->bindValue(':linkid',   $linkid);
+					$query->bindValue(':num_kids', $minor_tree['num_kids']);
+					$query->bindValue(':treeid',   $existing_treeid.$free_treeid);
+					DAL::execPdoQuery($query);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				} catch (Exception $e) {
+					throw new Exception('Unable to update tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
+				}
 
 				// we have existing tree entries, do a insert..select to create entries for them all
 
@@ -4489,20 +4690,30 @@ class Asset_Manager extends MySource_Object
 								num_kids
 							)
 							SELECT
-								(t.treeid || '.$db->quoteSmart($free_treeid).'),
-								'.$db->quoteSmart($linkid).',
-								'.$db->quoteSmart($minor_tree['num_kids']).'
+								(t.treeid || :free_treeid),
+								:linkid,
+								:num_kids
 							FROM
-											sq_ast_lnk_tree t
+								sq_ast_lnk_tree t
 								INNER JOIN	sq_ast_lnk l ON t.linkid = l.linkid
 							WHERE
-								l.minorid = '.$db->quoteSmart($major->id).'
-							AND treeid || '.$db->quoteSmart($free_treeid).' <> '.$db->quoteSmart($existing_treeid.$free_treeid);
+								l.minorid = :minorid
+								AND treeid || :free_treeid_1 <> :treeid';
 
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				try {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					$query = $db->prepare($sql);
+					$query->bindValue(':free_treeid',   $free_treeid);
+					$query->bindValue(':free_treeid_1',   $free_treeid);
+					$query->bindValue(':linkid',   $linkid);
+					$query->bindValue(':minorid',   $major->id);
+					$query->bindValue(':num_kids', $minor_tree['num_kids']);
+					$query->bindValue(':treeid',   $existing_treeid.$free_treeid);
+					DAL::execPdoQuery($query);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				} catch (Exception $e) {
+					throw new Exception('Unable to insert child tree entries for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
+				}
 
 			}//end else
 
@@ -4515,22 +4726,30 @@ class Asset_Manager extends MySource_Object
 						(
 							SELECT
 								CASE WHEN
-									LENGTH(SUBSTR(t.treeid, 1, (LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))) != 0
+									LENGTH(SUBSTR(t.treeid, 1, (LENGTH(t.treeid) - :tree_size))) != 0
 								THEN
-									SUBSTR(t.treeid, 1, (LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))
+									SUBSTR(t.treeid, 1, (LENGTH(t.treeid) - :tree_size_1))
 								ELSE
-									'.$db->quoteSmart('-').'
+									:treeid
 								END
 							FROM
 								sq_ast_lnk_tree t
 							WHERE
-								t.linkid = '.$db->quoteSmart($linkid).'
+								t.linkid = :linkid
 						)';
 
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			try {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				$query = $db->prepare($sql);
+				$query->bindValue(':tree_size',   SQ_CONF_ASSET_TREE_SIZE);
+				$query->bindValue(':tree_size_1', SQ_CONF_ASSET_TREE_SIZE);
+				$query->bindValue(':linkid',      $linkid);
+				$query->bindValue(':treeid',   '-');
+				DAL::execPdoQuery($query);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			} catch (Exception $e) {
+				throw new Exception('Unable to insert child tree entries for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
+			}
 
 			// if this minor has already been linked so do a select into
 			if ($minor_tree['treeid'] != '') {
@@ -4547,7 +4766,7 @@ class Asset_Manager extends MySource_Object
 								num_kids
 							)
 							SELECT
-								('.$case.') || '.$db->quoteSmart($free_treeid).' || SUBSTR(ct.treeid, '.$db->quoteSmart(strlen($minor_tree['treeid']) + 1).'),
+								('.$case.') || :treeid || SUBSTR(ct.treeid, :minor_treeid + 1)),
 								ct.linkid,
 								ct.num_kids
 							FROM
@@ -4555,10 +4774,23 @@ class Asset_Manager extends MySource_Object
 								INNER JOIN	sq_ast_lnk pl ON pt.linkid = pl.linkid,
 											sq_ast_lnk_tree ct
 							WHERE
-									pl.minorid	= '.$db->quoteSmart($major->id).'
-								AND	ct.treeid	LIKE '.$db->quoteSmart($minor_tree['treeid'].'%').'
-								AND	ct.treeid	> '.$db->quoteSmart($minor_tree['treeid']);
+									pl.minorid	= :minorid
+								AND	ct.treeid	LIKE :minor_treeid_wildcard
+								AND	ct.treeid	> :minor_treeid_1';
 
+				try {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					$query = $db->prepare($sql);
+					$query->bindValue(':treeid',   $free_treeid);
+					$query->bindValue(':minorid',               $major->id);
+					$query->bindValue(':minor_treeid_wildcard', $minor_tree['treeid'].'%');
+					$query->bindValue(':minor_treeid',          $minor_tree['treeid']);
+					$query->bindValue(':minor_treeid_1',        $minor_tree['treeid']);
+					DAL::execPdoQuery($query);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				} catch (Exception $e) {
+					throw new Exception('Unable to insert child tree entries for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
+				}
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
@@ -4647,7 +4879,7 @@ class Asset_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		// use the sq_ast_lnk sequence so that when we query any link view later
 		// on we don't have any conflicting linkids
 		$linkid = $db->nextId('sq_ast_lnk');
@@ -4703,7 +4935,7 @@ class Asset_Manager extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		if (!$major->id) return FALSE;
 
-		if (!is_a($minor, 'Asset')) {
+		if (!($minor instanceof Asset)) {
 			return translate('minor_is_not_asset');
 		}
 
@@ -4736,7 +4968,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		// check for web path conflicts with the new parents children
 		if ($link_type & SQ_SC_LINK_WEB_PATHS) {
@@ -4798,7 +5030,7 @@ class Asset_Manager extends MySource_Object
 	function canLinkToType(&$major, $type_code, $link_type, $ignore_linkid=0, $exclusive=0)
 	{
 		// type checking
-		if (!is_a($major, 'asset')) {
+		if (!($major instanceof Asset)) {
 			return translate('major_is_not_asset');
 		}
 
@@ -5029,7 +5261,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$set_clauses = Array();
 
@@ -5130,7 +5362,7 @@ class Asset_Manager extends MySource_Object
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 
 			$set_clauses['updated_userid']	= $db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserId());
 			$set_clauses['updated']			= db_extras_todate($db, ts_iso8601(time()));
@@ -5196,7 +5428,7 @@ class Asset_Manager extends MySource_Object
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 
 			$set_clauses['updated_userid']	= $db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserId());
 			$set_clauses['updated']			= db_extras_todate($db, ts_iso8601(time()));
@@ -5373,7 +5605,7 @@ class Asset_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 			$sql = 'DELETE FROM
 						sq_shdw_ast_lnk
 					WHERE
@@ -5390,7 +5622,7 @@ class Asset_Manager extends MySource_Object
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
 			// This is a significant link
@@ -5723,7 +5955,7 @@ class Asset_Manager extends MySource_Object
 			if (isset($children['union_select'])) {
 				$children['union_select'] = 'UNION ALL SELECT sl.minorid';
 			}
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 			$sql = 'SELECT
 						majorid, minorid, name, linkid, status, link_type
 					FROM
@@ -5897,17 +6129,23 @@ class Asset_Manager extends MySource_Object
 		$storage_name =(($and_greater) ? 'effective_' : '').'permission_'.$permission.'_'.$suffix;
 		if (!isset($this->_tmp['permission_cache'][$assetid][$storage_name])) {
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 
 			$table = ($collapse_roles) ? 'ast_perm' : 'vw_ast_perm';
 			$sql = '  SELECT DISTINCT assetid, userid, granted
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.$table.' ';
-			$where = 'assetid = '.$db->quote($assetid).'
-					  AND permission '.(($and_greater) ? '>= ' : '= ').$db->quote($permission);
+			$where = 'assetid = :assetid
+						AND permission '.(($and_greater) ? '>= ' : '= ').':permission';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			$result = $db->getAll($sql.$where);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql.$where);
+				$query->bindValue(':assetid',    $assetid, PDO::PARAM_STR);
+				$query->bindValue(':permission', $permission, PDO::PARAM_INT);
+				$result = DAL::executePdoAll($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get set permissions of asset ID #'.$assetid.' due to database error: '.$e->getMessage());
+			}
 
 			// cache the result for next time
 			$this->_tmp['permission_cache'][$assetid][$storage_name] = $result;
@@ -5934,7 +6172,7 @@ class Asset_Manager extends MySource_Object
 				if ($expand_groups && $data['userid']) {
 					$user =& $this->getAsset($data['userid']);
 					if (!is_null($user)) {
-						if (is_a($user, 'user_group')) {
+						if ($user instanceof User_Group) {
 							$ret_val = array_merge($ret_val, array_keys($this->getChildren($user->id, Array('user'), FALSE)));
 						}
 						// always include the current user/group id, even if it is a user group
@@ -6013,7 +6251,7 @@ class Asset_Manager extends MySource_Object
 			if (!$user->id) {
 				trigger_localised_error('SYS0112', E_USER_WARNING);
 				return FALSE;
-			} else if (!is_a($user, 'user') && !is_a($user, 'user_group')) {
+			} else if (!($user instanceof User) && !($user instanceof User_Group)) {
 				trigger_localised_error('SYS0113', E_USER_WARNING, $user->type());
 				return FALSE;
 			}
@@ -6040,7 +6278,7 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		switch ($db_action) {
 			case 'insert':
@@ -6054,10 +6292,10 @@ class Asset_Manager extends MySource_Object
 							)
 							VALUES
 							(
-								'.$db->quoteSmart($assetid).',
-								'.$db->quoteSmart($userid).',
-								'.$db->quoteSmart($permission).',
-								'.$db->quoteSmart((($granted) ? '1' : '0')).'
+								:assetid,
+								:userid,
+								:permission,
+								:granted
 							)';
 
 			break;
@@ -6065,19 +6303,25 @@ class Asset_Manager extends MySource_Object
 				$sql = 'UPDATE
 							sq_ast_perm
 						SET
-							granted = '.$db->quoteSmart(($granted) ? '1' : '0').'
+							granted = :granted
 						WHERE
-							assetid = '.$db->quoteSmart($assetid).'
-						AND
-							userid  = '.$db->quoteSmart($userid).'
-						AND
-							permission = '.$db->quoteSmart($permission);
+							assetid        = :assetid
+							AND userid     = :userid
+							AND permission = :permission';
 
 			break;
 		}//end switch
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+				try {
+					$query = $db->prepare($sql);
+					$query->bindValue(':assetid',    $assetid);
+					$query->bindValue(':userid',     $userid);
+					$query->bindValue(':permission', $permission);
+					$query->bindValue(':granted',    ($granted) ? '1' : '0');
+					DAL::execPdoQuery($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to '.$db_action.' permissions for asset "'.$asset->name.'" (#'.$asset->id.') due to database error: '.$e->getMessage());
+				}
 
 		if (!$asset->permissionsUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -6167,7 +6411,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -6236,19 +6480,19 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getRole($assetid=NULL, $roleid=NULL, $userid=NULL, $include_assetid=FALSE, $include_globals=FALSE, $expand_groups=FALSE, $inc_dependants=TRUE)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$where = Array();
 		if (!is_null($assetid)) {
-			$where[] = 'r.assetid = '.$db->quoteSmart((string) $assetid);
+			$where[] = 'r.assetid = :assetid';
 		}
 
 		if (!is_null($roleid)) {
-			$where[] = 'r.roleid = '.$db->quoteSmart((string) $roleid);
+			$where[] = 'r.roleid = :roleid';
 		}
 
 		if (!is_null($userid)) {
-			$where[] = 'r.userid = '.$db->quoteSmart((string) $userid);
+			$where[] = 'r.userid = :userid';
 		}
 
 		$where_clause = '';
@@ -6261,7 +6505,7 @@ class Asset_Manager extends MySource_Object
 
 		if (!$inc_dependants) {
 			// join to link table to get the non dependant assets
-			$where_clause .= ' AND r.assetid = l.minorid AND l.is_dependant = \'0\'';
+			$where_clause .= ' AND r.assetid = l.minorid AND l.is_dependant = :dependant';
 			$table .= ', '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l';
 			$where_clause = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'l');
 		}
@@ -6269,9 +6513,22 @@ class Asset_Manager extends MySource_Object
 		$sql = 'SELECT DISTINCT r.roleid, r.userid'.$additional.'
 				FROM '.SQ_TABLE_RUNNING_PREFIX.$table.' '.$where_clause;
 
-
-		$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql);
+			if (!is_null($assetid)) {
+				$query->bindValue(':assetid', $assetid, PDO::PARAM_STR);
+			}
+			if (!is_null($roleid)) {
+				$query->bindValue(':roleid',  $roleid,  PDO::PARAM_STR);
+			}
+			if (!is_null($userid)) {
+				$query->bindValue(':userid',  $userid,  PDO::PARAM_STR);
+			}
+			$query->bindValue(':dependant', 0, PDO::PARAM_INT);
+			$result = DAL::executePdoGroupedAssoc($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get role data due to database error: '.$e->getMessage());
+		}
 
 		if ($include_assetid) {
 			$roles = Array();
@@ -6360,7 +6617,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'INSERT INTO sq_ast_role
@@ -6408,7 +6665,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$where_and = '';
 		if (!is_null($roleid)) {
@@ -6470,18 +6727,18 @@ class Asset_Manager extends MySource_Object
 			$protocol = 'http';
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$url_condition = '';
 		if ($exact_match) {
-			$url_condition = ' = '.$db->quote($url);
+			$url_condition = ' = \''.$url.'\'';
 
 		} else {
 			$sections = explode('/', $url);
 			$option  = '';
 			$url_condition = ' IN (';
 			foreach ($sections as $piece) {
-				$url_condition .= (($option) ? ',' : '').$db->quote($option.$piece);
+				$url_condition .= (($option) ? ',' : '').'\''.$option.$piece.'\'';
 				$option .= $piece.'/';
 			}
 			$url_condition .= ') ';
@@ -6490,7 +6747,7 @@ class Asset_Manager extends MySource_Object
 		$where = 'l.url '.$url_condition;
 
 		if (!is_null($protocol)) {
-			$where .= ' AND l.'.$protocol.' = '.$db->quote(1);
+			$where .= ' AND l.'.$protocol.' = 1';
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -6498,10 +6755,9 @@ class Asset_Manager extends MySource_Object
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 				'.$where.'
 				ORDER BY LENGTH(l.url) DESC';
-		$sql = $db->modifyLimitQuery($sql, 0, 1);
+		$sql .= ' LIMIT 1';
 
-		$row = $db->getRow($sql);
-		assert_valid_db_result($row);
+		$row = DAL::executeSqlAll($sql);
 
 		// URL not found
 		if (empty($row)) {
@@ -6513,6 +6769,7 @@ class Asset_Manager extends MySource_Object
 			return $null;
 
 		} else {
+			$row = $row[0];
 			$asset =& $this->getAsset($row['assetid'], '', $mute_errors);
 			return $asset;
 		}//end if
@@ -6536,7 +6793,7 @@ class Asset_Manager extends MySource_Object
 		// remove any trailing slashes and double slashes
 		$url = strip_url($url);
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		// so much for SQL standards...
 		$where = $db->quote($url).' LIKE (url || '.$db->quote('%').')';
@@ -6545,10 +6802,10 @@ class Asset_Manager extends MySource_Object
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_url
 				'.$where.'
 				ORDER BY url DESC';
-		$sql = $db->modifyLimitQuery($sql, 0, 1);
-		$result = $db->getRow($sql);
-		assert_valid_db_result($result);
-		return $result;
+		// TODO: replace in queries.xml with <limit> tag
+		$sql .= ' LIMIT 1';
+		$result = DAL::executeSqlAll($sql);
+		return empty($result) ? NULL : $result[0];
 
 	}//end getRootURL()
 
@@ -6563,15 +6820,21 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getURLs($assetid)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$sql = 'SELECT
 					http, https, url
 				FROM
 					sq_ast_lookup
 				WHERE
-					assetid = '.$db->quote($assetid);
-		$result = $db->getAll($sql);
-		assert_valid_db_result($result);
+					assetid = :assetid';
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':assetid', $assetid);
+			$result = DAL::executePdoAll($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get URLs for asset ID '.$assetid.' due to database error: '.$e->getMessage());
+		}
 
 		return $result;
 
@@ -6600,7 +6863,7 @@ class Asset_Manager extends MySource_Object
 			$protocol = 'http';
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$non_standard_url = FALSE;
 		// get the root(site) url for this url
@@ -6698,42 +6961,49 @@ class Asset_Manager extends MySource_Object
 		// the get_lineage_from_url procedure takes a url and splits it into the
 		// possible urls that we are looking for.
 		// we do this because its faster than performing a 'url LIKE l.url%'
-		$in_sql = 'sq_get_lineage_from_url('.$db->quoteSmart($url.'/').')';
+		$in_sql = 'sq_get_lineage_from_url(:url)';
 
 		// if we are oracle type-cast the function result to a table
-		if ($db->phptype == 'oci8') {
+		$db_type = DAL::getDbType();
+		if ($db_type == 'oci') {
 			$in_sql = 'SELECT * FROM table('.$in_sql.')';
-			$result = $db->getCol($in_sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($in_sql);
+				$query->bindValue(':url', $url.'/');
+				$result = DAL::executePdoAssoc($query, 0);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get lineage for URL "'.$protocol.'://'.$url.'" due to database error: '.$e->getMessage());
+			}
 
 			if (empty($result)) return Array();
 
 			for (reset($result); NULL !== ($key = key($result)); next($result)) {
-				$result[$key] = $db->quoteSmart($result[$key]);
+				$result[$key] = '\''.$result[$key].'\'';
 			}
 			$in_sql = implode(',', $result);
 
 		} else {
 			$in_sql = 'SELECT * FROM '.$in_sql;
 		}
-		$where = 'l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
+		//bam('Root URL is '.var_export($root_url, TRUE));
+		$where = 'l.root_urlid = '.(int)$root_url['urlid'].'
 				  AND l.url IN (
 								'.$in_sql.'
 							)';
 
 		if (!is_null($protocol)) {
-			$where .= ' AND l.'.$protocol.' = '.$db->quote('1');
-			$protocol_select = $db->quote($protocol);
+			$where .= ' AND l.'.$protocol.' = 1';
+			$protocol_select = '\''.$protocol.'\'';
 		} else {
 			$curr_proto = current_protocol();
-			$protocol_select = 'CASE WHEN l.'.$curr_proto.' = '.$db->quote('1').' THEN '.$db->quote($curr_proto).' ELSE '.$db->quote(($curr_proto == 'http') ? 'https' : 'http').' END';
+			$protocol_select = 'CASE WHEN l.'.$curr_proto.' = 1 THEN \''.$curr_proto.'\' ELSE \''.(($curr_proto == 'http') ? 'https' : 'http').'\' END';
 		}
 
 		// if we are using oracle, we cannot specify an alias
 		// in a group by clause. We must use the result set definition
-		if ($db->phptype == 'pgsql') {
+		if ($db_type == 'pgsql') {
 			$group_by_protocol = 'protocol';
-		} else if ($db->phptype == 'oci8') {
+		} else if ($db_type == 'oci') {
 			$group_by_protocol = $protocol_select;
 		}
 
@@ -6747,8 +7017,16 @@ class Asset_Manager extends MySource_Object
 				GROUP BY l.url, l.assetid, a.name, a.short_name, a.type_code, '.$group_by_protocol.'
 				ORDER BY l.url ASC';
 
-		$result = $db->getAll($sql);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':url', $url.'/');
+			$result = DAL::executePdoAll($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get lineage for URL "'.$protocol.'://'.$url.'" due to database error: '.$e->getMessage());
+		}
+
+		//bam($sql);
+		//bam($result);
 
 		$url_asset =& $this->getAssetFromURL($protocol, $url);
 		$id_parts = explode(':', $url_asset->id);
@@ -6831,7 +7109,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getDesignFromURL($url, $design_name='design::system::frontend')
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$sql = 'SELECT lv.value as designid, a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
@@ -6852,9 +7130,8 @@ class Asset_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql .= $where;
 
-		$result = $db->getRow($sql.$order_by);
-		assert_valid_db_result($result);
-		return $result;
+		$result = MatrixDAL::executeSqlAll($sql.$order_by);
+		return empty($result) ? NULL : $result[0];
 
 	}//end getDesignFromURL()
 
@@ -6911,7 +7188,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getValueFromURL($url, $value_name)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$sql = 'SELECT lv.value
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
@@ -6951,7 +7228,7 @@ class Asset_Manager extends MySource_Object
 		$name_operator = $use_like_for_name ? 'LIKE' : '=';
 		$use_like_for_value = ((FALSE !== strpos($lookup_value_exp, '?')) || (FALSE !== strpos($lookup_value_exp, '%')));
 		$value_operator = $use_like_for_value ? 'LIKE' : '=';
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$sql = 'SELECT l.assetid'.($include_treeids ? ', lt.treeid' : '').'
 				FROM sq_ast_lookup l
 					JOIN sq_ast_lookup_value lv ON l.url = lv.url';
@@ -7043,14 +7320,14 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// now hit the database for the rest of them
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$the_rest = array_diff($assetids, array_keys($return_urls));
 
 		if (!empty($the_rest)) {
 			$assetid_cond_array = $the_rest;
 			for (reset($assetid_cond_array); NULL !== ($k = key($assetid_cond_array)); next($assetid_cond_array)) {
-				$assetid_cond_array[$k] = $db->quoteSmart((string) $assetid_cond_array[$k]);
+				$assetid_cond_array[$k] = '\''.((string) $assetid_cond_array[$k]).'\'';
 			}
 
 			// IN query needs to be chunked to be Oracle-safe (is also slow
@@ -7064,15 +7341,15 @@ class Asset_Manager extends MySource_Object
 				$where = 'l.assetid '.$assetid_cond;
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 				$sql = 'SELECT l.assetid, l.url,
-					CASE WHEN l.'.$protocol.' = '.$db->quote(1).' THEN '.$db->quote($protocol).' ELSE '.$db->quote(($protocol == 'https') ? 'http' : 'https').' END as protocol,
+					CASE WHEN l.'.$protocol.' = \'1\' THEN \''.$protocol.'\' ELSE \''.(($protocol == 'https') ? 'http' : 'https').'\' END as protocol,
 				(
-					(CASE WHEN l.'.$protocol.' = '.$db->quote(1).' THEN 1 ELSE 0 END)';
+					(CASE WHEN l.'.$protocol.' = \'1\' THEN 1 ELSE 0 END)';
 
 				$str = '';
 				foreach (array_values($url_bits) as $bit) {
 					$str .= $bit.'/';
 					$sql .= ' +
-					(CASE WHEN SUBSTR(l.url || '.$db->quote('/').', 1, '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
+					(CASE WHEN SUBSTR(l.url || \'/\', 1, '.strlen($str).') = \''.$str.'\' THEN 1 ELSE 0 END)';
 				}
 
 				$sql .= '
@@ -7081,8 +7358,7 @@ class Asset_Manager extends MySource_Object
 				'.$where.'
 				ORDER BY weighting DESC, LENGTH(l.url) ASC';
 
-				$partial_result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
-				assert_valid_db_result($partial_result);
+				$partial_result = MatrixDAL::executeSqlGroupedAssoc($sql);
 				$result += $partial_result;
 				unset($partial_result);
 			}
@@ -7280,29 +7556,28 @@ class Asset_Manager extends MySource_Object
 		// db_extras_bitand
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		while (!empty($paths)) {
 			$paths_string = '';
 			foreach ($paths as $path) {
 				if (!empty($paths_string)) $paths_string .= ', ';
-				$paths_string .= $db->quote($path);
+				$paths_string .= '\''.$path.'\'';
 			}
 
 			$sql = 'SELECT p.path
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_path p
 					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 					ON p.assetid = l.minorid ';
-			$where = 'WHERE l.majorid = '.$db->quoteSmart((string) $major->id).' ';
+			$where = 'WHERE l.majorid = \''.(string) $major->id.'\' ';
 			if ($ignore_assetid) {
-				$where .= 'AND l.minorid <> '.$db->quoteSmart((string) $ignore_assetid).' ';
+				$where .= 'AND l.minorid <> \''.(string) $ignore_assetid.'\' ';
 			}
 			$where .= 'AND p.path IN ('.$paths_string.')
-					AND '.db_extras_bitand($db, 'l.link_type', SQ_SC_LINK_WEB_PATHS).' > 0 ';
+				AND '.db_extras_bitand(DAL::getDbType(), 'l.link_type', SQ_SC_LINK_WEB_PATHS).' > 0 ';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			$used_paths = $db->getCol($sql.$where);
-			assert_valid_db_result($used_paths);
+			$used_paths = DAL::executeSqlAssoc($sql.$where);
 
 			// if we do not need to get alternate we paths, just return
 			// the ones that are currently in use
@@ -7340,7 +7615,7 @@ class Asset_Manager extends MySource_Object
 	function paintBackend(&$backend)
 	{
 		require_once SQ_INCLUDE_PATH.'/asset_manager_edit_fns.inc';
-		$edit_fns =& new Asset_Manager_Edit_Fns($this, $backend);
+		$edit_fns = new Asset_Manager_Edit_Fns($this, $backend);
 		$edit_fns->paintBackend();
 
 	}//end paintBackend()
@@ -7390,18 +7665,19 @@ class Asset_Manager extends MySource_Object
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$assetid_cond = '';
+		// TODO: queries.xml format will just send arrays unedited
 		if (is_array($assetid)) {
 			for (reset($assetid); NULL !== ($i = key($assetid)); next($assetid)) {
 				assert_valid_assetid($assetid[$i]);
-				$assetid[$i] = $db->quote($assetid[$i]);
+				$assetid[$i] = '\''.$assetid[$i].'\'';
 			}
 			$assetid_cond = 'IN ('.implode(', ', $assetid).')';
 		} else {
 			assert_valid_assetid($assetid);
-			$assetid_cond = '= '.$db->quote($assetid);
+			$assetid_cond = '= \''.$assetid.'\'';
 		}
 
 		$select = 'SELECT  l.'.$side_of_link.'id, l.'.$other_side.'id, l.linkid, l.value, l.link_type,
@@ -7409,17 +7685,17 @@ class Asset_Manager extends MySource_Object
 		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 
 		$where  = 'l.'.$side_of_link.'id '.$assetid_cond.'
-				   AND '.db_extras_bitand($db, 'l.link_type', $db->quote($link_types)).' > 0 ';
+			AND '.db_extras_bitand(DAL::getDbType(), 'l.link_type', $link_types).' > 0 ';
 		if (!is_null($value)) {
-			$where .= ' AND (l.value = '.$db->quote($value);
+			$where .= ' AND (l.value = \''.$value.'\'';
 			if ($value == '') $where .= ' OR l.value IS NULL';
 			$where .= ')';
 		}
 		if (!is_null($dependant)) {
-			$where .= ' AND l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
+			$where .= ' AND l.is_dependant = '.(($dependant) ? '1' : '0');
 		}
 		if (!is_null($exclusive)) {
-			$where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
+			$where .= ' AND l.is_exclusive = '.(($exclusive) ? '1' : '0');
 		}
 
 		$group_by = '';
@@ -7434,11 +7710,11 @@ class Asset_Manager extends MySource_Object
 
 				// get user and group ids
 				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-				$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
-				$public_userid = (String)$this->getSystemAssetid('public_user');
+				$userids[] = (string)$GLOBALS['SQ_SYSTEM']->user->id;
+				$public_userid = (string)$this->getSystemAssetid('public_user');
 				$userids[] = $public_userid;
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$userids[$i] = $db->quote((String)$userids[$i]);
+					$userids[$i] = '\''.(string)$userids[$i].'\'';
 				}
 
 				$userids_str = implode(',', $userids);
@@ -7452,15 +7728,15 @@ class Asset_Manager extends MySource_Object
 
 				$where .= $userid_cond.'
 					AND (
-						(p.permission = '.$db->quote($access).' AND (
-									p.userid <> '.$db->quote($public_userid).'
-									OR r.userid <> '.$db->quote($public_userid).'
-									OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
-									OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+						(p.permission = '.$access.' AND (
+									p.userid <> "'.$public_userid.'"
+									OR r.userid <> "'.$db->quote($public_userid).'"
+									OR (p.userid = "'.$db->quote($public_userid).'" AND p.granted = 1)
+									OR (r.userid = "'.$db->quote($public_userid).'" AND p.granted = 1)
 								)
 						)';
 				if ($effective) {
-					$where .= ' OR (p.permission > '.$db->quote($access).' AND p.granted = 1)';
+					$where .= ' OR (p.permission > '.$access.' AND p.granted = 1)';
 				}
 				$where .= ')';
 				$having .= 'HAVING MIN(p.granted) <> 0';
@@ -7475,11 +7751,11 @@ class Asset_Manager extends MySource_Object
 			$type_code_cond = '';
 			if (is_array($type_code)) {
 				for (reset($type_code); NULL !== ($i = key($type_code)); next($type_code)) {
-					$type_code[$i] = $db->quote($type_code[$i]);
+					$type_code[$i] = '\''.$type_code[$i].'\'';
 				}
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
-				$type_code_cond = '= '.$db->quote($type_code);
+				$type_code_cond = '= \''.$type_code.'\'';
 			}
 
 			if ($strict_type_code) {
@@ -7560,7 +7836,7 @@ class Asset_Manager extends MySource_Object
 	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $inc_type_code=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE, $link_value_wanted=NULL)
 	{
 		assert_valid_assetid($asset->id);
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		// if we are the root folder then we just need to select from the asset table
 		if (get_class($asset) == 'root_folder') {
@@ -7755,12 +8031,12 @@ class Asset_Manager extends MySource_Object
 	{
 		assert_valid_assetid($assetid);
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$assetid = (string) $assetid;
 
-		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_parent_treeids('.$db->quoteSmart($assetid).', '.$db->quoteSmart(SQ_CONF_ASSET_TREE_SIZE).')';
+		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_parent_treeids(\''.$assetid.'\', \''.SQ_CONF_ASSET_TREE_SIZE.'\')';
 
-		if ($db->phptype == 'oci8') {
+		if (DAL::getDbType() === 'oci') {
 			$in_sql = 'SELECT * FROM table('.$in_sql.')';
 			$result = $db->getCol($in_sql);
 			assert_valid_db_result($result);
@@ -7768,7 +8044,7 @@ class Asset_Manager extends MySource_Object
 			if (empty($result)) return Array();
 
 			for (reset($result); NULL !== ($key = key($result)); next($result)) {
-				$result[$key] = $db->quoteSmart($result[$key]);
+				$result[$key] = '\''.$result[$key].'\'';
 			}
 
 			$in_sql = implode(',', $result);
@@ -7801,7 +8077,7 @@ class Asset_Manager extends MySource_Object
 			$where_comps = Array();
 
 			foreach ($treeids as $treeid) {
-				$where_comp = $db->quote($treeid).' LIKE t.treeid || '.$db->quote('%');
+				$where_comp = '\''.$treeid.'\' LIKE t.treeid || \'%\'';
 
 				// in the get children query function this section gets minor
 				// links, but we want the major links in this case, so we have
@@ -7809,18 +8085,18 @@ class Asset_Manager extends MySource_Object
 				if (!is_null($min_height) && !is_null($max_height)) {
 
 					if ($min_height < $max_height) {
-						$where_comp .= ' AND LENGTH(t.treeid) BETWEEN '.$db->quoteSmart(strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE)
-										.' AND '.$db->quoteSmart(strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+						$where_comp .= ' AND LENGTH(t.treeid) BETWEEN \''.(strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE).'\''
+										.' AND \''.(strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE).'\'';
 					} else if ($min_height > $max_height) {
-						$where_comp .= ' AND LENGTH(t.treeid) BETWEEN '.$db->quoteSmart(strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE)
-										.' AND '.$db->quoteSmart(strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+						$where_comp .= ' AND LENGTH(t.treeid) BETWEEN \''.(strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE).'\''
+										.' AND \''.(strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE).'\'';
 					} else {
-						$where_comp .= ' AND LENGTH(t.treeid) = '.$db->quoteSmart(strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+						$where_comp .= ' AND LENGTH(t.treeid) = \''.(strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE).'\'';
 					}
 				} else if (!is_null($min_height)) {
-					$where_comp .= ' AND LENGTH(t.treeid) <= '.$db->quoteSmart(strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+					$where_comp .= ' AND LENGTH(t.treeid) <= \''.(strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE).'\'';
 				} else if (!is_null($max_height)) {
-					$where_comp .= ' AND LENGTH(t.treeid) >= '.$db->quoteSmart(strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+					$where_comp .= ' AND LENGTH(t.treeid) >= \''.(strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE).'\'';
 				}
 
 				$where_comps[] = $where_comp;
@@ -7948,7 +8224,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$union_from   = ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
-		$union_where  = 'sl.minorid = '.$db->quoteSmart($assetid);
+		$union_where  = 'sl.minorid = \''.$assetid.'\'';
 		$union_where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
 
 		$sql_array = Array(
@@ -7992,13 +8268,12 @@ class Asset_Manager extends MySource_Object
 	function isDependant($assetid)
 	{
 		assert_valid_assetid($assetid);
-
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$assetid = (string) $assetid;
-		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk';
-		$sql .= ' WHERE minorid = \''.$assetid.'\' AND is_dependant = 1';
-		$links_result = $db->getRow($sql);
-		assert_valid_db_result($links_result);
+		try {
+			$bind_vars    = Array('assetid' => (string)$assetid);
+			$links_result = MatrixDAL::executeAll('core', 'isAssetDependentlyLinked', $bind_vars);
+		} catch (DALException $e) {
+			throw new Exception('Unable to determine if asset #'.$assetid.' is dependently linked due to database error: '.$e->getMessage());
+		}
 
 		// If there is no row, that means it is not a dependant
 		if (!empty($links_result)) {

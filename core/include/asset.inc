@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.599 2007/10/12 01:09:19 bshkara Exp $
+* $Id: asset.inc,v 1.600 2007/10/29 22:20:42 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.599 $
+* @version $Revision: 1.600 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -229,7 +229,7 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
 			// perform any validation before starting the create process
@@ -258,8 +258,9 @@ class Asset extends MySource_Object
 		// do any updating of versions etc. until we are done
 		$this->_tmp['__creating__'] = TRUE;
 
-		$assetid = $db->nextId('sq_ast');
-		assert_valid_db_result($assetid);
+		// TODO: this wil be replaced in the queries.xml with a seqNextVal()
+		// call replacing the addition of the explicit sequence value
+		$assetid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_seq\')');
 
 		$name   = ucwords(str_replace('_', ' ', $this->type())).' #'.$assetid;
 		$now    = time();
@@ -267,14 +268,14 @@ class Asset extends MySource_Object
 		$initial_version = '0.0.1';
 		$initial_status = SQ_STATUS_UNDER_CONSTRUCTION;
 		if (array_get_index($link, 'is_dependant') && ($link['asset']->status != SQ_STATUS_UNDER_CONSTRUCTION)) {
-			$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+			$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 			if (0 == count($wfm->getSchemas($link['asset']->id, TRUE))) {
 				// no workflow for parent
 				 $initial_status = $link['asset']->status;
 			}
 		}
 
-		$now_sql = db_extras_todate($db, ts_iso8601($now));
+//		$now_sql = db_extras_todate($db, ts_iso8601($now));
 		$sql = 'INSERT INTO
 					sq_ast
 				(
@@ -295,23 +296,42 @@ class Asset extends MySource_Object
 				)
 				VALUES
 				(
-					'.$db->quoteSmart($assetid).',
-					'.$db->quoteSmart($initial_version).',
-					'.$db->quoteSmart($this->type()).',
-					'.$db->quoteSmart($name).',
-					'.$db->quoteSmart($name).',
-					'.$db->quoteSmart($initial_status).',
-					'.$now_sql.',
-					'.$db->quoteSmart($userid).',
-					'.$now_sql.',
-					'.$db->quoteSmart($userid).',
-					  null,
-					  null,
-					'.$now_sql.',
-					'.$db->quoteSmart($userid).')';
+					:assetid,
+					:version,
+					:type_code,
+					:name,
+					:short_name,
+					:status,
+					:created,
+					:created_userid,
+					:updated,
+					:updated_userid,
+					:published,
+					:published_userid,
+					:status_changed,
+					:status_changed_userid)';
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':assetid',               $assetid,         PDO::PARAM_STR);
+			$query->bindValue(':version',               $initial_version, PDO::PARAM_STR);
+			$query->bindValue(':type_code',             $this->type(),    PDO::PARAM_STR);
+			$query->bindValue(':name',                  $name,            PDO::PARAM_STR);
+			$query->bindValue(':short_name',            $name,            PDO::PARAM_STR);
+			$query->bindValue(':status',                $initial_status,  PDO::PARAM_STR);
+			$query->bindValue(':created',               ts_iso8601($now), PDO::PARAM_STR);
+			$query->bindValue(':created_userid',        $userid,          PDO::PARAM_STR);
+			$query->bindValue(':updated',               ts_iso8601($now), PDO::PARAM_STR);
+			$query->bindValue(':updated_userid',        $userid,          PDO::PARAM_STR);
+			$query->bindValue(':published',             NULL);
+			$query->bindValue(':published_userid',      NULL);
+			$query->bindValue(':status_changed',        ts_iso8601($now), PDO::PARAM_STR);
+			$query->bindValue(':status_changed_userid', $userid,          PDO::PARAM_STR);
+			DAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to create new asset  "'.$name.'" (# "'.$assetid.'") due to database error: '.$e->getMessage());
+		}
 
 		$this->id                    = $assetid;
 		$this->version               = $initial_version;
@@ -328,7 +348,7 @@ class Asset extends MySource_Object
 		$this->status_changed_userid = $userid;
 
 		// Get ready to log what happens
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openLog();
 
 		// Register ourselves with asset mgr so getAsset doesn't load a us again from the DB
@@ -506,7 +526,7 @@ class Asset extends MySource_Object
 
 		// fire the 'Asset Created' event
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_created', $this);
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 
 		// create a list of asset vars that have changed
 		// only published and published_userid is
@@ -606,7 +626,7 @@ class Asset extends MySource_Object
 		if ($trigger_level_changed) {
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->abortLog();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -631,45 +651,50 @@ class Asset extends MySource_Object
 	*/
 	function load($assetid)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		// OK, the first thing to do is check we actually exist :)
 		$sql = 'SELECT assetid, type_code, version, name, short_name, status, languages,
 				charset, force_secure, created, created_userid, updated, updated_userid,
 				published, published_userid, status_changed, status_changed_userid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast ';
-		$where = 'assetid = '.$db->quote($assetid);
+		$where = 'assetid = :assetid';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-		$result = $db->getRow($sql.$where, NULL, DB_FETCHMODE_ORDERED);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql.$where);
+			$query->bindValue(':assetid', $assetid);
+			$result = DAL::executePdoAll($query);
+			if (!empty($result)) {
+				$result = $result[0];
+			}
+		} catch (Exception $e) {
+			throw new Exception('Unable to get versioning information for file ID '.$fileid.' at version '.(is_null($version) ? '(current)' : $version).' due to database error: '.$e->getMessage());
+		}
+
 		if (is_null($result)) {
 			trigger_localised_error('SYS0087', E_USER_WARNING, $assetid);
 			return;
 		}
 
-		list(
-		$this->id,
-		$type_code,
-		$this->version,
-		$this->name,
-		$this->short_name,
-		$this->status,
-		$this->languages,
-		$this->charset,
-		$this->force_secure,
-		$this->created,
-		$this->created_userid,
-		$this->updated,
-		$this->updated_userid,
-		$this->published,
-		$this->published_userid,
-		$this->status_changed,
-		$this->status_changed_userid
-		) = $result;
+		$this->id                    = $result['assetid'];
+		$type_code                   = $result['type_code'];
+		$this->version               = $result['version'];
+		$this->name                  = $result['name'];
+		$this->short_name            = $result['short_name'];
+		$this->status                = $result['status'];
+		$this->languages             = $result['languages'];
+		$this->charset               = $result['charset'];
+		$this->force_secure          = $result['force_secure'];
+		$this->created               = iso8601_ts($result['created']);
+		$this->created_userid        = $result['created_userid'];
+		$this->updated               = iso8601_ts($result['updated']);
+		$this->updated_userid        = $result['updated_userid'];
+		$this->published             = $result['published'];
+		$this->published_userid      = $result['published_userid'];
+		$this->status_changed        = $result['status_changed'];
+		$this->status_changed_userid = $result['status_changed_userid'];
 
-		$this->created = iso8601_ts($this->created);
-		$this->updated = iso8601_ts($this->updated);
 		if (!is_null($this->status_changed)) {
 			$this->status_changed = iso8601_ts($this->status_changed);
 		}
@@ -737,6 +762,8 @@ class Asset extends MySource_Object
 	*/
 	function _loadVars()
 	{
+		$db = DAL::getDb();
+
 		// let's setup the data path
 		$this->_loadDataPaths();
 
@@ -751,18 +778,35 @@ class Asset extends MySource_Object
 			$sql = 'SELECT atr.name, atr.attrid, atr.type, COALESCE(v.custom_val, atr.default_val) AS value
 					FROM sq_ast_attr atr
 					  LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val v
-						ON (atr.attrid = v.attrid AND v.assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id)
+					  	ON (atr.attrid = v.attrid AND v.assetid = :assetid'
 						.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'v', 'AND').')
-					WHERE atr.type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
+						WHERE atr.type_code = :type_code';
 		} else {
 			// else just load all defaults
 			$sql = 'SELECT atr.name, atr.attrid, atr.type, atr.default_val AS value
 					FROM sq_ast_attr atr
-					WHERE atr.type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
+					WHERE atr.type_code = :type_code';
 		}// end if
 
-		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC);
-		assert_valid_db_result($this->vars);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':type_code', $this->type(), PDO::PARAM_STR);
+			$query->bindValue(':assetid',   $this->id, PDO::PARAM_STR);
+			$result = DAL::executePdoGroupedAssoc($query);
+
+			if (empty($result)) {
+				$this->vars = NULL;
+			} else {
+				$this->vars = $result;
+				foreach (array_keys($this->vars) as $name) {
+					$this->vars[$name] = $this->vars[$name][0];
+					unset($this->vars[$name][0]);
+				}
+			}
+			unset($result);
+		} catch (Exception $e) {
+			throw new Exception('Unable to load variables of asset type "'.$type_code.'" due to database error: '.$e->getMessage());
+		}
 
 		if ($this->_ser_attrs && $this->vars) {
 			for (reset($this->vars); NULL !== ($name = key($this->vars)); next($this->vars)) {
@@ -824,12 +868,12 @@ class Asset extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 		foreach ($links as $link) {
-			$major =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+			$major = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 			if (!is_null($major)) {
 				$major->deleteLink($link['linkid']);
 			} else {
@@ -914,7 +958,7 @@ class Asset extends MySource_Object
 		assert_valid_db_result($result);
 
 		// delete any metadata values this asset might have
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		if (!$mm->purgeMetadata($this->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -922,7 +966,7 @@ class Asset extends MySource_Object
 		}
 
 		// delete any workflow values that this asset might have
-		$wm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		if (!$wm->purgeWorkflow($this->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -952,7 +996,7 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'assetDeleted', Array());
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this, TRUE);
 
@@ -981,7 +1025,7 @@ class Asset extends MySource_Object
 				} else {
 					$usv = (!$this->writeAccess(''));
 					if ($usv && !$GLOBALS['SQ_SYSTEM']->userPublic()) {
-						$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+						$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 						$publishers = $wfm->whoCanPublish($this->id);
 						if (!empty($publishers) && in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) {
 							$usv = FALSE;
@@ -1015,7 +1059,9 @@ class Asset extends MySource_Object
 		}
 
 		$real_status = $this->status;
-		$this = unserialize(file_to_string($this->data_path.'/.object_data'));
+
+		throw new Exception('Re-assigning $this here won\'t work');
+		//$this = unserialize(file_to_string($this->data_path.'/.object_data'));
 		$this->status = $real_status;
 		return TRUE;
 
@@ -1162,7 +1208,8 @@ class Asset extends MySource_Object
 		}
 
 		// ITS ALIVE... ITS ALIVE...
-		$this = $old_version;
+		throw new Exception('Re-assigning $this here won\'t work');
+		//$this = $old_version;
 
 		// save this old version to the db
 		$this->_updated();
@@ -1204,7 +1251,7 @@ class Asset extends MySource_Object
 		if ($this->id) {
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$sql = 'UPDATE
@@ -1212,25 +1259,36 @@ class Asset extends MySource_Object
 					SET ';
 
 			if (($name === '0') || (!empty($name))) {
-				$sql .= 'name = '.$db->quoteSmart($name).',';
+				$sql .= 'name = :name,';
 			}
 			if (($short_name === '0') || (!empty($short_name))) {
-				$sql .= 'short_name = '.$db->quoteSmart($short_name).',';
+				$sql .= 'short_name = :short_name,';
 			}
 
 			$sql .= '
-						languages		= '.$db->quoteSmart($this->languages).',
-						charset			= '.$db->quoteSmart($this->charset).',
-						force_secure	= '.$db->quoteSmart($this->force_secure).',
-						updated			= '.db_extras_todate($db, ts_iso8601($updated)).',
-						updated_userid	= '.$db->quoteSmart($updated_userid).'
+						languages		= :languages,
+						charset			= :charset,
+						force_secure	= :force_secure,
+						updated			= :updated,
+						updated_userid	= :updated_userid
 					WHERE
-						assetid	= '.$db->quoteSmart($this->id);
+						assetid	= :assetid';
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':name',           $name,               PDO::PARAM_STR);
+				$query->bindValue(':short_name',     $short_name,         PDO::PARAM_STR);
+				$query->bindValue(':languages',      $this->languages,    PDO::PARAM_STR);
+				$query->bindValue(':charset',        $this->charset,      PDO::PARAM_STR);
+				$query->bindValue(':force_secure',   $this->force_secure, PDO::PARAM_STR);
+				$query->bindValue(':updated',        ts_iso8601($updated), PDO::PARAM_STR);	// TODO: fix with DAL queries.xml?
+				$query->bindValue(':updated_userid', $updated_userid,     PDO::PARAM_STR);
+				$query->bindValue(':assetid',        $this->id,           PDO::PARAM_STR);
+				DAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to update asset "'.$this->_getName().'" (#'.$this->id.') due to database error: '.$e->getMessage());
+			}
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
-
-			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 
 			$fields = Array(
 						'name',
@@ -1296,12 +1354,16 @@ class Asset extends MySource_Object
 	/**
 	* Get the type of the asset
 	*
+	* Note that as of PHP 5.x, return values from get_class() are in mixed case
+	* (eg. "Asset" instead of "asset"). This function ensures that asset types
+	* it returns are lower case, as in other parts of Matrix.
+	*
 	* @return string
 	* @access public
 	*/
 	function type()
 	{
-		return get_class($this);
+		return strtolower(get_class($this));
 
 	}//end type()
 
@@ -1358,7 +1420,7 @@ class Asset extends MySource_Object
 		// version that we have been asked to update (major|minor|micro)
 		$version_parts = explode('.', $this->version);
 		for (reset($version_parts); NULL !== ($k = key($version_parts)); next($version_parts)) {
-			$value =& $version_parts[$k];
+			$value = $version_parts[$k];
 			$value = (int)$value;
 			if ($k == $part_num) {
 				$value++;
@@ -1372,24 +1434,30 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$sql = 'UPDATE
 					sq_ast
 				SET
-					version	= '.$db->quoteSmart($new_version).'
+					version	= :version
 				WHERE
-					assetid	= '.$db->quoteSmart($this->id);
+					assetid	= :assetid';
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':version', $new_version, PDO::PARAM_STR);
+			$query->bindValue(':assetid', $this->id,    PDO::PARAM_STR);
+			DAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to increment version of "'.$this->_getName().'" (#'.$this->id.') due to database error: '.$e->getMessage());
+		}
 
 		if ($update_parents) {
 			// increment the micro version of all dependant parents because a 'part' of them
 			// has been updated - even though they havnt been updated directly
 			$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id);
 			foreach ($dependant_parents as $parentid) {
-				$dep_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
+				$dep_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
 				if (!is_null($dep_parent)) {
 					if (!$dep_parent->_updated(FALSE)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1403,7 +1471,7 @@ class Asset extends MySource_Object
 			}
 		}
 
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetVersionUpdate', Array(
 															'old_version'	=> $this->version,
 															'new_version'	=> $new_version,
@@ -1455,7 +1523,7 @@ class Asset extends MySource_Object
 			return FALSE;
 		}
 
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetLanguageUpdate', Array(
 															'old_languages'	=> $old_languages,
 															'new_languages'	=> $this->languages,
@@ -1485,7 +1553,7 @@ class Asset extends MySource_Object
 			return FALSE;
 		}
 
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetCharsetUpdate', Array(
 															'old_charset'	=> $old_charset,
 															'new_charset'	=> $this->charset,
@@ -1521,7 +1589,7 @@ class Asset extends MySource_Object
 			return FALSE;
 		}
 
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetForceSecureUpdate', Array(
 																'old_force_secure'	=> $old_force_secure,
 																'old_force_secure'	=> $this->force_secure,
@@ -1547,9 +1615,9 @@ class Asset extends MySource_Object
 		// try and acquire locks on our dependants
 		$dependant_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'major', NULL, 1);
 		if (!empty($dependant_links)) {
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$am = $GLOBALS['SQ_SYSTEM']->am;
 			foreach ($dependant_links as $link) {
-				$asset =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+				$asset = $am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (!$asset->remapAssetids($map)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1587,12 +1655,12 @@ class Asset extends MySource_Object
 			return FALSE;
 		}
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		// is this new type one of our decendents or ancestors?
 		$sql = 'SELECT COUNT(*)
@@ -1609,7 +1677,7 @@ class Asset extends MySource_Object
 		}
 
 		$am->includeAsset($new_type_code);
-		$tmp =& new $new_type_code();
+		$tmp = new $new_type_code();
 
 		//// FIRST we need to check that all our links are allowed for the new type ////
 
@@ -1635,7 +1703,7 @@ class Asset extends MySource_Object
 
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 			foreach ($links as $link) {
-				$parent =& $am->getAsset($link['majorid'], $link['major_type_code']);
+				$parent = $am->getAsset($link['majorid'], $link['major_type_code']);
 				if (is_null($parent)) continue;
 				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $new_type_code, $link['link_type'], $link['linkid'], $link['is_exclusive'])) !== TRUE) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -1733,11 +1801,12 @@ class Asset extends MySource_Object
 
 		// all is OK so override ourselves with the temporary
 		if ($all_ok) {
-			$this = $tmp;
+			throw new Exception('Re-assigning $this here won\'t work');
+			//$this = $tmp;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'AssetTypeUpdate', Array(
 															'old_type'	=> $old_type_code,
 															'new_type'	=> $new_type_code,
@@ -1930,7 +1999,7 @@ class Asset extends MySource_Object
 		// first up, clone the schemas
 		if (in_array('metadata_schemas', $components) || in_array('all', $components)) {
 			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->adminAccess('metadata')) {
-				$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				if ($mm->allowsMetadata($clone->id)) {
 					// apply the schemas from the cloner to the clonee
 					$schemas = $mm->getSchemas($this->id);
@@ -1953,7 +2022,7 @@ class Asset extends MySource_Object
 
 		// apply the actual metadata from the cloner to the clonee
 		if (in_array('metadata', $components) || in_array('all', $components)) {
-			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			if ($mm->allowsMetadata($clone->id)) {
 				if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->writeAccess('metadata')) {
 					$metadata = $mm->getMetadata($this->id);
@@ -1980,7 +2049,7 @@ class Asset extends MySource_Object
 
 		if (in_array('workflow', $components) || in_array('all', $components)) {
 			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->adminAccess('workflow')) {
-				$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+				$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 				$schemas = $wfm->getSchemas($this->id);
 				foreach ($schemas as $schemaid => $granted) {
 					if (!$wfm->setSchema($clone->id, $schemaid, $granted, $override)) {
@@ -2024,7 +2093,7 @@ class Asset extends MySource_Object
 
 		if (in_array('content_tags', $components) || in_array('all', $components)) {
 			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || ($clone->writeAccess('attributes') && $clone->writeAccess('links'))) {
-				$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
+				$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
 
 				// don't clone content tags if there's no tag manager yet
 				if (!is_null($tag_manager)) {
@@ -2091,7 +2160,7 @@ class Asset extends MySource_Object
 		// cloning. Instead, we will just link them up to the cloner's original link counter parts
 		$orig_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, '', TRUE, 'major', NULL, FALSE, NULL);
 		foreach ($orig_links as $orig_link) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($orig_link['minorid'], $orig_link['minor_type_code']);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($orig_link['minorid'], $orig_link['minor_type_code']);
 			$linkid = $clone->createLink($asset, $orig_link['link_type'], $orig_link['value'], $orig_link['sort_order'], $orig_link['is_dependant'], $orig_link['is_exclusive']);
 			if (!$linkid) return FALSE;
 
@@ -2118,7 +2187,7 @@ class Asset extends MySource_Object
 			$status_code = get_bit_names('SQ_STATUS_', $this->status);
 			$status_code = 'asset_status_'.strtolower($status_code);
 			require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
-			$this->_tmp['status_object'] =& new $status_code($this);
+			$this->_tmp['status_object'] = new $status_code($this);
 		}
 		return $this->_tmp['status_object'];
 
@@ -2134,7 +2203,7 @@ class Asset extends MySource_Object
 	*/
 	function getAvailableStatii()
 	{
-		$status =& $this->getStatus();
+		$status = $this->getStatus();
 		$statii = $status->getAvailableStatii();
 		ksort($statii, SORT_NUMERIC);
 		return array_reverse($statii, TRUE);
@@ -2150,7 +2219,7 @@ class Asset extends MySource_Object
 	*/
 	function getStatusDescription()
 	{
-		$status =& $this->getStatus();
+		$status = $this->getStatus();
 		return $status->getDescription();
 
 	}//end getStatusDescription()
@@ -2180,9 +2249,9 @@ class Asset extends MySource_Object
 			if ($this->status & ~(SQ_SC_STATUS_PENDING | SQ_SC_STATUS_ALL_APPROVED)) {
 				$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'minor', NULL, 1);
 				if (!empty($dependant_parents)) {
-					$am =& $GLOBALS['SQ_SYSTEM']->am;
+					$am = $GLOBALS['SQ_SYSTEM']->am;
 					foreach ($dependant_parents as $link) {
-						$asset =& $am->getAsset($link['majorid'], $link['major_type_code']);
+						$asset = $am->getAsset($link['majorid'], $link['major_type_code']);
 						if ($asset->status > $new_status) {
 							// we dont want to rollback, but we dont
 							// want to change our status for real
@@ -2193,7 +2262,7 @@ class Asset extends MySource_Object
 			}
 		}
 
-		$status =& $this->getStatus();
+		$status = $this->getStatus();
 		if (!$status->processStatusChange($new_status)) {
 			return FALSE;
 		}
@@ -2205,22 +2274,30 @@ class Asset extends MySource_Object
 		if ($new_status != $old_status) {
 			// the status has actually changed to a different one
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 
 			$sql = 'UPDATE
 						sq_ast
 					SET
-						status					= '.$db->quoteSmart($new_status).',
-						status_changed			= '.db_extras_todate($db, ts_iso8601(time())).',
-						status_changed_userid	= '.$db->quoteSmart($GLOBALS['SQ_SYSTEM']->user->id).'
+						status					= :status,
+						status_changed			= :date,
+						status_changed_userid	= :userid
 					WHERE
-						assetid = '.$db->quoteSmart($this->id);
+						assetid = :assetid';
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':status',  $new_status);
+				$query->bindValue(':date',    ts_iso8601(time()));
+				$query->bindValue(':userid',  $GLOBALS['SQ_SYSTEM']->currentUserId());
+				$query->bindValue(':assetid', $this->id);
+				DAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to update status of asset "'.$this->name.'" (#'.$this->id.'), due to database error: '.$e->getMessage());
+			}
 
 			// broadcast event notifying of status change
-			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$data = Array(
 						'old_status'	=> $old_status,
 						'new_status'	=> $new_status,
@@ -2229,7 +2306,7 @@ class Asset extends MySource_Object
 
 			// send message notifying of status change
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$msg_reps = Array(
 							'asset_name'	=> $this->name,
 							'old_status'	=> get_status_description($old_status),
@@ -2341,23 +2418,30 @@ class Asset extends MySource_Object
 		// begin a transaction
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$sql = 'UPDATE
 					sq_ast
 				SET
-					'.$date_type.'			= '.db_extras_todate($db, ts_iso8601($time)).','.
-					  $date_type.'_userid	= '.$db->quoteSmart($userid).'
+					'.$date_type.'			= :date,
+					'.$date_type.'_userid	= :userid
 				WHERE
-					assetid	= '.$db->quoteSmart($this->id);
+				assetid	= :assetid';
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':date',    ts_iso8601($time));
+			$query->bindValue(':userid',  $userid);
+			$query->bindValue(':assetid', $this->id);
+			DAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to update '.str_replace('_', ' ', $date_type).' date of asset "'.$this->name.'" (#'.$this->id.'), due to database error: '.$e->getMessage());
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$msg_reps = Array(
 						'date_type'		=> $date_type,
 						'asset_name'	=> $this->name,
@@ -2371,7 +2455,7 @@ class Asset extends MySource_Object
 		eval('$this->'.$date_type.' = $time;');
 		eval('$this->'.$date_type.'_userid = $userid;');
 
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'AssetUpdate', Array($date_type));
 
 
@@ -2439,7 +2523,7 @@ class Asset extends MySource_Object
 			if (empty($lock)) continue;
 			$user = NULL;
 			if ($lock['userid']) {
-				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 			}
 			// lets work out if the current user has a high
 			// enough level of access to forceably acquire the lock
@@ -2729,10 +2813,10 @@ class Asset extends MySource_Object
 		$save_vars = Array();
 		$attr_ids  = Array();
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		// open a queue for all messages we are going to be logging
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openLog();
 
 		$changed_array = Array();
@@ -2742,17 +2826,23 @@ class Asset extends MySource_Object
 
 			// if this is a unique attribute then let's make sure that this isn't already set
 			$owning_attributeid = 0;
-			$attribute =& $this->getAttribute($var_name);
+			$attribute = $this->getAttribute($var_name);
 			if ($attribute->uniq) {
 
 				$sql = 'SELECT oa.attrid
 						FROM sq_ast_attr a
 						  INNER JOIN sq_ast_attr oa ON (a.owning_type_code = oa.type_code AND a.name = oa.name)
-						WHERE a.name      = '.$db->quote($var_name).'
-						  AND a.type_code = '.$db->quote($this->type());
+						WHERE a.name      = :name
+							AND a.type_code = :type_code';
 
-				$owning_attributeid = $db->getOne($sql);
-				assert_valid_db_result($owning_attributeid);
+				try {
+					$query = $db->prepare($sql);
+					$query->bindValue(':name',      $var_name);
+					$query->bindValue(':type_code', $this->type());
+					$owning_attributeid = DAL::executePdoOne($query);
+				} catch (Exception $e) {
+					throw new Exception('Cannot check for attribute value "'.$name.'" of type code "'.$this->type().'" due to atabase error: '.$e->getMessage());
+				}
 
 			}// end if
 
@@ -2803,7 +2893,7 @@ class Asset extends MySource_Object
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		// find any previous entries
 		$atrr_id_cond = 'IN ('.implode(', ', $attr_ids).')';
@@ -2812,71 +2902,88 @@ class Asset extends MySource_Object
 					AND attrid '.$atrr_id_cond;
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-		$existing = $db->getCol($sql.$where);
+		try {
+			$query = $db->prepare($sql.$where);
+			$query->bindValue(':assetid', $this->id);
+			$existing = DAL::executePdoAssoc($query, 0);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get attributes for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+		}
 
-		assert_valid_db_result($existing);
 		$new = array_diff($attr_ids, $existing);
 
 
 		// update existing custom attribute values
 		if (!empty($existing)) {
 
-			$prepared = $db->prepare('UPDATE sq_ast_attr_val SET custom_val = ? WHERE attrid = ? AND assetid = '.$db->quote($this->id));
-			assert_valid_db_result($prepared);
-
-			$prepared_uniq = $db->prepare('UPDATE sq_ast_attr_uniq_val SET custom_val = ? WHERE owning_attrid = ? AND assetid = '.$db->quote($this->id));
-			assert_valid_db_result($prepared_uniq);
+			$prepared = $db->prepare('UPDATE sq_ast_attr_val SET custom_val = :custom_val WHERE attrid = :attrid AND assetid = :assetid');
+			$prepared_uniq = $db->prepare('UPDATE sq_ast_attr_uniq_val SET custom_val = :custom_val WHERE owning_attrid = :attrid AND assetid = :assetid');
 
 			foreach ($existing as $attr_id) {
 				$attr_id = (int) $attr_id;
 				$attr_value = $save_vars[$attr_id]['value'];
 
 				// if this is a unique attribute then let's make sure we register that in the unique value table
-				$attribute =& $this->getAttribute($save_vars[$attr_id]['name']);
+				$attribute = $this->getAttribute($save_vars[$attr_id]['name']);
 
 				if ($attribute->uniq) {
 					// update existing entry
-					$result = $db->execute($prepared_uniq, Array($attr_value, $save_vars[$attr_id]['owning_attrid']));
-					assert_valid_db_result($result);
+					try {
+						$prepared_uniq->bindValue(':custom_val', $attr_value);
+						$prepared_uniq->bindValue(':attrid',     $save_vars[$attr_id]['owning_attrid']);
+						$prepared_uniq->bindValue(':assetid',    $this->id);
+						DAL::execPdoQuery($prepared_uniq);
+					} catch (Exception $e) {
+						throw new Exception('Unable to update unique attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+					}
 				}
 
-				$result = $db->execute($prepared, Array($attr_value, $attr_id));
-				assert_valid_db_result($result);
+				try {
+					$prepared->bindValue(':custom_val', $attr_value);
+					$prepared->bindValue(':attrid',     $attr_id);
+					$prepared->bindValue(':assetid',    $this->id);
+					DAL::execPdoQuery($prepared);
+				} catch (Exception $e) {
+					throw new Exception('Unable to update attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+				}
 
 			}//end foreach
-
-			$db->freePrepared($prepared);
-			$db->freePrepared($prepared_uniq);
 
 		}//end updating existing custom attribute values
 
 		// insert new custom attribute values
 		if (!empty($new)) {
 
-			$prepared = $db->prepare('INSERT INTO sq_ast_attr_val (attrid, custom_val, assetid) VALUES (?, ?, '.$db->quote($this->id).')');
-			assert_valid_db_result($prepared);
-
-			$prepared_uniq = $db->prepare('INSERT INTO sq_ast_attr_uniq_val (owning_attrid, custom_val, assetid) VALUES (?, ?, '.$db->quote($this->id).')');
-			assert_valid_db_result($prepared_uniq);
+			$prepared = $db->prepare('INSERT INTO sq_ast_attr_val (attrid, custom_val, assetid) VALUES (:attrid, :custom_val, :assetid)');
+			$prepared_uniq = $db->prepare('INSERT INTO sq_ast_attr_uniq_val (owning_attrid, custom_val, assetid) VALUES (:attrid, :custom_val, :assetid)');
 
 			foreach ($new as $attr_id) {
 				$attr_id = (int) $attr_id;
 				$attr_value = $save_vars[$attr_id]['value'];
 
 				// if this is a unique attribute then let's make sure we register that in the unique value table
-				$attribute =& $this->getAttribute($save_vars[$attr_id]['name']);
+				$attribute = $this->getAttribute($save_vars[$attr_id]['name']);
 				if ($attribute->uniq) {
-					$result = $db->execute($prepared_uniq, Array($save_vars[$attr_id]['owning_attrid'], $attr_value));
-					assert_valid_db_result($result);
+					try {
+						$prepared_uniq->bindValue(':custom_val', $attr_value);
+						$prepared_uniq->bindValue(':attrid',     $save_vars[$attr_id]['owning_attrid']);
+						$prepared_uniq->bindValue(':assetid',    $this->id);
+						DAL::execPdoQuery($prepared_uniq);
+					} catch (Exception $e) {
+						throw new Exception('Unable to update unique attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+					}
 				}
 
-				$result = $db->execute($prepared, Array($attr_id, $attr_value));
-				assert_valid_db_result($result);
+				try {
+					$prepared->bindValue(':custom_val', $attr_value);
+					$prepared->bindValue(':attrid',     $attr_id);
+					$prepared->bindValue(':assetid',    $this->id);
+					DAL::execPdoQuery($prepared);
+				} catch (Exception $e) {
+					throw new Exception('Unable to update attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+				}
 
 			}//end foreach
-
-			$db->freePrepared($prepared);
-			$db->freePrepared($prepared_uniq);
 
 		}//end new custom attribute values
 
@@ -2908,7 +3015,7 @@ class Asset extends MySource_Object
 		unset($this->_tmp['vars_set']);
 
 		// notify anyone interested that attributes changed
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'attributeChange', $changed_array);
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_attributes_saved', $this);
 
@@ -2936,7 +3043,7 @@ class Asset extends MySource_Object
 			trigger_localised_error('SYS0093', E_USER_WARNING, $name, $this->type());
 			return FALSE;
 		}
-		$attribute =& $this->getAttribute($name);
+		$attribute = $this->getAttribute($name);
 		if (!$attribute->setValue($value)) {
 			trigger_localised_error('SYS0073', E_USER_WARNING, $value, $name);
 			$attribute->setValue($this->vars[$name]['value']);
@@ -2955,20 +3062,27 @@ class Asset extends MySource_Object
 
 		// if this is a uniq attribute then let's make sure that this isn't already set
 		if ($attribute->uniq) {
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 
 			$sql = 'SELECT COUNT(*)
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_uniq_val uv
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr oa ON uv.owning_attrid = oa.attrid
 						INNER JOIN sq_ast_attr a ON (oa.type_code = a.owning_type_code AND oa.name = a.name)
 					  ';
-			$where = ' uv.custom_val = '.$db->quote($value).'
-						AND a.name = '.$db->quote($name).'
-						AND a.type_code = '.$db->quote($this->type());
+			$where = ' uv.custom_val =    :custom_val
+						AND a.name =      :name
+						AND a.type_code = :type_code';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'uv');
 
-			$result = $db->getOne($sql.$where);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql.$where);
+				$query->bindValue(':custom_val', $value);
+				$query->bindValue(':name',       $name);
+				$query->bindValue(':type_code',  $this->type());
+				$result = DAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Cannot check for unique attribute value "'.$name.'" of type code "'.$this->type().'" due to atabase error: '.$e->getMessage());
+			}
 
 			if ((int) $result > 0) {
 				trigger_localised_error('SYS0251', E_USER_WARNING, $name, $value);
@@ -3063,7 +3177,7 @@ class Asset extends MySource_Object
 
 				require_once SQ_ATTRIBUTES_PATH.'/'.$this->vars[$name]['type'].'/'.$this->vars[$name]['type'].'.inc';
 				$attr_class = 'Asset_Attribute_'.$this->vars[$name]['type'];
-				$this->_tmp['attributes'][$name] =& new $attr_class($this->vars[$name]['attrid'], $this->vars[$name]['value']);
+				$this->_tmp['attributes'][$name] = new $attr_class($this->vars[$name]['attrid'], $this->vars[$name]['value']);
 
 			}//end if
 
@@ -3141,7 +3255,7 @@ class Asset extends MySource_Object
 								'asset_thumbnail_caption',
 							);
 
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$mm_keywords = $mm->generateKeywordReplacements($this, $default_keywords, FALSE);
 		foreach ($default_keywords as $keyword) {
 			$keywords[$keyword]['value'] = $mm_keywords[$keyword];
@@ -3152,7 +3266,7 @@ class Asset extends MySource_Object
 			$keywords['asset_attribute_'.$name]['value'] = $info['value'];
 
 			if ($descriptions) {
-				$attr =& $this->getAttribute($name);
+				$attr = $this->getAttribute($name);
 				$keywords['asset_attribute_'.$name]['description'] = $attr->description;
 			}
 		}
@@ -3293,7 +3407,7 @@ class Asset extends MySource_Object
 
 		// add attribute
 		foreach ($this->vars as $name => $info) {
-			$attr =& $this->getAttribute($name);
+			$attr = $this->getAttribute($name);
 			if (!$attr->is_admin) {
 				$keywords['asset_attribute_'.$name] = empty($attr->description) ? 'Asset Attribute: '.$name : $attr->description;
 			}
@@ -3371,7 +3485,7 @@ class Asset extends MySource_Object
 		} else if (0 === strpos($keyword, 'asset_attribute_')) {
 			$attr_name = substr($keyword, strlen('asset_attribute_'));
 			if (array_key_exists($attr_name, $this->vars)) {
-				$attr =& $this->getAttribute($attr_name);
+				$attr = $this->getAttribute($attr_name);
 				if (!is_null($attr) && !$attr->is_admin) {
 					$replacement = $attr->getKeywordValue();
 				}
@@ -3380,7 +3494,7 @@ class Asset extends MySource_Object
 				if (!empty($matches[1])) {
 					$attr_name = substr($attr_name, 0, (strlen($attr_name) - strlen($matches[1])));
 					$format = $matches[2];
-					$attr =& $this->getAttribute($attr_name);
+					$attr = $this->getAttribute($attr_name);
 					if (!is_null($attr)) {
 						$replacement = $attr->getKeywordValue($format);
 					}
@@ -3388,6 +3502,7 @@ class Asset extends MySource_Object
 			}
 		} else if (substr($keyword, 0, 15) == 'asset_metadata_') {
 			$metadata_keyword = substr($keyword, 15);
+
 			$spaced_metadata_keyword = str_replace('_', ' ', $metadata_keyword);
 			if (!isset($this->_tmp['mm_replacements'])) {
 				// generate all metadata keywords in one go
@@ -3400,7 +3515,7 @@ class Asset extends MySource_Object
 				$replacement = $this->_tmp['mm_replacements'][$spaced_metadata_keyword];
 			}
 		} else {
-			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$mm_keyword = $mm->generateKeywordReplacements($this, Array($keyword), FALSE);
 			if (isset($mm_keyword[$keyword])) {
 				$replacement = $mm_keyword[$keyword];
@@ -3489,7 +3604,7 @@ class Asset extends MySource_Object
 	*/
 	function getEffectiveLastUpdatedTime($assetids)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$assetids[] = $this->id; // add self
 
@@ -3517,7 +3632,7 @@ class Asset extends MySource_Object
 		$sql = 'SELECT MAX(updated)
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast
 				WHERE '.$where;
-		$most_recent =& $db->getOne($sql);
+		$most_recent = $db->getOne($sql);
 		assert_valid_db_result($most_recent);
 
 		return (!is_null($most_recent)) ? strtotime($most_recent) : 0;
@@ -3546,7 +3661,7 @@ class Asset extends MySource_Object
 
 		// if the asset is in the middle of workflow and the current user
 		// can approve the asset, we really need to give them read access to it
-		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$publishers = $wfm->whoCanPublish($this->id);
 		if (!empty($publishers) && in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) {
 			return TRUE;
@@ -3699,7 +3814,7 @@ class Asset extends MySource_Object
 			}
 		}
 
-		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$schemas = $wfm->getSchemas($this->id, TRUE);
 
 		if (empty($schemas)) return TRUE;
@@ -3839,7 +3954,7 @@ class Asset extends MySource_Object
 			}
 
 			// get the current user and groups we are not restricted from
-			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 			$assetids = $user->getUserGroups();
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 
@@ -3851,7 +3966,7 @@ class Asset extends MySource_Object
 			// except by those users who can currently approve the asset
 			if ($this->status & SQ_SC_STATUS_PENDING) {
 				if ($perm == SQ_PERMISSION_WRITE) {
-					$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+					$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 					$publishers = $wfm->whoCanPublish($this->id);
 					if (in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) {
 						return TRUE;
@@ -3960,10 +4075,10 @@ class Asset extends MySource_Object
 		$original_asset = NULL;
 		if ($asset->id != $GLOBALS['SQ_SYSTEM']->frontend_asset->id) {
 			$original_asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
-			$GLOBALS['SQ_SYSTEM']->frontend_asset =& $asset;
+			$GLOBALS['SQ_SYSTEM']->frontend_asset = $asset;
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$url = strip_url(current_url(FALSE, TRUE));
 
 		// No design has been passed in, so we need to find one
@@ -3992,7 +4107,7 @@ class Asset extends MySource_Object
 		if (!is_null($design) || $result) {
 			if (is_null($design)) {
 				// we have found the design to use
-				$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
+				$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
 			}
 			$design->paint($asset);
 		} else {
@@ -4001,7 +4116,7 @@ class Asset extends MySource_Object
 		}
 
 		if (!is_null($original_asset)) {
-			$GLOBALS['SQ_SYSTEM']->frontend_asset =& $original_asset;
+			$GLOBALS['SQ_SYSTEM']->frontend_asset = $original_asset;
 		}
 
 	}//end printFrontendAsset()
@@ -4017,7 +4132,7 @@ class Asset extends MySource_Object
 	{
 		if (!isset($this->_tmp['valid_protocols'])) {
 			$protocol = current_protocol();
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 			$sql = 'SELECT http, https
 					FROM sq_ast_lookup
 					WHERE assetid = '.$db->quoteSmart($this->id).'
@@ -4142,15 +4257,15 @@ class Asset extends MySource_Object
 			// into thinking we are printing the frontend of that asset
 			$switched_frontend = FALSE;
 			if ($GLOBALS['SQ_SYSTEM']->frontend_asset->id !== $this->id) {
-				$current_frontend_asset =& $GLOBALS['SQ_SYSTEM']->frontend_asset;
-				$GLOBALS['SQ_SYSTEM']->frontend_asset =& $this;
+				$current_frontend_asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
+				$GLOBALS['SQ_SYSTEM']->frontend_asset = $this;
 				$switched_frontend = TRUE;
 			}
-			$layout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($layout_id);
+			$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layout_id);
 			$layout->paint($this);
 
 			if ($switched_frontend) {
-				$GLOBALS['SQ_SYSTEM']->frontend_asset =& $current_frontend_asset;
+				$GLOBALS['SQ_SYSTEM']->frontend_asset = $current_frontend_asset;
 			}
 		} else {
 			// we can't find a layout, oh well let's just print out our body
@@ -4172,7 +4287,7 @@ class Asset extends MySource_Object
 	*/
 	function initLimbo()
 	{
-		$o =& $GLOBALS['SQ_SYSTEM']->backend->out;
+		$o = $GLOBALS['SQ_SYSTEM']->backend->out;
 		$o->addHiddenField('asset_action', 'limbo');
 		$o->openRaw();
 		$this->paintBackend($o);
@@ -4194,7 +4309,7 @@ class Asset extends MySource_Object
 	*/
 	function printLimbo()
 	{
-		$o =& $GLOBALS['SQ_SYSTEM']->backend->out;
+		$o = $GLOBALS['SQ_SYSTEM']->backend->out;
 		if (is_null($o)) {
 			trigger_localised_error('SYS0245', E_USER_ERROR, current_url());
 			return;
@@ -4216,7 +4331,7 @@ class Asset extends MySource_Object
 	{
 		$o->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
 		if ($this->charset) $o->setCharset($this->charset);
-		$ei =& $this->getEI();
+		$ei = $this->getEI();
 		$ei->paint($this, $o, empty($this->id));
 
 	}//end paintBackend()
@@ -4247,7 +4362,7 @@ class Asset extends MySource_Object
 	*/
 	function processBackend(&$o, &$link)
 	{
-		$ei =& $this->getEI();
+		$ei = $this->getEI();
 
 		switch ($_POST['asset_action']) {
 			case 'create' :
@@ -4276,7 +4391,7 @@ class Asset extends MySource_Object
 	{
 		if (empty($this->_tmp['ei']) || get_class($this->_tmp['ei']) != 'asset_edit_interface') {
 			require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
-			$this->_tmp['ei'] =& new Asset_Edit_Interface($this->type());
+			$this->_tmp['ei'] = new Asset_Edit_Interface($this->type());
 		}
 		return $this->_tmp['ei'];
 
@@ -4294,7 +4409,7 @@ class Asset extends MySource_Object
 		if (!isset($this->_tmp['edit_fns'])) {
 			$class_name = $this->type().'_edit_fns';
 			require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'dir').'/'.$class_name.'.inc';
-			$this->_tmp['edit_fns'] =& new $class_name();
+			$this->_tmp['edit_fns'] = new $class_name();
 		}
 
 		return $this->_tmp['edit_fns'];
@@ -4393,15 +4508,21 @@ class Asset extends MySource_Object
 	function getWebPaths()
 	{
 		if (!isset($this->_tmp['paths'])) {
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
-			$where = 'assetid = '.$db->quote($this->id);
+			$db = DAL::getDb();
+			$where = 'assetid = :assetid';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql = 'SELECT path
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_path '.$where.'
 					ORDER BY sort_order';
 
-			$result = $db->getCol($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':assetid', $this->id);
+				$result = DAL::executePdoAssoc($query, 0);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get web paths for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+			}
+
 			$this->_tmp['paths'] = $result;
 
 		}// end if
@@ -4454,7 +4575,7 @@ class Asset extends MySource_Object
 			// any nav kids that are also using this path name
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', NULL, 'minor');
 			for ($i = 0; $i < count($parents); $i++) {
-				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
+				$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 				if (is_null($parent)) continue;
 				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, $inserts, $this->id);
 				if (!empty($bad_paths)) {
@@ -4467,18 +4588,22 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$sql = 'DELETE FROM
 					sq_ast_path
 				WHERE
-					assetid	= '.$db->quoteSmart($this->id);
+					assetid	= :assetid';
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':assetid', $this->id);
+			DAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete web paths for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+		}
 
 		foreach ($save_paths as $sort_order => $path) {
-
 			$sql = 'INSERT INTO
 						sq_ast_path
 					(
@@ -4488,13 +4613,20 @@ class Asset extends MySource_Object
 					)
 					VALUES
 					(
-						'.$db->quoteSmart($path).',
-						'.$db->quoteSmart($this->id).',
-						'.$db->quoteSmart($sort_order).'
+						:path,
+						:assetid,
+						:sort_order
 					)';
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':path',       $path);
+				$query->bindValue(':assetid',    $this->id);
+				$query->bindValue(':sort_order', $sort_order);
+				DAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to insert web paths for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+			}
 		}
 
 		unset($this->_tmp['paths']);
@@ -4528,15 +4660,21 @@ class Asset extends MySource_Object
 	function getLookups($field='')
 	{
 		if (!isset($this->_tmp['lookups'])) {
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 
 			$sql = 'SELECT url, http, https, root_urlid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup ';
-			$where = 'assetid = '.$db->quote($this->id);
+			$where = 'assetid = :assetid';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			$result = $db->getAll($sql.$where);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql.$where);
+				$query->bindValue(':assetid', $this->id);
+				$result = DAL::executePdoAll($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get lookups for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+			}
+
 			$this->_tmp['lookups'] = $result;
 
 		}//end if
@@ -4565,7 +4703,7 @@ class Asset extends MySource_Object
 		if (!isset($this->_tmp['design_lookups'])) {
 			$this->_tmp['design_lookups'] = Array();
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 
 			// Sort ascending so the override designs overwrite the array index for the normal design in the while loop below
 			$sql = 'SELECT l.url, lv.name, lv.value as designid
@@ -4627,7 +4765,7 @@ class Asset extends MySource_Object
 	*/
 	function getLookupValues($inherited=NULL, $prefix='', $like_search=TRUE, $ignore_override_designs=FALSE)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		// Return all values in sq_lookup_value, i.e. the parents
 		// Called by updateLookups()
@@ -4639,7 +4777,7 @@ class Asset extends MySource_Object
 
 		$include_override = ' OR (l.url || \'/\' = lv.url)';
 
-		$where = 'l.assetid = '.$db->quote($this->id);
+		$where = 'l.assetid = \''.$this->id.'\'';
 
 		// Return all rows which are children, i.e. they inherit
 		// Called by lookupValues.inc to draw the lookup settings screen
@@ -4649,7 +4787,7 @@ class Asset extends MySource_Object
 				';
 
 		if ($prefix != '') {
-			$where .= ' AND lv.name '.((!$like_search) ? 'NOT' : '').' LIKE '.$db->quote('design::%');
+			$where .= ' AND lv.name '.((!$like_search) ? 'NOT' : '').' LIKE \'design::%\'';
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -4658,22 +4796,22 @@ class Asset extends MySource_Object
 		$sql_order_by = ' ORDER BY depth ASC ';
 
 		if (!is_null($inherited) && $inherited) {
-			$result = $db->query($sql_inherited.$include_override.$where.' UNION '.$sql_default.$where.$sql_order_by);
-		} else if ($ignore_override_designs) {
-			$result = $db->query($sql_default.$where);
-		} else {
-			$result = $db->query($sql_default.$include_override.$where);
+			$result = DAL::executeSqlAll($sql_inherited.$include_override.$where.' UNION '.$sql_default.$where);
 		}
-		assert_valid_db_result($result);
+		elseif ($ignore_override_designs) {
+			$result = DAL::executeSqlAll($sql_default.$where);
+		}
+		else {
+			$result = DAL::executeSqlAll($sql_default.$include_override.$where);
+		}
 
 		$ret_val = Array();
-		while (NULL !== ($row = $result->fetchRow())) {
+		foreach ($result as $row) {
 			if (!isset($ret_val[$row['url']])) {
 				$ret_val[$row['url']] = Array();
 			}
 			$ret_val[$row['url']][$row['name']] = Array('value' => $row['value'], 'inhd' => $row['inhd']);
 		}
-		$result->free();
 
 		return $ret_val;
 
@@ -4698,7 +4836,7 @@ class Asset extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		// Remove all the old URLs
 		// include sort order so that we can figure out which one is which
@@ -4706,11 +4844,16 @@ class Asset extends MySource_Object
 				FROM sq_ast_lookup l
 					LEFT OUTER JOIN sq_ast_url u ON l.root_urlid = u.urlid
 					LEFT OUTER JOIN sq_ast_path p ON l.assetid = p.assetid
-				WHERE l.assetid = '.$db->quote($this->id).'
+				WHERE l.assetid = :assetid
 				ORDER BY p.sort_order DESC';
 
-		$old_urls = $db->getAll($sql);
-		assert_valid_db_result($old_urls);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':assetid', $this->id);
+			$old_urls = DAL::executePdoAll($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get old lookups for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+		}
 
 		// prepare trigger event data
 		$this->_tmp['old_urls'] = $old_urls;
@@ -4835,7 +4978,7 @@ class Asset extends MySource_Object
 				if (in_array($parents[$i]['majorid'], $done_parents)) {
 					continue;
 				}
-				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
+				$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 				if (is_null($parent) || !is_object($parent)) {
 					continue;
 				}
@@ -4868,16 +5011,27 @@ class Asset extends MySource_Object
 									)
 									VALUES
 									(
-										'.$db->quoteSmart($new_url).',
-										'.$db->quoteSmart($this->id).',
-										'.$db->quoteSmart($http).',
-										'.$db->quoteSmart($https).',
-										'.$db->quoteSmart($parent_urls[$j]['root_urlid']).'
+										:url,
+										:assetid,
+										:http,
+										:https,
+										:urlid
 									)';
 
+						try {
+							$query = $db->prepare($sql);
+							$query->bindValue(':url',     $new_url);
+							$query->bindValue(':http',    $http);
+							$query->bindValue(':https',   $https);
+							$query->bindValue(':urlid',   $parent_urls[$j]['root_urlid']);
+							$query->bindValue(':assetid', $this->id);
+							DAL::execPdoQuery($query);
+							echo 'Adding lookup '.$new_url.' for asset "'.$this->name.'" (#'.$this->id.')'."\n";
+						} catch (Exception $e) {
+							throw new Exception('Unable to insert lookups for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+						}
+
 						$done_urls[] = $new_url;
-						$result = $db->query($sql);
-						assert_valid_db_result($result);
 
 						// get the asset lineage and use that as the index
 						$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $parent_urls[$j]['url']);
@@ -5038,7 +5192,7 @@ class Asset extends MySource_Object
 			}//end for parents
 
 			if (!empty($old_urls)) {
-				$rm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+				$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 				// get the first new URL
 				reset($done_urls);
 				$new_url = current($done_urls);
@@ -5102,7 +5256,7 @@ class Asset extends MySource_Object
 			return FALSE;
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
