@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.32 2007/08/09 05:46:02 rong Exp $
+* $Id: file_versioning.inc,v 1.33 2007/10/29 05:55:33 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -144,15 +144,27 @@ class File_Versioning
 	*/
 	function _getFileInfoAtVersion($fileid, $version=null)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$sql = 'SELECT f.fileid, f.path, f.filename,
 						h.version, h.from_date, h.to_date, h.file_size, h.md5, h.sha1, h.removal, h.extra_info
 				FROM sq_file_vers_file f INNER JOIN sq_file_vers_history h ON f.fileid = h.fileid
-				WHERE f.fileid = '.$db->quote($fileid).'
-				  AND '.((is_null($version)) ? 'to_date IS NULL' : 'version = '.$db->quote($version));
-		$result = $db->getRow($sql);
-		assert_valid_db_result($result);
+				WHERE f.fileid = :fileid
+					AND '.((is_null($version)) ? 'to_date IS NULL' : 'version = :version');
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':fileid', $fileid);
+			if (!is_null($version)) {
+				$query->bindValue(':version', $version);
+			}
+			$result = DAL::executePdoAll($query);
+			if (!empty($result)) {
+				$result = $result[0];
+			}
+		} catch (Exception $e) {
+			throw new Exception('Unable to get versioning information for file ID '.$fileid.' at version '.(is_null($version) ? '(current)' : $version).' due to database error: '.$e->getMessage());
+		}
 
 		if (!empty($result)) {
 			$result['fileid']    = (int) $result['fileid'];
@@ -234,13 +246,20 @@ class File_Versioning
 	*/
 	function _getFileInfoFromPath($file_path, $version=null)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$sql = 'SELECT fileid
 				FROM sq_file_vers_file
-				WHERE path = '.$db->quote(dirname($file_path)).'
-				  AND filename = '.$db->quote(basename($file_path));
-		$fileid = $db->getOne($sql);
-		assert_valid_db_result($fileid);
+				WHERE path = :path
+					AND filename = :filename';
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':path',     dirname($file_path));
+			$query->bindValue(':filename', basename($file_path));
+			$fileid = DAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get file versioning information for file "'.hide_system_root($file_path).'" due to database error: '.$e->getMessage());
+		}
 
 		if (empty($fileid)) return Array();
 		return $this->_getFileInfoAtVersion($fileid);
@@ -260,28 +279,44 @@ class File_Versioning
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$select = 'SELECT COUNT(*)
 					FROM sq_file_vers_lock
-					WHERE fileid = '.$db->quote($fileid);
-		$insert = 'INSERT INTO sq_file_vers_lock (fileid) VALUES ('.$db->quote($fileid).')';
+					WHERE fileid = :fileid';
+		$insert = 'INSERT INTO sq_file_vers_lock (fileid) VALUES (:fileid)';
+
+		try {
+			$select_query = $db->prepare($select);
+			$select_query->bindValue(':fileid', $fileid);
+			$insert_query = $db->prepare($insert);
+			$insert_query->bindValue(':fileid', $fileid);
+		} catch (Exception $e) {
+			throw new Exception('Unable to prepare file versioning locking queries for file ID "'.$fileid.'" due to database error: '.$e->getMessage());
+		}
+
 		// we will attempt a maxmimum of 4 times
 
 		for ($i = 0; $i < $this->num_lock_attempts; $i++) {
 
-			$result = $db->getOne($select);
-			assert_valid_db_result($result);
+			try {
+				$result = DAL::executePdoOne($select_query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to select file versioning locking information for file ID "'.$fileid.'" due to database error: '.$e->getMessage());
+			}
 
 			if (empty($result)) {
 
-				$result = $db->query($insert);
-				// insert didn't fail ? means no duplicate key
-				if (!DB::isError($result)) {
+				try {
+					DAL::execPdoQuery($insert_query);
+					// If it makes it this far, then the INSERT worked (ie.
+					// no duplicate key)
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					// All went well ? return true
 					return true;
+				} catch (Exception $e) {
+					// There was a problem - but don't throw an error, instead
+					// re-iterate ourselves
 				}
 			}
 
@@ -310,12 +345,17 @@ class File_Versioning
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$sql = 'DELETE FROM sq_file_vers_lock
-				WHERE fileid = '.$db->quote($fileid);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		WHERE fileid = :fileid';
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':fileid', $fileid);
+			DAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to unlock file ID "'.$fileid.'" due to database error: '.$e->getMessage());
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -337,7 +377,7 @@ class File_Versioning
 	*/
 	function add($rep_path, $real_file, $extra_info='')
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		// make sure we can get to the file
 		if (!is_file($real_file) || !is_readable($real_file)) {
@@ -387,14 +427,22 @@ class File_Versioning
 			// any parts of this new path as either a directory or file
 
 			// so much for SQL standards...
-			$concat_1 = '(path || '.$db->quote('/').' || filename)';
-			$concat_2 = '(path || '.$db->quote('/').' || filename || '.$db->quote('%').')';
+			$concat_1 = '(path || \'/\' || filename)';
+			$concat_2 = '(path || \'/\' || filename || \'%\')';
 			$sql = 'SELECT COUNT(*)
 					FROM sq_file_vers_file
-					WHERE '.$concat_1.' LIKE '.$db->quote($rep_path.'/'.basename($real_file).'%').'
-					   OR '.$db->quote($rep_path.'/'.basename($real_file)).' LIKE '.$concat_2;
-			$result = $db->getOne($sql);
-			assert_valid_db_result($result);
+					WHERE '.$concat_1.' LIKE :path_wildcard
+					OR :path LIKE '.$concat_2;
+
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':path_wildcard', $rep_path.'/'.basename($real_file).'%');
+				$query->bindValue(':path',          $rep_path.'/'.basename($real_file));
+				$fileid = DAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get file versioning information for file "'.hide_system_root($file_path).'" due to database error: '.$e->getMessage());
+			}
+
 			if (!empty($result)) {
 				trigger_localised_error('FVER0014', E_USER_NOTICE, $real_file, $rep_path);
 				return false;
@@ -404,20 +452,26 @@ class File_Versioning
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		// if there is no current file we need to insert the new DB record
 		if (empty($current_info)) {
-			$fileid = $db->nextId('sq_file_vers_file');
-			assert_valid_db_result($fileid);
-
+			// TODO: needs to be changed to seqNextVal() in queries.xml
+			$fileid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_file_vers_file_seq\')');
 			$fileid = (int) $fileid;
 
 			$sql = 'INSERT INTO sq_file_vers_file (fileid, path, filename)
-					VALUES ('.$db->quoteSmart($fileid).',
-					'.$db->quote($rep_path).', '.$db->quote($filename).')';
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+					VALUES (:fileid, :path, :filename)';
+
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':fileid',   $fileid);
+				$query->bindValue(':path',     $rep_path);
+				$query->bindValue(':filename', $filename);
+				DAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to insert new file versioning information for file "'.$filename.'" due to database error: '.$e->getMessage());
+			}
 
 		// otherwise use the old file's id
 		} else {
@@ -468,26 +522,41 @@ class File_Versioning
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$sql = 'SELECT COALESCE(MAX(version), 0) + 1
 				FROM sq_file_vers_history
 				WHERE fileid = '.$db->quote($fileid);
-		$version = $db->getOne($sql);
-		assert_valid_db_result($version);
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':fileid', $fileid);
+			$version = DAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get version information for file ID '.$fileid.' due to database error: '.$e->getMessage());
+		}
 
 		$now = time();
-		$date = $db->quote(ts_iso8601($now));
-		if ($db->phptype == 'oci8') {
+		$date = ts_iso8601($now);
+		if (DAL::getDbType() == 'oci') {
+			// TODO:
 			$date = 'TO_DATE('.$date.', '.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
 		}
 
 		$sql = 'UPDATE sq_file_vers_history
-				SET to_date = '.$date.'
-				WHERE fileid = '.$db->quote($fileid).'
+				SET to_date = :date
+				WHERE fileid = :fileid
 				  AND to_date IS NULL';
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':fileid', $fileid);
+			$query->bindValue(':date',   $date);
+			DAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to update version history for file ID '.$fileid.' due to database error: '.$e->getMessage());
+		}
 
 		$version   = (int) $version;
 		if (file_exists($real_file)) {
@@ -505,13 +574,23 @@ class File_Versioning
 		$sql = 'INSERT INTO sq_file_vers_history
 				(fileid, version, from_date, to_date, file_size, md5, sha1, removal, extra_info)
 				VALUES
-				('.$db->quote($fileid).', '.$db->quote($version).',
-				'.$date.', NULL,
-				'.$db->quote($file_size).', '.$db->quote($md5).',
-				'.$db->quote($sha1).', '.$db->quote($removal).',
-				'.$db->quote($extra_info).')';
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+				(:fileid, :version, :from_date, :to_date, :file_size, :md5, :sha1, :removal, :extra_info)';
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':fileid',     $fileid);
+			$query->bindValue(':version',    $version);
+			$query->bindValue(':from_date',  $date);
+			$query->bindValue(':to_date',    NULL);
+			$query->bindValue(':file_size',  $file_size);
+			$query->bindValue(':md5',        $md5);
+			$query->bindValue(':sha1',       $sha1);
+			$query->bindValue(':removal',    $removal);
+			$query->bindValue(':extra_info', $extra_info);
+			DAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to insert version history for file ID '.$fileid.' due to database error: '.$e->getMessage());
+		}
 
 		// if we aren't removing, copy the file into the repository
 		if (file_exists($real_file)) {
@@ -599,7 +678,7 @@ class File_Versioning
 	*/
 	function _checkOutCheck($rep_file, $version=null, $date=null)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$info = $this->_getFileInfoFromPath($rep_file);
 		if (empty($info)) {
@@ -634,14 +713,28 @@ class File_Versioning
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 				$sql = 'SELECT version, removal
 						FROM sq_file_vers_history
-						WHERE fileid = '.$db->quote($info['fileid']).'
-						  AND from_date <= '.$date.'
-						  AND (to_date IS NULL OR to_date > '.$date.')
+						WHERE fileid = :fileid
+						  AND from_date <= :date
+						  AND (to_date IS NULL OR to_date > :date_1)
 						ORDER BY version DESC';
 			}//end if
 
-			$ver_info = $db->getRow($sql);
-			assert_valid_db_result($ver_info);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':fileid', $info['fileid']);
+				$query->bindValue(':date',   $date);
+				$query->bindValue(':date_1', $date);
+
+				$result = DAL::executePdoAll($query);
+				if (!empty($result)) {
+					$ver_info = $result[0];
+				} else {
+					$ver_info = Array();
+				}
+				unset($result);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get versioning information for file ID '.$fileid.' at version '.(is_null($version) ? '(current)' : $version).' due to database error: '.$e->getMessage());
+			}
 
 			if (empty($ver_info)) {
 				trigger_localised_error('FVER0006', E_USER_NOTICE, $rep_file, $nice_date);
@@ -656,8 +749,21 @@ class File_Versioning
 					WHERE fileid = '.$db->quote($info['fileid']).'
 					  AND version = '.$db->quote($version);
 
-			$ver_info = $db->getRow($sql);
-			assert_valid_db_result($ver_info);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':fileid', $info['fileid']);
+				$query->bindValue(':version', $version);
+
+				$result = DAL::executePdoAll($query);
+				if (!empty($result)) {
+					$ver_info = $result[0];
+				} else {
+					$ver_info = Array();
+				}
+				unset($result);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get versioning information for file ID '.$fileid.' at version '.(is_null($version) ? '(current)' : $version).' due to database error: '.$e->getMessage());
+			}
 
 			if (empty($ver_info)) {
 				trigger_localised_error('FVER0005', E_USER_NOTICE, $rep_file);
