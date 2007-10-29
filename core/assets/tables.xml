@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.49 2007/09/12 04:38:11 hnguyen Exp $
+* $Id: tables.xml,v 1.50 2007/10/29 22:30:06 lwright Exp $
 *
 */
 -->
@@ -110,7 +110,7 @@
 				<column name="created" allow_null="0">
 					<type>TIMESTAMP</type>
 					<type_variations>
-						<oci8>DATE</oci8>
+						<oci>DATE</oci>
 					</type_variations>
 					<default />
 					<description />
@@ -124,7 +124,7 @@
 				<column name="updated" allow_null="0">
 					<type>TIMESTAMP</type>
 					<type_variations>
-						<oci8>DATE</oci8>
+						<oci>DATE</oci>
 					</type_variations>
 					<default />
 					<description />
@@ -138,7 +138,7 @@
 				<column name="published" allow_null="1">
 					<type>TIMESTAMP</type>
 					<type_variations>
-						<oci8>DATE</oci8>
+						<oci>DATE</oci>
 					</type_variations>
 					<default />
 					<description />
@@ -152,7 +152,7 @@
 				<column name="status_changed" allow_null="1">
 					<type>TIMESTAMP</type>
 					<type_variations>
-						<oci8>DATE</oci8>
+						<oci>DATE</oci>
 					</type_variations>
 					<default />
 					<description />
@@ -240,7 +240,7 @@
 				<column name="updated" allow_null="0">
 					<type>TIMESTAMP</type>
 					<type_variations>
-						<oci8>DATE</oci8>
+						<oci>DATE</oci>
 					</type_variations>
 					<default />
 					<description />
@@ -313,7 +313,7 @@
 				<column name="updated" allow_null="0">
 					<type>TIMESTAMP</type>
 					<type_variations>
-						<oci8>DATE</oci8>
+						<oci>DATE</oci>
 					</type_variations>
 					<default />
 					<description />
@@ -501,7 +501,7 @@
 				<column name="parameters_val" allow_null="1">
 					<type>TEXT</type>
 					<type_variations>
-						<oci8>CLOB</oci8>
+						<oci>CLOB</oci>
 					</type_variations>
 					<default />
 					<description />
@@ -515,7 +515,7 @@
 				<column name="default_val" allow_null="1">
 					<type>TEXT</type>
 					<type_variations>
-						<oci8>CLOB</oci8>
+						<oci>CLOB</oci>
 					</type_variations>
 					<default>''</default>
 					<description />
@@ -568,7 +568,7 @@
 				<column name="custom_val" allow_null="1">
 					<type>TEXT</type>
 					<type_variations>
-						<oci8>CLOB</oci8>
+						<oci>CLOB</oci>
 					</type_variations>
 					<default />
 					<description />
@@ -856,7 +856,7 @@
 				<column name="expires" allow_null="1">
 					<type>TIMESTAMP</type>
 					<type_variations>
-						<oci8>DATE</oci8>
+						<oci>DATE</oci>
 					</type_variations>
 					<default />
 					<description>The time when this remap expires. Should be cleaned up after this time.</description>
@@ -995,7 +995,7 @@
 				<column name="value" allow_null="1">
 					<type>TEXT</type>
 					<type_variations>
-						<oci8>CLOB</oci8>
+						<oci>CLOB</oci>
 					</type_variations>
 					<default>''</default>
 					<description />
@@ -1020,7 +1020,7 @@
 				<column name="default_val" allow_null="1">
 					<type>TEXT</type>
 					<type_variations>
-						<oci8>CLOB</oci8>
+						<oci>CLOB</oci>
 					</type_variations>
 					<default>''</default>
 					<description />
@@ -1050,7 +1050,7 @@
 				<column name="wflow" allow_null="1">
 					<type>TEXT</type>
 					<type_variations>
-						<oci8>CLOB</oci8>
+						<oci>CLOB</oci>
 					</type_variations>
 					<default>NULL</default>
 					<description />
@@ -1099,7 +1099,7 @@
 				<column name="body" allow_null="0">
 					<type>TEXT</type>
 					<type_variations>
-						<oci8>CLOB</oci8>
+						<oci>CLOB</oci>
 					</type_variations>
 					<default>''</default>
 					<description />
@@ -1113,7 +1113,7 @@
 				<column name="sent" allow_null="0">
 					<type>TIMESTAMP</type>
 					<type_variations>
-						<oci8>DATE</oci8>
+						<oci>DATE</oci>
 					</type_variations>
 					<default />
 					<description />
@@ -1133,7 +1133,7 @@
 				<column name="parameters" allow_null="1">
 					<type>TEXT</type>
 					<type_variations>
-						<oci8>CLOB</oci8>
+						<oci>CLOB</oci>
 					</type_variations>
 					<default>''</default>
 					<description>Any params needed for search or jut making sense of the message in the form "key:value;key:value" eg. assetid:4;attributeid:12</description>
@@ -1192,7 +1192,7 @@
 				<column name="hipo_vars" allow_null="0">
 					<type>TEXT</type>
 					<type_variations>
-						<oci8>CLOB</oci8>
+						<oci>CLOB</oci>
 					</type_variations>
 					<default>''</default>
 					<description />
@@ -1200,7 +1200,7 @@
 				<column name="options" allow_null="0">
 					<type>TEXT</type>
 					<type_variations>
-						<oci8>CLOB</oci8>
+						<oci>CLOB</oci>
 					</type_variations>
 					<default>''</default>
 					<description />
@@ -1208,7 +1208,7 @@
 				<column name="steps" allow_null="0">
 					<type>TEXT</type>
 					<type_variations>
-						<oci8>CLOB</oci8>
+						<oci>CLOB</oci>
 					</type_variations>
 					<default>''</default>
 					<description />
@@ -1216,7 +1216,7 @@
 				<column name="running_vars" allow_null="0">
 					<type>TEXT</type>
 					<type_variations>
-						<oci8>CLOB</oci8>
+						<oci>CLOB</oci>
 					</type_variations>
 					<default>''</default>
 					<description />
@@ -1224,7 +1224,7 @@
 				<column name="last_updated" allow_null="0">
 					<type>TIMESTAMP</type>
 					<type_variations>
-						<oci8>DATE</oci8>
+						<oci>DATE</oci>
 					</type_variations>
 					<default />
 					<description />
@@ -1260,7 +1260,7 @@
 				<column name="expires" allow_null="1">
 					<type>TIMESTAMP</type>
 					<type_variations>
-						<oci8>DATE</oci8>
+						<oci>DATE</oci>
 					</type_variations>
 					<default />
 					<description>NULL indicates no expiry time</description>
@@ -1288,7 +1288,7 @@
 				<column name="installed" allow_null="0">
 					<type>TIMESTAMP</type>
 					<type_variations>
-						<oci8>DATE</oci8>
+						<oci>DATE</oci>
 					</type_variations>
 					<default />
 					<description />
@@ -1317,7 +1317,7 @@
 				<column name="data" allow_null="1">
 					<type>TEXT</type>
 					<type_variations>
-						<oci8>CLOB</oci8>
+						<oci>CLOB</oci>
 					</type_variations>
 					<default />
 					<description>Serialized trigger data</description>
@@ -1505,7 +1505,7 @@
 				<column name="from_date" allow_null="0">
 					<type>TIMESTAMP</type>
 					<type_variations>
-						<oci8>DATE</oci8>
+						<oci>DATE</oci>
 					</type_variations>
 					<default />
 					<description />
@@ -1513,7 +1513,7 @@
 				<column name="to_date" allow_null="1">
 					<type>TIMESTAMP</type>
 					<type_variations>
-						<oci8>DATE</oci8>
+						<oci>DATE</oci>
 					</type_variations>
 					<default>NULL</default>
 					<description />
@@ -1545,7 +1545,7 @@
 				<column name="extra_info" allow_null="1">
 					<type>TEXT</type>
 					<type_variations>
-						<oci8>CLOB</oci8>
+						<oci>CLOB</oci>
 					</type_variations>
 					<default>''</default>
 					<description />
@@ -1635,7 +1635,7 @@
 				<column name="value" allow_null="0">
 					<type>TEXT</type>
 					<type_variations>
-						<oci8>CLOB</oci8>
+						<oci>CLOB</oci>
 					</type_variations>
 					<default />
 					<description>Note Value</description>
@@ -1807,7 +1807,7 @@
 				<column name="expires" allow_null="0">
 					<type>TIMESTAMP</type>
 					<type_variations>
-						<oci8>DATE</oci8>
+						<oci>DATE</oci>
 					</type_variations>
 					<default />
 					<description>The time when this cache entry expires</description>
