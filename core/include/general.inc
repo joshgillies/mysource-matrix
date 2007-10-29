@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.175 2007/10/25 23:19:39 rong Exp $
+* $Id: general.inc,v 1.176 2007/10/29 05:38:32 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.175 $
+* @version $Revision: 1.176 $
 * @package MySource_Matrix
 */
 
@@ -40,11 +40,6 @@
 * @return void
 * @access public
 */
-
-
-
-
-
 function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +49,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	static $num_errors = 0;
 	$err_msg = strip_tags($err_msg);
 
-	$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
+	$terminate = ((E_RECOVERABLE_ERROR | E_USER_ERROR | E_ERROR) & $err_no);
 
 	// if the function didn't have an '@' prepended OR if we are about to terminate
 	// catch the error
@@ -64,6 +59,23 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 		// Strip out the file path begining
 		$bt = debug_backtrace();
+
+		/*if (($err_no === E_STRICT) && (SQ_PHP_CLI)) {
+			echo "-> E_STRICT * {$err_msg} ({$err_file}:{$err_line})\n";
+			return;
+		}*/
+/*
+		if ($err_no !== E_STRICT) {
+			echo "\n";
+			echo 'backtrace:'."\n";
+			echo '=> '.$err_file.':'.$err_line."\n";
+		}
+		foreach ($bt as $bt_key => $bt_entry) {
+			if (isset($bt_entry['file']) && !(($err_file == $bt_entry['file']) && ($err_line == $bt_entry['line']))) {
+				if ($err_no !== E_STRICT) echo '-> '.array_get_index($bt_entry, 'file', '?').':'.array_get_index($bt_entry, 'line', '?')."\n";
+			}
+		}*/
+
 		if (count($bt) > 1) {
 			$real_bt_index = 0;
 			while (($real_bt_index < count($bt)-1) && ((FALSE !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (FALSE !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == 'sq_error_handler'))) {
@@ -317,27 +329,38 @@ function get_error_name($error_code)
 
 	if (empty($error_code)) return $name;
 
-	switch ($error_code) {
-		case E_USER_ERROR :
-			$name = SQ_SYSTEM_SHORT_NAME.' Error';
-		break;
-		case E_USER_WARNING :
-			$name = SQ_SYSTEM_SHORT_NAME.' Warning';
-		break;
-		case E_USER_NOTICE :
-			$name = SQ_SYSTEM_SHORT_NAME.' Notice';
-		break;
-		case E_ERROR :
-			$name = 'PHP Error';
-		break;
-		case E_WARNING :
-			$name = 'PHP Warning';
-		break;
-		case E_NOTICE :
-			$name = 'PHP Notice';
-		break;
-		default :
-			$name = 'Unknown Error Type - '.$error_code;
+	// Extra codes depending
+	if (defined('E_RECOVERABLE_ERROR') && $error_code == E_RECOVERABLE_ERROR) {
+		// PHP 5.2 introduces a "recoverable error" code (4096).
+		// As Matrix uses a PHP 5.1 baseline, it's worth handling recoverable
+		// errors the same way as normal E_ERROR
+		$name = 'PHP Error';
+	} else if (defined('E_STRICT') && $error_code == E_STRICT) {
+		// If we are using PHP5, E_STRICT will be defined (2048).
+		$name = 'PHP 5 Strict Standards';
+	} else {
+		switch ($error_code) {
+			case E_USER_ERROR :
+				$name = SQ_SYSTEM_SHORT_NAME.' Error';
+			break;
+			case E_USER_WARNING :
+				$name = SQ_SYSTEM_SHORT_NAME.' Warning';
+			break;
+			case E_USER_NOTICE :
+				$name = SQ_SYSTEM_SHORT_NAME.' Notice';
+			break;
+			case E_ERROR :
+				$name = 'PHP Error';
+			break;
+			case E_WARNING :
+				$name = 'PHP Warning';
+			break;
+			case E_NOTICE :
+				$name = 'PHP Notice';
+			break;
+			default :
+				$name = 'Unknown Error Type - '.$error_code;
+		}
 	}
 
 	return $name;
@@ -357,29 +380,38 @@ function get_error_colour($error_code)
 {
 	$colour = '';
 
-	switch ($error_code) {
-		case E_USER_ERROR :
-			$colour = '#993333';
-		break;
-		case E_USER_WARNING :
-			$colour = '#DBA53B';
-		break;
-		case E_USER_NOTICE :
-			$colour = '#17AA92';
-		break;
-		case E_ERROR :
-			$colour = '#0066CC';
-		break;
-		case E_WARNING :
-			$colour = '#0066CC';
-		break;
-		case E_NOTICE :
-			$colour = '#0066CC';
-		break;
-		default :
-			$colour = '#FF0000';
-		break;
-	}//end switch
+	if (defined('E_RECOVERABLE_ERROR') && $error_code == E_RECOVERABLE_ERROR) {
+		// PHP 5.2 "recoverable error" code (4096) - considered an normal PHP
+		// Error by Matrix to be consistent with PHP 5.1
+		$colour = '#0066CC';
+	} else if (defined('E_STRICT') && $error_code == E_STRICT) {
+		// If we are using PHP5, E_STRICT will be defined (2048).
+		$colour = '#594165';
+	} else {
+		switch ($error_code) {
+			case E_USER_ERROR :
+				$colour = '#993333';
+			break;
+			case E_USER_WARNING :
+				$colour = '#DBA53B';
+			break;
+			case E_USER_NOTICE :
+				$colour = '#17AA92';
+			break;
+			case E_ERROR :
+				$colour = '#0066CC';
+			break;
+			case E_WARNING :
+				$colour = '#0066CC';
+			break;
+			case E_NOTICE :
+				$colour = '#0066CC';
+			break;
+			default :
+				$colour = '#FF0000';
+			break;
+		}//end switch
+	}
 
 	return $colour;
 
