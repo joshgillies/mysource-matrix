@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: licence_config.inc,v 1.2 2007/01/08 04:20:39 lwright Exp $
+* $Id: licence_config.inc,v 1.3 2007/10/29 05:03:20 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Licence_Config extends Config
@@ -48,9 +48,9 @@ class Licence_Config extends Config
 	* @return object
 	* @access public
 	*/
-	function Licence_Config()
+	function __construct()
 	{
-		$this->Config();
+		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/licence.inc';
 
 	}//end constructor
