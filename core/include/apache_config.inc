@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: apache_config.inc,v 1.5 2006/12/05 05:36:13 bcaldwell Exp $
+* $Id: apache_config.inc,v 1.6 2007/10/29 04:51:07 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('SQ_APACHE_CONF_CUSTOM_KEYWORD_KEY', 'sq_custom_keyword_key');
 *    Manage any Apache related configuration
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Apache_Config extends Config
@@ -58,9 +58,9 @@ class Apache_Config extends Config
 	* Constructor
 	*
 	*/
-	function Apache_Config()
+	function __construct()
 	{
-		$this->Config();
+		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/apache.inc';
 
 		if (!file_exists($this->config_file)) return;
@@ -160,7 +160,7 @@ class Apache_Config extends Config
 
 			// Check if a message should be sent.
 			if ($changed_vars && $send_message) {
-				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$ms->openQueue();
 				foreach ($changed_vars as $var_name => $values) {
 					$message_body = $var_name.' changed from '.var_export($values['old'], TRUE).' to '.var_export($values['new'], TRUE)."\n";
@@ -333,7 +333,7 @@ class Apache_Config extends Config
 					// standard and user asset keywords
 					foreach (Array('asset', 'user') as $asset_type) {
 						ob_start();
-							$asset =& new $asset_type();
+							$asset = new $asset_type();
 							$options = $asset->getAvailableKeywords();
 							$options[SQ_APACHE_CONF_CUSTOM_KEYWORD_KEY] = translate('custom_keyword');
 							combo_box('sq_keyword_select_'.$asset_type, $options, FALSE, '', 0, 'id="sq_keyword_select_'.$asset_type.'"  onchange="sqKeywordValueSelectUpdate(this)"');
