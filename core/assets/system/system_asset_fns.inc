@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_fns.inc,v 1.11 2006/12/05 23:40:32 bcaldwell Exp $
+* $Id: system_asset_fns.inc,v 1.12 2007/10/29 23:12:35 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * but this is not to be
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,15 +36,22 @@
 */
 function system_asset_fns_create_pre_check(&$asset)
 {
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	$db = DAL::getDb();
 
 	$sql = 'SELECT COUNT(*)
 			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast
 			';
-	$where = 'type_code = '.$db->quote($asset->type());
+	$where = 'type_code = :type_code';
 	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-	$exists = $db->getOne($sql.$where);
-	assert_valid_db_result($exists);
+	$sql  .= $where;
+
+	try {
+		$query = $db->prepare($sql);
+		$query->bindValue(':type_code', $asset->type(), PDO::PARAM_STR);
+		$exists = DAL::executePdoOne($query);
+	} catch (Exception $e) {
+		throw new Exception('Unable to check for existing system asset of type "'.$type_code.'" due to database error: '.$e->getMessage());
+	}
 
 	if ($exists) {
 		trigger_localised_error('CORE0085', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'));
