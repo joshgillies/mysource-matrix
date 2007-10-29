@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.22 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: transaction_manager.inc,v 1.23 2007/10/29 22:23:54 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object
@@ -34,14 +34,14 @@ class Transaction_Manager extends MySource_Object
 	*
 	* @var Array(boolean)
 	*/
-	var $_rollback = Array();
+	private $_rollback = Array();
 
 	/**
 	* How many levels of transactions we are deep for each db connection
 	*
 	* @var Array(int)
 	*/
-	var $_levels = Array();
+	private $_levels = Array();
 
 
 	/**
@@ -63,7 +63,7 @@ class Transaction_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function inTransaction(&$db)
+	public function inTransaction(&$db)
 	{
 		return !empty($this->_levels[$this->_getId($db)]);
 
@@ -80,24 +80,30 @@ class Transaction_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function begin(&$db)
+	public function begin($db_name)
 	{
-		$db_name = $this->_getId($db);
+		$dsn_array = DAL::getDsn($db_name);
+		$dsn = $dsn_array['dsn'];
 
-		if (isset($this->_levels[$db_name])) {
-			$this->_levels[$db_name]++;
+		if (isset($this->_levels[$dsn])) {
+			$this->_levels[$dsn]++;
 		} else {
-			$this->_levels[$db_name] = 1;
+			$this->_levels[$dsn] = 1;
 		}
 
-		if ($this->_levels[$db_name] == 1) {
-			if ($GLOBALS['SQ_SYSTEM']->db->phptype != 'oci8') {
+		if ($this->_levels[$dsn] == 1) {
+			//if ($dsn['type'] != 'oci8') {
 				// first time we have started a transaction
-				$result = $db->query('BEGIN');
-				assert_valid_db_result($result);
-			}
+				try {
+					DAL::beginTransaction();
+				} catch (DALException $e) {
+					throw $e;
+				}
+				//assert_valid_db_result($result);
+			//}
 		}
-		return true;
+
+		return TRUE;
 
 	}//end begin()
 
@@ -112,28 +118,38 @@ class Transaction_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function commit(&$db)
+	public function commit($db_name)
 	{
-		$db_name = $this->_getId($db);
+		$dsn_array = DAL::getDsn($db_name);
+		$dsn = $dsn_array['dsn'];
 
-		if (empty($this->_levels[$db_name])) {
+		if (empty($this->_levels[$dsn])) {
 			trigger_localised_error('SYS0219', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
-		if (!empty($this->_rollback[$db_name])) {
+		if (!empty($this->_rollback[$dsn])) {
 			trigger_localised_error('SYS0220', E_USER_WARNING);
-			$this->rollback($db_name);
-			return false;
-		}
-		$this->_levels[$db_name]--;
+			try {
+				DAL::rollback();
+			} catch (DALException $e) {
+				throw $e;
+			}
 
-		if ($this->_levels[$db_name] == 0) {
-			// this is the last commit
-			$result = $db->commit();
-			assert_valid_db_result($result);
+			return FALSE;
 		}
-		return true;
+		$this->_levels[$dsn]--;
+
+		if ($this->_levels[$dsn] == 0) {
+			// this is the last commit
+			try {
+				DAL::commit();
+			} catch (DALException $e) {
+				throw $e;
+			}
+		}
+
+		return TRUE;
 
 	}//end commit()
 
@@ -148,47 +164,35 @@ class Transaction_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function rollback(&$db)
+	public function rollback($db_name)
 	{
-		$db_name = $this->_getId($db);
+		$dsn_array = DAL::getDsn($db_name);
+		$dsn = $dsn_array['dsn'];
 
-		if (empty($this->_levels[$db_name])) {
+		if (empty($this->_levels[$dsn])) {
 			trigger_localised_error('SYS0231', E_USER_WARNING);
 			return false;
 		}
 
 		// set the rollback flag
-		$this->_rollback[$db_name] = true;
-		$this->_levels[$db_name]--;
+		$this->_rollback[$dsn] = true;
+		$this->_levels[$dsn]--;
 
-		if ($this->_levels[$db_name] == 0) {
+		if ($this->_levels[$dsn] == 0) {
 
 			// this is the last rollback
-			$result = $GLOBALS['SQ_SYSTEM']->db->rollback();
-			assert_valid_db_result($result);
+			try {
+				DAL::rollback();
+			} catch (DALException $e) {
+				throw $e;
+			}
 
 			// clear the rollback flag as there is no more transaction block
-			$this->_rollback[$db_name] = false;
+			$this->_rollback[$dsn] = false;
 		}
 		return true;
 
 	}//end rollback()
-
-
-	/**
-	* Returns the string that identifies the passed db object
-	*
-	* @param object &$db	the database object to return the id string for
-	*
-	* @return string
-	* @access private
-	*/
-	function _getId(&$db)
-	{
-		assert_not_null($db);
-		return (string) $db->connection;
-
-	}//end getConnectionId()
 
 
 }//end class
