@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.19 2007/10/08 23:23:21 lwright Exp $
+* $Id: bodycopy_table_cell.inc,v 1.20 2007/10/29 23:38:31 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -140,8 +140,12 @@ class BodyCopy_Table_Cell extends MySource_Object
 		if (!$table->deleteLink($this->attributes['linkid'])) {
 			return FALSE;
 		}
-		unset($this->attributes);
-		$this =& new BodyCopy_Table_Cell();
+
+		// TODO: this is a replacement for re-assigning $this - needs to be
+		// tested
+		$this->attributes = Array();
+		//unset($this->attributes);
+		//$this =& new BodyCopy_Table_Cell();
 		return TRUE;
 
 	}//end delete()
