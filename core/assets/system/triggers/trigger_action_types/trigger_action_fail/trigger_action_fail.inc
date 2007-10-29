@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_fail.inc,v 1.4 2006/12/06 00:05:38 bcaldwell Exp $
+* $Id: trigger_action_fail.inc,v 1.5 2007/10/29 22:57:27 lwright Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 
 /**
-* Trigger_Action_Add_URL
+* Trigger_Action_Fail
 *
 * Only those who dare to fail greatly can ever achieve greatly.
 *	-- Robert F. Kennedy:
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * This action just fails.
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
