@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: proxy_authentication_config.inc,v 1.5 2007/03/28 06:12:22 arailean Exp $
+* $Id: proxy_authentication_config.inc,v 1.6 2007/10/29 05:28:32 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Proxy_Authentication_Config extends Config
@@ -50,9 +50,9 @@ class Proxy_Authentication_Config extends Config
 	* Constructor
 	*
 	*/
-	function Proxy_Authentication_Config()
+	function __construct()
 	{
-		$this->Config();
+		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/proxy_authentication.inc';
 
 	}//end constructor

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.22 2007/05/01 06:04:17 rong Exp $
+* $Id: external_tools_config.inc,v 1.23 2007/10/29 05:28:46 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -56,9 +56,9 @@ class External_Tools_Config extends Config
 	* Constructor
 	*
 	*/
-	function External_Tools_Config()
+	function __construct()
 	{
-		$this->Config();
+		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/tools.inc';
 
 	}//end constructor

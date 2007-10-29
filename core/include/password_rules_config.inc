@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: password_rules_config.inc,v 1.13 2006/12/20 03:07:44 tbarrett Exp $
+* $Id: password_rules_config.inc,v 1.14 2007/10/29 05:28:19 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 class Password_Rules_Config extends Config
@@ -57,9 +57,9 @@ class Password_Rules_Config extends Config
 	* Constructor
 	*
 	*/
-	function Password_Rules_Config()
+	function __construct()
 	{
-		$this->Config();
+		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/password_rules.inc';
 
 	}//end constructor
