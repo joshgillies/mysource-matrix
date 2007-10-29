@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.43 2007/05/13 23:58:58 skim Exp $
+* $Id: trigger_manager.inc,v 1.44 2007/10/29 22:58:31 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -216,7 +216,7 @@ class Trigger_Manager extends Asset
 
 			// attempt to get trigger asset
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('trigger');
-			$asset =& new Trigger($this->id, $id);
+			$asset = new Trigger($this->id, $id);
 
 			// if no id, this trigger is bodge
 			if (empty($asset->id)) $asset = NULL;
@@ -1293,7 +1293,7 @@ class Trigger_Manager extends Asset
 	*/
 	function _getHashObject()
 	{
-		$hash =& new Hash();
+		$hash = new Hash();
 		return $hash;
 
 	}//end _getHashObject()
