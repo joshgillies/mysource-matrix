@@ -10,12 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.83 2007/08/17 03:42:28 nbhradwaj Exp $
+* $Id: package_manager.inc,v 1.84 2007/10/29 22:21:37 lwright Exp $
 *
 */
 
 
-require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 
@@ -24,10 +23,10 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * Purpose
 *    On a per package basis this object let's the system install and upgrade
-*    packages and their assets, uses info gleened from the package.xml and asset.xml files
+*    packages and their assets, uses info gleaned from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -95,20 +94,21 @@ class Package_Manager extends MySource_Object
 
 		// OK, if this is the "core" package then we just need to fiddle with the path
 		$this->_base_path = substr($this->_full_path, strlen(SQ_SYSTEM_ROOT) + 1);
+		$package_path = $this->_full_path.'/package.xml';
 
-		if (file_exists($this->_full_path.'/package.xml')) {
-			$xml =& new XML_Array();
-			$info = $xml->getArrayFromFile($this->_full_path.'/package.xml');
-			if (PEAR::isError($info)) {
-				trigger_error('SYS0066', E_USER_ERROR, $info->error_message_prefix, $info->message); //ast-val-db fix
+		if (file_exists($package_path)) {
+			try {
+				$info = new SimpleXMLElement($package_path, NULL, TRUE);
+			} catch (Exception $e) {
+				throw new Exception('Unable to parse package definition file "'.$package_path.'": '.$e->getMessage());
 			}
-			$xml->close();
-			if ($this->getPackageName() != $info['code_name']['value']) {
-				trigger_localised_error('SYS0211', E_USER_ERROR, $this->_full_path, $this->getPackageName());
+
+			if ($this->getPackageName() != $info->{'code_name'}) {
+				throw new Exception('Unable to parse package definition file "'.$package_path.'": package manager name "'.$this->getPackageName().'" does not match package name in definition file "'.$info->{'code_name'}.'"');
 			}
-			$this->name			= $info['name']['value'];
-			$this->version		= $info['version']['value'];
-			$this->description	= $info['description']['value'];
+			$this->name			= (string)$info->name;
+			$this->version		= (string)$info->version;
+			$this->description	= (string)$info->description;
 
 			$GLOBALS['SQ_SYSTEM']->lm->includePackageStrings($this->name);
 			$this->_loadPackageAssets();
@@ -146,7 +146,7 @@ class Package_Manager extends MySource_Object
 	*/
 	function checkPackageDetails($update_assets=Array(), $deferred_assets=Array())
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		for (reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
 			// Don't bother checking an asset that's not defined in the array.
@@ -165,7 +165,7 @@ class Package_Manager extends MySource_Object
 				// It failed the requirement, so we want to let the caller know what asset
 				// failed so that it can be revisited at a later date if needbe
 				if (!in_array($type_code, $deferred_assets)) {
-					bam('Asset "'.$type_code.'" fails the "'.$req['type'].'" requirement for "'.$req['code'].' v'.$req['version'].'"'."\n".'As specified by '.$file.' and will be deferred');
+					pre_echo('Asset "'.$type_code.'" fails the "'.$req['type'].'" requirement for "'.$req['code'].' v'.$req['version'].'"'."\n".'As specified by '.$file.' and will be deferred');
 					$deferred_assets[] = $type_code;
 				}
 				continue;
@@ -178,7 +178,7 @@ class Package_Manager extends MySource_Object
 				// It failed the requirement, so we want to let the caller know what asset
 				// failed so that it can be revisited at a later date if needbe
 				if (!in_array($type_code, $deferred_assets)) {
-					bam('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent_type.'"'."\n".'As specified by '.$file);
+					pre_echo('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent_type.'"'."\n".'As specified by '.$file);
 					$deferred_assets[] = $type_code;
 				}
 				continue;
@@ -202,7 +202,7 @@ class Package_Manager extends MySource_Object
 	*/
 	function updatePackageDetails($update_assets=Array())
 	{
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 
 		// If there were some type codes that failed the requirements, save
 		// them in the deferred array so that they don't get installed later
@@ -234,30 +234,59 @@ class Package_Manager extends MySource_Object
 
 			$package_name = $this->getPackageName();
 
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$this->_installDALQueries();
 
-			$exists = $db->getOne('SELECT code_name FROM sq_pkg WHERE code_name = '.$db->quote($package_name));
-			assert_valid_db_result($exists);
+			$db = DAL::getDb();
+
+			$sql = 'SELECT code_name FROM sq_pkg WHERE code_name = :code_name';
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue('code_name', $package_name);
+				$exists = DAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Failed to get package information for package "'.$package_name.'" due to database error: '.$e->getMessage());
+			}
 
 			if ($exists) {
 				$sql = 'UPDATE sq_pkg
-						SET version     = '.$db->quote($this->version).',
-							name        = '.$db->quote($this->name).',
-							description = '.$db->quote($this->description).'
-						WHERE code_name = '.$db->quote($package_name);
+						SET version     = :version,
+							name        = :name,
+							description = :description
+							WHERE code_name = :code_name';
 			} else {
 				$sql = 'INSERT INTO sq_pkg
 						(code_name, version, name, description)
 						VALUES
-						('.$db->quote($package_name).', '.$db->quote($this->version).',
-						'.$db->quote($this->name).','.$db->quote($this->description).')';
+						(:code_name, :version, :name, :description)';
 			}
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				// DAL query
+				$bind_vars = Array(
+								'version'      => $this->version,
+								'name'         => $this->name,
+								'description'  => $this->description,
+								'package_name' => $package_name,
+							 );
+
+				if (!$exists) {
+					$query_name = 'installPackage';
+				} else {
+					$query_name = 'updatePackage';
+				}
+				$query  = MatrixDAL::executeOne('core', $query_name, $bind_vars);
+			} catch (Exception $e) {
+				// In case it needs to be localised, split the two messages
+				// instead of doing one with a ?: switch in the middle
+				if ($exists) {
+					throw new Exception('Failed to update package information for package "'.$package_name.'" due to database error: '.$e->getMessage());
+				} else {
+					throw new Exception('Failed to add package information for new package "'.$package_name.'" due to database error: '.$e->getMessage());
+				}
+			}
 
 			for (reset($install_order); null !== ($k = key($install_order)); next($install_order)) {
-				$type_code =& $install_order[$k];
+				$type_code = $install_order[$k];
 
 				// Don't bother checking an asset that's not defined in the update_assets array.
 				if (!empty($update_assets) && !in_array($type_code, $update_assets)) {
@@ -286,7 +315,7 @@ class Package_Manager extends MySource_Object
 				}
 
 				// now just create an instance of it, and run update()
-				$management =& new $class($this);
+				$management = new $class($this);
 				if (!$management->update()) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -366,11 +395,12 @@ class Package_Manager extends MySource_Object
 	* @return void
 	* @access private
 	*/
-	function _recurseLoadPackageAssets(&$assets, $full_path, $base_path)
+	function _recurseLoadPackageAssets(Array &$assets, $full_path, $base_path)
 	{
 		$package = $this->getPackageName();
-		$d = dir($full_path);
-		while (false !== ($entry = $d->read())) {
+		$d = new DirectoryIterator($full_path);
+		foreach ($d as $entry) {
+			$entry = (string)$entry;
 			if ($entry == '.' || $entry == '..') {
 				continue;
 			}
@@ -382,7 +412,8 @@ class Package_Manager extends MySource_Object
 			// if we have an asset process it
 			} else if ($entry == 'asset.xml') {
 
-				$info = Asset_Management::getAssetInfo($full_path.'/asset.xml');
+				$mgt = new Asset_Management($this);
+				$info = $mgt->getAssetInfo($full_path.'/asset.xml');
 				if (empty($info)) continue;
 
 				if ($package != $info['package']) {
@@ -393,19 +424,17 @@ class Package_Manager extends MySource_Object
 
 				// check the path of this type in db we may need to update it here incase it was moved
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-				$db =& $GLOBALS['SQ_SYSTEM']->db;
+				$db = DAL::getDb();
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 				$sql = 'SELECT dir FROM sq_ast_typ WHERE type_code ='.$db->quote($info['type_code']);
 
-				$result = $db->getOne($sql);
-				assert_valid_db_result($result);
+				$result = DAL::executeSqlOne($sql);
 
 				if (!empty($result) && ($result != $info['dir'])) {
 					// update path
 					$sql = 'UPDATE sq_ast_typ SET dir='.$db->quote($info['dir']).' WHERE type_code='.$db->quote($info['type_code']);
-					$result = $db->query($sql);
-					assert_valid_db_result($result);
+					DAL::executeSql($sql);
 				}
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -414,8 +443,8 @@ class Package_Manager extends MySource_Object
 				$assets[$info['type_code']] = $info;
 
 			}//end if
-		}//end while
-		$d->close();
+		}//end foreach
+		$d = NULL;
 
 	}//end _recurseLoadPackageAssets()
 
@@ -509,8 +538,7 @@ class Package_Manager extends MySource_Object
 	*/
 	function _createAssetMapScreensXML($deferred=Array())
 	{
-		$output =& new XML_Tree();
-		$root = &$output->addRoot('tmp', '');
+		$root = new SimpleXMLElement('<tmp />');
 		$str  = '';
 
 		for (reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
@@ -526,32 +554,43 @@ class Package_Manager extends MySource_Object
 						'flash_menu_path'	=> $this->assets[$type_code]['flash_menu_path'],
 					 );
 
-			$type_node = &$root->addChild('type', '', $attrs);
-
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$as =& new $type_code();
-			$ef = &$as->getEditFns();
-
-			if (!empty($ef->static_screens['details'])) {
-				$type_node->addChild('screen', $ef->static_screens['details']['name'], Array('code_name' => 'details'));
+			$type_node = $root->addChild('type');
+			foreach ($attrs as $attr_name => $attr_value) {
+				if ($attr_value !== '') {
+					$type_node->addAttribute($attr_name, $attr_value);
+				}
 			}
 
-			$ei =& new Asset_Edit_Interface($type_code);
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+			$as = new $type_code();
+			$ef = $as->getEditFns();
+
+			// Ensure that the Details screen is first
+			if (!empty($ef->static_screens['details'])) {
+				$screen_node = $type_node->addChild('screen', $ef->static_screens['details']['name']);
+				$screen_node->addAttribute('code_name', 'details');
+			}
+
+			// Asset-specific custom inteface screens next
+			$ei = new Asset_Edit_Interface($type_code);
 			$screens = $ei->getScreens();
 			for (reset($screens); null !== ($code_name = key($screens)); next($screens)) {
 				if ($screens[$code_name]['invisible']) continue;
-				$type_node->addChild('screen', $screens[$code_name]['name'], Array('code_name' => $code_name));
+				$screen_node = $type_node->addChild('screen', $screens[$code_name]['name']);
+				$screen_node->addAttribute('code_name', $code_name);
 			}
 
+			// Static screens finally (other than Details -we already have that)
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$as =& new $type_code();
-			$ef = &$as->getEditFns();
+			$as = new $type_code();
+			$ef = $as->getEditFns();
 			for (reset($ef->static_screens); null !== ($code_name = key($ef->static_screens)); next($ef->static_screens)) {
 				if ($code_name == 'details') continue;
-				$type_node->addChild('screen', $ef->static_screens[$code_name]['name'], Array('code_name' => $code_name));
+				$screen_node = $type_node->addChild('screen', $ef->static_screens[$code_name]['name']);
+				$screen_node->addAttribute('code_name', $code_name);
 			}
 
-			$str .= $type_node->get();
+			$str .= $type_node->asXml();
 
 		}// end for
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -581,54 +620,64 @@ class Package_Manager extends MySource_Object
 	*/
 	function checkRequirementsFromFile($file, $deferred_assets=Array(), $need_feedback=false)
 	{
-		$xml_array =& new XML_Array(Asset_Management::getAssetArrayPaths());
-		$info = $xml_array->getArrayFromFile($file);
-		if (PEAR::isError($info)) {
-			trigger_error('SYS0067', E_USER_WARNING, $info->error_message_prefix, $info->message); //ast-val-db fix
-			return ($need_feedback) ? Array(false, null) : false;
+		$db = DAL::getDb();
+
+		try {
+			$info = new SimpleXMLElement($file, NULL, TRUE);
+		} catch (Exception $e) {
+			throw new Exception('Could not parse asset definition file "'.$file.'": '.$e->getMessage());
 		}
 
 		// if there are no requirements, return true
-		if (!isset($info['requirements']['requirement']) || !is_array($info['requirements']['requirement'])) {
+		if (!isset($info->requirements->requirement)) {
 			return ($need_feedback) ? Array(true, null) : true;
 		}
 
-		for ($i = 0; $i < count($info['requirements']['requirement']); $i++) {
-			$req = &$info['requirements']['requirement'][$i];
+		foreach ($info->requirements->requirement as $req) {
+			$required_type    = (string)$req->attributes()->type;
+			$required_code    = (string)$req->code;
+			$required_version = (string)$req->version;
 
 			$ok = false;
-			switch ($req['@type']) {
+			switch ($required_type) {
 				case 'package':
-					$installed_version = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT version FROM sq_pkg WHERE code_name = '.$GLOBALS['SQ_SYSTEM']->db->quote($req['code']['value']));
-					assert_valid_db_result($installed_version);
+					$sql = 'SELECT version FROM sq_pkg WHERE code_name = :code_name';
+
+					try {
+						$query = $db->prepare($sql);
+						$query->bindValue(':code_name', $required_code);
+						$installed_version = DAL::executePdoOne($query);
+					} catch (DALException $e) {
+						throw new Exception(': '.$e->getMessage());
+					}
 
 					if ($installed_version) {
-						$ok = version_compare($installed_version, $req['version']['value'], '>=');
+						$ok = version_compare($installed_version, $required_version, '>=');
 					}
 				break;
 
 				case 'asset':
-					if (in_array($req['code']['value'], $deferred_assets)) {
+					if (in_array($required_code, $deferred_assets)) {
 						// we have to defer an asset that depends on another deferred asset
 						$ok = false;
 					} else {
-						if ($GLOBALS['SQ_SYSTEM']->am->installed($req['code']['value'])) {
-							$ok = version_compare($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($req['code']['value'], 'version'), $req['version']['value'], '>=');
+						if ($GLOBALS['SQ_SYSTEM']->am->installed($required_code)) {
+							$ok = version_compare($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($required_code, 'version'), $required_version, '>=');
 						}
 						// if the test failed, but this asset is in this package, check it's version from that
-						if (!$ok && isset($this->assets[$req['code']['value']])) {
-							$ok = version_compare($this->assets[$req['code']['value']]['version'], $req['version']['value'], '>=');
+						if (!$ok && isset($this->assets[$required_code])) {
+							$ok = version_compare($this->assets[$required_code]['version'], $required_version, '>=');
 						}
 					}
 				break;
 
 				case 'system':
-					switch ($req['code']['value']) {
+					switch ($required_code) {
 						case 'System' :
-							$ok = version_compare(SQ_SYSTEM_VERSION, $req['version']['value'], '>=');
+							$ok = version_compare(SQ_SYSTEM_VERSION, $required_version, '>=');
 						break;
 						case 'PHP' :
-							$ok = version_compare(PHP_VERSION, $req['version']['value'], '>=');
+							$ok = version_compare(PHP_VERSION, $required_version, '>=');
 						break;
 					}
 				break;
@@ -640,9 +689,9 @@ class Package_Manager extends MySource_Object
 
 				if ($need_feedback) {
 					$ret_arr = Array(
-								'type'		=> $req['@type'],
-								'code'		=> $req['code']['value'],
-								'version'	=> $req['version']['value'],
+								'type'		=> $required_type,
+								'code'		=> $required_code,
+								'version'	=> $required_version,
 							   );
 					return Array(false, $ret_arr);
 
@@ -673,6 +722,7 @@ class Package_Manager extends MySource_Object
 	function getTypeAncestors($type_code)
 	{
 		if (!isset($this->assets[$type_code])) {
+			throw new Exception('Asset type "'.$type_code.'" does not exist in the "'.$this->getPackageName().'" package.');
 			trigger_localised_error('SYS0082', E_USER_ERROR, $type_code, $this->getPackageName());
 			return Array();
 		}
@@ -713,6 +763,7 @@ class Package_Manager extends MySource_Object
 	function getTypeInfo($type_code, $field='')
 	{
 		if (!isset($this->assets[$type_code])) {
+			throw new Exception('Asset type "'.$type_code.'" does not exist in the "'.$this->getPackageName().'" package.');
 			trigger_localised_error('SYS0082', E_USER_ERROR, $type_code, $this->getPackageName());
 			return ($field) ? null : Array();
 		}
@@ -738,9 +789,9 @@ class Package_Manager extends MySource_Object
 
 			// make sure the class exists
 			if (class_exists($class)) {
-				$prefs =& new $class();
+				$prefs = new $class();
 				if (!isset($preferences[$type_code])) {
-					$preferences[$type_code] = $prefs->pref_vars;							
+					$preferences[$type_code] = $prefs->pref_vars;
 				} else {
 					foreach ($preferences[$type_code] as $var => $data) {
 						if (!isset($prefs->pref_vars[$var])) {
@@ -793,7 +844,7 @@ class Package_Manager extends MySource_Object
 		foreach ($this->getSystemAssetTypes() as $type) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->isSystemAssetType($type)) {
 				$function = 'create'.str_replace('_','',$type);
-				$new_system_asset = &$this->$function();
+				$new_system_asset = $this->$function();
 				if (!is_null($new_system_asset)) {
 					if ($new_system_asset->id) $updated = true;
 					$assets_created++;
@@ -807,7 +858,7 @@ class Package_Manager extends MySource_Object
 		// regen the system assets file if needed
 		if ($updated) {
 			require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
-			$sys_asset_cfg =& new System_Asset_Config();
+			$sys_asset_cfg = new System_Asset_Config();
 			$sys_asset_cfg->save(Array(), false);
 		}
 
@@ -826,6 +877,28 @@ class Package_Manager extends MySource_Object
 	{
 
 	}//end _postInstall()
+
+
+	/**
+	* Generates the baked Database Abstraction Layer (DAL) queries for the package
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _installDALQueries()
+	{
+		$name = $this->getPackageName();
+		if ($name == '__core__') $name = 'core';
+		$old_path = ini_get('include_path');
+		ini_set('include_path', SQ_LIB_PATH);
+		require_once SQ_LIB_PATH.'/MatrixDAL/MatrixDALBaker.inc';
+		$queries_found = MatrixDALBaker::addPackageQueries($name);
+		if ($queries_found) {
+			MatrixDALBaker::bakeQueriesFile($name.'_package');
+		}
+		ini_set('include_path', $old_path);
+
+	}//end _installDALQueries()
 
 
 }//end class
