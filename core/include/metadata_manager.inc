@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.148 2007/09/26 23:44:46 bshkara Exp $
+* $Id: metadata_manager.inc,v 1.149 2007/10/29 22:15:37 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.148 $
+* @version $Revision: 1.149 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -115,18 +115,26 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function getSchemas($assetid, $granted=NULL)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$sql = '  SELECT DISTINCT schemaid, granted
 				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata ';
-		$where = 'assetid = '.$db->quote($assetid);
+		$where = 'assetid = :assetid';
 		if (!is_null($granted)) {
-			$where .= ' AND granted = '.$db->quote((($granted) ? '1' : '0'));
+			$where .= ' AND granted = :granted';
 		}
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-		$result = $db->getAll($sql.$where);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':assetid', $assetid);
+			if (!is_null($granted)) {
+				$query->bindValue(':granted', $granted ? 1 : 0);
+			}
+			$result = DAL::executePdoAll($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get applied schemas for asset ID #'.$assetid.' due to database error: '.$e->getMessage());
+		}
 
 		$schemas = Array();
 		foreach ($result as $data) {
@@ -201,7 +209,7 @@ class Metadata_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		switch ($db_action) {
@@ -274,7 +282,7 @@ class Metadata_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'DELETE FROM
@@ -310,7 +318,7 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function getSchemaAssets($schemaid, $granted=NULL)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$sql = 'SELECT DISTINCT
 					assetid, granted
@@ -404,7 +412,7 @@ class Metadata_Manager extends MySource_Object
 
 
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		// And to think I didn't like it when this generating query got pulled out of the Asset_Manager::getChildren() :)
 		// Instead of doing any thinking...let them do it all for us and use it in our query
@@ -455,7 +463,7 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function _cleanupMetadataValues($assetid)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$fieldid_conds = Array('assetid = '.((string)$db->quoteSmart($assetid)));
 		foreach ($this->getSchemas($assetid, TRUE) as $schemaid) {
 			$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'metadata_schema');
@@ -553,7 +561,7 @@ class Metadata_Manager extends MySource_Object
 		if (empty($schemas)) return $field_values;
 
 		// get the values without any replacements or special processing
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$db->show_queries = TRUE;
 
 		$values = $this->getMetadata($asset->id);
@@ -653,7 +661,7 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function setMetadata($assetid, $metadata)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
@@ -667,7 +675,7 @@ class Metadata_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// Make sure all the fields exist and are editable
@@ -1359,7 +1367,7 @@ class Metadata_Manager extends MySource_Object
 	function purgeMetadata($assetid)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'DELETE FROM
@@ -1425,7 +1433,7 @@ class Metadata_Manager extends MySource_Object
 			return NULL;
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$sql = 'SELECT
 					value
@@ -1514,7 +1522,7 @@ class Metadata_Manager extends MySource_Object
 		static $cached_tests = Array();
 
 		if (!isset($cached_tests[$field_assetid])) {
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 
 			$sql = 'SELECT
 						COUNT(*)
@@ -1552,7 +1560,7 @@ class Metadata_Manager extends MySource_Object
 				trigger_localised_error('SYS0308', E_USER_WARNING, $field_assetid);
 			}
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 
 			$sql = 'SELECT
 						default_val
@@ -1589,7 +1597,7 @@ class Metadata_Manager extends MySource_Object
 			trigger_localised_error('SYS0308', E_USER_WARNING, $field_assetid);
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$sql = 'SELECT
 					default_val
@@ -1602,7 +1610,7 @@ class Metadata_Manager extends MySource_Object
 		assert_valid_db_result($row);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// does the default value exist yet, then?
