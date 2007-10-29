@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.56 2006/12/05 22:42:10 emcdonald Exp $
+* $Id: design_area_edit_fns.inc,v 1.57 2007/10/29 23:38:59 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -524,7 +524,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		foreach ($set_to_default as $i => $attr_name) {
 			$attr_to_set =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($asset->vars[$attr_name]['attrid']);
 			$default_val = $attr_to_set->_default_value;
-			if (is_a($attr_to_set, 'Asset_Attribute_Serialise')) {
+			if ($attr_to_set instanceof Asset_Attribute_Serialise) {
 				$default_val = unserialize($default_val);
 			}
 			$asset->setAttrValue($attr_name, $default_val);

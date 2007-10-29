@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.131 2007/07/10 01:58:38 hnguyen Exp $
+* $Id: design.inc,v 1.132 2007/10/29 23:38:59 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.132 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -188,7 +188,7 @@ class Design extends Design_Area
 	{
 		// if this is a file then we need to make it a dependant link
 		$changed = FALSE;
-		if ($side_of_link == 'major' && is_a($asset, 'file')) {
+		if ($side_of_link == 'major' && ($asset instanceof File)) {
 			if ($dependant != '1') {
 				$dependant = '1';
 				$changed = TRUE;
@@ -235,7 +235,7 @@ class Design extends Design_Area
 		}
 
 		// special processing if we are creating a TYPE_2 linked file (inherited by customisations)
-		if (is_a($minor, 'file')) {
+		if (($minor instanceof File)) {
 
 			$am =& $GLOBALS['SQ_SYSTEM']->am;
 
@@ -962,7 +962,7 @@ echo '/*
 			}
 		}
 
-		return TRUE;	
+		return TRUE;
 
 	}//end generateDesignFile()
 
