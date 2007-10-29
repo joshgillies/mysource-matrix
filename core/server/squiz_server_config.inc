@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: squiz_server_config.inc,v 1.14 2006/12/05 04:58:08 bcaldwell Exp $
+* $Id: squiz_server_config.inc,v 1.15 2007/10/29 22:27:15 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the squiz server config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 class Squiz_Server_Config extends Config
@@ -49,9 +49,9 @@ class Squiz_Server_Config extends Config
 	* Constructor
 	*
 	*/
-	function Squiz_Server_Config()
+	function __construct()
 	{
-		$this->Config();
+		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/squiz_server.inc';
 
 	}//end constructor

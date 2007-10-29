@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.34 2006/12/05 05:39:09 bcaldwell Exp $
+* $Id: hipo_config.inc,v 1.35 2007/10/29 22:27:02 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -46,9 +46,9 @@ class HIPO_Config extends Config
 	* Constructor
 	*
 	*/
-	function HIPO_Config()
+	function __construct()
 	{
-		$this->Config();
+		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/hipo.inc';
 		$this->_loadJobConfigVars();
 
