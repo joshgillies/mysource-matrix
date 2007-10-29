@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.53 2006/12/05 05:36:13 bcaldwell Exp $
+* $Id: asset_attribute.inc,v 1.54 2007/10/29 05:40:55 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -102,23 +102,39 @@ class Asset_Attribute extends MySource_Object
 		$this->MySource_Object();
 
 		if ($attributeid) {
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 
 			$sql = 'SELECT attrid, name, type, uniq, description, is_admin, parameters_val, default_val
 					FROM sq_ast_attr
-					WHERE attrid = '.$db->quote($attributeid);
+					WHERE attrid = :attrid';
 
-			$result = $db->getRow($sql, NULL, DB_FETCHMODE_ORDERED);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':attrid', $attributeid);
+				$result = DAL::executePdoAll($query);
+				if (empty($result)) {
+					return;
+				} else {
+					$row = $result[0];
+				}
+				unset($result);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get information for attribute ID '.$attributeid.' due to database error: '.$e->getMessage());
+			}
 
-			if (is_null($result)) return;
-
-			list($this->id, $this->name, $type, $this->uniq, $this->description, $this->is_admin, $parameters, $this->_default_value) = $result;
+			$this->id             = $row['attrid'];
+			$this->name           = $row['name'];
+			$type                 = $row['type'];
+			$this->uniq           = $row['uniq'];
+			$this->description    = $row['description'];
+			$this->is_admin       = $row['is_admin'];
+			$parameters           = $row['parameters_val'];
+			$this->_default_value = $row['default_val'];
 
 			// make sure the asset we are loading is of the same type as our class
 			if ($type != $this->type()) {
-				trigger_localised_error('SYS0095', E_USER_WARNING, $attributeid, $this->type());
-				$this->id = NULL;
+				throw new Exception('Attribute type mismatch. Attribute ID '.$attributeid.' was created as a "'.$this->type().'" attribute but the database believes it is a "'.$type.'" attribute.');
+				//$this->id = NULL;
 				return;
 			}
 
@@ -157,13 +173,17 @@ class Asset_Attribute extends MySource_Object
 			return $empty_attr;
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 
 		$sql = 'SELECT type FROM sq_ast_attr
-				WHERE attrid = '.$db->quote($attributeid);
-
-		$type = $db->getOne($sql);
-		assert_valid_db_result($type);
+					WHERE attrid = :attrid';
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':attrid', $attributeid);
+			$type = DAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to load attribute ID #'.$attributeid.' due to database error: '.$e->getMessage());
+		}
 
 		$class = 'Asset_Attribute_'.$type;
 		require_once SQ_ATTRIBUTES_PATH.'/'.$type.'/'.$type.'.inc';
@@ -183,7 +203,8 @@ class Asset_Attribute extends MySource_Object
 	function type()
 	{
 		// strip the 'Asset_Attribute_' off the front
-		return substr(get_class($this), 16);
+		// And lower-case it - PHP 5 uses the case the class was declared as
+		return strtolower(substr(get_class($this), 16));
 
 	}//end type()
 
@@ -305,8 +326,8 @@ class Asset_Attribute extends MySource_Object
 	function setEditParams(&$node)
 	{
 
-		if (strtolower($node->name) != strtolower($this->type())) {
-			trigger_localised_error('SYS0300', E_USER_WARNING, $node->name, $this->type(), '<pre>'.htmlspecialchars($node->get()).'</pre>');
+		if (strtolower($node->getName()) != strtolower($this->type())) {
+			trigger_localised_error('SYS0300', E_USER_WARNING, $node->getName(), $this->type(), '<pre>'.htmlspecialchars($node->asXml()).'</pre>');
 			return FALSE;
 		}
 		return TRUE;
