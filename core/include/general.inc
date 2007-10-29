@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.176 2007/10/29 05:38:32 lwright Exp $
+* $Id: general.inc,v 1.177 2007/10/29 23:57:19 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.176 $
+* @version $Revision: 1.177 $
 * @package MySource_Matrix
 */
 
@@ -49,7 +49,12 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	static $num_errors = 0;
 	$err_msg = strip_tags($err_msg);
 
-	$terminate = ((E_RECOVERABLE_ERROR | E_USER_ERROR | E_ERROR) & $err_no);
+	$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
+
+	// If a PHP 5.2 recoverable error, then also terminate
+	if (defined('E_RECOVERABLE_ERROR') && $err_no == E_RECOVERABLE_ERROR) {
+		$terminate = TRUE;
+	}
 
 	// if the function didn't have an '@' prepended OR if we are about to terminate
 	// catch the error
