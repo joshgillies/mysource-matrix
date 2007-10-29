@@ -10,12 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.78 2007/01/03 03:21:19 arailean Exp $
+* $Id: asset_management.inc,v 1.79 2007/10/29 22:16:34 lwright Exp $
 *
 */
 
 require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 
 /**
 * Asset_Management
@@ -27,7 +26,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -89,14 +88,14 @@ class Asset_Management extends MySource_Object
 	function Asset_Management(&$pm)
 	{
 
-		if (get_parent_class($this) != __CLASS__) {
+		if ((get_class($this) !== __CLASS__) && (get_parent_class($this) !== __CLASS__)) {
 			trigger_localised_error('SYS0274', E_USER_ERROR, get_class($this));
 		}
 
 
-		$this->_pm = &$pm;
-		$this->_am = &$GLOBALS['SQ_SYSTEM']->am;
-		$this->_db = &$GLOBALS['SQ_SYSTEM']->db;
+		$this->_pm = $pm;
+		$this->_am = $GLOBALS['SQ_SYSTEM']->am;
+		$this->_db = $GLOBALS['SQ_SYSTEM']->db;
 
 	}//end constructor
 
@@ -104,13 +103,17 @@ class Asset_Management extends MySource_Object
 	/**
 	* Returns the asset type that this management class is working for
 	*
+	* Note that as of PHP 5.x, return values from get_class() are in mixed case.
+	* This makes sure asset types are returned lower case, as in other parts of
+	* Matrix.
+	*
 	* @return string
 	* @access public
 	*/
 	function getAssetType()
 	{
 		$class = get_class($this);
-		return substr($class, 0, strlen($class) - 11);
+		return strtolower(substr($class, 0, strlen($class) - 11));
 
 	}//end getAssetType()
 
@@ -133,10 +136,10 @@ class Asset_Management extends MySource_Object
 		require_once $asset_dir.'/'.$type_code.'_edit_fns.inc';
 
 		$asset_xml_parent_type = $this->_pm->getTypeInfo($type_code, 'parent_type');
-		$asset_parent_type = get_parent_class($type_code);
-		$asset_edit_fns_parent_type = preg_replace('/_edit_fns$/', '', get_parent_class($type_code.'_edit_fns'));
+		$asset_parent_type = strtolower(get_parent_class($type_code));
+		$asset_edit_fns_parent_type = preg_replace('/_edit_fns$/', '', strtolower(get_parent_class($type_code.'_edit_fns')));
 
-		if ($asset_xml_parent_type != $asset_parent_type || $asset_xml_parent_type != $asset_edit_fns_parent_type) {
+		if (($asset_xml_parent_type != $asset_parent_type) || ($asset_xml_parent_type != $asset_edit_fns_parent_type)) {
 			trigger_localised_error('SYS0254', E_USER_WARNING, $type_code, $type_code, $type_code);
 			return false;
 		}
@@ -155,6 +158,8 @@ class Asset_Management extends MySource_Object
 		} else {
 			if (!$this->_install()) return false;
 		}
+
+		$this->_installDALQueries();
 
 		if (!$this->_updateFiles()) return false;
 
@@ -242,16 +247,29 @@ class Asset_Management extends MySource_Object
 		$level = count($this->_pm->getTypeAncestors($type_code));
 		$info = $this->_pm->getTypeInfo($type_code);
 
+		$db = DAL::getDb();
+
 		$sql = 'INSERT INTO sq_ast_typ
 				(type_code, version, name, description, instantiable, allowed_access, parent_type, lvl, dir, customisation)
 				VALUES
-				('.$this->_db->quote($type_code).', '.$this->_db->quote($info['version']).',
-				'.$this->_db->quote($info['name']).', '.$this->_db->quote($info['description']).',
-				'.$this->_db->quote($info['instantiable']).', '.$this->_db->quote($info['allowed_access']).',
-				'.$this->_db->quote($info['parent_type']).', '.$this->_db->quote($level).',
-				'.$this->_db->quote($info['dir']).', 0)';
-		$result = $this->_db->query($sql);
-		assert_valid_db_result($result);
+				(:type_code, :version, :name, :description, :instantiable, :allowed_access, :parent_type, :level, :dir, :customisation)';
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue('type_code',      $type_code,              PDO::PARAM_STR);
+			$query->bindValue('version',        $info['version'],        PDO::PARAM_STR);
+			$query->bindValue('name',           $info['name'],           PDO::PARAM_STR);
+			$query->bindValue('description',    $info['description'],    PDO::PARAM_STR);
+			$query->bindValue('instantiable',   $info['instantiable'],   PDO::PARAM_STR);
+			$query->bindValue('allowed_access', $info['allowed_access'], PDO::PARAM_STR);
+			$query->bindValue('parent_type',    $info['parent_type'],    PDO::PARAM_STR);
+			$query->bindValue('level',          $level,                  PDO::PARAM_INT);
+			$query->bindValue('dir',            $info['dir'],            PDO::PARAM_STR);
+			$query->bindValue('customisation',  0,                       PDO::PARAM_INT);
+			$result = DAL::execPdoQuery($query);
+		} catch (DALException $e) {
+			throw new Exception('Unable to add information for new asset type "'.$type_code.'" due to database error: '.$e->getMessage());
+		}
 
 		// now inform the asset manager that this asset is available for use
 		$this->_am->refreshAssetType($type_code);
@@ -259,7 +277,7 @@ class Asset_Management extends MySource_Object
 		// now add the attributes
 		$all_vars = $this->_getAllVars();
 		for (reset($all_vars); null !== ($k = key($all_vars)); next($all_vars)) {
-			$name =& $all_vars[$k];
+			$name = $all_vars[$k];
 			if (!$this->_addAttribute($name)) return false;
 		}
 
@@ -284,34 +302,57 @@ class Asset_Management extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		$db = DAL::getDb();
+		$asset_type = $this->getAssetType();
+
 		// get how deep we are in the heirarchy
-		$level = count($this->_pm->getTypeAncestors($this->getAssetType()));
-		$info = $this->_pm->getTypeInfo($this->getAssetType());
+		$level = count($this->_pm->getTypeAncestors($asset_type));
+		$info = $this->_pm->getTypeInfo($asset_type);
 
 		$sql = 'UPDATE sq_ast_typ
-				SET version         = '.$this->_db->quote($info['version']).',
-					name            = '.$this->_db->quote($info['name']).',
-					description     = '.$this->_db->quote($info['description']).',
-					instantiable    = '.$this->_db->quote($info['instantiable']).',
-					allowed_access  = '.$this->_db->quote($info['allowed_access']).',
-					parent_type     = '.$this->_db->quote($info['parent_type']).',
-					lvl             = '.$this->_db->quote($level).',
-					dir             = '.$this->_db->quote($info['dir']).'
-				WHERE type_code = '.$this->_db->quote($this->getAssetType());
+				SET
+					version         = :version,
+					name            = :name,
+					description     = :description,
+					instantiable    = :instantiable,
+					allowed_access  = :allowed_access,
+					parent_type     = :parent_type,
+					lvl             = :level,
+					dir             = :dir
+				WHERE
+					type_code = :type_code';
 
-		$result = $this->_db->query($sql);
-		if (!assert_valid_db_result($result, '', false, false)) {
-			return false;
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':version',        $info['version'],        PDO::PARAM_STR);
+			$query->bindValue(':name',           $info['name'],           PDO::PARAM_STR);
+			$query->bindValue(':description',    $info['description'],    PDO::PARAM_STR);
+			$query->bindValue(':instantiable',   $info['instantiable'],   PDO::PARAM_STR);
+			$query->bindValue(':allowed_access', $info['allowed_access'], PDO::PARAM_STR);
+			$query->bindValue(':parent_type',    $info['parent_type'],    PDO::PARAM_STR);
+			$query->bindValue(':level',          $level,                  PDO::PARAM_INT);
+			$query->bindValue(':dir',            $info['dir'],            PDO::PARAM_STR);
+			$query->bindValue(':type_code',      $asset_type,             PDO::PARAM_STR);
+			DAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to update type details while upgrading asset type "'.$asset_type.'" to version '.$current_version.', due to database error: ', $e->getMessage());
 		}
 
 		// now inform the asset manager that this asset is available for use
-		$this->_am->refreshAssetType($this->getAssetType());
+		$this->_am->refreshAssetType($asset_type);
 
 		// now update the attributes
 		$sql = 'SELECT name
 				FROM sq_ast_attr
-				WHERE type_code = '.$this->_db->quote($this->getAssetType());
-		$current_vars = $this->_db->getCol($sql);
+				WHERE type_code = :type_code';
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue('type_code', $asset_type);
+			$current_vars = DAL::executePdoAssoc($query, 0);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get current attributes while upgrading asset type "'.$asset_type.'" to version '.$current_version.', due to database error: ', $e->getMessage());
+		}
 
 		$all_vars = $this->_getAllVars();
 
@@ -343,14 +384,22 @@ class Asset_Management extends MySource_Object
 	*/
 	function _getAllVars()
 	{
+		$db = DAL::getDb();
+
+		$type_code = $this->getAssetType();
 		$sql = 'SELECT DISTINCT atr.name
 				FROM sq_ast_typ_inhd i, sq_ast_attr atr
-				WHERE i.type_code = '.$this->_db->quote($this->getAssetType()).'
-				  AND i.inhd_type_code <> '.$this->_db->quote($this->getAssetType()).'
+				WHERE i.type_code = :type_code
+				  AND i.inhd_type_code <> :type_code
 				  AND i.inhd_type_code = atr.type_code';
 
-		$parent_vars = $this->_db->getCol($sql);
-		assert_valid_db_result($parent_vars);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
+			$parent_vars = DAL::executePdoAssoc($query, 0);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get attribute list for asset type "'.$asset_type.'" due to database error: ', $e->getMessage());
+		}
 
 		// array_values() to get proper indexed array
 		$vars = array_values(array_unique(array_merge($parent_vars, array_keys($this->vars))));
@@ -401,19 +450,28 @@ class Asset_Management extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = DAL::getDb();
 
 		// See if any other our parents have an attribute with this name
 		$sql = 'SELECT COUNT(*) as count, MIN(at.lvl) as min, MAX(at.lvl) as max
 				FROM sq_ast_typ_inhd i, sq_ast_attr atr, sq_ast_typ at
-				WHERE i.type_code = '.$this->_db->quote($type_code).'
-				  AND i.inhd_type_code <> '.$this->_db->quote($type_code).'
+				WHERE i.type_code = :type_code
+				  AND i.inhd_type_code <> :inhd_type_code
 				  AND i.inhd_type_code = atr.type_code
-				  AND atr.name = '.$this->_db->quote($name).'
+				  AND atr.name = :name
 				  AND atr.type_code = at.type_code';
 
-		$parent_info = $this->_db->getRow($sql);
-		if (!assert_valid_db_result($parent_info, '', false, false)) {
-			return false;
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':type_code',      $type_code, PDO::PARAM_STR);
+			$query->bindValue(':inhd_type_code', $type_code, PDO::PARAM_STR);	// not needed for baked DAL?
+			$query->bindValue(':name',           $name,      PDO::PARAM_STR);
+			$result = DAL::executePdoAll($query);
+			$parent_info = $result[0];
+			unset($result);
+		} catch (Exception $e) {
+			echo 'Unable to search for matching parent attribute while adding attribute "'.$name.'" to asset type "'.$type_code.'", due to database error: '.$e->getMessage();
+			throw new Exception('Unable to search for matching parent attribute while adding attribute "'.$name.'" to asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 		}
 
 		// if none of our parent types have an attribute with this name
@@ -422,14 +480,18 @@ class Asset_Management extends MySource_Object
 			// check children to see if any of them have an attribute with this name
 			$sql = 'SELECT a.type_code, a.type, a.attrid
 					FROM sq_ast_typ_inhd i, sq_ast_attr a
-					WHERE i.inhd_type_code = '.$this->_db->quote($type_code).'
-					  AND i.type_code <> '.$this->_db->quote($type_code).'
+					WHERE i.inhd_type_code = :type_code
+					  AND i.type_code <> :inhd_type_code
 					  AND i.type_code = a.type_code
-					  AND a.name = '.$this->_db->quote($name);
-			$children = $this->_db->getAll($sql);
-
-			if (!assert_valid_db_result($children, '', false, false)) {
-				return false;
+					  AND a.name = :name';
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':type_code',      $type_code, PDO::PARAM_STR);
+				$query->bindValue(':inhd_type_code', $type_code, PDO::PARAM_STR);	// not needed for baked DAL?
+				$query->bindValue(':name',           $name,      PDO::PARAM_STR);
+				$children = DAL::executePdoAll($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to search for matching child attribute while adding attribute "'.$name.'" to asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 			}
 
 			// if  children have this attribute, we'll try to change the owner type code to us
@@ -443,16 +505,21 @@ class Asset_Management extends MySource_Object
 					}
 
 					echo '* '.$child['type_code']."\n";
-					$temp_attr_ids[] = $this->_db->quoteSmart($child['attrid']);
+					$temp_attr_ids[] = $child['attrid'];
 				}
 
 				// now, let's mark the attribute as being owned by this asset type
 				$sql = 'UPDATE sq_ast_attr
-						SET owning_type_code = '.$this->_db->quoteSmart($type_code).'
-						WHERE attrid IN ('.implode(',',$temp_attr_ids).')';
-
-				$result = $this->_db->query($sql);
-				assert_valid_db_result($result);
+						SET owning_type_code = :type_code
+						WHERE attrid IN (:attrids)';
+				try {
+					$query = $db->prepare($sql);
+					$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
+					$query->bindValue(':attrids',   $temp_attr_ids);
+					DAL::execPdoQuery($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to update attribute\'s owning type while adding attribute "'.$name.'" to asset type "'.$type_code.'", due to database error: '.$e->getMessage());
+				}
 
 				echo '*** Done'."\n\n";
 
@@ -490,17 +557,26 @@ class Asset_Management extends MySource_Object
 			$sql = 'SELECT	atr.type_code, atr.owning_type_code, atr.type, atr.uniq, atr.parameters_val,
 							atr.parameters_type_code, atr.default_type_code, atr.default_val, atr.description, atr.is_admin
 					FROM sq_ast_typ_inhd i, sq_ast_attr atr, sq_ast_typ at
-					WHERE i.type_code = '.$this->_db->quote($type_code).'
-					  AND i.inhd_type_code <> '.$this->_db->quote($type_code).'
+					WHERE i.type_code = :type_code
+					  AND i.inhd_type_code <> :inhd_type_code
 					  AND i.inhd_type_code = atr.type_code
-					  AND atr.name = '.$this->_db->quote($name).'
+					  AND atr.name = :name
 					  AND atr.type_code = at.type_code
 					  AND at.lvl = ';
 
-			$min_sql = $sql.$this->_db->quote($parent_info['min']);
-			$attr_owner = $this->_db->getRow($min_sql);
-			if (!assert_valid_db_result($attr_owner, '', false, false)) {
-				return false;
+			$min_sql = $sql.':min';
+
+			try {
+				$query = $db->prepare($min_sql);
+				$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
+				$query->bindValue(':inhd_type_code', $type_code, PDO::PARAM_STR);	// not needed for baked DAL?
+				$query->bindValue(':name',      $name,      PDO::PARAM_STR);
+				$query->bindValue(':min',       $parent_info['min'], PDO::PARAM_INT);
+				$result = DAL::executePdoAll($query);
+				$attr_owner = $result[0];
+				unset($result);
+			} catch (Exception $e) {
+				throw new Exception('Unable to search for matching parent attribute while adding attribute "'.$name.'" to asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 			}
 
 			$attr_info['owning_type_code']  = $attr_owner['owning_type_code'];
@@ -515,10 +591,18 @@ class Asset_Management extends MySource_Object
 				$attr_info['default_val']     = $this->vars[$name]['default'];
 			} else {
 				// else we want to inherit the default value
-				$max_sql = $sql.$this->_db->quote($parent_info['max']);
-				$attr_default = $this->_db->getRow($max_sql);
-				if (!assert_valid_db_result($attr_default, '', false, false)) {
-					return false;
+				$max_sql = $sql.':max';
+				try {
+					$query = $db->prepare($max_sql);
+					$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
+					$query->bindValue(':inhd_type_code', $type_code, PDO::PARAM_STR);	// not needed for baked DAL?
+					$query->bindValue(':name',      $name,      PDO::PARAM_STR);
+					$query->bindValue(':max',       $parent_info['max'], PDO::PARAM_INT);
+					$result = DAL::executePdoAll($query);
+					$attr_default = $result[0];
+					unset($result);
+				} catch (Exception $e) {
+					throw new Exception('Unable to search for matching parent attribute while adding attribute "'.$name.'" to asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 				}
 
 				$attr_info['default_type_code'] = $attr_default['default_type_code'];
@@ -531,10 +615,18 @@ class Asset_Management extends MySource_Object
 				$attr_info['parameters']           = $this->vars[$name]['parameters'];
 			} else {
 				// else we want to inherit the default value
-				$max_sql = $sql.$this->_db->quote($parent_info['max']);
-				$attr_default = $this->_db->getRow($max_sql);
-				if (!assert_valid_db_result($attr_default, '', false, false)) {
-					return false;
+				$max_sql = $sql.':max';
+				try {
+					$query = $db->prepare($max_sql);
+					$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
+					$query->bindValue(':inhd_type_code', $type_code, PDO::PARAM_STR);	// not needed for baked DAL?
+					$query->bindValue(':name',      $name,      PDO::PARAM_STR);
+					$query->bindValue(':max',       $parent_info['max'], PDO::PARAM_INT);
+					$result = DAL::executePdoAll($query);
+					$attr_default = $result[0];
+					unset($result);
+				} catch (Exception $e) {
+					throw new Exception('Unable to search for matching parent attribute while adding attribute "'.$name.'" to asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 				}
 
 				$attr_info['parameters_type_code'] = $attr_default['parameters_type_code'];
@@ -554,33 +646,36 @@ class Asset_Management extends MySource_Object
 			return false;
 		}
 
-		$attributeid = $this->_db->nextId('sq_ast_attr');
-		if (!assert_valid_db_result($attributeid, '', false, false)) {
+		// TODO: this wil be replaced in the queries.xml with a seqNextVal()
+		// call replacing the addition of the explicit sequence value
+		$attributeid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_attr_seq\')');
+		/*if (!assert_valid_db_result($attributeid, '', false, false)) {
 			return false;
-		}
+		}*/
 
 		// OK, all seems fine, let's add the bloody thing
 		$sql = 'INSERT INTO sq_ast_attr
 				(attrid, type_code, owning_type_code, name, type, uniq, parameters_type_code, default_type_code, default_val, parameters_val, is_admin, description)
 				VALUES
-				('.$this->_db->quote($attributeid).',
-				'.$this->_db->quote($type_code).',
-				'.$this->_db->quote($attr_info['owning_type_code']).',
-				'.$this->_db->quote($name).',
-				'.$this->_db->quote($attr_info['type']).',
-				'.$this->_db->quote($attr_info['uniq']).',
-				'.$this->_db->quote($attr_info['parameters_type_code']).',
-				'.$this->_db->quote($attr_info['default_type_code']).',
-				'.$this->_db->quote($attr_info['default_val']).',
-				'.$this->_db->quote(serialize($attr_info['parameters'])).',
-				'.$this->_db->quote($attr_info['is_admin']).',
-				'.$this->_db->quote($attr_info['description']).')';
+				(:attrid, :type_code, :owning_type_code, :name, :type, :uniq, :parameters_type_code, :default_type_code, :default_val, :parameters, :is_admin, :description)';
 
-		$result = $this->_db->query($sql);
-		if (!assert_valid_db_result($result, '', false, false)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':attrid',               $attributeid,                        PDO::PARAM_INT);
+			$query->bindValue(':type_code',            $type_code,                          PDO::PARAM_STR);
+			$query->bindValue(':owning_type_code',     $attr_info['owning_type_code'],      PDO::PARAM_STR);
+			$query->bindValue(':name',                 $name,                               PDO::PARAM_STR);
+			$query->bindValue(':type',                 $attr_info['type'],                  PDO::PARAM_STR);
+			$query->bindValue(':uniq',                 $attr_info['uniq'],                  PDO::PARAM_STR);
+			$query->bindValue(':parameters_type_code', $attr_info['parameters_type_code'],  PDO::PARAM_STR);
+			$query->bindValue(':default_type_code',    $attr_info['default_type_code'],     PDO::PARAM_STR);
+			$query->bindValue(':default_val',          $attr_info['default_val'],           PDO::PARAM_STR);
+			$query->bindValue(':parameters',           serialize($attr_info['parameters']), PDO::PARAM_STR);
+			$query->bindValue(':is_admin',             $attr_info['is_admin'],              PDO::PARAM_BOOL);
+			$query->bindValue(':description',          $attr_info['description'],           PDO::PARAM_STR);
+			DAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to add attribute "'.$name.'" to asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -657,6 +752,7 @@ class Asset_Management extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = DAL::getDb();
 
 		// if they have defined an update fn for this, then we don't need to do anything
 		if (!empty($this->vars[$name]['update_fn'])) {
@@ -665,14 +761,23 @@ class Asset_Management extends MySource_Object
 
 		} else {
 			// load this attribute info
-			$sql = 'SELECT attrid, type_code, owning_type_code, name, type, uniq, parameters_val, parameters_type_code, default_type_code, default_val
-					FROM sq_ast_attr
-					WHERE type_code = '.$this->_db->quoteSmart($type_code).'
-					  AND name = '.$this->_db->quoteSmart($name);
+			$sql = 'SELECT
+						attrid, type_code, owning_type_code, name, type, uniq, parameters_val, parameters_type_code, default_type_code, default_val
+					FROM
+						sq_ast_attr
+					WHERE
+						type_code = :type_code
+						AND name = :name';
 
-			$curr_attr = $this->_db->getRow($sql);
-			if (!assert_valid_db_result($curr_attr, '', false, false)) {
-				return false;
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
+				$query->bindValue(':name',      $name,      PDO::PARAM_STR);
+				$result = DAL::executePdoAll($query);
+				$curr_attr = $result[0];
+				unset($result);
+			} catch (Exception $e) {
+				throw new Exception('Unable to load attribute info for attribute "'.$name.'" of asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 			}
 
 			// determine the parent of the asset being upgraded.
@@ -685,12 +790,18 @@ class Asset_Management extends MySource_Object
 			// see if there is a parent type with the same name
 			$sql = 'SELECT attrid, owning_type_code
 					FROM sq_ast_attr
-					WHERE type_code = '.$this->_db->quoteSmart($parent).'
-					  AND name = '.$this->_db->quoteSmart($name);
+					WHERE type_code = :type_code
+					AND name = :name';
 
-			$parent_check_data = $this->_db->getRow($sql);
-			if (!assert_valid_db_result($parent_check_data, '', false, false)) {
-				return false;
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
+				$query->bindValue(':name',      $name,      PDO::PARAM_STR);
+				$result = DAL::executePdoAll($query);
+				$parent_check_data = $result[0];
+				unset($result);
+			} catch (Exception $e) {
+				throw new Exception('Unable to load parent type attribute info for attribute "'.$name.'" of asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 			}
 
 			// fix owning type code if:
@@ -707,12 +818,17 @@ class Asset_Management extends MySource_Object
 				echo '* Fixing invalid owner definition of attribute "'.$name.'"'."\n";
 
 				$sql = 'UPDATE sq_ast_attr
-						SET owning_type_code = '.$this->_db->quoteSmart($owning_type_code).'
-						WHERE type_code = '.$this->_db->quoteSmart($type_code).' AND name = '.$this->_db->quoteSmart($name);
+						SET owning_type_code = :owning_type_code
+						WHERE type_code = :type_code AND name = :name';
 
-				$result = $this->_db->query($sql);
-				if (!assert_valid_db_result($result, '', false, false)) {
-					return false;
+				try {
+					$query = $db->prepare($sql);
+					$query->bindValue(':owning_type_code', $owning_type_code, PDO::PARAM_STR);
+					$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
+					$query->bindValue(':name',      $name,      PDO::PARAM_STR);
+					DAL::execPdoQuery($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to update owning type code info for attribute "'.$name.'" of asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 				}
 
 				$curr_attr['owning_type_code'] = $owning_type_code;
@@ -732,12 +848,18 @@ class Asset_Management extends MySource_Object
 				// so get our parent's parameters and set to that
 				$sql = 'SELECT owning_type_code, parameters_type_code, parameters_val, default_type_code, default_val
 						FROM sq_ast_attr
-						WHERE type_code = '.$this->_db->quoteSmart($parent).'
-						  AND name = '.$this->_db->quoteSmart($name);
+						WHERE type_code = :type_code
+						  AND name = :name';
 
-				$parent_attr = $this->_db->getRow($sql);
-				if (!assert_valid_db_result($parent_attr, '', false, false)) {
-					return false;
+				try {
+					$query = $db->prepare($sql);
+					$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
+					$query->bindValue(':name',      $name,      PDO::PARAM_STR);
+					$result = DAL::executePdoAll($query);
+					$parent_attr = $result[0];
+					unset($result);
+				} catch (Exception $e) {
+					throw new Exception('Unable to load parent type attribute info for attribute "'.$name.'" of asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 				}
 
 
@@ -821,6 +943,7 @@ class Asset_Management extends MySource_Object
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = DAL::getDb();
 
 		$type_code = $this->getAssetType();
 
@@ -834,16 +957,25 @@ class Asset_Management extends MySource_Object
 
 		// update all the attributes that we own
 		$sql = 'UPDATE sq_ast_attr
-				SET type        = '.$this->_db->quote($this->vars[$name]['type']).',
-					uniq        = '.$this->_db->quote(empty($this->vars[$name]['uniq']) ? 0 : 1).',
-					is_admin    = '.$this->_db->quote(isset($this->vars[$name]['is_admin']) ? (int) $this->vars[$name]['is_admin'] : 1).',
-					description = '.$this->_db->quote($description).'
-				WHERE owning_type_code = '.$this->_db->quote($type_code).'
-				  AND name = '.$this->_db->quote($name);
+				SET type        = :type,
+					uniq        = :uniq,
+					is_admin    = :is_admin,
+					description = :description
+				WHERE owning_type_code = :owning_type_code
+				  AND name = :name';
 
-		$result = $this->_db->query($sql);
-		if (!assert_valid_db_result($result, '', false, false)) {
-			return false;
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':type',             $this->vars[$name]['type'], PDO::PARAM_STR);
+			$query->bindValue(':uniq',             empty($this->vars[$name]['uniq']) ? 0 : 1, PDO::PARAM_INT);
+			$query->bindValue(':is_admin',         isset($this->vars[$name]['is_admin']) ? (int) $this->vars[$name]['is_admin'] : 1, PDO::PARAM_INT);
+			$query->bindValue(':description',      $description, PDO::PARAM_STR);
+			$query->bindValue(':owning_type_code', $type_code,   PDO::PARAM_STR);
+			$query->bindValue(':name',             $name,        PDO::PARAM_STR);
+			DAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to update owned attribute info for attribute "'.$name.'" of asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 		}
 
 		if (!$this->_validateAttributeDefault($this->vars[$name]['default'], $this->vars[$name]['type'], (empty($this->vars[$name]['parameters']) ? Array() : $this->vars[$name]['parameters']))) {
@@ -853,25 +985,36 @@ class Asset_Management extends MySource_Object
 
 		// update all the attributes that are still using our default
 		$sql = 'UPDATE sq_ast_attr
-				SET default_val = '.$this->_db->quote($this->vars[$name]['default']).'
-				WHERE default_type_code = '.$this->_db->quote($type_code).'
-				  AND name = '.$this->_db->quote($name);
+				SET default_val = :val
+				WHERE default_type_code = :type_code
+				  AND name = :name';
 
-		$result = $this->_db->query($sql);
-		if (!assert_valid_db_result($result, '', false, false)) {
-			return false;
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':val',         $this->vars[$name]['default'], PDO::PARAM_STR);
+			$query->bindValue(':type_code', $type_code,   PDO::PARAM_STR);
+			$query->bindValue(':name',             $name,        PDO::PARAM_STR);
+			DAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to update attribute defaults for attribute "'.$name.'" of asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 		}
 
 		if (!empty($this->vars[$name]['parameters'])) {
 			// update all the attributes that are still using our parameters
 			$sql = 'UPDATE sq_ast_attr
-					SET parameters_val = '.$this->_db->quote(serialize($this->vars[$name]['parameters'])).'
-					WHERE parameters_type_code = '.$this->_db->quote($type_code).'
-					  AND name = '.$this->_db->quote($name);
+					SET parameters_val = :val
+					WHERE parameters_type_code = :type_code
+					  AND name = :name';
 
-			$result = $this->_db->query($sql);
-			if (!assert_valid_db_result($result, '', false, false)) {
-				return false;
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':val',         serialize($this->vars[$name]['parameters']), PDO::PARAM_STR);
+				$query->bindValue(':type_code', $type_code,   PDO::PARAM_STR);
+				$query->bindValue(':name',             $name,        PDO::PARAM_STR);
+				DAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to update attribute parameter info for attribute "'.$name.'" of asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 			}
 		}
 
@@ -897,27 +1040,39 @@ class Asset_Management extends MySource_Object
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = DAL::getDb();
 
 		// OK, the reason that we are setting the default type code for the attributes
 		// is so that if this is the first time that we are setting the default value
 		// then all the asset types below us that were inheriting the default value from the
 		// the same asset type as we used to be will be converted to using our default value
 		$sql = 'UPDATE sq_ast_attr
-				SET '.$field.'_type_code = '.$this->_db->quote($new_type_code).',
-					'.$field.'_val     = '.$this->_db->quote($new_value).'
-				WHERE attrid = '.$this->_db->quote($attributeid).'
+				SET '.$field.'_type_code = :new_type_code,
+					'.$field.'_val     = :value
+				WHERE attrid = :attrid
 				   OR attrid IN (
 								SELECT atr.attrid
 								FROM sq_ast_typ_inhd i, sq_ast_attr atr
-								WHERE i.inhd_type_code = '.$this->_db->quote($new_type_code).'
-								  AND i.type_code <> '.$this->_db->quote($new_type_code).'
+								WHERE i.inhd_type_code = :new_type_code_1
+								  AND i.type_code <> :new_type_code_2
 								  AND i.type_code = atr.type_code
-								  AND atr.'.$field.'_type_code = '.$this->_db->quote($old_type_code).'
-								  AND atr.name = '.$this->_db->quote($name).'
+								  AND atr.'.$field.'_type_code = :old_type_code
+								  AND atr.name = :name
 								  )';
 
-		$result = $this->_db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':new_type_code',   $new_type_code, PDO::PARAM_STR);
+			$query->bindValue(':new_type_code_1',   $new_type_code, PDO::PARAM_STR);
+			$query->bindValue(':new_type_code_2',   $new_type_code, PDO::PARAM_STR);
+			$query->bindValue(':old_type_code', $old_type_code,   PDO::PARAM_STR);
+			$query->bindValue(':name',             $name,        PDO::PARAM_STR);
+			$query->bindValue(':value',             $new_value,        PDO::PARAM_STR);
+			$query->bindValue(':attrid',             $attributeid,        PDO::PARAM_STR);
+			DAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to update custom attribute value info for attribute "'.$name.'" of asset type "'.$type_code.'", due to database error: '.$e->getMessage());
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -944,7 +1099,7 @@ class Asset_Management extends MySource_Object
 		// check that the default value is valid
 		require_once SQ_ATTRIBUTES_PATH.'/'.$attr_type.'/'.$attr_type.'.inc';
 		$class = 'Asset_Attribute_'.$attr_type;
-		$attr =& new $class();
+		$attr = new $class();
 		foreach ($parameters as $k => $v) {
 			$attr->_params[$k] = $v;
 		}
@@ -973,26 +1128,22 @@ class Asset_Management extends MySource_Object
 
 		if (!isset($GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'][$file])) {
 
-			$xml_array =& new XML_Array(Asset_Management::getAssetArrayPaths());
-
-			$info = $xml_array->getArrayFromFile($file);
-			if (PEAR::isError($info)) {
-				trigger_error($info->error_message_prefix.$info->message.'<br/>In File:'.$file, E_USER_WARNING); //ast-val-db fix
-				return Array();
+			try {
+				$info = new SimpleXMLElement($file, NULL, TRUE);
+			} catch (Exception $e) {
+				throw new Exception('Could not parse asset definition file "'.$file.'": '.$e->getMessage());
 			}
 
-			$xml_array->close();
-
 			$GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'][$file] = Array(
-																	'type_code'			=> strtolower($info['type_code']['value']),
-																	'package'			=> $info['package']['value'],
-																	'name'				=> $info['name']['value'],
-																	'version'			=> $info['version']['value'],
-																	'description'		=> $info['description']['value'],
-																	'instantiable'		=> ($info['instantiable']['value'] == 'yes') ? 1 : 0,
-																	'allowed_access'	=> $info['allowed_access']['value'],
-																	'parent_type'		=> $info['parent_type']['value'],
-																	'flash_menu_path'	=> (isset($info['flash_menu_path']['value'])) ? $info['flash_menu_path']['value'] : '',
+																	'type_code'			=> strtolower((string)$info->type_code),
+																	'package'			=> (string)$info->package,
+																	'name'				=> (string)$info->name,
+																	'version'			=> (string)$info->version,
+																	'description'		=> (string)$info->description,
+																	'instantiable'		=> ((string)$info->instantiable === 'yes') ? 1 : 0,
+																	'allowed_access'	=> (string)$info->allowed_access,
+																	'parent_type'		=> (string)$info->parent_type,
+																	'flash_menu_path'	=> (isset($info->flash_menu_path)) ? (string)$info->flash_menu_path : '',
 																);
 
 		}//end if
@@ -1003,18 +1154,24 @@ class Asset_Management extends MySource_Object
 
 
 	/**
-	* Used by the XML_Array()
+	* Generates the baked Database Abstraction Layer (DAL) queries for the asset
 	*
-	* @see XML_Array::XML_Array()
-	*
-	* @return array
+	* @return boolean
 	* @access public
 	*/
-	function getAssetArrayPaths()
+	function _installDALQueries()
 	{
-		return Array('asset_info/requirements/requirement');
+		$name = $this->getAssetType();
+		$old_path = ini_get('include_path');
+		ini_set('include_path', SQ_LIB_PATH);
+		require_once SQ_LIB_PATH.'/MatrixDAL/MatrixDALBaker.inc';
+		$queries_found = MatrixDALBaker::addAssetTypeQueries($name);
+		if ($queries_found) {
+			MatrixDALBaker::bakeQueriesFile($name);
+		}
+		ini_set('include_path', $old_path);
 
-	}//end getAssetArrayPaths()
+	}//end _installDALQueries()
 
 
 }//end class
