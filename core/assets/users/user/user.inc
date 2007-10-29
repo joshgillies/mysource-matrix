@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.116 2007/09/17 00:14:08 bshkara Exp $
+* $Id: user.inc,v 1.117 2007/10/29 22:45:21 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.117 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -121,12 +121,12 @@ class User extends Asset
 
 		// create an inbox
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
-		$inbox =& new Inbox();
+		$inbox = new Inbox();
 		if (!$inbox->create($user_link)) return FALSE;
 
 		// create a workspace
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('workspace');
-		$workspace =& new Workspace();
+		$workspace = new Workspace();
 		$workspace->setAttrValue('name', 'Workspace');
 		if (!$workspace->create($user_link)) return FALSE;
 
@@ -199,7 +199,7 @@ class User extends Asset
 
 		// tell the workspace (or anyone else listening) that the username has been updated
 		if ($name == 'username') {
-			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'usernameUpdated', Array('username' => $value));
 		}
 		return TRUE;
@@ -237,7 +237,7 @@ class User extends Asset
 	*/
 	function validatePassword($passwd, $add_system_message=FALSE)
 	{
-		$config =& new Password_Rules_Config();
+		$config = new Password_Rules_Config();
 		require_once $config->config_file;
 
 		// one rule that is always in effect:
@@ -696,7 +696,7 @@ class User extends Asset
 			// grab the condition name, make an object
 			$condition_type_code = $restriction['name'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($condition_type_code);
-			$condition =& new $condition_type_code();
+			$condition = new $condition_type_code();
 
 			$match = $condition->evaluate($this, $restriction['condition_data']);
 
@@ -753,7 +753,7 @@ class User extends Asset
 			return $null;
 		}
 
-		$workspace =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+		$workspace = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 		if (is_null($workspace)) {
 			trigger_localised_error('CORE0109', E_USER_WARNING,$this->name);
 			return $null;
