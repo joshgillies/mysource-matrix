@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service_config.inc,v 1.28 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: messaging_service_config.inc,v 1.29 2007/10/29 05:31:04 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 */
 class Messaging_Service_Config extends Config
@@ -50,9 +50,9 @@ class Messaging_Service_Config extends Config
 	* Constructor
 	*
 	*/
-	function Messaging_Service_Config()
+	function __construct()
 	{
-		$this->Config();
+		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/messaging_service.inc';
 
 	}//end constructor
@@ -79,7 +79,7 @@ class Messaging_Service_Config extends Config
 
 		require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 
-		$option_list =& new Asset_Attribute_Option_List(0, NULL, SQ_OPTION_LIST_DELIMITER_UNIX);
+		$option_list = new Asset_Attribute_Option_List(0, NULL, SQ_OPTION_LIST_DELIMITER_UNIX);
 		$option_list->setEditParam('width', 60);
 
 		$o->openSection(translate('messaging_service_configuration'));
@@ -161,7 +161,7 @@ class Messaging_Service_Config extends Config
 		$class = get_class($this);
 
 		require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
-		$option_list =& new Asset_Attribute_Option_List(0, NULL, SQ_OPTION_LIST_DELIMITER_UNIX);
+		$option_list = new Asset_Attribute_Option_List(0, NULL, SQ_OPTION_LIST_DELIMITER_UNIX);
 
 		// We assume namining of these constants, and that they always have white/black lists.
 		$message_types = Array(
