@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.23 2007/10/23 01:46:48 hnguyen Exp $
+* $Id: page_calendar_rolling.inc,v 1.24 2007/10/29 03:33:35 nbhradwaj Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -439,7 +439,7 @@ class Page_Calendar_Rolling extends Page
 							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						}
 						// get all the metadata keywords for this asset
-						$metadata_values = $mm->getMetadataFieldValues($id, array_values($metadata_keywords));
+						$metadata_values = $mm->getMetadataFieldValues($id, array_values($metadata_keywords[$event['type_code']]));
 
 						foreach ($metadata_values as $field => $value) {
 							$replacements['asset_metadata_'.$field] = $value;
