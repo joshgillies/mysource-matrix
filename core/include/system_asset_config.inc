@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.23 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: system_asset_config.inc,v 1.24 2007/10/29 05:28:01 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation system asset config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 class System_Asset_Config extends Config
@@ -41,9 +41,9 @@ class System_Asset_Config extends Config
 	* Constructor
 	*
 	*/
-	function System_Asset_Config()
+	function __construct()
 	{
-		$this->Config();
+		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/system_assets.inc';
 
 	}//end constructor
@@ -99,7 +99,9 @@ class System_Asset_Config extends Config
 						$class = 'package_manager_'.$package;
 					}
 
-					eval('$sys_asset_types = '.$class.'::getSystemAssetTypes();');
+					$package_obj = new $class;
+					$sys_asset_types = $package_obj->getSystemAssetTypes();
+					unset($package_obj);
 
 					foreach ($sys_asset_types as $type_code) {
 						$assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($type_code);
