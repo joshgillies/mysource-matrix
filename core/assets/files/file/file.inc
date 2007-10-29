@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.150 2007/08/23 04:17:41 bshkara Exp $
+* $Id: file.inc,v 1.151 2007/10/29 23:41:00 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.150 $
+* @version $Revision: 1.151 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -383,7 +383,7 @@ class File extends Asset
 			// we are morphing into another file type, so check that the actual
 			// file currently uploaded is not going to conflict with the new type
 			$am->includeAsset($new_type_code);
-			$tmp =& new $new_type_code();
+			$tmp = new $new_type_code();
 			$existing = $this->getExistingFile();
 			if (!empty($existing)) {
 				if (!$tmp->validFile($existing)) {
@@ -1113,7 +1113,7 @@ class File extends Asset
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 			$ext = get_file_type($existing['filename']);
-			if (($this->status & SQ_SC_STATUS_SAFE_EDITING) && (is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user'))) {
+			if (($this->status & SQ_SC_STATUS_SAFE_EDITING) && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)) {
 				// strip file versioning suffix from the file extension, e.g. 'pdf,ffv5' becomes 'pdf'
 				$ext = preg_replace('/,ffv\d+$/', '', $ext);
 			}
@@ -1128,7 +1128,7 @@ class File extends Asset
 			}
 
 			// send cacheable headers if file asset meets the credentials
-			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user')
+			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
 				&& $this->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER) {
 				$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 				$cache_expiry = $cm->getExpiry($this->type());
@@ -1233,7 +1233,7 @@ class File extends Asset
 			$then = iso8601_ts($_SESSION['sq_rollback_view']['rollback_time']);
 			$info = $fv->_checkOutCheck($rep_file, NULL, $then);
 			$path = $info['source_file'];
-		} else if (($this->status & SQ_SC_STATUS_SAFE_EDITING) && (is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user'))) {
+		} else if (($this->status & SQ_SC_STATUS_SAFE_EDITING) && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)) {
 			// safe edit, get the previous live version from the file versioning repository for public user (bug #1049)
 			if (is_file($this->data_path.'/sq_system_version_no')) {
 				$file_version = file_to_string($this->data_path.'/sq_system_version_no');

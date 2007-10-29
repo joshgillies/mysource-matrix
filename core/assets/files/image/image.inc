@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.63 2007/02/18 23:34:48 rhoward Exp $
+* $Id: image.inc,v 1.64 2007/10/29 23:41:00 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -555,7 +555,7 @@ class Image extends File
 			}
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
-			$asset =& new Image_Variety($this->id.':'.$shadowid, $varieties['data'][$shadowid]);
+			$asset = new Image_Variety($this->id.':'.$shadowid, $varieties['data'][$shadowid]);
 
 		}//end if
 
