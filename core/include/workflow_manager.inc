@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.108 2007/10/11 03:52:22 bshkara Exp $
+* $Id: workflow_manager.inc,v 1.109 2007/10/29 22:15:01 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -79,19 +79,27 @@ class Workflow_Manager extends MySource_Object
 	{
 		$storage_access = ((is_null($granted)) ? 2 : (int) $granted);
 		if (!isset($this->_tmp['schemas'][(int)$assetid][$storage_access][(int)$running])) {
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 
 			$sql = '  SELECT DISTINCT schemaid, granted
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow ';
-			$where = 'assetid = '.$db->quote($assetid);
+			$where = 'assetid = :assetid';
 			if ($running) $where .= ' AND wflow IS NOT NULL';
 			if (!is_null($granted) || $running) {
-				$where .= ' AND granted = '.$db->quote((($granted) ? '1' : '0'));
+				$where .= ' AND granted = :granted';
 			}
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			$result = $db->getAll($sql.$where);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql.$where);
+				$query->bindValue(':assetid', $assetid, PDO::PARAM_STR);
+				if (!is_null($granted)) {
+					$query->bindValue(':granted', $granted ? 1 : 0, PDO::PARAM_INT);
+				}
+				$result = DAL::executePdoAll($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get workflow schemas for asset ID #'.$assetid.' due to database error: '.$e->getMessage());
+			}
 
 			$schemas = Array();
 			foreach ($result as $data) {
