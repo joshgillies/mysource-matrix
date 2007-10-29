@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.101 2007/07/05 01:23:02 rhoward Exp $
+* $Id: init.inc,v 1.102 2007/10/29 04:35:13 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix
 */
 
@@ -28,6 +28,10 @@
 // PHP thingies we want done OUR way
 error_reporting(E_ALL);
 set_magic_quotes_runtime(0);
+
+// TODO: This sets the default timezone so date functions don't throw E_STRICT.
+// TODO: This needs to be replaced with something else
+date_default_timezone_set('Australia/Sydney');
 
 // we need this so that our error handler won't kill itself attempting to try and remove
 // all existing buffers - especially important when Zend Performance Suite is installed because
@@ -223,7 +227,7 @@ if (get_magic_quotes_gpc()) {
 
 // create and init the system object
 require_once SQ_INCLUDE_PATH.'/mysource.inc';
-$GLOBALS['SQ_SYSTEM'] =& new MySource();
+$GLOBALS['SQ_SYSTEM'] = new MySource();
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_SECURE);
 $GLOBALS['SQ_SYSTEM']->init();
 
