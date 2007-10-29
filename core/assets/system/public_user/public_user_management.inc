@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: public_user_management.inc,v 1.6 2006/12/06 04:40:09 emcdonald Exp $
+* $Id: public_user_management.inc,v 1.7 2007/10/29 23:17:39 lwright Exp $
 *
 */
 
@@ -39,35 +39,6 @@ class Public_User_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 	}//end constructor
-
-
-	/**
-	* Upgrade
-	*
-	* @param string	$current_version	the version of the asset that is currenly installed
-	*
-	* @return boolean
-	* @access public
-	*/
-	function _upgrade($current_version)
-	{
-		if (version_compare($current_version, '0.1', '=')) {
-			// all references to 0 as the "public" userid were removed from core code
-			// recently, so we will run a query here to remove them from the perms table
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
-			$sql = 'UPDATE sq_ast_perm
-						SET userid = '.$db->quoteSmart((string) $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user')).'
-						WHERE userid = '.$db->quoteSmart((string) 0);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$res = $db->query($sql);
-			assert_valid_db_result($res);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		}
-		return parent::_upgrade($current_version);
-
-	}//end _upgrade()
 
 
 }//end class
