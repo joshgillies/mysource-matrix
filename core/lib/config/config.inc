@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.30 2007/04/03 03:59:16 mbrydon Exp $
+* $Id: config.inc,v 1.31 2007/10/29 05:44:27 lwright Exp $
 *
 */
 
@@ -23,38 +23,40 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object
 {
+
+
 	/**
 	* Holds all the vars for this that config vars for this config
 	* In the form : Array([var name] => Array('editable' => [boolean], 'default' => [mixed scalar]))
 	* @var Array()
 	*/
-	var $config_vars = Array();
+	public $config_vars = Array();
 
 	/**
 	* The file to save the config file to
 	* @var string
 	*/
-	var $config_file = '';
+	public $config_file = '';
 
 	/**
 	* The screen name of the config
 	* @var string
 	*/
-	var $name = '';
+	public $name = '';
 
 
 	/**
 	* Constructor
 	*
 	*/
-	function Config()
+	function __construct()
 	{
-		$this->MySource_Object();
+		parent::__construct();
 		$this->name = ucwords(str_replace('_', ' ', get_class($this)));
 
 	}//end constructor
@@ -71,11 +73,11 @@ class Config extends MySource_Object
 	* @return boolean	indicates whether the file was written
 	* @access public
 	*/
-	function save($vars, $backup_existing=false, $send_message=true)
+	public function save($vars, $backup_existing=FALSE, $send_message=TRUE)
 	{
 		if (!$this->writeAccess()) {
 			trigger_localised_error('SYS0026', E_USER_WARNING, $this->name);
-			return false;
+			return FALSE;
 		}
 
 		// attempt to load the config file to make sure we get any current settings
@@ -104,7 +106,7 @@ class Config extends MySource_Object
 
 			if (!$this->_paintConfigVar($var_name, $value)) {
 				ob_end_clean();
-				return false;
+				return FALSE;
 			}
 
 		}//end foreach
@@ -122,7 +124,7 @@ class Config extends MySource_Object
 			} while (file_exists($old_version));
 
 			if (!copy($this->config_file, $old_version)) {
-				return false;
+				return FALSE;
 			}
 
 		}// endif
@@ -133,17 +135,17 @@ class Config extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		// make sure the directory exists
 		if (!create_directory(dirname($this->config_file))) {
-			return false;
+			return FALSE;
 		}
 
 		// and save the file
 		if (!string_to_file($str, $this->config_file)) {
-			return false;
+			return FALSE;
 		}
 
 		// Check if a message should be sent.
 		if ($changed_vars && $send_message) {
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$ms->openQueue();
 			foreach ($changed_vars as $var_name => $values) {
 				$message_body = $var_name.' changed from '.var_export($values['old'], true).' to '.var_export($values['new'], true)."\n";
@@ -160,7 +162,7 @@ class Config extends MySource_Object
 
 		}// end if
 
-		return true;
+		return TRUE;
 
 	}//end save()
 
@@ -176,7 +178,7 @@ class Config extends MySource_Object
 	*
 	* @return boolean	whether the value is valid or not
 	*/
-	function _paintConfigVar($var_name, $value, $var_export=true)
+	protected function _paintConfigVar($var_name, $value, $var_export=TRUE)
 	{
 		echo "define('", $var_name, "', ";
 		if ($var_export) {
@@ -187,7 +189,7 @@ class Config extends MySource_Object
 
 		echo ");\n";
 
-		return true;
+		return TRUE;
 
 	}//end _paintConfigVar()
 
@@ -199,7 +201,7 @@ class Config extends MySource_Object
 	* @access public
 	* @see MySource::acquireLock()
 	*/
-	function acquireLock()
+	public function acquireLock()
 	{
 		if (!$this->canAcquireLock()) {
 			return 'You are not allowed to acquire the lock on '.$this->name;
@@ -216,9 +218,9 @@ class Config extends MySource_Object
 	* @access public
 	* @see MySource::acquireLock()
 	*/
-	function canAcquireLock()
+	public function canAcquireLock()
 	{
-		return true;
+		return TRUE;
 
 	}//end canAcquireLock()
 
@@ -230,7 +232,7 @@ class Config extends MySource_Object
 	* @access public
 	* @see MySource::releaseLock()
 	*/
-	function releaseLock()
+	public function releaseLock()
 	{
 		return $GLOBALS['SQ_SYSTEM']->releaseLock(get_class($this));
 
@@ -244,7 +246,7 @@ class Config extends MySource_Object
 	* @access public
 	* @see MySource::getLockInfo()
 	*/
-	function getLockInfo()
+	public function getLockInfo()
 	{
 		return $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
 
@@ -257,18 +259,18 @@ class Config extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess()
+	public function writeAccess()
 	{
-		if (!isset($GLOBALS['SQ_SYSTEM'])) return true;
+		if (!isset($GLOBALS['SQ_SYSTEM'])) return TRUE;
 		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
-			return true;
+			return TRUE;
 		}
 
 		$lock_info = $this->getLockInfo();
 		if (!empty($lock_info) && $lock_info['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-			return true;
+			return TRUE;
 		}
-		return false;
+		return FALSE;
 
 	}//end writeAccess()
 
@@ -285,7 +287,7 @@ class Config extends MySource_Object
 	* @access public
 	* @see processBackend()
 	*/
-	function paintBackend(&$o)
+	public function paintBackend(&$o)
 	{
 		require_once $this->config_file;
 
@@ -308,12 +310,12 @@ class Config extends MySource_Object
 						if (!empty($lock)) {
 							// this asset is currently locked
 							// so display message to the user
-							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+							$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 
 							$now = time();
 
 							require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-							$expires_in = easy_time_total(($lock['expires'] - $now), true);
+							$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
 							if (!$expires_in) $expires_in = '1 second';
 							$expires_in = translate('due_to_expire', $expires_in);
 							if ($have_lock) {
@@ -355,9 +357,9 @@ class Config extends MySource_Object
 	* @access public
 	* @see paintBackend()
 	*/
-	function processBackend(&$o)
+	public function processBackend(&$o)
 	{
-		$saved = false;
+		$saved = FALSE;
 		if (!empty($_POST['process_form'])) {
 
 			if (!empty($_POST[get_class($this)])) {
