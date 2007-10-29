@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.571.2.5 2007/10/25 23:45:27 rong Exp $
+* $Id: asset_manager.inc,v 1.571.2.6 2007/10/29 00:43:15 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.571.2.5 $
+* @version $Revision: 1.571.2.6 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3269,12 +3269,13 @@ class Asset_Manager extends MySource_Object
 	*											the specified asset for a parent to qualify to be returned
 	* @param boolean		$ignore_bridge		Optional parameter that, if true, will prevent this function from
 	*											requesting parents from shadow asset bridges
+	* @param string			$link_value_wanted	Link Value Wanted
 	*
 	* @return array
 	* @access public
 	* @see generateGetParentsQuery()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=TRUE, $sort_by=NULL, $access=NULL, $effective=TRUE, $min_height=NULL, $max_height=NULL, $ignore_bridge=FALSE)
+	function getParents($assetid, $type_code='', $strict_type_code=TRUE, $sort_by=NULL, $access=NULL, $effective=TRUE, $min_height=NULL, $max_height=NULL, $ignore_bridge=FALSE, $link_value_wanted=NULL)
 	{
 		// check if we are getting parents for a shadow asset, and palm the request off to the
 		// handler of the shadow asset if we are
@@ -3339,7 +3340,7 @@ class Asset_Manager extends MySource_Object
 			return $parents;
 		}//end if shadow asset
 
-		$query = $this->generateGetParentsQuery($assetid, $type_code, $strict_type_code, $sort_by, $access, $effective, $min_height, $max_height);
+		$query = $this->generateGetParentsQuery($assetid, $type_code, $strict_type_code, $sort_by, $access, $effective, $min_height, $max_height, $link_value_wanted);
 		if (empty($query)) return Array();
 		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
 		assert_valid_db_result($result);
@@ -3383,12 +3384,13 @@ class Asset_Manager extends MySource_Object
 	*												the specified asset for a child to qualify to be returned
 	* @param boolean		$direct_shadows_only	If TRUE, ONLY direct shadow asset children will be returned
 	*												If FALSE, ALL the shadow asset children will be returned
+	* @param string			$link_value_wanted		Link value wanted
 	*
 	* @return array
 	* @access public
 	* @see generateGetChildrenQuery()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE)
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE, $link_value_wanted=NULL)
 	{
 		assert_valid_assetid($assetid);
 		// check if we are getting children for a shadow asset, and palm the request off to the
@@ -3419,7 +3421,7 @@ class Asset_Manager extends MySource_Object
 			$this->forgetAsset($asset);
 			return $children;
 		}
-		$query = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by, $access, $effective, TRUE, $min_depth, $max_depth, $direct_shadows_only);
+		$query = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by, $access, $effective, TRUE, $min_depth, $max_depth, $direct_shadows_only, $link_value_wanted);
 		$this->forgetAsset($asset);
 		unset($asset);
 		if (empty($query)) return Array();
@@ -7534,12 +7536,13 @@ class Asset_Manager extends MySource_Object
 	*												the specified asset for a child to qualify to be returned
 	* @param boolean		$direct_shadows_only	If TRUE, ONLY direct shadow asset children will be returned
 	*												If FALSE, ALL the shadow asset children will be returned
+	* @param string			$link_value_wanted		Link Value Wanted
 	*
 	* @return array
 	* @access public
 	* @see getChildren()
 	*/
-	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $inc_type_code=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE)
+	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $inc_type_code=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE, $link_value_wanted=NULL)
 	{
 		assert_valid_assetid($asset->id);
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -7589,6 +7592,11 @@ class Asset_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+
+			// adding a new filter 'link value'
+			if ($link_value_wanted !== NULL) {
+				$where .= ' and l.value= '.$db->quoteSmart($link_value_wanted).' ';
+			}
 		}//end else
 
 		// if direct shadow asset children should be returned
@@ -7722,12 +7730,13 @@ class Asset_Manager extends MySource_Object
 	*											the specified asset for a parent to qualify (immediate parent is 1)
 	* @param int			$max_height			Optional parameter that specifies maximum number of levels above
 	*											the specified asset for a parent to qualify to be returned
+	* @param string			$link_value_wanted	the link value wanted
 	*
 	* @return array
 	* @access public
 	* @see getParents()
 	*/
-	function generateGetParentsQuery($assetid, $type_code='', $strict_type_code=TRUE, $sort_by=NULL, $access=NULL, $effective=TRUE, $min_height=NULL, $max_height=NULL)
+	function generateGetParentsQuery($assetid, $type_code='', $strict_type_code=TRUE, $sort_by=NULL, $access=NULL, $effective=TRUE, $min_height=NULL, $max_height=NULL, $link_value_wanted=NULL)
 	{
 		assert_valid_assetid($assetid);
 
@@ -7816,6 +7825,10 @@ class Asset_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+
+		if ($link_value_wanted !== NULL) {
+			$where .= ' and l.value ='.$db->quote($link_value_wanted).' ';
+		}
 
 		if (!empty($type_code)) {
 			$type_code_cond = '';
@@ -7987,6 +8000,7 @@ class Asset_Manager extends MySource_Object
 	* Returns an array of global snippet keywords that are available to the current user
 	*
 	* @param boolean	$more_info	returns description if this is true
+	*
 	* @return array
 	* @access public
 	*/

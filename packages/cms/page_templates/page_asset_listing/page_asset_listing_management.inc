@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.34 2006/12/07 00:04:20 emcdonald Exp $
+* $Id: page_asset_listing_management.inc,v 1.34.6.1 2007/10/29 00:43:16 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.34.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -45,6 +45,20 @@ class Page_Asset_Listing_Management extends Asset_Management
 											'default'		=> FALSE,
 											'parameters'	=> Array('allow_empty'	=> FALSE),
 										);
+
+		$this->vars['link_value_filter'] = Array(
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+										   );
+		$this->vars['link_value_filter_enabled'] = Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'parameters'	=> Array(
+																		'allow_empty'	=> FALSE,
+																	   ),
+												   );
 
 	}//end constructor
 
