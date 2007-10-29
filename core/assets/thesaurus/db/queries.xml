@@ -1,0 +1,33 @@
+<queries system="thesaurus">
+	<query id="getChildThesaurusTerms">
+		<!-- Get a list of terms that have a given term as their parent. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_thes_term" column="termid" />
+					<field table="sq_thes_term" column="term" />
+					<field table="sq_thes_lnk" column="linkid" />
+					<field table="sq_thes_lnk" column="relid" />
+				</fields>
+				<from>
+					<table>sq_thes_term</table>
+					<table>sq_thes_lnk</table>
+				</from>
+				<joins>
+					<join>
+						<field table="sq_thes_term" column="termid" />
+						<field table="sq_thes_lnk"  column="minor" />
+					</join>
+				</joins>
+				<where>
+					<equal table="sq_thes_term" column="thesid">:assetid</equal>
+					<equal table="sq_thes_lnk"  column="thesid">:assetid</equal>
+					<equal table="sq_thes_lnk"  column="major">:termid</equal>
+				</where>
+				<order-by>
+					<field table="sq_thes_term" column="term" />
+				</order-by>
+			</select>
+		</primary>
+	</query>
+</queries>
