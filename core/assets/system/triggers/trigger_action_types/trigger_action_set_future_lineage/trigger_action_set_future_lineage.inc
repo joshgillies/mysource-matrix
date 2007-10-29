@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_lineage.inc,v 1.7 2007/07/24 23:33:49 mbrydon Exp $
+* $Id: trigger_action_set_future_lineage.inc,v 1.8 2007/10/29 22:58:38 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -92,6 +92,9 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
             	$time = ' 00:00:00';
 				$datetime = substr($datetime, 0, 10).$time;
 			}
+
+			// Remove leading space from time component
+			$time = ltrim($time);
 
 			$timestamp = mktime(
 							(int) substr($time,0,2),
