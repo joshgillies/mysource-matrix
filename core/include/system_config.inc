@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.100 2007/09/21 02:06:16 amiller Exp $
+* $Id: system_config.inc,v 1.101 2007/10/29 05:17:15 lwright Exp $
 *
 */
 
@@ -24,18 +24,19 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
 {
+
 
 	/**
 	* Holds the definitions for all the constants managed by this configuration object
 	* In the form : Array([var name] => Array('editable' => [boolean], 'default' => [mixed scalar]))
 	* @var array
 	*/
-	var $config_vars = Array(
+	public $config_vars = Array(
 						'SQ_CONF_DB_DSN'						=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_DB2_DSN'						=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_DB3_DSN'						=> Array('editable' => 1, 'default' => ''),
@@ -101,7 +102,7 @@ class System_Config extends Config
 	* @var array
 	*/
 	// TODO: TRANSLATE: these need to be either moved somewhere else, or implement some sort of global code
-	var $debug_options = Array(
+	private $debug_options = Array(
 							1	=> 'Show File and Line number in error messages',
 							2	=> 'Show Stack Trace in error messages',
 							4	=> 'Show additional information about memory and performance',
@@ -114,9 +115,9 @@ class System_Config extends Config
 	* @return object
 	* @access public
 	*/
-	function System_Config()
+	function __construct()
 	{
-		$this->Config();
+		parent::__construct();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/main.inc';
 
 	}//end constructor
@@ -133,7 +134,7 @@ class System_Config extends Config
 	* @return boolean
 	* @access public
 	*/
-	function save($vars, $backup_existing=FALSE, $send_message=TRUE)
+	public function save($vars, $backup_existing=FALSE, $send_message=TRUE)
 	{
 		if (isset($GLOBALS['SQ_SYSTEM'])) {
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
@@ -196,9 +197,8 @@ class System_Config extends Config
 	* @param boolean	$var_export	whether to run the value through var_export or not
 	*
 	* @return boolean
-	* @access private
 	*/
-	function _paintConfigVar($var_name, $value, $var_export=TRUE)
+	protected function _paintConfigVar($var_name, $value, $var_export=TRUE)
 	{
 		switch ($var_name) {
 			case 'SQ_CONF_PEAR_PATH' :
@@ -292,7 +292,7 @@ class System_Config extends Config
 	* @access public
 	* @see MySource::acquireLock()
 	*/
-	function canAcquireLock()
+	public function canAcquireLock()
 	{
 		// need to be root or a sys admin
 		return ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
@@ -306,7 +306,7 @@ class System_Config extends Config
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess()
+	public function writeAccess()
 	{
 		if (!parent::writeAccess()) return FALSE;
 		if (!isset($GLOBALS['SQ_SYSTEM'])) return TRUE;
@@ -332,7 +332,7 @@ class System_Config extends Config
 	* @access public
 	* @see processBackend()
 	*/
-	function paintBackend(&$o)
+	public function paintBackend(&$o)
 	{
 		parent::paintBackend($o);
 
@@ -394,7 +394,7 @@ class System_Config extends Config
 
 			require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 
-			$option_list =& new Asset_Attribute_Option_List(0, NULL, SQ_OPTION_LIST_DELIMITER_UNIX);
+			$option_list = new Asset_Attribute_Option_List(0, NULL, SQ_OPTION_LIST_DELIMITER_UNIX);
 			$option_list->setEditParam('width', 60);
 
 			$o->openField(translate('system_root_urls'));
@@ -557,7 +557,7 @@ class System_Config extends Config
 				echo (SQ_CONF_ENABLE_HTTP_LOGIN) ? translate('yes') : translate('no');
 			}
 			$o->note(translate('enable_http_authentication_note'));
-			
+
 			$o->openField(translate('allow_single_sign_in'));
 			if ($write_access && $is_root) {
 				combo_box($class.'[SQ_CONF_ALLOW_HTTP_LOGIN]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_ALLOW_HTTP_LOGIN);
@@ -875,7 +875,7 @@ class System_Config extends Config
 	* @access public
 	* @see paintBackend()
 	*/
-	function processBackend(&$o)
+	public function processBackend(&$o)
 	{
 		$write_access = $this->writeAccess();
 		if (!$write_access) return parent::processBackend($o);
@@ -883,7 +883,7 @@ class System_Config extends Config
 		$class = get_class($this);
 
 		require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
-		$option_list =& new Asset_Attribute_Option_List(0, NULL, SQ_OPTION_LIST_DELIMITER_UNIX);
+		$option_list = new Asset_Attribute_Option_List(0, NULL, SQ_OPTION_LIST_DELIMITER_UNIX);
 
 		$list_settings = Array(
 							'SQ_CONF_SYSTEM_ROOT_URLS',
