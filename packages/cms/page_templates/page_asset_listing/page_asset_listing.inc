@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.111 2007/05/17 01:50:21 skim Exp $
+* $Id: page_asset_listing.inc,v 1.112 2007/10/29 00:43:23 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.111 $
+* @version $Revision: 1.112 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -85,7 +85,13 @@ class Page_Asset_Listing extends Listing_Engine
 
 		$sort_info = $this->getSortInfo();
 
-		$assets_to_list = $this->_getAssetList($group_by, $logic, $wanted_types, $root_asset_ids, $sort_info);
+		$link_value_wanted = NULL;
+		if ($this->attr('link_value_filter_enabled')) {
+			// the data stored in the DB was encoded to protect against cross scripting so we use htmlentities
+			$link_value_wanted = htmlentities($this->attr('link_value_filter'));
+		}
+
+		$assets_to_list = $this->_getAssetList($group_by, $logic, $wanted_types, $root_asset_ids, $sort_info, $link_value_wanted);
 
 		if ($group_by == 'number') {
 			$assets_to_list = $this->_getSortedAssetLists($assets_to_list, $sort_info);
@@ -114,11 +120,12 @@ class Page_Asset_Listing extends Listing_Engine
 	* @param array	$wanted_types		an array of asset types to list
 	* @param array	$root_asset_ids		an array of root assetids
 	* @param array	$sort_info			sorting information as provided by getSortInfo()
+	* @param array	$link_value_wanted	link value wanted
 	*
 	* @return array
 	* @access protected
 	*/
-	function _getAssetList($group_by, $logic, $wanted_types, $root_asset_ids, $sort_info)
+	function _getAssetList($group_by, $logic, $wanted_types, $root_asset_ids, $sort_info, $link_value_wanted=NULL)
 	{
 		$assets_to_list = NULL;
 
@@ -146,7 +153,7 @@ class Page_Asset_Listing extends Listing_Engine
 
 				case 'letter' :
 					foreach ($root_asset_ids as $root_asset_id) {
-						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, $side_of_link, NULL, NULL, NULL, $letter_sort_by, $list_permission, $list_effective);
+						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, $side_of_link, $link_value_wanted, NULL, NULL, $letter_sort_by, $list_permission, $list_effective);
 						if (empty($query)) return Array();
 						// the table alias is 'l' rather than 'a' as the query queries the view sq_vw_ast_lnk_minor
 						// which returns the results from the asset table, using the table alias 'l'
@@ -173,8 +180,7 @@ class Page_Asset_Listing extends Listing_Engine
 				case 'number' :
 				case 'grouped' :
 					foreach ($root_asset_ids as $root_asset_id) {
-						$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, $side_of_link, NULL, NULL, NULL, NULL, $list_permission, $list_effective);
-
+						$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, $side_of_link, $link_value_wanted, NULL, NULL, NULL, $list_permission, $list_effective);
 						$new_assets_to_list = Array();
 						foreach ($links as $link_info) {
 							$new_assets_to_list[$link_info[$link_type.'id']] = $link_info[$link_type.'_type_code'];
@@ -196,12 +202,12 @@ class Page_Asset_Listing extends Listing_Engine
 					foreach ($root_asset_ids as $root_asset_id) {
 						if ($this->attr('direction') == 'down') {
 							$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
-							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, $list_permission, $list_effective, TRUE, $min_depth, $max_depth);
+							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, $list_permission, $list_effective, TRUE, $min_depth, $max_depth, TRUE, $link_value_wanted);
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
 							$table_alias = 'a';
 						} else {
 							$table_alias = 'll';
-							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset_id, array_keys($wanted_types), FALSE, $letter_sort_by, $list_permission, $list_effective, TRUE, $min_depth, $max_depth);
+							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset_id, array_keys($wanted_types), FALSE, $letter_sort_by, $list_permission, $list_effective, $min_depth, $max_depth, $link_value_wanted);
 						}
 						if (empty($query)) $new_assets_to_list = Array();
 
@@ -286,14 +292,14 @@ class Page_Asset_Listing extends Listing_Engine
 							$types_sql = sprintf($types_sql, $types_sub_sql);
 
 							$links_sql .= $types_sql;
-						}
+						}//end if
 
 						$sqls = Array();
 
 						foreach ($root_asset_ids as $root_asset_id) {
 							$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
 
-							$sql = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, TRUE, $min_depth, $max_depth, FALSE);
+							$sql = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, TRUE, $min_depth, $max_depth, FALSE, $link_value_wanted);
 							$sql['select'] = str_replace(', a.type_code', '', $sql['select']);
 							$sql['union_select'] = str_replace(', null', '', $sql['union_select']);
 
@@ -309,24 +315,23 @@ class Page_Asset_Listing extends Listing_Engine
 						// The fifth param to getAssoc() lets us get this
 						$links = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
 						$this->_tmp['direct_parent_grouping'] = $links;
-					}
+					}//end if
 
 				// Intentionally fall through; we still need to do the query
 
 				case 'number' :
 				case 'random' :
-
 					$min_depth = ($this->attr('min_depth') === '') ? NULL : $this->attr('min_depth');
 					$max_depth = ($this->attr('max_depth') === '') ? NULL : $this->attr('max_depth');
 
 					if ($this->attr('direction') == 'down') {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$asset_list = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, $min_depth, $max_depth, FALSE);
+							$asset_list = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, $min_depth, $max_depth, FALSE, $link_value_wanted);
 							$assets_to_list = $this->_combineAssets($logic, $asset_list, $assets_to_list);
 						}
 					} else {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$asset_list = $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), FALSE, NULL, $list_permission, $list_effective, $min_depth, $max_depth, TRUE);
+							$asset_list = $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), FALSE, NULL, $list_permission, $list_effective, $min_depth, $max_depth, TRUE, $link_value_wanted);
 							$assets_to_list = $this->_combineAssets($logic, $asset_list, $assets_to_list);
 						}
 					}
@@ -345,8 +350,8 @@ class Page_Asset_Listing extends Listing_Engine
 	/**
 	* Sort the list of assets
 	*
-	* @param array	$asset_list	an array of assets to be sorted
-	* @param array	$sort_info	sorting information as provided by getSortInfo()
+	* @param array	$assets_to_list	an array of assets to be sorted
+	* @param array	$sort_info		sorting information as provided by getSortInfo()
 	*
 	* @return array
 	* @access public
@@ -369,7 +374,7 @@ class Page_Asset_Listing extends Listing_Engine
 	* The arrays $new_assets and $existing are keyed by asset ID.
 	*
 	* @param string		$logic		either "OR" (union) or "AND" (intersection)
-	* @param array		$new_assets Set of new assets to add (or keep)
+	* @param array		$new_assets	Set of new assets to add (or keep)
 	* @param array|NULL	$existing	Set of existing assets to use as a base or
 	* 								NULL if first root node (see above)
 	*
@@ -378,9 +383,7 @@ class Page_Asset_Listing extends Listing_Engine
 	*/
 	function _combineAssets($logic='OR', $new_assets=Array(), $existing=NULL)
 	{
-		if (is_null($existing)) {
-			return $new_assets;
-		}
+		if (is_null($existing)) return $new_assets;
 
 		if ($logic !== 'AND') {
 			// OR logic: as it was before, just add 'em
@@ -388,7 +391,7 @@ class Page_Asset_Listing extends Listing_Engine
 		} else {
 			// AND logic: Oh how we long for PHP 5.1 and array_intersect_key()
 			// So we need to do this instead...
-			foreach($existing as $assetid => $data) {
+			foreach ($existing as $assetid => $data) {
 				if (!isset($new_assets[$assetid])) {
 					unset($existing[$assetid]);
 				}

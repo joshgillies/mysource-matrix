@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.33 2007/02/20 03:35:07 colivar Exp $
+* $Id: edit_interface_screen_details.xml,v 1.34 2007/10/29 00:43:23 colivar Exp $
 *
 */
 -->
@@ -71,6 +71,12 @@
 				<paint_function   name="paintLinkTypes" />
 				<process_function name="processLinkTypes" />
 			</function_call>
+		</field>
+		<field attribute="link_value_filter">
+			<text width="50" height="1" />
+		</field>
+		<field attribute="link_value_filter_enabled">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="List Formatting" write_access="write:content"  limbo_access="1">
