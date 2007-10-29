@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.46 2007/06/08 04:40:35 skim Exp $
+* $Id: db_install.inc,v 1.47 2007/10/29 05:54:53 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -39,15 +39,16 @@
 */
 function parse_tables_xml($xml_file)
 {
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
-	$input =& new XML_Tree($xml_file);
-	$root =& $input->getTreeFromFile();
+	$db = DAL::getDb();
 
-	if (PEAR::isError($root)) {
-		trigger_error($root->getMessage().'<br/>'.$root->getUserInfo(), E_USER_WARNING);
-		return FALSE;
+	try {
+		$root = new SimpleXMLElement($xml_file, LIBXML_NOCDATA, TRUE);
+	} catch (Exception $e) {
+		throw new Exception('Could not parse tables XML file: '.$e->getMessage());
 	}
-	if ($root->name != 'schema' || $root->children[0]->name != 'tables' || $root->children[1]->name != 'sequences') {
+
+	if (($root->getName() != 'schema') || !isset($root->tables) || !isset($root->sequences)) {
+		throw new Exception('Tables XML file is not valid.');
 		trigger_localised_error('SYS0012', E_USER_WARNING);
 		return FALSE;
 	}
@@ -58,52 +59,45 @@ function parse_tables_xml($xml_file)
 
 	//--        TABLES        --//
 
-	for ($i = 0; $i < count($root->children[0]->children); $i++) {
-		$table      =&$root->children[0]->children[$i];
-		$table_name = $table->attributes['name'];
+	foreach ($root->tables->table as $table) {
+		$table_name = (string)$table->attributes()->name;
 
 		$info['tables'][$table_name] = Array();
-		$info['tables'][$table_name]['rollback'] = (($table->attributes['require_rollback'] == 1) ? TRUE : FALSE);
-		$table_cols =& $table->children[0]->children;
+		$info['tables'][$table_name]['rollback'] = (($table->attributes()->{'require_rollback'} == 1) ? TRUE : FALSE);
 
 		//--        TABLE COLUMNS        --//
-
 		$info['tables'][$table_name]['columns'] = Array();
 
-		for ($j = 0; $j < count($table_cols); $j++) {
-			$table_column =& $table_cols[$j];
-			$column_name  = $table_column->attributes['name'];
+		foreach ($table->columns->column as $table_column) {
+			$column_name = (string)$table_column->attributes()->name;
 
 			$info['tables'][$table_name]['columns'][$column_name] = Array();
-			$info['tables'][$table_name]['columns'][$column_name]['allow_null'] = (($table_column->attributes['allow_null'] == 1) ? TRUE : FALSE);
+			$info['tables'][$table_name]['columns'][$column_name]['allow_null'] = (($table_column->attributes()->{'allow_null'} == 1) ? TRUE : FALSE);
 
 			//--        TABLE COLUMN VARS        --//
 
 			$type    = NULL;
 			$default = NULL;
 
-			for ($k = 0; $k < count($table_column->children); $k++) {
-				$column_var =& $table_column->children[$k];
-
-				switch (strtolower($column_var->name)) {
+			foreach ($table_column->children() as $column_var) {
+				switch (strtolower($column_var->getName())) {
 					case 'type' :
 						// set the type of the column if it hasnt already been
 						// set in a variation (this is the default column type)
-						if (is_null($type)) $type = $column_var->content;
+						if (is_null($type)) $type = (string)$column_var;
 					break;
 					case 'type_variations' :
 						// check for varitions of the column type for his database
-						for ($l = 0; $l < count($column_var->children); $l++) {
-							$variation =& $column_var->children[$l];
-							if ($variation->name == $db->phptype) {
-								$type = $variation->content;
+						foreach ($column_var->children() as $variation) {
+							if ($variation->getName() == DAL::getDbType()) {
+								$type = (string)$variation;
 								break;
 							}
 						}
 					break;
 					case 'default' :
-						if (trim($column_var->content) != '') {
-							$default = $column_var->content;
+						if (trim((string)$column_var) != '') {
+							$default = (string)$column_var;
 						}
 					break;
 					default :
@@ -119,62 +113,60 @@ function parse_tables_xml($xml_file)
 			$info['tables'][$table_name]['primary_key'] = Array();
 			$info['tables'][$table_name]['unique_key'] = Array();
 
-			$table_keys =& $table->children[1]->children;
-			for ($jj = 0; $jj < count($table_keys); $jj++) {
-				$table_key =& $table_keys[$jj];
-
-				$index_db_type = array_get_index($table_key->attributes, 'db', NULL);
-				if (!is_null($index_db_type) && ($index_db_type != $db->phptype)) {
-					continue;
-				}
-
-				// work out the columns in this key
-				$key_columns = Array();
-				for ($k = 0; $k < count($table_key->children); $k++) {
-					$col_name = $table_key->children[$k]->attributes['name'];
-					$key_columns[] = $col_name;
-
-					// cache the primary key columns for this table
-					if ($table_key->name == 'primary_key') {
-						$info['tables'][$table_name]['primary_key'][] = $col_name;
+			if (isset($table->keys) && (count($table->keys->children()) > 0)) {
+				foreach ($table->keys->children() as $table_key) {
+					$index_db_type = array_get_index($table_key->attributes(), 'db', NULL);
+					if (!is_null($index_db_type) && ($index_db_type != DAL::getDbType())) {
+						continue;
 					}
-					if ($table_key->name == 'unique_key') {
-						$info['tables'][$table_name]['unique_key'][] = $col_name;
-					}
-				}
-			}
+
+					// work out the columns in this key
+					$key_columns = Array();
+					foreach ($table_key->column as $table_key_column) {
+						$col_name = (string)$table_key_column->attributes()->name;
+						$key_columns[] = $col_name;
+
+						// cache the primary key columns for this table
+						if ($table_key->getName() == 'primary_key') {
+							$info['tables'][$table_name]['primary_key'][] = $col_name;
+						}
+						if ($table_key->getName() == 'unique_key') {
+							$info['tables'][$table_name]['unique_key'][] = $col_name;
+						}
+					}//end foreach
+				}//end foreach
+			}//end if
 
 			//--        INDEXES        --//
 
 			// check for any indexes that need creating
-			$table_indexes =& $table->children[2]->children;
-			for ($kk = 0; $kk < count($table_indexes); $kk++) {
-				$table_index =& $table_indexes[$kk];
+			if (!empty($table->indexes->index)) {
+				foreach ($table->indexes->index as $table_index) {
 
-				// work out the columns in this index
-				$index_cols = Array();
-				for ($k = 0; $k < count($table_index->children); $k++) {
-					$index_cols[] = $table_index->children[$k]->attributes['name'];
-				}
+					// work out the columns in this index
+					$index_cols = Array();
+					foreach ($table_index->column as $table_index_column) {
+						$index_cols[] = (string)$table_index_column->attributes()->name;
+					}
 
-				// work out the name of the index
-				$index_name    = array_get_index($table_index->attributes, 'name', reset($index_cols));
-				$index_type    = array_get_index($table_index->attributes, 'type', NULL);
-				$index_db_type = array_get_index($table_index->attributes, 'db', NULL);
+					// work out the name of the index
+					$index_name    = isset($table_index->attributes()->name) ? (string)$table_index->attributes()->name : reset($index_cols);
+					$index_type    = isset($table_index->attributes()->type) ? (string)$table_index->attributes()->type : NULL;
+					$index_db_type = isset($table_index->attributes()->db) ? (string)$table_index->attributes()->db : NULL;
 
-				$index_info = Array(
-								'columns'	=> $index_cols,
-								'type'		=> $index_type,
-								'db_type'	=> $index_db_type,
-							  );
-				$info['tables'][$table_name]['indexes'][$index_name] = $index_info;
-			}//end for
+					$index_info = Array(
+									'columns'	=> $index_cols,
+									'type'		=> $index_type,
+									'db_type'	=> $index_db_type,
+								  );
+					$info['tables'][$table_name]['indexes'][$index_name] = $index_info;
+				}//end for
+			}//end if
 		}//end for
 	}//end for
 
-	for ($i = 0; $i < count($root->children[1]->children); $i++) {
-		$sequence =& $root->children[1]->children[$i];
-		$sequence_name = $sequence->attributes['name'];
+	foreach ($root->sequences->sequence as $sequence) {
+		$sequence_name = (string)$sequence->attributes()->name;
 		$info['sequences'][] = $sequence_name;
 	}
 
@@ -196,24 +188,27 @@ function parse_tables_xml($xml_file)
 */
 function create_index($tablename, $columns, $index_name=NULL, $index_type=NULL)
 {
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	$db = DAL::getDb();
 	if (is_null($index_name)) $index_name = implode('_', $columns);
 
 	// Truncate any index names to 30 characters to satisfy Oracle restrictions
 	// The '27' value takes out the 'sq_'
 	$sql = 'CREATE INDEX sq_'.substr($tablename.'_'.$index_name, 0, 27).' ON sq_'.$tablename;
 	if (!empty($index_type)) {
-		if ($db->phptype == 'oci8') {
+		if (DAL::getDbType() == 'oci') {
 			$sql .= '('.implode(', ', $columns).') indextype is '.$index_type;
-		} else if ($db->phptype == 'pgsql') {
+		} else if (DAL::getDbType() == 'pgsql') {
 			$sql .= ' USING '.$index_type.'('.implode(', ', $columns).')';
 		}
 	} else {
 		$sql .= ' ('.implode(', ', $columns).')';
 	}
 
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
+	try {
+		DAL::executeSql($sql);
+	} catch (DALException $e) {
+		throw $e;
+	}
 
 }//end create_index()
 
@@ -231,7 +226,7 @@ function create_index($tablename, $columns, $index_name=NULL, $index_type=NULL)
 */
 function create_table($tablename, $table_info)
 {
-	$db  =& $GLOBALS['SQ_SYSTEM']->db;
+	$db  = DAL::getDb();
 	$sql = 'CREATE TABLE sq_'.$tablename.'(';
 
 	$i = 0;
@@ -256,12 +251,15 @@ function create_table($tablename, $table_info)
 
 	// oracle replication requires row dependencies so that the replicating
 	// server knows what order to create the new entries
-	if ($db->phptype == 'oci8') {
+	if (DAL::getDbType() == 'oci') {
 		$sql .= ' ROWDEPENDENCIES';
 	}
 
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
+	try {
+		DAL::executeSql($sql);
+	} catch (DALException $e) {
+		throw $e;
+	}
 
 }//end create_table()
 
@@ -278,32 +276,40 @@ function create_table($tablename, $table_info)
 */
 function get_database_indexes($tablename, $include_rollback=TRUE)
 {
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	$db      = DAL::getDb();
+	$db_type = DAL::getDbType();
 
-	if ($db->phptype == 'pgsql') {
+	if ($db_type == 'pgsql') {
 		$sql = 'SELECT
 					indexname
 				FROM
 					pg_indexes
 				WHERE
-					tablename = '.$db->quoteSmart('sq_'.$tablename);
+					tablename = :table';
 		if ($include_rollback) {
-			$sql .= ' OR tablename = '.$db->quoteSmart('sq_rb_'.$tablename);
+			$sql .= ' OR tablename = :rollback_table';
 		}
-	} else if ($db->phptype == 'oci8') {
+	} else if ($db_type == 'oci') {
 		$sql = 'SELECT
 					index_name
 				FROM
 					user_indexes
 				WHERE
-					table_name = '.$db->quoteSmart(strtoupper('sq_'.$tablename));
+					table_name = :table';
 		if ($include_rollback) {
-			$sql .= ' OR table_name = '.$db->quoteSmart(strtoupper('sq_rb_'.$tablename));
+			$sql .= ' OR table_name = :rollback_table';
 		}
 	}
 
-	$indexes_in_db = $db->getCol($sql);
-	assert_valid_db_result($indexes_in_db);
+	try {
+		$query = $db->prepare($sql);
+		$query->bindValue(':table',          'sq'.$tablename,     PDO::PARAM_STR);
+		$query->bindValue(':rollback_table', 'sq_rb_'.$tablename, PDO::PARAM_STR);
+
+		$indexes_in_db = DAL::executePdoAssoc($query, 0);
+	} catch (DALException $e) {
+		throw $e;
+	}
 
 	for (reset($indexes_in_db); NULL !== ($key = key($indexes_in_db)); next($indexes_in_db)) {
 		$indexes_in_db[$key] = strtolower($indexes_in_db[$key]);
@@ -322,25 +328,40 @@ function get_database_indexes($tablename, $include_rollback=TRUE)
 */
 function get_database_sequences()
 {
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	$db  = DAL::getDb();
+	$db_type = DAL::getDbType();
 
-	if ($db->phptype == 'pgsql') {
+	if ($db_type == 'pgsql') {
 		$sql = 'SELECT c.relname
 				FROM pg_class c, pg_user u
 				WHERE c.relowner = u.usesysid
 				  AND c.relkind = \'S\'
 				  AND NOT EXISTS (SELECT 1 FROM pg_views WHERE viewname = c.relname)
-				  AND c.relname !~ '.$db->quoteSmart('^(pg_|sql_)');
+				  AND c.relname !~ :pattern';
 
-		$sequences_in_db = $db->getCol($sql);
-		assert_valid_db_result($sequences_in_db);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':pattern', '^(pg_|sql_)', PDO::PARAM_STR);
+		} catch (DALException $e) {
+			throw $e;
+		}
 
-	} else if ($db->phptype == 'oci8') {
+	} else if ($db_type == 'oci') {
 		$sql = 'SELECT sequence_name FROM user_sequences';
+
+		try {
+			$query = $db->prepare($sql);
+		} catch (DALException $e) {
+			throw $e;
+		}
 	}
 
-	$sequences_in_db = $db->getCol($sql);
-	assert_valid_db_result($sequences_in_db);
+	try {
+		$sequences_in_db = DAL::executePdoAssoc($query, 0);
+	} catch (DALException $e) {
+		throw $e;
+	}
+
 	for (reset($sequences_in_db); NULL !== ($key = key($sequences_in_db)); next($sequences_in_db)) {
 		$sequences_in_db[$key] = strtolower($sequences_in_db[$key]);
 	}
@@ -358,11 +379,47 @@ function get_database_sequences()
 */
 function get_database_tables()
 {
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
-	$query = $db->getSpecialQuery('tables');
-	assert_valid_db_result($query);
-	$tables_in_db = $db->getCol($query);
-	assert_valid_db_result($tables_in_db);
+	$db  = DAL::getDb();
+	$db_type = DAL::getDbType();
+
+	if ($db_type == 'pgsql') {
+		// formerly DB::getSpecialQuery('tables')
+		$sql = 'SELECT c.relname
+					FROM pg_class c, pg_user u
+					WHERE c.relowner = u.usesysid
+					AND c.relkind = \'R\'
+					AND NOT EXISTS (SELECT 1 FROM pg_views WHERE viewname = c.relname)
+					AND c.relname !~ :pattern
+				UNION
+				SELECT c.relname
+					FROM pg_class c
+					WHERE c.relkind = \'r\'
+					AND NOT EXISTS (SELECT 1 FROM pg_views WHERE viewname = c.relname)
+					AND NOT EXISTS (SELECT 1 FROM pg_user WHERE usesysid = c.relowner)
+					AND c.relname !~ \'^pg_\'';
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':pattern', '^(pg_|sql_)', PDO::PARAM_STR);
+		} catch (DALException $e) {
+			throw $e;
+		}
+
+	} else if ($db_type == 'oci') {
+		$sql = 'SELECT table_name FROM user_tables';
+
+		try {
+			$query = $db->prepare($sql);
+		} catch (DALException $e) {
+			throw $e;
+		}
+	}
+
+	try {
+		$tables_in_db = DAL::executePdoAssoc($query, 0);
+	} catch (DALException $e) {
+		throw $e;
+	}
 
 	for (reset($tables_in_db); NULL !== ($key = key($tables_in_db)); next($tables_in_db)) {
 		$tables_in_db[$key] = strtolower($tables_in_db[$key]);
@@ -384,7 +441,7 @@ function get_database_tables()
 */
 function db_install($xml_file, $verbose=TRUE)
 {
-	$db           =& $GLOBALS['SQ_SYSTEM']->db;
+	$db           = DAL::getDb();
 	$info         = parse_tables_xml($xml_file);
 	$tables_in_db = get_database_tables();
 
@@ -426,7 +483,7 @@ function db_install($xml_file, $verbose=TRUE)
 
 			// use the date type for oracle so we can manipulate its format
 			// with the NLS_DATE_FORMAT session variable
-			$date_type = ($db->phptype == 'oci8') ? 'DATE' : 'TIMESTAMP';
+			$date_type = (DAL::getDbType() == 'oci') ? 'DATE' : 'TIMESTAMP';
 
 			// create this rollback table if it does not exist in the database
 			if (!in_array('sq_rb_'.$tablename, $tables_in_db)) {
@@ -494,7 +551,7 @@ function db_install($xml_file, $verbose=TRUE)
 
 		if (!empty($table_info['indexes'])) {
 			foreach ($table_info['indexes'] as $index_name => $index_info) {
-				if (is_null($index_info['db_type']) || $index_info['db_type'] == $db->phptype) {
+				if (is_null($index_info['db_type']) || $index_info['db_type'] == DAL::getDbType()) {
 					if (!in_array('sq_'.$tablename.'_'.$index_name, $indexes_in_db)) {
 						create_index($tablename, $index_info['columns'], $index_name, $index_info['type']);
 						$created_indexes[] = 'sq_'.$tablename.'_'.$index_name;
@@ -550,8 +607,14 @@ function db_install($xml_file, $verbose=TRUE)
 		if (in_array('sq_'.$sequence_name.'_seq', $sequences_in_db)) {
 			continue;
 		}
-		$result = $db->createSequence('sq_'.$sequence_name);
-		assert_valid_db_result($result);
+
+		// TODO: replacement for CREATE SEQUENCE?
+		try {
+			$sql = 'CREATE SEQUENCE sq_'.$sequence_name.'_seq';
+			DAL::executeSql($sql);
+		} catch (DALException $e) {
+			throw $e;
+		}
 	}
 
 	if ($verbose) pre_echo('SEQUENCE CREATION COMPLETE');
@@ -606,33 +669,41 @@ function db_install($xml_file, $verbose=TRUE)
 */
 function grant_secondary_user_perms($verbose=TRUE)
 {
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
-	if ($db->phptype == 'pgsql') {
-		$primary_dsn   = DB::parseDSN(SQ_CONF_DB_DSN);
-		$secondary_dsn = DB::parseDSN(SQ_CONF_DB2_DSN);
-		$tertiary_dsn = DB::parseDSN(SQ_CONF_DB3_DSN);
-		$cache_dsn = Array();
-		if (SQ_CONF_DBCACHE_DSN != '') {
-			$cache_dsn = DB::parseDSN(SQ_CONF_DBCACHE_DSN);
-		}
+	$db = DAL::getDb();
+	if (DAL::getDbType() == 'pgsql') {
+		$db_conf = require_once(SQ_SYSTEM_ROOT.'/data/private/conf/db.inc');
+
+		$primary_dsn   = $db_conf['db'];
+		$secondary_dsn = $db_conf['db2'];
+		$tertiary_dsn  = $db_conf['db3'];
+		$cache_dsn     = $db_conf['dbcache'];
 
 		// grant to the primary user
-		$grant_sql = 'SELECT sq_grant_access('.$db->quote($primary_dsn['username']).')';
-		$result = $db->query($grant_sql);
-		assert_valid_db_result($result);
+		$grant_sql = 'SELECT sq_grant_access('.$db->quote($primary_dsn['user']).')';
+		try {
+			DAL::executeSql($grant_sql);
+		} catch (DALException $e) {
+			throw $e;
+		}
 
 		// grant to the secondary user, if different
-		if ($primary_dsn['username'] != $secondary_dsn['username']) {
-			$grant_sql = 'SELECT sq_grant_access('.$db->quote($secondary_dsn['username']).')';
-			$result = $db->query($grant_sql);
-			assert_valid_db_result($result);
+		if ($primary_dsn['user'] != $secondary_dsn['user']) {
+			$grant_sql = 'SELECT sq_grant_access('.$db->quote($secondary_dsn['user']).')';
+			try {
+				DAL::executeSql($grant_sql);
+			} catch (DALException $e) {
+				throw $e;
+			}
 		}
 
 		// grant to the tertiary user, if different to the first two
-		if (($primary_dsn['username'] != $tertiary_dsn['username']) && ($secondary_dsn['username'] != $tertiary_dsn['username'])) {
-			$grant_sql = 'SELECT sq_grant_access('.$db->quote($tertiary_dsn['username']).')';
-			$result = $db->query($grant_sql);
-			assert_valid_db_result($result);
+		if (($primary_dsn['user'] != $tertiary_dsn['user']) && ($secondary_dsn['user'] != $tertiary_dsn['user'])) {
+			$grant_sql = 'SELECT sq_grant_access('.$db->quote($tertiary_dsn['user']).')';
+			try {
+				DAL::executeSql($grant_sql);
+			} catch (DALException $e) {
+				throw $e;
+			}
 		}
 
 		if ($verbose) {
@@ -640,15 +711,18 @@ function grant_secondary_user_perms($verbose=TRUE)
 		}
 
 		// grant to the cache user, if dsn is defined
-		if (!empty($cache_dsn)) {
+		if (!is_null($cache_dsn)) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 
-			if ($db->phptype == 'pgsql') {
-				$grant_sql = 'SELECT sq_grant_access('.$db->quote($cache_dsn['username']).')';
-				$result = $db->query($grant_sql);
-				assert_valid_db_result($result);
+			if (DAL::getDbType() == 'pgsql') {
+				$grant_sql = 'SELECT sq_grant_access('.$db->quote($cache_dsn['user']).')';
+				try {
+					DAL::executeSql($grant_sql);
+				} catch (DALException $e) {
+					throw $e;
+				}
 
 				if ($verbose) {
 					pre_echo('PGSQL CACHE USER PERMISSIONS FIXED');
@@ -676,13 +750,15 @@ function grant_secondary_user_perms($verbose=TRUE)
 */
 function install_stored_relations($relations, $package=NULL, $verbose=TRUE)
 {
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	$db = DAL::getDb();
+	$db_type = DAL::getDbType();
+
 	if (is_null($package)) {
 		$subdir = 'install';
 	} else {
 		$subdir = 'packages/'.$package;
 	}
-	$fns_file = SQ_SYSTEM_ROOT.'/'.$subdir.'/'.$db->phptype.'_'.$relations.'.xml';
+	$fns_file = SQ_SYSTEM_ROOT.'/'.$subdir.'/'.$db_type.'_'.$relations.'.xml';
 
 	// if the file does not exist, check to see if there is a common file
 	// for all database types
@@ -692,37 +768,44 @@ function install_stored_relations($relations, $package=NULL, $verbose=TRUE)
 
 	if (file_exists($fns_file)) {
 
-		$input =& new XML_Tree($fns_file);
-		$root  =& $input->getTreeFromFile();
+		try {
+			// Load stored relations file as SimpleXML
+			$root = new SimpleXMLElement($fns_file, LIBXML_NOCDATA, TRUE);
+		} catch (Exception $e) {
+			throw new Exception('Could not parse stored relations file: '.$e->getMessage());
+		}
 
-		if (PEAR::isError($root)) {
-			trigger_error($root->getMessage().'<br/>'.$root->getUserInfo(), E_USER_WARNING);
+		if ($root->getName() != 'sql') {
+			throw new Exception('Cannot install stored relations file: expected root element "sql", found "'.$root->getName().'".');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FALSE;
 		}
 
-		if ($root->name != 'sql') {
-			trigger_localised_error('SYS0012', E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return FALSE;
-		}
+		$display_names = Array();
 
-		$element_names = Array();
-		foreach ($root->children as $sql_element) {
-			$element_names[] = array_get_index($sql_element->attributes, 'display_name', '<Unknown Element>');
-			$sql = trim(xml_entity_decode($sql_element->content));
+		foreach ($root->children() as $sql_element) {
+			$element_name = $sql_element->getName();
+			if ($sql_element->getName() != 'sql_element') {
+				throw new Exception('Cannot install stored relations file: expected element "sql_element", found "'.$sql_element->getName().'".');
+			}
+
+			$display_names[] = isset($sql_element->attributes()->{'display_name'}) ? $sql_element->attributes()->{'display_name'} : '<Unknown Element>';
+			$sql = trim(xml_entity_decode((string)$sql_element));
 
 			if (!empty($sql)) {
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+				try {
+					$result = DAL::executeSql($sql);
+				} catch (DALException $e) {
+					throw $e;
+				}
 			}
 		}
 
 		if ($verbose) {
 			if (is_null($package)) {
-				pre_echo(strtoupper($db->phptype).' STORED '.strtoupper($relations).' CREATED'."\n".implode("\n", $element_names));
+				pre_echo(strtoupper($db_type).' STORED '.strtoupper($relations).' CREATED'."\n".implode("\n", $display_names));
 			} else {
-				pre_echo(strtoupper($db->phptype).' STORED '.strtoupper($relations).' FOR PACKAGE '.$package.' CREATED'."\n".implode("\n", $element_names));
+				pre_echo(strtoupper($db_type).' STORED '.strtoupper($relations).' FOR PACKAGE '.$package.' CREATED'."\n".implode("\n", $element_names));
 			}
 		}
 	}//end if
@@ -761,18 +844,22 @@ function xml_entity_decode($string)
 */
 function get_installed_rollback_triggers()
 {
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	$db = DAL::getDb();
 	$trigger_like_sql = $db->quote('sq_%_rb_trg');
 
-	if ($db->phptype == 'oci8') {
+	if (DAL::getDbType() == 'oci') {
 		$sql = 'SELECT trigger_name FROM user_triggers WHERE trigger_name';
 		$trigger_like_sql = strtoupper($trigger_like_sql);
-	} else if ($db->phptype == 'pgsql') {
+	} else if (DAL::getDbType() == 'pgsql') {
 		$sql = 'SELECT tgname FROM pg_trigger WHERE tgname';
 	}
 	$sql .= ' LIKE '.$trigger_like_sql;
-	$triggers = $db->getCol($sql);
-	assert_valid_db_result($triggers);
+
+	try {
+		$triggers = DAL::executeSqlAssoc($sql, 0);
+	} catch (DALException $e) {
+		throw $e;
+	}
 
 	return $triggers;
 
@@ -795,7 +882,7 @@ function get_installed_rollback_triggers()
 */
 function install_rollback_triggers($table_columns, $verbose=TRUE, $override=FALSE)
 {
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	$db = DAL::getDb();
 	$curr_triggers      = Array();
 	$installed_triggers = Array();
 
@@ -827,7 +914,7 @@ function install_rollback_triggers($table_columns, $verbose=TRUE, $override=FALS
 			  ' BEFORE INSERT OR UPDATE OR DELETE ON '.$table.
 			  ' FOR EACH ROW ';
 
-		if ($db->phptype == 'oci8') {
+		if (DAL::getDbType() == 'oci') {
 			$sql .= ' DECLARE BEGIN ';
 			// if we are oracle make sure that we are not a remote
 			// replication server as the rows will get replicated for us
@@ -846,7 +933,7 @@ function install_rollback_triggers($table_columns, $verbose=TRUE, $override=FALS
 			// oracle packages are cool, check them out ;)
 			$get_timestamp_fn = 'sq_common_pkg.sq_get_rollback_timestamp';
 
-		} else if ($db->phptype == 'pgsql') {
+		} else if (DAL::getDbType() == 'pgsql') {
 			// if we are postgres then we want to define the trigger to call a
 			// procedure, end the trigger and begin the prodecure declaration
 			$sql .= 'EXECUTE PROCEDURE '.$trigger_name.'_fn();';
@@ -880,7 +967,7 @@ function install_rollback_triggers($table_columns, $verbose=TRUE, $override=FALS
 			$primary_key_where .= $key.' = ';
 			// old and new vars are treated like bind variables in oracle
 			// and therefore require a colon before them
-			if ($db->phptype == 'oci8') $primary_key_where .= ':';
+			if (DAL::getDbType() == 'oci') $primary_key_where .= ':';
 
 			$old_primary_key_where .= $primary_key_where.'OLD.'.$key;
 			$new_primary_key_where .= $primary_key_where.'NEW.'.$key;
@@ -911,7 +998,7 @@ function install_rollback_triggers($table_columns, $verbose=TRUE, $override=FALS
 
 			// old and new vars are treated like bind variables in oracle
 			// and therefore require a colon before them
-			if ($db->phptype == 'oci8') {
+			if (DAL::getDbType() == 'oci') {
 				$new_val_string .= ':';
 				$old_val_string .= ':';
 				if (!$is_unique_key) $update_string  .= ':';
@@ -932,9 +1019,9 @@ function install_rollback_triggers($table_columns, $verbose=TRUE, $override=FALS
 		$new_val_string .= ');';
 		$old_val_string .= ');';
 
-		if ($db->phptype == 'oci8') {
+		if (DAL::getDbType() == 'oci') {
 			$not_found = 'SQL%NOTFOUND';
-		} else if ($db->phptype == 'pgsql') {
+		} else if (DAL::getDbType() == 'pgsql') {
 			$not_found = 'NOT FOUND';
 		}
 
@@ -954,7 +1041,7 @@ function install_rollback_triggers($table_columns, $verbose=TRUE, $override=FALS
 				'INSERT INTO '.$rollback_table.
 				$col_string.' VALUES '.$new_val_string;
 
-		if ($db->phptype == 'pgsql') $sql .= ' RETURN NEW; ';
+		if (DAL::getDbType() == 'pgsql') $sql .= ' RETURN NEW; ';
 		$sql .= 'END IF;';
 
 		// if we are updating then we want to align the most
@@ -980,13 +1067,13 @@ function install_rollback_triggers($table_columns, $verbose=TRUE, $override=FALS
 							'INSERT INTO '.$rollback_table.
 							$col_string.' VALUES '.$new_val_string.
 						'END IF;';
-			if ($db->phptype == 'pgsql') $sql .= 'RETURN NEW;';
+			if (DAL::getDbType() == 'pgsql') $sql .= 'RETURN NEW;';
 			$sql .= 'END IF;';
 		} else {
 			// if there is no update string, it means that every
 			// column is either a primary or unique key. Therefore
 			// you cannot update anything on this table - only insert and delete
-			if ($db->phptype == 'pgsql') {
+			if (DAL::getDbType() == 'pgsql') {
 				$sql .= $if_updating.'RETURN NEW;END IF;';
 			}
 		}
@@ -994,13 +1081,13 @@ function install_rollback_triggers($table_columns, $verbose=TRUE, $override=FALS
 		// if we are deleting then we just close off
 		// the rollback entry
 		$sql .= $if_deleting.$update_sql;
-		if ($db->phptype == 'pgsql') $sql .= ' RETURN OLD; ';
+		if (DAL::getDbType() == 'pgsql') $sql .= ' RETURN OLD; ';
 		$sql .= 'END IF;';
 
 		// end begin
 		$sql .= 'END;';
 
-		if ($db->phptype == 'pgsql') {
+		if (DAL::getDbType() == 'pgsql') {
 			$sql .= "' LANGUAGE plpgsql;";
 			// before we finish we will re-order the sql
 			// so that the trigger sql is AFTER the actual trigger function
@@ -1008,8 +1095,11 @@ function install_rollback_triggers($table_columns, $verbose=TRUE, $override=FALS
 			if (!$override) $sql = $sql.$trigger_sql;
 		}
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			DAL::executeSql($sql);
+		} catch (DALException $e) {
+			throw $e;
+		}
 
 		$installed_triggers[] = $trigger_name;
 
@@ -1033,18 +1123,21 @@ function uninstall_rollback_triggers()
 {
 	$triggers = get_installed_rollback_triggers();
 	if (!empty($triggers)) {
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		foreach ($triggers as $trigger_name) {
 			// we need to cascade the dropping of the trigger
 			// so that the postgres trigger functions are also dropped
 			$sql = 'DROP TRIGGER '.$trigger_name;
-			if ($db->phptype == 'pgsql') {
+			if (DAL::getDbType() == 'pgsql') {
 				preg_match('/^sq_(.*)_rb_trg$/i', $trigger_name, $matches=Array());
 				$sql .= ' on sq_'.$matches[1].' CASCADE';
 			}
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				DAL::executeSql($sql);
+			} catch (DALException $e) {
+				throw $e;
+			}
 		}
 	}
 
