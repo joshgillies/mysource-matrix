@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.37 2007/04/11 04:02:06 arailean Exp $
+* $Id: package_manager_core.inc,v 1.38 2007/10/29 23:19:46 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -146,7 +146,7 @@ class Package_Manager_Core extends Package_Manager
 	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_folder');
 
-		$root_folder =& new Root_Folder();
+		$root_folder = new Root_Folder();
 		$link = Array();
 		if (!$root_folder->create($link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Root Folder');
@@ -168,7 +168,7 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createTrashFolder()
 	{
-		$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('trash_folder');
 		$trash_link = Array(
@@ -177,7 +177,7 @@ class Package_Manager_Core extends Package_Manager
 						'is_exclusive'	=> 1,
 						'sort_order'	=> 0,
 					  );
-		$trash_folder =& new Trash_Folder();
+		$trash_folder = new Trash_Folder();
 		if (!$trash_folder->create($trash_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Trash Folder');
 		}
@@ -197,10 +197,10 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createPublicUser()
 	{
-		$users_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('web_folder_users');
+		$users_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('web_folder_users');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('public_user');
-		$public_user =& new Public_User();
+		$public_user = new Public_User();
 		$public_user_link = Array('asset' => &$users_folder, 'link_type' => SQ_LINK_TYPE_1);
 		if (!$public_user->create($public_user_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Public Access User');
@@ -222,10 +222,10 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createSystemManagementFolder()
 	{
-		$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('system_management_folder');
-		$system_management_folder =& new System_Management_Folder();
+		$system_management_folder = new System_Management_Folder();
 		$system_management_folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1, 'sort_order' => 0);
 		if (!$system_management_folder->create($system_management_folder_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'System Management Folder');
@@ -246,10 +246,10 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createSystemUserGroup()
 	{
-		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('system_user_group');
-		$system_user_group =& new System_User_Group();
+		$system_user_group = new System_User_Group();
 		$system_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$system_user_group->create($system_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'System Admin Group');
@@ -274,10 +274,10 @@ class Package_Manager_Core extends Package_Manager
 		$current_run_level = $GLOBALS['SQ_SYSTEM']->getRunLevel();
 		$GLOBALS['SQ_SYSTEM']->setRunLevel($current_run_level - SQ_SECURITY_PASSWORD_VALIDATION);
 
-		$system_user_group =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+		$system_user_group = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_user');
-		$root_user =& new Root_User();
+		$root_user = new Root_User();
 		$user_link = Array('asset' => &$system_user_group, 'link_type' => SQ_LINK_TYPE_1);
 
 		$root_pass = isset($_SESSION['install_root_pass']) ? $_SESSION['install_root_pass'] : 'root';
@@ -309,10 +309,10 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createCronManager()
 	{
-		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_manager');
-		$cron_manager =& new Cron_Manager();
+		$cron_manager = new Cron_Manager();
 		$cron_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$cron_manager->create($cron_manager_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Cron Manager');
@@ -333,10 +333,10 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createTriggerManager()
 	{
-		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('trigger_manager');
-		$trigger_manager =& new Trigger_Manager();
+		$trigger_manager = new Trigger_Manager();
 		$trigger_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$trigger_manager->create($trigger_manager_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Trigger Manager');
@@ -357,10 +357,10 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createLogManager()
 	{
-		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('log_manager');
-		$log_manager =& new Log_Manager();
+		$log_manager = new Log_Manager();
 		$log_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$log_manager->create($log_manager_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Trigger Manager');
@@ -381,10 +381,10 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createLayoutManager()
 	{
-		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('layout_manager');
-		$layout_manager =& new Layout_Manager();
+		$layout_manager = new Layout_Manager();
 		$layout_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$layout_manager->create($layout_manager_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Layout Manager');
@@ -405,10 +405,10 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createRemapManager()
 	{
-		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('remap_manager');
-		$remap_manager =& new Remap_Manager();
+		$remap_manager = new Remap_Manager();
 		$remap_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$remap_manager->create($remap_manager_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Remap Manager');
@@ -429,10 +429,10 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createCacheManager()
 	{
-		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cache_manager');
-		$cache_manager =& new Cache_Manager();
+		$cache_manager = new Cache_Manager();
 		$cache_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$cache_manager->create($cache_manager_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Cache Manager');
@@ -453,10 +453,10 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createDesignsFolder()
 	{
-		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('designs_folder');
-		$designs_folder =& new Designs_Folder();
+		$designs_folder = new Designs_Folder();
 		$designs_folder_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$designs_folder->create($designs_folder_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Designs Folder');
@@ -477,10 +477,10 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createAuthenticationFolder()
 	{
-		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('authentication_folder');
-		$authentication_folder =& new Authentication_Folder();
+		$authentication_folder = new Authentication_Folder();
 		$authentication_folder_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$authentication_folder->create($authentication_folder_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Authentication Folder');
@@ -501,10 +501,10 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createLoginDesign()
 	{
-		$designs_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('designs_folder');
+		$designs_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('designs_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('login_design');
-		$login_design =& new Login_Design();
+		$login_design = new Login_Design();
 		$login_design_link = Array('asset' => &$designs_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		$login_design->setAttrValue('id_name', 'login_design');
 		if (!$login_design->create($login_design_link)) {
@@ -526,10 +526,10 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createPasswordChangeDesign()
 	{
-		$designs_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('designs_folder');
+		$designs_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('designs_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('password_change_design');
-		$password_change_design =& new Password_Change_Design();
+		$password_change_design = new Password_Change_Design();
 		$password_change_design_link = Array('asset' => &$designs_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		$password_change_design->setAttrValue('id_name', 'password_change_design');
 		if (!$password_change_design->create($password_change_design_link)) {
@@ -551,11 +551,11 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createWebFolderDesigns()
 	{
-		$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('web_folder_designs');
 		$folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
-		$designs_folder =& new Web_Folder_Designs();
+		$designs_folder = new Web_Folder_Designs();
 		$designs_folder->setAttrValue('name', 'Designs Folder');
 		if (!$designs_folder->create($folder_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Designs Folder');
@@ -576,11 +576,11 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createWebFolderMedia()
 	{
-		$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('web_folder_media');
 		$folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
-		$media_folder =& new Web_Folder_Media();
+		$media_folder = new Web_Folder_Media();
 		$media_folder->setAttrValue('name', 'Media Folder');
 		if (!$media_folder->create($folder_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Media Folder');
@@ -601,11 +601,11 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createWebFolderUsers()
 	{
-		$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('web_folder_users');
 		$folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
-		$users_folder =& new Web_Folder_Users();
+		$users_folder = new Web_Folder_Users();
 		$users_folder->setAttrValue('name', 'Users Folder');
 		if (!$users_folder->create($folder_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Users Folder');
@@ -626,7 +626,7 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createCronJobExpiredWorkflow()
 	{
-		$cron_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_manager)) {
 			trigger_localised_error('CORE0022', E_USER_WARNING);
 			$null = NULL;
@@ -635,8 +635,8 @@ class Package_Manager_Core extends Package_Manager
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_expired_workflow');
 
-		$cron_job =& new Cron_Job_Expired_WorkFlow();
-		$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		$cron_job = new Cron_Job_Expired_WorkFlow();
+		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Expired Workflow Cron Job');
 		}
@@ -657,7 +657,7 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createCronJobGenerateLogReports()
 	{
-		$cron_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_manager)) {
 			trigger_error('Couldn\'t get cron manager, couldn\'t create generate log reports cron job', E_USER_WARNING);
 			$null = NULL;
@@ -666,8 +666,8 @@ class Package_Manager_Core extends Package_Manager
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_generate_log_reports');
 
-		$cron_job =& new Cron_Job_Generate_Log_Reports();
-		$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		$cron_job = new Cron_Job_Generate_Log_Reports();
+		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Generate Log Reports Cron Job NOT CREATED', E_USER_ERROR);
 		}
@@ -688,7 +688,7 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createCronJobEscalateSafeTrash()
 	{
-		$cron_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_manager)) {
 			trigger_error('Couldn\'t get cron manager, couldn\'t create Escalate Safe Trash Cron Job', E_USER_WARNING);
 			$null = NULL;
@@ -697,8 +697,8 @@ class Package_Manager_Core extends Package_Manager
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_generate_log_reports');
 
-		$cron_job =& new Cron_Job_Escalate_Safe_Trash();
-		$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		$cron_job = new Cron_Job_Escalate_Safe_Trash();
+		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Escalate Safe Trash Cron Job NOT CREATED', E_USER_ERROR);
 		}
@@ -719,10 +719,10 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createTagManager()
 	{
-		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('tag_manager');
-		$tag_manager =& new Tag_Manager();
+		$tag_manager = new Tag_Manager();
 		$tag_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$tag_manager->create($tag_manager_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Trigger Manager');
