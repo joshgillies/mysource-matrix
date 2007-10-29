@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.17 2006/12/06 00:35:30 emcdonald Exp $
+* $Id: form_question_type_file_upload.inc,v 1.18 2007/10/29 23:41:57 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -158,7 +158,17 @@ class Form_Question_Type_File_Upload extends Form_Question
 			$valid_names = make_valid_web_paths(Array($this->getValue()));
 			$name = array_shift($valid_names);
 
-			$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($name));
+			$sql = 'SELECT
+						a.assetid
+					FROM
+						'.SQ_TABLE_RUNNING_PREFIX.'ast a
+							JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+							ON a.assetid = l.minorid
+					WHERE
+						l.majorid = '.$db->quoteSmart($create_loc).'
+						AND a.name = '.$db->quoteSmart($name);
+
+			$existing_file = $db->getOne($sql);
 			assert_valid_db_result($existing_file);
 			if ($existing_file) {
 				// file already exists so throw the error
@@ -224,7 +234,17 @@ class Form_Question_Type_File_Upload extends Form_Question
 			$valid_names = make_valid_web_paths(Array($this->getValue()));
 			$name = array_shift($valid_names);
 
-			$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($this->attr('create_location')).' and a.name = '.$db->quoteSmart($name));
+			$sql = 'SELECT
+						a.assetid
+					FROM
+						'.SQ_TABLE_RUNNING_PREFIX.'ast a
+							JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+							ON a.assetid = l.minorid
+					WHERE
+						l.majorid = '.$db->quoteSmart($this->attr('create_location')).'
+						AND a.name = '.$db->quoteSmart($name);
+
+			$existing_file = $db->getOne($sql);
 			assert_valid_db_result($existing_file);
 			if (!is_null($existing_file)) {
 				$existing_file_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
@@ -276,7 +296,17 @@ class Form_Question_Type_File_Upload extends Form_Question
 		$valid_names = make_valid_web_paths(Array($this->getValue()));
 		$name = array_shift($valid_names);
 
-		$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($name));
+		$sql = 'SELECT
+					a.assetid
+				FROM
+					'.SQ_TABLE_RUNNING_PREFIX.'ast a
+						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+						ON a.assetid = l.minorid
+				WHERE
+					l.majorid = '.$db->quoteSmart($create_loc).'
+					AND a.name = '.$db->quoteSmart($name);
+
+		$existing_file = $db->getOne($sql);
 		assert_valid_db_result($existing_file);
 
 		$ok = TRUE;
@@ -297,7 +327,18 @@ class Form_Question_Type_File_Upload extends Form_Question
 					$filename = $name;
 					while ($existing_file) {
 						$filename = increment_filename($filename);
-						$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($filename));
+
+						$sql = 'SELECT
+									a.assetid
+								FROM
+									'.SQ_TABLE_RUNNING_PREFIX.'ast a
+										JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+										ON a.assetid = l.minorid
+								WHERE
+									l.majorid = '.$db->quoteSmart($create_loc).'
+									AND a.name = '.$db->quoteSmart($filename);
+
+						$existing_file = $db->getOne($sql);
 						assert_valid_db_result($existing_file);
 					}
 					$this->setValue($filename);
@@ -402,7 +443,17 @@ class Form_Question_Type_File_Upload extends Form_Question
 		$valid_names = make_valid_web_paths(Array($this->getValue()));
 		$name = array_shift($valid_names);
 
-		$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($name));
+		$sql = 'SELECT
+					a.assetid
+				FROM
+					'.SQ_TABLE_RUNNING_PREFIX.'ast a
+						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+						ON a.assetid = l.minorid
+				WHERE
+					l.majorid = '.$db->quoteSmart($create_loc).'
+					AND a.name = '.$db->quoteSmart($name);
+
+		$existing_file = $db->getOne($sql);
 		assert_valid_db_result($existing_file);
 
 		return $existing_file;
