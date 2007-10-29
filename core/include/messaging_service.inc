@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.59 2007/08/07 05:19:33 hnguyen Exp $
+* $Id: messaging_service.inc,v 1.60 2007/10/29 22:12:51 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -382,7 +382,7 @@ class Messaging_Service extends MySource_Object
 	{
 		require_once SQ_INCLUDE_PATH.'/internal_message.inc';
 
-		$new_message =& new Internal_Message();
+		$new_message = new Internal_Message();
 		$new_message->sent			= ts_iso8601(time());
 		$new_message->from			= $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$new_message->to			= $to;
@@ -447,7 +447,7 @@ class Messaging_Service extends MySource_Object
 	*/
 	function getMessages($userid, $type=NULL, $statii=Array(), $messageids=Array(), $from=NULL, $to=NULL, $get_user_name=NULL, $parameters=Array(), $max_msgs=0)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		if (!is_null($get_user_name) && $get_user_name != 'name') {
 			$get_user_name = 'short_name';
@@ -527,9 +527,9 @@ class Messaging_Service extends MySource_Object
 				$id_parts = explode(':', $result[$i]['userfrom']);
 				if (isset($id_parts[1])) {
 					$bridgeid = $id_parts[0];
-					$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid, '', TRUE);
+					$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid, '', TRUE);
 					if (!is_null($bridge)) {
-						$shadow =& $bridge->getAsset($result[$i]['userfrom']);
+						$shadow = $bridge->getAsset($result[$i]['userfrom']);
 						if (!is_null($shadow)) {
 							$result[$i]['from_name'] = $shadow->$get_user_name;
 							$result[$i]['type_code'] = $shadow->type();
@@ -552,7 +552,7 @@ class Messaging_Service extends MySource_Object
 			$body = $result[$i]['body'];
 			$tagline_reg = '|<SQ_MSG_TAGLINE[^>]*?>(.*?)</SQ_MSG_TAGLINE>|';
 			if (preg_match($tagline_reg, $body, $matches)) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[1]);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[1]);
 				if (is_null($asset)) {
 					$body = preg_replace($tagline_reg, 'AssetID #'.$matches[1], $body);
 				} else {
@@ -665,14 +665,14 @@ class Messaging_Service extends MySource_Object
 	function sendQueuedEmails()
 	{
 		$crlf = "\n";
-		$mime =& new Mail_mime($crlf);
+		$mime = new Mail_mime($crlf);
 
 		foreach ($this->_emails as $from => $from_emails) {
 			// work out the email address the the email will be sent from
 			$from_email = SQ_CONF_DEFAULT_EMAIL;
 			$from_string = '';
 			if ($from) {
-				$user_from =& $GLOBALS['SQ_SYSTEM']->am->getAsset($from);
+				$user_from = $GLOBALS['SQ_SYSTEM']->am->getAsset($from);
 				if (!is_null($user_from)) {
 					$from_string = $user_from->name.' <'.$user_from->attr('email').'>';
 					$from_email = $user_from->attr('email');
@@ -711,7 +711,7 @@ class Messaging_Service extends MySource_Object
 
 					$user = SQ_CONF_SYSTEM_OWNER;
 				} else {
-					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($to);
+					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($to);
 					if (is_null($user)) continue;
 					$to_email = trim($user->attr('email'));
 				}
@@ -721,8 +721,8 @@ class Messaging_Service extends MySource_Object
 				foreach ($to_emails as $subject => $bodies) {
 
 					$body = implode("\n\n".str_repeat('-', 50)."\n\n", $bodies);
-					$mail =& Mail::factory('mail', "-f$from_email");
-					$mime =& new Mail_mime($crlf);
+					$mail = Mail::factory('mail', "-f$from_email");
+					$mime = new Mail_mime($crlf);
 
 					$hdrs = Array(
 								'From'		=> $from_string,
