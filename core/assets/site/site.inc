@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.100 2007/09/26 00:23:15 bshkara Exp $
+* $Id: site.inc,v 1.101 2007/10/29 23:18:57 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -154,16 +154,32 @@ class Site extends Folder
 	*/
 	function getSiteURLs()
 	{
+		$db = DAL::getDb();
+
 		if (!isset($this->_tmp['urls_info'])) {
 			$sql = 'SELECT urlid, url, http, https
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_url
 					';
-			$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
+			$where = 'assetid = :assetid';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			$sql .= $where.'ORDER BY urlid';
+			$sql .= $where.' ORDER BY urlid';
 
-			$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, TRUE, Array(), DB_FETCHMODE_ASSOC);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':assetid', $this->id);
+				$result_x = DAL::executePdoGroupedAssoc($query);
+
+				// TODO: DAL always , whereas I THINK this depends on PEAR DB's
+				// ability to - so need to convert - need better way of doing this...
+				$result = Array();
+				foreach ($result_x as $key => $row) {
+					$result[$key] = $row[0];
+				}
+				unset($result_x);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get applied schemas for asset ID #'.$this->id.' due to database error: '.$e->getMessage());
+			}
+
 			$this->_tmp['urls_info'] = $result;
 
 		}//end if not cached
@@ -187,7 +203,7 @@ class Site extends Folder
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$updated = FALSE;
@@ -272,22 +288,32 @@ class Site extends Folder
 					$sql = 'UPDATE
 								sq_ast_url
 							SET
-								url		= '.$db->quoteSmart($save_urls[$save_urlid]['url']).',
-								http	= '.$db->quoteSmart($save_urls[$save_urlid]['http']).',
-								https	= '.$db->quoteSmart($save_urls[$save_urlid]['https']).'
+								url		= :url,
+								http	= :http,
+								https	= :https
 							WHERE
-									urlid	= '.$db->quoteSmart($save_urlid).'
-								AND	assetid	= '.$db->quoteSmart($this->id);
+									urlid	= :urlid
+								AND	assetid	= :assetid';
 
-					$result = $db->query($sql);
-					assert_valid_db_result($result);
+					try {
+						$query = $db->prepare($sql);
+						$query->bindValue(':url',     $save_urls[$save_urlid]['url']);
+						$query->bindValue(':http',    $save_urls[$save_urlid]['http']);
+						$query->bindValue(':https',   $save_urls[$save_urlid]['https']);
+						$query->bindValue(':urlid',   $save_urlid);
+						$query->bindValue(':assetid', $this->id);
+						DAL::execPdoQuery($query);
+					} catch (Exception $e) {
+						throw new Exception('Unable to update URLs for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+					}
+
 					$updated = TRUE;
 				}
 
 			} else {
 				// we are a new one
-				$curr_urlid = $db->nextId('sq_ast_url');
-				assert_valid_db_result($curr_urlid);
+				// TODO: replace with seqNextVal() in queries.xml
+				$curr_urlid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_url_seq\');');
 
 				$sql = 'INSERT INTO
 							sq_ast_url
@@ -300,15 +326,24 @@ class Site extends Folder
 							)
 							VALUES
 							(
-								'.$db->quoteSmart($curr_urlid).',
-								'.$db->quoteSmart($this->id).',
-								'.$db->quoteSmart($save_urls[$save_urlid]['url']).',
-								'.$db->quoteSmart($save_urls[$save_urlid]['http']).',
-								'.$db->quoteSmart($save_urls[$save_urlid]['https']).'
+								:urlid,
+								:assetid,
+								:url,
+								:http,
+								:https
 							)';
 
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+				try {
+					$query = $db->prepare($sql);
+					$query->bindValue(':url',     $save_urls[$save_urlid]['url']);
+					$query->bindValue(':http',    $save_urls[$save_urlid]['http']);
+					$query->bindValue(':https',   $save_urls[$save_urlid]['https']);
+					$query->bindValue(':urlid',   $curr_urlid);
+					$query->bindValue(':assetid', $this->id);
+					DAL::execPdoQuery($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to insert URLs for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+				}
 
 				$updated = TRUE;
 
@@ -328,8 +363,13 @@ class Site extends Folder
 					WHERE
 						 urlid = '.$db->quote($urlid);
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':urlid', $curr_urlid);
+				DAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete URLs from asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+			}
 
 			// remove corresponding authentication redirects
 			$sql = 'UPDATE
@@ -385,7 +425,7 @@ class Site extends Folder
 	function updateLookups()
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		unset($this->_tmp['lookups']);
@@ -407,16 +447,26 @@ class Site extends Folder
 							FROM
 								sq_ast_lookup l
 							WHERE
-								assetid = '.$db->quoteSmart($this->id).'
+								assetid = :assetid
 						) ';
 					if ($this->_tmp['deleting_site'] == TRUE) {
-						$sql .= 'AND (name LIKE '.$db->quoteSmart('design::%').' OR name LIKE '.$db->quoteSmart('paint_layout::%').')';
+						$sql .= 'AND (name LIKE :name OR name LIKE :name_pl)';
 					} else {
-						$sql .= 'AND	name LIKE '.$db->quoteSmart('design::%');
+						$sql .= 'AND name LIKE :name';
 					}
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':name', 'design::%');
+			if ($this->_tmp['deleting_site'] == TRUE) {
+				$query->bindValue(':name_pl', 'paint_layout::%');
+			}
+			$query->bindValue(':assetid', $this->id);
+			DAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to remove existing lookups for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+		}
+
 
 		// Remove all the overriden old Design
 		$sql = 'DELETE FROM
@@ -429,25 +479,37 @@ class Site extends Folder
 							FROM
 								sq_ast_lookup l
 							WHERE
-								assetid = '.$db->quoteSmart($this->id).'
+								assetid = :assetid
 						) ';
 					if ($this->_tmp['deleting_site'] == TRUE) {
-						$sql .= 'AND (name LIKE '.$db->quoteSmart('design::%').' OR name LIKE '.$db->quoteSmart('paint_layout::%').')';
+						$sql .= 'AND (name LIKE :name OR name LIKE :name_pl)';
 					} else {
-						$sql .= 'AND	name LIKE '.$db->quoteSmart('design::%');
+						$sql .= 'AND name LIKE :name';
 					}
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':name', 'design::%');
+			if ($this->_tmp['deleting_site'] == TRUE) {
+				$query->bindValue(':name_pl', 'paint_layout::%');
+			}
+			$query->bindValue(':assetid', $this->id);
+			DAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to remove existing lookup values for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+		}
 
 		$sql = 'DELETE FROM
 					sq_ast_lookup
 				WHERE
-					assetid = '.$db->quote($this->id);
+					assetid = :assetid';
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
+		try {
+			$query->bindValue(':assetid', $this->id);
+			DAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to remove existing lookups for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+		}
 		$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'design', FALSE);
 		$our_designs = Array();
 		foreach ($our_design_links as $link) {
@@ -485,15 +547,24 @@ class Site extends Folder
 						)
 						VALUES
 						(
-							'.$db->quoteSmart($urls[$urlid]['url']).',
-							'.$db->quoteSmart($this->id).',
-							'.$db->quoteSmart(($this->force_secure) ? '0' : $urls[$urlid]['http']).',
-							'.$db->quoteSmart($urls[$urlid]['https']).',
-							'.$db->quoteSmart($urlid).'
+							:url,
+							:assetid,
+							:http,
+							:https,
+							:urlid
 						)';
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':url',     $urls[$urlid]['url']);
+				$query->bindValue(':http',    ($this->force_secure) ? '0' : $urls[$urlid]['http']);
+				$query->bindValue(':https',   $urls[$urlid]['https']);
+				$query->bindValue(':urlid',   $urlid);
+				$query->bindValue(':assetid', $this->id);
+				DAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to insert lookups for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+			}
 
 			foreach ($our_designs as $name => $designid) {
 				$sql = 'INSERT INTO
@@ -506,14 +577,22 @@ class Site extends Folder
 							)
 							VALUES
 							(
-								'.$db->quoteSmart($urls[$urlid]['url']).',
-								'.$db->quoteSmart($name).',
-								'.$db->quoteSmart($designid).',
-								'.$db->quoteSmart($site_depth).'
+								:url,
+								:name,
+								:value,
+								:depth
 							)';
 
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+				try {
+					$query = $db->prepare($sql);
+					$query->bindValue(':url',   $urls[$urlid]['url']);
+					$query->bindValue(':name',  $name);
+					$query->bindValue(':value', $designid);
+					$query->bindValue(':depth', $site_depth);
+					DAL::execPdoQuery($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to insert lookup values for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+				}
 			}
 
 			// add in the ast lookup value table the overriden design
@@ -528,14 +607,22 @@ class Site extends Folder
 							)
 							VALUES
 							(
-								'.$db->quoteSmart($urls[$urlid]['url'].'/').',
-								'.$db->quoteSmart($name).',
-								'.$db->quoteSmart($designid).',
-								'.$db->quoteSmart($site_depth+1).'
+								:url,
+								:name,
+								:value,
+								:depth
 							)';
 
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+				try {
+					$query = $db->prepare($sql);
+					$query->bindValue(':url',   $urls[$save_urlid]['url'].'/');
+					$query->bindValue(':name',  $name);
+					$query->bindValue(':value', $designid);
+					$query->bindValue(':depth', $site_depth+1);
+					DAL::execPdoQuery($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to insert lookup values for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+				}
 			}
 
 
@@ -665,7 +752,7 @@ class Site extends Folder
 		$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($asset_url, $design_name);
 
 		if (empty($result)) {
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 			// try and find the default design used by the asset we are painting (i.e. not our default design)
 			$sql = 'SELECT lv.value as designid, a.type_code
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l

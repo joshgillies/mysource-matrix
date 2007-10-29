@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_folder.inc,v 1.50 2006/12/06 04:40:10 emcdonald Exp $
+* $Id: root_folder.inc,v 1.51 2007/10/29 23:17:11 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,18 +69,21 @@ class Root_Folder extends Folder
 		$ret_val = parent::create($link);
 		if ($ret_val) {
 			if ($this->id != 1) {
+				throw new Exception('Unable to create root folder, as it did not receive asset ID #1. Fragments of another system may exist in the database; please ensure the database is clear of previous installations before installing.');
 				trigger_localised_error('CORE0077', E_USER_ERROR);
 				return FALSE;
 			}
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = DAL::getDb();
 
-			$linkid = $db->nextId('sq_ast_lnk');
-			assert_valid_db_result($linkid);
+			// TODO: this wil be replaced in the queries.xml with a seqNextVal()
+			// call replacing the addition of the explicit sequence value
+			$linkid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_lnk_seq\')');
 
 			if ($linkid != 1) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				throw new Exception('Unable to create root folder, as it did not receive link ID #1. Fragments of another system may exist in the database; please ensure the database is clear of previous installations before installing.');
 				trigger_localised_error('CORE0078', E_USER_ERROR);
 				return FALSE;
 			}
@@ -88,7 +91,7 @@ class Root_Folder extends Folder
 			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db =& DAL::getDb();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// right, we need to do some manipulation for the link table to put in some initial values
@@ -109,21 +112,37 @@ class Root_Folder extends Folder
 						)
 						VALUES
 						(
-							'.$db->quoteSmart(1).',
-							'.$db->quoteSmart(0).',
-							'.$db->quoteSmart(1).',
-							'.$db->quoteSmart(SQ_LINK_TYPE_1).',
-							'.$db->quoteSmart('').',
-							'.$db->quoteSmart(0).',
-							'.$db->quoteSmart(1).',
-							'.$db->quoteSmart(1).',
-							'.db_extras_todate($db, ts_iso8601(time())).',
-							'.$db->quoteSmart(0).'
+							:linkid,
+							:majorid,
+							:minorid,
+							:link_type,
+							:value,
+							:sort_order,
+							:dependant,
+							:exclusive,
+							:updated,
+							:updated_userid
 						)';
 
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':linkid',                1,  PDO::PARAM_INT);
+				$query->bindValue(':majorid',               0,  PDO::PARAM_INT);
+				$query->bindValue(':minorid',               1,  PDO::PARAM_INT);
+				$query->bindValue(':link_type',             SQ_LINK_TYPE_1, PDO::PARAM_INT);
+				$query->bindValue(':value',                 '', PDO::PARAM_STR);
+				$query->bindValue(':sort_order',            0,  PDO::PARAM_INT);
+				$query->bindValue(':dependant',             1,  PDO::PARAM_INT);
+				$query->bindValue(':exclusive',             1,  PDO::PARAM_INT);
+				$query->bindValue(':updated',               ts_iso8601(time()), PDO::PARAM_STR);
+				$query->bindValue(':updated_userid',        0,  PDO::PARAM_STR);
+				// TODO: turn this into a PDO query
+				DAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to create root folder\'s link #1 entry due to database error: '.$e->getMessage());
+			}
+
 
 			$sql = 'INSERT INTO
 						sq_ast_lnk_tree
@@ -134,13 +153,17 @@ class Root_Folder extends Folder
 						)
 						VALUES
 						(
-							'.$db->quoteSmart('-').',
-							'.$db->quoteSmart(1).',
-							'.$db->quoteSmart(0).'
+							\'-\',
+							1,
+							0
 						)';
 
-			$result = $db->query($sql);
-			assert_valid_db_result($sql);
+			try {
+				// TODO: turn this into a PDO query
+				DAL::executeSql($sql);
+			} catch (Exception $e) {
+				throw new Exception('Unable to create root folder\'s link tree entry due to database error: '.$e->getMessage());
+			}
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();

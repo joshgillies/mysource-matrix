@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.32 2007/08/27 01:31:47 bshkara Exp $
+* $Id: remap_manager.inc,v 1.33 2007/10/29 23:17:23 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -381,12 +381,11 @@ class Remap_Manager extends Asset
 				FROM
 					'.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
 
-		$where = 'url = '.$db->quote($url).'
-				  AND (expires IS NULL OR expires > '.db_extras_todate($db, ts_iso8601(time())).')';
+		$where = 'url = \''.$url.'\'
+			AND (expires IS NULL OR expires > \''.ts_iso8601(time()).'\')';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-		$remap_url = $db->getOne($sql.$where);
-		assert_valid_db_result($remap_url);
+		$remap_url = MatrixDAL::executeSqlOne($sql.$where);
 
 		// if we have a remap url, display it
 		if (!empty($remap_url)) {
