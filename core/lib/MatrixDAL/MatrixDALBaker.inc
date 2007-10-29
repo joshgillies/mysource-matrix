@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDALBaker.inc,v 1.1 2007/10/29 05:54:11 lwright Exp $
+* $Id: MatrixDALBaker.inc,v 1.2 2007/10/29 22:52:50 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/XML/XML.inc';
 *
 * @since   MySource 3.18.0 RC1
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class MatrixDALBaker extends DALBaker
@@ -75,7 +75,6 @@ class MatrixDALBaker extends DALBaker
 
         if (file_exists($filename)) {
             parent::processQueriesFile('core', $filename);
-            echo self::_queryRequiresRollback('core', 'isAssetDependentlyLinked') ? 1 : 0;
             throw new Exception();
             return TRUE;
         }
