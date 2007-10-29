@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.24 2007/07/09 04:34:18 hnguyen Exp $
+* $Id: assertions.inc,v 1.25 2007/10/29 05:02:44 lwright Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 
@@ -363,7 +363,7 @@ function assert_isset_array_index($test, $index, $msg='', $silent=false, $fatal=
 */
 function assert_is_a($obj, $class, $msg='', $silent=false, $fatal=true)
 {
-	if (!is_a($obj, $class)) {
+	if (!($obj instanceof $class)) {
 		if (empty($msg)) {
 			$msg = translate('assert_object', strtoupper($class));
 		}
@@ -404,24 +404,22 @@ function assert_type($obj, $type, $msg='', $silent=false, $fatal=true)
 /**
 * Assert that the value passed in is a valid DB result
 *
+* Since the removal of PEAR DB from MySource Matrix in the move to PHP 5, this
+* function is now obselete and will throw an exception when called. Use normal
+* exception handling (try..catch) with DAL/PDO queries.
+*
 * @param string		$result	the DB result to be checked
 * @param string		$msg	an error message to print on failure
 * @param boolean	$silent	is this exception silent (ie not shown to the user)
 * @param boolean	$fatal	is this exception fatal (ie should the script exit)
 *
+* @deprecated Deprecated since 3.18.0 RC1
 * @return boolean
 * @access public
 */
 function assert_valid_db_result($result, $msg='', $silent=false, $fatal=true)
 {
-	if (DB::isError($result)) {
-		if (empty($msg)) {
-			$msg = $result->getMessage().'<br/>'.$result->getUserInfo();
-		}
-		trigger_exception($msg, $silent, $fatal);
-		return false;
-	}
-	return true;
+	throw new Exception('assert_valid_db_result() is obselete, use try...catch instead');
 
 }//end assert_valid_db_result()
 
@@ -505,7 +503,11 @@ function trigger_exception($msg, $silent=false, $fatal=false)
 			$backtrace = debug_backtrace();
 			$line = $backtrace[1]['line'];
 			$file = $backtrace[1]['file'];
-			trigger_localised_error('SYS0270', $error_type, $msg, $line, $file);
+			if ($fatal) {
+				throw new Exception('Assertion failed: '.$msg);
+			} else {
+				trigger_localised_error('SYS0270', $error_type, $msg, $line, $file);
+			}
 		} else {
 			trigger_localised_error('SYS0320', $error_type, $msg);
 		}
