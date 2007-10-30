@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDAL.inc,v 1.1 2007/10/29 05:54:11 lwright Exp $
+* $Id: MatrixDAL.inc,v 1.2 2007/10/30 00:18:50 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/DAL/DAL.inc';
 *
 * @since   MySource 3.18.0
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class MatrixDAL extends DAL
@@ -86,7 +86,7 @@ class MatrixDAL extends DAL
             // Query not found. Throw DALException exception?
             throw new DALException('Could not load query '.$queryid.' in system '.$systemid);
         } else {
-            return call_user_func(array($class, $function), $params, $bindValues);
+			return call_user_func(array($class, $function), $params, $bindValues);
         }
 
     }//end getQuery()
@@ -103,7 +103,7 @@ class MatrixDAL extends DAL
      * @since  4.0.0
      * @return array
      */
-    public static function executeGrouped($systemid, $queryid, $params=NULL)
+    public static function executeGrouped($systemid, $queryid, $params=Array())
     {
         $query = self::getQuery($systemid, $queryid, $params);
         return self::getGrouped($query);
@@ -123,7 +123,7 @@ class MatrixDAL extends DAL
      * @since  4.0.0
      * @return array
      */
-    public static function executeAssoc($systemid, $queryid, $col=NULL, $params=NULL)
+    public static function executeAssoc($systemid, $queryid, $col=NULL, $params=Array())
     {
 		if ((func_num_args() === 3) && is_array($col)) {
 			$params = $col;
@@ -148,7 +148,7 @@ class MatrixDAL extends DAL
      * @since  4.0.0
      * @return array
      */
-    public static function executeAll($systemid, $queryid, $params=NULL)
+    public static function executeAll($systemid, $queryid, $params=Array())
     {
         $query = self::getQuery($systemid, $queryid, $params);
         return self::getAll($query);
@@ -167,7 +167,7 @@ class MatrixDAL extends DAL
      * @since  4.0.0
      * @return array
      */
-    public static function executeOne($systemid, $queryid, $params=NULL)
+    public static function executeOne($systemid, $queryid, $params=Array())
     {
         $query  = self::getQuery($systemid, $queryid, $params);
         $result = self::getOne($query);
@@ -196,7 +196,7 @@ class MatrixDAL extends DAL
      * @return integer
      * @throws DALException If no query provided or query execution failed.
      */
-    public static function executeQuery($systemid, $queryid=NULL, $params=NULL)
+    public static function executeQuery($systemid, $queryid=NULL, $params=Array())
     {
         $query = NULL;
         if (($systemid instanceof Query) === TRUE) {
