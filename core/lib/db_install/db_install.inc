@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.47 2007/10/29 05:54:53 lwright Exp $
+* $Id: db_install.inc,v 1.48 2007/10/30 03:03:18 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -671,7 +671,7 @@ function grant_secondary_user_perms($verbose=TRUE)
 {
 	$db = DAL::getDb();
 	if (DAL::getDbType() == 'pgsql') {
-		$db_conf = require_once(SQ_SYSTEM_ROOT.'/data/private/conf/db.inc');
+		$db_conf = require(SQ_SYSTEM_ROOT.'/data/private/conf/db.inc');
 
 		$primary_dsn   = $db_conf['db'];
 		$secondary_dsn = $db_conf['db2'];
