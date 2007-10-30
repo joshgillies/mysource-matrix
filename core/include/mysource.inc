@@ -10,13 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.233 2007/10/29 22:08:10 lwright Exp $
+* $Id: mysource.inc,v 1.234 2007/10/30 02:45:56 lwright Exp $
 *
 */
 
 //require_once 'DB.php';
 require_once SQ_LIB_PATH.'/MatrixDAL/MatrixDAL.inc';
-require_once SQ_LIB_PATH.'/Exceptions/MatrixErrorException.inc';
 
 require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
 require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
@@ -32,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.233 $
+* @version $Revision: 1.234 $
 * @package MySource_Matrix
 */
 class MySource
