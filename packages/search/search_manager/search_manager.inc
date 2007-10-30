@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.154 2007/10/05 03:48:44 colivar Exp $
+* $Id: search_manager.inc,v 1.155 2007/10/30 23:07:38 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.154 $
+* @version $Revision: 1.155 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2394,36 +2394,70 @@ class Search_Manager extends Asset
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if ($user_restrictions) {
 			$query['join'][] = 'INNER JOIN sq_ast_perm p ON p.assetid = a.assetid';
-			$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
+			$no_roles = (isset($search_info['no_roles_check']) && $search_info['no_roles_check'] == 1) ? TRUE : FALSE;
+			$no_group_access_check = (isset($search_info['no_group_access_check']) && $search_info['no_group_access_check'] == 1) ? TRUE : FALSE;
+			if (!$no_roles) {
+				$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
+			}
 
 			$public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
 			$current_user =& $GLOBALS['SQ_SYSTEM']->user;
-			if (empty($current_user)) {
-				$userids = $public_user->getUserGroups();
+			$public_user_access = (empty($current_user) || $search_info['search_as_public_user'] == 1);
+			if ($public_user_access) {
+				if (!$no_group_access_check) {
+					$userids = $public_user->getUserGroups();
+				}//end if
 			} else {
-				$userids = $current_user->getUserGroups();
+				if (!$no_group_access_check) {
+					$userids = $current_user->getUserGroups();
+				}//end if
 				$userids[] = $current_user->id;
 			}
+
 			$userids[] = $public_user->id;
 
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 				$userids[$i] = $db->quoteSmart((String)$userids[$i]);
 			}
+
 			$usrids_str = implode(',', $userids);
-			$query['where'][] = 'p.userid  IN ('.$usrids_str.') OR '.'r.userid  IN ('.$usrids_str.')';
-			$query['where'][] = '(
-						(p.permission = '.$db->quoteSmart((String)SQ_PERMISSION_READ).'
-							AND (
-									p.userid <> '.$db->quoteSmart($public_user->id).'
-									OR r.userid <> '.$db->quoteSmart($public_user->id).'
-									OR (p.userid = '.$db->quoteSmart($public_user->id).' AND granted = 1)
-									OR (r.userid = '.$db->quoteSmart($public_user->id).' AND granted = 1)
+
+			// If there is only one user in $userids, use equal sign instead.
+			$query['where'][] = ((count($userids)==1) ? 'p.userid = '.$usrids_str : 'p.userid  IN ('.$usrids_str.')')
+								.(!$no_roles ? ' OR '.((count($userids)==1) ? 'r.userid  = '.$usrids_str : 'r.userid  IN ('.$usrids_str.')') : '');
+
+
+			// If we are searching as public user, we don't want to have group and roles check with permission granted.
+			// We want to get all denied access as well. But if we are logged in, then we only want public granted access rows.
+			$check_group_role = $public_user_access ? '' :
+							'(
+								(p.permission = '.$db->quoteSmart((String)SQ_PERMISSION_READ).'
+									AND (
+											(p.userid <> '.$db->quoteSmart($public_user->id).
+											// If we are not checking for roles, and we are searching as public
+											(!$no_roles ?
+												($public_user_access ? '
+												OR' : '
+												AND').'	(r.userid IS NULL OR r.userid <> '.$db->quoteSmart($public_user->id).')'
+											: '').')
+
+											OR (p.userid = '.$db->quoteSmart($public_user->id).' AND granted = 1)'.
+											(!$no_roles ? '
+												OR (r.userid = '.$db->quoteSmart($public_user->id).' AND granted = 1)'
+											: '')
+											.'
+										)
 								)
-						)
-						OR
-						(p.permission > '.$db->quoteSmart((String)SQ_PERMISSION_READ).' AND p.granted = 1)
-						)';
+								OR
+								(p.permission > '.$db->quoteSmart((String)SQ_PERMISSION_READ).' AND p.granted = 1)
+							)';
+
+			if (!empty($check_group_role)) {
+				$query['where'][] = $check_group_role;
+			}//end if
+
 			$query['having'][] = 'MIN(p.granted) <> 0';
+
 			$query['group_by'][] = 'a.assetid';
 		}//end if
 

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.207 2007/10/19 04:52:07 hnguyen Exp $
+* $Id: search_page.inc,v 1.208 2007/10/30 23:04:07 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.207 $
+* @version $Revision: 1.208 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2586,6 +2586,10 @@ class Search_Page extends Listing_Engine
 		$search_info['field_logic'] = $this->attr('logic');
 		$search_info['requester'] = $this->id;
 		$search_info['asset_types'] = $this->attr('types');
+		$search_info['search_as_public_user'] = $this->attr('search_as_public_user');
+		$search_info['no_roles_check'] = $this->attr('no_roles_check');
+		$search_info['no_group_access_check'] = $this->attr('no_group_access_check');
+
 		return $search_info;
 
 	}//end populateBaseSearchInfo()
