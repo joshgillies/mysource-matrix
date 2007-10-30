@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.56 2007/03/05 05:31:32 tbarrett Exp $
+* $Id: search_page_management.inc,v 1.56.4.1 2007/10/30 23:38:49 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.56.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -130,34 +130,56 @@ class Search_Page_Management extends Asset_Management
 												   ),
 							   );
 
-		$this->vars['allow_empty_search'] = Array(
+		$this->vars['allow_empty_search']	= Array(
 												'added'			=> '0.12',
 												'type'			=> 'boolean',
 												'default'		=> FALSE,
 												'description'	=> 'If true, empty search query will search for everything',
 												'parameters'	=> Array('allow_empty' => FALSE),
-											);
+											  );
+		$this->vars['search_as_public_user']	= Array(
+													'added'			=> '0.12',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'description'	=> 'If true, only look for assets which were granted public user read',
+													'parameters'	=> Array('allow_empty' => FALSE),
+												  );
+		$this->vars['no_roles_check']	= Array(
+											'added'			=> '0.12',
+											'type'			=> 'boolean',
+											'default'		=> FALSE,
+											'description'	=> 'If true, search for assets without checking roles',
+											'parameters'	=> Array('allow_empty' => FALSE),
+										  );
+		$this->vars['no_group_access_check'] = Array(
+												'added'			=> '0.12',
+												'type'			=> 'boolean',
+												'default'		=> FALSE,
+												'description'	=> 'If true, search for assets without checking groups access priviledge for current user',
+												'parameters'	=> Array('allow_empty' => FALSE),
+											   );
 
-		$this->vars['spell_check_string'] = Array(
-										'added'			=> '0.19',
-										'type'			=> 'text',
-										'default'		=> 'Did you mean: %suggestions%',
-										'description'	=> 'String to use for the "spell check suggestions" keyword',
-									);
 
-		$this->vars['synonym_string'] = Array(
-										'added'			=> '0.19',
-										'type'			=> 'text',
-										'default'		=> 'Did you mean: %suggestions%',
-										'description'	=> 'String to use for the "synonyms" keyword',
-									);
+		$this->vars['spell_check_string']	= Array(
+												'added'			=> '0.19',
+												'type'			=> 'text',
+												'default'		=> 'Did you mean: %suggestions%',
+												'description'	=> 'String to use for the "spell check suggestions" keyword',
+											  );
 
-		$this->vars['auto_synonym_string'] = Array(
+		$this->vars['synonym_string']	= Array(
+											'added'			=> '0.19',
+											'type'			=> 'text',
+											'default'		=> 'Did you mean: %suggestions%',
+											'description'	=> 'String to use for the "synonyms" keyword',
+										  );
+
+		$this->vars['auto_synonym_string']	= Array(
 												'added'			=> '0.21',
 												'type'			=> 'text',
 												'default'		=> '(and related terms)',
 												'description'	=> 'String to display for the "auto synonym search triggered" keyword',
-											);
+											  );
 
 		// Default sort-by options are different for search page
 		$this->vars['sort_by'] = Array(
@@ -399,7 +421,7 @@ class Search_Page_Management extends Asset_Management
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					$db = $GLOBALS['SQ_SYSTEM']->db;
 
-				}
+				}//end else
 
 				// now move search types if any are set
 				$types = $asset->attr('search_types');

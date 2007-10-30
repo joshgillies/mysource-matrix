@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.21 2007/03/14 23:37:14 skim Exp $
+* $Id: lang_screen_details.xml,v 1.21.4.1 2007/10/30 23:38:49 hnguyen Exp $
 *
 */
 -->
@@ -73,6 +73,18 @@
 		<field attribute="lineage_seperator">
 			<display_name>Lineage Separator</display_name>
 			<note>Separator to use when printing the lineage to a search result asset.</note>
+		</field>
+		<field attribute="search_as_public_user">
+			<display_name>Search as Public User</display_name>
+			<note>If selected, only assets which are granted public access (and not denied) will be return as results.</note>
+		</field>
+		<field attribute="no_roles_check">
+			<display_name>No Roles Check</display_name>
+			<note>If selected, Search performance will be increased substantially, however no roles check will be performed.</note>
+		</field>
+		<field attribute="no_group_access_check">
+			<display_name>No Group Access Check</display_name>
+			<note>If selected, Search performance will be increased substantially, however no group access priviledge check will be performed.</note>
 		</field>
 		<field attribute="root_in_lineage">
 			<display_name>Show root node in lineage</display_name>
