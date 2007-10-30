@@ -11,7 +11,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.9 2007/10/08 01:48:18 bshkara Exp $
+#* $Id: clean.sh,v 1.10 2007/10/30 00:34:14 lwright Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories
@@ -36,41 +36,50 @@ rm -rf "${SYSTEM_ROOT}/cache" \
 cvs up -dP cache data/public data/private
 
 # OK, what we are doing here is using PHP to do the parsing of the DSN for us (much less error prone :)
-# see the output of DB::parseDSN
 php_code="<?php
-require_once '${SYSTEM_ROOT}/data/private/conf/main.inc';
-require_once 'DB.php';
-\$dsn = DB::parseDSN(SQ_CONF_DB2_DSN);
+\$db_conf = require_once('${SYSTEM_ROOT}/data/private/conf/db.inc');
+\$dsn = \$db_conf['db2'];
 foreach(\$dsn as \$k => \$v) {
 	echo 'DB_'.strtoupper(\$k).'=\"'.addslashes(\$v).'\";';
 }
+
+if (isset(\$dsn['DSN'])) {
+	\$dsn_parts = Array();
+	list(\$db_type, \$dsn_split) = preg_split('/:/', \$dsn['DSN']);
+	\$dsn_split = preg_split('/[\\s;]+/', \$dsn_split);
+	foreach (\$dsn_split as \$dsn_part) {
+		\$split = preg_split('/=/', \$dsn_part, 2);
+		echo 'DB_DSN_'.strtoupper(\$split[0]).'=\"'.\$split[1].'\";';
+	}
+}
 ?>"
+
 eval `echo "${php_code}" | php`
 
 set | grep "^DB_"
 
-case "${DB_PHPTYPE}" in
+case "${DB_TYPE}" in
 	"pgsql")
 		args="";
-		if [ "${DB_USERNAME}" != "" ]; then
-			args="${args} -U ${DB_USERNAME}";
+		if [ "${DB_USER}" != "" ]; then
+			args="${args} -U ${DB_USER}";
 		fi
 		if [ "${DB_PASSWORD}" != "" ]; then
 			args="${args} -W";
 		fi
-		if [ "${DB_HOSTSPEC}" != "" ]; then
-			args="${args} -h ${DB_HOSTSPEC}";
+		if [ "${DB_DSN_HOST}" != "" ]; then
+			args="${args} -h ${DB_DSN_HOST}";
 		fi
-		if [ "${DB_PORT}" != "" ]; then
-			args="${args} -p ${DB_PORT}";
+		if [ "${DB_DSN_PORT}" != "" ]; then
+			args="${args} -p ${DB_DSN_PORT}";
 		fi
-		psql ${args} -d "${DB_DATABASE}" -c "\d" -t -q -A -X | awk -F\| '{ print "DROP " $3 " " $2 " CASCADE;" }' | psql ${args} -d "${DB_DATABASE}" -X -q
+		psql ${args} -d "${DB_DSN_DBNAME}" -c "\d" -t -q -A -X | awk -F\| '{ print "DROP " $3 " " $2 " CASCADE;" }' | psql ${args} -d "${DB_DSN_DBNAME}" -X -q
 	;;
 
 	"oci8")
-		args="${DB_USERNAME}/${DB_PASSWORD}@${DB_HOSTSPEC}";
+		args="${DB_USER}/${DB_PASSWORD}@${DB_DSN_HOST}";
 		echo ${args};
-		sqlplus -S "${args}" "@${SYSTEM_ROOT}/scripts/dev/oracle_drop.sql" "${DB_USERNAME}";
+		sqlplus -S "${args}" "@${SYSTEM_ROOT}/scripts/dev/oracle_drop.sql" "${DB_USER}";
 	;;
 
 	*)
@@ -83,6 +92,10 @@ php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_02.php" "${SYSTEM_ROOT}"
 if [ "$?" == "0" ]; then
 	php -d output_buffering=0 "${SYSTEM_ROOT}/install/compile_locale.php" "${SYSTEM_ROOT}" "--locale=en"
 	php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
+	# if step-3 failed then stop it here
+	if [ "$?" != "0" ]; then
+		exit 1
+	fi
 	# again to ensure that all type descendants are able to be found
 	php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
 fi
