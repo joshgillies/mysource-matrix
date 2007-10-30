@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.70 2007/01/08 23:12:48 lwright Exp $
+* $Id: install.inc,v 1.71 2007/10/30 01:07:05 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -38,49 +38,49 @@ function regenerate_configs()
 {
 	// Re-generate the System Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/system_config.inc';
-	$cfg =& new System_Config();
+	$cfg = new System_Config();
 	if (!$cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the Licence Config to ensure it exists
 	require_once SQ_INCLUDE_PATH.'/licence_config.inc';
-	$cfg =& new Licence_Config();
+	$cfg = new Licence_Config();
 	if (!$cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the External Tools Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/external_tools_config.inc';
-	$cfg =& new External_Tools_Config();
+	$cfg = new External_Tools_Config();
 	if (!$cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the Server Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_config.inc';
-	$squiz_server_cfg =& new Squiz_Server_Config();
+	$squiz_server_cfg = new Squiz_Server_Config();
 	if (!$squiz_server_cfg->save(Array(), FALSE)) {
 		return FALSE;
 	}
 
 	// Re-generate the Apache Config to make sure that we get any new vars that may have been issued
 	require_once SQ_INCLUDE_PATH.'/apache_config.inc';
-	$apache_cfg =& new Apache_Config();
+	$apache_cfg = new Apache_Config();
 	if (!$apache_cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the HIPO Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_config.inc';
-	$hipo_cfg =& new HIPO_Config();
+	$hipo_cfg = new HIPO_Config();
 	if (!$hipo_cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the Messaging Service Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/messaging_service_config.inc';
-	$ms_cfg =& new Messaging_Service_Config();
+	$ms_cfg = new Messaging_Service_Config();
 	if (!$ms_cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the Password Rules Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
-	$pwd_cfg =& new Password_Rules_Config();
+	$pwd_cfg = new Password_Rules_Config();
 	if (!$pwd_cfg->save(Array(), FALSE)) return FALSE;
 
 	// Re-generate the Proxy Authentication Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/proxy_authentication_config.inc';
-	$pa_cfg =& new Proxy_Authentication_Config();
+	$pa_cfg = new Proxy_Authentication_Config();
 	if (!$pa_cfg->save(Array(), FALSE)) return FALSE;
 
 	return TRUE;
@@ -116,7 +116,7 @@ function uninstall_asset_types()
 			// core package is something else
 			if ($package == '__core__') {
 				require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
-				$pm =& new Package_Manager_Core();
+				$pm = new Package_Manager_Core();
 				$package_asset_types = array_merge($package_asset_types, array_keys($pm->assets));
 			} else {
 				// only process a package if the PM file exists for it, because we need it
@@ -124,7 +124,7 @@ function uninstall_asset_types()
 				if (file_exists($package_path)) {
 					require_once $package_path;
 					$class = 'package_manager_'.$package;
-					$pm =& new $class();
+					$pm = new $class();
 					$package_asset_types = array_merge($package_asset_types, array_keys($pm->assets));
 				}
 			}
@@ -162,7 +162,7 @@ function uninstall_asset_types()
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		// now actually delete the types
 		foreach ($asset_types as $asset_type) {
@@ -192,7 +192,7 @@ function uninstall_asset_types()
 
 		// report if we did uninstall some asset types
 		if (!empty($asset_types)) {
-			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$msg_reps = Array(
 							'type_code_list'	=> implode("\n", $asset_types),
 						);
@@ -225,7 +225,7 @@ function uninstall_packages()
 	if (!empty($packages_installed)) {
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		foreach ($packages_installed as $package_array) {
 			$package = $package_array['code_name'];
@@ -254,7 +254,7 @@ function uninstall_packages()
 					trigger_error('Package file does not exist, it must have been deleted before', E_USER_NOTICE);
 				}
 
-				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$message_body = 'Uninstalled '.$package;
 				$msg_reps = Array(
 								'package'	=> $package,
@@ -302,10 +302,10 @@ function install_core($package_list=Array())
 		}
 	}
 	require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
-	$pm =& new Package_Manager_Core();
+	$pm = new Package_Manager_Core();
 	$result = $pm->updatePackageDetails($assets);
 
-	$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+	$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 	$msg_reps = Array(
 					'package'	=> 'Core',
 				);
@@ -318,7 +318,7 @@ function install_core($package_list=Array())
 
 	// 0 (zero) indicates success, but no system assets were created - suppress in this case
 	if ($result != 0) {
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$msg_reps = Array(
 						'package'		=> 'Core',
 						'num_assets'	=> $result,
@@ -331,7 +331,7 @@ function install_core($package_list=Array())
 
 	// set the current user object to the root user so we can finish
 	// the install process without permission denied errors
-	$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+	$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 	$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 
 	return TRUE;
@@ -431,10 +431,10 @@ function install_package($package, $package_assets=Array())
 	require_once SQ_PACKAGES_PATH.'/'.$package.'/package_manager_'.$package.'.inc';
 	require_once SQ_LIB_PATH.'/db_install/db_install.inc';
 	$class = 'package_manager_'.$package;
-	$pm =& new $class();
+	$pm = new $class();
 	$result = $pm->updatePackageDetails($package_assets);
 
-	$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+	$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 	if (is_array($result)) {
 		$msg_reps = Array(
@@ -509,7 +509,7 @@ function install_authentication_types()
 	$auth_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('authentication');
 
 	// get installed authentication systems
-	$auth_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
+	$auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
 	$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($auth_folder->id, SQ_LINK_TYPE_1, 'authentication', FALSE);
 	$installed_auth_types = Array();
 	foreach ($links as $link_data) {
@@ -527,12 +527,12 @@ function install_authentication_types()
 			continue;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-		$auth =& new $type_code();
+		$auth = new $type_code();
 
 		if (!$auth->create($folder_link)) {
 			trigger_error('AUTHENTICATION TYPE "'.strtoupper($type_code).'" NOT CREATED', E_USER_WARNING);
 		} else {
-			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$msg_reps = Array(
 							'auth_type_name'	=> strtoupper($type_code),
 							'assetid'			=> $auth->id,
@@ -574,7 +574,7 @@ function generate_global_preferences()
 			$class = 'package_manager_'.$package['code_name'];
 		}
 
-		$pm =& new $class();
+		$pm = new $class();
 		$pm->installUserPreferences($preferences);
 		unset($pm);
 	}
@@ -583,7 +583,7 @@ function generate_global_preferences()
 		return FALSE;
 	}
 
-	$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+	$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 	$message = $ms->newMessage(Array(), 'install.prefs', Array());
 	$message->send();
 
@@ -628,10 +628,10 @@ function install_event_listeners()
 	// we need to install any event listeners here, now that we have installed all the asset types
 	$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 
-	$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+	$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 	$em->writeStaticEventsCacheFile();
 
-	$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+	$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 	$message = $ms->newMessage(Array(), 'install.event_listeners', Array());
 	$message->send();
 
@@ -786,14 +786,13 @@ function build_localised_screen($asset_type, $screen, $locale)
 	$ei_file = find_edit_interface_file($asset_type, $screen);
 
 	// get the XML for the edit interface file
-	$ei_input =& new XML_Tree($ei_file);
-	$to_cache  =& $ei_input->getTreeFromFile();
-	if (PEAR::isError($to_cache)) {
-		trigger_error('Unable to Read File : '.$ei_file."\n".$to_cache->getMessage()."\n".$to_cache->getUserInfo(), E_USER_WARNING);
-		return NULL;
+	try {
+		$to_cache = new SimpleXMLElement($ei_file, LIBXML_NOCDATA, TRUE);
+	} catch (Exception $e) {
+		throw new Exception('Could not open edit interface file "'.$ei_file.'": '.$e->getMessage());
 	}
 
-	if (empty($to_cache->children)) {
+	if (count($to_cache->section) <= 0) {
 		return serialize($to_cache);
 	}
 
@@ -801,46 +800,41 @@ function build_localised_screen($asset_type, $screen, $locale)
 
 	foreach ($lang_files as $lang_file) {
 
-		// get the XML for the edit interface file
-		$lang_input =& new XML_Tree($lang_file);
-		$lang_root  =& $lang_input->getTreeFromFile();
-		if (PEAR::isError($lang_root)) {
-			trigger_error('Unable to Read File : '.$lang_file."\n".$lang_root->getMessage()."\n".$lang_root->getUserInfo(), E_USER_WARNING);
-			continue;
+		try {
+			$lang_root = new SimpleXMLElement($lang_file, LIBXML_NOCDATA, TRUE);
+		} catch (Exception $e) {
+			throw new Exception('Could not open edit interface localisation file "'.$lang_file.'": '.$e->getMessage());
 		}
 
 		// work through all the sections
-		for ($sec_index = 0; $sec_index < count($lang_root->children); $sec_index++) {
-			$xml_section =& $lang_root->children[$sec_index];
+		$section_found = FALSE;
 
-			for ($i = 0; $i < count($to_cache->children); $i++) {
-				$this_section =& $to_cache->children[$i];
-
-				if ($this_section->attributes['name'] ==
-				$xml_section->attributes['name']) {
+		foreach ($lang_root->section as $xml_section) {
+			foreach ($to_cache->section as $this_section) {
+				if ($this_section->attributes()->name ==
+				$xml_section->attributes()->name) {
+					$section_found = TRUE;
 					break;
 				}
-			}
+			}//end foreach inner
 
 			// not found
-			if ($i >= count($to_cache->children)) continue;
+			if (!$section_found) continue;
 
 			// now work through all the fields
-			for ($field_index = 0; $field_index < count($xml_section->children); $field_index++) {
-				$xml_field =& $xml_section->children[$field_index];
-
+			foreach ($xml_section->children() as $xml_field) {
 				switch ($xml_field->name) {
 					case 'display_name':
 						// is a display name already set?
-						if (!isset($this_section->attributes['display_name'])) {
-							$this_section->attributes['display_name'] = $xml_field->content;
+						if (!isset($this_section->attributes()->{'display_name'})) {
+							$this_section->attributes()->{'display_name'} = (string)$xml_field;
 						}
 					break;
 
 					case 'note':
 						// is a section note already set?
-						if (!isset($this_section->attributes['note'])) {
-							$this_section->insertChild(NULL, count($this_section->children), $xml_field->name, $xml_field->content);
+						if (!isset($this_section->attributes()->note)) {
+							$this_section->addChild($xml_field->getName(), (string)$xml_field);
 						}
 					break;
 
@@ -850,27 +844,29 @@ function build_localised_screen($asset_type, $screen, $locale)
 						// accessing an attribute, otherwise we are accessing
 						// a function call
 
-						if (empty($xml_field->attributes['attribute'])) {
+						if (!isset($xml_field->attributes()->attribute)) {
 							// first, look for the function call tag in the language file
-							for ($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
-								if ($xml_field->children[$sub_index]->name == 'function_call') {
-									$xml_paint_field =& $xml_field->children[$sub_index]->children[0];
+							foreach ($xml_field->children as $child_field) {
+								if ($child_lang_field->getName() == 'function_call') {
+									$xml_paint_field = $child_lang_field;
 									break;
 								}
 							}
 
 							// now, look to see if any of the structure fields match
-							for ($i = 0; $i < count($this_section->children); $i++) {
-								$this_field =& $this_section->children[$i];
-								$paint_field =& $this_field->children[0]->children[0];
-								if ($paint_field->name != 'paint_function') continue;
-								if ($paint_field->attributes['name'] == $xml_paint_field->attributes['name']) {
-									break;
+							$field_found = FALSE;
+							foreach ($this_section->getChildren() as $this_field) {
+								if (isset($this_field->{'function_call'}->{'paint_function'})) {
+									$paint_field = $this_field->{'function_call'}->{'paint_function'};
+									if ($paint_field->attributes()->name === $xml_paint_field->attributes()->name) {
+										$field_found = TRUE;
+										break;
+									}
 								}
 							}
 
 							// not found
-							if ($i >= count($this_section->children)) continue;
+							if (!$field_found) continue;
 
 							// check to see whether we already have a display
 							// name or note, because we don't want to double
@@ -878,43 +874,39 @@ function build_localised_screen($asset_type, $screen, $locale)
 							$has_display_name = FALSE;
 							$has_note = FALSE;
 
-							for ($sub_field_index = 0; $sub_field_index < count($this_field->children); $sub_field_index++) {
-								$sub_name = $this_field->children[$sub_field_index]->name;
-								if ($sub_name == 'display_name') {
+							foreach ($this_field->children() as $sub_field) {
+								if ($sub_field->getName() == 'display_name') {
 									$has_display_name = TRUE;
 								}
 
-								if ($sub_name == 'note') $has_note = TRUE;
+								if ($sub_field->getName() == 'note') $has_note = TRUE;
 							}
 
-							for ($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
-								$xml_sub_field = $xml_field->children[$sub_index];
-								switch ($xml_sub_field->name) {
+							foreach ($xml_field->children() as $xml_sub_field) {
+								switch ($xml_sub_field->getName()) {
 									case 'display_name':
-										$this_field->insertChild(NULL, 0, $xml_sub_field->name, $xml_sub_field->content);
-									break;
-
 									case 'note':
-										// want to insert this as second-to-last
-										$this_field->insertChild(NULL, count($this_field->children) - 1, $xml_sub_field->name, $xml_sub_field->content);
+										$this_field->addChild($xml_sub_field->getName(), (string)$xml_sub_field);
 									break;
 
 								}
+
 							}
 
 						} else {
 
-							$attr_name = $xml_field->attributes['attribute'];
+							$attr_name = $xml_field->attributes()->attribute;
 
-							for ($i = 0; $i < count($this_section->children); $i++) {
-								$this_field =& $this_section->children[$i];
-								if (array_get_index($this_field->attributes, 'attribute', '') == $attr_name) {
+							$field_found = FALSE;
+							foreach ($this_section->children() as $this_field) {
+								if ($this_field->attributes()->attribute == $attr_name) {
+									$field_found = TRUE;
 									break;
 								}
 							}
 
 							// not found
-							if ($i >= count($this_section->children)) continue;
+							if (!$field_found) continue;
 
 							// check to see whether we already have a display
 							// name or note, because we don't want to double
@@ -922,28 +914,25 @@ function build_localised_screen($asset_type, $screen, $locale)
 							$has_display_name = FALSE;
 							$has_note = FALSE;
 
-							for ($sub_field_index = 0; $sub_field_index < count($this_field->children); $sub_field_index++) {
-								$sub_name = $this_field->children[$sub_field_index]->name;
-								if ($sub_name == 'display_name') {
+							foreach ($this_field->children() as $sub_field) {
+								if ($sub_field->getName() == 'display_name') {
 									$has_display_name = TRUE;
 								}
 
-								if ($sub_name == 'note') $has_note = TRUE;
+								if ($sub_field->getName() == 'note') $has_note = TRUE;
 							}
 
-							for ($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
-								$xml_sub_field = $xml_field->children[$sub_index];
-								switch ($xml_sub_field->name) {
+							foreach ($xml_field->children() as $xml_sub_field) {
+								switch ($xml_sub_field->getName()) {
 									case 'display_name':
 										if (!$has_display_name) {
-											$this_field->insertChild(NULL, 0, $xml_sub_field->name, $xml_sub_field->content);
+											$this_field->addChild($xml_sub_field->getName(), (string)$xml_sub_field);
 										}
 									break;
 
 									case 'note':
-										// want to insert this as second-to-last
 										if (!$has_note) {
-											$this_field->insertChild(NULL, count($this_field->children) - 1, $xml_sub_field->name, $xml_sub_field->content);
+											$this_field->addChild($xml_sub_field->getName(), (string)$xml_sub_field);
 										}
 									break;
 
@@ -981,14 +970,13 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 {
 	$ei_file = find_edit_interface_file($asset_type, $screen);
 	// get the XML for the edit interface file
-	$ei_input =& new XML_Tree($ei_file);
-	$to_cache  =& $ei_input->getTreeFromFile();
-	if (PEAR::isError($to_cache)) {
-		trigger_error('Unable to Read File : '.$ei_file."\n".$to_cache->getMessage()."\n".$to_cache->getUserInfo(), E_USER_WARNING);
-		return NULL;
+	try {
+		$to_cache = new SimpleXMLElement($ei_file, LIBXML_NOCDATA, TRUE);
+	} catch (Exception $e) {
+		throw new Exception('Could not open edit interface file "'.$ei_file.'": '.$e->getMessage());
 	}
 
-	if (empty($to_cache->children)) {
+	if (count($to_cache->section) <= 0) {
 		return serialize($to_cache);
 	}
 
@@ -997,45 +985,42 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 	foreach ($lang_files as $lang_file) {
 
 		// get the XML for the edit interface file
-		$lang_input =& new XML_Tree($lang_file);
-		$lang_root  =& $lang_input->getTreeFromFile();
-		if (PEAR::isError($lang_root)) {
-			trigger_error('Unable to Read File : '.$lang_file."\n".$lang_root->getMessage()."\n".$lang_root->getUserInfo(), E_USER_WARNING);
-			continue;
+		try {
+			$lang_root = new SimpleXMLElement($lang_file, LIBXML_NOCDATA, TRUE);
+		} catch (Exception $e) {
+			throw new Exception('Could not open edit interface localisation file "'.$lang_file.'": '.$e->getMessage());
 		}
 
 		// work through all the sections
-		for ($sec_index = 0; $sec_index < count($lang_root->children); $sec_index++) {
-			$xml_section =& $lang_root->children[$sec_index];
+		foreach ($lang_root->children() as $xml_section) {
 
-			for ($i = 0; $i < count($to_cache->children); $i++) {
-				$this_section =& $to_cache->children[$i];
+			$section_found = FALSE;
+			foreach ($to_cache->children() as $this_section) {
 
-				if ($this_section->attributes['name'] ==
-				$xml_section->attributes['name']) {
+				if ($this_section->attributes()->name == $xml_section->attributes()->name) {
+					$section_found = TRUE;
 					break;
 				}
 			}
 
 			// not found
-			if ($i >= count($to_cache->children)) continue;
+			if (!$section_found) continue;
 
 			// now work through all the fields
-			for ($field_index = 0; $field_index < count($xml_section->children); $field_index++) {
-				$xml_field =& $xml_section->children[$field_index];
+			foreach ($xml_section->children as $xml_field) {
 
-				switch ($xml_field->name) {
+				switch ($xml_field->getName()) {
 					case 'display_name':
 						// is a display name already set?
-						if (!isset($this_section->attributes['display_name'])) {
-							$this_section->attributes['display_name'] = $xml_field->content;
+						if (!isset($this_section->attributes()->{'display_name'})) {
+							$this_section->attributes()->{'display_name'} = (string)$xml_field;
 						}
 					break;
 
 					case 'note':
 						// is a section note already set?
-						if (!isset($this_section->attributes['note'])) {
-							$this_section->insertChild(NULL, count($this_section->children), $xml_field->name, $xml_field->content);
+						if (!isset($this_section->attributes()->note)) {
+							$this_section->addChild($xml_field->getName(), (string)$xml_field);
 						}
 					break;
 
@@ -1045,21 +1030,23 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 						// accessing an attribute, otherwise we are accessing
 						// a function call
 
-						if (empty($xml_field->attributes['code'])) {
-							trigger_error('Static screen sections need a code for each field', E_USER_WARNING);
+						if (!isset($xml_field->attributes()->code)) {
+							throw new Exception('Failed to parse static localised screen file "'.$lang_file.'": static screen sections need a code for each field.');
 						} else {
 
-							$code_name = $xml_field->attributes['code'];
+							$code_name = $xml_field->attributes()->code;
 
-							for ($i = 0; $i < count($this_section->children); $i++) {
-								$this_field =& $this_section->children[$i];
-								if (array_get_index($this_field->attributes, 'code', '') == $code_name) {
+							$field_found = FALSE;
+							foreach ($this_section->children as $this_field) {
+								$this_field = $this_section->children[$i];
+								if ($this_field->attributes()->code == $code_name) {
+									$field_found = TRUE;
 									break;
 								}
 							}
 
 							// not found
-							if ($i >= count($this_section->children)) continue;
+							if (!$field_found) continue;
 
 							// check to see whether we already have a display
 							// name or note, because we don't want to double
@@ -1067,28 +1054,26 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 							$has_display_name = FALSE;
 							$has_note = FALSE;
 
-							for ($sub_field_index = 0; $sub_field_index < count($this_field->children); $sub_field_index++) {
-								$sub_name = $this_field->children[$sub_field_index]->name;
-								if ($sub_name == 'display_name') {
+							foreach ($this_field->children as $sub_field) {
+								if ($sub_field->getName() == 'display_name') {
 									$has_display_name = TRUE;
 								}
 
-								if ($sub_name == 'note') $has_note = TRUE;
+								if ($sub_field->getName() == 'note') $has_note = TRUE;
 							}
 
-							for ($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
-								$xml_sub_field = $xml_field->children[$sub_index];
-								switch ($xml_sub_field->name) {
+							foreach ($xml_field->children as $xml_sub_field) {
+								switch ($xml_sub_field->getName()) {
 									case 'display_name':
 										if (!$has_display_name) {
-											$this_field->insertChild(NULL, 0, $xml_sub_field->name, $xml_sub_field->content);
+											$this_field->addChild($xml_sub_field->getName, (string)$xml_sub_field);
 										}
 									break;
 
 									case 'note':
 										// want to insert this as last
 										if (!$has_note) {
-											$this_field->insertChild(NULL, count($this_field->children), $xml_sub_field->name, $xml_sub_field->content);
+											$this_field->addChild($xml_sub_field->getName, (string)$xml_sub_field);
 										}
 									break;
 
@@ -1444,39 +1429,35 @@ function build_locale_internal_messages_file($locale)
 * @return array
 * @access public
 */
-function &extract_child_nodes_from_xml($file, $root_element, $child_element, $key_attribute)
+function extract_child_nodes_from_xml($file, $root_element, $child_element, $key_attribute)
 {
 	$extracted_strings = Array();
 
-	$input =& new XML_Tree($file);
-	$root  =& $input->getTreeFromFile();
-	if (PEAR::isError($root)) {
-		trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+	try {
+		$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+	} catch (Exception $e) {
+		throw new Exception('Could not open XML file "'.$file.'": '.$e->getMessage());
+	}
+
+	if ($root->getName() !== $root_element) {
+		throw new Exception('XML file "'.$file.'" does not appear to be valid - expecting "'.$root_element.'" as document element, found "'.$root->name.'"');
 		return Array();
 	}
 
-	if ($root->name != $root_element) {
-		trigger_error('XML file "'.$file.'" does not appear to be valid - expecting "'.$root_element.'" as document element, found "'.$root->name.'"', E_USER_WARNING);
-		echo $root->dump();
-		return Array();
-	}
-
-	foreach ($root->children as $string_node) {
-		if ($string_node->name != $child_element) {
-			trigger_error('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->name.'"', E_USER_WARNING);
-			echo $string_node->dump();
+	foreach ($root->children() as $string_node) {
+		if ($string_node->getName() != $child_element) {
+			throw new Exception('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->name.'"');
 			return Array();
 		}
 
-		if (!isset($string_node->attributes[$key_attribute])) {
-			trigger_error('XML file "'.$file.'" does not appear to be valid - missing attribute "'.$key_attribute.'" in string node', E_USER_WARNING);
-			echo $string_node->dump();
+		if (!isset($string_node->attributes()->{$key_attribute})) {
+			throw new Exception('XML file "'.$file.'" does not appear to be valid - missing attribute "'.$key_attribute.'" in string node');
 			return Array();
 		}
 
 		}//end foreach string_node
 
-	return $root->children;
+		return $root->{$child_element};
 
 }//end extract_child_nodes_from_xml()
 
@@ -1505,36 +1486,36 @@ function extract_strings_from_xml($file, $root_element, $child_element, $key_att
 	$children = extract_child_nodes_from_xml($file, $root_element, $child_element, $key_attribute);
 
 	foreach ($children as $string_node) {
-		if ($string_node->name != $child_element) {
-			trigger_error('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->name.'"', E_USER_WARNING);
+		if ($string_node->getName() !== $child_element) {
+			throw new Exception('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->name.'"');
 			return Array();
 		}
 
-		if (!isset($string_node->attributes[$key_attribute])) {
-			trigger_error('XML file "'.$file.'" does not appear to be valid - missing attribute "'.$key_attribute.'" in string node', E_USER_WARNING);
+		if (!isset($string_node->attributes()->{$key_attribute})) {
+			throw new Exception('XML file "'.$file.'" does not appear to be valid - missing attribute "'.$key_attribute.'" in string node');
 			return Array();
 		}
 
-		$source_code = $string_node->attributes[$key_attribute];
-		$translation = html_entity_decode($string_node->content);
+		$source_code = (string)$string_node->attributes()->{$key_attribute};
+		$translation = html_entity_decode((string)$string_node);
 
 		// have it already been set in this file?
 		if (isset($extracted_strings[$source_code])) {
-			trigger_error('XML file "'.$file.'" does not appear to be valid - detected duplicate code "'.$source_code.'"', E_USER_WARNING);
+			throw new Exception('XML file "'.$file.'" does not appear to be valid - detected duplicate code "'.$source_code.'"');
 			return Array(Array(), Array(), Array());
 		} else if (empty($translation)) {
-			trigger_error('Skipping translation for code "'.$source_code.'" as the translation appears to be empty', E_USER_NOTICE);
+			throw new Exception('Skipping translation for code "'.$source_code.'" as the translation appears to be empty');
 		} else if (preg_match_all('|[^%]%s|', $translation, $matches) > 1) {
-			trigger_error('Skipping translation for code "'.$source_code.'"; it has multiple occurrences of unpositioned "%s" - use positioned replacements (eg. "%1$s") when you have more than one', E_USER_WARNING);
+			throw new Exception('Skipping translation for code "'.$source_code.'"; it has multiple occurrences of unpositioned "%s" - use positioned replacements (eg. "%1$s") when you have more than one');
 		} else {
 
 			$extracted_strings[$source_code] = $translation;
 
 			if (isset($string_node->attributes['js']) && ($string_node->attributes['js'] == 1)) {
-				$js_strings[$source_code] =& $extracted_strings[$source_code];
+				$js_strings[$source_code] = $extracted_strings[$source_code];
 			}
 			if (isset($string_node->attributes['java']) && ($string_node->attributes['java'] == 1)) {
-				$java_strings[$source_code] =& $extracted_strings[$source_code];
+				$java_strings[$source_code] = $extracted_strings[$source_code];
 			}
 		}
 
@@ -1567,27 +1548,27 @@ function extract_errors_from_xml($file, $root_element, $child_element, $key_attr
 	$children = extract_child_nodes_from_xml($file, $root_element, $child_element, $key_attribute);
 
 	foreach ($children as $string_node) {
-		if ($string_node->name != $child_element) {
-			trigger_error('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->name.'"', E_USER_WARNING);
+		if ($string_node->getName() != $child_element) {
+			throw new Exception('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->name.'"');
 			return Array();
 		}
 
-		if (!isset($string_node->attributes[$key_attribute])) {
-			trigger_error('XML file "'.$file.'" does not appear to be valid - missing attribute "'.$key_attribute.'" in string node', E_USER_WARNING);
+		if (!isset($string_node->attributes()->{$key_attribute})) {
+			throw new Exception('XML file "'.$file.'" does not appear to be valid - missing attribute "'.$key_attribute.'" in string node');
 			return Array();
 		}
 
-		$source_code = $string_node->attributes[$key_attribute];
-		$translation = html_entity_decode($string_node->content);
+		$source_code = (string)$string_node->attributes()->{$key_attribute};
+		$translation = html_entity_decode((string)$string_node);
 
 		// have it already been set in this file?
 		if (isset($extracted_strings[$source_code])) {
-			trigger_error('XML file "'.$file.'" does not appear to be valid - detected duplicate code "'.$source_code.'"', E_USER_WARNING);
+			throw new Exception('XML file "'.$file.'" does not appear to be valid - detected duplicate code "'.$source_code.'"');
 			return Array(Array(), Array(), Array());
 		} else if (empty($translation)) {
-			trigger_error('Skipping translation for code "'.$source_code.'" as the translation appears to be empty', E_USER_NOTICE);
+			throw new Exception('Skipping translation for code "'.$source_code.'" as the translation appears to be empty');
 		} else if (preg_match_all('|%s|', $translation, $matches) > 1) {
-			trigger_error('Skipping translation for code "'.$source_code.'"; it has multiple occurrences of unpositioned "%s" - use positioned replacements (eg. "%1$s") when you have more than one', E_USER_WARNING);
+			throw new Exception('Skipping translation for code "'.$source_code.'"; it has multiple occurrences of unpositioned "%s" - use positioned replacements (eg. "%1$s") when you have more than one');
 		} else {
 			$extracted_strings[$source_code] = $translation;
 		}
@@ -1622,34 +1603,35 @@ function extract_internal_messages($file)
 	$children = extract_child_nodes_from_xml($file, $root_element, $child_element, $key_attribute);
 
 	foreach ($children as $string_node) {
-		if ($string_node->name != $child_element) {
-			trigger_error('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->name.'"', E_USER_WARNING);
+		if ($string_node->getName() != $child_element) {
+			throw new Exception('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->name.'"');
 			return Array();
 		}
 
-		if (!isset($string_node->attributes[$key_attribute])) {
-			trigger_error('XML file "'.$file.'" does not appear to be valid - missing attribute "'.$key_attribute.'" in string node', E_USER_WARNING);
+		if (!isset($string_node->attributes()->{$key_attribute})) {
+			throw new Exception('XML file "'.$file.'" does not appear to be valid - missing attribute "'.$key_attribute.'" in string node');
 			return Array();
 		}
 
-		$source_code = $string_node->attributes[$key_attribute];
+		$source_code = (string)$string_node->attributes()->{$key_attribute};
 		$translation = Array();
 
-		foreach ($string_node->children as $sub_node) {
-			if (($sub_node->name == 'subject') || ($sub_node->name == 'body')) {
-				$translation[$sub_node->name] = html_entity_decode($sub_node->content);
+		foreach ($string_node->children() as $sub_node) {
+			$sub_node_name = $sub_node->getName();
+			if (($sub_node_name == 'subject') || ($sub_node_name == 'body')) {
+				$translation[$sub_node_name] = html_entity_decode((string)$sub_node);
 			}
 		}
 
 		if (!isset($translation['subject']) || !isset($translation['body'])) {
 			// we don't have enough stuff?
-			trigger_error('XML file "'.$file.'" does not appear to be valid - internal message type "'.$source_code.'" does not seem to have a subject and body', E_USER_WARNING);
+			throw new Exception('XML file "'.$file.'" does not appear to be valid - internal message type "'.$source_code.'" does not seem to have a subject and body');
 		} else if (isset($extracted_messages[$source_code])) {
 			// have it already been set in this file?
-			trigger_error('XML file "'.$file.'" does not appear to be valid - detected duplicate message type "'.$source_code.'"', E_USER_WARNING);
+			throw new Exception('XML file "'.$file.'" does not appear to be valid - detected duplicate message type "'.$source_code.'"');
 			return Array();
 		} else if (empty($translation)) {
-			trigger_error('Skipping translation for code "'.$source_code.'" as the translation appears to be empty', E_USER_NOTICE);
+			throw new Exception('Skipping translation for code "'.$source_code.'" as the translation appears to be empty');
 		} else {
 			$extracted_messages[$source_code]['subject'] = $translation['subject'];
 			$extracted_messages[$source_code]['body']    = $translation['body'];
@@ -1685,7 +1667,7 @@ function generate_install_key($create_key_file=FALSE)
 
 	if ($create_key_file) {
 		require_once SQ_INCLUDE_PATH.'/licence_config.inc';
-		$cfg =& new Licence_Config();
+		$cfg = new Licence_Config();
 		if (!$cfg->save(Array('SQ_LICENCE_INSTALL_KEY' => $install_key), FALSE)) {
 			return NULL;
 		}
@@ -1695,5 +1677,22 @@ function generate_install_key($create_key_file=FALSE)
 
 }//end generate_install_key()
 
+
+/**
+* Generates the baked Database Abstraction Layer (DAL) queries for the core
+*
+* @return boolean
+* @access public
+*/
+function install_dal_core_queries()
+{
+	$old_path = ini_get('include_path');
+	ini_set('include_path', SQ_LIB_PATH);
+	require_once SQ_LIB_PATH.'/MatrixDAL/MatrixDALBaker.inc';
+	MatrixDALBaker::addCoreQueries();
+	MatrixDALBaker::bakeQueriesFile('core');
+	ini_set('include_path', $old_path);
+
+}//end install_dal_core_queries()
 
 ?>

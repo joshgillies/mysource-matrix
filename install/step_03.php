@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.69 2007/05/21 02:22:53 hnguyen Exp $
+* $Id: step_03.php,v 1.70 2007/10/30 01:07:06 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -107,6 +107,9 @@ if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
 
 // let everyone know we are installing
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+install_dal_core_queries();
+pre_echo('DAL Core Queries Installed');
 
 // call all the steps
 if (!regenerate_configs()) {

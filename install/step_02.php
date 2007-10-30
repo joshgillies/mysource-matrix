@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.70 2007/01/12 02:59:46 emcdonald Exp $
+* $Id: step_02.php,v 1.71 2007/10/30 01:07:06 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -59,7 +59,6 @@ require_once $SYSTEM_ROOT.'/install/install.inc';
 require_once SQ_LIB_PATH.'/db_install/db_install.inc';
 require_once SQ_INCLUDE_PATH.'/system_config.inc';
 require_once SQ_LIB_PATH.'/file_versioning/file_versioning.inc';
-require_once 'XML/Tree.php';
 
 
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -121,7 +120,9 @@ install_stored_relations('views');
 // grant permissions to the tables for the secondary user
 grant_secondary_user_perms();
 
-if (!File_Versioning::initRepository()) {
+$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+
+if (!$fv->initRepository()) {
 	trigger_error('Unable to initialise File Versioning Repository', E_USER_ERROR);
 }
 

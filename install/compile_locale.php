@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: compile_locale.php,v 1.12 2007/01/12 02:59:45 emcdonald Exp $
+* $Id: compile_locale.php,v 1.13 2007/10/30 01:07:05 lwright Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -60,7 +60,7 @@ if ($cli) {
 	$shortopt = '';
 	$longopt = Array('locale=');
 
-	$con =& new Console_Getopt;
+	$con = new Console_Getopt;
 	$args = $con->readPHPArgv();
 	array_shift($args);			// remove the system root
 	$options = $con->getopt($args, $shortopt, $longopt);
@@ -83,8 +83,6 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 // get the list of functions used during install
 require_once $SYSTEM_ROOT.'/install/install.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-require_once 'XML/Tree.php';
-
 
 // firstly let's check that we are OK for the version
 if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
