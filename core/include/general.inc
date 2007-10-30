@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.177 2007/10/29 23:57:19 lwright Exp $
+* $Id: general.inc,v 1.178 2007/10/30 05:56:30 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.177 $
+* @version $Revision: 1.178 $
 * @package MySource_Matrix
 */
 
@@ -1052,7 +1052,9 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 
 	// set the UMASK to u=rw,g=rw,o=r (0002), so that the user can write the logfiles
 	// needed so that step_03 can be run
-	if (substr(PHP_OS, 0, 3) != 'WIN') umask(0113);
+	if (substr(PHP_OS, 0, 3) != 'WIN') {
+		$old_umask = umask(0113);
+	}
 
 	$handle = fopen($logfile, 'a');
 	if (!fwrite($handle, $log_entry)) {
@@ -1060,6 +1062,10 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 		return FALSE;
 	}
 	fclose($handle);
+
+	// Restore the old umask
+	if (isset($old_umask)) umask($old_umask);
+
 	return TRUE;
 
 }//end log_write()
