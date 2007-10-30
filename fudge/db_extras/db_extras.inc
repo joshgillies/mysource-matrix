@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.18 2006/12/06 05:15:10 bcaldwell Exp $
+* $Id: db_extras.inc,v 1.19 2007/10/30 03:14:51 lwright Exp $
 *
 */
 
@@ -19,10 +19,16 @@
 *
 * Purpose
 *     To provide some workarounds for DBs that don't support some useful SQL functionality
-*     like Sub-Queries
+*     like Sub-Queries.
+*
+*     Since 3.18.0 RC1, these functions have been re-written to reflect the removal of
+*     support for the PEAR DB module, and the addition of PHP 5's PDO and the Squiz Database
+*     Abstraction Layer (DAL). As it is not possible to glean the database type from a PDO
+*     DB object, the functions have been changed to use the database type instead.
+*     Send DAL::getDbType() to the functions instead of $db.
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package Fudge
 * @subpackage DB_Extras
 */
@@ -155,22 +161,22 @@ function db_extras_insert_select(&$db, $insert, $select)
 * Example use:
 * <pre>
 *   $sql = 'SELECT link_type FROM sq_ast_lnk
-*           WHERE '.db_extras_bitand('link_type, '.$link_types).' > 0';
+*           WHERE '.db_extras_bitand($db_type, 'link_type', $link_types).' > 0';
 * </pre>
 *
-* @param &object DB	$db		the db object
-* @param int		$val1	the first value
-* @param int		$val2	the second value
+* @param string	$db_type	the database type
+* @param int	$val1		the first value
+* @param int	$val2		the second value
 *
 * @return string the sql fragment
 * @access public
 */
-function db_extras_bitand(&$db, $val1, $val2)
+function db_extras_bitand($db_type, $val1, $val2)
 {
 	if ((int) $val1 != $val1) $val1 = $db->quoteSmart($val1);
 	if ((int) $val2 != $val2) $val2 = $db->quoteSmart($val2);
 
-	if ($db->phptype == 'oci8') {
+	if ($db_type == 'oci') {
 		$bit_op = 'BITAND('.$val1.', '.$val2.')';
 	} else {
 		$bit_op = '('.$val1.' & '.$val2.')';
@@ -185,18 +191,19 @@ function db_extras_bitand(&$db, $val1, $val2)
 * Returns an sql fragment to be used for inserting dates
 * into the database.
 *
-* @param &object DB	$db				the db object
-* @param string		$iso8601_date	the date in iso8601 format
+* @param string	$db_type		the database type
+* @param string	$iso8601_date	the date in iso8601 format
 *
 * @return string
 * @access public
 */
-function db_extras_todate(&$db, $iso8601_date)
+function db_extras_todate($db_type, $iso8601_date)
 {
-	if ($db->phptype == 'pgsql') {
-		return 'TO_TIMESTAMP('.$db->quote($iso8601_date).','.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
-	} else if ($db->phptype == 'oci8') {
-		return 'TO_DATE('.$db->quote($iso8601_date).','.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
+	// TODO:
+	if ($db_type == 'pgsql') {
+		return 'TO_TIMESTAMP(\''.$iso8601_date.'\', \'YYYY-MM-DD HH24:MI:SS\')';
+	} else if ($db_type == 'oci') {
+		return 'TO_DATE(\''.$iso8601_date.'\',\'YYYY-MM-DD HH24:MI:SS\')';
 	}
 
 }//end db_extras_todate()
@@ -205,16 +212,16 @@ function db_extras_todate(&$db, $iso8601_date)
 /**
 * Prepares a date for insertion or update in a prepare statement
 *
-* @param &object DB	$db	the db object
+* @param string	$db_type	the database type
 *
 * @return string
 * @access public
 */
-function db_extras_prepare_todate(&$db)
+function db_extras_prepare_todate($db_type)
 {
-	if ($db->phptype == 'pgsql') {
+	if ($db_type == 'pgsql') {
 		return 'TO_TIMESTAMP(?, ?)';
-	} else if ($db->phptype == 'oci8') {
+	} else if ($db_type == 'oci8') {
 		return 'TO_DATE(?, ?)';
 	}
 
@@ -224,22 +231,21 @@ function db_extras_prepare_todate(&$db)
 /**
 * Returns the result of a function call to a database.
 *
-* @param &object DB	$db		the PEAR:DB object
-* @param string 	$sql	the function call including the arguments to the function
+* @param string	$db_type	the database type
+* @param string $sql		the function call including the arguments to the function
 *
 * @return the result of the function call
 * @access public
 */
-function db_get_function_result(&$db, $sql)
+function db_get_function_result($db_type, $sql)
 {
 	$result = null;
 
-	if ($db->phptype == 'pgsql') {
+	if ($db_type == 'pgsql') {
 		$sql = 'SELECT '.$sql;
-		$result = $db->getOne($sql);
-		assert_valid_db_result($result);
+		$result = DAL::executeSqlOne($sql);
 
-	} else if ($db->phptype == 'oci8') {
+	} else if ($db_type == 'oci') {
 		// the reason that we don't do 'SELECT function() from DUAL' here is that
 		// if the function peforms any DML operations, we will get an error that
 		// you cannot perform DML operations from within a select query.
