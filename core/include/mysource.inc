@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.234 2007/10/30 02:45:56 lwright Exp $
+* $Id: mysource.inc,v 1.235 2007/10/30 03:00:18 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.234 $
+* @version $Revision: 1.235 $
 * @package MySource_Matrix
 */
 class MySource
@@ -2113,42 +2113,35 @@ class MySource
 	function changeDatabaseConnection($conn)
 	{
 		$dsn = NULL;
-		switch ($conn) {
-			case 'db':
-				// If we are in the backend, we don't want any external concurrency
-				// issues (eg. slow replication) to muck around with us. So we'll
-				// grab db2 instead if we are in an editing mode
-				if (SQ_IN_BACKEND || SQ_IN_LIMBO || SQ_PHP_CLI) {
-					$dsn = SQ_CONF_DB2_DSN;
+		$db_conf = require(SQ_DATA_PATH.'/private/conf/db.inc');
+
+		// If attempting to connect to empty dbcache entry
+		if ($conn === 'dbcache') {
+			if (empty($db_conf[$conn]) && empty($db_conf['db2'])) {
+				throw new Exception ('Unable to connect to connection "'.$conn.'". No connection with that name is defined in the database config, and unable to fall back to "db2" connection.');
+			} else if (empty($db_conf[$conn])) {
+				// no dbcache, but db2 exists, use that instead
+				$dsn_array = $db_conf['db2'];
+			} else {
+				// dbcache exists
+				$dsn_array = $db_conf[$conn];
+			}
+		} else {
+			// other connection (db, db2, db3)
+			if (empty($db_conf[$conn])) {
+				throw new Exception ('Unable to connect to connection "'.$conn.'". No connection with that name is defined in the database config.');
+			} else {
+				// When in backend or CLI, replace connections to DB with DB2
+				// to avoid concurrency issues.
+				if ($conn === 'db' && (SQ_IN_BACKEND || SQ_IN_LIMBO || SQ_PHP_CLI)) {
+					$dsn_array = $db_conf['db2'];
 				} else {
-					$dsn = SQ_CONF_DB_DSN;
+					$dsn_array = $db_conf[$conn];
 				}
-			break;
-
-			case 'db2':
-				$dsn = SQ_CONF_DB2_DSN;
-			break;
-
-			case 'db3':
-				$dsn = SQ_CONF_DB3_DSN;
-			break;
-
-			case 'dbcache':
-				// if empty, use DB2
-				$dsn = (SQ_CONF_DBCACHE_DSN == '') ? SQ_CONF_DB2_DSN : SQ_CONF_DBCACHE_DSN;
-			break;
-
-			default:
-				trigger_localised_error('SYS0129', E_USER_WARNING, $conn);
-				return;
+			}
 		}
 
 		if (empty($this->_db_conns[$conn])) {
-
-			$dsn_array = Array(
-							'DSN' 	=> $dsn,
-							'type'	=> 'pgsql',
-						 );
 
 			try {
 				// TODO: parse DSN
