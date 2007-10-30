@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.202 2007/07/11 06:55:23 mbrydon Exp $
+* $Id: page_calendar.inc,v 1.202.2.1 2007/10/30 00:54:05 bshkara Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.202 $
+* @version $Revision: 1.202.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2328,8 +2328,8 @@ class Page_Calendar extends Page
 			return 2;
 		}
 
-		if ($need_asset_info) return 1;
 		if ($need_asset) return 2;
+		if ($need_asset_info) return 1;
 
 		return 0;
 
