@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDALBaker.inc,v 1.3 2007/10/30 00:02:56 lwright Exp $
+* $Id: MatrixDALBaker.inc,v 1.4 2007/10/30 22:53:59 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/XML/XML.inc';
 *
 * @since   MySource 3.18.0 RC1
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class MatrixDALBaker extends DALBaker
@@ -111,7 +111,6 @@ class MatrixDALBaker extends DALBaker
             $filename = SQ_PACKAGES_PATH.'/'.$package.'/queries.xml';
         }
 
-        //$ = $package_obj->getInstalledAssets();
         if (file_exists($filename)) {
             parent::processQueriesFile($package.'_package', $filename);
             return TRUE;
