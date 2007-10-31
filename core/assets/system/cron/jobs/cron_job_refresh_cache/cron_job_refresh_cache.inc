@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_refresh_cache.inc,v 1.1 2007/02/26 05:02:57 skim Exp $
+* $Id: cron_job_refresh_cache.inc,v 1.1.2.1 2007/10/31 00:41:29 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *   Else a one off job wil be scheduled
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -128,7 +128,9 @@ class Cron_Job_Refresh_Cache extends Cron_Job
 			$_SERVER['HTTPS'] = ($url_info['scheme'] == 'https') ? 'on' : 'off';
 
 			// Re-generate cache
+			ob_start();
 			$asset->printBody();
+			ob_end_clean();
 		}
 		$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 
