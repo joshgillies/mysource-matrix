@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml_edit_fns.inc,v 1.1.2.3 2007/10/26 04:59:50 bshkara Exp $
+* $Id: data_source_xml_edit_fns.inc,v 1.1.2.4 2007/10/31 03:07:39 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1.2.3 $
+* @version $Revision: 1.1.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -82,7 +82,7 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
 	{
 		$url = htmlentities($asset->attr('url'));
 		if (isset($_POST[$prefix.'feed_url'])) {
-			$link = htmlentities($_POST[$prefix.'feed_url']);
+			$link = htmlentities(trim($_POST[$prefix.'feed_url']));
 			if (strcasecmp($url, $link) != 0) {
 				$asset->setAttrValue('url', $link);
 				// overwrite the cache with this new XML feed url
