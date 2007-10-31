@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.1.2.2 2007/10/24 06:03:13 bshkara Exp $
+* $Id: data_source_xml.inc,v 1.1.2.3 2007/10/31 23:44:20 bshkara Exp $
 *
 */
 
@@ -18,6 +18,7 @@ check_ssv_licence();
 require_once SQ_CORE_PACKAGE_PATH.'/../include/asset.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once 'HTTP/Client.php';
 
 /**
 * Data_Source_Xml
@@ -26,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -103,7 +104,7 @@ class Data_Source_Xml extends Data_Source
 
 
 	/**
-	* Returns an array of the result of xml parsing either from cache or by parsing the file again
+	* Returns an array of the result of XML parsing either from cache or by parsing the file again
 	*
 	* @return array
 	* @access public
@@ -147,48 +148,113 @@ class Data_Source_Xml extends Data_Source
 
 
 	/**
-	* Used for parsing the XML file
+	* Uses HTTP_Client to send a GET request to the URL provided
 	*
-	* @return void
+	* @param string	$url	The url where the feed is located
+	*
+	* @return mixed array|boolean
+	* @access public
+	*/
+	function openFeed($url)
+	{
+		// Using HTTP_Client PEAR package
+		// check whether or not the HTTP_Client object has already been
+		// cached in $_SESSION[SQ_REMOTE_HTTP_CLIENT][AssetID]
+		$HTTP_Client = array_get_index(array_get_index($_SESSION, 'SQ_REMOTE_HTTP_CLIENT'), $this->id);
+		if (!empty($HTTP_Client)) {
+			$HTTP_Client = unserialize($HTTP_Client);
+		}
+
+		if (is_null($HTTP_Client)) {
+			// parameters for HTTP_Request. See Package for description.
+			$request_parameters['useBrackets'] = FALSE;
+
+			$default_headers['User-Agent'] = SQ_SYSTEM_LONG_NAME;
+
+			// Add the Proxy authentication details if enabled
+			addProxyInfo($request_parameters, $default_headers);
+
+			$HTTP_Client =& new HTTP_Client($request_parameters, $default_headers);
+
+			$HTTP_Client->enableHistory(FALSE);
+		}
+
+		$HTTP_Client->setRequestParameter('useBrackets', FALSE);
+
+		$result = $HTTP_Client->get($url);
+
+		// exit on error
+		if (PEAR::isError($result)) {
+			trigger_localised_error('CMS0063', E_USER_WARNING, $url, $result->getMessage());
+			unset($HTTP_Client);
+			return FALSE;
+		}
+		if (preg_match('/^[45].*?/', $result)) {
+			trigger_localised_error('CMS0064', E_USER_WARNING, $result, $url);
+			unset($HTTP_Client);
+			return FALSE;
+		}
+
+		$response = $HTTP_Client->currentResponse();
+
+		// wipe the response because we won't use it again and it could be too big to just ignore
+		$HTTP_Client->_responses = NULL;
+		$_SESSION['SQ_REMOTE_HTTP_CLIENT'][$this->id] = serialize($HTTP_Client);
+		unset($HTTP_Client);
+
+		return $response['body'];
+
+	}//end openFeed()
+
+
+	/**
+	* Sends GET request and calls the parsing process
+	*
+	* @return mixed array|boolean
 	* @access public
 	*/
 	function parseXML()
 	{
 		$url = html_entity_decode($this->attr('url'));
+		$content = $this->openFeed($url);
 
-        $xml_parser = xml_parser_create();
-        // stop the parser upper-casing everything
-		xml_parser_set_option ($xml_parser, XML_OPTION_CASE_FOLDING, 0);
-		xml_set_character_data_handler ($xml_parser, Array(&$this,'characterData') );
-        xml_set_element_handler($xml_parser, Array(&$this,'startElement'), Array(&$this,'endElement'));
-
-		// initialise file handler
-		if (!($fp = fopen($url, 'r'))) {
-			trigger_localised_error('CORE0257', E_USER_WARNING, $import_path);
-			return FALSE;
-			die();
-		}
-
-		// read the XML file 4KB at a time
-		$block_size = 4096;
-		while ($data = fread($fp, $block_size)) {
-            if (!xml_parse($xml_parser, $data, feof($fp))) {
-                trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($data));
-                return FALSE;
-            }
-		}
-
-		// clean up
-		fclose($fp);
-		xml_parser_free($xml_parser);
-
-		return $this->_result;
+		return $this->_createParser($content);
 
 	}//end parseXML()
 
 
 	/**
-	* Handles the end of an element
+	* Creates the xml parser which will then go off and parse our feed
+	*
+	* @param string	$content	The XML content to parse
+	*
+	* @return mixed array|boolean
+	* @access public
+	*/
+	function _createParser($content)
+	{
+		if (!empty($content)) {
+			$xml_parser = xml_parser_create();
+			// stop the parser upper-casing everything
+			xml_parser_set_option ($xml_parser, XML_OPTION_CASE_FOLDING, 0);
+			xml_set_character_data_handler ($xml_parser, Array(&$this,'characterData') );
+			xml_set_element_handler($xml_parser, Array(&$this,'startElement'), Array(&$this,'endElement'));
+
+			if (!xml_parse($xml_parser, $content, TRUE)) {
+				trigger_localised_error('CORE0258', E_USER_WARNING, xml_error_string(xml_get_error_code($xml_parser)), htmlentities($content));
+				return FALSE;
+			}
+			xml_parser_free($xml_parser);
+			return $this->_result;
+		}
+
+		return Array();
+
+	}//end _createParser()
+
+
+	/**
+	* Handles the start of an element
 	*
 	* @param object	$parser		the xml parser
 	* @param string	$name		name of the element
