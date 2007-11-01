@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.235 2007/10/30 03:00:18 lwright Exp $
+* $Id: mysource.inc,v 1.236 2007/11/01 00:50:14 inegretski Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.235 $
+* @version $Revision: 1.236 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1224,6 +1224,9 @@ class MySource
 			$_SESSION['user_is_root']      = $this->_user_is_root      = FALSE;
 			$_SESSION['user_is_sys_admin'] = $this->_user_is_sys_admin = FALSE;
 			$_SESSION['user_is_public']    = $this->_user_is_public    = TRUE;
+			$_SESSION['userid'] = $this->user->id;
+			$_SESSION['user_type_code'] = $this->user->type();
+			$_SESSION['remote_addr'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
 		}
 
 	}//end _loginPublicUser()
