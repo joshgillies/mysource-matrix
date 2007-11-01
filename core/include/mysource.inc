@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.228.2.1 2007/09/27 05:17:38 bshkara Exp $
+* $Id: mysource.inc,v 1.228.2.2 2007/11/01 00:29:29 inegretski Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.228.2.1 $
+* @version $Revision: 1.228.2.2 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1208,6 +1208,9 @@ class MySource
 			$_SESSION['user_is_root']      = $this->_user_is_root      = FALSE;
 			$_SESSION['user_is_sys_admin'] = $this->_user_is_sys_admin = FALSE;
 			$_SESSION['user_is_public']    = $this->_user_is_public    = TRUE;
+			$_SESSION['userid'] = $this->user->id;
+			$_SESSION['user_type_code'] = $this->user->type();
+			$_SESSION['remote_addr'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
 		}
 
 	}//end _loginPublicUser()
