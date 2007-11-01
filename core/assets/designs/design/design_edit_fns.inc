@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.114 2006/12/05 22:41:31 emcdonald Exp $
+* $Id: design_edit_fns.inc,v 1.114.4.1 2007/11/01 06:12:28 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.114 $
+* @version $Revision: 1.114.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -532,7 +532,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$map = Array();
 		$create_link = Array();
 
-		$clone =& $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions', 'roles'), FALSE);
+		// increase run level to allow setting of components without cloning permissions from parents
+		if ($asset->writeAccess('all')) {
+			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
+			$clone =& $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions', 'roles'), FALSE);
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		}
+
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
