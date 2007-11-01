@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.12 2006/12/12 23:52:36 arailean Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.13 2007/11/01 04:44:18 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -175,7 +175,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		}
 
 		// so we have an assetid to start at, but make sure it is a valid assetid
-		$asset =& $this->getThesaurusRef();
+		$asset = $this->getThesaurusRef();
 		if (is_null($asset)) {
 			trigger_localised_error('HIPO0062', E_USER_WARNING, $this->_running_vars['thesaurus_id']);
 			return FALSE;
@@ -241,7 +241,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	function processEraseContents(&$step_data, $prefix)
 	{
 		if (isset($_REQUEST['form_submitted'])) {
-			$th_asset =& $this->getThesaurusRef();
+			$th_asset = $this->getThesaurusRef();
 
 			if (!$th_asset->erase()) {
 				trigger_localised_error('HIPO0063', E_USER_WARNING);
@@ -270,11 +270,11 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	function startElement($parser, $tag, $attrs)
 	{
 
-		$stack =& $this->_running_vars['stack'];
-		$tagstack =& $this->_running_vars['tagstack'];
-		$relations =& $this->_running_vars['relations'];
+		$stack = $this->_running_vars['stack'];
+		$tagstack = $this->_running_vars['tagstack'];
+		$relations = $this->_running_vars['relations'];
 
-		$thesaurus =& $this->getThesaurusRef();
+		$thesaurus = $this->getThesaurusRef();
 
 		if ($tag != 'thesaurus' && $tag != 'term' && $tag != 'relation' && $tag != 'note') {
 			trigger_localised_error('HIPO0064', E_USER_WARNING, $tag);
@@ -324,9 +324,9 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 
 				// add the term
 				if (is_null($stack[0]['term'])) {
-					$parent_asset =& $thesaurus;
+					$parent_asset = $thesaurus;
 				} else {
-					$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($stack[0]['term']);
+					$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($stack[0]['term']);
 					$rel_id = array_get_index($stack[0], 'relation');
 					if (is_null($rel_id)) {
 						$NULL_rel_id = array_get_index($relations, NULL);
@@ -343,7 +343,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 				$create_link['asset'] = &$parent_asset;
 				$create_link['value'] = $rel_id;
 
-				$term_asset =& new Thesaurus_Term();
+				$term_asset = new Thesaurus_Term();
 				$term_asset->setAttrValue('name', $attrs['name']);
 				$term_asset->create($create_link);
 
@@ -391,8 +391,8 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	*/
 	function cDataHandler($parser, $data)
 	{
-		$stack =& $this->_running_vars['stack'];
-		$tagstack =& $this->_running_vars['tagstack'];
+		$stack = $this->_running_vars['stack'];
+		$tagstack = $this->_running_vars['tagstack'];
 
 		if ($tagstack[0] == 'note') {
 			// we do this because for some reason if there are newlines in the character data block,
@@ -419,9 +419,9 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	*/
 	function endElement($parser, $tag)
 	{
-		$stack =& $this->_running_vars['stack'];
-		$tagstack =& $this->_running_vars['tagstack'];
-		$relations =& $this->_running_vars['relations'];
+		$stack = $this->_running_vars['stack'];
+		$tagstack = $this->_running_vars['tagstack'];
+		$relations = $this->_running_vars['relations'];
 
 		if ($tag != 'thesaurus' && $tag != 'term' && $tag != 'relation' && $tag != 'note') {
 			trigger_localised_error('HIPO0064', E_USER_WARNING, $tag);
@@ -468,7 +468,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 			case 'note':
 				$note_name = $this->_running_vars['current_note']['name'];
 				$note_value = $this->_running_vars['current_note']['text'];
-				$term =& $GLOBALS['SQ_SYSTEM']->am->getAsset($stack[0]['term']);
+				$term = $GLOBALS['SQ_SYSTEM']->am->getAsset($stack[0]['term']);
 				$term->addTermNote($note_name, $note_value);
 				unset($this->_running_vars['current_note']);
 
@@ -528,7 +528,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 
 
 		// initialise the file pointer
-		$th_asset =& $this->getThesaurusRef();
+		$th_asset = $this->getThesaurusRef();
 		$import_path = $th_asset->getXmlFilePath();
 
 		if (!($fp = fopen($import_path, 'r'))) {

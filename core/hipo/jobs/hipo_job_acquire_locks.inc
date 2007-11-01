@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.19 2007/05/01 05:45:40 hnguyen Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.20 2007/11/01 04:44:18 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -82,7 +82,7 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	* @return array
 	* @access public
 	*/
-	function getConfigVars()
+	public static function getConfigVars()
 	{
 		return Array(
 				'SQ_HIPO_ACQUIRE_LOCK_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),
@@ -104,7 +104,7 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	*/
 	function getCodeName()
 	{
-		return parent::getCodeName().'-'.md5(implode(',', $this->_running_vars['assetids']));
+		return call_user_func(Array(parent, 'getCodeName')).'-'.md5(implode(',', $this->_running_vars['assetids']));
 
 	}//end getCodeName()
 
@@ -268,7 +268,8 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 		} else {
 			$this->_running_vars['forceably_acquire'] = (bool) $this->_running_vars['forceably_acquire'];
 		}
-		return parent::prepare();
+		
+		return call_user_func(Array(parent, 'prepare'));		
 
 	}//end prepare()
 

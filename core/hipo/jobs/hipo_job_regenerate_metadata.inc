@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.32 2007/07/16 15:54:55 gnoel Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.33 2007/11/01 04:44:18 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -78,7 +78,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	* @return array
 	* @access public
 	*/
-	function getConfigVars()
+	public static function getConfigVars()
 	{
 		return Array('SQ_HIPO_REGENERATE_METADATA_THRESHOLD' => Array('editable' => 1, 'default' => 1));
 

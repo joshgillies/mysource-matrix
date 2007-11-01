@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.55 2007/05/01 05:45:40 hnguyen Exp $
+* $Id: hipo_job_edit_status.inc,v 1.56 2007/11/01 04:44:18 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -74,7 +74,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	* @return array
 	* @access public
 	*/
-	function getConfigVars()
+	public static function getConfigVars()
 	{
 		return Array(
 				'SQ_HIPO_EDIT_STATUS_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),
@@ -180,7 +180,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		}
 
 		// so we have an assetid to start at, but make sure it is a valid assetid
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 		if (is_null($asset)) {
 			trigger_localised_error('HIPO0011', E_USER_WARNING, $this->_running_vars['assetid']);
 			return '';
@@ -240,7 +240,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	{
 		// need this because it'll complain about Internal Message being an incomplete class
 		require_once SQ_INCLUDE_PATH.'/internal_message.inc';
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		return parent::load($code_name);
 
 	}//end load()
@@ -264,8 +264,8 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 		// paint dependant hipo job here
 		if (!empty($this->_running_vars['dependant_hipo_job'])) {
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$hipo =& $hh->getJob($this->_running_vars['dependant_hipo_job']);
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hipo = $hh->getJob($this->_running_vars['dependant_hipo_job']);
 			if (!is_null($hipo)) {
 				$hipo->paint($o, TRUE);
 			} else {
@@ -309,7 +309,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	{
 		// we are probably going to be sending some internal messages during this
 		// process, so we'll open a new queue here
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openQueue();
 
 		if (!parent::processServer($step_data, $prefix)) {
@@ -340,8 +340,8 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	{
 		// process dependant hipo_job_edit_status if necessary
 		if (!empty($this->_running_vars['dependant_hipo_job'])) {
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$hipo =& $hh->getJob($this->_running_vars['dependant_hipo_job']);
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hipo = $hh->getJob($this->_running_vars['dependant_hipo_job']);
 
 			// bail if we've completed this job
 			if (is_null($hipo)) return FALSE;
@@ -354,7 +354,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 				// process the sub hipo on each refresh
 				$running_vars = $hipo->getRunningVars();
 				if (isset($running_vars['assetid'])) {
-					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($running_vars['assetid']);
+					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($running_vars['assetid']);
 					$asset->_updated(FALSE);
 				}
 				unset($this->_running_vars['dependant_hipo_job']);
@@ -362,7 +362,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			return TRUE;
 
 		}
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 		// create a queue to store the messages
 		$ms->openQueue();
@@ -382,7 +382,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			// one exception is that current asset is in a workflow, the status will always be pending approval
 			$current_status = array_get_index($this->_running_vars['current_asset_statuses'], $assetid, 0);
 			if (($current_status != $new_status) || ($current_status & SQ_SC_STATUS_PENDING)) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (!is_null($asset)) {
 					// if an asset has dependants, we don't want to run _updated() on it until
 					// after we have processed them. _updated is run after the execution of the
@@ -459,7 +459,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	*/
 	function spawnDependantStatusHipo($assetid, $new_status, $messages)
 	{
-		$init_hipo =& new Hipo_Job_Edit_Status();
+		$init_hipo = new Hipo_Job_Edit_Status();
 
 		$options['auto_complete'] = TRUE;
 

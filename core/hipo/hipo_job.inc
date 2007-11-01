@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.88 2007/02/18 23:34:49 rhoward Exp $
+* $Id: hipo_job.inc,v 1.89 2007/11/01 04:44:18 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -271,7 +271,7 @@ class HIPO_Job extends MySource_Object
 			trigger_localised_error('HIPO0045', E_USER_WARNING);
 			return;
 		}
-		$this->_running_vars =& $vars;
+		$this->_running_vars = $vars;
 
 	}//end setRunningVars()
 
@@ -432,8 +432,8 @@ class HIPO_Job extends MySource_Object
 		if (empty($source_code_name)) {
 			$source_initialise_mode = $this->_current_mode;
 		} else {
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$source_job =& $hh->getJob($source_code_name);
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$source_job = $hh->getJob($source_code_name);
 			if (is_null($source_job) || ($source_job->source_code_name != $source_job->code_name)) {
 				return '';
 			}
@@ -477,7 +477,7 @@ class HIPO_Job extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db  =& $GLOBALS['SQ_SYSTEM']->db;
+		$db  = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT
 					userid, last_updated
@@ -490,7 +490,7 @@ class HIPO_Job extends MySource_Object
 		assert_valid_db_result($existing);
 
 		if (!empty($existing)) {
-			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing['userid']);
+			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing['userid']);
 			trigger_localised_error('HIPO0041', E_USER_WARNING, $user->name, $user->id, $GLOBALS['SQ_SYSTEM']->datetime(iso8601_ts($existing['last_updated'])));
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -593,7 +593,7 @@ class HIPO_Job extends MySource_Object
 	* @access public
 	* @static
 	*/
-	function getConfigVars()
+	public static function getConfigVars()
 	{
 		return Array();
 
@@ -657,7 +657,7 @@ class HIPO_Job extends MySource_Object
 	function load($code_name)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-		$db  =& $GLOBALS['SQ_SYSTEM']->db;
+		$db  = $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT job_type, userid, running, source_code_name, hipo_vars, options, steps, running_vars, last_updated
 				FROM sq_hipo_job
 				WHERE code_name = '.$db->quote($code_name);
@@ -716,7 +716,7 @@ class HIPO_Job extends MySource_Object
 							);
 
 					$alive = FALSE;
-					$client =& new Squiz_Server_Client_MySource3();
+					$client = new Squiz_Server_Client_MySource3();
 					if ($client->connect()) {
 						if ($client->write('HIPO_Job', $data)) {
 							$ack = $client->read();
@@ -829,7 +829,7 @@ class HIPO_Job extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		// now we just do what we are told
 		if ($delete) {
 			$sql = 'DELETE FROM
@@ -892,7 +892,7 @@ class HIPO_Job extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
@@ -931,7 +931,7 @@ class HIPO_Job extends MySource_Object
 		$step = $this->_hipo_vars['current_step'];
 		if (isset($this->_steps[$step])) {
 			if (!empty($this->_steps[$step]['hipo_job']) && !empty($this->_steps[$step]['hipo_job']['code_name']) && !empty($this->_steps[$step]['hipo_job']['job_type'])) {
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$job = $hh->getJob($this->_steps[$step]['hipo_job']['code_name']);
 				return $job;
 			}// end if
@@ -972,7 +972,7 @@ class HIPO_Job extends MySource_Object
 			return FALSE;
 		}
 
-		$sub_job =& $this->_getSubJob();
+		$sub_job = $this->_getSubJob();
 		if (!is_null($sub_job)) {
 			if (!$sub_job->setRunningMode($mode)) return FALSE;
 		}// end if
@@ -1023,7 +1023,7 @@ class HIPO_Job extends MySource_Object
 
 		} else if (!empty($this->_steps[$step]['hipo_job'])) {
 
-			$sub_job =& $this->_getSubJob();
+			$sub_job = $this->_getSubJob();
 			// if we are processing a sub job, it's it's decision whether to auto step or not
 			if (!is_null($sub_job)) {
 				return $sub_job->autoStep();
@@ -1138,7 +1138,7 @@ class HIPO_Job extends MySource_Object
 				$prefix = $this->code_name.'step'.$step;
 				$this->$fn($this->_steps[$step], $o, $prefix);
 			} else if (!empty($step_data['hipo_job'])) {
-				$sub_job =& $this->_getSubJob();
+				$sub_job = $this->_getSubJob();
 				if (!is_null($sub_job)) {
 					$o->closeRaw();
 						$sub_job->paint($o, TRUE);
@@ -1224,7 +1224,7 @@ class HIPO_Job extends MySource_Object
 							);
 
 					$ret_val = FALSE;
-					$client =& new Squiz_Server_Client_MySource3();
+					$client = new Squiz_Server_Client_MySource3();
 					if ($client->connect()) {
 						if ($client->write('HIPO_Job', $data)) {
 							$ack = $client->read();
@@ -1314,7 +1314,7 @@ class HIPO_Job extends MySource_Object
 						require_once $hipo_vars['job_dir'].'/'.$job_type.'.inc';
 					}
 
-					$init_hipo =& new $job_type();
+					$init_hipo = new $job_type();
 
 					$init_hipo->setRunningVars($running_vars);
 					foreach ($options as $k => $v) {
@@ -1334,8 +1334,8 @@ class HIPO_Job extends MySource_Object
 				}// end if
 
 			} else {
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$hipo =& $hh->getJob($step_data['hipo_job']['code_name']);
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hipo = $hh->getJob($step_data['hipo_job']['code_name']);
 				if (!is_null($hipo) && $hipo->process()) {
 					$step_data['running_mode'] = $hipo->getRunningMode();
 					$step_data['percent_done'] = $hipo->percentDone();
@@ -1396,7 +1396,7 @@ class HIPO_Job extends MySource_Object
 				require_once $hipo_vars['job_dir'].'/'.$job_type.'.inc';
 			}
 
-			$init_hipo =& new $job_type();
+			$init_hipo = new $job_type();
 
 			$init_hipo->setRunningVars($running_vars);
 			foreach ($options as $k => $v) {
@@ -1411,8 +1411,8 @@ class HIPO_Job extends MySource_Object
 			$step_data['hipo_job']['job_type']  = $job_type;
 			$this->save();
 
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$hipo =& $hh->getJob($code_name, $job_type);
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hipo = $hh->getJob($code_name, $job_type);
 			if (is_null($hipo)) return FALSE;
 
 			while (!$step_data['complete'] && $step_data['running_mode'] == 'server') {
@@ -1443,8 +1443,8 @@ class HIPO_Job extends MySource_Object
 	function abort()
 	{
 		if ($this->source_code_name != $this->code_name) {
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$source_job =& $hh->getJob($this->source_code_name);
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$source_job = $hh->getJob($this->source_code_name);
 			if (is_null($source_job) || ($source_job->source_code_name != $source_job->code_name)) {
 				return FALSE;
 			}
@@ -1470,7 +1470,7 @@ class HIPO_Job extends MySource_Object
 					);
 
 			$ret_val = FALSE;
-			$client =& new Squiz_Server_Client_MySource3();
+			$client = new Squiz_Server_Client_MySource3();
 			if ($client->connect()) {
 				if ($client->write('HIPO_Job', $data)) {
 					$ack = $client->read();
@@ -1505,7 +1505,7 @@ class HIPO_Job extends MySource_Object
 
 		$this->jobAborted();
 
-		$sub_job =& $this->_getSubJob();
+		$sub_job = $this->_getSubJob();
 		if (!is_null($sub_job)) $sub_job->jobAborted();
 
 		return TRUE;

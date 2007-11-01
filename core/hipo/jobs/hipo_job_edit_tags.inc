@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_tags.inc,v 1.8 2007/08/10 01:49:40 lmarchese Exp $
+* $Id: hipo_job_edit_tags.inc,v 1.9 2007/11/01 04:44:18 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit content tags
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -76,7 +76,7 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 	* @return array
 	* @access public
 	*/
-	function getConfigVars()
+	public static function getConfigVars()
 	{
 		return Array(
 				'SQ_HIPO_TAG_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> '15'),

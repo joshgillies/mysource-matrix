@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_generate_report.inc,v 1.13 2006/12/05 05:39:09 bcaldwell Exp $
+* $Id: hipo_job_generate_report.inc,v 1.14 2007/11/01 04:44:18 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -79,7 +79,7 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 	* @return array
 	* @access public
 	*/
-	function getConfigVars()
+	public static function getConfigVars()
 	{
 		return Array(
 				'SQ_HIPO_REGENERATE_REPORT_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),

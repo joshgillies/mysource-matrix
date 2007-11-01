@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_trigger_batch_events.inc,v 1.11 2006/12/05 05:39:10 bcaldwell Exp $
+* $Id: hipo_job_trigger_batch_events.inc,v 1.12 2007/11/01 04:44:18 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -82,7 +82,7 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 	* @return Array
 	* @access public
 	*/
-	function getConfigVars()
+	public static function getConfigVars()
 	{
 		return Array(
 				'SQ_HIPO_TRIGGER_BATCH_EVENTS_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 0),

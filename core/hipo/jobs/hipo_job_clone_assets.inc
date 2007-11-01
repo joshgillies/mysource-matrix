@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.26 2007/05/01 05:45:40 hnguyen Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.27 2007/11/01 04:44:18 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -76,7 +76,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	* @return array
 	* @access public
 	*/
-	function getConfigVars()
+	public static function getConfigVars()
 	{
 		return Array(
 				'SQ_DUPE_ASSET_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),

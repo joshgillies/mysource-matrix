@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.60 2007/08/10 01:49:40 lmarchese Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.61 2007/11/01 04:44:18 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -92,7 +92,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	* @return array
 	* @access public
 	*/
-	function getConfigVars()
+	public static function getConfigVars()
 	{
 		return Array(
 				'SQ_HIPO_PERMISSIONS_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),

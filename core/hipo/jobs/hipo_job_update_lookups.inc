@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.45 2007/05/01 05:45:40 hnguyen Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.46 2007/11/01 04:44:18 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -79,7 +79,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	* @return array
 	* @access public
 	*/
-	function getConfigVars()
+	public static function getConfigVars()
 	{
 		return Array(
 				'SQ_HIPO_LOOKUPS_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.44 2007/08/10 01:58:27 lmarchese Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.45 2007/11/01 04:44:18 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -76,7 +76,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	* @return array
 	* @access public
 	*/
-	function getConfigVars()
+	public static function getConfigVars()
 	{
 		return Array(
 				'SQ_HIPO_METADATA_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),

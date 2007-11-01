@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.23 2007/10/11 04:37:23 hnguyen Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.24 2007/11/01 04:44:18 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -87,7 +87,7 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	* @return array
 	* @access public
 	*/
-	function getConfigVars()
+	public static function getConfigVars()
 	{
 		return Array(
 				'SQ_HIPO_CLEAR_CACHE_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 100),
