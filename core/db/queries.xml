@@ -112,4 +112,25 @@
 			</select>
 		</primary>
 	</query>
+
+
+	<!-- //		ASSET MANAGER		// -->
+
+	<query id="getTypeCodeWithAllowedAccess">
+		<!-- Return the type code with the allowed access provided. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast_typ" column="type_code" />
+				</fields>
+				<from>
+					<table>sq_ast_typ</table>
+				</from>
+				<where>
+					<equal table="sq_ast_typ" column="allowed_access">:allowed_access</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+
 </queries>

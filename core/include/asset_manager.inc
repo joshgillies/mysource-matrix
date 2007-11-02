@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.585 2007/10/29 22:20:54 lwright Exp $
+* $Id: asset_manager.inc,v 1.586 2007/11/02 05:22:29 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.585 $
+* @version $Revision: 1.586 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -437,12 +437,15 @@ class Asset_Manager extends MySource_Object
 		$type_codes = Array();
 		$allowed_access = trim($allowed_access);
 		if (!empty($allowed_access)) {
-			$db = DAL::getDb();
-			$sql = 'SELECT type_code
-					FROM sq_ast_typ
-					WHERE allowed_access = '.$db->quote($allowed_access);
-			$type_codes = $db->getCol($sql);
-			assert_valid_db_result($type_codes);
+			try {
+				$bind_vars	= Array (
+								'allowed_access'	=> $allowed_access,
+							  );
+				$type_codes = MatrixDAL::executeAssoc('core', 'getTypeCodeWithAllowedAccess', 0, $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Failed to get type code with allowed access due to database error: '. $e->getMessage());
+			}
+
 		} else {
 			$type_codes = array_keys($this->_asset_types);
 		}
