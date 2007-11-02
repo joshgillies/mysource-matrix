@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.228.2.2 2007/11/01 00:29:29 inegretski Exp $
+* $Id: mysource.inc,v 1.228.2.3 2007/11/02 01:15:14 inegretski Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.228.2.2 $
+* @version $Revision: 1.228.2.3 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1461,8 +1461,11 @@ class MySource
 	function getUniqueSessionKey()
 	{
 		$key =  $_SESSION['userid'].
-				$_SESSION['user_type_code'].
-				$_SESSION['SQ_LOGIN_KEY'];
+				$_SESSION['user_type_code'];
+
+		if (isset($_SESSION['SQ_LOGIN_KEY'])) {
+			$key .= $_SESSION['SQ_LOGIN_KEY'];
+		}
 
 		if (!SQ_CONF_ALLOW_IP_CHANGE) {
 			$key .= $_SESSION['remote_addr'];
