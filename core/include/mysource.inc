@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.236 2007/11/01 00:50:14 inegretski Exp $
+* $Id: mysource.inc,v 1.237 2007/11/02 01:20:34 inegretski Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.236 $
+* @version $Revision: 1.237 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1482,8 +1482,11 @@ class MySource
 	public function getUniqueSessionKey()
 	{
 		$key =  $_SESSION['userid'].
-				$_SESSION['user_type_code'].
-				$_SESSION['SQ_LOGIN_KEY'];
+				$_SESSION['user_type_code'];
+
+		if (isset($_SESSION['SQ_LOGIN_KEY'])) {
+				$key .= $_SESSION['SQ_LOGIN_KEY'];
+		}
 
 		if (!SQ_CONF_ALLOW_IP_CHANGE) {
 			$key .= $_SESSION['remote_addr'];
