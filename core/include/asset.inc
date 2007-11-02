@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.593.2.4 2007/11/01 23:39:51 inegretski Exp $
+* $Id: asset.inc,v 1.593.2.5 2007/11/02 04:39:21 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.593.2.4 $
+* @version $Revision: 1.593.2.5 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2001,7 +2001,7 @@ class Asset extends MySource_Object
 
 		if (in_array('data', $components) || in_array('all', $components)) {
 			// make sure we have write access before we start mucking around with files
-			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || !$clone->writeAccess('attributes')) {
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) && !$clone->writeAccess('attributes')) {
 				trigger_localised_error('SYS0321', E_USER_WARNING, $clone->name);
 			} else {
 				// copy the directory (if it exists)
