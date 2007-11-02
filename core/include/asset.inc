@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.600 2007/10/29 22:20:42 lwright Exp $
+* $Id: asset.inc,v 1.601 2007/11/02 00:20:31 inegretski Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.600 $
+* @version $Revision: 1.601 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2413,7 +2413,11 @@ class Asset extends MySource_Object
 		}
 
 		// if the date and user has not changed, dont process anything
-		if ($this->$date_type == $time) return TRUE;
+		if ($this->$date_type == $time) {
+			// if we are not changing dates - check if we are changing users
+			$user_type = $date_type.'_userid';
+			if ($this->$user_type == $userid) return TRUE;
+		}
 
 		// begin a transaction
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
