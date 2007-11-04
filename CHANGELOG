@@ -1,5 +1,42 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.14.6
+
+Complete Changelog
+-----------------------------------
+
+Core
+
+* Fixed bug #2692: Broken %commit_button% keyword when customising asset builder form
+* Fixed bug #2698: Asset with escalated workflow produces internal_message error when cron job run
+* Fixed bug #2712: MySource Warning when customizing asset lineage
+* Fixed bug #2713: Asset map throw "Could not load Children: " error when logged in via backend
+* Fixed bug #2718: PHP notices on Image Asset Builder
+* Fixed bug #2724: Data source assets do not allow list positions to be set in an asset listing
+* Fixed bug #2729: Cannot change the users who created the asset
+* Fixed bug #2734: Refresh cache cron job prints to stdout causing the cron daemon to send emails to the owner
+* Fixed bug #2736: LDAP Users can't create Design customisations
+* Fixed bug #2744: Clone Asset trigger action gives error when 'Ignore Permissions' option is checked
+
+CMS
+
+* Fixed bug #2681: Custom layout for asset builder not showing uploaded assets popup (Asset Builder Page)
+* Fixed bug #2683: Custom form date field if it is left empty then the value is set to 01-01-2000 (Custom Form)
+* Fixed bug #2707: Selectable Create Locations is empty in LoggedIn bodycopy when logged in as root (Asset Builder Page)
+* Fixed bug #2708: Can't remove a metadata sort by option on the Asset Sorting screen (Listing Engine)
+* Fixed bug #2714: STAF Referring keywords on Email Options screen are wrong (Custom Form)
+* Fixed bug #2715: Quotes are incorrectly converted to &quot; in asset names (Asset Builder Page)
+
+Calendar
+
+* Fixed bug #2690: Single Calendar page date field does not function as expected when used in Asset Builder (Calendar Event)
+* Fixed bug #2709: MySource Error message is incorrect when creating a Recurring Calendar Event Modification (Recurring Calendar Event Modification)
+* Fixed bug #2717: PHP warning printing metadata w/ Rolling Calendar Page (Rolling Calendar Page)
+* Fixed bug #2722: Unable to capture a metadata field and the asset id of an event asset calendar (Calendar Page)
+* Fixed bug #2723: Calendar Rolling Page throws db error when an event is near the start/end of day light saving (Rolling Calendar Page)
+
+
+
 VERSION 3.14.5
 
 Featured Changes
