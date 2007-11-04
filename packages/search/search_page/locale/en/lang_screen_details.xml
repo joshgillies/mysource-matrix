@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.22 2007/10/30 23:10:55 hnguyen Exp $
+* $Id: lang_screen_details.xml,v 1.23 2007/11/04 23:10:39 hnguyen Exp $
 *
 */
 -->
@@ -76,7 +76,7 @@
 		</field>
 		<field attribute="search_as_public_user">
 			<display_name>Search as Public User</display_name>
-			<note>If selected, only assets which are granted public access (and not denied) will be return as results.</note>
+			<note>If selected, only assets which are granted public access (and not denied) will be returned as results.</note>
 		</field>
 		<field attribute="no_roles_check">
 			<display_name>No Roles Check</display_name>
