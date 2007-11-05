@@ -133,4 +133,35 @@
 		</primary>
 	</query>
 
+	<query id="insertClonedAsset">
+	<!-- Inserts new cloned asset -->
+		<primary>
+			<insert>
+				<fields table="sq_ast">
+					<field>assetid</field>
+					<field>version</field>
+					<field>type_code</field>
+					<field>name</field>
+					<field>short_name</field>
+					<field>status</field>
+					<field>created</field>
+					<field>created_userid</field>
+					<field>updated</field>
+					<field>updated_userid</field>
+				</fields>
+				<values>
+					<value column="assetid">:assetid</value>
+					<value column="version">:version</value>
+					<value column="type_code">:type_code</value>
+					<value column="name">:name</value>
+					<value column="short_name">:short_name</value>
+					<value column="status">:status</value>
+					<value column="created">:created</value>
+					<value column="created_userid">:created_userid</value>
+					<value column="updated">:updated</value>
+					<value column="updated_userid">:updated_userid</value>
+				</values>
+			</insert>
+		</primary>
+	</query>
 </queries>

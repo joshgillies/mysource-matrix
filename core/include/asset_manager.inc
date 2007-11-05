@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.586 2007/11/02 05:22:29 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.587 2007/11/05 23:52:31 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.586 $
+* @version $Revision: 1.587 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1725,9 +1725,8 @@ class Asset_Manager extends MySource_Object
 		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
-		$assetid = $db->nextId('sq_ast');
-		assert_valid_db_result($assetid);
+		// TODO: replace with seqNextVal() in queries.xml
+		$assetid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast\');');
 
 		$now    = time();
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -1736,36 +1735,23 @@ class Asset_Manager extends MySource_Object
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
-		$sql = 'INSERT INTO
-					sq_ast
-					(
-						assetid,
-						version,
-						type_code,
-						name,
-						short_name,
-						status,
-						created,
-						created_userid,
-						updated,
-						updated_userid
-					)
-					VALUES
-					(
-						'.$db->quoteSmart($assetid).',
-						'.$db->quoteSmart($initial_version).',
-						'.$db->quoteSmart($source->type()).',
-						'.$db->quoteSmart($source->name.' - clone').',
-						'.$db->quoteSmart($source->short_name.' - clone').',
-						'.$db->quoteSmart(SQ_STATUS_UNDER_CONSTRUCTION).',
-						'.db_extras_todate($db, ts_iso8601($now)).',
-						'.$db->quoteSmart($userid).',
-						'.db_extras_todate($db, ts_iso8601($now)).',
-						'.$db->quoteSmart($userid).'
-					)';
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+		    $bind_vars = Array(
+							'assetid'			=> $assetid,
+							'version'			=> $initial_version,
+							'type_code'			=> $source->type(),
+							'name'				=> $source->name.' - clone',
+							'short_name'		=> $source->short_name.' - clone',
+							'status'			=> SQ_STATUS_UNDER_CONSTRUCTION,
+							'created'			=> db_extras_todate($db, ts_iso8601($now)),
+							'created_userid'	=> $userid,
+							'updated'			=> db_extras_todate($db, ts_iso8601($now)),
+							'updated_userid'	=> $userid,
+						 );
+			$query = MatrixDAL::executeOne('core', 'insertClonedAsset', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Failed to create cloned asset due to database error: '.$e->getMessage());
+		}
 
 		$clone =& $this->getAsset($assetid, $source->type());
 		if (is_null($clone)) {
