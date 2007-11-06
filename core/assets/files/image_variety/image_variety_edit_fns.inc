@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_edit_fns.inc,v 1.17 2006/12/05 23:14:14 emcdonald Exp $
+* $Id: image_variety_edit_fns.inc,v 1.18 2007/11/06 06:11:39 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,14 +73,14 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		$variety_type = $asset->attr('variety_type');
 		$constrain    = $asset->attr('constrain');
 
-		$int_edit_params =& new XML_Tree_Node('int', '', Array('width' => 8));
-		$bool_edit_params =& new XML_Tree_Node('boolean', '', Array('true_text' => 'Yes', 'false_text' => 'No'));
-		$sel_edit_params =& new XML_Tree_Node('selection', '', Array('style' => 'box', 'columns' => '3', 'extras' => ''));
+		$int_edit_params = new XML_Tree_Node('int', '', Array('width' => 8));
+		$bool_edit_params = new XML_Tree_Node('boolean', '', Array('true_text' => 'Yes', 'false_text' => 'No'));
+		$sel_edit_params = new XML_Tree_Node('selection', '', Array('style' => 'box', 'columns' => '3', 'extras' => ''));
 
 		if ($asset->name == '') {
 			$o->openField(translate('name'));
-				$text_edit_params =& new XML_Tree_Node('text', '', Array('width' => 15));
-				$attr =& $asset->getAttribute('name');
+				$text_edit_params = new XML_Tree_Node('text', '', Array('width' => 15));
+				$attr = $asset->getAttribute('name');
 				$attr->setEditParams($text_edit_params);
 				$attr->paint($prefix.'_'.$attr->name, !$wa);
 				unset($attr);
@@ -110,7 +110,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			</script>
 		<?php
 			$sel_edit_params->attributes['extras'] = 'onclick="javascript: '.$js_prefix.'_update_visible_fields();"';
-			$attr =& $asset->getAttribute('variety_type');
+			$attr = $asset->getAttribute('variety_type');
 			$attr->setEditParams($sel_edit_params);
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
 			unset($attr);
@@ -118,28 +118,28 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 
 		$o->openField(translate('constrain_by'), '', '', ($variety_type != 'resize'), $prefix.'_field_constrain');
 			$sel_edit_params->attributes['extras'] = 'onclick="javascript: '.$js_prefix.'_update_visible_fields();"';
-			$attr =& $asset->getAttribute('constrain');
+			$attr = $asset->getAttribute('constrain');
 			$attr->setEditParams($sel_edit_params);
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
 			unset($attr);
 		$o->closeField();
 
 		$o->openField(translate('width'), '', '', ($variety_type != 'resize' || $constrain != 'width'), $prefix.'_field_width');
-			$attr =& $asset->getAttribute('width');
+			$attr = $asset->getAttribute('width');
 			$attr->setEditParams($int_edit_params);
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
 			unset($attr);
 		$o->closeField();
 
 		$o->openField(translate('height'), '', '', ($variety_type != 'resize' || $constrain != 'height'), $prefix.'_field_height');
-			$attr =& $asset->getAttribute('height');
+			$attr = $asset->getAttribute('height');
 			$attr->setEditParams($int_edit_params);
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
 			unset($attr);
 		$o->closeField();
 
 		$o->openField(translate('dimension'), '', translate('dimension_note'), ($variety_type != 'resize' || $constrain != 'dimension'), $prefix.'_field_dimension');
-			$attr =& $asset->getAttribute('dimension');
+			$attr = $asset->getAttribute('dimension');
 			$attr->setEditParams($int_edit_params);
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
 			unset($attr);
@@ -184,7 +184,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		foreach ($vars as $attr_name) {
-			$attr =& $asset->getAttribute($attr_name);
+			$attr = $asset->getAttribute($attr_name);
 			$attr->process($prefix.'_'.$attr->name);
 			if ($attr->processed && $asset->setAttrValue($attr->name, $attr->value)) {
 				$changes_made = TRUE;
@@ -235,12 +235,12 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		if (!is_dir($asset->data_path) && !create_directory($asset->data_path)) {
 			return FALSE;
 		}
 
-		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_imageid);
+		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_imageid);
 		if (is_null($image)) return FALSE;
 
 		$img_ext = get_file_type($image->name);

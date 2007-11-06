@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.19 2006/12/05 05:45:17 emcdonald Exp $
+* $Id: bodycopy_table.inc,v 1.20 2007/11/06 06:08:41 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,7 +72,7 @@ class Bodycopy_Table extends Bodycopy_Container
 			$rows[$i]['attributes'] = Array();
 			$rows[$i]['cells']		= Array();
 			for ($x = 0; $x < $num_cols; $x++) {
-				$rows[$i]['cells'][$x] =& new Bodycopy_Table_Cell();
+				$rows[$i]['cells'][$x] = new Bodycopy_Table_Cell();
 				// short and long names are the same to begin with
 				$content_type = $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DEFAULT_CONTENT_TYPE');
 				if (!$rows[$i]['cells'][$x]->setContentType($this, $content_type, $i, $x)) {
@@ -141,7 +141,7 @@ class Bodycopy_Table extends Bodycopy_Container
 		// get our clone and make it update its tables array
 		if (isset($map[$this->id])) {
 			$child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($this->id, SQ_LINK_TYPE_2);
-			$new_clone =& $GLOBALS['SQ_SYSTEM']->am->getAsset($map[$this->id]);
+			$new_clone = $GLOBALS['SQ_SYSTEM']->am->getAsset($map[$this->id]);
 
 			if (!$new_clone->remapTableLinks($map, $child_links)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -158,7 +158,7 @@ class Bodycopy_Table extends Bodycopy_Container
 			return TRUE;
 		}
 
-		$old_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($old_assetid, $this->type());
+		$old_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($old_assetid, $this->type());
 		$our_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, 'content_type', FALSE);
 
 		if (is_null($old_asset) || empty($our_links)) {

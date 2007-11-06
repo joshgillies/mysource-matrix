@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.16 2007/10/12 02:07:45 hnguyen Exp $
+* $Id: form_question_type_datetime.inc,v 1.17 2007/11/06 06:12:58 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,7 +113,7 @@ class Form_Question_Type_Datetime extends Form_Question
 			$parameters['null'][] = $t;
 		}
 
-		$dt_field =& new Datetime_Field($name, $value, $parameters);
+		$dt_field = new Datetime_Field($name, $value, $parameters);
 
 		ob_start();
 		$dt_field->printField();
@@ -290,9 +290,9 @@ class Form_Question_Type_Datetime extends Form_Question
 		foreach ($val as $val_key => $val_time) {
 			$preg_match_result = preg_match('|^-*$|', $val[$val_key]);
 			if ($required_fields[$val_key] != '1' || !$preg_match_result) {
-				$non_empty_date = FALSE;	
+				$non_empty_date = FALSE;
 			}//end if
-	
+
 			if ($preg_match_result) {
 				switch ($val_key) {
 					case 'y':
@@ -316,7 +316,7 @@ class Form_Question_Type_Datetime extends Form_Question
 					case 'h':
 					case 'i':
 					case 's':
-						if ($required_fields[$val_key] == 1) {	
+						if ($required_fields[$val_key] == 1) {
 							$new_format = $this->replaceDateFormat($new_format, $val_key);
 						}
 						$val[$val_key] = 0;
@@ -358,7 +358,7 @@ class Form_Question_Type_Datetime extends Form_Question
 	* @return public
 	*/
 	function replaceDateFormat($original_format, $element)
-	{	
+	{
 		$replacement_mapping = Array (
 								'y'	=> Array ('y', 'Y'),
 								'm'	=> Array ('m', 'n'),
@@ -375,7 +375,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		}//end if
 
 		return $original_format;
-		
+
 	}//end replaceDateFormat()
 
 

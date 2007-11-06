@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.47 2007/08/30 04:22:11 bshkara Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.48 2007/11/06 06:06:08 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,13 +62,13 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _saveCssIds(&$o)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		if (isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
 			$url = $GLOBALS['sq_preview_url'];
 			$url = preg_replace('|^http[s]?://|', '', $url);
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = $GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT value
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
@@ -87,7 +87,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			assert_valid_db_result($designid);
 
 			if ($designid) {
-				$design =& $am->getAsset($designid);
+				$design = $am->getAsset($designid);
 				$stylesheets = $design->getStylesheets();
 
 				// save the ids of all the css files into a global var so the wysiwyg style
@@ -120,7 +120,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintBodycopy(&$asset, &$o, $prefix)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$write_access = $asset->writeAccess('content');
 		// variable to determine whether or not to allow commit
 		$print_commit_button = $write_access;
@@ -133,7 +133,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		if (!$write_access) {
 			ob_start();
 			foreach ($containers as $container_data) {
-				$container =& $am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+				$container = $am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 				if ($container->useSystemVersion()) {
 					$container->printBody();
 				} else {
@@ -187,8 +187,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$container_types = $am->getTypeDescendants('bodycopy_container');
 		foreach ($container_types as $type) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
-			$type_asset =& new $type();
-			$edit_fns =& $type_asset->getEditFns();
+			$type_asset = new $type();
+			$edit_fns = $type_asset->getEditFns();
 			$edit_fns->paintGenericBackend($asset, $o, $prefix);
 		}
 
@@ -239,7 +239,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		// for each container, print it's editing interface
 		$i = 0;
 		foreach ($containers as $container_data) {
-			$container =& $am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+			$container = $am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 			$container_edit = $container->getEditFns();
 
 			if ($write_access) {
@@ -355,7 +355,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processBodycopy(&$asset, &$o, $prefix)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		$updated = FALSE;
 
@@ -379,7 +379,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 			// unserialize the data for a bodycopy.
 			for (reset($bc_saved); NULL !== ($k = key($bc_saved)); next($bc_saved)) {
-				$containers =& $bc_saved[$k];
+				$containers = $bc_saved[$k];
 				for (reset($containers); NULL !== ($containersid = key($containers)); next($containers)) {
 					$containers[$containersid] = var_unserialise($containers[$containersid]);
 				}
@@ -395,7 +395,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		// process each of the containers
 		foreach ($containers as $container_data) {
-			$container =& $am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+			$container = $am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 			$container_edit = $container->getEditFns();
 			if ($container_edit->processContainer($container, $o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)) {
 				if ($container->saveAttributes()) $updated = TRUE;
@@ -463,7 +463,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		$asset_type = 'bodycopy_'.$type;
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type);
-		$new_container =& new $asset_type();
+		$new_container = new $asset_type();
 		$new_container->setAttrValue('name', 'New '.ucfirst($type));
 		$new_container->setAttrValue('attributes', $bc_data['attributes']);
 		$retval = (bool) $new_container->create($copy_link, $bc_data);
@@ -490,7 +490,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function deleteContainer(&$asset, $containerid)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		// get all the containers linked to this bodycopy
 		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);

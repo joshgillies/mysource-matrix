@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type_edit_fns.inc,v 1.4 2006/12/06 00:35:28 emcdonald Exp $
+* $Id: form_question_rule_type_file_type_edit_fns.inc,v 1.5 2007/11/06 06:12:58 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/option_list/option_list.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,7 +62,7 @@ class Form_Question_Rule_Type_File_Type_Edit_Fns extends Form_Question_Rule_Edit
 
 			$o->openField(translate('core_form_rule_file_type_ext_list'));
 			// give a text box to write the comparison value in
-			$option_list =& new Asset_Attribute_Option_List(0, array_get_index($rule_data, 'value', ''));
+			$option_list = new Asset_Attribute_Option_List(0, array_get_index($rule_data, 'value', ''));
 			$option_list->paint($prefix.'_value');
 
 			$o->closeField();

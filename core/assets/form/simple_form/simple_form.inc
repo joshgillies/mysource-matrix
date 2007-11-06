@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.21 2007/05/25 06:54:28 colivar Exp $
+* $Id: simple_form.inc,v 1.22 2007/11/06 06:12:58 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,7 +116,7 @@ class Simple_Form extends Asset
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($q_type_code);
 
 				// this eval returns the necessary object for the question type
-				$asset =& new $q_type_code($this->id, $questions[$questionid]);
+				$asset = new $q_type_code($this->id, $questions[$questionid]);
 			}
 		}
 
@@ -289,7 +289,7 @@ class Simple_Form extends Asset
 
 		foreach (array_keys($links) as $i) {
 
-			$link =& $links[$i];
+			$link = $links[$i];
 			if ($link['minor_type_code'] == 'bodycopy') {
 				unset($links[$i]);
 				continue;
@@ -405,7 +405,7 @@ class Simple_Form extends Asset
 
 		// this is so we get the sections as we go
 		// have to do this all in here because calling asset manager will bring on a vicious loop
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_a($asset, 'bridge') && ($assetid != $this->id)) {
 			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $dependant, $sort_by);
 			$this->forgetAsset($asset);
@@ -417,7 +417,7 @@ class Simple_Form extends Asset
 				$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
 				assert_valid_db_result($result);
 
-				$children =& $result;
+				$children = $result;
 			}
 		}
 
@@ -611,7 +611,7 @@ class Simple_Form extends Asset
 	*/
 	function paintQuestion($assetid)
 	{
-		$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		echo $q->getHTMLField();
 
 	}//end paintQuestion()
@@ -636,7 +636,7 @@ class Simple_Form extends Asset
 				// get the question
 				$assetid = $this->id.':q'.$shadowid;
 				$name = 'q'.$assetid;
-				$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$q->populate();
 
 				// set the value and check whether it's valid
@@ -661,7 +661,7 @@ class Simple_Form extends Asset
 			// Now, handle nested forms
 			foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', FALSE) as $link) {
 				$sectionid = $link['minorid'];
-				$s =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
+				$s = $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
 
 				$valid = $s->process();
 				if (!$valid) {
@@ -716,7 +716,7 @@ class Simple_Form extends Asset
 	*/
 	function getQuestions($include_nested=FALSE)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$questions = Array();
 
 		$questions_raw = $this->attr('questions');
@@ -731,7 +731,7 @@ class Simple_Form extends Asset
 		if ($include_nested) {
 			$nested_forms = $am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, 'simple_form', FALSE);
 			foreach ($nested_forms as $link) {
-				$form =& $am->getAsset($link['minorid']);
+				$form = $am->getAsset($link['minorid']);
 				if (!is_null($form)) {
 					$questions = array_merge($questions, $form->getQuestions($include_nested));
 					$am->forgetAsset($form);
@@ -833,7 +833,7 @@ class Simple_Form extends Asset
 
 		$questions = $this->attr('questions');
 		foreach (array_keys($questions) as $key) {
-			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$key);
+			$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$key);
 
 			$q_code = $q->generateJSCode();
 			$code .= $q_code.(empty($q_code) ? '' : "\n");
@@ -845,11 +845,11 @@ class Simple_Form extends Asset
 		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', FALSE) as $link) {
 			// get the section
 			$sectionid = $link['minorid'];
-			$s =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
+			$s = $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
 			$section_questions = $s->attr('questions');
 
 			foreach (array_keys($section_questions) as $key) {
-				$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($s->id.':q'.$key);
+				$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($s->id.':q'.$key);
 
 				$q_code = $q->generateJSCode();
 				$code .= $q_code.(empty($q_code) ? '' : "\n");
@@ -962,7 +962,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', FALSE) as $link) {
 			// get the section
 			$sectionid = $link['minorid'];
-			$s =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
+			$s = $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
 
 			$keywords += $s->getDisplayKeywords($prefix);
 			$keywords[$prefix.$s->id.'_name'] = 'Nested Form Name: '.$s->name.' ('.$s->id.')';
@@ -1004,7 +1004,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', FALSE) as $link) {
 			// get the nested form
 			$sectionid = $link['minorid'];
-			$s =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
+			$s = $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
 
 			$keywords += $s->getResponseKeywords($prefix);
 			$keywords[$prefix.$s->id.'_name'] = 'Nested Form Name: '.$s->name.' ('.$s->id.')';
@@ -1039,7 +1039,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 
 		foreach ($questions as $shadowid => $question) {
 			// get the question
-			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$shadowid);
+			$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$shadowid);
 			$keywords[$prefix.$this->id.'_q'.$shadowid] = $q->getHtmlField();
 			$keywords[$prefix.$this->id.'_q'.$shadowid.'_note'] = $q->attr('note');
 			$keywords[$prefix.$this->id.'_q'.$shadowid.'_id'] = 'q'.$this->id.'_q'.$shadowid;
@@ -1050,7 +1050,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', FALSE) as $link) {
 			// get the nested form
 			$sectionid = $link['minorid'];
-			$s =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
+			$s = $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
 
 			$keywords += $s->getDisplayKeywordReplacements($prefix);
 			$keywords[$prefix.$s->id.'_name'] = $s->name;
@@ -1096,7 +1096,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 		$keywords = Array();
 
 		foreach ($questions as $shadowid => $question) {
-			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$shadowid);
+			$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$shadowid);
 			$keywords[$prefix.$this->id.'_q'.$shadowid] = $q->getSummary();
 			$keywords[$prefix.$this->id.'_q'.$shadowid.'_raw'] = $q->getValue();
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($q);
@@ -1106,7 +1106,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'simple_form', FALSE) as $link) {
 			// get the nested form
 			$sectionid = $link['minorid'];
-			$s =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
+			$s = $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
 
 			$keywords += $s->getResponseKeywordReplacements($prefix);
 			$keywords[$prefix.$s->id.'_name'] = $s->name;
@@ -1147,7 +1147,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 
 			$link_type = ($enable_on_create ? SQ_LINK_TYPE_2 : SQ_LINK_TYPE_3);
 
-			$asset =& new Bodycopy();
+			$asset = new Bodycopy();
 			$copy_link = Array(
 							'asset'			=> &$this,
 							'value'			=> 'format',
@@ -1191,7 +1191,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', 'format'));
 
 		if ($bodycopy_link) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], 'bodycopy');
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], 'bodycopy');
 		}
 
 		return $asset;
@@ -1269,7 +1269,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	function printBody($print_form_tags=TRUE, $submit_buttons=TRUE, $form_action='')
 	{
 		// return custom bodycopy but ONLY if enabled
-		$format_bodycopy =& $this->getFormatBodycopy(TRUE);
+		$format_bodycopy = $this->getFormatBodycopy(TRUE);
 
 		// default form action
 		if (empty($form_action)) {
@@ -1313,7 +1313,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 		?>
 		<table>
 		<?php foreach ($this->attr('questions') as $shadowid => $question) {
-			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$shadowid);
+			$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$shadowid);
 			$name = array_get_index($question['attributes'], 'name', '');
 			$note = array_get_index($question['attributes'], 'note', '');
 
@@ -1415,7 +1415,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 								'value'	=> 'No logged in user',
 							   );
 			} else {
-				$user =& $GLOBALS['SQ_SYSTEM']->user;
+				$user = $GLOBALS['SQ_SYSTEM']->user;
 				$form_info[] = Array(
 								'name'	=> 'Submitted By',
 								'value'	=> $user->name.' (Id: #'.$user->id.')',
@@ -1432,7 +1432,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 
 		// gather questions
 		foreach ($this->attr('questions') as $shadowid => $question) {
-			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$shadowid);
+			$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$shadowid);
 			$name = array_get_index($question['attributes'], 'name', '');
 			$summary = $q->getSummary();
 

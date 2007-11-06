@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars_edit_fns.inc,v 1.26 2006/12/05 22:42:12 emcdonald Exp $
+* $Id: design_area_declared_vars_edit_fns.inc,v 1.27 2007/11/06 06:11:39 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,7 +78,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 			// check that the value is valid
 			require_once(SQ_ATTRIBUTES_PATH.'/'.$element['attributes']['type'].'/'.$element['attributes']['type'].'.inc');
 			$class = 'Asset_Attribute_'.$element['attributes']['type'];
-			$attr =& new $class();
+			$attr = new $class();
 			if (!$attr->validateValue($element['attributes']['value'])) {
 				trigger_localised_error('CORE0151', E_USER_WARNING, $name, $asset->attr('id_name'), $element['attributes']['value'], $element['attributes']['type']);
 				return FALSE;

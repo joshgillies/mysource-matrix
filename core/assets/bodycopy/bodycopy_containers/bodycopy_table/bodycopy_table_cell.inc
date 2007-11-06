@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.20 2007/10/29 23:38:31 lwright Exp $
+* $Id: bodycopy_table_cell.inc,v 1.21 2007/11/06 06:08:41 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,7 +85,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
 		$content_link = Array('asset' => &$table, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-		$content_type =& new $type();
+		$content_type = new $type();
 		$content_type->setAttrValue('name', 'Row '.($rowid+1).' Cell '.($cellid+1));
 		$this->attributes['linkid'] = $content_type->create($content_link);
 		if (!$this->attributes['linkid']) return FALSE;
@@ -112,7 +112,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 	function updateContentType(&$table, $new_rowid, $new_cellid)
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
-		if (!$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'])) {
+		if (!$content_type = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'])) {
 			return FALSE;
 		}
 
@@ -145,7 +145,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 		// tested
 		$this->attributes = Array();
 		//unset($this->attributes);
-		//$this =& new BodyCopy_Table_Cell();
+		//$this = new BodyCopy_Table_Cell();
 		return TRUE;
 
 	}//end delete()
@@ -196,7 +196,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
 		if (!empty($link)) {
-			$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$content_type = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		} else {
 			$content_type = NULL;
 		}
@@ -226,7 +226,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 		if (is_null($content_type)) {
 			echo translate('content_type_not_found', $link['minorid']);
 		} else {
-			$content_edit =& $content_type->getEditFns();
+			$content_edit = $content_type->getEditFns();
 			if (!empty($prefix)) {
 				$content_edit->paintBackend($content_type, $content_prefix);
 			} else {
@@ -280,13 +280,13 @@ class BodyCopy_Table_Cell extends MySource_Object
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
 		if (!empty($link)) {
-			$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$content_type = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		} else {
 			$content_type = NULL;
 		}
 
 		if (!is_null($content_type)) {
-			$content_edit =& $content_type->getEditFns();
+			$content_edit = $content_type->getEditFns();
 			$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
 			$content_edit->paintBackendIcons($content_type, $content_prefix);
 		}
@@ -312,13 +312,13 @@ class BodyCopy_Table_Cell extends MySource_Object
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
 		if (!empty($link)) {
-			$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$content_type = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		} else {
 			$content_type = NULL;
 		}
 
 		if (!is_null($content_type)) {
-			$content_edit =& $content_type->getEditFns();
+			$content_edit = $content_type->getEditFns();
 			$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
 			$content_edit->paintBackendStatusIcons($content_type, $content_prefix);
 		}
@@ -348,7 +348,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 		// update the contentType
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
 		if (empty($link)) return FALSE;
-		$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$content_type = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		$content_edit = $content_type->getEditFns();
 		$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
 		if ($content_edit->processBackend(Array(), $content_type, $content_prefix)) {
@@ -394,7 +394,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 		// get the contentType
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
 		if (empty($link)) return FALSE;
-		$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$content_type = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
 		// if the new type is the same as the current, change nothing
 		$current_type = get_class($content_type);

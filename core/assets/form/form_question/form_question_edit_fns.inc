@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.6 2006/12/06 00:35:26 emcdonald Exp $
+* $Id: form_question_edit_fns.inc,v 1.7 2007/11/06 06:12:58 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,11 +83,11 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		$rules = $asset->getRules();
 
 		for (reset($rules); NULL !== ($k = key($rules)); next($rules)) {
-			$rule =& $rules[$k];
+			$rule = $rules[$k];
 			// let the rule paint itself here!!
 			$type_code = 'form_question_rule_type_'.$rule['rule_code'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$rule_asset =& new $type_code();
+			$rule_asset = new $type_code();
 			$edit_fns = $rule_asset->getEditFns();
 
 			$o->openSection($desc[$type_code]);
@@ -158,12 +158,12 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 		// modify what's left
 		for (reset($rules); NULL !== ($k = key($rules)); next($rules)) {
-			$rule =& $rules[$k];
+			$rule = $rules[$k];
 			$rule_prefix = $prefix.'_rule_'.$k;
 			// let the rule paint itself here!!
 			$type_code = 'form_question_rule_type_'.$rule['rule_code'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$rule_asset =& new $type_code();
+			$rule_asset = new $type_code();
 			$edit_fns = $rule_asset->getEditFns();
 
 			$edit_fns->processRule($rule_asset, $o, $prefix.'_rule_'.$k, $rule);
@@ -253,7 +253,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintLockMessage(&$asset, &$o, $prefix)
 	{
-		$section_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_formid);
+		$section_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_formid);
 
 		$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($section_asset->id, 'attributes', TRUE);
 		$lock  = $locks['attributes'];
@@ -270,8 +270,8 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 		} else {
 			// this asset is currently locked so display message to the user
-			$user    =& $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-			$editing =& $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
+			$user    = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+			$editing = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
 
 			if (SQ_ROLLBACK_VIEW) {
 				$now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);

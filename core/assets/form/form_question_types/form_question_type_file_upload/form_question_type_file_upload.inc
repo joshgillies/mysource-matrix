@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.18 2007/10/29 23:41:57 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.19 2007/11/06 06:12:58 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -151,7 +151,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 		if ($this->attr('overwrite_rule') == 'D') {
 			// we want to throw an error if a file with this name already exists, so see if one does
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = $GLOBALS['SQ_SYSTEM']->db;
 
 			// Check that we are not going to have web path conflicts
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -227,7 +227,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 	function getSummary()
 	{
 		if (!isset($this->_tmp['summary'])) {
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = $GLOBALS['SQ_SYSTEM']->db;
 
 			// Check that we are not going to have web path conflicts
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -247,7 +247,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 			$existing_file = $db->getOne($sql);
 			assert_valid_db_result($existing_file);
 			if (!is_null($existing_file)) {
-				$existing_file_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
+				$existing_file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
 				$info = $existing_file_asset->getExistingFile();
 				$this->_tmp['summary'] = $this->getValue().', '.easy_filesize($info['size']);
 			} else {
@@ -283,13 +283,13 @@ class Form_Question_Type_File_Upload extends Form_Question
 	function saveValue()
 	{
 		$create_loc = $this->attr('create_location');
-		$create_loc_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
+		$create_loc_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
 		if (is_null($create_loc_asset) || !isset($this->_tmp['file_info']['name'])) {
 			// we shouldn't get to this point if there is no create loc or no file was uploaded
 			return;
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		// Check that we are not going to have web path conflicts
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -349,7 +349,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 		if ($existing_file) {
 
 			// update the existing file asset
-			$file_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
+			$file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
 			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($file_asset->id, 'attributes');
 			$edit_fns = $file_asset->getEditFns();
 			if (!$edit_fns->processFileUpload($file_asset, $o, $file_asset->getPrefix(), $this->_tmp['file_info'])) {
@@ -400,7 +400,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($new_asset_type);
 
 
-			$file_asset =& new $new_asset_type();
+			$file_asset = new $new_asset_type();
 
 
 			$file_asset->_tmp['uploading_file'] = TRUE;
@@ -434,10 +434,10 @@ class Form_Question_Type_File_Upload extends Form_Question
 	function getUploadedFileId()
 	{
 		$create_loc = $this->attr('create_location');
-		$create_loc_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
+		$create_loc_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
 		if (is_null($create_loc_asset)) return NULL;
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		// Check that we are not going to have web path conflicts
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_names = make_valid_web_paths(Array($this->getValue()));

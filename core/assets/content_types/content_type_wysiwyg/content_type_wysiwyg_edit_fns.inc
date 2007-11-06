@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.40 2007/10/25 23:19:39 rong Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.41 2007/11/06 06:10:33 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,7 +64,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 		if (empty($this->_tmp['wysiwg_object'])) {
 
-			$wysiwyg =& new WYSIWYG($prefix, sq_web_path('fudge').'/wysiwyg/');
+			$wysiwyg = new WYSIWYG($prefix, sq_web_path('fudge').'/wysiwyg/');
 
 			$wysiwyg_style = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_WYSIWYG_STYLE');
 			$wysiwyg->set_body_type($wysiwyg_style['body_type']);
@@ -92,7 +92,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$wysiwyg->add_absolute_url_check('\./\?(a=[0-9]+)', 'http://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?$1');
 
 			// get the keyword replacements
-			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$keywords = Array();
 			$keyword_vars = Array('keywords' => &$keywords);
 
@@ -127,7 +127,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			}
 			if (($iap || in_array('keyword_replace', $ap)) && !empty($keywords)) {
 				$wysiwyg->add_plugin('keyword_replace');
-				$keyword_replace =& $wysiwyg->get_plugin('keyword_replace');
+				$keyword_replace = $wysiwyg->get_plugin('keyword_replace');
 				$keyword_replace->keyword_tag = '%';
 				$keyword_replace->keywords = $keywords;
 			}
@@ -136,7 +136,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords();
 			if (($iap || in_array('snippet_keyword_replace', $ap)) && !empty($snippets)) {
 				$wysiwyg->add_plugin('snippet_keyword_replace');
-				$snippet_keyword_replace =& $wysiwyg->get_plugin('snippet_keyword_replace');
+				$snippet_keyword_replace = $wysiwyg->get_plugin('snippet_keyword_replace');
 				$snippet_keyword_replace->keyword_tag = '%';
 				$snippet_keyword_replace->keywords = $snippets;
 			}
@@ -259,7 +259,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	function paintBackend(&$asset, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			$wysiwyg =& $this->_createEditor($asset, $prefix);
+			$wysiwyg = $this->_createEditor($asset, $prefix);
 			?>
 			<div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint(); ?></div>
 			<div id="<?php echo $prefix?>_contents_div" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $wysiwyg->contents ?></div>
@@ -363,13 +363,13 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 
-		$wysiwyg =& $this->_createEditor($asset, $prefix);
+		$wysiwyg = $this->_createEditor($asset, $prefix);
 		$html = $wysiwyg->process();
 		if ($html === FALSE) return FALSE;
 
 		// grab and store the last run status of htmltidy plugin
 		// to be used when we print the corresponding status icon
-		$html_tidy =& $wysiwyg->get_plugin('html_tidy');
+		$html_tidy = $wysiwyg->get_plugin('html_tidy');
 		$asset->setAttrValue('htmltidy_status', $html_tidy->htmltidy_status);
 		return $asset->setAttrValue('html', $html);
 

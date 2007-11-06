@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.51 2007/03/08 22:56:34 arailean Exp $
+* $Id: image_edit_fns.inc,v 1.52 2007/11/06 06:11:39 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -294,7 +294,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$varieties = $asset->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['data'] as $varid => $data) {
-				$variety =& $asset->getAsset($asset->id.':'.$varid);
+				$variety = $asset->getAsset($asset->id.':'.$varid);
 				if (is_null($variety)) continue;
 				$edit_fns = $variety->getEditFns();
 
@@ -344,7 +344,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$varieties = $asset->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['data'] as $varid => $data) {
-				$variety =& $asset->getAsset($asset->id.':'.$varid);
+				$variety = $asset->getAsset($asset->id.':'.$varid);
 				if (is_null($variety)) continue;
 				$edit_fns = $variety->getEditFns();
 				if ($edit_fns->processInlineInterface($variety, $o, $prefix.'_'.$variety->id)) {
@@ -377,7 +377,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$wa = $asset->writeAccess('attributes');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
-		$variety =& new Image_Variety($asset->id.':v0');
+		$variety = new Image_Variety($asset->id.':v0');
 
 		$edit_fns = $variety->getEditFns();
 
@@ -408,7 +408,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 			return TRUE;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
-		$variety =& new Image_Variety($asset->id.':v0');
+		$variety = new Image_Variety($asset->id.':v0');
 
 		$edit_fns = $variety->getEditFns();
 		if (!$edit_fns->processInlineInterface($variety, $o, $prefix.'_new')) {
@@ -579,7 +579,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$varieties = $asset->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['data'] as $varid => $data) {
-				$variety =& $asset->getAsset($asset->id.':'.$varid);
+				$variety = $asset->getAsset($asset->id.':'.$varid);
 				if (is_null($variety)) continue;
 				$asset->saveVariety($variety, TRUE, FALSE);
 			}// end foreach

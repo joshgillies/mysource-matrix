@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.55 2007/10/25 23:23:17 rong Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.56 2007/11/06 06:06:46 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -398,7 +398,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				}
 				if (in_array($assetid, $existing_links)) continue;
 
-				$ereg_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$ereg_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($ereg_asset)) continue;
 
 				if (strpos($ereg_asset->id, ':') !== FALSE) {
@@ -451,7 +451,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	function _contentsUpdated(&$asset)
 	{
 		if (is_null($asset)) return FALSE;
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		return $em->broadcastEvent($asset, 'contentsUpdated', Array());
 
 	}//end _contentsUpdated()
@@ -467,12 +467,12 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _saveCssIds(&$o)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		$url = $GLOBALS['sq_preview_url'];
 		$url = preg_replace('|^http[s]?://|', '', $url);
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT value
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
@@ -492,7 +492,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		if ($designid) {
 			if (!SQ_IN_LIMBO) {
-				$design =& $am->getAsset($designid);
+				$design = $am->getAsset($designid);
 				$stylesheets = $design->getStylesheets();
 
 				// save the ids of all the css files into a global var so the wysiwyg style
@@ -529,7 +529,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintBodycopyContainer(&$asset, &$o, $prefix)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		// if there's a preview url set for this asset, get the design info for
 		// it.
@@ -758,7 +758,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$container_types = $am->getAssetTypeHierarchy('bodycopy_container');
 		foreach ($container_types as $type => $type_data) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
-			$type_asset =& new $type();
+			$type_asset = new $type();
 			$edit_fns = $type_asset->getEditFns();
 			$edit_fns->paintGenericBackend($asset, $o, $prefix);
 		}
@@ -845,7 +845,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		// unserialize the data for a bodycopy.
 		for (reset($bc_saved); NULL !== ($k = key($bc_saved)); next($bc_saved)) {
-			$containers =& $bc_saved[$k];
+			$containers = $bc_saved[$k];
 			for (reset($containers); NULL !== ($containersid = key($containers)); next($containers)) {
 				$containers[$containersid] = var_unserialise($containers[$containersid]);
 			}

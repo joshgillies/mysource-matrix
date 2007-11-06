@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.40 2007/05/23 02:13:21 hnguyen Exp $
+* $Id: bodycopy.inc,v 1.41 2007/11/06 06:06:08 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -250,25 +250,25 @@ class Bodycopy extends Asset
 		// But For the sake of the upgrading, check for existing file in the bodycopy data dir.
 
 		if (file_exists($this->data_path.'/.content_file.php') && $this->useSystemVersion()) {
-	        // create an array of urls that the content file is
-	        // going to try and use to work out file urls, link hrefs etc
-	        $sq_asset_url_list = Array();
+			// create an array of urls that the content file is
+			// going to try and use to work out file urls, link hrefs etc
+			$sq_asset_url_list = Array();
 
-	        $notice_links = unserialize(file_to_string($this->data_path.'/.notice_links'));
+			$notice_links = unserialize(file_to_string($this->data_path.'/.notice_links'));
 
-	        $sq_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($notice_links));
-	        for (reset($sq_asset_url_list); NULL !== ($minorid = key($sq_asset_url_list)); next($sq_asset_url_list)) {
-	                if ($sq_asset_url_list[$minorid] == '') {
-	                        $sq_asset_url_list[$minorid] = './?a='.$minorid;
-	                }
-	        }
-	        ob_start();
-	                include($this->data_path.'/.content_file.php');
-	                $content = ob_get_contents();
-	        ob_end_clean();
-	        replace_keywords($content, $this->keyword_replacements);
+			$sq_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($notice_links));
+			for (reset($sq_asset_url_list); NULL !== ($minorid = key($sq_asset_url_list)); next($sq_asset_url_list)) {
+				if ($sq_asset_url_list[$minorid] == '') {
+					$sq_asset_url_list[$minorid] = './?a='.$minorid;
+				}
+			}
+			ob_start();
+				include($this->data_path.'/.content_file.php');
+				$content = ob_get_contents();
+			ob_end_clean();
+			replace_keywords($content, $this->keyword_replacements);
 
-	        echo $content;
+			echo $content;
 
 		} else {
 			// get all the containers linked to this bodycopy

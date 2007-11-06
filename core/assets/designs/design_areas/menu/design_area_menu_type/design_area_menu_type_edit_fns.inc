@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.50 2007/03/01 00:48:26 hnguyen Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.51 2007/11/06 06:11:39 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -203,7 +203,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	function _processSubMenu(&$asset, &$contents, $design_area)
 	{
 		// let's see if we already have a sub menu
-		$sub =& $asset->getSubMenu();
+		$sub = $asset->getSubMenu();
 		// nup ? create one now
 		if (is_null($sub)) {
 
@@ -213,7 +213,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 			if (empty($design_links)) return FALSE;
 			$designs = Array();
 			foreach ($design_links as $design_link) {
-				$design_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($design_link['majorid']);
+				$design_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($design_link['majorid']);
 				if (!is_null($design_asset)) {
 					$designs[] = $design_asset;
 				}
@@ -222,7 +222,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 			if (is_null($designs)) return FALSE;
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
-			$sub =& new $design_area();
+			$sub = new $design_area();
 
 			$sub->setAttrValue('id_name', $asset->attr('id_name').'__sub_menu');
 			$sub->setAttrValue('contents', $contents);

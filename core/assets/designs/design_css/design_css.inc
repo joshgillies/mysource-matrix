@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.33 2007/03/20 02:33:13 rong Exp $
+* $Id: design_css.inc,v 1.34 2007/11/06 06:11:39 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -183,11 +183,11 @@ class Design_Css extends Design
 		// special processing if we are creating a TYPE_2 linked file (inherited by customisations)
 		if (is_a($minor, 'file')) {
 
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$am = $GLOBALS['SQ_SYSTEM']->am;
 
 			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', TRUE, 'major', 'customisation');
 			foreach ($customisation_links as $link) {
-				$customisation =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+				$customisation = $am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 
 				$file_link_ids = Array();
@@ -245,8 +245,8 @@ class Design_Css extends Design
 			return FALSE;
 		}
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$minor =& $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$minor = $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -256,7 +256,7 @@ class Design_Css extends Design
 
 			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', TRUE, 'major', 'customisation');
 			foreach ($customisation_links as $link) {
-				$customisation =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+				$customisation = $am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 
 				$file_link_ids = Array();
@@ -314,8 +314,8 @@ class Design_Css extends Design
 			return FALSE;
 		}
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$minor =& $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$minor = $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -428,11 +428,11 @@ echo '/*
 		// we've gotta update the static cache to reflect that this has changed.
 		if ($regen && !$this->_tmp['updated_cache']) {
 			$this->_updateCacheFile();
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$am = $GLOBALS['SQ_SYSTEM']->am;
 			$customisation_links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', TRUE, 'major', 'customisation');
 
 			foreach ($customisation_links as $link) {
-				$customisation =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+				$customisation = $am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 				$customisation->_updateCacheFile();
 			}// end foreach
@@ -471,9 +471,9 @@ echo '/*
 	function _updateCustomisations()
 	{
 		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', TRUE, 'major', 'customisation');
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		foreach ($customisation_links as $link) {
-			$customisation =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+			$customisation = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($customisation)) continue;
 			if ($acquired = $GLOBALS['SQ_SYSTEM']->am->acquireLock($customisation->id, 'all')) {
 				$customisation->updateFromParent($this);
@@ -494,7 +494,7 @@ echo '/*
 	*/
 	function _updateCacheFile()
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		// Generate the CSS static file. Note that we've turned error_reporting off for this
 		// because design_file.php does a whole bunch of define()ing that can cause problems
@@ -510,7 +510,7 @@ echo '/*
 		if (empty($cache_link)) {
 			$cache_asset = $this->_createCacheFile();
 		} else {
-			$cache_asset =& $am->getAsset($cache_link['minorid']);
+			$cache_asset = $am->getAsset($cache_link['minorid']);
 		}
 		if ($cache_asset == NULL) return FALSE;
 
@@ -521,7 +521,7 @@ echo '/*
 		$existing = $cache_asset->getExistingFile();
 		string_to_file($file_contents, $existing['path']);
 
-		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		$file_status = $fv->upToDate($cache_asset->data_path.'/'.$cache_asset->_getName());
 		if (FUDGE_FV_MODIFIED & $file_status) {
 			if (!$fv->commit($cache_asset->data_path.'/'.$cache_asset->_getName())) {
@@ -543,7 +543,7 @@ echo '/*
 	*/
 	function getCacheFileId()
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$cache_link = $am->getLink($this->id, SQ_LINK_TYPE_3, 'file', true, 'css_cache');
 		if (empty($cache_link)) return 0;
 		return $cache_link['minorid'];
@@ -579,7 +579,7 @@ echo '/*
 		$temp_info = Array('name' => $filename, 'tmp_name' => $tmp_file, 'non_uploaded_file' => TRUE);
 
 		require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
-		$new_file =& new File();
+		$new_file = new File();
 		$new_file->_tmp['uploading_file'] = TRUE;
 		$new_file->setAttrValue('name', $filename);
 		$new_file->setAttrValue('allow_unrestricted', FALSE);
@@ -655,7 +655,7 @@ echo '/*
 		// work out where the design file is
 		if (SQ_ROLLBACK_VIEW) {
 			// get an older version of our design file
-			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			$rep_file = $this->data_path_suffix.'/design_file.php';
 			$then = iso8601_ts($_SESSION['sq_rollback_view']['rollback_time']);
 			$info = $fv->_checkOutCheck($rep_file, NULL, $then);
@@ -669,7 +669,7 @@ echo '/*
 			// use the template file of parent design_css asset
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'design_css', FALSE);
 			foreach ($parents as $id => $type) {
-				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+				$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 				if ($parent) {
 					$file_path = $parent->data_path.'/design_file.php';
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
@@ -721,14 +721,14 @@ echo '/*
 		if (empty($cache_id)) {
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id);
 			if (empty($parents)) return;
-			$cache_file =& $this->_createCacheFile();
+			$cache_file = $this->_createCacheFile();
 			$cache_id = $cache_file->id;
 		}
 
 		$cache_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($cache_id);
 		if (empty($cache_url) == $enabled) {
 			// it either has a url but shouldn't or doesn't have a url but should
-			$cache_file =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cache_id);
+			$cache_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($cache_id);
 			$paths = $enabled ? Array($cache_file->name) : Array();
 			$cache_file->saveWebPaths($paths);
 			$cache_file->setAttrValue('allow_unrestricted', $enabled);

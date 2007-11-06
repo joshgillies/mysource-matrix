@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div.inc,v 1.18 2007/06/19 06:59:57 rong Exp $
+* $Id: bodycopy_div.inc,v 1.19 2007/11/06 06:08:41 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,7 +80,7 @@ class Bodycopy_Div extends Bodycopy_Container
 			$content_type = $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DEFAULT_CONTENT_TYPE');
 		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($content_type);
-		$wysiwyg =& new $content_type();
+		$wysiwyg = new $content_type();
 		$div_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'div_contents', 'sort_order' => 1, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$wysiwyg->setAttrValue('name', 'DIV Content');
 		if (isset($bc_data['content']) && (trim($bc_data['content'] != ''))) {
@@ -147,13 +147,13 @@ class Bodycopy_Div extends Bodycopy_Container
 			unset($this->_tmp['content_type']);
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'content_type', FALSE, 'div_contents', 'major', TRUE);
 			if (!empty($link)) {
-				$this->_tmp['content_type'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+				$this->_tmp['content_type'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($this->_tmp['content_type'])) {
 					echo translate('content_type_not_found', $link['minorid']);
 				}
 			} else {
 				$null = NULL;
-				$this->_tmp['content_type'] =& $null;
+				$this->_tmp['content_type'] = $null;
 			}
 		}
 		return $this->_tmp['content_type'];

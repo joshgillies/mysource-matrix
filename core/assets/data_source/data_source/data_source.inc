@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.18 2007/10/23 01:14:39 bshkara Exp $
+* $Id: data_source.inc,v 1.19 2007/11/06 06:10:33 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ register_implementation('data_source', 'bridge');
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -140,7 +140,7 @@ class Data_Source extends Asset
 	*/
 	function getCachedResultSet($cache_key='')
 	{
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$result = $cm->loadFromCache($this->id, $this->type(), $cache_key, FALSE);
 
 		// empty string means that the result was not serialised
@@ -181,7 +181,7 @@ class Data_Source extends Asset
 	*/
 	function cacheResultSet($result, $cache_key='')
 	{
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$r = $cm->saveToCache($this->id, $this->type(), $cache_key, serialize($result), FALSE);
 
 	}//end cacheResultSet()
@@ -267,7 +267,7 @@ class Data_Source extends Asset
 	{
 		$info = Array();
 		foreach ($assetids as $assetid) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$keywords = $asset->getAvailableKeywords();
 			// if a sort field is specified then return only that field value else return all of the fields
 			if (!empty($field)) {
@@ -523,8 +523,8 @@ class Data_Source extends Asset
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
 	{
 		if (!($link_types & SQ_LINK_TYPE_1)) {
-            return Array();
-        }
+			return Array();
+		}
 
 		if (!is_array($type_code)) {
 			if (empty($type_code)) {
@@ -637,7 +637,7 @@ class Data_Source extends Asset
 				$record['shadow_asset_name'] = $this->attr('shadow_name');
 				$record['shadow_asset_id'] = $shadowid;
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('data_source_record_set');
-				$asset =& new Data_Source_Record_Set($this->id, $record);
+				$asset = new Data_Source_Record_Set($this->id, $record);
 			}
 		} else {
 			return $asset;

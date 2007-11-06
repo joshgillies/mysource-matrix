@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.29 2007/01/23 03:54:11 rong Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.30 2007/11/06 06:08:41 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -183,7 +183,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				if ($container_data['minor_type_code'] != 'bodycopy_table') {
 					continue;
 				}
-				$table =& $GLOBALS['SQ_SYSTEM']->am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+				$table = $GLOBALS['SQ_SYSTEM']->am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 				$table_edit = $table->getEditFns();
 				$table_edit->paintBackendJsData($table, $prefix, $i);
 				$i++;
@@ -265,7 +265,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			if ($val == '') continue;
 			if ($name == 'disable_keywords') continue;
 			if ($name == 'background') {
-				$file =& $GLOBALS['SQ_SYSTEM']->am->getAsset($val);
+				$file = $GLOBALS['SQ_SYSTEM']->am->getAsset($val);
 				if ($file->id) $bgimage = $file->getURL();
 				continue;
 			}
@@ -330,7 +330,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				$val = $table_attributes[$name];
 				if ($val == '') continue;
 				if ($name == 'background') {
-					$file =& $GLOBALS['SQ_SYSTEM']->am->getAsset($val);
+					$file = $GLOBALS['SQ_SYSTEM']->am->getAsset($val);
 					if ($file->id) {
 						$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $file->attr('name')).'"';
 					}
@@ -848,7 +848,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		// create the cells and set their properties to
 		// the properties of the cells above/below
 		for ($i = 0; $i < count($rows[$compareid]['cells']); $i++) {
-			$rows[$rowid]['cells'][$i] =& new Bodycopy_Table_Cell();
+			$rows[$rowid]['cells'][$i] = new Bodycopy_Table_Cell();
 			foreach ($rows[$compareid]['cells'][$i]->attributes as $name => $val) {
 				$rows[$rowid]['cells'][$i]->setAttribute($name,$val);
 			}
@@ -1151,7 +1151,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		if ($cellid <= $compareid) $compareid++;
 
 		// now add the cell
-		$rows[$rowid]['cells'][$cellid] =& new BodyCopy_Table_Cell();
+		$rows[$rowid]['cells'][$cellid] = new BodyCopy_Table_Cell();
 
 		// now that the cell exists, set its properties to
 		// the properties of the cell to the left/right

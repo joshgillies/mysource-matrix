@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.19 2007/05/16 06:33:01 rhoward Exp $
+* $Id: form_question.inc,v 1.20 2007/11/06 06:12:58 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -100,7 +100,7 @@ class Form_Question extends Asset
 		if (!$formid || empty($data)) {
 			return;
 		}
-		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($formid);
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($formid);
 
 		if (is_null($form)) return;
 		$this->_formid = $formid;
@@ -178,7 +178,7 @@ class Form_Question extends Asset
 		if (!$this->id) return TRUE;
 		if (empty($this->_tmp['vars_set'])) return TRUE;
 
-		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 
 		if (!$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] && !$form->writeAccess('attributes')) {
 			trigger_localised_error('CORE0121', E_USER_WARNING, $this->name, $this->id);
@@ -188,7 +188,7 @@ class Form_Question extends Asset
 		$save_vars = Array();
 		$attr_ids  = Array();
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		// prepare for the save
 		$saved_vars = $this->vars;
@@ -271,7 +271,7 @@ class Form_Question extends Asset
 		// We should not be running our _updated() because we don't have anything in the asset table
 		// to update... but we should run our form/section's update, if only to increment the version
 		if (SQ_IN_BACKEND) {
-			$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+			$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 			return $form->_updated($update_parents);
 		}
 
@@ -439,7 +439,7 @@ class Form_Question extends Asset
 		$asset = NULL;
 		if (empty($this->_formid)) return $asset;
 
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 		return $asset;
 
 	}//end getMySection()
@@ -454,7 +454,7 @@ class Form_Question extends Asset
 	function getMySectionName()
 	{
 		if (!$this->section_name) {
-			$section =& $this->getMySection();
+			$section = $this->getMySection();
 			$this->section_name = $section->name;
 		}
 		return $this->section_name;
@@ -480,7 +480,7 @@ class Form_Question extends Asset
 			$type_code = 'form_question_rule_type_'.$rule['rule_code'];
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$rule_asset =& new $type_code();
+			$rule_asset = new $type_code();
 			$code .= $rule_asset->generateJSCode($this, $rule);
 			$code .= "\n";
 		}
@@ -660,7 +660,7 @@ class Form_Question extends Asset
 			$type_code = 'form_question_rule_type_'.$rule['rule_code'];
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$rule_asset =& new $type_code();
+			$rule_asset = new $type_code();
 			$rule_ok = $rule_asset->evaluate($answer, $rule, $this);
 
 			if (!$rule_ok) {
@@ -729,7 +729,7 @@ class Form_Question extends Asset
 				foreach ($keywords as $keyword) {
 					if (preg_match('|^current_user_|', $keyword)) {
 						$user_keyword = preg_replace('|^current_user_|', 'asset_', $keyword);
-						$user =& $GLOBALS['SQ_SYSTEM']->user;
+						$user = $GLOBALS['SQ_SYSTEM']->user;
 
 						// If we are the public user, this should be empty
 						if ($GLOBALS['SQ_SYSTEM']->userPublic()) {
@@ -822,7 +822,7 @@ class Form_Question extends Asset
 	*/
 	function readAccess($assetids=Array())
 	{
-		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 		if (is_null($form)) return FALSE;
 
 		return $form->readAccess($assetids);
@@ -844,7 +844,7 @@ class Form_Question extends Asset
 	*/
 	function writeAccess($lock_type='', $assetids=Array())
 	{
-		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 		if (is_null($form)) return FALSE;
 
 		return $form->writeAccess($lock_type, $assetids);
@@ -866,7 +866,7 @@ class Form_Question extends Asset
 	*/
 	function adminAccess($lock_type='', $assetids=Array())
 	{
-		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 		if (is_null($form)) return FALSE;
 
 		return $form->adminAccess($lock_type, $assetids);
@@ -914,7 +914,7 @@ class Form_Question extends Asset
 	*/
 	function checkAccess($perm, $lock_type, $assetids=Array())
 	{
-		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 		if (is_null($form)) return FALSE;
 
 		return $form->checkAccess($perm, $lock_type, $assetids);
@@ -935,7 +935,7 @@ class Form_Question extends Asset
 	*/
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
-		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 		if (is_null($form)) return FALSE;
 
 		return $form->_checkPermissionAccess($perm, $assetids);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars.inc,v 1.19 2006/12/05 22:42:12 emcdonald Exp $
+* $Id: design_area_declared_vars.inc,v 1.20 2007/11/06 06:11:39 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,7 +83,7 @@ class Design_Area_Declared_Vars extends Design_Area
 				trigger_localised_error('CORE0146', E_USER_WARNING, $type, $name);
 				continue;
 			}
-			$attrs[$name] =& new $attr_class(0, $data['value']);
+			$attrs[$name] = new $attr_class(0, $data['value']);
 			$attrs[$name]->name = $name;
 		}
 
