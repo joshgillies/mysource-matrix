@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.101 2007/01/12 04:53:26 rhoward Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.102 2007/11/06 23:50:08 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -51,8 +51,8 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 	function Asset_Manager_Edit_Fns(&$am, &$backend)
 	{
 		$this->MySource_Object();
-		$this->am =& $am;
-		$this->backend =& $backend;
+		$this->am = $am;
+		$this->backend = $backend;
 
 	}//end constructor
 
@@ -65,7 +65,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 	*/
 	function paintBackend()
 	{
-		$o =& $this->backend->out;
+		$o = $this->backend->out;
 
 		if (!isset($_REQUEST['am_section'])) {
 			if (isset($_GET['sq_from_frontend'])) {
@@ -84,7 +84,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 			case 'add_asset' :
 
-				$parent =& $this->am->getAsset($_REQUEST['parent_assetid']);
+				$parent = $this->am->getAsset($_REQUEST['parent_assetid']);
 				if (is_null($parent)) {
 					trigger_localised_error('SYS0200', E_USER_WARNING, $_REQUEST['parent_assetid']);
 					break;
@@ -102,7 +102,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 				$o->addFormActionGetVar('link_type',      $_REQUEST['link_type']);
 
 				$this->am->includeAsset($_REQUEST['type_code']);
-				$asset =& new $_REQUEST['type_code']();
+				$asset = new $_REQUEST['type_code']();
 
 				// if the form has been submitted then, process it
 				if (!empty($_REQUEST['process_form']) && !empty($_REQUEST['am_form_submitted'])) {
@@ -138,15 +138,15 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			case 'edit_asset' :
 			case 'limbo'      :
 
-				$asset =& $this->am->getAsset($_REQUEST['assetid']);
+				$asset = $this->am->getAsset($_REQUEST['assetid']);
 				if (is_null($asset)) {
 					trigger_localised_error('SYS0195', E_USER_WARNING, $_REQUEST['assetid']);
 					return;
 				}
 				if (SQ_IN_LIMBO) {
-					$limbo_asset =& $this->am->getAsset($_REQUEST['limbo_assetid']);
+					$limbo_asset = $this->am->getAsset($_REQUEST['limbo_assetid']);
 					// if the limbo asset is invalid, just use the current asset
-					if (is_null($limbo_asset)) $limbo_asset =& $asset;
+					if (is_null($limbo_asset)) $limbo_asset = $asset;
 					$o->addFormActionGetVar('limbo_assetid', $limbo_asset->id, TRUE);
 				}
 
@@ -161,7 +161,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 					// try to acquire a lock on this asset?
 					if (!empty($_POST['sq_lock_acquire']) && !empty($_POST['sq_lock_type'])) {
-						$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+						$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 						$vars = Array(
 									'assetids'			=> Array($asset->id,),
 									'lock_type'			=> $_POST['sq_lock_type'],
@@ -203,7 +203,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 					// the backend of the asset has been processed so lets see if we have any HIPO
 					// jobs that need to be run
-					$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+					$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 					$url = $hh->runQueuedJobs();
 					if (!empty($url)) $o->setRedirect($url);
 				}//end if process form and form submission
@@ -237,11 +237,11 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 	*/
 	function _forceablyAcquireLock()
 	{
-		$o =& $this->backend->out;
+		$o = $this->backend->out;
 
 		if (isset($_GET['forceably_acquire_confirm'])) {
 			// they have confirmed their intention to forceably acquire the lock on this asset
-			$asset =& $this->am->getAsset($_GET['assetid']);
+			$asset = $this->am->getAsset($_GET['assetid']);
 			if (is_null($asset)) {
 				trigger_localised_error('SYS0086', E_USER_WARNING, $_GET['assetid']);
 				return;
@@ -264,7 +264,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o->addFormActionGetVar('sq_lock_type', $_GET['sq_lock_type']);
 		$o->addFormActionGetVar('forceably_acquire_confirm', '1');
 		$o->addFormActionGetVar('ignore_frames', '1');
-		$asset =& $this->am->getAsset($_GET['assetid']);
+		$asset = $this->am->getAsset($_GET['assetid']);
 		if (is_null($asset)) {
 			trigger_localised_error('SYS0086', E_USER_WARNING, $_GET['assetid']);
 			return;
@@ -328,8 +328,8 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 					// this asset is currently locked
 					// so display message to the user
-					$user    =& $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-					$editing =& $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
+					$user    = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+					$editing = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
 
 					if (SQ_ROLLBACK_VIEW) {
 						$now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
@@ -361,7 +361,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					} else {
 						echo '<ul>';
 						foreach ($lock['chained_assets'] as $chained_info) {
-							$chained_asset =& $this->am->getAsset($chained_info['assetid']);
+							$chained_asset = $this->am->getAsset($chained_info['assetid']);
 							if (is_null($chained_asset)) {
 								trigger_localised_error('SYS0086', E_USER_WARNING, $chained_info['assetid']);
 								continue;
@@ -397,10 +397,10 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 	*/
 	function _printAssetTypeList()
 	{
-		$o =& $this->backend->out;
+		$o = $this->backend->out;
 
 		$o->setHeading('Asset Types', sq_get_icon($o->filesPath('/images/icons/header/asset_tree.png'), 20, 20, 'Asset Tree'));
-        $o->setPageTitle('Asset Types');
+		$o->setPageTitle('Asset Types');
 
 		$o->addHiddenField('am_action');
 		$o->addHiddenField('am_new_type_code');
@@ -459,7 +459,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 	*/
 	function _recursePrintAssetList(&$offspring, $parent)
 	{
-		$o =& $this->backend->out;
+		$o = $this->backend->out;
 
 		?>
 		<table cellpadding="0" cellspacing="0" border="0">
