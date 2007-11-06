@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.43 2007/04/05 04:00:47 mbrydon Exp $
+* $Id: datetime_field.inc,v 1.44 2007/11/06 22:37:42 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -170,8 +170,8 @@ class DateTime_Field
 	*/
 	function printField()
 	{
-		$show =& $this->getParam('show');
-		$null =& $this->getParam('null');
+		$show = $this->getParam('show');
+		$null = $this->getParam('null');
 		if (!is_array($show)) $show = Array();
 		if (!is_array($null)) $null = Array();
 		?>
@@ -237,9 +237,9 @@ class DateTime_Field
 	*/
 	function inputBox($u, $prefix, &$value, $allow_null=FALSE)
 	{
-		$input_style =& $this->getParam('style');
-		$extras =& $this->getParam('extras');
-		$increments =& $this->getParam('increment');
+		$input_style = $this->getParam('style');
+		$extras = $this->getParam('extras');
+		$increments = $this->getParam('increment');
 		$min_array = $this->getParam('min');
 		$max_array = $this->getParam('max');
 
@@ -546,7 +546,7 @@ class DateTime_Field
 				} else if (preg_match("/^[0-9]+$/", $value)) { // Timestamp?
 					$value = date('Y-m-d H:i:s', $value);
 				} else {
-					$show =& $this->getParam('show');
+					$show = $this->getParam('show');
 					// Okay lets try to parse this thing.
 					$v = Array('y'=>-1,'m'=>-1,'d'=>-1,'h'=>-1,'i'=>-1,'s'=>-1);
 					// Dates
@@ -846,7 +846,7 @@ class DateTime_Field
 				'style'		=> $this->getParam('style'),
 			 );
 		$p['style']['y'] = 't';
-		$d =& new DateTime_Field($this->prefix.'_min', $this->getParam('min'), $p);
+		$d = new DateTime_Field($this->prefix.'_min', $this->getParam('min'), $p);
 		$d->printField();
 
 	}//end printMinField()
@@ -867,7 +867,7 @@ class DateTime_Field
 				'increment'	=> Array(),
 				'style'		=> $this->getParam('style'),
 			 );
-		$d =& new DateTime_Field($this->prefix.'_min', $this->getParam('min'), $p);
+		$d = new DateTime_Field($this->prefix.'_min', $this->getParam('min'), $p);
 		$d->processField();
 
 	}//end processMinField()
@@ -889,7 +889,7 @@ class DateTime_Field
 				'style'		=> $this->getParam('style'),
 			 );
 		$p['style']['y'] = 't';
-		$d =& new DateTime_Field($this->prefix.'_max', $this->getParam('max'), $p);
+		$d = new DateTime_Field($this->prefix.'_max', $this->getParam('max'), $p);
 		$d->printField();
 
 	}//end printMaxField()
@@ -910,7 +910,7 @@ class DateTime_Field
 				'increment'	=> Array(),
 				'style'		=> $this->getParam('style'),
 			 );
-		$d =& new DateTime_Field($this->prefix.'_max', $this->getParam('max'), $p);
+		$d = new DateTime_Field($this->prefix.'_max', $this->getParam('max'), $p);
 		$d->processField();
 
 	}//end processMaxField()
@@ -929,11 +929,11 @@ class DateTime_Field
 		if (empty($show)) $show = Array('s','n','c','t'); // default set of fields to show
 
 		$us = Array('d'=>'Day','m'=>'Month','y'=>'Year','h'=>'Hour','i'=>'Min.','s'=>'Sec.');
-		$s =& $this->getParam('show');
-		$n =& $this->getParam('null');
-		$y =& $this->getParam('style');
-		$c =& $this->getParam('allow_circa');
-		$t =& $this->getParam('standard');
+		$s = $this->getParam('show');
+		$n = $this->getParam('null');
+		$y = $this->getParam('style');
+		$c = $this->getParam('allow_circa');
+		$t = $this->getParam('standard');
 		?>
 
 		<table cellspacing="0" cellpadding="2" border="1">

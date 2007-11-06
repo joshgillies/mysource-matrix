@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.40 2006/12/05 05:42:29 bcaldwell Exp $
+* $Id: datetime.inc,v 1.41 2007/11/06 22:37:41 rong Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -218,7 +218,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		if (!empty($this->_params['print_format'])) {
 			$this->_edit_params['print_format'] = $this->_params['print_format'];
 		}
-		$field =& new Datetime_Field($prefix, $date_field_value, $this->_edit_params);
+		$field = new Datetime_Field($prefix, $date_field_value, $this->_edit_params);
 
 		if ($using_single_date) {
 			if ($read_only) {
@@ -253,7 +253,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 							// print the JS calendar popup date selecta
 							require_once SQ_LIB_PATH.'/js_calendar/js_calendar.inc';
 
-							$calendar =& new JS_Calendar();
+							$calendar = new JS_Calendar();
 							$calendar->changeSetting('onDayClick', 'datetime_set_date');
 							$calendar->paint($prefix, $prefix.'_cal_picker', TRUE);
 						}
@@ -279,7 +279,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 				// print the JS calendar popup date selecta
 				require_once SQ_LIB_PATH.'/js_calendar/js_calendar.inc';
 
-				$calendar =& new JS_Calendar();
+				$calendar = new JS_Calendar();
 				$calendar->changeSetting('onDayClick', 'datetime_set_date');
 				$calendar->paint(str_replace(':', '_', $prefix), '', TRUE);
 			}
@@ -311,7 +311,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 				$field_value = '---------- --:--:--';
 			}
 
-			$field =& new Datetime_Field($prefix, $field_value, $this->_edit_params);
+			$field = new Datetime_Field($prefix, $field_value, $this->_edit_params);
 			if ($field->processField()) {
 				if ($this->value != $field_value && $this->setValue($field_value)) {
 					$this->processed = TRUE;
@@ -370,7 +370,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			$date_field_value = date('Y-m-d h:i:s', strtotime($period_age.$period_num.' '.$period_options[$period_type]));
 		}
 
-		$field =& new Datetime_Field('blah', $date_field_value, $this->_edit_params);
+		$field = new Datetime_Field('blah', $date_field_value, $this->_edit_params);
 		$units = $field->strToUnitsArray($date_field_value);
 		foreach (Array('y', 'm', 'd') as $u) {
 			if ($units[$u] == -1) return -1;
@@ -438,7 +438,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 		if (is_iso8601($value)) {
 			$ref = '';
-			$field =& new Datetime_Field('blah', $ref, $this->_edit_params);
+			$field = new Datetime_Field('blah', $ref, $this->_edit_params);
 			$value = $field->validateValue($value);
 		} else {
 			if (!empty($value) && !preg_match('|[\-\+][0-9]+['.implode('', array_keys($this->_getPeriodOptions())).']|', $value)) {

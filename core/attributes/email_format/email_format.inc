@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.36 2007/05/23 01:49:03 rhoward Exp $
+* $Id: email_format.inc,v 1.37 2007/11/06 22:37:41 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -127,7 +127,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				<th><?php echo translate('to'); ?></th>
 				<td>
 					<?php
-					$ol =& new Asset_Attribute_Option_List();
+					$ol = new Asset_Attribute_Option_List();
 					$ol->value = implode("\r\n", $current_value['to']);
 					$ol->setEditParam('width', '50');
 					$ol->paint($prefix.'_to_emails', $read_only);
@@ -267,11 +267,11 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		$value = Array();
 
-		$wysiwyg =& $this->_createEditor($prefix);
+		$wysiwyg = $this->_createEditor($prefix);
 		$value['html_format'] = $wysiwyg->process();;
 		$value['text_format'] = (isset($_REQUEST[$prefix.'_text_body'])) ? $_REQUEST[$prefix.'_text_body'] : '';
 
-		$ol =& new Asset_Attribute_Option_List();
+		$ol = new Asset_Attribute_Option_List();
 		$ol->process($prefix.'_to_emails');
 		$value['to'] = explode("\r\n", $ol->value);
 
@@ -364,14 +364,14 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$assetid_emails = Array();
 		if (isset($current_value['to_assetids']) && !empty($current_value['to_assetids'])) {
 			foreach ($current_value['to_assetids'] as $assetid) {
-				$addressee =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$addressee = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 				if (is_null($addressee)) continue;
 
 				if ($addressee->type() == 'user_group') {
 					$user_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($addressee->id, SQ_LINK_TYPE_1, 'user', FALSE);
 					foreach ($user_links as $user_link) {
-						$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($user_link['minorid']);
+						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_link['minorid']);
 						$assetid_emails[] = $user->attr('email');
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 					}
@@ -386,7 +386,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$attachments = Array();
 		if (isset($current_value['inc_attachments']) && $current_value['inc_attachments'] && isset($current_value['attachments']) && !empty($current_value['attachments'])) {
 			foreach ($current_value['attachments'] as $file_asset_id) {
-				$file_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($file_asset_id);
+				$file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($file_asset_id);
 				$file_info = $file_asset->getExistingFile();
 				$attachments[] = $file_info['path'];
 			}
@@ -426,7 +426,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		// new line is \n
 		$crlf = "\n";
-		$mime =& new Mail_mime($crlf);
+		$mime = new Mail_mime($crlf);
 
 		$from_addr = preg_replace('|.*\<(.*)\>|', '\\1', $from);
 
