@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.69 2006/12/06 04:24:00 emcdonald Exp $
+* $Id: cron_manager.inc,v 1.70 2007/11/06 22:36:35 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -264,7 +264,7 @@ class Cron_Manager extends Asset
 	*/
 	function addJob(&$job, &$user, $link_type=SQ_LINK_TYPE_3, $read_only=FALSE)
 	{
-		if (!is_a($job, 'cron_job')) {
+		if (!($job instanceof Cron_Job)) {
 			trigger_localised_error('CRON0001', E_USER_WARNING, $job->type());
 			return FALSE;
 		}
@@ -293,7 +293,7 @@ class Cron_Manager extends Asset
 	*/
 	function removeJob(&$job)
 	{
-		if (!is_a($job, 'cron_job')) {
+		if (!($job instanceof Cron_Job)) {
 			trigger_localised_error('CRON0001', E_USER_WARNING, $job->type());
 			return FALSE;
 		}
