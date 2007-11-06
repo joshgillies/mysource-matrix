@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.178 2007/10/30 05:56:30 lwright Exp $
+* $Id: general.inc,v 1.179 2007/11/06 00:30:39 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.178 $
+* @version $Revision: 1.179 $
 * @package MySource_Matrix
 */
 
@@ -83,11 +83,11 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 		if (count($bt) > 1) {
 			$real_bt_index = 0;
-			while (($real_bt_index < count($bt)-1) && ((FALSE !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (FALSE !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == 'sq_error_handler'))) {
+			while (($real_bt_index < count($bt)-1) && ((FALSE !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (FALSE !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) )) {
 				$real_bt_index++;
 			}
-			$err_file = hide_system_root($bt[$real_bt_index]['file']);
-			$err_line = $bt[$real_bt_index]['line'];
+			$err_file = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?  hide_system_root($bt['0']['args']['2']) : hide_system_root($bt[$real_bt_index]['file']);
+			$err_line = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?  hide_system_root($bt['0']['args']['3']) : hide_system_root($bt[$real_bt_index]['line']);
 			$err_msg  = hide_system_root($err_msg);
 		}
 
