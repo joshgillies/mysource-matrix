@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.152 2007/06/08 01:48:50 hnguyen Exp $
+* $Id: backend_outputter.inc,v 1.153 2007/11/06 23:21:07 rong Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.152 $
+* @version $Revision: 1.153 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -63,7 +63,7 @@ class Backend_Outputter
 	var $_anchor  = '';
 
 	// the page heading
-    var $_page_title = '';
+	var $_page_title = '';
 	var $_heading  = '';
 	var $_heading_icon = '';
 	var $_sub_heading = '';
@@ -161,7 +161,7 @@ class Backend_Outputter
 		$this->_action = $_SERVER['PHP_SELF'];
 
 		// register that we want to listen to link update events
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 
 		$em->addEventListener($this, Array(
 										'CreateLink',
@@ -295,11 +295,11 @@ class Backend_Outputter
 	 * @return void
 	 * @access private
 	 */
-    function setPageTitle($title)
-    {
-      $this->_page_title = trim($title);
+	function setPageTitle($title)
+	{
+	  $this->_page_title = trim($title);
 
-    }//end setPageTitle()
+	}//end setPageTitle()
 
 
 	/**
@@ -1012,8 +1012,8 @@ class Backend_Outputter
 					if (count($this->_messages)) {
 						require_once 'XML/Tree.php';
 						require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-						$msgs =& new XML_Tree();
-						$msgs_root =& $msgs->addRoot('messages');
+						$msgs = new XML_Tree();
+						$msgs_root = $msgs->addRoot('messages');
 						foreach ($this->_messages as $data) {
 							$msg_body = '<p>'.htmlentities(nl2br($data['msg'])).'</p>';
 							$msg_body .= '<span style="color: #333333">'.$GLOBALS['SQ_SYSTEM']->datetime().'<span>';
@@ -1214,7 +1214,7 @@ class Backend_Outputter
 								if (!isset($_SESSION['sq_nav_history'][$i])) continue;
 								$nav_details = $_SESSION['sq_nav_history'][$i];
 
-								$nav_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($nav_details['assetid'], '', TRUE);
+								$nav_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($nav_details['assetid'], '', TRUE);
 								if (is_null($nav_asset)) {
 									array_splice($_SESSION['sq_nav_history'], $i, 1);
 									continue;
@@ -1309,7 +1309,7 @@ class Backend_Outputter
 					break;
 
 					case 'field' :
-						$field =& $section['areas'][$j];
+						$field = $section['areas'][$j];
 						switch ($field['format']) {
 							case 'new_line' :
 								?>
