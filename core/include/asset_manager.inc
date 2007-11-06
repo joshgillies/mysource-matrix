@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.587 2007/11/05 23:52:31 bshkara Exp $
+* $Id: asset_manager.inc,v 1.588 2007/11/06 22:32:34 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.587 $
+* @version $Revision: 1.588 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1494,10 +1494,13 @@ class Asset_Manager extends MySource_Object
 
 		try {
 			$result_x = DAL::executeSqlGroupedAssoc($sql);
+
 			$result = Array();
 			foreach	($result_x as $key => $row) {
-				$result[$key] = $row[0];
+				// if we are only after a single field
+				$result[$key] = (empty($field)) ? $row[0] : $row[0][$field];
 			}
+
 			unset($result_x);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get asset info due to database error: '.$e->getMessage());
@@ -1736,7 +1739,7 @@ class Asset_Manager extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		try {
-		    $bind_vars = Array(
+			$bind_vars = Array(
 							'assetid'			=> $assetid,
 							'version'			=> $initial_version,
 							'type_code'			=> $source->type(),
