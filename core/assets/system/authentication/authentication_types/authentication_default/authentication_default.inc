@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.15 2006/12/06 04:23:57 emcdonald Exp $
+* $Id: authentication_default.inc,v 1.16 2007/11/06 05:51:39 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,27 +56,35 @@ class Authentication_Default extends Authentication
 	*/
 	function &locateUser($username)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = DAL::getDb();
+		try {
 
-		$sql   = 'SELECT a.assetid, a.type_code
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a, sq_ast_attr at, '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_uniq_val auv';
-		$where = 'a.type_code IN (
-								SELECT type_code
-								FROM sq_ast_typ_inhd
-								WHERE inhd_type_code = '.$db->quote('user').'
-								)
-				  AND at.name           = '.$db->quote('username').'
-				  AND auv.assetid       = a.assetid
-				  AND at.attrid         = auv.owning_attrid
-				  AND auv.custom_val    = '.$db->quote($username);
+			$sql   = 'SELECT a.assetid, a.type_code
+					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a, sq_ast_attr at, '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_uniq_val auv';
+			$where = 'a.type_code IN (
+									SELECT type_code
+									FROM sq_ast_typ_inhd
+									WHERE inhd_type_code = '.$db->quote('user').'
+									)
+					  AND at.name           = '.$db->quote('username').'
+					  AND auv.assetid       = a.assetid
+					  AND at.attrid         = auv.owning_attrid
+					  AND auv.custom_val    = :username';
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
 
-		$result = $db->getRow($sql.$where);
-		assert_valid_db_result($result);
+			$query = $db->prepare($sql.$where);
+			$query->bindValue(':username', $username);
+			$results = DAL::executePdoAll($query);
+			$result = (!empty($results)) ? $results['0'] : Array();
 
-		if ($result['assetid']) {
+		} catch (Exception $e) {
+			throw new Exception('Unable to get user authentication information due to database error: '.$e->getMessage());
+		}
+
+
+		if (isset($result['assetid']) && !empty($result['assetid'])) {
 			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
 
 			if (is_null($user)) {
