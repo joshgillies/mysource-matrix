@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.24 2007/07/17 01:14:26 lwright Exp $
+* $Id: log_manager.inc,v 1.25 2007/11/06 22:36:45 rong Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -280,7 +280,7 @@ class Log_Manager extends Asset
 	{
 		include_once 'log_iterator.inc';
 		// start up the generate report HIPO
-		$iterator =& new Log_Iterator($logname, $rotation_index);
+		$iterator = new Log_Iterator($logname, $rotation_index);
 		return $iterator;
 
 	}//end getLogIterator()

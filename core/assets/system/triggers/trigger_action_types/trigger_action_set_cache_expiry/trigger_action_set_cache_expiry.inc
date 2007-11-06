@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_cache_expiry.inc,v 1.3 2006/12/06 00:04:01 bcaldwell Exp $
+* $Id: trigger_action_set_cache_expiry.inc,v 1.4 2007/11/06 22:36:46 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action_types/trigger
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,7 +69,7 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 			if (empty($state['assetid'])) {
 				return FALSE;
 			} else {
-				$state['asset'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
@@ -77,16 +77,16 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 		if (!$use_alternative) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = $GLOBALS['SQ_SYSTEM']->db;
 		} else {
 			// connect to alternative cache db dsn is a little bit different
-			$db =& Trigger_Action_Set_Cache_Expiry::_connectAltDSN($alt_dsn);
+			$db = Trigger_Action_Set_Cache_Expiry::_connectAltDSN($alt_dsn);
 			if (is_null($db)) return FALSE;
 			// initialise the transaction
 			// see mysource.inc::doTransaction for more info
 			if (!isset($GLOBALS['SQ_SYSTEM']->tm) || get_class($GLOBALS['SQ_SYSTEM']->tm) != 'transaction_manager') {
 				require_once SQ_INCLUDE_PATH.'/transaction_manager.inc';
-				$GLOBALS['SQ_SYSTEM']->tm =& new Transaction_Manager();
+				$GLOBALS['SQ_SYSTEM']->tm = new Transaction_Manager();
 			}
 			$GLOBALS['SQ_SYSTEM']->tm->begin($db);
 		}

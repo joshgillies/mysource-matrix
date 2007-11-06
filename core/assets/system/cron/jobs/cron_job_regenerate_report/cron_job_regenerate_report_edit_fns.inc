@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_regenerate_report_edit_fns.inc,v 1.3 2007/03/27 00:52:50 rong Exp $
+* $Id: cron_job_regenerate_report_edit_fns.inc,v 1.4 2007/11/06 22:36:45 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,7 +63,7 @@ class Cron_Job_Regenerate_Report_Edit_Fns extends Cron_Job_Edit_Fns
 	{
 		if ($asset->writeAccess('')) {
 			// paint the start time using a one off job's edit fns
-			$cron_job =& new Cron_Job();
+			$cron_job = new Cron_Job();
 			$edit_fns = $cron_job->getEditFns();
 			echo translate('cron_job_regenerate_report_at');
 			$edit_fns->_paintWhenBox($cron_job, $o, $prefix);
@@ -90,7 +90,7 @@ class Cron_Job_Regenerate_Report_Edit_Fns extends Cron_Job_Edit_Fns
 	*/
 	function processInLineBackend(&$asset, &$o, $prefix)
 	{
-		$cron_job =& new Cron_Job();
+		$cron_job = new Cron_Job();
 		$edit_fns = $cron_job->getEditFns();
 
 		$when_oo = $edit_fns->_processWhenBox($cron_job, $o, $prefix);
@@ -120,7 +120,7 @@ class Cron_Job_Regenerate_Report_Edit_Fns extends Cron_Job_Edit_Fns
 			// work out the period/duration start time (one off job code reuse)
 			// mute warning as we are only using this bit to working out the start time
 			if (!@$cron_job->setAttrValue('when', $when_oo)) {
-				$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+				$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 				trigger_localised_error('CRON0048', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), easy_datetime($cron_mgr->timeOfNextRun()));
 				return FALSE;
 			}

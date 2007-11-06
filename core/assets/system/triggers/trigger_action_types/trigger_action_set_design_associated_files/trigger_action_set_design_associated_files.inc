@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design_associated_files.inc,v 1.2 2006/12/06 00:02:01 bcaldwell Exp $
+* $Id: trigger_action_set_design_associated_files.inc,v 1.3 2007/11/06 22:36:46 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,13 +65,13 @@ class Trigger_Action_Set_Design_Associated_Files extends Trigger_Action
 			if (empty($state['assetid'])) {
 				return FALSE;
 			} else {
-				$state['asset'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
 		if (is_null($state['asset'])) return FALSE;
 
-		$asset =& $state['asset'];
+		$asset = $state['asset'];
 		$edit_fns = $asset->getEditFns();
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -84,7 +84,7 @@ class Trigger_Action_Set_Design_Associated_Files extends Trigger_Action
 			|| preg_match('/\\.tar$/', $settings['file_path']) ) {
 
 			require_once 'Archive/Tar.php';
-			$tar_ball =& new Archive_Tar($settings['file_path']);
+			$tar_ball = new Archive_Tar($settings['file_path']);
 			if (($contents = $tar_ball->listContent()) != 0) {
 
 				// Basically we want to make sure that all the files in the

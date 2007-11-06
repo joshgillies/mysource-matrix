@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.34 2007/08/09 06:23:26 lwright Exp $
+* $Id: user_edit_fns.inc,v 1.35 2007/11/06 22:36:47 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -320,7 +320,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	function paintRoles(&$asset, &$o, $prefix)
 	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
-		$user_group =& new User_Group();
+		$user_group = new User_Group();
 		$user_group_edit_fns = $user_group->getEditFns();
 
 		return $user_group_edit_fns->paintRoles($asset, $o, $prefix);
@@ -341,7 +341,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	function processRoles(&$asset, &$o, $prefix)
 	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
-		$user_group =& new User_Group();
+		$user_group = new User_Group();
 		$user_group_edit_fns = $user_group->getEditFns();
 
 		return $user_group_edit_fns->processRoles($asset, $o, $prefix);

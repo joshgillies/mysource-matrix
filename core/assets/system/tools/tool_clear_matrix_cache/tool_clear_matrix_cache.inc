@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_matrix_cache.inc,v 1.3 2007/08/27 04:33:23 lwright Exp $
+* $Id: tool_clear_matrix_cache.inc,v 1.4 2007/11/06 22:36:45 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Tool to clear Matrix cache, and to schedule a clear cache cron job
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,7 @@ class Tool_Clear_Matrix_Cache extends Tool
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 
 		// caching is not enabled
-		$cache_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cache_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		if (!$cache_manager->attr('enabled')) {
 			$o->openSection($tool_info['name']);
 			$o->openField('Note');
@@ -129,7 +129,7 @@ class Tool_Clear_Matrix_Cache extends Tool
 		// scheduled jobs section
 		$o->openSection(translate('matrix_cache_schedule_section'));
 
-		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('Cron_Job_Clear_Matrix_Cache');
 		$purge_jobs = Cron_Job_Clear_Matrix_Cache::getActiveJobs();
 
@@ -175,7 +175,7 @@ class Tool_Clear_Matrix_Cache extends Tool
 			// prints the interface for adding a new one-off job
 			$o->openField(translate('matrix_cache_one_off_field'), 'new_line');
 				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-				$new_job =& new Cron_Job_Clear_Matrix_Cache();
+				$new_job = new Cron_Job_Clear_Matrix_Cache();
 				$edit_fns = $new_job->getEditFns();
 				$edit_fns->paintInLineBackend($new_job, $o, $type_code.'_one_off');
 				echo '&nbsp;<br /><br />';
@@ -183,7 +183,7 @@ class Tool_Clear_Matrix_Cache extends Tool
 
 			// prints the interface for adding a new repeating job
 			$o->openField(translate('matrix_cache_repeating_field'), 'new_line');
-				$new_job =& new Cron_Job_Clear_Matrix_Cache();
+				$new_job = new Cron_Job_Clear_Matrix_Cache();
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$new_job->setAttrValue('type', 'repeating');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -217,10 +217,10 @@ class Tool_Clear_Matrix_Cache extends Tool
 	*/
 	function processTool(&$o, $type_code)
 	{
-		$cache_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cache_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		if (!$cache_manager->attr('enabled')) return;
 
-		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('Cron_Job_Clear_Matrix_Cache');
 
 		// remove cron jobs
@@ -262,7 +262,7 @@ class Tool_Clear_Matrix_Cache extends Tool
 			if ($repopulate) $run_now = TRUE;
 
 			// one off
-			$new_job =& new Cron_Job_Clear_Matrix_Cache();
+			$new_job = new Cron_Job_Clear_Matrix_Cache();
 			$edit_fns = $new_job->getEditFns();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$new_job->setAttrValue('ownerid', $assetid);
@@ -275,7 +275,7 @@ class Tool_Clear_Matrix_Cache extends Tool
 			}
 
 			// repeating
-			$new_job =& new Cron_Job_Clear_Matrix_Cache();
+			$new_job = new Cron_Job_Clear_Matrix_Cache();
 			$edit_fns = $new_job->getEditFns();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$new_job->setAttrValue('type', 'repeating');
@@ -290,7 +290,7 @@ class Tool_Clear_Matrix_Cache extends Tool
 
 			// run HIPO job if the 'clear now' box is checked
 			if ($run_now) {
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$vars = Array(
 							'assetid'		=> $assetid,
 							'level'			=> $level,

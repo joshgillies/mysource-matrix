@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.116 2007/11/01 06:09:55 bshkara Exp $
+* $Id: design_edit_fns.inc,v 1.117 2007/11/06 22:36:45 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.117 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -87,7 +87,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$changes     = FALSE;
 		$new_version = FALSE;
 
-		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		// delete existing parse file if it exists
 		if (is_file($parse_file)) {
@@ -199,7 +199,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		if (SQ_ROLLBACK_VIEW) {
 			// get an older version of the parse file
-			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			$rep_file = $asset->data_path_suffix.'/parse.txt';
 			$then = iso8601_ts($_SESSION['sq_rollback_view']['rollback_time']);
 			$info = @$fv->_checkOutCheck($rep_file, NULL, $then);
@@ -244,7 +244,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			if (!is_file($parse_file)) return FALSE;
 
-			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 			// delete existing parse file
 			if (!unlink($parse_file)) {
@@ -337,7 +337,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				|| preg_match('/\\.tar$/', $info['name']) ) {
 
 				require_once 'Archive/Tar.php';
-				$tar_ball =& new Archive_Tar($info['tmp_name']);
+				$tar_ball = new Archive_Tar($info['tmp_name']);
 				if (($contents = $tar_ball->listContent()) != 0) {
 
 					// Basically we want to make sure that all the files in the
@@ -458,7 +458,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			}//end switch
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($new_asset_type);
-			$new_file =& new $new_asset_type();
+			$new_file = new $new_asset_type();
 			$new_file->_tmp['uploading_file'] = TRUE;
 			$new_file->setAttrValue('name', $info['name']);
 			$design_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'is_dependant' => 1);
@@ -468,7 +468,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		} else {
 
 			// we already have a design file with the same name, so just upload over the top of it
-			$new_file =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_fileid);
+			$new_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_fileid);
 
 			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($new_file->id, 'attributes');
 			$edit_fns = $new_file->getEditFns();
@@ -536,7 +536,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// increase run level to allow setting of components without cloning permissions from parents
 		if ($asset->writeAccess('all')) {
 			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
-			$clone =& $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions', 'roles'), FALSE);
+			$clone = $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions', 'roles'), FALSE);
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
 
@@ -572,12 +572,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			return FALSE;
 		}
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		// Now create the links to our design areas
 		$da_links = $asset->getDesignAreaLink();
 		foreach ($da_links as $link) {
-			$da =& $am->getAsset($link['minorid'], $link['minor_type_code'], TRUE);
+			$da = $am->getAsset($link['minorid'], $link['minor_type_code'], TRUE);
 			if (is_null($da)) continue;
 			if (!$clone->createLink($da, SQ_LINK_TYPE_3, $link['value'], NULL, '1')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -601,7 +601,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$file_link_ids = Array();
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', FALSE);
 		foreach ($file_links as $link) {
-			$minor =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+			$minor = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
 				trigger_localised_error('CORE0162', E_USER_WARNING);
 				$am->forgetAsset($minor);
@@ -616,7 +616,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$css_link_ids = Array();
 		$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'design_css', FALSE);
 		foreach ($css_links as $link) {
-			$minor =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+			$minor = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
 				trigger_localised_error('CORE0161', E_USER_WARNING);
 				$am->forgetAsset($minor);
@@ -656,9 +656,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_customisation', TRUE, 'major', 'customisation');
 		if ($customisation_links) {
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$am = $GLOBALS['SQ_SYSTEM']->am;
 			foreach ($customisation_links as $link) {
-				$customisation =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+				$customisation = $am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 				echo get_asset_tag_line($customisation->id, 'details').'<br/>';
 			}
@@ -807,7 +807,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// and check if they are the same type as the one in the contents
 		foreach ($id_names as $id_name => $design_area) {
 
-			$da =& $asset->getDesignArea($id_name);
+			$da = $asset->getDesignArea($id_name);
 
 			// if it's a different type, then convert them
 			if (!is_null($da) && $da->type() !== $design_area) {
@@ -824,7 +824,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// if it doesn't exist, create it, and acquire the lock
 			if (is_null($da)) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
-				$da =& new $design_area();
+				$da = new $design_area();
 				$da_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_3, 'value' => $id_name, 'is_dependant' => '1');
 				$da->setAttrValue('id_name', $id_name);
 				if (!$da->create($da_link)) {
@@ -839,7 +839,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				}
 			}
 
-			$design_areas[$id_name] =& $da;
+			$design_areas[$id_name] = $da;
 
 		}//end foreach
 
@@ -943,7 +943,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$temp_info = Array('name' => $filename, 'tmp_name' => $import_dir.'/'.$filename, 'non_uploaded_file' => TRUE);
 
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
-				$new_file =& new File();
+				$new_file = new File();
 				$new_file->_tmp['uploading_file'] = TRUE;
 				$new_file->setAttrValue('name', $filename);
 
@@ -956,7 +956,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		$selected_asset = $_POST[$prefix.'_import_asset']['assetid'];
 		if ($selected_asset != '0') {
-			$file =& $GLOBALS['SQ_SYSTEM']->am->getAsset($selected_asset);
+			$file = $GLOBALS['SQ_SYSTEM']->am->getAsset($selected_asset);
 			$asset->createLink($file, SQ_LINK_TYPE_1, 'export_file');
 		}
 
@@ -1022,7 +1022,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$files_to_copy = Array();
 				foreach ($links as $link_data) {
 					if ($link_data['value'] == 'export_file') continue;
-					$child_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+					$child_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 					$current_file_info = $child_asset->getExistingFile();
 					$files_to_copy[$current_file_info['filename']] = $current_file_info['path'];
 				}
@@ -1034,7 +1034,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 				require_once 'Archive/Tar.php';
 
-				$tar_object =& new Archive_Tar($files_dir.'/associated_files.tar.gz', TRUE);
+				$tar_object = new Archive_Tar($files_dir.'/associated_files.tar.gz', TRUE);
 				$tar_object->createModify($archive_files, '', $files_dir);
 
 				foreach ($archive_files as $remove) {
@@ -1054,7 +1054,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$archive_files[] = $files_dir.'/parse.html';
 				$archive_files[] = $files_dir.'/associated_files.tar.gz';
 
-				$tar_object =& new Archive_Tar($files_dir.'/'.$new_file_name, TRUE);
+				$tar_object = new Archive_Tar($files_dir.'/'.$new_file_name, TRUE);
 				$tar_object->createModify($archive_files, '', $files_dir);
 
 				$temp_path = $files_dir.'/'.$new_file_name;
@@ -1063,7 +1063,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
 
-				$new_file =& new File();
+				$new_file = new File();
 				$new_file->_tmp['uploading_file'] = TRUE;
 				$new_file->setAttrValue('name', $new_file_name);
 				$design_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'export_file', 'sort_order' => 1, 'is_dependant' => 1);
@@ -1163,11 +1163,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		$file_to_apply = $_POST[$prefix.'_apply'];
 		if ($file_to_apply == '') return TRUE;
-		$file =& $GLOBALS['SQ_SYSTEM']->am->getAsset($file_to_apply);
+		$file = $GLOBALS['SQ_SYSTEM']->am->getAsset($file_to_apply);
 		$file_info = $file->getExistingFile();
 
 		require_once 'Archive/Tar.php';
-		$tar_ball =& new Archive_Tar($file_info['path']);
+		$tar_ball = new Archive_Tar($file_info['path']);
 
 		if (($contents = $tar_ball->listContent()) != 0) {
 			// Tar ball is fine.
@@ -1210,7 +1210,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$changes     = FALSE;
 			$new_version = FALSE;
 
-			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 			// delete existing parse file if it exists
 			if (is_file($current_parse_file)) {
@@ -1244,11 +1244,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 				// Remove Current Links
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, '');
-				$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+				$trash_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 				foreach ($links as $data) {
 					if ($data['value'] != 'export_file') {
 						// Move it to trash
-						$trashed =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data['minorid']);
+						$trashed = $GLOBALS['SQ_SYSTEM']->am->getAsset($data['minorid']);
 						$trashed->saveWebPaths(Array());
 						$GLOBALS['SQ_SYSTEM']->am->trashAsset($trashed->id);
 					}
@@ -1265,7 +1265,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 					// Got associated files, now get them linked up
 					create_directory($files_dir.'/extracted/');
 					require_once 'Archive/Tar.php';
-					$nested_tar_ball =& new Archive_Tar($files_dir.'/associated_files.tar.gz');
+					$nested_tar_ball = new Archive_Tar($files_dir.'/associated_files.tar.gz');
 
 					$nested_tar_ball->extract($files_dir.'/extracted/');
 					$assoc_files = list_files($files_dir.'/extracted/', TRUE);

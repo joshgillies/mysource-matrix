@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_management.inc,v 1.10 2007/01/18 02:51:30 rong Exp $
+* $Id: design_css_management.inc,v 1.11 2007/11/06 22:36:45 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,7 +79,7 @@ class Design_Css_Management extends Asset_Management
 			// As of v0.3 all
 			$css_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design_css');
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('design_css');
-			$asset =& new Design_CSS();
+			$asset = new Design_CSS();
 			foreach ($css_assetids as $assetid) {
 				$asset->load($assetid);
 				$cache_id = $asset->getCacheFileId();

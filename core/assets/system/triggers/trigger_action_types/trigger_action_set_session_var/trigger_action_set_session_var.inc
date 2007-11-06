@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_session_var.inc,v 1.1 2007/06/22 06:52:40 arailean Exp $
+* $Id: trigger_action_set_session_var.inc,v 1.2 2007/11/06 22:36:46 rong Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * </PRE>
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,7 +74,7 @@ class Trigger_Action_Set_Session_Var extends Trigger_Action
 
 		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
 		if ($new_prefix) {
-			$atr_parameter_map =& new Asset_Attribute_Parameter_Map();
+			$atr_parameter_map = new Asset_Attribute_Parameter_Map();
 			$atr_parameter_map->process($new_prefix.'_parameter_map');
 			$settings['value_map'] = $atr_parameter_map->value;
 		}
@@ -111,7 +111,7 @@ class Trigger_Action_Set_Session_Var extends Trigger_Action
 
 
 		$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
-		$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 		$param_map_value = $atr_parameter_map->getParameterValue('value');
 
 
@@ -168,7 +168,7 @@ class Trigger_Action_Set_Session_Var extends Trigger_Action
 			hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 			$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
-			$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+			$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 
 			$atr_parameter_map->setParameter('value', 'Value');
 			echo $atr_parameter_map->paint($new_prefix.'_parameter_map');

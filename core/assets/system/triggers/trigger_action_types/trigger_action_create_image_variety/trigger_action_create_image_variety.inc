@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_image_variety.inc,v 1.13 2006/12/06 00:07:40 bcaldwell Exp $
+* $Id: trigger_action_create_image_variety.inc,v 1.14 2007/11/06 22:36:46 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,7 +54,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 	*/
 	function execute($settings, &$state)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
@@ -70,7 +70,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
 
-		$variety =& new Image_Variety();
+		$variety = new Image_Variety();
 		$variety->setAttrValue('variety_type', 'resize');
 
 		// set & check settings, state
@@ -194,7 +194,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
 
-		$variety =& new Image_Variety();
+		$variety = new Image_Variety();
 		$variety->setAttrValue('variety_type', 'resize');
 
 		// name

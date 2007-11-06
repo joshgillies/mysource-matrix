@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_file_asset.inc,v 1.6 2007/09/25 05:12:14 nbhradwaj Exp $
+* $Id: trigger_action_create_file_asset.inc,v 1.7 2007/11/06 22:36:46 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,7 +75,7 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 		if (!empty($settings['attributes'])) {
 			$attributes = $settings['attributes'];
 		}
-		$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['parentid']);
+		$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['parentid']);
 		if (is_null($parent)) return FALSE;
 
 		// check the optional settings, assign defaults
@@ -101,7 +101,7 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 
 		$type_code = $settings['type_code'];
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-		$new_asset =& new $type_code();
+		$new_asset = new $type_code();
 		$new_asset->_tmp['uploading_file'] = TRUE;
 
 		// set the attributes for the newly created asset

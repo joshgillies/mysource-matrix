@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.15 2007/05/21 02:14:32 skim Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.16 2007/11/06 22:36:46 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 			if (empty($state['assetid'])) {
 				return FALSE;
 			} else {
-				$state['asset'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
@@ -69,7 +69,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 
 
 		$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
-		$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 		$param_map_value = $atr_parameter_map->getParameterValue('attribute_value');
 
 
@@ -83,7 +83,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 
 		// handle serialised attributes
 		if (is_scalar($value)) {
-			$attr =& $state['asset']->getAttribute($settings['attribute']);
+			$attr = $state['asset']->getAttribute($settings['attribute']);
 			if (is_null($attr)) return FALSE;
 
 			switch (get_class($attr)) {
@@ -224,7 +224,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 			hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 			$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
-			$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+			$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 
 			$atr_parameter_map->setParameter('attribute_value', 'Attribute Value');
 			echo $atr_parameter_map->paint($new_prefix.'_parameter_map');
@@ -270,8 +270,8 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 
 		if (!empty($settings['attribute']) && !empty($settings['asset_type'])) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($settings['asset_type']);
-			$dummy_asset =& new $settings['asset_type'];
-			$attr =& $dummy_asset->getAttribute($settings['attribute']);
+			$dummy_asset = new $settings['asset_type'];
+			$attr = $dummy_asset->getAttribute($settings['attribute']);
 			if (is_null($attr)) {
 				// selected asset type does not have an attribute with the selected name, so reset
 				$settings['attribute'] = '';
@@ -279,7 +279,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 
 			$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
 			if ($new_prefix) {
-				$atr_parameter_map =& new Asset_Attribute_Parameter_Map();
+				$atr_parameter_map = new Asset_Attribute_Parameter_Map();
 				$atr_parameter_map->process($new_prefix.'_parameter_map');
 				$settings['value_map'] = $atr_parameter_map->value;
 			}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_tag.inc,v 1.4 2007/06/19 04:31:35 rong Exp $
+* $Id: trigger_action_set_tag.inc,v 1.5 2007/11/06 22:36:47 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,7 +74,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 		$tagid = 0;
 		// see if the tag id is set in the parameter map
 		$value_map = array_get_index($settings, 'value_map', serialize(Array()));
-		$param_map_attr =& new Asset_Attribute_Parameter_Map(0, $value_map);
+		$param_map_attr = new Asset_Attribute_Parameter_Map(0, $value_map);
 		$param_map_value = $param_map_attr->getParameterValue('tag_id');
 		if (!empty($param_map_value)) {
 			$tmp_ids = explode(',', $param_map_value);
@@ -95,7 +95,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 			} else {
 				// use the thesaurusid / term_name combo instead
 				if (!empty($settings['thesaurusid'])) {
-					$thesaurus =& $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['thesaurusid']);
+					$thesaurus = $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['thesaurusid']);
 					if (!is_null($thesaurus)) {
 						$termid = $thesaurus->getTermIdByName($settings['term_name']);
 						if (!empty($termid)) {
@@ -124,7 +124,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 		}
 
 
-		$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
+		$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
 
 		$tag_vars = Array();
 
@@ -168,7 +168,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 		}
 
 		if (!empty($tag_vars)) {
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array(
 						'assets'		=> Array(
 											$state['asset']->id	=> Array(
@@ -266,7 +266,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 					echo '<br />';
 				} else {
 					if ($tagid) {
-						$tag =& $GLOBALS['SQ_SYSTEM']->am->getAsset($tagid);
+						$tag = $GLOBALS['SQ_SYSTEM']->am->getAsset($tagid);
 						if (!is_null($tag)) {
 							echo '<b>'.$tag->name.' (#'.$tag->id.')</b>';
 						}
@@ -332,7 +332,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 				$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
 				hidden_field($prefix.'[new_prefix]', $new_prefix);
 				$param_map_value = array_get_index($settings, 'value_map', serialize(Array()));
-				$param_map_attr =& new Asset_Attribute_Parameter_Map(0, $param_map_value);
+				$param_map_attr = new Asset_Attribute_Parameter_Map(0, $param_map_value);
 				$param_map_attr->setParameter('tag_id', 'Tag ID');
 				echo $param_map_attr->paint($new_prefix.'_parameter_map');
 			}
@@ -374,7 +374,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 		// parameter map to accept dynamic value
 		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
 		if ($new_prefix) {
-			$param_map_attr =& new Asset_Attribute_Parameter_Map();
+			$param_map_attr = new Asset_Attribute_Parameter_Map();
 			$param_map_attr->process($new_prefix.'_parameter_map');
 			$settings['value_map'] = $param_map_attr->value;
 		}

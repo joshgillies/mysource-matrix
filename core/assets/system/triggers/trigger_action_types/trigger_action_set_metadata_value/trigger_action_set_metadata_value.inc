@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.13 2007/02/14 05:41:12 emcdonald Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.14 2007/11/06 22:36:46 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,7 +52,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 	*/
 	function execute($settings, &$state)
 	{
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		// check required settings
 		if (empty($settings['fieldid'])) return FALSE;
@@ -63,7 +63,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 
 
 		$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
-		$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 		$param_map_value = $atr_parameter_map->getParameterValue('metadata_value');
 
 		// settings contains the 'fallback' static value.
@@ -87,7 +87,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		if (!$success) return FALSE;
 
 		// get the asset
-		$asset =& $state['asset'];
+		$asset = $state['asset'];
 
 		// get the current metadata values
 		$metadata = $mm->getMetadata($asset->id);
@@ -155,7 +155,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			if ($write_access && $metadata_fieldid) {
 				echo '<br>Set the value for this field<br>';
 				// set the field name
-				$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_fieldid);
+				$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_fieldid);
 				$edit_fns = $metadata_field->getEditFns();
 				$edit_fns->paintValueInterface($metadata_field, $GLOBALS['SQ_SYSTEM']->backend->out, $metadata_field_value, TRUE);
 				hidden_field($prefix.'[form_printed]', 1);
@@ -165,7 +165,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 				hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 				$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
-				$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+				$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 
 				$atr_parameter_map->setParameter('metadata_value', 'Metadata Field Value');
 				echo $atr_parameter_map->paint($new_prefix.'_parameter_map');
@@ -202,7 +202,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		if ($fieldid) {
 			$settings['fieldid'] = $fieldid;
 
-			$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
+			$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
 
 			// Can we edit the destination field? If we can't then what's the point;
 			// we can't even change it through a trigger
@@ -223,7 +223,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 
 			$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
 			if ($new_prefix) {
-				$atr_parameter_map =& new Asset_Attribute_Parameter_Map();
+				$atr_parameter_map = new Asset_Attribute_Parameter_Map();
 				$atr_parameter_map->process($new_prefix.'_parameter_map');
 				$settings['value_map'] = $atr_parameter_map->value;
 			}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_refresh_cache.inc,v 1.2 2007/10/31 00:37:40 bshkara Exp $
+* $Id: cron_job_refresh_cache.inc,v 1.3 2007/11/06 22:36:45 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *   Else a one off job wil be scheduled
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,7 @@ class Cron_Job_Refresh_Cache extends Cron_Job
 	{
 		$id = $this->attr('asset');
 		if ($GLOBALS['SQ_SYSTEM']->am->assetExists($id)) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 			$name = $asset->name;
 		}
 		return "Refresh Cache \"$name\" [#$asset->id]";
@@ -85,7 +85,7 @@ class Cron_Job_Refresh_Cache extends Cron_Job
 	function _exec(&$msg)
 	{
 		// Caching Off? Do nothing
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		if (!$cm->attr('enabled')) {
 			return SQ_CRON_JOB_COMPLETED;
 		}
@@ -98,7 +98,7 @@ class Cron_Job_Refresh_Cache extends Cron_Job
 		// Clear the existing cache
 		$assetid = $this->attr('asset');
 		$cm->clearCache(Array($assetid));
-		$asset =& $am->getAsset($assetid);
+		$asset = $am->getAsset($assetid);
 		$urls_info = $asset->getURLs();
 		if (empty($urls_info)) {
 			return SQ_CRON_JOB_COMPLETED;
@@ -114,7 +114,7 @@ class Cron_Job_Refresh_Cache extends Cron_Job
 		}
 
 		// Request each URL as public user
-		$public_user  =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+		$public_user  = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
 		$GLOBALS['SQ_SYSTEM']->setCurrentUser($public_user);
 
 		// Re-generate the cache per URL

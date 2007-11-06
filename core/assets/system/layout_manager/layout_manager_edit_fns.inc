@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager_edit_fns.inc,v 1.12 2007/01/18 00:50:20 tbarrett Exp $
+* $Id: layout_manager_edit_fns.inc,v 1.13 2007/11/06 22:36:45 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -188,7 +188,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 								<?php if ($write_access) {
 									?>
 									<td align="center" class="sq-backend-table-cell">
-								 		<?php check_box($prefix.'_remove_screen['.$type_code.'@'.$screen.']'); ?>
+										<?php check_box($prefix.'_remove_screen['.$type_code.'@'.$screen.']'); ?>
 									</td>
 								<?php }
 								?>
@@ -205,11 +205,11 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 					?>
 					<br /><?php echo translate('add_layout'); ?>:
 					<?php
-					$ei =& new Asset_Edit_Interface($type_code);
+					$ei = new Asset_Edit_Interface($type_code);
 
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-					$as =& new $type_code();
-					$ef =& $as->getEditFns();
+					$as = new $type_code();
+					$ef = $as->getEditFns();
 
 					$screens = Array(''); // first option is blank
 					foreach (array_keys($ef->static_screens) as $screen) {

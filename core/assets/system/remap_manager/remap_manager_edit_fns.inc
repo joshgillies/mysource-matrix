@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.21 2006/12/06 04:40:09 emcdonald Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.22 2007/11/06 22:36:45 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,7 +75,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('all');
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$link_offset = array_get_index($_POST, $prefix.'_link_offset', 0);
 
@@ -191,7 +191,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					// because if it is, this remap will never be used
 					if (strpos($url_info['url'], '://') !== FALSE) {
 						list($protocol, $url) = explode('://', $url_info['url']);
-						$url_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $url, TRUE, TRUE);
+						$url_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $url, TRUE, TRUE);
 						if (!is_null($url_asset)) {
 							$warning .= translate('url_currently_in_use', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($url_asset->type(), 'name'), translate('asset_format', $url_asset->name, $url_asset->id));
 						}
@@ -239,7 +239,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->writeAccess('all')) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 
@@ -326,7 +326,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$file_info = get_file_upload_info($prefix.'_add_remap_csv');
 		if (!empty($file_info)) {
 			require_once SQ_FUDGE_PATH.'/csv/csv.inc';
-			$csv =& new CSV($file_info['tmp_name']);
+			$csv = new CSV($file_info['tmp_name']);
 			$csv->import();
 
 			foreach ($csv->values as $line_value) {
@@ -439,7 +439,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
 			$ok = FALSE;
 		} else if ($new_404_asset) {
-			$root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_404_asset);
+			$root = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_404_asset);
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, '404')) {
 					$ok = FALSE;

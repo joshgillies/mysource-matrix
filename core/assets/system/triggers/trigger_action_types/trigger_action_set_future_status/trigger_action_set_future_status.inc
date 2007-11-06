@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.14 2007/02/01 05:01:39 tbarrett Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.15 2007/11/06 22:36:46 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Avi Miller <amiller@squiz.net>
 * @author   Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,16 +63,16 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 			if (empty($state['assetid'])) {
 				return FALSE;
 			} else {
-				$state['asset'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
-		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_mgr)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 
-		$fs =& new Cron_Job_Future_Status();
+		$fs = new Cron_Job_Future_Status();
 		$fs->setAttrValue('status', $settings['status']);
 		$fs->setAttrValue('dependants_only', !$settings['cascade']);
 
@@ -105,7 +105,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 			$user_for_status_change = $GLOBALS['SQ_SYSTEM']->user;
 		} else {
 			// not doing the whole "security" thing - so pretend we are root
-			$user_for_status_change =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			$user_for_status_change = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -185,7 +185,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		ob_start();
 
 		include_once SQ_ATTRIBUTES_PATH.'/duration/duration.inc';
-		$duration =& new Asset_Attribute_Duration();
+		$duration = new Asset_Attribute_Duration();
 		$duration->setEditParam('biggest_units', $duration->units['days']);
 		$duration->setEditParam('smallest_units', $duration->units['minutes']);
 		$mins = 0;
@@ -195,7 +195,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		}
 
 		include_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
-		$datetime =& new Asset_Attribute_Datetime();
+		$datetime = new Asset_Attribute_Datetime();
 		$datetime->setEditParam('show', Array('y', 'm', 'd', 'h', 'i'));
 		$datetime->setEditParam('min', date('Y-m-d H:i:s')); // must be in the future
 		if (FALSE === strpos($settings['when'], 'OO!')) {
@@ -305,12 +305,12 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		$settings['status'] = $_POST[$prefix.'_status'];
 
 		include_once SQ_ATTRIBUTES_PATH.'/duration/duration.inc';
-		$duration =& new Asset_Attribute_Duration();
+		$duration = new Asset_Attribute_Duration();
 		$duration->setEditParam('biggest_units', $duration->units['days']);
 		$duration->setEditParam('smallest_units', $duration->units['minutes']);
 
 		include_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
-		$datetime =& new Asset_Attribute_Datetime();
+		$datetime = new Asset_Attribute_Datetime();
 		$datetime->setEditParam('show', Array('y', 'm', 'd', 'h', 'i'));
 		$datetime->setEditParam('min', date('Y-m-d H:i:s')); // must be in the future
 

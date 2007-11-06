@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_lineage.inc,v 1.8 2007/10/29 22:58:38 mbrydon Exp $
+* $Id: trigger_action_set_future_lineage.inc,v 1.9 2007/11/06 22:36:46 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,11 +69,11 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 			}
 		}
 
-		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_mgr)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_lineage');
-		$fs =& new Cron_Job_Future_Lineage();
+		$fs = new Cron_Job_Future_Lineage();
 
 		// Set up the type of the link to make.
 		$link_info = $fs->attr('link_info');
@@ -81,7 +81,7 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 
 		// Calculate one-off date/time from asset if it was dynamically supplied
 		if (!empty($settings['attribute']) && !empty($settings['asset_type']) && is_a($state['asset'], $settings['asset_type'])) {
-			$attr =& $state['asset']->getAttribute($settings['attribute']);
+			$attr = $state['asset']->getAttribute($settings['attribute']);
 
 			// Perform some validation on the supplied date/time value
 			$datetime = $attr->value;
@@ -89,7 +89,7 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 			// If the time is not set, assume midnight so the job will run on the first cron run of the day
 			$time = substr($datetime, 10);
 			if ($time == ' --:--:--') {
-            	$time = ' 00:00:00';
+				$time = ' 00:00:00';
 				$datetime = substr($datetime, 0, 10).$time;
 			}
 
@@ -122,12 +122,12 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 			$user_for_status_change = $GLOBALS['SQ_SYSTEM']->user;
 		} else {
 			// not doing the whole "security" thing - so pretend we are root
-			$user_for_status_change =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			$user_for_status_change = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$major_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['major_assetid']);
+		$major_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['major_assetid']);
 		if ($fs->setAssetInLink($state['asset'], 'minor') && $fs->setAssetInLink($major_asset, 'major')) {
 			if ($cron_mgr->addJob($fs, $user_for_status_change)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -192,8 +192,8 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 
 		// We'll use the cron job we're going to create to print the 'when' part of the interface.
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_lineage');
-		$temporary_cron_job =& new Cron_Job_Future_Lineage();
-		$temporary_edit_fns =& $temporary_cron_job->getEditFns();
+		$temporary_cron_job = new Cron_Job_Future_Lineage();
+		$temporary_edit_fns = $temporary_cron_job->getEditFns();
 
 		// Use the cron job edit functions to paint the 'when' box.
 		ob_start();
@@ -278,7 +278,7 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		if (!$major_assetid) return 'New parent not specified';
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_lineage');
-		$fs =& new Cron_Job_Future_Lineage();
+		$fs = new Cron_Job_Future_Lineage();
 		$edit_fns = $fs->getEditFns();
 
 		$settings['when'] = $edit_fns->_processWhenBox($fs, $this, $munge_prefix);
@@ -290,8 +290,8 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 
 			if (!empty($settings['attribute']) && !empty($settings['asset_type'])) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($settings['asset_type']);
-				$dummy_asset =& new $settings['asset_type'];
-				$attr =& $dummy_asset->getAttribute($settings['attribute']);
+				$dummy_asset = new $settings['asset_type'];
+				$attr = $dummy_asset->getAttribute($settings['attribute']);
 				if (is_null($attr) || (get_class($attr) != 'asset_attribute_datetime')) {
 					// selected asset type does not have an attribute with the selected name, so reset
 					$settings['attribute'] = '';

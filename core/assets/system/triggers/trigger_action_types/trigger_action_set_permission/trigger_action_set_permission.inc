@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.14 2007/02/08 23:08:29 emcdonald Exp $
+* $Id: trigger_action_set_permission.inc,v 1.15 2007/11/06 22:36:46 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		if (empty($settings['userid'])) return FALSE;
 
 		$parameter_map_value = array_get_index($settings, 'user_map', serialize(Array()));
-		$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 		$userid = $atr_parameter_map->getParameterValue('user');
 
 		if (!empty($userid)) {
@@ -88,15 +88,15 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 				// returns Array(0 => Assetid), so flip the array
 				$target_assets = array_flip($target_assets);
 				foreach ($target_assets as $assetid => $null) {
-					$target_assets[$assetid] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$target_assets[$assetid] = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				}
 			}
 		} else {
-			$target_assets[$state['assetid']] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+			$target_assets[$state['assetid']] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 		}
 
 		// need to use a hipo job to set status (handles dependant children)
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		foreach ($target_assets as $assetid => $asset) {
 			$vars['assets'][$assetid] = Array(
 											'type_code'	=> $asset->type(),
@@ -199,7 +199,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		} else {
 			$user = NULL;
 			if ($selected_userid > 0) {
-				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($selected_userid);
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($selected_userid);
 			}
 			if (is_null($user)) {
 				echo '<b>['.translate('trigger_no_user_selected').']</b>';
@@ -210,7 +210,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 
 		$parameter_map_value = array_get_index($settings, 'user_map', serialize(Array()));
 
-		$atr_parameter_map =& new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 
 		$atr_parameter_map->setParameter('user', 'Userid or Groupid');
 		echo $atr_parameter_map->paint($new_prefix.'_parameter_map', !$write_access);
@@ -280,11 +280,11 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		if (empty($userid)) return 'User id is not specified';
 
 
-		$atr_parameter_map =& new Asset_Attribute_Parameter_Map();
+		$atr_parameter_map = new Asset_Attribute_Parameter_Map();
 		$atr_parameter_map->process($new_prefix.'_parameter_map');
 
 
-		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+		$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 		if (is_null($user)) {
 			return 'Specified user is not a valid asset';
 		}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_attribute_value.inc,v 1.6 2007/01/21 23:28:18 tbarrett Exp $
+* $Id: trigger_condition_attribute_value.inc,v 1.7 2007/11/06 22:36:47 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(dirname(__FILE__)).'/trigger_condition_asset_type/trigger_c
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,7 +75,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 		}
 
 		if (empty($state['asset'])) {
-			$state['asset'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+			$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 		}
 
 		if (!isset($state['asset_type'])) {
@@ -111,7 +111,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$selected_type = array_get_index($settings, 'asset_type', 'page');
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		// asset type selector
 		ob_start();
@@ -217,8 +217,8 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 		// handle serialised attributes
 		if (!empty($settings['asset_type']) && !empty($settings['attribute'])) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($settings['asset_type']);
-			$fake_asset =& new $settings['asset_type'];
-			$attr =& $fake_asset->getAttribute($settings['attribute'], TRUE);
+			$fake_asset = new $settings['asset_type'];
+			$attr = $fake_asset->getAttribute($settings['attribute'], TRUE);
 			if (!is_null($attr)) {
 				if (is_a($attr, 'asset_attribute_serialise')) {
 					$value = str_replace(';', '', $value); // avoid code injection

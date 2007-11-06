@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.45 2007/10/03 01:39:12 hnguyen Exp $
+* $Id: thesaurus.inc,v 1.46 2007/11/06 22:36:47 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,7 +103,7 @@ class Thesaurus extends Asset
 	*/
 	function getAbbreviations()
 	{
-		$abbreviation_attr =& $this->getAttribute('abbreviation_rel');
+		$abbreviation_attr = $this->getAttribute('abbreviation_rel');
 		$abbreviation_rel = $abbreviation_attr->value;
 		if (empty($abbreviation_rel)) {
 			$abbreviation_rel = NULL;
@@ -137,7 +137,7 @@ class Thesaurus extends Asset
 
 		if (empty($termid)) return Array();
 
-		$synonym_attr =& $this->getAttribute('synonym_rel');
+		$synonym_attr = $this->getAttribute('synonym_rel');
 		$synonym_rel = $synonym_attr->value;
 		if (empty($synonym_rel)) $synonym_rel = NULL;
 
@@ -175,7 +175,7 @@ class Thesaurus extends Asset
 		$limit_relation = TRUE;
 		if (is_null($relid)) $limit_relation = FALSE;
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -224,7 +224,7 @@ class Thesaurus extends Asset
 	function countChildTerms($termid)
 	{
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -254,7 +254,7 @@ class Thesaurus extends Asset
 	function countTermLinks()
 	{
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -282,7 +282,7 @@ class Thesaurus extends Asset
 	function countTerms()
 	{
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -314,7 +314,7 @@ class Thesaurus extends Asset
 	function countParentTerms($termid)
 	{
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -348,7 +348,7 @@ class Thesaurus extends Asset
 	function getChildRelationsForTerm($termid)
 	{
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql ='
 			SELECT DISTINCT
@@ -392,7 +392,7 @@ class Thesaurus extends Asset
 
 		if (!isset($termid)) return NULL;
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql ='
 			SELECT DISTINCT
@@ -430,7 +430,7 @@ class Thesaurus extends Asset
 	function getAllTerms()
 	{
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -468,7 +468,7 @@ class Thesaurus extends Asset
 		$limit_relation = TRUE;
 		if (is_null($relid)) $limit_relation = FALSE;
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -516,7 +516,7 @@ class Thesaurus extends Asset
 	{
 		if (empty($relation_id)) return NULL;
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -564,7 +564,7 @@ class Thesaurus extends Asset
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$termid = $db->nextId('sq_thes_term');
 		assert_valid_db_result($termid);
@@ -629,7 +629,7 @@ class Thesaurus extends Asset
 	{
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$sql = '
@@ -669,7 +669,7 @@ class Thesaurus extends Asset
 	*/
 	function getTermNotes($termid)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -704,7 +704,7 @@ class Thesaurus extends Asset
 	function deleteTermNotes($termid)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$sql = '
@@ -779,7 +779,7 @@ class Thesaurus extends Asset
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -829,8 +829,8 @@ class Thesaurus extends Asset
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$major =& $this->getAsset($majorid);
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$major = $this->getAsset($majorid);
 		$em->broadcastEvent($major, 'CreateLink', Array());
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -860,7 +860,7 @@ class Thesaurus extends Asset
 		if ($term['term'] == $name) return TRUE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 
 		// if the new name is being used by another term, do not update
@@ -922,7 +922,7 @@ class Thesaurus extends Asset
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// Update relations
@@ -960,7 +960,7 @@ class Thesaurus extends Asset
 	*/
 	function getTermById($termid)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -992,7 +992,7 @@ class Thesaurus extends Asset
 	*/
 	function getTermLinkById($linkid)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -1025,7 +1025,7 @@ class Thesaurus extends Asset
 	*/
 	function getRelationIdByName($name)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -1065,7 +1065,7 @@ class Thesaurus extends Asset
 		if (!is_null($relid)) return $relid;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$id = $db->nextId('sq_thes_rel');
 		assert_valid_db_result($id);
@@ -1138,7 +1138,7 @@ class Thesaurus extends Asset
 	*/
 	function getTermLinkByTermids($termid, $parentid, $relid=NULL)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -1176,7 +1176,7 @@ class Thesaurus extends Asset
 	*/
 	function getTermIdByName($name)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$name = strtolower($name);
 
@@ -1221,7 +1221,7 @@ class Thesaurus extends Asset
 	{
 		if (empty($names)) return Array();
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$formatted_names = Array();
 		foreach ($names as $name) {
@@ -1261,7 +1261,7 @@ class Thesaurus extends Asset
 		if (is_null($term)) return FALSE;
 
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -1293,7 +1293,7 @@ class Thesaurus extends Asset
 	*/
 	function getActiveRelations()
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
 			SELECT
@@ -1346,7 +1346,7 @@ class Thesaurus extends Asset
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'DELETE FROM sq_thes_term WHERE thesid = '.$db->quoteSmart($this->id);
 		$result = $db->query($sql);
@@ -1410,7 +1410,7 @@ class Thesaurus extends Asset
 	function getAbsoluteParentsInRelation($relation_id=NULL)
 	{
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		if (!isset($relation_id)) return Array();
 
@@ -1504,7 +1504,7 @@ class Thesaurus extends Asset
 			$term = $this->getTermById($id);
 			if (!empty($term)) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('thesaurus_term');
-				$asset =& new Thesaurus_Term($shadowid);
+				$asset = new Thesaurus_Term($shadowid);
 			}
 		}
 
@@ -2240,7 +2240,7 @@ class Thesaurus extends Asset
 		if (empty($linkid)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = '
@@ -2275,11 +2275,11 @@ class Thesaurus extends Asset
 	{
 		if (empty($termid)) return FALSE;
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// delete the term
@@ -2336,11 +2336,11 @@ class Thesaurus extends Asset
 	{
 		if (empty($relid)) return FALSE;
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 
@@ -2474,7 +2474,7 @@ class Thesaurus extends Asset
 			assert_valid_assetid($assetids);
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT termid, thesid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'thes_term ';
 

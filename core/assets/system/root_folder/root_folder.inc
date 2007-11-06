@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_folder.inc,v 1.51 2007/10/29 23:17:11 lwright Exp $
+* $Id: root_folder.inc,v 1.52 2007/11/06 22:36:45 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,7 +91,7 @@ class Root_Folder extends Folder
 			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-			$db =& DAL::getDb();
+			$db = DAL::getDb();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// right, we need to do some manipulation for the link table to put in some initial values

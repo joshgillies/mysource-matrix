@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.37 2007/08/17 03:42:27 nbhradwaj Exp $
+* $Id: user_group_edit_fns.inc,v 1.38 2007/11/06 22:36:47 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,7 +53,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function getCurrentRestrictions(&$asset)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT type_code, screen, section
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_edit_access ';
@@ -150,11 +150,11 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					<?php
 					if ($admin_access) {
 						if (!in_array('0', $granted_screens)) {
-							$ei =& new Asset_Edit_Interface($type_code);
+							$ei = new Asset_Edit_Interface($type_code);
 
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-							$asset =& new $type_code();
-							$ef =& $asset->getEditFns();
+							$asset = new $type_code();
+							$ef = $asset->getEditFns();
 
 							$screens = Array(' ' => ''); // first option is blank
 							$screens['0'] = '-- '.translate('all_screens').' --'; // second option is 'All Screens'
@@ -216,7 +216,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	function processTypeRestrictions(&$asset, &$o, $prefix)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$current = $this->getCurrentRestrictions($asset);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -375,7 +375,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				$path = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
 				require_once $path;
 				$pref_name = $type_code.'_Prefs';
-				$prefs =& new $pref_name($pref_file_path);
+				$prefs = new $pref_name($pref_file_path);
 
 				foreach ($pref_vars as $var_name => $var_data) {
 					$o->openField(translate($var_data['name']));
@@ -442,7 +442,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				$path = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
 				require_once $path;
 				$pref_name = $type_code.'_Prefs';
-				$prefs =& new $pref_name();
+				$prefs = new $pref_name();
 				foreach ($pref_vars as $var_name => $var_data) {
 					if (!isset($_POST[$prefix.'_revert'][$type_code][$var_name])) {
 						if ($prefs->processBackend($o, TRUE, $var_name)) {
@@ -694,7 +694,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 		if (!$reassignee) return;
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		$roles = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, NULL, $asset->id, TRUE);
 		$reassign_assetids = array_get_index($_REQUEST, $prefix.'_reassign', Array());
@@ -711,7 +711,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		if (!empty($reassign_assetids)) {
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 			$vars = Array(
 						'assets'			=> $am->getAssetInfo($reassign_assetids, Array(), FALSE, 'type_code'),
